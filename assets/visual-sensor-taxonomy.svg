@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+<rect width="1200" height="760" rx="42" fill="#f8fafc"/><text x="70" y="86" fill="#0f172a" font-family="Arial" font-size="42" font-weight="900">Multimodal Gait Dataset & Sensor Taxonomy</text>
+<text x="70" y="126" fill="#475569" font-family="Arial" font-size="22">RGB, depth, infrared, thermal, pose points and kinematic signals validate gait under real covariates.</text>
+<g font-family="Arial">
+<g transform="translate(80,210)"><circle cx="95" cy="95" r="88" fill="#4f46e5"/><text x="53" y="88" fill="#fff" font-size="25" font-weight="900">RGB</text><text x="37" y="120" fill="#c7d2fe" font-size="18">16 views</text></g>
+<g transform="translate(285,210)"><circle cx="95" cy="95" r="88" fill="#0891b2"/><text x="42" y="88" fill="#fff" font-size="25" font-weight="900">Depth</text><text x="31" y="120" fill="#cffafe" font-size="18">3D cues</text></g>
+<g transform="translate(490,210)"><circle cx="95" cy="95" r="88" fill="#0f172a"/><text x="35" y="88" fill="#fff" font-size="25" font-weight="900">Infrared</text><text x="35" y="120" fill="#cbd5e1" font-size="18">low light</text></g>
+<g transform="translate(695,210)"><circle cx="95" cy="95" r="88" fill="#be123c"/><text x="35" y="88" fill="#fff" font-size="25" font-weight="900">Thermal</text><text x="42" y="120" fill="#ffe4e6" font-size="18">0°45°90°</text></g>
+<g transform="translate(900,210)"><circle cx="95" cy="95" r="88" fill="#16a34a"/><text x="38" y="88" fill="#fff" font-size="25" font-weight="900">Pose</text><text x="28" y="120" fill="#dcfce7" font-size="18">keypoints</text></g>
+<rect x="155" y="500" width="890" height="96" rx="28" fill="#fff" stroke="#e2e8f0"/><text x="200" y="558" fill="#0f172a" font-size="28" font-weight="900">Kinematics: accelerometer · gyroscope · inclinometer · G-force</text>
+<text x="200" y="596" fill="#64748b" font-size="19">Normal, object carrying, speed run, staircase, elevation and zigzag walking.</text>
+</g></svg>

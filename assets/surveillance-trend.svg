@@ -1,0 +1,17 @@
+<svg class="chart-svg" viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" aria-label="Surveillance trend">
+<rect width="760" height="260" rx="20" fill="#f8faff"/>
+<line x1="40" y1="40.0" x2="720" y2="40.0" stroke="#dbe3ef"/>
+<line x1="40" y1="85.0" x2="720" y2="85.0" stroke="#dbe3ef"/>
+<line x1="40" y1="130.0" x2="720" y2="130.0" stroke="#dbe3ef"/>
+<line x1="40" y1="175.0" x2="720" y2="175.0" stroke="#dbe3ef"/>
+<line x1="40" y1="220.0" x2="720" y2="220.0" stroke="#dbe3ef"/>
+<polygon points="40.0,220.0 153.3,190.0 266.7,202.0 380.0,124.0 493.3,154.0 606.7,76.0 720.0,40.0 720.0,220 40.0,220" fill="#e7e8ff" opacity="0.9"/>
+<polyline points="40.0,220.0 153.3,190.0 266.7,202.0 380.0,124.0 493.3,154.0 606.7,76.0 720.0,40.0" fill="none" stroke="#4f46e5" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="40.0" cy="220.0" r="5" fill="#0f172a"/>
+<circle cx="153.3" cy="190.0" r="5" fill="#0f172a"/>
+<circle cx="266.7" cy="202.0" r="5" fill="#0f172a"/>
+<circle cx="380.0" cy="124.0" r="5" fill="#0f172a"/>
+<circle cx="493.3" cy="154.0" r="5" fill="#0f172a"/>
+<circle cx="606.7" cy="76.0" r="5" fill="#0f172a"/>
+<circle cx="720.0" cy="40.0" r="5" fill="#0f172a"/>
+</svg>

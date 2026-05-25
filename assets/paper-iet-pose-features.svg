@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600" viewBox="0 0 1200 1600">
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#0f172a"/>
+    <stop offset="1" stop-color="#1d4ed8"/>
+  </linearGradient>
+</defs>
+<rect width="1200" height="1600" fill="url(#g)"/>
+<rect x="70" y="70" width="1060" height="1460" rx="40" fill="#ffffff"/>
+<text x="120" y="180" font-family="Arial" font-size="34" font-weight="700" fill="#4f46e5">IET Biometrics · 2022</text>
+<text x="120" y="270" font-family="Arial" font-size="56" font-weight="900" fill="#0f172a">A Robust Covariate-invariant</text>
+<text x="120" y="340" font-family="Arial" font-size="56" font-weight="900" fill="#0f172a">Gait Recognition based on</text>
+<text x="120" y="410" font-family="Arial" font-size="56" font-weight="900" fill="#0f172a">Pose Features</text>
+<text x="120" y="510" font-family="Arial" font-size="30" fill="#475569">Anubha Parashar · Rajveer Singh Shekhawat</text>
+<text x="120" y="570" font-family="Arial" font-size="28" fill="#475569">Wiley · DOI available from publications page</text>
+<rect x="120" y="680" width="960" height="560" rx="30" fill="#eef2ff" stroke="#c7d2fe"/>
+<circle cx="345" cy="815" r="22" fill="#4f46e5"/><circle cx="285" cy="930" r="18" fill="#4f46e5"/><circle cx="405" cy="930" r="18" fill="#4f46e5"/>
+<circle cx="250" cy="1045" r="16" fill="#4f46e5"/><circle cx="440" cy="1038" r="16" fill="#4f46e5"/>
+<circle cx="300" cy="1115" r="18" fill="#4f46e5"/><circle cx="390" cy="1115" r="18" fill="#4f46e5"/>
+<circle cx="255" cy="1270" r="16" fill="#4f46e5"/><circle cx="455" cy="1260" r="16" fill="#4f46e5"/>
+<path d="M345 815 L285 930 L405 930 L440 1038 M285 930 L250 1045 M250 1045 L220 1145 M405 930 L440 1038 L475 1140 M285 930 L300 1115 L255 1270 M405 930 L390 1115 L455 1260" stroke="#0f172a" stroke-width="14" fill="none" stroke-linecap="round"/>
+<rect x="600" y="760" width="400" height="92" rx="22" fill="#ffffff" stroke="#cbd5e1"/><text x="635" y="815" font-family="Arial" font-size="28" font-weight="700" fill="#0f172a">Focus: pose-feature gait recognition</text>
+<rect x="600" y="890" width="400" height="92" rx="22" fill="#ffffff" stroke="#cbd5e1"/><text x="635" y="945" font-family="Arial" font-size="28" font-weight="700" fill="#0f172a">Theme: covariate invariance</text>
+<rect x="600" y="1020" width="400" height="92" rx="22" fill="#ffffff" stroke="#cbd5e1"/><text x="635" y="1075" font-family="Arial" font-size="28" font-weight="700" fill="#0f172a">Use case: security biometrics</text>
+<rect x="600" y="1150" width="400" height="92" rx="22" fill="#ffffff" stroke="#cbd5e1"/><text x="635" y="1205" font-family="Arial" font-size="28" font-weight="700" fill="#0f172a">Method: robust pose features</text>
+<text x="120" y="1395" font-family="Arial" font-size="30" fill="#475569">Added as the second IET Biometrics paper in the Featured Papers section.</text>
+</svg>

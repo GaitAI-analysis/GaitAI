@@ -1,6 +1,7 @@
 document.querySelectorAll('[data-paper-filter]').forEach(btn => {
   btn.addEventListener('click', () => {
     const filter = btn.getAttribute('data-paper-filter');
+    const list = document.querySelector('.publication-list');
 
     document.querySelectorAll('[data-paper-filter]').forEach(item => {
       item.classList.toggle('active', item === btn);
@@ -8,30 +9,62 @@ document.querySelectorAll('[data-paper-filter]').forEach(btn => {
 
     document.querySelectorAll('[data-paper-tags]').forEach(item => {
       const tags = item.getAttribute('data-paper-tags') || '';
-      item.classList.toggle('is-hidden', filter !== 'all' && !tags.includes(filter));
+      const hidden = filter !== 'all' && !tags.includes(filter);
+      item.classList.toggle('is-hidden', hidden);
+      item.classList.remove('filter-pop');
+      if (!hidden) {
+        window.requestAnimationFrame(() => item.classList.add('filter-pop'));
+      }
     });
+
+    if (list) {
+      list.classList.add('filtering');
+      window.setTimeout(() => list.classList.remove('filtering'), 460);
+    }
   });
 });
 
 document.querySelectorAll('.abstract-toggle').forEach(btn => {
+  btn.dataset.closedLabel = btn.textContent.trim();
   btn.addEventListener('click', () => {
     const paper = btn.closest('.publication-item');
     if (!paper) return;
     paper.classList.toggle('expanded');
-    btn.textContent = paper.classList.contains('expanded') ? 'Hide abstract' : 'Abstract';
+    btn.textContent = paper.classList.contains('expanded') ? 'Hide details' : btn.dataset.closedLabel;
   });
 });
 
-document.querySelectorAll('[data-product-tab]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const selected = btn.getAttribute('data-product-tab');
-
-    document.querySelectorAll('[data-product-tab]').forEach(tab => {
-      tab.classList.toggle('active', tab === btn);
-    });
-
-    document.querySelectorAll('[data-product-panel]').forEach(panel => {
-      panel.classList.toggle('active', panel.getAttribute('data-product-panel') === selected);
-    });
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('revealed');
+      revealObserver.unobserve(entry.target);
+    }
   });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.publication-item').forEach((item, index) => {
+  item.classList.add('revealed');
+});
+
+document.querySelectorAll('[data-count]').forEach(counter => {
+  const target = Number(counter.getAttribute('data-count')) || 0;
+  if (document.body.classList.contains('research-page')) {
+    counter.textContent = target;
+    return;
+  }
+  const duration = 520;
+  const start = performance.now();
+
+  const step = now => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    counter.textContent = Math.round(target * eased);
+    if (progress < 1) requestAnimationFrame(step);
+  };
+
+  requestAnimationFrame(step);
+  window.setTimeout(() => {
+    counter.textContent = target;
+  }, duration + 120);
 });

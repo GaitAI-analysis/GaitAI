@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GaitAI - Proprietary Multimodal Gait Dataset</title>
+<meta name="description" content="GaitAI proprietary multimodal gait dataset with videos, pose, thermal, depth, infrared, RGB, and kinematic signals.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav-row">
+    <a class="brand brand-image" href="index.html"><img src="assets/brand-navbar-logo.png" alt="GaitAI"></a>
+    <nav class="main-nav">
+      <a href="index.html">Company</a>
+      <a href="surveillance.html">Surveillance</a>
+      <a href="medical.html">Medical / GaitFall</a>
+      <a href="research.html">Research</a>
+      <a href="dataset.html">Dataset</a>
+    </nav>
+    <div class="nav-actions"><a class="primary-link" href="research.html">Evidence</a></div>
+  </div>
+</header>
+
+<main>
+<section class="subpage-hero">
+  <div class="container">
+    <div class="eyebrow">Proprietary dataset</div>
+    <h1>Multimodal gait data built for real-world variation.</h1>
+    <p>A company-owned dataset spanning camera, pose, thermal, depth, infrared, RGB, and kinematic signals across practical walking covariates.</p>
+  </div>
+</section>
+
+<section class="section dataset-section">
+  <div class="container">
+    <div class="dataset-showcase">
+      <div class="dataset-video-grid">
+        <article>
+          <video src="assets/surveillance-demo.mp4" controls playsinline poster="assets/surveillance-pose-overlay.jpg"></video>
+          <div><strong>Surveillance capture video</strong><span>Camera-based gait capture for identity support, pose overlays, and security review workflows.</span></div>
+        </article>
+        <article>
+          <video src="assets/medical-demo.mp4" controls playsinline poster="assets/medical-pose-overlay.jpg"></video>
+          <div><strong>Medical / GaitFall capture video</strong><span>Movement samples for mobility assessment, gait-quality review, rehabilitation tracking, and fall-risk analytics.</span></div>
+        </article>
+      </div>
+
+      <div class="dataset-matrix">
+        <article><strong>Sensor modalities</strong><span>Kinematics, thermal, depth images, infrared images, RGB video, and pose points from Kinect/Xbox and Kone sources.</span></article>
+        <article><strong>Kinematic signals</strong><span>Accelerometer, gyroscope, inclinometer, and G-force meter recordings.</span></article>
+        <article><strong>View coverage</strong><span>RGB view angles include 0, 30, 60, 90, 120, 140, 150, 165, 180, 210, 240, 270, 300, 320, 330, and 345 degrees.</span></article>
+        <article><strong>Thermal covariates</strong><span>Normal walking, coat variation, and view angles at 0, 45, and 90 degrees.</span></article>
+        <article><strong>Depth / infrared / RGB covariates</strong><span>Normal, gown, carried object, static occlusion, dynamic occlusion, speed run, multigait, and heel variation.</span></article>
+        <article><strong>Complex walking conditions</strong><span>Elevation, staircase, zigzag walking, speed change, and multi-gait patterns.</span></article>
+      </div>
+
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="page-footer"><div class="container footer-row"><p>Copyright 2026 GaitAI. Intelligence in Motion.</p><a href="research.html">Research</a></div></footer>
+<script src="script.js"></script>
+</body>
+</html>

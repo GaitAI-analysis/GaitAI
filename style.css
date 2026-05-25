@@ -676,6 +676,23 @@ button,input{font:inherit}
   border:0;
   cursor:pointer;
 }
+.contact-form button:disabled{
+  opacity:.68;
+  cursor:wait;
+}
+.form-status{
+  min-height:24px;
+  margin:0;
+  color:#dbe7f3;
+  font-weight:700;
+  line-height:1.5;
+}
+.form-status.success{
+  color:#F3E6C1;
+}
+.form-status.error{
+  color:#ffd6d6;
+}
 
 .dataset-section{background:#f8fafc}
 .dataset-head{

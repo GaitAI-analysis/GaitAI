@@ -68,3 +68,45 @@ document.querySelectorAll('[data-count]').forEach(counter => {
     counter.textContent = target;
   }, duration + 120);
 });
+
+document.querySelectorAll('.contact-form').forEach(form => {
+  const status = form.querySelector('[data-form-status]');
+  const submitButton = form.querySelector('button[type="submit"]');
+  const defaultButtonText = submitButton ? submitButton.textContent : '';
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!status) return;
+
+    status.textContent = 'Sending...';
+    status.className = 'form-status';
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending...';
+    }
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error('Form submission failed');
+      }
+
+      form.reset();
+      status.textContent = 'Thank you. Your message has been sent.';
+      status.classList.add('success');
+    } catch (error) {
+      status.textContent = 'Sorry, the message could not be sent. Please try again.';
+      status.classList.add('error');
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = defaultButtonText;
+      }
+    }
+  });
+});

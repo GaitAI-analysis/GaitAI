@@ -21,10 +21,10 @@
       <a href="surveillance.html">Surveillance</a>
       <a href="medical.html">Medical / GaitFall</a>
       <a href="research.html">Research</a>
-      <a href="dataset.html">Dataset</a>
+      <a href="#contact">Contact</a>
     </nav>
     <div class="nav-actions">
-      <a class="primary-link" href="research.html">Research Base</a>
+      <a class="primary-link" href="#contact">Contact</a>
     </div>
   </div>
 </header>
@@ -51,9 +51,9 @@
       <p>GaitAI connects gait biometrics, multimodal sensing, and AI analytics to support identity, safety, mobility, and care.</p>
     </div>
     <div class="capability-stack">
-      <article><span>01</span><h3>Gait biometrics</h3><p>Identity from the way you walk. Passive, accurate, and non-intrusive.</p></article>
-      <article><span>02</span><h3>Surveillance intelligence</h3><p>Detect, track, and understand movement with confidence.</p></article>
-      <article><span>03</span><h3>Medical motion analytics</h3><p>Clinical-grade insights for better outcomes and care.</p></article>
+      <article><span>01</span><h3>Gait biometrics</h3><p>Identity from the way people walk. Passive, contactless, and useful when face visibility is limited.</p></article>
+      <article><span>02</span><h3>Surveillance intelligence</h3><p>Detect, track, and understand movement patterns for safer facilities, campuses, and monitored spaces.</p></article>
+      <article><span>03</span><h3>Medical motion analytics</h3><p>Translate walking patterns into mobility, recovery, and fall-risk insights that care teams can review.</p></article>
     </div>
   </div>
 </section>
@@ -63,7 +63,7 @@
     <div class="section-heading center">
       <div class="eyebrow">Product domains</div>
       <h2>Surveillance intelligence and medical motion analytics.</h2>
-      <p>Built on gait biometrics, proprietary data, and peer-reviewed research.</p>
+      <p>Built on gait biometrics, real movement data, and explainable AI workflows.</p>
     </div>
     <div class="brand-product-graphic">
       <img src="assets/brand-product-explainer.png" alt="GaitAI product domains: surveillance intelligence, gait biometrics, and medical motion analytics">
@@ -73,8 +73,8 @@
         <img src="assets/surveillance-pose-overlay.jpg" alt="Surveillance gait pose overlay">
         <div>
           <span>Surveillance Intelligence</span>
-          <h3>Detect, track, and understand movement with confidence.</h3>
-          <p>AI-powered movement intelligence that enhances situational awareness and investigative outcomes.</p>
+          <h3>Recognize, review, and respond with movement intelligence.</h3>
+          <p>AI-powered gait analysis for identity support, anomaly review, and operator-facing surveillance decisions.</p>
           <a class="panel-link" href="surveillance.html">Explore surveillance</a>
         </div>
       </article>
@@ -82,8 +82,8 @@
         <img src="assets/medical-pose-overlay.jpg" alt="Medical gait pose overlay">
         <div>
           <span>Medical Motion Analytics</span>
-          <h3>Clinical-grade insight for gait, mobility, and fall risk.</h3>
-          <p>Understand motion, improve recovery pathways, and support better care decisions.</p>
+          <h3>Measure mobility, understand risk, and support recovery.</h3>
+          <p>Clinical motion insight for gait quality, fall-risk screening, rehabilitation progress, and patient review.</p>
           <a class="panel-link" href="medical.html">Explore medical analytics</a>
         </div>
       </article>
@@ -91,16 +91,41 @@
   </div>
 </section>
 
-<section class="section investor-links">
-  <div class="container investor-link-grid">
-    <a href="research.html">
-      <span>Research and IP</span>
-      <strong>Publications, patent certificate, and technical foundation</strong>
-    </a>
-    <a href="dataset.html">
-      <span>Dataset</span>
-      <strong>Proprietary multimodal gait dataset and capture videos</strong>
-    </a>
+<section id="contact" class="section contact-section">
+  <div class="container contact-panel contact-panel-form">
+    <div>
+      <div class="eyebrow">Contact</div>
+      <h2>Let us know what you want to build with GaitAI.</h2>
+      <p>Use this form for product demos, pilots, research conversations, partnerships, or medical and surveillance use cases.</p>
+    </div>
+    <form class="contact-form" action="https://formspree.io/f/maqkpeyb" method="POST">
+      <div class="form-row">
+        <label>
+          <span>Name</span>
+          <input type="text" name="name" autocomplete="name" required>
+        </label>
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" required>
+        </label>
+      </div>
+      <label>
+        <span>Interest</span>
+        <select name="interest" required>
+          <option value="">Select one</option>
+          <option value="Surveillance intelligence">Surveillance intelligence</option>
+          <option value="Medical / GaitFall">Medical / GaitFall</option>
+          <option value="Research or partnership">Research or partnership</option>
+          <option value="General enquiry">General enquiry</option>
+        </select>
+      </label>
+      <label>
+        <span>Message</span>
+        <textarea name="message" rows="5" placeholder="Tell us what you are looking for." required></textarea>
+      </label>
+      <input type="hidden" name="_subject" value="New GaitAI website enquiry">
+      <button class="primary-link" type="submit">Send message</button>
+    </form>
   </div>
 </section>
 </main>

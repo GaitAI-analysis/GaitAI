@@ -618,6 +618,64 @@ button,input{font:inherit}
 .solution-card h3{font-family:var(--font-display);margin:8px 0 10px;font-size:25px;line-height:1.25}
 .solution-card p{margin:0 0 16px;color:var(--muted);line-height:1.7}
 .panel-link{color:#2b5d86;font-weight:800}
+.contact-panel-form{
+  grid-template-columns:.85fr 1.15fr;
+  align-items:start;
+}
+.contact-form{
+  display:grid;
+  gap:16px;
+  padding:22px;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:8px;
+  background:rgba(255,255,255,.08);
+}
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+.contact-form label{
+  display:grid;
+  gap:7px;
+}
+.contact-form span{
+  color:#e6edf6;
+  font-size:13px;
+  font-weight:800;
+}
+.contact-form input,
+.contact-form select,
+.contact-form textarea{
+  width:100%;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:6px;
+  background:#fff;
+  color:#0D1321;
+  outline:none;
+}
+.contact-form input,
+.contact-form select{
+  min-height:46px;
+  padding:0 12px;
+}
+.contact-form textarea{
+  min-height:128px;
+  padding:12px;
+  resize:vertical;
+}
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus{
+  border-color:#F3E6C1;
+  box-shadow:0 0 0 3px rgba(243,230,193,.18);
+}
+.contact-form button{
+  width:max-content;
+  min-width:150px;
+  border:0;
+  cursor:pointer;
+}
 
 .dataset-section{background:#f8fafc}
 .dataset-head{
@@ -1629,7 +1687,7 @@ button,input{font:inherit}
 
 @media (max-width:1080px){
   .main-nav{display:none}
-  .hero-layout,.hero-grid,.two-column,.founder-layout,.contact-panel,.preview-grid,.split,.dashboard-grid{grid-template-columns:1fr}
+  .hero-layout,.hero-grid,.two-column,.founder-layout,.contact-panel,.contact-panel-form,.preview-grid,.split,.dashboard-grid{grid-template-columns:1fr}
   .hero-layout{min-height:auto}
   .sticky-heading{position:static}
   .product-console{max-width:620px}
@@ -1645,9 +1703,10 @@ button,input{font:inherit}
   .lead{font-size:18px}
   .section{padding:62px 0}
   .section-heading h2,.research-header h2,.founder-copy h2,.contact-panel h2{font-size:32px}
-  .proof-grid,.publication-item,.conference-card,.ip-card,.research-header,.dataset-video-grid,.dataset-matrix,.founder-kpis,.metrics-grid,.grid-3,.grid-4,.case-grid,.solution-grid,.investor-link-grid,.reference-grid{grid-template-columns:1fr}
+  .proof-grid,.publication-item,.conference-card,.ip-card,.research-header,.dataset-video-grid,.dataset-matrix,.founder-kpis,.metrics-grid,.grid-3,.grid-4,.case-grid,.solution-grid,.investor-link-grid,.reference-grid,.form-row{grid-template-columns:1fr}
   .subpage-hero h1{font-size:36px}
   .ip-heading{align-items:flex-start;flex-direction:column}
   .console-grid{grid-template-columns:1fr}
   .footer-row{align-items:flex-start;flex-direction:column}
+  .contact-form button{width:100%}
 }

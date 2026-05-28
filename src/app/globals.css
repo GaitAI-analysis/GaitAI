@@ -1,0 +1,390 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   THEME TOKENS — RGB triplets so every Tailwind color works with /opacity
+   ========================================================================= */
+
+:root {
+  /* Semantic legacy tokens (used by body / .glass / .pill / etc.) */
+  --bg: #070b14;
+  --bg-elev: #0e1322;
+  --surface: #111827;
+  --border: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.22);
+  --text: #f8fafc;
+  --text-mute: #94a3b8;
+  --royal: #2563ff;
+  --violet: #7c3aed;
+  --cyan: #4fd1ff;
+
+  /* Tailwind color tokens (dark default) */
+  --c-obsidian: 7 11 20;
+  --c-obsidian-50: 26 34 56;
+  --c-obsidian-100: 20 26 44;
+  --c-obsidian-200: 14 19 34;
+  --c-obsidian-300: 10 15 27;
+  --c-obsidian-400: 7 11 20;
+  --c-obsidian-500: 5 8 15;
+  --c-gunmetal: 17 24 39;
+  --c-gunmetal-light: 26 35 51;
+  --c-gunmetal-dark: 11 17 30;
+  --c-soft-white: 248 250 252;
+  --c-soft-gray: 203 213 225;
+  --c-soft-mute: 148 163 184;
+  --c-ink: 15 23 42;
+
+  /* Surface tints */
+  --glass-bg-a: rgba(255, 255, 255, 0.04);
+  --glass-bg-b: rgba(255, 255, 255, 0.01);
+  --pill-bg-a: rgba(255, 255, 255, 0.06);
+  --pill-bg-b: rgba(255, 255, 255, 0.02);
+  --card-bg-a: rgba(17, 24, 39, 0.7);
+  --card-bg-b: rgba(11, 17, 30, 0.7);
+  --card-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  --card-glow-hover: 0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 30px 60px -30px rgba(37, 99, 255, 0.4),
+    0 0 80px -20px rgba(79, 209, 255, 0.35);
+  --divider: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.25), transparent);
+  --grid-line: rgba(148, 163, 184, 0.08);
+  --noise-opacity: 0.04;
+}
+
+:root.light {
+  --bg: #f6f8fc;
+  --bg-elev: #ffffff;
+  --surface: #ffffff;
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.18);
+  --text: #0f172a;
+  --text-mute: #475569;
+
+  --c-obsidian: 246 248 252;       /* page bg */
+  --c-obsidian-50: 226 232 240;     /* slate-200 */
+  --c-obsidian-100: 241 245 249;    /* slate-100 */
+  --c-obsidian-200: 255 255 255;    /* elevated surface */
+  --c-obsidian-300: 241 245 249;    /* off-white stripe */
+  --c-obsidian-400: 246 248 252;
+  --c-obsidian-500: 255 255 255;
+  --c-gunmetal: 255 255 255;        /* cards */
+  --c-gunmetal-light: 248 250 252;
+  --c-gunmetal-dark: 241 245 249;
+  --c-soft-white: 11 18 32;          /* primary text → near-black navy */
+  --c-soft-gray: 51 65 85;            /* secondary text → slate-700 */
+  --c-soft-mute: 100 116 139;         /* muted → slate-500 */
+
+  --glass-bg-a: rgba(255, 255, 255, 0.92);
+  --glass-bg-b: rgba(255, 255, 255, 0.7);
+  --pill-bg-a: rgba(15, 23, 42, 0.05);
+  --pill-bg-b: rgba(15, 23, 42, 0.02);
+  --card-bg-a: rgba(255, 255, 255, 1);
+  --card-bg-b: rgba(250, 251, 253, 1);
+  --card-shadow: 0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 20px 50px -25px rgba(15, 23, 42, 0.18);
+  --card-glow-hover: 0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 25px 60px -20px rgba(37, 99, 255, 0.22),
+    0 0 80px -20px rgba(79, 209, 255, 0.18);
+  --divider: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.18), transparent);
+  --grid-line: rgba(15, 23, 42, 0.06);
+  --noise-opacity: 0.02;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: "ss01", "ss02", "cv01", "cv11";
+}
+
+::selection {
+  background: rgba(37, 99, 255, 0.35);
+  color: #fff;
+}
+.light ::selection {
+  background: rgba(37, 99, 255, 0.18);
+  color: #0f172a;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #2563ff 0%, #7c3aed 100%);
+  border-radius: 999px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4fd1ff 0%, #7c3aed 100%);
+}
+
+/* =========================================================================
+   COMPONENTS
+   ========================================================================= */
+
+@layer components {
+  .container-wide {
+    @apply mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-12;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #4fd1ff 0%, #2563ff 45%, #7c3aed 100%);
+  }
+  .text-gradient-care {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #7c3aed 0%, #b388ff 50%, #4fd1ff 100%);
+  }
+  .text-gradient-secure {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #4fd1ff 0%, #2563ff 100%);
+  }
+  .light .text-gradient-care {
+    background-image: linear-gradient(135deg, #5f25bf 0%, #7c3aed 50%, #1eb8ef 100%);
+  }
+  .light .text-gradient-secure {
+    background-image: linear-gradient(135deg, #1eb8ef 0%, #1b4ed9 100%);
+  }
+  .light .text-gradient {
+    background-image: linear-gradient(135deg, #1eb8ef 0%, #1b4ed9 45%, #5f25bf 100%);
+  }
+
+  .glass {
+    background: linear-gradient(180deg, var(--glass-bg-a) 0%, var(--glass-bg-b) 100%);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  .surface {
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-medium;
+    background: linear-gradient(180deg, var(--pill-bg-a) 0%, var(--pill-bg-b) 100%);
+    border: 1px solid var(--border);
+    color: var(--text-mute);
+  }
+
+  .pill-dot {
+    @apply h-1.5 w-1.5 rounded-full;
+    background: #4fd1ff;
+    box-shadow: 0 0 12px #4fd1ff;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-all duration-300 ease-smooth;
+  }
+
+  .btn-primary {
+    @apply btn relative overflow-hidden text-white;
+    background: linear-gradient(135deg, #2563ff 0%, #7c3aed 100%);
+    box-shadow: 0 10px 30px -10px rgba(37, 99, 255, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 20px 40px -10px rgba(37, 99, 255, 0.7), 0 0 60px rgba(124, 58, 237, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  .btn-primary::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, 0.25), transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.7s ease;
+  }
+  .btn-primary:hover::after { transform: translateX(100%); }
+
+  .btn-ghost {
+    @apply btn glass;
+    color: var(--text);
+  }
+  .btn-ghost:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-strong);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+  .light .btn-ghost:hover {
+    box-shadow: 0 12px 30px -10px rgba(15, 23, 42, 0.18);
+  }
+
+  .card {
+    @apply relative overflow-hidden rounded-2xl;
+    background: linear-gradient(180deg, var(--card-bg-a) 0%, var(--card-bg-b) 100%);
+    border: 1px solid var(--border);
+    box-shadow: var(--card-shadow);
+  }
+
+  .card-glow {
+    @apply card;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-glow:hover {
+    transform: translateY(-4px);
+    border-color: rgba(79, 209, 255, 0.35);
+    box-shadow: var(--card-glow-hover);
+  }
+
+  .section {
+    @apply relative w-full py-24 sm:py-28 lg:py-36;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em];
+    color: var(--text-mute);
+  }
+
+  .ring-grid {
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 60% 60% at 50% 40%, #000 50%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 40%, #000 50%, transparent 100%);
+  }
+
+  .noise {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: var(--noise-opacity);
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.7'/></svg>");
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--divider);
+  }
+
+  .stat-num {
+    font-family: var(--font-space-grotesk);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+  }
+}
+
+/* =========================================================================
+   LIGHT-MODE OVERRIDES for utilities that hard-code white-alpha
+   (these are used liberally across components for glassy surfaces &
+   borders — in light mode they need slate-alpha so they're visible.)
+   ========================================================================= */
+
+.light .bg-white\/5 { background-color: rgb(15 23 42 / 0.04); }
+.light .bg-white\/10 { background-color: rgb(15 23 42 / 0.06); }
+.light .bg-white\/\[0\.02\] { background-color: rgb(15 23 42 / 0.025); }
+.light .bg-white\/\[0\.03\] { background-color: rgb(15 23 42 / 0.04); }
+.light .bg-white\/\[0\.04\] { background-color: rgb(15 23 42 / 0.05); }
+.light .bg-white\/\[0\.06\] { background-color: rgb(15 23 42 / 0.07); }
+.light .hover\:bg-white\/10:hover { background-color: rgb(15 23 42 / 0.08); }
+.light .hover\:bg-white\/\[0\.04\]:hover { background-color: rgb(15 23 42 / 0.05); }
+
+.light .border-white\/5 { border-color: rgb(15 23 42 / 0.07); }
+.light .border-white\/8 { border-color: rgb(15 23 42 / 0.09); }
+.light .border-white\/10 { border-color: rgb(15 23 42 / 0.11); }
+.light .border-white\/20 { border-color: rgb(15 23 42 / 0.18); }
+.light .border-white\/\[0\.06\] { border-color: rgb(15 23 42 / 0.09); }
+.light .border-white\/\[0\.08\] { border-color: rgb(15 23 42 / 0.11); }
+.light .hover\:border-white\/20:hover { border-color: rgb(15 23 42 / 0.22); }
+
+.light .ring-white\/10 { --tw-ring-color: rgb(15 23 42 / 0.12); }
+.light .ring-1.ring-white\/10 { --tw-ring-color: rgb(15 23 42 / 0.12); }
+
+/* Hero stats cells — readable solid white tiles in light mode */
+.light .bg-gunmetal\/30 { background-color: rgb(255 255 255 / 1); }
+.light .bg-gunmetal\/40 { background-color: rgb(255 255 255 / 1); }
+
+/* Off-white stripe sections (HowItWorks / TechStack / PartnerMarquee) */
+.light .bg-obsidian-200\/70 { background-color: rgb(255 255 255 / 0.95); }
+.light .bg-obsidian-300\/40 { background-color: rgb(241 245 249 / 1); }
+
+/* Brand accent text — boost contrast on white */
+.light .text-cyan-300 { color: #108fc0; }
+.light .text-violet-300 { color: #5f25bf; }
+.light .text-violet-400 { color: #481b92; }
+.light .text-amber-400 { color: #b45309; }
+
+/* Accent backgrounds slightly stronger on light */
+.light .bg-cyan-300\/\[0\.04\] { background-color: rgb(16 143 192 / 0.07); }
+.light .bg-cyan-300\/\[0\.08\] { background-color: rgb(16 143 192 / 0.1); }
+.light .bg-cyan-300\/10 { background-color: rgb(16 143 192 / 0.12); }
+.light .bg-violet-300\/\[0\.04\] { background-color: rgb(95 37 191 / 0.07); }
+.light .border-cyan-300\/30 { border-color: rgb(16 143 192 / 0.45); }
+.light .border-cyan-300\/40 { border-color: rgb(16 143 192 / 0.55); }
+.light .border-cyan-300\/50 { border-color: rgb(16 143 192 / 0.6); }
+.light .border-violet-300\/30 { border-color: rgb(95 37 191 / 0.4); }
+.light .border-violet-300\/40 { border-color: rgb(95 37 191 / 0.5); }
+.light .ring-cyan-300\/20 { --tw-ring-color: rgb(16 143 192 / 0.35); }
+.light .ring-cyan-300\/15 { --tw-ring-color: rgb(16 143 192 / 0.25); }
+.light .ring-violet-300\/20 { --tw-ring-color: rgb(95 37 191 / 0.3); }
+.light .focus\:ring-cyan-300\/15:focus { --tw-ring-color: rgb(16 143 192 / 0.25); }
+.light .focus\:border-cyan-300\/50:focus { border-color: rgb(16 143 192 / 0.6); }
+
+/* Pill dot dimmer in light mode */
+.light .pill-dot {
+  background: #1eb8ef;
+  box-shadow: 0 0 10px rgba(16, 143, 192, 0.55);
+}
+
+/* Ambient hero glows — softer on white so text stays legible */
+.light .bg-radial-glow {
+  background-image: radial-gradient(circle at center, rgba(37, 99, 255, 0.18), transparent 60%);
+}
+.light .bg-radial-violet {
+  background-image: radial-gradient(circle at center, rgba(124, 58, 237, 0.16), transparent 60%);
+}
+.light .bg-radial-cyan {
+  background-image: radial-gradient(circle at center, rgba(79, 209, 255, 0.2), transparent 60%);
+}
+.light .bg-gradient-mesh {
+  background-image:
+    radial-gradient(at 20% 20%, rgba(37, 99, 255, 0.12) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(124, 58, 237, 0.12) 0px, transparent 50%),
+    radial-gradient(at 60% 80%, rgba(79, 209, 255, 0.16) 0px, transparent 50%);
+}
+
+/* Force the dark "via-obsidian" gradient corners in Verticals to read
+   correctly on white — fade from colored corner to white */
+.light .from-royal-700\/30 { --tw-gradient-from: rgb(37 99 255 / 0.18) var(--tw-gradient-from-position); --tw-gradient-to: rgb(37 99 255 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+.light .from-violet-700\/25 { --tw-gradient-from: rgb(124 58 237 / 0.16) var(--tw-gradient-from-position); --tw-gradient-to: rgb(124 58 237 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+
+/* Glow shadows — lighten on white so they don't blow out */
+.light .shadow-glow { box-shadow: 0 0 30px rgba(37, 99, 255, 0.18), 0 0 60px rgba(37, 99, 255, 0.08); }
+.light .shadow-glow-cyan { box-shadow: 0 0 30px rgba(79, 209, 255, 0.22), 0 0 60px rgba(79, 209, 255, 0.1); }
+.light .shadow-glow-violet { box-shadow: 0 0 30px rgba(124, 58, 237, 0.18), 0 0 60px rgba(124, 58, 237, 0.08); }
+.light .hover\:shadow-glow:hover { box-shadow: 0 0 30px rgba(37, 99, 255, 0.22), 0 0 60px rgba(37, 99, 255, 0.1); }
+.light .hover\:shadow-glow-cyan:hover { box-shadow: 0 0 30px rgba(79, 209, 255, 0.28), 0 0 60px rgba(79, 209, 255, 0.12); }
+
+/* Mobile drawer backdrop in light mode */
+.light .bg-obsidian\/90 { background-color: rgb(246 248 252 / 0.96); }
+
+/* @layer utilities */
+@layer utilities {
+  .mask-fade-b {
+    mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
+  }
+  .mask-fade-r {
+    mask-image: linear-gradient(90deg, #000 80%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 80%, transparent 100%);
+  }
+  .text-balance { text-wrap: balance; }
+}

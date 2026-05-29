@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, Sparkles } from "lucide-react";
-import { stats } from "@/data/content";
+import { heroStats } from "@/data/content";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
   ssr: false,
@@ -49,7 +49,7 @@ export function Hero() {
         >
           <motion.div variants={fadeUp} custom={0} className="pill">
             <span className="pill-dot" />
-            Movement intelligence platform · v1.0
+            Human Movement Intelligence Platform · 10+ years of research
           </motion.div>
 
           <motion.h1
@@ -68,10 +68,13 @@ export function Hero() {
             custom={2}
             className="mt-7 max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:text-lg"
           >
-            GaitAI turns the way humans move into actionable AI — for security
-            and identity, for healthcare and elderly care, for smart cities and
-            homes. One platform. Two verticals.
-            <span className="text-soft-white"> Infinite human impact.</span>
+            GaitAI converts walking videos, wearable signals, posture and crowd
+            movement into actionable AI — for{" "}
+            <span className="text-soft-white">healthcare, rehabilitation,
+            sports, elderly care, mobility,</span> and{" "}
+            <span className="text-soft-white">privacy-aware public safety.</span>{" "}
+            One platform. Two verticals. Twenty-three movement-intelligence
+            products.
           </motion.p>
 
           <motion.div
@@ -79,16 +82,16 @@ export function Hero() {
             custom={3}
             className="mt-10 flex flex-col items-center gap-3 sm:flex-row"
           >
-            <a href="#secure" className="btn-primary">
-              Explore the platform
+            <a href="/mobilitycare" className="btn-primary">
+              Explore MobilityCare
               <ArrowRight className="h-4 w-4" />
             </a>
-            <a href="#contact" className="btn-ghost group">
+            <a href="/securevision" className="btn-ghost group">
               <span className="relative grid h-5 w-5 place-items-center">
                 <Play className="h-3 w-3 fill-soft-white text-soft-white transition-transform group-hover:scale-110" />
                 <span className="absolute inset-0 animate-pulse-glow rounded-full ring-1 ring-white/30" />
               </span>
-              Watch the demo
+              Explore SecureVision
             </a>
           </motion.div>
 
@@ -98,7 +101,7 @@ export function Hero() {
             className="mt-12 inline-flex items-center gap-2 text-xs text-soft-mute"
           >
             <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
-            Trusted by enterprises, hospitals & smart-infrastructure pioneers
+            Built for clinicians, hospitals, sports academies, enterprises &amp; public-safety teams
           </motion.div>
         </motion.div>
 
@@ -109,7 +112,7 @@ export function Hero() {
           transition={{ delay: 1.0, duration: 1, ease: [0.16, 1, 0.3, 1] }}
           className="mt-24 grid grid-cols-2 gap-px overflow-hidden rounded-2xl glass sm:grid-cols-4"
         >
-          {stats.map((s) => (
+          {heroStats.map((s) => (
             <div key={s.label} className="bg-gunmetal/30 p-6 text-center sm:p-7">
               <div className="stat-num text-3xl text-soft-white sm:text-4xl">
                 {s.value}

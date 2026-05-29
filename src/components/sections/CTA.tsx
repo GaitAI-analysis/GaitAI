@@ -2,17 +2,28 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { ArrowRight, Building2, Heart, ShieldCheck, Sparkles, Check } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  Check,
+  HeartPulse,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+  Watch,
+} from "lucide-react";
 
 const interests = [
-  { id: "secure", label: "GaitAI Secure", icon: ShieldCheck },
-  { id: "care", label: "GaitAI Care", icon: Heart },
+  { id: "mobilitycare", label: "MobilityCare pilot", icon: HeartPulse },
+  { id: "securevision", label: "SecureVision pilot", icon: ShieldCheck },
+  { id: "watchcare", label: "WatchCare program", icon: Watch },
+  { id: "sports", label: "Sports academy", icon: Trophy },
+  { id: "enterprise", label: "Enterprise deployment", icon: Building2 },
   { id: "research", label: "Research / Investor", icon: Sparkles },
-  { id: "enterprise", label: "Enterprise pilot", icon: Building2 },
 ];
 
 export function CTA() {
-  const [picked, setPicked] = useState<string>("secure");
+  const [picked, setPicked] = useState<string>("mobilitycare");
   const [sent, setSent] = useState(false);
 
   return (
@@ -36,15 +47,17 @@ export function CTA() {
             <div>
               <span className="eyebrow">
                 <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                Build the future with us
+                Request a demo · Start a pilot · Partner with us
               </span>
               <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">
                 Bring movement intelligence to your{" "}
                 <span className="text-gradient">organization.</span>
               </h2>
               <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
-                Whether you’re a government, hospital, enterprise or research
-                partner — let’s talk about deploying GaitAI where it matters most.
+                Whether you&apos;re a hospital, physiotherapy clinic, sports
+                academy, elderly-care home, enterprise security team, smart-city
+                operator or research collaborator — let&apos;s talk about deploying
+                GaitAI where it matters most.
               </p>
 
               <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -99,7 +112,7 @@ export function CTA() {
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <Field label="Full name" type="text" placeholder="Naveen Malhotra" />
+                <Field label="Full name" type="text" placeholder="Anubha Parashar" />
                 <Field label="Work email" type="email" placeholder="you@org.com" />
               </div>
               <div className="mt-3">

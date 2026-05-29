@@ -105,11 +105,20 @@ export const stats = [
   { value: "24/7", label: "Continuous awareness" },
 ];
 
+// Flat top-nav tabs — consumed by both desktop & mobile.
+// About leads the row; Products closes the brief's all-products-page gap.
 export const navLinks = [
-  { label: "Platform", href: "/#platform" },
-  { label: "Secure", href: "/#secure" },
-  { label: "Care", href: "/#care" },
-  { label: "How it works", href: "/#how" },
-  { label: "Use Cases", href: "/#use-cases" },
+  { label: "About", href: "/about" },
+  { label: "MobilityCare", href: "/mobilitycare" },
+  { label: "SecureVision", href: "/securevision" },
+  { label: "Products", href: "/products" },
+  { label: "Use Cases", href: "/use-cases" },
   { label: "Publications", href: "/publications" },
+];
+
+export const heroStats = [
+  { value: "98.7%", label: "Gait identification accuracy" },
+  { value: "<40ms", label: "Edge inference latency" },
+  { value: "23", label: "Movement-intelligence products" },
+  { value: "24/7", label: "Continuous awareness" },
 ];

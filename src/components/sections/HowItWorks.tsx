@@ -3,7 +3,7 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { howItWorks } from "@/data/content";
+import { workflowStages } from "@/data/products";
 
 export function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null);
@@ -17,14 +17,14 @@ export function HowItWorks() {
     <section id="how" className="section bg-obsidian-300/40">
       <div className="container-wide">
         <SectionHeading
-          eyebrow="How GaitAI works"
+          eyebrow="The GaitAI workflow"
           title={
             <>
-              From a single step to{" "}
-              <span className="text-gradient">actionable intelligence.</span>
+              Capture movement.{" "}
+              <span className="text-gradient">Act on intelligence.</span>
             </>
           }
-          description="A four-stage pipeline that turns ordinary movement into early signals — and signals into protection."
+          description="A four-stage pipeline that turns walking videos, wearable signals and CCTV movement into clinically useful and operationally actionable insight — in seconds."
         />
 
         <div ref={ref} className="relative mt-20">
@@ -36,7 +36,7 @@ export function HowItWorks() {
           />
 
           <div className="space-y-16 lg:space-y-28">
-            {howItWorks.map((s, i) => {
+            {workflowStages.map((s, i) => {
               const isLeft = i % 2 === 0;
               const Icon = s.icon;
               return (

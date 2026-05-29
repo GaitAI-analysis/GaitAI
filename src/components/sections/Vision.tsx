@@ -45,15 +45,23 @@ export function Vision() {
         >
           <Quote className="absolute -top-5 left-8 h-10 w-10 rounded-full bg-obsidian p-2 text-cyan-300 ring-1 ring-cyan-300/30" />
           <blockquote className="font-display text-2xl leading-relaxed text-soft-white sm:text-3xl">
-            “Every movement tells a story. A walk can reveal identity, balance,
-            risk, recovery, weakness, neurological change, or the need for care.
-            Our mission is to convert this invisible intelligence into{" "}
-            <span className="text-gradient">meaningful AI assistance</span> for
-            every home, hospital, airport and city.”
+            “Walking is more than motion. It is a{" "}
+            <span className="text-gradient">signature</span>. It is a{" "}
+            <span className="text-gradient">health indicator</span>. It is a{" "}
+            <span className="text-gradient">safety signal</span>. It is a{" "}
+            <span className="text-gradient">biometric identity</span>. It is a
+            story of the human body.”
           </blockquote>
           <figcaption className="mt-8 flex items-center gap-3 text-sm text-soft-mute">
             <span className="h-px w-10 bg-cyan-300/60" />
-            GaitAI · Mission statement
+            <span>
+              <span className="text-soft-white">Dr. Anubha Parashar</span> ·
+              Founder &amp; CEO, GaitAI ·{" "}
+              <span className="text-soft-gray">
+                Mission: to make human movement measurable, meaningful and
+                useful for the world.
+              </span>
+            </span>
           </figcaption>
         </motion.figure>
 

@@ -1,5 +1,36 @@
 import type { Config } from "tailwindcss";
 
+// Accent-driven dynamic classes used across ProductCard / ProductGrid / UseCases
+// — Tailwind's JIT scanner sees these literal strings here so the variants
+// always make it into the production bundle even when looked up via objects.
+const ACCENT_SAFELIST = [
+  "teal",
+  "cyan",
+  "violet",
+  "amber",
+  "emerald",
+  "rose",
+].flatMap((c) => [
+  `text-${c}-200`,
+  `text-${c}-300`,
+  `ring-${c}-300/20`,
+  `ring-${c}-300/30`,
+  `border-${c}-300/30`,
+  `border-${c}-300/40`,
+  `bg-${c}-300/8`,
+  `bg-${c}-300/10`,
+  `bg-${c}-400/10`,
+  `bg-${c}-400/15`,
+  `bg-${c}-400/20`,
+  `from-${c}-400/15`,
+  `from-${c}-400/20`,
+  `to-${c}-300/10`,
+  `hover:border-${c}-300/40`,
+  `hover:bg-${c}-300/10`,
+  `hover:text-${c}-200`,
+  `hover:text-${c}-300`,
+]);
+
 const config: Config = {
   darkMode: "class",
   content: [
@@ -7,6 +38,7 @@ const config: Config = {
     "./src/components/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
+  safelist: ACCENT_SAFELIST,
   theme: {
     container: {
       center: true,

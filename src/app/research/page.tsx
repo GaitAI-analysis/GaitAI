@@ -351,6 +351,16 @@ export default function ResearchPage() {
                     <ArrowUpRight className="h-3 w-3" />
                   </Link>
                   <Link
+                    href="https://scholar.google.com/citations?user=hrwpIAgAAAAJ&hl=en"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/40 bg-cyan-300/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-100 transition-all hover:border-cyan-300/60 hover:bg-cyan-300/15"
+                  >
+                    <GraduationCap className="h-3.5 w-3.5" />
+                    Google Scholar
+                    <ArrowUpRight className="h-3 w-3" />
+                  </Link>
+                  <Link
                     href="https://anubhaparashar.github.io/"
                     target="_blank"
                     rel="noopener noreferrer"

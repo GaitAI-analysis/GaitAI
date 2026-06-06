@@ -295,6 +295,11 @@ export const allPublications: Publication[] = [patent, ...papers];
 
 export const FOUNDER_NAME = "Anubha Parashar";
 
+// Founder's external research presence
+export const FOUNDER_SCHOLAR_URL =
+  "https://scholar.google.com/citations?user=hrwpIAgAAAAJ&hl=en";
+export const FOUNDER_PORTFOLIO_URL = "https://anubhaparashar.github.io/";
+
 export const publicationsByYear = (() => {
   const map = new Map<number, Publication[]>();
   for (const p of allPublications) {

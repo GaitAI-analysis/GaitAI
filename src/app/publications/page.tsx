@@ -11,12 +11,18 @@ import {
   Download,
   ExternalLink,
   FileCheck2,
+  GraduationCap,
   ShieldCheck,
   Stamp,
 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { papers, patent } from "@/data/publications";
+import {
+  FOUNDER_SCHOLAR_URL,
+  FOUNDER_PORTFOLIO_URL,
+  papers,
+  patent,
+} from "@/data/publications";
 import { PublicationsExplorer } from "./PublicationsExplorer";
 
 export const metadata: Metadata = {
@@ -67,6 +73,29 @@ export default function PublicationsPage() {
               deep-learning pipelines, pose estimation, covariate handling and
               privacy-preserving analytics.
             </p>
+
+            {/* External research presence */}
+            <div className="mt-8 inline-flex flex-wrap items-center justify-center gap-2.5">
+              <Link
+                href={FOUNDER_SCHOLAR_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 rounded-full border border-cyan-300/40 bg-cyan-300/10 px-4 py-2 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-300/60 hover:bg-cyan-300/15"
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
+                View full Google Scholar profile
+                <ExternalLink className="h-3 w-3 opacity-70 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+              <Link
+                href={FOUNDER_PORTFOLIO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-semibold text-soft-white transition-all hover:border-white/20 hover:bg-white/[0.06]"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Founder portfolio
+              </Link>
+            </div>
           </div>
 
           {/* Stat strip */}
@@ -319,12 +348,22 @@ export default function PublicationsPage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
-                  href="https://anubhaparashar.github.io/"
+                  href={FOUNDER_SCHOLAR_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-ghost"
                 >
-                  Founder portfolio
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  Scholar profile
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
+                <Link
+                  href={FOUNDER_PORTFOLIO_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-ghost"
+                >
+                  Portfolio
                   <ExternalLink className="h-3.5 w-3.5" />
                 </Link>
               </div>

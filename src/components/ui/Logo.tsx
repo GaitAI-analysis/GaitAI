@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { assetPath } from "@/lib/paths";
 
 type LogoVariant = "wordmark" | "icon" | "stacked";
 type LogoSize = "sm" | "md" | "lg";
@@ -110,7 +111,7 @@ export function Logo({
       style={{ width: w, height: h }}
     >
       <Image
-        src={src}
+        src={assetPath(src)}
         alt={sources[variant].alt}
         width={w * 2}
         height={h * 2}

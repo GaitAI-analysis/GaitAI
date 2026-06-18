@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { assetPath } from "@/lib/paths";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -312,7 +313,7 @@ export default function ResearchPage() {
                 className="group relative block h-32 w-32 shrink-0 overflow-hidden rounded-2xl ring-1 ring-white/10 transition-transform hover:scale-[1.02] sm:h-40 sm:w-40"
               >
                 <Image
-                  src="/brand/founder-anubha-parashar.png"
+                  src={assetPath("/brand/founder-anubha-parashar.png")}
                   alt="Dr. Anubha Parashar"
                   fill
                   sizes="160px"

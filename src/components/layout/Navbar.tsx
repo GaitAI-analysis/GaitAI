@@ -9,6 +9,7 @@ import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { navLinks } from "@/data/content";
 import { cn } from "@/lib/utils";
+import { assetPath } from "@/lib/paths";
 
 /**
  * Flat-tab Navbar.
@@ -161,7 +162,7 @@ export function Navbar() {
                 </motion.div>
               ))}
               <motion.a
-                href="/#contact"
+                href={assetPath("/#contact")}
                 onClick={() => setOpen(false)}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}

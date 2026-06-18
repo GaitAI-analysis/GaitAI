@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = { title: "Responsible AI" };
 
@@ -25,9 +26,9 @@ export default function ResponsibleAIPage() {
       </p>
       <p className="mt-4 text-soft-gray">
         Read the full Responsible AI policy on the{" "}
-        <a className="text-cyan-300" href="/research">
+        <Link className="text-cyan-300" href="/research">
           /research page
-        </a>{" "}
+        </Link>{" "}
         or contact{" "}
         <a className="text-cyan-300" href="mailto:responsible-ai@gaitai.com">
           responsible-ai@gaitai.com

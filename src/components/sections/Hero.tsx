@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, Sparkles } from "lucide-react";
 import { heroStats } from "@/data/content";
@@ -82,17 +83,17 @@ export function Hero() {
             custom={3}
             className="mt-10 flex flex-col items-center gap-3 sm:flex-row"
           >
-            <a href="/mobilitycare" className="btn-primary">
+            <Link href="/mobilitycare" className="btn-primary">
               Explore MobilityCare
               <ArrowRight className="h-4 w-4" />
-            </a>
-            <a href="/securevision" className="btn-ghost group">
+            </Link>
+            <Link href="/securevision" className="btn-ghost group">
               <span className="relative grid h-5 w-5 place-items-center">
                 <Play className="h-3 w-3 fill-soft-white text-soft-white transition-transform group-hover:scale-110" />
                 <span className="absolute inset-0 animate-pulse-glow rounded-full ring-1 ring-white/30" />
               </span>
               Explore SecureVision
-            </a>
+            </Link>
           </motion.div>
 
           <motion.div

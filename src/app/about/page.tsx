@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { assetPath } from "@/lib/paths";
 import Link from "next/link";
 import {
   Activity,
@@ -266,7 +267,7 @@ export default function AboutPage() {
                   >
                     <div className="relative aspect-square w-full">
                       <Image
-                        src="/brand/founder-anubha-parashar.png"
+                        src={assetPath("/brand/founder-anubha-parashar.png")}
                         alt="Dr. Anubha Parashar — Founder & CEO, GaitAI"
                         fill
                         sizes="(min-width: 1024px) 360px, 100vw"

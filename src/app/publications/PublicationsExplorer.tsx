@@ -15,6 +15,7 @@ import {
   publisherAccent,
   type Publication,
 } from "@/data/publications";
+import { assetPath } from "@/lib/paths";
 
 interface ExplorerProps {
   papers: Publication[];
@@ -145,7 +146,7 @@ function PaperCard({ pub }: { pub: Publication }) {
       <div className="relative aspect-[3/4] w-full overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-obsidian-200/95" />
         <Image
-          src={pub.cover}
+          src={assetPath(pub.cover)}
           alt={`${pub.title} — ${pub.venue}`}
           fill
           sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
@@ -244,7 +245,7 @@ function PaperCard({ pub }: { pub: Publication }) {
             Open paper
           </Link>
           <a
-            href={pub.pdfUrl}
+            href={assetPath(pub.pdfUrl)}
             download
             className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-[10.5px] font-semibold text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.06] hover:text-cyan-200"
           >

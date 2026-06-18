@@ -5,6 +5,7 @@ import { Providers } from "./providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { assetPath } from "@/lib/paths";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,7 +26,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gaitai.com"),
+  metadataBase: new URL("https://gaitai-analysis.github.io/GaitAI/"),
   title: {
     default: "GaitAI — Intelligence in Motion",
     template: "%s | GaitAI",
@@ -47,20 +48,20 @@ export const metadata: Metadata = {
   applicationName: "GaitAI",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicons/favicon-16x16.png", type: "image/png", sizes: "16x16" },
-      { url: "/favicons/favicon-32x32.png", type: "image/png", sizes: "32x32" },
-      { url: "/favicons/favicon-64x64.png", type: "image/png", sizes: "64x64" },
-      { url: "/favicons/favicon-128x128.png", type: "image/png", sizes: "128x128" },
-      { url: "/favicons/favicon-256x256.png", type: "image/png", sizes: "256x256" },
-      { url: "/favicons/favicon-512x512.png", type: "image/png", sizes: "512x512" },
+      { url: assetPath("/favicon.ico"), sizes: "any" },
+      { url: assetPath("/favicons/favicon-16x16.png"), type: "image/png", sizes: "16x16" },
+      { url: assetPath("/favicons/favicon-32x32.png"), type: "image/png", sizes: "32x32" },
+      { url: assetPath("/favicons/favicon-64x64.png"), type: "image/png", sizes: "64x64" },
+      { url: assetPath("/favicons/favicon-128x128.png"), type: "image/png", sizes: "128x128" },
+      { url: assetPath("/favicons/favicon-256x256.png"), type: "image/png", sizes: "256x256" },
+      { url: assetPath("/favicons/favicon-512x512.png"), type: "image/png", sizes: "512x512" },
     ],
-    shortcut: ["/favicon.ico"],
+    shortcut: [assetPath("/favicon.ico")],
     apple: [
-      { url: "/favicons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: assetPath("/favicons/apple-touch-icon.png"), sizes: "180x180", type: "image/png" },
     ],
   },
-  manifest: "/manifest.webmanifest",
+  manifest: assetPath("/manifest.webmanifest"),
   openGraph: {
     type: "website",
     title: "GaitAI — Intelligence in Motion",
@@ -69,7 +70,7 @@ export const metadata: Metadata = {
     siteName: "GaitAI",
     images: [
       {
-        url: "/brand/logo-main.png",
+        url: assetPath("/brand/logo-main.png"),
         width: 1254,
         height: 1254,
         alt: "GaitAI — Intelligence in Motion",
@@ -81,7 +82,7 @@ export const metadata: Metadata = {
     title: "GaitAI — Intelligence in Motion",
     description:
       "AI that understands human movement — for security, healthcare, elderly care and smart environments.",
-    images: ["/brand/logo-main.png"],
+    images: [assetPath("/brand/logo-main.png")],
   },
 };
 

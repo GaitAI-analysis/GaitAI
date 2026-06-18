@@ -13,8 +13,14 @@ import { getPostBySlug, readPosts } from "@/lib/posts-store";
 import { CategoryBadge, categoryGradient } from "@/components/posts/CategoryBadge";
 import { PostCard } from "@/components/posts/PostCard";
 import { renderMarkdown } from "@/lib/markdown";
+import { assetPath } from "@/lib/paths";
 
-export const dynamic = "force-dynamic";
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const posts = await readPosts();
+  return posts.map((post) => ({ slug: post.slug }));
+}
 
 export async function generateMetadata({
   params,
@@ -120,7 +126,7 @@ export default async function PublicationPage({
               <div className="mt-14 grid gap-3 sm:grid-cols-2">
                 {post.attachmentUrl && (
                   <a
-                    href={post.attachmentUrl}
+                    href={assetPath(post.attachmentUrl)}
                     download={post.attachmentName}
                     target="_blank"
                     rel="noopener noreferrer"

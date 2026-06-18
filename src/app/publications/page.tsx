@@ -24,6 +24,7 @@ import {
   patent,
 } from "@/data/publications";
 import { PublicationsExplorer } from "./PublicationsExplorer";
+import { assetPath } from "@/lib/paths";
 
 export const metadata: Metadata = {
   title: "Publications & Patent — Research portfolio",
@@ -170,7 +171,7 @@ export default function PublicationsPage() {
                 <div className="relative flex items-center justify-center bg-gradient-to-b from-amber-400/[0.05] to-transparent p-6 sm:p-8 lg:p-10">
                   <div className="relative aspect-[1/1.3] w-full max-w-[360px] overflow-hidden rounded-2xl ring-1 ring-amber-300/30 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)]">
                     <Image
-                      src={patent.cover}
+                      src={assetPath(patent.cover)}
                       alt="GaitAI patent certificate — Government of India"
                       fill
                       sizes="(min-width: 1024px) 360px, 80vw"
@@ -264,7 +265,7 @@ export default function PublicationsPage() {
                   {/* Action */}
                   <div className="mt-7 flex flex-wrap gap-3">
                     <a
-                      href={patent.cover}
+                      href={assetPath(patent.cover)}
                       download="GaitAI-Patent-Certificate.jpg"
                       className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/50 bg-amber-300/15 px-4 py-2 text-xs font-semibold text-amber-100 transition-all hover:border-amber-300/70 hover:bg-amber-300/25"
                     >

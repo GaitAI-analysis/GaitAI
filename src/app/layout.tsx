@@ -26,7 +26,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://gaitai-analysis.github.io/GaitAI/"),
+  metadataBase: new URL("https://gaitai.in"),
   title: {
     default: "GaitAI — Intelligence in Motion",
     template: "%s | GaitAI",

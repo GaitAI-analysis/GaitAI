@@ -1,0 +1,191 @@
+================================================================================
+GAITAI WEBSITE — FIREBASE CONFIGURATION HANDOFF (Frontend → Backend team)
+================================================================================
+Project     : GaitAI marketing site (Next.js 14, static export, GitHub Pages)
+Live URL    : https://gaitai.in
+Repo        : https://github.com/GaitAI-analysis/GaitAI
+Prepared by : Frontend (Navvy)
+Date        : 8 July 2026
+
+WHAT THIS DOCUMENT IS
+The frontend for two Firebase-backed features is already built and waiting:
+  1. Public comment system on publication pages (submit → moderate → publish)
+  2. Admin Control Panel at /admin-controlpanel (content + comment moderation)
+Please configure Firebase exactly as below, then send back the items listed in
+SECTION F. Nothing on the frontend needs code from you — only configuration
+values and confirmations.
+
+--------------------------------------------------------------------------------
+SECTION A — CREATE / VERIFY THE FIREBASE PROJECT
+--------------------------------------------------------------------------------
+A1. Go to https://console.firebase.google.com and use the existing project
+    "gaitai-33c7f" (or create a fresh project if we are rotating away from it —
+    see SECTION G, the old API key was exposed on GitHub).
+
+A2. Register a WEB app inside the project (Project settings → General →
+    Your apps → Add app → Web). No Firebase Hosting needed — the site is
+    hosted on GitHub Pages.
+
+A3. From that web app's "SDK setup and configuration" panel, copy the client
+    config values. These are what you will send back to me (SECTION F).
+
+--------------------------------------------------------------------------------
+SECTION B — CLOUD FIRESTORE (THE DATABASE)
+--------------------------------------------------------------------------------
+B1. Build → Firestore Database → Create database.
+    - Mode   : PRODUCTION mode (not test mode — test mode expires and then
+               everything breaks silently).
+    - Region : your choice; asia-south1 (Mumbai) recommended for our audience.
+    - Type   : Cloud Firestore. NOT Realtime Database.
+
+B2. Do NOT pre-create any collections. They are created on first write.
+    For reference, the frontend reads/writes exactly these paths:
+
+    postComments/{postSlug}/comments/{commentId}   approved, public-readable
+    pendingComments/{postSlug}/comments/{id}       canonical pending submissions
+    pendingCommentQueue/{postSlug}__{commentId}    flat moderation queue mirror
+    reportedComments/{reportId}                    reader-flagged comments
+    posts/{postId}                                 (FUTURE — control-panel
+                                                   content; see SECTION E)
+
+B3. SECURITY RULES — this is the real enforcement layer, do not skip.
+    - Open Firestore Database → Rules.
+    - Paste the ENTIRE contents of the file `firestore.rules` from the repo
+      root, then click PUBLISH.
+    - The rules enforce: anyone may READ approved comments and CREATE a
+      validated pending comment/report; ONLY the admin allowlist may read the
+      pending queue, approve, reject, delete, or manage reports.
+
+B4. The admin allowlist currently contains one email, hardcoded in the rules:
+        anubhaparashar1025@gmail.com
+    If moderators change, edit the `isAdmin()` function in firestore.rules AND
+    tell me, so I mirror it in src/lib/comments/config.ts (UI-side check).
+
+--------------------------------------------------------------------------------
+SECTION C — AUTHENTICATION
+--------------------------------------------------------------------------------
+C1. Build → Authentication → Get started.
+
+C2. Sign-in method → enable GOOGLE provider only. (Moderation actions are
+    gated on a verified Google account matching the allowlist in the rules.
+    Public commenters do NOT need accounts.)
+
+C3. Authentication → Settings → Authorized domains — make sure ALL of these
+    are listed:
+        gaitai.in
+        www.gaitai.in
+        localhost
+    Missing domains = Google sign-in popup fails on that origin.
+
+NOTE: The admin control panel currently runs WITHOUT login by frontend
+decision (temporary). Auth will be re-attached before the panel goes live
+against Firestore, using this same Google provider — so configure it now.
+
+--------------------------------------------------------------------------------
+SECTION D — API KEY HYGIENE (IMPORTANT — WE ALREADY HAD ONE LEAK)
+--------------------------------------------------------------------------------
+Context: the previous web API key was committed to GitHub and flagged.
+Firebase web API keys are public client identifiers, not secrets — but they
+must still be restricted and kept out of the repo.
+
+D1. Google Cloud Console (same project) → APIs & Services → Credentials →
+    the auto-created "Browser key".
+
+D2. Application restrictions → "Websites" (HTTP referrers). Add:
+        https://gaitai.in/*
+        https://www.gaitai.in/*
+        http://localhost:3000/*
+    This makes the key useless on any other website.
+
+D3. API restrictions → restrict the key to:
+        Identity Toolkit API        (Firebase Auth)
+        Token Service API
+        Cloud Firestore API
+        Firebase Installations API
+
+D4. If we are STAYING on project gaitai-33c7f: strongly consider REGENERATING
+    the browser key (Credentials → key → Regenerate) since the old value is in
+    GitHub history forever. Send me the new value afterwards.
+
+--------------------------------------------------------------------------------
+SECTION E — CONTENT/POSTS BACKEND FOR THE ADMIN CONTROL PANEL (PHASE 2)
+--------------------------------------------------------------------------------
+The control panel manages the posts shown on /insights and /publications.
+Today those posts are baked into the static build; the panel runs on local
+data. To make the panel drive the live site we need:
+
+E1. A `posts/{postId}` Firestore collection. Document shape (already fixed by
+    the frontend types — do not rename fields):
+        id, slug, title, category, summary, body, tags[], publishedAt (ISO),
+        author, featured (bool), subscriberOnly (bool, optional),
+        externalUrl (optional), attachmentUrl/attachmentName (optional)
+    Categories: research | announcement | documentation | approval | blog | demo
+
+E2. Rules for it (add to firestore.rules when we wire this):
+        allow read: if true;            // public site reads posts
+        allow write: if isAdmin();      // only the panel writes
+
+E3. FIREBASE STORAGE (optional, phase 2): enable Storage if we want file
+    attachments (PDF/images) uploaded from the panel instead of external URLs.
+    If enabled, restrict writes to isAdmin() and tell me the bucket name.
+
+E4. App Check (optional but recommended): enable with reCAPTCHA v3 for
+    Firestore to cut bot abuse of the public comment write path. If you turn
+    this on, send me the reCAPTCHA site key — the frontend needs it at init.
+
+--------------------------------------------------------------------------------
+SECTION F — WHAT YOU MUST SEND BACK TO ME (THE FRONTEND NEEDS THESE)
+--------------------------------------------------------------------------------
+Send over a secure channel (NOT email plain-text, NOT committed to git):
+
+F1. The six web-app config values from SECTION A3:
+        NEXT_PUBLIC_FIREBASE_API_KEY=
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+        NEXT_PUBLIC_FIREBASE_APP_ID=
+
+F2. Written confirmation of each:
+        [ ] Firestore created, PRODUCTION mode, region: __________
+        [ ] firestore.rules published (date/time: __________)
+        [ ] Google sign-in provider enabled
+        [ ] Authorized domains: gaitai.in, www.gaitai.in, localhost
+        [ ] API key referrer-restricted (D2) and API-restricted (D3)
+        [ ] Key regenerated? yes / no (if yes, new value in F1)
+
+F3. Final list of admin/moderator email addresses in the rules allowlist.
+
+F4. If done: App Check reCAPTCHA site key (E4), Storage bucket name (E3).
+
+WHERE I PUT THEM (FYI — no action for you):
+    - Local dev      : .env.local (gitignored)
+    - CI/CD deploys  : GitHub repo → Settings → Secrets and variables →
+                       Actions → the same six names as repository secrets.
+      The deploy workflows already read them; builds fail fast if missing.
+
+--------------------------------------------------------------------------------
+SECTION G — ACCEPTANCE TEST (HOW WE BOTH VERIFY IT WORKS)
+--------------------------------------------------------------------------------
+After I plug in the values from SECTION F:
+
+G1. Open any publication page with DevTools console open. The frontend logs
+    every Firebase step under the tag [GaitAI ⋅ Firebase]. Expected:
+        ✓ Firebase app initialized
+        ✓ CONNECTION ESTABLISHED — Firestore is reachable and public reads
+          are allowed
+        ✓ LIVE CONNECTION ESTABLISHED for "<slug>" — N approved comment(s)
+
+G2. Submit a test comment → console shows Steps 1/4 → 4/4 with
+        ✓ Step 4/4 — comment written to Firestore (status: pending)
+    and the doc appears in pendingCommentQueue in the Firebase console.
+
+G3. Any failure prints "✗ ... — code: <firestore-code>" plus a plain-English
+    hint. The two codes that mean backend misconfiguration:
+        permission-denied  → rules not published / wrong rules
+        not-found          → Firestore database not created
+
+Questions → Navvy (naveenmalhotra148@gmail.com)
+================================================================================
+END
+================================================================================

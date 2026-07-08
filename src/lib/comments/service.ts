@@ -28,6 +28,7 @@ import {
   type DocumentData,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { fbLog, fbOk, fbFail } from "@/lib/firebase-logger";
 import {
   BLOCKED_WORDS,
   COLLECTIONS,
@@ -164,15 +165,22 @@ export function validateComment(input: {
 export async function submitComment(
   input: NewCommentInput
 ): Promise<SubmitResult> {
+  fbLog(`Submitting comment on "${input.postSlug}"…`);
+
   const base = validateComment({
     userName: input.userName,
     message: input.message,
   });
-  if (!base.ok) return base;
+  if (!base.ok) {
+    fbLog(`Submit blocked by validation (${base.code}): ${base.message}`);
+    return base;
+  }
+  fbOk("Step 1/4 — client-side validation passed");
 
   // Rate-limit (per browser).
   const remaining = withinCooldown();
   if (remaining > 0) {
+    fbLog(`Submit blocked — rate-limit cooldown, ${Math.ceil(remaining / 1000)}s left`);
     return {
       ok: false,
       code: "rate-limited",
@@ -188,15 +196,18 @@ export async function submitComment(
 
   const fp = fingerprint(input.postSlug, input.userName, input.message);
   if (recentFingerprints().includes(fp)) {
+    fbLog("Submit blocked — duplicate of a recent local submission");
     return {
       ok: false,
       code: "duplicate",
       message: "Looks like you already submitted this comment.",
     };
   }
+  fbOk("Step 2/4 — rate-limit & duplicate fingerprint checks passed");
 
   // Block exact duplicates of already-approved comments (public-readable).
   try {
+    fbLog("Step 3/4 — querying Firestore for already-approved duplicates…");
     const dupQ = query(
       collection(db, COLLECTIONS.approved(input.postSlug)),
       where("userName", "==", input.userName.trim()),
@@ -204,14 +215,17 @@ export async function submitComment(
     );
     const dup = await getDocs(dupQ);
     if (!dup.empty) {
+      fbLog("Submit blocked — identical comment already approved");
       return {
         ok: false,
         code: "duplicate",
         message: "This comment has already been posted.",
       };
     }
-  } catch {
+    fbOk("Step 3/4 — duplicate query OK (no match)");
+  } catch (err) {
     /* read may be denied/offline — fall through, rules still protect writes */
+    fbFail("Step 3/4 — duplicate query failed (non-fatal, continuing)", err);
   }
 
   const commentId = genId();
@@ -232,6 +246,9 @@ export async function submitComment(
   };
 
   try {
+    fbLog(
+      `Step 4/4 — writing pending comment batch (${COLLECTIONS.pending(input.postSlug)}/${commentId} + ${COLLECTIONS.queue}/${queueKey(input.postSlug, commentId)})…`
+    );
     const batch = writeBatch(db);
     const pendingRef = doc(
       db,
@@ -249,13 +266,17 @@ export async function submitComment(
 
     stampCooldown();
     rememberFingerprint(fp);
+    fbOk(`Step 4/4 — comment ${commentId} written to Firestore (status: pending, awaiting moderation)`);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    const code = fbFail("Step 4/4 — Firestore batch write REJECTED", err);
     return {
       ok: false,
       code: "network",
       message:
-        "We couldn't submit your comment right now. Please try again shortly.",
+        code === "permission-denied"
+          ? "The server rejected this comment (permission denied). If you're the site owner, publish the Firestore security rules."
+          : "We couldn't submit your comment right now. Please try again shortly.",
     };
   }
 }
@@ -286,14 +307,29 @@ export function subscribeApprovedComments(
   onChange: (comments: CommentDoc[]) => void,
   onError?: (error: Error) => void
 ): () => void {
+  fbLog(`Opening live subscription to approved comments (${COLLECTIONS.approved(postSlug)})…`);
   const q = query(
     collection(db, COLLECTIONS.approved(postSlug)),
     orderBy("createdAt", "asc")
   );
+  let first = true;
   return onSnapshot(
     q,
-    (snap) => onChange(snap.docs.map((d) => mapComment(d.data()))),
-    (err) => onError?.(err as Error)
+    (snap) => {
+      if (first) {
+        first = false;
+        fbOk(
+          `LIVE CONNECTION ESTABLISHED for "${postSlug}" — ${snap.size} approved comment(s) received${snap.metadata.fromCache ? " (from cache, server sync pending)" : " (from server)"}`
+        );
+      } else {
+        fbLog(`Live update for "${postSlug}" — now ${snap.size} approved comment(s)`);
+      }
+      onChange(snap.docs.map((d) => mapComment(d.data())));
+    },
+    (err) => {
+      fbFail(`Live subscription for "${postSlug}" FAILED`, err);
+      onError?.(err as Error);
+    }
   );
 }
 
@@ -363,9 +399,12 @@ export async function reportComment(args: {
     resolved: false,
   };
   try {
+    fbLog(`Reporting comment ${args.commentId} on "${args.postSlug}"…`);
     await setDoc(doc(db, COLLECTIONS.reports, reportId), payload);
+    fbOk(`Report ${reportId} written to Firestore`);
     return { ok: true };
-  } catch {
+  } catch (err) {
+    fbFail("Report write REJECTED", err);
     return { ok: false };
   }
 }

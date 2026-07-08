@@ -113,6 +113,7 @@ export const navLinks = [
   { label: "SecureVision", href: "/securevision" },
   { label: "Products", href: "/products" },
   { label: "Use Cases", href: "/use-cases" },
+  { label: "Insights", href: "/insights" },
   { label: "Publications", href: "/publications" },
 ];
 

@@ -10,3 +10,6 @@ next-env.d.ts
 .vercel
 public/uploads/*
 !public/uploads/.gitkeep
+build_check.log
+devlog*.txt
+fbtest.mjs

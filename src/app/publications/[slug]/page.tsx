@@ -14,6 +14,7 @@ import { CategoryBadge, categoryGradient } from "@/components/posts/CategoryBadg
 import { PostCard } from "@/components/posts/PostCard";
 import { renderMarkdown } from "@/lib/markdown";
 import { assetPath } from "@/lib/paths";
+import { DiscussionMount } from "@/components/comments/DiscussionMount";
 
 export const dynamicParams = false;
 
@@ -173,6 +174,15 @@ export default async function PublicationPage({
                 )}
               </div>
             )}
+
+            {/* Discussion — moderated comments (approved comments only).
+                Mounted client-side only (Firebase / real-time) so it stays out
+                of the static server prerender. */}
+            <DiscussionMount
+              postSlug={post.slug}
+              contentType={post.category}
+              subscriberOnly={post.subscriberOnly ?? false}
+            />
           </div>
 
           {/* Sidebar */}

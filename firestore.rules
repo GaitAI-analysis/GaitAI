@@ -1,0 +1,106 @@
+rules_version = '2';
+
+// =============================================================================
+// GaitAI Insights — Moderated Comment System security rules
+// -----------------------------------------------------------------------------
+// Paste this whole file into:  Firebase Console → Firestore Database → Rules.
+// These rules are the REAL enforcement layer. The UI (public widget + admin
+// page) is only a convenience — every permission below is checked here.
+//
+// Permission matrix:
+//   postComments        → anyone may READ (approved comments only live here);
+//                         only the admin may write.
+//   pendingComments     → anyone may CREATE a pending comment (validated);
+//                         only the admin may read / update / delete.
+//   pendingCommentQueue → flat moderation mirror; same as pendingComments.
+//   reportedComments    → anyone may CREATE a report (validated);
+//                         only the admin may read / update / delete.
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Admin allowlist (mirrors src/lib/comments/config.ts) --------------
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in ['anubhaparashar1025@gmail.com'];
+    }
+
+    // ---- (Optional) subscriber gate placeholder ---------------------------
+    // The site has no subscription backend yet, so subscriber-only gating is
+    // enforced in the UI. When a real model exists (custom claims or a
+    // `subscribers/{uid}` doc), implement this and add it to the read rule on
+    // postComments for subscriber-only threads.
+    //   function isSubscriber() {
+    //     return request.auth != null && request.auth.token.subscriber == true;
+    //   }
+
+    // ---- Shared validation for an incoming PENDING comment ----------------
+    function pendingFieldsValid(d) {
+      return d.keys().hasOnly([
+               'commentId','postId','contentId','contentType','userName',
+               'email','message','createdAt','status','approvedAt',
+               'approvedBy','parentCommentId','userId'
+             ])
+        && d.status == 'pending'
+        && d.approvedAt == null
+        && d.approvedBy == null
+        && d.commentId is string
+        && d.postId is string && d.postId.size() > 0 && d.postId.size() <= 200
+        && d.contentId is string
+        && d.contentType in ['research','announcement','documentation','approval','blog','demo']
+        && d.userName is string && d.userName.size() >= 2 && d.userName.size() <= 80
+        && (d.email == null || (d.email is string && d.email.size() <= 254))
+        && d.message is string && d.message.size() >= 2 && d.message.size() <= 2000
+        && d.createdAt is timestamp
+        && (d.parentCommentId == null || d.parentCommentId is string)
+        && (d.userId == null || d.userId is string);
+    }
+
+    function reportFieldsValid(d) {
+      return d.keys().hasOnly(['reportId','postId','commentId','reason','reportedBy','createdAt','resolved'])
+        && d.reportId is string
+        && d.postId is string && d.postId.size() <= 200
+        && d.commentId is string
+        && d.reason is string && d.reason.size() <= 500
+        && (d.reportedBy == null || d.reportedBy is string)
+        && d.createdAt is timestamp
+        && d.resolved == false;
+    }
+
+    // ---- PUBLIC, approved comments ----------------------------------------
+    // Only the admin ever writes here (approval copies the comment in). The
+    // public can read freely. For subscriber-only threads, layer isSubscriber()
+    // into this read once a subscription model exists.
+    match /postComments/{postSlug}/comments/{commentId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // ---- PENDING comments (canonical) -------------------------------------
+    match /pendingComments/{postSlug}/comments/{commentId} {
+      allow read: if isAdmin();
+      allow create: if pendingFieldsValid(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- PENDING comment queue (flat moderation mirror) -------------------
+    match /pendingCommentQueue/{queueId} {
+      allow read: if isAdmin();
+      allow create: if pendingFieldsValid(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- Reported comments -------------------------------------------------
+    match /reportedComments/{reportId} {
+      allow read: if isAdmin();
+      allow create: if reportFieldsValid(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- Everything else: deny --------------------------------------------
+    // (No catch-all allow. Existing collections used by the rest of the site
+    // are unaffected — add their own rules elsewhere if/when needed.)
+  }
+}

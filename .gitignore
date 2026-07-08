@@ -3,7 +3,18 @@ node_modules
 out
 build
 dist
-.env*.local
+# Secrets / environment — ignore every .env variant EXCEPT the committed template
+.env
+.env.*
+!.env.example
+# Credential / key files (never commit these)
+*.pem
+*.key
+*.p12
+*.pfx
+*serviceAccount*.json
+*service-account*.json
+*-credentials.json
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
@@ -13,3 +24,6 @@ public/uploads/*
 build_check.log
 devlog*.txt
 fbtest.mjs
+
+# Generated at dev/build time from .env.local — never commit
+public/firebase-config.js

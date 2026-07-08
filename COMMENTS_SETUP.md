@@ -5,7 +5,7 @@ publications. Nothing existing was deleted, renamed, or migrated — this is
 additive only (new files + new Firestore collections).
 
 Pipeline: every visitor submission is written as **`pending`** and is invisible
-to the public until the admin **approves** it from `/admin-comments.html`.
+to the public until the admin **approves** it from the **/admin-controlpanel** route.
 
 ---
 
@@ -24,7 +24,7 @@ src/components/comments/CommentItem.tsx          Nested replies (capped) + repor
 src/components/comments/LockedState.tsx          Subscriber-locked card
 src/components/comments/Turnstile.tsx            Optional CAPTCHA (off by default)
 src/components/comments/Toast.tsx
-public/admin-comments.html               Standalone admin moderation page
+src/app/admin-controlpanel/          Admin control panel route (content + moderation)
 firestore.rules                          Complete security rules (paste into console)
 ```
 
@@ -42,24 +42,24 @@ npm install            # firebase@^12 is now in package.json
 npm run dev            # or: npm run build  (static export to ./out)
 ```
 
-The production build emits the admin page verbatim to `out/admin-comments.html`,
-so the live URL is **https://gaitai.in/admin-comments.html**.
+The admin panel is a normal Next.js route,
+so the live URL is **https://gaitai.in/admin-controlpanel/**.
 
 ---
 
 ## 3. Environment variables
 
-All optional — `src/lib/firebase.ts` ships working defaults for the
-`gaitai-33c7f` project. Set these (e.g. in `.env.local`, already gitignored) to
-override per environment. See `.env.example` for the full list.
+All **required** — no keys are hardcoded in the repo. Copy `.env.example` to
+`.env.local` (already gitignored) and fill in the values from Firebase Console
+(Project settings → General → Your apps → SDK setup and configuration).
 
 ```
-NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyBvQFrPJPgGkizJC-loZjeEIZemAKA-eYw
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=gaitai-33c7f.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=gaitai-33c7f
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=gaitai-33c7f.firebasestorage.app
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=52857173308
-NEXT_PUBLIC_FIREBASE_APP_ID=1:52857173308:web:9ecefc164e3f6eea91da39
+NEXT_PUBLIC_FIREBASE_API_KEY=<your-api-key>
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=<project-id>.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=<project-id>
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=<project-id>.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=<sender-id>
+NEXT_PUBLIC_FIREBASE_APP_ID=<app-id>
 
 # Optional CAPTCHA — leave blank to keep it disabled
 NEXT_PUBLIC_TURNSTILE_SITE_KEY=
@@ -95,7 +95,7 @@ are validated server-side.
 3. **Authentication → Settings → Authorized domains** — ensure these are listed:
    `gaitai.in`, `www.gaitai.in`, `localhost`.
 4. **Publish the rules** from step 4 above.
-5. Sign in to `/admin-comments.html` with **anubhaparashar1025@gmail.com** to
+5. Open `/admin-controlpanel` to
    confirm moderation access. Any other account sees an "access denied" screen.
 
 No collections need to be pre-created — they're created on first write.

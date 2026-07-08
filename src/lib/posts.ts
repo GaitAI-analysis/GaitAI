@@ -22,6 +22,12 @@ export interface Post {
   publishedAt: string;
   author: string;
   featured?: boolean;
+  /**
+   * Optional: when true, the discussion thread on this post is reserved for
+   * subscribers. Read by the comment system's subscription gate. Absent on
+   * existing posts, so behaviour is unchanged unless explicitly set.
+   */
+  subscriberOnly?: boolean;
 }
 
 export const CATEGORY_META: Record<

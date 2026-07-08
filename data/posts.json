@@ -94,6 +94,69 @@
       ],
       "publishedAt": "2026-02-10T11:00:00.000Z",
       "author": "GaitAI"
+    },
+    {
+      "id": "seed-blog-design-walk",
+      "slug": "designing-for-the-way-people-walk",
+      "title": "Designing for the way people actually walk",
+      "category": "blog",
+      "summary": "Real gait is messy — phones in hand, bags on shoulders, limps, hurry. A short piece on building movement models that respect how people really move.",
+      "body": "Lab walks are clean. Real walks are not.\n\nPeople walk while texting, while carrying groceries, while herding a toddler. They limp on a bad knee, speed up when late, slow down on ice. **A movement model that only works on a clean treadmill walk is a demo, not a product.**\n\n## Three things we design around\n\n- **Load and occlusion.** Bags, coats and crowds hide limbs. Our temporal buffer keeps an identity signature alive through short gaps.\n- **Intent, not just identity.** *How* someone moves often matters more than *who* they are — hesitation, instability, a sudden change in cadence.\n- **Dignity.** The observed person rarely consents to being measured. That constraint shapes every default we ship.\n\n## The takeaway\n\nIf you build for the idealized walk, you fail in the real hallway. We build for the hallway.",
+      "tags": [
+        "design",
+        "essay",
+        "product"
+      ],
+      "publishedAt": "2026-06-24T09:30:00.000Z",
+      "author": "GaitAI"
+    },
+    {
+      "id": "seed-blog-privacy-default",
+      "slug": "privacy-by-default-not-by-paperwork",
+      "title": "Privacy by default, not by paperwork",
+      "category": "blog",
+      "summary": "Privacy isn't a policy PDF — it's an architecture decision. How GaitAI keeps movement data minimal, on-device and explainable from the first frame.",
+      "body": "Most privacy promises live in a document nobody reads. We'd rather they live in the architecture.\n\n## What 'by default' means here\n\n- **On-device first.** Pose, identity and risk inference run at the edge. Raw video doesn't need to leave the camera.\n- **Signals, not footage.** We persist bounded scores and signatures, not pixels, wherever the use case allows.\n- **Explainable outputs.** Every risk score can point to the features that moved it — no black-box alerts.\n\n## Why it matters\n\nMovement is an ambient biometric: it works without anyone opting in. The only ethical response is to collect the least, keep it the shortest time, and make every output legible to the people it affects.\n\nThat's not paperwork. That's the build.",
+      "tags": [
+        "privacy",
+        "ethics",
+        "architecture"
+      ],
+      "publishedAt": "2026-06-18T14:00:00.000Z",
+      "author": "GaitAI"
+    },
+    {
+      "id": "seed-update-june",
+      "slug": "june-2026-product-update",
+      "title": "June 2026 update: faster edge inference & a new balance signal",
+      "category": "announcement",
+      "summary": "This month: a 22% latency cut on the edge runtime, a new lateral-balance signal in Care, and expanded multi-subject tracking in Secure.",
+      "body": "A quick roundup of what shipped this month.\n\n## Faster edge runtime\n\nThe v1.4 edge runtime cuts per-frame latency by **22%** on Apple Silicon and mid-range Jetson boards — more headroom for multi-subject scenes.\n\n## New lateral-balance signal (Care)\n\nCare now surfaces a **lateral sway** signal alongside cadence and symmetry, an early indicator we've found useful for fall-risk trends.\n\n## Multi-subject tracking (Secure)\n\nSecure now holds clean identity separation for up to **eight** concurrent subjects in a single frame, up from five.\n\n## Coming next\n\nWe're piloting longitudinal dashboards with two design partners and expanding the consented research dataset. More soon.",
+      "tags": [
+        "update",
+        "release",
+        "edge",
+        "care"
+      ],
+      "publishedAt": "2026-06-30T08:00:00.000Z",
+      "author": "GaitAI",
+      "featured": true
+    },
+    {
+      "id": "seed-sub-research-deepdive",
+      "slug": "subscriber-deep-dive-gait-embeddings",
+      "title": "Subscriber deep-dive: how gait embeddings stay stable across cameras",
+      "category": "research",
+      "summary": "A subscriber-only technical deep-dive into the contrastive training and normalization tricks that keep GaitAI identity embeddings stable across camera angles.",
+      "body": "> This is a subscriber-only post — the discussion below it is reserved for GaitAI subscribers, so you'll see the locked state instead of the comment box.\n\n## The problem\n\nThe same person filmed from two angles produces very different raw pose sequences. A naive embedding drifts badly across cameras.\n\n## What keeps it stable\n\n- **Contrastive training** across synthetic multi-view pairs of the same walk.\n- **View-invariant normalization** of the skeleton before embedding.\n- **Temporal pooling** that averages out per-frame noise while preserving rhythm.\n\n## Result\n\nCross-camera identity matching holds up far better than per-frame matching, which is what makes ambient, multi-camera deployments practical.\n\nFull benchmark tables are in the subscriber appendix.",
+      "tags": [
+        "research",
+        "embeddings",
+        "subscriber"
+      ],
+      "publishedAt": "2026-06-12T10:00:00.000Z",
+      "author": "GaitAI Research",
+      "subscriberOnly": true
     }
   ]
 }

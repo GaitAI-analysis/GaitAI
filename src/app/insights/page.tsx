@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Newspaper } from "lucide-react";
-import { readPosts } from "@/lib/posts-store";
-import { PostsList } from "@/components/posts/PostsList";
+import { LivePostsList } from "@/components/posts/LivePostsList";
 
 export const metadata: Metadata = {
   title: "Insights — Blog, research notes & updates",
@@ -9,13 +8,12 @@ export const metadata: Metadata = {
     "The GaitAI Insights hub — blog essays, research notes, product updates, documentation and demos on movement intelligence.",
 };
 
-export default async function InsightsPage() {
-  const posts = await readPosts();
-  const ordered = [...posts].sort(
-    (a, b) =>
-      new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-  );
-
+/**
+ * Firestore is the ONLY source of truth for posts. The list is fetched on the
+ * client so whatever the control panel writes (or deletes) is what visitors
+ * see — no build-time copy to go stale.
+ */
+export default function InsightsPage() {
   return (
     <>
       {/* ─────────── HERO ─────────── */}
@@ -36,7 +34,7 @@ export default async function InsightsPage() {
           <div className="mx-auto max-w-3xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/[0.08] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
               <Newspaper className="h-3.5 w-3.5" />
-              GaitAI Insights · {ordered.length} posts
+              GaitAI Insights
             </div>
             <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
               Insights from the <span className="text-gradient">GaitAI lab.</span>
@@ -53,7 +51,7 @@ export default async function InsightsPage() {
       {/* ─────────── POSTS ─────────── */}
       <section className="section pt-4">
         <div className="container-wide">
-          <PostsList posts={ordered} />
+          <LivePostsList />
         </div>
       </section>
     </>

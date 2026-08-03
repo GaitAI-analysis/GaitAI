@@ -78,7 +78,7 @@ export function CommentForm({
       setCaptchaToken(null);
       notify(
         "success",
-        "Thank you. Your comment has been submitted for approval."
+        "Thanks — your comment is live."
       );
       onSubmitted?.();
     } else {

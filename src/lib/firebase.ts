@@ -9,7 +9,14 @@
  * `.env.example` for the template. Next.js inlines NEXT_PUBLIC_* at build time.
  */
 import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
-import { getFirestore, doc, getDoc, type Firestore } from "firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  limit,
+  query,
+  type Firestore,
+} from "firebase/firestore";
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
 import { fbLog, fbOk, fbFail } from "@/lib/firebase-logger";
 
@@ -44,13 +51,16 @@ export const db: Firestore = getFirestore(app);
 export const auth: Auth = getAuth(app);
 
 /**
- * One-time connectivity probe (browser only). Reads a non-existent doc from
- * the publicly-readable `postComments` path: success (even "doesn't exist")
- * proves the network + API key + Firestore DB + security rules all work.
+ * One-time connectivity probe — DEVELOPMENT ONLY.
+ *
+ * Reads a single doc from the publicly-readable `posts` collection: success
+ * (even when the collection is empty) proves the network + API key + Firestore
+ * DB + security rules all work. This costs a network round-trip, so it is
+ * skipped in production builds where it would slow down every page load.
  */
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
   fbLog("Checking Firestore connection…");
-  getDoc(doc(db, "postComments/__probe__/comments/__probe__"))
+  getDocs(query(collection(db, "posts"), limit(1)))
     .then(() => fbOk("CONNECTION ESTABLISHED — Firestore is reachable and public reads are allowed"))
     .catch((err) => fbFail("CONNECTION FAILED — Firestore probe read was rejected", err));
 }

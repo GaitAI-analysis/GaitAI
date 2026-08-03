@@ -15,15 +15,16 @@ import { StatCard, formatDate, timeAgo } from "./ui";
 
 export function OverviewView({
   posts,
-  pending,
+  comments,
   reports,
   onNavigate,
 }: {
   posts: Post[];
-  pending: CommentDoc[];
+  comments: CommentDoc[];
   reports: ReportDoc[];
   onNavigate: (tab: PanelTab) => void;
 }) {
+  const hidden = comments.filter((c) => c.hidden).length;
   const featured = posts.filter((p) => p.featured).length;
   const recent = [...posts]
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
@@ -48,9 +49,9 @@ export function OverviewView({
         />
         <StatCard
           icon={<MessageSquareText className="h-4 w-4" />}
-          label="Awaiting review"
-          value={pending.length}
-          hint="Pending comments in the queue"
+          label="Comments"
+          value={comments.length}
+          hint={hidden > 0 ? `${hidden} hidden from the site` : "All visible"}
           tone="amber"
         />
         <StatCard
@@ -135,15 +136,15 @@ export function OverviewView({
           <section className="card p-5">
             <h3 className="flex items-center gap-2 font-display text-lg text-soft-white">
               <Clock className="h-4 w-4 text-amber-300" />
-              Needs your attention
+              Recent activity
             </h3>
-            {pending.length === 0 && reports.length === 0 ? (
+            {comments.length === 0 && reports.length === 0 ? (
               <p className="mt-3 text-sm text-soft-mute">
-                All clear — nothing waiting for review.
+                All clear — no comments or reports yet.
               </p>
             ) : (
               <ul className="mt-3 space-y-2.5">
-                {pending.slice(0, 3).map((c) => (
+                {comments.slice(0, 3).map((c) => (
                   <li key={c.commentId} className="text-xs leading-relaxed">
                     <span className="text-soft-white">{c.userName}</span>{" "}
                     <span className="text-soft-mute">
@@ -160,7 +161,7 @@ export function OverviewView({
               onClick={() => onNavigate("comments")}
               className="btn-primary mt-4 w-full justify-center text-xs"
             >
-              Review queue
+              Manage comments
             </button>
           </section>
         </div>

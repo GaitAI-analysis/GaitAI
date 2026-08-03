@@ -9,7 +9,11 @@
 import type { ContentType } from "./types";
 
 /** The ONLY accounts permitted to moderate. Mirrored in firestore.rules. */
-export const ADMIN_EMAILS: readonly string[] = ["anubhaparashar1025@gmail.com"];
+export const ADMIN_EMAILS: readonly string[] = [
+  "anubhaparashar1025@gmail.com",
+  "naveenmalhotra148@gmail.com",
+  "gait.ai.founder@gmail.com",
+];
 
 export function isAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false;
@@ -69,15 +73,12 @@ export const CAPTCHA_ENABLED = TURNSTILE_SITE_KEY.length > 0;
 /* ---- Firestore collection paths (single source of truth) ----------------- */
 
 export const COLLECTIONS = {
-  /** pendingComments/{postSlug}/comments/{commentId} */
-  pending: (postSlug: string) => `pendingComments/${postSlug}/comments`,
-  /** pendingCommentQueue/{postSlug__commentId} — flat moderation queue mirror */
-  queue: "pendingCommentQueue",
-  /** postComments/{postSlug}/comments/{commentId} — public, approved only */
-  approved: (postSlug: string) => `postComments/${postSlug}/comments`,
+  /**
+   * comments/{commentId} — every comment on the site, in one flat collection.
+   * Each doc carries `postId` (the post slug) and a `hidden` flag. Comments
+   * publish instantly; hiding and deleting are admin-only.
+   */
+  comments: "comments",
   /** reportedComments/{reportId} */
   reports: "reportedComments",
 } as const;
-
-export const queueKey = (postSlug: string, commentId: string) =>
-  `${postSlug}__${commentId}`;

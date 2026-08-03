@@ -5,34 +5,30 @@
  *
  * Single place to manage everything shown on the public Insights and
  * Publications pages: content (posts / blogs) and community moderation
- * (pending comments + reports).
+ * (comments: hide / delete, plus reader reports).
  *
- * Auth is intentionally disabled for now (see the "Open access" chip).
- * Data flows through src/lib/admin/panel-store.ts — the single seam where
- * Firebase gets wired in later.
+ * Access is gated by Google sign-in against the moderator allowlist
+ * (AdminAuthGate). Data is live Firestore via src/lib/admin/panel-store.ts.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUpRight,
-  Database,
   FileText,
   LayoutDashboard,
   MessageSquareText,
-  RefreshCcw,
-  ShieldOff,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import {
   getAdapter,
-  resetLocalData,
   type CommentDoc,
   type Post,
   type ReportDoc,
 } from "@/lib/admin/panel-store";
 import { ToastProvider, useToast } from "./ui";
+import { AdminAuthGate } from "./AdminAuthGate";
 import { OverviewView } from "./OverviewView";
 import { ContentView } from "./ContentView";
 import { CommentsView } from "./CommentsView";
@@ -57,14 +53,16 @@ const NAV: { id: PanelTab; label: string; icon: React.ReactNode; sub: string }[]
       id: "comments",
       label: "Comments",
       icon: <MessageSquareText className="h-4 w-4" />,
-      sub: "Moderation queue",
+      sub: "Hide & delete",
     },
   ];
 
 export function ControlPanel() {
   return (
     <ToastProvider>
-      <PanelInner />
+      <AdminAuthGate>
+        {() => <PanelInner />}
+      </AdminAuthGate>
     </ToastProvider>
   );
 }
@@ -75,56 +73,85 @@ function PanelInner() {
 
   const [tab, setTab] = useState<PanelTab>("overview");
   const [posts, setPosts] = useState<Post[]>([]);
-  const [pending, setPending] = useState<CommentDoc[]>([]);
+  const [comments, setComments] = useState<CommentDoc[]>([]);
   const [reports, setReports] = useState<ReportDoc[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
-  // Hydrate from the adapter on the client only (localStorage-backed today).
+  const refresh = useCallback(async () => {
+    try {
+      const [p, c, rep] = await Promise.all([
+        adapter.loadPosts(),
+        adapter.loadComments(),
+        adapter.loadReports(),
+      ]);
+      setPosts(p);
+      setComments(c);
+      setReports(rep);
+    } catch {
+      toast("error", "Couldn't reach Firestore. Check your connection & rules.");
+    } finally {
+      setHydrated(true);
+    }
+  }, [adapter, toast]);
+
   useEffect(() => {
-    setPosts(adapter.loadPosts());
-    setPending(adapter.loadPending());
-    setReports(adapter.loadReports());
-    setHydrated(true);
-  }, [adapter]);
+    void refresh();
+  }, [refresh]);
 
-  /* ---- actions (thin pass-throughs to the adapter) ---------------------- */
+  /* ---- actions ---------------------------------------------------------- */
 
-  const savePost = (post: Post) => {
-    setPosts(adapter.savePost(post));
-    toast("success", "Post saved — live on the local dataset.");
+  const savePost = async (post: Post) => {
+    try {
+      setPosts(await adapter.savePost(post));
+      toast("success", "Post saved — live on the site.");
+    } catch {
+      toast("error", "Save failed. Are you still signed in as an admin?");
+    }
   };
 
-  const deletePost = (id: string) => {
-    setPosts(adapter.deletePost(id));
-    toast("info", "Post deleted.");
+  const deletePost = async (id: string) => {
+    try {
+      setPosts(await adapter.deletePost(id));
+      toast("info", "Post deleted.");
+    } catch {
+      toast("error", "Delete failed.");
+    }
   };
 
-  const approveComment = (id: string) => {
-    setPending(adapter.approveComment(id).pending);
-    toast("success", "Comment approved.");
+  const toggleHidden = async (id: string, hidden: boolean) => {
+    try {
+      setComments(await adapter.setCommentHidden(id, hidden));
+      toast(
+        hidden ? "info" : "success",
+        hidden
+          ? "Comment hidden from the site."
+          : "Comment restored — visible again.",
+      );
+    } catch {
+      toast("error", hidden ? "Hide failed." : "Restore failed.");
+    }
   };
 
-  const rejectComment = (id: string) => {
-    setPending(adapter.rejectComment(id).pending);
-    toast("info", "Comment rejected.");
+  const deleteComment = async (id: string) => {
+    try {
+      setComments(await adapter.deleteComment(id));
+      toast("info", "Comment deleted permanently.");
+    } catch {
+      toast("error", "Delete failed.");
+    }
   };
 
-  const resolveReport = (id: string) => {
-    setReports(adapter.resolveReport(id));
-    toast("success", "Report resolved.");
-  };
-
-  const resetData = () => {
-    resetLocalData();
-    setPosts(adapter.loadPosts());
-    setPending(adapter.loadPending());
-    setReports(adapter.loadReports());
-    toast("info", "Local sample data reset.");
+  const resolveReport = async (id: string) => {
+    try {
+      setReports(await adapter.resolveReport(id));
+      toast("success", "Report resolved.");
+    } catch {
+      toast("error", "Resolve failed.");
+    }
   };
 
   return (
     <div className="relative min-h-screen w-full">
-      {/* Ambient background glow, matching the site's hero treatment */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(60%_50%_at_50%_0%,rgba(34,211,238,0.07),transparent_70%)]"
@@ -138,25 +165,12 @@ function PanelInner() {
             <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-300/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300 ring-1 ring-cyan-300/30">
               Control Panel
             </span>
-            <span
-              title="Authentication is temporarily disabled on this route."
-              className="hidden items-center gap-1.5 rounded-full bg-amber-300/[0.07] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300 ring-1 ring-amber-300/25 sm:inline-flex"
-            >
-              <ShieldOff className="h-3 w-3" />
-              Open access
+            <span className="hidden items-center gap-1.5 rounded-full bg-emerald-400/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300 ring-1 ring-emerald-400/25 sm:inline-flex">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              Live · Firestore
             </span>
           </div>
           <div className="flex items-center gap-2">
-            {adapter.isLocal && (
-              <button
-                onClick={resetData}
-                title="Reset the local sample dataset"
-                className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-xs text-soft-mute ring-1 ring-white/10 transition-all hover:bg-white/[0.08] hover:text-soft-white"
-              >
-                <RefreshCcw className="h-3 w-3" />
-                Reset data
-              </button>
-            )}
             <Link
               href="/insights"
               className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-xs text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/[0.08]"
@@ -167,29 +181,14 @@ function PanelInner() {
           </div>
         </header>
 
-        {/* ---- Local-data notice -------------------------------------------- */}
-        {adapter.isLocal && (
-          <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-cyan-300/15 bg-cyan-300/[0.04] px-4 py-3 text-xs leading-relaxed text-soft-gray">
-            <Database className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyan-300" />
-            <span>
-              Running on <span className="text-soft-white">local sample data</span>{" "}
-              — changes persist in this browser only. Once Firebase is wired into{" "}
-              <code className="rounded bg-white/[0.06] px-1 py-0.5 text-[11px]">
-                panel-store.ts
-              </code>
-              , everything here drives the live Insights &amp; Publications pages.
-            </span>
-          </div>
-        )}
-
         {/* ---- Shell: sidebar + active view --------------------------------- */}
         <div className="mt-8 grid gap-6 lg:grid-cols-[230px_minmax(0,1fr)]">
           {/* Sidebar */}
           <nav className="flex gap-2 overflow-x-auto lg:flex-col lg:gap-1.5">
             {NAV.map((item) => {
               const active = tab === item.id;
-              const badge =
-                item.id === "comments" ? pending.length + reports.length : 0;
+              // Only surface things that actually need attention.
+              const badge = item.id === "comments" ? reports.length : 0;
               return (
                 <button
                   key={item.id}
@@ -252,7 +251,7 @@ function PanelInner() {
                 ) : tab === "overview" ? (
                   <OverviewView
                     posts={posts}
-                    pending={pending}
+                    comments={comments}
                     reports={reports}
                     onNavigate={setTab}
                   />
@@ -264,10 +263,10 @@ function PanelInner() {
                   />
                 ) : (
                   <CommentsView
-                    pending={pending}
+                    comments={comments}
                     reports={reports}
-                    onApprove={approveComment}
-                    onReject={rejectComment}
+                    onToggleHidden={toggleHidden}
+                    onDelete={deleteComment}
                     onResolve={resolveReport}
                   />
                 )}

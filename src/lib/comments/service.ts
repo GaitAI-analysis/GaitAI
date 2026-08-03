@@ -4,13 +4,13 @@
  * Public comment service — the only Firestore surface the public bundle touches.
  *
  * Capabilities here are deliberately limited to what a visitor may do:
- *   - submit a comment / reply (always written as `pending`)
- *   - read APPROVED comments (real-time)
- *   - report an approved comment
+ *   - post a comment / reply, which appears IMMEDIATELY (no approval queue)
+ *   - read visible (non-hidden) comments in real time
+ *   - report a comment
  *
- * Moderation (read pending, approve, reject, delete) lives exclusively in the
- * standalone admin page and is enforced by firestore.rules — it is intentionally
- * NOT importable from the public bundle.
+ * Moderation (hide / unhide / delete) lives exclusively in the admin control
+ * panel and is enforced by firestore.rules — it is intentionally NOT importable
+ * from the public bundle.
  */
 
 import {
@@ -18,12 +18,10 @@ import {
   doc,
   getDocs,
   onSnapshot,
-  orderBy,
   query,
   serverTimestamp,
   setDoc,
   where,
-  writeBatch,
   Timestamp,
   type DocumentData,
 } from "firebase/firestore";
@@ -38,7 +36,6 @@ import {
   MIN_NAME_LENGTH,
   RATE_LIMIT_COOLDOWN_MS,
   RATE_LIMIT_STORAGE_KEY,
-  queueKey,
 } from "./config";
 import type {
   CommentDoc,
@@ -158,9 +155,9 @@ export function validateComment(input: {
 /* ---------------------------------------------------------------- submit -- */
 
 /**
- * Submit a comment or reply. Always written with `status: "pending"`. Performs
- * client-side abuse checks, then writes BOTH the canonical pending doc and the
- * flat queue mirror in a single atomic batch.
+ * Post a comment or reply. It goes live immediately (`hidden: false`) — there
+ * is no approval queue. Client-side abuse checks run first; an admin can hide
+ * or delete anything afterwards from the control panel.
  */
 export async function submitComment(
   input: NewCommentInput
@@ -205,17 +202,19 @@ export async function submitComment(
   }
   fbOk("Step 2/4 — rate-limit & duplicate fingerprint checks passed");
 
-  // Block exact duplicates of already-approved comments (public-readable).
+  // Block exact duplicates of comments already live on this post.
   try {
-    fbLog("Step 3/4 — querying Firestore for already-approved duplicates…");
+    fbLog("Step 3/4 — querying Firestore for duplicates…");
     const dupQ = query(
-      collection(db, COLLECTIONS.approved(input.postSlug)),
+      collection(db, COLLECTIONS.comments),
+      where("postId", "==", input.postSlug),
+      where("hidden", "==", false),
       where("userName", "==", input.userName.trim()),
       where("message", "==", input.message.trim())
     );
     const dup = await getDocs(dupQ);
     if (!dup.empty) {
-      fbLog("Submit blocked — identical comment already approved");
+      fbLog("Submit blocked — identical comment already posted");
       return {
         ok: false,
         code: "duplicate",
@@ -238,52 +237,35 @@ export async function submitComment(
     email: input.email?.trim() || null,
     message: input.message.trim(),
     createdAt: serverTimestamp(),
-    status: "pending",
-    approvedAt: null,
-    approvedBy: null,
+    hidden: false,
     parentCommentId: input.parentCommentId ?? null,
     userId: input.userId ?? null,
   };
 
   try {
-    fbLog(
-      `Step 4/4 — writing pending comment batch (${COLLECTIONS.pending(input.postSlug)}/${commentId} + ${COLLECTIONS.queue}/${queueKey(input.postSlug, commentId)})…`
-    );
-    const batch = writeBatch(db);
-    const pendingRef = doc(
-      db,
-      COLLECTIONS.pending(input.postSlug),
-      commentId
-    );
-    const queueRef = doc(
-      db,
-      COLLECTIONS.queue,
-      queueKey(input.postSlug, commentId)
-    );
-    batch.set(pendingRef, payload);
-    batch.set(queueRef, payload);
-    await batch.commit();
+    fbLog(`Step 4/4 — publishing comment (${COLLECTIONS.comments}/${commentId})…`);
+    await setDoc(doc(db, COLLECTIONS.comments, commentId), payload);
 
     stampCooldown();
     rememberFingerprint(fp);
-    fbOk(`Step 4/4 — comment ${commentId} written to Firestore (status: pending, awaiting moderation)`);
+    fbOk(`Step 4/4 — comment ${commentId} published and live`);
     return { ok: true };
   } catch (err) {
-    const code = fbFail("Step 4/4 — Firestore batch write REJECTED", err);
+    const code = fbFail("Step 4/4 — Firestore write REJECTED", err);
     return {
       ok: false,
       code: "network",
       message:
         code === "permission-denied"
           ? "The server rejected this comment (permission denied). If you're the site owner, publish the Firestore security rules."
-          : "We couldn't submit your comment right now. Please try again shortly.",
+          : "We couldn't post your comment right now. Please try again shortly.",
     };
   }
 }
 
 /* ---------------------------------------------------------- read approved -- */
 
-function mapComment(data: DocumentData): CommentDoc {
+export function mapComment(data: DocumentData): CommentDoc {
   return {
     commentId: String(data.commentId ?? ""),
     postId: String(data.postId ?? data.contentId ?? ""),
@@ -293,24 +275,34 @@ function mapComment(data: DocumentData): CommentDoc {
     email: data.email ?? null,
     message: String(data.message ?? ""),
     createdAt: toIso(data.createdAt),
-    status: (data.status ?? "approved") as CommentDoc["status"],
-    approvedAt: data.approvedAt ? toIso(data.approvedAt) : null,
-    approvedBy: data.approvedBy ?? null,
+    hidden: Boolean(data.hidden ?? false),
     parentCommentId: data.parentCommentId ?? null,
     userId: data.userId ?? null,
   };
 }
 
-/** Real-time subscription to APPROVED comments for a post. */
+/** Oldest-first, so a thread reads top to bottom. */
+function byOldest(a: CommentDoc, b: CommentDoc): number {
+  return a.createdAt.localeCompare(b.createdAt);
+}
+
+/**
+ * Real-time subscription to the VISIBLE comments on a post.
+ *
+ * Filters are equality-only (`postId`, `hidden`) so Firestore serves this from
+ * its automatic indexes — no composite index to create. Ordering is done in
+ * memory, which keeps the query index-free.
+ */
 export function subscribeApprovedComments(
   postSlug: string,
   onChange: (comments: CommentDoc[]) => void,
   onError?: (error: Error) => void
 ): () => void {
-  fbLog(`Opening live subscription to approved comments (${COLLECTIONS.approved(postSlug)})…`);
+  fbLog(`Opening live subscription to comments on "${postSlug}"…`);
   const q = query(
-    collection(db, COLLECTIONS.approved(postSlug)),
-    orderBy("createdAt", "asc")
+    collection(db, COLLECTIONS.comments),
+    where("postId", "==", postSlug),
+    where("hidden", "==", false)
   );
   let first = true;
   return onSnapshot(
@@ -319,12 +311,12 @@ export function subscribeApprovedComments(
       if (first) {
         first = false;
         fbOk(
-          `LIVE CONNECTION ESTABLISHED for "${postSlug}" — ${snap.size} approved comment(s) received${snap.metadata.fromCache ? " (from cache, server sync pending)" : " (from server)"}`
+          `LIVE CONNECTION ESTABLISHED for "${postSlug}" — ${snap.size} comment(s)${snap.metadata.fromCache ? " (from cache)" : " (from server)"}`
         );
       } else {
-        fbLog(`Live update for "${postSlug}" — now ${snap.size} approved comment(s)`);
+        fbLog(`Live update for "${postSlug}" — now ${snap.size} comment(s)`);
       }
-      onChange(snap.docs.map((d) => mapComment(d.data())));
+      onChange(snap.docs.map((d) => mapComment(d.data())).sort(byOldest));
     },
     (err) => {
       fbFail(`Live subscription for "${postSlug}" FAILED`, err);
@@ -333,16 +325,17 @@ export function subscribeApprovedComments(
   );
 }
 
-/** One-shot fetch of approved comments (e.g. for SSR-free static prefetch). */
+/** One-shot fetch of the visible comments on a post. */
 export async function fetchApprovedComments(
   postSlug: string
 ): Promise<CommentDoc[]> {
   const q = query(
-    collection(db, COLLECTIONS.approved(postSlug)),
-    orderBy("createdAt", "asc")
+    collection(db, COLLECTIONS.comments),
+    where("postId", "==", postSlug),
+    where("hidden", "==", false)
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => mapComment(d.data()));
+  return snap.docs.map((d) => mapComment(d.data())).sort(byOldest);
 }
 
 /* ---------------------------------------------------------- threading ----- */

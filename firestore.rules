@@ -24,7 +24,11 @@ service cloud.firestore {
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email in ['anubhaparashar1025@gmail.com'];
+        && request.auth.token.email in [
+             'anubhaparashar1025@gmail.com',
+             'naveenmalhotra148@gmail.com',
+             'gait.ai.founder@gmail.com'
+           ];
     }
 
     // ---- (Optional) subscriber gate placeholder ---------------------------
@@ -36,16 +40,16 @@ service cloud.firestore {
     //     return request.auth != null && request.auth.token.subscriber == true;
     //   }
 
-    // ---- Shared validation for an incoming PENDING comment ----------------
-    function pendingFieldsValid(d) {
+    // ---- Validation for an incoming public comment ------------------------
+    // Comments publish immediately (no approval queue). A visitor may only
+    // create a VISIBLE comment — `hidden` must start false, and only an admin
+    // can flip it afterwards.
+    function commentFieldsValid(d) {
       return d.keys().hasOnly([
                'commentId','postId','contentId','contentType','userName',
-               'email','message','createdAt','status','approvedAt',
-               'approvedBy','parentCommentId','userId'
+               'email','message','createdAt','hidden','parentCommentId','userId'
              ])
-        && d.status == 'pending'
-        && d.approvedAt == null
-        && d.approvedBy == null
+        && d.hidden == false
         && d.commentId is string
         && d.postId is string && d.postId.size() > 0 && d.postId.size() <= 200
         && d.contentId is string
@@ -69,26 +73,14 @@ service cloud.firestore {
         && d.resolved == false;
     }
 
-    // ---- PUBLIC, approved comments ----------------------------------------
-    // Only the admin ever writes here (approval copies the comment in). The
-    // public can read freely. For subscriber-only threads, layer isSubscriber()
-    // into this read once a subscription model exists.
-    match /postComments/{postSlug}/comments/{commentId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    // ---- PENDING comments (canonical) -------------------------------------
-    match /pendingComments/{postSlug}/comments/{commentId} {
-      allow read: if isAdmin();
-      allow create: if pendingFieldsValid(request.resource.data);
-      allow update, delete: if isAdmin();
-    }
-
-    // ---- PENDING comment queue (flat moderation mirror) -------------------
-    match /pendingCommentQueue/{queueId} {
-      allow read: if isAdmin();
-      allow create: if pendingFieldsValid(request.resource.data);
+    // ---- COMMENTS (single flat collection) --------------------------------
+    // Comments go live the moment they're posted. Visitors read only the ones
+    // that aren't hidden — enforced here, so a hidden comment can't be pulled
+    // out of the database by hand. Admins read everything, and are the only
+    // ones who can hide (update) or delete.
+    match /comments/{commentId} {
+      allow read: if resource.data.hidden == false || isAdmin();
+      allow create: if commentFieldsValid(request.resource.data);
       allow update, delete: if isAdmin();
     }
 
@@ -97,6 +89,42 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow create: if reportFieldsValid(request.resource.data);
       allow update, delete: if isAdmin();
+    }
+
+    // ---- Validation for a POST / BLOG document -----------------------------
+    // Mirrors the Post type in src/lib/posts.ts. Optional fields are allowed to
+    // be absent OR null; required fields must be present and well-typed.
+    function postFieldsValid(d) {
+      return d.keys().hasOnly([
+               'id','slug','title','category','summary','body','tags',
+               'publishedAt','author','featured','subscriberOnly',
+               'externalUrl','attachmentUrl','attachmentName',
+               'createdAt','updatedAt'
+             ])
+        && d.id is string && d.id.size() > 0 && d.id.size() <= 200
+        && d.slug is string && d.slug.size() > 0 && d.slug.size() <= 200
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 300
+        && d.category in ['research','announcement','documentation','approval','blog','demo']
+        && d.summary is string && d.summary.size() <= 1000
+        && d.body is string
+        && d.tags is list
+        && d.publishedAt is string
+        && d.author is string && d.author.size() <= 200
+        && (!('featured' in d.keys()) || d.featured is bool)
+        && (!('subscriberOnly' in d.keys()) || d.subscriberOnly == null || d.subscriberOnly is bool)
+        && (!('externalUrl' in d.keys()) || d.externalUrl == null || d.externalUrl is string)
+        && (!('attachmentUrl' in d.keys()) || d.attachmentUrl == null || d.attachmentUrl is string)
+        && (!('attachmentName' in d.keys()) || d.attachmentName == null || d.attachmentName is string);
+    }
+
+    // ---- POSTS / BLOGS (public site content) ------------------------------
+    // Anyone may READ published posts (the public /publications + /insights
+    // pages fetch these live). Only the admin allowlist may create/edit/delete
+    // from the control panel.
+    match /posts/{postId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && postFieldsValid(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     // ---- Everything else: deny --------------------------------------------

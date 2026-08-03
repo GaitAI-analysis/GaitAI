@@ -77,7 +77,7 @@ export function DiscussionSection({
                 ? "Subscriber-only conversation"
                 : count === 0
                 ? "Be the first to comment"
-                : `${count} ${count === 1 ? "comment" : "comments"} · moderated`}
+                : `${count} ${count === 1 ? "comment" : "comments"}`}
             </p>
           </div>
         </div>
@@ -110,7 +110,7 @@ export function DiscussionSection({
                 <EmptyOrError
                   icon={<MessageCircle className="h-5 w-5" />}
                   title="No comments yet"
-                  body="Share your perspective — approved comments appear here."
+                  body="Share your perspective — comments appear here instantly."
                 />
               ) : (
                 <AnimatePresence initial={false}>

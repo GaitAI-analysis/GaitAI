@@ -9,8 +9,6 @@ import type { Category } from "@/lib/posts";
  */
 export type ContentType = Category;
 
-export type CommentStatus = "pending" | "approved" | "rejected";
-
 export interface CommentDoc {
   /** Stable id, also used as the Firestore document id. */
   commentId: string;
@@ -24,9 +22,12 @@ export interface CommentDoc {
   message: string;
   /** ISO string mirror of the Firestore server timestamp (for easy rendering). */
   createdAt: string;
-  status: CommentStatus;
-  approvedAt: string | null;
-  approvedBy: string | null;
+  /**
+   * Comments are visible the moment they're posted. An admin can hide one from
+   * the control panel, which sets this true and removes it from public reads
+   * (enforced in firestore.rules, not just the UI).
+   */
+  hidden: boolean;
   /** Set when this is a reply; null for a top-level comment. */
   parentCommentId: string | null;
   /** Firebase Auth uid when the author was signed in, else null. */

@@ -7,8 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "predev": "node scripts/generate-firebase-config.mjs",
-    "prebuild": "node scripts/generate-firebase-config.mjs"
+    "test:firebase": "node scripts/test-firebase.mjs",
+    "predev": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs",
+    "prebuild": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.0",

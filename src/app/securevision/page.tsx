@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   title: "SecureVision — Privacy-aware movement intelligence",
   description:
     "GaitAI SecureVision — Privacy-aware movement intelligence for safer campuses, transport hubs, factories, events and public spaces.",
+  alternates: { canonical: "/securevision" },
 };
 
 const secureUseCases = industryUseCases.filter(
@@ -63,7 +64,7 @@ export default function SecureVisionPage() {
                 flow, anomaly detection and post-event investigation — backed
                 by{" "}
                 <span className="text-soft-white">a decade of gait research</span>,
-                with PrivacyGuard enabled by default and full audit controls.
+                with PrivacyGuard positioned as the privacy and governance layer.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -105,7 +106,7 @@ export default function SecureVisionPage() {
               </div>
               <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/40 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-royal-300 backdrop-blur-md">
                 <span className="pill-dot" />
-                Crowd heatmap · live
+                Crowd heatmap · demo view
               </div>
             </div>
           </div>
@@ -143,11 +144,14 @@ export default function SecureVisionPage() {
                 <span className="text-gradient-secure">privacy-first engine.</span>
               </>
             }
-            description="Filter by capability area. PrivacyGuard is enabled by default across every deployment."
+            description="Filter by capability area. PrivacyGuard represents the shared privacy and governance layer for sensitive workflows."
             align="left"
           />
           <div className="mt-10">
-            <ProductGrid vertical="securevision" />
+            <ProductGrid
+              vertical="securevision"
+              reservedAnchorIds={["privacyguard", "suspiciousmotion", "crowdsense", "industrialsafety"]}
+            />
           </div>
         </div>
       </section>
@@ -280,18 +284,18 @@ export default function SecureVisionPage() {
         </div>
       </section>
 
-      {/* DEPLOYMENT ENVIRONMENTS */}
+      {/* APPLICATION ENVIRONMENTS */}
       <section className="section bg-obsidian-300/40">
         <div className="container-wide">
           <SectionHeading
-            eyebrow="Deployment environments"
+            eyebrow="Application environments"
             title={
               <>
                 From transport hubs to{" "}
                 <span className="text-gradient">smart cities.</span>
               </>
             }
-            description="SecureVision is deployed across diverse operational environments — each with its own product mix and outcome."
+            description="SecureVision is designed for diverse operational environments, each mapped to a relevant product mix and set of outputs."
             align="left"
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -324,7 +328,7 @@ export default function SecureVisionPage() {
                     </div>
                     <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.02] p-3">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                        Outcome
+                        Relevant outputs
                       </div>
                       <div className="mt-1 text-[12.5px] leading-relaxed text-soft-white">
                         {u.outcome}
@@ -353,7 +357,7 @@ export default function SecureVisionPage() {
               <div>
                 <span className="eyebrow">
                   <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                  Enterprise SecureVision · Smart-city &amp; campus deployments
+                  Enterprise SecureVision · Smart-city &amp; campus workflows
                 </span>
                 <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
                   Request an enterprise safety analytics consultation.

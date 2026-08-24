@@ -136,9 +136,10 @@ const allFilters: FilterDef[] = [
 interface ProductGridProps {
   vertical: Vertical | "all";
   initialFilter?: string;
+  reservedAnchorIds?: readonly string[];
 }
 
-export function ProductGrid({ vertical, initialFilter }: ProductGridProps) {
+export function ProductGrid({ vertical, initialFilter, reservedAnchorIds = [] }: ProductGridProps) {
   const products =
     vertical === "mobilitycare"
       ? mobilityProducts
@@ -195,7 +196,7 @@ export function ProductGrid({ vertical, initialFilter }: ProductGridProps) {
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             >
-              <ProductCard product={p} index={i} />
+              <ProductCard product={p} index={i} anchor={!reservedAnchorIds.includes(p.id)} />
             </motion.div>
           ))}
         </AnimatePresence>
@@ -215,6 +216,8 @@ function FilterPill({
 }) {
   return (
     <button
+      type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={`relative rounded-full border px-4 py-1.5 text-xs font-medium transition-all ${
         active

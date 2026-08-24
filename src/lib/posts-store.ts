@@ -34,6 +34,11 @@ export async function readPosts(): Promise<Post[]> {
   }
 }
 
+export async function readPublishedPosts(): Promise<Post[]> {
+  const posts = await readPosts();
+  return posts.filter((post) => post.publicationStatus === "verified");
+}
+
 export async function writePosts(posts: Post[]): Promise<void> {
   await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.writeFile(FILE, JSON.stringify({ posts }, null, 2));
@@ -42,6 +47,11 @@ export async function writePosts(posts: Post[]): Promise<void> {
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   const posts = await readPosts();
   return posts.find((p) => p.slug === slug) ?? null;
+}
+
+export async function getPublishedPostBySlug(slug: string): Promise<Post | null> {
+  const posts = await readPublishedPosts();
+  return posts.find((post) => post.slug === slug) ?? null;
 }
 
 export async function getPostById(id: string): Promise<Post | null> {

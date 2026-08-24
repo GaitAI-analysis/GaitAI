@@ -3,13 +3,12 @@
 /**
  * The Insights list — reads posts straight from Firestore.
  *
- * Firestore is the single source of truth. Whatever the control panel writes
- * or deletes is exactly what shows here: no build-time copy, no merging, no
- * fallback list that can go stale.
+ * Firestore is the single source of truth. Only posts explicitly marked as
+ * verified are requested by this public surface.
  */
 
 import { useEffect, useState } from "react";
-import { fetchPosts } from "@/lib/posts-firebase";
+import { fetchPublishedPosts } from "@/lib/posts-firebase";
 import { PostsList } from "./PostsList";
 import type { Post } from "@/lib/posts";
 
@@ -20,7 +19,7 @@ export function LivePostsList() {
   useEffect(() => {
     let cancelled = false;
 
-    fetchPosts()
+    fetchPublishedPosts()
       .then((live) => {
         if (!cancelled) setPosts(live);
       })

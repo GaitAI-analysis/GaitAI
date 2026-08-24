@@ -75,6 +75,9 @@ function toPost(doc) {
     publishedAt: String(f.publishedAt ?? new Date().toISOString()),
     author: String(f.author ?? "GaitAI"),
     ...(f.featured != null ? { featured: Boolean(f.featured) } : {}),
+    ...(f.publicationStatus === "draft" || f.publicationStatus === "verified"
+      ? { publicationStatus: f.publicationStatus }
+      : {}),
     ...(f.subscriberOnly != null ? { subscriberOnly: Boolean(f.subscriberOnly) } : {}),
     ...(f.externalUrl ? { externalUrl: String(f.externalUrl) } : {}),
     ...(f.attachmentUrl ? { attachmentUrl: String(f.attachmentUrl) } : {}),

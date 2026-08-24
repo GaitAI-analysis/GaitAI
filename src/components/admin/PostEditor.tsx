@@ -34,6 +34,7 @@ export interface DraftPost {
   attachmentName?: string;
   author: string;
   featured: boolean;
+  publicationStatus: "draft" | "verified";
   publishedAt?: string;
 }
 
@@ -57,6 +58,7 @@ export function PostEditor({
     attachmentName: initial?.attachmentName || "",
     author: initial?.author || "GaitAI",
     featured: Boolean(initial?.featured),
+    publicationStatus: initial?.publicationStatus ?? "draft",
     publishedAt: initial?.publishedAt,
   });
   const [tagInput, setTagInput] = useState("");
@@ -156,6 +158,15 @@ export function PostEditor({
           <label className="inline-flex items-center gap-2 text-xs text-soft-mute">
             <input
               type="checkbox"
+              checked={draft.publicationStatus === "verified"}
+              onChange={(e) => update("publicationStatus", e.target.checked ? "verified" : "draft")}
+              className="h-4 w-4 cursor-pointer rounded border-white/15 bg-transparent accent-cyan-300"
+            />
+            Verified for public
+          </label>
+          <label className="inline-flex items-center gap-2 text-xs text-soft-mute">
+            <input
+              type="checkbox"
               checked={draft.featured}
               onChange={(e) => update("featured", e.target.checked)}
               className="h-4 w-4 cursor-pointer rounded border-white/15 bg-transparent accent-cyan-300"
@@ -172,7 +183,7 @@ export function PostEditor({
             ) : (
               <Save className="h-4 w-4" />
             )}
-            {initial ? "Save changes" : "Publish"}
+            {initial ? "Save changes" : "Save draft"}
           </button>
         </div>
       </div>
@@ -362,7 +373,7 @@ Your paragraph here.
             />
           </Field>
 
-          <Field label="Publish date">
+          <Field label="Record date">
             <input
               type="datetime-local"
               value={
@@ -412,7 +423,7 @@ Your paragraph here.
             ) : (
               <Check className="h-4 w-4" />
             )}
-            {initial ? "Save changes" : "Publish"}
+            {initial ? "Save changes" : "Save record"}
           </button>
         </div>
       </div>

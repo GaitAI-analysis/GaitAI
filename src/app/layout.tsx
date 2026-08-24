@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s | GaitAI",
   },
   description:
-    "GaitAI is a research-led AI platform for movement intelligence — security, healthcare, elderly care and smart environments.",
+    "GaitAI is the research-led AI platform that turns video and wearable motion into measurable intelligence for health, performance and safety.",
   keywords: [
     "GaitAI",
     "gait analysis",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     type: "website",
     title: "GaitAI — Intelligence in Motion",
     description:
-      "AI that understands human movement — for security, healthcare, elderly care and smart environments.",
+      "The AI platform that understands human movement — for health, performance and safety.",
     siteName: "GaitAI",
     images: [
       {
@@ -81,7 +81,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "GaitAI — Intelligence in Motion",
     description:
-      "AI that understands human movement — for security, healthcare, elderly care and smart environments.",
+      "The AI platform that understands human movement — for health, performance and safety.",
     images: [assetPath("/brand/logo-main.png")],
   },
 };
@@ -105,10 +105,29 @@ export default function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable}`}
     >
       <body className="font-sans antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "GaitAI",
+              url: "https://gaitai.in",
+              description:
+                "A research-led movement-intelligence platform for health, performance and safety.",
+            }),
+          }}
+        />
         <Providers>
+          <a
+            href="#main-content"
+            className="fixed left-4 top-4 z-[100] -translate-y-24 rounded-full bg-obsidian-200 px-4 py-2 text-sm font-semibold text-soft-white shadow-card transition-transform focus:translate-y-0"
+          >
+            Skip to content
+          </a>
           <div className="relative min-h-screen">
             <Navbar />
-            <main className="relative">
+            <main id="main-content" className="relative" tabIndex={-1}>
               <PageTransition>{children}</PageTransition>
             </main>
             <Footer />

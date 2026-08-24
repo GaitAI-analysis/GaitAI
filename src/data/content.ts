@@ -99,10 +99,9 @@ export const useCases = [
 ];
 
 export const stats = [
-  { value: "98.7%", label: "Identification accuracy" },
-  { value: "<40ms", label: "Edge inference latency" },
-  { value: "12+", label: "Movement biomarkers" },
-  { value: "24/7", label: "Continuous awareness" },
+  { value: "10+", label: "Years of gait research" },
+  { value: "50+", label: "Founder publications" },
+  { value: "1", label: "Granted patent highlighted" },
 ];
 
 // Flat top-nav tabs — consumed by both desktop & mobile.
@@ -117,9 +116,47 @@ export const navLinks = [
   { label: "Publications", href: "/publications" },
 ];
 
+export const navGroups = [
+  {
+    label: "Platform",
+    items: [
+      { label: "Technology", href: "/#movement-platform", description: "One shared movement engine" },
+      { label: "How it works", href: "/#how", description: "Capture through action" },
+      { label: "Movement Engine", href: "/research", description: "Research and architecture" },
+      { label: "Capabilities", href: "/products", description: "Complete product portfolio" },
+    ],
+  },
+  {
+    label: "Solutions",
+    items: [
+      { label: "MobilityCare", href: "/mobilitycare", description: "Health and performance" },
+      { label: "SecureVision", href: "/securevision", description: "Safety and operations" },
+      { label: "Use cases", href: "/use-cases", description: "Intended environments" },
+    ],
+  },
+  {
+    label: "Research",
+    items: [
+      { label: "Publications", href: "/publications", description: "Peer-reviewed work" },
+      { label: "Granted patent", href: "/publications#patent", description: "Indian Patent No. 402202" },
+      { label: "Research story", href: "/research", description: "Research to product" },
+      { label: "Responsible AI", href: "/legal/responsible-ai", description: "Privacy and oversight" },
+      { label: "Insights", href: "/insights", description: "Company updates" },
+    ],
+  },
+  {
+    label: "Company",
+    items: [
+      { label: "About", href: "/about", description: "Mission and company" },
+      { label: "Founder", href: "/about#founder", description: "Dr. Anubha Parashar" },
+      { label: "Investors", href: "/about#investors", description: "Why movement intelligence" },
+      { label: "Contact", href: "/#contact", description: "Start a conversation" },
+    ],
+  },
+] as const;
+
 export const heroStats = [
-  { value: "98.7%", label: "Gait identification accuracy" },
-  { value: "<40ms", label: "Edge inference latency" },
-  { value: "23", label: "Movement-intelligence products" },
-  { value: "24/7", label: "Continuous awareness" },
+  { value: "10+", label: "Years of gait research" },
+  { value: "50+", label: "Founder publications" },
+  { value: "1", label: "Granted patent highlighted" },
 ];

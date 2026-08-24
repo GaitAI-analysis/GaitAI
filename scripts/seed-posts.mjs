@@ -51,6 +51,9 @@ function toFields(post) {
     publishedAt: { stringValue: post.publishedAt },
     author: { stringValue: post.author ?? "GaitAI" },
     featured: { booleanValue: Boolean(post.featured ?? false) },
+    publicationStatus: {
+      stringValue: post.publicationStatus === "verified" ? "verified" : "draft",
+    },
   };
   if (post.subscriberOnly != null) f.subscriberOnly = { booleanValue: Boolean(post.subscriberOnly) };
   if (post.externalUrl) f.externalUrl = { stringValue: post.externalUrl };

@@ -5,13 +5,13 @@ import { LivePostsList } from "@/components/posts/LivePostsList";
 export const metadata: Metadata = {
   title: "Insights — Blog, research notes & updates",
   description:
-    "The GaitAI Insights hub — blog essays, research notes, product updates, documentation and demos on movement intelligence.",
+    "Verified GaitAI research notes, product updates and technical essays on movement intelligence.",
+  alternates: { canonical: "/insights" },
 };
 
 /**
- * Firestore is the ONLY source of truth for posts. The list is fetched on the
- * client so whatever the control panel writes (or deletes) is what visitors
- * see — no build-time copy to go stale.
+ * Firestore is the source of truth for posts. The client list requests only
+ * records explicitly marked as verified for public display.
  */
 export default function InsightsPage() {
   return (
@@ -40,9 +40,9 @@ export default function InsightsPage() {
               Insights from the <span className="text-gradient">GaitAI lab.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Blog essays, research notes, product updates, documentation and
-              demos on movement intelligence — filter by topic, and join the
-              moderated discussion on any post.
+              Verified research notes, product updates and technical essays
+              will appear here once their claims and source material are ready
+              for public review.
             </p>
           </div>
         </div>

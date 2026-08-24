@@ -103,7 +103,12 @@ function PanelInner() {
   const savePost = async (post: Post) => {
     try {
       setPosts(await adapter.savePost(post));
-      toast("success", "Post saved — live on the site.");
+      toast(
+        "success",
+        post.publicationStatus === "verified"
+          ? "Post saved and verified for public display."
+          : "Draft saved to Firestore.",
+      );
     } catch {
       toast("error", "Save failed. Are you still signed in as an admin?");
     }
@@ -160,6 +165,7 @@ function PanelInner() {
       <div className="container-wide relative pb-24 pt-24 lg:pt-28">
         {/* ---- Top bar ------------------------------------------------------ */}
         <header className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="sr-only">GaitAI Control Panel</h1>
           <div className="flex items-center gap-3">
             <Logo />
             <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-300/[0.08] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300 ring-1 ring-cyan-300/30">

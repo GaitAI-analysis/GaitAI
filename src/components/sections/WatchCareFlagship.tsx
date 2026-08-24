@@ -143,7 +143,7 @@ export function WatchCareFlagship() {
                     Activity · 7d
                   </div>
                   <div className="text-[10px] font-semibold text-emerald-300">
-                    +12%
+                    Demo
                   </div>
                 </div>
                 <svg viewBox="0 0 160 40" className="mt-2 h-10 w-full">
@@ -179,11 +179,11 @@ export function WatchCareFlagship() {
                     </svg>
                   </span>
                   <div className="text-xs font-semibold text-soft-white">
-                    Fall-risk · Low
+                    Risk explanation
                   </div>
                 </div>
                 <p className="mt-1.5 text-[10.5px] leading-relaxed text-soft-mute">
-                  Stable gait variability over 4 weeks. Caregiver notified.
+                  Factors and evidence appear here only when a real analysis record is supplied.
                 </p>
               </motion.div>
 
@@ -214,7 +214,7 @@ export function WatchCareFlagship() {
                 </p>
               </motion.div>
 
-              <SmartwatchVisual score={86} trend="up" />
+              <SmartwatchVisual />
             </motion.div>
           </div>
         </div>

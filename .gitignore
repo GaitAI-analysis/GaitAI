@@ -24,6 +24,7 @@ public/uploads/*
 build_check.log
 devlog*.txt
 fbtest.mjs
+graphify-out/
 
 # Generated at dev/build time from .env.local — never commit
 public/firebase-config.js

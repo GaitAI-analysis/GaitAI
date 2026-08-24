@@ -45,6 +45,8 @@ export async function PUT(
       : current.tags,
     publishedAt: body.publishedAt || current.publishedAt,
     featured: typeof body.featured === "boolean" ? body.featured : current.featured,
+    publicationStatus:
+      body.publicationStatus === "verified" ? "verified" : "draft",
   };
   posts[idx] = updated;
   await writePosts(posts);

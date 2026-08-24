@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "Responsible AI" };
+export const metadata: Metadata = {
+  title: "Responsible AI",
+  alternates: { canonical: "/legal/responsible-ai" },
+};
 
 export default function ResponsibleAIPage() {
   return (
@@ -13,21 +16,21 @@ export default function ResponsibleAIPage() {
         Responsible AI commitment
       </h1>
       <p className="mt-6 text-soft-gray">
-        GaitAI deploys movement intelligence responsibly. SecureVision leads
-        with anomaly detection, crowd flow, worker safety and post-event
-        investigation — capabilities that do not require identification.
-        Biometric, watchlist or identification capabilities deploy only with
-        lawful authority, consent and full audit trails.
+        GaitAI&apos;s stated commitment is to use movement intelligence with human
+        oversight, proportionality and inspectable outputs. SecureVision
+        prioritizes anomaly, crowd-flow, worker-safety and post-event workflows
+        that need not depend on identity. Sensitive biometric or watchlist uses
+        require lawful authority, governance and audit controls.
       </p>
       <p className="mt-4 text-soft-gray">
-        PrivacyGuard — our privacy-preserving analytics layer — is enabled by
-        default across every SecureVision deployment, with skeleton-only
-        analytics, face blur, configurable retention and audit logs.
+        PrivacyGuard is presented as SecureVision&apos;s privacy-preserving analytics
+        layer. The product architecture describes skeleton-oriented analytics,
+        face blur, configurable retention and audit controls for sensitive uses.
       </p>
       <p className="mt-4 text-soft-gray">
-        Read the full Responsible AI policy on the{" "}
+        Explore the research and product principles on the{" "}
         <Link className="text-cyan-300" href="/research">
-          /research page
+          research page
         </Link>{" "}
         or contact{" "}
         <a className="text-cyan-300" href="mailto:responsible-ai@gaitai.com">

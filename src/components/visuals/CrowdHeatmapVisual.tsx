@@ -114,7 +114,7 @@ export function CrowdHeatmapVisual() {
           DENSITY
         </text>
         <text x="215" y="113" fontSize="9" fill="#fff" fontWeight="600" fontFamily="ui-monospace, monospace">
-          0.84
+          —
         </text>
       </motion.g>
 
@@ -124,12 +124,12 @@ export function CrowdHeatmapVisual() {
           CAM · WEST WING
         </text>
         <text x="22" y="50" fontSize="9" fill="#4FD1FF">
-          FLOW · 142/MIN
+          FLOW · —
         </text>
       </g>
       <g fontFamily="ui-monospace, monospace" letterSpacing="1.5">
         <text x="222" y="200" fontSize="9" fill="#94A3B8">
-          12:41:38 LIVE
+          DEMO VIEW
         </text>
         <circle cx="218" cy="197" r="2.5" fill="#10B981">
           <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite" />

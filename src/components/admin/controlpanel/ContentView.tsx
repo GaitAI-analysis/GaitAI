@@ -223,6 +223,7 @@ interface Draft {
   author: string;
   featured: boolean;
   subscriberOnly: boolean;
+  verifiedForPublic: boolean;
   publishedAt: string;
 }
 
@@ -245,6 +246,7 @@ function PostComposer({
     author: initial?.author ?? "GaitAI",
     featured: Boolean(initial?.featured),
     subscriberOnly: Boolean(initial?.subscriberOnly),
+    verifiedForPublic: initial?.publicationStatus === "verified",
     publishedAt: initial?.publishedAt ?? new Date().toISOString(),
   });
   const [tagInput, setTagInput] = useState("");
@@ -289,6 +291,7 @@ function PostComposer({
       author: draft.author.trim() || "GaitAI",
       featured: draft.featured,
       subscriberOnly: draft.subscriberOnly || undefined,
+      publicationStatus: draft.verifiedForPublic ? "verified" : "draft",
     });
   };
 
@@ -325,7 +328,7 @@ function PostComposer({
           </button>
           <button onClick={save} className="btn-primary">
             <Check className="h-4 w-4" />
-            {initial ? "Save changes" : "Publish"}
+            {initial ? "Save changes" : "Save record"}
           </button>
         </div>
       </div>
@@ -486,7 +489,7 @@ function PostComposer({
             />
           </Field>
 
-          <Field label="Publish date">
+          <Field label="Record date">
             <input
               type="datetime-local"
               value={new Date(draft.publishedAt).toISOString().slice(0, 16)}
@@ -498,6 +501,12 @@ function PostComposer({
           </Field>
 
           <div className="card space-y-3 p-4">
+            <Toggle
+              label="Verified for public"
+              hint="Publish only after claim and source review"
+              checked={draft.verifiedForPublic}
+              onChange={(v) => update("verifiedForPublic", v)}
+            />
             <Toggle
               label="Featured"
               hint="Pin to the top of the site"

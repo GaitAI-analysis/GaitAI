@@ -9,7 +9,7 @@ import {
   FileText,
   User,
 } from "lucide-react";
-import { getPostBySlug, readPosts } from "@/lib/posts-store";
+import { getPublishedPostBySlug, readPosts, readPublishedPosts } from "@/lib/posts-store";
 import { CategoryBadge, categoryGradient } from "@/components/posts/CategoryBadge";
 import { PostCard } from "@/components/posts/PostCard";
 import { renderMarkdown } from "@/lib/markdown";
@@ -19,6 +19,9 @@ import { DiscussionMount } from "@/components/comments/DiscussionMount";
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
+  // Next static export requires at least one known parameter even when all
+  // current editorial seed records are intentionally withheld from public
+  // rendering. Each unverified record resolves through notFound() below.
   const posts = await readPosts();
   return posts.map((post) => ({ slug: post.slug }));
 }
@@ -28,11 +31,12 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+  const post = await getPublishedPostBySlug(params.slug);
   if (!post) return { title: "Publication not found" };
   return {
     title: post.title,
     description: post.summary,
+    alternates: { canonical: `/publications/${post.slug}` },
     openGraph: { title: post.title, description: post.summary, type: "article" },
   };
 }
@@ -54,10 +58,10 @@ export default async function PublicationPage({
 }: {
   params: { slug: string };
 }) {
-  const post = await getPostBySlug(params.slug);
+  const post = await getPublishedPostBySlug(params.slug);
   if (!post) notFound();
 
-  const all = await readPosts();
+  const all = await readPublishedPosts();
   const related = all
     .filter((p) => p.id !== post.id && p.category === post.category)
     .slice(0, 3);
@@ -216,7 +220,7 @@ export default async function PublicationPage({
                 </h4>
                 <p className="relative mt-3 text-sm text-soft-gray">
                   Bring movement intelligence to your organization. We&apos;re
-                  partnering with hospitals, agencies & researchers.
+                  open to conversations with healthcare, safety and research teams.
                 </p>
                 <Link
                   href="/#contact"

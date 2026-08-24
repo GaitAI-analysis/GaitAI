@@ -19,22 +19,23 @@ const cardVariants = {
 
 const mobilityHighlights = mobilityProducts
   .filter((p) => p.featured)
-  .slice(0, 4);
-const secureHighlights = secureProducts.filter((p) => p.featured).slice(0, 4);
+  .slice(0, 3);
+const secureHighlights = secureProducts.filter((p) => p.featured).slice(0, 3);
 
 export function Verticals() {
   return (
-    <section id="platform-verticals" className="section">
+    <section id="movement-platform" className="section">
       <div className="container-wide">
         <SectionHeading
-          eyebrow="Two verticals · One platform"
+          eyebrow="The GaitAI platform"
           title={
             <>
-              One AI layer.{" "}
-              <span className="text-gradient">Two human missions.</span>
+              One Movement Intelligence Platform.{" "}
+              <span className="text-gradient">Two focused verticals.</span>
             </>
           }
-          description="GaitAI is built around a single belief — every movement carries information about who a person is, how they are, and what they need. We turn that signal into two purpose-built verticals."
+          description="The same movement engine turns video and wearable signals into machine perception, understanding and action. MobilityCare and SecureVision are focused applications of that shared platform."
+          align="left"
         />
 
         <div className="mt-16 grid gap-6 lg:grid-cols-2">
@@ -67,7 +68,7 @@ export function Verticals() {
                 </span>
               </div>
               <div className="absolute right-6 top-6 z-10 rounded-md bg-black/40 px-2 py-1 font-mono text-[10px] text-teal-300 backdrop-blur-md">
-                WalkScan · Live
+                WalkScan · Demo view
               </div>
             </div>
 
@@ -104,7 +105,7 @@ export function Verticals() {
             <p className="mt-5 max-w-xl text-sm leading-relaxed text-soft-gray sm:text-base">
               Camera-based gait assessment, rehabilitation tracking, fall-risk
               screening, sports movement analytics and smartwatch monitoring —
-              built with clinicians, for clinicians.
+              designed for clinical, rehabilitation and performance workflows.
             </p>
 
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -135,7 +136,7 @@ export function Verticals() {
               href="/mobilitycare"
               className="mt-8 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-teal-300 transition-colors hover:text-teal-200"
             >
-              See 12 MobilityCare products
+              Explore MobilityCare capabilities
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </motion.article>
@@ -166,7 +167,7 @@ export function Verticals() {
                 </span>
               </div>
               <div className="absolute right-6 top-6 z-10 rounded-md bg-black/40 px-2 py-1 font-mono text-[10px] text-royal-300 backdrop-blur-md">
-                SecureVision · Live
+                SecureVision · Demo view
               </div>
             </div>
 
@@ -192,8 +193,8 @@ export function Verticals() {
 
             <p className="mt-5 max-w-xl text-sm leading-relaxed text-soft-gray sm:text-base">
               Movement anomaly detection, crowd flow analytics, worker safety
-              and post-event investigation — built with privacy-first
-              architecture, lawful deployment and full audit trails.
+              and post-event investigation — with privacy-aware processing,
+              access controls and audit-oriented outputs represented in the product architecture.
             </p>
 
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -224,7 +225,7 @@ export function Verticals() {
               href="/securevision"
               className="mt-8 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-royal-300 transition-colors hover:text-royal-200"
             >
-              See 11 SecureVision products
+              Explore SecureVision capabilities
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </motion.article>

@@ -23,6 +23,12 @@ export interface Post {
   author: string;
   featured?: boolean;
   /**
+   * Public routes are safe-by-default: only records explicitly marked
+   * `verified` are rendered. The bundled seed content remains available in
+   * the local editorial tools but is not presented as company evidence.
+   */
+  publicationStatus?: "draft" | "verified";
+  /**
    * Optional: when true, the discussion thread on this post is reserved for
    * subscribers. Read by the comment system's subscription gate. Absent on
    * existing posts, so behaviour is unchanged unless explicitly set.

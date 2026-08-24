@@ -98,17 +98,17 @@ export function RunningTrailVisual() {
           ASYMMETRY
         </text>
         <text x="200" y="60" fontSize="11" fill="#FBBF24" fontWeight="600" fontFamily="ui-monospace, monospace">
-          L 47% · R 53%
+          L — · R —
         </text>
       </motion.g>
 
       {/* HUD */}
       <g fontFamily="ui-monospace, monospace" letterSpacing="1.5">
         <text x="20" y="30" fontSize="9" fill="#94A3B8">
-          RUN · 4:32/km
+          RUN · TEMPORAL TRACE
         </text>
         <text x="20" y="44" fontSize="9" fill="#4FD1FF">
-          CADENCE · 178
+          CADENCE · —
         </text>
       </g>
     </svg>

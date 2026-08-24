@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
     publishedAt: body.publishedAt || new Date().toISOString(),
     author: body.author || "GaitAI",
     featured: Boolean(body.featured),
+    publicationStatus: body.publicationStatus === "verified" ? "verified" : "draft",
   };
   posts.push(newPost);
   await writePosts(posts);

@@ -11,9 +11,8 @@
  *    confirmed it links straight to doi.org; everywhere else it links to a
  *    Google Scholar search with the exact paper title, which reliably surfaces
  *    the correct work even when the publisher URL is not at hand.
- *  - `pdfUrl` is what the "Download PDF" button uses. It points to a
- *    deterministic path under /public/publications/pdfs/. Drop the actual PDF
- *    there (filename matching) and the download just works.
+ * Local downloads are offered only for assets that actually exist. Journal
+ * records therefore use verified DOI links or exact-title Scholar searches.
  */
 
 export type PublicationKind = "patent" | "journal";
@@ -35,7 +34,6 @@ export interface Publication {
   founderIndex?: number;
   doi?: string;
   externalUrl: string;
-  pdfUrl: string;
   cover: string;
   abstract?: string;
   keywords?: string[];
@@ -73,7 +71,6 @@ export const patent: Publication = {
   jurisdiction: "India",
   externalUrl:
     "https://ipindiaservices.gov.in/PublicSearch/PublicationSearch/PatentDetails",
-  pdfUrl: "/publications/patent-certificate.jpg",
 };
 
 // ============================================================================
@@ -99,7 +96,6 @@ export const papers: Publication[] = [
     ],
     doi: "10.1007/s10462-022-10365-4",
     externalUrl: "https://doi.org/10.1007/s10462-022-10365-4",
-    pdfUrl: "/publications/pdfs/ai-review-2023.pdf",
     cover: "/publications/paper-ai-review.jpg",
     keywords: [
       "Gait recognition",
@@ -126,7 +122,6 @@ export const papers: Publication[] = [
     ],
     doi: "10.1016/j.neucom.2022.07.002",
     externalUrl: "https://doi.org/10.1016/j.neucom.2022.07.002",
-    pdfUrl: "/publications/pdfs/neurocomputing-2022.pdf",
     cover: "/publications/paper-neurocomputing.jpg",
     keywords: [
       "Gait recognition",
@@ -155,7 +150,6 @@ export const papers: Publication[] = [
     externalUrl: scholar(
       "Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques Anubha Parashar"
     ),
-    pdfUrl: "/publications/pdfs/eaai-2024.pdf",
     cover: "/publications/paper-eaai.jpg",
     keywords: [
       "Artificial Intelligence",
@@ -177,7 +171,6 @@ export const papers: Publication[] = [
     externalUrl: scholar(
       "Journey into Gait Biometrics Integrating Deep Learning for Enhanced Pattern Recognition Anubha Parashar"
     ),
-    pdfUrl: "/publications/pdfs/dsp-2024.pdf",
     cover: "/publications/paper-dsp.jpg",
     keywords: [
       "Gait Recognition",
@@ -205,7 +198,6 @@ export const papers: Publication[] = [
     externalUrl: scholar(
       "Data Preprocessing and Feature Selection Techniques in Gait Recognition Anubha Parashar"
     ),
-    pdfUrl: "/publications/pdfs/prl-2023.pdf",
     cover: "/publications/paper-prl.jpg",
     keywords: [
       "Gait recognition",
@@ -227,7 +219,6 @@ export const papers: Publication[] = [
     externalUrl: scholar(
       "Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition Anubha Parashar Image and Vision Computing"
     ),
-    pdfUrl: "/publications/pdfs/ivc-2023.pdf",
     cover: "/publications/paper-ivc.jpg",
     keywords: [
       "Gait recognition",
@@ -252,7 +243,6 @@ export const papers: Publication[] = [
     externalUrl: scholar(
       "A robust covariate-invariant gait recognition based on pose features Anubha Parashar IET Biometrics"
     ),
-    pdfUrl: "/publications/pdfs/iet-pose-2022.pdf",
     cover: "/publications/paper-iet-pose.jpg",
     keywords: [
       "Biometrics",
@@ -275,7 +265,6 @@ export const papers: Publication[] = [
     externalUrl: scholar(
       "Protection of gait data set for preserving its privacy in deep learning pipeline Anubha Parashar IET Biometrics"
     ),
-    pdfUrl: "/publications/pdfs/iet-privacy-2022.pdf",
     cover: "/publications/paper-iet-privacy.jpg",
     keywords: [
       "De-identification",

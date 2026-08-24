@@ -22,7 +22,7 @@ export function MobilityDashboardVisual() {
     <div className="absolute inset-0 flex items-center justify-center px-4 pt-14 pb-3">
       <div className="grid w-full max-w-[440px] grid-cols-[1.55fr_1fr] gap-2.5">
         {/* ─────────── LEFT: Walking figure dashboard card ─────────── */}
-        <DashboardCard label="Live pose · 17/17 KP" accent="teal">
+        <DashboardCard label="Pose · keypoint map" accent="teal">
           <div className="relative h-[140px]">
             <WalkingFigure />
             {/* Floating cadence pill */}
@@ -32,7 +32,7 @@ export function MobilityDashboardVisual() {
               transition={{ delay: 0.7, duration: 0.5 }}
               className="absolute right-1 top-1 rounded-md border border-teal-300/40 bg-black/50 px-1.5 py-0.5 font-mono text-[8.5px] text-teal-200 backdrop-blur-md"
             >
-              CAD · 112
+              CAD · —
             </motion.div>
           </div>
           {/* Mini gait waveform */}
@@ -47,11 +47,11 @@ export function MobilityDashboardVisual() {
         {/* ─────────── RIGHT: Score ring + metric chips ─────────── */}
         <div className="flex flex-col gap-2.5">
           <DashboardCard label="Mobility" accent="teal" compact>
-            <ScoreRing score={82} />
+            <ScoreRing />
           </DashboardCard>
 
-          <MetricChip label="Asymmetry" value="4.2%" trend="down" accent="emerald" />
-          <MetricChip label="Fall-risk" value="Low" accent="emerald" />
+          <MetricChip label="Asymmetry" value="—" accent="emerald" />
+          <MetricChip label="Risk signal" value="—" accent="emerald" />
         </div>
       </div>
     </div>
@@ -85,7 +85,7 @@ function DashboardCard({
         </span>
         <span className="flex items-center gap-1 text-[8px] font-mono text-soft-mute">
           <span className="h-1 w-1 rounded-full bg-emerald-400" />
-          live
+          demo
         </span>
       </div>
       <div className={compact ? "mt-1.5" : "mt-2"}>{children}</div>
@@ -226,10 +226,10 @@ function WalkingFigure() {
   );
 }
 
-function ScoreRing({ score = 82 }: { score?: number }) {
+function ScoreRing() {
   const r = 24;
   const c = 2 * Math.PI * r;
-  const offset = c - (score / 100) * c;
+  const offset = c * 0.72;
 
   return (
     <div className="relative flex items-center justify-center">
@@ -267,10 +267,10 @@ function ScoreRing({ score = 82 }: { score?: number }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="font-display text-xl font-semibold leading-none text-soft-white">
-          {score}
+          —
         </div>
         <div className="mt-0.5 text-[7px] font-medium uppercase tracking-[0.2em] text-teal-300/80">
-          /100
+          score
         </div>
       </div>
     </div>

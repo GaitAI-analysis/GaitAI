@@ -1,28 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
-import { navLinks } from "@/data/content";
+import { navGroups } from "@/data/content";
 import { cn } from "@/lib/utils";
-import { assetPath } from "@/lib/paths";
 
-/**
- * Flat-tab Navbar.
- *
- * Five top-level tabs — MobilityCare, SecureVision, Use Cases, About,
- * Publications — plus the Logo, theme toggle and Request Demo CTA.
- * The active route gets a subtle highlight so wayfinding is obvious.
- * Mobile collapses to the same flat list inside an animated drawer.
- */
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
+  const mobileTriggerRef = useRef<HTMLButtonElement>(null);
+  const mobileCloseRef = useRef<HTMLButtonElement>(null);
+  const onHomeHero = pathname === "/" && !scrolled;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -31,24 +27,58 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close the mobile drawer when the route changes.
-  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const mobileTrigger = mobileTriggerRef.current;
+    document.body.style.overflow = "hidden";
+    window.requestAnimationFrame(() => mobileCloseRef.current?.focus());
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      mobileTrigger?.focus();
+    };
+  }, [mobileOpen]);
 
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname?.startsWith(href);
-  };
+  useEffect(() => {
+    setMobileOpen(false);
+    setActiveMenu(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileOpen(false);
+        setActiveMenu(null);
+      }
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        setActiveMenu(null);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, []);
+
+  const groupIsActive = (group: (typeof navGroups)[number]) =>
+    group.items.some((item) => {
+      const route = item.href.split("#")[0];
+      if (route === "/") return pathname === "/" && group.label === "Platform";
+      return pathname?.startsWith(route);
+    });
 
   return (
     <>
       <motion.header
+        ref={headerRef}
         initial={{ y: -24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-all duration-500",
-          scrolled ? "py-3" : "py-5"
-        )}
+        className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-500", scrolled ? "py-3" : "py-5")}
       >
         <div className="container-wide">
           <div
@@ -59,58 +89,97 @@ export function Navbar() {
                 : "px-1 py-1"
             )}
           >
-            <Link href="/" aria-label="GaitAI" className="flex items-center pl-2">
-              <Logo variant="wordmark" size="md" priority />
+            <Link href="/" aria-label="GaitAI home" className="flex items-center pl-2">
+              <Logo variant="wordmark" size="md" priority tone={onHomeHero ? "on-dark" : "auto"} />
             </Link>
 
-            <nav className="hidden items-center gap-1 lg:flex">
-              {navLinks.map((link) => {
-                const active = isActive(link.href);
+            <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary navigation">
+              {navGroups.map((group) => {
+                const open = activeMenu === group.label;
+                const active = groupIsActive(group);
                 return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "group relative px-3.5 py-2 text-sm transition-colors duration-300",
-                      active
-                        ? "text-soft-white"
-                        : "text-soft-gray hover:text-soft-white"
-                    )}
+                  <div
+                    key={group.label}
+                    className="relative"
+                    onMouseEnter={() => setActiveMenu(group.label)}
+                    onMouseLeave={() => setActiveMenu(null)}
                   >
-                    {link.label}
-                    {/* Gradient underline — scales in from center on hover,
-                        stays visible on the active route. */}
-                    <span
-                      aria-hidden
+                    <button
+                      type="button"
+                      aria-haspopup="true"
+                      aria-expanded={open}
+                      aria-controls={`nav-${group.label.toLowerCase()}-panel`}
+                      onClick={() => setActiveMenu(open ? null : group.label)}
+                      onFocus={() => setActiveMenu(group.label)}
                       className={cn(
-                        "pointer-events-none absolute inset-x-3.5 -bottom-0.5 h-[2px] origin-center rounded-full bg-gradient-to-r from-cyan-300 via-royal-400 to-violet-400 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                        active
-                          ? "scale-x-100 opacity-100"
-                          : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
+                        "group inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60",
+                        onHomeHero
+                          ? "text-slate-300 hover:text-white"
+                          : active || open
+                            ? "text-soft-white"
+                            : "text-soft-gray hover:text-soft-white"
                       )}
-                      style={{
-                        boxShadow:
-                          "0 0 14px rgba(79,209,255,0.55), 0 0 28px rgba(124,58,237,0.35)",
-                      }}
-                    />
-                  </Link>
+                    >
+                      {group.label}
+                      <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
+                    </button>
+
+                    <AnimatePresence>
+                      {open && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                          transition={{ duration: 0.18 }}
+                          id={`nav-${group.label.toLowerCase()}-panel`}
+                          className="absolute left-1/2 top-full mt-2 w-72 -translate-x-1/2 overflow-hidden rounded-2xl border border-white/10 bg-obsidian-200/95 p-2 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.8)] backdrop-blur-2xl"
+                        >
+                          <div className="px-3 pb-2 pt-1 font-mono text-[9px] uppercase tracking-[0.18em] text-soft-mute">
+                            {group.label}
+                          </div>
+                          {group.items.map((item) => (
+                            <Link
+                              key={`${group.label}-${item.href}-${item.label}`}
+                              href={item.href}
+                              onClick={() => setActiveMenu(null)}
+                              className="group/item flex items-center justify-between gap-4 rounded-xl px-3 py-2.5 transition-colors hover:bg-white/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60"
+                            >
+                              <span>
+                                <span className="block text-sm font-medium text-soft-white">{item.label}</span>
+                                <span className="mt-0.5 block text-[11px] text-soft-mute">{item.description}</span>
+                              </span>
+                              <ArrowUpRight className="h-3.5 w-3.5 shrink-0 text-soft-mute transition-transform group-hover/item:-translate-y-0.5 group-hover/item:translate-x-0.5 group-hover/item:text-cyan-300" />
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 );
               })}
             </nav>
 
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <Link
-                href="/#contact"
-                className="hidden items-center gap-1.5 rounded-full bg-white/5 px-4 py-2 text-sm font-medium text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-white/20 sm:inline-flex"
+              <a
+                href="mailto:hello@gaitai.com?subject=GaitAI%20demo%20enquiry"
+                className={cn(
+                  "hidden items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium ring-1 transition-all sm:inline-flex",
+                  onHomeHero
+                    ? "bg-white/5 text-white ring-white/15 hover:bg-white/10"
+                    : "bg-white/5 text-soft-white ring-white/10 hover:bg-white/10 hover:ring-white/20"
+                )}
               >
                 Request demo
                 <ArrowUpRight className="h-3.5 w-3.5" />
-              </Link>
+              </a>
               <button
-                onClick={() => setOpen(true)}
-                aria-label="Open menu"
-                className="grid h-9 w-9 place-items-center rounded-full glass lg:hidden"
+                ref={mobileTriggerRef}
+                type="button"
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open navigation menu"
+                aria-expanded={mobileOpen}
+                className="grid h-10 w-10 place-items-center rounded-full glass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60 lg:hidden"
               >
                 <Menu className="h-4 w-4" />
               </button>
@@ -119,59 +188,65 @@ export function Navbar() {
         </div>
       </motion.header>
 
-      {/* Mobile drawer */}
       <AnimatePresence>
-        {open && (
+        {mobileOpen && (
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[60] bg-obsidian/95 backdrop-blur-xl lg:hidden"
+            transition={{ duration: 0.22 }}
+            className="fixed inset-0 z-[60] overflow-y-auto bg-obsidian/98 backdrop-blur-xl lg:hidden"
           >
             <div className="container-wide flex items-center justify-between py-5">
               <Logo variant="wordmark" size="md" />
               <button
-                onClick={() => setOpen(false)}
-                aria-label="Close menu"
-                className="grid h-9 w-9 place-items-center rounded-full glass"
+                ref={mobileCloseRef}
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                aria-label="Close navigation menu"
+                className="grid h-10 w-10 place-items-center rounded-full glass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <nav className="container-wide mt-12 flex flex-col gap-1">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * i, duration: 0.4 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "block border-b border-white/5 py-5 font-display text-3xl",
-                      isActive(link.href)
-                        ? "text-soft-white"
-                        : "text-soft-gray"
-                    )}
+
+            <nav className="container-wide pb-12 pt-6" aria-label="Mobile navigation">
+              <div className="grid gap-8 sm:grid-cols-2">
+                {navGroups.map((group, groupIndex) => (
+                  <motion.section
+                    key={group.label}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: groupIndex * 0.05, duration: 0.35 }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-              <motion.a
-                href={assetPath("/#contact")}
-                onClick={() => setOpen(false)}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.4 }}
-                className="btn-primary mt-8 self-start"
+                    <h2 className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan-300">{group.label}</h2>
+                    <div className="mt-3 border-t border-white/10">
+                      {group.items.map((item) => (
+                        <Link
+                          key={`${group.label}-mobile-${item.href}-${item.label}`}
+                          href={item.href}
+                          onClick={() => setMobileOpen(false)}
+                          className="flex items-center justify-between border-b border-white/[0.07] py-3.5 font-display text-xl text-soft-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60"
+                        >
+                          {item.label}
+                          <ArrowUpRight className="h-4 w-4 text-soft-mute" />
+                        </Link>
+                      ))}
+                    </div>
+                  </motion.section>
+                ))}
+              </div>
+              <a
+                href="mailto:hello@gaitai.com?subject=GaitAI%20demo%20enquiry"
+                onClick={() => setMobileOpen(false)}
+                className="btn-primary mt-10 w-full sm:w-auto"
               >
                 Request demo
                 <ArrowUpRight className="h-4 w-4" />
-              </motion.a>
+              </a>
             </nav>
           </motion.div>
         )}

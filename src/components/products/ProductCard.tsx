@@ -63,10 +63,12 @@ export function ProductCard({
   product,
   index = 0,
   compact = false,
+  anchor = true,
 }: {
   product: GaitProduct;
   index?: number;
   compact?: boolean;
+  anchor?: boolean;
 }) {
   const Icon = product.icon;
   const a = accentMap[product.accent];
@@ -74,6 +76,7 @@ export function ProductCard({
 
   return (
     <motion.article
+      id={anchor ? product.id : undefined}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -82,7 +85,7 @@ export function ProductCard({
         delay: (index % 6) * 0.05,
         ease: [0.16, 1, 0.3, 1],
       }}
-      className={`group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent transition-all ${a.border} hover:bg-white/[0.04]`}
+      className={`group relative scroll-mt-24 overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent transition-all ${a.border} hover:bg-white/[0.04]`}
     >
       {/* Glow on hover */}
       <div
@@ -111,10 +114,17 @@ export function ProductCard({
 
         {/* Name + label */}
         <div className="mt-5">
-          <div
-            className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${a.text}`}
-          >
-            GaitAI · {product.short}
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${a.text}`}
+            >
+              GaitAI · {product.short}
+            </div>
+            {product.status && (
+              <span className="rounded-full border border-white/10 bg-white/[0.025] px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-soft-mute">
+                {product.status}
+              </span>
+            )}
           </div>
           <h3 className="mt-1.5 font-display text-lg font-semibold text-soft-white">
             {product.headline}

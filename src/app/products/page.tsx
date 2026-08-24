@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   title: "All Products — Movement Intelligence platform",
   description:
     "Explore all 23 GaitAI products across MobilityCare and SecureVision — filter by Healthcare, Sports, Elderly Care, Wearables, Security, Crowd, Industrial and more.",
+  alternates: { canonical: "/products" },
 };
 
 export default function ProductsPage() {
@@ -33,8 +34,8 @@ export default function ProductsPage() {
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
               From clinical gait reports to crowd flow analytics — filter by
-              capability or audience, drill into the product you need, and book
-              a pilot in one click.
+              capability or audience, explore the relevant product detail, and
+              start a pilot conversation.
             </p>
 
             <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] p-1.5">
@@ -64,8 +65,8 @@ export default function ProductsPage() {
             eyebrow="Filter by capability"
             title={
               <>
-                Find the right product for your{" "}
-                <span className="text-gradient">deployment.</span>
+                Find the right capability for your{" "}
+                <span className="text-gradient">movement workflow.</span>
               </>
             }
             description="Cross-vertical filters from the GaitAI brief. Every product card opens its full block on the relevant vertical page."

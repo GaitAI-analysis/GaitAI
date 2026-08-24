@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Terms" };
+export const metadata: Metadata = { title: "Terms", alternates: { canonical: "/legal/terms" } };
 
 export default function TermsPage() {
   return (
@@ -12,10 +12,9 @@ export default function TermsPage() {
         Terms of use
       </h1>
       <p className="mt-6 text-soft-gray">
-        This is a placeholder for our full terms of use. The final terms will
-        cover acceptable use, pilot conditions, data ownership, service-level
-        commitments and the responsible-deployment policies that apply to the
-        SecureVision product family.
+        This public notice is not a complete service agreement. Product access,
+        pilot conditions, data ownership, service commitments and acceptable
+        use must be set out in the applicable written agreement.
       </p>
       <p className="mt-4 text-soft-gray">
         For specific questions, contact{" "}

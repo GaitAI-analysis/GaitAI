@@ -98,6 +98,7 @@ service cloud.firestore {
       return d.keys().hasOnly([
                'id','slug','title','category','summary','body','tags',
                'publishedAt','author','featured','subscriberOnly',
+               'publicationStatus',
                'externalUrl','attachmentUrl','attachmentName',
                'createdAt','updatedAt'
              ])
@@ -110,6 +111,7 @@ service cloud.firestore {
         && d.tags is list
         && d.publishedAt is string
         && d.author is string && d.author.size() <= 200
+        && d.publicationStatus in ['draft','verified']
         && (!('featured' in d.keys()) || d.featured is bool)
         && (!('subscriberOnly' in d.keys()) || d.subscriberOnly == null || d.subscriberOnly is bool)
         && (!('externalUrl' in d.keys()) || d.externalUrl == null || d.externalUrl is string)

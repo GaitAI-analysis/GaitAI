@@ -65,6 +65,9 @@ function mapPost(data: DocumentData): Post {
 
   // Only attach optional fields when present, so we never emit `undefined`.
   if (data.subscriberOnly != null) post.subscriberOnly = Boolean(data.subscriberOnly);
+  if (data.publicationStatus === "draft" || data.publicationStatus === "verified") {
+    post.publicationStatus = data.publicationStatus;
+  }
   if (data.externalUrl) post.externalUrl = String(data.externalUrl);
   if (data.attachmentUrl) post.attachmentUrl = String(data.attachmentUrl);
   if (data.attachmentName) post.attachmentName = String(data.attachmentName);
@@ -99,6 +102,7 @@ function toWritePayload(
     publishedAt: post.publishedAt,
     author: post.author ?? "GaitAI",
     featured: Boolean(post.featured ?? false),
+    publicationStatus: post.publicationStatus ?? "draft",
     updatedAt: serverTimestamp(),
   };
   if (opts.isNew) payload.createdAt = serverTimestamp();
@@ -111,14 +115,24 @@ function toWritePayload(
 
 /* ------------------------------------------------------------------ reads -- */
 
-/** One-shot fetch of every post, newest first. */
+/** Admin-only one-shot fetch of every post, newest first. */
 export async function fetchPosts(): Promise<Post[]> {
   const snap = await getDocs(collection(db, POSTS_COLLECTION));
   return snap.docs.map((d) => mapPost(d.data())).sort(byNewest);
 }
 
+/** Public one-shot fetch of explicitly verified posts, newest first. */
+export async function fetchPublishedPosts(): Promise<Post[]> {
+  const q = query(
+    collection(db, POSTS_COLLECTION),
+    where("publicationStatus", "==", "verified"),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => mapPost(d.data())).sort(byNewest);
+}
+
 /**
- * Fetch ONE post by slug — the fast path used when opening an article.
+ * Fetch ONE verified post by slug — the public article fast path.
  *
  * `limit(1)` means Firestore returns a single document instead of scanning the
  * collection, so this is one small read regardless of how many posts exist.
@@ -127,6 +141,7 @@ export async function fetchPostBySlug(slug: string): Promise<Post | null> {
   const q = query(
     collection(db, POSTS_COLLECTION),
     where("slug", "==", slug),
+    where("publicationStatus", "==", "verified"),
     limit(1),
   );
   const snap = await getDocs(q);
@@ -135,9 +150,8 @@ export async function fetchPostBySlug(slug: string): Promise<Post | null> {
 }
 
 /**
- * Live subscription to the whole posts collection, newest first. Returns an
- * unsubscribe function. Used by the public /insights list and the admin panel
- * so new/edited posts appear without a refresh.
+ * Admin subscription to the whole posts collection, newest first. Returns an
+ * unsubscribe function.
  */
 export function subscribePosts(
   onChange: (posts: Post[]) => void,

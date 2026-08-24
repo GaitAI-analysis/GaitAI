@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
+import Link from "next/link";
 import { CATEGORY_META, Category, Post } from "@/lib/posts";
 import { PostCard } from "./PostCard";
 
@@ -78,10 +79,13 @@ export function PostsList({ posts }: { posts: Post[] }) {
 
       {list.length === 0 ? (
         <div className="mt-16 grid place-items-center rounded-2xl border border-dashed border-white/10 py-16 text-center">
-          <p className="font-display text-xl text-soft-white">No publications yet</p>
+          <p className="font-display text-xl text-soft-white">No verified insights published yet</p>
           <p className="mt-1 text-sm text-soft-mute">
-            Try a different filter or check back soon.
+            Explore the peer-reviewed publication and patent record in the meantime.
           </p>
+          <Link href="/publications" className="mt-5 text-sm font-semibold text-cyan-300">
+            Browse research
+          </Link>
         </div>
       ) : (
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

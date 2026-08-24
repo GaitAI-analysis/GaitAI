@@ -102,11 +102,39 @@ html {
   scroll-padding-top: 6rem;
 }
 
+section[id] {
+  scroll-margin-top: 6rem;
+}
+
 html,
 body {
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden;
+}
+
+a,
+button,
+input,
+textarea,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(79, 209, 255, 0.9);
+  outline-offset: 3px;
+}
+
+/* The homepage hero remains a dark brand surface in both themes. */
+.hero-identity {
+  --c-soft-white: 248 250 252;
+  --c-soft-gray: 203 213 225;
+  --c-soft-mute: 148 163 184;
+  --grid-line: rgba(148, 163, 184, 0.08);
+  background: #070b14;
+  color: #f8fafc;
+  color-scheme: dark;
 }
 
 body {
@@ -387,4 +415,23 @@ body {
     -webkit-mask-image: linear-gradient(90deg, #000 80%, transparent 100%);
   }
   .text-balance { text-wrap: balance; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .hero-identity canvas {
+    opacity: 0.68;
+  }
 }

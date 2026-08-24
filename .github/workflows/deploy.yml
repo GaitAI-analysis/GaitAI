@@ -2,7 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - v1/feature/insights
   workflow_dispatch:
 
 # Allow the workflow to publish to GitHub Pages.
@@ -31,6 +32,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
 
       # Firebase client config comes from GitHub Actions secrets — the values
       # are never committed to the repo. Add them under:

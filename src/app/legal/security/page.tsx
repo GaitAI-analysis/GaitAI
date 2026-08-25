@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Security", alternates: { canonical: "/legal/security" } };
+export const metadata: Metadata = { title: "Security" };
 
 export default function SecurityPage() {
   return (
@@ -12,13 +12,14 @@ export default function SecurityPage() {
         Security at GaitAI
       </h1>
       <p className="mt-6 text-soft-gray">
-        This public notice does not claim a certified security posture. GaitAI
-        treats access control, encryption, configurable retention, auditability
-        and appropriate on-device processing as implementation requirements.
+        This is a placeholder for our security overview. GaitAI ships with
+        role-based access, encrypted-at-rest and in-transit data handling,
+        configurable retention, audit logging, and on-device processing options
+        where appropriate.
       </p>
       <p className="mt-4 text-soft-gray">
-        Security controls must be documented for the specific product,
-        environment and data flow before use. For details contact{" "}
+        Enterprise customers receive deployment-specific security
+        documentation. For details contact{" "}
         <a className="text-cyan-300" href="mailto:security@gaitai.com">
           security@gaitai.com
         </a>

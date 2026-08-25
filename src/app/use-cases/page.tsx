@@ -6,10 +6,9 @@ import { Reveal } from "@/components/ui/Reveal";
 import { industryUseCases, productById } from "@/data/products";
 
 export const metadata: Metadata = {
-  title: "Use Cases — Where GaitAI applies",
+  title: "Use Cases — Where GaitAI is deployed",
   description:
     "GaitAI use cases across physiotherapy clinics, hospitals, sports academies, elderly care, airports, smart cities, factories, retail, events and more.",
-  alternates: { canonical: "/use-cases" },
 };
 
 const mobilityCases = industryUseCases.filter(
@@ -113,7 +112,7 @@ function UseCaseCard({
 
         <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.02] p-3">
           <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-            Relevant outputs
+            Outcome
           </div>
           <div className="mt-1 text-[12.5px] leading-relaxed text-soft-white">
             {u.outcome}
@@ -145,16 +144,16 @@ export default function UseCasesPage() {
         <div className="container-wide">
           <div className="mx-auto max-w-3xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              {industryUseCases.length} industry contexts
+              {industryUseCases.length} industries · {industryUseCases.length} deployments
             </div>
             <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
               From a quiet home to a{" "}
               <span className="text-gradient">global stadium.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              GaitAI products are designed for healthcare, performance, care,
-              transport, public-space and industrial workflows. Each context
-              maps to a different set of movement-intelligence capabilities.
+              GaitAI is deployed across hospitals, sports academies, elderly-care
+              homes, airports, smart cities and industrial sites. Each industry
+              has its own product mix, environment and outcome.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link href="#mobility" className="btn-primary">
@@ -192,10 +191,10 @@ export default function UseCasesPage() {
                 >
                   MobilityCare
                 </span>{" "}
-                applies.
+                is deployed.
               </>
             }
-            description={`${mobilityCases.length} clinical, sports, elderly and wearable contexts — each mapped to relevant products and outputs.`}
+            description={`${mobilityCases.length} clinical, sports, elderly and wearable environments — each with the products and outcomes mapped from the GaitAI brief.`}
             align="left"
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -220,10 +219,10 @@ export default function UseCasesPage() {
               <>
                 Where{" "}
                 <span className="text-gradient-secure">SecureVision</span> is
-                designed to apply.
+                deployed.
               </>
             }
-            description={`${secureCases.length} safety and operations contexts across transport hubs, smart cities, campuses, factories, retail and large events.`}
+            description={`${secureCases.length} privacy-aware deployments across transport hubs, smart cities, campuses, factories, retail and large events.`}
             align="left"
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

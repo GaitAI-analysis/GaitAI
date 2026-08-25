@@ -19,7 +19,6 @@ interface LogoProps {
   variant?: LogoVariant;
   size?: LogoSize;
   priority?: boolean;
-  tone?: "auto" | "on-dark" | "on-light";
 }
 
 /**
@@ -37,21 +36,13 @@ export function Logo({
   variant = "wordmark",
   size = "md",
   priority = false,
-  tone = "auto",
 }: LogoProps) {
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
-  const isDark =
-    tone === "on-dark"
-      ? true
-      : tone === "on-light"
-        ? false
-        : mounted
-          ? resolvedTheme !== "light"
-          : true;
+  const isDark = mounted ? resolvedTheme !== "light" : true;
 
   // ---- sizing tokens ----
   const dimensions: Record<
@@ -101,7 +92,7 @@ export function Logo({
   const src = isDark ? sources[variant].dark : sources[variant].light;
 
   // Pre-hydration skeleton: same box dimensions, fully transparent.
-  if (!mounted && tone === "auto") {
+  if (!mounted) {
     return (
       <div
         aria-hidden

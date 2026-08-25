@@ -1,35 +1,28 @@
-import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
-import { MovementIntelligenceDemo } from "@/components/sections/MovementIntelligenceDemo";
-import { ResearchProof } from "@/components/sections/ResearchProof";
-import { MovementCapabilityMap } from "@/components/sections/MovementCapabilityMap";
+import { PartnerMarquee } from "@/components/sections/PartnerMarquee";
 import { Verticals } from "@/components/sections/Verticals";
-import { CapabilityShowcase } from "@/components/sections/CapabilityShowcase";
+import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
+import { WatchCareFlagship } from "@/components/sections/WatchCareFlagship";
 import { HowItWorks } from "@/components/sections/HowItWorks";
-import { EvidenceSection } from "@/components/sections/EvidenceSection";
-import { ResearchProductMap } from "@/components/sections/ResearchProductMap";
-import { ResponsibleAI } from "@/components/sections/ResponsibleAI";
-import { FounderPreview } from "@/components/sections/FounderPreview";
+import { UseCases } from "@/components/sections/UseCases";
+import { TechStack } from "@/components/sections/TechStack";
+import { ResearchCredibility } from "@/components/sections/ResearchCredibility";
+import { Vision } from "@/components/sections/Vision";
 import { CTA } from "@/components/sections/CTA";
-
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-};
 
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <MovementIntelligenceDemo />
-      <ResearchProof />
-      <MovementCapabilityMap />
+      <PartnerMarquee />
       <Verticals />
-      <CapabilityShowcase />
+      <FeaturedProducts />
+      <WatchCareFlagship />
       <HowItWorks />
-      <EvidenceSection />
-      <ResearchProductMap />
-      <ResponsibleAI />
-      <FounderPreview />
+      <UseCases />
+      <TechStack />
+      <ResearchCredibility />
+      <Vision />
       <CTA />
     </>
   );

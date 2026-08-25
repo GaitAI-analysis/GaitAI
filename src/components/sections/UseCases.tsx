@@ -67,14 +67,14 @@ export function UseCases() {
     <section id="use-cases" className="section">
       <div className="container-wide">
         <SectionHeading
-          eyebrow="Industries · Where GaitAI applies"
+          eyebrow="Industries · Where GaitAI lives"
           title={
             <>
               From a quiet home to a{" "}
               <span className="text-gradient">global stadium.</span>
             </>
           }
-          description="One movement-intelligence platform designed for healthcare, performance, care, transport, public-space and industrial workflows."
+          description="One movement-intelligence platform — deployed across hospitals, sports academies, elderly-care homes, airports, smart cities and industrial sites."
         />
 
         <div className="mt-16 grid gap-4 md:grid-cols-4">
@@ -155,7 +155,7 @@ export function UseCases() {
                     >
                       <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.02] p-3.5">
                         <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                          Relevant outputs
+                          Outcome
                         </div>
                         <div className="mt-1.5 text-[13px] leading-relaxed text-soft-white">
                           {u.outcome}

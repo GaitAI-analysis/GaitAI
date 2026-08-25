@@ -3,11 +3,18 @@
 import { motion } from "framer-motion";
 
 /**
- * Premium code-built smartwatch UI showing a neutral mobility-result schema.
+ * Premium code-built smartwatch UI showing a live mobility score.
  * Used in the WatchCare flagship section and the MobilityCare page.
  */
-export function SmartwatchVisual() {
-  const trendColor = "#4FD1FF";
+export function SmartwatchVisual({
+  score = 86,
+  trend = "up",
+}: {
+  score?: number;
+  trend?: "up" | "down" | "flat";
+}) {
+  const trendColor =
+    trend === "up" ? "#10B981" : trend === "down" ? "#F59E0B" : "#94A3B8";
 
   return (
     <div className="relative mx-auto" style={{ width: 280 }}>
@@ -39,16 +46,16 @@ export function SmartwatchVisual() {
         >
           {/* Top status bar */}
           <div className="absolute inset-x-0 top-4 flex items-center justify-between px-6 text-[9px] font-medium uppercase tracking-[0.18em] text-soft-mute">
-            <span>WatchCare</span>
+            <span>9:41 AM</span>
             <span className="flex items-center gap-1.5">
               <span className="h-1 w-1 rounded-full bg-emerald-400" />
-              demo
+              live
             </span>
           </div>
 
           {/* Mobility score ring */}
           <div className="absolute inset-x-0 top-12 flex justify-center">
-            <ScoreRing />
+            <ScoreRing score={score} />
           </div>
 
           {/* Trend chart */}
@@ -58,9 +65,9 @@ export function SmartwatchVisual() {
 
           {/* Bottom widgets */}
           <div className="absolute inset-x-4 bottom-4 grid grid-cols-3 gap-1.5">
-            <MiniStat label="Steps" value="—" />
-            <MiniStat label="Cadence" value="—" />
-            <MiniStat label="Risk" value="—" />
+            <MiniStat label="Steps" value="8,124" />
+            <MiniStat label="Cadence" value="112" />
+            <MiniStat label="Risk" value="Low" highlight />
           </div>
         </div>
 
@@ -88,10 +95,10 @@ export function SmartwatchVisual() {
   );
 }
 
-function ScoreRing() {
+function ScoreRing({ score }: { score: number }) {
   const r = 36;
   const c = 2 * Math.PI * r;
-  const offset = c * 0.72;
+  const offset = c - (score / 100) * c;
 
   return (
     <div className="relative">
@@ -129,7 +136,7 @@ function ScoreRing() {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="font-display text-3xl font-semibold leading-none text-soft-white">
-          —
+          {score}
         </div>
         <div className="mt-1 text-[8px] font-medium uppercase tracking-[0.2em] text-amber-300/80">
           mobility

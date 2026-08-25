@@ -5,7 +5,13 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, FileText, Lock, ShieldCheck } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { researchPillars } from "@/data/products";
-import { researchProof } from "@/data/company";
+
+const proofStats = [
+  { value: "10+ yrs", label: "Of founder gait research" },
+  { value: "Privacy", label: "First-architecture" },
+  { value: "Clinic + lab", label: "Co-designed workflows" },
+  { value: "Lawful", label: "Deployment commitments" },
+];
 
 export function ResearchCredibility() {
   return (
@@ -27,7 +33,7 @@ export function ResearchCredibility() {
               <span className="text-gradient">researchers and engineers.</span>
             </>
           }
-          description="GaitAI is grounded in published research on gait recognition, computer vision and biometric movement analysis, with privacy, explainability and human oversight represented as product requirements."
+          description="GaitAI is grounded in published research on gait recognition, computer vision and biometric movement analysis — and shipped with the audit, consent and privacy controls enterprises and clinicians actually need."
         />
 
         {/* Decade-of-research ribbon */}
@@ -70,9 +76,10 @@ export function ResearchCredibility() {
                 research into gait recognition and movement intelligence.
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-soft-mute sm:text-[15px]">
-                A decade of work spanning gait biometrics, pose features,
-                feature engineering and privacy-related methods — connected to
-                one platform with two focused verticals and specialized modules.
+                A decade of work spanning gait biometrics, pose estimation,
+                sensor fusion, clinical movement analytics, and privacy-aware
+                deployment — distilled into one platform with two verticals and
+                twenty-three modular products.
               </p>
             </div>
           </div>
@@ -116,9 +123,9 @@ export function ResearchCredibility() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-12 grid gap-px overflow-hidden rounded-2xl glass sm:grid-cols-3"
+          className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl glass sm:grid-cols-4"
         >
-          {researchProof.map((s) => (
+          {proofStats.map((s) => (
             <div
               key={s.label}
               className="bg-gunmetal/30 p-5 text-center sm:p-7"
@@ -145,12 +152,12 @@ export function ResearchCredibility() {
               </div>
             </div>
             <h3 className="mt-4 font-display text-xl text-soft-white">
-              Privacy is treated as a product requirement.
+              Skeleton-only analytics. Face blur. Consent logs. Audit trails.
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-              The platform architecture makes room for data minimization,
-              controlled access, human oversight and auditability. Specific
-              controls are disclosed only when implementation evidence exists.
+              GaitAI ships with role-based access, configurable retention,
+              on-device processing options, and a PrivacyGuard layer that lets
+              enterprises and public-sector teams deploy responsibly.
             </p>
             <Link
               href="/securevision#privacyguard"
@@ -174,9 +181,9 @@ export function ResearchCredibility() {
               Founder-led research in gait biometrics &amp; movement AI.
             </h3>
             <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-              The public record includes selected peer-reviewed publications,
-              a granted Indian patent and direct links to the underlying research
-              metadata where available.
+              Peer-reviewed publications, applied research, clinical pilots and
+              ongoing collaborations across hospitals, sports academies and
+              public-sector partners.
             </p>
             <Link
               href="/publications"
@@ -198,10 +205,10 @@ export function ResearchCredibility() {
               Responsible deployment
             </div>
             <p className="mt-1 text-sm leading-relaxed text-soft-mute">
-              Sensitive biometric and identification capabilities are intended
-              for use only with lawful authority, appropriate consent and human
-              oversight. Product pages distinguish design commitments from
-              verified implementation evidence.
+              Biometric, watchlist and identification capabilities are deployed
+              only with lawful authority, consent and audit controls. Where
+              non-identifying movement intelligence is sufficient, it&apos;s the
+              default.
             </p>
           </div>
         </div>

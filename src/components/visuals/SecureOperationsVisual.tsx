@@ -70,7 +70,7 @@ function Card({
         {right ?? (
           <span className="flex items-center gap-1 text-[8px] font-mono text-soft-mute">
             <span className="h-1 w-1 rounded-full bg-emerald-400" />
-            demo
+            live
           </span>
         )}
       </div>
@@ -212,7 +212,7 @@ function FloorPlan() {
           <animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite" />
         </circle>
         <text x="184" y="58" fontSize="8" fill="#FBBF24" fontFamily="ui-monospace, monospace" letterSpacing="1">
-          DWELL · SIGNAL
+          DWELL · 4:12
         </text>
       </motion.g>
     </svg>
@@ -313,12 +313,12 @@ function DensityMeter() {
         <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-soft-mute">
           Density
         </span>
-        <span className="text-[9px] font-semibold text-soft-mute">—</span>
+        <span className="text-[9px] font-semibold text-amber-300">0.84</span>
       </div>
       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
         <motion.div
           initial={{ width: "0%" }}
-          animate={{ width: "38%" }}
+          animate={{ width: "84%" }}
           transition={{ duration: 1.2, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
           className="h-full rounded-full"
           style={{
@@ -328,8 +328,8 @@ function DensityMeter() {
         />
       </div>
       <div className="mt-1 flex justify-between text-[8px] text-soft-mute">
-        <span>flow · —</span>
-        <span>demo</span>
+        <span>142/min flow</span>
+        <span className="text-amber-300/80">warm</span>
       </div>
     </motion.div>
   );
@@ -337,9 +337,9 @@ function DensityMeter() {
 
 function Timeline() {
   const events = [
-    { time: "01", label: "Entry", tone: "muted" },
-    { time: "02", label: "Dwell", tone: "warn" },
-    { time: "03", label: "Exit", tone: "muted" },
+    { time: "12:38", label: "Entry", tone: "muted" },
+    { time: "12:41", label: "Dwell", tone: "warn" },
+    { time: "12:43", label: "Exit", tone: "muted" },
   ];
   return (
     <div className="mt-2 border-t border-white/8 pt-2">

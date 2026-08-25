@@ -12,6 +12,7 @@ import {
   ExternalLink,
   FileCheck2,
   GraduationCap,
+  ShieldCheck,
   Stamp,
 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -29,7 +30,6 @@ export const metadata: Metadata = {
   title: "Publications & Patent — Research portfolio",
   description:
     "Peer-reviewed research papers and a granted patent in gait recognition, biometrics, deep learning and privacy-preserving movement AI — by Dr. Anubha Parashar, Founder & CEO of GaitAI.",
-  alternates: { canonical: "/publications" },
 };
 
 const stats = [
@@ -251,6 +251,17 @@ export default function PublicationsPage() {
                     </div>
                   </div>
 
+                  {/* Validity */}
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/8 px-3 py-1 text-[10.5px] font-semibold text-emerald-300">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      Valid {patent.validityYears} years from {patent.filingDate}
+                    </div>
+                    <div className="text-[10.5px] text-soft-mute">
+                      Patents Act, 1970
+                    </div>
+                  </div>
+
                   {/* Action */}
                   <div className="mt-7 flex flex-wrap gap-3">
                     <a
@@ -301,7 +312,7 @@ export default function PublicationsPage() {
                 </span>
               </>
             }
-            description="Search by title, author, venue or theme, then filter by year and publisher. Verified DOI links open the publisher record; other entries open an exact-title Google Scholar search."
+            description="Filter by year and publisher. Every paper opens to its DOI page on the publisher's site."
             align="left"
           />
 

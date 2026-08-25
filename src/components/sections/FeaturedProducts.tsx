@@ -19,11 +19,11 @@ export function FeaturedProducts() {
             eyebrow="Featured · Movement intelligence products"
             title={
               <>
-                Specialized capabilities.{" "}
+                Twenty-three products.{" "}
                 <span className="text-gradient">One movement engine.</span>
               </>
             }
-            description="From clinical gait reports to crowd-flow analytics, the product catalog applies one GaitAI movement-intelligence platform to focused use cases."
+            description="From clinical gait reports to crowd flow analytics — every product is built on the same GaitAI movement-intelligence platform. These are the eight we&apos;re leading with."
             align="left"
             className="lg:max-w-2xl"
           />
@@ -51,10 +51,10 @@ export function FeaturedProducts() {
 
         <div className="mt-12 flex items-center justify-center">
           <Link
-              href="/products"
+            href="#use-cases"
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]"
           >
-            Explore all capabilities
+            See where they&apos;re deployed
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>

@@ -3,7 +3,6 @@
 import { Suspense, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Float, Points, PointMaterial } from "@react-three/drei";
-import { useReducedMotion } from "framer-motion";
 import * as THREE from "three";
 
 /* ---------- Skeletal walking figures rendered as glowing line art ---------- */
@@ -67,7 +66,6 @@ function WalkingFigure({
   color = "#4FD1FF",
   speed = 0.35,
   phase = 0,
-  animated = true,
 }: {
   offsetX?: number;
   z?: number;
@@ -75,7 +73,6 @@ function WalkingFigure({
   color?: string;
   speed?: number;
   phase?: number;
-  animated?: boolean;
 }) {
   const linesRef = useRef<THREE.LineSegments>(null);
   const jointsRef = useRef<THREE.Points>(null);
@@ -84,7 +81,7 @@ function WalkingFigure({
   const jointsGeometry = useMemo(() => new THREE.BufferGeometry(), []);
 
   useFrame((state) => {
-    const t = (animated ? state.clock.getElapsedTime() * speed : 0) + phase;
+    const t = state.clock.getElapsedTime() * speed + phase;
     const frame = interpolateFrame(t);
 
     // Build line positions from bones
@@ -133,13 +130,7 @@ function WalkingFigure({
 
 /* ---------- Background particle field ---------- */
 
-function ParticleField({
-  count = 1800,
-  animated = true,
-}: {
-  count?: number;
-  animated?: boolean;
-}) {
+function ParticleField({ count = 1800 }: { count?: number }) {
   const ref = useRef<THREE.Points>(null);
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
@@ -156,7 +147,6 @@ function ParticleField({
 
   useFrame((state) => {
     if (!ref.current) return;
-    if (!animated) return;
     ref.current.rotation.y = state.clock.getElapsedTime() * 0.04;
     ref.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.1) * 0.1;
   });
@@ -182,18 +172,10 @@ function MotionRing({
   color = "#2563FF",
   rotation = [Math.PI / 2.4, 0, 0] as [number, number, number],
   opacity = 0.18,
-  animated = true,
-}: {
-  radius?: number;
-  color?: string;
-  rotation?: [number, number, number];
-  opacity?: number;
-  animated?: boolean;
 }) {
   const ref = useRef<THREE.Mesh>(null);
   useFrame((state) => {
     if (!ref.current) return;
-    if (!animated) return;
     ref.current.rotation.z = state.clock.getElapsedTime() * 0.1;
   });
   return (
@@ -219,14 +201,10 @@ function MouseParallax() {
 /* ---------- The scene ---------- */
 
 export default function HeroScene() {
-  const reduceMotion = useReducedMotion();
-  const animated = !reduceMotion;
-
   return (
     <Canvas
       camera={{ position: [0, 0.4, 4.2], fov: 50 }}
-      dpr={reduceMotion ? 1 : [1, 2]}
-      frameloop={reduceMotion ? "demand" : "always"}
+      dpr={[1, 2]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ background: "transparent" }}
     >
@@ -235,23 +213,23 @@ export default function HeroScene() {
         <pointLight position={[5, 5, 5]} intensity={1.2} color="#4FD1FF" />
         <pointLight position={[-5, -3, 4]} intensity={0.8} color="#7C3AED" />
 
-        <ParticleField count={reduceMotion ? 700 : 1600} animated={animated} />
+        <ParticleField count={1600} />
 
-        <MotionRing radius={2.3} color="#4FD1FF" opacity={0.22} animated={animated} />
-        <MotionRing radius={3} color="#2563FF" opacity={0.16} rotation={[Math.PI / 2.6, 0.3, 0]} animated={animated} />
-        <MotionRing radius={3.7} color="#7C3AED" opacity={0.12} rotation={[Math.PI / 2.2, -0.2, 0.2]} animated={animated} />
+        <MotionRing radius={2.3} color="#4FD1FF" opacity={0.22} />
+        <MotionRing radius={3} color="#2563FF" opacity={0.16} rotation={[Math.PI / 2.6, 0.3, 0]} />
+        <MotionRing radius={3.7} color="#7C3AED" opacity={0.12} rotation={[Math.PI / 2.2, -0.2, 0.2]} />
 
         <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.3}>
           <group>
-            <WalkingFigure offsetX={-2.4} z={-1.5} opacity={0.35} color="#7C3AED" speed={0.3} phase={0.2} animated={animated} />
-            <WalkingFigure offsetX={-1.2} z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.32} phase={0.4} animated={animated} />
-            <WalkingFigure offsetX={0} z={0} opacity={1} color="#2563FF" speed={0.35} phase={0.6} animated={animated} />
-            <WalkingFigure offsetX={1.2} z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.32} phase={0.8} animated={animated} />
-            <WalkingFigure offsetX={2.4} z={-1.5} opacity={0.35} color="#2563FF" speed={0.3} phase={1.0} animated={animated} />
+            <WalkingFigure offsetX={-2.4} z={-1.5} opacity={0.35} color="#7C3AED" speed={0.3} phase={0.2} />
+            <WalkingFigure offsetX={-1.2} z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.32} phase={0.4} />
+            <WalkingFigure offsetX={0} z={0} opacity={1} color="#2563FF" speed={0.35} phase={0.6} />
+            <WalkingFigure offsetX={1.2} z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.32} phase={0.8} />
+            <WalkingFigure offsetX={2.4} z={-1.5} opacity={0.35} color="#2563FF" speed={0.3} phase={1.0} />
           </group>
         </Float>
 
-        {animated && <MouseParallax />}
+        <MouseParallax />
       </Suspense>
     </Canvas>
   );

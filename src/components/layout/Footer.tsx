@@ -9,7 +9,7 @@ const footerLinks = [
       { label: "MobilityCare", href: "/mobilitycare" },
       { label: "SecureVision", href: "/securevision" },
       { label: "All products", href: "/products" },
-      { label: "Technology", href: "/#movement-platform" },
+      { label: "Technology", href: "/#technology" },
       { label: "How it works", href: "/#how" },
     ],
   },
@@ -67,10 +67,10 @@ export function Footer() {
           <div>
             <Logo variant="wordmark" size="lg" />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-soft-mute">
-              GaitAI is intelligence in motion — a movement-intelligence
-              platform that turns video, wearable signals and crowd movement
-              into structured information for health, performance and safety.
-              Grounded in 10+ years of gait research.
+              GaitAI is intelligence in motion — a Human Movement Intelligence
+              Platform that transforms walking videos, wearable signals and
+              crowd movement into healthcare, sports, elderly-care and
+              safety insights. Grounded in 10+ years of gait research.
             </p>
             <div className="mt-6 flex items-center gap-2">
               {socials.map(({ icon: Icon, href, label }) => (

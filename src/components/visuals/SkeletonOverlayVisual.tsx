@@ -100,16 +100,16 @@ export function SkeletonOverlayVisual({
       {/* HUD labels */}
       <g fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace">
         <text x="14" y="22" fontSize="9" fill="#94A3B8" letterSpacing="2">
-          POSE · KEYPOINT MAP
+          POSE · 17/17 KP
         </text>
         <text x="14" y="36" fontSize="9" fill={accent} letterSpacing="2">
-          SIGNAL · TRACKING
+          CONF · 0.97
         </text>
         <text x="220" y="22" fontSize="9" fill="#94A3B8" letterSpacing="2">
-          GAIT · TEMPORAL TRACE
+          GAIT · CYCLE 1.04s
         </text>
         <text x="220" y="36" fontSize="9" fill={accent} letterSpacing="2">
-          STATUS · DEMO
+          CADENCE · 112
         </text>
       </g>
     </svg>

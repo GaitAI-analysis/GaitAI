@@ -26,7 +26,6 @@ export const metadata: Metadata = {
   title: "MobilityCare — Clinical movement intelligence",
   description:
     "GaitAI MobilityCare — AI-powered clinical gait, sports movement, rehabilitation, elderly mobility and WatchCare wearable intelligence.",
-  alternates: { canonical: "/mobilitycare" },
 };
 
 const mobilityUseCases = industryUseCases.filter(
@@ -121,7 +120,7 @@ export default function MobilityCarePage() {
                 <SkeletonOverlayVisual accent="#0FA3B1" />
                 <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/40 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-teal-300 backdrop-blur-md">
                   <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-                  Pose estimation
+                  Live pose estimation
                 </div>
               </div>
               <div className="mt-4">
@@ -143,14 +142,11 @@ export default function MobilityCarePage() {
                 <span className="text-gradient">one movement engine.</span>
               </>
             }
-            description="Filter by workflow and explore the relevant capabilities. Product specifications describe clinician-facing outputs and report structures."
+            description="Filter by environment, deploy what's relevant. Every product produces clinician-friendly outputs and exportable reports."
             align="left"
           />
           <div className="mt-10">
-            <ProductGrid
-              vertical="mobilitycare"
-              reservedAnchorIds={["walkscan", "fallrisk", "watchcare", "sportsmotion"]}
-            />
+            <ProductGrid vertical="mobilitycare" />
           </div>
         </div>
       </section>
@@ -211,7 +207,7 @@ export default function MobilityCarePage() {
         <section id={watchcare.id} className="section bg-obsidian-300/40">
           <div className="container-wide">
             <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.2fr]">
-              <SmartwatchVisual />
+              <SmartwatchVisual score={86} trend="up" />
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300">
                   <Watch className="h-3.5 w-3.5" />
@@ -390,7 +386,7 @@ export default function MobilityCarePage() {
                     </div>
                     <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.02] p-3">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                        Relevant outputs
+                        Outcome
                       </div>
                       <div className="mt-1 text-[12.5px] leading-relaxed text-soft-white">
                         {u.outcome}
@@ -422,7 +418,7 @@ export default function MobilityCarePage() {
                   MobilityCare for your clinic, hospital, academy or care home
                 </span>
                 <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
-                  Explore a GaitAI pilot with your team.
+                  Pilot GaitAI with your team in 4–6 weeks.
                 </h2>
               </div>
               <div className="flex gap-3">

@@ -3,11 +3,10 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BookOpen,
   ExternalLink,
-  Search,
   Tag,
 } from "lucide-react";
 import {
@@ -22,7 +21,6 @@ interface ExplorerProps {
 }
 
 export function PublicationsExplorer({ papers }: ExplorerProps) {
-  const reduceMotion = useReducedMotion();
   const years = useMemo(
     () =>
       Array.from(new Set(papers.map((p) => p.year))).sort((a, b) => b - a),
@@ -35,43 +33,17 @@ export function PublicationsExplorer({ papers }: ExplorerProps) {
 
   const [year, setYear] = useState<number | "all">("all");
   const [pub, setPub] = useState<string>("all");
-  const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return papers.filter((paper) => {
-      const matchesYear = year === "all" || paper.year === year;
-      const matchesPublisher = pub === "all" || paper.publisher === pub;
-      const searchable = [
-        paper.title,
-        paper.venue,
-        paper.publisher,
-        ...paper.authors,
-        ...(paper.keywords ?? []),
-      ]
-        .join(" ")
-        .toLowerCase();
-      const matchesQuery = !normalizedQuery || searchable.includes(normalizedQuery);
-      return matchesYear && matchesPublisher && matchesQuery;
-    });
-  }, [papers, pub, query, year]);
+    return papers.filter(
+      (p) => (year === "all" || p.year === year) && (pub === "all" || p.publisher === pub)
+    );
+  }, [papers, year, pub]);
 
   return (
     <div>
-      <div className="mb-8 border-y border-white/10 py-5">
-        <label className="relative block max-w-xl" htmlFor="publication-search">
-          <span className="sr-only">Search publications by title, author, venue or research theme</span>
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-soft-mute" />
-          <input
-            id="publication-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.currentTarget.value)}
-            placeholder="Search title, author, venue or theme"
-            className="h-12 w-full rounded-full border border-white/10 bg-white/[0.025] pl-11 pr-4 text-sm text-soft-white outline-none transition placeholder:text-soft-mute focus:border-cyan-300/50"
-          />
-        </label>
-        <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
+      {/* Filters */}
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <span className="mr-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
             Year
@@ -101,10 +73,6 @@ export function PublicationsExplorer({ papers }: ExplorerProps) {
             </Pill>
           ))}
         </div>
-        </div>
-        <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-soft-mute" aria-live="polite">
-          Showing {filtered.length} of {papers.length} records
-        </div>
       </div>
 
       {/* Grid */}
@@ -114,12 +82,12 @@ export function PublicationsExplorer({ papers }: ExplorerProps) {
             <motion.div
               key={p.id}
               layout
-              initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: 18 }}
+              initial={{ opacity: 0, scale: 0.96, y: 18 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={reduceMotion ? undefined : { opacity: 0, scale: 0.96 }}
+              exit={{ opacity: 0, scale: 0.96 }}
               transition={{
-                duration: reduceMotion ? 0 : 0.55,
-                delay: reduceMotion ? 0 : (i % 6) * 0.05,
+                duration: 0.55,
+                delay: (i % 6) * 0.05,
                 ease: [0.16, 1, 0.3, 1],
               }}
             >
@@ -151,8 +119,6 @@ function Pill({
 }) {
   return (
     <button
-      type="button"
-      aria-pressed={active}
       onClick={onClick}
       className={`relative rounded-full border px-3.5 py-1.5 text-[11.5px] font-medium transition-all ${
         active
@@ -266,13 +232,13 @@ function PaperCard({ pub }: { pub: Publication }) {
           {pub.doi ? `DOI · ${pub.doi}` : pub.publisher}
         </div>
 
-        {/* Verified external research record */}
+        {/* Verified external research record. Local PDFs are not bundled. */}
         <div className="mt-3">
           <Link
             href={pub.externalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className={`inline-flex w-full items-center justify-center gap-1.5 rounded-full border px-2.5 py-2 text-[10.5px] font-semibold transition-all hover:border-white/30 ${a.pill}`}
+            className={`inline-flex w-full items-center justify-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[10.5px] font-semibold transition-all hover:border-white/30 ${a.pill}`}
           >
             <ExternalLink className="h-3 w-3" />
             Open paper

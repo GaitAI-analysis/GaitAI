@@ -63,8 +63,6 @@ export interface GaitProduct {
   featured: boolean; // surface on the homepage strip
   flagship: boolean; // earns a dedicated visual block
   accent: "teal" | "blue" | "violet" | "cyan" | "gold" | "emerald";
-  /** Rendered only when a verified status is supplied by the content source. */
-  status?: import("@/data/platform").ProductMaturity;
 }
 
 // ----------------------------------------------------------------------------
@@ -433,7 +431,7 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI CrowdSense",
     short: "CrowdSense",
     label: "Crowd flow, density, queue & public-space analytics",
-    headline: "Understand crowd flow, bottlenecks and movement risk.",
+    headline: "See crowd flow, bottlenecks and movement risk live.",
     description:
       "Analyzes crowd movement, density, queues, bottlenecks, flow direction and panic-like movement for smart-city scale public spaces.",
     users: [
@@ -495,7 +493,7 @@ export const secureProducts: GaitProduct[] = [
     headline: "Movement intelligence — without invasive surveillance.",
     description:
       "Skeleton-only analytics, face blur, role-based access, configurable retention and audit logs that make GaitAI deployable in privacy-sensitive environments.",
-    users: ["Security teams", "Enterprises", "Public-sector teams"],
+    users: ["All security customers", "Enterprises", "Public-sector deployments"],
     outputs: [
       "Privacy mode",
       "Audit logs",
@@ -670,9 +668,9 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI Watchlist",
     short: "Watchlist",
     label: "Legally governed gait-based watchlist matching",
-    headline: "Designed for lawful, governed and audited use.",
+    headline: "Lawful, audited, deployed only where authorized.",
     description:
-      "High-security watchlist matching is presented for contexts with lawful authority, policy controls and audit trails.",
+      "High-security watchlist matching restricted to deployments with lawful authority, policy controls and full audit trails.",
     users: [
       "Authorized law enforcement",
       "Defense agencies",
@@ -812,7 +810,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Building2,
     vertical: "securevision",
     problem:
-      "Public spaces need timely crowd intelligence that treats privacy as a core requirement.",
+      "Public spaces need real-time crowd intelligence that respects privacy by default.",
     productIds: ["crowdsense", "forensicsearch", "privacyguard"],
     outcome:
       "Public-space movement, crowd-risk alerts, anonymized analytics.",
@@ -1086,12 +1084,12 @@ export const researchPillars = [
   },
   {
     title: "Clinical workflow design",
-    desc: "Movement outputs organized for clinical, rehabilitation and mobility workflows.",
+    desc: "Built with input from physiotherapists, neurologists, geriatricians and rehab specialists.",
     icon: Stethoscope,
   },
   {
     title: "Responsible AI deployment",
-    desc: "Privacy, controlled access, auditability and human oversight treated as architecture requirements.",
+    desc: "Privacy-first architecture, role-based access, audit logs and retention controls built in.",
     icon: ShieldCheck,
   },
 ];

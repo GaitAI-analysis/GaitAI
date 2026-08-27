@@ -14,7 +14,6 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <PartnerMarquee />
       <Verticals />
       <FeaturedProducts />
       <WatchCareFlagship />
@@ -23,6 +22,7 @@ export default function HomePage() {
       <TechStack />
       <ResearchCredibility />
       <Vision />
+      <PartnerMarquee />
       <CTA />
     </>
   );

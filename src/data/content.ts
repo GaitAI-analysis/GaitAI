@@ -106,8 +106,8 @@ export const stats = [
 ];
 
 // Flat top-nav tabs — consumed by both desktop & mobile.
-// About leads the row; Products closes the brief's all-products-page gap.
 export const navLinks = [
+  { label: "Home", href: "/" },
   { label: "About", href: "/about" },
   { label: "MobilityCare", href: "/mobilitycare" },
   { label: "SecureVision", href: "/securevision" },

@@ -4,16 +4,11 @@ import { assetPath } from "@/lib/paths";
 import Link from "next/link";
 import {
   Activity,
-  Award,
   ArrowRight,
   ArrowUpRight,
-  BookOpen,
   Brain,
   Building2,
   Compass,
-  Cpu,
-  Eye,
-  FileText,
   Fingerprint,
   Globe2,
   GraduationCap,
@@ -21,19 +16,15 @@ import {
   Heart,
   HeartHandshake,
   HeartPulse,
-  Lightbulb,
   Mail,
-  Mic,
   Quote,
   Rocket,
-  ScanText,
   ShieldCheck,
   Sparkles,
   Stethoscope,
   Target,
   Trophy,
   Users,
-  Workflow,
 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
@@ -58,25 +49,6 @@ const researchPortfolio = [
     desc: "Sports, wellness, clinical screening, workplace safety, smart monitoring and future-ready human analytics.",
     accent: "violet",
   },
-];
-
-const founderCreds = [
-  { value: "50+", label: "Peer-reviewed publications", icon: BookOpen },
-  { value: "6", label: "Granted / published patents", icon: Award },
-  { value: "~600", label: "Academic citations", icon: FileText },
-  { value: "10+", label: "Keynote talks & invited sessions", icon: Mic },
-];
-
-const founderExpertise = [
-  { label: "Artificial Intelligence & ML", icon: Brain },
-  { label: "Deep Learning & Neural Networks", icon: Cpu },
-  { label: "Computer Vision", icon: Eye },
-  { label: "Generative AI & LLMs", icon: Sparkles },
-  { label: "Biometrics & Gait Recognition", icon: Fingerprint },
-  { label: "Edge AI & IoT Systems", icon: Workflow },
-  { label: "Robotics & HMI", icon: Lightbulb },
-  { label: "Data Science & Analytics", icon: Activity },
-  { label: "OCR & Document Intelligence", icon: ScanText },
 ];
 
 const audiences = [
@@ -406,80 +378,6 @@ export default function AboutPage() {
             </Reveal>
           </div>
 
-          {/* Research output strip */}
-          <Reveal delay={0.25}>
-            <div className="mt-12 grid grid-cols-2 gap-px overflow-hidden rounded-2xl glass sm:grid-cols-4">
-              {founderCreds.map((c) => {
-                const Icon = c.icon;
-                return (
-                  <div
-                    key={c.label}
-                    className="bg-gunmetal/30 p-5 text-center sm:p-7"
-                  >
-                    <span className="mx-auto grid h-9 w-9 place-items-center rounded-lg bg-gradient-to-br from-royal-400/20 to-cyan-300/10 text-cyan-300 ring-1 ring-white/10">
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <div className="stat-num mt-3 text-2xl text-soft-white sm:text-3xl">
-                      {c.value}
-                    </div>
-                    <div className="mt-1.5 text-[10.5px] uppercase tracking-[0.18em] text-soft-mute">
-                      {c.label}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </Reveal>
-
-          {/* Expertise grid */}
-          <Reveal delay={0.3}>
-            <div className="mt-12">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                Areas of expertise
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {founderExpertise.map((e) => {
-                  const Icon = e.icon;
-                  return (
-                    <span
-                      key={e.label}
-                      className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-soft-white transition-all hover:border-cyan-300/30 hover:bg-cyan-300/[0.06]"
-                    >
-                      <Icon className="h-3.5 w-3.5 text-cyan-300" />
-                      {e.label}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Recognition */}
-          <Reveal delay={0.35}>
-            <div className="mt-10 rounded-2xl border border-amber-300/20 bg-gradient-to-b from-amber-400/[0.04] to-transparent p-6 sm:p-7">
-              <div className="flex items-start gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-300/15 text-amber-300 ring-1 ring-amber-300/30">
-                  <Award className="h-5 w-5" />
-                </span>
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300">
-                    Recognition
-                  </div>
-                  <p className="mt-1.5 text-[14px] leading-relaxed text-soft-white">
-                    Known for combining deep technical expertise with strong
-                    leadership and academic rigor, Dr. Parashar has earned
-                    recognition as an{" "}
-                    <span className="font-semibold">
-                      award-winning researcher and innovator
-                    </span>
-                    . Her mission is to leverage AI to solve meaningful
-                    real-world problems while advancing the boundaries of
-                    intelligent systems research.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
         </div>
       </section>
 

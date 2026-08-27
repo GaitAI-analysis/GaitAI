@@ -1,5 +1,6 @@
 import { Hero } from "@/components/sections/Hero";
 import { PartnerMarquee } from "@/components/sections/PartnerMarquee";
+import { MetricsStrip } from "@/components/sections/MetricsStrip";
 import { Verticals } from "@/components/sections/Verticals";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
 import { WatchCareFlagship } from "@/components/sections/WatchCareFlagship";
@@ -23,6 +24,7 @@ export default function HomePage() {
       <ResearchCredibility />
       <Vision />
       <PartnerMarquee />
+      <MetricsStrip />
       <CTA />
     </>
   );

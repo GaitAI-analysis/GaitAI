@@ -69,13 +69,15 @@ export function Hero() {
             custom={2}
             className="mt-7 max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:text-lg"
           >
-            GaitAI converts walking videos, wearable signals, posture and crowd
-            movement into actionable AI — for{" "}
-            <span className="text-soft-white">healthcare, rehabilitation,
-            sports, elderly care, mobility,</span> and{" "}
-            <span className="text-soft-white">privacy-aware public safety.</span>{" "}
-            One platform. Two verticals. Twenty-three movement-intelligence
-            products.
+            GaitAI transforms video, wearable signals and human movement into
+            actionable intelligence across{" "}
+            <span className="text-soft-white">
+              MobilityCare and SecureVision
+            </span>{" "}
+            — one platform powering{" "}
+            <span className="text-soft-white">
+              twenty-three specialized movement-intelligence products.
+            </span>
           </motion.p>
 
           <motion.div
@@ -102,7 +104,7 @@ export function Hero() {
             className="mt-12 inline-flex items-center gap-2 text-xs text-soft-mute"
           >
             <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
-            Built for clinicians, hospitals, sports academies, enterprises &amp; public-safety teams
+            Spanning clinical gait, fall-risk, rehabilitation, sports performance, wearable mobility, neurological movement, surveillance, security, crowd intelligence and public safety.
           </motion.div>
         </motion.div>
 

@@ -108,7 +108,7 @@ export default function RootLayout({
         <Providers>
           <div className="relative min-h-screen">
             <Navbar />
-            <main className="relative">
+            <main className="site-main relative">
               <PageTransition>{children}</PageTransition>
             </main>
             <Footer />

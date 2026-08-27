@@ -75,7 +75,7 @@ export function LivePostView({ slug }: { slug: string }) {
     <article className="relative w-full overflow-hidden pb-24">
       {/* Hero cover */}
       <header
-        className="relative isolate overflow-hidden pb-16 pt-32 sm:pb-24 sm:pt-36"
+        className="site-page-intro-compact relative isolate overflow-hidden pb-16 sm:pb-24"
         style={{ backgroundImage: categoryGradient[post.category] }}
       >
         <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
@@ -254,7 +254,7 @@ export function LivePostView({ slug }: { slug: string }) {
 
 function ArticleSkeleton() {
   return (
-    <div className="container-wide pb-24 pt-40">
+    <div className="site-page-intro-roomy container-wide pb-24">
       <div className="mx-auto w-full max-w-3xl space-y-6">
         <div className="h-6 w-32 animate-pulse rounded-full bg-white/[0.06]" />
         <div className="h-12 w-full animate-pulse rounded-xl bg-white/[0.06]" />
@@ -276,7 +276,7 @@ function ArticleSkeleton() {
 
 function NotFoundBlock() {
   return (
-    <div className="container-wide grid min-h-[70vh] place-items-center pb-24 pt-40 text-center">
+    <div className="site-page-intro-roomy container-wide grid min-h-[70vh] place-items-center pb-24 text-center">
       <div className="max-w-md">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
           404 — Not found

@@ -40,7 +40,7 @@ export default function NotFound() {
   if (slug) return <LivePostView slug={slug} />;
 
   return (
-    <div className="container-wide grid min-h-[70vh] place-items-center pb-24 pt-40 text-center">
+    <div className="site-page-intro-roomy container-wide grid min-h-[70vh] place-items-center pb-24 text-center">
       <div className="max-w-md">
         <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
           404 — Not found

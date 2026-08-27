@@ -70,7 +70,7 @@ export default async function PublicationPage({
     <article className="relative w-full overflow-hidden pb-24">
       {/* Hero cover */}
       <header
-        className="relative isolate overflow-hidden pb-16 pt-32 sm:pb-24 sm:pt-36"
+        className="site-page-intro-compact relative isolate overflow-hidden pb-16 sm:pb-24"
         style={{ backgroundImage: categoryGradient[post.category] }}
       >
         <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />

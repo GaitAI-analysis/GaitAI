@@ -168,7 +168,7 @@ export default function AboutPage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative overflow-hidden pt-36 pb-20 sm:pt-40">
+      <section className="site-page-intro relative overflow-hidden pb-20">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-glow opacity-60 blur-3xl" />
         </div>

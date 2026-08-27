@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export default function LegalLayout({ children }: { children: ReactNode }) {
   return (
-    <section className="relative pt-36 pb-24 sm:pt-40">
+    <section className="site-page-intro relative pb-24">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-[10%] h-[480px] w-[800px] -translate-x-1/2 rounded-full bg-radial-glow opacity-40 blur-3xl" />
       </div>

@@ -156,13 +156,13 @@ function PanelInner() {
   };
 
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="site-viewport-section relative w-full">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(60%_50%_at_50%_0%,rgba(34,211,238,0.07),transparent_70%)]"
       />
 
-      <div className="container-wide relative pb-24 pt-24 lg:pt-28">
+      <div className="site-admin-intro container-wide relative pb-24">
         {/* ---- Top bar ------------------------------------------------------ */}
         <header className="flex flex-wrap items-center justify-between gap-4">
           <h1 className="sr-only">GaitAI Control Panel</h1>

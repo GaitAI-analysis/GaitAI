@@ -105,16 +105,27 @@ export const stats = [
   { value: "24/7", label: "Continuous awareness" },
 ];
 
-// Flat top-nav tabs — consumed by both desktop & mobile.
-export const navLinks = [
+export interface NavItem {
+  label: string;
+  href: string;
+  children?: readonly NavItem[];
+}
+
+// Shared desktop/mobile navigation hierarchy.
+export const navLinks: readonly NavItem[] = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
-  { label: "MobilityCare", href: "/mobilitycare" },
-  { label: "SecureVision", href: "/securevision" },
-  { label: "Products", href: "/products" },
-  { label: "Use Cases", href: "/use-cases" },
+  {
+    label: "Products",
+    href: "/products",
+    children: [
+      { label: "MobilityCare", href: "/mobilitycare" },
+      { label: "SecureVision", href: "/securevision" },
+      { label: "Use Cases", href: "/use-cases" },
+    ],
+  },
   { label: "Insights", href: "/insights" },
-  { label: "Publications", href: "/publications" },
+  { label: "Research & IP", href: "/publications" },
 ];
 
 export const heroStats = [

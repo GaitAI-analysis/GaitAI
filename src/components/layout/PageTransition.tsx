@@ -96,6 +96,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
           animate={{
             x: "120%",
             opacity: [0, 0.9, 0.9, 0],
+            transitionEnd: { display: "none" },
           }}
           exit={{ opacity: 0 }}
           transition={{
@@ -121,7 +122,11 @@ export function PageTransition({ children }: { children: ReactNode }) {
           key={`edge-${pathname}`}
           aria-hidden
           initial={{ x: "-10%", opacity: 0 }}
-          animate={{ x: "110vw", opacity: [0, 1, 1, 0] }}
+          animate={{
+            x: "110vw",
+            opacity: [0, 1, 1, 0],
+            transitionEnd: { display: "none" },
+          }}
           exit={{ opacity: 0 }}
           transition={{
             x: { duration: DURATION + 0.1, ease: EASE_EXPO },

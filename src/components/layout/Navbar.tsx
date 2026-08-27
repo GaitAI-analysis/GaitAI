@@ -14,8 +14,7 @@ import { assetPath } from "@/lib/paths";
 /**
  * Flat-tab Navbar.
  *
- * Five top-level tabs — MobilityCare, SecureVision, Use Cases, About,
- * Publications — plus the Logo, theme toggle and Request Demo CTA.
+ * Primary navigation tabs plus the Logo, theme toggle and Request Demo CTA.
  * The active route gets a subtle highlight so wayfinding is obvious.
  * Mobile collapses to the same flat list inside an animated drawer.
  */
@@ -36,7 +35,7 @@ export function Navbar() {
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
-    return pathname?.startsWith(href);
+    return pathname === href || pathname?.startsWith(`${href}/`);
   };
 
   return (
@@ -63,7 +62,7 @@ export function Navbar() {
               <Logo variant="wordmark" size="md" priority />
             </Link>
 
-            <nav className="hidden items-center gap-1 lg:flex">
+            <nav className="hidden items-center gap-0 xl:flex 2xl:gap-1">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 return (
@@ -71,7 +70,7 @@ export function Navbar() {
                     key={link.href}
                     href={link.href}
                     className={cn(
-                      "group relative px-3.5 py-2 text-sm transition-colors duration-300",
+                      "group relative px-2.5 py-2 text-sm transition-colors duration-300 2xl:px-3.5",
                       active
                         ? "text-soft-white"
                         : "text-soft-gray hover:text-soft-white"
@@ -83,7 +82,7 @@ export function Navbar() {
                     <span
                       aria-hidden
                       className={cn(
-                        "pointer-events-none absolute inset-x-3.5 -bottom-0.5 h-[2px] origin-center rounded-full bg-gradient-to-r from-cyan-300 via-royal-400 to-violet-400 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                        "pointer-events-none absolute inset-x-2.5 -bottom-0.5 h-[2px] origin-center rounded-full bg-gradient-to-r from-cyan-300 via-royal-400 to-violet-400 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] 2xl:inset-x-3.5",
                         active
                           ? "scale-x-100 opacity-100"
                           : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
@@ -110,7 +109,7 @@ export function Navbar() {
               <button
                 onClick={() => setOpen(true)}
                 aria-label="Open menu"
-                className="grid h-9 w-9 place-items-center rounded-full glass lg:hidden"
+                className="grid h-9 w-9 place-items-center rounded-full glass xl:hidden"
               >
                 <Menu className="h-4 w-4" />
               </button>
@@ -127,7 +126,7 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[60] bg-obsidian/95 backdrop-blur-xl lg:hidden"
+            className="fixed inset-0 z-[60] bg-obsidian/95 backdrop-blur-xl xl:hidden"
           >
             <div className="container-wide flex items-center justify-between py-5">
               <Logo variant="wordmark" size="md" />

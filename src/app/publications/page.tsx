@@ -43,7 +43,7 @@ export default function PublicationsPage() {
   return (
     <>
       {/* ─────────── HERO ─────────── */}
-      <section className="relative overflow-hidden pt-36 pb-16 sm:pt-40">
+      <section className="site-page-intro relative overflow-hidden pb-16">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div
             className="absolute left-1/2 top-[8%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full opacity-50 blur-3xl"

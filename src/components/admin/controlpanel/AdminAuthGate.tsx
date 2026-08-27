@@ -70,7 +70,7 @@ export function AdminAuthGate({
   }
 
   return (
-    <div className="relative grid min-h-screen w-full place-items-center px-4">
+    <div className="site-viewport-section relative grid w-full place-items-center px-4">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(60%_50%_at_50%_0%,rgba(34,211,238,0.08),transparent_70%)]"

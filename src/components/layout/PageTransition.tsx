@@ -106,7 +106,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
               ease: "easeOut",
             },
           }}
-          className="pointer-events-none fixed inset-y-0 left-0 z-[90] w-[55vw] mix-blend-screen"
+          className="pointer-events-none fixed inset-y-0 left-0 z-40 w-[55vw] mix-blend-screen"
           style={{
             background:
               "linear-gradient(90deg, transparent 0%, rgba(79,209,255,0.0) 10%, rgba(37,99,255,0.18) 45%, rgba(124,58,237,0.22) 55%, rgba(79,209,255,0.0) 90%, transparent 100%)",
@@ -131,7 +131,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
               ease: "easeOut",
             },
           }}
-          className="pointer-events-none fixed inset-y-0 left-0 z-[91] w-px"
+          className="pointer-events-none fixed inset-y-0 left-0 z-40 w-px"
           style={{
             background:
               "linear-gradient(180deg, transparent 0%, rgba(79,209,255,0.9) 30%, rgba(124,58,237,0.9) 70%, transparent 100%)",

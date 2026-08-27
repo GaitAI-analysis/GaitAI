@@ -17,7 +17,7 @@ export default function InsightsPage() {
   return (
     <>
       {/* ─────────── HERO ─────────── */}
-      <section className="relative overflow-hidden pt-36 pb-12 sm:pt-40">
+      <section className="site-page-intro relative overflow-hidden pb-12">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div
             className="absolute left-1/2 top-[6%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full opacity-50 blur-3xl"

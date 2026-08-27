@@ -24,7 +24,7 @@ export function Hero() {
   return (
     <section
       id="platform"
-      className="relative min-h-[100svh] w-full overflow-hidden pt-32 sm:pt-36"
+      className="site-page-intro-compact site-viewport-section relative w-full overflow-hidden"
     >
       {/* Ambient gradient blobs */}
       <div className="pointer-events-none absolute inset-0 -z-10">

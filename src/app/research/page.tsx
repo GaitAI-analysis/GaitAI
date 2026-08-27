@@ -98,7 +98,7 @@ export default function ResearchPage() {
   return (
     <>
       {/* HERO */}
-      <section className="relative overflow-hidden pt-36 pb-20 sm:pt-40">
+      <section className="site-page-intro relative overflow-hidden pb-20">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute left-[8%] top-[15%] h-72 w-72 rounded-full bg-radial-violet opacity-40 blur-3xl" />
           <div className="absolute right-[8%] top-[15%] h-72 w-72 rounded-full bg-radial-cyan opacity-50 blur-3xl" />

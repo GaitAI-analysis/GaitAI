@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 
 const interests = [
-  { id: "mobilitycare", label: "MobilityCare pilot", icon: HeartPulse },
-  { id: "securevision", label: "SecureVision pilot", icon: ShieldCheck },
+  { id: "mobilitycare", label: "Clinical mobility pilot", icon: HeartPulse },
+  { id: "securevision", label: "Security intelligence pilot", icon: ShieldCheck },
   { id: "watchcare", label: "WatchCare program", icon: Watch },
   { id: "sports", label: "Sports academy", icon: Trophy },
   { id: "enterprise", label: "Enterprise deployment", icon: Building2 },
@@ -97,14 +97,14 @@ export function CTA() {
                         type="button"
                         key={opt.id}
                         onClick={() => setPicked(opt.id)}
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-all ${
+                        className={`inline-flex max-w-full items-center gap-1.5 whitespace-normal rounded-full border px-3 py-1.5 text-left text-xs leading-snug transition-all ${
                           active
                             ? "border-cyan-300/50 bg-cyan-300/10 text-cyan-300"
                             : "border-white/10 bg-white/[0.02] text-soft-mute hover:border-white/20 hover:text-soft-white"
                         }`}
                       >
-                        <Icon className="h-3 w-3" />
-                        {opt.label}
+                        <Icon className="h-3 w-3 shrink-0" />
+                        <span className="min-w-0">{opt.label}</span>
                       </button>
                     );
                   })}
@@ -112,7 +112,7 @@ export function CTA() {
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <Field label="Full name" type="text" placeholder="Anubha Parashar" />
+                <Field label="Full name" type="text" placeholder="Your full name" />
                 <Field label="Work email" type="email" placeholder="you@org.com" />
               </div>
               <div className="mt-3">

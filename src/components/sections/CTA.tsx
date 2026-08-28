@@ -97,14 +97,14 @@ export function CTA() {
                         type="button"
                         key={opt.id}
                         onClick={() => setPicked(opt.id)}
-                        className={`inline-flex max-w-full items-center gap-1.5 whitespace-normal rounded-full border px-3 py-1.5 text-left text-xs leading-snug transition-all ${
+                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-all ${
                           active
                             ? "border-cyan-300/50 bg-cyan-300/10 text-cyan-300"
                             : "border-white/10 bg-white/[0.02] text-soft-mute hover:border-white/20 hover:text-soft-white"
                         }`}
                       >
-                        <Icon className="h-3 w-3 shrink-0" />
-                        <span className="min-w-0">{opt.label}</span>
+                        <Icon className="h-3 w-3" />
+                        {opt.label}
                       </button>
                     );
                   })}

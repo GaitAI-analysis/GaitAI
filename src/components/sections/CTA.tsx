@@ -203,7 +203,7 @@ export function CTA() {
                   aria-live="polite"
                   className="mt-3 text-center text-sm text-soft-white"
                 >
-                  Thanks — your request has been received. We&apos;ll be in touch
+                  Thanks — your request has been received. We&rsquo;ll be in touch
                   soon.
                 </p>
               )}

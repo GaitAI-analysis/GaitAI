@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, Play, Sparkles } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Network } from "lucide-react";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
   ssr: false,
@@ -11,106 +11,115 @@ const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
 });
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 22 },
   show: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: i * 0.08 },
+    transition: {
+      duration: 0.85,
+      ease: [0.16, 1, 0.3, 1],
+      delay: i * 0.08,
+    },
   }),
 };
 
 export function Hero() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <section
       id="platform"
-      className="site-page-intro-compact site-viewport-section relative w-full overflow-hidden"
+      aria-labelledby="home-hero-title"
+      className="site-viewport-section relative flex w-full items-center overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      {/* Ambient gradient blobs */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-[12%] h-[640px] w-[640px] -translate-x-1/2 rounded-full bg-radial-glow opacity-80 blur-3xl" />
-        <div className="absolute right-[5%] top-[25%] h-[360px] w-[360px] rounded-full bg-radial-violet opacity-60 blur-3xl" />
-        <div className="absolute left-[6%] bottom-[10%] h-[420px] w-[420px] rounded-full bg-radial-cyan opacity-50 blur-3xl" />
-      </div>
+      <div className="hero-ambient pointer-events-none absolute inset-0 -z-10" />
+      <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-25" />
 
-      {/* Grid pattern */}
-      <div className="pointer-events-none absolute inset-0 -z-10 ring-grid opacity-50" />
-
-      {/* 3D canvas behind text */}
-      <div className="pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[85svh] w-full opacity-95">
-        <HeroScene />
-      </div>
+      {!reduceMotion && (
+        <div
+          aria-hidden="true"
+          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-35"
+        >
+          <HeroScene />
+        </div>
+      )}
 
       <div className="container-wide relative z-10">
         <motion.div
-          initial="hidden"
+          initial={reduceMotion ? false : "hidden"}
           animate="show"
           variants={fadeUp}
-          className="mx-auto flex max-w-3xl flex-col items-center text-center"
+          className="mx-auto flex max-w-5xl flex-col items-center text-center"
         >
-          <motion.div variants={fadeUp} custom={0} className="pill">
-            <span className="pill-dot" />
-            10+ years of gait research · From research to real-world systems
+          <motion.div
+            variants={fadeUp}
+            custom={0}
+            className="inline-flex items-center gap-2.5 rounded-full border border-cyan-300/20 bg-obsidian/55 px-4 py-2 text-[11px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs"
+          >
+            <Network className="h-3.5 w-3.5" aria-hidden="true" />
+            GaitAI Movement Intelligence
           </motion.div>
 
           <motion.h1
+            id="home-hero-title"
             variants={fadeUp}
             custom={1}
-            className="mt-6 font-display text-display-2xl text-balance text-soft-white"
+            className="mt-8 max-w-5xl text-balance font-display text-[clamp(3.2rem,8vw,7.25rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-soft-white sm:mt-10"
           >
-            Intelligence
-            <span className="block">
-              in <span className="text-gradient">Motion.</span>
+            <span className="block">One AI layer.</span>
+            <span className="mt-2 block text-gradient sm:mt-3">
+              Two human missions.
             </span>
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
             custom={2}
-            className="mt-7 max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:text-lg"
+            className="mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:mt-10 sm:text-xl"
           >
-            GaitAI transforms video, wearable signals and human movement into
-            actionable intelligence across{" "}
-            <span className="text-soft-white">
-              MobilityCare and SecureVision
-            </span>{" "}
-            — one platform powering{" "}
-            <span className="text-soft-white">
-              twenty-three specialized movement-intelligence products.
-            </span>
+            Human movement intelligence for better care and safer spaces.
           </motion.p>
 
           <motion.div
             variants={fadeUp}
             custom={3}
-            className="mt-10 flex flex-col items-center gap-3 sm:flex-row"
+            className="mt-10 flex w-full max-w-xl flex-col items-stretch justify-center gap-3 sm:mt-12 sm:flex-row sm:items-center"
           >
-            <Link href="/mobilitycare" className="btn-primary">
+            <Link
+              href="/mobilitycare"
+              className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/30 bg-teal-300/[0.09] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/50 hover:bg-teal-300/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
+            >
               Explore MobilityCare
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
             </Link>
             <Link
               href="/securevision"
-              className="btn-ghost group border border-[rgba(120,180,255,0.35)] bg-[rgba(255,255,255,0.08)] font-semibold text-[#F7F9FF] shadow-[inset_0_1px_0_rgba(170,215,255,0.12)] hover:-translate-y-px hover:border-[rgba(150,210,255,0.55)] hover:bg-[rgba(255,255,255,0.13)] hover:shadow-[0_10px_28px_rgba(70,140,255,0.16),inset_0_1px_0_rgba(190,225,255,0.16)]"
+              className="hero-product-link hero-product-link--secure group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-royal-300/35 bg-royal-400/[0.1] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-royal-300/55 hover:bg-royal-400/[0.15] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
-              <span className="relative grid h-5 w-5 place-items-center rounded-full border border-[rgba(150,200,255,0.45)] bg-[rgba(70,120,220,0.20)] shadow-[0_0_12px_rgba(90,155,255,0.18)] transition-shadow duration-300 group-hover:shadow-[0_0_14px_rgba(100,175,255,0.26)]">
-                <Play className="h-3 w-3 fill-white text-white transition-transform duration-300 group-hover:scale-105" />
-              </span>
               Explore SecureVision
+              <ArrowRight
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
             </Link>
           </motion.div>
 
           <motion.div
             variants={fadeUp}
             custom={4}
-            className="mt-12 inline-flex items-center gap-2 text-xs text-soft-mute"
+            className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-soft-mute sm:mt-16"
           >
-            <Sparkles className="h-3.5 w-3.5 text-cyan-300" />
-            Spanning clinical gait, fall-risk, rehabilitation, sports performance, wearable mobility, neurological movement, surveillance, security, crowd intelligence and public safety.
+            <span>10+ years of gait research</span>
+            <span className="hidden h-1 w-1 rounded-full bg-cyan-300/50 sm:block" />
+            <span>23 specialized movement-intelligence products</span>
+            <span className="hidden h-1 w-1 rounded-full bg-cyan-300/50 sm:block" />
+            <span>Research to real-world systems</span>
           </motion.div>
         </motion.div>
-
       </div>
-
     </section>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 
 /**
  * Premium privacy-aware operations console — replaces the bare crowd
@@ -18,30 +19,60 @@ import { motion } from "framer-motion";
  * the existing pill badges on the parent card).
  */
 export function SecureOperationsVisual() {
+  const visualRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(visualRef, { once: true, margin: "-12% 0px" });
+  const reduceMotion = Boolean(useReducedMotion());
+  const show = isInView || reduceMotion;
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center px-4 pt-14 pb-3">
-      <div className="grid w-full max-w-[460px] grid-cols-[1.55fr_1fr] gap-2.5">
+    <div
+      ref={visualRef}
+      className="absolute inset-0 flex items-center justify-center overflow-hidden px-4 pb-4 pt-[4.25rem] sm:px-5"
+    >
+      <div className="grid w-[calc(100%+2rem)] min-w-[330px] max-w-[525px] grid-cols-[1.58fr_1fr] gap-3">
         {/* ─────────── LEFT: Floor plan ─────────── */}
         <Card
           label="Atrium · West wing"
+          show={show}
+          reduceMotion={reduceMotion}
           right={
-            <div className="inline-flex items-center gap-1 rounded-md border border-emerald-400/30 bg-emerald-400/10 px-1.5 py-0.5 text-[8px] font-semibold text-emerald-300">
+            <motion.div
+              initial={false}
+              animate={show ? { opacity: 1 } : { opacity: 0 }}
+              transition={{
+                delay: reduceMotion ? 0 : 0.35,
+                duration: reduceMotion ? 0 : 0.45,
+              }}
+              className="inline-flex items-center gap-1 rounded-md border border-emerald-400/30 bg-emerald-400/10 px-1.5 py-0.5 text-[8.5px] font-semibold text-emerald-300"
+            >
               <span className="h-1 w-1 rounded-full bg-emerald-400" />
               PrivacyGuard
-            </div>
+            </motion.div>
           }
         >
-          <div className="relative h-[150px]">
-            <FloorPlan />
+          <div className="relative h-[164px]">
+            <FloorPlan show={show} reduceMotion={reduceMotion} />
           </div>
-          <Timeline />
+          <Timeline show={show} reduceMotion={reduceMotion} />
         </Card>
 
         {/* ─────────── RIGHT: Camera feeds + density meter ─────────── */}
         <div className="flex flex-col gap-2">
-          <CameraFeed cam="CAM 04" status="normal" delay={0.2} />
-          <CameraFeed cam="CAM 07" status="alert" delay={0.35} />
-          <DensityMeter />
+          <CameraFeed
+            cam="CAM 04"
+            status="normal"
+            delay={0.2}
+            show={show}
+            reduceMotion={reduceMotion}
+          />
+          <CameraFeed
+            cam="CAM 07"
+            status="alert"
+            delay={0.35}
+            show={show}
+            reduceMotion={reduceMotion}
+          />
+          <DensityMeter show={show} reduceMotion={reduceMotion} />
         </div>
       </div>
     </div>
@@ -55,23 +86,35 @@ export function SecureOperationsVisual() {
 function Card({
   label,
   right,
+  show,
+  reduceMotion,
   children,
 }: {
   label: string;
   right?: React.ReactNode;
+  show: boolean;
+  reduceMotion: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] p-3 backdrop-blur-sm">
+    <div className="relative overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
       <div className="flex items-center justify-between">
-        <span className="text-[8.5px] font-semibold uppercase tracking-[0.18em] text-royal-300/90">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-royal-300/90">
           {label}
         </span>
         {right ?? (
-          <span className="flex items-center gap-1 text-[8px] font-mono text-soft-mute">
+          <motion.span
+            initial={false}
+            animate={show ? { opacity: 1 } : { opacity: 0 }}
+            transition={{
+              delay: reduceMotion ? 0 : 0.35,
+              duration: reduceMotion ? 0 : 0.45,
+            }}
+            className="flex items-center gap-1 text-[8.5px] font-mono text-soft-mute"
+          >
             <span className="h-1 w-1 rounded-full bg-emerald-400" />
             live
-          </span>
+          </motion.span>
         )}
       </div>
       <div className="mt-2">{children}</div>
@@ -79,7 +122,13 @@ function Card({
   );
 }
 
-function FloorPlan() {
+function FloorPlan({
+  show,
+  reduceMotion,
+}: {
+  show: boolean;
+  reduceMotion: boolean;
+}) {
   // Walking-person waypoints — each "person" animates between two points.
   const people: Array<{ from: [number, number]; to: [number, number]; delay: number; color: string }> = [
     { from: [20, 60], to: [180, 50], delay: 0.4, color: "#4FD1FF" },
@@ -130,9 +179,12 @@ function FloorPlan() {
         cy="60"
         r="32"
         fill="url(#zone-warm)"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.9 }}
-        transition={{ delay: 0.4, duration: 0.8 }}
+        initial={false}
+        animate={{ opacity: show ? 0.9 : 0 }}
+        transition={{
+          delay: reduceMotion ? 0 : 0.4,
+          duration: reduceMotion ? 0 : 0.8,
+        }}
         style={{ filter: "blur(8px)" }}
       />
 
@@ -145,9 +197,12 @@ function FloorPlan() {
       ].map(([cx, cy], i) => (
         <motion.g
           key={`cam-${i}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 + i * 0.08 }}
+          initial={false}
+          animate={{ opacity: show ? 1 : 0 }}
+          transition={{
+            delay: reduceMotion ? 0 : 0.3 + i * 0.08,
+            duration: reduceMotion ? 0 : 0.4,
+          }}
         >
           <circle cx={cx} cy={cy} r="3" fill="#4FD1FF" />
           <circle cx={cx} cy={cy} r="6" stroke="#4FD1FF" strokeOpacity="0.4" fill="none" />
@@ -158,9 +213,12 @@ function FloorPlan() {
       {people.map((p, i) => (
         <motion.g
           key={`p-${i}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: p.delay }}
+          initial={false}
+          animate={{ opacity: show ? 1 : 0 }}
+          transition={{
+            delay: reduceMotion ? 0 : p.delay,
+            duration: reduceMotion ? 0 : 0.4,
+          }}
         >
           {/* Trail */}
           <line
@@ -179,25 +237,30 @@ function FloorPlan() {
             cy={p.from[1]}
             r="3.5"
             fill={p.color}
-            initial={{ cx: p.from[0], cy: p.from[1] }}
-            animate={{ cx: p.to[0], cy: p.to[1] }}
+            initial={false}
+            animate={
+              show && !reduceMotion
+                ? { cx: p.to[0], cy: p.to[1] }
+                : { cx: p.from[0], cy: p.from[1] }
+            }
             transition={{
-              duration: 3.5,
-              delay: p.delay + 0.4,
+              duration: reduceMotion ? 0 : 1.8,
+              delay: reduceMotion ? 0 : p.delay + 0.35,
               ease: "linear",
-              repeat: Infinity,
-              repeatType: "reverse",
             }}
-            style={{ filter: `drop-shadow(0 0 4px ${p.color})` }}
+            style={{ filter: `drop-shadow(0 0 3px ${p.color})` }}
           />
         </motion.g>
       ))}
 
       {/* Alert tag */}
       <motion.g
-        initial={{ opacity: 0, y: 4 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.1 }}
+        initial={false}
+        animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 }}
+        transition={{
+          delay: reduceMotion ? 0 : 1.05,
+          duration: reduceMotion ? 0 : 0.4,
+        }}
       >
         <rect
           x="170"
@@ -208,9 +271,23 @@ function FloorPlan() {
           fill="rgba(0,0,0,0.6)"
           stroke="rgba(251,191,36,0.5)"
         />
-        <circle cx="178" cy="55" r="2.5" fill="#FBBF24">
-          <animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite" />
-        </circle>
+        <motion.circle
+          cx="178"
+          cy="55"
+          r="2.5"
+          fill="#FBBF24"
+          initial={false}
+          animate={
+            show && !reduceMotion
+              ? { opacity: [0.45, 1, 0.75], scale: [1, 1.55, 1] }
+              : { opacity: 0.8, scale: 1 }
+          }
+          transition={{
+            delay: reduceMotion ? 0 : 1.2,
+            duration: reduceMotion ? 0 : 0.9,
+            times: [0, 0.45, 1],
+          }}
+        />
         <text x="184" y="58" fontSize="8" fill="#FBBF24" fontFamily="ui-monospace, monospace" letterSpacing="1">
           DWELL · 4:12
         </text>
@@ -223,10 +300,14 @@ function CameraFeed({
   cam,
   status,
   delay = 0,
+  show,
+  reduceMotion,
 }: {
   cam: string;
   status: "normal" | "alert";
   delay?: number;
+  show: boolean;
+  reduceMotion: boolean;
 }) {
   const color = status === "alert" ? "amber" : "emerald";
   const ring =
@@ -235,13 +316,16 @@ function CameraFeed({
       : "border-white/8";
   return (
     <motion.div
-      initial={{ opacity: 0, x: 8 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay, duration: 0.5 }}
-      className={`relative overflow-hidden rounded-xl border ${ring} bg-white/[0.025] p-2 backdrop-blur-sm`}
+      initial={false}
+      animate={show ? { opacity: 1, x: 0 } : { opacity: 0, x: 8 }}
+      transition={{
+        delay: reduceMotion ? 0 : delay,
+        duration: reduceMotion ? 0 : 0.5,
+      }}
+      className={`relative overflow-hidden rounded-xl border ${ring} bg-white/[0.04] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-soft-mute">
+        <span className="text-[8.5px] font-mono uppercase tracking-[0.18em] text-soft-mute">
           {cam}
         </span>
         <span
@@ -249,7 +333,18 @@ function CameraFeed({
             color === "amber" ? "text-amber-300" : "text-emerald-300"
           }`}
         >
-          <span
+          <motion.span
+            initial={false}
+            animate={
+              status === "alert" && show && !reduceMotion
+                ? { scale: [1, 1.9, 1], opacity: [0.7, 1, 0.8] }
+                : { scale: 1, opacity: show ? 1 : 0 }
+            }
+            transition={{
+              delay: reduceMotion ? 0 : delay + 0.45,
+              duration: reduceMotion ? 0 : 0.85,
+              times: [0, 0.4, 1],
+            }}
             className={`h-1 w-1 rounded-full ${
               color === "amber" ? "bg-amber-400" : "bg-emerald-400"
             }`}
@@ -301,25 +396,38 @@ function CameraMiniSilhouette({ accent }: { accent: string }) {
   );
 }
 
-function DensityMeter() {
+function DensityMeter({
+  show,
+  reduceMotion,
+}: {
+  show: boolean;
+  reduceMotion: boolean;
+}) {
   return (
     <motion.div
-      initial={{ opacity: 0, x: 8 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.5, duration: 0.5 }}
-      className="rounded-xl border border-white/8 bg-white/[0.025] p-2 backdrop-blur-sm"
+      initial={false}
+      animate={show ? { opacity: 1, x: 0 } : { opacity: 0, x: 8 }}
+      transition={{
+        delay: reduceMotion ? 0 : 0.5,
+        duration: reduceMotion ? 0 : 0.5,
+      }}
+      className="rounded-xl border border-white/10 bg-white/[0.04] p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]"
     >
       <div className="flex items-center justify-between">
-        <span className="text-[8px] font-mono uppercase tracking-[0.18em] text-soft-mute">
+        <span className="text-[8.5px] font-mono uppercase tracking-[0.18em] text-soft-mute">
           Density
         </span>
         <span className="text-[9px] font-semibold text-amber-300">0.84</span>
       </div>
       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
         <motion.div
-          initial={{ width: "0%" }}
-          animate={{ width: "84%" }}
-          transition={{ duration: 1.2, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          initial={false}
+          animate={{ width: show ? "84%" : "0%" }}
+          transition={{
+            duration: reduceMotion ? 0 : 1.2,
+            delay: reduceMotion ? 0 : 0.7,
+            ease: [0.16, 1, 0.3, 1],
+          }}
           className="h-full rounded-full"
           style={{
             background: "linear-gradient(90deg, #4FD1FF 0%, #FBBF24 100%)",
@@ -335,7 +443,13 @@ function DensityMeter() {
   );
 }
 
-function Timeline() {
+function Timeline({
+  show,
+  reduceMotion,
+}: {
+  show: boolean;
+  reduceMotion: boolean;
+}) {
   const events = [
     { time: "12:38", label: "Entry", tone: "muted" },
     { time: "12:41", label: "Dwell", tone: "warn" },
@@ -355,9 +469,12 @@ function Timeline() {
           return (
             <motion.div
               key={`${e.time}-${i}`}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 + i * 0.1, duration: 0.4 }}
+              initial={false}
+              animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 }}
+              transition={{
+                delay: reduceMotion ? 0 : 0.9 + i * 0.1,
+                duration: reduceMotion ? 0 : 0.4,
+              }}
               className={`flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[8px] font-medium ${tone}`}
             >
               <span className="font-mono">{e.time}</span>

@@ -198,11 +198,18 @@ body {
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(135deg, #4fd1ff 0%, #2563ff 100%);
   }
+  .text-gradient-mobility {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #bdf9ff 0%, #4fd1ff 42%, #0fa3b1 100%);
+  }
   .light .text-gradient-care {
     background-image: linear-gradient(135deg, #5f25bf 0%, #7c3aed 50%, #1eb8ef 100%);
   }
   .light .text-gradient-secure {
     background-image: linear-gradient(135deg, #1eb8ef 0%, #1b4ed9 100%);
+  }
+  .light .text-gradient-mobility {
+    background-image: linear-gradient(135deg, #087886 0%, #0b8fa4 48%, #1478a2 100%);
   }
   .light .text-gradient {
     background-image: linear-gradient(135deg, #1eb8ef 0%, #1b4ed9 45%, #5f25bf 100%);
@@ -284,6 +291,125 @@ body {
     transform: translateY(-4px);
     border-color: rgba(79, 209, 255, 0.35);
     box-shadow: var(--card-glow-hover);
+  }
+
+  .hero-ambient {
+    background:
+      radial-gradient(ellipse 56% 48% at 50% 42%, rgb(37 99 255 / 0.12), transparent 72%),
+      radial-gradient(ellipse 32% 36% at 24% 58%, rgb(79 209 255 / 0.055), transparent 76%),
+      linear-gradient(180deg, transparent 72%, rgb(7 11 20 / 0.7) 100%);
+  }
+
+  .hero-scene-mask {
+    mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 68%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 68%, transparent 100%);
+  }
+
+  .hero-product-link--care {
+    color: #bdf9f1;
+  }
+
+  .hero-product-link--secure {
+    color: #dce7ff;
+  }
+
+  .platform-core-node {
+    @apply flex min-w-[15.5rem] items-center gap-3 rounded-2xl px-3 py-2.5;
+    background: linear-gradient(180deg, var(--card-bg-a), var(--card-bg-b));
+    border: 1px solid var(--border);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.04),
+      0 14px 36px -24px rgb(0 0 0 / 0.75);
+  }
+
+  .flagship-panel {
+    --panel-accent: 79 209 255;
+    --panel-accent-text: 143 175 255;
+    position: relative;
+    border-radius: 1.75rem;
+    border: 1px solid var(--border);
+    background:
+      linear-gradient(180deg, rgb(var(--panel-accent) / 0.025), transparent 13rem),
+      linear-gradient(180deg, var(--card-bg-a), var(--card-bg-b));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.045),
+      0 32px 70px -50px rgb(0 0 0 / 0.9);
+    transition:
+      transform 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .flagship-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto auto 2rem;
+    width: min(10rem, 36%);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgb(var(--panel-accent) / 0.72), transparent);
+  }
+
+  .flagship-panel--care {
+    --panel-accent: 15 163 177;
+    --panel-accent-text: 94 234 212;
+  }
+
+  .flagship-panel--secure {
+    --panel-accent: 68 112 238;
+    --panel-accent-text: 143 175 255;
+  }
+
+  .product-accent-text {
+    color: rgb(var(--panel-accent-text));
+  }
+
+  .flagship-panel:hover,
+  .flagship-panel:focus-within {
+    transform: translateY(-4px);
+    border-color: rgb(var(--panel-accent) / 0.32);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.055),
+      0 36px 76px -48px rgb(var(--panel-accent) / 0.3),
+      0 28px 60px -46px rgb(0 0 0 / 0.95);
+  }
+
+  .product-visual-shell {
+    --visual-accent: 79 209 255;
+    border-color: rgb(var(--visual-accent) / 0.16);
+    background:
+      radial-gradient(ellipse 62% 70% at 50% 54%, rgb(var(--visual-accent) / 0.12), transparent 73%),
+      linear-gradient(180deg, rgb(8 15 28 / 0.92), rgb(6 10 19 / 0.98));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.035),
+      inset 0 0 36px rgb(var(--visual-accent) / 0.035),
+      0 20px 42px -34px rgb(var(--visual-accent) / 0.24);
+  }
+
+  .product-visual-shell::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 24px rgb(var(--visual-accent) / 0.055);
+  }
+
+  .product-visual-shell--care {
+    --visual-accent: 15 163 177;
+  }
+
+  .product-visual-shell--secure {
+    --visual-accent: 68 112 238;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flagship-panel,
+    .flagship-panel:hover,
+    .flagship-panel:focus-within,
+    .hero-product-link,
+    .hero-product-link:hover {
+      transform: none;
+      transition: none;
+    }
   }
 
   .section {
@@ -414,6 +540,67 @@ body {
     radial-gradient(at 20% 20%, rgba(37, 99, 255, 0.12) 0px, transparent 50%),
     radial-gradient(at 80% 0%, rgba(124, 58, 237, 0.12) 0px, transparent 50%),
     radial-gradient(at 60% 80%, rgba(79, 209, 255, 0.16) 0px, transparent 50%);
+}
+
+.light .hero-ambient {
+  background:
+    radial-gradient(ellipse 56% 48% at 50% 42%, rgb(37 99 255 / 0.085), transparent 72%),
+    radial-gradient(ellipse 32% 36% at 24% 58%, rgb(30 184 239 / 0.07), transparent 76%),
+    linear-gradient(180deg, transparent 72%, rgb(246 248 252 / 0.78) 100%);
+}
+
+.light .hero-product-link--care {
+  color: #087886;
+  border-color: rgb(8 120 134 / 0.32);
+  background: rgb(15 163 177 / 0.075);
+}
+
+.light .hero-product-link--secure {
+  color: #1b4ed9;
+  border-color: rgb(27 78 217 / 0.3);
+  background: rgb(37 99 255 / 0.07);
+}
+
+.light .platform-core-node {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 16px 38px -28px rgb(15 23 42 / 0.28);
+}
+
+.light .flagship-panel {
+  --panel-accent-text: 27 78 217;
+  background:
+    linear-gradient(180deg, rgb(var(--panel-accent) / 0.035), transparent 13rem),
+    linear-gradient(180deg, rgb(255 255 255 / 1), rgb(249 251 254 / 1));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    0 30px 68px -48px rgb(15 23 42 / 0.3);
+}
+
+.light .flagship-panel--care {
+  --panel-accent-text: 8 120 134;
+}
+
+.light .flagship-panel--secure {
+  --panel-accent-text: 27 78 217;
+}
+
+.light .flagship-panel:hover,
+.light .flagship-panel:focus-within {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    0 34px 72px -46px rgb(var(--panel-accent) / 0.2),
+    0 24px 54px -44px rgb(15 23 42 / 0.3);
+}
+
+.light .product-visual-shell {
+  background:
+    radial-gradient(ellipse 62% 70% at 50% 54%, rgb(var(--visual-accent) / 0.1), transparent 73%),
+    linear-gradient(180deg, rgb(237 243 250 / 0.98), rgb(246 249 253 / 1));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.95),
+    inset 0 0 30px rgb(var(--visual-accent) / 0.025),
+    0 18px 38px -34px rgb(var(--visual-accent) / 0.18);
 }
 
 /* Force the dark "via-obsidian" gradient corners in Verticals to read

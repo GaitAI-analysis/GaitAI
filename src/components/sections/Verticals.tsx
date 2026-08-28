@@ -1,233 +1,327 @@
 "use client";
 
+import type { ComponentType } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowUpRight, HeartPulse, ShieldCheck } from "lucide-react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  ArrowRight,
+  Cpu,
+  HeartPulse,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import { MobilityDashboardVisual } from "@/components/visuals/MobilityDashboardVisual";
 import { SecureOperationsVisual } from "@/components/visuals/SecureOperationsVisual";
-import { mobilityProducts, secureProducts } from "@/data/products";
+import {
+  mobilityProducts,
+  secureProducts,
+  type GaitProduct,
+} from "@/data/products";
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 40 },
+  hidden: { opacity: 0, y: 36 },
   show: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: i * 0.12 },
+    transition: {
+      duration: 0.85,
+      ease: [0.16, 1, 0.3, 1],
+      delay: i * 0.1,
+    },
   }),
 };
 
 const mobilityHighlights = mobilityProducts
-  .filter((p) => p.featured)
+  .filter((product) => product.featured)
   .slice(0, 4);
-const secureHighlights = secureProducts.filter((p) => p.featured).slice(0, 4);
+const secureHighlights = secureProducts
+  .filter((product) => product.featured)
+  .slice(0, 4);
+
+type PanelTone = "care" | "secure";
+
+interface FlagshipPanelProps {
+  id: string;
+  index: number;
+  tone: PanelTone;
+  name: string;
+  descriptor: string;
+  headline: string;
+  headlineAccent: string;
+  description: string;
+  href: string;
+  Icon: LucideIcon;
+  Visual: ComponentType;
+  visualLabel: string;
+  liveLabel: string;
+  products: GaitProduct[];
+  totalProducts: number;
+  reduceMotion: boolean;
+}
+
+const tones = {
+  care: {
+    panel: "flagship-panel--care",
+    icon: "border-teal-300/25 bg-teal-300/[0.08] product-accent-text",
+    descriptor: "product-accent-text",
+    accent: "text-gradient-mobility",
+    visual: "product-visual-shell--care",
+    status: "bg-teal-300 text-teal-200",
+    capabilityIcon:
+      "border-teal-300/20 bg-teal-300/[0.07] product-accent-text group-hover/capability:border-teal-300/35 group-hover/capability:bg-teal-300/[0.1]",
+    capability:
+      "hover:border-teal-300/25 hover:bg-teal-300/[0.035]",
+    cta: "product-accent-text hover:border-teal-300/40 focus-visible:ring-teal-300/70",
+  },
+  secure: {
+    panel: "flagship-panel--secure",
+    icon: "border-royal-300/25 bg-royal-300/[0.08] product-accent-text",
+    descriptor: "product-accent-text",
+    accent: "text-gradient-secure",
+    visual: "product-visual-shell--secure",
+    status: "bg-royal-300 text-royal-200",
+    capabilityIcon:
+      "border-royal-300/20 bg-royal-300/[0.07] product-accent-text group-hover/capability:border-royal-300/35 group-hover/capability:bg-royal-300/[0.1]",
+    capability:
+      "hover:border-royal-300/25 hover:bg-royal-300/[0.035]",
+    cta: "product-accent-text hover:border-royal-300/40 focus-visible:ring-royal-300/70",
+  },
+} as const;
+
+function PlatformSplit() {
+  return (
+    <div
+      className="relative mx-auto h-40 max-w-5xl"
+      role="img"
+      aria-label="One shared GaitAI intelligence layer powers both product systems"
+    >
+      <div className="platform-core-node absolute left-1/2 top-0 z-10 -translate-x-1/2">
+        <span className="grid h-9 w-9 place-items-center rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] text-cyan-300">
+          <Cpu className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <span className="text-left">
+          <span className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-mute">
+            Shared intelligence layer
+          </span>
+          <span className="mt-0.5 block font-display text-sm font-semibold text-soft-white">
+            GaitAI core
+          </span>
+        </span>
+      </div>
+
+      <svg
+        aria-hidden="true"
+        className="absolute inset-x-0 top-10 h-28 w-full overflow-visible"
+        viewBox="0 0 1000 112"
+        fill="none"
+        preserveAspectRatio="none"
+      >
+        <path d="M500 0V24" stroke="currentColor" className="text-cyan-300/35" />
+        <path
+          d="M500 24C500 58 250 42 250 104"
+          stroke="#0FA3B1"
+          strokeOpacity="0.42"
+        />
+        <path
+          d="M500 24C500 58 750 42 750 104"
+          stroke="#5B8CFF"
+          strokeOpacity="0.42"
+        />
+        <circle cx="250" cy="104" r="3" fill="#0FA3B1" fillOpacity="0.7" />
+        <circle cx="750" cy="104" r="3" fill="#5B8CFF" fillOpacity="0.7" />
+      </svg>
+    </div>
+  );
+}
+
+function FlagshipPanel({
+  id,
+  index,
+  tone,
+  name,
+  descriptor,
+  headline,
+  headlineAccent,
+  description,
+  href,
+  Icon,
+  Visual,
+  visualLabel,
+  liveLabel,
+  products,
+  totalProducts,
+  reduceMotion,
+}: FlagshipPanelProps) {
+  const style = tones[tone];
+  const titleId = `${id}-title`;
+
+  return (
+    <motion.div
+      initial={reduceMotion ? false : "hidden"}
+      whileInView="show"
+      viewport={{ once: true, margin: "-80px" }}
+      variants={cardVariants}
+      custom={index}
+      className="h-full"
+    >
+      <article
+        id={id}
+        aria-labelledby={titleId}
+        className={`flagship-panel ${style.panel} flex h-full flex-col overflow-hidden p-5 sm:p-7 lg:p-8`}
+      >
+        <header className="flex items-start gap-4">
+          <span
+            className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border ${style.icon}`}
+          >
+            <Icon className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.17em] text-soft-mute">
+              A GaitAI product system
+            </p>
+            <h2
+              id={titleId}
+              className="mt-1 font-display text-2xl font-semibold tracking-[-0.03em] text-soft-white sm:text-[1.7rem]"
+            >
+              {name}
+            </h2>
+            <p className={`mt-1 text-sm font-medium ${style.descriptor}`}>
+              {descriptor}
+            </p>
+          </div>
+        </header>
+
+        <div className="mt-8 sm:mt-10">
+          <h3 className="font-display text-[clamp(2.25rem,4.25vw,3.7rem)] font-semibold leading-[0.98] tracking-[-0.045em] text-soft-white">
+            <span className="block">{headline}</span>
+            <span className={`mt-1.5 block ${style.accent}`}>
+              {headlineAccent}
+            </span>
+          </h3>
+          <p className="mt-5 max-w-xl text-sm leading-6 text-soft-gray sm:text-[15px]">
+            {description}
+          </p>
+        </div>
+
+        <div
+          aria-hidden="true"
+          className={`product-visual-shell ${style.visual} relative -mx-5 mt-8 h-[21rem] overflow-hidden border-y sm:-mx-7 sm:mt-9 lg:-mx-8`}
+        >
+          <div className="ring-grid absolute inset-0 opacity-25" />
+          <div className="absolute left-5 top-5 z-10 inline-flex items-center gap-2 sm:left-7 sm:top-6">
+            <span className={`h-1.5 w-1.5 rounded-full ${style.status}`} />
+            <span className="text-[9px] font-semibold uppercase tracking-[0.17em] text-soft-mute sm:text-[10px]">
+              {visualLabel}
+            </span>
+          </div>
+          <div className="absolute right-5 top-4 z-10 rounded-md border border-white/10 bg-obsidian/70 px-2.5 py-1 font-mono text-[9px] text-soft-gray shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:right-7 sm:top-5 sm:text-[10px]">
+            {liveLabel}
+          </div>
+          <Visual />
+        </div>
+
+        <div className="mt-8 sm:mt-9">
+          <div className="flex items-end justify-between gap-4 border-b border-white/8 pb-3">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-soft-white">
+              Featured capabilities
+            </h3>
+            <span className="text-[10px] text-soft-mute">
+              4 of {totalProducts} products
+            </span>
+          </div>
+          <ul
+            className="grid sm:grid-cols-2"
+            aria-label={`${name} featured capabilities`}
+          >
+            {products.map((product) => {
+              const ProductIcon = product.icon;
+              return (
+                <li
+                  key={product.id}
+                  className={`group/capability flex min-h-[5.25rem] items-start gap-3 border-b border-white/8 px-1 py-4 transition-colors duration-300 sm:odd:pr-4 sm:even:border-l sm:even:pl-4 ${style.capability}`}
+                >
+                  <span
+                    className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border transition-colors duration-300 ${style.capabilityIcon}`}
+                  >
+                    <ProductIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-soft-white">
+                      {product.short}
+                    </span>
+                    <span className="mt-1 block text-xs leading-5 text-soft-mute">
+                      {product.label}
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+
+        <Link
+          href={href}
+          className={`group/cta mt-auto flex min-h-16 items-center justify-between gap-5 border-t border-white/10 pt-6 text-sm font-semibold transition-colors focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
+        >
+          <span>Explore {name}</span>
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-current/25 transition-transform duration-300 group-hover/cta:translate-x-1">
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </span>
+        </Link>
+      </article>
+    </motion.div>
+  );
+}
 
 export function Verticals() {
+  const reduceMotion = Boolean(useReducedMotion());
+
   return (
-    <section id="platform-verticals" className="section">
+    <section
+      id="platform-verticals"
+      className="relative w-full pb-28 sm:pb-32 lg:pb-40"
+    >
       <div className="container-wide">
-        <SectionHeading
-          eyebrow="Two verticals · One platform"
-          title={
-            <>
-              One AI layer.{" "}
-              <span className="text-gradient">Two human missions.</span>
-            </>
-          }
-          description="GaitAI is built around a single belief — every movement carries information about who a person is, how they are, and what they need. We turn that signal into two purpose-built verticals."
-        />
+        <PlatformSplit />
 
-        <div className="mt-16 grid gap-6 lg:grid-cols-2">
-          {/* ---------- MOBILITYCARE ---------- */}
-          <motion.article
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={cardVariants}
-            custom={0}
+        <div className="grid gap-6 lg:grid-cols-2 lg:gap-7">
+          <FlagshipPanel
             id="mobilitycare-card"
-            className="card-glow group relative overflow-hidden p-8 sm:p-10"
-          >
-            {/* Visual area */}
-            <div className="relative -mx-8 -mt-8 mb-8 h-72 overflow-hidden border-b border-white/5 sm:-mx-10 sm:-mt-10"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(15,163,177,0.18) 0%, rgba(7,11,20,1) 60%, rgba(7,11,20,1) 100%)",
-              }}
-            >
-              <div className="ring-grid absolute inset-0 opacity-40" />
-              <MobilityDashboardVisual />
-              <div className="absolute left-6 top-6 z-10 inline-flex items-center gap-2">
-                <span
-                  className="h-1.5 w-1.5 rounded-full bg-teal-400"
-                  style={{ boxShadow: "0 0 12px #0FA3B1" }}
-                />
-                <span className="text-[10px] uppercase tracking-[0.22em] text-soft-mute">
-                  Clinical mobility console
-                </span>
-              </div>
-              <div className="absolute right-6 top-6 z-10 rounded-md bg-black/40 px-2 py-1 font-mono text-[10px] text-teal-300 backdrop-blur-md">
-                WalkScan · Live
-              </div>
-            </div>
+            index={0}
+            tone="care"
+            name="MobilityCare"
+            descriptor="Clinical movement intelligence"
+            headline="Clinical mobility"
+            headlineAccent="intelligence."
+            description="Camera-based gait assessment, rehabilitation tracking, fall-risk screening, sports movement analytics and smartwatch monitoring — built with clinicians, for clinicians."
+            href="/mobilitycare"
+            Icon={HeartPulse}
+            Visual={MobilityDashboardVisual}
+            visualLabel="Clinical mobility console"
+            liveLabel="WalkScan · Live"
+            products={mobilityHighlights}
+            totalProducts={mobilityProducts.length}
+            reduceMotion={reduceMotion}
+          />
 
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-300">
-                  <HeartPulse className="h-3.5 w-3.5" />
-                  GaitAI MobilityCare
-                </div>
-                <h3 className="mt-3 font-display text-display-lg text-soft-white">
-                  Clinical, sports, rehab &amp;{" "}
-                  <span
-                    className="text-gradient-care"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #0FA3B1 0%, #4FD1FF 60%, #7C3AED 100%)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                    }}
-                  >
-                    wearable mobility intelligence
-                  </span>
-                </h3>
-              </div>
-              <Link
-                href="/mobilitycare"
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full glass transition-all hover:border-teal-300/40 hover:text-teal-300"
-                aria-label="Explore GaitAI MobilityCare"
-              >
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </div>
-
-            <p className="mt-5 max-w-xl text-sm leading-relaxed text-soft-gray sm:text-base">
-              Camera-based gait assessment, rehabilitation tracking, fall-risk
-              screening, sports movement analytics and smartwatch monitoring —
-              built with clinicians, for clinicians.
-            </p>
-
-            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-              {mobilityHighlights.map((p) => {
-                const Icon = p.icon;
-                return (
-                  <li
-                    key={p.id}
-                    className="group/item flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3.5 transition-all hover:border-teal-300/30 hover:bg-teal-300/[0.04]"
-                  >
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-teal-400/20 to-cyan-300/10 text-teal-300 ring-1 ring-teal-300/20">
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <div className="text-sm font-medium text-soft-white">
-                        {p.short}
-                      </div>
-                      <div className="mt-0.5 text-xs leading-relaxed text-soft-mute">
-                        {p.label}
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <Link
-              href="/mobilitycare"
-              className="mt-8 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-teal-300 transition-colors hover:text-teal-200"
-            >
-              See 12 MobilityCare products
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </motion.article>
-
-          {/* ---------- SECUREVISION ---------- */}
-          <motion.article
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={cardVariants}
-            custom={1}
+          <FlagshipPanel
             id="securevision-card"
-            className="card-glow group relative overflow-hidden p-8 sm:p-10"
-          >
-            <div
-              className="relative -mx-8 -mt-8 mb-8 h-72 overflow-hidden border-b border-white/5 sm:-mx-10 sm:-mt-10"
-              style={{
-                background:
-                  "linear-gradient(135deg, rgba(45,108,223,0.2) 0%, rgba(7,11,20,1) 60%, rgba(7,11,20,1) 100%)",
-              }}
-            >
-              <div className="ring-grid absolute inset-0 opacity-40" />
-              <SecureOperationsVisual />
-              <div className="absolute left-6 top-6 z-10 inline-flex items-center gap-2">
-                <span className="pill-dot" />
-                <span className="text-[10px] uppercase tracking-[0.22em] text-soft-mute">
-                  Privacy-aware ops console
-                </span>
-              </div>
-              <div className="absolute right-6 top-6 z-10 rounded-md bg-black/40 px-2 py-1 font-mono text-[10px] text-royal-300 backdrop-blur-md">
-                SecureVision · Live
-              </div>
-            </div>
-
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-royal-300">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  GaitAI SecureVision
-                </div>
-                <h3 className="mt-3 font-display text-display-lg text-soft-white">
-                  Privacy-aware movement intelligence for{" "}
-                  <span className="text-gradient-secure">safer public spaces</span>
-                </h3>
-              </div>
-              <Link
-                href="/securevision"
-                className="grid h-10 w-10 shrink-0 place-items-center rounded-full glass transition-all hover:border-royal-300/40 hover:text-royal-300"
-                aria-label="Explore GaitAI SecureVision"
-              >
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </div>
-
-            <p className="mt-5 max-w-xl text-sm leading-relaxed text-soft-gray sm:text-base">
-              Movement anomaly detection, crowd flow analytics, worker safety
-              and post-event investigation — built with privacy-first
-              architecture, lawful deployment and full audit trails.
-            </p>
-
-            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-              {secureHighlights.map((p) => {
-                const Icon = p.icon;
-                return (
-                  <li
-                    key={p.id}
-                    className="group/item flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3.5 transition-all hover:border-royal-300/30 hover:bg-royal-300/[0.04]"
-                  >
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-royal-400/20 to-cyan-300/10 text-royal-300 ring-1 ring-royal-300/20">
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <div>
-                      <div className="text-sm font-medium text-soft-white">
-                        {p.short}
-                      </div>
-                      <div className="mt-0.5 text-xs leading-relaxed text-soft-mute">
-                        {p.label}
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <Link
-              href="/securevision"
-              className="mt-8 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-royal-300 transition-colors hover:text-royal-200"
-            >
-              See 11 SecureVision products
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </motion.article>
+            index={1}
+            tone="secure"
+            name="SecureVision"
+            descriptor="Privacy-aware spatial intelligence"
+            headline="Privacy-aware"
+            headlineAccent="movement intelligence."
+            description="Movement anomaly detection, crowd flow analytics, worker safety and post-event investigation — built with privacy-first architecture, lawful deployment and full audit trails."
+            href="/securevision"
+            Icon={ShieldCheck}
+            Visual={SecureOperationsVisual}
+            visualLabel="Privacy-aware ops console"
+            liveLabel="SecureVision · Live"
+            products={secureHighlights}
+            totalProducts={secureProducts.length}
+            reduceMotion={reduceMotion}
+          />
         </div>
       </div>
     </section>

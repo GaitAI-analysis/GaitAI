@@ -2,36 +2,40 @@
 
 import { motion } from "framer-motion";
 import { type FormEvent, useState } from "react";
-import {
-  ArrowRight,
-  Building2,
-  HeartPulse,
-  ShieldCheck,
-  Sparkles,
-  Trophy,
-  Watch,
-} from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
-const interests = [
-  { id: "mobilitycare", label: "Clinical mobility pilot", icon: HeartPulse },
-  { id: "securevision", label: "Security intelligence pilot", icon: ShieldCheck },
-  { id: "watchcare", label: "Wearable monitoring program", icon: Watch },
-  { id: "sports", label: "Sports performance program", icon: Trophy },
-  { id: "enterprise", label: "Enterprise AI deployment", icon: Building2 },
-  { id: "research", label: "Research or investment", icon: Sparkles },
+const interestGroups = [
+  {
+    label: "MobilityCare",
+    options: [
+      "Clinical gait & mobility",
+      "Fall-risk & elderly care",
+      "Rehabilitation & recovery",
+      "Neurological movement",
+      "Wearable mobility monitoring",
+      "Sports performance",
+    ],
+  },
+  {
+    label: "SecureVision",
+    options: [
+      "Surveillance & security",
+      "Crowd intelligence",
+      "Public safety",
+      "Enterprise deployment",
+    ],
+  },
+  {
+    label: "Research & Growth",
+    options: ["Research collaboration", "Investment / partnership"],
+  },
 ];
 
-const defaultInterest = interests[0];
-
 export function CTA() {
-  const [picked, setPicked] = useState<string>(defaultInterest.id);
+  const [selectedInterest, setSelectedInterest] = useState("");
   const [submissionStatus, setSubmissionStatus] = useState<
     "idle" | "sending" | "success" | "error"
   >("idle");
-
-  const selectedInterest =
-    interests.find((interest) => interest.id === picked)?.label ??
-    defaultInterest.label;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,7 +57,7 @@ export function CTA() {
       }
 
       form.reset();
-      setPicked(defaultInterest.id);
+      setSelectedInterest("");
       setSubmissionStatus("success");
     } catch {
       setSubmissionStatus("error");
@@ -117,32 +121,50 @@ export function CTA() {
               onSubmit={handleSubmit}
               className="relative rounded-2xl border border-white/8 bg-obsidian-200/70 p-6 backdrop-blur-xl sm:p-8"
             >
-              <input type="hidden" name="interest" value={selectedInterest} />
-
               <div className="grid gap-2">
-                <label className="text-xs font-medium uppercase tracking-[0.16em] text-soft-mute">
+                <label
+                  htmlFor="interest"
+                  className="text-xs font-medium uppercase tracking-[0.16em] text-soft-mute"
+                >
                   I’m interested in
                 </label>
-                <div className="mt-1 flex flex-wrap gap-2">
-                  {interests.map((opt) => {
-                    const Icon = opt.icon;
-                    const active = picked === opt.id;
-                    return (
-                      <button
-                        type="button"
-                        key={opt.id}
-                        onClick={() => setPicked(opt.id)}
-                        className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-all ${
-                          active
-                            ? "border-cyan-300/50 bg-cyan-300/10 text-cyan-300"
-                            : "border-white/10 bg-white/[0.02] text-soft-mute hover:border-white/20 hover:text-soft-white"
-                        }`}
+                <div className="relative mt-1">
+                  <select
+                    id="interest"
+                    name="interest"
+                    value={selectedInterest}
+                    onChange={(event) =>
+                      setSelectedInterest(event.currentTarget.value)
+                    }
+                    className={`h-12 w-full appearance-none rounded-xl border border-white/10 bg-white/[0.02] px-4 pr-11 text-sm focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15 ${
+                      selectedInterest ? "text-soft-white" : "text-soft-mute"
+                    }`}
+                  >
+                    <option value="" disabled className="bg-obsidian-200">
+                      Select an area of interest
+                    </option>
+                    {interestGroups.map((group) => (
+                      <optgroup
+                        key={group.label}
+                        label={group.label}
+                        className="bg-obsidian-200 text-soft-white"
                       >
-                        <Icon className="h-3 w-3" />
-                        {opt.label}
-                      </button>
-                    );
-                  })}
+                        {group.options.map((option) => (
+                          <option
+                            key={option}
+                            value={option}
+                            className="bg-obsidian-200 text-soft-white"
+                          >
+                            {option}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-soft-mute"
+                  />
                 </div>
               </div>
 

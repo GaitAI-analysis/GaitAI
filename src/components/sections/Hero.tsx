@@ -88,10 +88,12 @@ export function Hero() {
               Explore MobilityCare
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/securevision" className="btn-ghost group">
-              <span className="relative grid h-5 w-5 place-items-center">
-                <Play className="h-3 w-3 fill-soft-white text-soft-white transition-transform group-hover:scale-110" />
-                <span className="absolute inset-0 animate-pulse-glow rounded-full ring-1 ring-white/30" />
+            <Link
+              href="/securevision"
+              className="btn-ghost group border border-[rgba(120,180,255,0.35)] bg-[rgba(255,255,255,0.08)] font-semibold text-[#F7F9FF] shadow-[inset_0_1px_0_rgba(170,215,255,0.12)] hover:-translate-y-px hover:border-[rgba(150,210,255,0.55)] hover:bg-[rgba(255,255,255,0.13)] hover:shadow-[0_10px_28px_rgba(70,140,255,0.16),inset_0_1px_0_rgba(190,225,255,0.16)]"
+            >
+              <span className="relative grid h-5 w-5 place-items-center rounded-full border border-[rgba(150,200,255,0.45)] bg-[rgba(70,120,220,0.20)] shadow-[0_0_12px_rgba(90,155,255,0.18)] transition-shadow duration-300 group-hover:shadow-[0_0_14px_rgba(100,175,255,0.26)]">
+                <Play className="h-3 w-3 fill-white text-white transition-transform duration-300 group-hover:scale-105" />
               </span>
               Explore SecureVision
             </Link>

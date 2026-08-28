@@ -16,7 +16,7 @@ import {
 const interests = [
   { id: "mobilitycare", label: "Clinical mobility pilot", icon: HeartPulse },
   { id: "securevision", label: "Security intelligence pilot", icon: ShieldCheck },
-  { id: "watchcare", label: "WatchCare program", icon: Watch },
+  { id: "watchcare", label: "Wearable monitoring program", icon: Watch },
   { id: "sports", label: "Sports academy", icon: Trophy },
   { id: "enterprise", label: "Enterprise deployment", icon: Building2 },
   { id: "research", label: "Research / Investor", icon: Sparkles },

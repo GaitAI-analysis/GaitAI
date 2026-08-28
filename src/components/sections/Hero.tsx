@@ -3,7 +3,8 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Network } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { GaitAIMark } from "@/components/ui/GaitAIMark";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
   ssr: false,
@@ -54,9 +55,14 @@ export function Hero() {
           <motion.div
             variants={fadeUp}
             custom={0}
-            className="inline-flex items-center gap-2.5 rounded-full border border-cyan-300/20 bg-obsidian/55 px-4 py-2 text-[11px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs"
+            className="inline-flex items-center gap-2.5 rounded-full border border-cyan-300/20 bg-obsidian/55 py-1.5 pl-2 pr-4 text-[11px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs"
           >
-            <Network className="h-3.5 w-3.5" aria-hidden="true" />
+            <span
+              className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-cyan-300/20 bg-[linear-gradient(135deg,rgba(81,214,255,0.11),rgba(113,135,255,0.09))] shadow-[0_0_16px_rgba(81,214,255,0.12)]"
+              aria-hidden="true"
+            >
+              <GaitAIMark className="h-[18px] w-[18px]" />
+            </span>
             GaitAI Movement Intelligence
           </motion.div>
 

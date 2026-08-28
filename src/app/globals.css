@@ -625,8 +625,15 @@ body {
     -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
   }
   .mask-fade-r {
-    mask-image: linear-gradient(90deg, #000 80%, transparent 100%);
-    -webkit-mask-image: linear-gradient(90deg, #000 80%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
   }
   .text-balance { text-wrap: balance; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-viewport {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
 }

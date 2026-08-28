@@ -11,18 +11,30 @@ export function GaitAIMark({ className, ...props }: SVGProps<SVGSVGElement>) {
       shapeRendering="geometricPrecision"
       {...props}
     >
+      <defs>
+        <linearGradient
+          id="gaitai-motion-path"
+          x1="4.5"
+          y1="22.5"
+          x2="27.5"
+          y2="9.5"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#51D6FF" />
+          <stop offset="1" stopColor="#7187FF" />
+        </linearGradient>
+      </defs>
       <path
-        d="M4.75 21.25C6.1 12.2 11.15 7.25 17.45 7.4C23.55 7.55 26.85 11.55 25.15 16.05C23.8 19.55 19.5 20.75 15.8 18.55C12.6 16.65 10.75 18.85 12.35 22.25C14.35 26.45 20.55 26.65 26.3 22.8"
-        stroke="#51D6FF"
-        strokeWidth="2.6"
+        d="M4.5 22.5C8.2 22.3 9 13.5 13 12C16.2 10.8 18.2 17.2 21 14C23.7 10.9 24.1 7.5 27.5 9.5"
+        stroke="url(#gaitai-motion-path)"
+        strokeWidth="2.4"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="4.75" cy="21.25" r="1.9" fill="#51D6FF" />
-      <circle cx="17.45" cy="7.4" r="1.8" fill="#68B9FF" />
-      <circle cx="25.15" cy="16.05" r="1.85" fill="#7187FF" />
-      <circle cx="12.35" cy="22.25" r="1.65" fill="#51D6FF" />
-      <circle cx="26.3" cy="22.8" r="1.9" fill="#7187FF" />
+      <circle cx="4.5" cy="22.5" r="2" fill="#51D6FF" />
+      <circle cx="13" cy="12" r="1.85" fill="#62C3FF" />
+      <circle cx="21" cy="14" r="1.85" fill="#699FFF" />
+      <circle cx="27.5" cy="9.5" r="2" fill="#7187FF" />
     </svg>
   );
 }

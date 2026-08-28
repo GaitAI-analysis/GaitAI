@@ -26,12 +26,14 @@ const rowTwo = [
   "Vital movement insight",
 ];
 
+type Accent = "cyan" | "violet";
+
 function Pill({
   label,
   accent,
 }: {
   label: string;
-  accent: "cyan" | "violet";
+  accent: Accent;
 }) {
   const ring =
     accent === "cyan"
@@ -44,6 +46,65 @@ function Pill({
       <span className="whitespace-nowrap text-sm font-medium text-soft-white">
         {label}
       </span>
+    </div>
+  );
+}
+
+function MarqueeCopy({
+  items,
+  accent,
+  duplicate = false,
+}: {
+  items: readonly string[];
+  accent: Accent;
+  duplicate?: boolean;
+}) {
+  return (
+    <div
+      aria-hidden={duplicate || undefined}
+      className={`flex shrink-0 flex-nowrap items-center gap-3 pr-3 ${
+        duplicate
+          ? "motion-reduce:hidden"
+          : "motion-reduce:w-full motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:px-4 motion-reduce:pr-4"
+      }`}
+    >
+      {items.map((item) => (
+        <Pill
+          key={`${duplicate ? "duplicate" : "primary"}-${item}`}
+          label={item}
+          accent={accent}
+        />
+      ))}
+    </div>
+  );
+}
+
+function MarqueeRow({
+  items,
+  accent,
+  reverse = false,
+  className = "",
+}: {
+  items: readonly string[];
+  accent: Accent;
+  reverse?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`marquee-viewport mask-fade-r relative w-full overflow-hidden ${className}`}
+    >
+      <div
+        className="marquee-track flex w-max flex-nowrap animate-marquee motion-reduce:w-full motion-reduce:animate-none"
+        style={
+          reverse
+            ? { animationDirection: "reverse", animationDuration: "36s" }
+            : undefined
+        }
+      >
+        <MarqueeCopy items={items} accent={accent} />
+        <MarqueeCopy items={items} accent={accent} duplicate />
+      </div>
     </div>
   );
 }
@@ -67,33 +128,15 @@ export function PartnerMarquee() {
       </div>
 
       {/* Row 1 — scrolls left */}
-      <div className="relative overflow-hidden mask-fade-r">
-        <div className="flex w-max animate-marquee gap-3 px-4">
-          {[...rowOne, ...rowOne].map((item, i) => (
-            <Pill
-              key={`r1-${i}`}
-              label={item}
-              accent="cyan"
-            />
-          ))}
-        </div>
-      </div>
+      <MarqueeRow items={rowOne} accent="cyan" />
 
       {/* Row 2 — scrolls right (reverse) */}
-      <div className="relative mt-3 overflow-hidden mask-fade-r">
-        <div
-          className="flex w-max animate-marquee gap-3 px-4"
-          style={{ animationDirection: "reverse", animationDuration: "36s" }}
-        >
-          {[...rowTwo, ...rowTwo].map((item, i) => (
-            <Pill
-              key={`r2-${i}`}
-              label={item}
-              accent="violet"
-            />
-          ))}
-        </div>
-      </div>
+      <MarqueeRow
+        items={rowTwo}
+        accent="violet"
+        reverse
+        className="mt-3"
+      />
     </section>
   );
 }

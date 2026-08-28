@@ -39,7 +39,7 @@ export function Hero() {
       {!reduceMotion && (
         <div
           aria-hidden="true"
-          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-35"
+          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-[0.29]"
         >
           <HeroScene />
         </div>
@@ -70,10 +70,10 @@ export function Hero() {
             id="home-hero-title"
             variants={fadeUp}
             custom={1}
-            className="mt-8 max-w-5xl text-balance font-display text-[clamp(3.2rem,8vw,7.25rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-soft-white sm:mt-10"
+            className="mt-8 max-w-5xl pb-2 text-balance font-display text-[clamp(2.75rem,8vw,7.25rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-soft-white sm:mt-10 sm:pb-2.5 lg:pb-3.5"
           >
-            <span className="block">One AI layer.</span>
-            <span className="mt-2 block text-gradient sm:mt-3">
+            <span className="block sm:whitespace-nowrap">One AI layer.</span>
+            <span className="mt-1 block text-[0.91em] leading-[0.95] text-gradient sm:mt-1.5 sm:whitespace-nowrap">
               Two human missions.
             </span>
           </motion.h1>
@@ -81,7 +81,7 @@ export function Hero() {
           <motion.p
             variants={fadeUp}
             custom={2}
-            className="mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:mt-10 sm:text-xl"
+            className="relative -top-3 mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:mt-10 sm:text-xl"
           >
             Human movement intelligence for better care and safer spaces.
           </motion.p>

@@ -19,7 +19,7 @@ const interests = [
   { id: "watchcare", label: "Wearable monitoring program", icon: Watch },
   { id: "sports", label: "Sports performance program", icon: Trophy },
   { id: "enterprise", label: "Enterprise AI deployment", icon: Building2 },
-  { id: "research", label: "Research / Investor", icon: Sparkles },
+  { id: "research", label: "Research or investment", icon: Sparkles },
 ];
 
 export function CTA() {

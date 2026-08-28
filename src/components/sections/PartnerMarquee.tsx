@@ -1,57 +1,35 @@
 "use client";
 
-import {
-  Activity,
-  AlertTriangle,
-  Brain,
-  Cpu,
-  Eye,
-  Fingerprint,
-  Footprints,
-  HeartPulse,
-  Layers,
-  MoveHorizontal,
-  Network,
-  Scale,
-  ShieldCheck,
-  Timer,
-  TrendingDown,
-  TrendingUp,
-  Waves,
-} from "lucide-react";
-
 /* Signals GaitAI extracts from human movement.
    Two rows — top scrolls left, bottom scrolls right — for cinematic density. */
 
 const rowOne = [
-  { icon: AlertTriangle, label: "Fall-risk prediction" },
-  { icon: Fingerprint, label: "Gait identity" },
-  { icon: Footprints, label: "Stride variability" },
-  { icon: Scale, label: "Balance & postural sway" },
-  { icon: Timer, label: "Cadence & rhythm" },
-  { icon: MoveHorizontal, label: "Step symmetry" },
-  { icon: TrendingDown, label: "Mobility decline" },
-  { icon: TrendingUp, label: "Rehabilitation progress" },
-  { icon: Waves, label: "Tremor detection" },
+  "Fall-risk prediction",
+  "Gait identity",
+  "Stride variability",
+  "Balance & postural sway",
+  "Cadence & rhythm",
+  "Step symmetry",
+  "Mobility decline",
+  "Rehabilitation progress",
+  "Tremor detection",
 ];
 
 const rowTwo = [
-  { icon: Layers, label: "Pose estimation" },
-  { icon: Brain, label: "Neurological signals" },
-  { icon: Network, label: "Multimodal sensor fusion" },
-  { icon: Cpu, label: "Edge inference" },
-  { icon: ShieldCheck, label: "Privacy-by-design" },
-  { icon: Eye, label: "Explainable AI" },
-  { icon: Activity, label: "Movement biometrics" },
-  { icon: HeartPulse, label: "Vital movement insight" },
+  "Pose estimation",
+  "Neurological signals",
+  "Multimodal sensor fusion",
+  "Edge inference",
+  "Privacy-by-design",
+  "Explainable AI",
+  "Movement biometrics",
+  "Vital movement insight",
 ];
 
 function Pill({
-  Icon,
   label,
   accent,
 }: {
-  Icon: React.ComponentType<{ className?: string }>;
   label: string;
   accent: "cyan" | "violet";
 }) {
@@ -59,24 +37,13 @@ function Pill({
     accent === "cyan"
       ? "ring-cyan-300/20 group-hover:ring-cyan-300/45"
       : "ring-violet-300/20 group-hover:ring-violet-300/45";
-  const iconBg =
-    accent === "cyan"
-      ? "from-royal-400/15 to-cyan-300/10 text-cyan-300"
-      : "from-violet-400/15 to-cyan-300/10 text-violet-300";
-
   return (
     <div
-      className={`group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-white/8 bg-white/[0.02] px-4 py-2 ring-1 ${ring} transition-colors hover:bg-white/[0.04]`}
+      className={`group inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/[0.02] px-4 py-2 ring-1 ${ring} transition-colors hover:bg-white/[0.04]`}
     >
-      <span
-        className={`grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br ${iconBg}`}
-      >
-        <Icon className="h-3.5 w-3.5" />
-      </span>
       <span className="whitespace-nowrap text-sm font-medium text-soft-white">
         {label}
       </span>
-      <span className="ml-1 inline-block h-1 w-1 rounded-full bg-soft-mute/60 group-hover:bg-cyan-300" />
     </div>
   );
 }
@@ -105,8 +72,7 @@ export function PartnerMarquee() {
           {[...rowOne, ...rowOne].map((item, i) => (
             <Pill
               key={`r1-${i}`}
-              Icon={item.icon}
-              label={item.label}
+              label={item}
               accent="cyan"
             />
           ))}
@@ -122,8 +88,7 @@ export function PartnerMarquee() {
           {[...rowTwo, ...rowTwo].map((item, i) => (
             <Pill
               key={`r2-${i}`}
-              Icon={item.icon}
-              label={item.label}
+              label={item}
               accent="violet"
             />
           ))}

@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 
 /**
  * Premium clinical mobility dashboard mockup — replaces the bare skeleton
@@ -18,36 +19,56 @@ import { motion } from "framer-motion";
  * the existing pill badges on the parent card).
  */
 export function MobilityDashboardVisual() {
+  const visualRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(visualRef, { once: true, margin: "-12% 0px" });
+  const reduceMotion = Boolean(useReducedMotion());
+  const show = isInView || reduceMotion;
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center px-4 pt-14 pb-3">
-      <div className="grid w-full max-w-[440px] grid-cols-[1.55fr_1fr] gap-2.5">
+    <div
+      ref={visualRef}
+      className="absolute inset-0 flex items-center justify-center overflow-hidden px-4 pb-4 pt-[4.25rem] sm:px-5"
+    >
+      <div className="grid w-[calc(100%+2rem)] min-w-[320px] max-w-[510px] grid-cols-[1.58fr_1fr] gap-3">
         {/* ─────────── LEFT: Walking figure dashboard card ─────────── */}
-        <DashboardCard label="Live pose · 17/17 KP" accent="teal">
-          <div className="relative h-[140px]">
-            <WalkingFigure />
+        <DashboardCard
+          label="Live pose · 17/17 KP"
+          show={show}
+          reduceMotion={reduceMotion}
+        >
+          <div className="relative h-[158px]">
+            <WalkingFigure show={show} reduceMotion={reduceMotion} />
             {/* Floating cadence pill */}
             <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
-              className="absolute right-1 top-1 rounded-md border border-teal-300/40 bg-black/50 px-1.5 py-0.5 font-mono text-[8.5px] text-teal-200 backdrop-blur-md"
+              initial={false}
+              animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 }}
+              transition={{
+                delay: reduceMotion ? 0 : 0.7,
+                duration: reduceMotion ? 0 : 0.5,
+              }}
+              className="absolute right-1 top-1 rounded-md border border-teal-300/40 bg-black/55 px-1.5 py-0.5 font-mono text-[9px] text-teal-200"
             >
               CAD · 112
             </motion.div>
           </div>
           {/* Mini gait waveform */}
           <div className="mt-2 border-t border-white/8 pt-2">
-            <div className="text-[8px] font-medium uppercase tracking-[0.18em] text-soft-mute">
+            <div className="text-[9px] font-medium uppercase tracking-[0.18em] text-soft-mute">
               Gait rhythm
             </div>
-            <GaitWaveform />
+            <GaitWaveform show={show} reduceMotion={reduceMotion} />
           </div>
         </DashboardCard>
 
         {/* ─────────── RIGHT: Score ring + metric chips ─────────── */}
         <div className="flex flex-col gap-2.5">
-          <DashboardCard label="Mobility" accent="teal" compact>
-            <ScoreRing score={82} />
+          <DashboardCard
+            label="Mobility"
+            compact
+            show={show}
+            reduceMotion={reduceMotion}
+          >
+            <ScoreRing score={82} show={show} reduceMotion={reduceMotion} />
           </DashboardCard>
 
           <MetricChip label="Asymmetry" value="4.2%" trend="down" accent="emerald" />
@@ -64,36 +85,52 @@ export function MobilityDashboardVisual() {
 
 function DashboardCard({
   label,
-  accent,
   compact = false,
+  show,
+  reduceMotion,
   children,
 }: {
   label: string;
-  accent: "teal";
   compact?: boolean;
+  show: boolean;
+  reduceMotion: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025] ${
-        compact ? "p-2.5" : "p-3"
-      } backdrop-blur-sm`}
+      className={`relative overflow-hidden rounded-2xl border border-white/12 bg-white/[0.04] ${
+        compact ? "p-3" : "p-3.5"
+      } shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-[8.5px] font-semibold uppercase tracking-[0.18em] text-teal-300/90">
+        <span className="text-[9px] font-semibold uppercase tracking-[0.18em] text-teal-300/90">
           {label}
         </span>
-        <span className="flex items-center gap-1 text-[8px] font-mono text-soft-mute">
-          <span className="h-1 w-1 rounded-full bg-emerald-400" />
+        <motion.span
+          initial={false}
+          animate={show ? { opacity: 1 } : { opacity: 0 }}
+          transition={{
+            delay: reduceMotion ? 0 : 0.35,
+            duration: reduceMotion ? 0 : 0.45,
+          }}
+          className="flex items-center gap-1 text-[8.5px] font-mono text-soft-mute"
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           live
-        </span>
+        </motion.span>
       </div>
       <div className={compact ? "mt-1.5" : "mt-2"}>{children}</div>
     </div>
   );
 }
 
-function WalkingFigure() {
+function WalkingFigure({
+  show,
+  reduceMotion,
+}: {
+  show: boolean;
+  reduceMotion: boolean;
+}) {
   // Joints — head, shoulders, elbows, hands, hips, knees, ankles
   const joints: Array<[number, number]> = [
     [110, 22], // head
@@ -168,14 +205,18 @@ function WalkingFigure() {
           stroke="url(#bone-grad)"
           strokeWidth="1.8"
           strokeLinecap="round"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
+          initial={false}
+          animate={
+            show
+              ? { pathLength: 1, opacity: 1 }
+              : { pathLength: 0, opacity: 0 }
+          }
           transition={{
-            duration: 0.5,
-            delay: 0.1 + i * 0.04,
+            duration: reduceMotion ? 0 : 0.5,
+            delay: reduceMotion ? 0 : 0.1 + i * 0.04,
             ease: [0.16, 1, 0.3, 1],
           }}
-          style={{ filter: "drop-shadow(0 0 3px rgba(79,209,255,0.6))" }}
+          style={{ filter: "drop-shadow(0 0 2px rgba(79,209,255,0.46))" }}
         />
       ))}
 
@@ -187,9 +228,12 @@ function WalkingFigure() {
         fill="none"
         stroke="url(#bone-grad)"
         strokeWidth="1.8"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
+        initial={false}
+        animate={show ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }}
+        transition={{
+          delay: reduceMotion ? 0 : 0.6,
+          duration: reduceMotion ? 0 : 0.4,
+        }}
       />
 
       {/* Joints */}
@@ -202,18 +246,23 @@ function WalkingFigure() {
           fill="#fff"
           stroke="#0FA3B1"
           strokeWidth="1"
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.35 + i * 0.03, duration: 0.3 }}
-          style={{ filter: "drop-shadow(0 0 3px #0FA3B1)" }}
+          initial={false}
+          animate={
+            show ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0 }
+          }
+          transition={{
+            delay: reduceMotion ? 0 : 0.35 + i * 0.03,
+            duration: reduceMotion ? 0 : 0.3,
+          }}
+          style={{ filter: "drop-shadow(0 0 2px #0FA3B1)" }}
         />
       ))}
 
       {/* Movement direction arrow */}
       <motion.g
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.0 }}
+        initial={false}
+        animate={show ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ delay: reduceMotion ? 0 : 1.0, duration: reduceMotion ? 0 : 0.3 }}
       >
         <line x1="170" y1="100" x2="200" y2="100" stroke="#4FD1FF" strokeWidth="1" opacity="0.6" />
         <polygon
@@ -226,7 +275,15 @@ function WalkingFigure() {
   );
 }
 
-function ScoreRing({ score = 82 }: { score?: number }) {
+function ScoreRing({
+  score = 82,
+  show,
+  reduceMotion,
+}: {
+  score?: number;
+  show: boolean;
+  reduceMotion: boolean;
+}) {
   const r = 24;
   const c = 2 * Math.PI * r;
   const offset = c - (score / 100) * c;
@@ -257,16 +314,20 @@ function ScoreRing({ score = 82 }: { score?: number }) {
           strokeWidth="4.5"
           strokeLinecap="round"
           fill="none"
-          initial={{ strokeDashoffset: c }}
-          animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+          initial={false}
+          animate={{ strokeDashoffset: show ? offset : c }}
+          transition={{
+            duration: reduceMotion ? 0 : 1.6,
+            ease: [0.16, 1, 0.3, 1],
+            delay: reduceMotion ? 0 : 0.3,
+          }}
           strokeDasharray={c}
           transform="rotate(-90 36 36)"
-          style={{ filter: "drop-shadow(0 0 6px rgba(15,163,177,0.65))" }}
+          style={{ filter: "drop-shadow(0 0 4px rgba(15,163,177,0.52))" }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="font-display text-xl font-semibold leading-none text-soft-white">
+        <div className="font-display text-[1.35rem] font-semibold leading-none text-soft-white">
           {score}
         </div>
         <div className="mt-0.5 text-[7px] font-medium uppercase tracking-[0.2em] text-teal-300/80">
@@ -291,23 +352,29 @@ function MetricChip({
   const tone =
     accent === "emerald" ? "border-emerald-400/30 bg-emerald-400/8" : "";
   return (
-    <div className={`rounded-xl border ${tone} px-2.5 py-1.5`}>
+    <div className={`rounded-xl border ${tone} px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]`}>
       <div className="flex items-center justify-between">
-        <span className="text-[8px] font-medium uppercase tracking-[0.18em] text-soft-mute">
+        <span className="text-[8.5px] font-medium uppercase tracking-[0.16em] text-soft-mute">
           {label}
         </span>
         {trend === "down" && (
           <span className="text-[10px] text-emerald-300">↓</span>
         )}
       </div>
-      <div className="mt-0.5 text-xs font-semibold text-soft-white">
+      <div className="mt-1 text-sm font-semibold text-soft-white">
         {value}
       </div>
     </div>
   );
 }
 
-function GaitWaveform() {
+function GaitWaveform({
+  show,
+  reduceMotion,
+}: {
+  show: boolean;
+  reduceMotion: boolean;
+}) {
   return (
     <svg viewBox="0 0 180 28" className="mt-1 h-7 w-full">
       <defs>
@@ -323,9 +390,13 @@ function GaitWaveform() {
         stroke="url(#gait-wave)"
         strokeWidth="1.5"
         strokeLinecap="round"
-        initial={{ pathLength: 0 }}
-        animate={{ pathLength: 1 }}
-        transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+        initial={false}
+        animate={{ pathLength: show ? 1 : 0 }}
+        transition={{
+          duration: reduceMotion ? 0 : 1.6,
+          ease: [0.16, 1, 0.3, 1],
+          delay: reduceMotion ? 0 : 0.5,
+        }}
       />
       {/* Tick marks */}
       {[0, 30, 60, 90, 120, 150, 180].map((x) => (

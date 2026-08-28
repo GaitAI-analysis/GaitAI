@@ -18,7 +18,7 @@ const interests = [
   { id: "securevision", label: "Security intelligence pilot", icon: ShieldCheck },
   { id: "watchcare", label: "Wearable monitoring program", icon: Watch },
   { id: "sports", label: "Sports performance program", icon: Trophy },
-  { id: "enterprise", label: "Enterprise deployment", icon: Building2 },
+  { id: "enterprise", label: "Enterprise AI deployment", icon: Building2 },
   { id: "research", label: "Research / Investor", icon: Sparkles },
 ];
 

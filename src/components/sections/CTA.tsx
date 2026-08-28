@@ -1,11 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import {
   ArrowRight,
   Building2,
-  Check,
   HeartPulse,
   ShieldCheck,
   Sparkles,
@@ -22,9 +21,44 @@ const interests = [
   { id: "research", label: "Research or investment", icon: Sparkles },
 ];
 
+const defaultInterest = interests[0];
+
 export function CTA() {
-  const [picked, setPicked] = useState<string>("mobilitycare");
-  const [sent, setSent] = useState(false);
+  const [picked, setPicked] = useState<string>(defaultInterest.id);
+  const [submissionStatus, setSubmissionStatus] = useState<
+    "idle" | "sending" | "success" | "error"
+  >("idle");
+
+  const selectedInterest =
+    interests.find((interest) => interest.id === picked)?.label ??
+    defaultInterest.label;
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+    setSubmissionStatus("sending");
+
+    try {
+      const response = await fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Form submission failed");
+      }
+
+      form.reset();
+      setPicked(defaultInterest.id);
+      setSubmissionStatus("success");
+    } catch {
+      setSubmissionStatus("error");
+    }
+  }
 
   return (
     <section id="contact" className="section relative overflow-hidden">
@@ -78,12 +112,13 @@ export function CTA() {
             </div>
 
             <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setSent(true);
-              }}
+              action="https://formspree.io/f/xzebbzed"
+              method="POST"
+              onSubmit={handleSubmit}
               className="relative rounded-2xl border border-white/8 bg-obsidian-200/70 p-6 backdrop-blur-xl sm:p-8"
             >
+              <input type="hidden" name="interest" value={selectedInterest} />
+
               <div className="grid gap-2">
                 <label className="text-xs font-medium uppercase tracking-[0.16em] text-soft-mute">
                   I’m interested in
@@ -112,29 +147,48 @@ export function CTA() {
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <Field label="Full name" type="text" placeholder="Your full name" />
-                <Field label="Work email" type="email" placeholder="you@org.com" />
+                <Field
+                  label="Full name"
+                  name="name"
+                  type="text"
+                  placeholder="Your full name"
+                  required
+                />
+                <Field
+                  label="Work email"
+                  name="email"
+                  type="email"
+                  placeholder="you@org.com"
+                  required
+                />
               </div>
               <div className="mt-3">
-                <Field label="Organization" type="text" placeholder="Hospital / Agency / Company" />
+                <Field
+                  label="Organization"
+                  name="organization"
+                  type="text"
+                  placeholder="Hospital / Agency / Company"
+                />
               </div>
               <div className="mt-3">
                 <label className="text-xs font-medium uppercase tracking-[0.16em] text-soft-mute">
                   How can we help?
                 </label>
                 <textarea
+                  name="message"
                   rows={3}
                   placeholder="Tell us about the environment, scale and intended outcome."
                   className="mt-2 w-full resize-none rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
                 />
               </div>
 
-              <button type="submit" className="btn-primary mt-6 w-full">
-                {sent ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    We&apos;ll be in touch
-                  </>
+              <button
+                type="submit"
+                disabled={submissionStatus === "sending"}
+                className="btn-primary mt-6 w-full"
+              >
+                {submissionStatus === "sending" ? (
+                  "Sending..."
                 ) : (
                   <>
                     Request a demo
@@ -142,6 +196,26 @@ export function CTA() {
                   </>
                 )}
               </button>
+
+              {submissionStatus === "success" && (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="mt-3 text-center text-sm text-soft-white"
+                >
+                  Thanks — your request has been received. We&apos;ll be in touch
+                  soon.
+                </p>
+              )}
+
+              {submissionStatus === "error" && (
+                <p
+                  role="alert"
+                  className="mt-3 text-center text-sm text-soft-white"
+                >
+                  Something went wrong. Please try again.
+                </p>
+              )}
 
               <p className="mt-3 text-center text-[11px] text-soft-mute">
                 By submitting, you agree to our terms & privacy. We&apos;ll only
@@ -157,12 +231,16 @@ export function CTA() {
 
 function Field({
   label,
+  name,
   type,
   placeholder,
+  required = false,
 }: {
   label: string;
+  name: string;
   type: string;
   placeholder?: string;
+  required?: boolean;
 }) {
   return (
     <div>
@@ -170,8 +248,10 @@ function Field({
         {label}
       </label>
       <input
+        name={name}
         type={type}
         placeholder={placeholder}
+        required={required}
         className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
       />
     </div>

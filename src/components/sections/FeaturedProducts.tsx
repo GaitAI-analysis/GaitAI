@@ -1,12 +1,23 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { featuredProducts } from "@/data/products";
+import { featuredProducts, type Vertical } from "@/data/products";
 import { ProductCard } from "@/components/products/ProductCard";
 
+const productViews: { id: Vertical; label: string }[] = [
+  { id: "mobilitycare", label: "MobilityCare" },
+  { id: "securevision", label: "SecureVision" },
+];
+
 export function FeaturedProducts() {
+  const [selectedView, setSelectedView] = useState<Vertical>("mobilitycare");
+  const visibleProducts = featuredProducts
+    .filter((product) => product.vertical === selectedView)
+    .slice(0, 4);
+
   return (
     <section
       id="featured-products"
@@ -14,7 +25,7 @@ export function FeaturedProducts() {
     >
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-mesh opacity-25" />
       <div className="container-wide">
-        <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
+        <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
           <SectionHeading
             eyebrow="Featured · Movement intelligence products"
             title={
@@ -25,26 +36,42 @@ export function FeaturedProducts() {
             }
             description="From clinical gait reports to crowd flow analytics — every product is built on the same GaitAI movement-intelligence platform. These are the eight we&apos;re leading with."
             align="left"
-            className="lg:max-w-2xl"
+            className="w-full lg:max-w-3xl"
           />
-          <div className="flex gap-3">
-            <Link
-              href="/mobilitycare"
-              className="rounded-full border border-teal-300/30 bg-teal-300/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-teal-200 transition-all hover:border-teal-300/50 hover:bg-teal-300/15"
-            >
-              MobilityCare
-            </Link>
-            <Link
-              href="/securevision"
-              className="rounded-full border border-royal-300/30 bg-royal-300/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-royal-200 transition-all hover:border-royal-300/50 hover:bg-royal-300/15"
-            >
-              SecureVision
-            </Link>
+
+          <div
+            role="group"
+            aria-label="Choose a product system"
+            className="inline-flex h-10 max-w-full shrink-0 items-center rounded-full border border-[rgba(110,150,255,0.18)] bg-[rgba(10,18,40,0.55)] p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[10px]"
+          >
+            {productViews.map((view) => {
+              const isActive = selectedView === view.id;
+
+              return (
+                <button
+                  key={view.id}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => setSelectedView(view.id)}
+                  className={`h-8 whitespace-nowrap rounded-full border px-4 text-sm leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian-300 sm:px-5 ${
+                    isActive
+                      ? "border-[rgba(120,190,255,0.30)] bg-[linear-gradient(135deg,rgba(53,130,255,0.22),rgba(98,76,255,0.18))] font-semibold text-[#F5F8FF] shadow-[0_8px_24px_rgba(35,90,220,0.18)]"
+                      : "border-transparent font-medium text-[rgba(220,232,255,0.78)] hover:bg-white/[0.04] hover:text-[#F5F8FF]"
+                  }`}
+                >
+                  {view.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {featuredProducts.map((p, i) => (
+        <div
+          id="featured-products-panel"
+          aria-live="polite"
+          className="mt-12 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {visibleProducts.map((p, i) => (
             <ProductCard key={p.id} product={p} index={i} compact />
           ))}
         </div>

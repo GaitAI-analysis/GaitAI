@@ -97,17 +97,17 @@ function PlatformSplit() {
     >
       <div className="platform-core-node absolute left-1/2 top-0 z-10 -translate-x-1/2">
         <span
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-cyan-300/20 bg-[linear-gradient(135deg,rgba(81,214,255,0.1),rgba(113,135,255,0.08))] shadow-[0_0_18px_rgba(81,214,255,0.11)]"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-cyan-300/30 bg-[linear-gradient(135deg,rgba(81,214,255,0.13),rgba(113,135,255,0.1))] shadow-[0_0_18px_rgba(81,214,255,0.16)]"
           aria-hidden="true"
         >
           <GaitAIMark className="h-[22px] w-[22px]" />
         </span>
         <span className="text-left">
-          <span className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-mute">
+          <span className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-gray">
             Shared intelligence layer
           </span>
-          <span className="mt-0.5 block font-display text-sm font-semibold text-soft-white">
-            GaitAI core
+          <span className="mt-0.5 block font-display text-[15px] font-semibold tracking-[-0.015em] text-soft-white">
+            GaitAI Core
           </span>
         </span>
       </div>
@@ -119,19 +119,29 @@ function PlatformSplit() {
         fill="none"
         preserveAspectRatio="none"
       >
-        <path d="M500 0V24" stroke="currentColor" className="text-cyan-300/35" />
+        <path
+          d="M500 0V24"
+          stroke="currentColor"
+          strokeWidth="1.15"
+          strokeLinecap="round"
+          className="text-cyan-300/45"
+        />
         <path
           d="M500 24C500 58 250 42 250 104"
           stroke="#0FA3B1"
-          strokeOpacity="0.42"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeOpacity="0.54"
         />
         <path
           d="M500 24C500 58 750 42 750 104"
           stroke="#5B8CFF"
-          strokeOpacity="0.42"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeOpacity="0.54"
         />
-        <circle cx="250" cy="104" r="3" fill="#0FA3B1" fillOpacity="0.7" />
-        <circle cx="750" cy="104" r="3" fill="#5B8CFF" fillOpacity="0.7" />
+        <circle cx="250" cy="104" r="3" fill="#0FA3B1" fillOpacity="0.82" />
+        <circle cx="750" cy="104" r="3" fill="#5B8CFF" fillOpacity="0.82" />
       </svg>
     </div>
   );
@@ -201,7 +211,7 @@ function FlagshipPanel({
               {headlineAccent}
             </span>
           </h3>
-          <p className="mt-5 max-w-xl text-sm leading-6 text-soft-gray sm:text-[15px]">
+          <p className="mt-4 max-w-xl text-sm leading-[1.4] text-soft-gray sm:text-[15px]">
             {description}
           </p>
         </div>
@@ -264,11 +274,11 @@ function FlagshipPanel({
 
         <Link
           href={href}
-          className={`group/cta mt-auto flex min-h-16 items-center justify-between gap-5 border-t border-white/10 pt-6 text-sm font-semibold transition-colors focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
+          className={`group/cta mt-auto flex min-h-16 items-center justify-between gap-5 border-t border-white/12 pt-6 text-[15px] font-bold transition-colors focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
         >
           <span>Explore {name}</span>
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-current/25 transition-transform duration-300 group-hover/cta:translate-x-1">
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/cta:translate-x-1 group-hover/cta:border-current/60">
+            <ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
           </span>
         </Link>
       </article>

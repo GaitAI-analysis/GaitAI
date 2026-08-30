@@ -14,7 +14,6 @@ import { MissionVision } from "@/components/sections/about/MissionVision";
 import { WhoWeServe } from "@/components/sections/about/WhoWeServe";
 import { Partnerships } from "@/components/sections/about/Partnerships";
 import { Investors } from "@/components/sections/about/Investors";
-import { PartnerCollaborate } from "@/components/sections/about/PartnerCollaborate";
 import { CTA } from "@/components/sections/CTA";
 
 export default function HomePage() {
@@ -38,7 +37,6 @@ export default function HomePage() {
       <WhoWeServe />
       <Partnerships />
       <Investors />
-      <PartnerCollaborate />
 
       <CTA />
     </>

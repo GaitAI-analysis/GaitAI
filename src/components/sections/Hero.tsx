@@ -63,7 +63,7 @@ export function Hero() {
             >
               <GaitAIMark className="h-[18px] w-[18px]" />
             </span>
-            GaitAI Movement Intelligence
+            10+ years of gait research · From research to real-world systems
           </motion.div>
 
           <motion.h1
@@ -72,9 +72,9 @@ export function Hero() {
             custom={1}
             className="mt-8 max-w-5xl pb-2 text-balance font-display text-[clamp(1.85rem,9.3vw,3.5rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-soft-white sm:mt-10 sm:pb-2.5 sm:text-[clamp(3rem,8vw,7.25rem)] lg:pb-3.5"
           >
-            <span className="block whitespace-nowrap">One AI layer.</span>
+            <span className="block whitespace-nowrap">Intelligence in{" "}</span>
             <span className="mt-0.5 block whitespace-nowrap text-[0.9em] leading-[0.95] text-gradient sm:mt-1">
-              Two human missions.
+              Motion.
             </span>
           </motion.h1>
 
@@ -83,7 +83,10 @@ export function Hero() {
             custom={2}
             className="mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-white/90 sm:mt-10 sm:text-xl"
           >
-            Human movement intelligence for better care and safer spaces.
+            GaitAI transforms video, wearable signals and human movement into
+            actionable intelligence across MobilityCare and SecureVision — one
+            platform powering twenty-three specialized movement-intelligence
+            products.
           </motion.p>
 
           <motion.div
@@ -118,11 +121,11 @@ export function Hero() {
             custom={4}
             className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-soft-gray/80 sm:mt-16"
           >
-            <span>10+ years of gait research</span>
-            <span className="hidden h-1 w-1 rounded-full bg-cyan-300/40 sm:block" />
-            <span>23 specialized movement-intelligence products</span>
-            <span className="hidden h-1 w-1 rounded-full bg-cyan-300/40 sm:block" />
-            <span>Research to real-world systems</span>
+            <span>
+              Spanning clinical gait, fall-risk, rehabilitation, sports
+              performance, wearable mobility, neurological movement,
+              surveillance, security, crowd intelligence and public safety.
+            </span>
           </motion.div>
         </motion.div>
       </div>

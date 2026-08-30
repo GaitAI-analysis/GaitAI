@@ -1,3 +1,21 @@
 {
-  "posts": []
+  "posts": [
+    {
+      "id": "post_msd54gmx_iazjfc",
+      "slug": "what-your-first-ten-steps-reveal",
+      "title": "What your first ten steps reveal",
+      "category": "blog",
+      "summary": "Long before a limp is visible, walking rhythm starts to drift. A short look at why the first ten steps of a walk carry more signal than the hundred that follow.",
+      "body": "\nMost people assume a walking problem announces itself. A limp, a stumble, a cane. In practice, the body compensates long before it complains — and those compensations are measurable.\n \n## The first ten steps\n \nWalking is not uniform. The opening steps of any walk are where the body negotiates balance, and they carry disproportionate signal:\n \n- **Step length asymmetry** — the gap between left and right stride, often the earliest deviation\n- **Cadence variability** — how much the rhythm wobbles between steps\n- **Double-support time** — how long both feet stay grounded, which quietly increases when confidence drops\n- **Trunk sway** — lateral movement the walker rarely notices\nBy step twenty, the body has settled into a compensated pattern that masks much of this. The opening is where the honest data lives.\n \n### Why compensation hides the signal\n \nCompensation is the body doing its job. A weakened hip recruits the opposite side; a stiff ankle borrows range from the knee. The result *looks* like normal walking, which is exactly the problem — the surface presentation is stable while the underlying mechanics drift.\n \n> The clinically useful question isn't \"does this person walk badly?\" It's \"does this person walk differently than they did six weeks ago?\"\n \nThat reframing matters. Absolute thresholds produce false alarms across populations. Change over time, measured against a person's own baseline, is far harder to argue with.\n \n## What we measure\n \nA typical observation window produces a small set of derived signals:\n \n```python\nfrom gaitai import GaitStream\n \nstream = GaitStream.from_camera(0)\nfor window in stream.windows(seconds=10):\n    print(window.symmetry, window.cadence_var, window.double_support)\n```\n \nEach is cheap to compute and stable under ordinary lighting. The interesting work isn't extracting them — it's deciding when a change is meaningful rather than noise.\n \n### The ordering that works\n \n1. Establish a personal baseline over several sessions\n2. Track deviation from that baseline, not from a population average\n3. Escalate only on sustained drift, never on a single reading\n4. Put a human in the loop before any conclusion is drawn\nStep four is not a formality. Movement data is suggestive, not diagnostic.\n \n## What this is not\n \nGaitAI does **not** diagnose. It surfaces changes worth a second look by someone qualified to interpret them. The distinction is the whole ethical footing of the product: a system that flags *\"this is worth checking\"* is useful, while one that declares *\"this person has X\"* is both wrong and harmful.\n ",
+      "tags": [
+        "gait analysis",
+        "movement intelligence",
+        "early detection",
+        "research notes"
+      ],
+      "publishedAt": "2026-08-03T11:20:45.140Z",
+      "author": "GaitAI Research",
+      "featured": true
+    }
+  ]
 }

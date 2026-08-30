@@ -85,17 +85,17 @@ const tones = {
 function PlatformSplit() {
   return (
     <div
-      className="relative mx-auto h-40 max-w-5xl"
+      className="relative mx-auto h-[12.25rem] max-w-5xl sm:h-[13.25rem]"
       role="img"
       aria-label="One shared GaitAI intelligence layer powers both product systems"
     >
       <div className="platform-core-node absolute left-1/2 top-0 z-10 -translate-x-1/2">
-        <Logo variant="icon" size="md" />
+        <Logo variant="icon" size="lg" />
         <span className="text-left">
-          <span className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-gray">
+          <span className="block whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.16em] text-soft-gray sm:text-xs">
             Shared intelligence layer
           </span>
-          <span className="mt-0.5 block font-display text-[15px] font-semibold tracking-[-0.015em] text-soft-white">
+          <span className="mt-1 block whitespace-nowrap font-display text-lg font-bold tracking-[-0.02em] text-soft-white sm:text-[22px]">
             GaitAI Core
           </span>
         </span>
@@ -103,7 +103,7 @@ function PlatformSplit() {
 
       <svg
         aria-hidden="true"
-        className="absolute inset-x-0 top-10 h-28 w-full overflow-visible"
+        className="absolute inset-x-0 top-[4.75rem] h-28 w-full overflow-visible sm:top-[5.75rem]"
         viewBox="0 0 1000 112"
         fill="none"
         preserveAspectRatio="none"

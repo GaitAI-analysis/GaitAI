@@ -314,12 +314,28 @@ body {
   }
 
   .platform-core-node {
-    @apply flex min-w-[15.5rem] items-center gap-3 rounded-2xl px-3 py-2.5;
+    display: flex;
+    width: min(25rem, calc(100vw - 2.5rem));
+    min-height: 6.75rem;
+    align-items: center;
+    gap: 1.25rem;
+    border-radius: 1rem;
+    padding: 1rem 1.5rem;
     background: linear-gradient(180deg, var(--card-bg-a), var(--card-bg-b));
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.04),
-      0 14px 36px -24px rgb(0 0 0 / 0.75);
+      0 20px 46px -28px rgb(0 0 0 / 0.78),
+      0 0 34px -28px rgb(79 209 255 / 0.28);
+  }
+
+  @media (max-width: 639px) {
+    .platform-core-node {
+      width: min(22rem, calc(100vw - 1.5rem));
+      min-height: 5.75rem;
+      gap: 1rem;
+      padding: 0.875rem 0.75rem;
+    }
   }
 
   .flagship-panel {

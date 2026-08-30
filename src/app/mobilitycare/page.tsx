@@ -3,17 +3,13 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  Footprints,
-  HeartPulse,
-  Stethoscope,
-  Trophy,
   Watch,
 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductGrid } from "@/components/products/ProductGrid";
-import { SkeletonOverlayVisual } from "@/components/visuals/SkeletonOverlayVisual";
 import { ClinicalReportVisual } from "@/components/visuals/ClinicalReportVisual";
+import { MobilityVisionBackground } from "@/components/visuals/MobilityVisionBackground";
 import { RunningTrailVisual } from "@/components/visuals/RunningTrailVisual";
 import { SmartwatchVisual } from "@/components/visuals/SmartwatchVisual";
 import {
@@ -41,93 +37,93 @@ export default function MobilityCarePage() {
   return (
     <>
       {/* HERO */}
-      <section className="site-page-intro relative overflow-hidden pb-24">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div
-            className="absolute left-1/2 top-[10%] h-[640px] w-[1000px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(15,163,177,0.25), transparent 70%)",
-            }}
-          />
-        </div>
-        <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-40" />
+      <section className="site-page-intro relative isolate overflow-hidden border-b border-white/[0.06] bg-obsidian-300 pb-24 sm:pb-28 lg:pb-32">
+        <MobilityVisionBackground />
+        <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-obsidian-300/30 via-obsidian-300/80 to-obsidian-300 lg:bg-gradient-to-r lg:from-obsidian-300 lg:via-obsidian-300/85 lg:to-obsidian-300/35" />
 
-        <div className="container-wide">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_1fr]">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-teal-300/30 bg-teal-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-300">
-                <HeartPulse className="h-3.5 w-3.5" />
-                GaitAI MobilityCare
-              </div>
-              <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
-                Clinical, sports, rehab &amp;{" "}
-                <span
-                  className="text-gradient"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #0FA3B1 0%, #4FD1FF 60%, #7C3AED 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  wearable mobility intelligence.
-                </span>
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
-                Twelve AI-powered products that turn walking videos, sensor
-                signals and motion patterns into clinical, sports and
-                elderly-care insights — grounded in{" "}
-                <span className="text-soft-white">10+ years of gait research</span>,
-                built with clinicians, for clinicians.
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link href="#products" className="btn-primary">
-                  See all 12 products
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link href="/#contact" className="btn-ghost">
-                  Start a clinic pilot
-                </Link>
-              </div>
-
-              <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {[
-                  { icon: Footprints, label: "Gait reports" },
-                  { icon: Stethoscope, label: "Clinical workflow" },
-                  { icon: Trophy, label: "Sports analytics" },
-                  { icon: Watch, label: "WatchCare wearable" },
-                ].map(({ icon: Icon, label }) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/[0.02] p-3"
-                  >
-                    <span className="grid h-7 w-7 place-items-center rounded-md bg-teal-400/10 text-teal-300 ring-1 ring-teal-300/20">
-                      <Icon className="h-3.5 w-3.5" />
-                    </span>
-                    <span className="text-[11px] font-medium text-soft-white">
-                      {label}
-                    </span>
-                  </div>
-                ))}
-              </div>
+        <div className="container-wide relative z-10">
+          <div className="max-w-5xl">
+            <div className="inline-flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-300 sm:text-xs">
+              <span className="h-px w-8 bg-gradient-to-r from-teal-300 to-cyan-300/20" />
+              OUR VISION
             </div>
 
-            <div className="relative">
-              <div className="card-glow relative h-80 overflow-hidden p-0">
-                <div className="ring-grid absolute inset-0 opacity-50" />
-                <SkeletonOverlayVisual accent="#0FA3B1" />
-                <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/40 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-teal-300 backdrop-blur-md">
-                  <span className="h-1.5 w-1.5 rounded-full bg-teal-400" />
-                  Live pose estimation
-                </div>
-              </div>
-              <div className="mt-4">
-                <ClinicalReportVisual />
-              </div>
-            </div>
+            <h1 className="mt-6 max-w-4xl font-display text-display-xl text-balance text-soft-white sm:mt-7">
+              AI as a{" "}
+              <span className="box-decoration-clone rounded-md bg-royal-400/10 px-1.5 text-gradient-mobility">
+                silent guardian
+              </span>{" "}
+              for human safety, health and identity.
+            </h1>
+
+            <p className="mt-7 max-w-2xl text-base leading-relaxed text-soft-gray sm:text-lg sm:leading-8">
+              GaitAI exists for a future where AI doesn’t only respond after
+              something goes wrong, but quietly helps predict, prevent and
+              protect — before it does.
+            </p>
           </div>
+
+          <figure className="card mt-12 max-w-5xl border-white/10 bg-obsidian-200/75 p-6 backdrop-blur-md sm:mt-14 sm:p-8 lg:p-10">
+            <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-teal-300/80 to-transparent" />
+            <span
+              aria-hidden="true"
+              className="absolute right-5 top-2 font-display text-7xl leading-none text-cyan-300/10 sm:right-8 sm:text-8xl"
+            >
+              “
+            </span>
+            <blockquote className="relative max-w-4xl">
+              <p className="font-display text-xl font-medium leading-relaxed text-soft-white sm:text-2xl sm:leading-relaxed lg:text-[1.75rem]">
+                <span className="box-decoration-clone rounded bg-royal-400/10 px-1 text-gradient-mobility">
+                  Walking is more than motion.
+                </span>{" "}
+                It is a signature. It is a health indicator. It is a safety
+                signal. It is a biometric identity. It is a story of the human
+                body.
+              </p>
+            </blockquote>
+            <figcaption className="mt-6 max-w-3xl border-t border-white/[0.08] pt-5 text-sm leading-6 text-soft-mute">
+              Dr. Anubha Parashar · Founder &amp; CEO, GaitAI · Mission: to make
+              human movement measurable, meaningful and useful for the world.
+            </figcaption>
+          </figure>
+
+          <ol className="mt-5 grid gap-4 md:grid-cols-3">
+            {[
+              {
+                number: "01",
+                title: "Predict",
+                copy: "Detect risk before it becomes harm — from a fall, an intrusion, a mobility decline.",
+              },
+              {
+                number: "02",
+                title: "Prevent",
+                copy: "Translate early signals into action — alerts to families, clinicians and operators.",
+              },
+              {
+                number: "03",
+                title: "Protect",
+                copy: "Give every home, hospital and public space an intelligent layer for human safety.",
+              },
+            ].map((principle) => (
+              <li
+                key={principle.number}
+                className="group relative min-h-44 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 transition duration-300 hover:-translate-y-0.5 hover:border-teal-300/30 hover:bg-white/[0.04] sm:p-7"
+              >
+                <div className="absolute inset-x-6 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-teal-300 via-cyan-300 to-transparent transition-transform duration-500 group-hover:scale-x-100" />
+                <div className="flex items-baseline justify-between gap-4">
+                  <h2 className="font-display text-2xl font-semibold text-soft-white">
+                    {principle.title}
+                  </h2>
+                  <span className="font-mono text-[11px] tracking-[0.18em] text-teal-300">
+                    {principle.number}
+                  </span>
+                </div>
+                <p className="mt-5 max-w-sm text-sm leading-6 text-soft-gray">
+                  {principle.copy}
+                </p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 

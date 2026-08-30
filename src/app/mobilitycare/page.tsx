@@ -37,30 +37,44 @@ export default function MobilityCarePage() {
   return (
     <>
       {/* HERO */}
-      <section className="site-page-intro relative isolate overflow-hidden border-b border-white/[0.08] bg-[#06101d] pb-20 text-white sm:pb-24 lg:pb-28">
+      <section className="site-viewport-section relative isolate flex flex-col overflow-hidden border-b border-white/[0.08] bg-[#06101d] pb-20 text-white sm:pb-28 lg:pb-32">
         <MobilityVisionBackground />
-        <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(6,16,29,0.32)_0%,rgba(6,16,29,0.8)_64%,#06101d_100%)] lg:bg-[linear-gradient(90deg,#06101d_0%,rgba(6,16,29,0.94)_38%,rgba(6,16,29,0.58)_70%,rgba(6,16,29,0.34)_100%)]" />
+        {/* Mobile: top-to-bottom gradient keeps headline legible over the SVG.
+            Desktop: left-heavy gradient creates a dark text canvas on the left
+            while letting the gait figures shine on the right. */}
+        <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(6,16,29,0.28)_0%,rgba(6,16,29,0.72)_58%,#06101d_100%)] lg:bg-[linear-gradient(90deg,rgba(6,16,29,0.92)_0%,rgba(6,16,29,0.80)_32%,rgba(6,16,29,0.46)_62%,rgba(6,16,29,0.20)_100%)]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
 
-        <div className="container-wide relative z-10 pt-3 sm:pt-6 lg:pt-10">
+        <div className="container-wide relative z-10 pt-6 sm:pt-8 lg:pt-10">
           <div className="max-w-[68rem]">
+            {/* ── Eyebrow ── */}
             <div className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-teal-200 sm:text-xs">
               <span className="h-px w-10 bg-gradient-to-r from-teal-200 to-cyan-300/20" />
               OUR VISION
             </div>
 
-            <h1 className="mt-7 max-w-[68rem] font-display text-[clamp(3rem,6.6vw,5.75rem)] font-semibold leading-[0.94] tracking-[-0.055em] text-white sm:mt-9">
-              <span className="block">AI as a silent guardian</span>
-              <span className="mt-1 block">for human safety,</span>
-              <span className="mt-1 block text-gradient-mobility">
-                health and identity.
+            {/* ── Headline with editorial highlight strips ── */}
+            <h1 className="mt-7 max-w-[68rem] font-display text-[clamp(3rem,6.6vw,5.75rem)] font-semibold leading-[1.0] tracking-[-0.055em] text-white sm:mt-9">
+              {/* Each line gets a left-anchored translucent blue band */}
+              <span className="-mx-2 block rounded-[5px] bg-gradient-to-r from-cyan-400/[0.13] to-transparent py-[3px] pl-2 pr-4">
+                AI as a silent guardian
+              </span>
+              <span className="-mx-2 mt-[0.12em] block rounded-[5px] bg-gradient-to-r from-cyan-400/[0.09] to-transparent py-[3px] pl-2 pr-4">
+                for human safety,
+              </span>
+              <span className="-mx-2 mt-[0.12em] block rounded-[5px] bg-gradient-to-r from-teal-400/[0.07] to-transparent py-[3px] pl-2 pr-4">
+                <span className="text-gradient-mobility">health and identity.</span>
               </span>
             </h1>
 
+            {/* ── Supporting paragraph — key phrase highlighted ── */}
             <p className="mt-8 max-w-[52rem] text-lg leading-8 text-slate-300 sm:mt-10 sm:text-xl sm:leading-9">
-              GaitAI exists for a future where AI doesn’t only respond after
-              something goes wrong, but quietly helps predict, prevent and
-              protect — before it does.
+              GaitAI exists for a future where AI doesn&apos;t only respond after
+              something goes wrong, but quietly helps{" "}
+              <span className="rounded-[4px] bg-cyan-400/[0.12] px-1.5 font-medium text-teal-100">
+                predict, prevent and protect
+              </span>
+              {" "}— before it does.
             </p>
           </div>
 

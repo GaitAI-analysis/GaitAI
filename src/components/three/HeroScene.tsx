@@ -9,24 +9,96 @@ import * as THREE from "three";
 
 type SkeletonKeyframe = number[][]; // 13 joints, each [x, y]
 
+/**
+ * Full bilateral gait cycle — 8 keyframes, one complete stride.
+ *
+ * Joints (13):
+ *   0 head | 1 neck | 2 lShoulder | 3 rShoulder
+ *   4 lElbow | 5 rElbow | 6 lHand | 7 rHand
+ *   8 hip | 9 lKnee | 10 rKnee | 11 lFoot | 12 rFoot
+ *
+ * Phase sequence:
+ *   0 heel-strike-R  1 loading-R  2 mid-stance-R  3 terminal-stance-R
+ *   4 heel-strike-L  5 loading-L  6 mid-stance-L  7 terminal-stance-L
+ *
+ * Key gait signals encoded:
+ *   • Feet lift off the ground during swing phase (Y rises to +0.08)
+ *   • High-knee moment at mid-swing (frames 2 & 6)
+ *   • Contralateral arm/leg swing (right leg fwd ↔ left arm fwd)
+ *   • Bilateral mirror symmetry between frames 0–3 and 4–7
+ */
 const skeletonFrames: SkeletonKeyframe[] = [
-  // Stick figure frames — joints: head, neck, lShoulder, rShoulder, lElbow, rElbow,
-  // lHand, rHand, hip, lKnee, rKnee, lFoot, rFoot
+  // Frame 0: Right heel strike / Left toe-off
   [
-    [0, 1.6], [0, 1.25], [-0.25, 1.2], [0.25, 1.2], [-0.4, 0.85], [0.35, 0.9],
-    [-0.5, 0.5], [0.4, 0.6], [0, 0.55], [-0.25, 0.15], [0.2, 0.2], [-0.3, -0.3], [0.25, -0.25],
+    [0,    1.62], [0,    1.26], [-0.27, 1.2], [0.27, 1.2],
+    [-0.18, 0.87], [0.42, 0.88],  // lElbow fwd, rElbow back
+    [-0.05, 0.58], [0.54, 0.65],  // lHand fwd, rHand back
+    [0.02, 0.55],
+    [-0.15, 0.2],  [0.32, 0.18],  // lKnee trailing, rKnee fwd
+    [-0.18, -0.28],[0.42, -0.3],  // lFoot behind, rFoot contact
   ],
+  // Frame 1: Right loading / Left swing initiation
   [
-    [0.05, 1.6], [0.05, 1.25], [-0.2, 1.2], [0.3, 1.2], [-0.45, 0.95], [0.4, 0.8],
-    [-0.55, 0.65], [0.5, 0.45], [0.05, 0.55], [-0.15, 0.15], [0.3, 0.2], [-0.4, -0.3], [0.35, -0.25],
+    [0.02, 1.61], [0.02, 1.26], [-0.27, 1.2], [0.27, 1.2],
+    [-0.32, 0.9],  [0.28, 0.87],
+    [-0.42, 0.68], [0.38, 0.6],
+    [0.02, 0.55],
+    [-0.28, 0.32], [0.22, 0.12],  // lKnee lifting, rKnee absorbing
+    [-0.12, -0.1], [0.35, -0.3],  // lFoot rising, rFoot flat
   ],
+  // Frame 2: Right mid-stance / Left swing peak (foot lifted)
   [
-    [0.1, 1.6], [0.1, 1.25], [-0.15, 1.2], [0.35, 1.2], [-0.5, 1], [0.45, 0.7],
-    [-0.6, 0.75], [0.55, 0.35], [0.1, 0.55], [0, 0.15], [0.4, 0.2], [-0.45, -0.3], [0.45, -0.25],
+    [0,    1.62], [0,    1.26], [-0.26, 1.2], [0.26, 1.2],
+    [-0.4,  0.9],  [0.22, 0.87],  // lElbow fully back, rElbow fwd
+    [-0.5,  0.65], [0.3,  0.58],
+    [0, 0.56],
+    [-0.08, 0.38], [0.05, 0.14],  // lKnee HIGH swing, rKnee supporting
+    [0.02,  0.08], [0.05, -0.32], // lFoot lifted off ground, rFoot under body
   ],
+  // Frame 3: Right terminal stance / Left swing forward
   [
-    [0.05, 1.6], [0.05, 1.25], [-0.2, 1.2], [0.3, 1.2], [-0.45, 0.95], [0.4, 0.8],
-    [-0.55, 0.65], [0.5, 0.45], [0.05, 0.55], [-0.15, 0.15], [0.3, 0.2], [-0.4, -0.3], [0.35, -0.25],
+    [-0.02, 1.61], [-0.02, 1.26], [-0.27, 1.2], [0.27, 1.2],
+    [-0.25, 0.88], [0.18, 0.9],
+    [-0.15, 0.6],  [0.3,  0.68],
+    [-0.02, 0.55],
+    [-0.1,  0.2],  [-0.05, 0.16], // lKnee swinging fwd, rKnee trailing
+    [0.25, -0.12], [-0.2,  -0.3], // lFoot coming down, rFoot behind
+  ],
+  // Frame 4: Left heel strike / Right toe-off (bilateral mirror of Frame 0)
+  [
+    [0,    1.62], [0,    1.26], [-0.27, 1.2], [0.27, 1.2],
+    [-0.42, 0.88], [0.18, 0.87],  // lElbow back, rElbow fwd
+    [-0.54, 0.65], [0.05, 0.58],  // lHand back, rHand fwd
+    [-0.02, 0.55],
+    [-0.32, 0.18], [0.15, 0.2],   // lKnee fwd, rKnee trailing
+    [-0.42, -0.3], [0.18, -0.28], // lFoot contact, rFoot behind
+  ],
+  // Frame 5: Left loading / Right swing initiation (mirror of Frame 1)
+  [
+    [-0.02, 1.61], [-0.02, 1.26], [-0.27, 1.2], [0.27, 1.2],
+    [-0.28, 0.87], [0.32, 0.9],
+    [-0.38, 0.6],  [0.42, 0.68],
+    [-0.02, 0.55],
+    [-0.22, 0.12], [0.28, 0.32],  // lKnee absorbing, rKnee lifting
+    [-0.35, -0.3], [0.12, -0.1],  // lFoot flat, rFoot rising
+  ],
+  // Frame 6: Left mid-stance / Right swing peak (foot lifted, mirror of Frame 2)
+  [
+    [0,    1.62], [0,    1.26], [-0.26, 1.2], [0.26, 1.2],
+    [-0.22, 0.87], [0.4,  0.9],   // lElbow fwd, rElbow fully back
+    [-0.3,  0.58], [0.5,  0.65],
+    [0, 0.56],
+    [-0.05, 0.14], [0.08, 0.38],  // lKnee supporting, rKnee HIGH swing
+    [-0.05, -0.32],[-0.02, 0.08], // lFoot under body, rFoot lifted off ground
+  ],
+  // Frame 7: Left terminal stance / Right swing forward (mirror of Frame 3)
+  [
+    [0.02, 1.61], [0.02, 1.26], [-0.27, 1.2], [0.27, 1.2],
+    [-0.18, 0.9],  [0.25, 0.88],
+    [-0.3,  0.68], [0.15, 0.6],
+    [0.02, 0.55],
+    [0.05,  0.16], [0.1,  0.2],   // lKnee trailing, rKnee swinging fwd
+    [0.2,  -0.3],  [-0.25, -0.12],// lFoot behind, rFoot coming down
   ],
 ];
 
@@ -46,6 +118,11 @@ const bones: [number, number][] = [
   [10, 12], // rKnee -> rFoot
 ];
 
+/** Smoothstep easing — produces organic, biomechanical joint deceleration between keyframes. */
+function smoothstep(t: number): number {
+  return t * t * (3 - 2 * t);
+}
+
 function interpolateFrame(t: number): SkeletonKeyframe {
   const total = skeletonFrames.length;
   const scaled = (t % 1) * total;
@@ -53,7 +130,7 @@ function interpolateFrame(t: number): SkeletonKeyframe {
   const next = (idx + 1) % total;
   const a = skeletonFrames[idx];
   const b = skeletonFrames[next];
-  const k = scaled - idx;
+  const k = smoothstep(scaled - idx);
   return a.map((p, i) => [
     p[0] + (b[i][0] - p[0]) * k,
     p[1] + (b[i][1] - p[1]) * k,
@@ -222,11 +299,11 @@ export default function HeroScene() {
 
         <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.3}>
           <group>
-            <WalkingFigure offsetX={-2.4} z={-1.5} opacity={0.35} color="#7C3AED" speed={0.3} phase={0.2} />
-            <WalkingFigure offsetX={-1.2} z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.32} phase={0.4} />
-            <WalkingFigure offsetX={0} z={0} opacity={1} color="#2563FF" speed={0.35} phase={0.6} />
-            <WalkingFigure offsetX={1.2} z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.32} phase={0.8} />
-            <WalkingFigure offsetX={2.4} z={-1.5} opacity={0.35} color="#2563FF" speed={0.3} phase={1.0} />
+            <WalkingFigure offsetX={-2.4} z={-1.5} opacity={0.35} color="#7C3AED" speed={0.38} phase={0.2} />
+            <WalkingFigure offsetX={-1.2} z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.42} phase={0.4} />
+            <WalkingFigure offsetX={0}    z={0}    opacity={1}    color="#2563FF" speed={0.46} phase={0.6} />
+            <WalkingFigure offsetX={1.2}  z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.42} phase={0.8} />
+            <WalkingFigure offsetX={2.4}  z={-1.5} opacity={0.35} color="#2563FF" speed={0.38} phase={1.0} />
           </group>
         </Float>
 

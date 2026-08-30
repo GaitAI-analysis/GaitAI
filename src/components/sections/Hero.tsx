@@ -34,12 +34,12 @@ export function Hero() {
       className="site-viewport-section relative flex w-full items-center overflow-hidden py-20 sm:py-28 lg:py-32"
     >
       <div className="hero-ambient pointer-events-none absolute inset-0 -z-10" />
-      <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-25" />
+      <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-20" />
 
       {!reduceMotion && (
         <div
           aria-hidden="true"
-          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-[0.29]"
+          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-[0.24]"
         >
           <HeroScene />
         </div>
@@ -70,10 +70,10 @@ export function Hero() {
             id="home-hero-title"
             variants={fadeUp}
             custom={1}
-            className="mt-8 max-w-5xl pb-2 text-balance font-display text-[clamp(2.75rem,8vw,7.25rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-soft-white sm:mt-10 sm:pb-2.5 lg:pb-3.5"
+            className="mt-8 max-w-5xl pb-2 text-balance font-display text-[clamp(1.85rem,9.3vw,3.5rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-soft-white sm:mt-10 sm:pb-2.5 sm:text-[clamp(3rem,8vw,7.25rem)] lg:pb-3.5"
           >
-            <span className="block sm:whitespace-nowrap">One AI layer.</span>
-            <span className="mt-1 block text-[0.91em] leading-[0.95] text-gradient sm:mt-1.5 sm:whitespace-nowrap">
+            <span className="block whitespace-nowrap">One AI layer.</span>
+            <span className="mt-0.5 block whitespace-nowrap text-[0.9em] leading-[0.95] text-gradient sm:mt-1">
               Two human missions.
             </span>
           </motion.h1>
@@ -93,7 +93,7 @@ export function Hero() {
           >
             <Link
               href="/mobilitycare"
-              className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/30 bg-teal-300/[0.09] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/50 hover:bg-teal-300/[0.13] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
+              className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/40 bg-teal-300/[0.12] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/55 hover:bg-teal-300/[0.16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
               Explore MobilityCare
               <ArrowRight
@@ -103,7 +103,7 @@ export function Hero() {
             </Link>
             <Link
               href="/securevision"
-              className="hero-product-link hero-product-link--secure group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-royal-300/35 bg-royal-400/[0.1] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-royal-300/55 hover:bg-royal-400/[0.15] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
+              className="hero-product-link hero-product-link--secure group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-royal-300/30 bg-royal-400/[0.07] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-royal-300/45 hover:bg-royal-400/[0.11] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
               Explore SecureVision
               <ArrowRight

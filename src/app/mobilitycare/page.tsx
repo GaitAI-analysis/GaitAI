@@ -37,43 +37,45 @@ export default function MobilityCarePage() {
   return (
     <>
       {/* HERO */}
-      <section className="site-page-intro relative isolate overflow-hidden border-b border-white/[0.06] bg-obsidian-300 pb-24 sm:pb-28 lg:pb-32">
+      <section className="site-page-intro relative isolate overflow-hidden border-b border-white/[0.08] bg-[#06101d] pb-20 text-white sm:pb-24 lg:pb-28">
         <MobilityVisionBackground />
-        <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-obsidian-300/30 via-obsidian-300/80 to-obsidian-300 lg:bg-gradient-to-r lg:from-obsidian-300 lg:via-obsidian-300/85 lg:to-obsidian-300/35" />
+        <div className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(6,16,29,0.32)_0%,rgba(6,16,29,0.8)_64%,#06101d_100%)] lg:bg-[linear-gradient(90deg,#06101d_0%,rgba(6,16,29,0.94)_38%,rgba(6,16,29,0.58)_70%,rgba(6,16,29,0.34)_100%)]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-[2] h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
 
-        <div className="container-wide relative z-10">
-          <div className="max-w-5xl">
-            <div className="inline-flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-teal-300 sm:text-xs">
-              <span className="h-px w-8 bg-gradient-to-r from-teal-300 to-cyan-300/20" />
+        <div className="container-wide relative z-10 pt-3 sm:pt-6 lg:pt-10">
+          <div className="max-w-[68rem]">
+            <div className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-teal-200 sm:text-xs">
+              <span className="h-px w-10 bg-gradient-to-r from-teal-200 to-cyan-300/20" />
               OUR VISION
             </div>
 
-            <h1 className="mt-6 max-w-4xl font-display text-display-xl text-balance text-soft-white sm:mt-7">
-              AI as a{" "}
-              <span className="box-decoration-clone rounded-md bg-royal-400/10 px-1.5 text-gradient-mobility">
-                silent guardian
-              </span>{" "}
-              for human safety, health and identity.
+            <h1 className="mt-7 max-w-[68rem] font-display text-[clamp(3rem,6.6vw,5.75rem)] font-semibold leading-[0.94] tracking-[-0.055em] text-white sm:mt-9">
+              <span className="block">AI as a silent guardian</span>
+              <span className="mt-1 block">for human safety,</span>
+              <span className="mt-1 block text-gradient-mobility">
+                health and identity.
+              </span>
             </h1>
 
-            <p className="mt-7 max-w-2xl text-base leading-relaxed text-soft-gray sm:text-lg sm:leading-8">
+            <p className="mt-8 max-w-[52rem] text-lg leading-8 text-slate-300 sm:mt-10 sm:text-xl sm:leading-9">
               GaitAI exists for a future where AI doesn’t only respond after
               something goes wrong, but quietly helps predict, prevent and
               protect — before it does.
             </p>
           </div>
 
-          <figure className="card mt-12 max-w-5xl border-white/10 bg-obsidian-200/75 p-6 backdrop-blur-md sm:mt-14 sm:p-8 lg:p-10">
-            <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-teal-300/80 to-transparent" />
+          <figure className="relative mt-14 max-w-[75rem] overflow-hidden rounded-[2rem] border border-cyan-200/15 bg-[linear-gradient(135deg,rgba(14,30,48,0.94),rgba(7,18,32,0.82))] p-7 shadow-[0_30px_90px_-48px_rgba(79,209,255,0.42),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-xl sm:mt-16 sm:p-9 lg:p-12">
+            <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-teal-200/90 to-transparent" />
+            <div className="pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full bg-cyan-300/[0.08] blur-3xl" />
             <span
               aria-hidden="true"
-              className="absolute right-5 top-2 font-display text-7xl leading-none text-cyan-300/10 sm:right-8 sm:text-8xl"
+              className="absolute right-6 top-3 font-display text-8xl leading-none text-cyan-200/[0.09] sm:right-10 sm:text-9xl"
             >
               “
             </span>
-            <blockquote className="relative max-w-4xl">
-              <p className="font-display text-xl font-medium leading-relaxed text-soft-white sm:text-2xl sm:leading-relaxed lg:text-[1.75rem]">
-                <span className="box-decoration-clone rounded bg-royal-400/10 px-1 text-gradient-mobility">
+            <blockquote className="relative max-w-[68rem]">
+              <p className="font-display text-[clamp(1.4rem,2.2vw,2rem)] font-medium leading-[1.45] tracking-[-0.02em] text-white">
+                <span className="text-gradient-mobility">
                   Walking is more than motion.
                 </span>{" "}
                 It is a signature. It is a health indicator. It is a safety
@@ -81,13 +83,13 @@ export default function MobilityCarePage() {
                 body.
               </p>
             </blockquote>
-            <figcaption className="mt-6 max-w-3xl border-t border-white/[0.08] pt-5 text-sm leading-6 text-soft-mute">
+            <figcaption className="relative mt-8 max-w-4xl border-t border-white/[0.1] pt-6 text-sm leading-6 text-slate-400 sm:text-[15px] sm:leading-7">
               Dr. Anubha Parashar · Founder &amp; CEO, GaitAI · Mission: to make
               human movement measurable, meaningful and useful for the world.
             </figcaption>
           </figure>
 
-          <ol className="mt-5 grid gap-4 md:grid-cols-3">
+          <ol className="mt-6 grid gap-4 md:grid-cols-3 lg:gap-5">
             {[
               {
                 number: "01",
@@ -107,18 +109,16 @@ export default function MobilityCarePage() {
             ].map((principle) => (
               <li
                 key={principle.number}
-                className="group relative min-h-44 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] p-6 transition duration-300 hover:-translate-y-0.5 hover:border-teal-300/30 hover:bg-white/[0.04] sm:p-7"
+                className="group relative min-h-[13rem] overflow-hidden rounded-[1.5rem] border border-white/[0.09] bg-[#0b1929]/85 p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition duration-300 hover:-translate-y-0.5 hover:border-teal-200/30 hover:bg-[#0d1d2f] sm:p-7 lg:p-8"
               >
-                <div className="absolute inset-x-6 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-teal-300 via-cyan-300 to-transparent transition-transform duration-500 group-hover:scale-x-100" />
-                <div className="flex items-baseline justify-between gap-4">
-                  <h2 className="font-display text-2xl font-semibold text-soft-white">
-                    {principle.title}
-                  </h2>
-                  <span className="font-mono text-[11px] tracking-[0.18em] text-teal-300">
-                    {principle.number}
-                  </span>
-                </div>
-                <p className="mt-5 max-w-sm text-sm leading-6 text-soft-gray">
+                <div className="absolute inset-x-7 top-0 h-px origin-left scale-x-0 bg-gradient-to-r from-teal-200 via-cyan-300 to-transparent transition-transform duration-500 group-hover:scale-x-100" />
+                <span className="font-mono text-[11px] tracking-[0.2em] text-teal-200">
+                  {principle.number}
+                </span>
+                <h2 className="mt-7 font-display text-[1.75rem] font-semibold tracking-[-0.03em] text-white">
+                  {principle.title}
+                </h2>
+                <p className="mt-4 max-w-sm text-sm leading-6 text-slate-300 sm:text-[15px] sm:leading-7">
                   {principle.copy}
                 </p>
               </li>

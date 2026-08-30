@@ -90,7 +90,7 @@ function GaitFigure({
           />
         ))}
       </g>
-      <g fill="var(--bg)" stroke="#71e4ed" strokeWidth="1.5">
+      <g fill="#06101d" stroke="#71e4ed" strokeWidth="1.5">
         {points.map(([x, y], index) => (
           <circle key={`${x}-${y}-${index}`} cx={x} cy={y} r="3.4" />
         ))}
@@ -118,10 +118,10 @@ export function MobilityVisionBackground() {
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
       <svg
-        className="h-full w-full opacity-45 sm:opacity-55 lg:opacity-75"
+        className="h-full w-full opacity-50 sm:opacity-65 lg:opacity-80"
         focusable="false"
         preserveAspectRatio="xMidYMid slice"
-        viewBox="0 0 1440 920"
+        viewBox="0 0 1440 1080"
       >
         <defs>
           <pattern
@@ -160,13 +160,13 @@ export function MobilityVisionBackground() {
             <stop offset="1" stopColor="#2563ff" stopOpacity="0" />
           </radialGradient>
           <linearGradient id="mobility-vision-fade" x1="0" x2="1">
-            <stop offset="0" stopColor="white" stopOpacity="0.08" />
-            <stop offset="0.34" stopColor="white" stopOpacity="0.2" />
-            <stop offset="0.64" stopColor="white" stopOpacity="0.82" />
+            <stop offset="0" stopColor="white" stopOpacity="0.12" />
+            <stop offset="0.3" stopColor="white" stopOpacity="0.3" />
+            <stop offset="0.58" stopColor="white" stopOpacity="0.88" />
             <stop offset="1" stopColor="white" />
           </linearGradient>
           <mask id="mobility-vision-mask">
-            <rect width="1440" height="920" fill="url(#mobility-vision-fade)" />
+            <rect width="1440" height="1080" fill="url(#mobility-vision-fade)" />
           </mask>
           <filter
             id="mobility-vision-soft-glow"
@@ -183,13 +183,13 @@ export function MobilityVisionBackground() {
           </filter>
         </defs>
 
-        <rect width="1440" height="920" fill="url(#mobility-vision-grid)" />
+        <rect width="1440" height="1080" fill="url(#mobility-vision-grid)" />
         <ellipse
-          cx="1055"
-          cy="438"
+          cx="1070"
+          cy="452"
           fill="url(#mobility-vision-light)"
-          rx="470"
-          ry="410"
+          rx="560"
+          ry="455"
         />
 
         <g mask="url(#mobility-vision-mask)">
@@ -200,19 +200,19 @@ export function MobilityVisionBackground() {
             strokeWidth="1"
           >
             <ellipse
-              cx="1058"
-              cy="430"
-              rx="390"
-              ry="214"
-              transform="rotate(-9 1058 430)"
+              cx="1070"
+              cy="448"
+              rx="452"
+              ry="244"
+              transform="rotate(-9 1070 448)"
             />
             <ellipse
-              cx="1058"
-              cy="430"
-              rx="505"
-              ry="286"
+              cx="1070"
+              cy="448"
+              rx="570"
+              ry="326"
               strokeDasharray="5 13"
-              transform="rotate(13 1058 430)"
+              transform="rotate(13 1070 448)"
             />
             <path d="M640 184 C800 238 900 178 1024 235 S1268 304 1392 226" />
             <path d="M676 692 C814 606 942 694 1060 630 S1288 568 1420 652" />
@@ -229,7 +229,7 @@ export function MobilityVisionBackground() {
             <path d="M855 238 L880 486 M962 290 L986 565 M1086 210 L1118 493 M1190 278 L1244 550" />
           </g>
 
-          <g fill="var(--bg)" stroke="#4fd1ff" strokeWidth="1.25">
+          <g fill="#06101d" stroke="#4fd1ff" strokeWidth="1.25">
             {[
               [735, 300],
               [855, 238],
@@ -251,18 +251,18 @@ export function MobilityVisionBackground() {
           <g filter="url(#mobility-vision-soft-glow)">
             <GaitFigure
               points={APPROACH_POSE}
-              transform="translate(818 432) scale(0.78)"
-              opacity={0.35}
+              transform="translate(760 444) scale(0.92)"
+              opacity={0.32}
             />
             <GaitFigure
               points={MID_STRIDE_POSE}
-              transform="translate(1054 430) scale(1.16)"
-              opacity={0.82}
+              transform="translate(1070 438) scale(1.38)"
+              opacity={0.86}
             />
             <GaitFigure
               points={RELEASE_POSE}
-              transform="translate(1300 434) scale(0.82)"
-              opacity={0.4}
+              transform="translate(1370 446) scale(0.96)"
+              opacity={0.36}
             />
           </g>
 

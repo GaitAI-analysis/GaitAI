@@ -33,12 +33,12 @@ export function Hero() {
       className="site-viewport-section relative flex w-full items-center overflow-hidden py-20 sm:py-28 lg:py-32"
     >
       <div className="hero-ambient pointer-events-none absolute inset-0 -z-10" />
-      <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-20" />
+      <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-25" />
 
       {!reduceMotion && (
         <div
           aria-hidden="true"
-          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-20 sm:opacity-30"
+          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-[0.29]"
         >
           <HeroScene />
         </div>

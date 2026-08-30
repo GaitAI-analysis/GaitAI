@@ -65,7 +65,7 @@ export function CTA() {
   }
 
   return (
-    <section id="contact" className="section relative overflow-hidden">
+    <section id="contact" className="relative w-full overflow-hidden py-10 sm:py-14 lg:py-20">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-1/2 h-[600px] w-[1200px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-radial-glow opacity-50 blur-3xl" />
       </div>
@@ -76,29 +76,39 @@ export function CTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-8 sm:p-14 lg:p-20"
+          className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-7 sm:p-10 lg:p-12"
         >
           <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
           <div className="noise" />
 
-          <div className="relative grid gap-12 lg:grid-cols-[1.2fr_1fr]">
-            <div>
+          <div className="relative grid gap-10 lg:grid-cols-[43fr_57fr] lg:gap-12">
+            <div className="min-w-0">
               <span className="eyebrow">
                 <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                Request a demo · Start a pilot · Partner with us
+                Partner · Invest · Collaborate
               </span>
-              <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">
-                Bring movement intelligence to your{" "}
-                <span className="text-gradient">organization.</span>
+              <h2 className="mt-4 font-display text-[clamp(2rem,3vw,2.75rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-balance text-soft-white">
+                Let&apos;s build the future of human movement intelligence{" "}
+                <span className="text-gradient">together.</span>
               </h2>
-              <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
-                Whether you&apos;re a hospital, physiotherapy clinic, sports
-                academy, elderly-care home, enterprise security team, smart-city
-                operator or research collaborator — let&apos;s talk about deploying
-                GaitAI where it matters most.
-              </p>
 
-              <div className="mt-10 flex flex-wrap items-center gap-4">
+              <div className="mt-8 border-t border-white/8 pt-8">
+                <span className="eyebrow">
+                  <span className="h-1 w-6 rounded-full bg-gradient-brand" />
+                  Request a demo · Start a pilot · Partner with us
+                </span>
+                <h3 className="mt-4 font-display text-display-md text-balance text-soft-white">
+                  Bring movement intelligence to your organization.
+                </h3>
+                <p className="mt-4 max-w-md text-base leading-relaxed text-soft-gray">
+                  Whether you&apos;re a hospital, physiotherapy clinic, sports
+                  academy, elderly-care home, enterprise security team, smart-city
+                  operator or research collaborator — let&apos;s talk about deploying
+                  GaitAI where it matters most.
+                </p>
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
                 <div className="flex -space-x-2">
                   {["#4FD1FF", "#2563FF", "#7C3AED"].map((c) => (
                     <span
@@ -119,7 +129,7 @@ export function CTA() {
               action="https://formspree.io/f/xzebbzed"
               method="POST"
               onSubmit={handleSubmit}
-              className="relative rounded-2xl border border-white/8 bg-obsidian-200/70 p-6 backdrop-blur-xl sm:p-8"
+              className="relative w-full min-w-0 rounded-2xl border border-white/8 bg-obsidian-200/70 p-6 backdrop-blur-xl sm:p-8"
             >
               <div className="grid gap-2">
                 <label

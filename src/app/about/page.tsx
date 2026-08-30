@@ -10,15 +10,12 @@ import {
   Globe2,
   Handshake,
   Heart,
-  HeartHandshake,
   HeartPulse,
   Mail,
   Quote,
-  Rocket,
   ShieldCheck,
   Sparkles,
   Stethoscope,
-  Target,
   Trophy,
   Users,
 } from "lucide-react";
@@ -64,29 +61,6 @@ export const metadata: Metadata = {
   description:
     "GaitAI's mission, founder story, partnerships and the team building the future of Human Movement Intelligence.",
 };
-
-const values = [
-  {
-    icon: Target,
-    title: "Precision over hype",
-    desc: "We ship measurable, validated movement intelligence — not vibes.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Clinician-first",
-    desc: "Every clinical product is co-designed with the people who'll use it.",
-  },
-  {
-    icon: Globe2,
-    title: "Privacy by default",
-    desc: "Skeleton-only analytics, consent logs, audit trails — built in, not bolted on.",
-  },
-  {
-    icon: Rocket,
-    title: "Deep tech, shipped",
-    desc: "Research-grade models that run in clinics, stadiums and cities — not just papers.",
-  },
-];
 
 const partnerships = [
   {
@@ -276,42 +250,6 @@ export default function AboutPage() {
               </p>
             </div>
           </Reveal>
-        </div>
-      </section>
-
-      {/* VALUES */}
-      <section className="section">
-        <div className="container-wide">
-          <SectionHeading
-            eyebrow="Values"
-            title={
-              <>
-                What we{" "}
-                <span className="text-gradient">build by.</span>
-              </>
-            }
-            align="left"
-          />
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {values.map((v, i) => {
-              const Icon = v.icon;
-              return (
-                <Reveal key={v.title} delay={(i % 4) * 0.06}>
-                  <div className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all hover:border-cyan-300/30 hover:bg-white/[0.04]">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-royal-400/20 to-cyan-300/10 text-cyan-300 ring-1 ring-white/10">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <h3 className="mt-5 font-display text-lg font-semibold text-soft-white">
-                      {v.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-                      {v.desc}
-                    </p>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </div>
         </div>
       </section>
 

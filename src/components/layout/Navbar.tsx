@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, ChevronDown, Menu, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Home, Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { navLinks } from "@/data/content";
@@ -161,19 +161,24 @@ export function Navbar() {
                   );
                 }
 
+                const isHome = link.href === "/";
+
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
+                    aria-label={isHome ? "Home" : undefined}
+                    title={isHome ? "Home" : undefined}
                     aria-current={active ? "page" : undefined}
                     className={cn(
                       "group relative px-2.5 py-2 text-sm transition-colors duration-300 2xl:px-3.5",
+                      isHome && "flex items-center",
                       active
                         ? "text-soft-white"
                         : "text-soft-gray hover:text-soft-white"
                     )}
                   >
-                    {link.label}
+                    {isHome ? <Home className="h-4 w-4" /> : link.label}
                     {/* Gradient underline — scales in from center on hover,
                         stays visible on the active route. */}
                     <span
@@ -248,6 +253,8 @@ export function Navbar() {
                     <Link
                       href={link.href}
                       onClick={() => setOpen(false)}
+                      aria-label={link.href === "/" ? "Home" : undefined}
+                      title={link.href === "/" ? "Home" : undefined}
                       aria-current={isActive(link.href) ? "page" : undefined}
                       className={cn(
                         "block py-5 font-display text-3xl",
@@ -255,7 +262,11 @@ export function Navbar() {
                         active ? "text-soft-white" : "text-soft-gray"
                       )}
                     >
-                      {link.label}
+                      {link.href === "/" ? (
+                        <Home className="h-8 w-8" />
+                      ) : (
+                        link.label
+                      )}
                     </Link>
 
                     {link.children && (

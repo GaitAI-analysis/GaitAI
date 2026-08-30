@@ -129,7 +129,7 @@ export const navLinks: readonly NavItem[] = [
     label: "Research & IP",
     href: "/research",
     children: [
-      { label: "Research Overview", href: "/research" },
+      { label: "Research", href: "/research" },
       { label: "Publications", href: "/publications" },
     ],
   },

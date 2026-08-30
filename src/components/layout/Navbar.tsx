@@ -21,7 +21,7 @@ import { assetPath } from "@/lib/paths";
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [productsOpen, setProductsOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function Navbar() {
   // Close navigation overlays when the route changes.
   useEffect(() => {
     setOpen(false);
-    setProductsOpen(false);
+    setOpenMenu(null);
   }, [pathname]);
 
   const isActive = (href: string) => {
@@ -74,26 +74,27 @@ export function Navbar() {
                 const active = itemIsActive(link);
 
                 if (link.children) {
+                  const menuOpen = openMenu === link.href;
                   return (
                     <div
                       key={link.href}
                       className="group relative"
-                      onMouseEnter={() => setProductsOpen(true)}
-                      onMouseLeave={() => setProductsOpen(false)}
-                      onFocus={() => setProductsOpen(true)}
+                      onMouseEnter={() => setOpenMenu(link.href)}
+                      onMouseLeave={() => setOpenMenu(null)}
+                      onFocus={() => setOpenMenu(link.href)}
                       onBlur={(event) => {
                         if (!event.currentTarget.contains(event.relatedTarget)) {
-                          setProductsOpen(false);
+                          setOpenMenu(null);
                         }
                       }}
                       onKeyDown={(event) => {
-                        if (event.key === "Escape") setProductsOpen(false);
+                        if (event.key === "Escape") setOpenMenu(null);
                       }}
                     >
                       <Link
                         href={link.href}
                         aria-haspopup="true"
-                        aria-expanded={productsOpen}
+                        aria-expanded={menuOpen}
                         aria-current={isActive(link.href) ? "page" : undefined}
                         className={cn(
                           "group/link relative flex items-center gap-1 px-2.5 py-2 text-sm transition-colors duration-300 2xl:px-3.5",
@@ -106,7 +107,7 @@ export function Navbar() {
                         <ChevronDown
                           className={cn(
                             "h-3.5 w-3.5 transition-transform duration-300",
-                            productsOpen && "rotate-180"
+                            menuOpen && "rotate-180"
                           )}
                         />
                         <span
@@ -125,7 +126,7 @@ export function Navbar() {
                       </Link>
 
                       <AnimatePresence>
-                        {productsOpen && (
+                        {menuOpen && (
                           <motion.div
                             initial={{ opacity: 0, y: 6, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}

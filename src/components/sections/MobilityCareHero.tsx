@@ -6,7 +6,9 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 // Dynamically imported with ssr:false — same pattern as the homepage Hero.
-const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
+// Uses the MobilityCare-dedicated scene (frozen pre-animation copy), NOT the
+// animated Home HeroScene, so Home hero changes never propagate to this page.
+const HeroScene = dynamic(() => import("@/components/three/MobilityHeroScene"), {
   ssr: false,
   loading: () => null,
 });

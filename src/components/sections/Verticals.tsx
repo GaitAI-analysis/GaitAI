@@ -9,7 +9,7 @@ import {
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
-import { GaitAIMark } from "@/components/ui/GaitAIMark";
+import { Logo } from "@/components/ui/Logo";
 import { MobilityDashboardVisual } from "@/components/visuals/MobilityDashboardVisual";
 import { SecureOperationsVisual } from "@/components/visuals/SecureOperationsVisual";
 import {
@@ -96,12 +96,7 @@ function PlatformSplit() {
       aria-label="One shared GaitAI intelligence layer powers both product systems"
     >
       <div className="platform-core-node absolute left-1/2 top-0 z-10 -translate-x-1/2">
-        <span
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-cyan-300/30 bg-[linear-gradient(135deg,rgba(81,214,255,0.13),rgba(113,135,255,0.1))] shadow-[0_0_18px_rgba(81,214,255,0.16)]"
-          aria-hidden="true"
-        >
-          <GaitAIMark className="h-[22px] w-[22px]" />
-        </span>
+        <Logo variant="icon" size="md" />
         <span className="text-left">
           <span className="block text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-gray">
             Shared intelligence layer

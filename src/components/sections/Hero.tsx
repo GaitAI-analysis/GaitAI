@@ -63,7 +63,7 @@ export function Hero() {
             >
               <GaitAIMark className="h-[18px] w-[18px]" />
             </span>
-            GaitAI Movement Intelligence
+            10+ years of gait research · From research to real-world systems
           </motion.div>
 
           <motion.h1
@@ -83,7 +83,10 @@ export function Hero() {
             custom={2}
             className="relative -top-3 mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:mt-10 sm:text-xl"
           >
-            Human movement intelligence for better care and safer spaces.
+            GaitAI transforms video, wearable signals and human movement into
+            actionable intelligence across MobilityCare and SecureVision — one
+            platform powering twenty-three specialized movement-intelligence
+            products.
           </motion.p>
 
           <motion.div
@@ -118,11 +121,11 @@ export function Hero() {
             custom={4}
             className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-soft-mute sm:mt-16"
           >
-            <span>10+ years of gait research</span>
-            <span className="hidden h-1 w-1 rounded-full bg-cyan-300/50 sm:block" />
-            <span>23 specialized movement-intelligence products</span>
-            <span className="hidden h-1 w-1 rounded-full bg-cyan-300/50 sm:block" />
-            <span>Research to real-world systems</span>
+            <span>
+              Spanning clinical gait, fall-risk, rehabilitation, sports
+              performance, wearable mobility, neurological movement,
+              surveillance, security, crowd intelligence and public safety.
+            </span>
           </motion.div>
         </motion.div>
       </div>

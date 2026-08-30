@@ -1,14 +1,10 @@
 "use client";
 
 import type { ComponentType } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import {
-  ArrowRight,
-  HeartPulse,
-  ShieldCheck,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { MobilityDashboardVisual } from "@/components/visuals/MobilityDashboardVisual";
 import { SecureOperationsVisual } from "@/components/visuals/SecureOperationsVisual";
@@ -17,6 +13,7 @@ import {
   secureProducts,
   type GaitProduct,
 } from "@/data/products";
+import { assetPath } from "@/lib/paths";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 36 },
@@ -50,7 +47,8 @@ interface FlagshipPanelProps {
   headlineAccent: string;
   description: string;
   href: string;
-  Icon: LucideIcon;
+  brandDark: string;
+  brandLight: string;
   Visual: ComponentType;
   visualLabel: string;
   liveLabel: string;
@@ -62,8 +60,6 @@ interface FlagshipPanelProps {
 const tones = {
   care: {
     panel: "flagship-panel--care",
-    icon: "border-teal-300/25 bg-teal-300/[0.08] product-accent-text",
-    descriptor: "product-accent-text",
     accent: "text-gradient-mobility",
     visual: "product-visual-shell--care",
     status: "bg-teal-300 text-teal-200",
@@ -75,8 +71,6 @@ const tones = {
   },
   secure: {
     panel: "flagship-panel--secure",
-    icon: "border-royal-300/25 bg-royal-300/[0.08] product-accent-text",
-    descriptor: "product-accent-text",
     accent: "text-gradient-secure",
     visual: "product-visual-shell--secure",
     status: "bg-royal-300 text-royal-200",
@@ -152,7 +146,8 @@ function FlagshipPanel({
   headlineAccent,
   description,
   href,
-  Icon,
+  brandDark,
+  brandLight,
   Visual,
   visualLabel,
   liveLabel,
@@ -177,25 +172,26 @@ function FlagshipPanel({
         aria-labelledby={titleId}
         className={`flagship-panel ${style.panel} flex h-full flex-col overflow-hidden p-5 sm:p-7 lg:p-8`}
       >
-        <header className="flex items-start gap-4">
-          <span
-            className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl border ${style.icon}`}
-          >
-            <Icon className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-[9px] font-semibold uppercase tracking-[0.17em] text-soft-mute">
-              A GaitAI product system
-            </p>
-            <h2
-              id={titleId}
-              className="mt-1 font-display text-2xl font-semibold tracking-[-0.03em] text-soft-white sm:text-[1.7rem]"
-            >
-              {name}
-            </h2>
-            <p className={`mt-1 text-sm font-medium ${style.descriptor}`}>
-              {descriptor}
-            </p>
+        <header className="flex min-h-20 items-center sm:min-h-24">
+          <h2 id={titleId} className="sr-only">
+            {name}
+          </h2>
+          <p className="sr-only">{descriptor}</p>
+          <div className="relative h-20 w-full max-w-[17rem] sm:h-24 sm:max-w-[19rem]">
+            <Image
+              src={assetPath(brandLight)}
+              alt={name}
+              fill
+              sizes="(max-width: 640px) calc(100vw - 5rem), 304px"
+              className="object-contain object-left dark:hidden"
+            />
+            <Image
+              src={assetPath(brandDark)}
+              alt={name}
+              fill
+              sizes="(max-width: 640px) calc(100vw - 5rem), 304px"
+              className="hidden object-contain object-left dark:block"
+            />
           </div>
         </header>
 
@@ -303,7 +299,8 @@ export function Verticals() {
             headlineAccent="intelligence."
             description="Camera-based gait assessment, rehabilitation tracking, fall-risk screening, sports movement analytics and smartwatch monitoring — built with clinicians, for clinicians."
             href="/mobilitycare"
-            Icon={HeartPulse}
+            brandDark="/assets/brand/mobilitycare/mobilitycare-dark.png"
+            brandLight="/assets/brand/mobilitycare/mobilitycare-light.png"
             Visual={MobilityDashboardVisual}
             visualLabel="Clinical mobility console"
             liveLabel="WalkScan · Live"
@@ -322,7 +319,8 @@ export function Verticals() {
             headlineAccent="movement intelligence."
             description="Movement anomaly detection, crowd flow analytics, worker safety and post-event investigation — built with privacy-first architecture, lawful deployment and full audit trails."
             href="/securevision"
-            Icon={ShieldCheck}
+            brandDark="/assets/brand/securevision/securevision-dark.png"
+            brandLight="/assets/brand/securevision/securevision-light.png"
             Visual={SecureOperationsVisual}
             visualLabel="Privacy-aware ops console"
             liveLabel="SecureVision · Live"

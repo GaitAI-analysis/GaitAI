@@ -77,8 +77,8 @@ export function Logo({
       alt: "GaitAI",
     },
     icon: {
-      dark: "/brand/icon-mark-dark.png",
-      light: "/brand/icon-mark.png",
+      dark: "/assets/brand/gaitai/gaitai-mark-dark.png",
+      light: "/assets/brand/gaitai/gaitai-mark-light.png",
       alt: "GaitAI icon",
     },
     stacked: {

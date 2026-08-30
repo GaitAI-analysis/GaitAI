@@ -9,7 +9,6 @@ const footerLinks = [
       { label: "MobilityCare", href: "/mobilitycare" },
       { label: "SecureVision", href: "/securevision" },
       { label: "All products", href: "/products" },
-      { label: "Technology", href: "/#technology" },
       { label: "How it works", href: "/#how" },
     ],
   },

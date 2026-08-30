@@ -4,13 +4,30 @@ import { useEffect, useRef } from "react";
 
 type Joint = [number, number];
 type GaitFrame = Joint[];
+type JointIndex =
+  | 0
+  | 1
+  | 2
+  | 3
+  | 4
+  | 5
+  | 6
+  | 7
+  | 8
+  | 9
+  | 10
+  | 11
+  | 12
+  | 13
+  | 14
+  | 15;
 
 const TAU = Math.PI * 2;
 const GAIT_CYCLE_MS = 4800;
 const FRAME_COUNT = 8;
 
 // head, neck, shoulders, elbows, wrists, hips, knees, ankles and toes.
-const bones: [number, number][] = [
+const bones: [JointIndex, JointIndex][] = [
   [0, 1],
   [1, 2],
   [1, 3],
@@ -28,7 +45,6 @@ const bones: [number, number][] = [
   [11, 13],
   [12, 14],
   [13, 15],
-  [14, 16],
 ];
 
 function extend([x, y]: Joint, length: number, angle: number): Joint {

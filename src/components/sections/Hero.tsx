@@ -38,7 +38,7 @@ export function Hero() {
       {!reduceMotion && (
         <div
           aria-hidden="true"
-          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-[0.24]"
+          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-20 sm:opacity-30"
         >
           <HeroScene />
         </div>

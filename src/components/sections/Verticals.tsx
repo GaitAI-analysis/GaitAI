@@ -286,6 +286,13 @@ export function Verticals() {
       className="relative w-full pb-28 sm:pb-32 lg:pb-40"
     >
       <div className="container-wide">
+        {/* Eyebrow pill — same badge language as the hero pill in Hero.tsx */}
+        <div className="mb-8 flex justify-center sm:mb-10">
+          <span className="inline-flex max-w-[calc(100vw-3rem)] items-center rounded-full border border-cyan-300/20 bg-obsidian/55 px-4 py-1.5 text-center text-[10px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs">
+            Building the future of human movement intelligence.
+          </span>
+        </div>
+
         <PlatformSplit />
 
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-7">

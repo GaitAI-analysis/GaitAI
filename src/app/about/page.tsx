@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  Activity,
   ArrowRight,
   ArrowUpRight,
   Brain,
@@ -26,27 +25,6 @@ import {
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { JourneyTimeline } from "@/components/sections/JourneyTimeline";
-
-const researchPortfolio = [
-  {
-    icon: Activity,
-    title: "Medical gait analysis",
-    desc: "Parkinson's risk, mobility assessment, fall-risk prediction, rehabilitation support, elderly care, posture analysis and patient monitoring.",
-    accent: "teal",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Gait biometrics & surveillance",
-    desc: "Person recognition, suspicious movement analysis, secured gait signatures, non-contact biometric intelligence and public-safety systems.",
-    accent: "blue",
-  },
-  {
-    icon: Brain,
-    title: "AI-based human movement intelligence",
-    desc: "Sports, wellness, clinical screening, workplace safety, smart monitoring and future-ready human analytics.",
-    accent: "violet",
-  },
-];
 
 const audiences = [
   {
@@ -245,43 +223,6 @@ export default function AboutPage() {
 
       {/* JOURNEY TIMELINE */}
       <JourneyTimeline />
-
-      {/* RESEARCH PORTFOLIO */}
-      <section id="research-portfolio" className="section bg-obsidian-300/40">
-        <div className="container-wide">
-          <SectionHeading
-            eyebrow="Research foundation · 3 pillars"
-            title={
-              <>
-                The research portfolio behind{" "}
-                <span className="text-gradient">every GaitAI product.</span>
-              </>
-            }
-            description="GaitAI's research portfolio spans medical gait analysis, biometric surveillance and human-movement AI — three pillars, one engine, every product traced back to peer-reviewed work."
-            align="left"
-          />
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {researchPortfolio.map((p, i) => {
-              const Icon = p.icon;
-              return (
-                <Reveal key={p.title} delay={(i % 3) * 0.08}>
-                  <div className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all hover:border-cyan-300/30 hover:bg-white/[0.04]">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-royal-400/20 to-violet-400/15 text-cyan-300 ring-1 ring-white/10">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <h3 className="mt-5 font-display text-lg font-semibold text-soft-white">
-                      {p.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-                      {p.desc}
-                    </p>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* WHO WE SERVE */}
       <section id="who-we-serve" className="section">

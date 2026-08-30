@@ -131,17 +131,17 @@ function FloorPlan({
 }) {
   // Walking-person waypoints — each "person" animates between two points.
   const people: Array<{ from: [number, number]; to: [number, number]; delay: number; color: string }> = [
-    { from: [20, 60], to: [180, 50], delay: 0.4, color: "#4FD1FF" },
-    { from: [220, 90], to: [60, 100], delay: 0.8, color: "#4FD1FF" },
+    { from: [20, 60], to: [180, 50], delay: 0.4, color: "#5B8CFF" },
+    { from: [220, 90], to: [60, 100], delay: 0.8, color: "#5B8CFF" },
     { from: [120, 20], to: [120, 120], delay: 1.0, color: "#FBBF24" },
-    { from: [180, 110], to: [40, 30], delay: 0.6, color: "#4FD1FF" },
+    { from: [180, 110], to: [40, 30], delay: 0.6, color: "#5B8CFF" },
   ];
 
   return (
     <svg viewBox="0 0 260 140" className="h-full w-full">
       <defs>
         <radialGradient id="floor-bg" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor="#2D6CDF" stopOpacity="0.18" />
+          <stop offset="0%" stopColor="#2D6CDF" stopOpacity="0.24" />
           <stop offset="100%" stopColor="#0B1F3A" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="zone-warm" x1="0" x2="1" y1="0" y2="1">
@@ -204,8 +204,8 @@ function FloorPlan({
             duration: reduceMotion ? 0 : 0.4,
           }}
         >
-          <circle cx={cx} cy={cy} r="3" fill="#4FD1FF" />
-          <circle cx={cx} cy={cy} r="6" stroke="#4FD1FF" strokeOpacity="0.4" fill="none" />
+          <circle cx={cx} cy={cy} r="3" fill="#5B8CFF" />
+          <circle cx={cx} cy={cy} r="6" stroke="#5B8CFF" strokeOpacity="0.45" fill="none" />
         </motion.g>
       ))}
 
@@ -353,7 +353,7 @@ function CameraFeed({
         </span>
       </div>
       <div className="mt-1.5">
-        <CameraMiniSilhouette accent={status === "alert" ? "#FBBF24" : "#4FD1FF"} />
+        <CameraMiniSilhouette accent={status === "alert" ? "#FBBF24" : "#5B8CFF"} />
       </div>
     </motion.div>
   );
@@ -430,7 +430,7 @@ function DensityMeter({
           }}
           className="h-full rounded-full"
           style={{
-            background: "linear-gradient(90deg, #4FD1FF 0%, #FBBF24 100%)",
+            background: "linear-gradient(90deg, #5B8CFF 0%, #FBBF24 100%)",
             boxShadow: "0 0 8px rgba(251,191,36,0.5)",
           }}
         />

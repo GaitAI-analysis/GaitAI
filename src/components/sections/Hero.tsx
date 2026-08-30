@@ -63,7 +63,7 @@ export function Hero() {
             >
               <GaitAIMark className="h-[18px] w-[18px]" />
             </span>
-            10+ years of gait research · From research to real-world systems
+            GaitAI Movement Intelligence
           </motion.div>
 
           <motion.h1
@@ -81,12 +81,9 @@ export function Hero() {
           <motion.p
             variants={fadeUp}
             custom={2}
-            className="relative -top-3 mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:mt-10 sm:text-xl"
+            className="mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-white/90 sm:mt-10 sm:text-xl"
           >
-            GaitAI transforms video, wearable signals and human movement into
-            actionable intelligence across MobilityCare and SecureVision — one
-            platform powering twenty-three specialized movement-intelligence
-            products.
+            Human movement intelligence for better care and safer spaces.
           </motion.p>
 
           <motion.div
@@ -96,7 +93,7 @@ export function Hero() {
           >
             <Link
               href="/mobilitycare"
-              className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/40 bg-teal-300/[0.12] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/55 hover:bg-teal-300/[0.16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
+              className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/35 bg-teal-300/[0.1] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/50 hover:bg-teal-300/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
               Explore MobilityCare
               <ArrowRight
@@ -106,7 +103,7 @@ export function Hero() {
             </Link>
             <Link
               href="/securevision"
-              className="hero-product-link hero-product-link--secure group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-royal-300/30 bg-royal-400/[0.07] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-royal-300/45 hover:bg-royal-400/[0.11] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
+              className="hero-product-link hero-product-link--secure group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-royal-300/35 bg-royal-400/[0.1] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-royal-300/50 hover:bg-royal-400/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
               Explore SecureVision
               <ArrowRight
@@ -119,13 +116,13 @@ export function Hero() {
           <motion.div
             variants={fadeUp}
             custom={4}
-            className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-soft-mute sm:mt-16"
+            className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-soft-gray/80 sm:mt-16"
           >
-            <span>
-              Spanning clinical gait, fall-risk, rehabilitation, sports
-              performance, wearable mobility, neurological movement,
-              surveillance, security, crowd intelligence and public safety.
-            </span>
+            <span>10+ years of gait research</span>
+            <span className="hidden h-1 w-1 rounded-full bg-cyan-300/40 sm:block" />
+            <span>23 specialized movement-intelligence products</span>
+            <span className="hidden h-1 w-1 rounded-full bg-cyan-300/40 sm:block" />
+            <span>Research to real-world systems</span>
           </motion.div>
         </motion.div>
       </div>

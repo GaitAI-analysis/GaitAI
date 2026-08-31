@@ -1493,7 +1493,9 @@ body {
   }
 }
 
-/* Laptop/desktop: fill the viewport below the navbar, like SecureVision. */
+/* Laptop/desktop: fill the viewport below the navbar, like SecureVision.
+   Content is TOP-aligned (not vertically centered) so the badge/headline
+   start near the top of the video, matching the SecureVision hero. */
 @media (min-width: 1024px) {
   .mobilitycare-hero {
     height: calc(100vh - var(--site-header-height));
@@ -1501,6 +1503,14 @@ body {
     min-height: 620px;
     max-height: none;
     padding: 0;
+    align-items: flex-start;
+  }
+
+  .mobilitycare-hero__content {
+    align-self: flex-start;
+    /* Tuned so the badge lands at ~the same y as the SecureVision badge
+       across 1366×768 → 1920×1080. */
+    padding-top: clamp(80px, 12vh, 132px);
   }
 }
 

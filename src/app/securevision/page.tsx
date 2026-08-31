@@ -69,8 +69,7 @@ export default function SecureVisionPage() {
 
         <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:h-full lg:min-h-0">
           <div className="w-full max-w-[680px]">
-              <div className="inline-flex items-center gap-2 rounded-full border border-royal-300/30 bg-royal-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-royal-300">
-                <ShieldCheck className="h-3.5 w-3.5" />
+              <div className="inline-flex items-center rounded-full border border-royal-300/30 bg-royal-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-royal-300">
                 GaitAI SecureVision · Privacy-first
               </div>
               <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white lg:mt-5">

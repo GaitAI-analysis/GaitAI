@@ -186,7 +186,7 @@ function MocapFrame({
       )}
 
       <polyline
-        className="mission-vision-mocap-bone mission-vision-mocap-bone--far"
+        className="mission-vision-mocap-bone mission-vision-mocap-bone--far mission-vision-mocap-arm mission-vision-mocap-arm--far"
         points={pts(phase.farArm)}
       />
       <polyline
@@ -209,7 +209,10 @@ function MocapFrame({
         r={4.5 * s}
       />
 
-      <polyline className="mission-vision-mocap-bone" points={pts(phase.nearArm)} />
+      <polyline
+        className="mission-vision-mocap-bone mission-vision-mocap-arm"
+        points={pts(phase.nearArm)}
+      />
       <polyline className="mission-vision-mocap-bone" points={pts(phase.nearLeg)} />
       <line
         className="mission-vision-mocap-bone"
@@ -245,9 +248,9 @@ function MocapFrame({
       />
 
       {/* Temporal samples emitted by this frame, sinking toward the signal. */}
-      {[0, 1, 2, 3, 4].map((k) => {
+      {[0, 1, 2].map((k) => {
         const h = (6 + ((order * 5 + k * 7) % 11)) * s;
-        const tx = (-14 + k * 7) * s;
+        const tx = (-10 + k * 10) * s;
         return (
           <line
             key={k}
@@ -272,16 +275,18 @@ function MocapWalker({
   compact?: boolean;
   className?: string;
 }) {
-  const indices = compact ? [0, 2, 4] : [0, 1, 2, 3, 4];
+  /* Four clearly separated gait events per side (three on mobile) — wider
+     spacing keeps every pose readable instead of overlapping silhouettes. */
+  const indices = compact ? [0, 2, 4] : [0, 2, 3, 4];
   const s = compact ? 1.35 : 1.5;
-  const spacing = compact ? 66 : 54;
-  const width = compact ? 240 : 312;
+  const spacing = compact ? 66 : 76;
+  const width = compact ? 240 : 320;
   const height = compact ? 186 : 208;
   const baseY = compact ? 72 : 78;
-  const x0 = compact ? 50 : 40;
+  const x0 = compact ? 50 : 46;
   const xs = indices.map((_, i) => x0 + i * spacing);
   const groundY = baseY + 48 * s;
-  const phaseShift = variant === "violet" && !compact ? "-2s" : "0s";
+  const phaseShift = variant === "violet" && !compact ? "-1.6s" : "0s";
 
   return (
     <svg
@@ -389,6 +394,7 @@ function MotionDnaSignal({
   baseline,
   samples,
   pulse,
+  travelers,
   preserve,
   className,
 }: {
@@ -398,6 +404,8 @@ function MotionDnaSignal({
   baseline: number;
   samples: readonly DnaSample[];
   pulse: { from: string; to: string; rx: number; ry: number };
+  /** Luminous data dots drifting along the baseline, left → right. */
+  travelers: { count: number; duration: number };
   preserve: string;
   className?: string;
 }) {
@@ -407,6 +415,13 @@ function MotionDnaSignal({
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio={preserve}
       className={className}
+      style={
+        {
+          "--mv-pulse-from": pulse.from,
+          "--mv-pulse-to": pulse.to,
+          "--mv-travel-dur": `${travelers.duration}s`,
+        } as CSSProperties
+      }
     >
       <defs>
         <linearGradient
@@ -446,54 +461,53 @@ function MotionDnaSignal({
         </radialGradient>
       </defs>
 
-      <g
-        className="mission-vision-dna-pulse"
-        style={
-          { "--mv-pulse-from": pulse.from, "--mv-pulse-to": pulse.to } as CSSProperties
-        }
-      >
+      <g className="mission-vision-dna-pulse">
         <ellipse cx="0" cy={baseline} rx={pulse.rx} ry={pulse.ry} fill={`url(#${idPrefix}-pulse)`} />
       </g>
 
-      {/* Faint temporal echo of the signal, one sample-step behind. */}
-      <g className="mission-vision-dna-echo">
+      {/* Gentle amplitude breathing on the sampled waveform. */}
+      <g className="mission-vision-dna-wave">
+        {/* Faint temporal echo of the signal, one sample-step behind. */}
+        <g className="mission-vision-dna-echo">
+          {samples.map((s) => (
+            <line
+              key={`e${s.x}`}
+              x1={s.x - 3}
+              x2={s.x - 3}
+              y1={baseline - s.up * 0.62}
+              y2={baseline + s.down * 0.62}
+              stroke={`url(#${idPrefix}-stroke)`}
+            />
+          ))}
+        </g>
+
         {samples.map((s) => (
           <line
-            key={`e${s.x}`}
-            x1={s.x - 3}
-            x2={s.x - 3}
-            y1={baseline - s.up * 0.62}
-            y2={baseline + s.down * 0.62}
+            key={s.x}
+            className={`mission-vision-dna-sample${
+              s.strong ? " mission-vision-dna-sample--strong" : ""
+            }`}
+            x1={s.x}
+            x2={s.x}
+            y1={baseline - s.up}
+            y2={baseline + s.down}
             stroke={`url(#${idPrefix}-stroke)`}
           />
         ))}
+        {samples
+          .filter((s) => s.dot !== null)
+          .map((s) => (
+            <circle
+              key={`d${s.x}`}
+              className="mission-vision-dna-dot"
+              cx={s.x}
+              cy={baseline + (s.dot as number)}
+              r="1.6"
+              fill={`url(#${idPrefix}-stroke)`}
+            />
+          ))}
       </g>
 
-      {samples.map((s) => (
-        <line
-          key={s.x}
-          className={`mission-vision-dna-sample${
-            s.strong ? " mission-vision-dna-sample--strong" : ""
-          }`}
-          x1={s.x}
-          x2={s.x}
-          y1={baseline - s.up}
-          y2={baseline + s.down}
-          stroke={`url(#${idPrefix}-stroke)`}
-        />
-      ))}
-      {samples
-        .filter((s) => s.dot !== null)
-        .map((s) => (
-          <circle
-            key={`d${s.x}`}
-            className="mission-vision-dna-dot"
-            cx={s.x}
-            cy={baseline + (s.dot as number)}
-            r="1.6"
-            fill={`url(#${idPrefix}-stroke)`}
-          />
-        ))}
       <line
         className="mission-vision-dna-baseline"
         x1="10"
@@ -502,6 +516,23 @@ function MotionDnaSignal({
         y2={baseline}
         stroke={`url(#${idPrefix}-baseline)`}
       />
+
+      {/* Signal data dots travelling Mission → Motion DNA → Vision, tinting
+          cyan → electric blue → violet as they cross the composition. */}
+      {Array.from({ length: travelers.count }, (_, i) => (
+        <g
+          key={i}
+          className="mission-vision-dna-traveler"
+          style={
+            {
+              "--mv-travel-delay": `${(-i * travelers.duration) / travelers.count}s`,
+            } as CSSProperties
+          }
+        >
+          <circle className="mission-vision-dna-traveler-halo" cx="0" cy={baseline} r="5.5" />
+          <circle className="mission-vision-dna-traveler-core" cx="0" cy={baseline} r="1.9" />
+        </g>
+      ))}
     </svg>
   );
 }
@@ -541,7 +572,7 @@ function GaitCard({
             className={`mission-vision-label-signal mission-vision-label-signal--${tone}`}
           />
         </div>
-        <p className="mt-4 font-display text-xl leading-snug text-balance text-soft-white sm:text-2xl lg:text-[1.3rem] xl:text-[1.38rem]">
+        <p className="mt-4 max-w-[34ch] font-display text-xl leading-[1.42] text-balance text-soft-white/[0.92] sm:text-2xl sm:leading-[1.42] lg:text-[1.3rem] xl:text-[1.38rem]">
           {children}
         </p>
       </article>
@@ -554,7 +585,7 @@ function GaitMissionVision() {
     <section
       id="mission-vision"
       aria-label="Mission and vision"
-      className="mission-vision-section mission-vision-section--gait relative isolate overflow-hidden border-y border-white/[0.06] py-12 sm:py-16 lg:flex lg:min-h-[480px] lg:flex-col lg:justify-center lg:py-8"
+      className="mission-vision-section mission-vision-section--gait relative isolate overflow-hidden border-y border-white/[0.06] py-10 sm:py-14 lg:flex lg:min-h-[440px] lg:flex-col lg:justify-center lg:py-7"
     >
       <Reveal
         y={0}
@@ -577,6 +608,7 @@ function GaitMissionVision() {
               baseline={78}
               samples={DNA_SAMPLES_WIDE}
               pulse={{ from: "-180px", to: "1780px", rx: 110, ry: 52 }}
+              travelers={{ count: 3, duration: 16 }}
               preserve="xMidYMid slice"
               className="mission-vision-dna h-full w-full"
             />
@@ -617,12 +649,33 @@ function GaitMissionVision() {
               {/* Soft dark pocket (no box) keeps the label readable where the
                   signal is strongest. */}
               <div className="mission-vision-dna-label">
-                <p className="whitespace-nowrap text-[13px] font-semibold uppercase tracking-[0.42em] text-slate-200">
-                  Motion DNA
-                </p>
-                <p className="mt-2.5 text-[12.5px] leading-relaxed tracking-[0.02em] text-slate-400">
-                  <span className="block whitespace-nowrap">One movement signal.</span>
-                  <span className="block whitespace-nowrap">Multiple intelligences.</span>
+                <div className="flex items-center justify-center gap-3">
+                  <span aria-hidden="true" className="mission-vision-dna-label-rule" />
+                  <p className="whitespace-nowrap text-[13.5px] font-semibold uppercase tracking-[0.42em] text-soft-white/90 [text-indent:0.42em]">
+                    Motion DNA
+                  </p>
+                  <span
+                    aria-hidden="true"
+                    className="mission-vision-dna-label-rule mission-vision-dna-label-rule--violet"
+                  />
+                </div>
+                <p className="mt-2.5 text-[10px] font-medium uppercase tracking-[0.18em] text-soft-mute">
+                  <span className="whitespace-nowrap lg:hidden">
+                    One signal <span className="text-royal-300">→</span> Multiple
+                    intelligences
+                  </span>
+                  <span className="hidden lg:block">
+                    <span className="block whitespace-nowrap">One signal</span>
+                    <span
+                      aria-hidden="true"
+                      className="my-0.5 inline-block rotate-90 text-[11px] text-royal-300"
+                    >
+                      →
+                    </span>
+                    <span className="block whitespace-nowrap">
+                      Multiple intelligences
+                    </span>
+                  </span>
                 </p>
               </div>
               <MotionDnaSignal
@@ -632,6 +685,7 @@ function GaitMissionVision() {
                 baseline={50}
                 samples={DNA_SAMPLES_COMPACT}
                 pulse={{ from: "-70px", to: "470px", rx: 56, ry: 34 }}
+                travelers={{ count: 2, duration: 12 }}
                 preserve="xMidYMid meet"
                 className="mission-vision-dna mt-5 w-full lg:hidden"
               />

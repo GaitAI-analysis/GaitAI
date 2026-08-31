@@ -1,5 +1,7 @@
 /* CLIENT-SAFE: types, category meta, pure helpers. No fs / node imports here. */
 
+import type { PostAttachment } from "@/lib/media";
+
 export type Category =
   | "research"
   | "announcement"
@@ -15,6 +17,15 @@ export interface Post {
   category: Category;
   summary: string;
   body: string;
+  coverImageUrl?: string;
+  coverImagePath?: string;
+  coverImageAlt?: string;
+  coverImageName?: string;
+  coverImageSize?: number;
+  coverImageWidth?: number;
+  coverImageHeight?: number;
+  attachments?: PostAttachment[];
+  /** Legacy single-attachment fields retained for existing records. */
   attachmentUrl?: string;
   attachmentName?: string;
   externalUrl?: string;

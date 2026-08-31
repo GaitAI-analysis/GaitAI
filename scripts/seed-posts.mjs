@@ -39,6 +39,32 @@ const TEMP_RULE = `
       allow create, update, delete: if true;   // ← TEMPORARY, revert after seeding
     }`;
 
+function toValue(value) {
+  if (value == null) return { nullValue: null };
+  if (typeof value === "string") return { stringValue: value };
+  if (typeof value === "boolean") return { booleanValue: value };
+  if (typeof value === "number") {
+    return Number.isInteger(value)
+      ? { integerValue: String(value) }
+      : { doubleValue: value };
+  }
+  if (Array.isArray(value)) {
+    return { arrayValue: { values: value.map(toValue) } };
+  }
+  if (typeof value === "object") {
+    return {
+      mapValue: {
+        fields: Object.fromEntries(
+          Object.entries(value)
+            .filter(([, nested]) => nested !== undefined)
+            .map(([key, nested]) => [key, toValue(nested)]),
+        ),
+      },
+    };
+  }
+  return { stringValue: String(value) };
+}
+
 function toFields(post) {
   const f = {
     id: { stringValue: post.id },
@@ -59,6 +85,16 @@ function toFields(post) {
   if (post.externalUrl) f.externalUrl = { stringValue: post.externalUrl };
   if (post.attachmentUrl) f.attachmentUrl = { stringValue: post.attachmentUrl };
   if (post.attachmentName) f.attachmentName = { stringValue: post.attachmentName };
+  if (post.coverImageUrl) f.coverImageUrl = { stringValue: post.coverImageUrl };
+  if (post.coverImagePath) f.coverImagePath = { stringValue: post.coverImagePath };
+  if (post.coverImageAlt) f.coverImageAlt = { stringValue: post.coverImageAlt };
+  if (post.coverImageName) f.coverImageName = { stringValue: post.coverImageName };
+  if (post.coverImageSize) f.coverImageSize = toValue(post.coverImageSize);
+  if (post.coverImageWidth) f.coverImageWidth = toValue(post.coverImageWidth);
+  if (post.coverImageHeight) f.coverImageHeight = toValue(post.coverImageHeight);
+  if (Array.isArray(post.attachments) && post.attachments.length) {
+    f.attachments = toValue(post.attachments);
+  }
   return f;
 }
 

@@ -6,9 +6,9 @@
  * (local today, Firebase later) — no fetch calls, no server dependency.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Check,
@@ -24,10 +24,15 @@ import {
   X,
 } from "lucide-react";
 import { CATEGORY_META, type Category, type Post } from "@/lib/posts";
-import { renderMarkdown } from "@/lib/markdown";
+import type { PostAttachment } from "@/lib/media";
+import { deletePostMedia } from "@/lib/media-storage";
 import { CategoryBadge } from "@/components/posts/CategoryBadge";
 import { genId, slugifyTitle } from "@/lib/admin/panel-store";
 import { ConfirmDialog, EmptyState, formatDate } from "./ui";
+import {
+  PostMediaEditor,
+  type CoverImageValue,
+} from "./PostMediaEditor";
 
 const CATEGORIES = Object.keys(CATEGORY_META) as Category[];
 
@@ -39,7 +44,7 @@ export function ContentView({
   onDelete,
 }: {
   posts: Post[];
-  onSave: (post: Post) => void;
+  onSave: (post: Post) => Promise<boolean>;
   onDelete: (id: string) => void;
 }) {
   const [mode, setMode] = useState<Mode>({ view: "list" });
@@ -64,10 +69,8 @@ export function ContentView({
       <PostComposer
         initial={mode.post}
         onCancel={() => setMode({ view: "list" })}
-        onSave={(p) => {
-          onSave(p);
-          setMode({ view: "list" });
-        }}
+        onSave={onSave}
+        onComplete={() => setMode({ view: "list" })}
       />
     );
   }
@@ -218,6 +221,8 @@ interface Draft {
   category: Category;
   summary: string;
   body: string;
+  coverImage?: CoverImageValue;
+  attachments: PostAttachment[];
   tags: string[];
   externalUrl: string;
   author: string;
@@ -231,16 +236,31 @@ function PostComposer({
   initial,
   onCancel,
   onSave,
+  onComplete,
 }: {
   initial?: Post;
   onCancel: () => void;
-  onSave: (p: Post) => void;
+  onSave: (p: Post) => Promise<boolean>;
+  onComplete: () => void;
 }) {
+  const [postId] = useState(() => initial?.id ?? genId("post"));
   const [draft, setDraft] = useState<Draft>({
     title: initial?.title ?? "",
     category: initial?.category ?? "blog",
     summary: initial?.summary ?? "",
     body: initial?.body ?? "",
+    coverImage: initial?.coverImageUrl
+      ? {
+          url: initial.coverImageUrl,
+          storagePath: initial.coverImagePath ?? "",
+          alt: initial.coverImageAlt ?? "",
+          name: initial.coverImageName ?? "Cover image",
+          size: initial.coverImageSize ?? 0,
+          width: initial.coverImageWidth,
+          height: initial.coverImageHeight,
+        }
+      : undefined,
+    attachments: initial?.attachments ?? [],
     tags: initial?.tags ?? [],
     externalUrl: initial?.externalUrl ?? "",
     author: initial?.author ?? "GaitAI",
@@ -252,14 +272,38 @@ function PostComposer({
   const [tagInput, setTagInput] = useState("");
   const [preview, setPreview] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadFailed, setUploadFailed] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const sessionUploadedPaths = useRef(new Set<string>());
+  const pendingDeletePaths = useRef(new Set<string>());
+
+  const discardSessionUploads = useCallback(async () => {
+    const paths = [...sessionUploadedPaths.current];
+    sessionUploadedPaths.current.clear();
+    await Promise.allSettled(paths.map((path) => deletePostMedia(path)));
+  }, []);
+
+  const cancel = useCallback(async () => {
+    if (uploadBusy) {
+      setError(
+        uploadFailed
+          ? "Retry or dismiss failed media uploads before leaving the editor."
+          : "Wait for active media uploads to finish before leaving the editor.",
+      );
+      return;
+    }
+    await discardSessionUploads();
+    onCancel();
+  }, [discardSessionUploads, onCancel, uploadBusy, uploadFailed]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCancel();
+      if (e.key === "Escape") void cancel();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onCancel]);
+  }, [cancel]);
 
   const update = <K extends keyof Draft>(k: K, v: Draft[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
@@ -270,19 +314,46 @@ function PostComposer({
     setTagInput("");
   };
 
-  const save = () => {
+  const queueStorageRemoval = (storagePath: string) => {
+    if (!storagePath) return;
+    if (sessionUploadedPaths.current.has(storagePath)) {
+      sessionUploadedPaths.current.delete(storagePath);
+      void deletePostMedia(storagePath).catch(() => undefined);
+      return;
+    }
+    pendingDeletePaths.current.add(storagePath);
+  };
+
+  const save = async () => {
     if (!draft.title.trim() || !draft.summary.trim()) {
       setError("Title and summary are required.");
       return;
     }
+    if (uploadBusy) {
+      setError(
+        uploadFailed
+          ? "Retry or dismiss failed media uploads before saving."
+          : "Media is still uploading. Wait for every upload to finish before saving.",
+      );
+      return;
+    }
     setError(null);
-    onSave({
-      id: initial?.id ?? genId("post"),
+    setSaving(true);
+    const saved = await onSave({
+      id: postId,
       slug: initial?.slug ?? slugifyTitle(draft.title),
       title: draft.title.trim(),
       category: draft.category,
       summary: draft.summary.trim(),
       body: draft.body,
+      coverImageUrl: draft.coverImage?.url,
+      coverImagePath: draft.coverImage?.storagePath,
+      coverImageAlt: draft.coverImage?.alt.trim() || undefined,
+      coverImageName: draft.coverImage?.name,
+      coverImageSize: draft.coverImage?.size || undefined,
+      coverImageWidth: draft.coverImage?.width,
+      coverImageHeight: draft.coverImage?.height,
+      attachments: draft.attachments,
       tags: draft.tags,
       externalUrl: draft.externalUrl.trim() || undefined,
       attachmentUrl: initial?.attachmentUrl,
@@ -293,6 +364,15 @@ function PostComposer({
       subscriberOnly: draft.subscriberOnly || undefined,
       publicationStatus: draft.verifiedForPublic ? "verified" : "draft",
     });
+    if (saved) {
+      sessionUploadedPaths.current.clear();
+      const oldPaths = [...pendingDeletePaths.current];
+      pendingDeletePaths.current.clear();
+      await Promise.allSettled(oldPaths.map((path) => deletePostMedia(path)));
+      onComplete();
+      return;
+    }
+    setSaving(false);
   };
 
   return (
@@ -304,7 +384,7 @@ function PostComposer({
       {/* Composer header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button
-          onClick={onCancel}
+          onClick={() => void cancel()}
           className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-soft-mute transition-colors hover:text-soft-white"
         >
           <ArrowLeft className="h-3 w-3" />
@@ -326,9 +406,21 @@ function PostComposer({
             )}
             {preview ? "Write" : "Preview"}
           </button>
-          <button onClick={save} className="btn-primary">
+          <button
+            onClick={() => void save()}
+            disabled={saving || uploadBusy}
+            className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
+          >
             <Check className="h-4 w-4" />
-            {initial ? "Save changes" : "Save record"}
+            {uploadBusy
+              ? uploadFailed
+                ? "Resolve media upload"
+                : "Uploading media…"
+              : saving
+                ? "Saving…"
+                : initial
+                  ? "Save changes"
+                  : "Save record"}
           </button>
         </div>
       </div>
@@ -360,47 +452,27 @@ function PostComposer({
             />
           </Field>
 
-          <Field
-            label={preview ? "Body — live preview" : "Body"}
-            hint="##/### headings, **bold**, *italic*, `code`, bullets, > quotes, [links](url)"
-          >
-            <AnimatePresence mode="wait">
-              {preview ? (
-                <motion.div
-                  key="preview"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                  className="min-h-[320px] rounded-xl border border-cyan-300/20 bg-white/[0.02] px-5 py-4"
-                >
-                  {draft.body.trim() ? (
-                    <div className="prose-invert max-w-none text-sm leading-relaxed text-soft-gray">
-                      {renderMarkdown(draft.body)}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-soft-mute">
-                      Nothing to preview yet — switch back to Write and add
-                      some content.
-                    </p>
-                  )}
-                </motion.div>
-              ) : (
-                <motion.textarea
-                  key="write"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.18 }}
-                  value={draft.body}
-                  onChange={(e) => update("body", e.target.value)}
-                  rows={16}
-                  placeholder={`## Section heading\n\nYour paragraph here.\n\n- Bullet point\n- Another bullet\n\n[Link text](https://example.com)`}
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 font-mono text-[13px] leading-relaxed text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
-                />
-              )}
-            </AnimatePresence>
-          </Field>
+          <PostMediaEditor
+            postId={postId}
+            cover={draft.coverImage}
+            attachments={draft.attachments}
+            body={draft.body}
+            preview={preview}
+            onCoverChange={(coverImage) => update("coverImage", coverImage)}
+            onAttachmentsChange={(attachments) =>
+              update("attachments", attachments)
+            }
+            onBodyChange={(body) => update("body", body)}
+            onPreviewChange={setPreview}
+            onUploadBusyChange={(busy, failed) => {
+              setUploadBusy(busy);
+              setUploadFailed(failed);
+            }}
+            onUploaded={(storagePath) =>
+              sessionUploadedPaths.current.add(storagePath)
+            }
+            onRemoveStoragePath={queueStorageRemoval}
+          />
         </div>
 
         {/* Side column */}

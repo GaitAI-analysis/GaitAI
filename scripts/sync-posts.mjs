@@ -64,6 +64,9 @@ function fromFields(fields) {
 
 function toPost(doc) {
   const f = fromFields(doc.fields || {});
+  const attachments = Array.isArray(f.attachments)
+    ? f.attachments.filter((item) => item && typeof item === "object" && item.id && item.url)
+    : [];
   return {
     id: String(f.id ?? ""),
     slug: String(f.slug ?? ""),
@@ -82,6 +85,14 @@ function toPost(doc) {
     ...(f.externalUrl ? { externalUrl: String(f.externalUrl) } : {}),
     ...(f.attachmentUrl ? { attachmentUrl: String(f.attachmentUrl) } : {}),
     ...(f.attachmentName ? { attachmentName: String(f.attachmentName) } : {}),
+    ...(f.coverImageUrl ? { coverImageUrl: String(f.coverImageUrl) } : {}),
+    ...(f.coverImagePath ? { coverImagePath: String(f.coverImagePath) } : {}),
+    ...(f.coverImageAlt ? { coverImageAlt: String(f.coverImageAlt) } : {}),
+    ...(f.coverImageName ? { coverImageName: String(f.coverImageName) } : {}),
+    ...(Number(f.coverImageSize) > 0 ? { coverImageSize: Number(f.coverImageSize) } : {}),
+    ...(Number(f.coverImageWidth) > 0 ? { coverImageWidth: Number(f.coverImageWidth) } : {}),
+    ...(Number(f.coverImageHeight) > 0 ? { coverImageHeight: Number(f.coverImageHeight) } : {}),
+    ...(attachments.length ? { attachments } : {}),
   };
 }
 

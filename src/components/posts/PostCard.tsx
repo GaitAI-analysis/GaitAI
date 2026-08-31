@@ -1,9 +1,13 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element */
+
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, FileText, Calendar, Paperclip } from "lucide-react";
 import { Post } from "@/lib/posts";
+import { isSafeMediaUrl } from "@/lib/media";
+import { assetPath } from "@/lib/paths";
 import { CategoryBadge, categoryGradient } from "./CategoryBadge";
 
 function formatDate(iso: string) {
@@ -27,6 +31,14 @@ export function PostCard({
   index?: number;
   featured?: boolean;
 }) {
+  const coverSrc =
+    post.coverImageUrl && isSafeMediaUrl(post.coverImageUrl)
+      ? assetPath(post.coverImageUrl)
+      : null;
+  const hasDocuments =
+    Boolean(post.attachmentUrl) ||
+    (post.attachments ?? []).some((attachment) => attachment.type === "document");
+
   if (featured) {
     return (
       <motion.article
@@ -44,16 +56,24 @@ export function PostCard({
             className="relative min-h-[260px] overflow-hidden md:min-h-[420px]"
             style={{ backgroundImage: categoryGradient[post.category] }}
           >
+            {coverSrc && (
+              <img
+                src={coverSrc}
+                alt={post.coverImageAlt || ""}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.025]"
+              />
+            )}
             <div className="ring-grid absolute inset-0 opacity-40" />
-            <div className="absolute inset-0 bg-gradient-to-tr from-obsidian/70 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-obsidian/75 via-obsidian/15 to-transparent" />
             <div className="absolute left-6 top-6 inline-flex items-center gap-2 rounded-full bg-black/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-white backdrop-blur-md">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-300" />
               Featured
             </div>
-            {post.attachmentUrl && (
+            {hasDocuments && (
               <div className="absolute right-6 top-6 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 text-[11px] text-soft-white backdrop-blur-md">
                 <Paperclip className="h-3 w-3" />
-                PDF
+                Resources
               </div>
             )}
           </div>
@@ -102,12 +122,20 @@ export function PostCard({
           className="relative h-44 overflow-hidden"
           style={{ backgroundImage: categoryGradient[post.category] }}
         >
+          {coverSrc && (
+            <img
+              src={coverSrc}
+              alt={post.coverImageAlt || ""}
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]"
+            />
+          )}
           <div className="ring-grid absolute inset-0 opacity-40" />
           <div className="absolute inset-0 bg-gradient-to-t from-obsidian/70 to-transparent" />
           <div className="absolute left-4 top-4">
             <CategoryBadge category={post.category} />
           </div>
-          {post.attachmentUrl && (
+          {hasDocuments && (
             <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-black/50 text-soft-white backdrop-blur-md">
               <FileText className="h-3.5 w-3.5" />
             </div>

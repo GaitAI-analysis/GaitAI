@@ -208,6 +208,7 @@ GaitAI_Fr_Version1_Claude/
 │   │   └── utils.ts                 # cn() — clsx + tailwind-merge
 │   └── server-only/                 # ARCHIVED: old /admin route + REST API
 ├── firestore.rules                  # complete Firestore security rules (paste in console)
+├── storage.rules                    # Insights media Storage rules (paste in console)
 ├── COMMENTS_SETUP.md                # comment-system setup guide
 ├── FIREBASE_SETUP_HANDOFF.txt       # backend-team Firebase configuration handoff
 ├── .env.example                     # env template (no real values — copy to .env.local)
@@ -412,6 +413,7 @@ Ph.D. in Computer Science & Engineering (AI) from Manipal University Jaipur; doc
 | `COMMENTS_SETUP.md` | Comment-system architecture, collections, abuse protection, setup |
 | `FIREBASE_SETUP_HANDOFF.txt` | Step-by-step Firebase configuration guide for the backend team + the exact values they must hand back |
 | `firestore.rules` | The complete, paste-into-console Firestore security ruleset |
+| `storage.rules` | Public-read/admin-write rules and file limits for Insights media |
 | `src/server-only/README.md` | Why the legacy admin route + REST API are archived |
 
 ---
@@ -439,7 +441,7 @@ Ph.D. in Computer Science & Engineering (AI) from Manipal University Jaipur; doc
 
 ### Mid-term
 
-- [ ] Firebase Storage for panel file attachments (replacing external URLs)
+- [x] Firebase Storage media workflow for cover images, inline media and document attachments
 - [ ] Post detail pages for priority products (`/products/[slug]`)
 - [ ] Newsletter signup, case-studies module, per-industry landing pages
 - [ ] MDX (or react-markdown + rehype) to replace the in-house renderer

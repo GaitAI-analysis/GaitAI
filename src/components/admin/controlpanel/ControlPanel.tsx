@@ -109,8 +109,10 @@ function PanelInner() {
           ? "Post saved and verified for public display."
           : "Draft saved to Firestore.",
       );
+      return true;
     } catch {
       toast("error", "Save failed. Are you still signed in as an admin?");
+      return false;
     }
   };
 

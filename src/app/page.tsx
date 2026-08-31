@@ -27,13 +27,13 @@ export default function HomePage() {
       <UseCases />
       <ResearchCredibility />
       <Vision />
-      <PartnerMarquee />
-      <MetricsStrip />
 
       {/* About-page narrative — shared components, see src/components/sections/about/ */}
       <AboutMission />
       <MissionVision />
       <JourneyTimeline />
+      <PartnerMarquee />
+      <MetricsStrip />
       <WhoWeServe />
       <Partnerships />
       <Investors />

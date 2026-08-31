@@ -1,44 +1,23 @@
 .visual {
-  --loop: 18s;
-  position: relative;
-  isolation: isolate;
-  width: 100%;
-  height: clamp(400px, 42vw, 446px);
-  overflow: hidden;
-  border: 1px solid rgb(79 209 255 / 0.24);
-  border-radius: 24px;
-  background: #050b16;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.07),
-    inset 0 0 42px rgb(37 99 255 / 0.08),
-    0 30px 70px -36px rgb(37 99 255 / 0.62),
-    0 0 38px rgb(79 209 255 / 0.08);
-}
-
-.visual::before {
-  content: "";
+  --loop: 14s;
   position: absolute;
-  z-index: 8;
   inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 780px;
+  overflow: hidden;
   pointer-events: none;
-  border-radius: inherit;
-  background:
-    linear-gradient(90deg, rgb(255 255 255 / 0.04), transparent 18%, transparent 82%, rgb(79 209 255 / 0.04)),
-    linear-gradient(180deg, rgb(255 255 255 / 0.03), transparent 22%, transparent 78%, rgb(0 0 0 / 0.32));
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.025);
-}
-
-.glow {
-  position: absolute;
-  z-index: -1;
-  inset: 10% 4%;
-  border-radius: 50%;
-  background: rgb(37 99 255 / 0.18);
-  filter: blur(48px);
+  isolation: isolate;
+  background: #020713;
 }
 
 .mediaLayer,
-.trackingLayer {
+.intelligenceLayer,
+.scene,
+.copyScrim,
+.vignette,
+.scanSweep {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -47,797 +26,1099 @@
 
 .mediaLayer {
   z-index: 0;
-}
-
-.trackingLayer {
-  z-index: 2;
-  pointer-events: none;
+  overflow: hidden;
 }
 
 .scene {
   display: block;
-  width: 100%;
-  height: 100%;
 }
 
-.architecture {
-  fill: rgb(79 209 255 / 0.012);
-  stroke: rgb(121 172 228 / 0.13);
+.intelligenceLayer {
+  z-index: 2;
+  display: block;
+  overflow: visible;
+}
+
+.environment {
+  animation: environment-drift 9s ease-in-out infinite alternate;
+  transform-box: view-box;
+  transform-origin: 58% 45%;
+}
+
+.ceiling {
+  fill: #07111f;
+  stroke: rgb(95 160 210 / 12%);
+  stroke-width: 1.2;
+}
+
+.ceiling > path:first-child {
+  fill: #050d19;
+  stroke: none;
+}
+
+.ceilingLight {
+  fill: none;
+  stroke: rgb(113 209 255 / 16%);
+  stroke-width: 6;
+  filter: drop-shadow(0 0 8px rgb(56 189 248 / 32%));
+}
+
+.lightPanels rect {
+  fill: url("#sv-light-panel");
+  stroke: rgb(125 220 255 / 20%);
   stroke-width: 1;
+  animation: panel-flicker 5s ease-in-out infinite alternate;
+}
+
+.lightPanels rect:nth-child(2),
+.lightPanels rect:nth-child(4) {
+  animation-delay: -2.6s;
+}
+
+.wayfinding rect {
+  fill: rgb(3 13 27 / 88%);
+  stroke: rgb(92 204 255 / 25%);
+}
+
+.wayfinding path {
+  fill: none;
+  stroke: rgb(143 220 255 / 48%);
+  stroke-width: 3;
+}
+
+.columns path {
+  fill: #07101d;
+  stroke: rgb(84 146 190 / 15%);
+  stroke-width: 1.2;
+}
+
+.columns .columnEdge {
+  fill: none;
+  stroke: rgb(71 184 255 / 18%);
+  stroke-width: 3;
+}
+
+.horizon {
+  fill: none;
+  stroke: rgb(77 197 255 / 22%);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 10px rgb(37 99 235 / 35%));
+}
+
+.floor {
+  fill: url("#sv-floor");
 }
 
 .floorGrid {
   fill: none;
-  stroke: rgb(79 209 255 / 0.11);
-  stroke-width: 0.8;
+  stroke: rgb(101 176 222 / 10%);
+  stroke-width: 1.2;
+}
+
+.walkingLanes {
+  fill: none;
+  stroke: rgb(87 210 255 / 12%);
+  stroke-width: 2;
+  stroke-dasharray: 10 18;
+  animation: flow-phase 4s linear infinite;
+}
+
+.distantCrowd {
+  fill: rgb(42 71 104 / 28%);
+  filter: url("#sv-soft-blur");
+}
+
+.lightBloom {
+  fill: rgb(38 118 255 / 10%);
+  filter: url("#sv-light-blur");
+  animation: bloom-breathe 6s ease-in-out infinite alternate;
+}
+
+.peopleLayer {
+  opacity: 0.96;
+}
+
+.walker {
+  --walker-x: 0;
+  --walker-y: 0;
+  --walker-scale: 1;
+  --walker-direction: 1;
+  --gait-phase: 0s;
+  --travel-delay: 0s;
+  --travel-speed: 16s;
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.forward {
+  animation: travel-forward var(--travel-speed) linear var(--travel-delay) infinite;
+}
+
+.forwardFast {
+  animation: travel-forward-fast var(--travel-speed) linear var(--travel-delay) infinite;
+}
+
+.reverse {
+  animation: travel-reverse var(--travel-speed) linear var(--travel-delay) infinite;
+}
+
+.reverseFast {
+  animation: travel-reverse-fast var(--travel-speed) linear var(--travel-delay) infinite;
+}
+
+.selectedTravel {
+  animation: selected-travel var(--loop) linear infinite;
 }
 
 .person {
-  fill: rgb(32 64 108 / 0.72);
-  stroke: rgb(126 180 238 / 0.19);
-  stroke-width: 0.9;
-  filter: drop-shadow(0 7px 10px rgb(1 5 14 / 0.65));
+  filter: drop-shadow(0 9px 11px rgb(0 0 0 / 50%));
+  opacity: 0.76;
 }
 
-.personblue {
-  fill: rgb(32 88 172 / 0.9);
-  stroke: rgb(79 209 255 / 0.5);
-}
-
-.personviolet {
-  fill: rgb(72 54 133 / 0.58);
+.personHead,
+.personBody {
+  stroke-width: 1.5;
 }
 
 .personcyan {
-  fill: rgb(18 88 112 / 0.56);
+  fill: rgb(30 123 160 / 74%);
+  stroke: rgb(111 225 255 / 42%);
 }
 
-.walkerOne,
-.walkerTwo,
-.walkerThree,
-.walkerFour,
-.selectedWalker {
+.personblue {
+  fill: rgb(35 83 182 / 84%);
+  stroke: rgb(79 193 255 / 55%);
+}
+
+.personviolet {
+  fill: rgb(83 60 148 / 68%);
+  stroke: rgb(170 139 255 / 34%);
+}
+
+.personslate {
+  fill: rgb(36 58 82 / 82%);
+  stroke: rgb(117 157 192 / 25%);
+}
+
+.person .armFront,
+.person .armBack,
+.person .legFront,
+.person .legBack {
+  fill: none;
+  stroke: inherit;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 10;
+}
+
+.person .armFront circle,
+.person .armBack circle {
+  fill: currentColor;
+  stroke: none;
+}
+
+.bodyBob {
+  animation: body-bob 0.41s ease-in-out var(--gait-phase) infinite alternate;
   transform-box: fill-box;
-  transform-origin: center bottom;
-  will-change: transform, opacity;
+  transform-origin: center;
 }
 
-.walkerOne { animation: walk-one var(--loop) linear infinite; }
-.walkerTwo { animation: walk-two var(--loop) linear infinite; }
-.walkerThree { animation: walk-three var(--loop) linear infinite; }
-.walkerFour { animation: walk-four var(--loop) linear infinite; }
-.selectedWalker { animation: walk-selected var(--loop) linear infinite; }
+.armFront,
+.armBack,
+.legFront,
+.legBack {
+  transform-box: view-box;
+  will-change: transform;
+}
+
+.armFront {
+  animation: limb-forward 0.82s ease-in-out var(--gait-phase) infinite alternate;
+  transform-origin: 10px -51px;
+}
+
+.armBack {
+  animation: limb-back 0.82s ease-in-out var(--gait-phase) infinite alternate;
+  transform-origin: -10px -51px;
+}
+
+.legFront {
+  animation: limb-back 0.82s ease-in-out var(--gait-phase) infinite alternate;
+  transform-origin: 7px 0;
+}
+
+.legBack {
+  animation: limb-forward 0.82s ease-in-out var(--gait-phase) infinite alternate;
+  transform-origin: -7px 0;
+}
 
 .foregroundBlur {
-  fill: rgb(8 17 31 / 0.94);
+  fill: rgb(8 16 30 / 76%);
+  filter: url("#sv-soft-blur");
   opacity: 0.72;
-  filter: blur(2px);
 }
 
-.skeletonLayer {
-  opacity: 0;
-  animation: skeleton-phase var(--loop) ease-in-out infinite;
+.flowLayer {
+  opacity: 0.78;
 }
 
-.skeleton {
-  fill: rgb(79 209 255 / 0.88);
-  stroke: rgb(79 209 255 / 0.9);
-  stroke-width: 1.15;
-  vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 4px rgb(79 209 255 / 0.56));
-}
-
-.skeleton path,
-.skeleton circle:first-child {
+.flowPath,
+.flowPathAlt,
+.flowPathDim {
   fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 2 12;
+  animation: flow-dash 3.2s linear infinite;
 }
 
-.selectionLayer {
-  opacity: 0;
-  animation: selection-phase var(--loop) ease-in-out infinite;
+.flowPath {
+  stroke: rgb(71 209 255 / 50%);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 5px rgb(34 211 238 / 45%));
 }
 
-.trackingBox {
-  fill: rgb(37 99 255 / 0.045);
-  stroke: rgb(79 209 255 / 0.56);
-  stroke-width: 0.8;
-  stroke-dasharray: 4 3;
-  vector-effect: non-scaling-stroke;
+.flowPathAlt {
+  stroke: rgb(126 106 255 / 38%);
+  stroke-width: 1.8;
+  animation-duration: 4.1s;
 }
 
-.cornerMarks {
+.flowPathDim {
+  stroke: rgb(82 191 232 / 22%);
+  stroke-width: 1.4;
+  animation-duration: 4.7s;
+}
+
+.flowArrows {
   fill: none;
-  stroke: #65dbff;
+  stroke: rgb(120 229 255 / 56%);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: arrow-pulse 2.2s ease-in-out infinite;
+}
+
+.flowParticles circle {
+  fill: #8cecff;
+  filter: drop-shadow(0 0 7px #2dd4ff);
+  offset-path: path("M380 566C570 505 730 542 895 485S1195 427 1435 470");
+  animation: flow-particle 5s linear infinite;
+}
+
+.flowParticleTwo {
+  animation-delay: -1.8s !important;
+}
+
+.flowParticleThree {
+  animation-delay: -3.5s !important;
+}
+
+.zoneA,
+.zoneB {
+  fill: rgb(33 181 255 / 4%);
+  stroke: rgb(73 206 255 / 19%);
+  stroke-width: 1.5;
+  stroke-dasharray: 7 10;
+  animation: zone-breathe 4.5s ease-in-out infinite;
+}
+
+.zoneB {
+  fill: rgb(126 87 255 / 4%);
+  stroke: rgb(150 122 255 / 19%);
+  animation-delay: -2s;
+}
+
+.zoneA ellipse:nth-child(2),
+.zoneB ellipse:nth-child(2) {
+  animation: zone-ring 3.2s ease-out infinite;
+}
+
+.zoneA text,
+.zoneB text {
+  fill: rgb(142 224 255 / 62%);
+  stroke: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.zoneB text {
+  fill: rgb(184 164 255 / 62%);
+}
+
+.flowReadout {
+  animation: readout-float 4s ease-in-out infinite;
+}
+
+.flowReadout rect {
+  fill: rgb(4 16 31 / 72%);
+  stroke: rgb(93 211 255 / 24%);
+}
+
+.flowReadout text {
+  fill: rgb(136 223 255 / 72%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.flowReadout text:nth-of-type(2) {
+  fill: #d8f7ff;
+  font-size: 14px;
+}
+
+.flowReadout path {
+  fill: none;
+  stroke: #61dcff;
   stroke-width: 2;
-  vector-effect: non-scaling-stroke;
-  filter: drop-shadow(0 0 4px rgb(79 209 255 / 0.8));
 }
 
-.scanLine {
-  stroke: #7ae6ff;
-  stroke-width: 1.2;
-  opacity: 0.85;
-  filter: drop-shadow(0 0 5px rgb(79 209 255 / 0.8));
-  animation: subject-scan 2.3s ease-in-out infinite;
+.skeleton,
+.selectedSkeleton {
+  fill: rgb(103 225 255 / 18%);
+  stroke: rgb(107 226 255 / 82%);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgb(34 211 238 / 58%));
 }
 
-.subjectLabel rect {
-  fill: rgb(3 12 26 / 0.9);
-  stroke: rgb(79 209 255 / 0.5);
-  stroke-width: 0.7;
-}
-
-.subjectLabel text {
-  fill: #8de7ff;
-  font: 600 6.5px ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.8px;
-}
-
-.gaitAnalysisArcs {
+.skeleton .armFront,
+.skeleton .armBack,
+.skeleton .legFront,
+.skeleton .legBack,
+.selectedSkeleton .armFront,
+.selectedSkeleton .armBack,
+.selectedSkeleton .legFront,
+.selectedSkeleton .legBack {
   fill: none;
-  stroke: rgb(167 139 250 / 0.82);
-  stroke-width: 1.2;
-  stroke-dasharray: 4 4;
-  opacity: 0;
-  filter: drop-shadow(0 0 4px rgb(124 58 237 / 0.7));
-  animation: gait-analysis var(--loop) ease-in-out infinite;
 }
 
-.trajectoryLayer {
-  opacity: 0;
+.crowdSkeletons {
+  animation: crowd-skeleton-phase var(--loop) ease-in-out infinite;
+}
+
+.selectedSubject {
+  animation: selected-phase var(--loop) ease-in-out infinite;
+}
+
+.selectedSkeleton {
+  fill: rgb(132 239 255 / 30%);
+  stroke: #7cecff;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px rgb(34 211 238 / 88%));
+}
+
+.trackingFrame {
+  fill: rgb(23 191 255 / 3%);
+  stroke: rgb(102 226 255 / 40%);
+  stroke-width: 1.3;
+  stroke-dasharray: 5 8;
+}
+
+.trackingCorners {
+  fill: none;
+  stroke: #8cecff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 7px rgb(34 211 238 / 88%));
+}
+
+.bodyScan {
+  stroke: #b9f5ff;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px #39d9ff);
+  animation: body-scan 1.8s ease-in-out infinite;
+}
+
+.gaitOrbit {
+  fill: none;
+  stroke: rgb(142 235 255 / 72%);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 7;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gait-orbit 2.4s linear infinite;
+}
+
+.trackerLabel rect {
+  fill: rgb(4 20 37 / 92%);
+  stroke: rgb(104 228 255 / 50%);
+}
+
+.trackerLabel text {
+  fill: #c9f8ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.selectedTrajectory {
   animation: trajectory-phase var(--loop) ease-in-out infinite;
 }
 
-.trajectory,
-.trajectoryGlow {
+.trajectoryGlow,
+.trajectoryLine {
   fill: none;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  animation: draw-trajectory var(--loop) ease-in-out infinite;
-}
-
-.trajectory {
-  stroke: #a78bfa;
-  stroke-width: 1.5;
   stroke-linecap: round;
-  stroke-dasharray: 0.012 0.026;
+  stroke-dasharray: 0 1;
+  stroke-dashoffset: 0;
+  animation: trajectory-draw var(--loop) ease-in-out infinite;
 }
 
 .trajectoryGlow {
-  stroke: rgb(124 58 237 / 0.42);
-  stroke-width: 8;
-  filter: blur(6px);
+  stroke: rgb(37 211 255 / 24%);
+  stroke-width: 12;
+  filter: blur(7px);
 }
 
-.trajectoryDot {
-  fill: #c4b5fd;
-  filter: drop-shadow(0 0 4px rgb(167 139 250 / 0.86));
-  animation: trajectory-dots var(--loop) ease-in-out infinite;
+.trajectoryLine {
+  stroke: #6ae5ff;
+  stroke-width: 2.2;
+  stroke-dasharray: 0.012 0.025;
+  filter: drop-shadow(0 0 7px rgb(34 211 238 / 80%));
 }
 
-.topBar {
+.trajectoryNode {
+  --node: 0;
+  fill: #a4f2ff;
+  opacity: 0;
+  filter: drop-shadow(0 0 5px #22d3ee);
+  animation: trajectory-node var(--loop) ease-in-out infinite;
+  animation-delay: calc(var(--node) * 90ms);
+}
+
+.analyticsHud {
   position: absolute;
   z-index: 6;
-  top: 13px;
-  left: 14px;
-  right: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  font: 600 8px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.16em;
-  color: rgb(166 207 240 / 0.68);
-}
-
-.topBar span:first-child {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: #75dcff;
-}
-
-.topBar i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 9px rgb(52 211 153 / 0.9);
-  animation: live-pulse 1.8s ease-in-out infinite;
-}
-
-.analyticsPanel {
-  position: absolute;
-  z-index: 5;
-  top: 42px;
-  right: 13px;
-  bottom: 32px;
-  width: min(39%, 282px);
+  top: 25%;
+  right: clamp(18px, 3.5vw, 64px);
+  width: min(282px, 21vw);
+  height: 304px;
   overflow: hidden;
-  border: 1px solid rgb(101 219 255 / 0.21);
+  border: 1px solid rgb(106 214 255 / 24%);
   border-radius: 14px;
   background:
-    linear-gradient(180deg, rgb(11 28 52 / 0.94), rgb(5 13 28 / 0.96)),
-    rgb(3 10 23 / 0.94);
+    linear-gradient(145deg, rgb(6 20 38 / 86%), rgb(3 11 24 / 72%)),
+    radial-gradient(circle at 15% 0, rgb(37 99 235 / 20%), transparent 58%);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.055),
-    0 18px 40px rgb(0 0 0 / 0.36),
-    0 0 22px rgb(37 99 255 / 0.08);
-  backdrop-filter: blur(14px);
+    0 22px 65px rgb(0 0 0 / 42%),
+    inset 0 1px rgb(255 255 255 / 5%),
+    0 0 34px rgb(22 126 255 / 8%);
   opacity: 0;
-  transform: translateX(10px);
-  animation: panel-arrival var(--loop) ease-in-out infinite;
+  backdrop-filter: blur(13px);
+  animation: hud-shell var(--loop) ease-in-out infinite;
 }
 
-.panelHeader {
-  position: relative;
+.analyticsHud::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-image:
+    linear-gradient(rgb(105 210 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(105 210 255 / 4%) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.hudChrome {
+  position: absolute;
   z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
   display: flex;
-  height: 36px;
   align-items: center;
   justify-content: space-between;
+  height: 36px;
   padding: 0 12px;
-  border-bottom: 1px solid rgb(79 209 255 / 0.12);
-  background: rgb(79 209 255 / 0.025);
-  color: #83dcff;
-  font: 600 8px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.16em;
+  border-bottom: 1px solid rgb(107 222 255 / 13%);
+  color: rgb(175 232 255 / 72%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.15px;
 }
 
-.signalBars {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 10px;
+.hudChrome i,
+.sceneStatus i,
+.mobileStatus i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 999px;
+  background: #3ef5b4;
+  box-shadow: 0 0 8px #3ef5b4;
+  animation: status-pulse 1.6s ease-in-out infinite;
 }
 
-.signalBars i {
-  display: block;
-  width: 2px;
-  border-radius: 2px;
-  background: #4fd1ff;
-  animation: signal 1.1s ease-in-out infinite alternate;
-}
-
-.signalBars i:nth-child(1) { height: 3px; }
-.signalBars i:nth-child(2) { height: 5px; animation-delay: -0.5s; }
-.signalBars i:nth-child(3) { height: 8px; animation-delay: -0.8s; }
-.signalBars i:nth-child(4) { height: 10px; animation-delay: -0.2s; }
-
-.panelStage {
+.hudStage {
   position: absolute;
+  z-index: 1;
   inset: 36px 0 0;
-  display: flex;
-  flex-direction: column;
-  padding: 14px 13px;
+  padding: 16px;
   opacity: 0;
 }
 
-.stageEyebrow {
-  color: #86dcff;
-  font: 600 8px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.14em;
+.metricsStage {
+  animation: metrics-stage var(--loop) ease-in-out infinite;
 }
 
-.metricsStage { animation: metrics-stage var(--loop) ease-in-out infinite; }
-.matchStage { animation: match-stage var(--loop) ease-in-out infinite; }
-.privacyStage { animation: privacy-stage var(--loop) ease-in-out infinite; }
-.outcomeStage { animation: outcome-stage var(--loop) ease-in-out infinite; }
+.hudStage header {
+  margin-bottom: 12px;
+  color: #bceeff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.35px;
+}
 
-.metricsGrid {
+.metrics {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 10px;
-  margin-top: 12px;
+  gap: 10px;
 }
 
 .metric {
-  min-width: 0;
+  --metric-index: 0;
+  opacity: 0;
+  animation: metric-reveal var(--loop) ease-out infinite;
+  animation-delay: calc(var(--metric-index) * 100ms);
 }
 
-.metricHeader {
+.metric > div {
   display: flex;
-  align-items: end;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 5px;
-  color: rgb(177 202 225 / 0.72);
-  font: 500 7px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  gap: 8px;
+  color: rgb(161 187 208 / 76%);
+  font-size: 9px;
+  letter-spacing: 0.25px;
 }
 
-.metricHeader strong {
-  color: #f0f8ff;
-  font-size: 10px;
-  letter-spacing: -0.02em;
+.metric strong {
+  color: #e8faff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
 }
 
-.metricHeader small {
-  margin-left: 2px;
-  color: rgb(155 188 216 / 0.62);
-  font-size: 6px;
-  font-weight: 500;
+.metric small {
+  color: rgb(133 206 231 / 62%);
+  font-size: 7px;
+  font-weight: 600;
 }
 
-.metricTrack {
+.metric > i {
   display: block;
   height: 2px;
   margin-top: 5px;
   overflow: hidden;
   border-radius: 999px;
-  background: rgb(126 180 238 / 0.12);
+  background: rgb(105 189 225 / 12%);
 }
 
-.metricTrack > span {
+.metric > i > span {
   display: block;
   width: var(--metric-level);
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #2563ff, #4fd1ff);
-  box-shadow: 0 0 5px rgb(79 209 255 / 0.7);
+  background: linear-gradient(90deg, #176bff, #62e4ff);
+  box-shadow: 0 0 8px rgb(70 213 255 / 50%);
   transform-origin: left;
-  animation: metric-fill var(--loop) ease-in-out infinite;
+  animation: metric-fill var(--loop) ease-out infinite;
 }
 
-.matchStage,
-.privacyStage,
-.outcomeStage {
+.matchStage {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+  animation: match-stage var(--loop) ease-in-out infinite;
+}
+
+.signatureWave {
+  display: flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
+  height: 58px;
+  margin-bottom: 10px;
+}
+
+.signatureWave i {
+  width: 2px;
+  height: var(--wave-height);
+  border-radius: 999px;
+  background: linear-gradient(#6af0ff, #4b6cff);
+  box-shadow: 0 0 7px rgb(61 215 255 / 58%);
+  animation: signature-wave 1.2s ease-in-out calc(var(--wave-index) * -90ms) infinite alternate;
+}
+
+.matchStage > span,
+.resultStage > span {
+  color: #a6eaff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.matchStage > strong {
+  margin-top: 5px;
+  color: #eefcff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 20px;
+  letter-spacing: 3px;
+}
+
+.matchStage > b {
+  margin-top: 3px;
+  color: #66e8ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 38px;
+  line-height: 1;
+  text-shadow: 0 0 22px rgb(42 208 255 / 44%);
+}
+
+.matchStage > small {
+  margin-top: 12px;
+  color: rgb(153 193 211 / 52%);
+  font-size: 7px;
+  letter-spacing: 1.2px;
+}
+
+.resultStage {
+  display: grid;
+  place-items: center;
+  align-content: center;
   text-align: center;
+  animation: result-stage var(--loop) ease-in-out infinite;
 }
 
-.signatureMark {
-  display: flex;
-  height: 54px;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 15px;
-}
-
-.signatureMark span {
-  display: block;
-  width: 3px;
-  border-radius: 99px;
-  background: linear-gradient(180deg, #4fd1ff, #7c3aed);
-  box-shadow: 0 0 8px rgb(79 209 255 / 0.52);
-  animation: signature-wave 0.9s ease-in-out infinite alternate;
-}
-
-.signatureMark span:nth-child(1),
-.signatureMark span:nth-child(7) { height: 14px; }
-.signatureMark span:nth-child(2),
-.signatureMark span:nth-child(6) { height: 30px; animation-delay: -0.45s; }
-.signatureMark span:nth-child(3),
-.signatureMark span:nth-child(5) { height: 45px; animation-delay: -0.7s; }
-.signatureMark span:nth-child(4) { height: 54px; animation-delay: -0.2s; }
-
-.matchId {
-  margin-top: 8px;
-  color: #fff;
-  font: 700 17px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.02em;
-}
-
-.confidence {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 18px;
-  padding-top: 10px;
-  border-top: 1px solid rgb(79 209 255 / 0.14);
-  color: rgb(166 207 240 / 0.66);
-  font: 600 7px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.11em;
-}
-
-.confidence strong {
-  color: #5eead4;
-  font-size: 13px;
-  letter-spacing: 0;
-}
-
-.privacyShield {
+.resultRing {
   display: grid;
-  width: 65px;
-  height: 65px;
+  width: 66px;
+  height: 66px;
+  margin-bottom: 14px;
   place-items: center;
-  margin-bottom: 18px;
-  border: 1px solid rgb(52 211 153 / 0.28);
-  border-radius: 50%;
-  background: rgb(16 185 129 / 0.07);
-  box-shadow: 0 0 28px rgb(16 185 129 / 0.13);
+  border: 1px solid rgb(74 238 183 / 52%);
+  border-radius: 999px;
+  background: rgb(20 170 121 / 8%);
+  box-shadow: 0 0 28px rgb(22 214 157 / 14%);
+  animation: result-ring 2s ease-in-out infinite;
 }
 
-.privacyShield svg {
-  width: 31px;
-  fill: rgb(16 185 129 / 0.1);
-  stroke: #5eead4;
-  stroke-width: 2;
+.resultRing span {
+  color: #66f3bd;
+  font-size: 29px;
 }
 
-.privacyStage .stageEyebrow { color: #5eead4; }
-.privacyStage strong,
-.outcomeStage strong {
-  margin-top: 9px;
-  color: #f4faff;
-  font: 700 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.06em;
+.resultStage > strong {
+  margin-top: 5px;
+  color: #66f3bd;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 24px;
+  letter-spacing: 2px;
 }
 
-.privacyStage > span {
-  margin-top: 7px;
-  color: rgb(174 209 224 / 0.64);
-  font: 500 8px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-
-.outcomeRing {
-  position: relative;
+.privacyStatus {
   display: grid;
-  width: 64px;
-  height: 64px;
-  place-items: center;
-  margin-bottom: 18px;
-  border: 1px solid rgb(52 211 153 / 0.31);
-  border-radius: 50%;
-  background: conic-gradient(#34d399 0 82%, rgb(52 211 153 / 0.08) 82% 100%);
-  box-shadow: 0 0 28px rgb(52 211 153 / 0.12);
-}
-
-.outcomeRing::before {
-  content: "";
-  position: absolute;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: #071426;
-}
-
-.outcomeRing span {
-  position: relative;
-  z-index: 1;
-  color: #5eead4;
-  font-size: 21px;
-}
-
-.outcomeStage em {
-  color: #5eead4;
-  font-style: normal;
-}
-
-.riskBar {
+  gap: 4px;
   width: 100%;
-  height: 3px;
-  margin-top: 18px;
-  overflow: hidden;
-  border-radius: 99px;
-  background: linear-gradient(90deg, rgb(52 211 153 / 0.18), rgb(251 191 36 / 0.15), rgb(248 113 113 / 0.13));
+  margin-top: 20px;
+  padding-top: 13px;
+  border-top: 1px solid rgb(88 222 190 / 18%);
 }
 
-.riskBar span {
-  display: block;
-  width: 17%;
-  height: 100%;
-  border-radius: inherit;
-  background: #34d399;
-  box-shadow: 0 0 7px rgb(52 211 153 / 0.8);
+.privacyStatus b {
+  color: #82f3ca;
+  font-size: 9px;
+  letter-spacing: 1.4px;
 }
 
-.reducedSummary {
-  display: none;
-}
-
-.bottomHud {
-  position: absolute;
-  z-index: 6;
-  bottom: 12px;
-  left: 14px;
-  right: 14px;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  color: rgb(160 199 229 / 0.5);
-  font: 500 7px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
-  letter-spacing: 0.11em;
-}
-
-.bottomHud span:nth-child(2) {
-  color: rgb(94 234 212 / 0.67);
+.privacyStatus small {
+  color: rgb(183 226 218 / 62%);
+  font-size: 7px;
+  letter-spacing: 1.2px;
 }
 
 .scanSweep {
-  position: absolute;
   z-index: 3;
-  top: 40px;
-  bottom: 30px;
-  left: 0;
-  width: 1px;
-  background: linear-gradient(180deg, transparent, rgb(79 209 255 / 0.65), transparent);
-  box-shadow: 0 0 14px rgb(79 209 255 / 0.5);
-  opacity: 0;
-  animation: scene-scan var(--loop) ease-in-out infinite;
+  width: 32%;
+  background: linear-gradient(90deg, transparent, rgb(91 211 255 / 4%), transparent);
+  mix-blend-mode: screen;
+  animation: scene-scan 6s linear infinite;
+  transform: skewX(-12deg);
 }
 
-@keyframes walk-one {
-  0% { transform: translateX(-55px) rotate(-1deg); opacity: 0; }
-  5%, 88% { opacity: 1; }
-  42% { transform: translateX(96px) rotate(1deg); }
-  94% { transform: translateX(238px) rotate(-1deg); opacity: 0; }
-  100% { transform: translateX(-55px); opacity: 0; }
+.sceneStatus {
+  position: absolute;
+  z-index: 7;
+  right: clamp(18px, 3.5vw, 64px);
+  bottom: 34px;
+  display: flex;
+  gap: 22px;
+  color: rgb(135 196 220 / 54%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
 }
 
-@keyframes walk-two {
-  0% { transform: translateX(205px); opacity: 0; }
-  8%, 90% { opacity: 0.76; }
-  50% { transform: translateX(52px); }
-  96% { transform: translateX(-72px); opacity: 0; }
-  100% { transform: translateX(205px); opacity: 0; }
+.copyScrim {
+  z-index: 4;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(2 7 18 / 99%) 0%,
+      rgb(2 7 18 / 96%) 24%,
+      rgb(2 7 18 / 84%) 38%,
+      rgb(2 7 18 / 44%) 56%,
+      rgb(2 7 18 / 9%) 100%
+    );
 }
 
-@keyframes walk-three {
-  0% { transform: translateX(78px); opacity: 0; }
-  7%, 89% { opacity: 0.88; }
-  48% { transform: translateX(-30px); }
-  95% { transform: translateX(-134px); opacity: 0; }
-  100% { transform: translateX(78px); opacity: 0; }
+.vignette {
+  z-index: 5;
+  box-shadow:
+    inset 0 100px 100px -80px rgb(0 0 0 / 72%),
+    inset 0 -130px 120px -90px rgb(0 0 0 / 88%),
+    inset 0 0 130px rgb(0 0 0 / 24%);
 }
 
-@keyframes walk-four {
-  0% { transform: translateX(95px); opacity: 0; }
-  5%, 89% { opacity: 0.82; }
-  46% { transform: translateX(-42px); }
-  95% { transform: translateX(-150px); opacity: 0; }
-  100% { transform: translateX(95px); opacity: 0; }
+.mobileStatus {
+  display: none;
 }
 
-@keyframes walk-selected {
-  0% { transform: translateX(-28px) rotate(-0.8deg); opacity: 0; }
-  6%, 90% { opacity: 1; }
-  28% { transform: translateX(38px) rotate(0.8deg); }
-  62% { transform: translateX(104px) rotate(-0.6deg); }
-  94% { transform: translateX(158px) rotate(0.6deg); opacity: 0; }
-  100% { transform: translateX(-28px); opacity: 0; }
+@keyframes environment-drift {
+  from { transform: scale(1.01) translate3d(-5px, 0, 0); }
+  to { transform: scale(1.025) translate3d(7px, -3px, 0); }
 }
 
-@keyframes skeleton-phase {
-  0%, 11% { opacity: 0; }
-  16%, 88% { opacity: 0.78; }
-  96%, 100% { opacity: 0; }
+@keyframes panel-flicker {
+  0%, 12% { opacity: 0.55; }
+  14% { opacity: 0.82; }
+  18%, 100% { opacity: 0.64; }
 }
 
-@keyframes selection-phase {
-  0%, 20% { opacity: 0; }
-  24%, 88% { opacity: 1; }
-  95%, 100% { opacity: 0; }
+@keyframes bloom-breathe {
+  from { opacity: 0.48; transform: scaleX(0.92); }
+  to { opacity: 0.9; transform: scaleX(1.08); }
+}
+
+@keyframes limb-forward {
+  from { transform: rotate(-19deg); }
+  to { transform: rotate(21deg); }
+}
+
+@keyframes limb-back {
+  from { transform: rotate(21deg); }
+  to { transform: rotate(-19deg); }
+}
+
+@keyframes body-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-3.5px); }
+}
+
+@keyframes travel-forward {
+  from { transform: translate3d(-90px, 0, 0); }
+  to { transform: translate3d(185px, 0, 0); }
+}
+
+@keyframes travel-forward-fast {
+  from { transform: translate3d(-150px, 0, 0); }
+  to { transform: translate3d(255px, 0, 0); }
+}
+
+@keyframes travel-reverse {
+  from { transform: translate3d(150px, 0, 0); }
+  to { transform: translate3d(-185px, 0, 0); }
+}
+
+@keyframes travel-reverse-fast {
+  from { transform: translate3d(230px, 0, 0); }
+  to { transform: translate3d(-250px, 0, 0); }
+}
+
+@keyframes selected-travel {
+  0% { transform: translate3d(-72px, 0, 0); }
+  21% { transform: translate3d(-34px, 0, 0); }
+  36% { transform: translate3d(0, 0, 0); }
+  57% { transform: translate3d(45px, 0, 0); }
+  79% { transform: translate3d(92px, 0, 0); }
+  93% { transform: translate3d(124px, 0, 0); }
+  100% { transform: translate3d(144px, 0, 0); }
+}
+
+@keyframes flow-phase {
+  to { stroke-dashoffset: -56; }
+}
+
+@keyframes flow-dash {
+  to { stroke-dashoffset: -0.22; }
+}
+
+@keyframes arrow-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+
+@keyframes flow-particle {
+  from { offset-distance: 0%; opacity: 0; }
+  8%, 88% { opacity: 0.9; }
+  to { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes zone-breathe {
+  0%, 100% { opacity: 0.38; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes zone-ring {
+  0% { opacity: 0.2; transform: scale(0.92); transform-origin: center; }
+  55% { opacity: 0.8; }
+  100% { opacity: 0; transform: scale(1.14); transform-origin: center; }
+}
+
+@keyframes readout-float {
+  0%, 100% { opacity: 0.48; transform: translateY(0); }
+  50% { opacity: 0.84; transform: translateY(-4px); }
+}
+
+@keyframes crowd-skeleton-phase {
+  0%, 18% { opacity: 0.18; }
+  24%, 36% { opacity: 0.48; }
+  42%, 91% { opacity: 0.26; }
+  97%, 100% { opacity: 0.18; }
+}
+
+@keyframes selected-phase {
+  0%, 19% { opacity: 0; }
+  23%, 91% { opacity: 1; }
+  97%, 100% { opacity: 0; }
 }
 
 @keyframes trajectory-phase {
-  0%, 25% { opacity: 0; }
-  30%, 88% { opacity: 1; }
-  95%, 100% { opacity: 0; }
+  0%, 20% { opacity: 0; }
+  24%, 91% { opacity: 1; }
+  97%, 100% { opacity: 0; }
 }
 
-@keyframes draw-trajectory {
-  0%, 27% { stroke-dashoffset: 1; }
-  45%, 92% { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -1; }
+@keyframes trajectory-draw {
+  0%, 20% { stroke-dashoffset: 1; }
+  36%, 93% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -0.08; }
 }
 
-@keyframes trajectory-dots {
-  0%, 29% { opacity: 0; transform: scale(0.4); }
-  39%, 88% { opacity: 0.9; transform: scale(1); }
-  96%, 100% { opacity: 0; transform: scale(0.4); }
+@keyframes trajectory-node {
+  0%, 23% { opacity: 0; transform: scale(0.4); transform-origin: center; }
+  28%, 88% { opacity: 0.9; transform: scale(1); transform-origin: center; }
+  96%, 100% { opacity: 0; }
 }
 
-@keyframes gait-analysis {
-  0%, 33% { opacity: 0; transform: scale(0.76); }
-  39%, 60% { opacity: 0.9; transform: scale(1); }
-  66%, 100% { opacity: 0; transform: scale(1.12); }
+@keyframes body-scan {
+  0%, 100% { transform: translateY(0); opacity: 0.35; }
+  50% { transform: translateY(132px); opacity: 1; }
 }
 
-@keyframes subject-scan {
-  0%, 100% { transform: translateY(0); opacity: 0.15; }
-  50% { transform: translateY(76px); opacity: 0.9; }
+@keyframes gait-orbit {
+  to { stroke-dashoffset: -22; }
 }
 
-@keyframes panel-arrival {
-  0%, 27% { opacity: 0; transform: translateX(10px); }
-  32%, 94% { opacity: 1; transform: translateX(0); }
-  99%, 100% { opacity: 0; transform: translateX(6px); }
+@keyframes hud-shell {
+  0%, 34% { opacity: 0; transform: translate3d(18px, 8px, 0) scale(0.97); }
+  38%, 91% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  96%, 100% { opacity: 0; transform: translate3d(12px, -4px, 0) scale(0.98); }
 }
 
 @keyframes metrics-stage {
-  0%, 29% { opacity: 0; transform: translateY(8px); }
-  34%, 55% { opacity: 1; transform: translateY(0); }
-  59%, 100% { opacity: 0; transform: translateY(-6px); }
+  0%, 34% { opacity: 0; transform: translateX(10px); }
+  38%, 53% { opacity: 1; transform: translateX(0); }
+  57%, 100% { opacity: 0; transform: translateX(-8px); }
 }
 
-@keyframes match-stage {
-  0%, 55% { opacity: 0; transform: translateY(8px); }
-  60%, 69% { opacity: 1; transform: translateY(0); }
-  73%, 100% { opacity: 0; transform: translateY(-6px); }
-}
-
-@keyframes privacy-stage {
-  0%, 68% { opacity: 0; transform: scale(0.96); }
-  73%, 81% { opacity: 1; transform: scale(1); }
-  85%, 100% { opacity: 0; transform: scale(1.02); }
-}
-
-@keyframes outcome-stage {
-  0%, 80% { opacity: 0; transform: translateY(7px); }
-  85%, 94% { opacity: 1; transform: translateY(0); }
-  99%, 100% { opacity: 0; transform: translateY(-4px); }
+@keyframes metric-reveal {
+  0%, 36% { opacity: 0; transform: translateY(6px); }
+  42%, 54% { opacity: 1; transform: translateY(0); }
+  58%, 100% { opacity: 0; }
 }
 
 @keyframes metric-fill {
-  0%, 32% { transform: scaleX(0); }
-  44%, 58% { transform: scaleX(1); }
-  62%, 100% { transform: scaleX(0); }
+  0%, 37% { transform: scaleX(0); }
+  47%, 56% { transform: scaleX(1); }
+  60%, 100% { transform: scaleX(0); }
 }
 
-@keyframes scene-scan {
-  0%, 13% { left: 0; opacity: 0; }
-  16% { opacity: 0.8; }
-  38% { left: 64%; opacity: 0.25; }
-  42%, 100% { left: 100%; opacity: 0; }
-}
-
-@keyframes live-pulse {
-  0%, 100% { opacity: 0.42; transform: scale(0.84); }
-  50% { opacity: 1; transform: scale(1.12); }
-}
-
-@keyframes signal {
-  from { opacity: 0.34; transform: scaleY(0.5); }
-  to { opacity: 1; transform: scaleY(1); }
+@keyframes match-stage {
+  0%, 55% { opacity: 0; transform: scale(0.96); }
+  59%, 75% { opacity: 1; transform: scale(1); }
+  79%, 100% { opacity: 0; transform: scale(1.03); }
 }
 
 @keyframes signature-wave {
-  from { transform: scaleY(0.58); opacity: 0.58; }
+  from { transform: scaleY(0.5); opacity: 0.5; }
   to { transform: scaleY(1); opacity: 1; }
 }
 
-@media (max-width: 639px) {
+@keyframes result-stage {
+  0%, 77% { opacity: 0; transform: translateY(7px); }
+  81%, 91% { opacity: 1; transform: translateY(0); }
+  96%, 100% { opacity: 0; transform: translateY(-5px); }
+}
+
+@keyframes result-ring {
+  0%, 100% { transform: scale(0.96); box-shadow: 0 0 18px rgb(22 214 157 / 10%); }
+  50% { transform: scale(1.04); box-shadow: 0 0 32px rgb(22 214 157 / 24%); }
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.82); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scene-scan {
+  from { transform: translateX(-160%) skewX(-12deg); }
+  to { transform: translateX(430%) skewX(-12deg); }
+}
+
+@keyframes mobile-status {
+  0%, 54% { opacity: 0; transform: translateY(5px); }
+  59%, 91% { opacity: 1; transform: translateY(0); }
+  97%, 100% { opacity: 0; }
+}
+
+@media (max-width: 1100px) {
+  .analyticsHud {
+    right: 22px;
+    width: 246px;
+  }
+
+  .copyScrim {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(2 7 18 / 99%) 0%,
+        rgb(2 7 18 / 95%) 32%,
+        rgb(2 7 18 / 70%) 54%,
+        rgb(2 7 18 / 15%) 100%
+      );
+  }
+}
+
+@media (max-width: 767px) {
   .visual {
-    height: 430px;
-    border-radius: 20px;
+    min-height: 780px;
   }
 
-  .mediaLayer,
-  .trackingLayer {
-    bottom: 116px;
-    height: calc(100% - 88px);
+  .scene,
+  .intelligenceLayer {
+    width: 100%;
+    height: 100%;
   }
 
-  .analyticsPanel {
-    top: auto;
-    right: 10px;
-    bottom: 28px;
-    left: 10px;
-    width: auto;
-    height: 138px;
+  .mobileHide {
+    display: none;
   }
 
-  .panelStage {
-    inset: 36px 0 0;
+  .analyticsHud,
+  .zoneA,
+  .zoneB,
+  .flowReadout,
+  .sceneStatus {
+    display: none;
+  }
+
+  .copyScrim {
+    background:
+      linear-gradient(180deg, rgb(2 7 18 / 72%) 0%, rgb(2 7 18 / 93%) 68%, rgb(2 7 18 / 98%) 100%),
+      linear-gradient(90deg, rgb(2 7 18 / 96%) 0%, rgb(2 7 18 / 79%) 62%, rgb(2 7 18 / 42%) 100%);
+  }
+
+  .peopleLayer,
+  .crowdSkeletons {
+    opacity: 0.48;
+  }
+
+  .selectedSubject {
+    opacity: 0.82;
+  }
+
+  .mobileStatus {
+    position: absolute;
+    z-index: 7;
+    right: 16px;
+    bottom: 22px;
+    display: grid;
+    gap: 5px;
     padding: 10px 12px;
+    border: 1px solid rgb(98 222 255 / 24%);
+    border-radius: 8px;
+    background: rgb(3 15 29 / 76%);
+    color: #c8f6ff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 8px;
+    letter-spacing: 0.8px;
+    box-shadow: 0 12px 38px rgb(0 0 0 / 34%);
+    backdrop-filter: blur(8px);
+    animation: mobile-status var(--loop) ease-in-out infinite;
   }
 
-  .metricsGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 7px 9px;
-    margin-top: 8px;
-  }
-
-  .metricHeader {
-    display: block;
-    font-size: 6px;
-  }
-
-  .metricHeader strong {
-    display: block;
-    margin-top: 2px;
-    font-size: 9px;
-  }
-
-  .signatureMark,
-  .privacyShield,
-  .outcomeRing {
-    display: none;
-  }
-
-  .matchStage,
-  .privacyStage,
-  .outcomeStage {
-    padding-top: 18px;
-  }
-
-  .confidence {
-    max-width: 270px;
-    margin-top: 11px;
-  }
-
-  .walkerTwo,
-  .walkerFour {
-    display: none;
-  }
-
-  .topBar {
-    font-size: 6.5px;
-  }
-
-  .topBar span:last-child,
-  .bottomHud span:first-child,
-  .bottomHud span:last-child {
-    display: none;
-  }
-
-  .bottomHud {
-    justify-content: center;
+  .mobileStatus span {
+    color: #79e8bd;
+    font-size: 7px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .walkerOne,
-  .walkerTwo,
-  .walkerThree,
-  .walkerFour,
-  .selectedWalker,
-  .skeletonLayer,
-  .selectionLayer,
-  .trajectoryLayer,
-  .trajectory,
-  .trajectoryGlow,
-  .trajectoryDot,
-  .gaitAnalysisArcs,
-  .scanLine,
-  .analyticsPanel,
-  .signalBars i,
-  .signatureMark span,
-  .metricTrack > span,
-  .topBar i,
-  .scanSweep {
+  .visual *,
+  .visual *::before,
+  .visual *::after {
     animation: none !important;
   }
 
-  .walkerOne { transform: translateX(42px); opacity: 0.76; }
-  .walkerTwo { transform: translateX(88px); opacity: 0.66; }
-  .walkerThree { transform: translateX(-18px); opacity: 0.72; }
-  .walkerFour { transform: translateX(-48px); opacity: 0.7; }
-  .selectedWalker { transform: translateX(72px); opacity: 1; }
-  .skeletonLayer { opacity: 0.72; }
-  .selectionLayer,
-  .trajectoryLayer { opacity: 1; }
-  .trajectory,
-  .trajectoryGlow { stroke-dashoffset: 0; }
-  .gaitAnalysisArcs { opacity: 0.82; transform: scale(1); }
-  .analyticsPanel { opacity: 1; transform: none; }
-  .scanSweep { display: none; }
-
-  .panelStage {
-    display: none;
+  .environment {
+    transform: none;
   }
 
-  .reducedSummary {
-    position: absolute;
-    inset: 36px 0 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px;
-    text-align: center;
+  .crowdSkeletons {
+    opacity: 0.34;
   }
 
-  .reducedSummary strong {
-    color: #f3f9ff;
-    font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
-    letter-spacing: 0.05em;
+  .selectedSubject,
+  .selectedTrajectory {
+    opacity: 1;
   }
 
-  .reducedSummary > span {
-    color: rgb(176 213 234 / 0.76);
-    font: 500 8px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+  .trajectoryGlow,
+  .trajectoryLine {
+    stroke-dashoffset: 0;
+  }
+
+  .trajectoryNode {
+    opacity: 0.82;
+  }
+
+  .analyticsHud {
+    opacity: 1;
+    transform: none;
+  }
+
+  .metricsStage,
+  .matchStage {
+    opacity: 0;
+  }
+
+  .resultStage {
+    opacity: 1;
+    transform: none;
+  }
+
+  .mobileStatus {
+    opacity: 1;
+    transform: none;
   }
 }

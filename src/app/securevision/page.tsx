@@ -35,21 +35,11 @@ export default function SecureVisionPage() {
   return (
     <>
       {/* HERO */}
-      <section className="site-page-intro relative overflow-hidden pb-24">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div
-            className="absolute left-1/2 top-[10%] h-[640px] w-[1000px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(45,108,223,0.28), transparent 70%)",
-            }}
-          />
-        </div>
-        <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-40" />
+      <section className="site-page-intro relative min-h-[780px] overflow-hidden pb-20 sm:min-h-[820px] sm:pb-24">
+        <SecureVisionHeroVisual />
 
-        <div className="container-wide">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_1fr]">
-            <div>
+        <div className="container-wide relative z-10 flex min-h-[650px] items-center sm:min-h-[680px] lg:min-h-[700px]">
+          <div className="w-full max-w-[680px]">
               <div className="inline-flex items-center gap-2 rounded-full border border-royal-300/30 bg-royal-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-royal-300">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 GaitAI SecureVision · Privacy-first
@@ -97,9 +87,6 @@ export default function SecureVisionPage() {
                   </div>
                 ))}
               </div>
-            </div>
-
-            <SecureVisionHeroVisual />
           </div>
         </div>
       </section>

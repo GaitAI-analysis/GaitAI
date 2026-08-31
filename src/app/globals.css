@@ -697,10 +697,69 @@ body {
     animation-delay: -2s;
   }
 
+  /* Luminous data dots drifting along the baseline: Mission → Vision. */
+  .mission-vision-dna-traveler {
+    will-change: transform;
+    animation: missionVisionDnaTravel var(--mv-travel-dur, 16s) linear infinite;
+    animation-delay: var(--mv-travel-delay, 0s);
+  }
+
+  .mission-vision-dna-traveler-core,
+  .mission-vision-dna-traveler-halo {
+    fill: #4fd1ff;
+    animation: missionVisionDnaTravelTint var(--mv-travel-dur, 16s) linear infinite;
+    animation-delay: var(--mv-travel-delay, 0s);
+  }
+
+  .mission-vision-dna-traveler-halo {
+    opacity: 0.18;
+  }
+
+  /* Gentle amplitude breathing on the sampled waveform. */
+  .mission-vision-dna-wave {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: missionVisionDnaBreathe 7s ease-in-out infinite;
+  }
+
   /* Soft dark pocket behind the Motion DNA label — integrated, no box. */
   .mission-vision-dna-label {
     position: relative;
     isolation: isolate;
+  }
+
+  /* Thin gradient rules flanking MOTION DNA — the label plugs into the
+     signal: cyan from Mission, violet toward Vision. */
+  .mission-vision-dna-label-rule {
+    position: relative;
+    display: inline-block;
+    height: 1px;
+    width: 1.35rem;
+    flex: none;
+    background: linear-gradient(90deg, transparent, rgb(79 209 255 / 0.75));
+  }
+
+  .mission-vision-dna-label-rule::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    top: 50%;
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    transform: translateY(-50%);
+    background: rgb(79 209 255 / 0.9);
+    box-shadow: 0 0 6px rgb(79 209 255 / 0.7);
+  }
+
+  .mission-vision-dna-label-rule--violet {
+    transform: scaleX(-1);
+    background: linear-gradient(90deg, transparent, rgb(167 122 255 / 0.75));
+  }
+
+  .mission-vision-dna-label-rule--violet::after {
+    background: rgb(167 122 255 / 0.9);
+    box-shadow: 0 0 6px rgb(139 92 246 / 0.7);
   }
 
   .mission-vision-dna-label::before {
@@ -776,10 +835,26 @@ body {
 
   .mission-vision-mocap-joint {
     fill: currentColor;
+    animation: missionVisionJointPulse 3.4s ease-in-out infinite;
+    animation-delay: calc(var(--mv-i, 0) * -0.7s);
   }
 
   .mission-vision-mocap-joint--far {
     opacity: 0.55;
+    animation: none;
+  }
+
+  /* Very subtle independent arm swing per frame — legs stay planted so no
+     foot ever slides. Near and far arms counter-swing half a cycle apart. */
+  .mission-vision-mocap-arm {
+    transform-box: fill-box;
+    transform-origin: top;
+    animation: missionVisionArmSway 1.6s ease-in-out infinite alternate;
+    animation-delay: calc(var(--mv-i, 0) * -0.8s);
+  }
+
+  .mission-vision-mocap-arm--far {
+    animation-delay: calc(var(--mv-i, 0) * -0.8s - 1.6s);
   }
 
   .mission-vision-mocap-contact {
@@ -803,16 +878,22 @@ body {
 
   .mission-vision-section--gait .mission-vision-card {
     --mv-card-accent: 79 209 255;
-    background-color: rgb(var(--c-obsidian-200) / 0.58);
-    background-image: radial-gradient(
-      130% 110% at 50% 0%,
-      rgb(var(--mv-card-accent) / 0.1),
-      transparent 62%
-    );
+    background-color: rgb(var(--c-obsidian-200) / 0.66);
+    background-image:
+      radial-gradient(
+        130% 110% at 50% 0%,
+        rgb(var(--mv-card-accent) / 0.12),
+        transparent 62%
+      ),
+      radial-gradient(
+        90% 60% at 50% 108%,
+        rgb(var(--mv-card-accent) / 0.05),
+        transparent 70%
+      );
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.04),
-      inset 0 0 44px rgb(var(--mv-card-accent) / 0.055),
-      0 24px 56px -44px rgb(0 0 0 / 0.7);
+      inset 0 1px 0 rgb(255 255 255 / 0.045),
+      inset 0 0 48px rgb(var(--mv-card-accent) / 0.07),
+      0 28px 60px -42px rgb(0 0 0 / 0.78);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     transition:
@@ -1025,6 +1106,42 @@ body {
   40%, 100% { opacity: 0; }
 }
 
+/* Constant slow drift of a signal dot across the composition. */
+@keyframes missionVisionDnaTravel {
+  0% {
+    transform: translate3d(var(--mv-pulse-from, -180px), 0, 0);
+    opacity: 0;
+  }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% {
+    transform: translate3d(var(--mv-pulse-to, 1780px), 0, 0);
+    opacity: 0;
+  }
+}
+
+/* The dot's tint follows its position: cyan → electric blue → violet. */
+@keyframes missionVisionDnaTravelTint {
+  0%, 14% { fill: #4fd1ff; }
+  50% { fill: #3b82f6; }
+  86%, 100% { fill: #8b5cf6; }
+}
+
+@keyframes missionVisionDnaBreathe {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.05); }
+}
+
+@keyframes missionVisionJointPulse {
+  0%, 26%, 100% { opacity: 0.8; }
+  10% { opacity: 1; }
+}
+
+@keyframes missionVisionArmSway {
+  from { transform: rotate(-1.5deg); }
+  to { transform: rotate(1.5deg); }
+}
+
 @keyframes missionVisionLabelSignal {
   0%, 10% { transform: translate3d(-180%, 0, 0); }
   24%, 100% { transform: translate3d(430%, 0, 0); }
@@ -1090,7 +1207,13 @@ body {
   .mission-vision-sweep,
   .mission-vision-gait-grid,
   .mission-vision-mocap-frame,
+  .mission-vision-mocap-joint,
+  .mission-vision-mocap-arm,
   .mission-vision-dna-pulse,
+  .mission-vision-dna-wave,
+  .mission-vision-dna-traveler,
+  .mission-vision-dna-traveler-core,
+  .mission-vision-dna-traveler-halo,
   .mission-vision-section--gait .mission-vision-card--mission,
   .mission-vision-section--gait .mission-vision-card--vision,
   .mission-vision-label-signal::after {
@@ -1131,6 +1254,10 @@ body {
   }
 
   .mission-vision-dna-sync {
+    display: none;
+  }
+
+  .mission-vision-dna-traveler {
     display: none;
   }
 

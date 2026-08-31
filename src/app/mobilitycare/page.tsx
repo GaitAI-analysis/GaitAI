@@ -12,7 +12,6 @@ import { ClinicalReportVisual } from "@/components/visuals/ClinicalReportVisual"
 import { RunningTrailVisual } from "@/components/visuals/RunningTrailVisual";
 import { SmartwatchVisual } from "@/components/visuals/SmartwatchVisual";
 import { MobilityCareHero } from "@/components/sections/MobilityCareHero";
-import { PartnerMarquee } from "@/components/sections/PartnerMarquee";
 import {
   industryUseCases,
   productById,
@@ -416,8 +415,6 @@ export default function MobilityCarePage() {
           </div>
         </div>
       </section>
-
-      <PartnerMarquee />
     </>
   );
 }

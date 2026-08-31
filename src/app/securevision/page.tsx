@@ -12,6 +12,7 @@ import {
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductGrid } from "@/components/products/ProductGrid";
+import { PartnerMarquee } from "@/components/sections/PartnerMarquee";
 import { SecureVisionHeroVisual } from "@/components/visuals/SecureVisionHeroVisual";
 import { industryUseCases, productById } from "@/data/products";
 
@@ -367,6 +368,8 @@ export default function SecureVisionPage() {
           </div>
         </div>
       </section>
+
+      <PartnerMarquee />
     </>
   );
 }

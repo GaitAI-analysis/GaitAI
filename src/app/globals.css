@@ -611,33 +611,13 @@ body {
     animation: missionVisionGaitGrid 48s linear infinite;
   }
 
-  /* BACK layer: faint scattered temporal data points behind everything */
-  .mission-vision-dna-field {
-    position: absolute;
-    inset: 8% 0;
-    background-image:
-      radial-gradient(circle at 6% 24%, rgb(79 209 255 / 0.4) 0 1px, transparent 2px),
-      radial-gradient(circle at 13% 62%, rgb(79 209 255 / 0.3) 0 1px, transparent 2px),
-      radial-gradient(circle at 9% 84%, rgb(37 99 255 / 0.3) 0 1px, transparent 2px),
-      radial-gradient(circle at 21% 38%, rgb(37 99 255 / 0.26) 0 1px, transparent 2px),
-      radial-gradient(circle at 33% 74%, rgb(79 209 255 / 0.22) 0 1px, transparent 2px),
-      radial-gradient(circle at 46% 22%, rgb(148 163 184 / 0.24) 0 1px, transparent 2px),
-      radial-gradient(circle at 54% 80%, rgb(148 163 184 / 0.2) 0 1px, transparent 2px),
-      radial-gradient(circle at 66% 30%, rgb(124 58 237 / 0.24) 0 1px, transparent 2px),
-      radial-gradient(circle at 78% 68%, rgb(124 58 237 / 0.3) 0 1px, transparent 2px),
-      radial-gradient(circle at 87% 26%, rgb(124 58 237 / 0.34) 0 1px, transparent 2px),
-      radial-gradient(circle at 94% 58%, rgb(139 92 246 / 0.36) 0 1px, transparent 2px),
-      radial-gradient(circle at 71% 12%, rgb(37 99 255 / 0.22) 0 1px, transparent 2px);
-    opacity: 0.55;
-  }
-
   /* MIDDLE layer: Motion DNA signal band running through the center */
   .mission-vision-dna-band {
     position: absolute;
     inset-inline: 0;
-    top: 50%;
-    height: 124px;
-    transform: translateY(-56%);
+    top: 52%;
+    height: 150px;
+    transform: translateY(-50%);
   }
 
   .mission-vision-dna {
@@ -646,7 +626,17 @@ body {
   }
 
   .mission-vision-dna-sample {
-    stroke-width: 1.1;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .mission-vision-dna-echo {
+    opacity: 0.3;
+  }
+
+  .mission-vision-dna-echo line {
+    stroke-width: 1;
     stroke-linecap: round;
     vector-effect: non-scaling-stroke;
   }
@@ -656,15 +646,17 @@ body {
   }
 
   .mission-vision-dna-baseline {
-    stroke-width: 1.4;
+    stroke-width: 1.6;
     stroke-linecap: round;
     vector-effect: non-scaling-stroke;
   }
 
+  /* One traversal every two gait cycles (2 × 5 frames × 0.8s) so the pulse
+     reads as emitted by the walking sequences. */
   .mission-vision-dna-pulse {
     mix-blend-mode: screen;
     will-change: transform;
-    animation: missionVisionDnaPulse 7.2s linear infinite;
+    animation: missionVisionDnaPulse 8s linear infinite;
   }
 
   /* Walking motion-capture sequences */
@@ -707,15 +699,15 @@ body {
   .mission-vision-mocap-bone {
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.6;
+    stroke-width: 1.85;
     stroke-linecap: round;
     stroke-linejoin: round;
     vector-effect: non-scaling-stroke;
   }
 
   .mission-vision-mocap-bone--far {
-    opacity: 0.5;
-    stroke-width: 1.25;
+    opacity: 0.55;
+    stroke-width: 1.4;
   }
 
   .mission-vision-mocap-head {
@@ -744,12 +736,17 @@ body {
     stroke-width: 1;
     stroke-linecap: round;
     vector-effect: non-scaling-stroke;
-    opacity: 0.38;
+    opacity: 0.5;
+  }
+
+  /* Previous-position trail dots behind hip / knee / ankle / wrist. */
+  .mission-vision-mocap-ghost {
+    fill: currentColor;
   }
 
   .mission-vision-section--gait .mission-vision-card {
     --mv-card-accent: 79 209 255;
-    background-color: rgb(var(--c-obsidian-200) / 0.6);
+    background-color: rgb(var(--c-obsidian-200) / 0.52);
     background-image: radial-gradient(
       130% 110% at 50% 0%,
       rgb(var(--mv-card-accent) / 0.1),
@@ -759,8 +756,8 @@ body {
       inset 0 1px 0 rgb(255 255 255 / 0.04),
       inset 0 0 44px rgb(var(--mv-card-accent) / 0.055),
       0 24px 56px -44px rgb(0 0 0 / 0.7);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     transition:
       transform 500ms cubic-bezier(0.16, 1, 0.3, 1),
       border-color 500ms ease,
@@ -770,6 +767,16 @@ body {
 
   .mission-vision-section--gait .mission-vision-card--vision {
     --mv-card-accent: 150 111 255;
+  }
+
+  /* The border lifts very slightly as the DNA pulse crosses each card's
+     region of the signal (8s traversal: mission ~1/3, vision ~2/3). */
+  .mission-vision-section--gait .mission-vision-card--mission {
+    animation: missionVisionCardCueMission 8s linear infinite;
+  }
+
+  .mission-vision-section--gait .mission-vision-card--vision {
+    animation: missionVisionCardCueVision 8s linear infinite;
   }
 
   .mission-vision-label {
@@ -923,23 +930,23 @@ body {
   to { transform: translate3d(48px, 0, 0); }
 }
 
-/* Highlight travels through the 5 gait frames — ~800ms per frame with a
-   slow ghost decay so just-passed frames stay brighter than older ones. */
+/* Highlight travels through the 5 gait frames — 800ms per frame. The decay
+   grades temporal depth: current 100%, just-passed ~65%, older 30–40%. */
 @keyframes missionVisionMocapFrame {
   0% { opacity: 0.34; }
-  6% { opacity: 1; }
-  20% { opacity: 0.8; }
-  44% { opacity: 0.44; }
-  100% { opacity: 0.34; }
+  5% { opacity: 1; }
+  25% { opacity: 0.66; }
+  50% { opacity: 0.4; }
+  100% { opacity: 0.3; }
 }
 
 /* Same cadence for the compact 3-frame mobile sequences. */
 @keyframes missionVisionMocapFrameCompact {
   0% { opacity: 0.36; }
-  9% { opacity: 1; }
-  33% { opacity: 0.74; }
-  68% { opacity: 0.42; }
-  100% { opacity: 0.36; }
+  8% { opacity: 1; }
+  36% { opacity: 0.66; }
+  70% { opacity: 0.4; }
+  100% { opacity: 0.34; }
 }
 
 @keyframes missionVisionDnaPulse {
@@ -958,6 +965,18 @@ body {
 @keyframes missionVisionLabelSignal {
   0%, 10% { transform: translate3d(-180%, 0, 0); }
   24%, 100% { transform: translate3d(430%, 0, 0); }
+}
+
+@keyframes missionVisionCardCueMission {
+  0%, 22% { border-color: rgb(103 232 249 / 0.25); }
+  33% { border-color: rgb(103 232 249 / 0.44); }
+  46%, 100% { border-color: rgb(103 232 249 / 0.25); }
+}
+
+@keyframes missionVisionCardCueVision {
+  0%, 56% { border-color: rgb(196 181 253 / 0.25); }
+  68% { border-color: rgb(196 181 253 / 0.46); }
+  82%, 100% { border-color: rgb(196 181 253 / 0.25); }
 }
 
 @media (max-width: 639px) {
@@ -999,10 +1018,6 @@ body {
   .mission-vision-section--gait .mission-vision-effects {
     opacity: 0.58;
   }
-
-  .mission-vision-dna-field {
-    opacity: 0.4;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1013,6 +1028,8 @@ body {
   .mission-vision-gait-grid,
   .mission-vision-mocap-frame,
   .mission-vision-dna-pulse,
+  .mission-vision-section--gait .mission-vision-card--mission,
+  .mission-vision-section--gait .mission-vision-card--vision,
   .mission-vision-label-signal::after {
     animation: none;
     will-change: auto;
@@ -1070,6 +1087,54 @@ body {
   .site-admin-intro {
     padding-top: max(0px, calc(7rem - var(--site-header-height)));
   }
+}
+
+/* =========================================================================
+   SECUREVISION HERO — full-bleed video background
+   The <video> is a direct child of .securevision-hero and stretches from
+   the left browser edge to the right browser edge. Only the inner content
+   keeps a max-width. Never put max-width / margin auto / grid-column on
+   the video itself.
+   ========================================================================= */
+
+.securevision-hero {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.securevision-hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  z-index: 0;
+  pointer-events: none;
+  /* The footage is naturally dark on its left third — lift it slightly so
+     the left side reads as moving video, not an empty black strip. */
+  filter: brightness(1.18) saturate(1.05);
+}
+
+.securevision-video-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(3, 8, 18, 0.82) 0%,
+    rgba(3, 8, 18, 0.62) 20%,
+    rgba(3, 8, 18, 0.3) 38%,
+    rgba(3, 8, 18, 0.08) 55%,
+    rgba(3, 8, 18, 0) 72%
+  );
+}
+
+.securevision-hero-inner {
+  position: relative;
+  z-index: 2;
 }
 
 /* =========================================================================

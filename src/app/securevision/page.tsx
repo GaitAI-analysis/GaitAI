@@ -53,11 +53,11 @@ export default function SecureVisionPage() {
 
   return (
     <>
-      {/* HERO */}
-      <section className="site-page-intro relative min-h-[780px] overflow-hidden pb-20 sm:min-h-[820px] sm:pb-24">
-        {/* Full-bleed cinematic video background — fills the entire hero below the navbar */}
+      {/* HERO — video is a direct child of the section (full browser width),
+          never inside any max-width container. Content sits on top. */}
+      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24">
         <video
-          className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover object-center"
+          className="securevision-hero-video"
           autoPlay
           muted
           loop
@@ -71,17 +71,11 @@ export default function SecureVisionPage() {
           />
         </video>
 
-        {/* Subtle left-side gradient so the headline stays readable while the
-            analytics on the right of the video remain bright */}
-        <div
-          className="pointer-events-none absolute inset-0 z-[1]"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(3,8,18,.68) 0%, rgba(3,8,18,.40) 30%, rgba(3,8,18,.10) 55%, rgba(3,8,18,0) 75%)",
-          }}
-        />
+        {/* Left-side readability gradient — fades to transparent so the
+            tracking visuals and analytics panel stay bright */}
+        <div className="securevision-video-shade" aria-hidden="true" />
 
-        <div className="container-wide relative z-10 flex min-h-[650px] items-center sm:min-h-[680px] lg:min-h-[700px]">
+        <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:min-h-[700px]">
           <div className="w-full max-w-[680px]">
               <div className="inline-flex items-center gap-2 rounded-full border border-royal-300/30 bg-royal-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-royal-300">
                 <ShieldCheck className="h-3.5 w-3.5" />

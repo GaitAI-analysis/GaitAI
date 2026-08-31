@@ -90,7 +90,6 @@ const GAIT_PHASES: readonly GaitPhase[] = [
   },
 ];
 
-const SPINE_PATH = "M0 0 C0.4 -12 0.9 -24 1.5 -34";
 const NECK: Pt = [1.5, -34];
 const HEAD: Pt = [2, -42];
 
@@ -99,24 +98,33 @@ const WALKER_TONES = {
   violet: ["blue", "blue", "indigo", "violet", "violet"],
 } as const;
 
-function toPoints(pts: readonly Pt[]) {
-  return pts.map(([x, y]) => `${x},${y}`).join(" ");
-}
-
 function MocapFrame({
   phase,
+  prevPhase,
   x,
+  prevX,
   baseY,
+  s,
   order,
   tone,
 }: {
   phase: GaitPhase;
+  prevPhase: GaitPhase;
   x: number;
+  prevX: number;
   baseY: number;
+  /** Figure scale — coordinates are multiplied numerically so ghost math stays simple. */
+  s: number;
   order: number;
   tone: string;
 }) {
-  const groundY = 48 - phase.lift;
+  const pts = (p: readonly Pt[]) =>
+    p.map(([px, py]) => `${px * s},${py * s}`).join(" ");
+  const groundY = (48 - phase.lift) * s;
+  const originY = baseY + phase.lift * s;
+  const prevOriginY = baseY + prevPhase.lift * s;
+  const spine = `M0 0 C${0.4 * s} ${-12 * s} ${0.9 * s} ${-24 * s} ${1.5 * s} ${-34 * s}`;
+
   const farJoints: readonly Pt[] = [
     phase.farArm[1],
     phase.farArm[2],
@@ -124,84 +132,130 @@ function MocapFrame({
   ];
   const nearJoints: readonly Pt[] = [...phase.nearArm, ...phase.nearLeg];
 
+  /* Trailing previous-position dots (·  ·  ●) for hip, knee, ankle and
+     wrist, placed along each joint's actual path from the previous
+     captured frame. They live inside the frame group so they surface and
+     fade with the frame's temporal highlight. */
+  const ghostTracks: readonly (readonly [Pt, Pt])[] = [
+    [prevPhase.nearLeg[0], phase.nearLeg[0]],
+    [prevPhase.nearLeg[1], phase.nearLeg[1]],
+    [prevPhase.nearLeg[2], phase.nearLeg[2]],
+    [prevPhase.nearArm[2], phase.nearArm[2]],
+  ];
+  const ghostSteps = [
+    { f: 0.45, r: 0.9 * s, o: 0.24 },
+    { f: 0.72, r: 1.15 * s, o: 0.42 },
+  ] as const;
+
   return (
     <g
       className={`mission-vision-mocap-frame mission-vision-mocap-frame--${tone}`}
-      transform={`translate(${x} ${baseY + phase.lift})`}
+      transform={`translate(${x} ${originY})`}
       style={{ "--mv-i": order } as CSSProperties}
     >
       {phase.contacts.map((contactX) => (
         <ellipse
           key={contactX}
           className="mission-vision-mocap-contact"
-          cx={contactX}
+          cx={contactX * s}
           cy={groundY}
-          rx="8"
-          ry="1.8"
+          rx={8 * s}
+          ry={1.8 * s}
         />
       ))}
 
+      {ghostTracks.map(([pj, cj], gi) =>
+        ghostSteps.map(({ f, r, o }) => {
+          const gx =
+            (prevX + pj[0] * s) * (1 - f) + (x + cj[0] * s) * f - x;
+          const gy =
+            (prevOriginY + pj[1] * s) * (1 - f) +
+            (originY + cj[1] * s) * f -
+            originY;
+          return (
+            <circle
+              key={`g${gi}-${f}`}
+              className="mission-vision-mocap-ghost"
+              cx={Math.round(gx * 10) / 10}
+              cy={Math.round(gy * 10) / 10}
+              r={r}
+              opacity={o}
+            />
+          );
+        })
+      )}
+
       <polyline
         className="mission-vision-mocap-bone mission-vision-mocap-bone--far"
-        points={toPoints(phase.farArm)}
+        points={pts(phase.farArm)}
       />
       <polyline
         className="mission-vision-mocap-bone mission-vision-mocap-bone--far"
-        points={toPoints(phase.farLeg)}
+        points={pts(phase.farLeg)}
       />
       <line
         className="mission-vision-mocap-bone mission-vision-mocap-bone--far"
-        x1={phase.farFoot[0][0]}
-        y1={phase.farFoot[0][1]}
-        x2={phase.farFoot[1][0]}
-        y2={phase.farFoot[1][1]}
+        x1={phase.farFoot[0][0] * s}
+        y1={phase.farFoot[0][1] * s}
+        x2={phase.farFoot[1][0] * s}
+        y2={phase.farFoot[1][1] * s}
       />
 
-      <path className="mission-vision-mocap-bone" d={SPINE_PATH} />
-      <circle className="mission-vision-mocap-head" cx={HEAD[0]} cy={HEAD[1]} r="4.5" />
+      <path className="mission-vision-mocap-bone" d={spine} />
+      <circle
+        className="mission-vision-mocap-head"
+        cx={HEAD[0] * s}
+        cy={HEAD[1] * s}
+        r={4.5 * s}
+      />
 
-      <polyline className="mission-vision-mocap-bone" points={toPoints(phase.nearArm)} />
-      <polyline className="mission-vision-mocap-bone" points={toPoints(phase.nearLeg)} />
+      <polyline className="mission-vision-mocap-bone" points={pts(phase.nearArm)} />
+      <polyline className="mission-vision-mocap-bone" points={pts(phase.nearLeg)} />
       <line
         className="mission-vision-mocap-bone"
-        x1={phase.nearFoot[0][0]}
-        y1={phase.nearFoot[0][1]}
-        x2={phase.nearFoot[1][0]}
-        y2={phase.nearFoot[1][1]}
+        x1={phase.nearFoot[0][0] * s}
+        y1={phase.nearFoot[0][1] * s}
+        x2={phase.nearFoot[1][0] * s}
+        y2={phase.nearFoot[1][1] * s}
       />
 
       {farJoints.map(([jx, jy], j) => (
         <circle
           key={`f${j}`}
           className="mission-vision-mocap-joint mission-vision-mocap-joint--far"
-          cx={jx}
-          cy={jy}
-          r="1.7"
+          cx={jx * s}
+          cy={jy * s}
+          r={1.7 * s}
         />
       ))}
       {nearJoints.map(([jx, jy], j) => (
         <circle
           key={`n${j}`}
           className="mission-vision-mocap-joint"
-          cx={jx}
-          cy={jy}
-          r="2.1"
+          cx={jx * s}
+          cy={jy * s}
+          r={2.1 * s}
         />
       ))}
-      <circle className="mission-vision-mocap-joint" cx={NECK[0]} cy={NECK[1]} r="2" />
+      <circle
+        className="mission-vision-mocap-joint"
+        cx={NECK[0] * s}
+        cy={NECK[1] * s}
+        r={1.9 * s}
+      />
 
       {/* Temporal samples emitted by this frame, sinking toward the signal. */}
       {[0, 1, 2, 3, 4].map((k) => {
-        const h = 6 + ((order * 5 + k * 7) % 11);
-        const tx = -14 + k * 7;
+        const h = (6 + ((order * 5 + k * 7) % 11)) * s;
+        const tx = (-14 + k * 7) * s;
         return (
           <line
             key={k}
             className="mission-vision-mocap-tick"
             x1={tx}
-            y1={groundY + 9}
+            y1={groundY + 9 * s}
             x2={tx}
-            y2={groundY + 9 + h}
+            y2={groundY + 9 * s + h}
           />
         );
       })}
@@ -219,11 +273,14 @@ function MocapWalker({
   className?: string;
 }) {
   const indices = compact ? [0, 2, 4] : [0, 1, 2, 3, 4];
-  const width = compact ? 200 : 248;
-  const height = compact ? 150 : 200;
-  const baseY = compact ? 50 : 60;
-  const xs = compact ? [44, 100, 156] : [34, 79, 124, 169, 214];
-  const groundY = baseY + 48;
+  const s = compact ? 1.35 : 1.5;
+  const spacing = compact ? 66 : 54;
+  const width = compact ? 240 : 312;
+  const height = compact ? 186 : 208;
+  const baseY = compact ? 72 : 78;
+  const x0 = compact ? 50 : 40;
+  const xs = indices.map((_, i) => x0 + i * spacing);
+  const groundY = baseY + 48 * s;
   const phaseShift = variant === "violet" && !compact ? "-2s" : "0s";
 
   return (
@@ -251,8 +308,13 @@ function MocapWalker({
         <MocapFrame
           key={GAIT_PHASES[phaseIndex].id}
           phase={GAIT_PHASES[phaseIndex]}
+          prevPhase={
+            GAIT_PHASES[order === 0 ? indices[indices.length - 1] : indices[order - 1]]
+          }
           x={xs[order]}
+          prevX={order === 0 ? xs[0] - spacing : xs[order - 1]}
           baseY={baseY}
+          s={s}
           order={order}
           tone={WALKER_TONES[variant][phaseIndex]}
         />
@@ -290,16 +352,18 @@ function buildDnaSamples(seed: number, width: number, amp: number): readonly Dna
   let x = 14;
   while (x < width - 14) {
     const t = x / width;
-    const envelope = 0.55 + 0.45 * Math.sin(Math.PI * t);
-    const burst = rand() < 0.14 ? 1.8 : 1;
-    const up = (4 + rand() * 20) * envelope * burst * amp;
-    const down = (2 + rand() * 10) * envelope * burst * amp;
+    const center = Math.sin(Math.PI * t);
+    // Amplitude and density both peak toward the center of the composition.
+    const envelope = 0.42 + 0.78 * Math.pow(center, 1.35);
+    const burst = rand() < 0.16 ? 1.75 : 1;
+    const up = (5 + rand() * 23) * envelope * burst * amp;
+    const down = (2.5 + rand() * 12) * envelope * burst * amp;
     const roll = rand();
     const dot =
-      roll < 0.12
-        ? -(up + 4 + rand() * 6)
-        : roll > 0.9
-          ? down + 4 + rand() * 5
+      roll < 0.16
+        ? -(up + 4 + rand() * 7)
+        : roll > 0.87
+          ? down + 4 + rand() * 6
           : null;
     samples.push({
       x: Math.round(x * 10) / 10,
@@ -307,13 +371,13 @@ function buildDnaSamples(seed: number, width: number, amp: number): readonly Dna
       down: Math.round(down * 10) / 10,
       dot: dot === null ? null : Math.round(dot * 10) / 10,
     });
-    x += 4 + rand() * 9 + (rand() < 0.06 ? 18 : 0);
+    x += (3.5 + rand() * 8) * (1.3 - 0.55 * center) + (rand() < 0.05 ? 14 : 0);
   }
   return samples;
 }
 
-const DNA_SAMPLES_WIDE = buildDnaSamples(20260831, 1600, 1);
-const DNA_SAMPLES_COMPACT = buildDnaSamples(77, 400, 0.72);
+const DNA_SAMPLES_WIDE = buildDnaSamples(20260831, 1600, 1.15);
+const DNA_SAMPLES_COMPACT = buildDnaSamples(77, 400, 0.8);
 
 function MotionDnaSignal({
   idPrefix,
@@ -351,11 +415,11 @@ function MotionDnaSignal({
           y2="0"
         >
           <stop offset="0" stopColor="#4fd1ff" stopOpacity="0" />
-          <stop offset="0.08" stopColor="#4fd1ff" stopOpacity="0.5" />
-          <stop offset="0.3" stopColor="#4fd1ff" stopOpacity="0.62" />
-          <stop offset="0.52" stopColor="#2563ff" stopOpacity="0.6" />
-          <stop offset="0.74" stopColor="#8b5cf6" stopOpacity="0.62" />
-          <stop offset="0.93" stopColor="#8b5cf6" stopOpacity="0.48" />
+          <stop offset="0.08" stopColor="#4fd1ff" stopOpacity="0.62" />
+          <stop offset="0.3" stopColor="#4fd1ff" stopOpacity="0.78" />
+          <stop offset="0.52" stopColor="#2563ff" stopOpacity="0.8" />
+          <stop offset="0.74" stopColor="#8b5cf6" stopOpacity="0.78" />
+          <stop offset="0.93" stopColor="#8b5cf6" stopOpacity="0.6" />
           <stop offset="1" stopColor="#8b5cf6" stopOpacity="0" />
         </linearGradient>
         <linearGradient
@@ -367,14 +431,14 @@ function MotionDnaSignal({
           y2="0"
         >
           <stop offset="0" stopColor="#4fd1ff" stopOpacity="0" />
-          <stop offset="0.3" stopColor="#67e8f9" stopOpacity="0.42" />
-          <stop offset="0.5" stopColor="#93c5fd" stopOpacity="0.85" />
-          <stop offset="0.7" stopColor="#a78bfa" stopOpacity="0.42" />
+          <stop offset="0.3" stopColor="#67e8f9" stopOpacity="0.5" />
+          <stop offset="0.5" stopColor="#93c5fd" stopOpacity="0.95" />
+          <stop offset="0.7" stopColor="#a78bfa" stopOpacity="0.5" />
           <stop offset="1" stopColor="#8b5cf6" stopOpacity="0" />
         </linearGradient>
         <radialGradient id={`${idPrefix}-pulse`}>
-          <stop offset="0" stopColor="#bfe8ff" stopOpacity="0.3" />
-          <stop offset="0.55" stopColor="#4fa8ff" stopOpacity="0.12" />
+          <stop offset="0" stopColor="#bfe8ff" stopOpacity="0.4" />
+          <stop offset="0.55" stopColor="#4fa8ff" stopOpacity="0.16" />
           <stop offset="1" stopColor="#4fa8ff" stopOpacity="0" />
         </radialGradient>
       </defs>
@@ -386,6 +450,20 @@ function MotionDnaSignal({
         }
       >
         <ellipse cx="0" cy={baseline} rx={pulse.rx} ry={pulse.ry} fill={`url(#${idPrefix}-pulse)`} />
+      </g>
+
+      {/* Faint temporal echo of the signal, one sample-step behind. */}
+      <g className="mission-vision-dna-echo">
+        {samples.map((s) => (
+          <line
+            key={`e${s.x}`}
+            x1={s.x - 3}
+            x2={s.x - 3}
+            y1={baseline - s.up * 0.62}
+            y2={baseline + s.down * 0.62}
+            stroke={`url(#${idPrefix}-stroke)`}
+          />
+        ))}
       </g>
 
       {samples.map((s) => (
@@ -407,7 +485,7 @@ function MotionDnaSignal({
             className="mission-vision-dna-dot"
             cx={s.x}
             cy={baseline + (s.dot as number)}
-            r="1.4"
+            r="1.6"
             fill={`url(#${idPrefix}-stroke)`}
           />
         ))}
@@ -434,11 +512,11 @@ function GaitCard({
 }) {
   const isCyan = tone === "cyan";
   return (
-    <div className={`mission-vision-card-aura mission-vision-card-aura--${tone}`}>
+    <div className={`mission-vision-card-aura mission-vision-card-aura--${tone} h-full`}>
       <article
         className={`mission-vision-card ${
           isCyan ? "mission-vision-card--mission" : "mission-vision-card--vision"
-        } relative z-10 overflow-hidden rounded-3xl border p-6 sm:p-8 lg:p-7 ${
+        } relative z-10 h-full overflow-hidden rounded-3xl border p-6 sm:p-8 lg:px-8 lg:py-7 ${
           isCyan ? "border-cyan-300/25" : "border-violet-300/25"
         }`}
       >
@@ -458,7 +536,7 @@ function GaitCard({
             className={`mission-vision-label-signal mission-vision-label-signal--${tone}`}
           />
         </div>
-        <p className="mt-4 font-display text-xl leading-snug text-balance text-soft-white sm:text-2xl lg:text-[1.32rem]">
+        <p className="mt-4 font-display text-xl leading-snug text-balance text-soft-white sm:text-2xl lg:text-[1.38rem] xl:text-[1.45rem]">
           {children}
         </p>
       </article>
@@ -469,8 +547,9 @@ function GaitCard({
 function GaitMissionVision() {
   return (
     <section
+      id="mission-vision"
       aria-label="Mission and vision"
-      className="mission-vision-section mission-vision-section--gait relative isolate overflow-hidden border-y border-white/[0.06] py-16 sm:py-20 lg:flex lg:min-h-[620px] lg:flex-col lg:justify-center lg:py-10"
+      className="mission-vision-section mission-vision-section--gait relative isolate overflow-hidden border-y border-white/[0.06] py-16 sm:py-20 lg:flex lg:min-h-[560px] lg:flex-col lg:justify-center lg:py-10"
     >
       <Reveal
         y={0}
@@ -481,19 +560,18 @@ function GaitMissionVision() {
           aria-hidden="true"
           className="mission-vision-effects mission-vision-gait-stage absolute inset-0"
         >
-          {/* BACK layer: faint grid + scattered temporal data points */}
+          {/* BACK layer: faint grid only — walking + signal carry the interest */}
           <div className="mission-vision-gait-grid" />
-          <div className="mission-vision-dna-field" />
 
           {/* MIDDLE layer: full-width Motion DNA signal through the center */}
           <div className="mission-vision-dna-band hidden lg:block">
             <MotionDnaSignal
               idPrefix="mv-dna-lg"
               width={1600}
-              height={124}
-              baseline={62}
+              height={150}
+              baseline={78}
               samples={DNA_SAMPLES_WIDE}
-              pulse={{ from: "-180px", to: "1780px", rx: 90, ry: 42 }}
+              pulse={{ from: "-180px", to: "1780px", rx: 110, ry: 52 }}
               preserve="xMidYMid slice"
               className="mission-vision-dna h-full w-full"
             />
@@ -501,15 +579,18 @@ function GaitMissionVision() {
         </div>
       </Reveal>
 
-      <div className="container-wide relative z-10">
-        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.5fr)_minmax(0,0.9fr)_minmax(0,1.5fr)_minmax(0,1.15fr)] lg:gap-5 xl:gap-8">
+      <div className="relative z-10 mx-auto w-full max-w-[1460px] px-5 sm:px-8 lg:px-10">
+        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)_minmax(0,0.62fr)_minmax(0,1.8fr)_minmax(0,1fr)] lg:gap-5 xl:gap-6">
           {/* LEFT: cyan walking capture (desktop) */}
           <Reveal className="hidden lg:block lg:order-1">
-            <MocapWalker variant="cyan" />
+            <MocapWalker
+              variant="cyan"
+              className="lg:-mx-3.5 lg:w-[calc(100%+1.75rem)] lg:max-w-none"
+            />
           </Reveal>
 
           {/* MISSION */}
-          <Reveal delay={0.08} className="order-1 lg:order-2">
+          <Reveal delay={0.08} className="order-1 lg:order-2 lg:self-stretch">
             <GaitCard tone="cyan" title="Mission">
               To turn human movement into actionable intelligence that improves
               mobility, performance, safety and security.
@@ -518,17 +599,18 @@ function GaitMissionVision() {
 
           {/* Mobile: compact cyan walking capture */}
           <Reveal delay={0.12} className="order-2 lg:hidden">
-            <MocapWalker variant="cyan" compact className="mx-auto max-w-[230px]" />
+            <MocapWalker variant="cyan" compact className="mx-auto max-w-[260px]" />
           </Reveal>
 
           {/* CENTER: Motion DNA label (+ compact signal on mobile) */}
           <Reveal delay={0.16} className="order-3 lg:order-3">
             <div className="flex flex-col items-center text-center lg:-translate-y-12">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-400">
+              <p className="whitespace-nowrap text-xs font-semibold uppercase tracking-[0.42em] text-slate-300">
                 Motion DNA
               </p>
-              <p className="mt-2 text-[11px] tracking-[0.06em] text-slate-500">
-                One movement signal. Multiple intelligences.
+              <p className="mt-2.5 text-[12.5px] leading-relaxed tracking-[0.02em] text-slate-400">
+                <span className="block whitespace-nowrap">One movement signal.</span>
+                <span className="block whitespace-nowrap">Multiple intelligences.</span>
               </p>
               <MotionDnaSignal
                 idPrefix="mv-dna-sm"
@@ -544,7 +626,7 @@ function GaitMissionVision() {
           </Reveal>
 
           {/* VISION */}
-          <Reveal delay={0.16} className="order-4 lg:order-4">
+          <Reveal delay={0.16} className="order-4 lg:order-4 lg:self-stretch">
             <GaitCard tone="violet" title="Vision">
               To make movement intelligence a trusted layer of decision-making
               across healthcare, sports, enterprise and public-safety
@@ -554,12 +636,15 @@ function GaitMissionVision() {
 
           {/* Mobile: compact violet walking capture */}
           <Reveal delay={0.2} className="order-5 lg:hidden">
-            <MocapWalker variant="violet" compact className="mx-auto max-w-[230px]" />
+            <MocapWalker variant="violet" compact className="mx-auto max-w-[260px]" />
           </Reveal>
 
           {/* RIGHT: blue→violet walking capture (desktop) */}
           <Reveal delay={0.08} className="hidden lg:block lg:order-5">
-            <MocapWalker variant="violet" />
+            <MocapWalker
+              variant="violet"
+              className="lg:-mx-3.5 lg:w-[calc(100%+1.75rem)] lg:max-w-none"
+            />
           </Reveal>
         </div>
       </div>

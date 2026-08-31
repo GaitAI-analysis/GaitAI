@@ -1,14 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Building2,
-  Lock,
-  ShieldCheck,
-  Siren,
-  UsersRound,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Lock, ShieldCheck } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductGrid } from "@/components/products/ProductGrid";
@@ -104,23 +96,17 @@ export default function SecureVisionPage() {
                 </Link>
               </div>
 
-              <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {/* Capability chips — text-only 2×2 grid on dark glass so they
+                  stay readable over the moving video */}
+              <div className="securevision-capability-grid">
                 {[
-                  { icon: Siren, label: "Anomaly alerts" },
-                  { icon: UsersRound, label: "Crowd analytics" },
-                  { icon: Building2, label: "Worker safety" },
-                  { icon: Lock, label: "Privacy-first" },
-                ].map(({ icon: Icon, label }) => (
-                  <div
-                    key={label}
-                    className="flex items-center gap-2 rounded-xl border border-white/8 bg-white/[0.02] p-3"
-                  >
-                    <span className="grid h-7 w-7 place-items-center rounded-md bg-royal-400/10 text-royal-300 ring-1 ring-royal-300/20">
-                      <Icon className="h-3.5 w-3.5" />
-                    </span>
-                    <span className="text-[11px] font-medium text-soft-white">
-                      {label}
-                    </span>
+                  "Anomaly alerts",
+                  "Crowd analytics",
+                  "Worker safety",
+                  "Privacy-first",
+                ].map((label) => (
+                  <div key={label} className="securevision-capability-chip">
+                    {label}
                   </div>
                 ))}
               </div>

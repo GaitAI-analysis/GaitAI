@@ -1137,6 +1137,56 @@ body {
   z-index: 2;
 }
 
+/* Capability chips: text-only 2×2 grid, sitting a little clear of the CTAs.
+   Dark glass fill keeps them readable over the moving footage without
+   dimming the analytics on the right of the video. */
+.securevision-capability-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+  width: fit-content;
+  margin-top: 3rem;
+}
+
+.securevision-capability-chip {
+  min-width: 170px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  border-radius: 11px;
+  color: rgba(245, 249, 255, 0.96);
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(180deg, rgba(14, 35, 60, 0.92), rgba(6, 19, 37, 0.92));
+  border: 1px solid rgba(68, 190, 255, 0.48);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    border-color 300ms ease,
+    transform 300ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .securevision-capability-chip:hover {
+    border-color: rgba(75, 215, 255, 0.82);
+    background: linear-gradient(180deg, rgba(17, 52, 84, 0.97), rgba(7, 27, 48, 0.97));
+    transform: translateY(-1px);
+  }
+}
+
+/* Very narrow screens: stack to one column rather than shrinking the text. */
+@media (max-width: 419px) {
+  .securevision-capability-grid {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
 /* =========================================================================
    LIGHT-MODE OVERRIDES for utilities that hard-code white-alpha
    (these are used liberally across components for glassy surfaces &

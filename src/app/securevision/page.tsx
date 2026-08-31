@@ -26,6 +26,31 @@ const secureUseCases = industryUseCases.filter(
   (u) => u.vertical === "securevision"
 );
 
+const secureSignalsRowOne = [
+  "Gait identity",
+  "Person re-identification",
+  "Movement biometrics",
+  "Abnormal movement",
+  "Loitering detection",
+  "Fall detection",
+  "Restricted-zone entry",
+  "Crowd movement",
+  "Behaviour patterns",
+] as const;
+
+const secureSignalsRowTwo = [
+  "Pose estimation",
+  "Trajectory analysis",
+  "Human activity recognition",
+  "Multimodal sensor fusion",
+  "Edge inference",
+  "Privacy-by-design",
+  "Explainable AI",
+  "Continuous monitoring",
+  "Safety-event detection",
+  "Real-time alerts",
+] as const;
+
 export default function SecureVisionPage() {
   const suspicious = productById("suspiciousmotion");
   const crowdsense = productById("crowdsense");
@@ -358,9 +383,11 @@ export default function SecureVisionPage() {
 
       <MovementIntelligenceSection
         id="securevision-intelligence-title"
-        eyebrow="SecureVision intelligence"
+        eyebrow="SECUREVISION INTELLIGENCE"
         emphasis="every movement."
         description="From gait identity and movement patterns to unusual behaviour and safety events — SecureVision turns human-motion signals into privacy-aware, actionable insight."
+        rowOne={secureSignalsRowOne}
+        rowTwo={secureSignalsRowTwo}
       />
     </>
   );

@@ -29,7 +29,7 @@ export function MobilityCareHero() {
           preload="auto"
         >
           <source
-            src={assetPath("/assets/videos/mobilitycare/mobilitycare-hero.mp4")}
+            src={assetPath("/assets/videos/mobilitycare/mobilitycare-hero-v2.mp4")}
             type="video/mp4"
           />
         </video>

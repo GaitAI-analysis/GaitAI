@@ -12,7 +12,7 @@ import {
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductGrid } from "@/components/products/ProductGrid";
-import { CrowdHeatmapVisual } from "@/components/visuals/CrowdHeatmapVisual";
+import { SecureVisionHeroVisual } from "@/components/visuals/SecureVisionHeroVisual";
 import { industryUseCases, productById } from "@/data/products";
 
 export const metadata: Metadata = {
@@ -98,16 +98,7 @@ export default function SecureVisionPage() {
               </div>
             </div>
 
-            <div className="card-glow relative h-[420px] overflow-hidden p-0">
-              <div className="ring-grid absolute inset-0 opacity-50" />
-              <div className="absolute inset-0 flex items-center justify-center p-6">
-                <CrowdHeatmapVisual />
-              </div>
-              <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-black/40 px-2 py-1 text-[9px] font-medium uppercase tracking-[0.18em] text-royal-300 backdrop-blur-md">
-                <span className="pill-dot" />
-                Crowd heatmap · live
-              </div>
-            </div>
+            <SecureVisionHeroVisual />
           </div>
         </div>
       </section>

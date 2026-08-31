@@ -77,9 +77,10 @@ NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 2. Paste the entire contents of **`firestore.rules`** and click **Publish**.
 
 The rules enforce: public can only *create pending* and *read approved*; only
-`anubhaparashar1025@gmail.com` (verified) can read pending, approve, reject,
-delete, and manage reports; message length / required fields / `status:pending`
-are validated server-side.
+the verified admin accounts `anubhaparashar1025@gmail.com` and
+`gait.ai.founder@gmail.com` can read pending, approve, reject, delete, and
+manage reports; message length / required fields / `status:pending` are
+validated server-side.
 
 > This file is the complete ruleset for the project's Firestore. The live site
 > doesn't otherwise use Firestore, so default-deny on everything else is safe.

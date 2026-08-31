@@ -3,8 +3,8 @@
 /**
  * Google sign-in gate for the admin control panel.
  *
- * Renders its children ONLY for a signed-in Google account on the moderator
- * allowlist (src/lib/comments/config.ts → ADMIN_EMAILS, mirrored in
+ * Renders its children ONLY for a signed-in, verified Google account on the
+ * moderator allowlist (src/lib/comments/config.ts → ADMIN_EMAILS, mirrored in
  * firestore.rules). Everyone else sees a sign-in / not-authorized screen.
  * The verified admin email is passed to children so writes can be attributed.
  */
@@ -32,7 +32,7 @@ export function AdminAuthGate({
     return onAuthStateChanged(auth, (u) => {
       setUser(u);
       if (!u) setPhase("signed-out");
-      else if (isAdminEmail(u.email)) setPhase("authorized");
+      else if (u.emailVerified && isAdminEmail(u.email)) setPhase("authorized");
       else setPhase("denied");
     });
   }, []);
@@ -119,9 +119,9 @@ export function AdminAuthGate({
               Not authorized
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-soft-gray">
-              <span className="text-soft-white">{user?.email}</span> isn&apos;t on
-              the moderator allowlist. Ask an existing admin to add you, then
-              sign in again.
+              <span className="text-soft-white">{user?.email}</span> isn&apos;t a
+              verified account on the moderator allowlist. Ask an existing
+              admin to add you, then sign in again.
             </p>
             <button
               onClick={handleSignOut}

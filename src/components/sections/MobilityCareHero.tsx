@@ -1,17 +1,9 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-
-// Dynamically imported with ssr:false — same pattern as the homepage Hero.
-// Uses the MobilityCare-dedicated scene (frozen pre-animation copy), NOT the
-// animated Home HeroScene, so Home hero changes never propagate to this page.
-const HeroScene = dynamic(() => import("@/components/three/MobilityHeroScene"), {
-  ssr: false,
-  loading: () => null,
-});
+import { MovementHeroBackground } from "@/components/sections/MovementHeroBackground";
 
 // ── exact same animation config as the homepage hero ──────────────────────────
 const fadeUp = {
@@ -41,19 +33,8 @@ export function MobilityCareHero() {
       aria-labelledby="mobilitycare-hero-title"
       className="site-viewport-section relative flex w-full items-center overflow-hidden py-20 sm:py-28 lg:py-32"
     >
-      {/* ── background layers — identical to homepage Hero.tsx ── */}
-      <div className="hero-ambient pointer-events-none absolute inset-0 -z-10" />
-      <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-20" />
-
-      {/* Animated gait skeleton scene — gated on reduced-motion, same as home */}
-      {!reduceMotion && (
-        <div
-          aria-hidden="true"
-          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-20 sm:opacity-30"
-        >
-          <HeroScene />
-        </div>
-      )}
+      {/* ── background — shared with /research/, extracted verbatim ── */}
+      <MovementHeroBackground />
 
       {/* ── content — centred, same layout as homepage hero ── */}
       <div className="container-wide relative z-10">

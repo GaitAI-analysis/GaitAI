@@ -22,6 +22,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { AIPipelineDiagram } from "@/components/visuals/AIPipelineDiagram";
 import { JourneyTimeline } from "@/components/sections/JourneyTimeline";
+import { MovementHeroBackground } from "@/components/sections/MovementHeroBackground";
 
 export const metadata: Metadata = {
   title: "Research — A decade of gait & movement intelligence",
@@ -97,15 +98,11 @@ const methodPillars = [
 export default function ResearchPage() {
   return (
     <>
-      {/* HERO */}
+      {/* HERO — exact MobilityCare hero background, Research content on top */}
       <section className="site-page-intro relative overflow-hidden pb-20">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute left-[8%] top-[15%] h-72 w-72 rounded-full bg-radial-violet opacity-40 blur-3xl" />
-          <div className="absolute right-[8%] top-[15%] h-72 w-72 rounded-full bg-radial-cyan opacity-50 blur-3xl" />
-        </div>
-        <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-30" />
+        <MovementHeroBackground />
 
-        <div className="container-wide">
+        <div className="container-wide relative z-10">
           <div className="mx-auto max-w-3xl text-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
               <span className="pill-dot" />

@@ -29,7 +29,7 @@ const mobilityUseCases = industryUseCases.filter(
   (u) => u.vertical === "mobilitycare"
 );
 
-const mobilitySignalsRowOne = [
+const mobilitySignals = [
   "Gait analysis",
   "Stride variability",
   "Balance & postural sway",
@@ -39,18 +39,12 @@ const mobilitySignalsRowOne = [
   "Rehabilitation progress",
   "Fall-risk prediction",
   "Tremor detection",
-] as const;
-
-const mobilitySignalsRowTwo = [
   "Walking speed",
   "Gait asymmetry",
   "Range of motion",
   "Functional mobility",
   "Pose estimation",
   "Neurological movement signals",
-  "Multimodal sensor fusion",
-  "Explainable AI",
-  "Privacy-by-design",
   "Remote mobility monitoring",
 ] as const;
 
@@ -447,8 +441,7 @@ export default function MobilityCarePage() {
         eyebrow="MOBILITYCARE INTELLIGENCE"
         emphasis="every step."
         description="From gait, balance and mobility change to rehabilitation progress and fall-risk insight — MobilityCare turns human-movement signals into clinically useful, actionable intelligence."
-        rowOne={mobilitySignalsRowOne}
-        rowTwo={mobilitySignalsRowTwo}
+        rowOne={mobilitySignals}
       />
     </>
   );

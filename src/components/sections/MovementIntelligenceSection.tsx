@@ -4,7 +4,7 @@ interface MovementIntelligenceSectionProps {
   emphasis: string;
   description: string;
   rowOne: readonly string[];
-  rowTwo: readonly string[];
+  rowTwo?: readonly string[];
 }
 
 type Accent = "cyan" | "violet";
@@ -123,12 +123,14 @@ export function MovementIntelligenceSection({
       </div>
 
       <MarqueeRow items={rowOne} accent="cyan" />
-      <MarqueeRow
-        items={rowTwo}
-        accent="violet"
-        reverse
-        className="mt-3"
-      />
+      {rowTwo && rowTwo.length > 0 ? (
+        <MarqueeRow
+          items={rowTwo}
+          accent="violet"
+          reverse
+          className="mt-3"
+        />
+      ) : null}
     </section>
   );
 }

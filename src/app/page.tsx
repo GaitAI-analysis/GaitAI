@@ -27,7 +27,7 @@ export default function HomePage() {
 
       {/* About-page narrative — shared components, see src/components/sections/about/ */}
       <AboutMission />
-      <MissionVision />
+      <MissionVision motion="gait" />
       <WhoWeServe />
       <Partnerships />
       <Investors />

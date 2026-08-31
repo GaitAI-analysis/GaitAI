@@ -114,7 +114,6 @@ export interface NavItem {
 // Shared desktop/mobile navigation hierarchy.
 export const navLinks: readonly NavItem[] = [
   { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
   {
     label: "Products",
     href: "/products",

@@ -47,7 +47,7 @@ export default function SecureVisionPage() {
     <>
       {/* HERO — video is a direct child of the section (full browser width),
           never inside any max-width container. Content sits on top. */}
-      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24">
+      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 lg:min-h-[600px] lg:pb-0 lg:pt-0">
         <video
           className="securevision-hero-video"
           autoPlay
@@ -67,18 +67,18 @@ export default function SecureVisionPage() {
             tracking visuals and analytics panel stay bright */}
         <div className="securevision-video-shade" aria-hidden="true" />
 
-        <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:min-h-[700px]">
+        <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:h-full lg:min-h-0">
           <div className="w-full max-w-[680px]">
               <div className="inline-flex items-center gap-2 rounded-full border border-royal-300/30 bg-royal-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-royal-300">
                 <ShieldCheck className="h-3.5 w-3.5" />
                 GaitAI SecureVision · Privacy-first
               </div>
-              <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
+              <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white lg:mt-5">
                 Privacy-aware{" "}
                 <span className="text-gradient-secure">movement intelligence</span>{" "}
                 for safer public spaces.
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg lg:mt-5 lg:text-base">
                 Eleven AI-powered products built around safety analytics, crowd
                 flow, anomaly detection and post-event investigation — backed
                 by{" "}
@@ -86,7 +86,7 @@ export default function SecureVisionPage() {
                 with PrivacyGuard enabled by default and full audit controls.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3">
+              <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-6">
                 <Link href="#products" className="btn-primary">
                   See all 11 products
                   <ArrowRight className="h-4 w-4" />

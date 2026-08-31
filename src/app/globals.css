@@ -1254,6 +1254,36 @@ body {
   }
 }
 
+/* Laptop/desktop: fit the whole hero into the viewport below the navbar and
+   show the COMPLETE video frame — contain, never crop. The trade-off is
+   deliberate: any unused area blends into the same near-black as the
+   footage instead of zooming/cropping the composition. Mobile keeps the
+   flowing cover layout above. */
+@media (min-width: 1024px) {
+  .securevision-hero {
+    height: calc(100vh - var(--site-header-height));
+    height: calc(100svh - var(--site-header-height));
+    min-height: 600px;
+    padding: 0;
+    background: #030812;
+  }
+
+  .securevision-hero-video {
+    object-fit: contain;
+  }
+
+  /* The display-2xl token (7vw) oversizes the headline on laptops; keep its
+     character but let the whole content block fit one screen. */
+  .securevision-hero h1 {
+    font-size: clamp(3rem, 4.1vw, 5.75rem);
+    line-height: 1.05;
+  }
+
+  .securevision-capability-grid {
+    margin-top: 1.75rem;
+  }
+}
+
 /* =========================================================================
    LIGHT-MODE OVERRIDES for utilities that hard-code white-alpha
    (these are used liberally across components for glassy surfaces &

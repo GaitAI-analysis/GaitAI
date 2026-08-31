@@ -12,7 +12,7 @@ import {
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductGrid } from "@/components/products/ProductGrid";
-import { PartnerMarquee } from "@/components/sections/PartnerMarquee";
+import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
 import { SecureVisionHeroVisual } from "@/components/visuals/SecureVisionHeroVisual";
 import { industryUseCases, productById } from "@/data/products";
 
@@ -356,7 +356,12 @@ export default function SecureVisionPage() {
         </div>
       </section>
 
-      <PartnerMarquee />
+      <MovementIntelligenceSection
+        id="securevision-intelligence-title"
+        eyebrow="SecureVision intelligence"
+        emphasis="every movement."
+        description="From gait identity and movement patterns to unusual behaviour and safety events — SecureVision turns human-motion signals into privacy-aware, actionable insight."
+      />
     </>
   );
 }

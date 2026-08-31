@@ -157,7 +157,6 @@ const config: Config = {
         shimmer: "shimmer 3s linear infinite",
         "spin-slow": "spin 20s linear infinite",
         "pulse-glow": "pulseGlow 3s ease-in-out infinite",
-        marquee: "marquee 30s linear infinite",
         "scan-line": "scanLine 4s ease-in-out infinite",
       },
       keyframes: {
@@ -177,10 +176,6 @@ const config: Config = {
         pulseGlow: {
           "0%,100%": { opacity: "0.6", transform: "scale(1)" },
           "50%": { opacity: "1", transform: "scale(1.05)" },
-        },
-        marquee: {
-          from: { transform: "translateX(0)" },
-          to: { transform: "translateX(-50%)" },
         },
         scanLine: {
           "0%": { transform: "translateY(-100%)", opacity: "0" },

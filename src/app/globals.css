@@ -509,7 +509,7 @@ body {
 .light .bg-gunmetal\/30 { background-color: rgb(255 255 255 / 1); }
 .light .bg-gunmetal\/40 { background-color: rgb(255 255 255 / 1); }
 
-/* Off-white stripe sections (HowItWorks / TechStack / PartnerMarquee) */
+/* Off-white stripe sections */
 .light .bg-obsidian-200\/70 { background-color: rgb(255 255 255 / 0.95); }
 .light .bg-obsidian-300\/40 { background-color: rgb(241 245 249 / 1); }
 
@@ -640,16 +640,5 @@ body {
     mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
     -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent 100%);
   }
-  .mask-fade-r {
-    mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
-  }
   .text-balance { text-wrap: balance; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .marquee-viewport {
-    mask-image: none;
-    -webkit-mask-image: none;
-  }
 }

@@ -268,7 +268,7 @@ Optional hardening (pluggable, off by default): Cloudflare **Turnstile** CAPTCHA
 
 **Data seam:** the panel talks only to the `PanelAdapter` interface in `src/lib/admin/panel-store.ts`. Today a localStorage adapter (seeded from `data/posts.json` + sample moderation items) backs it, so the UI is fully usable with zero backend. Wiring Firebase means implementing `createFirebaseAdapter()` with the same interface and swapping one line — no UI changes.
 
-**Auth is temporarily disabled** on this route by design (an amber "Open access" chip makes it visible). It must be re-enabled (Google sign-in against the rules' admin allowlist) before the panel is wired to live Firestore.
+**Auth is enforced** with verified Google sign-in against the same admin allowlist mirrored in `src/lib/comments/config.ts` and `firestore.rules`. Firestore remains the authoritative boundary for all control-panel reads and writes.
 
 ---
 

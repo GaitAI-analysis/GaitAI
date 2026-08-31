@@ -11,7 +11,6 @@ import type { ContentType } from "./types";
 /** The ONLY accounts permitted to moderate. Mirrored in firestore.rules. */
 export const ADMIN_EMAILS: readonly string[] = [
   "anubhaparashar1025@gmail.com",
-  "naveenmalhotra148@gmail.com",
   "gait.ai.founder@gmail.com",
 ];
 

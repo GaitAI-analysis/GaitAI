@@ -12,6 +12,7 @@ import { ClinicalReportVisual } from "@/components/visuals/ClinicalReportVisual"
 import { RunningTrailVisual } from "@/components/visuals/RunningTrailVisual";
 import { SmartwatchVisual } from "@/components/visuals/SmartwatchVisual";
 import { MobilityCareHero } from "@/components/sections/MobilityCareHero";
+import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
 import {
   industryUseCases,
   productById,
@@ -415,6 +416,13 @@ export default function MobilityCarePage() {
           </div>
         </div>
       </section>
+
+      <MovementIntelligenceSection
+        id="mobilitycare-intelligence-title"
+        eyebrow="MobilityCare intelligence"
+        emphasis="every step."
+        description="From gait, balance and mobility change to rehabilitation progress and fall-risk insight — MobilityCare turns human-movement signals into clinically useful, actionable intelligence."
+      />
     </>
   );
 }

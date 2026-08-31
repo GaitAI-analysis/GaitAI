@@ -1434,66 +1434,73 @@ body {
    ========================================================================= */
 
 .mobilitycare-hero {
-  background: #020617;
-  padding: 2.5rem 0 3rem;
-}
-
-.mobilitycare-hero-copy {
-  padding-top: 0.5rem;
-}
-
-.mobilitycare-hero-stage {
   position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  margin-top: 2rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  min-height: clamp(620px, 82vh, 860px);
+  padding: 4.5rem 0;
+  background: #020617;
 }
 
-.mobilitycare-hero-video {
+.mobilitycare-hero__media {
   position: absolute;
   inset: 0;
+  z-index: 0;
+}
+
+.mobilitycare-hero__video {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: center center;
-  z-index: 0;
+  object-fit: cover;
+  object-position: center 42%;
   pointer-events: none;
 }
 
-.mobilitycare-hero-bar {
-  margin-top: 2rem;
+/* Left-biased shade: solid enough behind the copy, fading out so the
+   dashboard, walking figures and report stay bright on the right. */
+.mobilitycare-hero__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(3, 8, 20, 0.88) 0%,
+    rgba(3, 8, 20, 0.72) 30%,
+    rgba(3, 8, 20, 0.38) 54%,
+    rgba(3, 8, 20, 0.1) 74%,
+    rgba(3, 8, 20, 0.04) 100%
+  );
 }
 
+.mobilitycare-hero__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+/* Below the side-by-side breakpoint the copy covers most of the frame, so
+   deepen the shade evenly for readability. */
+@media (max-width: 1023px) {
+  .mobilitycare-hero__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(3, 8, 20, 0.82) 0%,
+      rgba(3, 8, 20, 0.66) 55%,
+      rgba(3, 8, 20, 0.78) 100%
+    );
+  }
+}
+
+/* Laptop/desktop: fill the viewport below the navbar, like SecureVision. */
 @media (min-width: 1024px) {
   .mobilitycare-hero {
-    display: flex;
-    flex-direction: column;
     height: calc(100vh - var(--site-header-height));
     height: calc(100svh - var(--site-header-height));
-    min-height: 600px;
-    padding: 1.1rem 0 1.25rem;
-  }
-
-  .mobilitycare-hero-copy {
-    padding-top: 0;
-  }
-
-  /* The stage takes every pixel between the pill and the CTA bar; the
-     16:9 footage contains inside it, so the full frame is always visible. */
-  .mobilitycare-hero-stage {
-    flex: 1 1 auto;
-    min-height: 0;
-    aspect-ratio: auto;
-    margin-top: 0.9rem;
-  }
-
-  .mobilitycare-hero-bar {
-    margin-top: 1rem;
-    flex-wrap: nowrap;
-  }
-
-  .mobilitycare-hero-breadth {
-    flex-basis: auto;
+    min-height: 620px;
+    max-height: none;
+    padding: 0;
   }
 }
 

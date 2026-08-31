@@ -631,8 +631,13 @@ body {
     vector-effect: non-scaling-stroke;
   }
 
+  /* Occasional emphasized samples — processed key events in the signal. */
+  .mission-vision-dna-sample--strong {
+    stroke-width: 1.9;
+  }
+
   .mission-vision-dna-echo {
-    opacity: 0.3;
+    opacity: 0.34;
   }
 
   .mission-vision-dna-echo line {
@@ -657,6 +662,58 @@ body {
     mix-blend-mode: screen;
     will-change: transform;
     animation: missionVisionDnaPulse 8s linear infinite;
+  }
+
+  /* Sample clusters nearest each walking sequence brighten once per gait
+     cycle (4s), when that side's active frame lands. Kept faint on purpose. */
+  .mission-vision-dna-sync {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 17%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0;
+    animation: missionVisionDnaSync 4s linear infinite;
+  }
+
+  .mission-vision-dna-sync--cyan {
+    left: 2%;
+    background: radial-gradient(
+      50% 44% at 50% 52%,
+      rgb(79 209 255 / 0.15),
+      transparent 72%
+    );
+  }
+
+  .mission-vision-dna-sync--violet {
+    right: 2%;
+    background: radial-gradient(
+      50% 44% at 50% 52%,
+      rgb(139 92 246 / 0.17),
+      transparent 72%
+    );
+    /* Matches the violet walker's -2s phase offset. */
+    animation-delay: -2s;
+  }
+
+  /* Soft dark pocket behind the Motion DNA label — integrated, no box. */
+  .mission-vision-dna-label {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .mission-vision-dna-label::before {
+    content: "";
+    position: absolute;
+    inset: -2.5rem -3.25rem;
+    z-index: -1;
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--c-obsidian) / 0.88),
+      rgb(var(--c-obsidian) / 0.4) 58%,
+      transparent 80%
+    );
   }
 
   /* Walking motion-capture sequences */
@@ -746,7 +803,7 @@ body {
 
   .mission-vision-section--gait .mission-vision-card {
     --mv-card-accent: 79 209 255;
-    background-color: rgb(var(--c-obsidian-200) / 0.52);
+    background-color: rgb(var(--c-obsidian-200) / 0.58);
     background-image: radial-gradient(
       130% 110% at 50% 0%,
       rgb(var(--mv-card-accent) / 0.1),
@@ -962,6 +1019,12 @@ body {
   }
 }
 
+@keyframes missionVisionDnaSync {
+  0%, 6% { opacity: 0; }
+  16% { opacity: 1; }
+  40%, 100% { opacity: 0; }
+}
+
 @keyframes missionVisionLabelSignal {
   0%, 10% { transform: translate3d(-180%, 0, 0); }
   24%, 100% { transform: translate3d(430%, 0, 0); }
@@ -1064,6 +1127,10 @@ body {
   }
 
   .mission-vision-dna-pulse {
+    display: none;
+  }
+
+  .mission-vision-dna-sync {
     display: none;
   }
 

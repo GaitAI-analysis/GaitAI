@@ -328,6 +328,8 @@ type DnaSample = {
   up: number;
   down: number;
   dot: number | null;
+  /** Occasional emphasized sample — reads as a processed key event. */
+  strong: boolean;
 };
 
 /** Small deterministic PRNG so the signal is identical on server and client. */
@@ -370,6 +372,7 @@ function buildDnaSamples(seed: number, width: number, amp: number): readonly Dna
       up: Math.round(up * 10) / 10,
       down: Math.round(down * 10) / 10,
       dot: dot === null ? null : Math.round(dot * 10) / 10,
+      strong: burst > 1,
     });
     x += (3.5 + rand() * 8) * (1.3 - 0.55 * center) + (rand() < 0.05 ? 14 : 0);
   }
@@ -469,7 +472,9 @@ function MotionDnaSignal({
       {samples.map((s) => (
         <line
           key={s.x}
-          className="mission-vision-dna-sample"
+          className={`mission-vision-dna-sample${
+            s.strong ? " mission-vision-dna-sample--strong" : ""
+          }`}
           x1={s.x}
           x2={s.x}
           y1={baseline - s.up}
@@ -536,7 +541,7 @@ function GaitCard({
             className={`mission-vision-label-signal mission-vision-label-signal--${tone}`}
           />
         </div>
-        <p className="mt-4 font-display text-xl leading-snug text-balance text-soft-white sm:text-2xl lg:text-[1.38rem] xl:text-[1.45rem]">
+        <p className="mt-4 font-display text-xl leading-snug text-balance text-soft-white sm:text-2xl lg:text-[1.3rem] xl:text-[1.38rem]">
           {children}
         </p>
       </article>
@@ -549,7 +554,7 @@ function GaitMissionVision() {
     <section
       id="mission-vision"
       aria-label="Mission and vision"
-      className="mission-vision-section mission-vision-section--gait relative isolate overflow-hidden border-y border-white/[0.06] py-16 sm:py-20 lg:flex lg:min-h-[560px] lg:flex-col lg:justify-center lg:py-10"
+      className="mission-vision-section mission-vision-section--gait relative isolate overflow-hidden border-y border-white/[0.06] py-12 sm:py-16 lg:flex lg:min-h-[480px] lg:flex-col lg:justify-center lg:py-8"
     >
       <Reveal
         y={0}
@@ -575,17 +580,21 @@ function GaitMissionVision() {
               preserve="xMidYMid slice"
               className="mission-vision-dna h-full w-full"
             />
+            {/* Sample clusters near each walking sequence brighten once per
+                gait cycle, as the active frame lands. */}
+            <div className="mission-vision-dna-sync mission-vision-dna-sync--cyan" />
+            <div className="mission-vision-dna-sync mission-vision-dna-sync--violet" />
           </div>
         </div>
       </Reveal>
 
-      <div className="relative z-10 mx-auto w-full max-w-[1460px] px-5 sm:px-8 lg:px-10">
-        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)_minmax(0,0.62fr)_minmax(0,1.8fr)_minmax(0,1fr)] lg:gap-5 xl:gap-6">
+      <div className="relative z-10 mx-auto w-full max-w-[1520px] px-5 sm:px-8 lg:px-10">
+        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1.8fr)_minmax(0,0.62fr)_minmax(0,1.8fr)_minmax(0,1.12fr)] lg:gap-5 xl:gap-6">
           {/* LEFT: cyan walking capture (desktop) */}
           <Reveal className="hidden lg:block lg:order-1">
             <MocapWalker
               variant="cyan"
-              className="lg:-mx-3.5 lg:w-[calc(100%+1.75rem)] lg:max-w-none"
+              className="lg:-mx-5 lg:w-[calc(100%+2.5rem)] lg:max-w-none"
             />
           </Reveal>
 
@@ -599,19 +608,23 @@ function GaitMissionVision() {
 
           {/* Mobile: compact cyan walking capture */}
           <Reveal delay={0.12} className="order-2 lg:hidden">
-            <MocapWalker variant="cyan" compact className="mx-auto max-w-[260px]" />
+            <MocapWalker variant="cyan" compact className="mx-auto max-w-[300px]" />
           </Reveal>
 
           {/* CENTER: Motion DNA label (+ compact signal on mobile) */}
           <Reveal delay={0.16} className="order-3 lg:order-3">
             <div className="flex flex-col items-center text-center lg:-translate-y-12">
-              <p className="whitespace-nowrap text-xs font-semibold uppercase tracking-[0.42em] text-slate-300">
-                Motion DNA
-              </p>
-              <p className="mt-2.5 text-[12.5px] leading-relaxed tracking-[0.02em] text-slate-400">
-                <span className="block whitespace-nowrap">One movement signal.</span>
-                <span className="block whitespace-nowrap">Multiple intelligences.</span>
-              </p>
+              {/* Soft dark pocket (no box) keeps the label readable where the
+                  signal is strongest. */}
+              <div className="mission-vision-dna-label">
+                <p className="whitespace-nowrap text-[13px] font-semibold uppercase tracking-[0.42em] text-slate-200">
+                  Motion DNA
+                </p>
+                <p className="mt-2.5 text-[12.5px] leading-relaxed tracking-[0.02em] text-slate-400">
+                  <span className="block whitespace-nowrap">One movement signal.</span>
+                  <span className="block whitespace-nowrap">Multiple intelligences.</span>
+                </p>
+              </div>
               <MotionDnaSignal
                 idPrefix="mv-dna-sm"
                 width={400}
@@ -628,22 +641,24 @@ function GaitMissionVision() {
           {/* VISION */}
           <Reveal delay={0.16} className="order-4 lg:order-4 lg:self-stretch">
             <GaitCard tone="violet" title="Vision">
-              To make movement intelligence a trusted layer of decision-making
-              across healthcare, sports, enterprise and public-safety
+              To make movement intelligence a trusted layer of{" "}
+              <span className="whitespace-nowrap">decision-making</span> across
+              healthcare, sports, enterprise and{" "}
+              <span className="whitespace-nowrap">public-safety</span>{" "}
               environments.
             </GaitCard>
           </Reveal>
 
           {/* Mobile: compact violet walking capture */}
           <Reveal delay={0.2} className="order-5 lg:hidden">
-            <MocapWalker variant="violet" compact className="mx-auto max-w-[260px]" />
+            <MocapWalker variant="violet" compact className="mx-auto max-w-[300px]" />
           </Reveal>
 
           {/* RIGHT: blue→violet walking capture (desktop) */}
           <Reveal delay={0.08} className="hidden lg:block lg:order-5">
             <MocapWalker
               variant="violet"
-              className="lg:-mx-3.5 lg:w-[calc(100%+1.75rem)] lg:max-w-none"
+              className="lg:-mx-5 lg:w-[calc(100%+2.5rem)] lg:max-w-none"
             />
           </Reveal>
         </div>
@@ -706,9 +721,11 @@ export function MissionVision({ motion = "ambient" }: MissionVisionProps) {
                 <span>Vision</span>
               </div>
               <p className="mt-5 font-display text-2xl leading-snug text-balance text-soft-white sm:text-3xl">
-                To make movement intelligence a trusted layer of
-                decision-making across healthcare, sports, enterprise and
-                public-safety environments.
+                To make movement intelligence a trusted layer of{" "}
+                <span className="whitespace-nowrap">decision-making</span>{" "}
+                across healthcare, sports, enterprise and{" "}
+                <span className="whitespace-nowrap">public-safety</span>{" "}
+                environments.
               </p>
             </article>
           </Reveal>

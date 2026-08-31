@@ -8,7 +8,6 @@ import { HowItWorks } from "@/components/sections/HowItWorks";
 import { UseCases } from "@/components/sections/UseCases";
 import { ResearchCredibility } from "@/components/sections/ResearchCredibility";
 import { Vision } from "@/components/sections/Vision";
-import { JourneyTimeline } from "@/components/sections/JourneyTimeline";
 import { AboutMission } from "@/components/sections/about/AboutMission";
 import { MissionVision } from "@/components/sections/about/MissionVision";
 import { WhoWeServe } from "@/components/sections/about/WhoWeServe";
@@ -31,7 +30,6 @@ export default function HomePage() {
       {/* About-page narrative — shared components, see src/components/sections/about/ */}
       <AboutMission />
       <MissionVision />
-      <JourneyTimeline />
       <PartnerMarquee />
       <MetricsStrip />
       <WhoWeServe />

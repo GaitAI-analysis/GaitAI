@@ -4,6 +4,146 @@ type MissionVisionProps = {
   motion?: "ambient" | "gait";
 };
 
+type Point = readonly [number, number];
+
+type GaitFrame = {
+  x: number;
+  phase: string;
+  index: string;
+  tone: "cyan" | "blue" | "violet";
+  nearArm: readonly [Point, Point, Point];
+  farArm: readonly [Point, Point, Point];
+  nearLeg: readonly [Point, Point, Point];
+  farLeg: readonly [Point, Point, Point];
+  nearFoot: readonly [Point, Point];
+  farFoot: readonly [Point, Point];
+  contacts: readonly number[];
+};
+
+const GAIT_FRAMES: readonly GaitFrame[] = [
+  {
+    x: 140,
+    index: "01",
+    phase: "HEEL STRIKE",
+    tone: "cyan",
+    nearArm: [[1, -43], [-14, -21], [-25, 3]],
+    farArm: [[-1, -43], [15, -21], [29, 0]],
+    nearLeg: [[3, 0], [27, 34], [50, 68]],
+    farLeg: [[-3, 0], [-21, 32], [-38, 65]],
+    nearFoot: [[50, 68], [61, 70]],
+    farFoot: [[-38, 65], [-28, 69]],
+    contacts: [-28, 61],
+  },
+  {
+    x: 430,
+    index: "02",
+    phase: "LOADING",
+    tone: "cyan",
+    nearArm: [[1, -43], [-11, -20], [-19, 4]],
+    farArm: [[-1, -43], [12, -20], [22, 2]],
+    nearLeg: [[3, 0], [21, 36], [37, 69]],
+    farLeg: [[-3, 0], [-14, 32], [-25, 65]],
+    nearFoot: [[37, 69], [50, 70]],
+    farFoot: [[-25, 65], [-16, 69]],
+    contacts: [-16, 50],
+  },
+  {
+    x: 720,
+    index: "03",
+    phase: "MID-STANCE",
+    tone: "blue",
+    nearArm: [[1, -43], [-6, -18], [-8, 6]],
+    farArm: [[-1, -43], [7, -18], [11, 5]],
+    nearLeg: [[3, 0], [3, 35], [1, 69]],
+    farLeg: [[-3, 0], [-13, 29], [-22, 53]],
+    nearFoot: [[1, 69], [14, 69]],
+    farFoot: [[-22, 53], [-11, 57]],
+    contacts: [14],
+  },
+  {
+    x: 1010,
+    index: "04",
+    phase: "TOE-OFF",
+    tone: "violet",
+    nearArm: [[1, -43], [16, -20], [30, 2]],
+    farArm: [[-1, -43], [-14, -20], [-27, 3]],
+    nearLeg: [[3, 0], [-21, 32], [-38, 63]],
+    farLeg: [[-3, 0], [22, 34], [37, 68]],
+    nearFoot: [[-38, 63], [-28, 69]],
+    farFoot: [[37, 68], [50, 69]],
+    contacts: [-28, 50],
+  },
+  {
+    x: 1300,
+    index: "05",
+    phase: "SWING",
+    tone: "violet",
+    nearArm: [[1, -43], [-14, -21], [-25, 3]],
+    farArm: [[-1, -43], [15, -21], [29, 0]],
+    nearLeg: [[3, 0], [25, 28], [11, 52]],
+    farLeg: [[-3, 0], [-5, 35], [-8, 68]],
+    nearFoot: [[11, 52], [23, 54]],
+    farFoot: [[-8, 68], [5, 69]],
+    contacts: [5],
+  },
+];
+
+function points(points: readonly Point[]) {
+  return points.map(([x, y]) => `${x},${y}`).join(" ");
+}
+
+function GaitPose({ frame }: { frame: GaitFrame }) {
+  const joints = [
+    ...frame.nearArm,
+    ...frame.farArm,
+    ...frame.nearLeg,
+    ...frame.farLeg,
+  ];
+
+  return (
+    <g
+      className={`mission-vision-gait-pose mission-vision-gait-pose--${frame.tone}`}
+      transform={`translate(${frame.x} 332)`}
+    >
+      {frame.contacts.map((contactX) => (
+        <ellipse
+          key={`${frame.index}-contact-${contactX}`}
+          className="mission-vision-gait-contact"
+          cx={contactX}
+          cy="72"
+          rx="15"
+          ry="2.5"
+        />
+      ))}
+      <path className="mission-vision-gait-spine" d="M0 0 C-1 -17 1 -32 0 -52" />
+      <line className="mission-vision-gait-axis" x1="-6" y1="-43" x2="6" y2="-43" />
+      <line className="mission-vision-gait-axis" x1="-5" y1="0" x2="5" y2="0" />
+      <circle className="mission-vision-gait-head" cx="0" cy="-65" r="8" />
+
+      <polyline className="mission-vision-gait-limb mission-vision-gait-limb--far" points={points(frame.farArm)} />
+      <polyline className="mission-vision-gait-limb mission-vision-gait-limb--far" points={points(frame.farLeg)} />
+      <line className="mission-vision-gait-limb mission-vision-gait-limb--far" x1={frame.farFoot[0][0]} y1={frame.farFoot[0][1]} x2={frame.farFoot[1][0]} y2={frame.farFoot[1][1]} />
+
+      <polyline className="mission-vision-gait-limb" points={points(frame.nearArm)} />
+      <polyline className="mission-vision-gait-limb" points={points(frame.nearLeg)} />
+      <line className="mission-vision-gait-limb" x1={frame.nearFoot[0][0]} y1={frame.nearFoot[0][1]} x2={frame.nearFoot[1][0]} y2={frame.nearFoot[1][1]} />
+
+      {joints.map(([x, y], jointIndex) => (
+        <circle
+          key={`${frame.index}-${jointIndex}`}
+          className="mission-vision-gait-joint"
+          cx={x}
+          cy={y}
+          r={jointIndex % 3 === 0 ? 2.25 : 1.7}
+        />
+      ))}
+
+      <text className="mission-vision-gait-phase-index" x="-34" y="91">{frame.index}</text>
+      <text className="mission-vision-gait-phase-label" x="-14" y="91">{frame.phase}</text>
+    </g>
+  );
+}
+
 /**
  * Mission & vision statement pair. Shared by /about and the home page.
  */
@@ -46,6 +186,13 @@ export function MissionVision({ motion = "ambient" }: MissionVisionProps) {
                   <stop offset="0.76" stopColor="#8b5cf6" stopOpacity="0.52" />
                   <stop offset="1" stopColor="#8b5cf6" stopOpacity="0" />
                 </linearGradient>
+                <linearGradient id="mission-vision-gait-ground" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stopColor="#4fd1ff" stopOpacity="0" />
+                  <stop offset="0.18" stopColor="#4fd1ff" stopOpacity="0.28" />
+                  <stop offset="0.5" stopColor="#2563ff" stopOpacity="0.22" />
+                  <stop offset="0.82" stopColor="#8b5cf6" stopOpacity="0.28" />
+                  <stop offset="1" stopColor="#8b5cf6" stopOpacity="0" />
+                </linearGradient>
               </defs>
               <path
                 className="mission-vision-gait-path mission-vision-gait-path--primary"
@@ -66,6 +213,16 @@ export function MissionVision({ motion = "ambient" }: MissionVisionProps) {
                 <circle className="mission-vision-gait-node mission-vision-gait-node--blue" cx="534" cy="238" r="3" />
                 <circle className="mission-vision-gait-node mission-vision-gait-node--violet" cx="874" cy="244" r="3" />
                 <circle className="mission-vision-gait-node mission-vision-gait-node--blue" cx="1234" cy="218" r="3" />
+              </g>
+              <path
+                className="mission-vision-gait-ground"
+                d="M30 404 C360 402 1080 406 1410 404"
+                stroke="url(#mission-vision-gait-ground)"
+              />
+              <g className="mission-vision-gait-cycle">
+                {GAIT_FRAMES.map((frame) => (
+                  <GaitPose key={frame.index} frame={frame} />
+                ))}
               </g>
             </svg>
           </div>

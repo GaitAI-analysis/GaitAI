@@ -1514,6 +1514,34 @@ body {
   }
 }
 
+/* Light mode: the MobilityCare hero is a cinematic dark-media section and
+   must look the same dark hero in BOTH themes — only the navbar and the
+   sections below it follow the global light theme. Every rule here is
+   scoped under .light so the default/dark hero styles stay byte-for-byte
+   untouched: re-pin the dark theme's color tokens inside the hero subtree
+   so light-mode variable flips can't darken the copy, CTAs or chips
+   sitting on the video. */
+.light .mobilitycare-hero {
+  color-scheme: dark;
+  --c-obsidian: 7 11 20;
+  --c-soft-white: 248 250 252;
+  --c-soft-gray: 203 213 225;
+  --c-soft-mute: 148 163 184;
+}
+
+/* Keep the "health and identity." accent on the dark-theme cyan/teal
+   gradient instead of the light-theme darkened variant. */
+.light .mobilitycare-hero .text-gradient-mobility {
+  background-image: linear-gradient(135deg, #bdf9ff 0%, #4fd1ff 42%, #0fa3b1 100%);
+}
+
+/* "Explore products" keeps its dark translucent teal treatment. */
+.light .mobilitycare-hero .hero-product-link--care {
+  color: #bdf9f1;
+  border-color: rgb(94 234 212 / 0.35);
+  background: rgb(94 234 212 / 0.1);
+}
+
 /* =========================================================================
    LIGHT-MODE OVERRIDES for utilities that hard-code white-alpha
    (these are used liberally across components for glassy surfaces &

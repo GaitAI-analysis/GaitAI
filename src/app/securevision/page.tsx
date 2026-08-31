@@ -26,7 +26,7 @@ const secureUseCases = industryUseCases.filter(
   (u) => u.vertical === "securevision"
 );
 
-const secureSignalsRowOne = [
+const secureSignals = [
   "Gait identity",
   "Person re-identification",
   "Movement biometrics",
@@ -36,18 +36,12 @@ const secureSignalsRowOne = [
   "Restricted-zone entry",
   "Crowd movement",
   "Behaviour patterns",
-] as const;
-
-const secureSignalsRowTwo = [
+  "Human activity recognition",
   "Pose estimation",
   "Trajectory analysis",
-  "Human activity recognition",
-  "Multimodal sensor fusion",
-  "Edge inference",
-  "Privacy-by-design",
-  "Explainable AI",
-  "Continuous monitoring",
   "Safety-event detection",
+  "Privacy-preserving analytics",
+  "Edge inference",
   "Real-time alerts",
 ] as const;
 
@@ -386,8 +380,7 @@ export default function SecureVisionPage() {
         eyebrow="SECUREVISION INTELLIGENCE"
         emphasis="every movement."
         description="From gait identity and movement patterns to unusual behaviour and safety events — SecureVision turns human-motion signals into privacy-aware, actionable insight."
-        rowOne={secureSignalsRowOne}
-        rowTwo={secureSignalsRowTwo}
+        rowOne={secureSignals}
       />
     </>
   );

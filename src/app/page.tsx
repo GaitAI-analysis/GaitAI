@@ -1,5 +1,4 @@
 import { Hero } from "@/components/sections/Hero";
-import { PartnerMarquee } from "@/components/sections/PartnerMarquee";
 import { Verticals } from "@/components/sections/Verticals";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
 import { WatchCareFlagship } from "@/components/sections/WatchCareFlagship";
@@ -29,7 +28,6 @@ export default function HomePage() {
       {/* About-page narrative — shared components, see src/components/sections/about/ */}
       <AboutMission />
       <MissionVision />
-      <PartnerMarquee />
       <WhoWeServe />
       <Partnerships />
       <Investors />

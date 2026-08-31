@@ -95,17 +95,19 @@ export default function SecureVisionPage() {
                 </Link>
               </div>
 
-              {/* Capability chips — text-only 2×2 grid on dark glass so they
-                  stay readable over the moving video */}
+              {/* Capability chips — text-only, two rows, each chip snug around
+                  its own label so they stay readable over the moving video */}
               <div className="securevision-capability-grid">
                 {[
-                  "Anomaly alerts",
-                  "Crowd analytics",
-                  "Worker safety",
-                  "Privacy-first",
-                ].map((label) => (
-                  <div key={label} className="securevision-capability-chip">
-                    {label}
+                  ["Anomaly alerts", "Crowd analytics"],
+                  ["Worker safety", "Privacy-first"],
+                ].map((row) => (
+                  <div key={row[0]} className="securevision-capability-row">
+                    {row.map((label) => (
+                      <div key={label} className="securevision-capability-chip">
+                        {label}
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>

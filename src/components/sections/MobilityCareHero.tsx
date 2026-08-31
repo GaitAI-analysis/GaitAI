@@ -85,9 +85,21 @@ export function MobilityCareHero() {
             </Link>
           </div>
 
-          <div className="mt-10 text-xs leading-relaxed text-soft-gray/80 lg:mt-9">
-            Clinical gait · Fall-risk · Rehabilitation · Sports motion ·
-            Elderly mobility · Wearable intelligence
+          {/* Capability pills — same component style as the SecureVision hero
+              chips so both product pages read as one family */}
+          <div className="securevision-capability-grid">
+            {[
+              ["Clinical gait", "Fall-risk"],
+              ["Rehabilitation", "Elderly mobility"],
+            ].map((row) => (
+              <div key={row[0]} className="securevision-capability-row">
+                {row.map((label) => (
+                  <div key={label} className="securevision-capability-chip">
+                    {label}
+                  </div>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>

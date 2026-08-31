@@ -619,8 +619,6 @@ body {
     width: max(120%, 72rem);
     overflow: visible;
     transform: translate3d(-50%, 0, 0);
-    will-change: transform;
-    animation: missionVisionGaitMap 36s ease-in-out infinite alternate;
   }
 
   .mission-vision-gait-path {
@@ -677,6 +675,99 @@ body {
     fill: rgb(139 92 246 / 0.6);
     stroke: rgb(139 92 246 / 0.15);
     stroke-width: 7;
+  }
+
+  .mission-vision-gait-ground {
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: 0.8;
+    stroke-dasharray: 2 10;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .mission-vision-gait-pose {
+    color: rgb(37 99 255 / 0.58);
+    opacity: 0.3;
+    will-change: opacity;
+    animation: missionVisionGaitPose 20s ease-in-out infinite both;
+  }
+
+  .mission-vision-gait-pose:nth-child(2) { animation-delay: -16s; }
+  .mission-vision-gait-pose:nth-child(3) { animation-delay: -12s; }
+  .mission-vision-gait-pose:nth-child(4) { animation-delay: -8s; }
+  .mission-vision-gait-pose:nth-child(5) { animation-delay: -4s; }
+
+  .mission-vision-gait-pose--cyan {
+    color: rgb(79 209 255 / 0.68);
+  }
+
+  .mission-vision-gait-pose--blue {
+    color: rgb(37 99 255 / 0.64);
+  }
+
+  .mission-vision-gait-pose--violet {
+    color: rgb(139 92 246 / 0.68);
+  }
+
+  .mission-vision-gait-spine,
+  .mission-vision-gait-axis,
+  .mission-vision-gait-limb {
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .mission-vision-gait-spine {
+    stroke-width: 1.7;
+  }
+
+  .mission-vision-gait-axis {
+    stroke-width: 1.2;
+    opacity: 0.72;
+  }
+
+  .mission-vision-gait-limb {
+    stroke-width: 1.65;
+  }
+
+  .mission-vision-gait-limb--far {
+    opacity: 0.48;
+    stroke-width: 1.3;
+  }
+
+  .mission-vision-gait-head {
+    fill: rgb(var(--c-obsidian-300) / 0.96);
+    stroke: currentColor;
+    stroke-width: 1.4;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .mission-vision-gait-joint {
+    fill: currentColor;
+  }
+
+  .mission-vision-gait-contact {
+    fill: currentColor;
+    opacity: 0.16;
+    filter: blur(1.5px);
+  }
+
+  .mission-vision-gait-phase-index,
+  .mission-vision-gait-phase-label {
+    fill: currentColor;
+    font-family: var(--font-jetbrains), "JetBrains Mono", monospace;
+    font-size: 7px;
+    letter-spacing: 0.12em;
+  }
+
+  .mission-vision-gait-phase-index {
+    opacity: 0.9;
+  }
+
+  .mission-vision-gait-phase-label {
+    opacity: 0.58;
   }
 
   .mission-vision-section--gait .mission-vision-card {
@@ -838,14 +929,18 @@ body {
   to { transform: translate3d(48px, 0, 0); }
 }
 
-@keyframes missionVisionGaitMap {
-  from { transform: translate3d(-50%, 0, 0); }
-  to { transform: translate3d(calc(-50% + 24px), 0, 0); }
-}
-
 @keyframes missionVisionGaitTrace {
   from { stroke-dashoffset: 0; }
   to { stroke-dashoffset: -420; }
+}
+
+@keyframes missionVisionGaitPose {
+  0%, 12% {
+    opacity: 0.72;
+  }
+  24%, 100% {
+    opacity: 0.3;
+  }
 }
 
 @keyframes missionVisionGaitNode {
@@ -920,9 +1015,9 @@ body {
   .mission-vision-network,
   .mission-vision-sweep,
   .mission-vision-gait-grid,
-  .mission-vision-gait-map,
   .mission-vision-gait-path,
   .mission-vision-gait-node,
+  .mission-vision-gait-pose,
   .mission-vision-label-signal::after {
     animation: none;
     will-change: auto;
@@ -954,6 +1049,10 @@ body {
   .mission-vision-gait-map {
     opacity: 0.72;
     transform: translate3d(-50%, 0, 0);
+  }
+
+  .mission-vision-gait-pose {
+    opacity: 0.48;
   }
 
   .mission-vision-gait-node {

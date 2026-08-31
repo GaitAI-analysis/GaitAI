@@ -1,41 +1,142 @@
 import type { CSSProperties, ReactNode } from "react";
 import styles from "./SecureVisionHeroVisual.module.css";
 
-const metrics = [
-  { label: "Cadence", value: "112", unit: "spm", level: "72%" },
-  { label: "Stride length", value: "1.34", unit: "m", level: "84%" },
-  { label: "Step symmetry", value: "96.2", unit: "%", level: "96%" },
-  { label: "Posture stability", value: "94.8", unit: "%", level: "95%" },
-  { label: "Gait cycle", value: "1.07", unit: "s", level: "78%" },
-  { label: "Mobility score", value: "92", unit: "/100", level: "92%" },
+type Tone = "cyan" | "blue" | "violet" | "slate";
+type Travel =
+  | "forward"
+  | "forwardFast"
+  | "reverse"
+  | "reverseFast"
+  | "selectedTravel";
+
+type Walker = {
+  id: string;
+  x: number;
+  y: number;
+  scale: number;
+  direction: 1 | -1;
+  tone: Tone;
+  travel: Travel;
+  phase: string;
+  delay: string;
+  speed: string;
+  mobile: boolean;
+};
+
+const walkers: Walker[] = [
+  { id: "far-a", x: 410, y: 382, scale: 0.43, direction: 1, tone: "slate", travel: "forward", phase: "-.28s", delay: "-8s", speed: "18s", mobile: false },
+  { id: "far-b", x: 650, y: 354, scale: 0.36, direction: -1, tone: "violet", travel: "reverse", phase: "-.52s", delay: "-3s", speed: "16s", mobile: false },
+  { id: "far-c", x: 890, y: 392, scale: 0.48, direction: 1, tone: "cyan", travel: "forwardFast", phase: "-.14s", delay: "-6s", speed: "13s", mobile: true },
+  { id: "far-d", x: 1210, y: 370, scale: 0.4, direction: -1, tone: "slate", travel: "reverseFast", phase: "-.64s", delay: "-10s", speed: "14s", mobile: false },
+  { id: "mid-a", x: 470, y: 575, scale: 0.78, direction: 1, tone: "violet", travel: "forwardFast", phase: "-.38s", delay: "-4s", speed: "15s", mobile: false },
+  { id: "mid-b", x: 700, y: 635, scale: 0.96, direction: -1, tone: "cyan", travel: "reverse", phase: "-.08s", delay: "-9s", speed: "17s", mobile: true },
+  { id: "selected", x: 910, y: 642, scale: 1.13, direction: 1, tone: "blue", travel: "selectedTravel", phase: "-.22s", delay: "0s", speed: "14s", mobile: true },
+  { id: "mid-c", x: 1115, y: 602, scale: 0.88, direction: -1, tone: "slate", travel: "reverseFast", phase: "-.58s", delay: "-2s", speed: "12s", mobile: true },
+  { id: "near-a", x: 1375, y: 700, scale: 1.24, direction: -1, tone: "violet", travel: "reverse", phase: "-.44s", delay: "-12s", speed: "19s", mobile: false },
+  { id: "near-b", x: 1535, y: 565, scale: 0.72, direction: -1, tone: "cyan", travel: "reverseFast", phase: "-.18s", delay: "-5s", speed: "14s", mobile: false },
 ];
 
-function Person({ tone = "blue" }: { tone?: "blue" | "violet" | "cyan" }) {
+const metrics = [
+  { label: "Cadence", value: "112", unit: "steps/min", level: "78%" },
+  { label: "Stride length", value: "1.24", unit: "m", level: "84%" },
+  { label: "Step symmetry", value: "92", unit: "%", level: "92%" },
+  { label: "Posture stability", value: "94", unit: "%", level: "94%" },
+  { label: "Gait cycle", value: "0.98", unit: "sec", level: "81%" },
+];
+
+function walkerStyle(walker: Walker): CSSProperties {
+  return {
+    "--walker-x": walker.x,
+    "--walker-y": walker.y,
+    "--walker-scale": walker.scale,
+    "--walker-direction": walker.direction,
+    "--gait-phase": walker.phase,
+    "--travel-delay": walker.delay,
+    "--travel-speed": walker.speed,
+  } as CSSProperties;
+}
+
+function PersonSilhouette({ tone }: { tone: Tone }) {
   return (
     <g className={`${styles.person} ${styles[`person${tone}`]}`}>
-      <circle cx="0" cy="-50" r="9" />
-      <path d="M-7-38 Q0-43 7-38 L10-5 Q7 7 0 9 Q-7 7-10-5Z" />
-      <path d="M-6 5 L-11 38 L-4 39 L1 14 L7 39 L14 37 L7 4Z" />
-      <path d="M-8-31 L-20-3 L-15 0 L-3-21 L12-2 L17-6 L7-34Z" />
+      <g className={styles.bodyBob}>
+        <circle className={styles.personHead} cx="0" cy="-76" r="13" />
+        <path className={styles.personBody} d="M-13-58Q0-65 13-58L16-10Q10 4 0 5-10 4-16-10Z" />
+        <g className={styles.armBack}>
+          <path d="M-10-51Q-24-31-27-4" />
+          <circle cx="-27" cy="-3" r="5" />
+        </g>
+        <g className={styles.armFront}>
+          <path d="M10-51Q23-28 28-2" />
+          <circle cx="28" cy="-1" r="5" />
+        </g>
+        <g className={styles.legBack}>
+          <path d="M-7 0Q-14 25-18 57" />
+          <path d="M-18 57L-30 62" />
+        </g>
+        <g className={styles.legFront}>
+          <path d="M7 0Q14 24 21 55" />
+          <path d="M21 55L34 59" />
+        </g>
+      </g>
     </g>
   );
 }
 
-function Skeleton() {
+function PoseSkeleton({ selected = false }: { selected?: boolean }) {
   return (
-    <g className={styles.skeleton}>
-      <circle cx="0" cy="-50" r="8" />
-      <circle cx="0" cy="-37" r="2.4" />
-      <circle cx="0" cy="-10" r="2.4" />
-      <circle cx="-10" cy="-31" r="2.1" />
-      <circle cx="10" cy="-31" r="2.1" />
-      <circle cx="-17" cy="-4" r="2.1" />
-      <circle cx="17" cy="-4" r="2.1" />
-      <circle cx="-6" cy="6" r="2.1" />
-      <circle cx="6" cy="6" r="2.1" />
-      <circle cx="-10" cy="37" r="2.1" />
-      <circle cx="13" cy="37" r="2.1" />
-      <path d="M0-42V-10M-10-31L0-37 10-31M-10-31L-17-4M10-31L17-4M0-10L-6 6M0-10L6 6M-6 6L-10 37M6 6L13 37" />
+    <g className={selected ? styles.selectedSkeleton : styles.skeleton}>
+      <g className={styles.bodyBob}>
+        <circle cx="0" cy="-76" r="11" />
+        <circle cx="0" cy="-59" r="3" />
+        <circle cx="0" cy="-28" r="3" />
+        <circle cx="0" cy="0" r="3" />
+        <path d="M0-65V0M-14-52L0-59 14-52M-9 0H9" />
+        <g className={styles.armBack}>
+          <path d="M-14-52Q-24-29-27-4" />
+          <circle cx="-14" cy="-52" r="3" />
+          <circle cx="-21" cy="-29" r="3" />
+          <circle cx="-27" cy="-4" r="3" />
+        </g>
+        <g className={styles.armFront}>
+          <path d="M14-52Q24-27 28-2" />
+          <circle cx="14" cy="-52" r="3" />
+          <circle cx="22" cy="-27" r="3" />
+          <circle cx="28" cy="-2" r="3" />
+        </g>
+        <g className={styles.legBack}>
+          <path d="M-9 0Q-14 26-18 57L-30 62" />
+          <circle cx="-9" cy="0" r="3" />
+          <circle cx="-15" cy="29" r="3" />
+          <circle cx="-18" cy="57" r="3" />
+        </g>
+        <g className={styles.legFront}>
+          <path d="M9 0Q14 25 21 55L34 59" />
+          <circle cx="9" cy="0" r="3" />
+          <circle cx="15" cy="28" r="3" />
+          <circle cx="21" cy="55" r="3" />
+        </g>
+      </g>
+    </g>
+  );
+}
+
+function PlacedWalker({
+  walker,
+  children,
+}: {
+  walker: Walker;
+  children: ReactNode;
+}) {
+  return (
+    <g
+      className={`${styles.walker} ${styles[walker.travel]} ${walker.mobile ? "" : styles.mobileHide}`}
+      style={walkerStyle(walker)}
+      data-subject={walker.id}
+    >
+      <g transform={`translate(${walker.x} ${walker.y}) scale(${walker.scale * walker.direction} ${walker.scale})`}>
+        {children}
+      </g>
     </g>
   );
 }
@@ -44,195 +145,243 @@ function PublicSpaceScene() {
   return (
     <svg
       className={styles.scene}
-      viewBox="0 0 760 440"
+      viewBox="0 0 1600 850"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
     >
       <defs>
-        <linearGradient id="secure-scene-bg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#071425" />
-          <stop offset="0.55" stopColor="#0a1d36" />
-          <stop offset="1" stopColor="#080d1d" />
+        <linearGradient id="sv-concourse-bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#030813" />
+          <stop offset=".46" stopColor="#08162a" />
+          <stop offset="1" stopColor="#061329" />
         </linearGradient>
-        <radialGradient id="secure-scene-glow" cx="38%" cy="42%" r="65%">
-          <stop offset="0" stopColor="#2563ff" stopOpacity="0.22" />
-          <stop offset="0.56" stopColor="#1438a8" stopOpacity="0.08" />
-          <stop offset="1" stopColor="#071425" stopOpacity="0" />
+        <linearGradient id="sv-floor" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#17334c" stopOpacity=".2" />
+          <stop offset="1" stopColor="#020711" stopOpacity=".96" />
+        </linearGradient>
+        <linearGradient id="sv-light-panel" x1="0" y1="0" x2="1" y2="1">
+          <stop stopColor="#7ddcff" stopOpacity=".22" />
+          <stop offset=".5" stopColor="#315cff" stopOpacity=".09" />
+          <stop offset="1" stopColor="#9a75ff" stopOpacity=".2" />
+        </linearGradient>
+        <radialGradient id="sv-depth-glow" cx="68%" cy="36%" r="54%">
+          <stop stopColor="#2563ff" stopOpacity=".2" />
+          <stop offset=".52" stopColor="#143a9b" stopOpacity=".07" />
+          <stop offset="1" stopColor="#030813" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="secure-floor" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#132b4a" stopOpacity="0.18" />
-          <stop offset="1" stopColor="#020711" stopOpacity="0.86" />
-        </linearGradient>
-        <filter id="secure-soft-glow" x="-60%" y="-60%" width="220%" height="220%">
-          <feGaussianBlur stdDeviation="7" />
+        <filter id="sv-soft-blur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="12" />
+        </filter>
+        <filter id="sv-light-blur" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="24" />
         </filter>
       </defs>
 
-      <rect width="760" height="440" fill="url(#secure-scene-bg)" />
-      <rect width="760" height="440" fill="url(#secure-scene-glow)" />
-      <circle cx="274" cy="207" r="86" fill="#2563ff" opacity="0.07" filter="url(#secure-soft-glow)" />
+      <rect width="1600" height="850" fill="url(#sv-concourse-bg)" />
+      <rect width="1600" height="850" fill="url(#sv-depth-glow)" />
 
-      <g className={styles.architecture}>
-        <path d="M0 114H760M0 177H760" />
-        <path d="M64 36V293M183 36V286M306 36V281M431 36V281M556 36V286M688 36V296" />
-        <path d="M0 177L64 114 183 177 306 114 431 177 556 114 688 177 760 123" />
-        <rect x="42" y="60" width="122" height="118" rx="4" />
-        <rect x="202" y="60" width="92" height="118" rx="4" />
-        <rect x="330" y="60" width="112" height="118" rx="4" />
-        <rect x="478" y="60" width="104" height="118" rx="4" />
-        <rect x="616" y="60" width="92" height="118" rx="4" />
+      <g className={styles.environment}>
+        <g className={styles.ceiling}>
+          <path d="M0 0H1600V220L800 290 0 220Z" />
+          <path d="M0 88L800 290 1600 88M0 184L800 290 1600 184" />
+          <path d="M140 0L800 290M430 0L800 290M720 0L800 290M1040 0L800 290M1370 0L800 290" />
+          <path className={styles.ceilingLight} d="M230 32L650 245M540 18L758 266M1360 34L934 246M1070 18L845 267" />
+        </g>
+
+        <g className={styles.lightPanels}>
+          <rect x="116" y="150" width="190" height="142" rx="5" />
+          <rect x="350" y="179" width="138" height="112" rx="5" />
+          <rect x="1100" y="168" width="182" height="126" rx="5" />
+          <rect x="1330" y="142" width="206" height="154" rx="5" />
+        </g>
+
+        <g className={styles.wayfinding} transform="translate(735 102)">
+          <rect width="248" height="72" rx="7" />
+          <path d="M78 17V55M168 17V55" />
+          <path d="M24 36H58M47 25L58 36 47 47M104 24H144M104 36H137M104 48H129M194 23H224M194 36H217M194 49H209" />
+        </g>
+
+        <g className={styles.columns}>
+          <path d="M60 80H130L155 596H34Z" />
+          <path d="M322 128H371L386 502H305Z" />
+          <path d="M1214 124H1268L1285 521H1199Z" />
+          <path d="M1492 72H1570L1600 622H1464Z" />
+          <path className={styles.columnEdge} d="M130 80L155 596M371 128L386 502M1268 124L1285 521M1570 72L1600 622" />
+        </g>
+
+        <path className={styles.horizon} d="M0 302Q800 270 1600 302" />
+        <path className={styles.floor} d="M0 292H1600V850H0Z" />
+
+        <g className={styles.floorGrid}>
+          <path d="M0 330H1600M0 390H1600M0 470H1600M0 570H1600M0 696H1600" />
+          <path d="M800 286L30 850M800 286L262 850M800 286L494 850M800 286L680 850M800 286L920 850M800 286L1106 850M800 286L1338 850M800 286L1570 850" />
+        </g>
+
+        <g className={styles.walkingLanes}>
+          <path d="M145 850L653 292M425 850L722 292M1176 850L884 292M1476 850L951 292" />
+        </g>
+
+        <g className={styles.distantCrowd}>
+          <path d="M535 357v-42q0-18 17-27l6-4q-8-7-8-17 0-17 17-17t17 17q0 10-8 17l7 4q17 9 17 27v42Z" />
+          <path d="M1010 366v-46q0-19 18-29l7-4q-9-8-9-19 0-18 18-18t18 18q0 11-9 19l7 4q18 10 18 29v46Z" />
+          <path d="M755 350v-36q0-16 15-24l5-3q-7-7-7-16 0-15 15-15t15 15q0 9-7 16l6 3q15 8 15 24v36Z" />
+        </g>
+
+        <ellipse className={styles.lightBloom} cx="1050" cy="385" rx="280" ry="92" />
       </g>
 
-      <path d="M0 266H760V440H0Z" fill="url(#secure-floor)" />
-      <g className={styles.floorGrid}>
-        <path d="M0 286H760M0 332H760M0 386H760" />
-        <path d="M380 244L62 440M380 244L208 440M380 244L326 440M380 244L437 440M380 244L554 440M380 244L716 440" />
-      </g>
-
-      <g transform="translate(76 260) scale(.82)">
-        <g className={styles.walkerOne}><Person tone="cyan" /></g>
-      </g>
-      <g transform="translate(164 230) scale(.63)">
-        <g className={styles.walkerTwo}><Person tone="violet" /></g>
-      </g>
-      <g transform="translate(235 262)">
-        <g className={styles.selectedWalker}><Person tone="blue" /></g>
-      </g>
-      <g transform="translate(430 245) scale(.74)">
-        <g className={styles.walkerThree}><Person tone="cyan" /></g>
-      </g>
-      <g transform="translate(590 270) scale(.9)">
-        <g className={styles.walkerFour}><Person tone="violet" /></g>
+      <g className={styles.peopleLayer}>
+        {walkers.map((walker) => (
+          <PlacedWalker key={walker.id} walker={walker}>
+            <PersonSilhouette tone={walker.tone} />
+          </PlacedWalker>
+        ))}
       </g>
 
       <g className={styles.foregroundBlur}>
-        <circle cx="20" cy="320" r="24" />
-        <path d="M-18 440V358Q20 320 58 358V440Z" />
+        <circle cx="88" cy="530" r="54" />
+        <path d="M-28 850V650Q88 545 204 650V850Z" />
       </g>
     </svg>
   );
 }
 
-function CrowdSkeletonLayer() {
+function CrowdFlowLayer() {
   return (
-    <g className={styles.skeletonLayer}>
-      <g transform="translate(76 260) scale(.82)"><g className={styles.walkerOne}><Skeleton /></g></g>
-      <g transform="translate(164 230) scale(.63)"><g className={styles.walkerTwo}><Skeleton /></g></g>
-      <g transform="translate(235 262)"><g className={styles.selectedWalker}><Skeleton /></g></g>
-      <g transform="translate(430 245) scale(.74)"><g className={styles.walkerThree}><Skeleton /></g></g>
-      <g transform="translate(590 270) scale(.9)"><g className={styles.walkerFour}><Skeleton /></g></g>
-    </g>
-  );
-}
+    <g className={styles.flowLayer}>
+      <path className={styles.flowPath} pathLength="1" d="M380 566C570 505 730 542 895 485S1195 427 1435 470" />
+      <path className={styles.flowPathAlt} pathLength="1" d="M460 706C680 625 858 686 1035 622S1312 560 1515 606" />
+      <path className={styles.flowPathDim} pathLength="1" d="M565 410C748 364 930 396 1108 350S1340 332 1490 356" />
 
-function SelectedSubjectTracker() {
-  return (
-    <g transform="translate(235 262)" className={styles.selectionLayer}>
-      <g className={styles.selectedWalker}>
-        <rect className={styles.trackingBox} x="-30" y="-68" width="60" height="114" rx="5" />
-        <path className={styles.cornerMarks} d="M-30-50V-68H-12M12-68H30V-50M30 28V46H12M-12 46H-30V28" />
-        <line className={styles.scanLine} x1="-28" x2="28" y1="-46" y2="-46" />
-        <g className={styles.gaitAnalysisArcs}>
-          <path d="M-23 12Q0 32 23 12" />
-          <path d="M-18 23Q0 43 18 23" />
-          <circle cx="0" cy="-10" r="35" />
-        </g>
-        <g className={styles.subjectLabel} transform="translate(-30 -82)">
-          <rect width="80" height="15" rx="3" />
-          <text x="6" y="10.5">SUBJECT 07</text>
-        </g>
+      <g className={styles.flowArrows}>
+        <path d="M607 514l18 5-14 12M812 506l18-2-10 15M1054 446l18-2-10 15M1283 441l18 4-14 12" />
+      </g>
+
+      <g className={styles.flowParticles}>
+        <circle className={styles.flowParticleOne} r="4" />
+        <circle className={styles.flowParticleTwo} r="3" />
+        <circle className={styles.flowParticleThree} r="3.5" />
+      </g>
+
+      <g className={styles.zoneA}>
+        <ellipse cx="666" cy="525" rx="156" ry="62" />
+        <ellipse cx="666" cy="525" rx="126" ry="48" />
+        <text x="555" y="470">ZONE A · DENSITY 0.72</text>
+      </g>
+      <g className={styles.zoneB}>
+        <ellipse cx="1190" cy="540" rx="178" ry="72" />
+        <ellipse cx="1190" cy="540" rx="142" ry="55" />
+        <text x="1070" y="470">ZONE B · DENSITY 0.84</text>
+      </g>
+
+      <g className={styles.flowReadout} transform="translate(1290 310)">
+        <rect width="176" height="52" rx="7" />
+        <text x="14" y="21">FLOW DIRECTION</text>
+        <text x="14" y="40">142 / MIN</text>
+        <path d="M128 26H157M147 16l10 10-10 10" />
       </g>
     </g>
   );
 }
 
-function TrajectoryLayer() {
+function TrackingLayer() {
+  const selected = walkers.find((walker) => walker.id === "selected")!;
+
   return (
-    <g className={styles.trajectoryLayer}>
-      <path
-        className={styles.trajectoryGlow}
-        pathLength="1"
-        d="M228 307C281 289 311 312 351 283S428 278 471 252"
-      />
-      <path
-        className={styles.trajectory}
-        pathLength="1"
-        d="M228 307C281 289 311 312 351 283S428 278 471 252"
-      />
-      {[228, 276, 326, 376, 426, 471].map((cx, index) => (
-        <circle key={cx} className={styles.trajectoryDot} cx={cx} cy={[307, 296, 298, 274, 270, 252][index]} r="2.6" />
-      ))}
-    </g>
+    <>
+      <g className={styles.crowdSkeletons}>
+        {walkers.map((walker) => (
+          <PlacedWalker key={walker.id} walker={walker}>
+            <PoseSkeleton />
+          </PlacedWalker>
+        ))}
+      </g>
+
+      <g className={styles.selectedTrajectory}>
+        <path className={styles.trajectoryGlow} pathLength="1" d="M550 682C654 654 747 678 834 638S1014 611 1112 578" />
+        <path className={styles.trajectoryLine} pathLength="1" d="M550 682C654 654 747 678 834 638S1014 611 1112 578" />
+        {[0, 1, 2, 3, 4, 5].map((dot) => (
+          <circle key={dot} className={styles.trajectoryNode} style={{ "--node": dot } as CSSProperties} cx={550 + dot * 110} cy={682 - dot * 19} r="4" />
+        ))}
+      </g>
+
+      <PlacedWalker walker={selected}>
+        <g className={styles.selectedSubject}>
+          <PoseSkeleton selected />
+          <rect className={styles.trackingFrame} x="-47" y="-98" width="94" height="175" rx="5" />
+          <path className={styles.trackingCorners} d="M-47-73V-98H-20M20-98H47V-73M47 52V77H20M-20 77H-47V52" />
+          <line className={styles.bodyScan} x1="-43" x2="43" y1="-74" y2="-74" />
+          <ellipse className={styles.gaitOrbit} cx="0" cy="18" rx="42" ry="23" />
+          <g className={styles.trackerLabel} transform="translate(-47 -119)">
+            <rect width="152" height="19" rx="3" />
+            <text x="8" y="13">GAIT TRACK · G-7A21</text>
+          </g>
+        </g>
+      </PlacedWalker>
+    </>
   );
 }
 
-function Metric({ label, value, unit, level }: (typeof metrics)[number]) {
+function Metric({ label, value, unit, level, index }: (typeof metrics)[number] & { index: number }) {
   return (
-    <div className={styles.metric}>
-      <div className={styles.metricHeader}>
+    <div className={styles.metric} style={{ "--metric-index": index } as CSSProperties}>
+      <div>
         <span>{label}</span>
-        <strong>{value}<small>{unit}</small></strong>
+        <strong>{value} <small>{unit}</small></strong>
       </div>
-      <span className={styles.metricTrack}>
-        <span style={{ "--metric-level": level } as CSSProperties} />
-      </span>
+      <i><span style={{ "--metric-level": level } as CSSProperties} /></i>
     </div>
   );
 }
 
-function LiveAnalyticsPanel() {
+function LiveAnalyticsHud() {
   return (
-    <aside className={styles.analyticsPanel} aria-hidden="true">
-      <header className={styles.panelHeader}>
-        <span>GAIT ANALYSIS</span>
-        <span className={styles.signalBars}><i /><i /><i /><i /></span>
-      </header>
+    <aside className={styles.analyticsHud} aria-hidden="true">
+      <div className={styles.hudChrome}>
+        <span><i /> SECUREVISION · LIVE</span>
+        <span>EDGE · ENCRYPTED</span>
+      </div>
 
-      <div className={`${styles.panelStage} ${styles.metricsStage}`}>
-        <div className={styles.stageEyebrow}>LIVE MOVEMENT PROFILE</div>
-        <div className={styles.metricsGrid}>
-          {metrics.map((metric) => <Metric key={metric.label} {...metric} />)}
+      <section className={`${styles.hudStage} ${styles.metricsStage}`}>
+        <header>GAIT ANALYTICS · G-7A21</header>
+        <div className={styles.metrics}>
+          {metrics.map((metric, index) => (
+            <Metric key={metric.label} {...metric} index={index} />
+          ))}
         </div>
-      </div>
+      </section>
 
-      <div className={`${styles.panelStage} ${styles.matchStage}`}>
-        <div className={styles.signatureMark}>
-          <span /><span /><span /><span /><span /><span /><span />
+      <section className={`${styles.hudStage} ${styles.matchStage}`}>
+        <div className={styles.signatureWave}>
+          {[18, 32, 48, 26, 56, 38, 22, 45, 30].map((height, index) => (
+            <i key={index} style={{ "--wave-height": `${height}px`, "--wave-index": index } as CSSProperties} />
+          ))}
         </div>
-        <div className={styles.stageEyebrow}>GAIT SIGNATURE MATCH</div>
-        <strong className={styles.matchId}>ID: G-7A21</strong>
-        <div className={styles.confidence}>
-          <span>MATCH CONFIDENCE</span>
-          <strong>98.7%</strong>
+        <span>GAIT SIGNATURE MATCH</span>
+        <strong>G-7A21</strong>
+        <b>98.7%</b>
+        <small>ENCRYPTED MOVEMENT SIGNATURE</small>
+      </section>
+
+      <section className={`${styles.hudStage} ${styles.resultStage}`}>
+        <div className={styles.resultRing}><span>✓</span></div>
+        <span>MOVEMENT NORMAL</span>
+        <strong>LOW RISK</strong>
+        <div className={styles.privacyStatus}>
+          <b>PRIVACY MODE · ON</b>
+          <small>NO FACIAL DATA USED</small>
         </div>
-      </div>
-
-      <div className={`${styles.panelStage} ${styles.privacyStage}`}>
-        <div className={styles.privacyShield}>
-          <svg viewBox="0 0 40 48" aria-hidden="true">
-            <path d="M20 2 36 8v13c0 11-6.7 19.6-16 25C10.7 40.6 4 32 4 21V8Z" />
-            <path d="m12 24 5 5 11-12" />
-          </svg>
-        </div>
-        <div className={styles.stageEyebrow}>PRIVACY MODE · ON</div>
-        <strong>NO FACIAL DATA USED</strong>
-        <span>Movement features only</span>
-      </div>
-
-      <div className={`${styles.panelStage} ${styles.outcomeStage}`}>
-        <div className={styles.outcomeRing}><span>✓</span></div>
-        <div className={styles.stageEyebrow}>MOVEMENT NORMAL</div>
-        <strong>ANOMALY RISK: <em>LOW</em></strong>
-        <div className={styles.riskBar}><span /></div>
-      </div>
-
-      <div className={styles.reducedSummary}>
-        <div className={styles.stageEyebrow}>PRIVACY MODE · ON</div>
-        <strong>NO FACIAL DATA USED</strong>
-        <span>G-7A21 · 98.7% match</span>
-        <span>MOVEMENT NORMAL · RISK LOW</span>
-      </div>
+      </section>
     </aside>
+  );
+}
+
+function MobileStatus() {
+  return (
+    <div className={styles.mobileStatus} aria-hidden="true">
+      <strong>G-7A21 · GAIT MATCH 98.7%</strong>
+      <span><i /> PRIVACY MODE · ON</span>
+    </div>
   );
 }
 
@@ -245,38 +394,34 @@ export function SecureVisionHeroVisual({
     <div
       className={styles.visual}
       role="img"
-      aria-label="Animated SecureVision simulation showing anonymized crowd tracking, gait analysis, pseudonymous matching and privacy-first safety assessment"
+      aria-label="Live privacy-aware movement intelligence analyzing anonymized people walking through a public concourse"
     >
-      <div className={styles.glow} aria-hidden="true" />
-      <div className={styles.topBar} aria-hidden="true">
-        <span><i />SECUREVISION · LIVE</span>
-        <span>PUBLIC CONCOURSE · CAM 04</span>
-      </div>
-
-      {/* Swappable media surface: a future video can replace only this layer. */}
+      {/* This media surface can later accept video without changing any tracking or HUD layers. */}
       <div className={styles.mediaLayer} aria-hidden="true">
         {backgroundLayer ?? <PublicSpaceScene />}
       </div>
 
       <svg
-        className={styles.trackingLayer}
-        viewBox="0 0 760 440"
+        className={styles.intelligenceLayer}
+        viewBox="0 0 1600 850"
         preserveAspectRatio="xMidYMid slice"
         aria-hidden="true"
       >
-        <CrowdSkeletonLayer />
-        <TrajectoryLayer />
-        <SelectedSubjectTracker />
+        <CrowdFlowLayer />
+        <TrackingLayer />
       </svg>
 
-      <LiveAnalyticsPanel />
-
-      <div className={styles.bottomHud} aria-hidden="true">
-        <span>PEOPLE · 05</span>
-        <span>SKELETON-ONLY PROCESSING</span>
-        <span>ENCRYPTED · EDGE</span>
-      </div>
       <div className={styles.scanSweep} aria-hidden="true" />
+      <LiveAnalyticsHud />
+      <MobileStatus />
+
+      <div className={styles.sceneStatus} aria-hidden="true">
+        <span><i /> PUBLIC CONCOURSE · CAM 04</span>
+        <span>SKELETON-ONLY PROCESSING</span>
+      </div>
+
+      <div className={styles.copyScrim} aria-hidden="true" />
+      <div className={styles.vignette} aria-hidden="true" />
     </div>
   );
 }

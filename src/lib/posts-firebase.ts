@@ -13,6 +13,7 @@
 
 import {
   collection,
+  deleteField,
   deleteDoc,
   doc,
   getDoc,
@@ -28,6 +29,7 @@ import {
 import { db } from "@/lib/firebase";
 import { fbLog, fbOk, fbFail } from "@/lib/firebase-logger";
 import type { Post, Category } from "@/lib/posts";
+import type { PostAttachment, PostAttachmentType } from "@/lib/media";
 
 /** The single Firestore collection holding every post/blog. */
 export const POSTS_COLLECTION = "posts";
@@ -40,6 +42,62 @@ const CATEGORIES: readonly Category[] = [
   "blog",
   "demo",
 ];
+
+const ATTACHMENT_TYPES: readonly PostAttachmentType[] = [
+  "image",
+  "video",
+  "document",
+  "external-video",
+];
+
+function mapAttachment(value: unknown): PostAttachment | null {
+  if (!value || typeof value !== "object") return null;
+  const data = value as Record<string, unknown>;
+  const type = ATTACHMENT_TYPES.includes(data.type as PostAttachmentType)
+    ? (data.type as PostAttachmentType)
+    : null;
+  if (!type || !data.id || !data.url) return null;
+
+  const attachment: PostAttachment = {
+    id: String(data.id),
+    name: String(data.name ?? data.originalName ?? "Attachment"),
+    originalName: String(data.originalName ?? data.name ?? "Attachment"),
+    url: String(data.url),
+    mimeType: String(data.mimeType ?? "application/octet-stream"),
+    type,
+    size: Number(data.size ?? 0),
+  };
+  if (data.storagePath) attachment.storagePath = String(data.storagePath);
+  if (data.description) attachment.description = String(data.description);
+  if (data.alt) attachment.alt = String(data.alt);
+  if (data.caption) attachment.caption = String(data.caption);
+  if (Number(data.width) > 0) attachment.width = Number(data.width);
+  if (Number(data.height) > 0) attachment.height = Number(data.height);
+  if (data.provider === "youtube" || data.provider === "vimeo") {
+    attachment.provider = data.provider;
+  }
+  return attachment;
+}
+
+function attachmentPayload(attachment: PostAttachment): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    id: attachment.id,
+    name: attachment.name,
+    originalName: attachment.originalName,
+    url: attachment.url,
+    mimeType: attachment.mimeType,
+    type: attachment.type,
+    size: attachment.size,
+  };
+  if (attachment.storagePath) payload.storagePath = attachment.storagePath;
+  if (attachment.description) payload.description = attachment.description;
+  if (attachment.alt) payload.alt = attachment.alt;
+  if (attachment.caption) payload.caption = attachment.caption;
+  if (attachment.width) payload.width = attachment.width;
+  if (attachment.height) payload.height = attachment.height;
+  if (attachment.provider) payload.provider = attachment.provider;
+  return payload;
+}
 
 /** Coerce a raw Firestore document into a well-formed Post. */
 function mapPost(data: DocumentData): Post {
@@ -71,6 +129,18 @@ function mapPost(data: DocumentData): Post {
   if (data.externalUrl) post.externalUrl = String(data.externalUrl);
   if (data.attachmentUrl) post.attachmentUrl = String(data.attachmentUrl);
   if (data.attachmentName) post.attachmentName = String(data.attachmentName);
+  if (data.coverImageUrl) post.coverImageUrl = String(data.coverImageUrl);
+  if (data.coverImagePath) post.coverImagePath = String(data.coverImagePath);
+  if (data.coverImageAlt) post.coverImageAlt = String(data.coverImageAlt);
+  if (data.coverImageName) post.coverImageName = String(data.coverImageName);
+  if (Number(data.coverImageSize) > 0) post.coverImageSize = Number(data.coverImageSize);
+  if (Number(data.coverImageWidth) > 0) post.coverImageWidth = Number(data.coverImageWidth);
+  if (Number(data.coverImageHeight) > 0) post.coverImageHeight = Number(data.coverImageHeight);
+  if (Array.isArray(data.attachments)) {
+    post.attachments = data.attachments
+      .map(mapAttachment)
+      .filter((attachment): attachment is PostAttachment => attachment !== null);
+  }
 
   return post;
 }
@@ -110,6 +180,22 @@ function toWritePayload(
   if (post.externalUrl) payload.externalUrl = post.externalUrl;
   if (post.attachmentUrl) payload.attachmentUrl = post.attachmentUrl;
   if (post.attachmentName) payload.attachmentName = post.attachmentName;
+  const coverFields = {
+    coverImageUrl: post.coverImageUrl,
+    coverImagePath: post.coverImagePath,
+    coverImageAlt: post.coverImageAlt,
+    coverImageName: post.coverImageName,
+    coverImageSize: post.coverImageSize,
+    coverImageWidth: post.coverImageWidth,
+    coverImageHeight: post.coverImageHeight,
+  };
+  Object.entries(coverFields).forEach(([field, value]) => {
+    if (value) payload[field] = value;
+    else if (!opts.isNew) payload[field] = deleteField();
+  });
+  if (post.attachments) {
+    payload.attachments = post.attachments.map(attachmentPayload);
+  }
   return payload;
 }
 

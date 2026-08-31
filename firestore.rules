@@ -98,6 +98,8 @@ service cloud.firestore {
                'id','slug','title','category','summary','body','tags',
                'publishedAt','author','featured','subscriberOnly',
                'publicationStatus',
+               'coverImageUrl','coverImagePath','coverImageAlt','coverImageName',
+               'coverImageSize','coverImageWidth','coverImageHeight','attachments',
                'externalUrl','attachmentUrl','attachmentName',
                'createdAt','updatedAt'
              ])
@@ -115,7 +117,15 @@ service cloud.firestore {
         && (!('subscriberOnly' in d.keys()) || d.subscriberOnly == null || d.subscriberOnly is bool)
         && (!('externalUrl' in d.keys()) || d.externalUrl == null || d.externalUrl is string)
         && (!('attachmentUrl' in d.keys()) || d.attachmentUrl == null || d.attachmentUrl is string)
-        && (!('attachmentName' in d.keys()) || d.attachmentName == null || d.attachmentName is string);
+        && (!('attachmentName' in d.keys()) || d.attachmentName == null || d.attachmentName is string)
+        && (!('coverImageUrl' in d.keys()) || d.coverImageUrl == null || d.coverImageUrl is string)
+        && (!('coverImagePath' in d.keys()) || d.coverImagePath == null || d.coverImagePath is string)
+        && (!('coverImageAlt' in d.keys()) || d.coverImageAlt == null || (d.coverImageAlt is string && d.coverImageAlt.size() <= 300))
+        && (!('coverImageName' in d.keys()) || d.coverImageName == null || d.coverImageName is string)
+        && (!('coverImageSize' in d.keys()) || d.coverImageSize == null || (d.coverImageSize is int && d.coverImageSize > 0 && d.coverImageSize <= 10 * 1024 * 1024))
+        && (!('coverImageWidth' in d.keys()) || d.coverImageWidth == null || (d.coverImageWidth is int && d.coverImageWidth > 0))
+        && (!('coverImageHeight' in d.keys()) || d.coverImageHeight == null || (d.coverImageHeight is int && d.coverImageHeight > 0))
+        && (!('attachments' in d.keys()) || (d.attachments is list && d.attachments.size() <= 30));
     }
 
     // ---- POSTS / BLOGS (public site content) ------------------------------

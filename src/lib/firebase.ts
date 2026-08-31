@@ -18,6 +18,7 @@ import {
   type Firestore,
 } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
+import { getStorage, type FirebaseStorage } from "firebase/storage";
 import { fbLog, fbOk, fbFail } from "@/lib/firebase-logger";
 
 const firebaseConfig = {
@@ -49,6 +50,7 @@ fbOk("Firebase app initialized");
 
 export const db: Firestore = getFirestore(app);
 export const auth: Auth = getAuth(app);
+export const storage: FirebaseStorage = getStorage(app);
 
 /**
  * One-time connectivity probe — DEVELOPMENT ONLY.

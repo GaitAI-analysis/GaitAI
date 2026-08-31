@@ -45,8 +45,7 @@ B2. Do NOT pre-create any collections. They are created on first write.
     pendingComments/{postSlug}/comments/{id}       canonical pending submissions
     pendingCommentQueue/{postSlug}__{commentId}    flat moderation queue mirror
     reportedComments/{reportId}                    reader-flagged comments
-    posts/{postId}                                 (FUTURE — control-panel
-                                                   content; see SECTION E)
+    posts/{postId}                                 control-panel Insights content
 
 B3. SECURITY RULES — this is the real enforcement layer, do not skip.
     - Open Firestore Database → Rules.
@@ -119,16 +118,21 @@ E1. A `posts/{postId}` Firestore collection. Document shape (already fixed by
     the frontend types — do not rename fields):
         id, slug, title, category, summary, body, tags[], publishedAt (ISO),
         author, featured (bool), subscriberOnly (bool, optional),
-        externalUrl (optional), attachmentUrl/attachmentName (optional)
+        coverImageUrl/coverImagePath/coverImageAlt (optional),
+        attachments[] (optional, multiple media/resources),
+        externalUrl (optional), attachmentUrl/attachmentName (legacy, optional)
     Categories: research | announcement | documentation | approval | blog | demo
 
-E2. Rules for it (add to firestore.rules when we wire this):
+E2. Rules for it (already present in firestore.rules):
         allow read: if true;            // public site reads posts
         allow write: if isAdmin();      // only the panel writes
 
-E3. FIREBASE STORAGE (optional, phase 2): enable Storage if we want file
-    attachments (PDF/images) uploaded from the panel instead of external URLs.
-    If enabled, restrict writes to isAdmin() and tell me the bucket name.
+E3. FIREBASE STORAGE: enable Storage for Insights media uploads.
+    - Open Storage -> Rules.
+    - Paste the ENTIRE contents of `storage.rules` from the repo root.
+    - Click PUBLISH.
+    The rules allow public reads only below insights/posts/{postId}/ and allow
+    writes/deletes only for the same verified admin allowlist as Firestore.
 
 E4. App Check (optional but recommended): enable with reCAPTCHA v3 for
     Firestore to cut bot abuse of the public comment write path. If you turn
@@ -150,6 +154,7 @@ F1. The six web-app config values from SECTION A3:
 F2. Written confirmation of each:
         [ ] Firestore created, PRODUCTION mode, region: __________
         [ ] firestore.rules published (date/time: __________)
+        [ ] Firebase Storage enabled and storage.rules published
         [ ] Google sign-in provider enabled
         [ ] Authorized domains: gaitai.in, www.gaitai.in, localhost
         [ ] API key referrer-restricted (D2) and API-restricted (D3)
@@ -157,7 +162,7 @@ F2. Written confirmation of each:
 
 F3. Final list of admin/moderator email addresses in the rules allowlist.
 
-F4. If done: App Check reCAPTCHA site key (E4), Storage bucket name (E3).
+F4. If done: App Check reCAPTCHA site key (E4).
 
 WHERE I PUT THEM (FYI — no action for you):
     - Local dev      : .env.local (gitignored)

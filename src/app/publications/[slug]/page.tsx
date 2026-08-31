@@ -5,15 +5,13 @@ import {
   ArrowLeft,
   ArrowUpRight,
   Calendar,
-  ExternalLink,
-  FileText,
   User,
 } from "lucide-react";
 import { getPublishedPostBySlug, readPosts, readPublishedPosts } from "@/lib/posts-store";
 import { CategoryBadge, categoryGradient } from "@/components/posts/CategoryBadge";
 import { PostCard } from "@/components/posts/PostCard";
+import { PostCoverImage, PostResources } from "@/components/posts/PostMedia";
 import { renderMarkdown } from "@/lib/markdown";
-import { assetPath } from "@/lib/paths";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
 
 export const dynamicParams = false;
@@ -37,7 +35,22 @@ export async function generateMetadata({
     title: post.title,
     description: post.summary,
     alternates: { canonical: `/publications/${post.slug}` },
-    openGraph: { title: post.title, description: post.summary, type: "article" },
+    openGraph: {
+      title: post.title,
+      description: post.summary,
+      type: "article",
+      images: post.coverImageUrl
+        ? [{ url: post.coverImageUrl, alt: post.coverImageAlt || post.title }]
+        : undefined,
+    },
+    twitter: post.coverImageUrl
+      ? {
+          card: "summary_large_image",
+          title: post.title,
+          description: post.summary,
+          images: [post.coverImageUrl],
+        }
+      : undefined,
   };
 }
 
@@ -120,64 +133,15 @@ export default async function PublicationPage({
         </div>
       </header>
 
+      <PostCoverImage post={post} />
+
       <div className="container-wide">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_280px]">
           {/* Body */}
           <div className="relative mx-auto w-full max-w-3xl">
-            <div className="mt-10 text-balance">{renderMarkdown(post.body)}</div>
+            <div className="mt-10">{renderMarkdown(post.body)}</div>
 
-            {/* Attachments / external */}
-            {(post.attachmentUrl || post.externalUrl) && (
-              <div className="mt-14 grid gap-3 sm:grid-cols-2">
-                {post.attachmentUrl && (
-                  <a
-                    href={assetPath(post.attachmentUrl)}
-                    download={post.attachmentName}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="card-glow group flex items-center justify-between gap-4 p-5"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-royal-400/25 to-violet-400/15 text-cyan-300 ring-1 ring-white/10">
-                        <FileText className="h-4 w-4" />
-                      </span>
-                      <div>
-                        <div className="text-sm font-medium text-soft-white">
-                          {post.attachmentName || "Download attachment"}
-                        </div>
-                        <div className="text-xs text-soft-mute">
-                          Attached document
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowUpRight className="h-4 w-4 text-cyan-300 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
-                )}
-                {post.externalUrl && (
-                  <a
-                    href={post.externalUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="card-glow group flex items-center justify-between gap-4 p-5"
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-violet-400/25 to-cyan-300/15 text-violet-300 ring-1 ring-white/10">
-                        <ExternalLink className="h-4 w-4" />
-                      </span>
-                      <div>
-                        <div className="text-sm font-medium text-soft-white">
-                          External link
-                        </div>
-                        <div className="text-xs text-soft-mute truncate max-w-[200px]">
-                          {post.externalUrl}
-                        </div>
-                      </div>
-                    </div>
-                    <ArrowUpRight className="h-4 w-4 text-violet-300 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </a>
-                )}
-              </div>
-            )}
+            <PostResources post={post} />
 
             {/* Discussion — moderated comments (approved comments only).
                 Mounted client-side only (Firebase / real-time) so it stays out

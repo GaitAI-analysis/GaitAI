@@ -60,8 +60,8 @@ function nodeColor(node: GaitscapeNode): string {
 
 /** Semantic size hierarchy: core ≫ verticals ≫ mid entities ≫ supporting. */
 const TYPE_RADIUS: Record<GaitscapeNodeType, number> = {
-  core: 34,
-  vertical: 23,
+  core: 36,
+  vertical: 24,
   product: 10,
   domain: 9.5,
   capability: 8.5,
@@ -271,10 +271,12 @@ function clusterLayout(
   ) => {
     // The denser side breathes: widen the angular span and push the arc
     // slightly outward so neighbouring clusters never crowd each other.
+    // Radii are kept compact so the landscape fills ~80–85% of the canvas
+    // at the initial scale instead of floating in empty space.
     const over = Math.max(0, list.length - 6);
     const extraDeg = Math.min(14, over * 5);
-    const rx = 655 + over * 16;
-    const ry = 445 + over * 8;
+    const rx = 608 + over * 14;
+    const ry = 398 + over * 7;
     const a0 = fromDeg - extraDeg;
     const a1 = toDeg + extraDeg;
     list.forEach((hub, i) => {
@@ -398,9 +400,10 @@ const INITIAL_TRANSFORM: Transform = (() => {
     maxY = Math.max(maxY, p.y);
   }
   // Horizontal allowance covers half of the longest hub label; vertical
-  // covers node radius + the label line below it.
-  const padX = 150;
-  const padY = 85;
+  // covers node radius + the label line below it. Kept tight so the
+  // landscape reads substantial rather than floating in dark space.
+  const padX = 120;
+  const padY = 70;
   const k = Math.min(
     1.35,
     CANVAS_W / (maxX - minX + padX * 2),
@@ -811,7 +814,7 @@ export function GaitscapeExplorer() {
           Explore the Human Movement Intelligence{" "}
           <span className="text-gradient">landscape.</span>
         </h1>
-        <div className="text-xs text-soft-mute" aria-live="polite">
+        <div className="pb-[3px] text-xs text-soft-mute sm:pb-1.5" aria-live="polite">
           {focusGroupId ? (
             <>
               <span className="font-semibold text-soft-white">
@@ -837,8 +840,8 @@ export function GaitscapeExplorer() {
           One toolbar grid: control groups left, Search + Filters right.
           When space runs out the right pair wraps to its own full row
           together — Filters is never stranded alone. */}
-      <div className="mt-5 grid grid-cols-1 items-center gap-x-6 gap-y-3 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+      <div className="mt-4 grid grid-cols-1 items-center gap-x-6 gap-y-2.5 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
         <div className="flex items-center gap-2">
           <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-mute/80">
             View
@@ -903,7 +906,11 @@ export function GaitscapeExplorer() {
           </select>
         </label>
 
-        <div className="gaitscape-seg" role="tablist" aria-label="View by">
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-mute/80">
+            Mode
+          </span>
+          <div className="gaitscape-seg" role="tablist" aria-label="Mode">
           {(
             [
               { id: "intelligence", label: "Intelligence" },
@@ -924,6 +931,7 @@ export function GaitscapeExplorer() {
               {v.label}
             </button>
           ))}
+          </div>
         </div>
         </div>
 
@@ -998,7 +1006,7 @@ export function GaitscapeExplorer() {
       )}
 
       {/* ---------------- main area ---------------- */}
-      <div className="mt-5 grid gap-5 lg:grid-cols-[288px_minmax(0,1fr)]">
+      <div className="mt-5 grid gap-5 lg:grid-cols-[304px_minmax(0,1fr)]">
         {/* side panel: active grouping OR challenges */}
         <aside className="order-2 lg:order-1">
           <button
@@ -1266,16 +1274,16 @@ export function GaitscapeExplorer() {
                       const labelAnchor =
                         view === "tree" || node.type === "core" || node.type === "vertical"
                           ? "middle"
-                          : p.x < CANVAS_W * 0.13
+                          : p.x < CANVAS_W * 0.155
                             ? "start"
-                            : p.x > CANVAS_W * 0.87
+                            : p.x > CANVAS_W * 0.845
                               ? "end"
                               : "middle";
                       const labelAbove = p.y > CANVAS_H - 96 && view !== "tree";
                       const labelYOffset = labelAbove
                         ? -(r + 9)
                         : r +
-                          (node.type === "core" ? 42 : node.type === "vertical" ? 30 : 17);
+                          (node.type === "core" ? 44 : node.type === "vertical" ? 31 : 17);
                       return (
                         <g
                           key={node.id}
@@ -1313,11 +1321,11 @@ export function GaitscapeExplorer() {
                             style={{
                               fill: color,
                               fillOpacity:
-                                node.type === "core" ||
-                                node.type === "vertical" ||
-                                isHub
-                                  ? 0.22
-                                  : 0.15,
+                                node.type === "core" || node.type === "vertical"
+                                  ? 0.27
+                                  : isHub
+                                    ? 0.22
+                                    : 0.15,
                               stroke: color,
                             }}
                           />
@@ -1336,11 +1344,11 @@ export function GaitscapeExplorer() {
                                 textAnchor: labelAnchor,
                                 fontSize:
                                   node.type === "core"
-                                    ? 28
+                                    ? 30
                                     : node.type === "vertical"
-                                      ? 21
+                                      ? 22.5
                                       : isHub
-                                        ? 15
+                                        ? 16.5
                                         : view === "tree"
                                           ? 13
                                           : 12,

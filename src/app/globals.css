@@ -1445,15 +1445,16 @@ body {
 /* Extremely subtle depth: a champagne lift around the core, restrained
    cyan/violet ambience around the two verticals, and a near-invisible
    temporal-dot texture. The graph itself stays the focus. */
+/* Extremely subtle ambient depth: champagne lift under the core, faint
+   cyan around MobilityCare, faint violet around SecureVision. No grids,
+   no particle fields — the graph stays the focus. */
 .gaitscape-stage {
   background:
-    radial-gradient(rgb(148 163 184 / 0.022) 1px, transparent 1.4px),
     radial-gradient(38% 34% at 50% 46%, rgb(231 211 160 / 0.045), transparent 70%),
     radial-gradient(36% 52% at 15% 52%, rgb(94 234 212 / 0.035), transparent 72%),
     radial-gradient(36% 52% at 85% 52%, rgb(139 156 246 / 0.04), transparent 72%),
     radial-gradient(ellipse 60% 50% at 50% 40%, rgb(37 99 255 / 0.05), transparent 72%),
     linear-gradient(180deg, rgb(6 12 24 / 0.96), rgb(4 8 17 / 0.99));
-  background-size: 56px 56px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
 }
 
 .gaitscape-seg {
@@ -1513,7 +1514,7 @@ body {
 }
 
 .gaitscape-input::placeholder {
-  color: rgb(var(--c-soft-mute) / 0.8);
+  color: rgb(var(--c-soft-mute) / 0.95);
 }
 
 .gaitscape-input:focus,
@@ -1642,8 +1643,8 @@ body {
 
 /* core → vertical spine */
 .gaitscape-edge--spine {
-  stroke-width: 1.7;
-  opacity: 0.55;
+  stroke-width: 1.85;
+  opacity: 0.62;
 }
 
 /* Slow movement-signal pulse travelling the two core→vertical edges only. */

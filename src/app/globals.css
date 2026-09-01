@@ -1841,6 +1841,33 @@ body {
 }
 
 /* =========================================================================
+   PUBLICATION CARDS — editorial research-card presentation.
+   ========================================================================= */
+
+/* Neutral figure canvas behind the publication visual: very dark neutral in
+   dark mode, soft neutral in light, with a clean separation to the body.
+   Contained technical figures sit on it without cropping; page captures
+   cover it fully. */
+.publication-figure {
+  background: rgb(var(--c-obsidian-100) / 0.75);
+  border-bottom: 1px solid rgb(var(--c-soft-white) / 0.07);
+}
+
+.light .publication-figure {
+  background: rgb(241 245 249 / 0.9);
+}
+
+/* One consistent venue accent across all publishers: cyan/blue, secondary
+   to the title. Darkened in light mode so it stays readable. */
+.publication-venue {
+  color: rgb(79 209 255 / 0.92);
+}
+
+.light .publication-venue {
+  color: #0e7490;
+}
+
+/* =========================================================================
    CAPABILITY MATRIX — premium presentation for the intelligence layer.
    Filter controls, bordered panel, sticky header/column backgrounds and
    the check indicators. Dark is the reference style; .light overrides keep

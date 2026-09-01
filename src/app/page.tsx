@@ -24,7 +24,7 @@ export default function HomePage() {
       <Vision />
 
       {/* About-page narrative — shared components, see src/components/sections/about/ */}
-      <AboutMission pillars />
+      <AboutMission pillars philosophy={false} />
       <MissionVision motion="gait" />
       <WhoWeServe />
       <Partnerships />

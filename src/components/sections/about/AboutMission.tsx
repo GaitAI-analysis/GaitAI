@@ -2,12 +2,18 @@ import { AboutPhilosophy } from "./AboutPhilosophy";
 import { VisionPillars } from "@/components/sections/VisionPillars";
 
 /**
- * Mission / origin story — how a decade of gait research became GaitAI —
- * followed by the philosophy quote card. Shared by /about and the home page.
- * The home page passes `pillars` to render the Predict / Prevent / Protect
- * cards immediately below the philosophy quote.
+ * Mission / origin story — how a decade of gait research became GaitAI.
+ * Shared by /about and the home page. /about keeps the philosophy quote
+ * card below the mission copy; the home page opts out via `philosophy`
+ * and passes `pillars` to render the Predict / Prevent / Protect cards.
  */
-export function AboutMission({ pillars = false }: { pillars?: boolean }) {
+export function AboutMission({
+  pillars = false,
+  philosophy = true,
+}: {
+  pillars?: boolean;
+  philosophy?: boolean;
+}) {
   return (
     <section className={pillars ? "section !pb-14" : "section"}>
       <div className="container-wide">
@@ -43,10 +49,8 @@ export function AboutMission({ pillars = false }: { pillars?: boolean }) {
           </div>
         </div>
 
-        {/* Mission quote */}
-        <AboutPhilosophy />
+        {philosophy && <AboutPhilosophy />}
 
-        {/* Predict / Prevent / Protect — directly below the philosophy quote */}
         {pillars && <VisionPillars />}
       </div>
     </section>

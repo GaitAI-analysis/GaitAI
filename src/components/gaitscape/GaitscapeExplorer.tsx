@@ -110,14 +110,6 @@ const LEGEND_ITEMS: { type: GaitscapeNodeType; label: string }[] = [
 const CANVAS_W = 1760;
 const CANVAS_H = 1120;
 
-/** Initial camera: focused on the core → verticals story, not the full map. */
-const INITIAL_K = 1.5;
-const INITIAL_TRANSFORM = {
-  k: INITIAL_K,
-  x: (CANVAS_W / 2) * (1 - INITIAL_K),
-  y: (CANVAS_H / 2) * (1 - INITIAL_K),
-};
-
 type Pos = { x: number; y: number };
 type Transform = { x: number; y: number; k: number };
 
@@ -382,6 +374,46 @@ function edgePath(a: Pos, b: Pos): string {
   const f = (v: number) => Math.round(v * 100) / 100;
   return `M${f(a.x)} ${f(a.y)} Q${f(mx + nx)} ${f(my + ny)} ${f(b.x)} ${f(b.y)}`;
 }
+
+/**
+ * Initial camera: the tightest view in which the core, both verticals and
+ * EVERY application-domain hub sit safely inside the canvas — including a
+ * label-aware safe area (long domain names, node radii, graph border) —
+ * while keeping the central hierarchy as prominent as that allows.
+ */
+const INITIAL_TRANSFORM: Transform = (() => {
+  const defaults = clusterLayout(gaitscapeNodes, "domain", 1);
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const n of gaitscapeNodes) {
+    if (n.type !== "core" && n.type !== "vertical" && n.type !== "domain")
+      continue;
+    const p = defaults.get(n.id);
+    if (!p) continue;
+    minX = Math.min(minX, p.x);
+    minY = Math.min(minY, p.y);
+    maxX = Math.max(maxX, p.x);
+    maxY = Math.max(maxY, p.y);
+  }
+  // Horizontal allowance covers half of the longest hub label; vertical
+  // covers node radius + the label line below it.
+  const padX = 150;
+  const padY = 85;
+  const k = Math.min(
+    1.35,
+    CANVAS_W / (maxX - minX + padX * 2),
+    CANVAS_H / (maxY - minY + padY * 2)
+  );
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  return {
+    k: Math.round(k * 1000) / 1000,
+    x: Math.round((CANVAS_W / 2 - cx * k) * 100) / 100,
+    y: Math.round((CANVAS_H / 2 - cy * k) * 100) / 100,
+  };
+})();
 
 // ============================================================================
 // COMPONENT
@@ -775,16 +807,10 @@ export function GaitscapeExplorer() {
     <div className="gaitscape-explorer" id="explore">
       {/* ---------------- compact header ---------------- */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
-        <div>
-          <span className="eyebrow">
-            <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-            GaitScape
-          </span>
-          <h1 className="mt-2.5 font-display text-2xl text-soft-white sm:text-3xl">
-            Explore the Human Movement Intelligence{" "}
-            <span className="text-gradient">landscape.</span>
-          </h1>
-        </div>
+        <h1 className="font-display text-2xl text-soft-white sm:text-3xl">
+          Explore the Human Movement Intelligence{" "}
+          <span className="text-gradient">landscape.</span>
+        </h1>
         <div className="text-xs text-soft-mute" aria-live="polite">
           {focusGroupId ? (
             <>
@@ -807,8 +833,12 @@ export function GaitscapeExplorer() {
         </div>
       </div>
 
-      {/* ---------------- controls ---------------- */}
-      <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-3">
+      {/* ---------------- controls ----------------
+          One toolbar grid: control groups left, Search + Filters right.
+          When space runs out the right pair wraps to its own full row
+          together — Filters is never stranded alone. */}
+      <div className="mt-5 grid grid-cols-1 items-center gap-x-6 gap-y-3 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
         <div className="flex items-center gap-2">
           <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-mute/80">
             View
@@ -895,30 +925,33 @@ export function GaitscapeExplorer() {
             </button>
           ))}
         </div>
-
-        <div className="relative ml-auto">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-soft-mute" />
-          <input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search products, signals, capabilities…"
-            aria-label="Search the landscape"
-            className="gaitscape-input w-[280px] max-w-full pl-9 xl:w-[330px]"
-          />
         </div>
 
-        <button
-          onClick={() => setFiltersOpen((o) => !o)}
-          aria-expanded={filtersOpen}
-          className={cn(
-            "gaitscape-seg-btn gaitscape-seg-btn--solo",
-            (filtersOpen || filters.size > 0) && "gaitscape-seg-btn--on"
-          )}
-        >
-          <SlidersHorizontal className="h-3.5 w-3.5" />
-          Filters{filters.size > 0 ? ` · ${filters.size}` : ""}
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="relative min-w-0 flex-1 min-[1440px]:flex-none">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-soft-mute" />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products, signals, capabilities…"
+              aria-label="Search the landscape"
+              className="gaitscape-input w-full pl-9 min-[1440px]:w-[300px] 2xl:w-[330px]"
+            />
+          </div>
+
+          <button
+            onClick={() => setFiltersOpen((o) => !o)}
+            aria-expanded={filtersOpen}
+            className={cn(
+              "gaitscape-seg-btn gaitscape-seg-btn--solo shrink-0",
+              (filtersOpen || filters.size > 0) && "gaitscape-seg-btn--on"
+            )}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+            Filters{filters.size > 0 ? ` · ${filters.size}` : ""}
+          </button>
+        </div>
       </div>
 
       {/* ---------------- filter panel ---------------- */}
@@ -1227,6 +1260,22 @@ export function GaitscapeExplorer() {
                       const isSelected = selectedId === node.id;
                       const isMatch = searchMatches?.has(node.id) ?? false;
                       const showLabel = labelVisible(node, isHub);
+                      // Edge-aware label placement: near the canvas sides the
+                      // text extends inward instead of centring (and getting
+                      // clipped); near the bottom it flips above the node.
+                      const labelAnchor =
+                        view === "tree" || node.type === "core" || node.type === "vertical"
+                          ? "middle"
+                          : p.x < CANVAS_W * 0.13
+                            ? "start"
+                            : p.x > CANVAS_W * 0.87
+                              ? "end"
+                              : "middle";
+                      const labelAbove = p.y > CANVAS_H - 96 && view !== "tree";
+                      const labelYOffset = labelAbove
+                        ? -(r + 9)
+                        : r +
+                          (node.type === "core" ? 42 : node.type === "vertical" ? 30 : 17);
                       return (
                         <g
                           key={node.id}
@@ -1282,8 +1331,9 @@ export function GaitscapeExplorer() {
                                   isHub) &&
                                   "gaitscape-node-label--major"
                               )}
-                              y={r + (node.type === "core" ? 37 : node.type === "vertical" ? 28 : 17)}
+                              y={labelYOffset}
                               style={{
+                                textAnchor: labelAnchor,
                                 fontSize:
                                   node.type === "core"
                                     ? 28

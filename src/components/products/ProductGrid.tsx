@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   allProducts,
   mobilityProducts,
@@ -152,7 +152,35 @@ export function ProductGrid({ vertical, initialFilter }: ProductGridProps) {
         ? secureFilters
         : allFilters;
 
+  const router = useRouter();
+  const pathname = usePathname();
   const [active, setActive] = useState<string>(initialFilter ?? "all");
+
+  const validIds = useMemo(() => filters.map((f) => f.id), [filters]);
+  const fallbackFilter = initialFilter ?? "all";
+
+  // URL is the source of truth for the filter (?filter=<id>): deep links work,
+  // and pressing Back after opening a product detail page restores the filter
+  // that was active (the browser restores scroll). Written with
+  // router.replace so no extra history entries are created.
+  const syncFromUrl = useCallback(
+    (fromUrl: string | null) => {
+      setActive(
+        fromUrl && validIds.includes(fromUrl) ? fromUrl : fallbackFilter
+      );
+    },
+    [validIds, fallbackFilter]
+  );
+
+  const selectFilter = useCallback(
+    (id: string) => {
+      setActive(id); // instant UI response
+      router.replace(id === "all" ? pathname : `${pathname}?filter=${id}`, {
+        scroll: false,
+      });
+    },
+    [router, pathname]
+  );
 
   const filtered = useMemo<GaitProduct[]>(() => {
     if (active === "all") return products;
@@ -163,11 +191,17 @@ export function ProductGrid({ vertical, initialFilter }: ProductGridProps) {
 
   return (
     <div>
+      {/* Reads ?filter= reactively (initial load, back/forward). Isolated in
+          its own Suspense boundary so useSearchParams does not bail the whole
+          grid out of the static HTML export. */}
+      <Suspense fallback={null}>
+        <FilterUrlSync onFilter={syncFromUrl} />
+      </Suspense>
       <div className="mb-8 flex flex-wrap items-center gap-2">
         <FilterPill
           label={`All · ${products.length}`}
           active={active === "all"}
-          onClick={() => setActive("all")}
+          onClick={() => selectFilter("all")}
         />
         {filters.map((f) => {
           const count = products.filter((p) =>
@@ -178,30 +212,36 @@ export function ProductGrid({ vertical, initialFilter }: ProductGridProps) {
               key={f.id}
               label={`${f.label} · ${count}`}
               active={active === f.id}
-              onClick={() => setActive(f.id)}
+              onClick={() => selectFilter(f.id)}
             />
           );
         })}
       </div>
 
-      <motion.div layout className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <AnimatePresence mode="popLayout">
-          {filtered.map((p, i) => (
-            <motion.div
-              key={p.id}
-              layout
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.96 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <ProductCard product={p} index={i} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      {/* Plain keyed grid: each ProductCard animates itself in. (An
+          AnimatePresence popLayout wrapper here failed to reconcile children
+          after browser Back restored the page, leaving the grid stale.) */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filtered.map((p, i) => (
+          <ProductCard key={p.id} product={p} index={i} />
+        ))}
+      </div>
     </div>
   );
+}
+
+/**
+ * Null-rendering child that mirrors the ?filter= search param into grid state.
+ * useSearchParams is reactive to router navigations (including popstate), so
+ * back/forward always restores the right filter.
+ */
+function FilterUrlSync({ onFilter }: { onFilter: (id: string | null) => void }) {
+  const searchParams = useSearchParams();
+  const filter = searchParams.get("filter");
+  useEffect(() => {
+    onFilter(filter);
+  }, [filter, onFilter]);
+  return null;
 }
 
 function FilterPill({

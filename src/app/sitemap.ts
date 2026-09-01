@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { readPublishedPosts } from "@/lib/posts-store";
+import { productDetails } from "@/data/product-details";
 
 const siteUrl = "https://gaitai.in";
 
@@ -26,6 +27,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}${route}`,
       changeFrequency: route === "" ? ("monthly" as const) : ("yearly" as const),
       priority: route === "" ? 1 : route.startsWith("/legal/") ? 0.3 : 0.7,
+    })),
+    ...productDetails.map((d) => ({
+      url: `${siteUrl}/mobilitycare/${d.slug}`,
+      changeFrequency: "yearly" as const,
+      priority: 0.6,
     })),
     ...posts.map((post) => ({
       url: `${siteUrl}/publications/${post.slug}`,

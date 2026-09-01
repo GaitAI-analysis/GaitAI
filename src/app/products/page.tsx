@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, HeartPulse, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, HeartPulse, ShieldCheck } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { allProducts, mobilityProducts, secureProducts } from "@/data/products";
@@ -23,9 +23,8 @@ export default function ProductsPage() {
 
         <div className="container-wide">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              <Sparkles className="h-3.5 w-3.5" />
-              {allProducts.length} products · One movement engine
+            <div className="inline-flex items-center rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+              {allProducts.length} products · One movement intelligence platform
             </div>
             <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
               Every GaitAI product,{" "}

@@ -31,10 +31,15 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close navigation overlays when the route changes.
+  // Close navigation overlays when the route changes. Client-side navigation
+  // also leaves the clicked link focused, which browsers keep painting as a
+  // focus rectangle on the now-active item — drop that stray focus; real
+  // keyboard tabbing after load is unaffected.
   useEffect(() => {
     setOpen(false);
     setOpenMenu(null);
+    const el = document.activeElement;
+    if (el instanceof HTMLElement && el.closest("header")) el.blur();
   }, [pathname]);
 
   const isActive = (href: string) => {
@@ -97,7 +102,7 @@ export function Navbar() {
                         aria-expanded={menuOpen}
                         aria-current={isActive(link.href) ? "page" : undefined}
                         className={cn(
-                          "group/link relative flex items-center gap-1 px-2.5 py-2 text-sm transition-colors duration-300 2xl:px-3.5",
+                          "group/link relative flex items-center gap-1 rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
                           active
                             ? "text-soft-white"
                             : "text-soft-gray hover:text-soft-white"
@@ -170,7 +175,7 @@ export function Navbar() {
                     title={isHome ? "Home" : undefined}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "group relative px-2.5 py-2 text-sm transition-colors duration-300 2xl:px-3.5",
+                      "group relative rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
                       isHome && "flex items-center",
                       active
                         ? "text-soft-white"

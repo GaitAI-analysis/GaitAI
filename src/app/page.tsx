@@ -3,7 +3,6 @@ import { Verticals } from "@/components/sections/Verticals";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
 import { WatchCareFlagship } from "@/components/sections/WatchCareFlagship";
 import { HowItWorks } from "@/components/sections/HowItWorks";
-import { UseCases } from "@/components/sections/UseCases";
 import { ResearchCredibility } from "@/components/sections/ResearchCredibility";
 import { Vision } from "@/components/sections/Vision";
 import { AboutMission } from "@/components/sections/about/AboutMission";
@@ -21,7 +20,6 @@ export default function HomePage() {
       <FeaturedProducts />
       <WatchCareFlagship />
       <HowItWorks />
-      <UseCases />
       <ResearchCredibility />
       <Vision />
 

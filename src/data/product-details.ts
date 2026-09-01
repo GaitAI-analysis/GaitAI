@@ -1487,4 +1487,13 @@ export const productDetails: ProductDetail[] = [
 ];
 
 export const productDetailBySlug = (slug: string) =>
-  productDetails.find((d) => d.slug === slug);
+  allProductDetails.find((d) => d.slug === slug);
+
+// Combined lookup across both verticals. The secure file only imports the
+// ProductDetail *type* from here, so this import is not a runtime cycle.
+import { secureProductDetails } from "./product-details-secure";
+
+export const allProductDetails: ProductDetail[] = [
+  ...productDetails,
+  ...secureProductDetails,
+];

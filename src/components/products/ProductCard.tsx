@@ -69,12 +69,8 @@ export function ProductCard({
   compact?: boolean;
 }) {
   const a = accentMap[product.accent];
-  // MobilityCare products have dedicated detail pages; SecureVision products
-  // still anchor into their vertical page.
-  const href =
-    product.vertical === "mobilitycare"
-      ? `/mobilitycare/${product.id}/`
-      : `/${product.vertical}#${product.id}`;
+  // Every product has a dedicated detail page under its vertical.
+  const href = `/${product.vertical}/${product.id}/`;
 
   return (
     <motion.article

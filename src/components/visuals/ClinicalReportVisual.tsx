@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, Download } from "lucide-react";
+import { Download } from "lucide-react";
 
 /**
  * A premium "AI-generated clinical report" preview card — styled to look like
@@ -19,17 +19,12 @@ export function ClinicalReportVisual() {
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-3 border-b border-white/8 pb-3">
-        <div className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-teal-400/20 to-cyan-300/15 ring-1 ring-teal-400/30">
-            <FileText className="h-4 w-4 text-teal-300" />
-          </span>
-          <div>
-            <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-soft-mute">
-              GaitAI Report
-            </div>
-            <div className="text-sm font-semibold text-soft-white">
-              WalkScan · Patient #1042
-            </div>
+        <div>
+          <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-soft-mute">
+            GaitAI Report
+          </div>
+          <div className="text-sm font-semibold text-soft-white">
+            WalkScan · Patient #1042
           </div>
         </div>
         <div className="flex h-7 items-center gap-1 rounded-md bg-emerald-400/15 px-2 text-[10px] font-medium text-emerald-300 ring-1 ring-emerald-400/30">

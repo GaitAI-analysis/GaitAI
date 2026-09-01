@@ -8,6 +8,8 @@ import {
   User,
 } from "lucide-react";
 import { getPublishedPostBySlug, readPosts, readPublishedPosts } from "@/lib/posts-store";
+import { allPublications } from "@/data/publications";
+import { PublicationDetail } from "@/components/publications/PublicationDetail";
 import { CategoryBadge, categoryGradient } from "@/components/posts/CategoryBadge";
 import { PostCard } from "@/components/posts/PostCard";
 import { PostCoverImage, PostResources } from "@/components/posts/PostMedia";
@@ -21,7 +23,11 @@ export async function generateStaticParams() {
   // current editorial seed records are intentionally withheld from public
   // rendering. Each unverified record resolves through notFound() below.
   const posts = await readPosts();
-  return posts.map((post) => ({ slug: post.slug }));
+  return [
+    // Research-library publication records share this route with posts.
+    ...allPublications.map((p) => ({ slug: p.id })),
+    ...posts.map((post) => ({ slug: post.slug })),
+  ];
 }
 
 export async function generateMetadata({
@@ -29,6 +35,13 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
+  const publication = allPublications.find((p) => p.id === params.slug);
+  if (publication) {
+    return {
+      title: `${publication.title} — GaitAI Research`,
+      description: `${publication.venue} · ${publication.publisher} · ${publication.year}. Authors: ${publication.authors.join(", ")}.`,
+    };
+  }
   const post = await getPublishedPostBySlug(params.slug);
   if (!post) return { title: "Publication not found" };
   return {
@@ -71,6 +84,11 @@ export default async function PublicationPage({
 }: {
   params: { slug: string };
 }) {
+  const publication = allPublications.find((p) => p.id === params.slug);
+  if (publication) {
+    return <PublicationDetail publication={publication} />;
+  }
+
   const post = await getPublishedPostBySlug(params.slug);
   if (!post) notFound();
 

@@ -1,13 +1,10 @@
 "use client";
 
-import type { ComponentType } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
-import { MobilityDashboardVisual } from "@/components/visuals/MobilityDashboardVisual";
-import { SecureOperationsVisual } from "@/components/visuals/SecureOperationsVisual";
 import {
   mobilityProducts,
   secureProducts,
@@ -49,7 +46,8 @@ interface FlagshipPanelProps {
   href: string;
   brandDark: string;
   brandLight: string;
-  Visual: ComponentType;
+  videoSrc: string;
+  videoPoster: string;
   visualLabel: string;
   liveLabel: string;
   products: GaitProduct[];
@@ -148,7 +146,8 @@ function FlagshipPanel({
   href,
   brandDark,
   brandLight,
-  Visual,
+  videoSrc,
+  videoPoster,
   visualLabel,
   liveLabel,
   products,
@@ -221,7 +220,30 @@ function FlagshipPanel({
           <div className="absolute right-5 top-4 z-10 rounded-md border border-white/10 bg-obsidian/70 px-2.5 py-1 font-mono text-[9px] text-soft-gray shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:right-7 sm:top-5 sm:text-[10px]">
             {liveLabel}
           </div>
-          <Visual />
+          {/* Animated console footage — reduced-motion users get the still
+              poster frame instead. The asset is a fixed dark cinematic
+              render, identical in light and dark mode. */}
+          {reduceMotion ? (
+            <Image
+              src={assetPath(videoPoster)}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 640px"
+              className="platform-console-video"
+            />
+          ) : (
+            <video
+              className="platform-console-video"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={assetPath(videoPoster)}
+            >
+              <source src={assetPath(videoSrc)} type="video/mp4" />
+            </video>
+          )}
         </div>
 
         <div className="mt-8 sm:mt-9">
@@ -308,7 +330,8 @@ export function Verticals() {
             href="/mobilitycare"
             brandDark="/assets/brand/mobilitycare/mobilitycare-dark.png"
             brandLight="/assets/brand/mobilitycare/mobilitycare-light.png"
-            Visual={MobilityDashboardVisual}
+            videoSrc="/assets/videos/platform/mobilitycare-intelligence.mp4"
+            videoPoster="/assets/videos/platform/mobilitycare-intelligence-poster.jpg"
             visualLabel="Clinical mobility console"
             liveLabel="WalkScan · Live"
             products={mobilityHighlights}
@@ -328,7 +351,8 @@ export function Verticals() {
             href="/securevision"
             brandDark="/assets/brand/securevision/securevision-dark.png"
             brandLight="/assets/brand/securevision/securevision-light.png"
-            Visual={SecureOperationsVisual}
+            videoSrc="/assets/videos/platform/securevision-intelligence.mp4"
+            videoPoster="/assets/videos/platform/securevision-intelligence-poster.jpg"
             visualLabel="Privacy-aware ops console"
             liveLabel="SecureVision · Live"
             products={secureHighlights}

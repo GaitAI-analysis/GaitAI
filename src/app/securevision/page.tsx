@@ -239,17 +239,13 @@ export default function SecureVisionPage() {
           <div className="mt-12 grid gap-6 lg:grid-cols-3">
             {[suspicious, crowdsense, industrial].filter(Boolean).map((p, i) => {
               if (!p) return null;
-              const Icon = p.icon;
               return (
                 <Reveal key={p.id} delay={i * 0.1}>
                   <article
                     id={p.id}
                     className="card-glow relative h-full overflow-hidden p-7"
                   >
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-royal-400/20 to-cyan-300/10 text-royal-300 ring-1 ring-royal-300/30">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <div className="mt-5">
+                  <div>
                     <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-royal-300">
                       GaitAI · {p.short}
                     </div>
@@ -294,17 +290,13 @@ export default function SecureVisionPage() {
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {secureUseCases.map((u, i) => {
-              const Icon = u.icon;
               const products = u.productIds
                 .map((id) => productById(id))
                 .filter((p): p is NonNullable<typeof p> => Boolean(p));
               return (
                 <Reveal key={u.id} delay={(i % 3) * 0.08}>
                   <div className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all hover:border-royal-300/30 hover:bg-white/[0.04]">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-royal-300">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <h3 className="mt-5 font-display text-xl text-soft-white">
+                    <h3 className="font-display text-xl text-soft-white">
                       {u.industry}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-soft-mute">

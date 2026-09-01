@@ -69,7 +69,6 @@ export function WatchCareFlagship() {
               className="mt-10 grid gap-3 sm:grid-cols-2"
             >
               {watchcareFeatures.map((f, i) => {
-                const Icon = f.icon;
                 return (
                   <motion.div
                     key={f.title}
@@ -83,13 +82,8 @@ export function WatchCareFlagship() {
                     }}
                     className="group rounded-xl border border-white/8 bg-white/[0.025] p-4 transition-all hover:border-amber-300/40 hover:bg-amber-300/[0.04]"
                   >
-                    <div className="flex items-center gap-2.5">
-                      <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-amber-400/20 to-amber-300/10 text-amber-300 ring-1 ring-amber-300/20">
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <div className="text-sm font-semibold text-soft-white">
-                        {f.title}
-                      </div>
+                    <div className="text-sm font-semibold text-soft-white">
+                      {f.title}
                     </div>
                     <p className="mt-2 text-[12.5px] leading-relaxed text-soft-mute">
                       {f.desc}

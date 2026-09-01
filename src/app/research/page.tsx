@@ -3,16 +3,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  Brain,
-  Database,
-  Eye,
-  FileText,
-  Footprints,
   Lock,
-  Microscope,
-  Sparkles,
-  Stethoscope,
-  Waves,
 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
@@ -28,32 +19,26 @@ export const metadata: Metadata = {
 
 const researchDomains = [
   {
-    icon: Footprints,
     title: "Gait recognition",
     desc: "Identity from movement — non-contact biometrics, cross-view recognition, gait signatures under variable viewpoints, lighting and clothing.",
   },
   {
-    icon: Eye,
     title: "Pose estimation",
     desc: "Skeleton tracking from monocular video — robust under occlusion, multi-person scenes, and edge-grade inference budgets.",
   },
   {
-    icon: Waves,
     title: "Sensor fusion",
     desc: "Smartwatch and mobile IMU streams fused with vision-derived gait features for continuous, all-day movement intelligence.",
   },
   {
-    icon: Brain,
     title: "Clinical movement analytics",
     desc: "Fall-risk modelling, rehabilitation tracking, neurological gait monitoring — co-designed with clinicians and validated against clinical workflows.",
   },
   {
-    icon: Sparkles,
     title: "Sports & performance",
     desc: "Asymmetry detection, fatigue markers, return-to-play readiness and movement-quality scoring for athletes and rehabilitation.",
   },
   {
-    icon: Lock,
     title: "Privacy-preserving AI",
     desc: "Skeleton-only analytics, face blur, on-device processing, audit-friendly pipelines and consent-aware deployment by design.",
   },
@@ -70,22 +55,18 @@ const publicationTopics = [
 
 const methodPillars = [
   {
-    icon: Microscope,
     title: "Methodology",
     desc: "Reproducible research: pre-registered protocols, cross-validated benchmarks, ablation-driven model design.",
   },
   {
-    icon: Database,
     title: "Datasets",
     desc: "Curated multi-site datasets covering clinical, sports, elderly and field-deployment cohorts — with consent-first governance.",
   },
   {
-    icon: Stethoscope,
     title: "Clinical validation",
     desc: "Workflows reviewed by physiotherapists, neurologists and geriatricians; outputs tuned to clinical decision-support quality.",
   },
   {
-    icon: FileText,
     title: "Whitepapers & patents",
     desc: "Published methods, applied patents and applied-research notes that document how GaitAI's models actually work.",
   },
@@ -168,14 +149,10 @@ export default function ResearchPage() {
           />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {researchDomains.map((d, i) => {
-              const Icon = d.icon;
               return (
                 <Reveal key={d.title} delay={(i % 3) * 0.08}>
                   <div className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all hover:border-cyan-300/30 hover:bg-white/[0.04]">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-royal-400/20 to-violet-400/15 text-cyan-300 ring-1 ring-white/10">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <h3 className="mt-5 font-display text-lg font-semibold text-soft-white">
+                    <h3 className="font-display text-lg font-semibold text-soft-white">
                       {d.title}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-soft-mute">
@@ -225,14 +202,10 @@ export default function ResearchPage() {
           />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {methodPillars.map((p, i) => {
-              const Icon = p.icon;
               return (
                 <Reveal key={p.title} delay={(i % 4) * 0.06}>
                   <div className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all hover:border-cyan-300/30 hover:bg-white/[0.04]">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-royal-400/20 to-cyan-300/10 text-cyan-300 ring-1 ring-white/10">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <h3 className="mt-5 font-display text-lg font-semibold text-soft-white">
+                    <h3 className="font-display text-lg font-semibold text-soft-white">
                       {p.title}
                     </h3>
                     <p className="mt-2 text-sm leading-relaxed text-soft-mute">
@@ -264,9 +237,6 @@ export default function ResearchPage() {
             {publicationTopics.map((t, i) => (
               <Reveal key={t} delay={(i % 3) * 0.06}>
                 <div className="flex items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 transition-colors hover:border-white/15 hover:bg-white/[0.04]">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-cyan-300/10 text-cyan-300 ring-1 ring-cyan-300/20">
-                    <FileText className="h-3.5 w-3.5" />
-                  </span>
                   <div className="text-[13px] leading-relaxed text-soft-white">
                     {t}
                   </div>

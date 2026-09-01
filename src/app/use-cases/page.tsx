@@ -67,7 +67,6 @@ function UseCaseCard({
   u: (typeof industryUseCases)[number];
   delay?: number;
 }) {
-  const Icon = u.icon;
   const a = accentStyles[u.accent];
   const products = u.productIds
     .map((id) => productById(id))
@@ -79,20 +78,13 @@ function UseCaseCard({
         id={u.id}
         className={`group relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all ${a.border} hover:bg-white/[0.04]`}
       >
-        <div className="flex items-start justify-between">
-          <span
-            className={`grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.03] ${a.text}`}
-          >
-            <Icon className="h-5 w-5" />
-          </span>
-          <span
-            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${a.pill}`}
-          >
-            {u.vertical === "mobilitycare" ? "MobilityCare" : "SecureVision"}
-          </span>
-        </div>
+        <span
+          className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${a.pill}`}
+        >
+          {u.vertical === "mobilitycare" ? "MobilityCare" : "SecureVision"}
+        </span>
 
-        <h3 className="mt-5 font-display text-xl text-soft-white">
+        <h3 className="mt-4 font-display text-xl text-soft-white">
           {u.industry}
         </h3>
         <p className="mt-2 text-sm leading-relaxed text-soft-mute">

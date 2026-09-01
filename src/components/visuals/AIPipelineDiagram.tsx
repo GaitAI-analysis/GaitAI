@@ -28,7 +28,6 @@ export function AIPipelineDiagram() {
           </div>
           <div className="grid grid-cols-2 gap-2.5">
             {aiPipeline.map((m, i) => {
-              const Icon = m.icon;
               return (
                 <motion.div
                   key={m.id}
@@ -42,13 +41,8 @@ export function AIPipelineDiagram() {
                   }}
                   className="group rounded-xl border border-white/6 bg-white/[0.025] p-3 transition-all hover:border-cyan-300/30 hover:bg-white/[0.05]"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-royal-400/20 to-cyan-300/15 text-cyan-300 ring-1 ring-white/10">
-                      <Icon className="h-3.5 w-3.5" />
-                    </span>
-                    <div className="text-xs font-semibold text-soft-white">
-                      {m.title}
-                    </div>
+                  <div className="text-xs font-semibold text-soft-white">
+                    {m.title}
                   </div>
                   <div className="mt-1.5 text-[10.5px] leading-relaxed text-soft-mute">
                     {m.desc}

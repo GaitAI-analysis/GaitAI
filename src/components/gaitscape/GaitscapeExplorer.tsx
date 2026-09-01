@@ -70,7 +70,12 @@ const TYPE_RADIUS: Record<GaitscapeNodeType, number> = {
   outcome: 7.5,
 };
 
-const HUB_SCALE = 1.5;
+const HUB_SCALE = 1.6;
+
+const VERTICAL_LABEL: Record<string, string> = {
+  mobilitycare: "MobilityCare",
+  securevision: "SecureVision",
+};
 
 const GROUP_OPTIONS: { id: GaitscapeNodeType; label: string }[] = [
   { id: "domain", label: "Application Domain" },
@@ -218,6 +223,17 @@ function phyllotaxis(center: Pos, index: number, base: number, step: number): Po
   return { x: center.x + r * Math.cos(a), y: center.y + r * Math.sin(a) };
 }
 
+/** Round to 2dp so server and client render identical coordinates. */
+function roundPositions(pos: Map<string, Pos>): Map<string, Pos> {
+  for (const [id, p] of pos) {
+    pos.set(id, {
+      x: Math.round(p.x * 100) / 100,
+      y: Math.round(p.y * 100) / 100,
+    });
+  }
+  return pos;
+}
+
 /**
  * Semantic cluster layout — an intentional map, not a force blob:
  * the core sits at the center, the two verticals flank it, and group hubs
@@ -235,7 +251,8 @@ function clusterLayout(
   const { hubs, assignment } = assignToHubs(visible, hubType);
 
   pos.set(CORE_ID, { x: cx, y: cy });
-  const verticalX = hubType === "vertical" ? 345 : 300;
+  // A touch more air between the three central labels and nearby edges.
+  const verticalX = hubType === "vertical" ? 345 : 318;
   for (const v of visible) {
     if (v.type !== "vertical") continue;
     pos.set(v.id, {
@@ -260,12 +277,20 @@ function clusterLayout(
     fromDeg: number,
     toDeg: number
   ) => {
+    // The denser side breathes: widen the angular span and push the arc
+    // slightly outward so neighbouring clusters never crowd each other.
+    const over = Math.max(0, list.length - 6);
+    const extraDeg = Math.min(14, over * 5);
+    const rx = 655 + over * 16;
+    const ry = 445 + over * 8;
+    const a0 = fromDeg - extraDeg;
+    const a1 = toDeg + extraDeg;
     list.forEach((hub, i) => {
       const t = (i + 0.5) / list.length;
-      const a = ((fromDeg + t * (toDeg - fromDeg)) * Math.PI) / 180;
+      const a = ((a0 + t * (a1 - a0)) * Math.PI) / 180;
       pos.set(hub.id, {
-        x: cx + 655 * Math.cos(a),
-        y: cy + 445 * Math.sin(a),
+        x: cx + rx * Math.cos(a),
+        y: cy + ry * Math.sin(a),
       });
     });
   };
@@ -298,7 +323,7 @@ function clusterLayout(
       );
     });
 
-  return pos;
+  return roundPositions(pos);
 }
 
 const TREE_ORDER: GaitscapeNodeType[] = [
@@ -340,7 +365,7 @@ function treeLayout(
     });
   });
 
-  return pos;
+  return roundPositions(pos);
 }
 
 function edgePath(a: Pos, b: Pos): string {
@@ -352,7 +377,10 @@ function edgePath(a: Pos, b: Pos): string {
   const bow = Math.min(34, len * 0.14);
   const nx = (-dy / len) * bow;
   const ny = (dx / len) * bow;
-  return `M${a.x} ${a.y} Q${mx + nx} ${my + ny} ${b.x} ${b.y}`;
+  // Round to 2dp: sub-pixel float drift between the server and client
+  // renders otherwise triggers hydration-mismatch warnings on path `d`.
+  const f = (v: number) => Math.round(v * 100) / 100;
+  return `M${f(a.x)} ${f(a.y)} Q${f(mx + nx)} ${f(my + ny)} ${f(b.x)} ${f(b.y)}`;
 }
 
 // ============================================================================
@@ -384,6 +412,16 @@ export function GaitscapeExplorer() {
   // Small screens start in the Accessible List — the graph stays one tap away.
   useEffect(() => {
     if (window.matchMedia("(max-width: 1023px)").matches) setMode("list");
+  }, []);
+
+  // SMIL spine pulses can't be stopped from CSS — gate them in JS.
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
   // ---- visible node set --------------------------------------------------
@@ -709,11 +747,24 @@ export function GaitscapeExplorer() {
     if (!p) return null;
     const sx = ((p.x * transform.k + transform.x) / CANVAS_W) * 100;
     const sy = ((p.y * transform.k + transform.y) / CANVAS_H) * 100;
-    const connected = [...(fullAdjacency.get(hovered.id) ?? [])]
-      .map((id) => nodeById.get(id)!)
-      .sort((a, b) => TYPE_RADIUS[b.type] - TYPE_RADIUS[a.type])
-      .slice(0, 3);
-    return { node: hovered, sx, sy, connected };
+    const counts: Partial<Record<GaitscapeNodeType, number>> = {};
+    for (const id of fullAdjacency.get(hovered.id) ?? []) {
+      const t = nodeById.get(id)?.type;
+      if (!t) continue;
+      counts[t] = (counts[t] ?? 0) + 1;
+    }
+    const stats = (
+      [
+        ["signal", "signal"],
+        ["capability", "capability"],
+        ["product", "product"],
+        ["domain", "domain"],
+      ] as const
+    )
+      .filter(([t]) => (counts[t] ?? 0) > 0)
+      .slice(0, 2)
+      .map(([t, word]) => `${counts[t]} ${word}${counts[t]! > 1 ? "s" : ""}`);
+    return { node: hovered, sx, sy, stats };
   }, [hovered, positions, transform, mode]);
 
   // ============================================================================
@@ -853,7 +904,7 @@ export function GaitscapeExplorer() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search products, signals, capabilities…"
             aria-label="Search the landscape"
-            className="gaitscape-input w-[250px] pl-9"
+            className="gaitscape-input w-[280px] max-w-full pl-9 xl:w-[330px]"
           />
         </div>
 
@@ -929,11 +980,11 @@ export function GaitscapeExplorer() {
 
           <div className={cn(panelOpen ? "block" : "hidden", "lg:block")}>
             {viewBy === "intelligence" ? (
-              <div className="rounded-2xl border border-white/[0.07] bg-obsidian-200/45 p-4">
+              <div className="rounded-2xl border border-white/[0.05] bg-obsidian-200/45 p-4">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soft-mute">
                   {groupLabel}s
                 </div>
-                <div className="gaitscape-scroll mt-3 max-h-[400px] space-y-0.5 overflow-y-auto pr-1.5">
+                <div className="gaitscape-scroll mt-3 max-h-[400px] space-y-1 overflow-y-auto pr-1.5">
                   <button
                     onClick={() => setFocusGroupId(null)}
                     className={cn(
@@ -972,7 +1023,7 @@ export function GaitscapeExplorer() {
                 </div>
               </div>
             ) : (
-              <div className="rounded-2xl border border-white/[0.07] bg-obsidian-200/45 p-4">
+              <div className="rounded-2xl border border-white/[0.05] bg-obsidian-200/45 p-4">
                 <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soft-mute">
                   Challenges
                 </div>
@@ -999,7 +1050,7 @@ export function GaitscapeExplorer() {
             )}
 
             {/* legend */}
-            <div className="mt-4 rounded-2xl border border-white/[0.07] bg-obsidian-200/45 p-4">
+            <div className="mt-4 rounded-2xl border border-white/[0.05] bg-obsidian-200/45 p-4">
               <button
                 onClick={() => setLegendOpen((o) => !o)}
                 aria-expanded={legendOpen}
@@ -1088,7 +1139,7 @@ export function GaitscapeExplorer() {
                           key={`m-${a}-${b}`}
                           className="gaitscape-edge"
                           d={edgePath(pa, pb)}
-                          style={{ opacity: dimmed ? 0.04 : undefined }}
+                          style={{ opacity: dimmed ? 0.3 : undefined }}
                         />
                       );
                     })}
@@ -1104,21 +1155,40 @@ export function GaitscapeExplorer() {
                           key={`b-${a}-${b}`}
                           className="gaitscape-edge gaitscape-edge--branch"
                           d={edgePath(pa, pb)}
-                          style={{ opacity: dimmed ? 0.05 : undefined }}
+                          style={{ opacity: dimmed ? 0.3 : undefined }}
                         />
                       );
                     })}
-                    {baseEdges.spine.map(({ a, b, color }) => {
+                    {baseEdges.spine.map(({ a, b, color }, i) => {
                       const pa = positions.get(a);
                       const pb = positions.get(b);
                       if (!pa || !pb) return null;
+                      const d = edgePath(pa, pb);
                       return (
-                        <path
-                          key={`s-${a}-${b}`}
-                          className="gaitscape-edge gaitscape-edge--spine"
-                          d={edgePath(pa, pb)}
-                          style={{ stroke: color }}
-                        />
+                        <g key={`s-${a}-${b}`}>
+                          <path
+                            className="gaitscape-edge gaitscape-edge--spine"
+                            d={d}
+                            style={{ stroke: color }}
+                          />
+                          {/* One intelligence layer, two human missions: a
+                              slow movement-signal pulse travels the two core
+                              edges only. */}
+                          {!reducedMotion && (
+                            <circle
+                              className="gaitscape-spine-pulse"
+                              r={2.6}
+                              fill={color}
+                            >
+                              <animateMotion
+                                dur="5.6s"
+                                begin={`${i * -2.8}s`}
+                                repeatCount="indefinite"
+                                path={d}
+                              />
+                            </circle>
+                          )}
+                        </g>
                       );
                     })}
                   </g>
@@ -1166,7 +1236,7 @@ export function GaitscapeExplorer() {
                           role="button"
                           aria-label={`${NODE_TYPE_LABEL[node.type]}: ${node.title}`}
                           aria-pressed={isSelected}
-                          style={{ opacity: activeDim ? 0.2 : searchDim ? 0.55 : 1 }}
+                          style={{ opacity: activeDim ? 0.3 : searchDim ? 0.55 : 1 }}
                           onMouseEnter={() => setHoverId(node.id)}
                           onMouseLeave={() => setHoverId(null)}
                           onFocus={() => setHoverId(node.id)}
@@ -1212,15 +1282,15 @@ export function GaitscapeExplorer() {
                                   isHub) &&
                                   "gaitscape-node-label--major"
                               )}
-                              y={r + (node.type === "core" ? 34 : node.type === "vertical" ? 26 : 17)}
+                              y={r + (node.type === "core" ? 37 : node.type === "vertical" ? 28 : 17)}
                               style={{
                                 fontSize:
                                   node.type === "core"
-                                    ? 27
+                                    ? 28
                                     : node.type === "vertical"
                                       ? 21
                                       : isHub
-                                        ? 14.5
+                                        ? 15
                                         : view === "tree"
                                           ? 13
                                           : 12,
@@ -1243,7 +1313,7 @@ export function GaitscapeExplorer() {
                   className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-obsidian-200/85 px-3.5 py-1.5 text-xs font-semibold text-soft-gray backdrop-blur transition-colors hover:text-soft-white"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  Show all {groupLabel.toLowerCase()}s
+                  All {groupLabel.toLowerCase()}s
                 </button>
               )}
 
@@ -1265,13 +1335,26 @@ export function GaitscapeExplorer() {
                     style={{ color: nodeColor(hoveredTooltip.node) }}
                   >
                     {NODE_TYPE_LABEL[hoveredTooltip.node.type]}
+                    {hoveredTooltip.node.vertical && (
+                      <span className="text-soft-mute">
+                        {" "}
+                        · {VERTICAL_LABEL[hoveredTooltip.node.vertical]}
+                      </span>
+                    )}
                   </div>
-                  {hoveredTooltip.connected.length > 0 && (
-                    <div className="mt-1.5 text-[11px] leading-relaxed text-soft-mute">
-                      Connected to{" "}
-                      {hoveredTooltip.connected.map((c) => c.title).join(" · ")}
+                  {hoveredTooltip.node.shortDescription && (
+                    <p className="mt-1.5 line-clamp-2 text-[11px] leading-relaxed text-soft-gray">
+                      {hoveredTooltip.node.shortDescription}
+                    </p>
+                  )}
+                  {hoveredTooltip.stats.length > 0 && (
+                    <div className="mt-1.5 text-[10.5px] text-soft-mute">
+                      {hoveredTooltip.stats.join(" · ")}
                     </div>
                   )}
+                  <div className="mt-1.5 text-[10.5px] font-semibold text-cyan-300">
+                    Click to explore →
+                  </div>
                 </div>
               )}
 

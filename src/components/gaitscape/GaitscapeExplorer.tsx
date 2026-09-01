@@ -810,7 +810,7 @@ export function GaitscapeExplorer() {
     <div className="gaitscape-explorer" id="explore">
       {/* ---------------- compact header ---------------- */}
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
-        <h1 className="font-display text-2xl text-soft-white sm:text-3xl">
+        <h1 className="font-display text-2xl text-soft-white sm:text-[1.75rem]">
           Explore the Human Movement Intelligence{" "}
           <span className="text-gradient">landscape.</span>
         </h1>
@@ -840,7 +840,7 @@ export function GaitscapeExplorer() {
           One toolbar grid: control groups left, Search + Filters right.
           When space runs out the right pair wraps to its own full row
           together — Filters is never stranded alone. */}
-      <div className="mt-4 grid grid-cols-1 items-start gap-x-6 gap-y-2.5 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]">
+      <div className="mt-2.5 grid grid-cols-1 items-start gap-x-6 gap-y-2.5 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <div className="flex items-center gap-2">
           <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-mute/80">
@@ -1288,7 +1288,7 @@ export function GaitscapeExplorer() {
                       const labelYOffset = labelAbove
                         ? -(r + 9)
                         : r +
-                          (node.type === "core" ? 52 : node.type === "vertical" ? 36 : 17);
+                          (node.type === "core" ? 62 : node.type === "vertical" ? 43 : 17);
                       return (
                         <g
                           key={node.id}
@@ -1353,7 +1353,7 @@ export function GaitscapeExplorer() {
                                     : node.type === "vertical"
                                       ? 22.5
                                       : isHub
-                                        ? 17.5
+                                        ? 18
                                         : view === "tree"
                                           ? 13
                                           : 12,

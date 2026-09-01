@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { GaitscapeHero } from "@/components/gaitscape/GaitscapeHero";
 import { GaitscapeExplorer } from "@/components/gaitscape/GaitscapeExplorer";
 import { CapabilityMatrix } from "@/components/gaitscape/CapabilityMatrix";
 import { CompareSystems } from "@/components/gaitscape/CompareSystems";
@@ -20,14 +19,10 @@ export const metadata: Metadata = {
 export default function GaitscapePage() {
   return (
     <>
-      <div className="site-page-intro">
-        <GaitscapeHero />
-      </div>
-
-      {/* PRIMARY EXPLORATION VIEW */}
+      {/* PRIMARY EXPLORATION VIEW — compact header + graph, above the fold */}
       <section
         aria-label="GaitScape interactive landscape"
-        className="border-b border-white/[0.06] py-12 sm:py-16"
+        className="site-page-intro-compact border-b border-white/[0.06] pb-12 sm:pb-16"
       >
         <div className="container-wide">
           <GaitscapeExplorer />

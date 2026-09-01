@@ -113,14 +113,13 @@ export function Navbar() {
                         <span
                           aria-hidden
                           className={cn(
-                            "pointer-events-none absolute inset-x-2.5 -bottom-0.5 h-[2px] origin-center rounded-full bg-gradient-to-r from-cyan-300 via-royal-400 to-violet-400 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] 2xl:inset-x-3.5",
+                            "pointer-events-none absolute inset-x-2.5 -bottom-0.5 h-px origin-center rounded-full bg-gradient-to-r from-cyan-300/80 via-royal-400/80 to-violet-400/80 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] 2xl:inset-x-3.5",
                             active
                               ? "scale-x-100 opacity-100"
                               : "scale-x-0 opacity-0 group-hover/link:scale-x-100 group-hover/link:opacity-100"
                           )}
                           style={{
-                            boxShadow:
-                              "0 0 14px rgba(79,209,255,0.55), 0 0 28px rgba(124,58,237,0.35)",
+                            boxShadow: "0 0 8px rgba(79,209,255,0.3)",
                           }}
                         />
                       </Link>
@@ -184,14 +183,13 @@ export function Navbar() {
                     <span
                       aria-hidden
                       className={cn(
-                        "pointer-events-none absolute inset-x-2.5 -bottom-0.5 h-[2px] origin-center rounded-full bg-gradient-to-r from-cyan-300 via-royal-400 to-violet-400 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] 2xl:inset-x-3.5",
+                        "pointer-events-none absolute inset-x-2.5 -bottom-0.5 h-px origin-center rounded-full bg-gradient-to-r from-cyan-300/80 via-royal-400/80 to-violet-400/80 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] 2xl:inset-x-3.5",
                         active
                           ? "scale-x-100 opacity-100"
                           : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
                       )}
                       style={{
-                        boxShadow:
-                          "0 0 14px rgba(79,209,255,0.55), 0 0 28px rgba(124,58,237,0.35)",
+                        boxShadow: "0 0 8px rgba(79,209,255,0.3)",
                       }}
                     />
                   </Link>

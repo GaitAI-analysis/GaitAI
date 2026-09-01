@@ -1,9 +1,10 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { workflowStages } from "@/data/products";
+import { assetPath } from "@/lib/paths";
 
 export function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null);
@@ -88,16 +89,34 @@ export function HowItWorks() {
   );
 }
 
+/* One animation per workflow stage, from gaitai_poster_animations.zip.
+   Order matches workflowStages: capture → analyze → report → act. */
+const STAGE_VIDEOS = [
+  "/assets/videos/workflow/stage-01-capture.mp4",
+  "/assets/videos/workflow/stage-02-analyze.mp4",
+  "/assets/videos/workflow/stage-03-report.mp4",
+  "/assets/videos/workflow/stage-04-output.mp4",
+];
+
 function StageVisual({ index }: { index: number }) {
+  const reduceMotion = Boolean(useReducedMotion());
+
   return (
-    <div className="card relative h-56 overflow-hidden sm:h-64">
-      <div className="ring-grid absolute inset-0 opacity-50" />
-      <div className="absolute inset-0">
-        {index === 0 && <SenseVisual />}
-        {index === 1 && <UnderstandVisual />}
-        {index === 2 && <PredictVisual />}
-        {index === 3 && <ProtectVisual />}
-      </div>
+    <div className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72">
+      {/* Reduced-motion users get the paused first frame instead of the
+          loop; the assets are fixed dark renders in both themes. */}
+      <video
+        key={reduceMotion ? "still" : "loop"}
+        className="workflow-stage-video"
+        autoPlay={!reduceMotion}
+        muted
+        loop
+        playsInline
+        preload={reduceMotion ? "auto" : "metadata"}
+        aria-hidden="true"
+      >
+        <source src={assetPath(STAGE_VIDEOS[index])} type="video/mp4" />
+      </video>
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
         <span>stage_0{index + 1}</span>
         <span className="inline-flex items-center gap-1.5">
@@ -106,83 +125,5 @@ function StageVisual({ index }: { index: number }) {
         </span>
       </div>
     </div>
-  );
-}
-
-function SenseVisual() {
-  return (
-    <svg className="h-full w-full" viewBox="0 0 400 240" fill="none">
-      <defs>
-        <linearGradient id="sg" x1="0" y1="0" x2="400" y2="240">
-          <stop stopColor="#4FD1FF" stopOpacity="0.7" />
-          <stop offset="1" stopColor="#2563FF" stopOpacity="0.2" />
-        </linearGradient>
-      </defs>
-      <g stroke="url(#sg)" strokeWidth="1.2" opacity="0.6">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <line key={i} x1="200" y1="120" x2={200 + Math.cos((i / 12) * Math.PI * 2) * 100} y2={120 + Math.sin((i / 12) * Math.PI * 2) * 60} />
-        ))}
-      </g>
-      <circle cx="200" cy="120" r="6" fill="#4FD1FF">
-        <animate attributeName="r" values="6;9;6" dur="2s" repeatCount="indefinite" />
-      </circle>
-      <circle cx="200" cy="120" r="50" stroke="#4FD1FF" strokeOpacity="0.25" />
-      <circle cx="200" cy="120" r="90" stroke="#4FD1FF" strokeOpacity="0.15" />
-    </svg>
-  );
-}
-
-function UnderstandVisual() {
-  return (
-    <svg className="h-full w-full" viewBox="0 0 400 240" fill="none">
-      <g stroke="#7C3AED" strokeWidth="1.5" opacity="0.8">
-        <path d="M120 60 L150 100 L130 140 L170 170" />
-        <path d="M150 100 L190 90 L220 120 L210 160 L240 200" />
-        <path d="M220 120 L270 110 L290 70" />
-      </g>
-      {[[120, 60], [150, 100], [130, 140], [170, 170], [190, 90], [220, 120], [210, 160], [240, 200], [270, 110], [290, 70]].map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="4" fill="#4FD1FF">
-          <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin={`${i * 0.1}s`} repeatCount="indefinite" />
-        </circle>
-      ))}
-    </svg>
-  );
-}
-
-function PredictVisual() {
-  return (
-    <svg className="h-full w-full" viewBox="0 0 400 240" fill="none">
-      <defs>
-        <linearGradient id="pg" x1="0" y1="0" x2="0" y2="240">
-          <stop stopColor="#4FD1FF" stopOpacity="0.6" />
-          <stop offset="1" stopColor="#7C3AED" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <path d="M 20 180 Q 80 140, 120 150 T 220 100 T 320 70 L 380 50" stroke="#4FD1FF" strokeWidth="2" fill="none" />
-      <path d="M 20 180 Q 80 140, 120 150 T 220 100 T 320 70 L 380 50 L 380 220 L 20 220 Z" fill="url(#pg)" opacity="0.5" />
-      <g fill="#fff">
-        {[[120, 150], [220, 100], [320, 70], [380, 50]].map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r="3.5" stroke="#7C3AED" />
-        ))}
-      </g>
-    </svg>
-  );
-}
-
-function ProtectVisual() {
-  return (
-    <svg className="h-full w-full" viewBox="0 0 400 240" fill="none">
-      <g opacity="0.6">
-        <circle cx="200" cy="120" r="40" stroke="#4FD1FF" />
-        <circle cx="200" cy="120" r="70" stroke="#7C3AED" strokeOpacity="0.6" />
-        <circle cx="200" cy="120" r="100" stroke="#2563FF" strokeOpacity="0.35" />
-      </g>
-      <path
-        d="M180 105 L200 92 L220 105 L220 130 Q200 150 180 130 Z"
-        fill="#4FD1FF"
-        opacity="0.9"
-      />
-      <path d="M190 122 L198 130 L212 114" stroke="#070B14" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

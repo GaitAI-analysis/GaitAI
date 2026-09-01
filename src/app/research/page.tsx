@@ -1,17 +1,13 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { assetPath } from "@/lib/paths";
 import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  Award,
   Brain,
   Database,
   Eye,
   FileText,
   Footprints,
-  GraduationCap,
   Lock,
   Microscope,
   Sparkles,
@@ -286,91 +282,6 @@ export default function ResearchPage() {
               Open the publications newsroom
               <ArrowUpRight className="h-4 w-4" />
             </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* FOUNDER CREDIT */}
-      <section className="section">
-        <div className="container-wide">
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-8 sm:p-10">
-            <div className="ring-grid pointer-events-none absolute inset-0 opacity-30" />
-            <div
-              className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(closest-side, rgba(124,58,237,0.25), transparent 70%)",
-              }}
-            />
-
-            <div className="relative grid items-center gap-8 lg:grid-cols-[auto_1fr]">
-              {/* Portrait */}
-              <Link
-                href="/about#founder"
-                className="group relative block h-32 w-32 shrink-0 overflow-hidden rounded-2xl ring-1 ring-white/10 transition-transform hover:scale-[1.02] sm:h-40 sm:w-40"
-              >
-                <Image
-                  src={assetPath("/brand/founder-anubha-parashar.png")}
-                  alt="Dr. Anubha Parashar"
-                  fill
-                  sizes="160px"
-                  className="object-cover object-top"
-                />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-obsidian/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              </Link>
-
-              {/* Credit */}
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                  <Sparkles className="h-3 w-3" />
-                  Founder &amp; principal researcher
-                </div>
-                <h3 className="mt-3 font-display text-2xl text-balance text-soft-white sm:text-3xl">
-                  Dr. Anubha Parashar
-                </h3>
-                <p className="mt-1 text-[12.5px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                  Ph.D. CS&amp;E (AI), Manipal University Jaipur · 10+ yrs ·
-                  50+ publications · 6 patents
-                </p>
-                <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-soft-gray">
-                  GaitAI&apos;s research direction is led by Dr. Anubha
-                  Parashar, whose doctoral work on gait recognition under
-                  occlusion, clothing variation and viewpoint changes — plus a
-                  decade of applied work in AI, computer vision, biometrics,
-                  generative AI and intelligent systems — forms the technical
-                  backbone of every product on this site.
-                </p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <Link
-                    href="/about#founder"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold text-cyan-200 transition-all hover:border-cyan-300/50 hover:bg-cyan-300/15"
-                  >
-                    Read the full founder profile
-                    <ArrowUpRight className="h-3 w-3" />
-                  </Link>
-                  <Link
-                    href="https://scholar.google.com/citations?user=hrwpIAgAAAAJ&hl=en"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/40 bg-cyan-300/10 px-3 py-1.5 text-[11px] font-semibold text-cyan-100 transition-all hover:border-cyan-300/60 hover:bg-cyan-300/15"
-                  >
-                    <GraduationCap className="h-3.5 w-3.5" />
-                    Google Scholar
-                    <ArrowUpRight className="h-3 w-3" />
-                  </Link>
-                  <Link
-                    href="https://anubhaparashar.github.io/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold text-soft-white transition-all hover:border-white/20 hover:bg-white/[0.06]"
-                  >
-                    <Award className="h-3.5 w-3.5" />
-                    Visit portfolio
-                    <ArrowUpRight className="h-3 w-3" />
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>

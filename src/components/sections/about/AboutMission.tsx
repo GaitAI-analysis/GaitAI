@@ -13,10 +13,10 @@ export function AboutMission({ pillars = false }: { pillars?: boolean }) {
       <div className="container-wide">
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.4fr]">
           <div>
-            <div className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              <span className="h-px w-10 bg-gradient-to-r from-cyan-300 to-cyan-300/20" />
+            <span className="eyebrow">
+              <span className="h-1 w-6 rounded-full bg-gradient-brand" />
               Mission
-            </div>
+            </span>
             <h2 className="mt-3 font-display text-display-lg text-balance text-soft-white">
               To make human movement{" "}
               <span className="text-gradient">measurable, meaningful and useful</span>{" "}

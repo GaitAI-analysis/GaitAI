@@ -1,25 +1,22 @@
-import { Quote } from "lucide-react";
-
 /**
- * Mission quote card — the GaitAI philosophy statement.
- * Rendered inside the AboutMission section on /about and the home page.
+ * Philosophy statement card — the GaitAI philosophy, styled as a premium
+ * editorial card: navy gradient surface, thin border, a faint decorative
+ * quote mark in the top-right, selective cyan emphasis, and a divider +
+ * attribution at the bottom. Rendered inside AboutMission on /about and
+ * the home page.
  */
 export function AboutPhilosophy() {
   return (
-    <div className="mt-16 rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-8 sm:p-10">
-      <Quote className="h-8 w-8 text-cyan-300" />
-      <blockquote className="mt-4 font-display text-xl leading-relaxed text-soft-white sm:text-2xl">
-        &ldquo;Walking is more than motion. It is a{" "}
-        <span className="text-gradient">signature</span>. It is a{" "}
-        <span className="text-gradient">health indicator</span>. It is a{" "}
-        <span className="text-gradient">safety signal</span>. It is a{" "}
-        <span className="text-gradient">biometric identity</span>. It is a story
-        of the human body.&rdquo;
+    <figure className="philosophy-card mt-16">
+      <blockquote className="philosophy-quote font-display">
+        <span className="philosophy-accent">Walking</span> is more than{" "}
+        <span className="philosophy-accent">motion</span>. It is a signature.
+        It is a health indicator. It is a safety signal. It is a{" "}
+        <span className="philosophy-accent">biometric identity</span>. It is a
+        story of the human body.
       </blockquote>
-      <figcaption className="mt-6 flex items-center gap-3 text-sm text-soft-mute">
-        <span className="h-px w-10 bg-cyan-300/60" />
-        GaitAI · Philosophy
-      </figcaption>
-    </div>
+      <div className="philosophy-divider" aria-hidden="true" />
+      <figcaption className="philosophy-meta">GaitAI · Philosophy</figcaption>
+    </figure>
   );
 }

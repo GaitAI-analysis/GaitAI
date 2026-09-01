@@ -346,9 +346,6 @@ export default function ResearchPage() {
                   Start a collaboration
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/about" className="btn-ghost">
-                  Meet the team
-                </Link>
               </div>
             </div>
           </div>

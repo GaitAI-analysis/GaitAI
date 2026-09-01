@@ -26,7 +26,6 @@ const footerLinks = [
   {
     heading: "Company",
     items: [
-      { label: "About", href: "/about" },
       { label: "Research", href: "/research" },
       { label: "Publications", href: "/publications" },
       { label: "Contact", href: "/#contact" },
@@ -38,7 +37,7 @@ const footerLinks = [
       { label: "Request a demo", href: "/#contact" },
       { label: "Pilot a vertical", href: "/#contact" },
       { label: "Partnerships", href: "/#contact" },
-      { label: "Investors", href: "/about#investors" },
+      { label: "Investors", href: "/#investors" },
       { label: "Press", href: "/#contact" },
     ],
   },

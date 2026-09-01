@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { readPublishedPosts } from "@/lib/posts-store";
 import { productDetails } from "@/data/product-details";
+import { secureProductDetails } from "@/data/product-details-secure";
+import { useCaseDetails } from "@/data/usecase-details";
 
 const siteUrl = "https://gaitai.in";
 
@@ -8,7 +10,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await readPublishedPosts();
   const routes = [
     "",
-    "/about",
     "/mobilitycare",
     "/securevision",
     "/products",
@@ -30,6 +31,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...productDetails.map((d) => ({
       url: `${siteUrl}/mobilitycare/${d.slug}`,
+      changeFrequency: "yearly" as const,
+      priority: 0.6,
+    })),
+    ...secureProductDetails.map((d) => ({
+      url: `${siteUrl}/securevision/${d.slug}`,
+      changeFrequency: "yearly" as const,
+      priority: 0.6,
+    })),
+    ...useCaseDetails.map((d) => ({
+      url: `${siteUrl}/use-cases/${d.slug}`,
       changeFrequency: "yearly" as const,
       priority: 0.6,
     })),

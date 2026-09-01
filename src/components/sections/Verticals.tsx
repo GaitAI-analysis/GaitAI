@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { capabilityIconById } from "@/components/icons/CapabilityIcons";
 import {
   mobilityProducts,
   secureProducts,
@@ -260,6 +261,12 @@ function FlagshipPanel({
             aria-label={`${name} featured capabilities`}
           >
             {products.map((product) => {
+              // Refined motion-analysis pictograms for the featured eight;
+              // any other product falls back to its Lucide glyph.
+              const CapabilityIcon =
+                capabilityIconById[
+                  product.id as keyof typeof capabilityIconById
+                ];
               const ProductIcon = product.icon;
               return (
                 <li
@@ -269,7 +276,11 @@ function FlagshipPanel({
                   <span
                     className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border transition-colors duration-300 ${style.capabilityIcon}`}
                   >
-                    <ProductIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                    {CapabilityIcon ? (
+                      <CapabilityIcon className="h-5 w-5" aria-hidden="true" />
+                    ) : (
+                      <ProductIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                    )}
                   </span>
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold text-soft-white">

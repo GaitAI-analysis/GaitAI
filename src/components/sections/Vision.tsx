@@ -40,12 +40,11 @@ export function Vision() {
           <figcaption className="mt-8 flex items-center gap-3 text-sm text-soft-mute">
             <span className="h-px w-10 bg-cyan-300/60" />
             <span>
-              <span className="text-soft-white">Dr. Anubha Parashar</span> ·
-              Founder &amp; CEO, GaitAI ·{" "}
               <span className="text-soft-gray">
-                Mission: to make human movement measurable, meaningful and
-                useful for the world.
-              </span>
+                To make human movement measurable, meaningful and useful for
+                the world.
+              </span>{" "}
+              <span className="text-soft-white">GaitAI · Philosophy</span>
             </span>
           </figcaption>
         </motion.figure>

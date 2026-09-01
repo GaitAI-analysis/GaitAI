@@ -840,8 +840,8 @@ export function GaitscapeExplorer() {
           One toolbar grid: control groups left, Search + Filters right.
           When space runs out the right pair wraps to its own full row
           together — Filters is never stranded alone. */}
-      <div className="mt-4 grid grid-cols-1 items-center gap-x-6 gap-y-2.5 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2.5">
+      <div className="mt-4 grid grid-cols-1 items-start gap-x-6 gap-y-2.5 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <div className="flex items-center gap-2">
           <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-mute/80">
             View
@@ -1288,7 +1288,7 @@ export function GaitscapeExplorer() {
                       const labelYOffset = labelAbove
                         ? -(r + 9)
                         : r +
-                          (node.type === "core" ? 44 : node.type === "vertical" ? 31 : 17);
+                          (node.type === "core" ? 52 : node.type === "vertical" ? 36 : 17);
                       return (
                         <g
                           key={node.id}
@@ -1298,7 +1298,7 @@ export function GaitscapeExplorer() {
                           role="button"
                           aria-label={`${NODE_TYPE_LABEL[node.type]}: ${node.title}`}
                           aria-pressed={isSelected}
-                          style={{ opacity: activeDim ? 0.3 : searchDim ? 0.55 : 1 }}
+                          style={{ opacity: activeDim ? 0.35 : searchDim ? 0.55 : 1 }}
                           onMouseEnter={() => setHoverId(node.id)}
                           onMouseLeave={() => setHoverId(null)}
                           onFocus={() => setHoverId(node.id)}
@@ -1353,7 +1353,7 @@ export function GaitscapeExplorer() {
                                     : node.type === "vertical"
                                       ? 22.5
                                       : isHub
-                                        ? 16.5
+                                        ? 17.5
                                         : view === "tree"
                                           ? 13
                                           : 12,

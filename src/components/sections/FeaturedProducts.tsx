@@ -78,7 +78,7 @@ export function FeaturedProducts() {
 
         <div className="mt-12 flex items-center justify-center">
           <Link
-            href="#use-cases"
+            href="/use-cases"
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]"
           >
             See where they&apos;re deployed

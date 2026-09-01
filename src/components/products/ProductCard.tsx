@@ -68,7 +68,6 @@ export function ProductCard({
   index?: number;
   compact?: boolean;
 }) {
-  const Icon = product.icon;
   const a = accentMap[product.accent];
   const href = `/${product.vertical}#${product.id}`;
 
@@ -94,12 +93,12 @@ export function ProductCard({
 
       <div className={`relative ${compact ? "p-5" : "p-6"}`}>
         {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <span
-            className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ring-1 ${a.glow} ${a.text} ring-white/10`}
+        <div className="flex items-center justify-between gap-3">
+          <div
+            className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${a.text}`}
           >
-            <Icon className="h-5 w-5" />
-          </span>
+            GaitAI · {product.short}
+          </div>
           <Link
             href={href}
             aria-label={`Explore ${product.name}`}
@@ -110,13 +109,8 @@ export function ProductCard({
         </div>
 
         {/* Name + label */}
-        <div className="mt-5">
-          <div
-            className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${a.text}`}
-          >
-            GaitAI · {product.short}
-          </div>
-          <h3 className="mt-1.5 font-display text-lg font-semibold text-soft-white">
+        <div className="mt-2.5">
+          <h3 className="font-display text-lg font-semibold text-soft-white">
             {product.headline}
           </h3>
           <p className="mt-2 text-[13px] leading-relaxed text-soft-mute">

@@ -32,7 +32,7 @@ export default function GaitscapePage() {
       {/* EXPLORE THE INTELLIGENCE LAYER */}
       <section
         aria-labelledby="gaitscape-capabilities"
-        className="border-b border-white/[0.06] bg-obsidian-300/40 py-16 sm:py-20"
+        className="border-b border-white/[0.06] bg-obsidian-300/40 py-20 sm:py-24"
       >
         <div className="container-wide">
           <SectionHeading
@@ -43,10 +43,15 @@ export default function GaitscapePage() {
                 <span className="text-gradient">GaitAI system.</span>
               </span>
             }
-            description="Explore how movement-analysis capabilities are used across products, environments and outcomes."
+            description={
+              <span className="text-[1.06rem] leading-relaxed sm:text-xl">
+                Explore how movement-analysis capabilities are used across
+                products, environments and outcomes.
+              </span>
+            }
             align="left"
           />
-          <div className="mt-10">
+          <div className="mt-12 sm:mt-14">
             <CapabilityMatrix />
           </div>
         </div>

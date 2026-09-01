@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { GaitProduct } from "@/data/products";
 
@@ -69,20 +69,42 @@ export function ProductCard({
   compact?: boolean;
 }) {
   const a = accentMap[product.accent];
-  const href = `/${product.vertical}#${product.id}`;
+  // MobilityCare products have dedicated detail pages; SecureVision products
+  // still anchor into their vertical page.
+  const href =
+    product.vertical === "mobilitycare"
+      ? `/mobilitycare/${product.id}/`
+      : `/${product.vertical}#${product.id}`;
 
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -3 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{
         duration: 0.7,
         delay: (index % 6) * 0.05,
         ease: [0.16, 1, 0.3, 1],
       }}
-      className={`group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent transition-all ${a.border} hover:bg-white/[0.04]`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent transition-[border-color,background-color,box-shadow] duration-300 ${a.border} hover:bg-white/[0.04] hover:shadow-[0_16px_40px_-20px_rgba(79,209,255,0.3),0_0_0_1px_rgba(124,58,237,0.1)] focus-within:border-cyan-300/40`}
     >
+      {/* Whole-card link (stretched). Enter activates natively; Space is
+          handled explicitly so keyboard users can open a focused card. */}
+      <Link
+        href={href}
+        aria-label={`Explore ${product.name}`}
+        className="absolute inset-0 z-10 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70"
+        onKeyDown={(e) => {
+          if (e.key === " ") {
+            e.preventDefault();
+            e.currentTarget.click();
+          }
+        }}
+      >
+        <span className="sr-only">Explore {product.name}</span>
+      </Link>
+
       {/* Glow on hover */}
       <div
         className={`pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-gradient-radial opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${a.glow}`}
@@ -99,13 +121,12 @@ export function ProductCard({
           >
             GaitAI · {product.short}
           </div>
-          <Link
-            href={href}
-            aria-label={`Explore ${product.name}`}
-            className={`grid h-8 w-8 shrink-0 place-items-center rounded-full glass transition-all ${a.border} hover:text-cyan-300`}
+          <span
+            aria-hidden
+            className={`grid h-8 w-8 shrink-0 place-items-center rounded-full glass transition-all ${a.border} group-hover:text-cyan-300`}
           >
             <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
+          </span>
         </div>
 
         {/* Name + label */}
@@ -136,6 +157,15 @@ export function ProductCard({
             )}
           </div>
         )}
+
+        {/* Explore reveal */}
+        <div
+          aria-hidden
+          className={`mt-5 inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] ${a.text} opacity-60 transition-opacity duration-300 group-focus-within:opacity-100 group-hover:opacity-100`}
+        >
+          Explore product
+          <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
+        </div>
       </div>
     </motion.article>
   );

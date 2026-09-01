@@ -292,7 +292,10 @@ function clusterLayout(
   centerNodes
     .sort((a, b) => a.title.localeCompare(b.title))
     .forEach((node, i) => {
-      pos.set(node.id, phyllotaxis({ x: cx, y: cy }, i + 2, 95, 20));
+      pos.set(
+        node.id,
+        phyllotaxis({ x: cx, y: cy }, i + 2, 95 * Math.min(spread, 1.4), 20 * spread)
+      );
     });
 
   return pos;
@@ -315,7 +318,8 @@ function treeLayout(
 ): Map<string, Pos> {
   const pos = new Map<string, Pos>();
   const { assignment } = assignToHubs(visible, hubType);
-  const colWidth = (CANVAS_W - 220) / (TREE_ORDER.length - 1);
+  // Left margin leaves room for the core's large centered label.
+  const colWidth = (CANVAS_W - 310) / (TREE_ORDER.length - 1);
 
   TREE_ORDER.forEach((type, colIdx) => {
     const column = visible
@@ -325,7 +329,7 @@ function treeLayout(
         const gb = assignment.get(b.id) ?? "";
         return ga === gb ? a.title.localeCompare(b.title) : ga.localeCompare(gb);
       });
-    const x = 110 + colIdx * colWidth;
+    const x = 200 + colIdx * colWidth;
     const padding = 90;
     column.forEach((node, i) => {
       const y =
@@ -480,9 +484,13 @@ export function GaitscapeExplorer() {
   const positions = useMemo(
     () =>
       view === "cluster"
-        ? clusterLayout(visibleNodes, groupBy, focusGroupId ? 1.9 : 1)
+        ? clusterLayout(
+            visibleNodes,
+            groupBy,
+            focusGroupId || (viewBy === "challenges" && challenge) ? 1.9 : 1
+          )
         : treeLayout(visibleNodes, groupBy),
-    [visibleNodes, groupBy, view, focusGroupId]
+    [visibleNodes, groupBy, view, focusGroupId, viewBy, challenge]
   );
 
   const hubIds = useMemo(() => new Set(hubs.map((h) => h.id)), [hubs]);
@@ -586,6 +594,13 @@ export function GaitscapeExplorer() {
     setTransform({ x: 0, y: 0, k: 1 });
   };
 
+  // Cluster opens on the core story; the tree is a full-width diagram and
+  // opens fitted.
+  useEffect(() => {
+    setAnimated(true);
+    setTransform(view === "tree" ? { x: 0, y: 0, k: 1 } : INITIAL_TRANSFORM);
+  }, [view]);
+
   const fullReset = () => {
     setAnimated(true);
     setTransform(INITIAL_TRANSFORM);
@@ -674,13 +689,15 @@ export function GaitscapeExplorer() {
   const labelVisible = useCallback(
     (node: GaitscapeNode, isHub: boolean) => {
       if (node.type === "core" || node.type === "vertical" || isHub) return true;
+      // The tree is a structured diagram — every row keeps its label.
+      if (view === "tree") return true;
       if (activeNeighbors?.has(node.id)) return true;
       // A search narrows the set to matches + direct relations — label all.
       if (searchMatches) return true;
       if (focusGroupId || (viewBy === "challenges" && challenge)) return true;
       return transform.k >= 1.9;
     },
-    [activeNeighbors, searchMatches, focusGroupId, viewBy, challenge, transform.k]
+    [view, activeNeighbors, searchMatches, focusGroupId, viewBy, challenge, transform.k]
   );
 
   const groupLabel =
@@ -1204,7 +1221,9 @@ export function GaitscapeExplorer() {
                                       ? 21
                                       : isHub
                                         ? 14.5
-                                        : 12,
+                                        : view === "tree"
+                                          ? 13
+                                          : 12,
                               }}
                             >
                               {node.title}

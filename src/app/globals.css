@@ -2026,6 +2026,34 @@ body {
 }
 
 /* =========================================================================
+   PUBLICATIONS RESEARCH LIBRARY — control bar fields
+   ========================================================================= */
+
+.publib-input,
+.publib-select {
+  border-radius: 999px;
+  border: 1px solid rgb(148 163 184 / 0.16);
+  background: rgb(var(--c-obsidian-200) / 0.7);
+  color: rgb(var(--c-soft-white));
+  font-size: 12.5px;
+  padding: 8px 14px;
+}
+
+.publib-select {
+  padding: 8px 12px;
+}
+
+.publib-input::placeholder {
+  color: rgb(var(--c-soft-mute) / 0.95);
+}
+
+.publib-input:focus,
+.publib-select:focus {
+  outline: none;
+  border-color: rgb(79 209 255 / 0.5);
+}
+
+/* =========================================================================
    PHILOSOPHY CARD — premium editorial statement (home page + /about).
    No large quote icon: a faint decorative mark sits top-right, the text
    is the focal point, divider + attribution close the card.

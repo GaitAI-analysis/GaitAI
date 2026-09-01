@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, HeartPulse, ShieldCheck } from "lucide-react";
+import { ArrowRight, HeartPulse, ShieldCheck } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
-import { industryUseCases, productById } from "@/data/products";
+import { UseCaseCard } from "@/components/usecases/UseCaseCard";
+import { industryUseCases } from "@/data/products";
 
 export const metadata: Metadata = {
   title: "Use Cases — Where GaitAI is deployed",
@@ -18,110 +18,6 @@ const secureCases = industryUseCases.filter(
   (u) => u.vertical === "securevision"
 );
 
-const accentStyles: Record<
-  string,
-  { text: string; ring: string; pill: string; border: string }
-> = {
-  teal: {
-    text: "text-teal-300",
-    ring: "ring-teal-300/20",
-    pill: "border-teal-300/30 bg-teal-300/8 text-teal-200",
-    border: "hover:border-teal-300/40",
-  },
-  blue: {
-    text: "text-royal-300",
-    ring: "ring-royal-300/20",
-    pill: "border-royal-300/30 bg-royal-300/8 text-royal-200",
-    border: "hover:border-royal-300/40",
-  },
-  cyan: {
-    text: "text-cyan-300",
-    ring: "ring-cyan-300/20",
-    pill: "border-cyan-300/30 bg-cyan-300/8 text-cyan-200",
-    border: "hover:border-cyan-300/40",
-  },
-  violet: {
-    text: "text-violet-300",
-    ring: "ring-violet-300/20",
-    pill: "border-violet-300/30 bg-violet-300/8 text-violet-200",
-    border: "hover:border-violet-300/40",
-  },
-  gold: {
-    text: "text-amber-300",
-    ring: "ring-amber-300/20",
-    pill: "border-amber-300/30 bg-amber-300/8 text-amber-200",
-    border: "hover:border-amber-300/40",
-  },
-  emerald: {
-    text: "text-emerald-300",
-    ring: "ring-emerald-300/20",
-    pill: "border-emerald-300/30 bg-emerald-300/8 text-emerald-200",
-    border: "hover:border-emerald-300/40",
-  },
-};
-
-function UseCaseCard({
-  u,
-  delay = 0,
-}: {
-  u: (typeof industryUseCases)[number];
-  delay?: number;
-}) {
-  const a = accentStyles[u.accent];
-  const products = u.productIds
-    .map((id) => productById(id))
-    .filter((p): p is NonNullable<typeof p> => Boolean(p));
-
-  return (
-    <Reveal delay={delay}>
-      <div
-        id={u.id}
-        className={`group relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all ${a.border} hover:bg-white/[0.04]`}
-      >
-        <span
-          className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${a.pill}`}
-        >
-          {u.vertical === "mobilitycare" ? "MobilityCare" : "SecureVision"}
-        </span>
-
-        <h3 className="mt-4 font-display text-xl text-soft-white">
-          {u.industry}
-        </h3>
-        <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-          {u.problem}
-        </p>
-
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {products.map((p) => (
-            <span
-              key={p.id}
-              className={`rounded-full border px-2 py-0.5 text-[10.5px] font-medium ${a.pill}`}
-            >
-              {p.short}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.02] p-3">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-            Outcome
-          </div>
-          <div className="mt-1 text-[12.5px] leading-relaxed text-soft-white">
-            {u.outcome}
-          </div>
-        </div>
-
-        <Link
-          href={`/${u.vertical}`}
-          className={`mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] ${a.text} transition-colors hover:opacity-80`}
-        >
-          Explore products
-          <ArrowUpRight className="h-3.5 w-3.5" />
-        </Link>
-      </div>
-    </Reveal>
-  );
-}
 
 export default function UseCasesPage() {
   return (
@@ -191,7 +87,7 @@ export default function UseCasesPage() {
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {mobilityCases.map((u, i) => (
-              <UseCaseCard key={u.id} u={u} delay={(i % 3) * 0.06} />
+              <UseCaseCard key={u.id} caseId={u.id} delay={(i % 3) * 0.06} />
             ))}
           </div>
         </div>
@@ -219,7 +115,7 @@ export default function UseCasesPage() {
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {secureCases.map((u, i) => (
-              <UseCaseCard key={u.id} u={u} delay={(i % 3) * 0.06} />
+              <UseCaseCard key={u.id} caseId={u.id} delay={(i % 3) * 0.06} />
             ))}
           </div>
         </div>

@@ -9,16 +9,30 @@ import {
   ArrowUpRight,
   ChevronRight,
 } from "lucide-react";
-import { productById } from "@/data/products";
+import { industryUseCases, productById } from "@/data/products";
 import { productDetailBySlug } from "@/data/product-details";
+import { useCaseDetails } from "@/data/usecase-details";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "@/components/products/ProductCard";
 import { cn } from "@/lib/utils";
 
+const familyConfig = {
+  mobilitycare: {
+    label: "MobilityCare",
+    path: "/mobilitycare/",
+    gradient: "text-gradient",
+  },
+  securevision: {
+    label: "SecureVision",
+    path: "/securevision/",
+    gradient: "text-gradient-secure",
+  },
+} as const;
+
 // ---------------------------------------------------------------------------
 // Accent styling per product (mirrors ProductCard's accent map, detail-scale)
 // ---------------------------------------------------------------------------
-const accentMap: Record<
+export const accentMap: Record<
   string,
   { text: string; pill: string; dot: string; chip: string }
 > = {
@@ -71,7 +85,7 @@ interface NavItem {
 // Small building blocks
 // ---------------------------------------------------------------------------
 
-function SectionBlock({
+export function SectionBlock({
   id,
   index,
   title,
@@ -99,7 +113,7 @@ function SectionBlock({
   );
 }
 
-function BulletList({ items, dot }: { items: string[]; dot: string }) {
+export function BulletList({ items, dot }: { items: string[]; dot: string }) {
   return (
     <ul className="grid gap-2.5 sm:grid-cols-2">
       {items.map((item) => (
@@ -116,7 +130,7 @@ function BulletList({ items, dot }: { items: string[]; dot: string }) {
 }
 
 /** Numbered vertical step list (workflows). */
-function StepList({ steps, accentText }: { steps: string[]; accentText: string }) {
+export function StepList({ steps, accentText }: { steps: string[]; accentText: string }) {
   return (
     <ol className="grid gap-0">
       {steps.map((step, i) => (
@@ -143,7 +157,7 @@ function StepList({ steps, accentText }: { steps: string[]; accentText: string }
 }
 
 /** Architecture / pipeline flow, drawn in the existing glass visual language. */
-function PipelineDiagram({
+export function PipelineDiagram({
   stages,
   accent,
 }: {
@@ -183,7 +197,7 @@ function PipelineDiagram({
  * Null-rendering child that mirrors the ?view= search param into state.
  * useSearchParams is reactive to router navigations (including popstate).
  */
-function ViewUrlSync({ onView }: { onView: (v: string | null) => void }) {
+export function ViewUrlSync({ onView }: { onView: (v: string | null) => void }) {
   const searchParams = useSearchParams();
   const view = searchParams.get("view");
   useEffect(() => {
@@ -284,9 +298,17 @@ export function ProductDetailView({ slug }: { slug: string }) {
   if (!product || !detail) return null;
 
   const a = accentMap[product.accent] ?? accentMap.cyan;
+  const family = familyConfig[product.vertical];
   const related = detail.related
     .map((id) => productById(id))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  // Deployment environments that recommend this product in their mix.
+  const environments = useCaseDetails
+    .filter((uc) => {
+      const base = industryUseCases.find((c) => c.id === uc.caseId);
+      return base?.productIds.includes(product.id) ?? false;
+    })
+    .slice(0, 3);
 
   return (
     <article className="relative w-full pb-24">
@@ -309,11 +331,11 @@ export function ProductDetailView({ slug }: { slug: string }) {
             className="flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-soft-mute"
           >
             <Link
-              href="/mobilitycare/"
+              href={family.path}
               className="inline-flex items-center gap-1.5 transition-colors hover:text-soft-white"
             >
               <ArrowLeft className="h-3 w-3" />
-              MobilityCare
+              {family.label}
             </Link>
             <ChevronRight aria-hidden className="h-3 w-3 opacity-60" />
             <span className="text-soft-gray">{product.short}</span>
@@ -321,7 +343,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
           <div className={cn("eyebrow mt-8", a.text)}>
             <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-            GaitAI · MobilityCare
+            GaitAI · {family.label}
           </div>
 
           <h1 className="mt-4 max-w-4xl font-display text-display-xl text-balance text-soft-white">
@@ -680,11 +702,12 @@ export function ProductDetailView({ slug }: { slug: string }) {
           >
             <div className="mt-10 flex items-end justify-between gap-6">
               <h2 className="font-display text-2xl text-soft-white sm:text-3xl">
-                Related <span className="text-gradient">MobilityCare</span>{" "}
+                Related{" "}
+                <span className={family.gradient}>{family.label}</span>{" "}
                 products
               </h2>
               <Link
-                href="/mobilitycare/"
+                href={family.path}
                 className="hidden shrink-0 items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-soft-mute transition-colors hover:text-soft-white sm:inline-flex"
               >
                 All products
@@ -696,6 +719,34 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <ProductCard key={p.id} product={p} index={i} compact />
               ))}
             </div>
+
+            {environments.length > 0 && (
+              <div className="mt-10">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-soft-mute">
+                  Related deployment environments
+                </h3>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {environments.map((uc) => {
+                    const base = industryUseCases.find(
+                      (c) => c.id === uc.caseId
+                    );
+                    return (
+                      <Link
+                        key={uc.slug}
+                        href={`/use-cases/${uc.slug}/`}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors hover:text-soft-white",
+                          a.pill
+                        )}
+                      >
+                        {base?.industry ?? uc.slug}
+                        <ArrowUpRight className="h-3 w-3" />
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </section>
         </Reveal>
 
@@ -725,8 +776,8 @@ export function ProductDetailView({ slug }: { slug: string }) {
                     {detail.ctaLabel}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <Link href="/mobilitycare/" className="btn-ghost">
-                    Back to MobilityCare
+                  <Link href={family.path} className="btn-ghost">
+                    Back to {family.label}
                   </Link>
                 </div>
               </div>

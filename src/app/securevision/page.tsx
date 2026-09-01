@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Lock, ShieldCheck } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Lock } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductGrid } from "@/components/products/ProductGrid";
@@ -118,19 +118,14 @@ export default function SecureVisionPage() {
       {/* GOVERNANCE NOTE */}
       <section className="border-y border-white/[0.06] bg-obsidian-300/40 py-6">
         <div className="container-wide">
-          <div className="flex items-start gap-3 text-[12.5px] leading-relaxed text-soft-mute">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-300/30">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <div>
-              <span className="font-semibold text-soft-white">
-                Responsible deployment.
-              </span>{" "}
-              SecureVision leads with anomaly detection, crowd flow, worker
-              safety and post-event investigation. Biometric, watchlist or
-              identification capabilities deploy only with lawful authority,
-              consent, audit controls and enterprise data governance.
-            </div>
+          <div className="text-[12.5px] leading-relaxed text-soft-mute">
+            <span className="font-semibold text-soft-white">
+              Responsible deployment.
+            </span>{" "}
+            SecureVision leads with anomaly detection, crowd flow, worker
+            safety and post-event investigation. Biometric, watchlist or
+            identification capabilities deploy only with lawful authority,
+            consent, audit controls and enterprise data governance.
           </div>
         </div>
       </section>

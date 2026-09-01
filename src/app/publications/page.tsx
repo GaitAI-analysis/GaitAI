@@ -176,16 +176,7 @@ export default function PublicationsPage() {
                     />
                   </div>
 
-                  <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.02] p-4">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300">
-                      Patentees
-                    </div>
-                    <div className="mt-2 text-sm text-soft-white">
-                      {patent.authors.join(" · ")}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <div className="mt-5 flex flex-wrap items-center gap-3">
                     <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/8 px-3 py-1 text-[10.5px] font-semibold text-emerald-300">
                       <ShieldCheck className="h-3.5 w-3.5" />
                       Valid {patent.validityYears} years from {patent.filingDate}

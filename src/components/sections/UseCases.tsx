@@ -56,7 +56,7 @@ const accentStyles: Record<
 // Bento sizing: feature airports, smart cities, sports as larger tiles.
 const tileSpan: Record<string, string> = {
   airports: "md:col-span-2",
-  sports: "lg:col-span-2",
+  sports: "md:col-span-2 lg:col-span-2",
   smartcities: "md:col-span-2 lg:col-span-2",
 };
 

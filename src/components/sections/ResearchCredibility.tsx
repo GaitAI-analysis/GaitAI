@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowUpRight, FileText, Lock, ShieldCheck } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { researchPillars } from "@/data/products";
 
@@ -88,7 +88,6 @@ export function ResearchCredibility() {
         {/* Pillars */}
         <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {researchPillars.map((p, i) => {
-            const Icon = p.icon;
             return (
               <motion.div
                 key={p.title}
@@ -102,10 +101,7 @@ export function ResearchCredibility() {
                 }}
                 className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all hover:border-cyan-300/30 hover:bg-white/[0.04]"
               >
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-royal-400/20 to-violet-400/15 text-cyan-300 ring-1 ring-white/10">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <h3 className="mt-5 font-display text-lg font-semibold text-soft-white">
+                <h3 className="font-display text-lg font-semibold text-soft-white">
                   {p.title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-soft-mute">
@@ -143,13 +139,8 @@ export function ResearchCredibility() {
         {/* Two-up commitments */}
         <div className="mt-12 grid gap-4 lg:grid-cols-2">
           <div className="card relative overflow-hidden p-7">
-            <div className="flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-300/30">
-                <Lock className="h-4 w-4" />
-              </span>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
-                Privacy by design
-              </div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+              Privacy by design
             </div>
             <h3 className="mt-4 font-display text-xl text-soft-white">
               Skeleton-only analytics. Face blur. Consent logs. Audit trails.
@@ -169,13 +160,8 @@ export function ResearchCredibility() {
           </div>
 
           <div className="card relative overflow-hidden p-7">
-            <div className="flex items-center gap-2.5">
-              <span className="grid h-9 w-9 place-items-center rounded-lg bg-cyan-300/15 text-cyan-300 ring-1 ring-cyan-300/30">
-                <FileText className="h-4 w-4" />
-              </span>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                Research &amp; publications
-              </div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+              Research &amp; publications
             </div>
             <h3 className="mt-4 font-display text-xl text-soft-white">
               Founder-led research in gait biometrics &amp; movement AI.
@@ -196,10 +182,7 @@ export function ResearchCredibility() {
         </div>
 
         {/* Footer note */}
-        <div className="mt-10 flex items-start gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 sm:p-6">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/[0.04] text-soft-white ring-1 ring-white/10">
-            <ShieldCheck className="h-4 w-4" />
-          </span>
+        <div className="mt-10 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 sm:p-6">
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-soft-white">
               Responsible deployment

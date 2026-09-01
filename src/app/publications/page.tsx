@@ -343,31 +343,10 @@ export default function PublicationsPage() {
                   Want to collaborate on a paper, a pilot, or a patent licence?
                 </h2>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/#contact" className="btn-primary">
-                  Start a conversation
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href={FOUNDER_SCHOLAR_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-ghost"
-                >
-                  <GraduationCap className="h-3.5 w-3.5" />
-                  Scholar profile
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
-                <Link
-                  href={FOUNDER_PORTFOLIO_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-ghost"
-                >
-                  Portfolio
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </Link>
-              </div>
+              <Link href="/#contact" className="btn-primary shrink-0">
+                Start a conversation
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>

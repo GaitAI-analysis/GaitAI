@@ -1503,7 +1503,7 @@ body {
 }
 
 .gaitscape-input {
-  width: 200px;
+  /* Width comes from the markup (w-full / responsive utilities). */
   border-radius: 999px;
   border: 1px solid rgb(148 163 184 / 0.14);
   background: rgb(var(--c-obsidian-200) / 0.7);

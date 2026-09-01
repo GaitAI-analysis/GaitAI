@@ -11,8 +11,12 @@ import Link from "next/link";
 import {
   ArrowLeft,
   ArrowUpRight,
+  Eye,
+  EyeOff,
   ListTree,
+  Maximize,
   Maximize2,
+  Minimize,
   Minus,
   PanelLeft,
   Plus,
@@ -444,6 +448,20 @@ export function GaitscapeExplorer() {
   const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const prevFocusRef = useRef<string | null>(null);
 
+  // Fullscreen exploration workspace. Native Fullscreen API when available
+  // (the explorer root is the fullscreen element), fixed-overlay CSS
+  // fallback otherwise. All exploration state (mode, filters, focus,
+  // camera) is shared with the normal layout, so nothing resets on
+  // enter/exit.
+  const explorerRef = useRef<HTMLDivElement | null>(null);
+  const fsButtonRef = useRef<HTMLButtonElement | null>(null);
+  const wasFullscreenRef = useRef(false);
+  const [nativeFullscreen, setNativeFullscreen] = useState(false);
+  const [fallbackFullscreen, setFallbackFullscreen] = useState(false);
+  const [fsDomainsOpen, setFsDomainsOpen] = useState(true);
+  const [fsHideUi, setFsHideUi] = useState(false);
+  const isFullscreen = nativeFullscreen || fallbackFullscreen;
+
   // Small screens start in the Accessible List — the graph stays one tap away.
   useEffect(() => {
     if (window.matchMedia("(max-width: 1023px)").matches) setMode("list");
@@ -662,10 +680,42 @@ export function GaitscapeExplorer() {
     return () => svg.removeEventListener("wheel", onWheel);
   }, []);
 
-  const fitView = () => {
+  /**
+   * Camera frame for the focused group's cluster (null when no group is
+   * focused). Shared by the focus transition and the Fit control so Fit
+   * frames the active cluster instead of the whole canvas.
+   */
+  const clusterFitTransform = useCallback((): Transform | null => {
+    if (!focusGroupId) return null;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const node of visibleNodes) {
+      // Frame the cluster itself — the core and flanking verticals sit far
+      // away and would pull the camera off-center.
+      if (node.id === CORE_ID || node.type === "vertical") continue;
+      const p = positions.get(node.id);
+      if (!p) continue;
+      minX = Math.min(minX, p.x);
+      minY = Math.min(minY, p.y);
+      maxX = Math.max(maxX, p.x);
+      maxY = Math.max(maxY, p.y);
+    }
+    if (!isFinite(minX)) return null;
+    const pad = 190;
+    const w = maxX - minX + pad * 2;
+    const h = maxY - minY + pad * 2;
+    const k = Math.min(2.2, Math.max(0.6, Math.min(CANVAS_W / w, CANVAS_H / h)));
+    const bx = (minX + maxX) / 2;
+    const by = (minY + maxY) / 2;
+    return { k, x: CANVAS_W / 2 - bx * k, y: CANVAS_H / 2 - by * k };
+  }, [focusGroupId, positions, visibleNodes]);
+
+  const fitView = useCallback(() => {
     setAnimated(true);
-    setTransform({ x: 0, y: 0, k: 1 });
-  };
+    setTransform(clusterFitTransform() ?? { x: 0, y: 0, k: 1 });
+  }, [clusterFitTransform]);
 
   // Cluster opens on the core story; the tree is a full-width diagram and
   // opens fitted.
@@ -697,30 +747,9 @@ export function GaitscapeExplorer() {
       setTransform(INITIAL_TRANSFORM);
       return;
     }
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-    for (const node of visibleNodes) {
-      // Frame the cluster itself — the core and flanking verticals sit far
-      // away and would pull the camera off-center.
-      if (node.id === CORE_ID || node.type === "vertical") continue;
-      const p = positions.get(node.id);
-      if (!p) continue;
-      minX = Math.min(minX, p.x);
-      minY = Math.min(minY, p.y);
-      maxX = Math.max(maxX, p.x);
-      maxY = Math.max(maxY, p.y);
-    }
-    if (!isFinite(minX)) return;
-    const pad = 190;
-    const w = maxX - minX + pad * 2;
-    const h = maxY - minY + pad * 2;
-    const k = Math.min(2.2, Math.max(0.6, Math.min(CANVAS_W / w, CANVAS_H / h)));
-    const bx = (minX + maxX) / 2;
-    const by = (minY + maxY) / 2;
-    setTransform({ k, x: CANVAS_W / 2 - bx * k, y: CANVAS_H / 2 - by * k });
-  }, [focusGroupId, positions, visibleNodes]);
+    const t = clusterFitTransform();
+    if (t) setTransform(t);
+  }, [focusGroupId, clusterFitTransform]);
 
   // Escape closes the detail panel from anywhere in the explorer.
   useEffect(() => {
@@ -730,6 +759,77 @@ export function GaitscapeExplorer() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
+
+  // ---- fullscreen workspace --------------------------------------------------
+  const toggleFullscreen = useCallback(() => {
+    const el = explorerRef.current;
+    if (!el) return;
+    if (nativeFullscreen || fallbackFullscreen) {
+      if (document.fullscreenElement) {
+        void document.exitFullscreen().catch(() => {});
+      }
+      setFallbackFullscreen(false);
+    } else if (el.requestFullscreen) {
+      el.requestFullscreen().catch(() => setFallbackFullscreen(true));
+    } else {
+      setFallbackFullscreen(true);
+    }
+  }, [nativeFullscreen, fallbackFullscreen]);
+
+  // The user can leave native fullscreen with Esc or browser UI, so state
+  // follows the fullscreenchange event rather than the button alone.
+  useEffect(() => {
+    const onChange = () => {
+      setNativeFullscreen(document.fullscreenElement === explorerRef.current);
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  // On exit: reset fullscreen-only chrome and hand focus back to the
+  // toolbar's fullscreen button. Exploration state is left untouched.
+  useEffect(() => {
+    if (wasFullscreenRef.current && !isFullscreen) {
+      setFsDomainsOpen(true);
+      setFsHideUi(false);
+      fsButtonRef.current?.focus({ preventScroll: true });
+    }
+    wasFullscreenRef.current = isFullscreen;
+  }, [isFullscreen]);
+
+  // The CSS fallback sits on top of the page: lock body scroll and exit on
+  // Escape (native fullscreen gets both from the browser). With the detail
+  // drawer open, Escape closes the drawer first and a second press exits.
+  useEffect(() => {
+    if (!fallbackFullscreen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !selectedId) setFallbackFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [fallbackFullscreen, selectedId]);
+
+  // Fullscreen-only keyboard zoom: + / − / 0, ignored while typing in a
+  // field or holding a modifier.
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+      if (event.key === "+" || event.key === "=") zoomBy(1.25);
+      else if (event.key === "-") zoomBy(0.8);
+      else if (event.key === "0") fitView();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isFullscreen, zoomBy, fitView]);
 
   const toggleFilter = (id: string) => {
     setFilters((prev) => {
@@ -806,41 +906,86 @@ export function GaitscapeExplorer() {
   // RENDER
   // ============================================================================
 
+  const statusLine = focusGroupId ? (
+    <>
+      <span className="font-semibold text-soft-white">
+        {nodeById.get(focusGroupId)?.title}
+      </span>{" "}
+      · {visibleNodes.length} connected nodes · {visibleRels.length}{" "}
+      relationships
+    </>
+  ) : challenge ? (
+    <>
+      {visibleNodes.length} nodes · {visibleRels.length} relationships ·{" "}
+      {challenge.question}
+    </>
+  ) : (
+    <>
+      {visibleNodes.length} nodes · {visibleRels.length} relationships
+    </>
+  );
+
   return (
-    <div className="gaitscape-explorer" id="explore">
+    <div
+      ref={explorerRef}
+      className={cn(
+        "gaitscape-explorer",
+        isFullscreen && "gaitscape-explorer--fs",
+        fallbackFullscreen && "gaitscape-explorer--fs-fallback"
+      )}
+      id="explore"
+    >
       {/* ---------------- compact header ---------------- */}
-      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
-        <h1 className="font-display text-2xl text-soft-white sm:text-[1.75rem]">
-          Explore the Human Movement Intelligence{" "}
-          <span className="text-gradient">landscape.</span>
-        </h1>
-        <div className="pb-[3px] text-xs text-soft-mute sm:pb-1.5" aria-live="polite">
-          {focusGroupId ? (
-            <>
-              <span className="font-semibold text-soft-white">
-                {nodeById.get(focusGroupId)?.title}
-              </span>{" "}
-              · {visibleNodes.length} connected nodes · {visibleRels.length}{" "}
-              relationships
-            </>
-          ) : challenge ? (
-            <>
-              {visibleNodes.length} nodes · {visibleRels.length} relationships ·{" "}
-              {challenge.question}
-            </>
-          ) : (
-            <>
-              {visibleNodes.length} nodes · {visibleRels.length} relationships
-            </>
-          )}
+      {isFullscreen ? (
+        !fsHideUi && (
+          <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-2">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="font-display text-xl text-soft-white">
+                GaitScape
+              </span>
+              <span className="text-xs text-soft-mute">
+                Human Movement Intelligence Landscape
+              </span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden text-xs text-soft-mute md:block" aria-live="polite">
+                {statusLine}
+              </div>
+              <button
+                onClick={toggleFullscreen}
+                title="Exit fullscreen"
+                aria-label="Exit graph fullscreen"
+                className="gaitscape-seg-btn gaitscape-seg-btn--solo shrink-0"
+              >
+                <Minimize className="h-3.5 w-3.5" />
+                Exit fullscreen
+              </button>
+            </div>
+          </div>
+        )
+      ) : (
+        <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+          <h1 className="font-display text-2xl text-soft-white sm:text-[1.75rem]">
+            Explore the Human Movement Intelligence{" "}
+            <span className="text-gradient">landscape.</span>
+          </h1>
+          <div className="pb-[3px] text-xs text-soft-mute sm:pb-1.5" aria-live="polite">
+            {statusLine}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ---------------- controls ----------------
           One toolbar grid: control groups left, Search + Filters right.
           When space runs out the right pair wraps to its own full row
           together — Filters is never stranded alone. */}
-      <div className="mt-2.5 grid grid-cols-1 items-start gap-x-6 gap-y-2.5 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]">
+      {!(isFullscreen && fsHideUi) && (
+      <div
+        className={cn(
+          "grid grid-cols-1 items-start gap-x-6 gap-y-2.5 min-[1440px]:grid-cols-[minmax(0,1fr)_auto]",
+          isFullscreen ? "mt-3" : "mt-2.5"
+        )}
+      >
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <div className="flex items-center gap-2">
           <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-soft-mute/80">
@@ -933,6 +1078,18 @@ export function GaitscapeExplorer() {
           ))}
           </div>
         </div>
+
+        {isFullscreen && (
+          <button
+            onClick={() => setFsDomainsOpen((o) => !o)}
+            aria-pressed={fsDomainsOpen}
+            className="gaitscape-seg-btn gaitscape-seg-btn--solo hidden lg:inline-flex"
+          >
+            <PanelLeft className="h-3.5 w-3.5" />
+            {fsDomainsOpen ? "Hide" : "Show"}{" "}
+            {viewBy === "intelligence" ? "domains" : "challenges"}
+          </button>
+        )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -961,9 +1118,10 @@ export function GaitscapeExplorer() {
           </button>
         </div>
       </div>
+      )}
 
       {/* ---------------- filter panel ---------------- */}
-      {filtersOpen && (
+      {filtersOpen && !(isFullscreen && fsHideUi) && (
         <div className="mt-4 rounded-2xl border border-white/10 bg-obsidian-200/80 p-5 backdrop-blur-md">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {FILTER_FAMILIES.map((family) => (
@@ -1006,9 +1164,22 @@ export function GaitscapeExplorer() {
       )}
 
       {/* ---------------- main area ---------------- */}
-      <div className="mt-5 grid gap-5 lg:grid-cols-[304px_minmax(0,1fr)]">
+      <div
+        className={cn(
+          "grid gap-5",
+          isFullscreen ? "mt-4 min-h-0 flex-1" : "mt-5",
+          (!isFullscreen || (fsDomainsOpen && !fsHideUi)) &&
+            "lg:grid-cols-[304px_minmax(0,1fr)]"
+        )}
+      >
         {/* side panel: active grouping OR challenges */}
-        <aside className="order-2 lg:order-1">
+        {(!isFullscreen || (fsDomainsOpen && !fsHideUi)) && (
+        <aside
+          className={cn(
+            "order-2 lg:order-1",
+            isFullscreen && "hidden min-h-0 overflow-y-auto lg:block"
+          )}
+        >
           <button
             onClick={() => setPanelOpen((o) => !o)}
             aria-expanded={panelOpen}
@@ -1025,7 +1196,14 @@ export function GaitscapeExplorer() {
                 <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soft-mute">
                   {groupLabel}s
                 </div>
-                <div className="gaitscape-scroll mt-3 max-h-[400px] space-y-1 overflow-y-auto pr-1.5">
+                <div
+                  className={cn(
+                    "gaitscape-scroll mt-3 space-y-1 overflow-y-auto pr-1.5",
+                    isFullscreen
+                      ? "max-h-[max(400px,calc(100vh-360px))]"
+                      : "max-h-[400px]"
+                  )}
+                >
                   <button
                     onClick={() => setFocusGroupId(null)}
                     className={cn(
@@ -1124,11 +1302,22 @@ export function GaitscapeExplorer() {
             </div>
           </div>
         </aside>
+        )}
 
         {/* graph or list */}
-        <div className="order-1 min-w-0 lg:order-2">
+        <div
+          className={cn(
+            "order-1 min-w-0 lg:order-2",
+            isFullscreen && "flex min-h-0 flex-col overflow-y-auto"
+          )}
+        >
           {mode === "graph" ? (
-            <div className="gaitscape-stage relative overflow-hidden rounded-3xl border border-white/[0.08]">
+            <div
+              className={cn(
+                "gaitscape-stage relative overflow-hidden rounded-3xl border border-white/[0.08]",
+                isFullscreen && "min-h-0 flex-1"
+              )}
+            >
               <svg
                 ref={svgRef}
                 viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
@@ -1422,19 +1611,64 @@ export function GaitscapeExplorer() {
               )}
 
               {/* toolbar */}
-              <div className="absolute bottom-4 right-4 flex items-center gap-1.5">
-                <button className="gaitscape-tool" title="Zoom out" aria-label="Zoom out" onClick={() => zoomBy(0.8)}>
-                  <Minus className="h-3.5 w-3.5" />
-                </button>
-                <button className="gaitscape-tool" title="Zoom in" aria-label="Zoom in" onClick={() => zoomBy(1.25)}>
-                  <Plus className="h-3.5 w-3.5" />
-                </button>
-                <button className="gaitscape-tool" title="Fit graph" aria-label="Fit graph" onClick={fitView}>
-                  <Maximize2 className="h-3.5 w-3.5" />
-                </button>
-                <button className="gaitscape-tool" title="Reset view" aria-label="Reset view" onClick={fullReset}>
-                  <RotateCcw className="h-3.5 w-3.5" />
-                </button>
+              <div
+                className={cn(
+                  "absolute flex items-center gap-1.5",
+                  isFullscreen ? "bottom-5 right-5" : "bottom-4 right-4"
+                )}
+              >
+                {isFullscreen && fsHideUi ? (
+                  <button
+                    className="gaitscape-tool"
+                    title="Show controls"
+                    aria-label="Show controls"
+                    onClick={() => setFsHideUi(false)}
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                  </button>
+                ) : (
+                  <>
+                    <button className="gaitscape-tool" title="Zoom out" aria-label="Zoom out" onClick={() => zoomBy(0.8)}>
+                      <Minus className="h-3.5 w-3.5" />
+                    </button>
+                    <button className="gaitscape-tool" title="Zoom in" aria-label="Zoom in" onClick={() => zoomBy(1.25)}>
+                      <Plus className="h-3.5 w-3.5" />
+                    </button>
+                    <button className="gaitscape-tool" title="Fit graph" aria-label="Fit graph" onClick={fitView}>
+                      <Maximize2 className="h-3.5 w-3.5" />
+                    </button>
+                    <button className="gaitscape-tool" title="Reset view" aria-label="Reset view" onClick={fullReset}>
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </button>
+                    {isFullscreen && (
+                      <button
+                        className="gaitscape-tool"
+                        title="Hide controls"
+                        aria-label="Hide controls (presentation mode)"
+                        onClick={() => setFsHideUi(true)}
+                      >
+                        <EyeOff className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    <button
+                      ref={fsButtonRef}
+                      className="gaitscape-tool"
+                      title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                      aria-label={
+                        isFullscreen
+                          ? "Exit graph fullscreen"
+                          : "View graph fullscreen"
+                      }
+                      onClick={toggleFullscreen}
+                    >
+                      {isFullscreen ? (
+                        <Minimize className="h-3.5 w-3.5" />
+                      ) : (
+                        <Maximize className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                  </>
+                )}
               </div>
 
               {/* right detail drawer */}

@@ -1519,6 +1519,43 @@ body {
   }
 }
 
+/* Fullscreen exploration workspace: the explorer root itself becomes the
+   fullscreen element (native Fullscreen API, or the fixed-overlay fallback
+   below), so the site chrome around it never appears. The theme background
+   is painted explicitly — no white flash behind the graph. */
+.gaitscape-explorer--fs {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 14px 20px 18px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.gaitscape-explorer--fs:fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+.gaitscape-explorer--fs::backdrop {
+  background: var(--bg);
+}
+
+/* CSS fallback when the Fullscreen API is unavailable or refused. Sits
+   above the fixed navbar (z-50) and the mobile drawer (z-60). */
+.gaitscape-explorer--fs-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+}
+
+/* Inside fullscreen the canvas fills whatever the flex column leaves it
+   instead of the page-mode viewport-derived height. */
+.gaitscape-explorer--fs .gaitscape-stage-canvas {
+  height: 100%;
+}
+
 .gaitscape-seg {
   display: inline-flex;
   align-items: center;

@@ -4,7 +4,7 @@ import { ArrowRight, ExternalLink } from "lucide-react";
 import { FOUNDER_NAME, type Publication } from "@/data/publications";
 import { publisherAccent } from "@/data/publications";
 import { assetPath } from "@/lib/paths";
-import { topicsFor } from "./topics";
+import { publicAuthors, topicsFor } from "./topics";
 
 /**
  * Compact scholarly list row — the citation-friendly view: thumbnail,
@@ -45,8 +45,9 @@ export function PublicationListItem({
           {publication.title}
         </Link>
 
+        {publicAuthors(publication).length > 0 && (
         <div className="mt-2 text-[12.5px] leading-relaxed text-soft-mute">
-          {publication.authors.map((author, i) => (
+          {publicAuthors(publication).map((author, i) => (
             <span key={author}>
               {i > 0 && ", "}
               <span
@@ -61,6 +62,7 @@ export function PublicationListItem({
             </span>
           ))}
         </div>
+        )}
 
         <div className="mt-1.5 text-[12.5px]">
           <span className={`font-medium ${accent.text}`}>

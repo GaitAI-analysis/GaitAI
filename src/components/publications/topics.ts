@@ -75,14 +75,22 @@ export function dateSortKey(pub: Publication): number {
   return pub.year * 100 + month;
 }
 
+/**
+ * Author names shown on the public site. The patent's inventor names are
+ * intentionally not rendered anywhere on the website (the official
+ * certificate image remains unmodified).
+ */
+export function publicAuthors(pub: Publication): string[] {
+  return pub.kind === "patent" ? [] : pub.authors;
+}
+
 /** Plain-text citation assembled from the record's own fields. */
 export function formatCitation(pub: Publication): string {
-  const authors = pub.authors.join(", ");
   if (pub.kind === "patent") {
-    return `${authors}. "${pub.title}." Patent ${pub.patentNumber}, ${pub.publisher}, granted ${pub.grantDate}.`;
+    return `"${pub.title}." Patent ${pub.patentNumber}, ${pub.publisher}, granted ${pub.grantDate}.`;
   }
   const doi = pub.doi ? ` https://doi.org/${pub.doi}` : "";
-  return `${authors} (${pub.year}). "${pub.title}." ${pub.venue}, ${pub.publisher}.${doi}`;
+  return `${pub.authors.join(", ")} (${pub.year}). "${pub.title}." ${pub.venue}, ${pub.publisher}.${doi}`;
 }
 
 /** Related publications = most shared controlled topics, newest first. */

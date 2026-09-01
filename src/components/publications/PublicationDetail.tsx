@@ -12,6 +12,7 @@ import { assetPath } from "@/lib/paths";
 import {
   displayDate,
   formatCitation,
+  publicAuthors,
   relatedPublications,
   topicsFor,
 } from "./topics";
@@ -72,8 +73,9 @@ export function PublicationDetail({
             {publication.title}
           </h1>
 
+          {publicAuthors(publication).length > 0 && (
           <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-soft-gray">
-            {publication.authors.map((author, i) => (
+            {publicAuthors(publication).map((author, i) => (
               <span key={author}>
                 {i > 0 && ", "}
                 <span
@@ -88,6 +90,7 @@ export function PublicationDetail({
               </span>
             ))}
           </p>
+          )}
 
           <div className="mt-3 text-sm text-soft-mute">
             {publication.venue} · {publication.publisher}
@@ -162,10 +165,12 @@ export function PublicationDetail({
                   label={isPatent ? "Granted" : "Published"}
                   value={publication.date ?? String(publication.year)}
                 />
-                <RecordField
-                  label="Authors"
-                  value={publication.authors.join(", ")}
-                />
+                {publicAuthors(publication).length > 0 && (
+                  <RecordField
+                    label="Authors"
+                    value={publicAuthors(publication).join(", ")}
+                  />
+                )}
                 {isPatent && publication.patentNumber && (
                   <RecordField
                     label="Patent number"

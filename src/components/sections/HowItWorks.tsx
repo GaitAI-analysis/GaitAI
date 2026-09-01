@@ -39,7 +39,6 @@ export function HowItWorks() {
           <div className="space-y-16 lg:space-y-28">
             {workflowStages.map((s, i) => {
               const isLeft = i % 2 === 0;
-              const Icon = s.icon;
               return (
                 <motion.div
                   key={s.step}
@@ -51,15 +50,10 @@ export function HowItWorks() {
                 >
                   {/* Left content (or stays left on mobile) */}
                   <div className={isLeft ? "lg:pr-16 lg:text-right" : "lg:order-2 lg:pl-16"}>
-                    <div className={`inline-flex items-center gap-3 ${isLeft ? "lg:flex-row-reverse" : ""}`}>
-                      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-royal-400/20 to-violet-400/20 ring-1 ring-white/10">
-                        <Icon className="h-5 w-5 text-cyan-300" />
-                      </span>
-                      <div className="font-mono text-xs uppercase tracking-[0.2em] text-soft-mute">
-                        Stage {s.step}
-                      </div>
+                    <div className="font-mono text-xs uppercase tracking-[0.2em] text-soft-mute">
+                      Stage {s.step}
                     </div>
-                    <h3 className="mt-5 font-display text-3xl text-soft-white sm:text-4xl">
+                    <h3 className="mt-3 font-display text-3xl text-soft-white sm:text-4xl">
                       {s.title}
                     </h3>
                     <p className="mt-3 max-w-md text-sm leading-relaxed text-soft-gray sm:text-base lg:max-w-md lg:ml-auto">

@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  Watch,
 } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
@@ -86,7 +85,6 @@ export default function MobilityCarePage() {
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-teal-300/30 bg-teal-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-teal-300">
-                  <walkscan.icon className="h-3.5 w-3.5" />
                   GaitAI WalkScan
                 </div>
                 <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">
@@ -138,7 +136,6 @@ export default function MobilityCarePage() {
               <SmartwatchVisual score={86} trend="up" />
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300">
-                  <Watch className="h-3.5 w-3.5" />
                   GaitAI WatchCare
                 </div>
                 <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">
@@ -159,15 +156,11 @@ export default function MobilityCarePage() {
                 </p>
                 <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
                   {watchcareFeatures.slice(0, 6).map((f) => {
-                    const Icon = f.icon;
                     return (
                       <div
                         key={f.title}
                         className="flex items-start gap-2.5 rounded-xl border border-white/8 bg-white/[0.02] p-3"
                       >
-                        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-amber-300/10 text-amber-300 ring-1 ring-amber-300/20">
-                          <Icon className="h-3.5 w-3.5" />
-                        </span>
                         <div className="text-xs leading-relaxed text-soft-white">
                           {f.title}
                         </div>
@@ -188,7 +181,6 @@ export default function MobilityCarePage() {
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                  <sportsmotion.icon className="h-3.5 w-3.5" />
                   GaitAI SportsMotion
                 </div>
                 <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">
@@ -225,7 +217,6 @@ export default function MobilityCarePage() {
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-300">
-                  <fallrisk.icon className="h-3.5 w-3.5" />
                   GaitAI FallRisk
                 </div>
                 <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">

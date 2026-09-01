@@ -35,6 +35,14 @@ export interface Publication {
   doi?: string;
   externalUrl: string;
   cover: string;
+  /**
+   * Optional card visual with priority over the first-page capture:
+   * a publication's own graphical abstract, architecture/method figure,
+   * representative result figure or thumbnail. Only assets already
+   * associated with the publication — never generated. When absent, the
+   * `cover` (PDF first page / certificate capture) is the fallback.
+   */
+  figure?: string;
   abstract?: string;
   keywords?: string[];
   patentNumber?: string;

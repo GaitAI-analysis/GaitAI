@@ -1841,6 +1841,191 @@ body {
 }
 
 /* =========================================================================
+   CAPABILITY MATRIX — premium presentation for the intelligence layer.
+   Filter controls, bordered panel, sticky header/column backgrounds and
+   the check indicators. Dark is the reference style; .light overrides keep
+   contrast on the off-white theme.
+   ========================================================================= */
+
+.capmatrix-input,
+.capmatrix-select {
+  height: 46px;
+  border-radius: 14px;
+  border: 1px solid rgb(148 163 184 / 0.22);
+  background: rgb(var(--c-obsidian-200) / 0.65);
+  color: rgb(var(--c-soft-white));
+  font-size: 13.5px;
+  padding: 0 16px;
+  backdrop-filter: blur(6px);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.capmatrix-input--icon {
+  padding-left: 40px;
+}
+
+.capmatrix-input::placeholder {
+  color: rgb(var(--c-soft-mute) / 0.9);
+}
+
+.capmatrix-input:hover,
+.capmatrix-select:hover {
+  border-color: rgb(148 163 184 / 0.36);
+}
+
+.capmatrix-input:focus,
+.capmatrix-select:focus {
+  outline: none;
+  border-color: rgb(79 209 255 / 0.55);
+  box-shadow: 0 0 0 1px rgb(79 209 255 / 0.25);
+}
+
+.capmatrix-select {
+  appearance: none;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.light .capmatrix-input,
+.light .capmatrix-select {
+  border-color: rgb(15 23 42 / 0.16);
+  background: rgb(255 255 255 / 0.9);
+}
+
+.light .capmatrix-input:focus,
+.light .capmatrix-select:focus {
+  border-color: rgb(16 143 192 / 0.6);
+  box-shadow: 0 0 0 1px rgb(16 143 192 / 0.25);
+}
+
+.capmatrix-panel {
+  border-radius: 16px;
+  border: 1px solid rgb(79 209 255 / 0.14);
+  background: rgb(var(--c-obsidian-300) / 0.6);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  overflow: hidden;
+}
+
+.light .capmatrix-panel {
+  border-color: rgb(15 23 42 / 0.12);
+  background: rgb(255 255 255 / 0.92);
+  box-shadow: 0 14px 40px -28px rgb(15 23 42 / 0.25);
+}
+
+/* Both scroll axes live here so the sticky header row and sticky first
+   column work while the matrix scrolls. Scrollbars stay visible as the
+   horizontal-scroll affordance on narrow viewports. */
+.capmatrix-scroll {
+  overflow: auto;
+  max-height: min(680px, 74vh);
+}
+
+.capmatrix-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.capmatrix-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.capmatrix-scroll::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.22);
+  border-radius: 999px;
+  border: none;
+}
+.capmatrix-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184 / 0.35);
+}
+.capmatrix-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.22) transparent;
+}
+
+/* Sticky header/row cells need a fully opaque, token-aware surface so
+   scrolled content never bleeds through them. */
+.capmatrix-sticky {
+  background: rgb(var(--c-obsidian-200));
+  border-color: rgb(var(--c-soft-white) / 0.08);
+}
+
+/* Column-under-cursor highlight, layered over the opaque sticky surface. */
+.capmatrix-col-hot {
+  background-image: linear-gradient(
+    rgb(79 209 255 / 0.08),
+    rgb(79 209 255 / 0.08)
+  );
+}
+
+/* Product families: cyan/teal = MobilityCare, violet/blue = SecureVision. */
+.capmatrix-prod--care {
+  color: rgb(94 234 212 / 0.92);
+}
+.capmatrix-prod--secure {
+  color: rgb(159 172 250 / 0.95);
+}
+.light .capmatrix-prod--care {
+  color: #0b7f6f;
+}
+.light .capmatrix-prod--secure {
+  color: #4f46e5;
+}
+
+/* Active-cell indicator: compact circular check, family-tinted. */
+.capmatrix-check {
+  display: grid;
+  place-items: center;
+  height: 26px;
+  width: 26px;
+  margin-inline: auto;
+  border-radius: 999px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.capmatrix-check:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgb(79 209 255 / 0.5);
+}
+
+.capmatrix-check--care {
+  border-color: rgb(94 234 212 / 0.4);
+  background: rgb(94 234 212 / 0.13);
+  color: #85f0de;
+}
+.capmatrix-check--care:hover {
+  border-color: rgb(94 234 212 / 0.75);
+  background: rgb(94 234 212 / 0.26);
+}
+.capmatrix-check--secure {
+  border-color: rgb(139 156 246 / 0.45);
+  background: rgb(139 156 246 / 0.15);
+  color: #b3c0ff;
+}
+.capmatrix-check--secure:hover {
+  border-color: rgb(139 156 246 / 0.8);
+  background: rgb(139 156 246 / 0.28);
+}
+
+.light .capmatrix-check--care {
+  border-color: rgb(13 148 136 / 0.5);
+  background: rgb(13 148 136 / 0.12);
+  color: #0b7f6f;
+}
+.light .capmatrix-check--secure {
+  border-color: rgb(99 102 241 / 0.5);
+  background: rgb(99 102 241 / 0.12);
+  color: #4f46e5;
+}
+
+/* Inactive cell: a faint dash, quieter than the checks. */
+.capmatrix-dash {
+  height: 1px;
+  width: 12px;
+  border-radius: 999px;
+  background: rgb(var(--c-soft-white) / 0.12);
+}
+
+/* =========================================================================
    PHILOSOPHY CARD — premium editorial statement (home page + /about).
    No large quote icon: a faint decorative mark sits top-right, the text
    is the focal point, divider + attribution close the card.

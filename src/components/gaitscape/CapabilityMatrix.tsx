@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, X } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { allProducts, industryUseCases } from "@/data/products";
 import {
@@ -30,6 +30,24 @@ const capabilityIds = [
 type Cell = { productId: string; capabilityId: string };
 
 /**
+ * Display-only: split a compound short name ("WalkScan", "IndustrialSafety")
+ * into two balanced lines at a CamelCase boundary so product headers stay
+ * horizontal instead of rotating 90°. Short names render on one line.
+ */
+function shortNameLines(short: string): string[] {
+  if (short.length <= 7) return [short];
+  const parts = short.split(/(?=[A-Z][a-z])/);
+  if (parts.length < 2) return [short];
+  let line1 = parts[0];
+  let i = 1;
+  while (i < parts.length - 1 && line1.length + parts[i].length <= short.length / 2) {
+    line1 += parts[i];
+    i += 1;
+  }
+  return [line1, parts.slice(i).join("")];
+}
+
+/**
  * Capability-to-Product matrix — which movement-analysis capability powers
  * which GaitAI product. Cells come straight from the documented
  * product→capability relationships in the GaitScape graph.
@@ -40,6 +58,7 @@ export function CapabilityMatrix() {
   const [vertical, setVertical] = useState<"all" | Vertical>("all");
   const [domainId, setDomainId] = useState("all");
   const [openCell, setOpenCell] = useState<Cell | null>(null);
+  const [hoverColId, setHoverColId] = useState<string | null>(null);
 
   const domainProducts = useMemo(() => {
     if (domainId === "all") return null;
@@ -85,132 +104,172 @@ export function CapabilityMatrix() {
     <div>
       {/* filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <input
-          type="search"
-          value={capQuery}
-          onChange={(e) => setCapQuery(e.target.value)}
-          placeholder="Search capability"
-          aria-label="Search capability"
-          className="gaitscape-input"
-        />
-        <input
-          type="search"
-          value={productQuery}
-          onChange={(e) => setProductQuery(e.target.value)}
-          placeholder="Search product"
-          aria-label="Search product"
-          className="gaitscape-input"
-        />
-        <select
-          value={vertical}
-          onChange={(e) => setVertical(e.target.value as "all" | Vertical)}
-          aria-label="Filter by vertical"
-          className="gaitscape-select"
-        >
-          <option value="all">All verticals</option>
-          <option value="mobilitycare">MobilityCare</option>
-          <option value="securevision">SecureVision</option>
-        </select>
-        <select
-          value={domainId}
-          onChange={(e) => setDomainId(e.target.value)}
-          aria-label="Filter by application domain"
-          className="gaitscape-select max-w-[220px]"
-        >
-          <option value="all">All application domains</option>
-          {industryUseCases.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.industry}
-            </option>
-          ))}
-        </select>
+        <div className="relative w-full sm:w-[230px]">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-soft-mute" />
+          <input
+            type="search"
+            value={capQuery}
+            onChange={(e) => setCapQuery(e.target.value)}
+            placeholder="Search capability"
+            aria-label="Search capability"
+            className="capmatrix-input capmatrix-input--icon w-full"
+          />
+        </div>
+        <div className="relative w-full sm:w-[200px]">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-soft-mute" />
+          <input
+            type="search"
+            value={productQuery}
+            onChange={(e) => setProductQuery(e.target.value)}
+            placeholder="Search product"
+            aria-label="Search product"
+            className="capmatrix-input capmatrix-input--icon w-full"
+          />
+        </div>
+        <div className="relative w-full sm:w-auto">
+          <select
+            value={vertical}
+            onChange={(e) => setVertical(e.target.value as "all" | Vertical)}
+            aria-label="Filter by vertical"
+            className="capmatrix-select w-full"
+          >
+            <option value="all">All verticals</option>
+            <option value="mobilitycare">MobilityCare</option>
+            <option value="securevision">SecureVision</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-soft-mute" />
+        </div>
+        <div className="relative w-full sm:w-auto sm:max-w-[250px]">
+          <select
+            value={domainId}
+            onChange={(e) => setDomainId(e.target.value)}
+            aria-label="Filter by application domain"
+            className="capmatrix-select w-full"
+          >
+            <option value="all">All application domains</option>
+            {industryUseCases.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.industry}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-soft-mute" />
+        </div>
         <button
           onClick={clear}
-          className="text-xs font-semibold text-cyan-300 transition-colors hover:text-cyan-200"
+          className="inline-flex h-[46px] items-center rounded-[14px] border border-soft-white/10 bg-soft-white/[0.03] px-4 text-[12.5px] font-semibold text-cyan-300 transition-colors hover:border-cyan-300/40 hover:text-cyan-200"
         >
           Clear filters
         </button>
       </div>
 
       {/* matrix */}
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-white/[0.08]">
-        <table className="w-full min-w-[860px] border-collapse text-left">
-          <thead>
-            <tr>
-              <th className="sticky left-0 z-10 bg-obsidian-300/95 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-soft-mute backdrop-blur">
-                Capability
-              </th>
-              {products.map((p) => (
-                <th
-                  key={p.id}
-                  className="whitespace-nowrap px-2 py-3 text-center align-bottom"
-                >
-                  <span
-                    className={cn(
-                      "inline-block text-[10.5px] font-semibold tracking-[0.02em] [writing-mode:vertical-rl] [transform:rotate(180deg)]",
-                      p.vertical === "securevision"
-                        ? "text-indigo-300/90"
-                        : "text-teal-300/90"
-                    )}
-                  >
-                    {p.short}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {capabilities.map((cap, rowIdx) => (
-              <tr
-                key={cap.id}
-                className={cn(rowIdx % 2 === 0 && "bg-white/[0.015]")}
-              >
-                <th
-                  scope="row"
-                  className="sticky left-0 z-10 whitespace-nowrap bg-obsidian-300/95 px-4 py-2 text-[12.5px] font-medium text-soft-white backdrop-blur"
-                >
-                  {cap.title}
+      <div className="capmatrix-panel mt-7">
+        <div
+          className="capmatrix-scroll"
+          onMouseLeave={() => setHoverColId(null)}
+        >
+          <table className="w-full min-w-max border-separate border-spacing-0 text-left">
+            <thead>
+              <tr>
+                <th className="capmatrix-sticky sticky left-0 top-0 z-30 min-w-[210px] border-b border-r px-4 pb-3 pt-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-soft-mute sm:px-5">
+                  Capability
                 </th>
                 {products.map((p) => {
-                  const on = hasCapability(p.id, cap.id);
+                  const lines = shortNameLines(p.short);
                   return (
-                    <td key={p.id} className="px-2 py-1.5 text-center">
-                      {on ? (
-                        <button
-                          onClick={() =>
-                            setOpenCell({ productId: p.id, capabilityId: cap.id })
-                          }
-                          aria-label={`How ${cap.title} is used in ${p.short}`}
-                          className={cn(
-                            "grid h-6 w-6 place-items-center rounded-md border transition-colors",
-                            p.vertical === "securevision"
-                              ? "border-indigo-300/30 bg-indigo-400/10 text-indigo-300 hover:bg-indigo-400/25"
-                              : "border-teal-300/30 bg-teal-300/10 text-teal-300 hover:bg-teal-300/25",
-                            "mx-auto"
-                          )}
-                        >
-                          <Check className="h-3.5 w-3.5" />
-                        </button>
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          className="mx-auto block h-1 w-1 rounded-full bg-white/10"
-                        />
+                    <th
+                      key={p.id}
+                      className={cn(
+                        "capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center align-bottom",
+                        hoverColId === p.id && "capmatrix-col-hot"
                       )}
-                    </td>
+                    >
+                      <span
+                        aria-hidden="true"
+                        className="mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full"
+                        style={{
+                          background:
+                            p.vertical === "securevision" ? "#8b9cf6" : "#5eead4",
+                        }}
+                      />
+                      <span
+                        className={cn(
+                          "block text-[10px] font-semibold leading-[1.25] tracking-[0.01em]",
+                          p.vertical === "securevision"
+                            ? "capmatrix-prod--secure"
+                            : "capmatrix-prod--care"
+                        )}
+                      >
+                        {lines.map((line, i) => (
+                          <span key={i} className="block">
+                            {line}
+                          </span>
+                        ))}
+                      </span>
+                    </th>
                   );
                 })}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {capabilities.map((cap, rowIdx) => (
+                <tr key={cap.id} className="group/row">
+                  <th
+                    scope="row"
+                    className="capmatrix-sticky sticky left-0 z-10 whitespace-nowrap border-r px-4 py-3 text-[13px] font-medium leading-snug text-soft-white transition-colors group-hover/row:text-cyan-100 sm:px-5 sm:text-[13.5px]"
+                  >
+                    {cap.title}
+                  </th>
+                  {products.map((p) => {
+                    const on = hasCapability(p.id, cap.id);
+                    return (
+                      <td
+                        key={p.id}
+                        onMouseEnter={() => setHoverColId(p.id)}
+                        className={cn(
+                          "border-b border-soft-white/[0.06] px-1.5 py-2 text-center transition-colors",
+                          rowIdx % 2 === 0 && "bg-soft-white/[0.03]",
+                          "group-hover/row:bg-cyan-300/[0.045]"
+                        )}
+                      >
+                        {on ? (
+                          <button
+                            onClick={() =>
+                              setOpenCell({ productId: p.id, capabilityId: cap.id })
+                            }
+                            aria-label={`How ${cap.title} is used in ${p.short}`}
+                            className={cn(
+                              "capmatrix-check",
+                              p.vertical === "securevision"
+                                ? "capmatrix-check--secure"
+                                : "capmatrix-check--care"
+                            )}
+                          >
+                            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                          </button>
+                        ) : (
+                          <span
+                            aria-hidden="true"
+                            className="capmatrix-dash mx-auto block"
+                          />
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      <p className="mt-3 text-xs text-soft-mute">
-        {capabilities.length} capabilities × {products.length} products · a
-        highlighted cell means the capability is documented in that product.
-        Click a cell to see how it is used.
-      </p>
+        {/* footnote strip */}
+        <p className="border-t border-soft-white/[0.08] px-4 py-3 text-left text-[12.5px] leading-relaxed text-soft-mute sm:px-5">
+          {capabilities.length} capabilities × {products.length} products · a
+          highlighted cell means the capability is documented in that product.
+          Click a cell to see how it is used.
+        </p>
+      </div>
 
       {/* cell detail */}
       {openDetail && (

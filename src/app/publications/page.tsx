@@ -273,13 +273,6 @@ export default function PublicationsPage() {
                       Download certificate
                     </a>
                     <Link
-                      href="/about#founder"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-amber-300/8 px-4 py-2 text-xs font-semibold text-amber-200 transition-all hover:border-amber-300/60 hover:bg-amber-300/15"
-                    >
-                      Meet the inventor
-                      <ArrowUpRight className="h-3.5 w-3.5" />
-                    </Link>
-                    <Link
                       href="/#contact"
                       className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-semibold text-soft-white transition-all hover:border-white/20 hover:bg-white/[0.06]"
                     >

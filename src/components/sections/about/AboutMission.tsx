@@ -1,4 +1,3 @@
-import { Compass } from "lucide-react";
 import { AboutPhilosophy } from "./AboutPhilosophy";
 import { VisionPillars } from "@/components/sections/VisionPillars";
 
@@ -14,10 +13,8 @@ export function AboutMission({ pillars = false }: { pillars?: boolean }) {
       <div className="container-wide">
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.4fr]">
           <div>
-            <span className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-royal-400/20 to-violet-400/15 text-cyan-300 ring-1 ring-white/10">
-              <Compass className="h-5 w-5" />
-            </span>
-            <div className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+            <div className="inline-flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+              <span className="h-px w-10 bg-gradient-to-r from-cyan-300 to-cyan-300/20" />
               Mission
             </div>
             <h2 className="mt-3 font-display text-display-lg text-balance text-soft-white">

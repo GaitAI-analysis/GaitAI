@@ -1132,7 +1132,7 @@ export function GaitscapeExplorer() {
               <svg
                 ref={svgRef}
                 viewBox={`0 0 ${CANVAS_W} ${CANVAS_H}`}
-                className="block h-[520px] w-full touch-none select-none sm:h-[600px] lg:h-[660px]"
+                className="gaitscape-stage-canvas block w-full touch-none select-none"
                 role="application"
                 aria-label="GaitAI intelligence landscape graph. Use Tab to move between nodes, Enter to open details, Escape to close."
                 onPointerDown={(e) => {
@@ -1150,7 +1150,12 @@ export function GaitscapeExplorer() {
                   const d = dragRef.current;
                   if (!d) return;
                   const svg = svgRef.current!;
-                  const scale = CANVAS_W / svg.clientWidth;
+                  // viewBox "meet" scaling: world-units-per-pixel comes from
+                  // whichever axis constrains the fit, not always the width.
+                  const scale = Math.max(
+                    CANVAS_W / svg.clientWidth,
+                    CANVAS_H / svg.clientHeight
+                  );
                   setTransform((t) => ({
                     ...t,
                     x: d.tx + (e.clientX - d.x) * scale,

@@ -1478,6 +1478,47 @@ body {
     linear-gradient(180deg, rgb(6 12 24 / 0.96), rgb(4 8 17 / 0.99));
 }
 
+/* Graph canvas height. Desktop fills the viewport space left below the
+   fixed navbar (--site-header-height), the compact title row and the
+   toolbar, so the first screen shows the whole stage — including the
+   bottom-right zoom controls — without scrolling. --gaitscape-top-chrome
+   is that chrome footprint (section intro padding + title row + toolbar +
+   vertical gaps) plus a small fold-safe gap; it shrinks at ≥1440px where
+   Search/Filters join the single toolbar row. Clamped so short laptop
+   viewports never collapse the stage and tall monitors keep the approved
+   660px scale — never a bare 100vh. */
+.gaitscape-stage-canvas {
+  height: 520px;
+}
+
+@media (min-width: 640px) {
+  .gaitscape-stage-canvas {
+    height: 600px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gaitscape-stage-canvas {
+    --gaitscape-top-chrome: 14.25rem;
+    height: clamp(
+      27.5rem,
+      calc(100vh - var(--site-header-height) - var(--gaitscape-top-chrome)),
+      41.25rem
+    );
+    height: clamp(
+      27.5rem,
+      calc(100svh - var(--site-header-height) - var(--gaitscape-top-chrome)),
+      41.25rem
+    );
+  }
+}
+
+@media (min-width: 1440px) {
+  .gaitscape-stage-canvas {
+    --gaitscape-top-chrome: 11.5rem;
+  }
+}
+
 .gaitscape-seg {
   display: inline-flex;
   align-items: center;

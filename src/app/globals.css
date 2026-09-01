@@ -1442,10 +1442,18 @@ body {
    GAITSCAPE — interactive Human Movement Intelligence landscape
    ========================================================================= */
 
+/* Extremely subtle depth: a champagne lift around the core, restrained
+   cyan/violet ambience around the two verticals, and a near-invisible
+   temporal-dot texture. The graph itself stays the focus. */
 .gaitscape-stage {
   background:
+    radial-gradient(rgb(148 163 184 / 0.022) 1px, transparent 1.4px),
+    radial-gradient(38% 34% at 50% 46%, rgb(231 211 160 / 0.045), transparent 70%),
+    radial-gradient(36% 52% at 15% 52%, rgb(94 234 212 / 0.035), transparent 72%),
+    radial-gradient(36% 52% at 85% 52%, rgb(139 156 246 / 0.04), transparent 72%),
     radial-gradient(ellipse 60% 50% at 50% 40%, rgb(37 99 255 / 0.05), transparent 72%),
     linear-gradient(180deg, rgb(6 12 24 / 0.96), rgb(4 8 17 / 0.99));
+  background-size: 56px 56px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
 }
 
 .gaitscape-seg {
@@ -1544,10 +1552,16 @@ body {
   justify-content: space-between;
   gap: 8px;
   border-radius: 10px;
-  padding: 6px 10px;
+  padding: 7px 11px;
   font-size: 12.5px;
   color: rgb(var(--c-soft-gray));
   transition: background-color 180ms ease, color 180ms ease;
+}
+
+.gaitscape-group-row > span:last-child {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: rgb(var(--c-soft-mute));
 }
 
 .gaitscape-group-row:hover {
@@ -1556,8 +1570,13 @@ body {
 }
 
 .gaitscape-group-row--on {
-  background: rgb(79 209 255 / 0.08);
+  background: rgb(79 209 255 / 0.06);
+  box-shadow: inset 2px 0 0 rgb(79 209 255 / 0.5);
   color: #9be4ff;
+}
+
+.gaitscape-group-row--on > span:last-child {
+  color: rgb(79 209 255 / 0.75);
 }
 
 .gaitscape-tool {
@@ -1580,22 +1599,22 @@ body {
 
 /* Thin, quiet scrollbar for the grouping panel. */
 .gaitscape-scroll::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 .gaitscape-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .gaitscape-scroll::-webkit-scrollbar-thumb {
-  background: rgb(148 163 184 / 0.22);
+  background: rgb(148 163 184 / 0.16);
   border-radius: 999px;
   border: none;
 }
 .gaitscape-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgb(148 163 184 / 0.35);
+  background: rgb(148 163 184 / 0.28);
 }
 .gaitscape-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgb(148 163 184 / 0.22) transparent;
+  scrollbar-color: rgb(148 163 184 / 0.16) transparent;
 }
 
 /* --- graph internals --- */
@@ -1625,6 +1644,12 @@ body {
 .gaitscape-edge--spine {
   stroke-width: 1.7;
   opacity: 0.55;
+}
+
+/* Slow movement-signal pulse travelling the two core→vertical edges only. */
+.gaitscape-spine-pulse {
+  opacity: 0.8;
+  pointer-events: none;
 }
 
 /* Active relationship: a sampled temporal trace with a travelling pulse. */

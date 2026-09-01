@@ -1562,7 +1562,7 @@ body {
   background: rgb(var(--c-obsidian-200) / 0.7);
   color: rgb(var(--c-soft-white));
   font-size: 12px;
-  padding: 7px 12px;
+  padding: 8px 12px;
 }
 
 .gaitscape-input {
@@ -1633,7 +1633,7 @@ body {
 }
 
 .gaitscape-group-row--on {
-  background: rgb(79 209 255 / 0.045);
+  background: rgb(79 209 255 / 0.035);
   box-shadow: inset 2px 0 0 rgb(79 209 255 / 0.45);
   color: #9be4ff;
 }
@@ -1668,7 +1668,7 @@ body {
   background: transparent;
 }
 .gaitscape-scroll::-webkit-scrollbar-thumb {
-  background: rgb(148 163 184 / 0.16);
+  background: rgb(148 163 184 / 0.13);
   border-radius: 999px;
   border: none;
 }
@@ -1677,7 +1677,7 @@ body {
 }
 .gaitscape-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgb(148 163 184 / 0.16) transparent;
+  scrollbar-color: rgb(148 163 184 / 0.13) transparent;
 }
 
 /* --- graph internals --- */
@@ -1706,7 +1706,7 @@ body {
 /* core → vertical spine */
 .gaitscape-edge--spine {
   stroke-width: 1.85;
-  opacity: 0.66;
+  opacity: 0.7;
 }
 
 /* Slow movement-signal pulse travelling the two core→vertical edges only. */

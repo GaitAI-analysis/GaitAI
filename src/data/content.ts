@@ -118,9 +118,17 @@ export const navLinks: readonly NavItem[] = [
     label: "Products",
     href: "/products",
     children: [
+      { label: "Product Overview", href: "/products" },
       { label: "MobilityCare", href: "/mobilitycare" },
       { label: "SecureVision", href: "/securevision" },
+    ],
+  },
+  {
+    label: "Explore",
+    href: "/use-cases",
+    children: [
       { label: "Use Cases", href: "/use-cases" },
+      { label: "GaitScape", href: "/gaitscape" },
     ],
   },
   { label: "Insights", href: "/insights" },
@@ -132,7 +140,6 @@ export const navLinks: readonly NavItem[] = [
       { label: "Publications", href: "/publications" },
     ],
   },
-  { label: "GaitScape", href: "/gaitscape" },
 ];
 
 export const heroStats = [

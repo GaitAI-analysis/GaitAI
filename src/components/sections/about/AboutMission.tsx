@@ -1,13 +1,16 @@
 import { Compass } from "lucide-react";
 import { AboutPhilosophy } from "./AboutPhilosophy";
+import { VisionPillars } from "@/components/sections/VisionPillars";
 
 /**
  * Mission / origin story — how a decade of gait research became GaitAI —
  * followed by the philosophy quote card. Shared by /about and the home page.
+ * The home page passes `pillars` to render the Predict / Prevent / Protect
+ * cards immediately below the philosophy quote.
  */
-export function AboutMission() {
+export function AboutMission({ pillars = false }: { pillars?: boolean }) {
   return (
-    <section className="section">
+    <section className={pillars ? "section !pb-14" : "section"}>
       <div className="container-wide">
         <div className="grid items-start gap-10 lg:grid-cols-[1fr_1.4fr]">
           <div>
@@ -45,6 +48,9 @@ export function AboutMission() {
 
         {/* Mission quote */}
         <AboutPhilosophy />
+
+        {/* Predict / Prevent / Protect — directly below the philosophy quote */}
+        {pillars && <VisionPillars />}
       </div>
     </section>
   );

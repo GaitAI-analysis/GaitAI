@@ -9,6 +9,7 @@ const footerLinks = [
       { label: "MobilityCare", href: "/mobilitycare" },
       { label: "SecureVision", href: "/securevision" },
       { label: "All products", href: "/products" },
+      { label: "GaitScape", href: "/gaitscape" },
       { label: "How it works", href: "/#how" },
     ],
   },
@@ -114,7 +115,16 @@ export function Footer() {
 
         <div className="mt-8 flex flex-col items-start justify-between gap-4 text-xs text-soft-mute sm:flex-row sm:items-center">
           <p>
-            © {new Date().getFullYear()} GaitAI · Intelligence in motion. All rights reserved.
+            {/* The © glyph doubles as a discreet entrance to the admin panel.
+                ::before pads the hit-area outward without moving the glyph. */}
+            <Link
+              href="/admin-controlpanel"
+              aria-label="Admin Control Panel"
+              className="relative rounded-sm outline-none before:absolute before:-inset-2 before:content-[''] focus-visible:ring-1 focus-visible:ring-cyan-300/60"
+            >
+              ©
+            </Link>{" "}
+            {new Date().getFullYear()} GaitAI · Intelligence in motion. All rights reserved.
           </p>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
             {legal.map((l) => (

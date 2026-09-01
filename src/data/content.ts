@@ -132,6 +132,7 @@ export const navLinks: readonly NavItem[] = [
       { label: "Publications", href: "/publications" },
     ],
   },
+  { label: "GaitScape", href: "/gaitscape" },
 ];
 
 export const heroStats = [

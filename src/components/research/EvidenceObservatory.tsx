@@ -1,18 +1,22 @@
 "use client";
 
 import { useState, type CSSProperties, type KeyboardEvent } from "react";
-import Link from "next/link";
 import { PillarVisual, type PillarKind } from "./PillarVisual";
+import { EvidencePanel } from "./EvidencePanel";
 import styles from "./observatory.module.css";
 
 /**
  * The evidence map: the page's centrepiece and its only interactive surface.
  *
  * Four research pillars on the left, the selected pillar's evidence flow in
- * the middle, and that pillar's actual records, capabilities and modules on the
- * right. Selecting a pillar re-draws the graph and swaps the panel; nothing is
- * hidden behind hover, and the whole thing is a proper tablist so a keyboard
- * reaches every pillar with the arrow keys.
+ * the middle, and a compact summary of that pillar on the right. Selecting a
+ * pillar re-draws the graph and swaps the panel, and the whole thing is a
+ * proper tablist so a keyboard reaches every pillar with the arrow keys.
+ *
+ * The right panel is deliberately a summary — two records, capability names,
+ * four product chips — because rendering the full record inline made that
+ * column two to three times taller than the graph. EvidencePanel owns that
+ * disclosure; every mapping stays reachable from inside it.
  *
  * Everything rendered is derived data passed in from `researchAreas` — the
  * publication records a pillar cites, the capabilities the graph maps it to,
@@ -47,9 +51,6 @@ const JUNCTION_X = 432;
 const CHIP_X = 470;
 const MID_Y = 205;
 const CHIPS_SHOWN = 5;
-/** The panel is a summary, not the library: the tails link out instead. */
-const PANEL_RECORDS = 3;
-const PANEL_CHIPS = 6;
 
 /** Break a title into at most `lines` lines of about `max` characters. */
 function wrap(text: string, max: number, lines: number) {
@@ -337,78 +338,10 @@ export function EvidenceObservatory({ areas }: { areas: ObservatoryArea[] }) {
         tabIndex={0}
         className={styles.emapPanel}
       >
-        <PillarVisual kind={area.kind} className={styles.panelVisual} />
-        <h3 className={styles.panelTitle}>{area.title}</h3>
-        <p className={styles.panelSummary}>{area.summary}</p>
-
-        <div className={styles.panelGroup}>
-          <span className={styles.panelGroupLabel}>
-            Published record · {area.publications.length}
-          </span>
-          <div className="mt-2">
-            {area.publications.slice(0, PANEL_RECORDS).map((publication) => (
-              <Link
-                key={publication.id}
-                href={`/publications/${publication.id}/`}
-                className={styles.panelRecord}
-              >
-                {publication.title}
-                <span className={styles.panelRecordMeta}>
-                  {publication.venue} · {publication.year}
-                </span>
-              </Link>
-            ))}
-          </div>
-          {area.publications.length > PANEL_RECORDS && (
-            <Link href="/publications" className={styles.panelMore}>
-              All {area.publications.length} records →
-            </Link>
-          )}
-        </div>
-
-        <div className={styles.panelGroup}>
-          <span className={styles.panelGroupLabel}>
-            Capabilities informed · {area.capabilities.length}
-          </span>
-          <div className="mt-3 space-y-3">
-            {area.capabilities.map((capability) => (
-              <div key={capability.id}>
-                <span className="block text-[13px] font-medium text-soft-white">
-                  {capability.title}
-                </span>
-                <span className="mt-1 block text-[12px] leading-relaxed text-soft-mute">
-                  {capability.description}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className={styles.panelGroup}>
-          <span className={styles.panelGroupLabel}>
-            Modules built on those capabilities · {area.products.length}
-          </span>
-          <div className={styles.panelChips}>
-            {area.products.slice(0, PANEL_CHIPS).map((product) => (
-              <Link
-                key={product.id}
-                href={product.href}
-                className={`${styles.panelChip} ${
-                  product.vertical === "mobilitycare"
-                    ? styles.panelChipCare
-                    : styles.panelChipSecure
-                }`}
-              >
-                {product.short}
-              </Link>
-            ))}
-          </div>
-          {area.products.length > PANEL_CHIPS && (
-            <Link href="/products" className={styles.panelMore}>
-              All {area.products.length} modules →
-            </Link>
-          )}
-        </div>
+        {/* Compact summary with progressive disclosure — see EvidencePanel.
+            Keyed on the pillar id so switching pillars remounts it and every
+            disclosure returns to its collapsed default. */}
+        <EvidencePanel key={area.id} area={area} />
       </div>
     </div>
   );

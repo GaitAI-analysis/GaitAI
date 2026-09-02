@@ -886,8 +886,8 @@
 
 .panelVisual {
   width: 100%;
-  max-width: 15rem;
-  margin-bottom: 1.1rem;
+  max-width: 9.5rem;
+  margin-bottom: 0.7rem;
   color: var(--obs-cyan);
   opacity: 0.9;
 }
@@ -901,13 +901,34 @@
   color: var(--obs-ink);
 }
 .panelSummary {
-  margin-top: 0.75rem;
+  margin-top: 0.6rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-size: 13px;
-  line-height: 1.75;
+  line-height: 1.65;
   color: var(--obs-mute);
 }
+
+/* The pillar's shape in one line — records, capabilities, products — so the
+   counts are readable without expanding any group. */
+.panelMeta {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--obs-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1.65;
+  color: var(--obs-mute);
+}
+
+/* Groups sit closer together than they used to (1.75rem): the panel is a
+   summary now, and the extra air was a large part of why it ran so tall. */
 .panelGroup {
-  margin-top: 1.75rem;
+  margin-top: 0.95rem;
 }
 .panelGroupLabel {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
@@ -916,31 +937,77 @@
   text-transform: uppercase;
   color: var(--obs-mute);
 }
-.panelRecord {
-  display: block;
-  padding: 0.7rem 0;
+/* One record: index, title, venue · year, and an out-arrow. No abstract, no
+   authors, no second metadata row — /publications/[slug] carries those. */
+.recordList {
+  margin-top: 0.55rem;
+}
+.recordRow {
+  display: grid;
+  grid-template-columns: 1.35rem minmax(0, 1fr) 0.85rem;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.45rem 0;
   border-bottom: 1px solid var(--obs-line);
+  transition: padding-left 0.35s var(--obs-ease);
+}
+.recordRow:hover {
+  padding-left: 0.3rem;
+}
+.recordIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  line-height: 1.75;
+  letter-spacing: 0.1em;
+  color: var(--obs-mute);
+  font-variant-numeric: tabular-nums;
+}
+.recordTitle {
+  /* Two lines, like the brief's compact record. The full title is on the
+     link's `title` and on /publications/[slug], which is where the abstract,
+     authors and full metadata live. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-size: 12.5px;
-  line-height: 1.6;
+  line-height: 1.5;
   color: var(--obs-body);
-  transition: color 0.35s var(--obs-ease), padding-left 0.35s var(--obs-ease);
+  transition: color 0.35s var(--obs-ease);
 }
-.panelRecord:hover {
+.recordRow:hover .recordTitle {
   color: var(--obs-ink);
-  padding-left: 0.35rem;
 }
-.panelRecordMeta {
+.recordFoot {
   display: block;
-  margin-top: 0.3rem;
+  margin-top: 0.2rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 8.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--obs-mute);
 }
+.recordArrow {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--obs-mute);
+  opacity: 0;
+  transition: opacity 0.35s var(--obs-ease), color 0.35s var(--obs-ease);
+}
+.recordRow:hover .recordArrow,
+.recordRow:focus-visible .recordArrow {
+  opacity: 1;
+  color: var(--obs-cyan);
+}
+/* Also used on the disclosure buttons, which is why it resets button chrome. */
 .panelMore {
   display: inline-block;
-  margin-top: 0.75rem;
+  margin-top: 0.6rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 8.5px;
   letter-spacing: 0.18em;
@@ -953,10 +1020,10 @@
 }
 
 .panelChips {
-  margin-top: 0.85rem;
+  margin-top: 0.6rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 .panelChip {
   display: inline-flex;
@@ -978,6 +1045,101 @@
 }
 .panelChipSecure {
   border-color: rgb(156 100 241 / 0.28);
+}
+
+/* Capability chips ---------------------------------------------------------
+   Names only. Rendering all three descriptions inline was the single biggest
+   contributor to the panel's height, so each chip is a button that reveals
+   its own one-line description (and carries the same sentence as a title, so
+   a pointer user gets it on hover without clicking). */
+.capChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--obs-body);
+  cursor: pointer;
+  transition:
+    border-color 0.35s var(--obs-ease),
+    color 0.35s var(--obs-ease),
+    background-color 0.35s var(--obs-ease);
+}
+.capChip:hover {
+  border-color: var(--obs-cyan-soft);
+  color: var(--obs-ink);
+}
+.capChip:focus-visible {
+  outline: 2px solid var(--obs-cyan-soft);
+  outline-offset: 2px;
+}
+.capChipOpen {
+  border-color: var(--obs-cyan-soft);
+  background: rgb(79 209 255 / 0.07);
+  color: var(--obs-ink);
+}
+:global(.light) .capChipOpen {
+  background: rgb(16 143 192 / 0.08);
+}
+
+.capDetails {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.55rem;
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--obs-line);
+}
+.capDetailTerm {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--obs-body);
+}
+.capDetailDesc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--obs-mute);
+}
+
+/* The panel's one CTA: opens records, capability descriptions and products
+   together, so the complete evidence view the panel used to show by default
+   is still one action away. */
+.panelCta {
+  margin-top: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 0.625rem;
+  background: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--obs-cyan);
+  cursor: pointer;
+  transition:
+    border-color 0.35s var(--obs-ease),
+    background-color 0.35s var(--obs-ease),
+    color 0.35s var(--obs-ease);
+}
+.panelCta:hover {
+  border-color: var(--obs-cyan-soft);
+  background: rgb(79 209 255 / 0.06);
+  color: var(--obs-ink);
+}
+:global(.light) .panelCta:hover {
+  background: rgb(16 143 192 / 0.07);
+}
+.panelCta:focus-visible {
+  outline: 2px solid var(--obs-cyan-soft);
+  outline-offset: 2px;
 }
 
 /* The evidence flow as a stacked chain, below lg. */

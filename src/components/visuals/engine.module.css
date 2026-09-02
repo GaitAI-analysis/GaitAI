@@ -1,16 +1,40 @@
 /*
- * Movement Intelligence Engine core — /products/ ecosystem visual.
+ * Product ecosystem engine — /products/
  *
- * One slow loop drives everything: the outer ring counter-rotates, the disc
- * breathes, and a sample travels each inbound trace from its world into the
- * core. Nothing flashes; every step is opacity or dash movement.
+ * RESPONSIVE GATING lives here, not in Tailwind. The previous version passed
+ * `hidden sm:block` / `sm:hidden` from the page. Both `.hidden{display:none}`
+ * and this module's `.engine{display:block}` are single-class rules, and the
+ * module ships in a later stylesheet, so `display:block` won and BOTH the wide
+ * and stacked compositions rendered at once. Gating inside the module removes
+ * the race entirely.
+ *
+ * One 11s loop: a movement signal enters from MobilityCare, the core rings
+ * process it, an output trace leaves toward SecureVision, everything fades.
  */
 
 .engine {
-  display: block;
   width: 100%;
   height: auto;
   overflow: visible;
+}
+
+/* ── The only place visibility is decided ── */
+.wideOnly {
+  display: none;
+}
+.stackedOnly {
+  display: block;
+  margin-inline: auto;
+  max-width: 420px;
+}
+
+@media (min-width: 860px) {
+  .wideOnly {
+    display: block;
+  }
+  .stackedOnly {
+    display: none;
+  }
 }
 
 /* ── Tone per world ── */
@@ -27,85 +51,267 @@
   color: #5f25bf;
 }
 
-/* ── World lobes ── */
-.lobeFill {
-  opacity: 0.9;
+/* ── Worlds ── */
+.world {
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.lobeRing {
+.worldRing {
   fill: none;
   stroke: currentColor;
   stroke-width: 1;
-  opacity: 0.32;
+  opacity: 0.2;
   vector-effect: non-scaling-stroke;
+  transition: opacity 0.5s ease;
 }
 
-.lobeLabel {
+.worldLabel {
   fill: currentColor;
   font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: 17px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   text-anchor: middle;
 }
 
-.lobeSub {
+.worldSub {
   fill: rgb(var(--c-soft-mute));
-  font-size: 10.5px;
-  letter-spacing: 0.01em;
+  font-size: 11.5px;
   text-anchor: middle;
 }
 
-/* ── Inbound traces ── */
-.trace {
+/* Focus: pointing at one world dims the other. */
+.engine[data-focus="care"] .secure.world,
+.engine[data-focus="secure"] .care.world {
+  opacity: 0.34;
+}
+.engine[data-focus="care"] .care.world .worldRing,
+.engine[data-focus="secure"] .secure.world .worldRing,
+.engine[data-focus="engine"] .worldRing {
+  opacity: 0.5;
+}
+
+/* ── Walking sequence ── */
+.walker {
+  color: inherit;
+  opacity: 0.42;
+  animation: engWalk 11s linear infinite;
+  animation-delay: calc(var(--eng-i, 0) * 0.42s);
+}
+
+.walkerGhost {
   fill: none;
   stroke: currentColor;
   stroke-width: 1;
-  opacity: 0.28;
+  stroke-linecap: round;
+  opacity: 0.22;
   vector-effect: non-scaling-stroke;
 }
 
-.traceFlow {
+.bone {
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 1.6;
   stroke-linecap: round;
+  stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
-  stroke-dasharray: 14 100;
-  stroke-dashoffset: 114;
-  opacity: 0;
-  will-change: stroke-dashoffset, opacity;
-  animation: engTrace 9s ease-in-out infinite;
-  animation-delay: calc(var(--eng-i, 0) * 0.5s);
 }
 
-/* ── The engine core ── */
-.coreGlow {
-  opacity: 0.85;
+.boneFar {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.head {
+  fill: rgb(var(--c-obsidian-300) / 0.9);
+  stroke: currentColor;
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .head {
+  fill: #ffffff;
+}
+
+.joint {
+  fill: currentColor;
+}
+
+.ground {
+  stroke: rgb(148 163 184 / 0.26);
+  stroke-width: 1;
+  stroke-dasharray: 1.5 7;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Mobility signal ── */
+.mobilitySignal {
   transform-box: fill-box;
   transform-origin: center;
   animation: engBreathe 9s ease-in-out infinite;
 }
 
-.coreSpin {
+.sample {
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.sampleStrong {
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  opacity: 0.85;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Trajectories (SecureVision) ── */
+.path {
   fill: none;
-  stroke: rgb(79 209 255 / 0.32);
+  stroke: currentColor;
   stroke-width: 1;
-  stroke-dasharray: 3 9;
+  opacity: 0.26;
+  vector-effect: non-scaling-stroke;
+}
+
+.pathFlow {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 12 100;
+  stroke-dashoffset: 112;
+  opacity: 0;
+  animation: engPathFlow 11s ease-in-out infinite;
+  animation-delay: calc(5.6s + var(--eng-i, 0) * 0.34s);
+}
+
+.pathNode {
+  fill: currentColor;
+  opacity: 0.55;
+}
+
+.pathNodeMid {
+  fill: currentColor;
+  opacity: 0.9;
+}
+
+.correspondence {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Flow traces ── */
+.trace {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.22;
+  vector-effect: non-scaling-stroke;
+}
+
+.traceIn,
+.traceOut {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 16 100;
+  stroke-dashoffset: 116;
+  opacity: 0;
+  will-change: stroke-dashoffset, opacity;
+}
+
+/* 0–30% of the loop: movement signal travels into the engine. */
+.traceIn {
+  animation: engFlow 11s ease-in-out infinite;
+  animation-delay: calc(var(--eng-i, 0) * 0.36s);
+}
+
+/* 45–75%: the processed output leaves toward SecureVision. */
+.traceOut {
+  animation: engFlow 11s ease-in-out infinite;
+  animation-delay: calc(4.9s + var(--eng-i, 0) * 0.36s);
+}
+
+/* ── The engine ── */
+.coreGlow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: engGlow 11s ease-in-out infinite;
+}
+
+.ringSpin,
+.ringSpinBack {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.26);
+  stroke-width: 1;
   vector-effect: non-scaling-stroke;
   transform-box: fill-box;
   transform-origin: center;
-  animation: engSpin 44s linear infinite;
 }
 
-.coreTicks line {
-  stroke: rgb(148 163 184 / 0.32);
+.ringSpin {
+  stroke-dasharray: 4 12;
+  animation: engSpin 52s linear infinite;
+}
+
+.ringSpinBack {
+  stroke: rgb(139 92 246 / 0.22);
+  stroke-dasharray: 2 9;
+  animation: engSpinBack 38s linear infinite;
+}
+
+.ticks line {
+  stroke: rgb(148 163 184 / 0.3);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
+.dnaTick {
+  stroke: rgb(120 190 255 / 0.42);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.dnaStrong {
+  stroke: rgb(79 209 255 / 0.8);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.dna {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: engDna 44s linear infinite;
+}
+
+.orbit {
+  fill: none;
+  stroke: rgb(148 163 184 / 0.2);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.orbitNode {
+  fill: #7fe0ff;
+  opacity: 0.85;
+}
+
 .coreDisc {
-  fill: rgb(var(--c-obsidian-200) / 0.86);
+  fill: rgb(var(--c-obsidian-200) / 0.9);
 }
 :global(.light) .coreDisc {
   fill: #ffffff;
@@ -113,16 +319,28 @@
 
 .coreEdge {
   fill: none;
-  stroke: rgb(79 209 255 / 0.5);
+  stroke: rgb(79 209 255 / 0.45);
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
 }
 
+/* The processing pulse — a ring that expands out of the core once per loop. */
+.corePulse {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.5);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: engPulse 11s ease-out infinite;
+  animation-delay: 3.4s;
+}
+
 .coreBrand {
   fill: rgb(var(--c-soft-mute));
-  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   text-anchor: middle;
   text-transform: uppercase;
 }
@@ -130,53 +348,34 @@
 .coreTitle {
   fill: rgb(var(--c-soft-white));
   font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: 15px;
   font-weight: 600;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   text-anchor: middle;
 }
 
-/* ── Sampled stride strip ── */
-.samples {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: engSamples 11s ease-in-out infinite;
+/* Pointing at the engine lights its rings. */
+.engine[data-focus="engine"] .ringSpin,
+.engine[data-focus="engine"] .ringSpinBack {
+  stroke-opacity: 0.55;
+}
+.engine[data-focus="engine"] .coreEdge {
+  stroke: rgb(79 209 255 / 0.85);
 }
 
-.sample {
-  stroke: rgb(120 190 255 / 0.4);
-  stroke-width: 1.1;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.sampleStrong {
-  stroke: rgb(79 209 255 / 0.72);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-:global(.light) .sample {
-  stroke: rgb(27 78 217 / 0.36);
-}
-:global(.light) .sampleStrong {
-  stroke: rgb(16 143 192 / 0.7);
-}
-
-@keyframes engTrace {
+/* ── Keyframes ── */
+@keyframes engFlow {
   0% {
     opacity: 0;
-    stroke-dashoffset: 114;
+    stroke-dashoffset: 116;
   }
-  6% {
+  4% {
     opacity: 0.95;
   }
-  30% {
+  26% {
     opacity: 0.95;
     stroke-dashoffset: 0;
   }
-  36% {
+  32% {
     opacity: 0;
     stroke-dashoffset: 0;
   }
@@ -186,15 +385,67 @@
   }
 }
 
-@keyframes engBreathe {
+@keyframes engPathFlow {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 112;
+  }
+  5% {
+    opacity: 0.85;
+  }
+  22% {
+    opacity: 0.85;
+    stroke-dashoffset: 0;
+  }
+  28% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes engWalk {
+  0% {
+    opacity: 0.42;
+  }
+  3% {
+    opacity: 0.85;
+  }
+  11% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0.42;
+  }
+}
+
+@keyframes engGlow {
   0%,
   100% {
-    opacity: 0.6;
+    opacity: 0.55;
     transform: scale(0.96);
   }
-  50% {
+  38% {
     opacity: 1;
-    transform: scale(1.05);
+    transform: scale(1.06);
+  }
+}
+
+@keyframes engPulse {
+  0% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  55% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.42);
   }
 }
 
@@ -204,31 +455,51 @@
   }
 }
 
-@keyframes engSamples {
+@keyframes engSpinBack {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes engDna {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes engBreathe {
   0%,
   100% {
-    transform: scaleY(0.94);
+    transform: scaleY(0.93);
   }
   50% {
-    transform: scaleY(1.07);
+    transform: scaleY(1.08);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .traceFlow,
-  .coreGlow,
-  .coreSpin,
-  .samples {
-    animation: none;
-  }
-  .traceFlow {
+  .traceIn,
+  .traceOut,
+  .pathFlow,
+  .corePulse {
     display: none;
   }
+  .walker,
+  .mobilitySignal,
+  .coreGlow,
+  .ringSpin,
+  .ringSpinBack,
+  .dna {
+    animation: none;
+  }
+  .walker {
+    opacity: calc(0.4 + var(--eng-i, 0) * 0.1);
+  }
   .coreGlow {
-    opacity: 0.8;
+    opacity: 0.85;
     transform: none;
   }
-  .samples {
+  .mobilitySignal {
     transform: none;
   }
 }

@@ -1,0 +1,811 @@
+/*
+ * /products hero — movement-intelligence field
+ *
+ * Background artwork, held to background weight: nothing here is above 0.35
+ * opacity, the structural hairlines sit at 0.10–0.22, and only the travelling
+ * signal and the flagged event reach into the low 0.4s, briefly, on a thin
+ * stroke. The headline stays the loudest thing in the hero.
+ *
+ * ONE 12s LOOP, strictly sequenced — nothing pulses simultaneously, nothing
+ * spins, nothing flashes:
+ *
+ *   0.0s  the gait poses come up in stride order
+ *   1.4s  the cyan signal travels the inbound channel
+ *   3.0s  the core's processing rings illuminate — they do NOT rotate
+ *   3.2s  one illumination sweep crosses the radial sample ring
+ *   4.4s  one soft pulse leaves the core
+ *   5.6s  the processed signal travels out toward the spatial field
+ *   7.0s  the anonymous trajectories respond in turn
+ *   8.8s  the deviating route runs its path
+ *  10.0s  the flagged event pulses once
+ *  10.6s  the module nodes come up in turn
+ *  12.0s  everything has settled
+ *
+ * RESPONSIVE GATING lives here rather than in Tailwind: `.hidden`/`lg:block`
+ * are single-class rules in the global sheet and this module ships later, so a
+ * module `display` rule would win and render both fields at once — the exact
+ * bug the ecosystem visual already carries a comment about.
+ */
+
+.wide,
+.compact {
+  pointer-events: none;
+}
+
+/* Wide: the hero's right half, bled past the container into the page margin so
+   the field reads as background rather than as a panel.
+     · `left` starts it just past the copy measure (max-w-2xl = 42rem), so the
+       artwork is never doing its work behind the paragraph.
+     · `right` is negative by the container's own gutter plus whatever margin
+       the centred 1320px container leaves, which is what carries it to the
+       viewport edge on a wide screen. `min()` picks the gutter alone once the
+       viewport is narrower than the container.
+     · `top`/`bottom` tie the box to the copy block's height, so no matter how
+       the headline wraps the field cannot grow into the ecosystem diagram
+       below it — the one collision this composition could have. */
+.wide {
+  display: none;
+  position: absolute;
+  top: -2.5rem;
+  bottom: -3.5rem;
+  left: 40rem;
+  right: min(-3rem, calc((1320px - 100vw) / 2 - 3rem));
+}
+
+/* Filling a box defined by both edges: the field keeps its aspect and hugs the
+   right edge, so the bleed survives and the surplus space falls on the copy's
+   side where it belongs. */
+.wide .svg {
+  height: 100%;
+}
+
+/* Compact: in normal flow under the copy, where nothing sits behind text. */
+.compact {
+  display: block;
+  margin-top: 2.5rem;
+  width: 100%;
+}
+
+/* The switch is at 1240px, not at a device boundary: below it the copy measure
+   and a field wide enough to carry this much structure cannot both fit, and the
+   field would be reduced to working behind the paragraph. */
+@media (min-width: 1240px) {
+  .wide {
+    display: block;
+  }
+  .compact {
+    display: none;
+  }
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* In flow the field is a band, so it is capped: on a phone the full-height
+   composition would push the ecosystem diagram far below the fold. */
+.svgCompact {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
+/* ── Tone per side ─────────────────────────────────────────────────────────
+   Each cluster sets `color` once and everything inside it inherits, so the
+   whole field is three colours and no element carries its own hex. */
+.care {
+  color: #4fd1ff;
+}
+.secure {
+  color: #a78bfa;
+}
+:global(.light) .care {
+  color: #0e7fa8;
+}
+:global(.light) .secure {
+  color: #6d34c9;
+}
+
+.stopCare {
+  stop-color: #4fd1ff;
+}
+.stopEngine {
+  stop-color: #3b82f6;
+}
+.stopSecure {
+  stop-color: #a78bfa;
+}
+:global(.light) .stopCare {
+  stop-color: #0e8ab8;
+}
+:global(.light) .stopEngine {
+  stop-color: #2358c8;
+}
+:global(.light) .stopSecure {
+  stop-color: #6d34c9;
+}
+
+/* ── Depth ───────────────────────────────────────────────────────────────
+   A plane receding behind the artwork: the grid is masked to fade out from the
+   core, so it never reads as flat wallpaper and never draws a visible edge. */
+.grid line {
+  stroke: rgb(148 163 184 / 0.16);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .grid line {
+  stroke: rgb(71 85 105 / 0.18);
+}
+
+.coreGlow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hfGlow 12s ease-in-out infinite;
+}
+
+/* Capability arcs: the platform's rim, carrying the module nodes. */
+.arc {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  opacity: 0.2;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .arc {
+  opacity: 0.28;
+}
+
+.moduleNode {
+  fill: currentColor;
+  opacity: 0.3;
+  animation: hfNode 12s ease-in-out infinite;
+  animation-delay: calc(10.6s + var(--hf-i, 0) * 0.18s);
+}
+
+/* Module labels sit at the very bottom of the field's contrast range: they are
+   there to be noticed second, after the headline, by a reader who has already
+   started looking at the artwork. */
+.moduleLabel {
+  fill: currentColor;
+  font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.22;
+  animation: hfLabel 12s ease-in-out infinite;
+  animation-delay: calc(10.6s + var(--hf-i, 0) * 0.18s);
+}
+
+/* ── MobilityCare: the gait strip ───────────────────────────────────────── */
+.walker {
+  opacity: 0.2;
+  animation: hfWalk 12s linear infinite;
+  animation-delay: calc(var(--hf-i, 0) * 0.3s);
+}
+
+.bone {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.boneFar {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.head {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The joint-angle band over the stride: one kinematic trace, its baseline, and
+   the sample each drawn pose sits on. Plotted above the figures rather than
+   through them — traced through the joints themselves it tangled with the feet
+   and the whole strip read as scribble. */
+.joint {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.24;
+  vector-effect: non-scaling-stroke;
+}
+
+.bandBase {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.1;
+  vector-effect: non-scaling-stroke;
+}
+
+.bandNode {
+  fill: currentColor;
+  opacity: 0.3;
+}
+
+.ground {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 1.5 7;
+  opacity: 0.14;
+  vector-effect: non-scaling-stroke;
+}
+
+.axis {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.16;
+  vector-effect: non-scaling-stroke;
+}
+
+.axisTick {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.16;
+  vector-effect: non-scaling-stroke;
+}
+
+.eventStem {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 1.5 4;
+  opacity: 0.12;
+  vector-effect: non-scaling-stroke;
+}
+
+.eventNode {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Heel strike — the stride boundary, and the only filled gait event. */
+.eventStrike {
+  fill: currentColor;
+  opacity: 0.34;
+}
+
+/* ── SecureVision: the anonymous spatial field ─────────────────────────── */
+.track {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.26;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A short trace runs each route in turn, so the field reads as movement over
+   time rather than as a static plot. */
+.trackFlow {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 12 100;
+  stroke-dashoffset: 112;
+  opacity: 0;
+  animation: hfPathFlow 12s ease-in-out infinite;
+  animation-delay: calc(7s + var(--hf-i, 0) * 0.26s);
+}
+
+.cross {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 6 5;
+  opacity: 0.15;
+  vector-effect: non-scaling-stroke;
+}
+
+.spatialNode {
+  fill: currentColor;
+  opacity: 0.26;
+}
+
+.zone {
+  fill: currentColor;
+  fill-opacity: 0.03;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.24;
+  vector-effect: non-scaling-stroke;
+}
+
+.zoneMark line {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.26;
+  vector-effect: non-scaling-stroke;
+}
+
+.vectors line,
+.vectors polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.18;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The deviation. Kept in the field's own violet rather than given an alarm
+   colour: at background weight a warm accent would be the first thing the eye
+   found in the hero, which is the headline's job. */
+.ghost {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  opacity: 0.16;
+  vector-effect: non-scaling-stroke;
+}
+
+.anomaly {
+  fill: none;
+  stroke: #c4b5fd;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.34;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .anomaly {
+  stroke: #5b21b6;
+}
+
+.anomalyFlow {
+  fill: none;
+  stroke: #ddd6fe;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 12 100;
+  stroke-dashoffset: 112;
+  opacity: 0;
+  animation: hfPathFlow 12s ease-in-out infinite;
+  animation-delay: 8.8s;
+}
+:global(.light) .anomalyFlow {
+  stroke: #6d28d9;
+}
+
+.deviation {
+  fill: none;
+  stroke: #c4b5fd;
+  stroke-width: 1;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .deviation {
+  stroke: #5b21b6;
+}
+
+.alert {
+  fill: #c4b5fd;
+  opacity: 0.42;
+}
+:global(.light) .alert {
+  fill: #5b21b6;
+}
+
+.alertPulse {
+  fill: none;
+  stroke: #c4b5fd;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: hfAlert 12s ease-out infinite;
+  animation-delay: 10s;
+}
+:global(.light) .alertPulse {
+  stroke: #5b21b6;
+}
+
+/* ── Channels ────────────────────────────────────────────────────────────
+   Gradient-stroked, so the colour changes along the travel. No `stroke` is
+   declared here on purpose: the gradient arrives as a presentation attribute,
+   which a class rule would override. */
+.trace {
+  fill: none;
+  stroke-width: 1;
+  opacity: 0.2;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The channel's own samples: the signal is a sampled stream, so the channel is
+   drawn as points on the real path rather than as a pipe. */
+.traceSample {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 0.4 5;
+  opacity: 0.24;
+}
+
+.traceFlowIn,
+.traceFlowOut {
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 14 100;
+  stroke-dashoffset: 114;
+  opacity: 0;
+  animation: hfFlow 12s ease-in-out infinite;
+}
+
+.traceFlowIn {
+  animation-delay: 1.4s;
+}
+
+.traceFlowOut {
+  animation-delay: 5.6s;
+}
+
+/* ── The core ────────────────────────────────────────────────────────────
+   An instrument that processes, not a badge that spins: the rings hold still
+   and illuminate, and the sample ring is crossed by one sweep per loop. */
+.ringInner,
+.ringOuter {
+  fill: none;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  animation: hfRing 12s ease-in-out infinite;
+  animation-delay: calc(3s + var(--hf-i, 0) * 0.3s);
+}
+
+.ringInner {
+  stroke: #6d8bff;
+  stroke-dasharray: 2 8;
+  stroke-opacity: 0.16;
+}
+
+.ringOuter {
+  stroke: #4fd1ff;
+  stroke-dasharray: 3 12;
+  stroke-opacity: 0.12;
+}
+:global(.light) .ringInner {
+  stroke: #2358c8;
+  stroke-opacity: 0.22;
+}
+:global(.light) .ringOuter {
+  stroke: #0e8ab8;
+  stroke-opacity: 0.2;
+}
+
+/* The radial sample ring: temporal samples of the stride being processed, one
+   illumination sweep per loop, staggered by sample index. */
+.dnaTick,
+.dnaStrong {
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  animation-duration: 12s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+  animation-delay: calc(3.2s + var(--hf-i, 0) * 0.012s);
+}
+
+.dnaTick {
+  stroke: #78beff;
+  stroke-width: 1;
+  stroke-opacity: 0.16;
+  animation-name: hfSweepTick;
+}
+
+.dnaStrong {
+  stroke: #9fd8ff;
+  stroke-width: 1.3;
+  stroke-opacity: 0.26;
+  animation-name: hfSweepStrong;
+}
+:global(.light) .dnaTick {
+  stroke: #2b6ea8;
+  stroke-opacity: 0.28;
+}
+:global(.light) .dnaStrong {
+  stroke: #0e8ab8;
+  stroke-opacity: 0.45;
+}
+
+/* The core is edges and internal structure, never a filled body: over the soft
+   light behind it, a fill reads as a dark hole ringed by rays. */
+.coreInner {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.18);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .coreInner {
+  stroke: rgb(14 138 184 / 0.3);
+}
+
+.orbit {
+  fill: none;
+  stroke: rgb(148 163 184 / 0.16);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .orbit {
+  stroke: rgb(71 85 105 / 0.2);
+}
+
+.orbitNode {
+  fill: #9fd8ff;
+  opacity: 0.28;
+  animation: hfNode 12s ease-in-out infinite;
+  animation-delay: calc(3.6s + var(--hf-i, 0) * 0.2s);
+}
+:global(.light) .orbitNode {
+  fill: #0e8ab8;
+}
+
+.coreEdge {
+  fill: none;
+  stroke: rgb(59 130 246 / 0.26);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .coreEdge {
+  stroke: rgb(35 88 200 / 0.4);
+}
+
+/* One slow ring out of the core per loop. */
+.corePulse {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.3);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: hfPulse 12s ease-out infinite;
+  animation-delay: 4.4s;
+}
+:global(.light) .corePulse {
+  stroke: rgb(35 88 200 / 0.3);
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
+
+/* Channel travel. The end offset is the dash length, not zero:
+   `stroke-dashoffset` is modular in the pattern period, so animating to 0 wraps
+   the dash back to the start of the path while it is still visible. */
+@keyframes hfFlow {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 114;
+  }
+  4% {
+    opacity: 0.5;
+  }
+  16% {
+    opacity: 0.5;
+  }
+  20% {
+    opacity: 0;
+    stroke-dashoffset: 14;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 14;
+  }
+}
+
+@keyframes hfPathFlow {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 112;
+  }
+  4% {
+    opacity: 0.42;
+  }
+  14% {
+    opacity: 0.42;
+  }
+  18% {
+    opacity: 0;
+    stroke-dashoffset: 12;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 12;
+  }
+}
+
+/* A gait sample activating: each pose comes up in stride order. */
+@keyframes hfWalk {
+  0% {
+    opacity: 0.2;
+  }
+  3% {
+    opacity: 0.38;
+  }
+  11% {
+    opacity: 0.21;
+  }
+  100% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes hfGlow {
+  0%,
+  100% {
+    opacity: 0.75;
+    transform: scale(0.97);
+  }
+  32% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+/* Restrained ring illumination — no rotation. */
+@keyframes hfRing {
+  0%,
+  100% {
+    stroke-opacity: 0.12;
+  }
+  9% {
+    stroke-opacity: 0.3;
+  }
+  30% {
+    stroke-opacity: 0.14;
+  }
+}
+
+/* One sample brightening as the sweep passes it. Base values are repeated
+   literally: `inherit` inside a keyframe resolves against the parent element,
+   not against the rule that set the sample's own stroke-opacity. */
+@keyframes hfSweepTick {
+  0%,
+  3% {
+    stroke-opacity: 0.16;
+  }
+  5% {
+    stroke-opacity: 0.42;
+  }
+  12%,
+  100% {
+    stroke-opacity: 0.16;
+  }
+}
+
+@keyframes hfSweepStrong {
+  0%,
+  3% {
+    stroke-opacity: 0.26;
+  }
+  5% {
+    stroke-opacity: 0.6;
+  }
+  12%,
+  100% {
+    stroke-opacity: 0.26;
+  }
+}
+
+@keyframes hfPulse {
+  0% {
+    opacity: 0.32;
+    transform: scale(1);
+  }
+  20% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
+@keyframes hfAlert {
+  0% {
+    opacity: 0.34;
+    transform: scale(0.9);
+  }
+  10% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+}
+
+@keyframes hfNode {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  4% {
+    opacity: 0.6;
+  }
+  16% {
+    opacity: 0.32;
+  }
+}
+
+@keyframes hfLabel {
+  0%,
+  100% {
+    opacity: 0.22;
+  }
+  4% {
+    opacity: 0.42;
+  }
+  16% {
+    opacity: 0.24;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The travelling traces exist only as motion — with motion off they have
+     nothing to say, so they go rather than sitting there as stubs. */
+  .traceFlowIn,
+  .traceFlowOut,
+  .trackFlow,
+  .anomalyFlow,
+  .alertPulse,
+  .corePulse {
+    display: none;
+  }
+  .walker,
+  .coreGlow,
+  .ringInner,
+  .ringOuter,
+  .dnaTick,
+  .dnaStrong,
+  .moduleNode,
+  .moduleLabel,
+  .orbitNode {
+    animation: none;
+  }
+  /* Held at the states that carry the meaning, so the still field still reads
+     movement → signal → intelligence → application. */
+  .walker {
+    opacity: calc(0.19 + var(--hf-i, 0) * 0.035);
+  }
+  .coreGlow {
+    opacity: 0.9;
+    transform: none;
+  }
+  .ringInner,
+  .ringOuter {
+    stroke-opacity: 0.2;
+  }
+  .moduleNode {
+    opacity: 0.4;
+  }
+  .moduleLabel {
+    opacity: 0.28;
+  }
+  .orbitNode {
+    opacity: 0.4;
+  }
+}

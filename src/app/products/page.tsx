@@ -5,6 +5,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { DeployGaitAI } from "@/components/sections/DeployGaitAI";
 import { ProductEcosystem } from "@/components/products/ProductEcosystem";
+import { HeroMotionField } from "@/components/products/HeroMotionField";
 import { ctas } from "@/data/content";
 import {
   type GaitProduct,
@@ -43,24 +44,36 @@ export default function ProductsPage() {
       <section className="site-page-intro relative overflow-hidden pb-20">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-glow opacity-60 blur-3xl" />
+          {/* Depth behind the movement-intelligence field: one soft blue light
+              where its core sits, and a violet one further out, both wide
+              enough to read as atmosphere rather than as a blob. */}
+          <div className="absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.15),rgba(59,130,246,0.04)_45%,transparent_72%)] blur-2xl lg:block" />
+          <div className="absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.11),transparent_70%)] blur-3xl lg:block" />
         </div>
         <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-30" />
+        {/* The flat grid gets a horizon: it fades out toward the top and the
+            bottom of the hero instead of stopping at a hard edge. */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b from-obsidian-400/70 to-transparent" />
 
         <div className="container-wide">
-          <div className="max-w-2xl">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-              Our product ecosystem
-            </span>
-            <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
-              Movement intelligence{" "}
-              <span className="text-gradient">for real-world impact.</span>
-            </h1>
-            <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Two product families. One Movement Intelligence Platform. Every one of the{" "}
-              {productCount} modules is built on the same capture, pose, gait
-              and quality layers — the family decides what the measurement is
-              read for.
-            </p>
+          <div className="relative">
+            <div className="relative z-10 max-w-2xl">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+                Our product ecosystem
+              </span>
+              <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
+                Movement intelligence{" "}
+                <span className="text-gradient">for real-world impact.</span>
+              </h1>
+              <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
+                Two product families. One Movement Intelligence Platform. Every one of the{" "}
+                {productCount} modules is built on the same capture, pose, gait
+                and quality layers — the family decides what the measurement is
+                read for.
+              </p>
+            </div>
+
+            <HeroMotionField />
           </div>
 
           <ProductEcosystem

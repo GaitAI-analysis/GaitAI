@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, HeartPulse, ShieldCheck } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { UseCaseCard } from "@/components/usecases/UseCaseCard";
+import { UseCaseProblemRow } from "@/components/usecases/UseCaseProblemRow";
+import { WhoWeServe } from "@/components/sections/about/WhoWeServe";
 import { industryUseCases } from "@/data/products";
 
 export const metadata: Metadata = {
-  title: "Use Cases — Where GaitAI is deployed",
+  title: "Use Cases — Which movement problem are you solving?",
   description:
-    "GaitAI use cases across physiotherapy clinics, hospitals, sports academies, elderly care, airports, smart cities, factories, retail, events and more.",
+    "GaitAI use cases by environment: the problem each one has, the approach GaitAI takes, the products involved and what they produce — across clinics, hospitals, sports, elderly care, transport hubs, smart cities, industry, retail and events.",
+  alternates: { canonical: "/use-cases" },
 };
 
 const mobilityCases = industryUseCases.filter(
@@ -18,12 +20,20 @@ const secureCases = industryUseCases.filter(
   (u) => u.vertical === "securevision"
 );
 
-
+/**
+ * Problem-led, not product-led.
+ *
+ * This page used to restate the product cards from /mobilitycare and
+ * /securevision under "where GaitAI is deployed" — a deployment claim with
+ * no supporting record. It now leads with the problem each environment has
+ * and the approach GaitAI takes to it, and links out to products rather than
+ * re-describing them.
+ */
 export default function UseCasesPage() {
   return (
     <>
       {/* HERO */}
-      <section className="site-page-intro relative overflow-hidden pb-20">
+      <section className="site-page-intro relative overflow-hidden pb-16">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-glow opacity-60 blur-3xl" />
         </div>
@@ -31,22 +41,23 @@ export default function UseCasesPage() {
 
         <div className="container-wide">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              {industryUseCases.length} industries · {industryUseCases.length} deployments
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/[0.08] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+              {industryUseCases.length} environments · {mobilityCases.length}{" "}
+              clinical · {secureCases.length} public-space
             </div>
             <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
-              From a quiet home to a{" "}
-              <span className="text-gradient">global stadium.</span>
+              Start with the{" "}
+              <span className="text-gradient">problem you have.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              GaitAI is deployed across hospitals, sports academies, elderly-care
-              homes, airports, smart cities and industrial sites. Each industry
-              has its own product mix, environment and outcome.
+              Each environment below states the problem it&apos;s working with,
+              how GaitAI approaches it, which products are involved and what
+              they produce. Find the one that looks like yours.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link href="#mobility" className="btn-primary">
                 Healthcare &amp; sports
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
               <Link href="#secure" className="btn-ghost">
                 Safety &amp; public spaces
@@ -56,19 +67,22 @@ export default function UseCasesPage() {
         </div>
       </section>
 
-      {/* MOBILITY USE CASES */}
+      {/* WHO IT SERVES — audience framing, moved from the removed /about */}
+      <WhoWeServe />
+
+      {/* MOBILITYCARE ENVIRONMENTS */}
       <section id="mobility" className="section bg-obsidian-300/30">
         <div className="container-wide">
           <SectionHeading
             eyebrow={
               <span className="inline-flex items-center gap-2 text-teal-300">
-                <HeartPulse className="h-3.5 w-3.5" />
+                <HeartPulse aria-hidden="true" className="h-3.5 w-3.5" />
                 MobilityCare · Healthcare, sports &amp; wearable
               </span>
             }
             title={
               <>
-                Where{" "}
+                Problems{" "}
                 <span
                   style={{
                     background:
@@ -79,43 +93,43 @@ export default function UseCasesPage() {
                 >
                   MobilityCare
                 </span>{" "}
-                is deployed.
+                is built for.
               </>
             }
-            description={`${mobilityCases.length} clinical, sports, elderly and wearable environments — each with the products and outcomes mapped from the GaitAI brief.`}
+            description={`${mobilityCases.length} clinical, sports, elderly and wearable environments — each with the products and outputs that apply to it.`}
             align="left"
           />
-          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {mobilityCases.map((u, i) => (
-              <UseCaseCard key={u.id} caseId={u.id} delay={(i % 3) * 0.06} />
+          <div className="mt-12">
+            {mobilityCases.map((u) => (
+              <UseCaseProblemRow key={u.id} caseId={u.id} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* SECUREVISION USE CASES */}
+      {/* SECUREVISION ENVIRONMENTS */}
       <section id="secure" className="section">
         <div className="container-wide">
           <SectionHeading
             eyebrow={
               <span className="inline-flex items-center gap-2 text-royal-300">
-                <ShieldCheck className="h-3.5 w-3.5" />
+                <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
                 SecureVision · Privacy-aware public safety
               </span>
             }
             title={
               <>
-                Where{" "}
+                Problems{" "}
                 <span className="text-gradient-secure">SecureVision</span> is
-                deployed.
+                built for.
               </>
             }
-            description={`${secureCases.length} privacy-aware deployments across transport hubs, smart cities, campuses, factories, retail and large events.`}
+            description={`${secureCases.length} privacy-aware environments across transport hubs, smart cities, campuses, factories, retail and large events.`}
             align="left"
           />
-          <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {secureCases.map((u, i) => (
-              <UseCaseCard key={u.id} caseId={u.id} delay={(i % 3) * 0.06} />
+          <div className="mt-12">
+            {secureCases.map((u) => (
+              <UseCaseProblemRow key={u.id} caseId={u.id} />
             ))}
           </div>
         </div>
@@ -130,7 +144,7 @@ export default function UseCasesPage() {
               <div>
                 <span className="eyebrow">
                   <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                  Don&apos;t see your industry? Let&apos;s talk.
+                  Don&apos;t see your environment? Let&apos;s talk.
                 </span>
                 <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
                   Tell us about your environment and we&apos;ll map the right
@@ -139,11 +153,11 @@ export default function UseCasesPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link href="/#contact" className="btn-primary">
-                  Request a demo
-                  <ArrowRight className="h-4 w-4" />
+                  Discuss a pilot
+                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
-                <Link href="/products" className="btn-ghost">
-                  Browse all products
+                <Link href="/products#deploy" className="btn-ghost">
+                  How deployment works
                 </Link>
               </div>
             </div>

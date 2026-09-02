@@ -14,9 +14,11 @@ import { MobilityCareHero } from "@/components/sections/MobilityCareHero";
 import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
 import {
   industryUseCases,
+  mobilityProducts,
   productById,
   watchcareFeatures,
 } from "@/data/products";
+import { intelligenceVocabularyFor } from "@/data/taxonomy";
 
 export const metadata: Metadata = {
   title: "MobilityCare — Clinical movement intelligence",
@@ -28,24 +30,13 @@ const mobilityUseCases = industryUseCases.filter(
   (u) => u.vertical === "mobilitycare"
 );
 
-const mobilitySignals = [
-  "Gait analysis",
-  "Stride variability",
-  "Balance & postural sway",
-  "Cadence & rhythm",
-  "Step symmetry",
-  "Mobility decline",
-  "Rehabilitation progress",
-  "Fall-risk prediction",
-  "Tremor detection",
-  "Walking speed",
-  "Gait asymmetry",
-  "Range of motion",
-  "Functional mobility",
-  "Pose estimation",
-  "Neurological movement signals",
-  "Remote mobility monitoring",
-] as const;
+/**
+ * Signal + capability vocabulary, derived from the canonical taxonomy rather
+ * than a hand-maintained list. The previous local array had drifted: it named
+ * "Fall-risk prediction", "Tremor detection" and "Range of motion", none of
+ * which are signals GaitAI documents reading anywhere else on the site.
+ */
+const mobilitySignals = intelligenceVocabularyFor("mobilitycare");
 
 export default function MobilityCarePage() {
   const walkscan = productById("walkscan");
@@ -65,7 +56,7 @@ export default function MobilityCarePage() {
             eyebrow="MobilityCare · Product suite"
             title={
               <>
-                Twelve modular products on{" "}
+                {mobilityProducts.length} modular products on{" "}
                 <span className="text-gradient">one movement engine.</span>
               </>
             }
@@ -154,20 +145,35 @@ export default function MobilityCarePage() {
                 <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
                   {watchcare.description}
                 </p>
+                {/* Full WatchCare capability set — moved here from the home
+                    page, where it was a second flagship block competing with
+                    the product itself. */}
                 <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
-                  {watchcareFeatures.slice(0, 6).map((f) => {
-                    return (
-                      <div
-                        key={f.title}
-                        className="flex items-start gap-2.5 rounded-xl border border-white/8 bg-white/[0.02] p-3"
-                      >
-                        <div className="text-xs leading-relaxed text-soft-white">
-                          {f.title}
-                        </div>
+                  {watchcareFeatures.map((f) => (
+                    <div
+                      key={f.title}
+                      className="rounded-xl border border-white/8 bg-white/[0.02] p-3.5 transition-colors hover:border-amber-300/30 hover:bg-amber-300/[0.03]"
+                    >
+                      <div className="text-sm font-semibold text-soft-white">
+                        {f.title}
                       </div>
-                    );
-                  })}
+                      <p className="mt-1.5 text-[12.5px] leading-relaxed text-soft-mute">
+                        {f.desc}
+                      </p>
+                      <div className="mt-2 text-[10px] font-medium uppercase tracking-[0.18em] text-amber-300/80">
+                        {f.audience}
+                      </div>
+                    </div>
+                  ))}
                 </div>
+
+                <Link
+                  href="/mobilitycare/watchcare/"
+                  className="mt-7 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-amber-300 transition-colors hover:text-amber-200"
+                >
+                  Open the WatchCare product page
+                  <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                </Link>
               </div>
             </div>
           </div>
@@ -220,7 +226,7 @@ export default function MobilityCarePage() {
                   GaitAI FallRisk
                 </div>
                 <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">
-                  Detect fall-risk{" "}
+                  Surface fall-risk indicators{" "}
                   <span
                     style={{
                       background:
@@ -229,31 +235,47 @@ export default function MobilityCarePage() {
                       WebkitTextFillColor: "transparent",
                     }}
                   >
-                    before incidents happen.
+                    while there is time to act.
                   </span>
                 </h2>
                 <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
                   {fallrisk.description}
                 </p>
+                {/* The three screening categories FallRisk assigns. The
+                    previous version showed a 62 / 28 / 10 % cohort split —
+                    an invented distribution — and built its colour class
+                    dynamically, so Tailwind never emitted the utilities. */}
                 <div className="mt-6 grid grid-cols-3 gap-2">
                   {[
-                    { label: "Low", color: "emerald", count: "62%" },
-                    { label: "Medium", color: "amber", count: "28%" },
-                    { label: "High", color: "rose", count: "10%" },
+                    { label: "Low", tone: "text-emerald-300" },
+                    { label: "Medium", tone: "text-amber-300" },
+                    { label: "High", tone: "text-rose-300" },
                   ].map((r) => (
                     <div
                       key={r.label}
                       className="rounded-xl border border-white/8 bg-white/[0.02] p-3 text-center"
                     >
-                      <div className={`text-2xl font-semibold text-${r.color}-300`}>
-                        {r.count}
+                      <div className={`font-display text-lg font-semibold ${r.tone}`}>
+                        {r.label}
                       </div>
                       <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-soft-mute">
-                        {r.label} risk
+                        Screening category
                       </div>
                     </div>
                   ))}
                 </div>
+                <p className="mt-3 text-[11px] leading-relaxed text-soft-mute">
+                  Categories are screening support for care teams, alongside
+                  the contributing signals — not a diagnosis or a prediction of
+                  an individual event.{" "}
+                  <Link
+                    href="/mobilitycare/fallrisk/"
+                    className="text-amber-300 underline decoration-amber-300/40 underline-offset-2 transition-colors hover:text-amber-200"
+                  >
+                    How FallRisk works
+                  </Link>
+                  .
+                </p>
               </div>
               <ClinicalReportVisual />
             </div>
@@ -265,14 +287,16 @@ export default function MobilityCarePage() {
       <section className="section">
         <div className="container-wide">
           <SectionHeading
-            eyebrow="Clinical · Sports · Wearable use cases"
+            eyebrow="Clinical · Sports · Wearable environments"
             title={
               <>
-                Deploying MobilityCare across{" "}
-                <span className="text-gradient">every environment.</span>
+                Built for{" "}
+                <span className="text-gradient">
+                  the environments clinicians work in.
+                </span>
               </>
             }
-            description="From physiotherapy clinics to neurology wards, sports academies to elderly-care chains — MobilityCare meets clinicians where they work."
+            description="From physiotherapy clinics to neurology wards, sports academies to elderly-care homes — each environment has a different problem, a different product mix and a different output."
             align="left"
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -341,8 +365,8 @@ export default function MobilityCarePage() {
                   Book a demo
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/publications" className="btn-ghost">
-                  See sample reports
+                <Link href="/products#deploy" className="btn-ghost">
+                  How a pilot runs
                 </Link>
               </div>
             </div>

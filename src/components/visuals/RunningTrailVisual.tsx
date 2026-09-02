@@ -102,13 +102,17 @@ export function RunningTrailVisual() {
         </text>
       </motion.g>
 
-      {/* HUD */}
+      {/* HUD. The pace, cadence and asymmetry figures are invented for the
+          layout, so the readout is captioned as illustrative. */}
       <g fontFamily="ui-monospace, monospace" letterSpacing="1.5">
         <text x="20" y="30" fontSize="9" fill="#94A3B8">
           RUN · 4:32/km
         </text>
         <text x="20" y="44" fontSize="9" fill="#4FD1FF">
           CADENCE · 178
+        </text>
+        <text x="20" y="188" fontSize="8" fill="#64748B" letterSpacing="1.8">
+          ILLUSTRATIVE DEMO · SYNTHETIC DATA
         </text>
       </g>
     </svg>

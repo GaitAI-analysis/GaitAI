@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { featuredProducts, type Vertical } from "@/data/products";
+import { featuredProducts, productCount, type Vertical } from "@/data/products";
 import { ProductCard } from "@/components/products/ProductCard";
 
 const productViews: { id: Vertical; label: string }[] = [
@@ -30,11 +30,11 @@ export function FeaturedProducts() {
             eyebrow="Featured · Movement intelligence products"
             title={
               <>
-                Twenty-three products.{" "}
+                {productCount} modular products.{" "}
                 <span className="text-gradient">One movement engine.</span>
               </>
             }
-            description="From clinical gait reports to crowd flow analytics — every product is built on the same GaitAI movement-intelligence platform. These are the eight we&apos;re leading with."
+            description="From clinical gait reports to crowd flow analytics — every product is built on the same GaitAI movement engine. These are the eight we&apos;re leading with."
             align="left"
             className="w-full lg:max-w-3xl"
           />
@@ -76,12 +76,19 @@ export function FeaturedProducts() {
           ))}
         </div>
 
-        <div className="mt-12 flex items-center justify-center">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/use-cases"
+            href="/products"
             className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]"
           >
-            See where they&apos;re deployed
+            Browse all {productCount} products
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href="/gaitscape"
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]"
+          >
+            Explore how they connect
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>

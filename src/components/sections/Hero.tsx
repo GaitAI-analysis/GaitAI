@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { productCount } from "@/data/products";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
   ssr: false,
@@ -56,7 +57,7 @@ export function Hero() {
             custom={0}
             className="inline-flex items-center rounded-full border border-cyan-300/20 bg-obsidian/55 px-4 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs"
           >
-            10+ years of gait research · From research to real-world systems
+            Built on 10+ years of founder-led gait research
           </motion.div>
 
           <motion.h1
@@ -76,10 +77,10 @@ export function Hero() {
             custom={2}
             className="mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-white/90 sm:mt-10 sm:text-xl"
           >
-            GaitAI transforms video, wearable signals and human movement into
+            GaitAI turns video, wearable signals and human movement into
             actionable intelligence across MobilityCare and SecureVision — one
-            platform powering twenty-three specialized movement-intelligence
-            products.
+            movement engine powering {productCount} modular
+            movement-intelligence products.
           </motion.p>
 
           <motion.div

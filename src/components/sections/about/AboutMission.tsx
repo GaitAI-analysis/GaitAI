@@ -1,5 +1,6 @@
 import { AboutPhilosophy } from "./AboutPhilosophy";
 import { VisionPillars } from "@/components/sections/VisionPillars";
+import { productCount } from "@/data/products";
 
 /**
  * Mission / origin story — how a decade of gait research became GaitAI.
@@ -43,8 +44,8 @@ export function AboutMission({
               gait recognition for surveillance and security applications —
               using gait as a non-contact biometric where face, fingerprint or
               iris recognition fall short. Today, that decade of work powers a
-              Human Movement Intelligence Platform with two verticals and 23
-              modular products.
+              Human Movement Intelligence Platform with two verticals and{" "}
+              {productCount} modular products.
             </p>
           </div>
         </div>

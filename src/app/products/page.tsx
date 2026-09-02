@@ -6,6 +6,8 @@ import { ProductGrid } from "@/components/products/ProductGrid";
 import { DeployGaitAI } from "@/components/sections/DeployGaitAI";
 import { ProductEcosystem } from "@/components/products/ProductEcosystem";
 import { HeroMotionField } from "@/components/products/HeroMotionField";
+import { ProductAnalytics } from "@/components/analytics/ProductAnalytics";
+import { CoverageMatrix } from "@/components/analytics/CoverageMatrix";
 import { ctas } from "@/data/content";
 import {
   type GaitProduct,
@@ -85,6 +87,17 @@ export default function ProductsPage() {
         </div>
       </section>
 
+      {/* CONFIGURATOR + COMPARISON ──
+          "Find your GaitAI stack": three answers resolved against the
+          documented product / environment / capability relationships, with
+          the recommendation feeding straight into a side-by-side comparison.
+          State lives in the URL (?environment=&goal=&signal=&compare=). */}
+      <section className="section border-y border-white/[0.07] bg-obsidian-300/25">
+        <div className="container-wide">
+          <ProductAnalytics />
+        </div>
+      </section>
+
       {/* GRID */}
       <section className="section bg-obsidian-300/30">
         <div className="container-wide">
@@ -101,6 +114,28 @@ export default function ProductsPage() {
           />
           <div className="mt-10">
             <ProductGrid vertical="all" />
+          </div>
+        </div>
+      </section>
+
+      {/* INTELLIGENCE COVERAGE MAP ──
+          capability × environment, as three discrete documented states.
+          The join GaitScape's capability × product matrix cannot make. */}
+      <section id="coverage" className="section border-t border-white/[0.07]">
+        <div className="container-wide">
+          <SectionHeading
+            eyebrow="Intelligence coverage"
+            title={
+              <>
+                Which capability applies{" "}
+                <span className="text-gradient">where.</span>
+              </>
+            }
+            description="Every capability against every environment, in three documented states — primary, supporting, or not used. Select a cell to see the modules and signals behind it."
+            align="left"
+          />
+          <div className="mt-10">
+            <CoverageMatrix />
           </div>
         </div>
       </section>

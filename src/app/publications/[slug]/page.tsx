@@ -7,7 +7,7 @@ import {
   Calendar,
   User,
 } from "lucide-react";
-import { getPublishedPostBySlug, readPosts, readPublishedPosts } from "@/lib/posts-store";
+import { getPublishedPostBySlug, readPublishedPosts } from "@/lib/posts-store";
 import { allPublications } from "@/data/publications";
 import { PublicationDetail } from "@/components/publications/PublicationDetail";
 import { CategoryBadge, categoryGradient } from "@/components/posts/CategoryBadge";
@@ -19,10 +19,15 @@ import { DiscussionMount } from "@/components/comments/DiscussionMount";
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  // Next static export requires at least one known parameter even when all
-  // current editorial seed records are intentionally withheld from public
-  // rendering. Each unverified record resolves through notFound() below.
-  const posts = await readPosts();
+  /*
+   * Only verified posts get a route. Emitting a param for an unverified seed
+   * record made notFound() run at export time, which writes a real
+   * __next_error__ document to that URL — a crawlable page with no <html lang>
+   * and no <h1>. Withholding the param leaves no page at all, which is what
+   * "withheld from public rendering" is supposed to mean. The publication
+   * records below always keep this list non-empty.
+   */
+  const posts = await readPublishedPosts();
   return [
     // Research-library publication records share this route with posts.
     ...allPublications.map((p) => ({ slug: p.id })),

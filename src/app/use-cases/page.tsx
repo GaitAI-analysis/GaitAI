@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, HeartPulse, ShieldCheck } from "lucide-react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { UseCaseProblemRow } from "@/components/usecases/UseCaseProblemRow";
-import { WhoWeServe } from "@/components/sections/about/WhoWeServe";
-import { PlatformHub } from "@/components/visuals/PlatformHub";
+import { UseCaseAudienceGrid } from "@/components/usecases/UseCaseAudienceGrid";
+import { UseCaseExplorer } from "@/components/usecases/UseCaseExplorer";
 import { industryUseCases } from "@/data/products";
 import { ctas } from "@/data/content";
+import styles from "@/components/usecases/usecases.module.css";
 
 export const metadata: Metadata = {
   title: "Use Cases — Which movement problem are you solving?",
@@ -16,33 +15,66 @@ export const metadata: Metadata = {
 };
 
 const mobilityCases = industryUseCases.filter(
-  (u) => u.vertical === "mobilitycare"
+  (u) => u.vertical === "mobilitycare",
 );
 const secureCases = industryUseCases.filter(
-  (u) => u.vertical === "securevision"
+  (u) => u.vertical === "securevision",
 );
 
 /**
- * Problem-led, not product-led.
+ * Problem-led environment discovery.
  *
- * This page used to restate the product cards from /mobilitycare and
- * /securevision under "where GaitAI is deployed" — a deployment claim with
- * no supporting record. It now leads with the problem each environment has
- * and the approach GaitAI takes to it, and links out to products rather than
- * re-describing them.
+ * The content model is unchanged — environment, problem, GaitAI approach,
+ * relevant products, outputs — but it used to render as seventeen full-width
+ * rows of prose, which read as a specification document rather than a page you
+ * could find yourself in. It is now a card grid with progressive disclosure
+ * behind search, family tabs and facet chips: the collapsed card carries the
+ * problem in one sentence plus product and output chips, and the full
+ * narrative is one click away in place. Nothing was dropped, and the
+ * per-environment detail routes are still the deep version.
+ *
+ * The orientation strip below the hero exists because the page's first
+ * question is which of the two families a reader belongs to, and the previous
+ * hero answered that with two buttons and a diagram.
  */
+
+const FAMILIES = [
+  {
+    href: "#mobility",
+    name: "MobilityCare",
+    Icon: HeartPulse,
+    tone: styles.toneCare,
+    count: mobilityCases.length,
+    blurb:
+      "Camera and wearable movement intelligence, where the question is about one person's mobility.",
+    items: ["Clinics", "Rehabilitation", "Sports", "Elderly care", "Home care"],
+  },
+  {
+    href: "#secure",
+    name: "SecureVision",
+    Icon: ShieldCheck,
+    tone: styles.toneSecure,
+    count: secureCases.length,
+    blurb:
+      "Privacy-aware movement intelligence, where the question is about how a space is being used.",
+    items: ["Transport", "Smart cities", "Campuses", "Factories", "Events"],
+  },
+];
+
+const RIBBON = ["Environment", "Problem", "Products", "Outputs"];
+
 export default function UseCasesPage() {
   return (
     <>
-      {/* HERO */}
-      <section className="site-page-intro relative overflow-hidden pb-16">
+      {/* ── HERO ── */}
+      <section className="site-page-intro relative overflow-hidden pb-14">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-glow opacity-60 blur-3xl" />
         </div>
         <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-30" />
 
         <div className="container-wide">
-          <div className="max-w-2xl">
+          <div className="max-w-3xl">
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
               Use cases
             </span>
@@ -50,129 +82,91 @@ export default function UseCasesPage() {
               Different environments. Different questions.{" "}
               <span className="text-gradient">One movement intelligence.</span>
             </h1>
-            <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Each environment below states the problem it&apos;s working with,
-              how GaitAI approaches it, which products are involved and what
-              they produce. Find the one that looks like yours.
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
+              Find the environment that looks like yours and see the products,
+              signals and outputs that fit it.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href="#mobility" className="btn-primary">
-                Healthcare &amp; sports
-                <ArrowRight aria-hidden="true" className="h-4 w-4" />
-              </Link>
-              <Link href="#secure" className="btn-ghost">
-                Safety &amp; public spaces
-              </Link>
-            </div>
           </div>
 
-          {/* One platform, two worlds — the same hub the home page uses, so
-              the environments below visibly hang off it rather than reading
-              as two unrelated lists. */}
-          <div className="mt-14 sm:mt-16">
-            <PlatformHub
-              careCount={mobilityCases.length}
-              secureCount={secureCases.length}
-              total={industryUseCases.length}
-              className="hidden sm:block"
-            />
-            <PlatformHub
-              careCount={mobilityCases.length}
-              secureCount={secureCases.length}
-              total={industryUseCases.length}
-              compact
-              className="mx-auto max-w-[340px] sm:hidden"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* WHO IT SERVES — audience framing, moved from the removed /about */}
-      <WhoWeServe />
-
-      {/* MOBILITYCARE ENVIRONMENTS */}
-      <section id="mobility" className="section bg-obsidian-300/30">
-        <div className="container-wide">
-          <SectionHeading
-            eyebrow={
-              <span className="inline-flex items-center gap-2 text-teal-300">
-                <HeartPulse aria-hidden="true" className="h-3.5 w-3.5" />
-                MobilityCare · Healthcare, sports &amp; wearable
+          {/* How every environment below is structured. */}
+          <div className={styles.ribbon}>
+            {RIBBON.map((step, i) => (
+              <span key={step} className={styles.ribbonStep}>
+                {i === 0 && (
+                  <span aria-hidden="true" className={styles.ribbonDot} />
+                )}
+                {step}
+                {i < RIBBON.length - 1 && (
+                  <span aria-hidden="true" className={styles.ribbonArrow}>
+                    →
+                  </span>
+                )}
               </span>
-            }
-            title={
-              <>
-                Problems{" "}
-                <span
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #0FA3B1 0%, #4FD1FF 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
-                >
-                  MobilityCare
-                </span>{" "}
-                is built for.
-              </>
-            }
-            description={`${mobilityCases.length} clinical, sports, elderly and wearable environments — each with the products and outputs that apply to it.`}
-            align="left"
-          />
-          <div className="mt-12">
-            {mobilityCases.map((u) => (
-              <UseCaseProblemRow key={u.id} caseId={u.id} />
+            ))}
+          </div>
+
+          {/* Orientation: which family am I? */}
+          <div className={styles.compare}>
+            {FAMILIES.map((f) => (
+              <Link
+                key={f.name}
+                href={f.href}
+                className={`${styles.compareCard} ${f.tone}`}
+              >
+                <span className={styles.compareTop}>
+                  <span className={styles.compareName}>
+                    <f.Icon aria-hidden="true" className="h-4 w-4" />
+                    {f.name}
+                  </span>
+                  <span className={styles.compareCount}>
+                    {f.count} environments
+                  </span>
+                </span>
+                <span className={styles.compareBlurb}>{f.blurb}</span>
+                <span className={styles.compareList}>
+                  {f.items.map((item) => (
+                    <span key={item} className={styles.compareItem}>
+                      {item}
+                    </span>
+                  ))}
+                </span>
+                <span className={styles.compareGo}>
+                  See these environments
+                  <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
+                </span>
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* SECUREVISION ENVIRONMENTS */}
-      <section id="secure" className="section">
-        <div className="container-wide">
-          <SectionHeading
-            eyebrow={
-              <span className="inline-flex items-center gap-2 text-royal-300">
-                <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
-                SecureVision · Privacy-aware public safety
-              </span>
-            }
-            title={
-              <>
-                Problems{" "}
-                <span className="text-gradient-secure">SecureVision</span> is
-                built for.
-              </>
-            }
-            description={`${secureCases.length} privacy-aware environments across transport hubs, smart cities, campuses, factories, retail and large events.`}
-            align="left"
-          />
-          <div className="mt-12">
-            {secureCases.map((u) => (
-              <UseCaseProblemRow key={u.id} caseId={u.id} />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ── WHO GAITAI SERVES ── */}
+      <UseCaseAudienceGrid />
 
-      {/* CTA */}
+      {/* ── DISCOVERY + BOTH FAMILY GROUPS ── */}
+      <UseCaseExplorer />
+
+      {/* ── CROSS-ENVIRONMENT CTA ── */}
       <section className="section">
         <div className="container-wide">
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-10 sm:p-14">
-            <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opacity-40 blur-3xl" />
-            <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
-              <div>
-                <span className="eyebrow">
-                  <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                  Don&apos;t see your environment? Let&apos;s talk.
-                </span>
-                <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
-                  Tell us about your environment and we&apos;ll map the right
-                  product mix.
-                </h2>
-              </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/#contact" className="btn-primary">
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.05] to-transparent p-10 text-center sm:p-16">
+            <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-radial-cyan opacity-40 blur-3xl" />
+            <div className="ring-grid pointer-events-none absolute inset-0 opacity-20" />
+
+            <div className="relative mx-auto max-w-2xl">
+              <span className="eyebrow justify-center">
+                <span className="h-1 w-6 rounded-full bg-gradient-brand" />
+                Don&apos;t see your environment?
+              </span>
+              <h2 className="mt-6 font-display text-display-md text-balance text-soft-white">
+                Tell us what movement problem you are solving.
+              </h2>
+              <p className="mt-5 text-base leading-relaxed text-soft-gray">
+                We&apos;ll map the right GaitAI product mix for your
+                environment.
+              </p>
+              <div className="mt-9 flex flex-wrap justify-center gap-3">
+                <Link href={ctas.pilot.href} className="btn-primary">
                   {ctas.pilot.label}
                   <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Lock } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { Reveal } from "@/components/ui/Reveal";
-import { ProductGrid } from "@/components/products/ProductGrid";
+import { SecureCapabilityGroups } from "@/components/products/SecureCapabilityGroups";
 import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
-import { industryUseCases, productById } from "@/data/products";
+import { industryUseCases, productById, secureProducts } from "@/data/products";
+import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { assetPath } from "@/lib/paths";
 
 export const metadata: Metadata = {
@@ -18,24 +20,11 @@ const secureUseCases = industryUseCases.filter(
   (u) => u.vertical === "securevision"
 );
 
-const secureSignals = [
-  "Gait identity",
-  "Person re-identification",
-  "Movement biometrics",
-  "Abnormal movement",
-  "Loitering detection",
-  "Fall detection",
-  "Restricted-zone entry",
-  "Crowd movement",
-  "Behaviour patterns",
-  "Human activity recognition",
-  "Pose estimation",
-  "Trajectory analysis",
-  "Safety-event detection",
-  "Privacy-preserving analytics",
-  "Edge inference",
-  "Real-time alerts",
-] as const;
+/**
+ * Signal + capability vocabulary from the canonical taxonomy, so SecureVision,
+ * GaitScape, the research page and the product pages all name the same things.
+ */
+const secureSignals = intelligenceVocabularyFor("securevision");
 
 export default function SecureVisionPage() {
   const suspicious = productById("suspiciousmotion");
@@ -78,22 +67,34 @@ export default function SecureVisionPage() {
                 for safer public spaces.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg lg:mt-5 lg:text-base">
-                Eleven AI-powered products built around safety analytics, crowd
-                flow, anomaly detection and post-event investigation — backed
-                by{" "}
-                <span className="text-soft-white">a decade of gait research</span>,
-                with PrivacyGuard enabled by default and full audit controls.
+                {secureProducts.length} modular products built around safety
+                analytics, crowd flow, anomaly detection and post-event
+                investigation — grounded in{" "}
+                <span className="text-soft-white">
+                  a decade of founder-led gait research
+                </span>
+                , with PrivacyGuard enabled by default and audit controls
+                throughout.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-6">
                 <Link href="#products" className="btn-primary">
-                  See all 11 products
-                  <ArrowRight className="h-4 w-4" />
+                  See all {secureProducts.length} products
+                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
                 <Link href="/#contact" className="btn-ghost">
                   Request enterprise consultation
                 </Link>
               </div>
+
+              {/* The hero footage renders a tracking/analytics console. Nothing
+                  in it is a real camera feed or a real deployment, and the
+                  overlay reads convincingly, so it is labelled. */}
+              <SyntheticDataBadge
+                variant="overlay"
+                label="Illustrative demo · Synthetic data"
+                className="mt-8 lg:mt-6"
+              />
 
               {/* Capability chips — text-only, two rows, each chip snug around
                   its own label so they stay readable over the moving video */}
@@ -122,30 +123,45 @@ export default function SecureVisionPage() {
             <span className="font-semibold text-soft-white">
               Responsible deployment.
             </span>{" "}
-            SecureVision leads with anomaly detection, crowd flow, worker
-            safety and post-event investigation. Biometric, watchlist or
-            identification capabilities deploy only with lawful authority,
-            consent, audit controls and enterprise data governance.
+            SecureVision leads with{" "}
+            <Link
+              href="#privacy-aware"
+              className="text-royal-300 underline decoration-royal-300/40 underline-offset-2 transition-colors hover:text-royal-200"
+            >
+              identity-free safety intelligence
+            </Link>{" "}
+            — anomaly detection, crowd flow, worker safety and campus
+            monitoring.{" "}
+            <Link
+              href="#authorized-identity"
+              className="text-amber-300 underline decoration-amber-300/40 underline-offset-2 transition-colors hover:text-amber-200"
+            >
+              Identity and investigation capabilities
+            </Link>{" "}
+            are a separate, smaller group and deploy only with lawful
+            authority, access controls, governance and auditability.
           </div>
         </div>
       </section>
 
-      {/* PRODUCT GRID */}
+      {/* PRODUCT SUITE — split into privacy-aware and authorized-identity
+          groups, because the two carry different governance requirements and
+          should never read as interchangeable. */}
       <section id="products" className="section">
         <div className="container-wide">
           <SectionHeading
             eyebrow="SecureVision · Product suite"
             title={
               <>
-                Eleven products. One{" "}
-                <span className="text-gradient-secure">privacy-first engine.</span>
+                {secureProducts.length} modular products,{" "}
+                <span className="text-gradient-secure">two governance tiers.</span>
               </>
             }
-            description="Filter by capability area. PrivacyGuard is enabled by default across every deployment."
+            description="Most of SecureVision works without identifying anyone. A smaller, clearly separated group handles identity and investigation, and deploys only under lawful authority."
             align="left"
           />
-          <div className="mt-10">
-            <ProductGrid vertical="securevision" />
+          <div className="mt-14">
+            <SecureCapabilityGroups />
           </div>
         </div>
       </section>
@@ -187,6 +203,29 @@ export default function SecureVisionPage() {
                     </li>
                   ))}
                 </ul>
+
+                <p className="mt-6 max-w-md text-[12.5px] leading-relaxed text-soft-mute">
+                  PrivacyGuard is privacy-aware architecture — it minimises
+                  identifiable data and governs access. It is not a guarantee
+                  of anonymity, and no compliance certification is claimed.
+                </p>
+
+                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
+                  <Link
+                    href="/legal/security"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300 transition-colors hover:text-emerald-200"
+                  >
+                    Control documentation
+                    <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                  </Link>
+                  <Link
+                    href="/research#res-privacy"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"
+                  >
+                    Research basis
+                    <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
               </div>
 
               {/* Privacy stack diagram */}
@@ -285,7 +324,7 @@ export default function SecureVisionPage() {
                 <span className="text-gradient">smart cities.</span>
               </>
             }
-            description="SecureVision is deployed across diverse operational environments — each with its own product mix and outcome."
+            description="SecureVision is built for a range of operational environments — each with its own problem, product mix and outcome."
             align="left"
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { assetPath } from "@/lib/paths";
 
 /**
@@ -84,6 +85,14 @@ export function MobilityCareHero() {
               />
             </Link>
           </div>
+
+          {/* The hero footage renders a clinical mobility dashboard. Its
+              numbers are invented for the composition, so it is labelled. */}
+          <SyntheticDataBadge
+            variant="overlay"
+            label="Illustrative demo · Synthetic data"
+            className="mt-8 lg:mt-7"
+          />
 
           {/* Capability pills — same component style as the SecureVision hero
               chips so both product pages read as one family */}

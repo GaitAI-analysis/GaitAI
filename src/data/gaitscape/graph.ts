@@ -78,7 +78,7 @@ const capabilityNodes: GaitscapeNode[] = [
 ];
 
 const outcomeNodes: GaitscapeNode[] = [
-  { id: "out-early-risk", type: "outcome", title: "Earlier mobility-risk insight", shortDescription: "Movement decline surfaced before it becomes an incident." },
+  { id: "out-early-risk", type: "outcome", title: "Earlier mobility-risk insight", shortDescription: "Movement decline surfaced while earlier review is still useful." },
   { id: "out-fall-awareness", type: "outcome", title: "Fall-risk awareness", shortDescription: "Low / medium / high fall-risk context for care teams." },
   { id: "out-rehab", type: "outcome", title: "Objective rehabilitation monitoring", shortDescription: "Measured recovery progress across therapy sessions." },
   { id: "out-assessment", type: "outcome", title: "Functional movement assessment", shortDescription: "Objective gait and mobility reports from short videos." },

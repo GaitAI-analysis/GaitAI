@@ -117,7 +117,10 @@ export function EvidencePillar({
    * clicked — invisible to a crawler and to a reader without JS, on a page
    * whose entire purpose is traceability.
    */
-  const hiddenProducts = Math.max(0, area.products.length - PRODUCTS_COLLAPSED);
+  const hiddenProducts = Math.max(
+    0,
+    area.directProducts.length - PRODUCTS_COLLAPSED,
+  );
   const hiddenRecords = Math.max(
     0,
     area.publications.length - RECORDS_COLLAPSED,
@@ -219,23 +222,61 @@ export function EvidencePillar({
           ↓
         </div>
 
-        {/* ── PRODUCTS ── */}
+        {/* ── PRODUCTS, in two tiers ──
+            The distinction is the point: a capability this research is
+            specifically about versus a broad platform capability many
+            products happen to share. Collapsing them made a
+            gait-recognition paper look like it stood behind FallRisk. */}
         <div className="min-w-0">
           <span
             className={`${styles.evColLabel} text-[10px] font-semibold uppercase tracking-[0.2em]`}
           >
-            Products built on it
+            Directly informed products
           </span>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-            {area.products.map((product, i) => (
-              <li
-                key={product.id}
-                hidden={!open && i >= PRODUCTS_COLLAPSED}
-              >
+            {area.directProducts.map((product, i) => (
+              <li key={product.id} hidden={!open && i >= PRODUCTS_COLLAPSED}>
                 <ProductChip product={product} compact={!open} />
               </li>
             ))}
           </ul>
+
+          {area.architecturalProducts.length > 0 && (
+            <div hidden={!open} className="mt-5">
+              <span
+                className={`${styles.evColLabel} text-[10px] font-semibold uppercase tracking-[0.2em]`}
+              >
+                Architectural relevance ·{" "}
+                {area.architecturalProducts.length}
+              </span>
+              <p className="mt-2 max-w-prose text-[12px] leading-relaxed text-soft-mute">
+                These draw on a broad platform capability this work touches,
+                not on what the record specifically addresses. Listed for
+                traceability — not as evidence for these products.
+              </p>
+              <ul className="mt-3 flex flex-wrap gap-1.5">
+                {area.architecturalProducts.map((product) => (
+                  <li key={product.id}>
+                    <Link
+                      href={product.href}
+                      className="inline-block rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] font-medium text-soft-gray transition-colors hover:border-cyan-300/35 hover:text-soft-white"
+                    >
+                      {product.short}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {area.implementationNote && (
+            <p
+              hidden={!open}
+              className="mt-5 border-t border-white/[0.07] pt-4 text-[12px] leading-relaxed text-soft-mute"
+            >
+              {area.implementationNote}
+            </p>
+          )}
 
           {!open && hiddenProducts > 0 && (
             <button

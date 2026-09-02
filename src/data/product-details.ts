@@ -190,7 +190,8 @@ export const productDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "fallrisk",
-    valueProp: "Detect mobility deterioration before it becomes an incident.",
+    valueProp:
+      "Surface mobility deterioration and fall-risk indicators for earlier review.",
     overview:
       "FallRisk combines gait, balance, movement variability, posture and longitudinal change into an interpretable mobility-risk profile.",
     environments: ["Hospital", "Elderly care", "Home care", "Preventive health"],
@@ -909,7 +910,8 @@ export const productDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "seniorcare",
-    valueProp: "See mobility decline before it becomes obvious.",
+    valueProp:
+      "Surface longitudinal mobility changes and decline indicators for review.",
     overview:
       "SeniorCare provides periodic movement assessments and longitudinal mobility summaries for older adults.",
     environments: ["Senior living", "Elderly care", "Home care", "Families"],
@@ -1395,7 +1397,7 @@ export const productDetails: ProductDetail[] = [
     ],
     receives: [
       "Study dashboard",
-      "Gait biomarker export",
+      "Gait measure export",
       "Cohort trend",
       "Participant longitudinal trajectory",
       "Quality-control flags",

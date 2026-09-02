@@ -93,7 +93,7 @@ export const mobilityProducts: GaitProduct[] = [
     name: "GaitAI WalkScan",
     short: "WalkScan",
     label: "Camera-based gait assessment report",
-    headline: "Turn a walking video into an objective clinical report.",
+    headline: "Turn a walking video into a clinician-ready movement report.",
     description:
       "Analyzes a short walking video and converts gait into objective clinical and mobility metrics — ready as a downloadable PDF.",
     users: [
@@ -391,14 +391,14 @@ export const mobilityProducts: GaitProduct[] = [
     id: "clinicaltrials",
     name: "GaitAI ClinicalTrials",
     short: "ClinicalTrials",
-    label: "Digital gait biomarkers for research",
+    label: "Digital gait measures for research",
     headline: "Standardized movement outcomes for research workflows.",
     description:
       "Provides measurable gait and movement outcomes for clinical studies, trials, and medical-device validation programs.",
     users: ["Pharma", "CROs", "Universities", "Hospitals", "Medical-device companies"],
     outputs: [
       "Study dashboard",
-      "Gait biomarker export",
+      "Gait measure export",
       "Cohort trends",
       "Protocol-based reports",
     ],
@@ -789,7 +789,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Trophy,
     vertical: "mobilitycare",
     problem:
-      "Injury-prevention and return-to-play decisions are inconsistent without measurable movement data.",
+      "Injury-risk screening and return-to-play review are inconsistent without measurable movement data.",
     productIds: ["sportsmotion", "watchcare", "rehabtrack"],
     outcome:
       "Performance movement analytics, injury-risk indicators and return-to-play review evidence.",
@@ -921,10 +921,10 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: GraduationCap,
     vertical: "mobilitycare",
     problem:
-      "Children's developmental movement and sports-injury prevention is rarely measured early.",
+      "Children's developmental movement and sports injury-risk screening is rarely measured early.",
     productIds: ["pediatricmotion", "sportsmotion"],
     outcome:
-      "Child movement screening, sports injury-prevention, posture awareness for educators.",
+      "Child movement screening, sports injury-risk screening support and posture awareness for educators.",
     accent: "teal",
   },
   {
@@ -960,7 +960,7 @@ export const industryUseCases: UseCaseEntry[] = [
       "Pharma and CROs need objective, exportable movement endpoints across study cohorts.",
     productIds: ["clinicaltrials", "walkscan", "watchcare"],
     outcome:
-      "Digital gait biomarkers, study cohorts, exportable metrics, protocol-based reports.",
+      "Movement-derived endpoints, study cohorts, exportable metrics and protocol-based reports.",
     accent: "violet",
   },
 ];

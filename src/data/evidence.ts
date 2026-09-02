@@ -42,22 +42,38 @@ export interface ResearchArea {
   /** Capability nodes this area underpins. */
   capabilities: { id: string; title: string; description: string }[];
   /**
-   * Products that use at least one of those capabilities, ordered by how many
-   * of *this area's* capabilities each one draws on — so the most directly
-   * connected products come first. Ties keep canonical product order. The
-   * ordering is derived from the same `powered-by` relations as the list
-   * itself; no relationship is added, removed or weighted by hand.
+   * Every product reaching this area through any of its capabilities, ordered
+   * by how many of them it draws on. Kept for counts and for the flat listing.
    */
-  products: {
-    id: string;
-    short: string;
-    /** Professional one-line label from the product record. */
-    label: string;
-    vertical: string;
-    href: string;
-    /** Which of this area's capabilities this product is built on. */
-    capabilityIds: string[];
-  }[];
+  products: AreaProduct[];
+  /**
+   * Products reached through a capability this research is SPECIFICALLY about
+   * — the tier that can fairly be called directly informed.
+   */
+  directProducts: AreaProduct[];
+  /**
+   * Products reached only through a broad platform capability that many
+   * products share. The research is architecturally relevant to them; it does
+   * not address them specifically, and must not be read as validating them.
+   */
+  architecturalProducts: AreaProduct[];
+  /**
+   * Where published research informs a PRINCIPLE but the shipped controls are
+   * a separate implementation, this states the boundary. Editorial framing of
+   * an existing distinction — it adds no capability claim.
+   */
+  implementationNote?: string;
+}
+
+export interface AreaProduct {
+  id: string;
+  short: string;
+  /** Professional one-line label from the product record. */
+  label: string;
+  vertical: string;
+  href: string;
+  /** Which of this area's capabilities this product is built on. */
+  capabilityIds: string[];
 }
 
 /** Capability-level evidence attached to one product. */
@@ -110,8 +126,48 @@ const productToCapabilities = (() => {
 })();
 
 /**
+ * BROAD vs SPECIFIC capabilities.
+ *
+ * A research area reaches some products through a capability the paper is
+ * actually about (movement biometrics, person re-identification, pose
+ * estimation, privacy-aware analytics, edge inference), and others only
+ * through a general platform capability that most of the portfolio shares.
+ * Collapsing both into one "products" list made a gait-recognition paper look
+ * like it stood behind FallRisk and WatchCare, which it does not.
+ *
+ * The split is derived, not asserted: a capability used by more than a third
+ * of the portfolio is treated as broad platform infrastructure. On the current
+ * data that marks exactly one — Gait analysis, used by 11 of 23 products —
+ * and leaves the identity, pose, privacy and edge capabilities specific.
+ * Nothing is hand-listed, so adding a product or a research node re-derives
+ * the tiers automatically.
+ */
+const BROAD_CAPABILITY_SHARE = 1 / 3;
+
+/**
+ * The published privacy work is about protecting gait datasets inside a
+ * deep-learning pipeline. The shipped privacy controls — skeleton-only
+ * processing, face blur, retention, access control, auditability — are a
+ * separate implementation, configured per deployment. One did not demonstrate
+ * the other, and the page must not let the paper stand in for the controls.
+ */
+const IMPLEMENTATION_NOTES: Record<string, string> = {
+  "res-privacy":
+    "This record informs privacy-aware analytics principles. GaitAI's implementation controls — skeleton-only processing, face blurring, retention and access controls, auditability — are separate, configured per deployment, and are not demonstrated by the cited work.",
+};
+
+const broadCapabilityIds = new Set(
+  Array.from(capabilityToProducts.entries())
+    .filter(
+      ([, products]) =>
+        new Set(products).size > allProducts.length * BROAD_CAPABILITY_SHARE,
+    )
+    .map(([capabilityId]) => capabilityId),
+);
+
+/**
  * The four research areas the publications actually cover, each resolved to
- * its papers/patent, the capabilities it grounds and the products built on
+ * its papers/patent, the capabilities it grounds and the products that draw on
  * those capabilities. Ordered by weight of published record.
  */
 export const researchAreas: ResearchArea[] = gaitscapeNodes
@@ -161,6 +217,16 @@ export const researchAreas: ResearchArea[] = gaitscapeNodes
         .sort((a, b) => b.capabilityIds.length - a.capabilityIds.length),
     };
   })
+  .map((area) => ({
+    ...area,
+    implementationNote: IMPLEMENTATION_NOTES[area.id],
+    directProducts: area.products.filter((product) =>
+      product.capabilityIds.some((id) => !broadCapabilityIds.has(id)),
+    ),
+    architecturalProducts: area.products.filter((product) =>
+      product.capabilityIds.every((id) => broadCapabilityIds.has(id)),
+    ),
+  }))
   .sort((a, b) => b.publications.length - a.publications.length);
 
 const researchAreaById = new Map(researchAreas.map((area) => [area.id, area]));

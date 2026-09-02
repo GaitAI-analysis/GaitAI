@@ -238,7 +238,7 @@ export default function SecureVisionPage() {
                     "Movement features only",
                     "Role-based access · audit logs",
                     "Retention policies · consent logs",
-                    "Anonymized dashboards & reports",
+                    "Privacy-aware aggregated dashboards & reports",
                   ].map((layer, i) => (
                     <div
                       key={layer}

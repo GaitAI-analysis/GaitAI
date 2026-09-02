@@ -56,7 +56,7 @@ export default function ProductsPage() {
               <span className="text-gradient">for real-world impact.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Two product families. One shared movement engine. Every one of the{" "}
+              Two product families. One Movement Intelligence Platform. Every one of the{" "}
               {productCount} modules is built on the same capture, pose, gait
               and quality layers — the family decides what the measurement is
               read for.

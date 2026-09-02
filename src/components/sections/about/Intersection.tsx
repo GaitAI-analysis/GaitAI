@@ -16,8 +16,8 @@ export function Intersection() {
         <p className="mt-4 font-display text-xl leading-relaxed text-soft-white sm:text-2xl">
           GaitAI stands at the intersection of{" "}
           <span className="text-gradient">healthcare, biometrics, surveillance, rehabilitation, sports science and artificial intelligence</span>
-          {" "}— making it a uniquely scalable platform for the future of
-          human movement analytics.
+          {" "}— a modular Movement Intelligence Platform for human movement
+          analytics.
         </p>
       </div>
     </Reveal>

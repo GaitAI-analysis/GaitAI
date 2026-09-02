@@ -21,7 +21,7 @@ const audiences = [
   },
   {
     title: "Security teams",
-    desc: "Intelligent surveillance, movement-biometric candidate matching and privacy-aware safety analytics for public spaces.",
+    desc: "Privacy-aware movement and safety intelligence, with movement-biometric candidate matching for lawful, authorized deployments in public spaces.",
   },
   {
     title: "Organizations",

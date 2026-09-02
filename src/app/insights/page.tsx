@@ -6,9 +6,6 @@ import { ThoughtStream } from "@/components/insights/ThoughtStream";
 import { PullLine } from "@/components/insights/PullLine";
 import { FeatureCover } from "@/components/insights/FeatureCover";
 import { StoryModules } from "@/components/insights/StoryModules";
-import { IdeasConstellation } from "@/components/insights/IdeasConstellation";
-import { FiveMinuteLab } from "@/components/insights/FiveMinuteLab";
-import { FoundationsPath } from "@/components/insights/FoundationsPath";
 import { insightArticles } from "@/data/insights";
 import styles from "@/components/insights/landing.module.css";
 
@@ -56,6 +53,22 @@ export const metadata: Metadata = {
  * claims: each one names the subject its essay already covers, and the two
  * that are not literal topic labels ("Movement & Identity", "AI Evidence")
  * describe essays about exactly that.
+ */
+/**
+ * ONE signature interaction, not four.
+ *
+ * This page briefly carried a question stream, a theme constellation, a
+ * five-minute lab and an ordered foundations path — four interactive surfaces
+ * competing to be the way into five essays, on a page whose problem was never
+ * too little to do. The question stream stays, because it is the one that does
+ * the reader's actual job: it introduces each essay by the question that essay
+ * answers, from the article's own `question` field, so scanning it is deciding
+ * rather than browsing. The constellation, the lab and the foundations path
+ * are unmounted; their components are still in the tree.
+ *
+ * What is left: an opening, the question stream, a pull line, one featured
+ * story, the four others as editorial modules, and live posts when any exist.
+ * Everything except the stream is calm on purpose.
  */
 const ISSUE_THEME: Record<string, string> = {
   "from-walking-video-to-movement-intelligence": "Movement Intelligence",
@@ -225,61 +238,6 @@ export default function InsightsPage() {
             text="Two people can share a score and have entirely different trajectories."
             source="A Fall-Risk Score Is Not Enough"
             slug="fall-risk-is-a-trend-not-a-number"
-          />
-        </div>
-      </section>
-
-      {/* ═══════════ THE CONSTELLATION ═══════════ */}
-      <section className="pb-20 sm:pb-24">
-        <div className="container-wide">
-          <div className={styles.sectionLead}>
-            <p className={styles.sectionLabel}>Movement · Intelligence · Privacy · Mobility · Evidence</p>
-            <h2 className={styles.sectionTitle}>The ideas connect.</h2>
-            <p className={styles.sectionNote}>
-              No essay here sits under a single theme. Point at a story to see
-              which of the five it actually spans.
-            </p>
-          </div>
-
-          <div className="mt-12 sm:mt-14">
-            <IdeasConstellation />
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════ THE FIVE-MINUTE LAB ═══════════ */}
-      <section className="border-t border-white/[0.07] bg-obsidian-300/25 py-20 sm:py-24">
-        <div className="container-wide">
-          <div className={styles.sectionLead}>
-            <p className={styles.sectionLabel}>The five-minute lab</p>
-            <h2 className={styles.sectionTitle}>
-              One idea,{" "}
-              <span className={styles.spectrum}>about a minute.</span>
-            </h2>
-            <p className={styles.sectionNote}>
-              Not ready for a full essay? Each of these is one hinge point of
-              the collection, as a contrast you can read at a glance.
-            </p>
-          </div>
-
-          <div className="mt-12 sm:mt-14">
-            <FiveMinuteLab />
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════ FOUNDATIONS ═══════════ */}
-      <section className="border-t border-white/[0.07] py-20 sm:py-24">
-        <div className="container-wide">
-          <FoundationsPath
-            steps={bySeries.map((article) => ({
-              slug: article.slug,
-              step: article.seriesStep,
-              theme: ISSUE_THEME[article.slug] ?? article.category,
-              seriesTitle: article.seriesTitle,
-              title: article.title,
-              readMinutes: article.readMinutes,
-            }))}
           />
         </div>
       </section>

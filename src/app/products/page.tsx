@@ -4,8 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { DeployGaitAI } from "@/components/sections/DeployGaitAI";
-import { MovementEngineCore } from "@/components/visuals/MovementEngineCore";
+import { ProductEcosystem } from "@/components/products/ProductEcosystem";
 import {
+  type GaitProduct,
   mobilityProducts,
   productCount,
   secureProducts,
@@ -16,6 +17,23 @@ export const metadata: Metadata = {
   description: `Every GaitAI product across MobilityCare and SecureVision — ${productCount} modular movement-intelligence products on one Movement Intelligence Platform. Filter by Healthcare, Sports, Elderly Care, Wearables, Security, Crowd, Industrial and more, then see how deployment works.`,
   alternates: { canonical: "/products" },
 };
+
+/**
+ * Lead products per family, from the flagship flags already in the product
+ * data. Mapped down to plain fields: ProductEcosystem is a client component
+ * and a whole GaitProduct carries a Lucide `icon` function, which cannot be
+ * serialized across the server -> client boundary.
+ */
+const toEcosystem = (p: GaitProduct) => ({
+  id: p.id,
+  short: p.short,
+  label: p.label,
+  vertical: p.vertical,
+  outputs: p.outputs,
+});
+
+const careLead = mobilityProducts.filter((p) => p.flagship).slice(0, 4).map(toEcosystem);
+const secureLead = secureProducts.filter((p) => p.flagship).slice(0, 4).map(toEcosystem);
 
 export default function ProductsPage() {
   return (
@@ -44,77 +62,12 @@ export default function ProductsPage() {
             </p>
           </div>
 
-          {/* The ecosystem itself, before the catalogue: two worlds feeding
-              one engine. Desktop draws them side by side; mobile stacks them
-              so the labels stay legible. */}
-          <div className="mt-12 sm:mt-16">
-            <MovementEngineCore className="hidden sm:block" />
-            <MovementEngineCore compact className="mx-auto max-w-[340px] sm:hidden" />
-          </div>
-
-          {/* The two families, as the primary route into the catalogue. The
-              full grid stays below for people who already know what they
-              want. */}
-          <div className="mt-12 grid gap-4 lg:grid-cols-2">
-            <Link
-              href="/mobilitycare"
-              className="group rounded-3xl border border-teal-300/20 bg-gradient-to-b from-teal-300/[0.05] to-transparent p-7 text-left transition-colors hover:border-teal-300/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60 sm:p-8"
-            >
-              <div className="flex items-baseline justify-between gap-4">
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-teal-300">
-                  MobilityCare
-                </span>
-                <span className="font-display text-3xl font-semibold text-soft-white">
-                  {mobilityProducts.length}
-                </span>
-              </div>
-              <h2 className="mt-3 font-display text-xl text-soft-white">
-                Clinical &amp; human-mobility intelligence
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-                Gait assessment, fall-risk screening, rehabilitation
-                monitoring, neurological and orthopedic movement tracking,
-                sports movement and wearable mobility.
-              </p>
-              <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-teal-300">
-                Explore MobilityCare
-                <ArrowRight
-                  aria-hidden="true"
-                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                />
-              </span>
-            </Link>
-
-            <Link
-              href="/securevision"
-              className="group rounded-3xl border border-royal-300/20 bg-gradient-to-b from-royal-300/[0.05] to-transparent p-7 text-left transition-colors hover:border-royal-300/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-royal-300/60 sm:p-8"
-            >
-              <div className="flex items-baseline justify-between gap-4">
-                <span className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-royal-300">
-                  SecureVision
-                </span>
-                <span className="font-display text-3xl font-semibold text-soft-white">
-                  {secureProducts.length}
-                </span>
-              </div>
-              <h2 className="mt-3 font-display text-xl text-soft-white">
-                Privacy-aware movement intelligence for safety and public
-                spaces
-              </h2>
-              <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-                Anomaly detection, crowd flow, worker safety and campus
-                monitoring — plus a separate, governed group for identity and
-                investigation.
-              </p>
-              <span className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-royal-300">
-                Explore SecureVision
-                <ArrowRight
-                  aria-hidden="true"
-                  className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                />
-              </span>
-            </Link>
-          </div>
+          <ProductEcosystem
+            careProducts={careLead}
+            secureProducts={secureLead}
+            careTotal={mobilityProducts.length}
+            secureTotal={secureProducts.length}
+          />
         </div>
       </section>
 

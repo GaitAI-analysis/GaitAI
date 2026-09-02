@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { workflowStages } from "@/data/products";
 import { assetPath } from "@/lib/paths";
@@ -94,15 +94,56 @@ const STAGE_VIDEOS = [
 
 function StageVisual({ index }: { index: number }) {
   const reduceMotion = Boolean(useReducedMotion());
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  /**
+   * Four looping renders sit in this section. Autoplaying all of them on mount
+   * downloaded and decoded every one the moment the home page loaded, whether
+   * or not the section was ever reached. They now start when the section comes
+   * into view and pause when it leaves, so the cost follows attention.
+   */
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const node = wrapRef.current;
+    if (!node) return;
+
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => setInView(entries.some((e) => e.isIntersecting)),
+      { rootMargin: "200px 0px", threshold: 0.01 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || reduceMotion) return;
+    if (inView) {
+      // A rejected play() (autoplay policy, detached element) is not an error
+      // worth surfacing — the poster frame stays.
+      void video.play().catch(() => {});
+    } else {
+      video.pause();
+    }
+  }, [inView, reduceMotion]);
 
   return (
-    <div className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72">
+    <div
+      ref={wrapRef}
+      className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72"
+    >
       {/* Reduced-motion users get the paused first frame instead of the
           loop; the assets are fixed dark renders in both themes. */}
       <video
         key={reduceMotion ? "still" : "loop"}
+        ref={videoRef}
         className="workflow-stage-video"
-        autoPlay={!reduceMotion}
         muted
         loop
         playsInline

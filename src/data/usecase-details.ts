@@ -52,7 +52,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Objective movement evidence for every therapy plan.",
     overview:
-      "A physiotherapy deployment turns routine walking checks into structured assessments: WalkScan captures the baseline, RehabTrack tracks recovery across sessions, and SportsMotion covers athletic caseloads.",
+      "For physiotherapy environments, GaitAI can turn routine walking checks into structured assessments: WalkScan captures the baseline, RehabTrack tracks recovery across sessions, and SportsMotion covers athletic caseloads.",
     shortfall:
       "Visual observation and occasional stopwatch measurements are hard to compare across visits and therapists, so genuine progress — or quiet stagnation — is easy to miss.",
     together:
@@ -87,7 +87,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Mobility evidence from admission to discharge.",
     overview:
-      "A hospital deployment combines FallRisk for ward mobility-risk screening, NeuroMotion for neurological gait monitoring and OrthoMotion for post-surgical recovery — one movement layer across departments.",
+      "For hospital environments, GaitAI can combine FallRisk for ward mobility-risk screening, NeuroMotion for neurological gait monitoring and OrthoMotion for post-surgical recovery — one movement layer across departments.",
     shortfall:
       "Manual mobility assessment doesn't scale across wards, and subtle decline between scheduled checks can surface only as an incident.",
     together:
@@ -122,7 +122,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Every athlete baselined, every deviation visible.",
     overview:
-      "An academy deployment baselines every athlete with SportsMotion, adds WatchCare wearable trends for training-load context, and runs RehabTrack through injury-rehabilitation blocks.",
+      "For sports-academy environments, GaitAI can baseline every athlete with SportsMotion, adds WatchCare wearable trends for training-load context, and runs RehabTrack through injury-rehabilitation blocks.",
     shortfall:
       "Return-to-play and workload decisions made from short visual assessments and athlete self-report miss the asymmetries and fatigue-related changes that movement data makes visible.",
     together:
@@ -155,9 +155,10 @@ export const useCaseDetails: UseCaseDetail[] = [
     slug: "elderly-care-centers",
     caseId: "elderly",
     family: "mobilitycare",
-    valueProp: "See decline building — while prevention is still possible.",
+    valueProp:
+      "See decline building — when earlier review may be useful.",
     overview:
-      "An elderly-care deployment runs SeniorCare monthly screening for every resident, FallRisk stratification on top, and WatchCare wearable trends for residents who need continuous visibility.",
+      "For elderly-care environments, GaitAI can run SeniorCare monthly screening for every resident, FallRisk stratification on top, and WatchCare wearable trends for residents who need continuous visibility.",
     shortfall:
       "Assessments triggered by complaints or near-falls arrive after decline has already progressed; monthly observation without measurement misses slow change.",
     together:
@@ -192,7 +193,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "A measured movement record beside every clinical assessment.",
     overview:
-      "A neurology deployment pairs NeuroMotion protocol assessments with WalkScan's standard gait measurements and WatchCare's between-visit trends for longitudinal movement monitoring.",
+      "For neurology environments, GaitAI can pair NeuroMotion protocol assessments with WalkScan's standard gait measurements and WatchCare's between-visit trends for longitudinal movement monitoring.",
     shortfall:
       "Subtle changes in shuffling, turning and stability are difficult to quantify from observation, and episodic events rarely coincide with clinic visits.",
     together:
@@ -227,7 +228,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Patients stay visible between visits.",
     overview:
-      "A home-care deployment combines RemoteCare guided home assessments, WatchCare daily wearable trends and FallRisk stratification — giving care teams continuous visibility without extra visits.",
+      "For home-care environments, GaitAI can combine RemoteCare guided home assessments, WatchCare daily wearable trends and FallRisk stratification — giving care teams continuous visibility without extra visits.",
     shortfall:
       "Between appointments, remote patients are effectively invisible: decline, stalled recovery or rising fall risk surfaces only at the next scheduled contact.",
     together:
@@ -296,11 +297,11 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Developmental movement, observed consistently through growth.",
     overview:
-      "A schools deployment pairs PediatricMotion developmental screening with SportsMotion for student athletes — structured movement observation across terms and seasons.",
+      "For school environments, GaitAI can pair PediatricMotion developmental screening with SportsMotion for student athletes — structured movement observation across terms and seasons.",
     shortfall:
       "Children's developmental movement and sports-injury prevention are rarely measured early; occasional visual checks can't separate growth variation from patterns worth following up.",
     together:
-      "PediatricMotion tracks developmental indicators like toe-walking and asymmetry across growth; SportsMotion screens student athletes' running mechanics for imbalance before it becomes injury.",
+      "PediatricMotion tracks developmental indicators like toe-walking and asymmetry across growth; SportsMotion screens student athletes' running mechanics for imbalance that may warrant review.",
     workflow: [
       "Consent-based screening program per term",
       "Short guided walks captured at school or clinic",
@@ -309,7 +310,7 @@ export const useCaseDetails: UseCaseDetail[] = [
       "Sports teams screen athletes each season",
     ],
     outcome:
-      "Developmental movement observation, sports injury-prevention support and posture awareness.",
+      "Developmental movement observation, sports injury-risk screening support and posture awareness.",
     signals: [
       "Toe-walking and asymmetry indicators",
       "Term-over-term movement change",
@@ -398,7 +399,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Repeatable movement endpoints across sites and visits.",
     overview:
-      "A research deployment uses ClinicalTrials for protocol-based measurement, WalkScan as the capture instrument and WatchCare for continuous digital-biomarker streams where the protocol includes wearables.",
+      "For research environments, GaitAI can use ClinicalTrials for protocol-based measurement, WalkScan as the capture instrument and WatchCare for continuous digital-biomarker streams where the protocol includes wearables.",
     shortfall:
       "Human-movement endpoints are expensive and inconsistent to standardise across visits and sites — every study rebuilds its own capture, QC and export pipeline.",
     together:
@@ -436,7 +437,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "securevision",
     valueProp: "Flow, safety and investigation — without identity-first surveillance.",
     overview:
-      "A transport-hub deployment combines CrowdSense passenger-flow analytics, SuspiciousMotion movement-event detection and — under authorization — ReID for cross-camera investigation support.",
+      "For transport-hub environments, GaitAI can combine CrowdSense passenger-flow analytics, SuspiciousMotion movement-event detection and — under authorization — ReID for cross-camera investigation support.",
     shortfall:
       "Manual monitoring can't track flow and movement events across hundreds of cameras, and post-incident review means scrubbing hours of footage by hand.",
     together:
@@ -470,7 +471,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "securevision",
     valueProp: "Public-space intelligence that respects the public.",
     overview:
-      "A smart-city deployment pairs CrowdSense aggregate public-space analytics with ForensicSearch post-event investigation, governed end-to-end by PrivacyGuard.",
+      "For smart-city environments, GaitAI can pair CrowdSense aggregate public-space analytics with ForensicSearch post-event investigation, governed end-to-end by PrivacyGuard.",
     shortfall:
       "Cities need crowd-risk awareness and workable post-event investigation, but public deployments cannot be built on unrestricted identifiable video.",
     together:
@@ -504,7 +505,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "securevision",
     valueProp: "Quiet safety across every building.",
     overview:
-      "A campus deployment layers CampusShield movement-event monitoring, AccessMotion entry-consistency signals at sensitive doors, and SuspiciousMotion anomaly detection across shared spaces.",
+      "For campus environments, GaitAI can layer CampusShield movement-event monitoring, AccessMotion entry-consistency signals at sensitive doors, and SuspiciousMotion anomaly detection across shared spaces.",
     shortfall:
       "Campuses span many buildings and after-hours situations that security staff cannot continuously supervise, and identity-first monitoring is unacceptable in work and study spaces.",
     together:
@@ -538,7 +539,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "securevision",
     valueProp: "Worker safety events, seen as they happen.",
     overview:
-      "An industrial deployment runs IndustrialSafety worker-safety monitoring — falls, slips, restricted zones, evacuation flow — with SuspiciousMotion covering site-security movement events.",
+      "For industrial environments, GaitAI can run IndustrialSafety worker-safety monitoring — falls, slips, restricted zones, evacuation flow — with SuspiciousMotion covering site-security movement events.",
     shortfall:
       "Falls and unsafe-zone entries in large facilities often go unnoticed until harm is done; safety reviews happen after incidents instead of during them.",
     together:
@@ -572,7 +573,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "securevision",
     valueProp: "One movement layer for queues, safety and security.",
     overview:
-      "A retail deployment combines RetailGuard floor analytics, CrowdSense flow intelligence for common areas, and SuspiciousMotion movement-event detection — on the cameras already installed.",
+      "For retail environments, GaitAI can combine RetailGuard floor analytics, CrowdSense flow intelligence for common areas, and SuspiciousMotion movement-event detection — on the cameras already installed.",
     shortfall:
       "Queue management, staff safety, emergency flow and unusual-movement monitoring are usually four separate problems handled with partial visibility.",
     together:
@@ -606,7 +607,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "securevision",
     valueProp: "Crowd risk visible while there's still time to act.",
     overview:
-      "An events deployment pairs EventShield's capacity-aware crowd-risk indicators with CrowdSense's underlying flow analytics — from gates opening to the final exit surge.",
+      "For large-event environments, GaitAI can pair EventShield's capacity-aware crowd-risk indicators with CrowdSense's underlying flow analytics — from gates opening to the final exit surge.",
     shortfall:
       "High-density events change by the minute; without live density and flow indicators, operations teams learn about bottlenecks when they've already formed.",
     together:

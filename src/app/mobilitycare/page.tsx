@@ -90,7 +90,7 @@ export default function MobilityCarePage() {
                       WebkitTextFillColor: "transparent",
                     }}
                   >
-                    objective clinical report.
+                    clinician-ready movement report.
                   </span>
                 </h2>
                 <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">

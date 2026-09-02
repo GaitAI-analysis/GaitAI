@@ -25,7 +25,7 @@ const rows = [
     state: "Documented",
     done: true,
     detail:
-      "Each capability is mapped to the research area that informed it, and to the products built on it.",
+      "Each capability is mapped to the research area that informed it, and to the products that draw on that capability.",
   },
   {
     label: "Product-specific validation",

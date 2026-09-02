@@ -12,7 +12,17 @@ import { fetchPublishedPosts } from "@/lib/posts-firebase";
 import { PostsList } from "./PostsList";
 import type { Post } from "@/lib/posts";
 
-export function LivePostsList() {
+/**
+ * `hideWhenEmpty` lets a page mount the live list alongside other content: the
+ * component renders nothing while loading, on failure, or when there are no
+ * verified posts, instead of occupying the page with a skeleton or an empty
+ * state. Used by the Insights landing, which leads with its editorial library.
+ */
+export function LivePostsList({
+  hideWhenEmpty = false,
+}: {
+  hideWhenEmpty?: boolean;
+} = {}) {
   const [posts, setPosts] = useState<Post[] | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -35,10 +45,10 @@ export function LivePostsList() {
     };
   }, []);
 
-  if (posts === null) return <ListSkeleton />;
+  if (posts === null) return hideWhenEmpty ? null : <ListSkeleton />;
 
   if (failed) {
-    return (
+    return hideWhenEmpty ? null : (
       <Empty
         title="Couldn't load posts"
         body="We couldn't reach the content server. Please refresh to try again."
@@ -47,15 +57,30 @@ export function LivePostsList() {
   }
 
   if (posts.length === 0) {
-    return (
+    return hideWhenEmpty ? null : (
       <Empty
-        title="No posts published yet"
-        body="New research notes, announcements and essays will appear here."
+        title="Nothing in the newsroom yet"
+        body="New announcements, approvals and product updates will appear here."
       />
     );
   }
 
-  return <PostsList posts={posts} />;
+  return (
+    <div className={hideWhenEmpty ? "mt-24" : undefined}>
+      {hideWhenEmpty && (
+        <div className="flex items-center gap-5">
+          <h2 className="font-display text-xl text-soft-white sm:text-2xl">
+            From the newsroom
+          </h2>
+          <span
+            aria-hidden
+            className="h-px flex-1 bg-gradient-to-r from-soft-mute/25 to-transparent"
+          />
+        </div>
+      )}
+      <PostsList posts={posts} />
+    </div>
+  );
 }
 
 function Empty({ title, body }: { title: string; body: string }) {

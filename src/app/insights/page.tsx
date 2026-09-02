@@ -1,23 +1,30 @@
 import type { Metadata } from "next";
 import { Newspaper } from "lucide-react";
 import { LivePostsList } from "@/components/posts/LivePostsList";
+import { InsightsLibrary } from "@/components/insights/InsightsLibrary";
+import { insightsByDate } from "@/data/insights";
 
 export const metadata: Metadata = {
-  title: "Insights — Blog, research notes & updates",
+  title: "Insights — Research notes & technical essays",
   description:
-    "Verified GaitAI research notes, product updates and technical essays on movement intelligence.",
+    "Research notes, technical essays and responsible-AI perspectives from the systems behind GaitAI — movement intelligence, multimodal AI, privacy and the evidence behind what we build.",
   alternates: { canonical: "/insights" },
 };
 
 /**
- * Firestore is the source of truth for posts. The client list requests only
- * records explicitly marked as verified for public display.
+ * Insights landing.
+ *
+ * Two content sources sit on this page. The editorial library (`data/insights`)
+ * is versioned with the codebase and statically rendered. Below it, any post
+ * marked verified in Firestore is surfaced through the existing live list —
+ * which renders nothing at all when there is none, so the editorial index is
+ * never interrupted by an empty state.
  */
 export default function InsightsPage() {
   return (
     <>
       {/* ─────────── HERO ─────────── */}
-      <section className="site-page-intro relative overflow-hidden pb-12">
+      <section className="site-page-intro relative overflow-hidden pb-4">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div
             className="absolute left-1/2 top-[6%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full opacity-50 blur-3xl"
@@ -40,18 +47,24 @@ export default function InsightsPage() {
               Insights from the <span className="text-gradient">GaitAI lab.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Verified research notes, product updates and technical essays
-              will appear here once their claims and source material are ready
-              for public review.
+              Research notes, technical essays and responsible-AI perspectives from
+              the systems behind GaitAI.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-soft-mute">
+              Movement intelligence, multimodal AI, privacy and the evidence behind
+              what we build.
             </p>
           </div>
         </div>
       </section>
 
-      {/* ─────────── POSTS ─────────── */}
-      <section className="section pt-4">
+      {/* ─────────── EDITORIAL LIBRARY ─────────── */}
+      <section className="section pt-14 sm:pt-16">
         <div className="container-wide">
-          <LivePostsList />
+          <InsightsLibrary articles={insightsByDate} />
+
+          {/* Verified Firestore posts, when any exist. Silent otherwise. */}
+          <LivePostsList hideWhenEmpty />
         </div>
       </section>
     </>

@@ -2437,3 +2437,64 @@ body {
     -webkit-mask-image: none;
   }
 }
+
+/* =========================================================================
+   INSIGHTS — editorial cards & article typography
+   ========================================================================= */
+
+/* Whole-card link. Hover is restrained by design: a 3px lift, a slightly
+   brighter border and a 1.02 image scale (handled in the component) — no glow.
+   Focus is driven off the inner link so keyboard users get the same treatment
+   plus a visible ring around the entire card. */
+.insight-card {
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.insight-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(79, 209, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.035);
+}
+.light .insight-card {
+  border-color: var(--border);
+  background: linear-gradient(180deg, var(--card-bg-a) 0%, var(--card-bg-b) 100%);
+  box-shadow: var(--card-shadow);
+}
+.light .insight-card:hover {
+  border-color: rgba(30, 184, 239, 0.4);
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+}
+.insight-card:has(a:focus-visible) {
+  transform: translateY(-3px);
+  border-color: rgba(79, 209, 255, 0.5);
+  outline: 2px solid rgba(79, 209, 255, 0.6);
+  outline-offset: 3px;
+}
+/* Fallback for engines without :has() — ring the link itself. */
+.insight-card a:focus-visible {
+  outline: 2px solid rgba(79, 209, 255, 0.6);
+  outline-offset: -2px;
+  border-radius: inherit;
+}
+@supports selector(:has(a)) {
+  .insight-card a:focus-visible {
+    outline: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .insight-card,
+  .insight-card img {
+    transition: none;
+  }
+  .insight-card:hover,
+  .insight-card:has(a:focus-visible) {
+    transform: none;
+  }
+}
+
+/* Standfirst paragraph opening an article body. */
+.insight-lead {
+  letter-spacing: -0.011em;
+}

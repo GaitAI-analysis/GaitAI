@@ -138,8 +138,8 @@ export default function SecureVisionPage() {
             >
               Identity and investigation capabilities
             </Link>{" "}
-            are a separate, smaller group and deploy only with lawful
-            authority, access controls, governance and auditability.
+            are a separate, smaller group, intended only for lawful, authorized
+            deployments with access controls, governance and auditability.
           </div>
         </div>
       </section>
@@ -157,7 +157,7 @@ export default function SecureVisionPage() {
                 <span className="text-gradient-secure">two governance tiers.</span>
               </>
             }
-            description="Most of SecureVision works without identifying anyone. A smaller, clearly separated group handles identity and investigation, and deploys only under lawful authority."
+            description="Most of SecureVision works without identifying anyone. A smaller, clearly separated group handles identity and investigation, and is intended only for lawful, authorized deployments."
             align="left"
           />
           <div className="mt-14">
@@ -353,7 +353,7 @@ export default function SecureVisionPage() {
                     </div>
                     <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.02] p-3">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                        Outcome
+                        Outputs
                       </div>
                       <div className="mt-1 text-[12.5px] leading-relaxed text-soft-white">
                         {u.outcome}

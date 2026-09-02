@@ -308,7 +308,14 @@ export const RESEARCH_MAP: Record<string, string[]> = {
   "res-gait-biometrics": ["cap-biometrics", "cap-gait", "cap-reid"],
   "res-pose-gait": ["cap-pose", "cap-gait"],
   "res-privacy": ["cap-privacy"],
-  "res-edge": ["cap-edge", "cap-biometrics"],
+  /*
+   * Patent 402202 is about running covariate-robust gait analysis on
+   * constrained hardware. Mapping it to cap-biometrics as well pulled the
+   * whole identity group (ForensicSearch, ReID, Watchlist) in behind a patent
+   * that does not address those products — the biometrics claim belongs to
+   * res-gait-biometrics, which cites it. Edge deployment only.
+   */
+  "res-edge": ["cap-edge"],
 };
 
 // ============================================================================

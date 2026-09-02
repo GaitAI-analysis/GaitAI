@@ -394,7 +394,7 @@ export function SecureVisionHeroVisual({
     <div
       className={styles.visual}
       role="img"
-      aria-label="Live privacy-aware movement intelligence analyzing anonymized people walking through a public concourse"
+      aria-label="Illustration of privacy-aware movement intelligence analyzing skeleton-only representations of people walking through a public concourse"
     >
       {/* This media surface can later accept video without changing any tracking or HUD layers. */}
       <div className={styles.mediaLayer} aria-hidden="true">

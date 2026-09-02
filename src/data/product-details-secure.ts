@@ -222,7 +222,7 @@ export const secureProductDetails: ProductDetail[] = [
         { field: "flow_field", desc: "Directional flow summary" },
         { field: "queue_length", desc: "Queue descriptors per line" },
         { field: "bottleneck_alert", desc: "Emerging-bottleneck flag" },
-        { field: "heatmap", desc: "Anonymized spatial heatmap" },
+        { field: "heatmap", desc: "Privacy-aware (aggregated) spatial heatmap" },
       ],
       longitudinal:
         "Historical flow patterns per zone support planning — recurring bottlenecks, peak-hour profiles and layout decisions.",
@@ -299,7 +299,7 @@ export const secureProductDetails: ProductDetail[] = [
     ],
     metrics: [
       { value: "Per-zone", label: "Safety rules" },
-      { value: "24/7", label: "Monitoring window" },
+      { value: "Continuous", label: "Intended monitoring mode" },
       { value: "Drill-ready", label: "Evacuation summaries" },
       { value: "Dashboard", label: "EHS reporting" },
     ],
@@ -437,7 +437,7 @@ export const secureProductDetails: ProductDetail[] = [
       ],
       features: [
         "Skeleton-only representation of people",
-        "Anonymized aggregate heatmaps",
+        "Privacy-aware (aggregated) heatmaps",
         "Policy-scoped analytic views",
       ],
       models: [
@@ -1149,7 +1149,7 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "watchlist",
-    valueProp: "Lawful, audited, deployed only where authorized.",
+    valueProp: "Lawful, audited, and intended only for authorized deployments.",
     overview:
       "Watchlist provides policy-governed candidate matching against an authorized watchlist, with confidence scoring, consent/policy logs and full auditability. It is restricted to deployments with lawful authority — it is not offered for general-public surveillance.",
     environments: ["Authorized law enforcement", "Defence", "Critical infrastructure (where lawful)"],
@@ -1185,7 +1185,7 @@ export const secureProductDetails: ProductDetail[] = [
       "Every match, review and access is logged",
     ],
     deployment: [
-      "Deployed only with lawful authority and policy controls",
+      "Intended only for deployments with lawful authority and policy controls",
       "List governance: scoped entries, review cycles, removal process",
       "Mandatory human adjudication of candidates",
       "Full audit trail for oversight bodies",

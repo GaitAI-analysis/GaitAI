@@ -28,12 +28,12 @@ type ViewMode = "executive" | "technical";
 const familyConfig = {
   mobilitycare: {
     label: "MobilityCare",
-    eyebrow: "GaitAI · Deployment",
+    eyebrow: "GaitAI · Deployment scenario",
     gradient: "text-gradient",
   },
   securevision: {
     label: "SecureVision",
-    eyebrow: "GaitAI · Deployment",
+    eyebrow: "GaitAI · Deployment scenario",
     gradient: "text-gradient-secure",
   },
 } as const;
@@ -70,7 +70,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
         { id: "shortfall", label: "Why workflows fall short" },
         { id: "mix", label: "Product mix" },
         { id: "workflow", label: "Example workflow" },
-        { id: "outcome", label: "Expected outcome" },
+        { id: "outcome", label: "Expected outputs" },
         { id: "privacy", label: "Privacy" },
         { id: "related", label: "Related use cases" },
         { id: "pilot", label: "Pilot" },
@@ -280,7 +280,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
                 <SectionBlock
                   id="outcome"
                   index="05"
-                  title="Expected operational outcome"
+                  title="Expected operational outputs"
                 >
                   <div className="card relative overflow-hidden p-6">
                     <p className="relative text-sm leading-relaxed text-soft-white sm:text-base">
@@ -429,7 +429,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
                         rA.text
                       )}
                     >
-                      GaitAI · Deployment
+                      GaitAI · Deployment scenario
                     </div>
                     <h3 className="mt-1.5 font-display text-lg font-semibold text-soft-white">
                       {rBase?.industry ?? r.slug}

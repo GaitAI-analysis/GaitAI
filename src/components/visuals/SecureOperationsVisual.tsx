@@ -9,7 +9,7 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
  *
  *   ┌─────────────────────────┬─────────────┐
  *   │  Floor plan with        │  Camera     │
- *   │  animated anonymized    │  thumbs (3) │
+ *   │  animated skeleton-only    │  thumbs (3) │
  *   │  people + heat zones    │             │
  *   ├─────────────────────────┴─────────────┤
  *   │  Event timeline strip                  │
@@ -209,7 +209,7 @@ function FloorPlan({
         </motion.g>
       ))}
 
-      {/* Animated people — anonymized dots */}
+      {/* Animated people — non-identifying dots */}
       {people.map((p, i) => (
         <motion.g
           key={`p-${i}`}

@@ -10,7 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { industryUseCases, productById } from "@/data/products";
-import { productDetailBySlug } from "@/data/product-details";
+import { productDetailBySlug, productValueProp } from "@/data/product-details";
 import { useCaseDetails } from "@/data/usecase-details";
 import { evidenceForProduct } from "@/data/evidence";
 import { Reveal } from "@/components/ui/Reveal";
@@ -378,7 +378,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
             {product.name}
           </h1>
           <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-soft-gray sm:text-2xl">
-            {detail.valueProp}
+            {productValueProp(detail.slug)}
           </p>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
             {detail.overview}

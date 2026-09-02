@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { secureProductDetails } from "@/data/product-details-secure";
-import { productDetailBySlug } from "@/data/product-details";
+import { productDetailBySlug, productValueProp } from "@/data/product-details";
 import { productById } from "@/data/products";
 import { ProductDetailView } from "@/components/products/ProductDetailView";
 
@@ -22,11 +22,11 @@ export function generateMetadata({
     return { title: "Product not found" };
   }
   return {
-    title: `${product.name} — ${detail.valueProp}`,
+    title: `${product.name} — ${productValueProp(product.id)}`,
     description: detail.overview,
     alternates: { canonical: `/securevision/${detail.slug}/` },
     openGraph: {
-      title: `${product.name} — ${detail.valueProp}`,
+      title: `${product.name} — ${productValueProp(product.id)}`,
       description: detail.overview,
       type: "website",
     },

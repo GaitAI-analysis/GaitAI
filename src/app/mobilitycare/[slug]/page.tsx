@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { productDetails, productDetailBySlug } from "@/data/product-details";
+import { productDetails, productDetailBySlug, productValueProp } from "@/data/product-details";
 import { productById } from "@/data/products";
 import { ProductDetailView } from "@/components/products/ProductDetailView";
 
@@ -19,11 +19,11 @@ export function generateMetadata({
   const product = productById(params.slug);
   if (!detail || !product) return { title: "Product not found" };
   return {
-    title: `${product.name} — ${detail.valueProp}`,
+    title: `${product.name} — ${productValueProp(product.id)}`,
     description: detail.overview,
     alternates: { canonical: `/mobilitycare/${detail.slug}/` },
     openGraph: {
-      title: `${product.name} — ${detail.valueProp}`,
+      title: `${product.name} — ${productValueProp(product.id)}`,
       description: detail.overview,
       type: "website",
     },

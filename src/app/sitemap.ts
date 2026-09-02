@@ -3,6 +3,7 @@ import { readPublishedPosts } from "@/lib/posts-store";
 import { productDetails } from "@/data/product-details";
 import { secureProductDetails } from "@/data/product-details-secure";
 import { useCaseDetails } from "@/data/usecase-details";
+import { insightArticles } from "@/data/insights";
 
 const siteUrl = "https://gaitai.in";
 
@@ -43,6 +44,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}/use-cases/${d.slug}`,
       changeFrequency: "yearly" as const,
       priority: 0.6,
+    })),
+    ...insightArticles.map((article) => ({
+      url: `${siteUrl}/insights/${article.slug}`,
+      lastModified: new Date(article.date),
+      changeFrequency: "yearly" as const,
+      priority: 0.7,
     })),
     ...posts.map((post) => ({
       url: `${siteUrl}/publications/${post.slug}`,

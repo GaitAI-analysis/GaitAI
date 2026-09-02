@@ -280,6 +280,7 @@ Your paragraph here.
                   <button
                     type="button"
                     onClick={() => removeTag(t)}
+                    aria-label={`Remove tag ${t}`}
                     className="text-soft-mute hover:text-red-300"
                   >
                     <X className="h-3 w-3" />

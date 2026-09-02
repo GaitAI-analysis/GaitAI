@@ -78,7 +78,7 @@ function renderFigure(line: string): ReactNode | null {
   const caption = match[3]?.trim();
   return (
     <figure className="my-9 sm:my-11">
-      <a href={src} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70">
+      <a href={src} target="_blank" rel="noopener noreferrer" aria-label={alt || "Open the full-size image in a new tab"} className="block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70">
         <img src={src} alt={alt} loading="lazy" className="mx-auto h-auto max-h-[720px] max-w-full object-contain" />
       </a>
       {caption && <figcaption className="mx-auto mt-3 max-w-2xl text-center text-xs leading-relaxed text-soft-mute sm:text-sm">{caption}</figcaption>}

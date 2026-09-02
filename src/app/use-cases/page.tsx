@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { UseCaseAudienceGrid } from "@/components/usecases/UseCaseAudienceGrid";
 import { UseCaseExplorer } from "@/components/usecases/UseCaseExplorer";
 import { UseCaseSystemMap } from "@/components/usecases/UseCaseSystemMap";
+import { EnvironmentIntelligence } from "@/components/analytics/EnvironmentIntelligence";
 import { industryUseCases } from "@/data/products";
 import { ctas } from "@/data/content";
 import styles from "@/components/usecases/usecases.module.css";
@@ -92,6 +93,17 @@ export default function UseCasesPage() {
 
       {/* ── WHO GAITAI SERVES ── */}
       <UseCaseAudienceGrid />
+
+      {/* ── ENVIRONMENT INTELLIGENCE EXPLORER ──
+          The analytical counterpart to the catalogue below it: configure an
+          environment, an objective and the capture available, and read the
+          resulting module mix, signals, analytics, outputs and privacy
+          posture. State lives in the URL. */}
+      <section id="explore" className="section border-y border-white/[0.07] bg-obsidian-300/25">
+        <div className="container-wide">
+          <EnvironmentIntelligence />
+        </div>
+      </section>
 
       {/* ── DISCOVERY + BOTH FAMILY GROUPS ── */}
       <UseCaseExplorer />

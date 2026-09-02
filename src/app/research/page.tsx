@@ -19,6 +19,10 @@ import { ResearchToProductFlow } from "@/components/research/ResearchToProductFl
 import { ResearchManifesto } from "@/components/research/ResearchManifesto";
 import { ResearchPrinciples } from "@/components/research/ResearchPrinciples";
 import { ResearchCollaborationCTA } from "@/components/research/ResearchCollaborationCTA";
+import {
+  EvidenceExplorer,
+  type ExplorerArea,
+} from "@/components/analytics/EvidenceExplorer";
 import { researchAreas, type AreaProduct } from "@/data/evidence";
 import { mobilityProducts, productCount, secureProducts } from "@/data/products";
 import {
@@ -180,6 +184,41 @@ const ledgerRecords = [
   year: record.year,
 }));
 
+/**
+ * The same four areas, shaped for the Evidence Explorer: full record metadata
+ * (venue, publisher, year, type, keywords) so the surface can filter by year
+ * and record type, and the two product tiers kept separate so the chain can
+ * show "directly informed" and "architecturally relevant" as different things.
+ * Derived from `researchAreas` — nothing added.
+ */
+const explorerProduct = (product: AreaProduct) => ({
+  id: product.id,
+  short: product.short,
+  label: product.label,
+  family: product.vertical,
+  href: product.href,
+});
+
+const explorerAreas: ExplorerArea[] = researchAreas.map((area) => ({
+  id: area.id,
+  title: area.title,
+  summary: area.summary,
+  records: area.publications.map((publication) => ({
+    id: publication.id,
+    title: publication.title,
+    venue: publication.venue,
+    publisher: publication.publisher,
+    year: publication.year,
+    kind: publication.kind,
+    href: `/publications/${publication.id}/`,
+    keywords: publication.keywords ?? [],
+  })),
+  capabilities: area.capabilities,
+  directProducts: area.directProducts.map(explorerProduct),
+  architecturalProducts: area.architecturalProducts.map(explorerProduct),
+  boundary: area.boundary,
+}));
+
 const publicationYears = papers.map((p) => p.year);
 
 export default function ResearchPage() {
@@ -286,14 +325,40 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 04 · THE LEDGER ─────────── */}
+      {/* ─────────── 04 · EVIDENCE EXPLORER ─────────── */}
+      <section
+        id="evidence-explorer-section"
+        className="border-y border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20"
+      >
+        <div className="container-wide">
+          <div className={styles.sectionLabel}>
+            <span className={styles.sectionIndex}>04</span>
+            <div className="min-w-0">
+              <h2 className={styles.eyebrow}>
+                <span aria-hidden="true" className={styles.eyebrowRule} />
+                Evidence explorer
+              </h2>
+              <p className="mt-3 max-w-xl text-[13.5px] leading-relaxed text-soft-mute">
+                The whole record, filterable — and the chain it supports,
+                stated stage by stage.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-10 sm:mt-12">
+            <EvidenceExplorer areas={explorerAreas} />
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────── 05 · THE LEDGER ─────────── */}
       <section
         id="record"
         className="border-y border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20"
       >
         <div className="container-wide">
           <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>04</span>
+            <span className={styles.sectionIndex}>05</span>
             <div className="min-w-0">
               <h2 className={styles.eyebrow}>
                 <span aria-hidden="true" className={styles.eyebrowRule} />
@@ -316,11 +381,11 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 05 · JOURNEY ─────────── */}
+      {/* ─────────── 06 · JOURNEY ─────────── */}
       <section id="journey" className="section">
         <div className="container-wide">
           <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>05</span>
+            <span className={styles.sectionIndex}>06</span>
             <div className="min-w-0">
               <h2 className={styles.eyebrow}>
                 <span aria-hidden="true" className={styles.eyebrowRule} />
@@ -337,14 +402,14 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 06 · RESEARCH → PRODUCT ─────────── */}
+      {/* ─────────── 07 · RESEARCH → PRODUCT ─────────── */}
       <section
         id="research-to-product"
         className="border-y border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20"
       >
         <div className="container-wide">
           <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>06</span>
+            <span className={styles.sectionIndex}>07</span>
             <div className="min-w-0">
               <h2 className={styles.eyebrow}>
                 <span aria-hidden="true" className={styles.eyebrowRule} />
@@ -361,11 +426,11 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 07 · MANIFESTO ─────────── */}
+      {/* ─────────── 08 · MANIFESTO ─────────── */}
       <section className="section">
         <div className="container-wide">
           <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>07</span>
+            <span className={styles.sectionIndex}>08</span>
             <div className="min-w-0">
               <h2 className={styles.eyebrow}>
                 <span aria-hidden="true" className={styles.eyebrowRule} />
@@ -382,10 +447,10 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 08 · RESPONSIBLE RESEARCH ─────────── */}
+      {/* ─────────── 09 · RESPONSIBLE RESEARCH ─────────── */}
       <ResearchPrinciples />
 
-      {/* ─────────── 09 · CLOSING ─────────── */}
+      {/* ─────────── 10 · CLOSING ─────────── */}
       <ResearchCollaborationCTA />
     </div>
   );

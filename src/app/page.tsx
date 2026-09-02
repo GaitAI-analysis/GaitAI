@@ -3,6 +3,7 @@ import { MissionVision } from "@/components/sections/about/MissionVision";
 import { Verticals } from "@/components/sections/Verticals";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
 import { HowItWorks } from "@/components/sections/HowItWorks";
+import { MovementTeaser } from "@/components/analytics/MovementTeaser";
 import { ResearchCredibility } from "@/components/sections/ResearchCredibility";
 import { EnvironmentStrip } from "@/components/sections/EnvironmentStrip";
 import { Vision } from "@/components/sections/Vision";
@@ -16,6 +17,7 @@ import { CTA } from "@/components/sections/CTA";
  *   3. Verticals                   the two product families
  *   4. Featured products           the eight we lead with
  *   5. How GaitAI works            the four-stage pipeline
+ *   5b. What can movement tell us?  one interactive chain, teaser only
  *   6. Research credibility        why believe it, + featured references
  *   7. Environments                where it applies (teaser → /use-cases)
  *   8. Philosophy                  the closing statement
@@ -37,6 +39,7 @@ export default function HomePage() {
       <Verticals />
       <FeaturedProducts />
       <HowItWorks />
+      <MovementTeaser />
       <ResearchCredibility />
       <EnvironmentStrip />
       <Vision />

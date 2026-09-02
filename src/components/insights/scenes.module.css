@@ -1,0 +1,331 @@
+/* ==========================================================================
+   STORY SCENE PRIMITIVES
+   --------------------------------------------------------------------------
+   The instrument language the five story visuals share: hairlines, mono
+   labels, the gait figure's bones and joints, floors, trails and trend
+   marks. Extracted from the landing stylesheet when the journal was rebuilt
+   as one continuous signal — the visuals survived that rebuild, the page
+   composition around them did not, and 1,800 lines of card CSS should not
+   ship for the sake of these two hundred.
+   ========================================================================== */
+
+/* ── The tokens these primitives resolve against ──
+   They used to live on the landing sheet's `.journal` wrapper. That sheet is
+   gone, and without these every `stroke: var(--j-cyan)` resolved to nothing —
+   which rendered the story visuals as their labels and none of their
+   geometry. Declared here so the primitives carry their own palette and
+   cannot be orphaned again. */
+.scene,
+.sceneHost {
+  --j-cyan: #4fd1ff;
+  --j-blue: #3b82f6;
+  --j-violet: #9c64f1;
+  --j-line: rgb(148 163 184 / 0.15);
+  --j-line-mid: rgb(148 163 184 / 0.28);
+  --j-ink: rgb(var(--c-soft-white));
+  --j-body: rgb(var(--c-soft-gray));
+  --j-mute: rgb(var(--c-soft-mute));
+  --j-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --j-display: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+}
+:global(.light) .scene,
+:global(.light) .sceneHost {
+  --j-cyan: #0e8ab8;
+  --j-blue: #2358c8;
+  --j-violet: #6d34c9;
+  --j-line: rgb(71 85 105 / 0.18);
+  --j-line-mid: rgb(71 85 105 / 0.3);
+}
+
+/* ── Scene primitives, shared by the four story visuals ── */
+
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.scLabel {
+  fill: var(--j-mute);
+  font-family: var(--j-mono);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+
+.scTiny {
+  fill: var(--j-mute);
+  font-family: var(--j-mono);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+}
+
+.scTinyAccent {
+  fill: var(--j-violet);
+  font-family: var(--j-mono);
+  font-size: 8px;
+  letter-spacing: 0.16em;
+}
+
+.scCaption {
+  fill: var(--j-mute);
+  font-family: var(--j-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  opacity: 0.8;
+}
+
+.scCaptionAccent {
+  fill: var(--j-cyan);
+  font-family: var(--j-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+}
+
+.scFloor {
+  stroke: var(--j-line-mid);
+  stroke-width: 1;
+  stroke-dasharray: 1.5 7;
+  vector-effect: non-scaling-stroke;
+}
+
+.scBone {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.scBoneFar {
+  opacity: 0.4;
+}
+
+.scJoint {
+  fill: var(--j-cyan);
+}
+
+.scHead {
+  fill: rgb(var(--c-obsidian-300) / 0.85);
+  stroke: var(--j-cyan);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .scHead {
+  fill: #ffffff;
+}
+
+.scHeadOpen {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-width: 1.4;
+  stroke-dasharray: 2.5 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.scPose {
+  opacity: 1;
+}
+
+.scDot {
+  fill: var(--j-cyan);
+  opacity: 0.8;
+}
+
+.scTrail {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 02 · identity field */
+.scRay {
+  stroke: var(--j-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.scRayNode {
+  fill: var(--j-cyan);
+  opacity: 0.8;
+}
+
+/* 03 · privacy layers */
+.scMass,
+.scMassFade {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.scMass {
+  opacity: 0.34;
+}
+
+.scMassFade {
+  opacity: 0.13;
+}
+
+.scMass .scLimb,
+.scMassFade .scLimb {
+  stroke-width: 7;
+}
+
+.scMass .scLimbLeg,
+.scMassFade .scLimbLeg {
+  stroke-width: 9;
+}
+
+.scMass .scTorso,
+.scMassFade .scTorso {
+  fill: var(--j-cyan);
+  stroke: var(--j-cyan);
+  stroke-width: 1.5;
+}
+
+.scMassHead {
+  fill: var(--j-cyan);
+  stroke: none;
+}
+
+.scGate line {
+  stroke: var(--j-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 04 · trajectory */
+.scGhost line {
+  stroke: var(--j-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.scGridLine {
+  opacity: 0.35;
+  stroke-dasharray: 2 8;
+}
+
+.scTrend {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.scStem {
+  stroke: var(--j-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 1.5 4;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+.scTrendNode {
+  fill: rgb(var(--c-obsidian-300) / 0.9);
+  stroke: var(--j-cyan);
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .scTrendNode {
+  fill: #ffffff;
+}
+
+.scTrendNodeLead {
+  fill: var(--j-cyan);
+  fill-opacity: 0.2;
+  stroke: var(--j-cyan);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.scScore {
+  fill: var(--j-ink);
+  font-family: var(--j-display);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.scDelta line,
+.scDelta polyline {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 05 · fusion */
+.scStream {
+  fill: var(--j-body);
+  font-family: var(--j-mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+}
+
+.scWire {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-width: 1.3;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.scWireWeak {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 5;
+  opacity: 0.28;
+  vector-effect: non-scaling-stroke;
+}
+
+.scMissing line {
+  stroke: var(--j-mute);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The corrupted stream is the one accent in the scene: it is the thing the
+   essay says you will not notice. */
+.scCorrupt circle {
+  fill: var(--j-violet);
+  fill-opacity: 0.25;
+  stroke: var(--j-violet);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.scJoin {
+  fill: rgb(var(--c-obsidian-300) / 0.9);
+  stroke: var(--j-cyan);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .scJoin {
+  fill: #ffffff;
+}
+
+.scQuestion {
+  fill: var(--j-cyan);
+  font-family: var(--j-display);
+  font-size: 30px;
+  font-weight: 600;
+}
+
+/* ═══ 06 · THE CONSTELLATION ══════════════════════════════════════════════ */

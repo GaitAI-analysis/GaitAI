@@ -13,7 +13,7 @@ import {
 import { Reveal } from "@/components/ui/Reveal";
 import { FOUNDER_NAME, papers, patent } from "@/data/publications";
 import { PublicationLibrary } from "@/components/publications/PublicationLibrary";
-import { allPublishers, allYears } from "@/components/publications/topics";
+import { allYears } from "@/components/publications/topics";
 import { assetPath } from "@/lib/paths";
 
 export const metadata: Metadata = {

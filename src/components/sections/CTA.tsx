@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { type FormEvent, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
-import { PILOT_DURATION } from "@/data/trust";
+import { PILOT_SCOPE } from "@/data/trust";
 
 const interestGroups = [
   {
@@ -87,28 +87,16 @@ export function CTA() {
             <div className="min-w-0">
               <span className="eyebrow">
                 <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                Partner · Invest · Collaborate
+                Request a demo · Start a pilot · Partner with us
               </span>
               <h2 className="mt-4 font-display text-[clamp(2rem,3vw,2.75rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-balance text-soft-white">
-                Let&apos;s build the future of human movement intelligence{" "}
-                <span className="text-gradient">together.</span>
+                Bring movement intelligence to{" "}
+                <span className="text-gradient">your organization.</span>
               </h2>
-
-              <div className="mt-8 border-t border-white/8 pt-8">
-                <span className="eyebrow">
-                  <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                  Request a demo · Start a pilot · Partner with us
-                </span>
-                <h3 className="mt-4 font-display text-display-md text-balance text-soft-white">
-                  Bring movement intelligence to your organization.
-                </h3>
-                <p className="mt-4 max-w-md text-base leading-relaxed text-soft-gray">
-                  Whether you&apos;re a hospital, physiotherapy clinic, sports
-                  academy, elderly-care home, enterprise security team, smart-city
-                  operator or research collaborator — let&apos;s talk about deploying
-                  GaitAI where it matters most.
-                </p>
-              </div>
+              <p className="mt-4 max-w-md text-base leading-relaxed text-soft-gray">
+                Tell us about the environment and the outcome that matters
+                there, and we&apos;ll map the right product mix.
+              </p>
 
               {/* Previously "Trusted by pioneers in healthcare, security and
                   smart-infrastructure", next to three avatar circles. There is
@@ -121,7 +109,7 @@ export function CTA() {
                 </div>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-soft-mute">
                   A pilot is scoped around one environment and the modules it
-                  needs, and typically runs {PILOT_DURATION}.{" "}
+                  needs. {PILOT_SCOPE}{" "}
                   <Link
                     href="/products#deploy"
                     className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"

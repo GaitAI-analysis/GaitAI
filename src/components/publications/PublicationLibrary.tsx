@@ -5,7 +5,6 @@ import { LayoutGrid, Rows3, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { allPublications, type Publication } from "@/data/publications";
 import {
-  allPublishers,
   allTopics,
   allYears,
   dateSortKey,
@@ -19,7 +18,7 @@ type View = "grid" | "list";
 type Sort = "newest" | "oldest";
 
 /**
- * The research library: search + topic/year/publisher filters, a
+ * The research library: search + topic/year filters, a
  * newest-first LATEST RESEARCH strip, and the full collection in either the
  * visual grid (default) or the compact scholarly list. The active view is
  * mirrored into ?view= so back/forward navigation restores it.
@@ -30,7 +29,6 @@ export function PublicationLibrary() {
   const [query, setQuery] = useState("");
   const [topic, setTopic] = useState("all");
   const [year, setYear] = useState("all");
-  const [publisher, setPublisher] = useState("all");
 
   // Restore the view from the URL on mount; keep it there on change.
   useEffect(() => {
@@ -46,13 +44,12 @@ export function PublicationLibrary() {
   };
 
   const filtersActive =
-    query.trim() !== "" || topic !== "all" || year !== "all" || publisher !== "all";
+    query.trim() !== "" || topic !== "all" || year !== "all";
 
   const clearFilters = () => {
     setQuery("");
     setTopic("all");
     setYear("all");
-    setPublisher("all");
   };
 
   const filtered = useMemo(() => {
@@ -60,7 +57,6 @@ export function PublicationLibrary() {
     const matches = allPublications.filter((p) => {
       if (topic !== "all" && !topicsFor(p).includes(topic)) return false;
       if (year !== "all" && String(p.year) !== year) return false;
-      if (publisher !== "all" && p.publisher !== publisher) return false;
       if (q) {
         const haystack = [
           p.title,
@@ -81,7 +77,7 @@ export function PublicationLibrary() {
         ? dateSortKey(b) - dateSortKey(a)
         : dateSortKey(a) - dateSortKey(b)
     );
-  }, [query, topic, year, publisher, sort]);
+  }, [query, topic, year, sort]);
 
   // Latest three by real publication date — shown only in the unfiltered view.
   const latest = useMemo(
@@ -137,20 +133,6 @@ export function PublicationLibrary() {
           {allYears.map((y) => (
             <option key={y} value={String(y)}>
               {y}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={publisher}
-          onChange={(e) => setPublisher(e.target.value)}
-          aria-label="Filter by publisher"
-          className="publib-select"
-        >
-          <option value="all">All publishers</option>
-          {allPublishers.map((p) => (
-            <option key={p} value={p}>
-              {p}
             </option>
           ))}
         </select>

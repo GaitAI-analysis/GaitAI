@@ -61,7 +61,7 @@ export function DiscussionSection({
     <section
       id="discussion"
       aria-label="Discussion"
-      className="mt-16 scroll-mt-28 border-t border-white/5 pt-12"
+      className="site-anchor-offset mt-16 border-t border-white/5 pt-12"
     >
       <header className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">

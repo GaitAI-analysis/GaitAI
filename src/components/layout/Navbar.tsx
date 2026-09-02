@@ -31,6 +31,17 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Escape closes the mobile drawer — it covers the whole viewport, so a
+  // keyboard user needs a way out that isn't hunting for the close button.
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   // Close navigation overlays when the route changes. Client-side navigation
   // also leaves the clicked link focused, which browsers keep painting as a
   // focus rectangle on the now-active item — drop that stray focus; real
@@ -110,6 +121,7 @@ export function Navbar() {
                       >
                         {link.label}
                         <ChevronDown
+                          aria-hidden="true"
                           className={cn(
                             "h-3.5 w-3.5 transition-transform duration-300",
                             menuOpen && "rotate-180"
@@ -136,7 +148,7 @@ export function Navbar() {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: 4, scale: 0.98 }}
                             transition={{ duration: 0.18 }}
-                            className="absolute left-1/2 top-full z-20 w-56 -translate-x-1/2 pt-2"
+                            className="absolute left-1/2 top-full z-20 w-72 -translate-x-1/2 pt-2"
                           >
                             <div className="overflow-hidden rounded-2xl border border-white/10 bg-obsidian-200/95 p-2 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
                               {link.children.map((child) => {
@@ -147,13 +159,20 @@ export function Navbar() {
                                     href={child.href}
                                     aria-current={childActive ? "page" : undefined}
                                     className={cn(
-                                      "block rounded-xl px-3 py-2.5 text-sm transition-colors",
+                                      "block rounded-xl px-3 py-2 text-sm transition-colors",
                                       childActive
                                         ? "bg-white/[0.06] text-cyan-300"
                                         : "text-soft-gray hover:bg-white/[0.04] hover:text-soft-white"
                                     )}
                                   >
                                     {child.label}
+                                    {/* Purpose line — a label like "GaitScape"
+                                        means nothing on a first visit. */}
+                                    {child.description && (
+                                      <span className="mt-0.5 block text-[11px] leading-snug text-soft-mute">
+                                        {child.description}
+                                      </span>
+                                    )}
                                   </Link>
                                 );
                               })}
@@ -231,7 +250,10 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[60] bg-obsidian/95 backdrop-blur-xl xl:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
+            className="fixed inset-0 z-[60] overflow-y-auto bg-obsidian/95 backdrop-blur-xl xl:hidden"
           >
             <div className="container-wide flex items-center justify-between py-5">
               <Logo variant="wordmark" size="md" />
@@ -243,7 +265,7 @@ export function Navbar() {
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <nav className="container-wide mt-12 flex flex-col gap-1">
+            <nav className="container-wide mt-10 flex flex-col gap-1 pb-16">
               {navLinks.map((link, i) => {
                 const active = itemIsActive(link);
                 return (
@@ -290,6 +312,11 @@ export function Navbar() {
                               )}
                             >
                               {child.label}
+                              {child.description && (
+                                <span className="mt-0.5 block text-[12px] leading-snug text-soft-mute">
+                                  {child.description}
+                                </span>
+                              )}
                             </Link>
                           );
                         })}

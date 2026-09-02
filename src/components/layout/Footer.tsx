@@ -2,13 +2,21 @@ import Link from "next/link";
 import { Github, Linkedin, Mail, Twitter } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 
+/**
+ * The single footer link source.
+ *
+ * Every destination here must be a route that exists — the obsolete /about
+ * entries were removed with the route, and the Scholar-profile and portfolio
+ * links were dropped earlier. /investors is reachable from here rather than
+ * from the main navigation, because it is not part of the buyer's path.
+ */
 const footerLinks = [
   {
     heading: "Platform",
     items: [
+      { label: "Product overview", href: "/products" },
       { label: "MobilityCare", href: "/mobilitycare" },
       { label: "SecureVision", href: "/securevision" },
-      { label: "All products", href: "/products" },
       { label: "GaitScape", href: "/gaitscape" },
       { label: "How it works", href: "/#how" },
     ],
@@ -17,28 +25,29 @@ const footerLinks = [
     heading: "Solutions",
     items: [
       { label: "Use cases", href: "/use-cases" },
-      { label: "Healthcare & clinics", href: "/use-cases#hospitals" },
+      { label: "Hospitals", href: "/use-cases#hospitals" },
       { label: "Sports academies", href: "/use-cases#sports" },
       { label: "Elderly care", href: "/use-cases#elderly" },
-      { label: "Smart cities & campuses", href: "/use-cases#smartcities" },
+      { label: "Smart cities", href: "/use-cases#smartcities" },
     ],
   },
   {
-    heading: "Company",
+    heading: "Evidence",
     items: [
       { label: "Research", href: "/research" },
       { label: "Publications", href: "/publications" },
-      { label: "Contact", href: "/#contact" },
+      { label: "Insights", href: "/insights" },
+      { label: "Responsible AI", href: "/legal/responsible-ai" },
     ],
   },
   {
     heading: "Engage",
     items: [
-      { label: "Request a demo", href: "/#contact" },
-      { label: "Pilot a vertical", href: "/#contact" },
-      { label: "Partnerships", href: "/#contact" },
-      { label: "Investors", href: "/#investors" },
-      { label: "Press", href: "/#contact" },
+      { label: "Discuss a pilot", href: "/#contact" },
+      { label: "How deployment works", href: "/products#deploy" },
+      { label: "Security & privacy controls", href: "/legal/security" },
+      { label: "Investors & collaboration", href: "/investors" },
+      { label: "Contact", href: "/#contact" },
     ],
   },
 ];
@@ -67,9 +76,9 @@ export function Footer() {
             <Logo variant="wordmark" size="lg" />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-soft-mute">
               GaitAI is intelligence in motion — a Human Movement Intelligence
-              Platform that transforms walking videos, wearable signals and
-              crowd movement into healthcare, sports, elderly-care and
-              safety insights. Grounded in 10+ years of gait research.
+              Platform that turns walking videos, wearable signals and crowd
+              movement into healthcare, sports, elderly-care and safety
+              insight. Built on 10+ years of founder-led gait research.
             </p>
             <div className="mt-6 flex items-center gap-2">
               {socials.map(({ icon: Icon, href, label }) => (
@@ -81,7 +90,7 @@ export function Footer() {
                   rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
                   className="grid h-9 w-9 place-items-center rounded-full glass transition-all hover:border-cyan-300/40 hover:text-cyan-300 hover:shadow-glow-cyan"
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon aria-hidden="true" className="h-4 w-4" />
                 </Link>
               ))}
             </div>
@@ -90,9 +99,12 @@ export function Footer() {
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             {footerLinks.map((col) => (
               <div key={col.heading}>
-                <h4 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-soft-white">
+                {/* h2, not h4: these sit at the same level as the page's own
+                    sections, and jumping h1 → h4 leaves a gap for anyone
+                    navigating by headings. */}
+                <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-soft-white">
                   {col.heading}
-                </h4>
+                </h2>
                 <ul className="mt-5 space-y-3">
                   {col.items.map((item) => (
                     <li key={item.label}>

@@ -12,8 +12,10 @@ import {
 import { industryUseCases, productById } from "@/data/products";
 import { productDetailBySlug } from "@/data/product-details";
 import { useCaseDetails } from "@/data/usecase-details";
+import { evidenceForProduct } from "@/data/evidence";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "@/components/products/ProductCard";
+import { ProductEvidence } from "@/components/products/ProductEvidence";
 import { cn } from "@/lib/utils";
 
 const familyConfig = {
@@ -98,7 +100,10 @@ export function SectionBlock({
 }) {
   return (
     <Reveal>
-      <section id={id} className="scroll-mt-32 border-t border-white/5 py-10">
+      <section
+        id={id}
+        className="site-anchor-offset border-t border-white/5 py-10"
+      >
         <div className="flex items-baseline gap-3">
           <span className="font-display text-xs tabular-nums text-soft-mute">
             {index}
@@ -237,8 +242,16 @@ export function ProductDetailView({ slug }: { slug: string }) {
     [router, pathname]
   );
 
+  // Products whose capabilities have peer-reviewed backing get a "Research
+  // basis" section; the rest render none rather than a vague gesture.
+  const hasEvidence = evidenceForProduct(slug).length > 0;
+
   const navItems = useMemo<NavItem[]>(() => {
     if (!detail) return [];
+    const evidenceItem: NavItem[] = hasEvidence
+      ? [{ id: "evidence", label: "Research basis" }]
+      : [];
+
     if (view === "executive") {
       return [
         { id: "overview", label: "Overview" },
@@ -249,6 +262,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
         { id: "why", label: "Why it matters" },
         { id: "workflow", label: "Workflow" },
         { id: "deployment", label: "Deployment" },
+        ...evidenceItem,
         { id: "privacy", label: "Privacy" },
         { id: "related", label: "Related products" },
         { id: "pilot", label: "Pilot" },
@@ -267,6 +281,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
       items.push({ id: "longitudinal", label: "Longitudinal" });
     items.push(
       { id: "quality", label: "Quality checks" },
+      ...evidenceItem,
       { id: "privacy", label: "Privacy" },
       { id: "integration", label: "Integration" },
       { id: "limitations", label: "Limitations" },
@@ -274,7 +289,20 @@ export function ProductDetailView({ slug }: { slug: string }) {
       { id: "pilot", label: "Pilot" }
     );
     return items;
-  }, [detail, view]);
+  }, [detail, view, hasEvidence]);
+
+  /**
+   * Section numbers are derived from the contents order rather than hardcoded,
+   * so an optional section (Longitudinal, Research basis) can appear or not
+   * without any index drifting out of step with the navigator.
+   */
+  const sectionIndex = useCallback(
+    (id: string) => {
+      const position = navItems.findIndex((item) => item.id === id);
+      return position < 0 ? "" : String(position).padStart(2, "0");
+    },
+    [navItems]
+  );
 
   // Scrollspy for the contents navigator
   useEffect(() => {
@@ -320,7 +348,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
       {/* ------------------------------------------------ HERO */}
       <header
         id="overview"
-        className="site-page-intro-compact relative isolate scroll-mt-32 overflow-hidden pb-14 sm:pb-16"
+        className="site-page-intro-compact site-anchor-offset relative isolate overflow-hidden pb-14 sm:pb-16"
       >
         <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-obsidian/30 via-obsidian/60 to-obsidian" />
@@ -459,23 +487,31 @@ export function ProductDetailView({ slug }: { slug: string }) {
           <div className="min-w-0 max-w-3xl">
             {view === "executive" ? (
               <>
-                <SectionBlock id="problem" index="01" title="Problem">
+                <SectionBlock id="problem" index={sectionIndex("problem")} title="Problem">
                   <p className="text-sm leading-relaxed text-soft-gray sm:text-base">
                     {detail.problem}
                   </p>
                 </SectionBlock>
 
-                <SectionBlock id="solution" index="02" title="What GaitAI does">
+                <SectionBlock
+                  id="solution"
+                  index={sectionIndex("solution")}
+                  title="What GaitAI does"
+                >
                   <p className="text-sm leading-relaxed text-soft-gray sm:text-base">
                     {detail.solution}
                   </p>
                 </SectionBlock>
 
-                <SectionBlock id="who" index="03" title="Who uses it">
+                <SectionBlock id="who" index={sectionIndex("who")} title="Who uses it">
                   <BulletList items={detail.whoFor} dot={a.dot} />
                 </SectionBlock>
 
-                <SectionBlock id="outputs" index="04" title="What they receive">
+                <SectionBlock
+                  id="outputs"
+                  index={sectionIndex("outputs")}
+                  title="What they receive"
+                >
                   <div className="flex flex-wrap gap-1.5">
                     {detail.receives.map((o) => (
                       <span
@@ -518,35 +554,55 @@ export function ProductDetailView({ slug }: { slug: string }) {
                   </p>
                 </SectionBlock>
 
-                <SectionBlock id="why" index="05" title="Why it matters">
+                <SectionBlock
+                  id="why"
+                  index={sectionIndex("why")}
+                  title="Why it matters"
+                >
                   <p className="text-sm leading-relaxed text-soft-gray sm:text-base">
                     {detail.whyItMatters}
                   </p>
                 </SectionBlock>
 
-                <SectionBlock id="workflow" index="06" title="Example workflow">
+                <SectionBlock
+                  id="workflow"
+                  index={sectionIndex("workflow")}
+                  title="Example workflow"
+                >
                   <StepList steps={detail.workflow} accentText={a.text} />
                 </SectionBlock>
 
-                <SectionBlock id="deployment" index="07" title="Deployment">
+                <SectionBlock
+                  id="deployment"
+                  index={sectionIndex("deployment")}
+                  title="Deployment"
+                >
                   <BulletList items={detail.deployment} dot={a.dot} />
                 </SectionBlock>
               </>
             ) : (
               <>
-                <SectionBlock id="system" index="01" title="System overview">
+                <SectionBlock
+                  id="system"
+                  index={sectionIndex("system")}
+                  title="System overview"
+                >
                   <p className="text-sm leading-relaxed text-soft-gray sm:text-base">
                     {detail.tech.systemOverview}
                   </p>
                 </SectionBlock>
 
-                <SectionBlock id="inputs" index="02" title="Input modalities">
+                <SectionBlock
+                  id="inputs"
+                  index={sectionIndex("inputs")}
+                  title="Input modalities"
+                >
                   <BulletList items={detail.tech.inputs} dot={a.dot} />
                 </SectionBlock>
 
                 <SectionBlock
                   id="architecture"
-                  index="03"
+                  index={sectionIndex("architecture")}
                   title="Processing pipeline"
                 >
                   <PipelineDiagram stages={detail.tech.pipeline} accent={a} />
@@ -554,7 +610,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
                 <SectionBlock
                   id="features"
-                  index="04"
+                  index={sectionIndex("features")}
                   title="Movement & gait features"
                 >
                   <BulletList items={detail.tech.features} dot={a.dot} />
@@ -562,13 +618,17 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
                 <SectionBlock
                   id="models"
-                  index="05"
+                  index={sectionIndex("models")}
                   title="Models & analytical components"
                 >
                   <BulletList items={detail.tech.models} dot={a.dot} />
                 </SectionBlock>
 
-                <SectionBlock id="schema" index="06" title="Output schema">
+                <SectionBlock
+                  id="schema"
+                  index={sectionIndex("schema")}
+                  title="Output schema"
+                >
                   <div className="overflow-x-auto rounded-xl border border-white/8">
                     <table className="w-full min-w-[420px] text-left text-sm">
                       <thead>
@@ -608,7 +668,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 {detail.tech.longitudinal && (
                   <SectionBlock
                     id="longitudinal"
-                    index="07"
+                    index={sectionIndex("longitudinal")}
                     title="Longitudinal analysis"
                   >
                     <p className="text-sm leading-relaxed text-soft-gray sm:text-base">
@@ -619,7 +679,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
                 <SectionBlock
                   id="quality"
-                  index={detail.tech.longitudinal ? "08" : "07"}
+                  index={sectionIndex("quality")}
                   title="Quality & confidence checks"
                 >
                   <BulletList items={detail.tech.quality} dot={a.dot} />
@@ -627,10 +687,22 @@ export function ProductDetailView({ slug }: { slug: string }) {
               </>
             )}
 
+            {/* Shared: research basis — only where published work backs the
+                capabilities this product is built on. */}
+            {hasEvidence && (
+              <SectionBlock
+                id="evidence"
+                index={sectionIndex("evidence")}
+                title="Research basis"
+              >
+                <ProductEvidence productId={slug} accentText={a.text} />
+              </SectionBlock>
+            )}
+
             {/* Shared: privacy */}
             <SectionBlock
               id="privacy"
-              index={view === "executive" ? "08" : detail.tech.longitudinal ? "09" : "08"}
+              index={sectionIndex("privacy")}
               title="Privacy & responsible use"
             >
               <div className="card relative overflow-hidden p-6">
@@ -644,7 +716,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
               <>
                 <SectionBlock
                   id="integration"
-                  index={detail.tech.longitudinal ? "10" : "09"}
+                  index={sectionIndex("integration")}
                   title="Integration & deployment"
                 >
                   <BulletList items={detail.tech.integration} dot={a.dot} />
@@ -652,7 +724,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
                 <SectionBlock
                   id="limitations"
-                  index={detail.tech.longitudinal ? "11" : "10"}
+                  index={sectionIndex("limitations")}
                   title="Technical limitations"
                 >
                   <BulletList items={detail.tech.limitations} dot={a.dot} />
@@ -665,7 +737,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
           <aside className="hidden lg:block">
             <nav
               aria-label="On this page"
-              className="sticky top-32 border-l border-white/8 pl-5"
+              className="site-sticky-below-header border-l border-white/8 pl-5"
             >
               <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soft-mute">
                 Contents
@@ -698,7 +770,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
         <Reveal>
           <section
             id="related"
-            className="scroll-mt-32 border-t border-white/5 pt-14"
+            className="site-anchor-offset border-t border-white/5 pt-14"
           >
             <div className="mt-10 flex items-end justify-between gap-6">
               <h2 className="font-display text-2xl text-soft-white sm:text-3xl">
@@ -752,7 +824,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
         {/* ------------------------------ CTA */}
         <Reveal>
-          <section id="pilot" className="mt-20 scroll-mt-32">
+          <section id="pilot" className="site-anchor-offset mt-20">
             <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-10 sm:p-14">
               <div
                 className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"

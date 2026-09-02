@@ -142,7 +142,7 @@ export function LivePostView({ slug }: { slug: string }) {
 
           {/* Sidebar */}
           <aside className="hidden lg:block">
-            <div className="sticky top-32 space-y-6">
+            <div className="site-sticky-below-header space-y-6">
               <div className="card p-6">
                 <h4 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
                   About this publication

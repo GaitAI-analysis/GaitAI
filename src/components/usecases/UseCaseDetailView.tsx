@@ -134,7 +134,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
       {/* ------------------------------------------------ HERO */}
       <header
         id="overview"
-        className="site-page-intro-compact relative isolate scroll-mt-32 overflow-hidden pb-14 sm:pb-16"
+        className="site-page-intro-compact site-anchor-offset relative isolate overflow-hidden pb-14 sm:pb-16"
       >
         <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-obsidian/30 via-obsidian/60 to-obsidian" />
@@ -328,6 +328,22 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
                 <p className="relative text-sm leading-relaxed text-soft-gray">
                   {detail.privacy}
                 </p>
+                <div className="relative mt-5 flex flex-wrap gap-x-6 gap-y-2 border-t border-white/[0.06] pt-4">
+                  <Link
+                    href="/legal/security"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300 transition-colors hover:text-emerald-200"
+                  >
+                    Privacy &amp; security controls
+                    <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                  </Link>
+                  <Link
+                    href="/research#areas"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"
+                  >
+                    Research basis
+                    <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
               </div>
             </SectionBlock>
           </div>
@@ -336,7 +352,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
           <aside className="hidden lg:block">
             <nav
               aria-label="On this page"
-              className="sticky top-32 border-l border-white/8 pl-5"
+              className="site-sticky-below-header border-l border-white/8 pl-5"
             >
               <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soft-mute">
                 Contents
@@ -369,7 +385,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
         <Reveal>
           <section
             id="related"
-            className="scroll-mt-32 border-t border-white/5 pt-14"
+            className="site-anchor-offset border-t border-white/5 pt-14"
           >
             <div className="mt-10 flex items-end justify-between gap-6">
               <h2 className="font-display text-2xl text-soft-white sm:text-3xl">
@@ -440,7 +456,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
 
         {/* ------------------------------------------------ CTA */}
         <Reveal>
-          <section id="pilot" className="mt-20 scroll-mt-32">
+          <section id="pilot" className="site-anchor-offset mt-20">
             <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-10 sm:p-14">
               <div
                 className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"

@@ -2138,6 +2138,39 @@ body {
   padding: 8px 12px;
 }
 
+/* The search field carries a magnifier at left-3.5. Its own `padding`
+   shorthand here lands in a later sheet than Tailwind's utilities, so it was
+   overriding the `pl-10` on the element and the placeholder started underneath
+   the icon. Stating the left inset here is what actually wins. */
+.publib-input {
+  padding-left: 2.35rem;
+}
+
+/* The control rail pins itself once the reader scrolls into the grid, so the
+   filters stay reachable through a long archive. The negative inline margin
+   plus matching padding lets the pinned bar's background run to the section's
+   edges while its contents stay on the container's measure. */
+.publib-rail {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin-inline: -1rem;
+  padding: 0.85rem 1rem;
+  background: rgb(var(--c-obsidian-300) / 0.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgb(148 163 184 / 0.1);
+}
+
+@supports not (backdrop-filter: blur(12px)) {
+  .publib-rail {
+    background: rgb(var(--c-obsidian-300) / 0.97);
+  }
+}
+
+.light .publib-rail {
+  background: rgb(255 255 255 / 0.85);
+}
+
 .publib-input::placeholder {
   color: rgb(var(--c-soft-mute) / 0.95);
 }

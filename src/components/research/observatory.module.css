@@ -109,12 +109,15 @@
   .heroGrid {
     grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
     gap: 3.5rem;
-    min-height: 74vh;
+    /* Was 74vh, sized for a full instrument visual. The foundation cluster
+       that replaced it is a fixed two-by-two, so the old height left a band of
+       empty column under it on tall displays. */
+    min-height: 60vh;
   }
 }
 @media (min-width: 1280px) {
   .heroGrid {
-    min-height: 78vh;
+    min-height: 62vh;
   }
 }
 
@@ -163,205 +166,23 @@
   gap: 0.75rem;
 }
 
-/* Coordinate frame around the visual: two hairlines and four crop marks,
-   so the visual reads as an instrument view rather than a floating picture. */
-.heroStage {
-  position: relative;
-}
 
-.stageFrame {
-  position: absolute;
-  inset: -0.75rem -0.5rem;
-  pointer-events: none;
-}
-.stageFrame::before,
-.stageFrame::after {
-  content: "";
-  position: absolute;
-  background: var(--obs-line);
-}
-.stageFrame::before {
-  inset: 0 auto 0 0;
-  width: 1px;
-}
-.stageFrame::after {
-  inset: auto 0 0 0;
-  height: 1px;
-}
 
-.stageCaption {
-  margin-top: 1.1rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0.85rem;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--obs-mute);
-}
-.stageCaptionRule {
-  flex: 1 1 1rem;
-  min-width: 0.75rem;
-  height: 1px;
-  background: linear-gradient(90deg, var(--obs-line-mid), transparent);
-}
 
-/* ── The observatory visual ── */
 
-.obs {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
 
-.obsGrid line {
-  stroke: var(--obs-grid);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
 
-.obsAxis {
-  stroke: var(--obs-line-mid);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-.obsTick {
-  stroke: var(--obs-line-mid);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-.obsTickLabel {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 7px;
-  letter-spacing: 0.14em;
-  fill: var(--obs-mute);
-  opacity: 0.75;
-}
 
-/* Pose frames — anatomy comes from the shared gait keyframes. */
-.frame {
-  color: var(--obs-cyan);
-  opacity: 0.42;
-  animation: obsFrame 11s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * 0.5s);
-}
-.frameLead {
-  color: var(--obs-cyan);
-}
-
-.bone {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-.boneFar {
-  opacity: 0.55;
-  stroke-width: 1.5;
-}
-.joint {
-  fill: currentColor;
-}
-.head {
-  fill: rgb(var(--c-obsidian-400) / 0.85);
-  stroke: currentColor;
-  stroke-width: 1.3;
-  vector-effect: non-scaling-stroke;
-}
 :global(.light) .head {
   fill: #ffffff;
 }
-.contact {
-  fill: currentColor;
-  opacity: 0.14;
-}
 
-/* Joint trajectory across the sequence. */
-.traj {
-  fill: none;
-  stroke: var(--obs-cyan-soft);
-  stroke-width: 1.1;
-  stroke-dasharray: 3 4;
-  vector-effect: non-scaling-stroke;
-  opacity: 0.7;
-}
-.trajFlow {
-  fill: none;
-  stroke: #bfe9ff;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-  stroke-dasharray: 14 100;
-  stroke-dashoffset: 114;
-  opacity: 0;
-  animation: obsTrace 11s ease-in-out infinite;
-  animation-delay: 2.6s;
-}
 :global(.light) .trajFlow {
   stroke: #0a6890;
 }
-.trajNode {
-  fill: var(--obs-cyan);
-  opacity: 0.75;
-}
 
-/* Temporal signal under the sequence. */
-.wave {
-  fill: none;
-  stroke-width: 1.5;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-.waveFill {
-  opacity: 0.4;
-}
-.sample {
-  stroke: var(--obs-cyan-soft);
-  stroke-width: 1;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-  opacity: 0.55;
-}
-.sampleStrong {
-  stroke: var(--obs-cyan);
-  stroke-width: 1.7;
-  opacity: 0.9;
-}
 
-/* Feature vector / embedding column. */
-.embedCell {
-  fill: var(--obs-cyan);
-  animation: obsEmbed 11s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * 0.09s + 4.4s);
-}
-.embedRule {
-  stroke: var(--obs-line);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
 
-.obsLabel {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8px;
-  letter-spacing: 0.22em;
-  fill: var(--obs-mute);
-}
-.obsLabelLead {
-  stroke: var(--obs-line-mid);
-  stroke-width: 1;
-  stroke-dasharray: 2 3;
-  vector-effect: non-scaling-stroke;
-}
-.obsNode {
-  fill: var(--obs-cyan);
-  animation: obsPulse 11s ease-in-out infinite;
-  animation-delay: calc(var(--i, 0) * 0.7s);
-}
 
 /* Small screens: the technical labels stop being legible before they stop
    being decorative, so they are dropped rather than shrunk. */
@@ -2117,5 +1938,447 @@
   .fStageGroup .fGlyph,
   .fStageGroup .fNodeLabel {
     transition: none;
+  }
+}
+
+/* =========================================================================
+   RESEARCH FOUNDATIONS — the hero's right-hand column
+   -------------------------------------------------------------------------
+   Four pillars, each stating how much published work sits behind it. The
+   cards are hairline panels rather than filled boxes, so the cluster reads as
+   one instrument face and not as four buttons.
+   ========================================================================= */
+
+.foundations {
+  min-width: 0;
+}
+
+.foundationsLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+
+.foundationsGrid {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+  list-style: none;
+  padding: 0;
+}
+
+@media (min-width: 560px) {
+  .foundationsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.fCard {
+  position: relative;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--obs-line);
+  border-radius: 1rem;
+  background: linear-gradient(170deg, rgb(148 163 184 / 0.05), transparent 62%);
+  padding: 1.05rem 1.1rem 1rem;
+  transition:
+    border-color 0.4s var(--obs-ease),
+    transform 0.4s var(--obs-ease);
+}
+
+/* The signal enters at the top-left corner of each card, fading down the
+   cluster, so the four read as one system rather than four separate tiles. */
+.fCard::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 2.25rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--obs-cyan), transparent);
+  opacity: calc(0.75 - var(--f-i, 0) * 0.13);
+}
+
+.fCard:hover {
+  border-color: var(--obs-cyan-soft);
+  transform: translateY(-2px);
+}
+
+.fCard:focus-visible {
+  outline: 2px solid var(--obs-cyan);
+  outline-offset: 2px;
+}
+
+.fCardIcon {
+  display: inline-flex;
+  height: 2rem;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 0.6rem;
+  color: var(--obs-cyan);
+}
+
+.fCardTitle {
+  margin-top: 0.8rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.975rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--obs-ink);
+}
+
+.fCardSummary {
+  margin-top: 0.45rem;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--obs-mute);
+}
+
+.fCardCount {
+  margin-top: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--obs-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--obs-cyan);
+}
+
+/* =========================================================================
+   PIPELINE — capture, engine, capabilities
+   -------------------------------------------------------------------------
+   Three hairline panels over one trace layer. The traces live in a single
+   stretched SVG behind the grid so their endpoints stay on the panel edges at
+   every width, and so there is exactly one paint layer for all of them.
+   ========================================================================= */
+
+.pipe {
+  position: relative;
+}
+
+/* Per-row wiring. Each lead crosses the grid gap to the engine panel's edge
+   rail, so a connector is always on its own row's centre line no matter how
+   the row's text wraps or how unequal the three panels' heights are. Only in
+   the three-column layout: stacked, there is nothing beside a row to wire to. */
+.pLeadOut,
+.pLeadIn,
+.pNodeOut,
+.pNodeIn,
+.pRailIn,
+.pRailOut {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .pLeadOut,
+  .pLeadIn {
+    display: block;
+    position: absolute;
+    top: 50%;
+    height: 1px;
+    width: 1.75rem;
+  }
+  .pLeadOut {
+    right: -1.75rem;
+    background: linear-gradient(90deg, var(--obs-cyan), transparent);
+    opacity: 0.55;
+  }
+  .pLeadIn {
+    left: -1.75rem;
+    background: linear-gradient(270deg, var(--obs-violet), transparent);
+    opacity: 0.55;
+  }
+
+  .pNodeOut,
+  .pNodeIn {
+    display: block;
+    position: absolute;
+    top: 50%;
+    height: 4px;
+    width: 4px;
+    margin-top: -2px;
+    border-radius: 999px;
+    animation: pipeNode 9s ease-in-out infinite;
+  }
+  .pNodeOut {
+    right: -0.32rem;
+    background: var(--obs-cyan);
+  }
+  .pNodeIn {
+    left: -0.32rem;
+    background: var(--obs-violet);
+    animation-delay: 3.4s;
+  }
+
+  /* The rails the leads land on, on the engine panel's own edges. */
+  .pRailIn,
+  .pRailOut {
+    display: block;
+    position: absolute;
+    top: 18%;
+    bottom: 18%;
+    width: 1px;
+  }
+  .pRailIn {
+    left: 0;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      var(--obs-cyan-soft) 20%,
+      var(--obs-cyan-soft) 80%,
+      transparent
+    );
+    opacity: 0.5;
+  }
+  .pRailOut {
+    right: 0;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgb(156 100 241 / 0.5) 20%,
+      rgb(156 100 241 / 0.5) 80%,
+      transparent
+    );
+    opacity: 0.5;
+  }
+}
+
+/* A slow travel along the bus, one side then the other. */
+@keyframes pipeNode {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  12% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 0.4;
+  }
+}
+
+.pipeGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .pipeGrid {
+    /* The engine is the widest column: it is the part of the diagram the page
+       is about, and the two flanking panels are the interfaces to it. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+}
+
+.pPanel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border: 1px solid var(--obs-line);
+  border-radius: 1.1rem;
+  background: rgb(148 163 184 / 0.022);
+  padding: 1.1rem 1.15rem 1.25rem;
+}
+
+.pPanelLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--obs-mute);
+}
+
+.pEngine {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--obs-line-mid);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgb(37 99 255 / 0.09), transparent 70%),
+    rgb(148 163 184 / 0.03);
+}
+
+.pEngineLabel {
+  color: var(--obs-cyan);
+}
+
+/* The grid gives all three panels the tallest one's height, and capabilities
+   is the tallest. The four-row columns centre their rows in that height:
+   stacked at the top they left a band of empty panel, and spread with
+   space-between the gaps grew wide enough to read as missing rows. Centred,
+   the slack is even and deliberate — and the leads stay exact either way,
+   because each one is positioned against its own row. */
+.pRows,
+.pLayers {
+  margin: 1rem 0 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.pRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid var(--obs-line);
+  border-radius: 0.8rem;
+  background: rgb(148 163 184 / 0.03);
+  padding: 0.6rem 0.7rem;
+}
+
+.pRowIcon,
+.pRowIconViolet {
+  display: inline-flex;
+  height: 1.9rem;
+  width: 1.9rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 0.55rem;
+}
+
+.pRowIcon {
+  color: var(--obs-cyan);
+}
+
+.pRowIconViolet {
+  color: var(--obs-violet);
+}
+
+.pRowName {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--obs-ink);
+}
+
+.pRowDetail {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--obs-mute);
+}
+
+.pRowCount {
+  flex: none;
+  min-width: 1.5rem;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 0.4rem;
+  padding: 0.15rem 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  text-align: center;
+  color: var(--obs-body);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The engine layers are chevrons, so the column reads as a direction of
+   travel and not as four more list rows. clip-path rather than a rotated box:
+   the notch has to stay put as a row of text wraps. */
+.pLayer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.62rem 0.8rem 0.62rem 1.35rem;
+  background: linear-gradient(
+    100deg,
+    rgb(79 209 255 / 0.1),
+    rgb(124 58 237 / 0.12)
+  );
+  border-top: 1px solid rgb(148 163 184 / 0.14);
+  border-bottom: 1px solid rgb(148 163 184 / 0.14);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 14px) 0,
+    100% 50%,
+    calc(100% - 14px) 100%,
+    0 100%,
+    14px 50%
+  );
+}
+
+.pLayerIndex {
+  flex: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--obs-mute);
+  opacity: 0.85;
+}
+
+.pLayerIcon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--obs-cyan);
+}
+
+.pLayerTitle {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--obs-ink);
+}
+
+.pLayerDetail {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--obs-mute);
+}
+
+.pipeNote {
+  margin-top: 1.5rem;
+  max-width: 46rem;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--obs-mute);
+}
+
+.pipeNoteLink {
+  color: var(--obs-cyan);
+  text-decoration: underline;
+  text-decoration-color: var(--obs-cyan-soft);
+  text-underline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The travelling traces exist only as motion; with motion off they have
+     nothing to say, so the static hairline carries the connection alone. */
+  .pNodeOut,
+  .pNodeIn {
+    animation: none;
+  }
+  .fCard:hover {
+    transform: none;
   }
 }

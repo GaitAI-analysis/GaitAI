@@ -58,43 +58,54 @@ export default function PublicationsPage() {
             <span className="h-1 w-6 rounded-full bg-gradient-brand" />
             Founder research record
           </span>
-          <h1 className="mt-5 max-w-3xl font-display text-display-lg text-balance text-soft-white">
-            The research{" "}
-            <span className="text-gradient">GaitAI is built on.</span>
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray sm:text-lg">
-            Peer-reviewed work and a granted patent across gait recognition,
-            computer vision, biometrics, pose estimation, machine learning and
-            privacy-preserving movement analysis — authored by founder{" "}
-            {FOUNDER_NAME} with academic co-authors, and published with
-            Springer, Elsevier and Wiley · IET.
-          </p>
-          <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-soft-mute">
-            These are academic and individually held records rather than
-            company-produced output. GaitAI does not currently hold
-            company-assigned publications or patents of its own; how each
-            record maps onto the platform&apos;s capabilities is set out on the{" "}
-            <Link
-              href="/research#areas"
-              className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
-            >
-              research evidence map
-            </Link>
-            .
-          </p>
 
-          {/* Summary strip — counts derived from the actual records */}
-          <div className="mt-10 grid max-w-2xl grid-cols-2 gap-px overflow-hidden rounded-2xl glass sm:grid-cols-4">
-            {summary.map((s) => (
-              <div key={s.label} className="bg-gunmetal/30 px-3 py-4 text-center sm:py-5">
-                <div className="stat-num text-xl text-soft-white sm:text-2xl">
-                  {s.value}
-                </div>
-                <div className="mt-1 text-[10px] uppercase tracking-[0.16em] text-soft-mute">
-                  {s.label}
-                </div>
-              </div>
-            ))}
+          {/* Split composition: the claim on the left, what backs it on the
+              right. Stacked, the headline used to run at display size and then
+              hand the reader three paragraphs of qualification before the
+              first record — the archive is the page, so it now starts higher. */}
+          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-12">
+            <h1 className="font-display text-display-lg text-balance text-soft-white">
+              A research archive behind{" "}
+              <span className="text-gradient">the movement engine.</span>
+            </h1>
+
+            <div className="min-w-0">
+              <p className="text-base leading-relaxed text-soft-gray">
+                Peer-reviewed papers and a granted patent spanning gait
+                recognition, computer vision, biometrics, pose estimation,
+                machine learning and privacy-preserving movement analysis —
+                authored by founder {FOUNDER_NAME} with academic co-authors,
+                and published with Springer, Elsevier and Wiley · IET.
+              </p>
+              <p className="mt-3.5 text-[12.5px] leading-relaxed text-soft-mute">
+                These are academic and individually held records rather than
+                company-produced output. GaitAI does not currently hold
+                company-assigned publications or patents of its own; how each
+                record maps onto the platform&apos;s capabilities is set out on
+                the{" "}
+                <Link
+                  href="/research#areas"
+                  className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
+                >
+                  research evidence map
+                </Link>
+                .
+              </p>
+
+              {/* Counts, derived from the records themselves. */}
+              <dl className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-white/[0.08] pt-5 sm:grid-cols-4">
+                {summary.map((s) => (
+                  <div key={s.label} className="min-w-0">
+                    <dt className="stat-num text-[1.3rem] leading-none text-soft-white">
+                      {s.value}
+                    </dt>
+                    <dd className="mt-1.5 text-[9.5px] leading-[1.5] uppercase tracking-[0.16em] text-soft-mute">
+                      {s.label}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
           </div>
         </div>
       </section>

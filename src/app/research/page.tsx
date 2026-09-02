@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Reveal } from "@/components/ui/Reveal";
 import { ResearchHero } from "@/components/research/ResearchHero";
+import type { FoundationCard } from "@/components/research/ResearchFoundations";
+import {
+  ResearchPipeline,
+  type PipelineCapability,
+} from "@/components/research/ResearchPipeline";
 import { ResearchTelemetry } from "@/components/research/ResearchTelemetry";
 import { ResearchLineage } from "@/components/research/ResearchLineage";
 import {
@@ -104,6 +109,53 @@ const observatoryAreas: ObservatoryArea[] = researchAreas.map((area) => ({
   boundary: area.boundary,
 }));
 
+/**
+ * The four pillars as the hero states them. Paper and patent counts are
+ * counted off each area's own resolved records — three of the four rest on a
+ * single record, and writing the numbers by hand here would be the one place
+ * they could drift from `publications.ts`.
+ */
+const foundationCards: FoundationCard[] = researchAreas.map((area) => ({
+  id: area.id,
+  title: area.title,
+  summary: area.summary,
+  papers: area.publications.filter((p) => p.kind === "journal").length,
+  patents: area.publications.filter((p) => p.kind === "patent").length,
+}));
+
+/**
+ * The capabilities the published record actually reaches, with the number of
+ * shipped modules built on each. Derived by walking the areas rather than
+ * listed: a capability with no research node mapped to it must be absent from
+ * the pipeline, not present with a zero.
+ */
+const pipelineCapabilities: PipelineCapability[] = (() => {
+  const byId = new Map<string, PipelineCapability & { ids: Set<string> }>();
+  for (const area of researchAreas) {
+    for (const capability of area.capabilities) {
+      if (!byId.has(capability.id)) {
+        byId.set(capability.id, {
+          id: capability.id,
+          title: capability.title,
+          description: capability.description,
+          modules: 0,
+          ids: new Set<string>(),
+        });
+      }
+    }
+  }
+  for (const area of researchAreas) {
+    for (const product of area.products) {
+      for (const capabilityId of product.capabilityIds) {
+        byId.get(capabilityId)?.ids.add(product.id);
+      }
+    }
+  }
+  return [...byId.values()]
+    .map(({ ids, ...rest }) => ({ ...rest, modules: ids.size }))
+    .sort((a, b) => b.modules - a.modules);
+})();
+
 const telemetry = [
   { value: papers.length, label: "Peer-reviewed papers", pad: true },
   { value: 1, label: "Granted patent", pad: true },
@@ -133,12 +185,37 @@ const publicationYears = papers.map((p) => p.year);
 export default function ResearchPage() {
   return (
     <div className={styles.page}>
-      <ResearchHero />
+      <ResearchHero areas={foundationCards} />
 
       {/* ─────────── 01 · TELEMETRY ─────────── */}
       <section className="border-t border-white/[0.07] bg-obsidian-300/25 pb-4 pt-2 sm:pb-6">
         <div className="container-wide">
           <ResearchTelemetry metrics={telemetry} />
+        </div>
+      </section>
+
+      {/* ─────────── 01b · CAPTURE → ENGINE → CAPABILITIES ─────────── */}
+      <section className="border-t border-white/[0.07] py-16 sm:py-20">
+        <div className="container-wide">
+          <div className={styles.sectionLabel}>
+            <span className={styles.sectionIndex}>01</span>
+            <div className="min-w-0">
+              <h2 className={styles.eyebrow}>
+                <span aria-hidden="true" className={styles.eyebrowRule} />
+                What the record grounds
+              </h2>
+              <p className="mt-3 max-w-xl text-[13.5px] leading-relaxed text-soft-mute">
+                What goes in, the layers it passes through, and the
+                capabilities that come out with published work behind them.
+              </p>
+            </div>
+          </div>
+
+          <Reveal>
+            <div className="mt-10 sm:mt-12">
+              <ResearchPipeline capabilities={pipelineCapabilities} />
+            </div>
+          </Reveal>
         </div>
       </section>
 

@@ -1584,27 +1584,6 @@ export function GaitscapeExplorer() {
                 </button>
               )}
 
-              {/* ---------------- first-run hint ----------------
-                  Tells a first-time visitor what to do with the graph, then
-                  gets out of the way the moment they do anything meaningful.
-                  Positioned as an overlay rather than in the flow above the
-                  stage: the stage height is computed from the chrome above it,
-                  so an in-flow hint that later disappeared would resize the
-                  canvas and shift the whole view. Progressive disclosure
-                  (see labelVisible) already keeps the opening frame calm —
-                  only the core, the two verticals and the active hubs carry
-                  labels until you engage or zoom in. */}
-              {!hasEngaged && (
-                <p className="gaitscape-hint pointer-events-none absolute bottom-4 left-4 z-10 max-w-[min(22rem,calc(100%-8rem))] rounded-xl border border-white/[0.08] bg-obsidian-200/80 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-soft-mute backdrop-blur">
-                  Start anywhere — select a node to see how it connects.
-                  Everything branches from{" "}
-                  <span className="text-soft-gray">
-                    Human Movement Intelligence
-                  </span>{" "}
-                  into MobilityCare and SecureVision.
-                </p>
-              )}
-
               {/* hover tooltip */}
               {hoveredTooltip && (
                 <div
@@ -1733,6 +1712,39 @@ export function GaitscapeExplorer() {
               selectedChallengeId={challengeId}
               onSelect={(id) => setSelectedId(id)}
             />
+          )}
+
+          {/* ---------------- first-run hint ----------------
+              Tells a first-time visitor what to do with the graph, then gets
+              out of the way the moment they do anything meaningful.
+
+              In normal flow, immediately below the stage — NOT an overlay on
+              it. It used to sit `absolute bottom-4 left-4` inside
+              .gaitscape-stage, where it covered the lower-left of the network
+              and competed with it. Moving it out is safe for the graph: the
+              SVG carries a fixed viewBox (CANVAS_W x CANVAS_H), so node
+              coordinates are world-space and never derive from the rendered
+              box, and .gaitscape-stage-canvas takes its height from
+              --gaitscape-top-chrome — the chrome ABOVE the stage — so a
+              sibling below it cannot resize the canvas or shift the view.
+
+              Left edge aligns with the stage because both are children of the
+              same graph column; `w-full max-w-[520px]` makes it full-width on
+              mobile and a deliberate ~520px card on desktop. `shrink-0` keeps
+              it from being squeezed inside the fullscreen flex column.
+
+              Progressive disclosure (see labelVisible) already keeps the
+              opening frame calm — only the core, the two verticals and the
+              active hubs carry labels until you engage or zoom in. */}
+          {mode === "graph" && !hasEngaged && (
+            <p className="gaitscape-hint mt-3.5 w-full max-w-[520px] shrink-0 rounded-xl border border-white/[0.08] bg-obsidian-200/80 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-soft-mute backdrop-blur">
+              Start anywhere — select a node to see how it connects.
+              Everything branches from{" "}
+              <span className="text-soft-gray">
+                Human Movement Intelligence
+              </span>{" "}
+              into MobilityCare and SecureVision.
+            </p>
           )}
 
           {/* selected-node panel for list mode / mobile */}

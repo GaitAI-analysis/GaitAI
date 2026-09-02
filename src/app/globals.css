@@ -1541,8 +1541,10 @@ body {
   height: 520px;
 }
 
-/* First-run hint under the toolbar. Fades in once, gently, and is removed
-   from the DOM on first meaningful interaction. */
+/* First-run hint. Sits in normal flow immediately BELOW the stage (see
+   GaitscapeExplorer) rather than as an overlay inside it, so it never covers
+   the network. Fades in once, gently, and is removed from the DOM on first
+   meaningful interaction. */
 .gaitscape-hint {
   animation: gaitscape-hint-in 0.7s ease-out both;
 }

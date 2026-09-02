@@ -5,13 +5,12 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { industryUseCases, productById } from "@/data/products";
 import { useCaseDetails } from "@/data/usecase-details";
 import { facetsFor, outputChipsFor } from "@/data/usecase-facets";
-import { EnvironmentGlyph } from "./EnvironmentGlyph";
 import styles from "./usecases.module.css";
 
 /**
  * One environment, as a card with progressive disclosure.
  *
- * COLLAPSED it carries the glyph, the environment name, its one-sentence
+ * COLLAPSED it carries the environment name, its one-sentence
  * problem, the product chips and up to four output chips — enough to decide
  * "this is my environment" without reading a narrative. EXPANDED it adds the
  * numbered sections the page used to print in full for all seventeen
@@ -79,15 +78,15 @@ export function UseCaseCard({
       id={base.id}
       className={`${styles.card} ${accentClass} ${open ? styles.cardOpen : ""} site-anchor-offset`}
     >
-      {/* ── Collapsed head ── */}
+      {/* ── Collapsed head ──
+          No glyph. The card used to open with a 44px drawn environment glyph
+          in an accent tile; the family label carries that accent as type, and
+          a hairline accent rule under the head keeps the per-environment
+          colour without a decorative marker. EnvironmentGlyph itself is
+          untouched — other surfaces still draw it. */}
       <div className={styles.cardHead}>
-        <span className={styles.glyphWrap}>
-          <EnvironmentGlyph caseId={caseId} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <span className={styles.family}>{family}</span>
-          <h3 className={styles.title}>{base.industry}</h3>
-        </div>
+        <span className={styles.family}>{family}</span>
+        <h3 className={styles.title}>{base.industry}</h3>
       </div>
 
       <p className={styles.problem}>{base.problem}</p>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, HeartPulse, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { industryUseCases, productById } from "@/data/products";
 import { useCaseDetails } from "@/data/usecase-details";
 import { facetsFor, outputChipsFor, type UseCaseFacet } from "@/data/usecase-facets";
@@ -32,7 +32,6 @@ const GROUPS = [
     title: "Healthcare, sports & wearable environments",
     blurb:
       "Camera and wearable movement intelligence for clinics, rehabilitation, sports, elderly care, home care and research.",
-    Icon: HeartPulse,
     tone: styles.toneCare,
   },
   {
@@ -42,7 +41,6 @@ const GROUPS = [
     title: "Safety & public-space environments",
     blurb:
       "Privacy-aware movement intelligence for transport hubs, smart cities, campuses, factories, retail floors and large events.",
-    Icon: ShieldCheck,
     tone: styles.toneSecure,
   },
 ];
@@ -176,10 +174,9 @@ export function UseCaseExplorer() {
           >
             <div className="container-wide">
               <header className={styles.groupHead}>
-                <span className={styles.groupLabel}>
-                  <group.Icon aria-hidden="true" className="h-3.5 w-3.5" />
-                  {group.label}
-                </span>
+                {/* No glyph: the label is accent-coloured per family, which
+                    is what the icon beside it was doing. */}
+                <span className={styles.groupLabel}>{group.label}</span>
                 <h2 className={styles.groupTitle}>{group.title}</h2>
                 <p className={styles.groupBlurb}>{group.blurb}</p>
                 <p className={styles.groupCount}>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Newspaper } from "lucide-react";
-import { LivePostsList } from "@/components/posts/LivePostsList";
+import { LivePostsMount } from "@/components/posts/LivePostsMount";
 import { InsightsLibrary } from "@/components/insights/InsightsLibrary";
 import { insightsByDate } from "@/data/insights";
 
@@ -64,7 +64,7 @@ export default function InsightsPage() {
           <InsightsLibrary articles={insightsByDate} />
 
           {/* Verified Firestore posts, when any exist. Silent otherwise. */}
-          <LivePostsList hideWhenEmpty />
+          <LivePostsMount hideWhenEmpty />
         </div>
       </section>
     </>

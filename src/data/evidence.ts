@@ -59,10 +59,31 @@ export interface ResearchArea {
   architecturalProducts: AreaProduct[];
   /**
    * Where published research informs a PRINCIPLE but the shipped controls are
-   * a separate implementation, this states the boundary. Editorial framing of
-   * an existing distinction — it adds no capability claim.
+   * a separate implementation, this states the boundary as two named lists
+   * rather than one sentence, so "research principle" and "implementation
+   * control" cannot be read as the same thing. Editorial framing of an
+   * existing distinction — it adds no capability claim.
    */
-  implementationNote?: string;
+  boundary?: ImplementationBoundary;
+}
+
+/**
+ * The research-principle / implementation-control split, stated explicitly.
+ *
+ * The privacy row is the case that made this necessary: the page listed
+ * skeleton-only analytics, face blur, audit logs and retention as the
+ * capability the privacy paper informed, and then said in a footnote that the
+ * paper did not demonstrate them. Both halves are now labelled and separated.
+ */
+export interface ImplementationBoundary {
+  /** What the published record actually establishes. */
+  foundationLabel: string;
+  foundation: string[];
+  /** What GaitAI implements separately, configured per deployment. */
+  controlsLabel: string;
+  controls: string[];
+  /** One line stating that the first does not evidence the second. */
+  note: string;
 }
 
 export interface AreaProduct {
@@ -151,9 +172,46 @@ const BROAD_CAPABILITY_SHARE = 1 / 3;
  * separate implementation, configured per deployment. One did not demonstrate
  * the other, and the page must not let the paper stand in for the controls.
  */
-const IMPLEMENTATION_NOTES: Record<string, string> = {
-  "res-privacy":
-    "This record informs privacy-aware analytics principles. GaitAI's implementation controls — skeleton-only processing, face blurring, retention and access controls, auditability — are separate, configured per deployment, and are not demonstrated by the cited work.",
+const IMPLEMENTATION_BOUNDARIES: Record<string, ImplementationBoundary> = {
+  "res-privacy": {
+    foundationLabel: "Privacy research foundation",
+    foundation: [
+      "Privacy-aware data handling",
+      "Privacy-preserving gait-analysis principles",
+      "Minimising unnecessary identity exposure",
+    ],
+    controlsLabel: "GaitAI implementation controls",
+    controls: [
+      "Pose / skeleton processing where configured",
+      "Face blurring where configured",
+      "Retention controls",
+      "Role-based access",
+      "Auditability",
+      "Configurable storage",
+    ],
+    note: "The record establishes the research principles. The implementation controls are a separate GaitAI build, configured per deployment — this work does not demonstrate them.",
+  },
+};
+
+/**
+ * SUBJECT QUALIFIERS — the second half of the direct/architectural split.
+ *
+ * The share rule below catches capabilities so widely shared they cannot
+ * evidence any one product. It does not catch a record that is about a
+ * capability *applied to a particular subject*. Patent 402202 covers
+ * covariate-robust GAIT RECOGNITION running on constrained hardware; mapping
+ * it to cap-edge alone put WatchCare, IndustrialSafety and SuspiciousMotion in
+ * its direct tier purely because they reuse the same edge-inference layer for
+ * wearable-fusion, activity and anomaly work the patent never addresses.
+ *
+ * A qualifier names the capabilities that make the subject match. A product
+ * that clears the area's specific-capability test but not its qualifier drops
+ * to architectural relevance — which is what generic edge-inference reuse is.
+ * On the current data this keeps AccessMotion (gait identity at the edge) in
+ * the direct tier and moves the other three out.
+ */
+const DIRECT_SUBJECT_QUALIFIERS: Record<string, string[]> = {
+  "res-edge": ["cap-gait", "cap-pose", "cap-biometrics", "cap-reid"],
 };
 
 const broadCapabilityIds = new Set(
@@ -217,16 +275,30 @@ export const researchAreas: ResearchArea[] = gaitscapeNodes
         .sort((a, b) => b.capabilityIds.length - a.capabilityIds.length),
     };
   })
-  .map((area) => ({
-    ...area,
-    implementationNote: IMPLEMENTATION_NOTES[area.id],
-    directProducts: area.products.filter((product) =>
-      product.capabilityIds.some((id) => !broadCapabilityIds.has(id)),
-    ),
-    architecturalProducts: area.products.filter((product) =>
-      product.capabilityIds.every((id) => broadCapabilityIds.has(id)),
-    ),
-  }))
+  .map((area) => {
+    const qualifier = DIRECT_SUBJECT_QUALIFIERS[area.id];
+
+    /**
+     * Direct requires both tests: a capability this record is specifically
+     * about, and — where the record has a subject qualifier — a product whose
+     * own capability set actually covers that subject.
+     */
+    const isDirect = (product: AreaProduct) => {
+      if (!product.capabilityIds.some((id) => !broadCapabilityIds.has(id))) {
+        return false;
+      }
+      if (!qualifier) return true;
+      const all = productToCapabilities.get(product.id) ?? [];
+      return all.some((id) => qualifier.includes(id));
+    };
+
+    return {
+      ...area,
+      boundary: IMPLEMENTATION_BOUNDARIES[area.id],
+      directProducts: area.products.filter(isDirect),
+      architecturalProducts: area.products.filter((p) => !isDirect(p)),
+    };
+  })
   .sort((a, b) => b.publications.length - a.publications.length);
 
 const researchAreaById = new Map(researchAreas.map((area) => [area.id, area]));

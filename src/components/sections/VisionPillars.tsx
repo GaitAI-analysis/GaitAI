@@ -5,15 +5,15 @@ import { motion } from "framer-motion";
 const pillars = [
   {
     title: "Predict",
-    desc: "Detect risk before it becomes harm — from a fall, an intrusion, a mobility decline.",
+    desc: "Surface early movement and risk indicators — around a fall, an intrusion, a mobility decline.",
   },
   {
     title: "Prevent",
-    desc: "Translate early signals into action — alerts to families, clinicians and operators.",
+    desc: "Turn early signals into timely human action — alerts to families, clinicians and operators.",
   },
   {
     title: "Protect",
-    desc: "Give every home, hospital and public space an intelligent layer for human safety.",
+    desc: "Support safer decisions across care and public environments.",
   },
 ];
 

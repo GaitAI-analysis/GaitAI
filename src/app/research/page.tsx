@@ -330,7 +330,7 @@ export default function ResearchPage() {
       <section className="section">
         <div className="container-wide">
           <SectionHeading
-            eyebrow="From research to product"
+            eyebrow="Applied analytical modules"
             title={
               <>
                 How research becomes a{" "}

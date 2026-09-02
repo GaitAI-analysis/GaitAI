@@ -1,15 +1,19 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { FOUNDER_NAME, type Publication } from "@/data/publications";
 import { publisherAccent } from "@/data/publications";
-import { assetPath } from "@/lib/paths";
 import { publicAuthors, topicsFor } from "./topics";
+import { PublicationCoverArt } from "./PublicationCoverArt";
 
 /**
  * Compact scholarly list row — the citation-friendly view: thumbnail,
  * title, muted authors, venue · year, topics and the real external
  * actions for the record.
+ *
+ * The thumbnail is the same drawn cover art the grid card uses, in compact
+ * mode (motif and frame, no label or record number — both are illegible at
+ * 84px). The grid and the list are two views of one library, so they had to
+ * stop showing two different kinds of picture.
  */
 export function PublicationListItem({
   publication,
@@ -26,15 +30,9 @@ export function PublicationListItem({
         href={`/publications/${publication.id}/`}
         tabIndex={-1}
         aria-hidden="true"
-        className="relative hidden h-28 w-[84px] shrink-0 overflow-hidden rounded-lg border border-white/[0.08] bg-obsidian-100/70 sm:block"
+        className="relative hidden h-[68px] w-[108px] shrink-0 overflow-hidden rounded-lg border border-white/[0.08] bg-obsidian-100/70 transition-colors group-hover:border-cyan-300/25 sm:block"
       >
-        <Image
-          src={assetPath(publication.cover)}
-          alt=""
-          fill
-          sizes="84px"
-          className="object-cover object-top"
-        />
+        <PublicationCoverArt publication={publication} compact />
       </Link>
 
       <div className="min-w-0 flex-1">

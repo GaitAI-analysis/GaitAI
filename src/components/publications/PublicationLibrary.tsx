@@ -225,8 +225,10 @@ export function PublicationLibrary() {
           {showLatest && (
             <LibrarySection label="Latest research">
               <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {latest.map((p, i) => (
-                  <PublicationCard key={p.id} publication={p} priority={i === 0} />
+                {/* No `priority` any more: the covers are inline SVG, so
+                    there is no image request to prioritise. */}
+                {latest.map((p) => (
+                  <PublicationCard key={p.id} publication={p} />
                 ))}
               </div>
             </LibrarySection>

@@ -21,7 +21,7 @@ const audiences = [
   },
   {
     title: "Security teams",
-    desc: "Intelligent surveillance, non-contact gait identification and privacy-aware safety analytics for public spaces.",
+    desc: "Intelligent surveillance, movement-biometric candidate matching and privacy-aware safety analytics for public spaces.",
   },
   {
     title: "Organizations",

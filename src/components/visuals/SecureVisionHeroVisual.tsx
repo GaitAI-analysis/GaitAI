@@ -338,7 +338,7 @@ function LiveAnalyticsHud() {
   return (
     <aside className={styles.analyticsHud} aria-hidden="true">
       <div className={styles.hudChrome}>
-        <span><i /> SECUREVISION · LIVE</span>
+        <span><i /> SECUREVISION · DEMO</span>
         <span>EDGE · ENCRYPTED</span>
       </div>
 

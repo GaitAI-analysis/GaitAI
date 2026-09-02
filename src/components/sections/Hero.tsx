@@ -57,7 +57,7 @@ export function Hero() {
             custom={0}
             className="inline-flex items-center rounded-full border border-cyan-300/20 bg-obsidian/55 px-4 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs"
           >
-            Built on 10+ years of founder-led gait research
+            10+ years of founder research experience
           </motion.div>
 
           <motion.h1

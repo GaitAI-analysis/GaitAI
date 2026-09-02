@@ -100,7 +100,7 @@ export function ResearchCredibility() {
               <span className="text-gradient">published research record.</span>
             </>
           }
-          description="The platform's movement engine comes out of peer-reviewed work on gait recognition, pose-based gait analysis, privacy-preserving gait data and edge inference."
+          description="The platform draws on peer-reviewed research in gait recognition, pose-based movement analysis, privacy-aware gait data and edge inference."
           align="left"
         />
 

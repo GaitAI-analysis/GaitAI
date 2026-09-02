@@ -23,7 +23,7 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "suspiciousmotion",
     valueProp: "Anomalies surfaced — without identifying anyone first.",
     overview:
-      "SuspiciousMotion detects unusual human movement patterns — loitering, running, restricted-zone entry and tailgating-like events — from camera streams, using movement-first processing that does not require identity recognition for initial detection.",
+      "SuspiciousMotion surfaces candidate movement events — loitering, running, restricted-zone entry and tailgating-like patterns — from camera streams for operator review, using movement-first processing that does not require identity recognition.",
     environments: ["Campus", "Transport hub", "Enterprise", "Public space"],
     glance: {
       input: "Camera stream",
@@ -52,7 +52,7 @@ export const secureProductDetails: ProductDetail[] = [
       "Event timeline",
     ],
     whyItMatters:
-      "Movement-defined events surface in seconds instead of being found hours later in recorded footage — and initial detection works without identifying anyone.",
+      "Movement-defined events surface for operator review instead of being found hours later in recorded footage — and initial processing works without identifying anyone.",
     workflow: [
       "Cameras stream into the movement pipeline",
       "People are tracked as anonymous trajectories",
@@ -925,9 +925,9 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "eventshield",
-    valueProp: "Stadium, concert, conference — crowd risk in real time.",
+    valueProp: "Stadium, concert, conference — crowd-movement indicators for the operations room.",
     overview:
-      "EventShield aggregates crowd movement into operational safety indicators for high-density venues — entry/exit flow, density risk, bottlenecks, panic-like movement and evacuation summaries.",
+      "EventShield aggregates crowd movement into operational safety indicators for high-density venues — entry/exit flow, density-risk indicators, bottlenecks, abnormal crowd-motion indicators and evacuation summaries.",
     environments: ["Stadium", "Concert", "Conference", "Public gathering"],
     glance: {
       input: "Venue cameras",
@@ -938,7 +938,7 @@ export const secureProductDetails: ProductDetail[] = [
     problem:
       "Large events create rapidly changing crowd density and entry/exit conditions.",
     solution:
-      "Event-tuned crowd analytics track flow and density against venue capacity in real time, flagging bottlenecks and panic-like movement for the operations team.",
+      "Event-tuned crowd analytics track flow and density against venue capacity, flagging bottlenecks and abnormal crowd-motion indicators for the operations team. Real-time-oriented monitoring where the deployment is configured for it.",
     whoFor: [
       "Stadiums",
       "Event organisers",
@@ -949,7 +949,7 @@ export const secureProductDetails: ProductDetail[] = [
       "Entry / exit flow",
       "Density risk",
       "Bottleneck indicator",
-      "Panic-like movement alert",
+      "Abnormal crowd-motion indicator",
       "Evacuation movement summary",
     ],
     whyItMatters:
@@ -957,7 +957,7 @@ export const secureProductDetails: ProductDetail[] = [
     workflow: [
       "Venue zones and capacities are configured pre-event",
       "Live flow and density track against thresholds",
-      "Bottleneck and panic-like indicators alert operations",
+      "Bottleneck and abnormal crowd-motion indicators reach operations",
       "Teams adjust gates, routes and announcements",
       "Post-event summaries feed the next event plan",
     ],
@@ -977,7 +977,7 @@ export const secureProductDetails: ProductDetail[] = [
       "Indicators describe crowd state relative to the venue plan. Operations teams read them alongside radio traffic and stewarding reports — the dashboard informs the decision, people make it.",
     tech: {
       systemOverview:
-        "CrowdSense analytics specialised for events: capacity-aware density risk, gate-flow tracking, panic-like movement detection and evacuation summaries, configured per event.",
+        "CrowdSense analytics specialised for events: capacity-aware density-risk indicators, gate-flow tracking, sudden-dispersal movement descriptors and evacuation summaries, configured per event.",
       inputs: [
         "Venue camera streams",
         "Zone / gate / capacity configuration",
@@ -1000,13 +1000,13 @@ export const secureProductDetails: ProductDetail[] = [
       models: [
         "Event-tuned density estimation",
         "Flow-rate tracking per gate",
-        "Panic-like movement detection over aggregate motion",
+        "Sudden-dispersal movement descriptors over aggregate motion",
       ],
       outputSchema: [
         { field: "gate_flow", desc: "Entry/exit rates per gate" },
         { field: "density_risk", desc: "Zone density vs capacity band" },
         { field: "bottleneck", desc: "Forming-bottleneck indicator" },
-        { field: "panic_alert", desc: "Sudden-dispersal movement alert" },
+        { field: "dispersal_alert", desc: "Sudden-dispersal (abnormal crowd-motion) indicator" },
         { field: "event_report", desc: "Post-event movement summary" },
       ],
       longitudinal:

@@ -16,9 +16,16 @@ import styles from "./engine.module.css";
  * The centre is the focal point and is built as an actual instrument: a
  * counter-rotating dashed ring, a segmented tick ring, a radial Motion DNA
  * arc whose sample heights come from a stride function, two inclined orbit
- * paths carrying processing nodes, and a glowing core disc. The left world
- * shows real walking poses over a mobility signal; the right world shows
- * multiple trajectories with cross-camera correspondence links.
+ * paths carrying processing nodes, and a glowing core disc.
+ *
+ * The two worlds are deliberately different visual languages, and that
+ * contrast carries the meaning:
+ *
+ *   MobilityCare — human gait. Real walking poses over a stride signal.
+ *   SecureVision — anonymous spatial movement intelligence. A plan-view
+ *     field of tracked paths, density contours, restricted-zone geometry and
+ *     one flagged deviation. No people, no figures, no cameras: SecureVision
+ *     is what movement analytics look like when nobody is identified.
  *
  * RESPONSIVE: the wide and stacked compositions are gated by media queries
  * *inside the CSS module*. They are deliberately NOT gated with Tailwind's
@@ -103,6 +110,131 @@ function strideHeight(i: number, amplitude: number) {
   const swing = Math.abs(Math.sin((inCycle / 12) * Math.PI * 2));
   const side = inCycle < 6 ? 1 : 0.62;
   return 2 + swing * amplitude * side;
+}
+
+/* ── SecureVision: an anonymous spatial movement field ─────────────────────
+   No people, no skeletons, no figures, no cameras — the contrast with the
+   MobilityCare side is the point. MobilityCare is human gait; SecureVision is
+   a plan view of movement through a space: surveyed ground, density contours
+   where flow concentrates, a restricted-area polygon, tracked paths that
+   follow the expected flow, and one path that deviates into the zone.
+
+   Tracks are declared as points in a normalized (u, v) field where u and v run
+   -1..1 across the world. Declaring them as points rather than as hand-written
+   Bézier strings is what lets the route intersections below be *computed* from
+   the real geometry instead of eyeballed, so they stay correct at both the
+   wide and the stacked size. */
+type UV = readonly [number, number];
+
+/* Paths following the expected flow. Individually varied — four identical
+   bows is what made the previous version read as an audio waveform.
+
+   Endpoints stop at |u| = 0.93 rather than 1. At 1 they land within a couple
+   of pixels of the clip circle, which sliced the entry and exit event nodes
+   into half-discs against the boundary. */
+const SECURE_TRACKS: readonly (readonly UV[])[] = [
+  [[-0.93, -0.58], [-0.5, -0.7], [0.05, -0.5], [0.58, -0.6], [0.93, -0.72]],
+  [[-0.93, -0.05], [-0.46, 0.11], [0.1, -0.03], [0.6, 0.13], [0.93, 0.05]],
+  [[-0.93, 0.6], [-0.44, 0.47], [0.12, 0.6], [0.62, 0.49], [0.93, 0.6]],
+];
+
+/** A cross-flow route, so the field has genuine crossings to mark. */
+const SECURE_CROSS: readonly UV[] = [
+  [-0.72, -0.92],
+  [-0.3, -0.34],
+  [0.08, 0.22],
+  [0.46, 0.78],
+];
+
+/** The anomaly: enters on the expected flow, then veers into the zone. */
+const SECURE_ANOMALY: readonly UV[] = [
+  [-0.93, 0.24],
+  [-0.52, 0.3],
+  [-0.08, 0.36],
+  [0.24, 0.6],
+  [0.5, 0.78],
+];
+
+/** Where that path was expected to continue — drawn as a faint ghost so the
+    deviation is legible as a deviation, not just as another line. */
+const SECURE_EXPECTED: readonly UV[] = [
+  [-0.08, 0.36],
+  [0.34, 0.29],
+  [0.72, 0.34],
+  [0.93, 0.27],
+];
+
+/** Restricted-area perimeter. */
+const SECURE_ZONE: readonly UV[] = [
+  [0.1, 0.44],
+  [0.78, 0.3],
+  [0.9, 0.84],
+  [0.16, 0.92],
+];
+
+/** Sparse flow vectors: position plus the local flow direction, in degrees. */
+const SECURE_VECTORS: readonly UV[] = [
+  [-0.66, -0.3],
+  [-0.16, -0.78],
+  [0.3, -0.26],
+  [-0.62, 0.26],
+  [0.72, -0.02],
+  [-0.2, 0.76],
+];
+
+/** Catmull-Rom through the points, emitted as a smooth cubic path. */
+function smoothPath(pts: readonly Pt[]) {
+  if (pts.length < 2) return "";
+  const f = (n: number) => n.toFixed(1);
+  let d = `M${f(pts[0][0])} ${f(pts[0][1])}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] ?? pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] ?? p2;
+    d +=
+      ` C${f(p1[0] + (p2[0] - p0[0]) / 6)} ${f(p1[1] + (p2[1] - p0[1]) / 6)}` +
+      ` ${f(p2[0] - (p3[0] - p1[0]) / 6)} ${f(p2[1] - (p3[1] - p1[1]) / 6)}` +
+      ` ${f(p2[0])} ${f(p2[1])}`;
+  }
+  return d;
+}
+
+/** Where segments ab and cd cross, or null. */
+function segHit(a: Pt, b: Pt, c: Pt, d: Pt): Pt | null {
+  const rx = b[0] - a[0];
+  const ry = b[1] - a[1];
+  const sx = d[0] - c[0];
+  const sy = d[1] - c[1];
+  const den = rx * sy - ry * sx;
+  if (Math.abs(den) < 1e-9) return null;
+  const t = ((c[0] - a[0]) * sy - (c[1] - a[1]) * sx) / den;
+  const u = ((c[0] - a[0]) * ry - (c[1] - a[1]) * rx) / den;
+  if (t < 0 || t > 1 || u < 0 || u > 1) return null;
+  return [a[0] + t * rx, a[1] + t * ry];
+}
+
+/** Every crossing between two polylines. */
+function polyHits(p: readonly Pt[], q: readonly Pt[]): Pt[] {
+  const out: Pt[] = [];
+  for (let i = 0; i < p.length - 1; i++) {
+    for (let j = 0; j < q.length - 1; j++) {
+      const h = segHit(p[i], p[i + 1], q[j], q[j + 1]);
+      if (h) out.push(h);
+    }
+  }
+  return out;
+}
+
+/** A closed density isoline. The radius is perturbed deterministically so it
+    reads as a contour rather than as a target ring or a radar sweep. */
+function contour(cx: number, cy: number, rx: number, ry: number) {
+  const pts: Pt[] = Array.from({ length: 24 }, (_, i) => {
+    const a = (i / 24) * Math.PI * 2;
+    const k = 1 + 0.17 * Math.sin(3 * a + 0.7) + 0.09 * Math.cos(2 * a - 0.3);
+    return [cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k];
+  });
+  return `${smoothPath([...pts, pts[0], pts[1]])} Z`;
 }
 
 /** A walking pose, drawn from the shared canonical gait events. */
@@ -196,23 +328,32 @@ export function MovementEngineCore({
   const walkerX0 =
     careCentre[0] - ((walkerIdx.length - 1) * geo.walkerSpacing) / 2;
 
-  /* ── Trajectories inside the secure world ── */
-  const trajectories = [-0.62, -0.2, 0.22, 0.6].map((t, i) => {
-    const [sx, sy] = secureCentre;
-    const spread = geo.worldR * 0.74;
-    const x0 = sx - spread;
-    const x1 = sx + spread;
-    const y = sy + t * geo.worldR * 0.5;
-    const bow = (i % 2 === 0 ? -1 : 1) * (16 + i * 5);
-    return {
-      d: `M${x0} ${y} C${x0 + spread * 0.7} ${y + bow} ${x1 - spread * 0.7} ${y - bow} ${x1} ${y}`,
-      nodes: [
-        [x0, y],
-        [sx, y + bow * 0.12],
-        [x1, y],
-      ] as Pt[],
-    };
-  });
+  /* ── The spatial movement field inside the secure world ──
+     Normalized field coords -> absolute. The field is slightly wider than it
+     is tall so the flow reads as directional; everything is clipped to the
+     world circle, so no track can escape the disc at either size. */
+  const fw = geo.worldR * 0.84;
+  const fh = geo.worldR * 0.66;
+  const F = ([u, v]: UV): Pt => [
+    secureCentre[0] + u * fw,
+    secureCentre[1] + v * fh,
+  ];
+
+  const tracks = SECURE_TRACKS.map((t) => t.map(F));
+  const crossRoute = SECURE_CROSS.map(F);
+  const anomaly = SECURE_ANOMALY.map(F);
+  const expected = SECURE_EXPECTED.map(F);
+  const zone = SECURE_ZONE.map(F);
+
+  /* Real crossings, computed from the polylines above. */
+  const junctions = [
+    ...tracks.flatMap((t) => polyHits(t, crossRoute)),
+    ...polyHits(anomaly, crossRoute),
+  ];
+
+  /* The deviation point is where the ghost continuation begins. */
+  const deviation = expected[0];
+  const flagged = anomaly[anomaly.length - 1];
 
   /* ── Flow traces: care -> engine -> secure ── */
   const inflow = [-0.42, 0, 0.42].map((t) => {
@@ -269,7 +410,7 @@ export function MovementEngineCore({
   return (
     <svg
       role="img"
-      aria-label="MobilityCare and SecureVision, two product families whose movement signals feed one shared GaitAI movement intelligence engine."
+      aria-label="Two product families feeding one shared GaitAI movement intelligence engine: MobilityCare, shown as a human walking sequence over a stride signal, and SecureVision, shown as an abstract plan view of movement paths, density contours and a restricted zone with one flagged deviation."
       viewBox={`0 0 ${geo.w} ${geo.h}`}
       data-focus={focus ?? "none"}
       className={`${styles.engine} ${
@@ -290,6 +431,15 @@ export function MovementEngineCore({
           <stop offset="0.4" stopColor="#8B5CF6" stopOpacity="0.06" />
           <stop offset="1" stopColor="#8B5CF6" stopOpacity="0" />
         </radialGradient>
+        {/* The movement field is bounded by the world disc, so a track can
+            never escape it at either composition size. */}
+        <clipPath id={`eng-secure-clip-${k}`}>
+          <circle
+            cx={secureCentre[0]}
+            cy={secureCentre[1]}
+            r={geo.worldR - 1}
+          />
+        </clipPath>
       </defs>
 
       {/* ═══ MOBILITYCARE WORLD ═══ */}
@@ -381,37 +531,143 @@ export function MovementEngineCore({
           r={geo.worldR}
         />
 
-        {trajectories.map((t, i) => (
-          <g key={i} style={{ "--eng-i": i } as CSSProperties}>
-            <path className={styles.path} d={t.d} />
-            <path className={styles.pathFlow} d={t.d} pathLength={100} />
-            {t.nodes.map(([nx, ny], j) => (
-              <circle
-                key={j}
-                className={j === 1 ? styles.pathNodeMid : styles.pathNode}
-                cx={nx}
-                cy={ny}
-                r={j === 1 ? 2 : 2.6}
+        {/* Everything in the field is clipped to the world disc. */}
+        <g clipPath={`url(#eng-secure-clip-${k})`}>
+          {/* Surveyed ground — a faint plan grid, not a decorative pattern. */}
+          <g className={styles.secGrid}>
+            {[-0.66, -0.33, 0, 0.33, 0.66].map((u) => (
+              <line
+                key={`v${u}`}
+                x1={F([u, -1])[0]}
+                y1={F([u, -1])[1]}
+                x2={F([u, 1])[0]}
+                y2={F([u, 1])[1]}
+              />
+            ))}
+            {[-0.6, -0.2, 0.2, 0.6].map((v) => (
+              <line
+                key={`h${v}`}
+                x1={F([-1, v])[0]}
+                y1={F([-1, v])[1]}
+                x2={F([1, v])[0]}
+                y2={F([1, v])[1]}
               />
             ))}
           </g>
-        ))}
 
-        {/* Cross-camera correspondence — the same movement seen twice. */}
-        {trajectories.slice(0, 3).map((t, i) => {
-          const a = t.nodes[1];
-          const b = trajectories[i + 1].nodes[1];
-          return (
-            <line
-              key={`c${i}`}
-              className={styles.correspondence}
-              x1={a[0]}
-              y1={a[1]}
-              x2={b[0]}
-              y2={b[1]}
+          {/* Density contours where the flow concentrates. */}
+          <g className={styles.secDensity}>
+            {[1, 0.66, 0.36].map((s, i) => {
+              const [dx, dy] = F([-0.42, -0.2]);
+              return (
+                <path
+                  key={i}
+                  className={styles.secContour}
+                  d={contour(dx, dy, fw * 0.3 * s, fh * 0.34 * s)}
+                />
+              );
+            })}
+          </g>
+
+          {/* Restricted-area perimeter, with survey marks at its vertices. */}
+          <polygon
+            className={styles.secZone}
+            points={zone.map(([x, y]) => `${x},${y}`).join(" ")}
+          />
+          {zone.map(([x, y], i) => (
+            <g key={`zm${i}`} className={styles.secZoneMark}>
+              <line x1={x - 3.5} y1={y} x2={x + 3.5} y2={y} />
+              <line x1={x} y1={y - 3.5} x2={x} y2={y + 3.5} />
+            </g>
+          ))}
+
+          {/* Flow vectors — direction of the expected field. */}
+          <g className={styles.secVectors}>
+            {SECURE_VECTORS.map((p, i) => {
+              const [x, y] = F(p);
+              const ang = -7 + p[1] * 15;
+              return (
+                <g key={i} transform={`rotate(${ang.toFixed(1)} ${x} ${y})`}>
+                  <line x1={x - 5} y1={y} x2={x + 5} y2={y} />
+                  <polyline
+                    points={`${x + 1.6},${y - 2.6} ${x + 5},${y} ${x + 1.6},${y + 2.6}`}
+                  />
+                </g>
+              );
+            })}
+          </g>
+
+          {/* Tracked paths following the expected flow. */}
+          {tracks.map((t, i) => {
+            const d = smoothPath(t);
+            return (
+              <g key={`t${i}`} style={{ "--eng-i": i } as CSSProperties}>
+                <path className={styles.secTrack} d={d} />
+                <path className={styles.secTrackFlow} d={d} pathLength={100} />
+              </g>
+            );
+          })}
+
+          {/* Cross-flow route. */}
+          <path className={styles.secCross} d={smoothPath(crossRoute)} />
+
+          {/* Route intersections, at the computed crossings. */}
+          {junctions.map(([x, y], i) => (
+            <circle
+              key={`j${i}`}
+              className={styles.secJunction}
+              cx={x}
+              cy={y}
+              r={3.4}
             />
-          );
-        })}
+          ))}
+
+          {/* Anonymous event nodes at every track entry and exit. */}
+          {tracks.map((t, i) => (
+            <g key={`n${i}`}>
+              <circle
+                className={styles.secNode}
+                cx={t[0][0]}
+                cy={t[0][1]}
+                r={2.4}
+              />
+              <circle
+                className={styles.secNode}
+                cx={t[t.length - 1][0]}
+                cy={t[t.length - 1][1]}
+                r={2.4}
+              />
+            </g>
+          ))}
+
+          {/* The anomaly: expected continuation as a ghost, actual path
+              highlighted, deviation point and flagged event marked. */}
+          <path className={styles.secGhost} d={smoothPath(expected)} />
+          <path className={styles.secAnomaly} d={smoothPath(anomaly)} />
+          <path
+            className={styles.secAnomalyFlow}
+            d={smoothPath(anomaly)}
+            pathLength={100}
+          />
+          <circle
+            className={styles.secDeviation}
+            cx={deviation[0]}
+            cy={deviation[1]}
+            r={3.2}
+          />
+          <circle
+            className={styles.secAlertPulse}
+            cx={flagged[0]}
+            cy={flagged[1]}
+            r={5}
+          />
+          <circle
+            className={styles.secAlert}
+            cx={flagged[0]}
+            cy={flagged[1]}
+            r={3}
+          />
+        </g>
 
         {worldLabel(
           secureCentre,

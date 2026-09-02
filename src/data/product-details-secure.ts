@@ -1,4 +1,5 @@
 import type { ProductDetail } from "./product-details";
+import { RESPONSIBLE_USE_SECURE } from "./responsible-use";
 
 // ============================================================================
 // SECUREVISION PRODUCT DETAIL CONTENT
@@ -12,8 +13,8 @@ import type { ProductDetail } from "./product-details";
 // responsible-deployment notices.
 // ============================================================================
 
-const SECURE_PRIVACY =
-  "SecureVision is built privacy-first: skeleton and movement-level processing modes, optional face blur, role-based access, audit logs and configurable retention. Movement analytics are designed to work without identifying individuals unless a deployment lawfully and explicitly requires it. Outputs are decision support for trained operators — not autonomous enforcement.";
+/** Canonical responsible-use statement — see src/data/responsible-use.ts. */
+const SECURE_PRIVACY = RESPONSIBLE_USE_SECURE;
 
 export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
@@ -55,7 +56,7 @@ export const secureProductDetails: ProductDetail[] = [
       "Movement-defined events surface for operator review instead of being found hours later in recorded footage — and initial processing works without identifying anyone.",
     workflow: [
       "Cameras stream into the movement pipeline",
-      "People are tracked as anonymous trajectories",
+      "People are tracked as non-identifying trajectories",
       "Behaviour analysis compares movement against configured rules and norms",
       "Anomalous events post to the operator timeline",
       "Operator reviews and responds",
@@ -150,7 +151,7 @@ export const secureProductDetails: ProductDetail[] = [
     problem:
       "Operators need to understand how crowds are moving before density or flow problems become safety incidents.",
     solution:
-      "Aggregate — never individual-focused — analytics turn trajectories into heatmaps, density scores, queue lengths, flow directions and bottleneck alerts on a live operations dashboard.",
+      "Aggregate — never individual-focused — analytics turn trajectories into heatmaps, density scores, queue lengths, flow directions and bottleneck alerts on a continuously updating operations dashboard.",
     whoFor: [
       "Smart-city control rooms",
       "Stadiums and event venues",
@@ -369,7 +370,7 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "privacyguard",
     valueProp: "Movement intelligence — without invasive surveillance.",
     overview:
-      "PrivacyGuard is the privacy-control layer for SecureVision: skeleton-only analytics, face blur, privacy-aware aggregated heatmaps, role-based access, audit logs, retention controls and consent/policy logging across every deployment.",
+      "PrivacyGuard is the architectural privacy-control layer for SecureVision, designed to support skeleton-only analytics, face blur, privacy-aware aggregated heatmaps, role-based access, audit logs, retention controls and consent/policy logging. What a given site enables is a deployment decision.",
     environments: ["All SecureVision sites", "Public sector", "Enterprise"],
     glance: {
       input: "Raw streams",
@@ -1151,7 +1152,7 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "watchlist",
     valueProp: "Lawful, audited, and intended only for authorized deployments.",
     overview:
-      "Watchlist provides policy-governed candidate matching against an authorized watchlist, with confidence scoring, consent/policy logs and full auditability. It is restricted to deployments with lawful authority — it is not offered for general-public surveillance.",
+      "Watchlist provides policy-governed candidate matching against an authorized watchlist, with confidence scoring, consent/policy logs and auditability. It is restricted to deployments with lawful authority — it is not offered for general-public surveillance.",
     environments: ["Authorized law enforcement", "Defence", "Critical infrastructure (where lawful)"],
     glance: {
       input: "Authorized streams",
@@ -1188,13 +1189,13 @@ export const secureProductDetails: ProductDetail[] = [
       "Intended only for deployments with lawful authority and policy controls",
       "List governance: scoped entries, review cycles, removal process",
       "Mandatory human adjudication of candidates",
-      "Full audit trail for oversight bodies",
+      "Audit trail available for oversight bodies",
     ],
     metrics: [
       { value: "Lawful-basis", label: "Deployment gate" },
       { value: "Candidate-only", label: "Output type" },
       { value: "Human review", label: "Mandatory step" },
-      { value: "Full audit", label: "Oversight trail" },
+      { value: "Auditable", label: "Oversight trail" },
     ],
     interpretation:
       "A match is a confidence-scored candidate for adjudication — never an automatic identification or action trigger. Responsible deployment: this product is not offered for monitoring the general public, and outputs must not be treated as unrestricted identification.",
@@ -1250,7 +1251,7 @@ export const secureProductDetails: ProductDetail[] = [
       ],
     },
     privacy:
-      "Responsible deployment: Watchlist is restricted to deployments with lawful authority, governed lists, mandatory human adjudication and full audit trails. It is not offered for general-public surveillance, and its outputs must never be treated as unrestricted identification. " +
+      "Responsible deployment: Watchlist is restricted to deployments with lawful authority, governed lists, mandatory human adjudication and auditability. It is not offered for general-public surveillance, and its outputs must never be treated as unrestricted identification. " +
       SECURE_PRIVACY,
     related: ["reid", "accessmotion", "privacyguard"],
     ctaLabel: "Discuss an authorized deployment",

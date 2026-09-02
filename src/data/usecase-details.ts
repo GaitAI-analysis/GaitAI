@@ -10,6 +10,11 @@
 // claims. Pages describe what a deployment is designed to do.
 // ============================================================================
 
+import {
+  RESPONSIBLE_USE_CARE,
+  RESPONSIBLE_USE_SECURE,
+} from "./responsible-use";
+
 export interface UseCaseDetail {
   /** Route slug — /use-cases/[slug]/ */
   slug: string;
@@ -36,11 +41,14 @@ export interface UseCaseDetail {
   related: [string, string, string];
 }
 
-const CARE_PRIVACY =
-  "Assessments are captured with informed consent, uploaded over encrypted channels and retained only as long as the care workflow requires, with role-based access and audit logging. GaitAI outputs are AI-generated movement metrics for assessment support and monitoring — they do not diagnose medical conditions and do not replace clinical judgement.";
+/**
+ * The same canonical responsible-use statements the product pages use, so a
+ * use-case page cannot assert stronger controls than /legal/security/.
+ * See src/data/responsible-use.ts.
+ */
+const CARE_PRIVACY = RESPONSIBLE_USE_CARE;
 
-const SECURE_PRIVACY_UC =
-  "Deployments run on SecureVision's privacy-first architecture: movement-level processing, optional face blur, privacy-aware (aggregated) analytics, role-based access, audit logs and configurable retention. Movement events are decision support for trained operators; identity-requiring modules operate only under lawful, policy-governed authorization.";
+const SECURE_PRIVACY_UC = RESPONSIBLE_USE_SECURE;
 
 export const useCaseDetails: UseCaseDetail[] = [
   // ==========================================================================
@@ -263,7 +271,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Movement quality as a premium member benefit.",
     overview:
-      "A fitness and wellness deployment uses SportsMotion and WalkScan to give members a measured movement baseline, posture and gait screening, and progress reports over a training program.",
+      "For fitness and wellness environments, GaitAI can combine SportsMotion and WalkScan to give members a measured movement baseline, posture and gait screening, and progress reports over a training program.",
     shortfall:
       "Gyms and wellness centres rarely measure movement quality — members get workout tracking but no objective view of how their gait, posture or symmetry is changing.",
     together:
@@ -331,7 +339,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Every fitting change, measured in the walk.",
     overview:
-      "A prosthetics and orthotics deployment uses ProstheticFit to compare device configurations and WalkScan for standard gait assessment across the fitting journey.",
+      "For prosthetic and orthotic clinics, GaitAI can use ProstheticFit to compare device configurations and WalkScan for standard gait assessment across the fitting journey.",
     shortfall:
       "Device fit is judged largely by comfort report and visual check; symmetry and loading changes between configurations stay invisible to the fitting decision.",
     together:
@@ -365,7 +373,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Preventive mobility intelligence across a covered population.",
     overview:
-      "An insurance and wellness-program deployment uses WatchCare wearable trends, FallRisk stratification and SeniorCare screening to run preventive mobility programs across members or cohorts.",
+      "For insurance and wellness programs, GaitAI can combine WatchCare wearable trends, FallRisk stratification and SeniorCare screening to run preventive mobility programs across members or cohorts.",
     shortfall:
       "Annual screenings can't see mobility change as it happens; preventive programs need ongoing, low-friction signals rather than yearly snapshots.",
     together:
@@ -399,7 +407,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     family: "mobilitycare",
     valueProp: "Repeatable movement endpoints across sites and visits.",
     overview:
-      "For research environments, GaitAI can use ClinicalTrials for protocol-based measurement, WalkScan as the capture instrument and WatchCare for continuous digital-biomarker streams where the protocol includes wearables.",
+      "For research environments, GaitAI can use ClinicalTrials for protocol-based measurement, WalkScan as the capture instrument and WatchCare for continuous digital gait measures where the protocol includes wearables.",
     shortfall:
       "Human-movement endpoints are expensive and inconsistent to standardise across visits and sites — every study rebuilds its own capture, QC and export pipeline.",
     together:
@@ -444,7 +452,7 @@ export const useCaseDetails: UseCaseDetail[] = [
       "CrowdSense keeps operators ahead of density and queue problems; SuspiciousMotion surfaces movement-defined events identity-free; ReID supports authorized investigations that need cross-camera continuity.",
     workflow: [
       "Zones and flows configured across the hub",
-      "Live density and queue analytics reach the control room",
+      "Continuous density and queue analytics reach the control room",
       "Movement events alert operators in the moment",
       "Incidents escalate through hub procedures",
       "Authorized investigations use indexed movement evidence",
@@ -494,7 +502,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     deployment: [
       "Civic governance and oversight integration",
       "Aggregate-only analytics by default",
-      "Full audit trails for accountability",
+      "Audit trails for accountability",
     ],
     privacy: SECURE_PRIVACY_UC,
     related: ["airports-metro-rail", "large-events-stadiums", "corporate-university-campuses"],
@@ -609,12 +617,12 @@ export const useCaseDetails: UseCaseDetail[] = [
     overview:
       "For large-event environments, GaitAI can pair EventShield's capacity-aware crowd-risk indicators with CrowdSense's underlying flow analytics — from gates opening to the final exit surge.",
     shortfall:
-      "High-density events change by the minute; without live density and flow indicators, operations teams learn about bottlenecks when they've already formed.",
+      "High-density events change by the minute; without continuous density and flow indicators, operations teams learn about bottlenecks when they've already formed.",
     together:
       "CrowdSense provides the aggregate movement analytics; EventShield specialises them for events — gate flow against plan, density against capacity, abnormal crowd-motion indicators and evacuation summaries.",
     workflow: [
       "Zones, gates and capacities configured pre-event",
-      "Live flow and density track against the event plan",
+      "Continuous flow and density track against the event plan",
       "Bottleneck and abnormal crowd-motion indicators reach operations",
       "Teams adjust gates, routes and announcements",
       "Post-event reports feed the next plan",

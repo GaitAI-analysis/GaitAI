@@ -31,10 +31,12 @@ export function FeaturedProducts() {
             title={
               <>
                 {productCount} modular products.{" "}
-                <span className="text-gradient">One movement engine.</span>
+                <span className="text-gradient">
+                  One Movement Intelligence Platform.
+                </span>
               </>
             }
-            description="From clinical gait reports to crowd flow analytics — every product is built on the same GaitAI movement engine. These are the eight we&apos;re leading with."
+            description="From clinical gait reports to crowd flow analytics — every product is a module on the same GaitAI Movement Intelligence Platform. These are the eight we&apos;re leading with."
             align="left"
             className="w-full lg:max-w-3xl"
           />

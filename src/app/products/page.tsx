@@ -5,6 +5,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { DeployGaitAI } from "@/components/sections/DeployGaitAI";
 import { ProductEcosystem } from "@/components/products/ProductEcosystem";
+import { ctas } from "@/data/content";
 import {
   type GaitProduct,
   mobilityProducts,
@@ -103,7 +104,7 @@ export default function ProductsPage() {
               <div>
                 <span className="eyebrow">
                   <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                  Talk to us about your environment
+                  {ctas.pilot.label}
                 </span>
                 <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
                   Not sure which products fit? We&apos;ll help you scope a pilot.
@@ -111,7 +112,7 @@ export default function ProductsPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link href="/#contact" className="btn-primary">
-                  Request a demo
+                  {ctas.demo.label}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link href="/use-cases" className="btn-ghost">

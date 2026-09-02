@@ -5,6 +5,7 @@ import { Partnerships } from "@/components/sections/about/Partnerships";
 import { Investors } from "@/components/sections/about/Investors";
 import { productCount } from "@/data/products";
 import { papers } from "@/data/publications";
+import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "Investors & collaboration — GaitAI",
@@ -52,8 +53,8 @@ export default function InvestorsPage() {
               <Link href="/research" className="btn-primary">
                 See the research basis
               </Link>
-              <Link href="/#contact" className="btn-ghost">
-                Talk to us
+              <Link href={ctas.investor.href} className="btn-ghost">
+                {ctas.investor.label}
               </Link>
             </div>
           </div>

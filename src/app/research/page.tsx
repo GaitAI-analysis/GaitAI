@@ -11,6 +11,7 @@ import { productCount } from "@/data/products";
 import { gaitscapeRelationships } from "@/data/gaitscape/graph";
 import { FOUNDER_NAME, papers, patent } from "@/data/publications";
 import styles from "@/components/research/evidence.module.css";
+import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "Research — The evidence behind GaitAI movement intelligence",
@@ -399,7 +400,7 @@ export default function ResearchPage() {
               </p>
               <div className="mt-9 flex flex-wrap items-center gap-3">
                 <Link href="/#contact" className="btn-primary">
-                  Discuss a study
+                  {ctas.research.label}
                 </Link>
                 <Link href="/publications" className="btn-ghost">
                   Browse publications

@@ -83,6 +83,34 @@ export const navLinks: readonly NavItem[] = [
 ];
 
 /**
+ * The four CTA families the whole site draws from.
+ *
+ * Every conversion surface belongs to exactly one of these, so a visitor meets
+ * four consistent asks instead of eight near-synonyms — "Book a demo", "Talk
+ * to us", "Pilot with us", "Start a conversation", "Get in touch", "Discuss a
+ * study" were all in use at once. Labels live here so they cannot drift apart
+ * again, and each call site imports the family that matches its job:
+ *
+ *   demo      commercial interest — product, vertical and insight surfaces
+ *   pilot     deployment interest — products, use cases, the deploy flow
+ *   research  research or clinical collaboration — research, publications
+ *   investor  investment interest — the investors route only
+ *
+ * The contact form exists in exactly one place, the home CTA section
+ * (`id="contact"`), which is why every default target is the absolute
+ * `/#contact` and not a page-relative `#contact` that resolves to nothing
+ * on any other route.
+ */
+export type CtaFamily = "demo" | "pilot" | "research" | "investor";
+
+export const ctas: Record<CtaFamily, { label: string; href: string }> = {
+  demo: { label: "Request a demo", href: "/#contact" },
+  pilot: { label: "Discuss a pilot", href: "/#contact" },
+  research: { label: "Start a research collaboration", href: "/#contact" },
+  investor: { label: "Investor enquiries", href: "/#contact" },
+};
+
+/**
  * Platform counters — every value is derived from a canonical record, so the
  * strip can never drift from the data or assert an unmeasured figure.
  */

@@ -1,0 +1,234 @@
+/*
+ * Movement Intelligence Engine core — /products/ ecosystem visual.
+ *
+ * One slow loop drives everything: the outer ring counter-rotates, the disc
+ * breathes, and a sample travels each inbound trace from its world into the
+ * core. Nothing flashes; every step is opacity or dash movement.
+ */
+
+.engine {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ── Tone per world ── */
+.care {
+  color: #4fd1ff;
+}
+.secure {
+  color: #a78bfa;
+}
+:global(.light) .care {
+  color: #108fc0;
+}
+:global(.light) .secure {
+  color: #5f25bf;
+}
+
+/* ── World lobes ── */
+.lobeFill {
+  opacity: 0.9;
+}
+
+.lobeRing {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.32;
+  vector-effect: non-scaling-stroke;
+}
+
+.lobeLabel {
+  fill: currentColor;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-anchor: middle;
+}
+
+.lobeSub {
+  fill: rgb(var(--c-soft-mute));
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+  text-anchor: middle;
+}
+
+/* ── Inbound traces ── */
+.trace {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.28;
+  vector-effect: non-scaling-stroke;
+}
+
+.traceFlow {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 14 100;
+  stroke-dashoffset: 114;
+  opacity: 0;
+  will-change: stroke-dashoffset, opacity;
+  animation: engTrace 9s ease-in-out infinite;
+  animation-delay: calc(var(--eng-i, 0) * 0.5s);
+}
+
+/* ── The engine core ── */
+.coreGlow {
+  opacity: 0.85;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: engBreathe 9s ease-in-out infinite;
+}
+
+.coreSpin {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.32);
+  stroke-width: 1;
+  stroke-dasharray: 3 9;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: engSpin 44s linear infinite;
+}
+
+.coreTicks line {
+  stroke: rgb(148 163 184 / 0.32);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.coreDisc {
+  fill: rgb(var(--c-obsidian-200) / 0.86);
+}
+:global(.light) .coreDisc {
+  fill: #ffffff;
+}
+
+.coreEdge {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.5);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.coreBrand {
+  fill: rgb(var(--c-soft-mute));
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+
+.coreTitle {
+  fill: rgb(var(--c-soft-white));
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-anchor: middle;
+}
+
+/* ── Sampled stride strip ── */
+.samples {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: engSamples 11s ease-in-out infinite;
+}
+
+.sample {
+  stroke: rgb(120 190 255 / 0.4);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sampleStrong {
+  stroke: rgb(79 209 255 / 0.72);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+:global(.light) .sample {
+  stroke: rgb(27 78 217 / 0.36);
+}
+:global(.light) .sampleStrong {
+  stroke: rgb(16 143 192 / 0.7);
+}
+
+@keyframes engTrace {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 114;
+  }
+  6% {
+    opacity: 0.95;
+  }
+  30% {
+    opacity: 0.95;
+    stroke-dashoffset: 0;
+  }
+  36% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes engBreathe {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes engSpin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes engSamples {
+  0%,
+  100% {
+    transform: scaleY(0.94);
+  }
+  50% {
+    transform: scaleY(1.07);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traceFlow,
+  .coreGlow,
+  .coreSpin,
+  .samples {
+    animation: none;
+  }
+  .traceFlow {
+    display: none;
+  }
+  .coreGlow {
+    opacity: 0.8;
+    transform: none;
+  }
+  .samples {
+    transform: none;
+  }
+}

@@ -122,13 +122,11 @@ export default function ResearchPage() {
           <div className="max-w-3xl">
             <span className="eyebrow">
               <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-              Research · {papers.length} papers · 1 granted patent
+              Research at GaitAI
             </span>
             <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
-              The research behind{" "}
-              <span className="text-gradient">
-                GaitAI movement intelligence.
-              </span>
+              Built on a{" "}
+              <span className="text-gradient">published research record.</span>
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-relaxed text-soft-gray sm:text-lg">
               A traceable research foundation spanning gait biometrics,
@@ -248,8 +246,10 @@ export default function ResearchPage() {
               Evidence map
             </span>
             <h2 className="mt-5 font-display text-[2rem] leading-[1.12] tracking-[-0.025em] text-balance text-soft-white sm:text-[2.5rem]">
-              Every capability can be traced back to{" "}
-              <span className="text-gradient">its research foundation.</span>
+              See how published research informs{" "}
+              <span className="text-gradient">
+                GaitAI&apos;s capability layer.
+              </span>
             </h2>
           </div>
 

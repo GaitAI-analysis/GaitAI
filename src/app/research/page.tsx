@@ -313,7 +313,7 @@ export default function ResearchPage() {
                 <span className="text-gradient">product module.</span>
               </>
             }
-            description="Every model in this pipeline traces back to a research area above, and feeds the outputs the product pages describe."
+            description="The GaitAI platform draws on the research foundations above. Product-specific models and workflows require their own validation for their intended use — none is published in this record."
             align="left"
           />
           <div className="mt-12">

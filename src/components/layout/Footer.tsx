@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Github, Linkedin, Mail, Twitter } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { ctas } from "@/data/content";
 
 /**
  * The single footer link source.
@@ -43,7 +44,7 @@ const footerLinks = [
   {
     heading: "Engage",
     items: [
-      { label: "Discuss a pilot", href: "/#contact" },
+      { label: ctas.pilot.label, href: ctas.pilot.href },
       { label: "How deployment works", href: "/products#deploy" },
       { label: "Security & privacy controls", href: "/legal/security" },
       { label: "Investors & collaboration", href: "/investors" },

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { type FormEvent, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { PILOT_SCOPE } from "@/data/trust";
+import { ctas } from "@/data/content";
 
 const interestGroups = [
   {
@@ -87,7 +88,7 @@ export function CTA() {
             <div className="min-w-0">
               <span className="eyebrow">
                 <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                Request a demo · Start a pilot · Partner with us
+                {ctas.demo.label} · {ctas.pilot.label} · {ctas.research.label}
               </span>
               <h2 className="mt-4 font-display text-[clamp(2rem,3vw,2.75rem)] font-semibold leading-[1.1] tracking-[-0.03em] text-balance text-soft-white">
                 Bring movement intelligence to{" "}
@@ -223,7 +224,7 @@ export function CTA() {
                   "Sending..."
                 ) : (
                   <>
-                    Request a demo
+                    {ctas.demo.label}
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}

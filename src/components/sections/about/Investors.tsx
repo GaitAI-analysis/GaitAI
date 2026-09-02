@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { productCount } from "@/data/products";
 import { InvestorSignal } from "./InvestorSignal";
+import { ctas } from "@/data/content";
 
 /**
  * Wording policy: this section previously asserted "multiple live pilots in
@@ -186,7 +187,7 @@ export function Investors() {
 
             <Reveal delay={0.56}>
               <Link href="/#contact" className="inv-cta">
-                <span className="inv-cta-label">Talk to us about investment</span>
+                <span className="inv-cta-label">{ctas.investor.label}</span>
                 <svg
                   className="inv-cta-arrow"
                   viewBox="0 0 20 20"

@@ -25,6 +25,7 @@ import { PostCoverImage, PostResources } from "@/components/posts/PostMedia";
 import { renderMarkdown } from "@/lib/markdown";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
 import type { Post } from "@/lib/posts";
+import { ctas } from "@/data/content";
 
 function formatDate(iso: string) {
   try {
@@ -177,7 +178,7 @@ export function LivePostView({ slug }: { slug: string }) {
                   href="/#contact"
                   className="relative mt-5 inline-flex items-center gap-1.5 text-sm font-medium text-cyan-300 hover:text-soft-white"
                 >
-                  Request a demo
+                  {ctas.demo.label}
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
               </div>

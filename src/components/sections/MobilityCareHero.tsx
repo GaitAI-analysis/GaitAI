@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { assetPath } from "@/lib/paths";
+import { ctas } from "@/data/content";
 
 /**
  * Hero for /mobilitycare/ — same composition pattern as the SecureVision
@@ -78,7 +79,7 @@ export function MobilityCareHero() {
               href="/#contact"
               className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-soft-white/20 bg-obsidian/40 px-6 py-3 text-sm font-semibold text-soft-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-soft-white/35 hover:bg-obsidian/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-soft-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
-              Book a demo
+              {ctas.demo.label}
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
                 aria-hidden="true"

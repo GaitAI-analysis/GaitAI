@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { ctas } from "@/data/content";
 import {
   PILOT_SCOPE,
   deploymentFacts,
@@ -94,7 +95,7 @@ export function DeployGaitAI() {
 
         <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
           <Link href="/#contact" className="btn-primary">
-            Discuss a pilot
+            {ctas.pilot.label}
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
           <Link

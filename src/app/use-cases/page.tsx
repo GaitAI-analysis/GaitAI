@@ -6,6 +6,7 @@ import { UseCaseProblemRow } from "@/components/usecases/UseCaseProblemRow";
 import { WhoWeServe } from "@/components/sections/about/WhoWeServe";
 import { PlatformHub } from "@/components/visuals/PlatformHub";
 import { industryUseCases } from "@/data/products";
+import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "Use Cases — Which movement problem are you solving?",
@@ -172,7 +173,7 @@ export default function UseCasesPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link href="/#contact" className="btn-primary">
-                  Discuss a pilot
+                  {ctas.pilot.label}
                   <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </Link>
                 <Link href="/products#deploy" className="btn-ghost">

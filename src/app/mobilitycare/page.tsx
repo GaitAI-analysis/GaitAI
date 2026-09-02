@@ -19,6 +19,7 @@ import {
   watchcareFeatures,
 } from "@/data/products";
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
+import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "MobilityCare — Clinical movement intelligence",
@@ -81,7 +82,7 @@ export default function MobilityCarePage() {
                   GaitAI WalkScan
                 </div>
                 <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">
-                  Turn a walking video into an{" "}
+                  Turn a walking video into a{" "}
                   <span
                     style={{
                       background:
@@ -364,7 +365,7 @@ export default function MobilityCarePage() {
               </div>
               <div className="flex gap-3">
                 <Link href="/#contact" className="btn-primary">
-                  Book a demo
+                  {ctas.demo.label}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link href="/products#deploy" className="btn-ghost">

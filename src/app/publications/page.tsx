@@ -15,6 +15,7 @@ import { FOUNDER_NAME, papers, patent } from "@/data/publications";
 import { PublicationLibrary } from "@/components/publications/PublicationLibrary";
 import { allYears } from "@/components/publications/topics";
 import { assetPath } from "@/lib/paths";
+import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "Publications — The founder research record behind GaitAI",
@@ -251,7 +252,7 @@ export default function PublicationsPage() {
                 </h2>
               </div>
               <Link href="/#contact" className="btn-primary shrink-0">
-                Start a conversation
+                {ctas.research.label}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

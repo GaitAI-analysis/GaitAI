@@ -9,6 +9,7 @@ import { MovementIntelligenceSection } from "@/components/sections/MovementIntel
 import { industryUseCases, productById, secureProducts } from "@/data/products";
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { assetPath } from "@/lib/paths";
+import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "SecureVision — Privacy-aware movement intelligence",
@@ -390,7 +391,7 @@ export default function SecureVisionPage() {
               </div>
               <div className="flex gap-3">
                 <Link href="/#contact" className="btn-primary">
-                  Request a demo
+                  {ctas.demo.label}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link

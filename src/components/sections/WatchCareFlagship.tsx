@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight, Watch } from "lucide-react";
 import { SmartwatchVisual } from "@/components/visuals/SmartwatchVisual";
 import { watchcareFeatures } from "@/data/products";
+import { ctas } from "@/data/content";
 
 /**
  * WatchCare flagship — the signature wearable section on the homepage.
@@ -109,8 +110,8 @@ export function WatchCareFlagship() {
                 Explore WatchCare
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
-              <Link href="#contact" className="btn-ghost">
-                Pilot with us
+              <Link href={ctas.pilot.href} className="btn-ghost">
+                {ctas.pilot.label}
               </Link>
             </div>
           </div>

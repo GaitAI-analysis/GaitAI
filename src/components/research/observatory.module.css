@@ -2240,17 +2240,20 @@
   /* The headline sits on the left third, so the capture fades out under it.
      A CSS mask rather than an SVG <mask>: if this one fails to apply the hero
      is merely un-faded, where a failed SVG mask hid the whole thing. */
+  /* Raising the sequence brought the first frame level with the lede, so the
+     fade holds longer before it clears: transparent through the headline,
+     a third of the way up by the lede's right edge, full only past it. */
   -webkit-mask-image: linear-gradient(
     90deg,
-    transparent 4%,
-    rgb(0 0 0 / 0.3) 26%,
-    #000 46%
+    transparent 6%,
+    rgb(0 0 0 / 0.22) 28%,
+    #000 50%
   );
   mask-image: linear-gradient(
     90deg,
-    transparent 4%,
-    rgb(0 0 0 / 0.3) 26%,
-    #000 46%
+    transparent 6%,
+    rgb(0 0 0 / 0.22) 28%,
+    #000 50%
   );
 }
 
@@ -2292,15 +2295,38 @@
    forwards — the hero is blank in any environment where the animation does not
    run, which is a blank hero for the sake of a one-second flourish. This way
    the worst case is the finished picture. */
+/* Per-frame visibility comes from the component as `--l-op`, because the
+   ramp is no longer linear: the focal frame reads at full strength, its
+   neighbours nearly so, and the outer frames stay subdued. A single
+   `calc()` ramp made every figure equally unremarkable and left the middle
+   of the sequence too faint to recognise at normal zoom. */
 .labFrame {
-  /* Older frames sit further back, so the sequence reads in stride order. */
-  opacity: calc(0.42 + var(--l-i, 0) * 0.1);
+  opacity: var(--l-op, 0.6);
+}
+
+/* The focal frame is the measurement. Slightly heavier bones and brighter
+   joints — not a different colour, and not a glow. */
+.labFrameFocus .labBone {
+  stroke-width: 2.1;
+}
+.labFrameFocus .labBoneFar {
+  opacity: 0.55;
+  stroke-width: 1.5;
+}
+.labFrameFocus .labJoint {
+  opacity: 1;
+}
+.labFrameFocus .labHead {
+  stroke-width: 1.9;
+}
+.labFrameFocus .labContact {
+  opacity: 0.22;
 }
 
 .labBone {
   fill: none;
   stroke: var(--obs-cyan);
-  stroke-width: 1.6;
+  stroke-width: 1.85;
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
@@ -2340,6 +2366,8 @@
 }
 
 /* ── Joint trajectories ── */
+/* Three curves instead of five, so each can carry a little more weight and
+   still sit under the figures in the hierarchy. */
 .labTrajPath {
   fill: none;
   stroke: var(--obs-cyan);
@@ -2347,6 +2375,12 @@
   stroke-linecap: round;
   opacity: 0.3;
   vector-effect: non-scaling-stroke;
+}
+/* The ankle path is the one a gait study reads first — the swing arc — so it
+   carries a little more weight than the trunk and pelvis curves above it. */
+.labTrajPath:nth-of-type(3) {
+  stroke-width: 1.3;
+  opacity: 0.46;
 }
 
 .labTrajNodes circle {
@@ -2399,7 +2433,105 @@
   font-size: 9.5px;
   font-weight: 500;
   letter-spacing: 0.24em;
-  opacity: 0.55;
+  opacity: 0.48;
+}
+
+/* ── The focal measurement: knee flexion on the swing frame ──
+   The one place in the hero allowed to read as an instrument rather than as
+   atmosphere. Still no glow and no new colour: it earns attention through
+   contrast against a subdued field, which is the only kind of emphasis this
+   palette has. */
+.labFocusAxis {
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+.labFocusArc {
+  fill: none;
+  stroke: var(--obs-cyan);
+  stroke-width: 1.9;
+  opacity: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+.labFocusTick {
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+.labFocusJoint {
+  fill: #dff3ff;
+  opacity: 0.95;
+}
+:global(.light) .labFocusJoint {
+  fill: #0e7490;
+}
+.labFocusRing {
+  fill: none;
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+.labFocusValue {
+  fill: var(--obs-ink);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+/* ── The upper-right instrument cluster ──
+   Everything here is deliberately at the noise floor: it fills the quadrant
+   with measurement, and stops before it becomes a panel you try to read. */
+.labInstr line {
+  stroke: rgb(148 163 184 / 0.22);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.labInstrDash {
+  stroke: rgb(79 209 255 / 0.22) !important;
+  stroke-dasharray: 2 5;
+}
+.labInstrCell {
+  fill: rgb(148 163 184 / 0.07);
+  stroke: rgb(148 163 184 / 0.14);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.labInstrCellLit {
+  fill: rgb(79 209 255 / 0.22);
+  stroke: rgb(79 209 255 / 0.34);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.labInstrDot {
+  fill: rgb(148 163 184 / 0.3);
+}
+.labInstrLit {
+  fill: rgb(79 209 255 / 0.55);
+}
+.labInstrBase {
+  stroke: rgb(148 163 184 / 0.16) !important;
+}
+.labInstrWave {
+  fill: none;
+  stroke: rgb(156 100 241 / 0.34);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .labInstr line {
+  stroke: rgb(15 23 42 / 0.18);
+}
+:global(.light) .labInstrDot {
+  fill: rgb(15 23 42 / 0.22);
+}
+:global(.light) .labInstrWave {
+  stroke: rgb(109 52 201 / 0.32);
 }
 
 /* One sample travelling the signal. This element exists ONLY as motion, so

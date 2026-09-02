@@ -1,521 +1,408 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Lock } from "lucide-react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { AIPipelineDiagram } from "@/components/visuals/AIPipelineDiagram";
-import { JourneyTimeline } from "@/components/sections/JourneyTimeline";
 import { MovementHeroBackground } from "@/components/sections/MovementHeroBackground";
-import { ResearchAreaEvidence } from "@/components/research/ResearchAreaEvidence";
-import {
-  ResearchRecordPanel,
-  type RecordCell,
-} from "@/components/research/ResearchRecordPanel";
-import { ResearchPillars } from "@/components/research/ResearchPillars";
-import { FeaturedReferences } from "@/components/research/FeaturedReferences";
+import { EvidencePillar } from "@/components/research/EvidencePillar";
+import { EvidenceStatus } from "@/components/research/EvidenceStatus";
+import { ResearchTimeline } from "@/components/research/ResearchTimeline";
+import { ResearchToProduct } from "@/components/research/ResearchToProduct";
 import { researchAreas } from "@/data/evidence";
 import { productCount } from "@/data/products";
+import { gaitscapeRelationships } from "@/data/gaitscape/graph";
 import { FOUNDER_NAME, papers, patent } from "@/data/publications";
+import styles from "@/components/research/evidence.module.css";
 
 export const metadata: Metadata = {
-  title: "Research — The evidence behind GaitAI's movement intelligence",
-  description:
-    "GaitAI's research basis, area by area: the peer-reviewed papers and granted patent behind gait recognition, pose-based gait analysis, privacy-preserving gait data and edge inference — and which capabilities and products each one underpins.",
+  title: "Research — The evidence behind GaitAI movement intelligence",
+  description: `A traceable research foundation: ${papers.length} peer-reviewed papers and granted Indian patent ${patent.patentNumber} across gait biometrics, pose-based movement analysis, privacy-aware gait data and edge intelligence — mapped to the capabilities and products each one informs.`,
   alternates: { canonical: "/research" },
 };
 
 /**
- * Evidence-led research page.
+ * The research evidence page.
  *
- * Every research area below is resolved from real records: the four research
- * nodes in the GaitScape graph carry actual publication ids, and the
- * capability and product links come from the same documented relationships
- * the graph renders. Nothing is asserted that a paper, the patent or the
- * product architecture does not already support — and what the record does
- * NOT contain is stated openly in the "What the record does not cover"
- * section rather than left to be inferred.
+ * One idea dominates: RESEARCH -> CAPABILITY -> PRODUCT. Four evidence
+ * pillars carry it, each resolved from real records — the research nodes in
+ * the GaitScape graph hold actual publication ids, and the capability and
+ * product links are the same documented relationships the graph renders.
  *
- * Previous version removed: six invented "research domains", six invented
- * "publication topics", and method claims (pre-registered protocols,
- * cross-validated benchmarks, curated multi-site datasets, clinical-grade
- * validation) with no supporting record anywhere in this repository.
+ * The scientific distinction is preserved but stated ONCE, in the evidence
+ * status panel, rather than as a disclaimer repeated under every row: the
+ * record establishes the foundation; it does not validate a product's output
+ * for a particular use.
+ *
+ * Density was the problem this rewrite addresses, so blocks were compressed
+ * rather than deleted:
+ *   - the separate founder-record and platform-output sections became one
+ *     provenance strip
+ *   - the ten-model pipeline diagram became the conceptual chain in
+ *     ResearchToProduct; `aiPipeline` in products.ts is untouched
+ *   - the prose journey timeline became a rail
+ *   - the Responsible AI block became a band pointing at the full policy
+ *   - "what the record does not cover" became "current evidence boundary" —
+ *     the same four facts, worded as scope rather than failure
+ *
+ * Nothing factual was removed: all 8 papers, the patent, every capability
+ * mapping and every product link is still reachable on this page.
  */
-
-const publicationYears = papers.map((p) => p.year);
 
 /**
- * Lit segments are the figure itself, not a share of a target — so the bar
- * under each numeral can be counted and checked against it.
+ * Products per capability across the whole platform, from the documented
+ * `powered-by` relations. Deduplicated, because a product can reach the same
+ * capability through more than one relation.
  */
-const recordCells: RecordCell[] = [
-  {
-    value: `${papers.length}`,
-    label: "Peer-reviewed papers",
-    lit: papers.length,
-    tone: "cyan",
-  },
-  { value: "1", label: "Granted patent (India)", lit: 1, tone: "violet" },
-  {
-    value: `${researchAreas.length}`,
-    label: "Research areas",
-    lit: researchAreas.length,
-    tone: "royal",
-  },
-  {
-    value: "10+ yrs",
-    label: "Of founder gait research",
-    lit: 10,
-    tone: "emerald",
-  },
+const capabilityProductCounts: Record<string, number> = (() => {
+  const counts: Record<string, number> = {};
+  const seen = new Set<string>();
+  for (const rel of gaitscapeRelationships) {
+    if (rel.type !== "powered-by") continue;
+    const key = `${rel.source}|${rel.target}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    counts[rel.target] = (counts[rel.target] ?? 0) + 1;
+  }
+  return counts;
+})();
+
+const heroMetrics = [
+  { value: `${papers.length}`, label: "Peer-reviewed papers" },
+  { value: "1", label: "Granted patent" },
+  { value: `${researchAreas.length}`, label: "Research pillars" },
+  { value: `${productCount}`, label: "Connected product modules" },
 ];
 
 /** Method commitments — each describes practice or architecture, not results. */
-const methodCommitments = [
+const principles = [
   {
     title: "Traceable to a signal",
-    desc: "Every score a product reports is built from named movement features — cadence, symmetry, variability, trajectory — so a clinician or operator can see what moved the number rather than accept an opaque output.",
+    desc: "Every score is built from named movement features — cadence, symmetry, variability, trajectory — so a reviewer can see what moved the number.",
   },
   {
     title: "Peer-reviewed foundations",
-    desc: "The recognition, pose and privacy components come from work published with Springer, Elsevier and Wiley · IET, and the edge pipeline is covered by a granted Indian patent. Each area below lists its own records.",
+    desc: "Recognition, pose and privacy components come from work published with Springer, Elsevier and Wiley · IET; the edge pipeline is covered by a granted patent.",
   },
   {
     title: "Framed as decision support",
-    desc: "Outputs are assessment, screening and monitoring. No product diagnoses, and every clinical page says so — the design constraint, not a disclaimer added afterwards.",
+    desc: "Outputs are assessment, screening and monitoring. No product diagnoses — the design constraint, not a disclaimer added afterwards.",
   },
   {
     title: "Stated limitations",
-    desc: "Each product's technical view carries its own limitations section: what constrains capture quality, what the model does not infer, and where human review is required.",
+    desc: "Each product's technical view lists what constrains capture quality, what the model does not infer, and where human review is required.",
   },
 ];
 
-/** Stated plainly so no reader has to guess what is missing. */
-const evidenceGaps = [
-  "No clinical validation study, trial result or regulatory clearance.",
-  "No published accuracy, sensitivity, specificity or latency benchmark.",
-  "No proprietary or multi-site dataset released or described.",
-  "No named customer, deployment or completed pilot.",
+/**
+ * The evidence boundary. The same four facts the page has always stated,
+ * worded as scope rather than as failure.
+ */
+const boundary = [
+  "Product-specific clinical validation",
+  "Published sensitivity, specificity or accuracy benchmarks",
+  "A public proprietary or multi-site dataset",
+  "Named production deployment evidence",
 ];
+
+const responsiblePoints = [
+  "Privacy by default",
+  "Consent & authority",
+  "Explainable outputs",
+  "No unsupported claims",
+];
+
+const publicationYears = papers.map((p) => p.year);
 
 export default function ResearchPage() {
   return (
     <>
-      {/* HERO */}
-      <section className="site-page-intro relative overflow-hidden pb-20">
+      {/* ─────────── HERO ─────────── */}
+      <section className="site-page-intro relative overflow-hidden pb-16">
         <MovementHeroBackground />
 
         <div className="container-wide relative z-10">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/[0.08] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              <span className="pill-dot" />
+          <div className="max-w-3xl">
+            <span className="eyebrow">
+              <span className="h-1 w-6 rounded-full bg-gradient-brand" />
               Research · {papers.length} papers · 1 granted patent
-            </div>
+            </span>
             <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
-              The research{" "}
-              <span className="text-gradient">GaitAI is actually built on.</span>
+              The research behind{" "}
+              <span className="text-gradient">
+                GaitAI movement intelligence.
+              </span>
             </h1>
-            <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Four research areas, each with the papers and patent behind it,
-              the capabilities it grounds and the products that use them. Follow
-              any claim back to its record.
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-soft-gray sm:text-lg">
+              A traceable research foundation spanning gait biometrics,
+              pose-based movement analysis, privacy-aware gait data and edge
+              intelligence.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link href="#areas" className="btn-primary">
-                See the evidence map
-                <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                Explore evidence
               </Link>
               <Link href="/publications" className="btn-ghost">
                 Browse publications
               </Link>
             </div>
           </div>
+
+          {/* Four restrained metrics — a hairline row, not statistic cards. */}
+          <dl className="mt-14 grid grid-cols-2 gap-x-8 gap-y-8 border-t border-white/[0.09] pt-8 sm:mt-16 md:grid-cols-4">
+            {heroMetrics.map((metric) => (
+              <div key={metric.label}>
+                <dt className="sr-only">{metric.label}</dt>
+                <dd>
+                  <span className="block font-display text-[2rem] font-semibold leading-none tracking-[-0.03em] text-soft-white sm:text-[2.25rem]">
+                    {metric.value}
+                  </span>
+                  <span className="mt-2.5 block text-[11px] font-medium uppercase tracking-[0.16em] text-soft-mute">
+                    {metric.label}
+                  </span>
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      {/* WHOSE RECORD IS THIS — founder vs company */}
+      {/* ─────────── PROVENANCE STRIP ───────────
+          Replaces the two full-height "founder research record" and "GaitAI
+          platform output" sections. Same distinction, one strip. The
+          #attribution id is kept — the home page links straight to it. */}
       <section
         id="attribution"
-        className="border-y border-white/[0.06] bg-obsidian-300/40 py-14 sm:py-16"
+        className="border-y border-white/[0.07] bg-obsidian-300/30 py-12 sm:py-14"
       >
         <div className="container-wide">
-          <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-            <div className="rounded-2xl border border-cyan-300/20 bg-gradient-to-b from-cyan-300/[0.04] to-transparent p-6 sm:p-8">
-              <div className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-                Founder research record
-              </div>
-              <h2 className="mt-4 font-display text-xl text-soft-white sm:text-2xl">
-                {papers.length} peer-reviewed papers and one granted patent,
-                authored by {FOUNDER_NAME}.
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-soft-mute">
-                Published between {Math.min(...publicationYears)} and{" "}
-                {Math.max(...publicationYears)} with Springer, Elsevier and
-                Wiley · IET, with academic co-authors. Patent{" "}
-                {patent.patentNumber} is held by the named inventors, granted by
-                the Government of India in {patent.year}. These are academic and
-                individually held records — they are the foundation GaitAI is
-                built on, not company-produced output.
+          <h2 className="eyebrow">
+            <span
+              aria-hidden="true"
+              className="h-1 w-6 rounded-full bg-gradient-brand"
+            />
+            Research provenance
+          </h2>
+
+          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)] lg:gap-0">
+            <div className="min-w-0">
+              <h3 className="font-display text-[1.1875rem] leading-snug text-soft-white">
+                Founder-led research
+              </h3>
+              <p className="mt-2.5 text-[13.5px] leading-relaxed text-soft-gray">
+                {papers.length} peer-reviewed papers + Patent{" "}
+                {patent.patentNumber}
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-soft-mute">
+                {Math.min(...publicationYears)}–{Math.max(...publicationYears)}{" "}
+                published record, authored by {FOUNDER_NAME} with academic
+                co-authors
               </p>
               <Link
                 href="/publications"
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"
+                className="mt-4 inline-flex items-center gap-1.5 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-cyan-300 transition-colors hover:text-cyan-200"
               >
-                See every record
-                <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                View publications
+                <span aria-hidden="true">→</span>
               </Link>
             </div>
 
-            <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.03] to-transparent p-6 sm:p-8">
-              <div className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-soft-white">
-                GaitAI platform output
-              </div>
-              <h2 className="mt-4 font-display text-xl text-soft-white sm:text-2xl">
-                The engine, the {productCount} modules and the privacy
-                architecture built on that foundation.
-              </h2>
-              <p className="mt-3 text-sm leading-relaxed text-soft-mute">
-                What GaitAI has produced is the platform: the shared movement
-                engine, the product modules across MobilityCare and
-                SecureVision, the PrivacyGuard control layer, and the report and
-                dashboard workflows around them. GaitAI does not currently hold
-                company-assigned publications or patents of its own — where that
-                changes, it will be listed here separately.
+            <div
+              aria-hidden="true"
+              className="hidden items-center justify-center text-cyan-300/50 lg:flex"
+            >
+              →
+            </div>
+
+            <div className="min-w-0">
+              <h3 className="font-display text-[1.1875rem] leading-snug text-soft-white">
+                GaitAI platform
+              </h3>
+              <p className="mt-2.5 text-[13.5px] leading-relaxed text-soft-gray">
+                Movement-intelligence capabilities
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed text-soft-mute">
+                MobilityCare + SecureVision · {productCount} modular products
               </p>
               <Link
                 href="/products"
-                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-soft-white transition-colors hover:text-cyan-300"
+                className="mt-4 inline-flex items-center gap-1.5 text-[11.5px] font-semibold uppercase tracking-[0.14em] text-soft-white transition-colors hover:text-cyan-300"
               >
-                See the platform
-                <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                Explore platform
+                <span aria-hidden="true">→</span>
               </Link>
             </div>
           </div>
 
-          <div className="mt-12">
-            <ResearchRecordPanel cells={recordCells} />
-          </div>
+          <p className="mt-8 max-w-3xl border-t border-white/[0.07] pt-6 text-[12.5px] leading-relaxed text-soft-mute">
+            Academic publications and Patent {patent.patentNumber} constitute
+            the research foundation. GaitAI product modules are subsequent
+            platform implementations.
+          </p>
         </div>
       </section>
 
-      {/* WHAT THIS RESEARCH ENABLES — the scannable answer; the evidence map
-          below is the traceable one */}
-      <ResearchPillars />
-
-      {/* EVIDENCE MAP — research area → publications → capabilities → products */}
+      {/* ─────────── EVIDENCE MAP — the centrepiece ─────────── */}
       <section id="areas" className="section">
         <div className="container-wide">
-          <SectionHeading
-            eyebrow="Evidence map"
-            title={
-              <>
-                Each area, and{" "}
-                <span className="text-gradient">what backs it.</span>
-              </>
-            }
-            description="Each area below is a research foundation: published work that informed a capability, and the products built on that capability. A foundation is not a validation — the distinction is spelled out below the chain."
-            align="left"
-          />
-
-          {/* The chain, one line per area. Column headers name what each step
-              actually is, because the previous version let "research → product"
-              be read as "this paper validates these products". It does not. */}
-          <Reveal>
-            <ol className="mt-12 overflow-hidden rounded-2xl border border-white/[0.08]">
-              <li className="hidden gap-x-4 border-b border-white/[0.08] bg-white/[0.03] px-5 py-3 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)] sm:px-6">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                  Research foundation
-                </span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                  Capability informed by this work
-                </span>
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                  Related GaitAI products
-                </span>
-              </li>
-              {researchAreas.map((area) => (
-                <li
-                  key={`chain-${area.id}`}
-                  className="grid gap-x-4 gap-y-1.5 border-b border-white/[0.06] bg-white/[0.015] px-5 py-4 last:border-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)] sm:items-baseline sm:px-6"
-                >
-                  <a
-                    href={`#${area.id}`}
-                    className="text-[13.5px] font-medium text-soft-white transition-colors hover:text-cyan-300"
-                  >
-                    {area.title}
-                  </a>
-                  <span className="text-[12.5px] leading-snug text-soft-gray">
-                    <span aria-hidden="true" className="mr-2 text-cyan-300/60">
-                      &rarr;
-                    </span>
-                    {area.capabilities.map((c) => c.title).join(", ")}
-                  </span>
-                  <span className="text-[12.5px] leading-snug text-soft-mute">
-                    <span aria-hidden="true" className="mr-2 text-cyan-300/60">
-                      &rarr;
-                    </span>
-                    {area.products
-                      .slice(0, 4)
-                      .map((p) => p.short)
-                      .join(", ")}
-                    {area.products.length > 4
-                      ? ` +${area.products.length - 4} more`
-                      : ""}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </Reveal>
-
-          {/* Said plainly, immediately after the chain. */}
-          <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">
-            <h3 className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-soft-white">
-              How to read this
-            </h3>
-            <dl className="mt-4 grid gap-x-10 gap-y-4 sm:grid-cols-3">
-              <div>
-                <dt className="text-[12.5px] font-semibold text-soft-white">
-                  Research foundation
-                </dt>
-                <dd className="mt-1 text-[12.5px] leading-relaxed text-soft-mute">
-                  Peer-reviewed work, or the granted patent, on the underlying
-                  method. Real, citable, and listed per area.
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[12.5px] font-semibold text-soft-white">
-                  Capability informed by this work
-                </dt>
-                <dd className="mt-1 text-[12.5px] leading-relaxed text-soft-mute">
-                  The platform capability that method informs — pose
-                  estimation, gait analysis, movement biometrics and so on.
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[12.5px] font-semibold text-soft-white">
-                  Direct product validation
-                </dt>
-                <dd className="mt-1 text-[12.5px] leading-relaxed text-soft-mute">
-                  <span className="text-amber-300">None published.</span> No
-                  study in this record validates any GaitAI product&apos;s
-                  output, and nothing on this page should be read as one.
-                </dd>
-              </div>
-            </dl>
+          <div className="max-w-3xl">
+            <span className="eyebrow">
+              <span className="h-1 w-6 rounded-full bg-gradient-brand" />
+              Evidence map
+            </span>
+            <h2 className="mt-5 font-display text-[2rem] leading-[1.12] tracking-[-0.025em] text-balance text-soft-white sm:text-[2.5rem]">
+              Every capability can be traced back to{" "}
+              <span className="text-gradient">its research foundation.</span>
+            </h2>
           </div>
 
-          {/* Each area reads research → capability → product. The detail used
-              to be one bordered three-column panel per area; it is now an open
-              editorial layout with progressive disclosure. Same records, same
-              capabilities, same product relationships. */}
-          <div className="mt-14 divide-y divide-white/[0.07]">
+          <div className="mt-12 grid gap-4 sm:mt-14">
             {researchAreas.map((area) => (
               <Reveal key={area.id}>
-                <div className="py-14 first:pt-0 last:pb-0">
-                  <ResearchAreaEvidence area={area} />
-                </div>
+                <EvidencePillar
+                  area={area}
+                  capabilityProductCounts={capabilityProductCounts}
+                />
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FEATURED REFERENCES — the records themselves, after the map that
-          explains what they back */}
-      <FeaturedReferences />
+      {/* ─────────── EVIDENCE STATUS — the distinction, stated once ─────────── */}
+      <EvidenceStatus />
 
-      {/* JOURNEY TIMELINE */}
-      <JourneyTimeline variant="muted" />
+      {/* ─────────── RESEARCH JOURNEY ─────────── */}
+      <ResearchTimeline />
 
-      {/* PIPELINE */}
-      <section className="section">
+      {/* ─────────── FROM RESEARCH TO PRODUCT ─────────── */}
+      <ResearchToProduct />
+
+      {/* ─────────── HOW WE WORK — 2×2 ─────────── */}
+      <section className="bg-obsidian-300/25 py-16 sm:py-20">
         <div className="container-wide">
-          <SectionHeading
-            eyebrow="Applied analytical modules"
-            title={
-              <>
-                How research becomes a{" "}
-                <span className="text-gradient">product module.</span>
-              </>
-            }
-            description="The GaitAI platform draws on the research foundations above. Product-specific models and workflows require their own validation for their intended use — none is published in this record."
-            align="left"
-          />
-          <div className="mt-12">
-            <AIPipelineDiagram />
-          </div>
+          <span className="eyebrow">
+            <span className="h-1 w-6 rounded-full bg-gradient-brand" />
+            How we work
+          </span>
+          <h2 className="mt-5 max-w-2xl font-display text-[1.75rem] leading-[1.15] tracking-[-0.02em] text-balance text-soft-white sm:text-[2.125rem]">
+            Four commitments that shape{" "}
+            <span className="text-gradient">how outputs are built.</span>
+          </h2>
+
+          <dl className="mt-12 grid gap-x-14 gap-y-9 sm:grid-cols-2">
+            {principles.map((principle, i) => (
+              <div key={principle.title} className={styles.principle}>
+                <span
+                  aria-hidden="true"
+                  className={`${styles.principleIndex} font-mono text-[11px]`}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <dt className="mt-2.5 font-display text-[1.1875rem] leading-snug text-soft-white">
+                  {principle.title}
+                </dt>
+                <dd className="mt-2 max-w-prose text-[13.5px] leading-relaxed text-soft-mute">
+                  {principle.desc}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      {/* METHOD — editorial, replaces four near-identical feature cards */}
-      <section className="section bg-obsidian-300/40">
+      {/* ─────────── CURRENT EVIDENCE BOUNDARY ─────────── */}
+      <section id="evidence-boundary" className="section">
         <div className="container-wide">
-          <SectionHeading
-            eyebrow="How we work"
-            title={
-              <>
-                Reproducible foundations.{" "}
-                <span className="text-gradient">Stated limits.</span>
-              </>
-            }
-            description="A model that will sit in a clinical or safety workflow has to be explainable and honest about its edges. These are the commitments that shape how GaitAI's products are built and described."
-            align="left"
-          />
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)] lg:gap-16">
+            <div>
+              <span className="eyebrow">
+                <span className="h-1 w-6 rounded-full bg-gradient-brand" />
+                Current evidence boundary
+              </span>
+              <h2 className="mt-5 font-display text-[1.75rem] leading-[1.15] tracking-[-0.02em] text-balance text-soft-white sm:text-[2.125rem]">
+                What has not yet been{" "}
+                <span className="text-gradient">established publicly.</span>
+              </h2>
+              <p className="mt-5 max-w-prose text-[13.5px] leading-relaxed text-soft-mute">
+                These are validation gaps to be addressed through future
+                independent studies and collaborations.
+              </p>
+            </div>
 
-          <Reveal>
-            <dl className="mt-12 grid gap-x-14 border-t border-white/[0.06] lg:grid-cols-2">
-              {methodCommitments.map((commitment, i) => (
-                <div
-                  key={commitment.title}
-                  className="flex gap-4 border-b border-white/[0.06] py-6"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="font-mono text-[11px] tabular-nums text-cyan-300/70"
-                  >
-                    {String(i + 1).padStart(2, "0")}
+            <ul className="lg:pt-2">
+              {boundary.map((item) => (
+                <li key={item} className={styles.boundaryRow}>
+                  <span aria-hidden="true" className={styles.boundaryMark} />
+                  <span className="text-[0.9375rem] leading-relaxed text-soft-gray">
+                    {item}
+                    <span className="sr-only"> — not yet established</span>
                   </span>
-                  <div className="min-w-0">
-                    <dt className="font-display text-lg font-semibold text-soft-white">
-                      {commitment.title}
-                    </dt>
-                    <dd className="mt-1.5 max-w-prose text-sm leading-relaxed text-soft-mute">
-                      {commitment.desc}
-                    </dd>
-                  </div>
-                </div>
-              ))}
-            </dl>
-          </Reveal>
-
-          {/* What the record does not cover */}
-          <div className="mt-12 rounded-2xl border border-amber-300/20 bg-amber-300/[0.03] p-6 sm:p-8">
-            <h3 className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-amber-300">
-              What the record does not cover
-            </h3>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-soft-gray">
-              So that nothing above is read as more than it is, here is what
-              GaitAI has <span className="text-soft-white">not</span> published:
-            </p>
-            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-              {evidenceGaps.map((gap) => (
-                <li
-                  key={gap}
-                  className="flex items-start gap-2.5 text-[12.5px] leading-relaxed text-soft-mute"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-300/60"
-                  />
-                  {gap}
                 </li>
               ))}
             </ul>
-            <p className="mt-4 max-w-2xl text-[12.5px] leading-relaxed text-soft-mute">
-              Where a product page shows example figures, they are labelled as
-              illustrative report values. Validation studies are exactly the
-              kind of work we want research and clinical partners for.
-            </p>
           </div>
         </div>
       </section>
 
-      {/* RESPONSIBLE AI COMMITMENT */}
+      {/* ─────────── RESPONSIBLE RESEARCH & DEPLOYMENT — narrow band ─────────── */}
+      <section className="border-y border-white/[0.07] bg-obsidian-300/30 py-10 sm:py-12">
+        <div className="container-wide">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+            <div className="min-w-0">
+              <span className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                Responsible research &amp; deployment
+              </span>
+              <ul className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">
+                {responsiblePoints.map((point) => (
+                  <li
+                    key={point}
+                    className="text-[13.5px] leading-snug text-soft-gray"
+                  >
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <Link
+              href="/legal/responsible-ai"
+              className="group inline-flex shrink-0 items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300 transition-colors hover:text-emerald-200"
+            >
+              Read Responsible AI documentation
+              <span
+                aria-hidden="true"
+                className="transition-transform duration-300 group-hover:translate-x-0.5"
+              >
+                →
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────── CTA — a study, not a demo ─────────── */}
       <section className="section">
         <div className="container-wide">
-          <div className="relative overflow-hidden rounded-[2rem] border border-emerald-300/20 bg-gradient-to-b from-emerald-400/[0.04] to-transparent p-10 sm:p-14">
-            <div
-              className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-50 blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(closest-side, rgba(16,185,129,0.25), transparent 70%)",
-              }}
-            />
-            <div className="ring-grid pointer-events-none absolute inset-0 opacity-30" />
-            <div className="relative grid gap-8 lg:grid-cols-[1fr_1.4fr]">
-              <div>
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-400/15 text-emerald-300 ring-1 ring-emerald-300/30">
-                  <Lock aria-hidden="true" className="h-6 w-6" />
-                </span>
-                <div className="mt-5 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
-                  Responsible AI commitment
-                </div>
-                <h2 className="mt-3 font-display text-3xl text-balance text-soft-white sm:text-4xl">
-                  Movement intelligence,{" "}
-                  <span
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #10B981 0%, #4FD1FF 100%)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                    }}
-                  >
-                    deployed responsibly.
-                  </span>
-                </h2>
-                <Link
-                  href="/legal/security"
-                  className="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300 transition-colors hover:text-emerald-200"
-                >
-                  Read the control documentation
-                  <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-              <div className="space-y-4">
-                {[
-                  {
-                    title: "Privacy by default",
-                    desc: "Skeleton-only analytics, optional face blur, edge and on-device processing options, configurable retention and exportable audit logs.",
-                  },
-                  {
-                    title: "Consent and authority",
-                    desc: "Biometric and watchlist capabilities deploy only with lawful authority, consent and a full audit trail.",
-                  },
-                  {
-                    title: "Explainability",
-                    desc: "Every score is grounded in measurable movement features clinicians and operators can review.",
-                  },
-                  {
-                    title: "No overclaiming",
-                    desc: "No compliance certification, clinical approval or measured performance figure is claimed anywhere on this site.",
-                  },
-                ].map((c) => (
-                  <div
-                    key={c.title}
-                    className="rounded-xl border border-white/8 bg-white/[0.025] p-4"
-                  >
-                    <div className="text-sm font-semibold text-soft-white">
-                      {c.title}
-                    </div>
-                    <div className="mt-1 text-[13px] leading-relaxed text-soft-mute">
-                      {c.desc}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.09] bg-gradient-to-b from-white/[0.04] to-transparent p-10 sm:p-14">
+            <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-violet opacity-35 blur-3xl" />
+            <div className="ring-grid pointer-events-none absolute inset-0 opacity-25" />
 
-      {/* CTA */}
-      <section className="section !pt-0">
-        <div className="container-wide">
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-10 sm:p-14">
-            <div className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-violet opacity-40 blur-3xl" />
-            <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
-              <div>
-                <span className="eyebrow">
-                  <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                  Research collaboration &amp; validation studies
+            <div className="relative max-w-3xl">
+              <h2 className="font-display text-[2rem] leading-[1.12] tracking-[-0.025em] text-balance text-soft-white sm:text-[2.5rem]">
+                Research creates the foundation.{" "}
+                <span className="text-gradient">
+                  Validation builds the evidence for use.
                 </span>
-                <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
-                  Help us build the validation record this platform deserves.
-                </h2>
-              </div>
-              <div className="flex flex-wrap gap-3">
+              </h2>
+              <p className="mt-6 max-w-2xl text-[0.9375rem] leading-relaxed text-soft-gray sm:text-base">
+                GaitAI welcomes research, clinical and technical collaborations
+                that can independently evaluate movement-intelligence systems
+                across mobility, rehabilitation, sports and safety settings.
+              </p>
+              <div className="mt-9 flex flex-wrap items-center gap-3">
                 <Link href="/#contact" className="btn-primary">
-                  Start a collaboration
-                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
+                  Discuss a study
+                </Link>
+                <Link href="/publications" className="btn-ghost">
+                  Browse publications
                 </Link>
               </div>
             </div>

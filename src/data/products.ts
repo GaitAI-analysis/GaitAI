@@ -151,7 +151,7 @@ export const mobilityProducts: GaitProduct[] = [
     name: "GaitAI RehabTrack",
     short: "RehabTrack",
     label: "Rehabilitation progress monitoring",
-    headline: "Show objective recovery progress — before, during, after.",
+    headline: "Show objective movement change across recovery.",
     description:
       "Compares movement across therapy sessions to make rehabilitation progress visible and motivating for both clinician and patient.",
     users: [
@@ -350,7 +350,7 @@ export const mobilityProducts: GaitProduct[] = [
       "Assistive-device companies",
     ],
     outputs: [
-      "Device-fit comparison",
+      "Movement comparison per configuration",
       "Before / after walking report",
       "Loading asymmetry proxy",
       "Mobility improvement score",
@@ -939,10 +939,10 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Wrench,
     vertical: "mobilitycare",
     problem:
-      "Device-fit quality is often judged by observation, with symmetry and loading data missing from the loop.",
+      "Movement response to a fitting change is often judged by observation, with symmetry and loading data missing from the loop.",
     productIds: ["prostheticfit", "walkscan"],
     outcome:
-      "Assistive-device fit comparison, walking symmetry, longitudinal mobility improvement.",
+      "Assistive-device movement comparison, walking symmetry, longitudinal mobility change.",
     accent: "teal",
   },
   {

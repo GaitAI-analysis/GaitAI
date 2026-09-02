@@ -1921,18 +1921,9 @@ body {
    PUBLICATION CARDS — editorial research-card presentation.
    ========================================================================= */
 
-/* Neutral figure canvas behind the publication visual: very dark neutral in
-   dark mode, soft neutral in light, with a clean separation to the body.
-   Contained technical figures sit on it without cropping; page captures
-   cover it fully. */
-.publication-figure {
-  background: rgb(var(--c-obsidian-100) / 0.75);
-  border-bottom: 1px solid rgb(var(--c-soft-white) / 0.07);
-}
-
-.light .publication-figure {
-  background: rgb(241 245 249 / 0.9);
-}
+/* The figure canvas that used to sit behind a page capture is gone with it:
+   the drawn cover art carries its own ground and its own edge, so there is
+   nothing left to back. See PublicationCoverArt. */
 
 /* One consistent venue accent across all publishers: cyan/blue, secondary
    to the title. Darkened in light mode so it stays readable. */

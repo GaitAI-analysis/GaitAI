@@ -1,32 +1,34 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Publication } from "@/data/publications";
-import { assetPath } from "@/lib/paths";
 import { displayDate, topicsFor } from "./topics";
+import {
+  PublicationCoverArt,
+  publicationKindLabel,
+} from "./PublicationCoverArt";
 
 /**
- * Editorial grid card: compact publication visual on a neutral canvas, then
- * date, clamped title, venue and up to three controlled topics. The whole
- * card links to the publication's detail page; the corner arrow is the only
- * call-to-action affordance.
+ * Editorial grid card: drawn research cover art, then date, clamped title,
+ * venue, topics and the call to action. The whole card links to the
+ * publication's detail page.
  *
- * Visual priority: a publication's own `figure` asset (graphical abstract,
- * architecture/method figure, representative result or thumbnail) when one
- * exists — rendered `object-contain` so scientific content is never
- * cropped. The first-page capture (`cover`) is only the fallback, keeping
- * its top-anchored crop so the paper masthead stays legible.
+ * The visual used to be the paper's own first page (`publication.cover`, a
+ * PDF capture) with the graphical abstract (`figure`) preferred when present.
+ * No record ever set `figure`, so in practice every card showed a document
+ * screenshot: bulky at card size, and nine near-identical white pages down
+ * the grid. That is now `PublicationCoverArt`, which draws a motif specific to
+ * each paper's subject. `cover` is untouched in the data and still carries the
+ * detail page's first-page view and the patent-certificate hero — it is only
+ * no longer the grid's visual.
+ *
+ * The image area is a fixed 16:10 box rather than a fixed pixel height, so the
+ * art holds one aspect ratio at every card width and the covers keep an even
+ * rhythm across the grid instead of growing squarer as the column narrows.
  */
-export function PublicationCard({
-  publication,
-  priority = false,
-}: {
-  publication: Publication;
-  priority?: boolean;
-}) {
+export function PublicationCard({ publication }: { publication: Publication }) {
   const topics = topicsFor(publication).slice(0, 3);
-  const visual = publication.figure ?? publication.cover;
-  const isFigure = Boolean(publication.figure);
+  const kind = publicationKindLabel(publication);
+  const isPatent = publication.kind === "patent";
 
   return (
     <Link
@@ -35,29 +37,26 @@ export function PublicationCard({
       aria-label={`${publication.title} — ${publication.venue}, ${publication.year}`}
       className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-soft-white/[0.08] bg-gradient-to-b from-soft-white/[0.03] to-transparent transition-all duration-300 hover:-translate-y-[3px] hover:border-cyan-300/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70"
     >
-      {/* Publication visual on a neutral figure canvas. No overlay — the
-          image area ends at a clean separation before the card body. */}
-      <div className="publication-figure relative h-[210px] w-full overflow-hidden sm:h-[240px]">
-        <Image
-          src={assetPath(visual)}
-          alt=""
-          fill
-          priority={priority}
-          sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
-          className={
-            isFigure
-              ? "object-contain p-3 transition-transform duration-500 group-hover:scale-[1.015]"
-              : "object-cover object-top transition-transform duration-500 group-hover:scale-[1.015]"
-          }
+      {/* Cover art. The scale is deliberately tiny — the art is a fixed
+          composition, and a large zoom would push the motif out of frame. */}
+      <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-soft-white/[0.07]">
+        <PublicationCoverArt
+          publication={publication}
+          className="transition-transform duration-500 ease-out group-hover:scale-[1.02]"
         />
-        {publication.kind === "patent" && (
-          <span className="absolute left-3 top-3 rounded-full border border-amber-300/40 bg-obsidian/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-300 backdrop-blur-md">
-            Granted patent
-          </span>
-        )}
+
+        <span
+          className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] backdrop-blur-md ${
+            isPatent
+              ? "border-amber-300/40 bg-obsidian/80 text-amber-300"
+              : "border-soft-white/15 bg-obsidian/70 text-soft-gray"
+          }`}
+        >
+          {kind}
+        </span>
       </div>
 
-      {/* Body: year → title (clamped) → venue → topics + corner arrow */}
+      {/* Body: date → title (clamped) → venue → topics → call to action */}
       <div className="flex flex-1 flex-col p-5">
         <div className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
           {displayDate(publication)}
@@ -69,19 +68,26 @@ export function PublicationCard({
           {publication.venue}
         </div>
 
+        {topics.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {topics.map((t) => (
+              <span
+                key={t}
+                className="rounded-full border border-soft-white/10 bg-soft-white/[0.03] px-2 py-0.5 text-[10.5px] text-soft-mute"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="flex-1" />
 
-        <div className="mt-4 flex items-end justify-between gap-3">
-          {topics.length > 0 ? (
-            <div className="text-[11px] leading-relaxed tracking-[0.02em] text-soft-mute">
-              {topics.join(" · ")}
-            </div>
-          ) : (
-            <span aria-hidden="true" />
-          )}
+        <div className="mt-4 flex items-center gap-1.5 border-t border-soft-white/[0.06] pt-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-soft-mute transition-colors group-hover:text-cyan-300">
+          {isPatent ? "View patent record" : "View publication"}
           <ArrowRight
             aria-hidden="true"
-            className="mb-0.5 h-4 w-4 shrink-0 text-soft-mute/70 transition-all duration-300 group-hover:translate-x-[3px] group-hover:text-cyan-300"
+            className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover:translate-x-[3px]"
           />
         </div>
       </div>

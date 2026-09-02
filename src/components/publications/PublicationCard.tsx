@@ -1,13 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Publication } from "@/data/publications";
-import { assetPath } from "@/lib/paths";
 import { displayDate, topicsFor } from "./topics";
-import {
-  PublicationCoverArt,
-  publicationKindLabel,
-} from "./PublicationCoverArt";
+import { publicationKindLabel } from "./PublicationCoverArt";
+import { PublicationPlate } from "./PublicationPlate";
 
 /**
  * Editorial grid card: drawn research cover art, then date, clamped title,
@@ -40,7 +36,17 @@ import {
  * 5:2 is the artwork's own proportion: these are left-to-right method
  * diagrams, and a squarer box would crop the flow they exist to show.
  */
-export function PublicationCard({ publication }: { publication: Publication }) {
+export function PublicationCard({
+  publication,
+  index = 1,
+  priority = false,
+}: {
+  publication: Publication;
+  /** Position in the archive, for the plate's record number. */
+  index?: number;
+  /** First-row cards fetch their art eagerly. */
+  priority?: boolean;
+}) {
   const topics = topicsFor(publication).slice(0, 3);
   const kind = publicationKindLabel(publication);
   const isPatent = publication.kind === "patent";
@@ -52,39 +58,14 @@ export function PublicationCard({ publication }: { publication: Publication }) {
       aria-label={`${publication.title} — ${publication.venue}, ${publication.year}`}
       className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-soft-white/[0.08] bg-gradient-to-b from-soft-white/[0.03] to-transparent transition-all duration-300 hover:-translate-y-[3px] hover:border-cyan-300/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70"
     >
-      {/* Cover art. The scale is deliberately tiny — the art is a fixed
-          composition, and a large zoom would push the motif out of frame. */}
-      <div
-        className={`relative aspect-[5/2] w-full overflow-hidden border-b ${
-          isPatent ? "border-amber-300/25" : "border-soft-white/[0.07]"
-        }`}
-      >
-        {publication.artwork ? (
-          <Image
-            src={assetPath(publication.artwork)}
-            alt=""
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-          />
-        ) : (
-          <PublicationCoverArt
-            publication={publication}
-            className="transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-          />
-        )}
-
-        {/* The patent is the one record with a different status, so it is the
-            one card with a champagne edge — a hairline over the artwork, not a
-            second colour scheme. */}
-        {isPatent && (
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent"
-          />
-        )}
-
-      </div>
+      {/* The plate: the record's own art, framed as a technical plate —
+          recessed well, shared survey grid, registration marks, a topic-keyed
+          accent and a caption strip. See PublicationPlate. */}
+      <PublicationPlate
+        publication={publication}
+        index={index}
+        priority={priority}
+      />
 
       {/* Body: year → title → venue → publisher and kind → topics.
           The year leads in the accent because it is what a reader scans an

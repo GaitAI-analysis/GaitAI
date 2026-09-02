@@ -1,0 +1,298 @@
+/* ==========================================================================
+   PUBLICATION PLATE
+   --------------------------------------------------------------------------
+   The frame that turns nine banners into one archive.
+
+   The art keeps its own dark ground — a plate is a plate in both themes, the
+   way a book jacket keeps its colour on a white shelf — but everything drawn
+   over it resolves through the accent token, so the system reads the same in
+   light mode.
+
+   `--pl-a` is the accent colour and `--pl-soft` its wash. Set once per plate
+   by the accent class, read by five layers.
+   ========================================================================== */
+
+.plate {
+  --pl-a: 79 209 255;
+  --pl-soft: 79 209 255;
+  padding: 0.55rem 0.55rem 0;
+}
+.aCyan {
+  --pl-a: 79 209 255;
+  --pl-soft: 79 209 255;
+}
+.aRoyal {
+  --pl-a: 85 135 255;
+  --pl-soft: 37 99 255;
+}
+.aViolet {
+  --pl-a: 167 139 250;
+  --pl-soft: 124 58 237;
+}
+.aChampagne {
+  --pl-a: 228 196 138;
+  --pl-soft: 217 119 6;
+}
+
+/* 1 · The recessed well. */
+.well {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  border: 1px solid rgb(var(--pl-a) / 0.18);
+  background: #060a12;
+  aspect-ratio: 5 / 2;
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.04),
+    0 10px 30px -18px rgb(0 0 0 / 0.9);
+}
+
+.art {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+/* The lift is deliberately tiny: these are fixed compositions, and a real
+   zoom pushes the motif out of the frame. */
+:global(.group):hover .art {
+  transform: scale(1.025);
+}
+
+/* 2 · The shared survey ground. */
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(148 163 184 / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(148 163 184 / 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 20%, #000 95%);
+  -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 20%, #000 95%);
+}
+
+/* 4 · Accent: a corner wash and the top hairline. */
+.wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 90% at 100% 0%,
+      rgb(var(--pl-soft) / 0.2),
+      transparent 70%
+    ),
+    linear-gradient(180deg, rgb(var(--pl-a) / 0.06), transparent 45%);
+}
+.rule {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(var(--pl-a) / 0.65) 30%,
+    rgb(var(--pl-a) / 0.2) 70%,
+    transparent
+  );
+}
+
+/* 3 · Registration marks. */
+.tick {
+  position: absolute;
+  height: 9px;
+  width: 9px;
+  border-color: rgb(var(--pl-a) / 0.4);
+}
+.tickTL {
+  top: 7px;
+  left: 7px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+.tickTR {
+  top: 7px;
+  right: 7px;
+  border-top: 1px solid;
+  border-right: 1px solid;
+}
+.tickBL {
+  bottom: 7px;
+  left: 7px;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+.tickBR {
+  bottom: 7px;
+  right: 7px;
+  border-bottom: 1px solid;
+  border-right: 1px solid;
+}
+
+/* 5 · Foot scrim and caption strip. */
+/* Only as deep as the caption needs. At 46% it was dimming the lower third
+   of every banner, which is where several of them put their last stage. */
+.scrim {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 32%;
+  background: linear-gradient(
+    to top,
+    rgb(6 10 18 / 0.86),
+    rgb(6 10 18 / 0.3) 62%,
+    transparent
+  );
+}
+.caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0.85rem 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.captionSubject {
+  color: rgb(var(--pl-a) / 0.85);
+}
+.captionIndex {
+  color: rgb(226 232 240 / 0.42);
+}
+
+@media (max-width: 480px) {
+  .plate {
+    padding: 0.45rem 0.45rem 0;
+  }
+  .tick {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   ARCHIVE PLATE — the /publications hero figure
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  width: 100%;
+}
+.heroSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.heroPlateFill {
+  fill: url(#pl-plate);
+}
+.heroPlateEdge {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.5);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.heroFold {
+  stroke: rgb(79 209 255 / 0.6);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .heroPlateEdge {
+  stroke: rgb(14 116 144 / 0.4);
+}
+:global(.light) .heroFold {
+  stroke: rgb(14 116 144 / 0.45);
+}
+
+/* Page lines: the form of a paper, at texture strength. */
+.heroLines line {
+  stroke: rgb(226 232 240 / 0.22);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .heroLines line {
+  stroke: rgb(15 23 42 / 0.16);
+}
+
+.heroAxis {
+  stroke: rgb(148 163 184 / 0.3);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.heroTrace,
+.heroTraceLit {
+  fill: none;
+  stroke: rgb(148 163 184 / 0.36);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.heroTraceLit {
+  stroke: rgb(79 209 255 / 0.7);
+  stroke-width: 1.4;
+}
+:global(.light) .heroTraceLit {
+  stroke: rgb(14 116 144 / 0.75);
+}
+
+.heroBar {
+  fill: rgb(85 135 255 / 0.3);
+}
+.heroBarLit {
+  fill: rgb(79 209 255 / 0.6);
+}
+:global(.light) .heroBar {
+  fill: rgb(37 99 255 / 0.28);
+}
+:global(.light) .heroBarLit {
+  fill: rgb(14 116 144 / 0.5);
+}
+
+.heroDot {
+  fill: rgb(148 163 184 / 0.4);
+}
+.heroDotWarm {
+  fill: rgb(167 139 250 / 0.55);
+}
+.heroDotLit {
+  fill: rgb(79 209 255 / 0.75);
+}
+:global(.light) .heroDot {
+  fill: rgb(15 23 42 / 0.24);
+}
+:global(.light) .heroDotWarm {
+  fill: rgb(109 40 217 / 0.45);
+}
+:global(.light) .heroDotLit {
+  fill: rgb(14 116 144 / 0.6);
+}
+
+.heroMatrix .heroCell {
+  fill: rgb(148 163 184 / 0.09);
+  stroke: rgb(148 163 184 / 0.16);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.heroMatrix .heroCellOn {
+  fill: rgb(167 139 250 / 0.4);
+  stroke: rgb(167 139 250 / 0.5);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .heroMatrix .heroCellOn {
+  fill: rgb(109 40 217 / 0.3);
+  stroke: rgb(109 40 217 / 0.4);
+}
+
+.heroTie path {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.28);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+  vector-effect: non-scaling-stroke;
+}

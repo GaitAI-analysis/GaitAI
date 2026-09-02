@@ -359,8 +359,8 @@ function LiveAnalyticsHud() {
         </div>
         <span>GAIT SIGNATURE MATCH</span>
         <strong>G-7A21</strong>
-        <b>98.7%</b>
-        <small>ENCRYPTED MOVEMENT SIGNATURE</small>
+        <b>DEMO</b>
+        <small>ILLUSTRATIVE · SYNTHETIC DATA</small>
       </section>
 
       <section className={`${styles.hudStage} ${styles.resultStage}`}>
@@ -379,7 +379,7 @@ function LiveAnalyticsHud() {
 function MobileStatus() {
   return (
     <div className={styles.mobileStatus} aria-hidden="true">
-      <strong>G-7A21 · GAIT MATCH 98.7%</strong>
+      <strong>G-7A21 · GAIT MATCH · DEMO</strong>
       <span><i /> PRIVACY MODE · ON</span>
     </div>
   );

@@ -48,20 +48,25 @@ export function WhoWeServe() {
           description="From patients and clinicians to athletes, caregivers, security teams and large organizations — GaitAI is designed to make human movement measurable, meaningful and useful for everyone in the loop."
           align="left"
         />
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {audiences.map((a, i) => (
-            <Reveal key={a.title} delay={(i % 3) * 0.06}>
-              <div className="group relative h-full overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-all hover:border-cyan-300/30 hover:bg-white/[0.04]">
-                <h3 className="font-display text-lg font-semibold text-soft-white">
+        {/* Editorial list, not a card grid: these are audiences to read, not
+            entities to select. */}
+        <Reveal>
+          <dl className="mt-12 grid gap-x-14 border-t border-white/[0.06] lg:grid-cols-2">
+            {audiences.map((a) => (
+              <div
+                key={a.title}
+                className="border-b border-white/[0.06] py-6"
+              >
+                <dt className="font-display text-lg font-semibold text-soft-white">
                   {a.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-soft-mute">
+                </dt>
+                <dd className="mt-1.5 max-w-prose text-sm leading-relaxed text-soft-mute">
                   {a.desc}
-                </p>
+                </dd>
               </div>
-            </Reveal>
-          ))}
-        </div>
+            ))}
+          </dl>
+        </Reveal>
 
         {/* Intersection callout */}
         <Intersection />

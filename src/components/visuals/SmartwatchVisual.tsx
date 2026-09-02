@@ -3,8 +3,12 @@
 import { motion } from "framer-motion";
 
 /**
- * Premium code-built smartwatch UI showing a live mobility score.
+ * Premium code-built smartwatch UI showing a mobility score.
  * Used in the WatchCare flagship section and the MobilityCare page.
+ *
+ * Every value on the face — score, steps, cadence, risk, trend — is invented
+ * for the layout. The caption below the watch says so; do not present this as
+ * output from a real device.
  */
 export function SmartwatchVisual({
   score = 86,
@@ -17,7 +21,8 @@ export function SmartwatchVisual({
     trend === "up" ? "#10B981" : trend === "down" ? "#F59E0B" : "#94A3B8";
 
   return (
-    <div className="relative mx-auto" style={{ width: 280 }}>
+    <div className="mx-auto" style={{ width: 280 }}>
+    <div className="relative">
       {/* Watch crown */}
       <div className="absolute right-0 top-[28%] z-10 h-12 w-2 rounded-r-full bg-gradient-to-r from-soft-white/30 to-soft-white/10" />
       {/* Watch button */}
@@ -44,12 +49,13 @@ export function SmartwatchVisual({
               "radial-gradient(circle at 50% 25%, rgba(213,160,33,0.16), transparent 60%), linear-gradient(180deg, #0A1020 0%, #050810 100%)",
           }}
         >
-          {/* Top status bar */}
+          {/* Top status bar. The dot used to sit next to "live" — nothing here
+              is a live feed, so it reads "demo". */}
           <div className="absolute inset-x-0 top-4 flex items-center justify-between px-6 text-[9px] font-medium uppercase tracking-[0.18em] text-soft-mute">
             <span>9:41 AM</span>
             <span className="flex items-center gap-1.5">
               <span className="h-1 w-1 rounded-full bg-emerald-400" />
-              live
+              demo
             </span>
           </div>
 
@@ -91,6 +97,14 @@ export function SmartwatchVisual({
             "linear-gradient(180deg, rgba(40,40,55,0.6) 0%, transparent 100%)",
         }}
       />
+
+    </div>
+
+      {/* In normal flow below the watch. The strap tail above is absolutely
+          positioned and overhangs, so the caption is spaced to clear it. */}
+      <p className="mt-14 text-center text-[9.5px] font-semibold uppercase tracking-[0.16em] text-soft-mute">
+        Illustrative demo · Synthetic data
+      </p>
     </div>
   );
 }

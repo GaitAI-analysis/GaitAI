@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { productCount } from "@/data/products";
+import { papers, patent } from "@/data/publications";
 
 interface Milestone {
   year: string;
@@ -24,15 +26,15 @@ const journey: Milestone[] = [
     accent: "blue",
   },
   {
-    year: "Research portfolio",
-    title: "Patents · Papers · Datasets · Models",
-    desc: "Years of study, testing and scientific exploration grew into a strong research portfolio — peer-reviewed publications, patents, curated datasets and validated model development across medical gait analysis, biometric surveillance and human-movement AI.",
+    year: "Research record",
+    title: "Papers · Granted patent",
+    desc: `Years of study and experimentation became a published record: ${papers.length} peer-reviewed papers with Springer, Elsevier and Wiley · IET on deep-learning gait recognition, pose-based gait analysis and privacy-preserving gait data — plus granted Indian patent ${patent.patentNumber} covering the covariate-based gait recognition pipeline for edge analytics.`,
     accent: "cyan",
   },
   {
     year: "Today",
     title: "The GaitAI platform",
-    desc: "Two verticals — MobilityCare and SecureVision. Twenty-three modular products. One Human Movement Intelligence Platform built on a decade of research-first work, designed to make every output useful, reliable, accessible and beneficial for real users.",
+    desc: `Two verticals — MobilityCare and SecureVision — and ${productCount} modular products on one Human Movement Intelligence Platform, built on that research-first foundation and designed so every output is reviewable by the person acting on it.`,
     accent: "gold",
   },
 ];
@@ -111,7 +113,7 @@ export function JourneyTimeline({
 
       <div className="container-wide">
         <SectionHeading
-          eyebrow="Our journey · 10+ years of research"
+          eyebrow="Our journey · 10+ years of founder-led research"
           title={
             <>
               From research to{" "}

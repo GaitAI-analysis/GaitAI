@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Download } from "lucide-react";
+import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 
 /**
  * A premium "AI-generated clinical report" preview card — styled to look like
@@ -17,20 +17,19 @@ export function ClinicalReportVisual() {
           "linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)",
       }}
     >
-      {/* Header */}
+      {/* Header. "Sample #1042" rather than "Patient #1042": every value in
+          this card is invented for layout, and a patient number reads like a
+          record that exists. */}
       <div className="flex items-center justify-between gap-3 border-b border-white/8 pb-3">
-        <div>
+        <div className="min-w-0">
           <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-soft-mute">
             GaitAI Report
           </div>
           <div className="text-sm font-semibold text-soft-white">
-            WalkScan · Patient #1042
+            WalkScan · Sample #1042
           </div>
         </div>
-        <div className="flex h-7 items-center gap-1 rounded-md bg-emerald-400/15 px-2 text-[10px] font-medium text-emerald-300 ring-1 ring-emerald-400/30">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          Cleared
-        </div>
+        <SyntheticDataBadge label="Illustrative" className="shrink-0" />
       </div>
 
       {/* Mobility score */}
@@ -100,11 +99,12 @@ export function ClinicalReportVisual() {
         </svg>
       </div>
 
-      {/* CTA */}
-      <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-2.5 text-xs font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-white/[0.06]">
-        <Download className="h-3.5 w-3.5" />
-        Download sample report
-      </button>
+      {/* Caption. This was a "Download sample report" button that downloaded
+          nothing — a dead control, and a promise of a file that does not
+          exist. Same footprint, now a static caption. */}
+      <div className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-2.5 text-[11px] font-medium uppercase tracking-[0.14em] text-soft-mute">
+        Sample report layout · Synthetic values
+      </div>
     </div>
   );
 }

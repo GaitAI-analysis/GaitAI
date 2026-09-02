@@ -111,11 +111,13 @@ function StageVisual({ index }: { index: number }) {
       >
         <source src={assetPath(STAGE_VIDEOS[index])} type="video/mp4" />
       </video>
+      {/* The dot used to sit next to "active", which reads as a running
+          system. These are looping renders illustrating the stage. */}
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
         <span>stage_0{index + 1}</span>
         <span className="inline-flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-          active
+          demo
         </span>
       </div>
     </div>

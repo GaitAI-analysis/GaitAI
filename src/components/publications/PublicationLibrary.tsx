@@ -231,10 +231,15 @@ export function PublicationLibrary() {
           {showLatest && (
             <LibrarySection label="Latest research">
               <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-                {/* No `priority` any more: the covers are inline SVG, so
-                    there is no image request to prioritise. */}
-                {latest.map((p) => (
-                  <PublicationCard key={p.id} publication={p} />
+                {/* The first row is the archive's LCP candidate, so those
+                    three plates fetch eagerly and the rest lazy-load. */}
+                {latest.map((p, i) => (
+                  <PublicationCard
+                    key={p.id}
+                    publication={p}
+                    index={i + 1}
+                    priority={i < 3}
+                  />
                 ))}
               </div>
             </LibrarySection>
@@ -243,8 +248,13 @@ export function PublicationLibrary() {
             label={showLatest ? "All research outputs" : "Results"}
           >
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {(showLatest ? rest : filtered).map((p) => (
-                <PublicationCard key={p.id} publication={p} />
+              {(showLatest ? rest : filtered).map((p, i) => (
+                <PublicationCard
+                  key={p.id}
+                  publication={p}
+                  index={(showLatest ? latest.length : 0) + i + 1}
+                  priority={!showLatest && i < 3}
+                />
               ))}
             </div>
           </LibrarySection>

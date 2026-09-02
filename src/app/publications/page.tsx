@@ -13,6 +13,8 @@ import {
 import { Reveal } from "@/components/ui/Reveal";
 import { FOUNDER_NAME, papers, patent } from "@/data/publications";
 import { PublicationLibrary } from "@/components/publications/PublicationLibrary";
+import { ArchivePlate } from "@/components/publications/ArchivePlate";
+import { DiagramField } from "@/components/visuals/DiagramField";
 import { allYears } from "@/components/publications/topics";
 import { assetPath } from "@/lib/paths";
 import { ctas } from "@/data/content";
@@ -40,44 +42,37 @@ const summary = [
 export default function PublicationsPage() {
   return (
     <>
-      {/* ─────────── HERO — compact, editorial ─────────── */}
+      {/* ─────────── HERO — the record, and a figure of it ───────────
+          The hero was a headline and a column of qualification on an empty
+          field. It is now the archive's own composition: the claim and what
+          backs it on the left, a drawn figure of a research record on the
+          right, over the shared archive field — an even lattice on a tighter
+          grid, which is what a catalogue looks like. */}
       <section className="site-page-intro relative overflow-hidden pb-12">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div
-            className="absolute left-1/2 top-[-10%] h-[520px] w-[1000px] -translate-x-1/2 rounded-full opacity-45 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(79,209,255,0.15), transparent 70%)",
-            }}
-          />
-          <div className="absolute right-[6%] top-[30%] h-64 w-64 rounded-full bg-radial-violet opacity-30 blur-3xl" />
-        </div>
+        <DiagramField variant="archive" gridMask="maskRight" className="-z-10" />
 
         <div className="container-wide">
-          <span className="eyebrow">
-            <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-            Founder research record
-          </span>
-
-          {/* Split composition: the claim on the left, what backs it on the
-              right. Stacked, the headline used to run at display size and then
-              hand the reader three paragraphs of qualification before the
-              first record — the archive is the page, so it now starts higher. */}
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-start lg:gap-12">
-            <h1 className="font-display text-display-lg text-balance text-soft-white">
-              A research archive behind{" "}
-              <span className="text-gradient">the movement engine.</span>
-            </h1>
-
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:items-center lg:gap-12">
             <div className="min-w-0">
-              <p className="text-base leading-relaxed text-soft-gray">
+              <span className="eyebrow">
+                <span className="h-1 w-6 rounded-full bg-gradient-brand" />
+                Founder research record
+              </span>
+
+              <h1 className="mt-6 font-display text-display-lg text-balance text-soft-white">
+                A research archive behind{" "}
+                <span className="text-gradient">the movement engine.</span>
+              </h1>
+
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray">
                 Peer-reviewed papers and a granted patent spanning gait
                 recognition, computer vision, biometrics, pose estimation,
                 machine learning and privacy-preserving movement analysis —
                 authored by founder {FOUNDER_NAME} with academic co-authors,
                 and published with Springer, Elsevier and Wiley · IET.
               </p>
-              <p className="mt-3.5 text-[12.5px] leading-relaxed text-soft-mute">
+
+              <p className="mt-3.5 max-w-xl text-[12.5px] leading-relaxed text-soft-mute">
                 These are academic and individually held records rather than
                 company-produced output. GaitAI does not currently hold
                 company-assigned publications or patents of its own; how each
@@ -93,7 +88,7 @@ export default function PublicationsPage() {
               </p>
 
               {/* Counts, derived from the records themselves. */}
-              <dl className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-white/[0.08] pt-5 sm:grid-cols-4">
+              <dl className="mt-7 grid max-w-xl grid-cols-2 gap-x-5 gap-y-4 border-t border-white/[0.08] pt-5 sm:grid-cols-4">
                 {summary.map((s) => (
                   <div key={s.label} className="min-w-0">
                     <dt className="stat-num text-[1.3rem] leading-none text-soft-white">
@@ -106,12 +101,28 @@ export default function PublicationsPage() {
                 ))}
               </dl>
             </div>
+
+            {/* A figure of what a research record actually is: stacked plates
+                with the signal traces, distributions, scatters and matrices
+                their figures carry, rising off them. */}
+            <div className="min-w-0 lg:-mr-[3vw]">
+              <ArchivePlate />
+            </div>
           </div>
         </div>
       </section>
 
       {/* ─────────── RESEARCH LIBRARY ─────────── */}
-      <section id="papers" className="border-y border-white/[0.06] bg-obsidian-300/40 py-14 sm:py-16">
+      <section
+        id="papers"
+        className="relative overflow-hidden border-y border-white/[0.06] bg-obsidian-300/40 py-14 sm:py-16"
+      >
+        <DiagramField
+          variant="archive"
+          gridMask="maskEdges"
+          fade="both"
+          className="-z-10"
+        />
         <div className="container-wide">
           <PublicationLibrary />
         </div>

@@ -1,0 +1,892 @@
+/* ==========================================================================
+   THE GAITAI JOURNAL — INTELLIGENCE IN MOTION
+   --------------------------------------------------------------------------
+   One page, one signal, five transformations.
+
+   This stylesheet replaces a 1,900-line landing sheet that dressed cards. The
+   difference is not decoration, it is enclosure: there is exactly one border
+   in the whole page (the closing index's hairline), and the compositions are
+   held together by space and alignment instead. Roughly three quarters of the
+   page is open ground.
+
+   The type does the work. Questions are set at cover size, essays are named
+   in a smaller voice under them, and everything else — issue numbers, themes,
+   chains, calls to action — is mono at instrument scale. Nothing bounces,
+   spins, floats or pulses; the only motion is a signal drawing itself and
+   landmarks surfacing, both driven by the reader's own scrolling.
+   ========================================================================== */
+
+.journal {
+  position: relative;
+  --jr-cyan: #4fd1ff;
+  --jr-blue: #5587ff;
+  --jr-violet: #a78bfa;
+  --jr-ink: rgb(var(--c-soft-white));
+  --jr-body: rgb(var(--c-soft-gray));
+  --jr-mute: rgb(var(--c-soft-mute));
+  --jr-line: rgb(148 163 184 / 0.14);
+  --jr-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* The thread's progress, written by SignalThread. 1 = fully drawn, which
+     is also the value the page renders at before hydration. */
+  --sig: 1;
+  overflow-x: clip;
+}
+:global(.light) .journal {
+  --jr-cyan: #0e7490;
+  --jr-blue: #2563ff;
+  --jr-violet: #6d28d9;
+  --jr-line: rgb(15 23 42 / 0.12);
+}
+
+.spectrum {
+  background: linear-gradient(
+    100deg,
+    var(--jr-cyan) 4%,
+    var(--jr-blue) 52%,
+    var(--jr-violet) 96%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ==========================================================================
+   1 · THE SIGNAL THREAD
+   ========================================================================== */
+
+.thread {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.threadSvg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+.threadStopCyan {
+  stop-color: #4fd1ff;
+}
+.threadStopBlue {
+  stop-color: #5587ff;
+}
+.threadStopViolet {
+  stop-color: #a78bfa;
+}
+:global(.light) .threadStopCyan {
+  stop-color: #0e7490;
+}
+:global(.light) .threadStopBlue {
+  stop-color: #2563ff;
+}
+:global(.light) .threadStopViolet {
+  stop-color: #6d28d9;
+}
+
+/* The path ahead. */
+.threadGuide {
+  fill: none;
+  stroke: var(--jr-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The path behind, drawn to the reading position. */
+.threadDrawn {
+  fill: none;
+  stroke: url(#sig-drawn);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: calc((1 - var(--sig)) * 1000);
+}
+
+/* The reading node: a short bright dash at the head of the drawn path. */
+.threadNode {
+  fill: none;
+  stroke: #dff3ff;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 2 998;
+  stroke-dashoffset: calc((1 - var(--sig)) * 1000);
+  opacity: 0.9;
+}
+:global(.light) .threadNode {
+  stroke: #0e7490;
+}
+
+/* ==========================================================================
+   2 · THE OPENING
+   ========================================================================== */
+
+.opening {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-height: 100svh;
+  padding-top: calc(var(--site-header-height, 84px) + 2rem);
+  padding-bottom: 4rem;
+}
+
+.openingGrid {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .openingGrid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 3rem;
+  }
+}
+
+.openingCopy {
+  min-width: 0;
+}
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--jr-cyan);
+}
+.mastheadRule {
+  display: block;
+  height: 1px;
+  width: 2.25rem;
+  background: linear-gradient(90deg, var(--jr-cyan), transparent);
+}
+.mastheadSub {
+  color: var(--jr-mute);
+  letter-spacing: 0.24em;
+}
+
+/* The question. As large as the viewport can carry, and never in a box. */
+.openingQuestion {
+  margin-top: 2rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(2.85rem, 7.6vw, 5.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  color: var(--jr-ink);
+}
+.openingLine {
+  display: block;
+}
+
+.openingScroll {
+  margin-top: 3rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+  transition: color 0.35s var(--jr-ease);
+}
+.openingScroll:hover {
+  color: var(--jr-ink);
+}
+.openingScrollArrow {
+  color: var(--jr-cyan);
+}
+
+.openingStage {
+  min-width: 0;
+}
+@media (max-width: 899px) {
+  .openingStage {
+    margin-inline: -1rem;
+  }
+}
+
+/* ==========================================================================
+   3 · THE OPENING WALKER
+   ========================================================================== */
+
+.walker {
+  position: relative;
+  /* Finished state before hydration and under reduced motion. */
+  --w-body: 0.55;
+  --w-marks: 1;
+  --w-trail: 1;
+}
+.walkerLive {
+  --w-body: 1;
+  --w-marks: 0;
+  --w-trail: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .walkerLive {
+    --w-body: 0.55;
+    --w-marks: 1;
+    --w-trail: 1;
+  }
+}
+
+.walkerSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.walkerMassIn {
+  stop-color: rgb(79 209 255 / 0.2);
+}
+.walkerMassOut {
+  stop-color: rgb(37 99 255 / 0);
+}
+.walkerTrailA {
+  stop-color: rgb(79 209 255 / 0.75);
+}
+.walkerTrailB {
+  stop-color: rgb(167 139 250 / 0.25);
+}
+
+.walkerShadow {
+  fill: rgb(79 209 255 / 0.07);
+}
+.walkerFloor {
+  stroke: var(--jr-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 1 · the body — a silhouette that fades back as the landmarks arrive */
+.walkerBody {
+  opacity: calc(0.42 + var(--w-body) * 0.58);
+  transition: opacity 0.5s linear;
+}
+/* Limbs as volume: one wide round-capped stroke per joint chain. */
+.walkerLimb polyline {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.16);
+  stroke-width: 30;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.walkerLimbNear polyline {
+  stroke: rgb(79 209 255 / 0.26);
+  stroke-width: 34;
+}
+:global(.light) .walkerLimb polyline {
+  stroke: rgb(14 116 144 / 0.14);
+}
+:global(.light) .walkerLimbNear polyline {
+  stroke: rgb(14 116 144 / 0.2);
+}
+/* The torso is the spine stroked wide, so it cannot drift from the skeleton. */
+.walkerTorso {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.24);
+  stroke-width: 62;
+  stroke-linecap: round;
+}
+:global(.light) .walkerTorso {
+  stroke: rgb(14 116 144 / 0.2);
+}
+.walkerSkull {
+  fill: rgb(79 209 255 / 0.24);
+}
+:global(.light) .walkerTorso {
+  fill: rgb(14 116 144 / 0.18);
+}
+:global(.light) .walkerSkull {
+  fill: rgb(14 116 144 / 0.2);
+}
+
+.walkerBone {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.walkerBoneFar {
+  opacity: 0.4;
+  stroke-width: 1.4;
+}
+.walkerJoint {
+  fill: var(--jr-cyan);
+  opacity: 0.85;
+}
+.walkerHead {
+  fill: rgb(var(--c-obsidian-500) / 0.75);
+  stroke: var(--jr-cyan);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .walkerHead {
+  fill: #ffffff;
+}
+
+/* 2 · the landmarks — surface one after another */
+.walkerMarks {
+  opacity: var(--w-marks);
+  transition: opacity 0.6s linear;
+}
+.walkerMarkRing {
+  fill: none;
+  stroke: #dff3ff;
+  stroke-width: 1;
+  opacity: calc(var(--w-marks) * 0.55);
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(calc(0.4 + var(--w-marks) * 0.6));
+  transition: transform 0.5s var(--jr-ease), opacity 0.5s linear;
+}
+:global(.light) .walkerMarkRing {
+  stroke: #0e7490;
+}
+.walkerMarkDot {
+  fill: #dff3ff;
+}
+:global(.light) .walkerMarkDot {
+  fill: #0e7490;
+}
+
+/* 3 · the trajectory — draws itself behind the body */
+.walkerTrail {
+  opacity: calc(0.15 + var(--w-trail) * 0.85);
+}
+.walkerTrailPath {
+  fill: none;
+  stroke: url(#ow-trail);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 100;
+  stroke-dashoffset: calc((1 - var(--w-trail)) * 100);
+  transition: stroke-dashoffset 0.5s linear;
+}
+.walkerTrailPathB {
+  stroke-width: 1.2;
+  opacity: 0.7;
+}
+
+.walkerLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  fill: var(--jr-mute);
+  opacity: 0.7;
+}
+
+/* ==========================================================================
+   4 · A STORY MOMENT
+   ========================================================================== */
+
+.moment {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-height: 86svh;
+  padding: 5rem 0;
+}
+@media (min-width: 1024px) {
+  .moment {
+    min-height: 92svh;
+    padding: 6rem 0;
+  }
+}
+
+.momentGrid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .momentGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4.5rem;
+  }
+  /* The field alternates sides down the page, which is what lets the thread
+     weave between the compositions. */
+  .momentRight .momentStage {
+    order: 2;
+  }
+  .momentRight .momentCopy {
+    order: 1;
+  }
+}
+
+.momentStage {
+  position: relative;
+  min-width: 0;
+}
+.momentCopy {
+  min-width: 0;
+  /* A hair of optical inset so the copy column does not sit hard against the
+     field on wide screens. */
+  max-width: 34rem;
+}
+@media (min-width: 1024px) {
+  .momentRight .momentCopy {
+    margin-left: auto;
+  }
+}
+
+/* The question, asked before the essay is named. */
+.momentQuestion {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.9rem, 3.5vw, 3.05rem);
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  color: var(--jr-ink);
+}
+
+.momentIssue {
+  margin-top: 2.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.momentIssueNo {
+  color: var(--jr-cyan);
+}
+.momentIssueRule {
+  display: block;
+  height: 1px;
+  width: 1.75rem;
+  background: var(--jr-line);
+}
+
+.momentTitle {
+  margin-top: 0.85rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.15rem, 1.7vw, 1.45rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--jr-body);
+}
+
+/* The story's single link, stretched over the whole moment: one tab stop per
+   story, and the accessible name is the essay's title. */
+.momentLink {
+  color: inherit;
+  transition: color 0.35s var(--jr-ease);
+}
+.momentLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.moment:hover .momentLink,
+.momentLink:focus-visible {
+  color: var(--jr-ink);
+}
+.momentLink:focus-visible {
+  outline: none;
+}
+.momentLink:focus-visible::after {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: -6px;
+  border-radius: 1rem;
+}
+
+.momentHook {
+  margin-top: 1rem;
+  max-width: 30rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--jr-mute);
+}
+
+/* The transformation, as stages. */
+.momentChain {
+  margin-top: 2rem;
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jr-body);
+  list-style: none;
+  padding: 0;
+}
+.momentChainStep {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.momentChainArrow {
+  color: var(--jr-cyan);
+  opacity: 0.65;
+}
+
+.momentCta {
+  margin-top: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-cyan);
+}
+.momentCtaArrow {
+  transition: transform 0.35s var(--jr-ease);
+}
+.moment:hover .momentCtaArrow {
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   5 · STORY 01's STAGE VISUAL
+   ========================================================================== */
+
+.stageFrame {
+  fill: rgb(148 163 184 / 0.03);
+  stroke: var(--jr-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+/* The first panel's body: the same wide-stroke silhouette the hero uses, so
+   "pixels" reads as a person rather than as two ovals. */
+.stageMass polyline,
+.stageMass line {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.18);
+  stroke-width: 13;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.stageMass line {
+  stroke-width: 21;
+}
+.stageMass circle {
+  fill: rgb(79 209 255 / 0.2);
+}
+:global(.light) .stageMass polyline,
+:global(.light) .stageMass line {
+  stroke: rgb(14 116 144 / 0.16);
+}
+:global(.light) .stageMass circle {
+  fill: rgb(14 116 144 / 0.18);
+}
+.stageMark {
+  fill: none;
+  stroke: #dff3ff;
+  stroke-width: 1;
+  opacity: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .stageMark {
+  stroke: #0e7490;
+}
+.stageTrace {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.stageStep,
+.stageStepHead {
+  fill: none;
+  stroke: var(--jr-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ==========================================================================
+   6 · THE EDITORIAL PAUSES
+   ========================================================================== */
+
+.pause {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-height: 74svh;
+  padding: 5rem 0;
+}
+
+.pauseFigure {
+  margin: 0;
+  max-width: 52rem;
+}
+
+/* No border, no card, no quotation marks — the size is the emphasis. */
+.pauseQuote {
+  margin: 0;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(2.1rem, 5.4vw, 4.15rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: var(--jr-ink);
+}
+.pauseLine {
+  display: block;
+}
+/* The second and fourth lines drop back, so the couplet reads as two
+   thoughts rather than one block. */
+.pauseLine:nth-child(2),
+.pauseLine:nth-child(4) {
+  color: var(--jr-mute);
+}
+
+.pauseSource {
+  margin-top: 2.5rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.pauseSourceLink {
+  transition: color 0.35s var(--jr-ease);
+}
+.pauseSourceLink:hover {
+  color: var(--jr-cyan);
+}
+
+/* ==========================================================================
+   7 · THE EDGE RAIL
+   ========================================================================== */
+
+.rail {
+  position: fixed;
+  left: 1.5rem;
+  top: 50%;
+  z-index: 30;
+  transform: translateY(-50%);
+  display: none;
+}
+@media (min-width: 1280px) {
+  .rail {
+    display: block;
+  }
+}
+
+.railList {
+  display: grid;
+  gap: 1.15rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.railItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: var(--jr-mute);
+  opacity: 0.5;
+  transition: opacity 0.4s var(--jr-ease), color 0.4s var(--jr-ease);
+}
+.railItem:hover {
+  opacity: 1;
+}
+.railItemOn {
+  opacity: 1;
+  color: var(--jr-ink);
+}
+.railTick {
+  display: block;
+  height: 1px;
+  width: 0.75rem;
+  background: currentColor;
+  opacity: 0.5;
+  transition: width 0.4s var(--jr-ease);
+}
+.railItemOn .railTick {
+  width: 1.5rem;
+  background: var(--jr-cyan);
+  opacity: 1;
+}
+/* The label is for the story you are in; the numbers are always there. */
+.railLabel {
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.4s var(--jr-ease), transform 0.4s var(--jr-ease);
+}
+.railItemOn .railLabel,
+.railItem:hover .railLabel {
+  opacity: 1;
+  transform: none;
+}
+
+/* ==========================================================================
+   8 · THE CLOSE
+   ========================================================================== */
+
+.close {
+  position: relative;
+  z-index: 1;
+  padding: 6rem 0 5rem;
+}
+
+.closeTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(2.1rem, 4.6vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  color: var(--jr-ink);
+}
+.closeLede {
+  margin-top: 1.75rem;
+  max-width: 40rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--jr-mute);
+}
+
+.closeActions {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.75rem;
+}
+.closeAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-cyan);
+  transition: color 0.35s var(--jr-ease);
+}
+.closeActionQuiet {
+  color: var(--jr-mute);
+}
+.closeActionQuiet:hover {
+  color: var(--jr-ink);
+}
+.closeActionArrow {
+  transition: transform 0.35s var(--jr-ease);
+}
+.closeAction:hover .closeActionArrow {
+  transform: translateX(4px);
+}
+
+/* The index: the page's one hairline. */
+.index {
+  margin-top: 5rem;
+  border-top: 1px solid var(--jr-line);
+  padding-top: 1.75rem;
+}
+.indexLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.indexList {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1px;
+  background: var(--jr-line);
+}
+@media (min-width: 900px) {
+  .indexList {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+.indexItem {
+  background: rgb(var(--c-obsidian-400));
+}
+:global(.light) .indexItem {
+  background: rgb(var(--c-obsidian-500));
+}
+.indexLink {
+  display: block;
+  padding: 1.1rem 1rem 1.25rem;
+  transition: background-color 0.35s var(--jr-ease);
+}
+.indexLink:hover {
+  background: rgb(148 163 184 / 0.05);
+}
+.indexNo {
+  display: block;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--jr-cyan);
+}
+.indexTheme {
+  margin-top: 0.6rem;
+  display: block;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--jr-ink);
+}
+.indexTitle {
+  margin-top: 0.4rem;
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--jr-mute);
+}
+
+/* ==========================================================================
+   9 · MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .threadDrawn,
+  .threadNode {
+    stroke-dashoffset: 0;
+    transition: none;
+  }
+  .walkerBody,
+  .walkerMarks,
+  .walkerMarkRing,
+  .walkerTrailPath {
+    transition: none;
+  }
+  .momentCtaArrow,
+  .closeActionArrow,
+  .railTick,
+  .railLabel {
+    transition: none;
+  }
+  .moment:hover .momentCtaArrow,
+  .closeAction:hover .closeActionArrow {
+    transform: none;
+  }
+}

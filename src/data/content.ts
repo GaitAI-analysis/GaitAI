@@ -1,113 +1,25 @@
-import {
-  Activity,
-  Building2,
-  Brain,
-  Camera,
-  Cpu,
-  Eye,
-  Heart,
-  HeartPulse,
-  Home,
-  LineChart,
-  Plane,
-  ShieldCheck,
-  Sparkles,
-  Users,
-  Waypoints,
-} from "lucide-react";
+// ============================================================================
+// SHARED SITE CHROME CONTENT
+// ----------------------------------------------------------------------------
+// Navigation hierarchy and the derived platform counters.
+//
+// This file used to also carry `stats`, `secureFeatures`, `careFeatures`,
+// `howItWorks` and `useCases` — unused arrays that duplicated (and in places
+// contradicted) the canonical sources in products.ts and publications.ts, and
+// that carried unsourced figures. They were removed rather than maintained in
+// parallel; products, capabilities, signals, domains and outcomes now come
+// from products.ts / gaitscape/graph.ts via src/data/taxonomy.ts, and the
+// workflow comes from `workflowStages` in products.ts.
+// ============================================================================
 
-export const secureFeatures = [
-  {
-    icon: Eye,
-    title: "Gait-based identification",
-    desc: "Non-contact biometric recognition when face, fingerprint or voice fall short.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Suspicious movement detection",
-    desc: "Behavioral signal intelligence that surfaces anomalies in real time.",
-  },
-  {
-    icon: Plane,
-    title: "Airports & high-security zones",
-    desc: "Continuous identity & risk awareness across terminals, campuses and offices.",
-  },
-  {
-    icon: Users,
-    title: "Crowd & pedestrian analytics",
-    desc: "Movement flow modeling for smart cities and public infrastructure.",
-  },
-];
-
-export const careFeatures = [
-  {
-    icon: HeartPulse,
-    title: "Fall-risk prediction",
-    desc: "Detect instability and balance decline long before a fall occurs.",
-  },
-  {
-    icon: Brain,
-    title: "Neurological screening",
-    desc: "Early indicators for Parkinsonian patterns, stroke recovery and more.",
-  },
-  {
-    icon: Activity,
-    title: "Rehabilitation tracking",
-    desc: "Objective gait analytics for therapists, doctors and recovery programs.",
-  },
-  {
-    icon: Heart,
-    title: "Silent guardian at home",
-    desc: "Quietly monitor elderly mobility — alert families before emergencies.",
-  },
-];
-
-export const howItWorks = [
-  {
-    step: "01",
-    icon: Camera,
-    title: "Sense",
-    desc: "Cameras, depth and inertial sensors capture how a person moves — anywhere, anytime, contactless.",
-  },
-  {
-    step: "02",
-    icon: Cpu,
-    title: "Understand",
-    desc: "Our pose-estimation and gait-biometrics models extract identity, balance, symmetry and risk signatures.",
-  },
-  {
-    step: "03",
-    icon: LineChart,
-    title: "Predict",
-    desc: "Multimodal AI translates movement into actionable insight — risk scores, alerts and longitudinal trends.",
-  },
-  {
-    step: "04",
-    icon: Sparkles,
-    title: "Protect",
-    desc: "Explainable outputs help families, clinicians and operators act before harm happens.",
-  },
-];
-
-export const useCases = [
-  { icon: Home, title: "Homes", desc: "Silent guardian for elderly independence." },
-  { icon: HeartPulse, title: "Hospitals", desc: "Objective gait analytics for clinicians." },
-  { icon: Plane, title: "Airports", desc: "Non-contact biometric & risk intelligence." },
-  { icon: Building2, title: "Smart Cities", desc: "Pedestrian flow and public-space safety." },
-  { icon: ShieldCheck, title: "Enterprises", desc: "Movement-based access and awareness." },
-  { icon: Waypoints, title: "Research Labs", desc: "Movement analytics for medical research." },
-];
-
-export const stats = [
-  { value: "98.7%", label: "Identification accuracy" },
-  { value: "<40ms", label: "Edge inference latency" },
-  { value: "12+", label: "Movement biomarkers" },
-  { value: "24/7", label: "Continuous awareness" },
-];
+import { mobilityProducts, productCount, secureProducts } from "@/data/products";
+import { papers } from "@/data/publications";
 
 export interface NavItem {
   label: string;
   href: string;
+  /** Short purpose line shown in the desktop dropdown and mobile submenu. */
+  description?: string;
   children?: readonly NavItem[];
 }
 
@@ -118,17 +30,37 @@ export const navLinks: readonly NavItem[] = [
     label: "Products",
     href: "/products",
     children: [
-      { label: "Product Overview", href: "/products" },
-      { label: "MobilityCare", href: "/mobilitycare" },
-      { label: "SecureVision", href: "/securevision" },
+      {
+        label: "Product Overview",
+        href: "/products",
+        description: `All ${productCount} modular products`,
+      },
+      {
+        label: "MobilityCare",
+        href: "/mobilitycare",
+        description: `Clinical movement intelligence · ${mobilityProducts.length}`,
+      },
+      {
+        label: "SecureVision",
+        href: "/securevision",
+        description: `Privacy-aware movement intelligence · ${secureProducts.length}`,
+      },
     ],
   },
   {
     label: "Explore",
     href: "/use-cases",
     children: [
-      { label: "Use Cases", href: "/use-cases" },
-      { label: "GaitScape", href: "/gaitscape" },
+      {
+        label: "Use Cases",
+        href: "/use-cases",
+        description: "Problems, by environment",
+      },
+      {
+        label: "GaitScape",
+        href: "/gaitscape",
+        description: "Interactive intelligence landscape",
+      },
     ],
   },
   { label: "Insights", href: "/insights" },
@@ -136,15 +68,27 @@ export const navLinks: readonly NavItem[] = [
     label: "Research & IP",
     href: "/research",
     children: [
-      { label: "Research", href: "/research" },
-      { label: "Publications", href: "/publications" },
+      {
+        label: "Research",
+        href: "/research",
+        description: "Research areas and their evidence",
+      },
+      {
+        label: "Publications",
+        href: "/publications",
+        description: "Papers and the granted patent",
+      },
     ],
   },
 ];
 
+/**
+ * Platform counters — every value is derived from a canonical record, so the
+ * strip can never drift from the data or assert an unmeasured figure.
+ */
 export const heroStats = [
-  { value: "98.7%", label: "Gait identification accuracy" },
-  { value: "<40ms", label: "Edge inference latency" },
-  { value: "23", label: "Movement-intelligence products" },
-  { value: "24/7", label: "Continuous awareness" },
+  { value: `${productCount}`, label: "Modular products" },
+  { value: "2", label: "Product verticals" },
+  { value: `${papers.length}`, label: "Peer-reviewed papers" },
+  { value: "1", label: "Granted patent" },
 ];

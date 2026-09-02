@@ -302,7 +302,9 @@ const PRODUCT_MAP: ProductMap = {
 };
 
 // Research → capability links, following the publications' own keywords.
-const RESEARCH_MAP: Record<string, string[]> = {
+// Exported so the site-wide evidence layer (src/data/evidence.ts) can resolve
+// which capabilities have peer-reviewed backing without restating the mapping.
+export const RESEARCH_MAP: Record<string, string[]> = {
   "res-gait-biometrics": ["cap-biometrics", "cap-gait", "cap-reid"],
   "res-pose-gait": ["cap-pose", "cap-gait"],
   "res-privacy": ["cap-privacy"],

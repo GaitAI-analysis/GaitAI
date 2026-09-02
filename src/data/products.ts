@@ -46,6 +46,25 @@ import {
 
 export type Vertical = "mobilitycare" | "securevision";
 
+/**
+ * Commercial / technical maturity of a product module.
+ *
+ * DELIBERATELY UNSET on every record. The repository contains no deployment
+ * record, pilot log, validation study or release note that would establish
+ * maturity for any of the 23 modules, and maturity must never be inferred
+ * from how much detail a product page happens to carry. The field exists so
+ * that when real evidence lands it has one canonical home — and so that no
+ * page has to imply maturity in prose.
+ *
+ * Set a value only when a documented source supports it.
+ */
+export type ProductStatus =
+  | "production"
+  | "pilot-ready"
+  | "research-validated"
+  | "prototype"
+  | "in-development";
+
 export interface GaitProduct {
   id: string;
   name: string; // e.g. "GaitAI WalkScan"
@@ -60,6 +79,8 @@ export interface GaitProduct {
   featured: boolean; // surface on the homepage strip
   flagship: boolean; // earns a dedicated visual block
   accent: "teal" | "blue" | "violet" | "cyan" | "gold" | "emerald";
+  /** Maturity — see ProductStatus. Unset until evidence exists. */
+  status?: ProductStatus;
 }
 
 // ----------------------------------------------------------------------------
@@ -102,9 +123,9 @@ export const mobilityProducts: GaitProduct[] = [
     name: "GaitAI FallRisk",
     short: "FallRisk",
     label: "Fall-risk screening & prevention intelligence",
-    headline: "Detect mobility decline and fall-risk before incidents happen.",
+    headline: "Surface mobility decline and fall-risk indicators early.",
     description:
-      "Uses gait, balance, variability, posture, and longitudinal movement trends to flag elderly and at-risk patients into low / medium / high categories.",
+      "Uses gait, balance, variability, posture and longitudinal movement trends to sort elderly and at-risk patients into low / medium / high screening categories for clinician review.",
     users: [
       "Elderly-care centers",
       "Hospitals",
@@ -216,7 +237,7 @@ export const mobilityProducts: GaitProduct[] = [
     name: "GaitAI NeuroMotion",
     short: "NeuroMotion",
     label: "Neurological gait monitoring",
-    headline: "Track Parkinsonian, stroke, ataxia & MS gait patterns.",
+    headline: "Monitor Parkinsonian, stroke, ataxia & MS gait patterns.",
     description:
       "Supports ongoing monitoring of gait patterns linked to neurological movement difficulties, including freezing, shuffling and turning instability.",
     users: ["Neurologists", "Neurorehab centers", "Hospitals", "Research labs"],
@@ -562,9 +583,9 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI ReID",
     short: "ReID",
     label: "Person re-identification across cameras",
-    headline: "Track the same person across cameras — by gait.",
+    headline: "Cross-camera movement correspondence, by gait.",
     description:
-      "Links the same person across multiple camera feeds using movement and body-level signatures rather than face-only matching.",
+      "Produces confidence-based candidate matches across multiple camera feeds using movement and body-level signatures rather than face-only matching. Candidates are for trained review — never proof of identity.",
     users: [
       "Airports",
       "Railway stations",
@@ -591,7 +612,7 @@ export const secureProducts: GaitProduct[] = [
     label: "Gait-enhanced access control",
     headline: "A passive second factor — your walk.",
     description:
-      "Uses gait as a passive second factor alongside card, face or mobile authentication for high-security spaces.",
+      "Contributes a passive gait-consistency signal alongside card, face or mobile authentication in high-security spaces. It supports an existing credential rather than replacing it.",
     users: [
       "Data centers",
       "R&D labs",
@@ -628,7 +649,7 @@ export const secureProducts: GaitProduct[] = [
     outputs: [
       "Entry / exit flow",
       "Density risk",
-      "Panic movement alert",
+      "Sudden-dispersal movement alert",
       "Queue overload",
       "Evacuation support",
     ],
@@ -665,9 +686,9 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI Watchlist",
     short: "Watchlist",
     label: "Legally governed gait-based watchlist matching",
-    headline: "Lawful, audited, deployed only where authorized.",
+    headline: "Policy-governed matching, authorized environments only.",
     description:
-      "High-security watchlist matching restricted to deployments with lawful authority, policy controls and full audit trails.",
+      "Policy-governed candidate matching against an authorized list, with confidence scoring, access controls and full audit history. Restricted to environments with lawful authority — not offered for general-public surveillance.",
     users: [
       "Authorized law enforcement",
       "Defense agencies",
@@ -701,6 +722,25 @@ export const flagshipProducts = allProducts.filter((p) => p.flagship);
 
 export const productById = (id: string) =>
   allProducts.find((p) => p.id === id);
+
+// ----------------------------------------------------------------------------
+// THE PRODUCT PROPOSITION
+// ----------------------------------------------------------------------------
+// One place to phrase "how many products, and what kind". The count is always
+// derived from the arrays above, and the wording describes the architecture —
+// modular products on one shared movement engine — without implying that all
+// of them are equally mature, shipped or deployed. See ProductStatus.
+// ----------------------------------------------------------------------------
+
+export const productCount = allProducts.length;
+
+/** e.g. "23 modular movement-intelligence products" */
+export const productProposition =
+  `${productCount} modular movement-intelligence products`;
+
+/** e.g. "23 modular products across two verticals" */
+export const productPropositionShort =
+  `${productCount} modular products across two verticals`;
 
 // ============================================================================
 // INDUSTRY USE CASES (cross-vertical map)
@@ -858,7 +898,7 @@ export const industryUseCases: UseCaseEntry[] = [
       "High-density events need crowd-risk awareness in seconds, not after the news cycle.",
     productIds: ["eventshield", "crowdsense"],
     outcome:
-      "Crowd density, bottlenecks, stampede-risk signals, entry/exit flow, panic alerts.",
+      "Crowd-density indicators, bottleneck alerts, entry/exit flow, sudden-dispersal movement alerts and evacuation-flow summaries.",
     accent: "blue",
   },
   {
@@ -1034,7 +1074,12 @@ export const watchcareFeatures = [
 ];
 
 // ============================================================================
-// HOW IT WORKS (Capture → Analyze → Report → Act)
+// HOW IT WORKS (Capture → Understand → Insight → Act)
+// ----------------------------------------------------------------------------
+// Platform-level language: the same four stages must read correctly for
+// MobilityCare (clinical gait from video and wearables) and for SecureVision
+// (CCTV, crowds, human activity, safety events). Gait-specific wording lives
+// on the product pages where gait genuinely is the subject.
 // ============================================================================
 
 export const workflowStages = [
@@ -1045,18 +1090,18 @@ export const workflowStages = [
   },
   {
     step: "02",
-    title: "AI Analyzes Gait",
-    desc: "Pose estimation, gait feature extraction and sensor-fusion models translate motion into measurable signals.",
+    title: "AI Understands Movement",
+    desc: "Pose estimation, gait and activity feature extraction and sensor-fusion models translate motion into measurable signals.",
   },
   {
     step: "03",
-    title: "Report or Dashboard",
-    desc: "Clinical PDF reports, mobility scores, dashboards, or security alerts are generated automatically.",
+    title: "Insight, Report or Dashboard",
+    desc: "Movement reports, mobility scores, operator dashboards or safety alerts are generated automatically.",
   },
   {
     step: "04",
     title: "Clinician / Operator Acts",
-    desc: "The right person — doctor, therapist, caregiver, security operator — receives the right signal in seconds.",
+    desc: "The right person — clinician, therapist, caregiver or security operator — receives the right signal in seconds.",
   },
 ];
 
@@ -1064,25 +1109,28 @@ export const workflowStages = [
 // RESEARCH CREDIBILITY
 // ============================================================================
 
+// Wording policy: each pillar states what the published record covers or what
+// the architecture provides. No pillar claims validation studies, named
+// collaborators or clinical approval — none are documented in this repository.
 export const researchPillars = [
   {
-    title: "Gait recognition research",
-    desc: "Founder-led research in gait biometrics, computer vision and movement analytics.",
+    title: "Peer-reviewed gait recognition",
+    desc: "Founder-authored journal work on deep-learning gait recognition and gait biometrics under covariates.",
     icon: Footprints,
   },
   {
-    title: "Computer vision expertise",
-    desc: "Pose estimation, skeleton tracking and movement modeling across diverse environments.",
+    title: "Pose-based movement analysis",
+    desc: "Published work on covariate-invariant gait recognition built on pose features, plus a granted edge-analytics patent.",
     icon: Eye,
   },
   {
-    title: "Clinical workflow design",
-    desc: "Built with input from physiotherapists, neurologists, geriatricians and rehab specialists.",
+    title: "Designed for clinical workflows",
+    desc: "Outputs are framed as assessment, monitoring and decision support — never diagnosis — so they fit how clinicians already work.",
     icon: Stethoscope,
   },
   {
-    title: "Responsible AI deployment",
-    desc: "Privacy-first architecture, role-based access, audit logs and retention controls built in.",
+    title: "Responsible AI by architecture",
+    desc: "Privacy-first design: skeleton-only modes, face blur, role-based access, audit logs and configurable retention.",
     icon: ShieldCheck,
   },
 ];

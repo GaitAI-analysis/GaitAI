@@ -8,7 +8,6 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ClinicalReportVisual } from "@/components/visuals/ClinicalReportVisual";
-import { RunningTrailVisual } from "@/components/visuals/RunningTrailVisual";
 import { SmartwatchVisual } from "@/components/visuals/SmartwatchVisual";
 import { MobilityCareHero } from "@/components/sections/MobilityCareHero";
 import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
@@ -39,10 +38,16 @@ const mobilityUseCases = industryUseCases.filter(
  */
 const mobilitySignals = intelligenceVocabularyFor("mobilitycare");
 
+/**
+ * Three products are featured in long form on this page — WalkScan, WatchCare
+ * and FallRisk — and no more. SportsMotion used to get a fourth deep section
+ * that rendered its `description` and `outputs`: exactly what its card in the
+ * grid above already shows and what /mobilitycare/sportsmotion states in full.
+ * The parent page is product discovery; the detail routes are the detail.
+ */
 export default function MobilityCarePage() {
   const walkscan = productById("walkscan");
   const fallrisk = productById("fallrisk");
-  const sportsmotion = productById("sportsmotion");
   const watchcare = productById("watchcare");
 
   return (
@@ -177,42 +182,6 @@ export default function MobilityCarePage() {
                   Open the WatchCare product page
                   <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
                 </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* SPORTSMOTION FLAGSHIP */}
-      {sportsmotion && (
-        <section id={sportsmotion.id} className="section">
-          <div className="container-wide">
-            <div className="grid items-center gap-10 lg:grid-cols-2">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-                  GaitAI SportsMotion
-                </div>
-                <h2 className="mt-5 font-display text-display-lg text-balance text-soft-white">
-                  Athlete movement —{" "}
-                  <span className="text-gradient">measured, not guessed.</span>
-                </h2>
-                <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
-                  {sportsmotion.description}
-                </p>
-                <ul className="mt-6 grid gap-2">
-                  {sportsmotion.outputs.map((o) => (
-                    <li
-                      key={o}
-                      className="flex items-center gap-2 text-sm text-soft-white"
-                    >
-                      <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-                      {o}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="card relative h-80 overflow-hidden p-0">
-                <RunningTrailVisual />
               </div>
             </div>
           </div>

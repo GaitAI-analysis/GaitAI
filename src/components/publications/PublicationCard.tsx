@@ -92,7 +92,10 @@ export function PublicationCard({
           {displayDate(publication)}
         </div>
 
-        <h3 className="mt-2 line-clamp-3 pr-2 font-display text-[1.2rem] font-semibold leading-[1.3] text-soft-white sm:text-[1.26rem]">
+        {/* No clamp. Two of the nine records run past 140 characters, and a
+            three-line clamp cut them mid-phrase — in a research library the
+            full title IS the record, so the card grows instead. */}
+        <h3 className="mt-2 pr-2 font-display text-[1.2rem] font-semibold leading-[1.3] text-soft-white sm:text-[1.26rem]">
           {publication.title}
         </h3>
 

@@ -75,7 +75,7 @@ export default function SecureVisionPage() {
                   a decade of founder-led gait research
                 </span>
                 , with PrivacyGuard defining the default design posture and
-                audit controls throughout.
+                auditability by design.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-6">
@@ -325,7 +325,7 @@ export default function SecureVisionPage() {
                 <span className="text-gradient">smart cities.</span>
               </>
             }
-            description="SecureVision is built for a range of operational environments — each with its own problem, product mix and outcome."
+            description="SecureVision is built for a range of operational environments — each with its own problem, product mix and output."
             align="left"
           />
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">

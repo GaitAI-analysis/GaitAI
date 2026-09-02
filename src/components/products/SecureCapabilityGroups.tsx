@@ -121,8 +121,8 @@ export function SecureCapabilityGroups() {
               Identity-related capabilities are intended only for lawful,
               authorized environments with appropriate access controls,
               governance and auditability. Where non-identifying movement
-              intelligence is sufficient for the outcome, that is what we
-              deploy.
+              intelligence is sufficient for the outcome, that is the
+              intended default.
             </p>
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
               <Link

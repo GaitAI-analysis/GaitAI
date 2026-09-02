@@ -23,7 +23,8 @@ export default function ResponsibleAIPage() {
         detection, crowd flow, worker safety and post-event investigation —
         capabilities that do not require identification. Biometric,
         re-identification and watchlist capabilities are intended only for
-        lawful, authorized deployments with consent and a full audit trail.
+        lawful, authorized deployments with appropriate governance, access
+        control and auditability.
       </p>
 
       <p className="mt-4 text-soft-gray">

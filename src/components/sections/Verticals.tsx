@@ -373,7 +373,7 @@ export function Verticals() {
             descriptor="Privacy-aware spatial intelligence"
             headline="Privacy-aware"
             headlineAccent="movement intelligence."
-            description="Movement anomaly detection, crowd flow analytics, worker safety and post-event investigation — built with privacy-first architecture, lawful deployment and full audit trails."
+            description="Movement anomaly detection, crowd flow analytics, worker safety and post-event investigation — designed around privacy-first architecture, lawful deployment and auditability."
             href="/securevision"
             brandDark="/assets/brand/securevision/securevision-dark.png"
             brandLight="/assets/brand/securevision/securevision-light.png"

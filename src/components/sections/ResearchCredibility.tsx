@@ -241,7 +241,8 @@ export function ResearchCredibility() {
                 Privacy by design
               </div>
               <h3 className="mt-4 font-display text-xl text-soft-white">
-                Skeleton-only analytics. Face blur. Role-based access. Audit logs.
+                Skeleton-only analytics, face blur, role-based access and
+                audit logs — by design.
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-soft-mute">
                 PrivacyGuard is designed to support these controls at the
@@ -266,11 +267,13 @@ export function ResearchCredibility() {
             Responsible deployment
           </div>
           <p className="mt-1 text-sm leading-relaxed text-soft-mute">
-            Biometric, watchlist and identification capabilities are deployed
-            only with lawful authority, consent and audit controls. Where
-            non-identifying movement intelligence is sufficient, it&apos;s the
-            default. GaitAI outputs are decision support — they do not
-            diagnose, and no compliance certification is claimed.
+            Identity-related capabilities — biometric, watchlist and
+            identification — are intended only for lawful, authorized
+            deployments with appropriate governance, access control and
+            auditability. Where non-identifying movement intelligence is
+            sufficient, that is the intended default. GaitAI outputs are
+            decision support — they do not diagnose, and no compliance
+            certification is claimed.
           </p>
         </div>
       </div>

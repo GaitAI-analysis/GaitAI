@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { capabilityIconById } from "@/components/icons/CapabilityIcons";
 import {
   mobilityProducts,
@@ -50,7 +51,9 @@ interface FlagshipPanelProps {
   videoSrc: string;
   videoPoster: string;
   visualLabel: string;
-  liveLabel: string;
+  /** Corner tag on the console surface. These are rendered demo footage,
+   *  not a live feed, so the tag must not say "Live". */
+  consoleTag: string;
   products: GaitProduct[];
   totalProducts: number;
   reduceMotion: boolean;
@@ -150,7 +153,7 @@ function FlagshipPanel({
   videoSrc,
   videoPoster,
   visualLabel,
-  liveLabel,
+  consoleTag,
   products,
   totalProducts,
   reduceMotion,
@@ -219,11 +222,16 @@ function FlagshipPanel({
             </span>
           </div>
           <div className="absolute right-5 top-4 z-10 rounded-md border border-white/10 bg-obsidian/70 px-2.5 py-1 font-mono text-[9px] text-soft-gray shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:right-7 sm:top-5 sm:text-[10px]">
-            {liveLabel}
+            {consoleTag}
           </div>
           {/* Animated console footage — reduced-motion users get the still
               poster frame instead. The asset is a fixed dark cinematic
               render, identical in light and dark mode. */}
+          <SyntheticDataBadge
+            variant="overlay"
+            label="Illustrative demo · Synthetic data"
+            className="absolute bottom-4 left-5 z-10 sm:left-7"
+          />
           {reduceMotion ? (
             <Image
               src={assetPath(videoPoster)}
@@ -246,6 +254,10 @@ function FlagshipPanel({
             </video>
           )}
         </div>
+        <p className="sr-only">
+          The console above is illustrative demo footage with synthetic data,
+          not a live feed or a real deployment.
+        </p>
 
         <div className="mt-8 sm:mt-9">
           <div className="flex items-end justify-between gap-4 border-b border-white/8 pb-3">
@@ -316,7 +328,7 @@ export function Verticals() {
   return (
     <section
       id="platform-verticals"
-      className="relative w-full pb-28 sm:pb-32 lg:pb-40"
+      className="relative w-full pb-28 pt-20 sm:pb-32 sm:pt-24 lg:pb-40 lg:pt-28"
     >
       <div className="container-wide">
         {/* Eyebrow pill — same badge language as the hero pill in Hero.tsx */}
@@ -337,14 +349,17 @@ export function Verticals() {
             descriptor="Clinical movement intelligence"
             headline="Clinical mobility"
             headlineAccent="intelligence."
-            description="Camera-based gait assessment, rehabilitation tracking, fall-risk screening, sports movement analytics and smartwatch monitoring — built with clinicians, for clinicians."
+            // "built with clinicians, for clinicians" claimed a co-design
+            // relationship nothing in the repository documents. What is true
+            // is the design constraint: clinician-reviewable outputs.
+            description="Camera-based gait assessment, rehabilitation tracking, fall-risk screening, sports movement analytics and smartwatch monitoring — every output structured for a clinician to review, not a black-box score."
             href="/mobilitycare"
             brandDark="/assets/brand/mobilitycare/mobilitycare-dark.png"
             brandLight="/assets/brand/mobilitycare/mobilitycare-light.png"
             videoSrc="/assets/videos/platform/mobilitycare-intelligence.mp4"
             videoPoster="/assets/videos/platform/mobilitycare-intelligence-poster.jpg"
             visualLabel="Clinical mobility console"
-            liveLabel="WalkScan · Live"
+            consoleTag="WalkScan · Demo"
             products={mobilityHighlights}
             totalProducts={mobilityProducts.length}
             reduceMotion={reduceMotion}
@@ -365,7 +380,7 @@ export function Verticals() {
             videoSrc="/assets/videos/platform/securevision-intelligence.mp4"
             videoPoster="/assets/videos/platform/securevision-intelligence-poster.jpg"
             visualLabel="Privacy-aware ops console"
-            liveLabel="SecureVision · Live"
+            consoleTag="SecureVision · Demo"
             products={secureHighlights}
             totalProducts={secureProducts.length}
             reduceMotion={reduceMotion}

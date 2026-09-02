@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { type FormEvent, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
+import { PILOT_DURATION } from "@/data/trust";
 
 const interestGroups = [
   {
@@ -108,20 +110,26 @@ export function CTA() {
                 </p>
               </div>
 
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <div className="flex -space-x-2">
-                  {["#4FD1FF", "#2563FF", "#7C3AED"].map((c) => (
-                    <span
-                      key={c}
-                      className="h-9 w-9 rounded-full border-2 border-obsidian"
-                      style={{ background: c }}
-                    />
-                  ))}
+              {/* Previously "Trusted by pioneers in healthcare, security and
+                  smart-infrastructure", next to three avatar circles. There is
+                  no named customer or deployment to support that, so it now
+                  states what the platform is built for and what a pilot
+                  actually looks like. */}
+              <div className="mt-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5">
+                <div className="text-sm font-semibold text-soft-white">
+                  Built for healthcare, mobility and public-safety environments
                 </div>
-                <div className="text-sm text-soft-mute">
-                  <div className="text-soft-white">Trusted by pioneers</div>
-                  in healthcare, security and smart-infrastructure
-                </div>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-soft-mute">
+                  A pilot is scoped around one environment and the modules it
+                  needs, and typically runs {PILOT_DURATION}.{" "}
+                  <Link
+                    href="/products#deploy"
+                    className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
+                  >
+                    See how deployment works
+                  </Link>
+                  .
+                </p>
               </div>
             </div>
 
@@ -203,10 +211,14 @@ export function CTA() {
                 />
               </div>
               <div className="mt-3">
-                <label className="text-xs font-medium uppercase tracking-[0.16em] text-soft-mute">
+                <label
+                  htmlFor="cta-message"
+                  className="text-xs font-medium uppercase tracking-[0.16em] text-soft-mute"
+                >
                   How can we help?
                 </label>
                 <textarea
+                  id="cta-message"
                   name="message"
                   rows={3}
                   placeholder="Tell us about the environment, scale and intended outcome."
@@ -249,9 +261,18 @@ export function CTA() {
                 </p>
               )}
 
-              <p className="mt-3 text-center text-[11px] text-soft-mute">
-                By submitting, you agree to our terms & privacy. We&apos;ll only
-                use your details to respond.
+              {/* Linked, not just named — and it says what we do with the
+                  details rather than gesturing at a policy. */}
+              <p className="mt-3 text-center text-[11px] leading-relaxed text-soft-mute">
+                By submitting, you agree to our{" "}
+                <Link
+                  href="/legal/privacy"
+                  className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
+                >
+                  Privacy Policy
+                </Link>
+                . We&apos;ll use your details to respond to your request.
+                Please don&apos;t include health or clinical information.
               </p>
             </form>
           </div>
@@ -274,12 +295,20 @@ function Field({
   placeholder?: string;
   required?: boolean;
 }) {
+  // The label is bound to the input by id — without htmlFor/id, screen
+  // readers announced these fields with no name at all.
+  const id = `cta-${name}`;
+
   return (
     <div>
-      <label className="text-xs font-medium uppercase tracking-[0.16em] text-soft-mute">
+      <label
+        htmlFor={id}
+        className="text-xs font-medium uppercase tracking-[0.16em] text-soft-mute"
+      >
         {label}
       </label>
       <input
+        id={id}
         name={name}
         type={type}
         placeholder={placeholder}

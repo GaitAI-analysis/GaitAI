@@ -29,6 +29,11 @@ import styles from "./observatory.module.css";
  * capability and product mapping `researchAreas` resolved — this component
  * only decides how much of it is on screen to begin with.
  *
+ * The architectural tier and the implementation boundary are rendered
+ * either way and toggled with `hidden`, not mounted on demand: they ARE the
+ * evidence boundary, and a boundary that only exists after a click is
+ * absent from the static HTML and from any reader without JS.
+ *
  * State resets per pillar because EvidenceObservatory keys this component on
  * `area.id`: switching pillars remounts it, so pillar 2 never opens with
  * pillar 1's sections expanded. That is also why there is no effect here.
@@ -53,12 +58,15 @@ export function EvidencePanel({ area }: { area: ObservatoryArea }) {
   const records = allRecords
     ? area.publications
     : area.publications.slice(0, RECORDS_SHOWN);
+  /* The chip row shows the DIRECT tier only. Slicing the combined list put
+     architectural-relevance products in the row headed "informed by this
+     work", which is the claim the two tiers exist to keep apart. */
   const products = allProducts
-    ? area.products
-    : area.products.slice(0, PRODUCTS_SHOWN);
+    ? area.directProducts
+    : area.directProducts.slice(0, PRODUCTS_SHOWN);
 
   const hiddenRecords = area.publications.length - RECORDS_SHOWN;
-  const hiddenProducts = area.products.length - PRODUCTS_SHOWN;
+  const hiddenProducts = area.directProducts.length - PRODUCTS_SHOWN;
 
   const toggleAll = () => {
     const next = !expanded;
@@ -186,10 +194,14 @@ export function EvidencePanel({ area }: { area: ObservatoryArea }) {
         )}
       </section>
 
-      {/* ── Connected products ── */}
+      {/* ── Products, in two tiers ──
+          The distinction is the evidence boundary, not decoration: a
+          capability this record is specifically about versus a broad platform
+          capability many products happen to share. */}
       <section className={styles.panelGroup}>
         <span className={styles.panelGroupLabel}>
-          Connected products · {area.products.length}
+          Products using capabilities informed by this work ·{" "}
+          {area.directProducts.length}
         </span>
         <div className={styles.panelChips}>
           {products.map((product) => (
@@ -216,12 +228,74 @@ export function EvidencePanel({ area }: { area: ObservatoryArea }) {
           >
             {allProducts
               ? "Show fewer products ↑"
-              : `+${hiddenProducts} connected ${
-                  hiddenProducts === 1 ? "product" : "products"
-                }`}
+              : `+${hiddenProducts} more`}
           </button>
         )}
       </section>
+
+      {area.architecturalProducts.length > 0 && (
+        <section
+          hidden={!(expanded || allProducts)}
+          className={styles.panelGroup}
+        >
+          <span className={styles.panelGroupLabel}>
+            Architectural / technical relevance ·{" "}
+            {area.architecturalProducts.length}
+          </span>
+          <p className={styles.capDetailDesc}>
+            These draw on a broad platform capability this work touches, not on
+            what the record specifically addresses. Listed for traceability —
+            not as evidence for these products.
+          </p>
+          <div className={styles.panelChips}>
+            {area.architecturalProducts.map((product) => (
+              <Link
+                key={product.id}
+                href={product.href}
+                className={`${styles.panelChip} ${styles.panelChipMuted}`}
+              >
+                {product.short}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Research principle vs shipped control, as two named lists.
+          The privacy row is why this is not one sentence: the page used to
+          list skeleton-only analytics, face blur, audit logs and retention as
+          the capability the privacy paper informed, and then disclaim them in
+          a footnote. Both halves are labelled and separated now. */}
+      {area.boundary && (
+        <section
+          hidden={!(expanded || allProducts)}
+          className={styles.panelBoundary}
+        >
+          <div className={styles.boundaryPair}>
+            <div>
+              <span className={styles.boundaryLabel}>
+                {area.boundary.foundationLabel}
+              </span>
+              <ul className={styles.boundaryList}>
+                {area.boundary.foundation.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <span className={styles.boundaryLabel}>
+                {area.boundary.controlsLabel}
+              </span>
+              <ul className={styles.boundaryList}>
+                {area.boundary.controls.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <p className={styles.boundaryNote}>{area.boundary.note}</p>
+        </section>
+      )}
 
       {/* ── The one CTA ── */}
       <button type="button" onClick={toggleAll} className={styles.panelCta}>

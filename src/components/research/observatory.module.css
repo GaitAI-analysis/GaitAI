@@ -1047,6 +1047,76 @@
   border-color: rgb(156 100 241 / 0.28);
 }
 
+/* Architectural-relevance chips read one step back from the direct tier: the
+   relationship is real and traceable, but it is not evidence for the product,
+   and the chip should not look like it is. */
+.panelChipMuted {
+  border-color: rgb(148 163 184 / 0.2);
+  color: var(--obs-mute);
+}
+
+/* Where the cited work ends and GaitAI's own implementation begins. Two
+   named lists side by side, because the whole point is that they are two
+   different things — one sentence let them read as one claim. */
+.panelBoundary {
+  margin-top: 0.9rem;
+  border-top: 1px solid rgb(148 163 184 / 0.16);
+  padding-top: 0.9rem;
+}
+
+.boundaryPair {
+  display: grid;
+  gap: 0.9rem;
+}
+
+@media (min-width: 560px) {
+  .boundaryPair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.boundaryLabel {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+
+.boundaryList {
+  margin-top: 0.45rem;
+  display: grid;
+  gap: 0.2rem;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: rgb(var(--c-soft-gray));
+}
+
+.boundaryList li {
+  padding-left: 0.7rem;
+  position: relative;
+}
+
+.boundaryList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  height: 3px;
+  width: 3px;
+  border-radius: 999px;
+  background: rgb(148 163 184 / 0.7);
+}
+
+.boundaryNote {
+  margin-top: 0.85rem;
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--obs-mute);
+}
+
 /* Capability chips ---------------------------------------------------------
    Names only. Rendering all three descriptions inline was the single biggest
    contributor to the panel's height, so each chip is a button that reveals

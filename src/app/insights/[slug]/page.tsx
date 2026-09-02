@@ -187,14 +187,19 @@ export default function InsightArticlePage({
               href="/insights"
               className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-soft-mute transition-colors hover:text-soft-white"
             >
-              ← All insights
+              ← The GaitAI Journal
             </Link>
 
             <div className="mt-8 max-w-[54rem]">
               <p className={styles.articleKicker}>
+                {/* The essays are issues of a collection, not posts. The number
+                    is the article's own position in the Foundations path, so
+                    the index and the article can never disagree about it. */}
                 <span className={styles.articleKickerCategory}>
-                  {article.category}
+                  Issue {String(article.seriesStep).padStart(2, "0")}
                 </span>
+                <span aria-hidden="true">·</span>
+                <span>{article.category}</span>
                 <span aria-hidden="true">·</span>
                 <span>{article.readMinutes} min read</span>
                 <span aria-hidden="true">·</span>

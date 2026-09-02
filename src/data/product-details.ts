@@ -10,6 +10,8 @@
 // report values, never measured performance claims.
 // ============================================================================
 
+import { RESPONSIBLE_USE_CARE } from "./responsible-use";
+
 export interface ProductDetail {
   /** Route slug — /mobilitycare/[slug]/ — matches GaitProduct.id */
   slug: string;
@@ -56,8 +58,12 @@ export interface ProductDetail {
   ctaLabel: string;
 }
 
-const SHARED_PRIVACY =
-  "Recordings are captured with informed consent, uploaded over encrypted channels and retained only as long as the care workflow requires. Access is role-based, activity is logged, and skeleton-only processing modes are available. GaitAI outputs are AI-generated movement metrics intended as decision support — they do not diagnose medical conditions and do not replace clinical judgement.";
+/**
+ * One canonical responsible-use statement for the whole site — see
+ * src/data/responsible-use.ts. Previously spelled out here as accomplished
+ * deployment fact, which claimed more than /legal/security/ does.
+ */
+const SHARED_PRIVACY = RESPONSIBLE_USE_CARE;
 
 export const productDetails: ProductDetail[] = [
   // ==========================================================================
@@ -1373,13 +1379,14 @@ export const productDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "clinicaltrials",
-    valueProp: "Standardized movement-analysis outputs for longitudinal studies.",
+    valueProp:
+      "Structured, repeatable movement-analysis outputs for research, clinical-study and device-evaluation workflows.",
     overview:
       "ClinicalTrials provides structured gait and movement measurements that can be collected repeatedly across participants and study visits.",
     environments: ["CROs", "Academia", "Pharma", "Device studies"],
     glance: {
       input: "Protocol captures",
-      analysis: "Biomarker pipeline",
+      analysis: "Gait-measure pipeline",
       output: "Study exports",
       user: "Research team",
     },

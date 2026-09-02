@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { DeployGaitAI } from "@/components/sections/DeployGaitAI";
+import { MovementEngineCore } from "@/components/visuals/MovementEngineCore";
 import {
   mobilityProducts,
   productCount,
@@ -27,27 +28,34 @@ export default function ProductsPage() {
         <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-30" />
 
         <div className="container-wide">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              {productCount} products · One Movement Intelligence Platform
-            </div>
-            <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
-              {productCount} products.{" "}
-              <span className="text-gradient">
-                One Movement Intelligence Platform.
-              </span>
+          <div className="max-w-2xl">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+              Our product ecosystem
+            </span>
+            <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
+              Movement intelligence{" "}
+              <span className="text-gradient">for real-world impact.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Every product is a module on the same Movement Intelligence
-              Platform, organised into two families. Start with the family that
-              matches your environment.
+              Two product families. One shared movement engine. Every one of the{" "}
+              {productCount} modules is built on the same capture, pose, gait
+              and quality layers — the family decides what the measurement is
+              read for.
             </p>
+          </div>
+
+          {/* The ecosystem itself, before the catalogue: two worlds feeding
+              one engine. Desktop draws them side by side; mobile stacks them
+              so the labels stay legible. */}
+          <div className="mt-12 sm:mt-16">
+            <MovementEngineCore className="hidden sm:block" />
+            <MovementEngineCore compact className="mx-auto max-w-[340px] sm:hidden" />
           </div>
 
           {/* The two families, as the primary route into the catalogue. The
               full grid stays below for people who already know what they
               want. */}
-          <div className="mx-auto mt-14 grid max-w-5xl gap-4 lg:grid-cols-2">
+          <div className="mt-12 grid gap-4 lg:grid-cols-2">
             <Link
               href="/mobilitycare"
               className="group rounded-3xl border border-teal-300/20 bg-gradient-to-b from-teal-300/[0.05] to-transparent p-7 text-left transition-colors hover:border-teal-300/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/60 sm:p-8"

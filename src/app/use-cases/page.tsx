@@ -4,6 +4,7 @@ import { ArrowRight, HeartPulse, ShieldCheck } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { UseCaseProblemRow } from "@/components/usecases/UseCaseProblemRow";
 import { WhoWeServe } from "@/components/sections/about/WhoWeServe";
+import { PlatformHub } from "@/components/visuals/PlatformHub";
 import { industryUseCases } from "@/data/products";
 
 export const metadata: Metadata = {
@@ -40,21 +41,20 @@ export default function UseCasesPage() {
         <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-30" />
 
         <div className="container-wide">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/[0.08] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              {industryUseCases.length} environments · {mobilityCases.length}{" "}
-              clinical · {secureCases.length} public-space
-            </div>
-            <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
-              Start with the{" "}
-              <span className="text-gradient">problem you have.</span>
+          <div className="max-w-2xl">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+              Use cases
+            </span>
+            <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
+              Different environments. Different questions.{" "}
+              <span className="text-gradient">One movement intelligence.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
               Each environment below states the problem it&apos;s working with,
               how GaitAI approaches it, which products are involved and what
               they produce. Find the one that looks like yours.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link href="#mobility" className="btn-primary">
                 Healthcare &amp; sports
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
@@ -63,6 +63,25 @@ export default function UseCasesPage() {
                 Safety &amp; public spaces
               </Link>
             </div>
+          </div>
+
+          {/* One platform, two worlds — the same hub the home page uses, so
+              the environments below visibly hang off it rather than reading
+              as two unrelated lists. */}
+          <div className="mt-14 sm:mt-16">
+            <PlatformHub
+              careCount={mobilityCases.length}
+              secureCount={secureCases.length}
+              total={industryUseCases.length}
+              className="hidden sm:block"
+            />
+            <PlatformHub
+              careCount={mobilityCases.length}
+              secureCount={secureCases.length}
+              total={industryUseCases.length}
+              compact
+              className="mx-auto max-w-[340px] sm:hidden"
+            />
           </div>
         </div>
       </section>

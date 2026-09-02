@@ -11,25 +11,28 @@ import {
   Stamp,
 } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { papers, patent } from "@/data/publications";
+import { FOUNDER_NAME, papers, patent } from "@/data/publications";
 import { PublicationLibrary } from "@/components/publications/PublicationLibrary";
 import { allPublishers, allYears } from "@/components/publications/topics";
 import { assetPath } from "@/lib/paths";
 
 export const metadata: Metadata = {
-  title: "Publications — GaitAI Research Library",
+  title: "Publications — The founder research record behind GaitAI",
   description:
-    "GaitAI's research library: peer-reviewed papers and a granted patent across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.",
+    "The research record GaitAI is built on: peer-reviewed papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.",
+  alternates: { canonical: "/publications" },
 };
 
-// Every number below is derived from the publication records themselves.
+// Every number below is derived from the records themselves. The set is
+// counted as research outputs because it is papers plus a granted patent —
+// the patent is not a publication.
 const summary = [
+  { value: `${papers.length + 1}`, label: "Research outputs" },
   { value: `${papers.length}`, label: "Peer-reviewed papers" },
   { value: "1", label: "Granted patent" },
-  { value: `${allPublishers.length}`, label: "Publishers" },
   {
     value: `${allYears[allYears.length - 1]}–${allYears[0]}`,
-    label: "Publication years",
+    label: "Years",
   },
 ];
 
@@ -52,20 +55,31 @@ export default function PublicationsPage() {
         <div className="container-wide">
           <span className="eyebrow">
             <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-            Research library
+            Founder research record
           </span>
           <h1 className="mt-5 max-w-3xl font-display text-display-lg text-balance text-soft-white">
-            Research that moves{" "}
-            <span className="text-gradient">
-              movement intelligence
-            </span>{" "}
-            forward.
+            The research{" "}
+            <span className="text-gradient">GaitAI is built on.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray sm:text-lg">
             Peer-reviewed work and a granted patent across gait recognition,
             computer vision, biometrics, pose estimation, machine learning and
-            privacy-preserving movement analysis — published with Springer,
-            Elsevier and Wiley · IET.
+            privacy-preserving movement analysis — authored by founder{" "}
+            {FOUNDER_NAME} with academic co-authors, and published with
+            Springer, Elsevier and Wiley · IET.
+          </p>
+          <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-soft-mute">
+            These are academic and individually held records rather than
+            company-produced output. GaitAI does not currently hold
+            company-assigned publications or patents of its own; how each
+            record maps onto the platform&apos;s capabilities is set out on the{" "}
+            <Link
+              href="/research#areas"
+              className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
+            >
+              research evidence map
+            </Link>
+            .
           </p>
 
           {/* Summary strip — counts derived from the actual records */}
@@ -99,7 +113,7 @@ export default function PublicationsPage() {
             Featured · Granted patent
           </span>
           <h2 className="mt-5 max-w-3xl font-display text-display-md text-balance text-soft-white">
-            A granted Indian patent at the heart of{" "}
+            A granted Indian patent behind the{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, #FBBF24 0%, #D5A021 100%)",
@@ -107,9 +121,14 @@ export default function PublicationsPage() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              GaitAI&apos;s edge pipeline.
+              edge gait pipeline.
             </span>
           </h2>
+          <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-soft-mute">
+            Granted to the named inventors by the Government of India. It
+            covers the covariate-based gait recognition method for edge
+            analytics that GaitAI&apos;s edge inference capability is built on.
+          </p>
 
           <Reveal>
             <div className="mt-10 overflow-hidden rounded-[2rem] border border-amber-300/20 bg-gradient-to-b from-amber-400/[0.04] to-transparent shadow-[0_30px_80px_-30px_rgba(213,160,33,0.35)]">
@@ -128,7 +147,7 @@ export default function PublicationsPage() {
                   <div className="relative aspect-[1/1.3] w-full max-w-[360px] overflow-hidden rounded-2xl ring-1 ring-amber-300/30 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)]">
                     <Image
                       src={assetPath(patent.cover)}
-                      alt="GaitAI patent certificate — Government of India"
+                      alt={`Patent certificate ${patent.patentNumber}, Government of India`}
                       fill
                       sizes="(min-width: 1024px) 360px, 80vw"
                       className="object-cover object-top"
@@ -196,7 +215,7 @@ export default function PublicationsPage() {
                     </Link>
                     <a
                       href={assetPath(patent.cover)}
-                      download="GaitAI-Patent-Certificate.jpg"
+                      download={`Patent-${patent.patentNumber}-Certificate.jpg`}
                       className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-semibold text-soft-white transition-all hover:border-white/20 hover:bg-white/[0.06]"
                     >
                       <Download className="h-3.5 w-3.5" />

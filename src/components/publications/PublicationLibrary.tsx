@@ -107,8 +107,8 @@ export function PublicationLibrary() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search publications…"
-            aria-label="Search publications"
+            placeholder="Search papers and patents…"
+            aria-label="Search research outputs"
             className="publib-input w-full pl-10"
           />
         </div>
@@ -206,10 +206,12 @@ export function PublicationLibrary() {
         </div>
       </div>
 
-      {/* result count */}
+      {/* Result count. The set is 8 peer-reviewed papers plus 1 granted
+          patent, so it is counted as research outputs — calling the patent a
+          publication would be wrong. */}
       <div className="mt-4 text-xs text-soft-mute" aria-live="polite">
         {filtered.length}{" "}
-        {filtered.length === 1 ? "publication" : "publications"}
+        {filtered.length === 1 ? "research output" : "research outputs"}
         {filtersActive && (
           <>
             {" · "}
@@ -227,7 +229,7 @@ export function PublicationLibrary() {
       {filtered.length === 0 ? (
         <div className="mt-10 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-12 text-center">
           <div className="text-sm text-soft-gray">
-            No publications match these filters.
+            No research outputs match these filters.
           </div>
           <button
             onClick={clearFilters}
@@ -248,7 +250,7 @@ export function PublicationLibrary() {
             </LibrarySection>
           )}
           <LibrarySection
-            label={showLatest ? "All publications" : "Results"}
+            label={showLatest ? "All research outputs" : "Results"}
           >
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {(showLatest ? rest : filtered).map((p) => (
@@ -258,7 +260,7 @@ export function PublicationLibrary() {
           </LibrarySection>
         </>
       ) : (
-        <LibrarySection label="All publications">
+        <LibrarySection label="All research outputs">
           <div className="border-t border-white/[0.06]">
             {filtered.map((p) => (
               <PublicationListItem key={p.id} publication={p} />

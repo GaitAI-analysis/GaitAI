@@ -78,9 +78,13 @@ export function InsightCard({
                 </span>
               </div>
 
-              <h3 className="mt-7 font-display text-display-md text-balance text-soft-white">
+              {/* h2, not h3: the featured card renders directly under the
+                  page h1 and above the "Latest from the lab" h2, so an h3
+                  here left a level gap for heading navigation. Styling is
+                  unchanged. */}
+              <h2 className="mt-7 font-display text-display-md text-balance text-soft-white">
                 {article.title}
-              </h3>
+              </h2>
               {article.subtitle && (
                 <p className="mt-3 font-display text-lg leading-snug text-soft-mute sm:text-xl">
                   {article.subtitle}

@@ -109,6 +109,22 @@ html {
   scroll-padding-top: calc(var(--site-header-height) + var(--site-anchor-gap));
 }
 
+/* Reduced motion, globally. Components that own their motion already check
+   useReducedMotion; this covers the always-on decorative Tailwind animations
+   (pulsing status dots, pinging rail nodes, scan lines) and smooth scrolling,
+   which nothing else was switching off. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-ping,
+  .animate-pulse,
+  .animate-scan-line {
+    animation: none;
+  }
+}
+
 [id] {
   scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
 }
@@ -180,6 +196,25 @@ body {
   .site-viewport-section {
     min-height: calc(100vh - var(--site-header-height));
     min-height: calc(100svh - var(--site-header-height));
+  }
+
+  /* ---------------------------------------------------------------------
+     CANONICAL HEADER OFFSET UTILITIES
+     The fixed navbar is exactly --site-header-height tall, so anything that
+     scrolls to a position, or sticks below the header, must be expressed in
+     terms of that token — never a hardcoded rem value that silently drifts
+     when the header changes. `[id] { scroll-margin-top }` above covers every
+     anchor globally; these two exist for elements that need the same offset
+     in a utility position (Tailwind's scroll-mt-* / top-* scales cannot
+     reference the token).
+     --------------------------------------------------------------------- */
+  .site-anchor-offset {
+    scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  }
+
+  .site-sticky-below-header {
+    position: sticky;
+    top: calc(var(--site-header-height) + var(--site-anchor-gap));
   }
 
   .container-wide {
@@ -1459,6 +1494,21 @@ body {
   }
 }
 
+/* Light mode: the SecureVision hero is a cinematic dark-media section and has
+   to stay a dark hero in BOTH themes, exactly like .mobilitycare-hero below.
+   Without this, `text-soft-white` / `text-soft-gray` / `text-soft-mute` flip to
+   their light-theme near-black values and the headline, body copy and the
+   synthetic-data label become unreadable over the dark footage. Only the
+   navbar and the sections beneath the hero follow the global light theme. */
+.light .securevision-hero {
+  color-scheme: dark;
+  --c-obsidian: 7 11 20;
+  --c-obsidian-200: 14 19 34;
+  --c-soft-white: 248 250 252;
+  --c-soft-gray: 203 213 225;
+  --c-soft-mute: 148 163 184;
+}
+
 /* =========================================================================
    GAITSCAPE — interactive Human Movement Intelligence landscape
    ========================================================================= */
@@ -1491,6 +1541,29 @@ body {
   height: 520px;
 }
 
+/* First-run hint under the toolbar. Fades in once, gently, and is removed
+   from the DOM on first meaningful interaction. */
+.gaitscape-hint {
+  animation: gaitscape-hint-in 0.7s ease-out both;
+}
+
+@keyframes gaitscape-hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gaitscape-hint {
+    animation: none;
+  }
+}
+
 @media (min-width: 640px) {
   .gaitscape-stage-canvas {
     height: 600px;
@@ -1499,7 +1572,9 @@ body {
 
 @media (min-width: 1024px) {
   .gaitscape-stage-canvas {
-    --gaitscape-top-chrome: 14.25rem;
+    /* Includes the purpose line under the title (added so a first-time
+       visitor knows what GaitScape is before touching the graph). */
+    --gaitscape-top-chrome: 17rem;
     height: clamp(
       27.5rem,
       calc(100vh - var(--site-header-height) - var(--gaitscape-top-chrome)),
@@ -1515,7 +1590,7 @@ body {
 
 @media (min-width: 1440px) {
   .gaitscape-stage-canvas {
-    --gaitscape-top-chrome: 11.5rem;
+    --gaitscape-top-chrome: 13.75rem;
   }
 }
 
@@ -2497,4 +2572,745 @@ body {
 /* Standfirst paragraph opening an article body. */
 .insight-lead {
   letter-spacing: -0.011em;
+}
+
+/* =========================================================================
+   INVESTORS & INCUBATION — movement signal → platform scale
+   One 8s choreography drives the whole section, in this order:
+     0.0–2.5s  walking mocap frames illuminate left → right
+     1.9–4.3s  sampled data travels the baseline into the convergence node
+     4.3–6.5s  the three branch traces sweep outward
+     5.1–7.0s  card connector nodes and card borders receive the pulse
+   Nothing flashes; every step is a slow opacity or dash movement.
+   ========================================================================= */
+
+@layer components {
+  /* ── Ambient depth ── */
+  .inv-ambient {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+  }
+  .inv-ambient--cyan {
+    left: -10%;
+    top: 4%;
+    width: min(520px, 55%);
+    aspect-ratio: 1;
+    background: radial-gradient(closest-side, rgb(79 209 255 / 0.12), transparent 72%);
+  }
+  .inv-ambient--violet {
+    right: -8%;
+    bottom: 0;
+    width: min(480px, 50%);
+    aspect-ratio: 1;
+    background: radial-gradient(closest-side, rgb(124 58 237 / 0.13), transparent 72%);
+  }
+  .inv-dotfield {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgb(148 163 184 / 0.16) 1px, transparent 1px);
+    background-size: 34px 34px;
+    opacity: 0.45;
+    mask-image: radial-gradient(ellipse 72% 62% at 42% 56%, #000 18%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 72% 62% at 42% 56%, #000 18%, transparent 78%);
+  }
+  .light .inv-dotfield {
+    background-image: radial-gradient(rgb(15 23 42 / 0.12) 1px, transparent 1px);
+    opacity: 0.35;
+  }
+
+  /* ── Left statement ── */
+  .inv-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #e4c48a;
+  }
+  .light .inv-eyebrow {
+    color: #8a6320;
+  }
+
+  .inv-eyebrow-rule {
+    width: 1.75rem;
+    height: 1px;
+    background: linear-gradient(90deg, rgb(228 196 138 / 0.8), rgb(228 196 138 / 0));
+  }
+  .light .inv-eyebrow-rule {
+    background: linear-gradient(90deg, rgb(138 99 32 / 0.7), rgb(138 99 32 / 0));
+  }
+
+  /* Champagne emphasis — the only warm accent in the section. */
+  .inv-champagne {
+    background-image: linear-gradient(135deg, #f6dfb4 0%, #e4c48a 44%, #c9a227 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+  .light .inv-champagne {
+    background-image: linear-gradient(135deg, #b98a23 0%, #8a6320 100%);
+  }
+
+  /* ── Signal stage ── */
+  .inv-stage {
+    position: relative;
+  }
+
+  .inv-signal {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .inv-stage-legend {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgb(var(--c-soft-mute));
+  }
+  .inv-stage-legend-rule {
+    height: 1px;
+    flex: 1 1 auto;
+    background: linear-gradient(90deg, rgb(148 163 184 / 0.3), rgb(148 163 184 / 0.06));
+  }
+
+  /* ── Walking motion capture ── */
+  .inv-mocap-frame {
+    color: rgb(96 214 255 / 0.9);
+    opacity: 0.28;
+    will-change: opacity;
+    animation: invMocapFrame 8s linear infinite;
+    animation-delay: calc(var(--inv-i, 0) * 0.42s);
+  }
+  .inv-mocap-frame--cyan {
+    color: rgb(96 214 255 / 0.9);
+  }
+  .inv-mocap-frame--royal {
+    color: rgb(104 146 255 / 0.9);
+  }
+  .inv-mocap-frame--violet {
+    color: rgb(168 124 255 / 0.9);
+  }
+
+  .inv-mocap-bone {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .inv-mocap-bone--far {
+    opacity: 0.5;
+    stroke-width: 1.15;
+  }
+  .inv-mocap-head {
+    fill: rgb(var(--c-obsidian-300) / 0.9);
+    stroke: currentColor;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .inv-mocap-joint {
+    fill: currentColor;
+  }
+  .inv-mocap-contact {
+    fill: currentColor;
+    opacity: 0.16;
+    filter: blur(1.1px);
+  }
+  /* Temporal ghost of the previous captured pose. */
+  .inv-mocap-ghost {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.18;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .inv-drop-tick {
+    stroke: rgb(79 209 255 / 0.55);
+    stroke-width: 1;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.28;
+    animation: invDropTick 8s linear infinite;
+    animation-delay: calc(var(--inv-i, 0) * 0.42s + 0.14s);
+  }
+
+  /* ── Sampled gait signal ── */
+  .inv-wave {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: invWaveBreathe 9s ease-in-out infinite;
+  }
+  .inv-sample {
+    stroke: rgb(120 190 255 / 0.5);
+    stroke-width: 1.15;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .inv-sample--strong {
+    stroke: rgb(79 209 255 / 0.8);
+    stroke-width: 1.85;
+  }
+  .inv-baseline {
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .inv-ground {
+    stroke: rgb(148 163 184 / 0.28);
+    stroke-width: 1;
+    stroke-dasharray: 1.5 7;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .inv-traveler {
+    fill: #4fd1ff;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: invTravel 8s cubic-bezier(0.45, 0, 0.5, 1) infinite;
+    animation-delay: calc(1.9s + var(--inv-t, 0) * 0.5s);
+  }
+
+  /* ── Convergence node — one platform ── */
+  .inv-core-halo {
+    fill: rgb(79 209 255 / 0.1);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: invCorePulse 8s ease-in-out infinite;
+    animation-delay: 4s;
+  }
+  .inv-core-ring {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.55);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .inv-core-dot {
+    fill: #bfe9ff;
+  }
+  .inv-core-link {
+    stroke: rgb(79 209 255 / 0.32);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* ── Branches — three investment dimensions ── */
+  .inv-branch--cyan {
+    color: #7fe0ff;
+  }
+  .inv-branch--royal {
+    color: #7fa0ff;
+  }
+  .inv-branch--violet {
+    color: #b58cff;
+  }
+
+  .inv-branch-trace {
+    fill: none;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.5;
+  }
+  .inv-branch-flow {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 18 100;
+    stroke-dashoffset: 118;
+    opacity: 0;
+    will-change: stroke-dashoffset, opacity;
+    animation: invBranchFlow 8s ease-in-out infinite;
+    animation-delay: calc(4.3s + var(--inv-b, 0) * 0.28s);
+  }
+  .inv-branch-node {
+    fill: currentColor;
+    opacity: 0.4;
+    animation: invNodePulse 8s ease-in-out infinite;
+    animation-delay: calc(5s + var(--inv-b, 0) * 0.28s);
+  }
+
+  /* ── Cards ── */
+  .inv-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .inv-card {
+    --inv-accent: 79 209 255;
+    position: relative;
+    border-radius: 1.15rem;
+    border: 1px solid rgb(var(--inv-accent) / 0.16);
+    background-color: rgb(var(--c-obsidian-200) / 0.66);
+    background-image: radial-gradient(
+      120% 100% at 50% 0%,
+      rgb(var(--inv-accent) / 0.1),
+      transparent 62%
+    );
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 24px 60px -42px rgb(0 0 0 / 0.7);
+    transition:
+      transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .inv-card--cyan {
+    --inv-accent: 79 209 255;
+  }
+  .inv-card--royal {
+    --inv-accent: 96 132 255;
+  }
+  .inv-card--violet {
+    --inv-accent: 156 100 241;
+  }
+
+  .light .inv-card--cyan {
+    --inv-accent: 16 143 192;
+  }
+  .light .inv-card--royal {
+    --inv-accent: 27 78 217;
+  }
+  .light .inv-card--violet {
+    --inv-accent: 95 37 191;
+  }
+  .light .inv-card {
+    background-color: #ffffff;
+    border-color: rgb(var(--inv-accent) / 0.26);
+    box-shadow: 0 18px 44px -32px rgb(15 23 42 / 0.24);
+  }
+
+  .inv-card:hover {
+    transform: translateY(-3px);
+    border-color: rgb(var(--inv-accent) / 0.4);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.07),
+      0 30px 70px -46px rgb(var(--inv-accent) / 0.5);
+  }
+  .inv-card:hover .inv-card-node {
+    opacity: 1;
+  }
+  .inv-card:hover .inv-card-lead {
+    background: linear-gradient(
+      270deg,
+      rgb(var(--inv-accent) / 0.8),
+      rgb(var(--inv-accent) / 0)
+    );
+  }
+
+  /* Border pulse — the card receiving its branch. */
+  .inv-card::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    border: 1px solid rgb(var(--inv-accent) / 0.5);
+    opacity: 0;
+    animation: invCardPulse 8s ease-in-out infinite;
+    animation-delay: calc(5.3s + var(--inv-c, 0) * 0.28s);
+  }
+
+  .inv-card-inner {
+    display: flex;
+    gap: 1rem;
+    padding: 1.35rem 1.4rem;
+  }
+
+  .inv-card-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.8rem;
+    border: 1px solid rgb(var(--inv-accent) / 0.28);
+    background: rgb(var(--inv-accent) / 0.08);
+    color: rgb(var(--inv-accent));
+  }
+  .inv-card-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .inv-icon-fill {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .inv-card-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(var(--inv-accent));
+    opacity: 0.85;
+  }
+  .inv-card-title {
+    margin-top: 0.5rem;
+    font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: rgb(var(--c-soft-white));
+  }
+  .inv-card-desc {
+    margin-top: 0.55rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: rgb(var(--c-soft-gray));
+  }
+
+  /* Connector into the gutter — desktop only, where the two columns exist. */
+  .inv-card-node,
+  .inv-card-lead {
+    display: none;
+  }
+
+  /* ── CTA ── */
+  .inv-cta {
+    position: relative;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.4rem;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background:
+      linear-gradient(
+          rgb(var(--c-obsidian-200) / 0.92),
+          rgb(var(--c-obsidian-200) / 0.92)
+        )
+        padding-box,
+      linear-gradient(
+          100deg,
+          rgb(79 209 255 / 0.55),
+          rgb(124 58 237 / 0.5) 48%,
+          rgb(217 179 106 / 0.62)
+        )
+        border-box;
+    color: rgb(var(--c-soft-white));
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .inv-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 42px -28px rgb(79 209 255 / 0.55);
+  }
+  .inv-cta:focus-visible {
+    outline: 2px solid rgb(79 209 255 / 0.6);
+    outline-offset: 3px;
+  }
+  .inv-cta-arrow {
+    flex: none;
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .inv-cta:hover .inv-cta-arrow {
+    transform: translateX(3px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .inv-card-node {
+    display: block;
+    position: absolute;
+    left: -3.5px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    margin-top: -3.5px;
+    border-radius: 9999px;
+    background: rgb(var(--inv-accent));
+    box-shadow: 0 0 10px rgb(var(--inv-accent) / 0.7);
+    opacity: 0.55;
+    transition: opacity 0.45s ease;
+    animation: invNodePulse 8s ease-in-out infinite;
+    animation-delay: calc(5.1s + var(--inv-c, 0) * 0.28s);
+  }
+  .inv-card-lead {
+    display: block;
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    width: clamp(1.5rem, 3vw, 3.5rem);
+    height: 1px;
+    background: linear-gradient(
+      270deg,
+      rgb(var(--inv-accent) / 0.5),
+      rgb(var(--inv-accent) / 0)
+    );
+    transition: background 0.45s ease;
+  }
+}
+
+/* Mobile keeps the composition but drops the continuous frame animation. */
+@media (max-width: 639px) {
+  .inv-signal--compact .inv-mocap-frame,
+  .inv-signal--compact .inv-drop-tick {
+    animation: none;
+  }
+  .inv-signal--compact .inv-mocap-frame {
+    opacity: calc(0.34 + var(--inv-i, 0) * 0.14);
+  }
+  .inv-signal--compact .inv-drop-tick {
+    opacity: 0.4;
+  }
+  .inv-signal--compact .inv-wave {
+    animation: none;
+  }
+}
+
+@keyframes invMocapFrame {
+  0% {
+    opacity: 0.28;
+  }
+  4% {
+    opacity: 0.72;
+  }
+  13% {
+    opacity: 0.34;
+  }
+  100% {
+    opacity: 0.28;
+  }
+}
+
+@keyframes invDropTick {
+  0% {
+    opacity: 0.28;
+  }
+  5% {
+    opacity: 0.85;
+  }
+  16% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.28;
+  }
+}
+
+@keyframes invWaveBreathe {
+  0%,
+  100% {
+    transform: scaleY(0.95);
+  }
+  50% {
+    transform: scaleY(1.06);
+  }
+}
+
+@keyframes invTravel {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  4% {
+    opacity: 0.9;
+  }
+  30% {
+    opacity: 0.9;
+    transform: translateX(var(--inv-travel, 452px));
+  }
+  34% {
+    opacity: 0;
+    transform: translateX(var(--inv-travel, 452px));
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(var(--inv-travel, 452px));
+  }
+}
+
+@keyframes invCorePulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes invBranchFlow {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 118;
+  }
+  4% {
+    opacity: 0.9;
+  }
+  24% {
+    opacity: 0.9;
+    stroke-dashoffset: 0;
+  }
+  29% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes invNodePulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  8% {
+    opacity: 1;
+  }
+  32% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes invCardPulse {
+  0% {
+    opacity: 0;
+  }
+  7% {
+    opacity: 0.5;
+  }
+  22% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inv-mocap-frame,
+  .inv-drop-tick,
+  .inv-wave,
+  .inv-traveler,
+  .inv-core-halo,
+  .inv-branch-flow,
+  .inv-branch-node,
+  .inv-card-node,
+  .inv-card::after {
+    animation: none;
+    will-change: auto;
+  }
+
+  /* Static fallback: frames graded brighter toward the leading pose. */
+  .inv-mocap-frame {
+    opacity: calc(0.32 + var(--inv-i, 0) * 0.1);
+  }
+  .inv-wave {
+    transform: none;
+  }
+  .inv-traveler,
+  .inv-branch-flow {
+    display: none;
+  }
+  .inv-branch-node {
+    opacity: 0.7;
+  }
+  .inv-card-node {
+    opacity: 0.7;
+  }
+  .inv-card:hover,
+  .inv-cta:hover {
+    transform: none;
+  }
+  .inv-cta:hover .inv-cta-arrow {
+    transform: none;
+  }
+}
+
+/* Light theme: the signal is drawn in fixed bright accents that disappear on a
+   near-white ground. Frame opacity is animation-driven, so the readable lever
+   is colour — each accent drops to its darkened light-theme counterpart, the
+   same values the rest of the site uses (#108fc0 / #1b4ed9 / #5f25bf). */
+@layer components {
+  .light .inv-mocap-frame--cyan { color: rgb(16 143 192 / 0.95); }
+  .light .inv-mocap-frame--royal { color: rgb(27 78 217 / 0.9); }
+  .light .inv-mocap-frame--violet { color: rgb(95 37 191 / 0.85); }
+
+  .light .inv-sample { stroke: rgb(27 78 217 / 0.45); }
+  .light .inv-sample--strong { stroke: rgb(16 143 192 / 0.8); }
+  .light .inv-drop-tick { stroke: rgb(16 143 192 / 0.55); }
+  .light .inv-ground { stroke: rgb(15 23 42 / 0.22); }
+
+  .light .inv-core-halo { fill: rgb(16 143 192 / 0.12); }
+  .light .inv-core-ring { stroke: rgb(16 143 192 / 0.6); }
+  .light .inv-core-dot { fill: #0a6890; }
+  .light .inv-core-link { stroke: rgb(16 143 192 / 0.35); }
+  .light .inv-traveler { fill: #108fc0; }
+
+  .light .inv-branch--cyan { color: #108fc0; }
+  .light .inv-branch--royal { color: #1b4ed9; }
+  .light .inv-branch--violet { color: #5f25bf; }
+
+  .light .inv-stage-legend-rule {
+    background: linear-gradient(90deg, rgb(15 23 42 / 0.22), rgb(15 23 42 / 0.05));
+  }
+}
+
+@layer components {
+  /* Champagne ring at the convergence node — the section's one warm accent
+     inside the signal itself. Dashed and slowly counter-rotating so it reads
+     as an instrument mark rather than decoration. */
+  .inv-core-crown {
+    fill: none;
+    stroke: rgb(228 196 138 / 0.55);
+    stroke-width: 1;
+    stroke-dasharray: 3 6;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: invCrownSpin 26s linear infinite;
+  }
+  .light .inv-core-crown { stroke: rgb(138 99 32 / 0.6); }
+}
+
+@keyframes invCrownSpin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .inv-core-crown {
+    animation: none;
+  }
 }

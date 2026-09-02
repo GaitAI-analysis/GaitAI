@@ -906,6 +906,14 @@ export function GaitscapeExplorer() {
   // RENDER
   // ============================================================================
 
+  /** True once the visitor has done something with the graph. */
+  const hasEngaged =
+    selectedId !== null ||
+    focusGroupId !== null ||
+    challengeId !== null ||
+    search.trim().length > 0 ||
+    filters.size > 0;
+
   const statusLine = focusGroupId ? (
     <>
       <span className="font-semibold text-soft-white">
@@ -965,10 +973,17 @@ export function GaitscapeExplorer() {
         )
       ) : (
         <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
-          <h1 className="font-display text-2xl text-soft-white sm:text-[1.75rem]">
-            Explore the Human Movement Intelligence{" "}
-            <span className="text-gradient">landscape.</span>
-          </h1>
+          <div>
+            <h1 className="font-display text-2xl text-soft-white sm:text-[1.75rem]">
+              Explore the Human Movement Intelligence{" "}
+              <span className="text-gradient">landscape.</span>
+            </h1>
+            <p className="mt-1.5 max-w-xl text-[12.5px] leading-relaxed text-soft-mute">
+              GaitScape is an interactive map of how movement signals, AI
+              capabilities, products, environments, outcomes and research
+              connect across both verticals.
+            </p>
+          </div>
           <div className="pb-[3px] text-xs text-soft-mute sm:pb-1.5" aria-live="polite">
             {statusLine}
           </div>
@@ -1567,6 +1582,27 @@ export function GaitscapeExplorer() {
                   <ArrowLeft className="h-3.5 w-3.5" />
                   All {groupLabel.toLowerCase()}s
                 </button>
+              )}
+
+              {/* ---------------- first-run hint ----------------
+                  Tells a first-time visitor what to do with the graph, then
+                  gets out of the way the moment they do anything meaningful.
+                  Positioned as an overlay rather than in the flow above the
+                  stage: the stage height is computed from the chrome above it,
+                  so an in-flow hint that later disappeared would resize the
+                  canvas and shift the whole view. Progressive disclosure
+                  (see labelVisible) already keeps the opening frame calm —
+                  only the core, the two verticals and the active hubs carry
+                  labels until you engage or zoom in. */}
+              {!hasEngaged && (
+                <p className="gaitscape-hint pointer-events-none absolute bottom-4 left-4 z-10 max-w-[min(22rem,calc(100%-8rem))] rounded-xl border border-white/[0.08] bg-obsidian-200/80 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-soft-mute backdrop-blur">
+                  Start anywhere — select a node to see how it connects.
+                  Everything branches from{" "}
+                  <span className="text-soft-gray">
+                    Human Movement Intelligence
+                  </span>{" "}
+                  into MobilityCare and SecureVision.
+                </p>
               )}
 
               {/* hover tooltip */}

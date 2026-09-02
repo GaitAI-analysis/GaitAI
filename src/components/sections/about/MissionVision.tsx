@@ -660,7 +660,10 @@ function GaitMissionVision() {
                   />
                 </div>
                 <p className="mt-2.5 text-[10px] font-medium uppercase tracking-[0.18em] text-soft-mute">
-                  <span className="whitespace-nowrap lg:hidden">
+                  {/* Same words, two layouts. The desktop copy stays in the
+                      accessibility tree at every width, so this one is hidden
+                      from it — otherwise the line is announced twice. */}
+                  <span aria-hidden="true" className="whitespace-nowrap lg:hidden">
                     One signal <span className="text-royal-300">→</span> Multiple
                     intelligences
                   </span>

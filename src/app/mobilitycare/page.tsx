@@ -57,7 +57,9 @@ export default function MobilityCarePage() {
             title={
               <>
                 {mobilityProducts.length} modular products on{" "}
-                <span className="text-gradient">one movement engine.</span>
+                <span className="text-gradient">
+                  one Movement Intelligence Platform.
+                </span>
               </>
             }
             description="Filter by environment, deploy what's relevant. Every product produces clinician-friendly outputs and exportable reports."
@@ -357,7 +359,7 @@ export default function MobilityCarePage() {
                   MobilityCare for your clinic, hospital, academy or care home
                 </span>
                 <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
-                  Pilot GaitAI with your team in 4–6 weeks.
+                  Pilot GaitAI with your team.
                 </h2>
               </div>
               <div className="flex gap-3">

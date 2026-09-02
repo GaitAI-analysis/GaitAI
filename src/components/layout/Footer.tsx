@@ -79,7 +79,8 @@ export function Footer() {
               GaitAI is intelligence in motion — a Human Movement Intelligence
               Platform that turns walking videos, wearable signals and crowd
               movement into healthcare, sports, elderly-care and safety
-              insight. Built on 10+ years of founder-led gait research.
+              insight. Built on 10+ years of founder research experience in
+              gait and human movement.
             </p>
             <div className="mt-6 flex items-center gap-2">
               {socials.map(({ icon: Icon, href, label }) => (

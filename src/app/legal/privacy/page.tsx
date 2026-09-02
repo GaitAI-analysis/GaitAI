@@ -106,7 +106,8 @@ export default function PrivacyPage() {
         designed to work on movement features rather than identifiable video:
         skeleton-only processing, optional face blur applied before analytics,
         configurable retention, role-based access and logged activity are
-        available across deployments.
+        architectural capabilities, configured per deployment rather than
+        guaranteed everywhere.
       </p>
       <p className="mt-4 text-soft-gray">
         Clinical captures are intended to be collected with informed consent and
@@ -114,8 +115,8 @@ export default function PrivacyPage() {
         long as the care workflow requires. In SecureVision, capabilities that
         do not require identity are the default; identity, re-identification
         and watchlist capabilities are a separate group that is intended only
-        for lawful, authorized deployments with access control and a full audit
-        trail.
+        for lawful, authorized deployments with appropriate governance, access
+        control and auditability.
       </p>
 
       <div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.04] p-5 sm:p-6">

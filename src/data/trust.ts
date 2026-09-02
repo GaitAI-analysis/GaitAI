@@ -97,7 +97,7 @@ export const privacyControls: PrivacyControl[] = [
   {
     topic: "Biometric and identity processing",
     support:
-      "Identity-bearing modules (ReID, AccessMotion, Watchlist) are gated behind stricter policy controls and are offered only where there is lawful authority, consent and a full audit trail. Where non-identifying movement intelligence is sufficient, that is the intended default.",
+      "Identity-bearing modules (ReID, AccessMotion, Watchlist) are gated behind stricter policy controls and are intended only for deployments with lawful authority, consent, access control and auditability. Where non-identifying movement intelligence is sufficient, that is the intended default.",
     source: "Responsible-deployment policy · Watchlist product record",
   },
   {

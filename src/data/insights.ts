@@ -52,12 +52,37 @@ export type InsightBlock =
       }>;
     }
   /** Scope or caveat line, set quietly. */
-  | { type: "note"; text: string };
+  | { type: "note"; text: string }
+  /**
+   * "Why this matters" — a quiet panel at a technical transition. Summarises
+   * what has just been established; never introduces a new claim.
+   */
+  | { type: "matters"; text: string }
+  /** One stride, drawn from the project's own gait keyframes. */
+  | { type: "gaitcycle"; caption?: string }
+  /** Capture-condition strip: what the pipeline does with each state. */
+  | {
+      type: "states";
+      caption?: string;
+      items: Array<{ label: string; name: string; note: string; ok?: boolean }>;
+    }
+  /** Baseline → repeated assessments → change, as a longitudinal track. */
+  | {
+      type: "trend";
+      caption?: string;
+      /** Point labels along the track, left to right. */
+      points: string[];
+    };
 
 export interface InsightSection {
   /** Anchor id — also used by the on-this-page navigation. */
   id: string;
   number: string;
+  /**
+   * One or two words for the sticky navigator. Section titles are sentences;
+   * a rail needs labels.
+   */
+  navLabel: string;
   /** Optional label above the section title (e.g. "Question 1"). */
   kicker?: string;
   title: string;
@@ -82,6 +107,30 @@ export interface InsightArticle {
   date: string;
   readMinutes: number;
   excerpt: string;
+  /**
+   * An editorial question the article answers, used as a hook beside its card
+   * on the index. Phrased as a question a reader might actually have — never
+   * as a claim the article does not make.
+   */
+  question: string;
+  /** Contextual call to action, in place of a generic "Read". */
+  ctaLabel: string;
+  /**
+   * "You'll learn" — two or three things the reader takes away. Every hook is
+   * a summary of material already in the article's own sections.
+   */
+  hooks: string[];
+  /** One line before the scroll: what this essay is about to do. */
+  openingHook: string;
+  /**
+   * The 2-minute version: the article's argument in four to six points, for a
+   * reader deciding whether to start. The full essay stays primary.
+   */
+  twoMinute: string[];
+  /** Position in the GaitAI Foundations reading path (1-based). */
+  seriesStep: number;
+  /** How this article is named inside the reading path. */
+  seriesTitle: string;
   hero: { src: string; alt: string; width: number; height: number };
   tags: string[];
   seo: { title: string; description: string };
@@ -113,6 +162,25 @@ export const insightArticles: InsightArticle[] = [
     readMinutes: 8,
     excerpt:
       "A walking video looks simple. Turning it into reliable movement intelligence is not. Inside the pipeline from capture and pose estimation to gait features, sensor fusion and actionable outputs.",
+    question: "What does an AI system actually see when you walk?",
+    ctaLabel: "Enter the pipeline",
+    hooks: [
+      "How pixels become pose",
+      "Why gait needs time, not a frame",
+      "Why more sensors do not always mean better AI",
+    ],
+    openingHook:
+      "Before you scroll: this essay follows one walking sequence from pixels to something a clinician or operator can act on.",
+    twoMinute: [
+      "Capture is a signal, not an answer: video, CCTV and wearable streams all start as raw movement that has to be constructed into something measurable.",
+      "Pose estimation gives geometry — joints in space. A single frame shows a posture; it does not show a gait.",
+      "Gait features live in time: cadence, stride rhythm, symmetry and variability only exist across a sequence.",
+      "Fusion adds resilience where one modality is weak. It does not automatically add accuracy.",
+      "Signal-quality control decides whether a number means anything, which is why captures are gated rather than scored regardless.",
+      "A metric becomes intelligence only against a baseline and a history — and it is offered as decision support, never as a diagnosis.",
+    ],
+    seriesStep: 1,
+    seriesTitle: "How movement becomes intelligence",
     hero: {
       src: "/assets/images/insights/01-walking-video-to-movement-intelligence.jpg",
       alt: "Smartphone video, CCTV and wearable signals converging into a holographic walking figure and gait measurement readouts",
@@ -146,6 +214,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "movement-begins-as-a-signal",
         number: "01",
+        navLabel: "Signal",
         title: "Movement begins as a signal",
         blocks: [
           {
@@ -177,6 +246,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "from-pixels-to-pose",
         number: "02",
+        navLabel: "Pose",
         title: "From pixels to pose",
         blocks: [
           {
@@ -226,6 +296,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "skeleton-is-not-gait-intelligence",
         number: "03",
+        navLabel: "Gait features",
         title: "A skeleton is still not gait intelligence",
         blocks: [
           {
@@ -253,11 +324,16 @@ export const insightArticles: InsightArticle[] = [
             title: "Measurements, not diagnoses",
             text: "Every quantity above is a description of movement. None is a medical finding. A gait descriptor can indicate that walking has changed; it cannot, on its own, say why. Keeping that boundary explicit is part of the engineering, not a disclaimer bolted on afterwards.",
           },
-        ],
+              {
+        type: "gaitcycle",
+        caption: "One stride, sampled at five canonical gait events — the sequence the temporal features are computed over.",
+      },
+      ],
       },
       {
         id: "why-fusion-matters",
         number: "04",
+        navLabel: "Fusion",
         title: "Why fusion matters",
         blocks: [
           {
@@ -309,6 +385,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "quality-before-intelligence",
         number: "05",
+        navLabel: "Quality",
         title: "Quality before intelligence",
         blocks: [
           {
@@ -338,11 +415,23 @@ export const insightArticles: InsightArticle[] = [
             title: "An honest gap beats a confident artefact",
             text: "“We could not measure this reliably” is a genuinely useful output. A precise-looking number derived from a two-second, half-occluded capture is not — it is noise wearing the costume of a measurement.",
           },
+              {
+        type: "states",
+        caption: "What the pipeline does with each capture condition.",
+        items: [
+          { label: "01", name: "Clean", note: "Full sequence, stable framing — features computed normally.", ok: true },
+          { label: "02", name: "Occluded", note: "Limbs hidden for part of the walk; affected features withheld." },
+          { label: "03", name: "Poor framing", note: "Subject clipped or too distant; capture flagged for repeat." },
+          { label: "04", name: "Missing", note: "A stream never arrived; the model is told, not left guessing." },
+          { label: "05", name: "Corrupted", note: "Present but wrong — the hardest case, and the reason for gating." },
         ],
+      },
+      ],
       },
       {
         id: "from-metric-to-decision-support",
         number: "06",
+        navLabel: "Decision support",
         title: "From metric to decision support",
         blocks: [
           {
@@ -370,11 +459,16 @@ export const insightArticles: InsightArticle[] = [
             type: "p",
             text: "The value sits in the middle of that chain, not at either end. Why the longitudinal step matters so much is the subject of [A Fall-Risk Score Is Not Enough](/insights/fall-risk-is-a-trend-not-a-number/).",
           },
-        ],
+              {
+        type: "matters",
+        text: "A model can produce a gait number without producing a useful movement insight. Context, history and signal quality determine whether that number means anything.",
+      },
+      ],
       },
       {
         id: "one-engine-different-outcomes",
         number: "07",
+        navLabel: "Outcomes",
         title: "One engine, different outcomes",
         blocks: [
           {
@@ -431,6 +525,25 @@ export const insightArticles: InsightArticle[] = [
     readMinutes: 6,
     excerpt:
       "Gait has often been studied as a biometric signature. But human movement can carry information about mobility, recovery, functional change, risk and safety context as well.",
+    question: "What can a walk tell us, beyond who is walking?",
+    ctaLabel: "See why gait matters",
+    hooks: [
+      "Why identity is the smallest thing a walk reveals",
+      "What mobility, recovery and risk each read from the same signal",
+      "Where movement intelligence stops being biometrics",
+    ],
+    openingHook:
+      "Before you scroll: one walking signal, read five different ways — identity, mobility, recovery, risk and spatial safety.",
+    twoMinute: [
+      "Identity is one reading of gait, and the narrowest one.",
+      "The same walk carries mobility: speed, symmetry, balance and how they hold up over a day.",
+      "In recovery, the useful signal is the difference between this walk and the last one.",
+      "Risk emerges from variability and instability rather than from a single measurement.",
+      "In shared space, movement supports flow and safety questions that never need a name attached.",
+      "The shift is from asking who is this to asking how is this person moving.",
+    ],
+    seriesStep: 2,
+    seriesTitle: "Why gait is more than identity",
     hero: {
       src: "/assets/images/insights/02-walk-more-than-biometric.jpg",
       alt: "A holographic walking figure surrounded by panels for identity, health, joint analysis and spatial safety context",
@@ -462,6 +575,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "identity",
         number: "01",
+        navLabel: "Identity",
         title: "Identity",
         blocks: [
           {
@@ -489,6 +603,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "mobility",
         number: "02",
+        navLabel: "Mobility",
         title: "Mobility",
         blocks: [
           {
@@ -516,6 +631,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "recovery",
         number: "03",
+        navLabel: "Recovery",
         title: "Recovery",
         blocks: [
           {
@@ -549,6 +665,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "risk",
         number: "04",
+        navLabel: "Risk",
         title: "Risk",
         blocks: [
           {
@@ -570,6 +687,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "safety-and-spatial-intelligence",
         number: "05",
+        navLabel: "Safety",
         title: "Safety and spatial intelligence",
         blocks: [
           {
@@ -600,6 +718,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "the-important-shift",
         number: "06",
+        navLabel: "The shift",
         title: "The important shift",
         blocks: [
           {
@@ -656,6 +775,24 @@ export const insightArticles: InsightArticle[] = [
     readMinutes: 7,
     excerpt:
       "Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs.",
+    question: "Does a system need to know who you are to understand how you move?",
+    ctaLabel: "Explore privacy-first vision",
+    hooks: [
+      "Where sensing ends and identification begins",
+      "What privacy by architecture actually changes",
+      "When identity may legitimately matter",
+    ],
+    openingHook:
+      "Before you scroll: this essay separates two things that are usually bundled together — sensing movement, and identifying a person.",
+    twoMinute: [
+      "For most movement questions, identity is not the objective.",
+      "Sensing and identification are separable stages, and separating them is an architectural decision, not a setting.",
+      "Skeleton-only processing, face blur, retention limits and access control belong in the pipeline rather than on top of it.",
+      "Identity-bearing capability exists for cases with lawful authority, consent and an audit trail — and is governed accordingly.",
+      "More privacy does not have to mean less intelligence: most of the signal survives the abstraction.",
+    ],
+    seriesStep: 3,
+    seriesTitle: "Why privacy belongs in the architecture",
     hero: {
       src: "/assets/images/insights/03-privacy-aware-movement-intelligence.jpg",
       alt: "A CCTV feed passing through a privacy transformation into an anonymous skeletal movement representation and analytics panels",
@@ -691,6 +828,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "identity-is-not-always-the-objective",
         number: "01",
+        navLabel: "Objective",
         title: "Identity is not always the objective",
         blocks: [
           {
@@ -715,6 +853,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "separate-sensing-from-identification",
         number: "02",
+        navLabel: "Separation",
         title: "Separate sensing from identification",
         blocks: [
           {
@@ -756,6 +895,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "privacy-by-architecture",
         number: "03",
+        navLabel: "Architecture",
         title: "Privacy by architecture",
         blocks: [
           {
@@ -784,6 +924,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "when-identity-may-legitimately-matter",
         number: "04",
+        navLabel: "When identity matters",
         title: "When identity may legitimately matter",
         blocks: [
           {
@@ -814,6 +955,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "more-privacy-does-not-mean-less-intelligence",
         number: "05",
+        navLabel: "Privacy + intelligence",
         title: "More privacy does not have to mean less intelligence",
         blocks: [
           {
@@ -882,6 +1024,24 @@ export const insightArticles: InsightArticle[] = [
     readMinutes: 6,
     excerpt:
       "A single assessment tells us how someone moves today. Longitudinal movement analysis asks the more useful question: how is that movement changing?",
+    question: "What matters more: today's mobility score, or how it changed?",
+    ctaLabel: "Follow the trajectory",
+    hooks: [
+      "Why one score loses the context that matters",
+      "What an individual baseline changes",
+      "How trend plus context becomes decision support",
+    ],
+    openingHook:
+      "Before you scroll: this essay follows one person's gait across repeated assessments, and asks what actually changed.",
+    twoMinute: [
+      "A single fall-risk number carries no context: it cannot say whether this is normal for this person.",
+      "The individual baseline is the reference that makes a later measurement readable.",
+      "Only some signals move meaningfully — speed, variability, symmetry, balance — and they move at different rates.",
+      "Trend plus context, not a threshold, is what a care team can act on.",
+      "It is decision support: a trajectory to review, not a deterministic prediction of an event.",
+    ],
+    seriesStep: 4,
+    seriesTitle: "Why change over time matters",
     hero: {
       src: "/assets/images/insights/04-longitudinal-fall-risk.jpg",
       alt: "Five repeated walking assessments numbered 01 to 05 plotted along a timeline showing a longitudinal mobility trend",
@@ -909,6 +1069,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "one-number-loses-context",
         number: "01",
+        navLabel: "One number",
         title: "One number loses context",
         blocks: [
           {
@@ -955,6 +1116,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "individual-baseline-matters",
         number: "02",
+        navLabel: "Baseline",
         title: "Individual baseline matters",
         blocks: [
           {
@@ -976,6 +1138,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "which-signals-can-change",
         number: "03",
+        navLabel: "Signals",
         title: "Which signals can change?",
         blocks: [
           {
@@ -1004,6 +1167,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "trend-plus-context",
         number: "04",
+        navLabel: "Trend + context",
         title: "Trend + context",
         blocks: [
           {
@@ -1034,6 +1198,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "decision-support-not-prediction",
         number: "05",
+        navLabel: "Decision support",
         title: "Decision support, not deterministic prediction",
         blocks: [
           {
@@ -1051,6 +1216,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "from-assessment-to-trajectory",
         number: "06",
+        navLabel: "Trajectory",
         title: "From assessment to trajectory",
         blocks: [
           {
@@ -1069,7 +1235,12 @@ export const insightArticles: InsightArticle[] = [
             type: "p",
             text: "This is the shape [FallRisk](/mobilitycare/fallrisk) is built around, and the reason repeated, consistent capture matters more than any single high-effort assessment. The wider [MobilityCare](/mobilitycare) family applies the same longitudinal logic across rehabilitation, post-operative movement and elderly care.",
           },
-        ],
+              {
+        type: "trend",
+        caption: "The same person, measured repeatedly: the reference is their own baseline, and the reading is the direction of travel.",
+        points: ["Baseline", "Assessment 02", "Assessment 03", "Assessment 04", "Change"],
+      },
+      ],
       },
     ],
     closing: [
@@ -1099,6 +1270,24 @@ export const insightArticles: InsightArticle[] = [
     readMinutes: 9,
     excerpt:
       "More modalities and more complex fusion do not automatically mean better evidence. Five questions that expose whether a multimodal result is genuinely convincing.",
+    question: "When does another sensor improve the AI — and when does it only improve the benchmark?",
+    ctaLabel: "Audit the evidence",
+    hooks: [
+      "Five questions that test a multimodal claim",
+      "What happens when a modality goes missing — or silently corrupts",
+      "Why statistical and operational significance differ",
+    ],
+    openingHook:
+      "Before you scroll: five questions to put to any multimodal result, including our own.",
+    twoMinute: [
+      "If the benchmark is already easy, an extra modality can raise the score without adding capability.",
+      "The honest test is what happens when one modality disappears at inference time.",
+      "Silent corruption is worse than absence: a stream that is present but wrong is trusted by default.",
+      "An explanation is only useful if it reflects the model that actually made the decision.",
+      "An improvement has to be both statistically and operationally meaningful to matter to anyone.",
+    ],
+    seriesStep: 5,
+    seriesTitle: "How to audit multimodal AI claims",
     hero: {
       src: "/assets/images/insights/05-multimodal-fusion-evidence-audit.jpg",
       alt: "Multiple sensor inputs feeding a central fusion model, with missing-data and corruption warnings, attribution audit and statistical validation outputs",
@@ -1139,6 +1328,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "is-the-benchmark-too-easy",
         number: "01",
+        navLabel: "Benchmark",
         kicker: "Question 1",
         title: "Is the benchmark already too easy?",
         blocks: [
@@ -1180,6 +1370,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "what-happens-when-a-modality-disappears",
         number: "02",
+        navLabel: "Missing modality",
         kicker: "Question 2",
         title: "What happens when one modality disappears?",
         blocks: [
@@ -1215,6 +1406,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "missing-or-silently-corrupted",
         number: "03",
+        navLabel: "Corruption",
         kicker: "Question 3",
         title: "Is the modality missing — or silently corrupted?",
         blocks: [
@@ -1264,6 +1456,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "does-the-explanation-reflect-the-model",
         number: "04",
+        navLabel: "Explanation",
         kicker: "Question 4",
         title: "Does the explanation reflect the actual model?",
         blocks: [
@@ -1287,6 +1480,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "statistically-and-operationally-meaningful",
         number: "05",
+        navLabel: "Significance",
         kicker: "Question 5",
         title: "Is the improvement statistically AND operationally meaningful?",
         blocks: [
@@ -1316,6 +1510,7 @@ export const insightArticles: InsightArticle[] = [
       {
         id: "the-bigger-lesson",
         number: "06",
+        navLabel: "The lesson",
         title: "The bigger lesson",
         blocks: [
           {

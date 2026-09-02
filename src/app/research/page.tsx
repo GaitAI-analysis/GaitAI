@@ -12,7 +12,6 @@ import { PublicationLedger } from "@/components/research/PublicationLedger";
 import { ResearchJourney } from "@/components/research/ResearchJourney";
 import { ResearchToProductFlow } from "@/components/research/ResearchToProductFlow";
 import { ResearchManifesto } from "@/components/research/ResearchManifesto";
-import { EvidenceBoundary } from "@/components/research/EvidenceBoundary";
 import { ResearchPrinciples } from "@/components/research/ResearchPrinciples";
 import { ResearchCollaborationCTA } from "@/components/research/ResearchCollaborationCTA";
 import { researchAreas } from "@/data/evidence";
@@ -48,19 +47,23 @@ export const metadata: Metadata = {
  *   journey       four milestones on a drawn stride path
  *   pipeline      research → output as five stages on one signal
  *   manifesto     the four method commitments as an editorial document
- *   boundary      what is established and what is not, in one framed panel
  *   principles    responsible research as a thin rail
  *   closing       the collaboration statement over a trajectory field
  *
- * Content is unchanged. Every figure, record, capability mapping and product
- * link is derived from `researchAreas`, `publications.ts` and `products.ts`
- * exactly as before, the four evidence-boundary facts and the three
- * evidence-status rows are stated in the same words, and the distinction
- * between research foundation and product-specific validation is now carried
- * in a single framed panel rather than repeated per section.
+ * Every figure, record, capability mapping and product link is derived from
+ * `researchAreas`, `publications.ts` and `products.ts` — nothing on this page
+ * is hand-maintained.
  *
- * The `#attribution` and `#evidence-boundary` anchors are preserved — the home
- * page and product pages link straight to them.
+ * The evidence-boundary panel that used to sit between the manifesto and the
+ * principles rail was removed at the owner's request. The research-foundation
+ * versus product-validation distinction it carried is still stated on the
+ * page, in the pipeline section: "Research establishes the methodological
+ * foundation. Product-specific validation establishes fitness for a
+ * particular use." The four validation gaps it listed are no longer stated
+ * anywhere on this route.
+ *
+ * The `#attribution` anchor is preserved — the home page links straight to it.
+ * `#evidence-boundary` is gone with the section; nothing linked to it.
  */
 
 /** Which scientific visual belongs to which research pillar. */
@@ -293,20 +296,10 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 08 · EVIDENCE BOUNDARY ─────────── */}
-      <section id="evidence-boundary" className="section !pt-0">
-        <div className="container-wide">
-          <EvidenceBoundary
-            papers={papers.length}
-            patentNumber={patent.patentNumber ?? ""}
-          />
-        </div>
-      </section>
-
-      {/* ─────────── 09 · RESPONSIBLE RESEARCH ─────────── */}
+      {/* ─────────── 08 · RESPONSIBLE RESEARCH ─────────── */}
       <ResearchPrinciples />
 
-      {/* ─────────── 10 · CLOSING ─────────── */}
+      {/* ─────────── 09 · CLOSING ─────────── */}
       <ResearchCollaborationCTA />
     </div>
   );

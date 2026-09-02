@@ -1553,125 +1553,7 @@
 }
 
 /* =========================================================================
-   10 · EVIDENCE BOUNDARY
-   ========================================================================= */
-
-.boundary {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid var(--obs-line);
-  border-top: 1px solid rgb(228 196 138 / 0.45);
-  background-color: rgb(var(--c-obsidian-400) / 0.55);
-  background-image: radial-gradient(
-    120% 100% at 50% 0%,
-    rgb(228 196 138 / 0.05),
-    transparent 60%
-  );
-  padding: 2rem 1.5rem;
-}
-:global(.light) .boundary {
-  background-color: rgb(248 250 252 / 0.7);
-  border-top-color: rgb(138 99 32 / 0.45);
-}
-@media (min-width: 640px) {
-  .boundary {
-    padding: 2.75rem 2.5rem;
-  }
-}
-@media (min-width: 1024px) {
-  .boundary {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: 3.5rem;
-    padding: 3rem;
-  }
-}
-
-.boundaryEyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.7rem;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--obs-gold);
-}
-.boundaryEyebrowRule {
-  display: block;
-  width: 2rem;
-  height: 1px;
-  background: linear-gradient(90deg, var(--obs-gold), transparent);
-}
-
-.boundaryGroup + .boundaryGroup {
-  margin-top: 2.25rem;
-}
-.boundaryGroupLabel {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--obs-line);
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--obs-mute);
-}
-
-.bRow {
-  display: grid;
-  grid-template-columns: 1.25rem minmax(0, 1fr);
-  gap: 0.85rem;
-  padding: 0.85rem 0;
-  border-bottom: 1px solid var(--obs-line);
-}
-.bRowLabel {
-  font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--obs-body);
-}
-.bRowState {
-  display: block;
-  margin-top: 0.3rem;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-}
-.bRowStateDone {
-  color: var(--obs-teal);
-}
-.bRowStateOpen {
-  color: var(--obs-gold);
-}
-.bRowDetail {
-  margin-top: 0.4rem;
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--obs-mute);
-}
-
-/* Two marks, two shapes — established and not-yet are distinguishable
-   without relying on colour. */
-.bMark {
-  margin-top: 0.35rem;
-  width: 0.7rem;
-  height: 0.7rem;
-  border-radius: 999px;
-}
-.bMarkDone {
-  background: var(--obs-teal);
-  box-shadow: 0 0 0 3px rgb(45 212 191 / 0.12);
-}
-.bMarkOpen {
-  border: 1px dashed var(--obs-gold);
-}
-
-/* =========================================================================
-   11 · PRINCIPLES RAIL
+   10 · PRINCIPLES RAIL
    ========================================================================= */
 
 .rail {
@@ -1701,7 +1583,7 @@
 }
 
 /* =========================================================================
-   12 · CLOSING
+   11 · CLOSING
    ========================================================================= */
 
 .closing {

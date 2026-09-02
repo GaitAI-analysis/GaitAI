@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import type { Publication } from "@/data/publications";
 import { assetPath } from "@/lib/paths";
 import { displayDate, topicsFor } from "./topics";
@@ -86,24 +86,50 @@ export function PublicationCard({ publication }: { publication: Publication }) {
 
       </div>
 
-      {/* Body: date → title (clamped) → venue → topics → call to action */}
-      <div className="flex flex-1 flex-col p-5">
-        <div className="flex flex-wrap items-baseline gap-x-2 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-          <span>{displayDate(publication)}</span>
-          <span aria-hidden="true">·</span>
-          <span className={isPatent ? "text-amber-300" : "text-soft-gray"}>
-            {kind}
-          </span>
-        </div>
-        <h3 className="mt-2 line-clamp-3 font-display text-[1.2rem] font-semibold leading-[1.3] text-soft-white sm:text-[1.26rem]">
-          {publication.title}
-        </h3>
-        <div className="publication-venue mt-2 text-[12.5px] font-medium">
-          {publication.venue}
+      {/* Body: year → title → venue → publisher and kind → topics.
+          The year leads in the accent because it is what a reader scans an
+          archive by, and the "View publication →" footer became the corner
+          glyph: the whole card is the link, so a full-width row restating that
+          was spending the card's last line on nothing. */}
+      <div className="relative flex flex-1 flex-col p-5">
+        <span
+          aria-hidden="true"
+          className={`absolute right-4 top-4 transition-colors ${
+            isPatent
+              ? "text-amber-300/60 group-hover:text-amber-200"
+              : "text-soft-mute/50 group-hover:text-cyan-300"
+          }`}
+        >
+          <ArrowUpRight className="h-4 w-4" />
+        </span>
+
+        <div
+          className={`pr-8 text-[11px] font-semibold tracking-[0.16em] ${
+            isPatent ? "text-amber-300" : "text-cyan-300"
+          }`}
+        >
+          {displayDate(publication)}
         </div>
 
+        <h3 className="mt-2 line-clamp-3 pr-2 font-display text-[1.2rem] font-semibold leading-[1.3] text-soft-white sm:text-[1.26rem]">
+          {publication.title}
+        </h3>
+
+        <div className="publication-venue mt-2.5 text-[12.5px] font-medium">
+          {publication.venue}
+        </div>
+        <div className="mt-1 text-[11px] leading-relaxed text-soft-mute">
+          {publication.publisher}
+          <span aria-hidden="true" className="px-1.5 opacity-50">
+            ·
+          </span>
+          {kind}
+        </div>
+
+        <div className="flex-1" />
+
         {topics.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1.5">
+          <div className="mt-4 flex flex-wrap gap-1.5">
             {topics.map((t) => (
               <span
                 key={t}
@@ -114,16 +140,6 @@ export function PublicationCard({ publication }: { publication: Publication }) {
             ))}
           </div>
         )}
-
-        <div className="flex-1" />
-
-        <div className="mt-4 flex items-center gap-1.5 border-t border-soft-white/[0.06] pt-3.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-soft-mute transition-colors group-hover:text-cyan-300">
-          {isPatent ? "View patent record" : "View publication"}
-          <ArrowRight
-            aria-hidden="true"
-            className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover:translate-x-[3px]"
-          />
-        </div>
       </div>
     </Link>
   );

@@ -1,16 +1,25 @@
 import Link from "next/link";
-import { ObservatoryVisual } from "./ObservatoryVisual";
+import {
+  ResearchFoundations,
+  type FoundationCard,
+} from "./ResearchFoundations";
 import styles from "./observatory.module.css";
 
 /**
  * The research hero.
  *
- * Copy is unchanged from the page it replaces — eyebrow, headline, lede and
- * both calls to action. What changed is the composition: the headline sits in
- * its own column against a full instrument view of a captured stride, and the
- * spectrum falls on one phrase rather than washing the whole heading.
+ * The headline, lede and both calls to action are unchanged. What changed is
+ * what sits beside them: the column used to hold a full instrument view of a
+ * captured stride, which is a picture of the *subject*. The headline claims a
+ * published record, so the first screen now shows that record — the four
+ * research foundations and how much published work backs each — and the
+ * captured-stride language moved down into the capture-to-capabilities
+ * pipeline, where it belongs to a stage rather than standing alone.
+ *
+ * The eyebrow says what the page is a basis for. Nothing here states a count:
+ * the foundation cards take theirs from `researchAreas`.
  */
-export function ResearchHero() {
+export function ResearchHero({ areas }: { areas: FoundationCard[] }) {
   return (
     <section className={`site-page-intro ${styles.hero} pb-14 sm:pb-16`}>
       <div className="container-wide">
@@ -18,7 +27,7 @@ export function ResearchHero() {
           <div className="min-w-0">
             <span className={styles.eyebrow}>
               <span aria-hidden="true" className={styles.eyebrowRule} />
-              Research at GaitAI
+              Research basis · Responsible AI
             </span>
 
             <h1 className={styles.heroTitle}>
@@ -44,19 +53,7 @@ export function ResearchHero() {
             </div>
           </div>
 
-          <figure className={`${styles.heroStage} min-w-0`}>
-            <span aria-hidden="true" className={styles.stageFrame} />
-            <ObservatoryVisual />
-            <figcaption className={styles.stageCaption}>
-              <span>Captured stride</span>
-              <span aria-hidden="true" className={styles.stageCaptionRule} />
-              <span>Joint trajectory</span>
-              <span aria-hidden="true" className={styles.stageCaptionRule} />
-              <span>Temporal signal</span>
-              <span aria-hidden="true" className={styles.stageCaptionRule} />
-              <span>Feature vector</span>
-            </figcaption>
-          </figure>
+          <ResearchFoundations areas={areas} />
         </div>
       </div>
     </section>

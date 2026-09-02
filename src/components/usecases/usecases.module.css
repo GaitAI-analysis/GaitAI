@@ -40,12 +40,6 @@
   padding-block: clamp(3.5rem, 7vw, 6rem);
 }
 
-.toneCare {
-  --tone: 45 212 191;
-}
-.toneSecure {
-  --tone: 96 165 250;
-}
 
 .groupHead {
   max-width: 46rem;
@@ -683,12 +677,6 @@
   color: rgb(var(--c-soft-mute));
 }
 
-/* ── Orientation strip (hero) ── */
-.compare {
-  margin-top: 3rem;
-  display: grid;
-  gap: 0.85rem;
-}
 
 @media (min-width: 820px) {
   .compare {
@@ -696,93 +684,16 @@
   }
 }
 
-.compareCard {
-  display: block;
-  border-radius: 1.25rem;
-  border: 1px solid rgb(var(--tone) / 0.22);
-  background: linear-gradient(
-    180deg,
-    rgb(var(--tone) / 0.07) 0%,
-    transparent 78%
-  );
-  padding: 1.5rem;
-  transition:
-    border-color 0.3s ease,
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
 
-.compareCard:hover {
-  transform: translateY(-3px);
-  border-color: rgb(var(--tone) / 0.45);
-}
 
-.compareTop {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
 
-.compareName {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: rgb(var(--tone));
-}
 
-.compareCount {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgb(var(--c-soft-mute));
-}
 
-.compareBlurb {
-  margin-top: 0.8rem;
-  font-size: 13px;
-  line-height: 1.65;
-  color: rgb(var(--c-soft-gray));
-}
 
-.compareList {
-  margin-top: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-}
 
-.compareItem {
-  border-radius: 999px;
-  border: 1px solid rgb(var(--tone) / 0.25);
-  background: rgb(var(--tone) / 0.07);
-  padding: 0.16rem 0.55rem;
-  font-size: 11px;
-  color: rgb(var(--c-soft-gray));
-}
 
-.compareGo {
-  margin-top: 1.25rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgb(var(--tone));
-}
 
-.compareGo svg {
-  transition: transform 0.25s ease;
-}
 
-.compareCard:hover .compareGo svg {
-  transform: translateX(3px);
-}
 
 /* ── Problem → products → outputs ribbon ── */
 .ribbon {
@@ -889,6 +800,622 @@
   .card:hover .explore svg,
   .compareCard:hover .compareGo svg {
     transition: none;
+    transform: none;
+  }
+}
+
+/* Family tone, consumed by the explorer's group headers via --tone. */
+.toneCare {
+  --tone: 45 212 191;
+}
+
+.toneSecure {
+  --tone: 96 165 250;
+}
+
+/* =========================================================================
+   ENVIRONMENT SYSTEM MAP — the /use-cases opening
+   -------------------------------------------------------------------------
+   MobilityCare rail | movement intelligence core | SecureVision rail.
+
+   The wiring is per row rather than one stretched SVG: a rail down each
+   column's inner edge, a node per row and a short lead into the card. Row
+   height depends on how the output line wraps and the two columns hold eleven
+   rows and six, so no build-time coordinate fan can stay aligned — this does,
+   at every width.
+   ========================================================================= */
+
+.map {
+  --map-line: rgb(148 163 184 / 0.16);
+  --map-line-mid: rgb(148 163 184 / 0.28);
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1100px) {
+  .map {
+    grid-template-columns: minmax(0, 1fr) 17rem minmax(0, 1fr);
+    /* Both family headers start on the same line — centring each column
+       instead dropped SecureVision's title two hundred pixels below
+       MobilityCare's, which read as a mistake rather than as a shorter list.
+       The core is what centres, against the taller of the two rails. */
+    align-items: start;
+    gap: 1.25rem;
+  }
+}
+
+/* ── A family rail ── */
+
+.mapRail {
+  position: relative;
+  min-width: 0;
+}
+
+.mapCare {
+  --map-accent: #4fd1ff;
+  --map-accent-soft: rgb(79 209 255 / 0.5);
+  --map-accent-wash: rgb(79 209 255 / 0.08);
+}
+
+.mapSecure {
+  --map-accent: #a78bfa;
+  --map-accent-soft: rgb(167 139 250 / 0.5);
+  --map-accent-wash: rgb(167 139 250 / 0.08);
+}
+
+:global(.light) .mapCare {
+  --map-accent: #0e8ab8;
+  --map-accent-soft: rgb(14 138 184 / 0.55);
+}
+
+:global(.light) .mapSecure {
+  --map-accent: #6d34c9;
+  --map-accent-soft: rgb(109 52 201 / 0.55);
+}
+
+.mapRailHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-bottom: 1.1rem;
+}
+
+@media (min-width: 1100px) {
+  .mapRailRight .mapRailHead {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+.mapRailCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--map-accent);
+}
+
+.mapRailName {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.6vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--map-accent);
+}
+
+.mapRailTagline {
+  max-width: 22rem;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* ── Rows ── */
+
+.mapRows {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* The family rail itself: one hairline down the column's inner edge, which
+   every row's node sits on. */
+.mapRows::before {
+  content: "";
+  position: absolute;
+  top: 0.9rem;
+  bottom: 0.9rem;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--map-accent-soft) 12%,
+    var(--map-accent-soft) 88%,
+    transparent
+  );
+  opacity: 0.6;
+}
+
+.mapCare .mapRows::before {
+  right: -0.75rem;
+}
+
+.mapSecure .mapRows::before {
+  left: -0.75rem;
+}
+
+@media (max-width: 1099px) {
+  /* Stacked: both rails run down the left, so the two families read the same
+     way when the core is above them rather than between them. */
+  .mapCare .mapRows::before,
+  .mapSecure .mapRows::before {
+    right: auto;
+    left: -0.75rem;
+  }
+}
+
+.mapRowItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+@media (min-width: 1100px) {
+  .mapRailRight .mapRowItem {
+    flex-direction: row-reverse;
+  }
+}
+
+.mapIndex {
+  flex: none;
+  width: 1.35rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-align: center;
+  color: rgb(var(--c-soft-mute));
+  opacity: 0.75;
+}
+
+.mapRow {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid var(--map-line);
+  border-radius: 0.85rem;
+  background: linear-gradient(
+    100deg,
+    var(--map-accent-wash),
+    rgb(148 163 184 / 0.02) 55%
+  );
+  padding: 0.6rem 0.75rem;
+  transition:
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mapRow:hover {
+  border-color: var(--map-accent-soft);
+  transform: translateY(-1px);
+}
+
+.mapRow:focus-visible {
+  outline: 2px solid var(--map-accent);
+  outline-offset: 2px;
+}
+
+/* This row's spur: a short lead out of the card to its node on the rail. */
+.mapLead {
+  position: absolute;
+  top: 50%;
+  width: 0.75rem;
+  height: 1px;
+  background: var(--map-accent-soft);
+  opacity: 0.7;
+}
+
+.mapNode {
+  position: absolute;
+  top: 50%;
+  height: 5px;
+  width: 5px;
+  margin-top: -2.5px;
+  border-radius: 999px;
+  background: var(--map-accent);
+  box-shadow: 0 0 0 3px var(--map-accent-wash);
+  opacity: 0.9;
+}
+
+.mapCare .mapLead {
+  right: -0.75rem;
+}
+.mapCare .mapNode {
+  right: -0.9rem;
+}
+.mapSecure .mapLead {
+  left: -0.75rem;
+}
+.mapSecure .mapNode {
+  left: -0.9rem;
+}
+
+@media (max-width: 1099px) {
+  .mapCare .mapLead,
+  .mapSecure .mapLead {
+    right: auto;
+    left: -0.75rem;
+  }
+  .mapCare .mapNode,
+  .mapSecure .mapNode {
+    right: auto;
+    left: -0.9rem;
+  }
+}
+
+.mapRowIcon {
+  display: inline-flex;
+  height: 2.1rem;
+  width: 2.1rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--map-line-mid);
+  border-radius: 999px;
+  color: var(--map-accent);
+}
+
+.mapRowBody {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+
+.mapRowName {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgb(var(--c-soft-white));
+}
+
+.mapRowOut {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 0.15rem;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* ── The per-row movement-signal mark ── */
+
+.mapGlyphCare,
+.mapGlyphSecure {
+  flex: none;
+  width: 62px;
+  height: 22px;
+  overflow: visible;
+}
+
+.mapGlyphCare {
+  color: #4fd1ff;
+}
+.mapGlyphSecure {
+  color: #a78bfa;
+}
+:global(.light) .mapGlyphCare {
+  color: #0e8ab8;
+}
+:global(.light) .mapGlyphSecure {
+  color: #6d34c9;
+}
+
+@media (max-width: 480px) {
+  /* The glyph is texture, not information — it is the first thing to go when
+     the row has to hold the name and the output line in a phone's width. */
+  .mapGlyphCare,
+  .mapGlyphSecure {
+    display: none;
+  }
+}
+
+.mapTick {
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.mapTickStrong {
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  opacity: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── The core ── */
+
+.mapCore {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  margin-inline: auto;
+  width: min(17rem, 100%);
+  aspect-ratio: 1;
+}
+
+@media (min-width: 1100px) {
+  .mapCore {
+    align-self: center;
+  }
+}
+
+.mapCoreArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.mapRingOuter,
+.mapRingInner {
+  fill: none;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  animation: mapRing 9s ease-in-out infinite;
+}
+
+.mapRingOuter {
+  stroke: #4fd1ff;
+  stroke-dasharray: 4 12;
+  stroke-opacity: 0.3;
+}
+
+.mapRingInner {
+  stroke: #8b5cf6;
+  stroke-dasharray: 2 9;
+  stroke-opacity: 0.2;
+  animation-delay: 1.2s;
+}
+
+:global(.light) .mapRingOuter {
+  stroke: #0e8ab8;
+}
+:global(.light) .mapRingInner {
+  stroke: #6d34c9;
+}
+
+@keyframes mapRing {
+  0%,
+  100% {
+    stroke-opacity: 0.24;
+  }
+  35% {
+    stroke-opacity: 0.62;
+  }
+}
+
+.mapCoreTicks line {
+  stroke: rgb(148 163 184 / 0.3);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .mapCoreTicks line {
+  stroke: rgb(71 85 105 / 0.38);
+}
+
+.mapCoreDisc {
+  fill: rgb(var(--c-obsidian-200) / 0.92);
+}
+:global(.light) .mapCoreDisc {
+  fill: #ffffff;
+}
+
+.mapCoreEdge {
+  fill: none;
+  stroke: rgb(59 130 246 / 0.7);
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+
+.mapCorePulse {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.45);
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: mapPulse 9s ease-out infinite;
+  animation-delay: 2.6s;
+}
+
+@keyframes mapPulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  24% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+}
+
+.mapCoreText {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+  padding-inline: 1rem;
+}
+
+.mapCoreTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: rgb(var(--c-soft-white));
+}
+
+.mapCoreSub {
+  max-width: 8.5rem;
+  font-size: 10px;
+  line-height: 1.5;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* Trunks from the core out to each rail. Only meaningful in the three-column
+   layout, where a rail is actually beside the core. */
+.mapTrunkCare,
+.mapTrunkSecure {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .mapTrunkCare,
+  .mapTrunkSecure {
+    display: block;
+    position: absolute;
+    top: 50%;
+    height: 1px;
+    width: 1.9rem;
+  }
+  .mapTrunkCare {
+    right: 100%;
+    background: linear-gradient(270deg, rgb(79 209 255 / 0.5), transparent);
+  }
+  .mapTrunkSecure {
+    left: 100%;
+    background: linear-gradient(90deg, rgb(167 139 250 / 0.5), transparent);
+  }
+}
+
+/* ── Derived counts under the map ── */
+
+.mapStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--map-line);
+  border-radius: 1.1rem;
+  background: var(--map-line);
+}
+
+@media (min-width: 1100px) {
+  .mapStats {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1099px) {
+  .mapStats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.mapStat {
+  background: rgb(var(--c-obsidian-300) / 0.45);
+  padding: 1.1rem 1rem;
+  text-align: center;
+}
+:global(.light) .mapStat {
+  background: rgb(255 255 255 / 0.6);
+}
+
+.mapStatValue {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: rgb(var(--c-soft-white));
+  font-variant-numeric: tabular-nums;
+}
+
+.mapStatLabel {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  line-height: 1.5;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+.mapStatLink {
+  display: grid;
+  place-items: center;
+  background: rgb(var(--c-obsidian-300) / 0.45);
+  padding: 1.1rem 1rem;
+  grid-column: 1 / -1;
+}
+:global(.light) .mapStatLink {
+  background: rgb(255 255 255 / 0.6);
+}
+
+@media (min-width: 1100px) {
+  .mapStatLink {
+    grid-column: auto;
+  }
+}
+
+.mapStatCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4fd1ff;
+  transition: color 0.3s ease;
+}
+
+.mapStatCta:hover {
+  color: #a5e9ff;
+}
+
+:global(.light) .mapStatCta {
+  color: #0e8ab8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapRingOuter,
+  .mapRingInner {
+    animation: none;
+    stroke-opacity: 0.34;
+  }
+  .mapCorePulse {
+    display: none;
+  }
+  .mapRow:hover {
     transform: none;
   }
 }

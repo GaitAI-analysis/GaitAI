@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, HeartPulse, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { UseCaseAudienceGrid } from "@/components/usecases/UseCaseAudienceGrid";
 import { UseCaseExplorer } from "@/components/usecases/UseCaseExplorer";
+import { UseCaseSystemMap } from "@/components/usecases/UseCaseSystemMap";
 import { industryUseCases } from "@/data/products";
 import { ctas } from "@/data/content";
 import styles from "@/components/usecases/usecases.module.css";
@@ -13,13 +14,6 @@ export const metadata: Metadata = {
     "GaitAI use cases by environment: the problem each one has, the approach GaitAI takes, the products involved and what they produce — across clinics, hospitals, sports, elderly care, transport hubs, smart cities, industry, retail and events.",
   alternates: { canonical: "/use-cases" },
 };
-
-const mobilityCases = industryUseCases.filter(
-  (u) => u.vertical === "mobilitycare",
-);
-const secureCases = industryUseCases.filter(
-  (u) => u.vertical === "securevision",
-);
 
 /**
  * Problem-led environment discovery.
@@ -38,29 +32,6 @@ const secureCases = industryUseCases.filter(
  * hero answered that with two buttons and a diagram.
  */
 
-const FAMILIES = [
-  {
-    href: "#mobility",
-    name: "MobilityCare",
-    Icon: HeartPulse,
-    tone: styles.toneCare,
-    count: mobilityCases.length,
-    blurb:
-      "Camera and wearable movement intelligence, where the question is about one person's mobility.",
-    items: ["Clinics", "Rehabilitation", "Sports", "Elderly care", "Home care"],
-  },
-  {
-    href: "#secure",
-    name: "SecureVision",
-    Icon: ShieldCheck,
-    tone: styles.toneSecure,
-    count: secureCases.length,
-    blurb:
-      "Privacy-aware movement intelligence, where the question is about how a space is being used.",
-    items: ["Transport", "Smart cities", "Campuses", "Factories", "Events"],
-  },
-];
-
 const RIBBON = ["Environment", "Problem", "Products", "Outputs"];
 
 export default function UseCasesPage() {
@@ -78,13 +49,16 @@ export default function UseCasesPage() {
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
               Use cases
             </span>
+            {/* The count is the headline. It comes from the records, so the
+                number and the map below it can never disagree. */}
             <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
-              Different environments. Different questions.{" "}
-              <span className="text-gradient">One movement intelligence.</span>
+              {industryUseCases.length} environments,{" "}
+              <span className="text-gradient">each with its own question.</span>
             </h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
-              Find the environment that looks like yours and see the products,
-              signals and outputs that fit it.
+              Every environment brings a different problem, a different product
+              mix and a different output. Find the one that looks like yours and
+              see the products, signals and outputs that fit it.
             </p>
           </div>
 
@@ -105,37 +79,13 @@ export default function UseCasesPage() {
             ))}
           </div>
 
-          {/* Orientation: which family am I? */}
-          <div className={styles.compare}>
-            {FAMILIES.map((f) => (
-              <Link
-                key={f.name}
-                href={f.href}
-                className={`${styles.compareCard} ${f.tone}`}
-              >
-                <span className={styles.compareTop}>
-                  <span className={styles.compareName}>
-                    <f.Icon aria-hidden="true" className="h-4 w-4" />
-                    {f.name}
-                  </span>
-                  <span className={styles.compareCount}>
-                    {f.count} environments
-                  </span>
-                </span>
-                <span className={styles.compareBlurb}>{f.blurb}</span>
-                <span className={styles.compareList}>
-                  {f.items.map((item) => (
-                    <span key={item} className={styles.compareItem}>
-                      {item}
-                    </span>
-                  ))}
-                </span>
-                <span className={styles.compareGo}>
-                  See these environments
-                  <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
-                </span>
-              </Link>
-            ))}
+          {/* Orientation, drawn as the graph it is: every environment wired
+              to the one engine both families share. It replaces the pair of
+              summary cards that used to sit here — those answered "which
+              family am I?" with five example words each, where this answers it
+              by naming all seventeen and linking each one. */}
+          <div className="mt-14 sm:mt-16">
+            <UseCaseSystemMap />
           </div>
         </div>
       </section>

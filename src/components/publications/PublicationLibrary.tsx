@@ -95,8 +95,14 @@ export function PublicationLibrary() {
 
   return (
     <div>
-      {/* ---------------- control bar ---------------- */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+      {/* ---------------- control bar ----------------
+          Sticky, so it behaves as the archive's own chrome once the reader is
+          into the grid: search on the left, the three filters and the view
+          switch on the right, on one rail. It sits below the page heading
+          rather than above it — pinning it on scroll gets the reference's
+          "library app" chrome without putting a search field ahead of the
+          page's own h1 in the document. */}
+      <div className="publib-rail flex flex-wrap items-center gap-x-3 gap-y-3">
         <div className="relative min-w-0 flex-1 sm:max-w-[300px] sm:flex-none sm:basis-[300px]">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-soft-mute" />
           <input
@@ -191,7 +197,7 @@ export function PublicationLibrary() {
       {/* Result count. The set is 8 peer-reviewed papers plus 1 granted
           patent, so it is counted as research outputs — calling the patent a
           publication would be wrong. */}
-      <div className="mt-4 text-xs text-soft-mute" aria-live="polite">
+      <div className="mt-5 text-xs text-soft-mute" aria-live="polite">
         {filtered.length}{" "}
         {filtered.length === 1 ? "research output" : "research outputs"}
         {filtersActive && (

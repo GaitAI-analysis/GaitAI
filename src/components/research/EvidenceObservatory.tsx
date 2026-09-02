@@ -40,7 +40,34 @@ export type ObservatoryArea = {
     kind: string;
   }[];
   capabilities: { id: string; title: string; description: string }[];
-  products: { id: string; short: string; vertical: string; href: string }[];
+  /** Every product this area reaches, for the counts and the graph. */
+  products: AreaChip[];
+  /**
+   * The same set, split by how strong the relationship actually is.
+   *
+   * `directProducts` use a capability this research is specifically about.
+   * `architecturalProducts` draw on a broad platform capability the work
+   * happens to touch — listed for traceability, not as evidence. Collapsing
+   * the two made a gait-recognition paper look like it stood behind FallRisk,
+   * which is the overreach the split exists to prevent.
+   */
+  directProducts: AreaChip[];
+  architecturalProducts: AreaChip[];
+  /** Where the record's contribution ends and GaitAI's own design begins. */
+  boundary?: {
+    foundationLabel: string;
+    foundation: string[];
+    controlsLabel: string;
+    controls: string[];
+    note: string;
+  };
+};
+
+export type AreaChip = {
+  id: string;
+  short: string;
+  vertical: string;
+  href: string;
 };
 
 const W = 620;

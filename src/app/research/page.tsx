@@ -14,7 +14,7 @@ import { ResearchToProductFlow } from "@/components/research/ResearchToProductFl
 import { ResearchManifesto } from "@/components/research/ResearchManifesto";
 import { ResearchPrinciples } from "@/components/research/ResearchPrinciples";
 import { ResearchCollaborationCTA } from "@/components/research/ResearchCollaborationCTA";
-import { researchAreas } from "@/data/evidence";
+import { researchAreas, type AreaProduct } from "@/data/evidence";
 import { mobilityProducts, productCount, secureProducts } from "@/data/products";
 import {
   FOUNDER_NAME,
@@ -74,6 +74,14 @@ const PILLAR_KIND: Record<string, PillarKind> = {
   "res-edge": "edge",
 };
 
+/** Only the serializable fields the panel renders. */
+const chip = (product: AreaProduct) => ({
+  id: product.id,
+  short: product.short,
+  vertical: product.vertical,
+  href: product.href,
+});
+
 const observatoryAreas: ObservatoryArea[] = researchAreas.map((area) => ({
   id: area.id,
   title: area.title,
@@ -87,12 +95,13 @@ const observatoryAreas: ObservatoryArea[] = researchAreas.map((area) => ({
     kind: publication.kind,
   })),
   capabilities: area.capabilities,
-  products: area.products.map((product) => ({
-    id: product.id,
-    short: product.short,
-    vertical: product.vertical,
-    href: product.href,
-  })),
+  products: area.products.map(chip),
+  /* The two-tier split `evidence.ts` derives. Passing only the flat list let
+     the panel imply that every product a broad capability touches was
+     informed by the specific record. */
+  directProducts: area.directProducts.map(chip),
+  architecturalProducts: area.architecturalProducts.map(chip),
+  boundary: area.boundary,
 }));
 
 const telemetry = [

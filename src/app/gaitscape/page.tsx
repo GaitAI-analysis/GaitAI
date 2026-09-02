@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { GaitscapeExplorer } from "@/components/gaitscape/GaitscapeExplorer";
 import { CapabilityMatrix } from "@/components/gaitscape/CapabilityMatrix";
@@ -75,6 +76,21 @@ export default function GaitscapePage() {
           />
           <div className="mt-10">
             <CompareSystems />
+          </div>
+
+          {/* Onward to the other two analytical surfaces: the map shows how
+              the ecosystem connects; the lab shows what the pipeline does,
+              and the configurator turns it into a recommendation. */}
+          <div className="mt-14 flex flex-wrap items-center gap-3 border-t border-white/[0.07] pt-8">
+            <Link href="/movement-lab" className="btn-ghost">
+              Open the Movement Lab →
+            </Link>
+            <Link href="/products#stack" className="btn-ghost">
+              Find your GaitAI stack →
+            </Link>
+            <Link href="/use-cases#explore" className="btn-ghost">
+              Explore by environment →
+            </Link>
           </div>
         </div>
       </section>

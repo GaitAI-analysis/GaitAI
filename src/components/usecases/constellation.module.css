@@ -1,0 +1,199 @@
+/* ==========================================================================
+   DEPLOYMENT CONSTELLATION — the /use-cases hero art
+   --------------------------------------------------------------------------
+   Its own stylesheet rather than more rules in usecases.module.css, which is
+   already 700 lines of card and rail grammar. Everything here is about one
+   drawing.
+
+   The palette is the site's: cyan where the question is about a person,
+   royal-to-violet where it is about a space, hairline slate for the ground.
+   The only "glow" is the origin's radial gradient and a 13px halo behind each
+   pin — the reference's light is soft and wide, not a neon outline.
+   ========================================================================== */
+
+.wrap {
+  position: relative;
+  width: 100%;
+}
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Ground */
+.grid line {
+  stroke: rgb(148 163 184 / 0.07);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .grid line {
+  stroke: rgb(15 23 42 / 0.06);
+}
+
+/* Trails */
+.trail {
+  fill: none;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Origin */
+.originRing {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.5);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+/* The origin is the composition's brightest point, but it is a source, not a
+   lamp: the core is a small disc and the reach comes from the gradient. */
+.originCore {
+  fill: #bfe9ff;
+}
+:global(.light) .originCore {
+  fill: #0e7490;
+}
+.originTicks line {
+  stroke: rgb(79 209 255 / 0.42);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .originTicks line {
+  stroke: rgb(14 116 144 / 0.4);
+}
+
+/* Pins — two tones, one shape */
+.pinCare {
+  --pin: #4fd1ff;
+  --pin-soft: rgb(79 209 255 / 0.13);
+}
+.pinSecure {
+  --pin: #a78bfa;
+  --pin-soft: rgb(167 139 250 / 0.13);
+}
+:global(.light) .pinCare {
+  --pin: #0e7490;
+  --pin-soft: rgb(14 116 144 / 0.1);
+}
+:global(.light) .pinSecure {
+  --pin: #6d28d9;
+  --pin-soft: rgb(109 40 217 / 0.1);
+}
+
+.pinHalo {
+  fill: var(--pin-soft);
+}
+.pinRing {
+  fill: rgb(var(--c-obsidian-500) / 0.75);
+  stroke: var(--pin);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .pinRing {
+  fill: #ffffff;
+}
+.pinDot {
+  fill: var(--pin);
+}
+.pinLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  fill: rgb(var(--c-soft-gray));
+}
+
+/* On a phone the labels would collide, so the drawing is cropped to its
+   left-hand two thirds — the origin and the nearer pins — rather than
+   shrunk to 6px type. */
+@media (max-width: 767px) {
+  .svg {
+    max-height: 260px;
+  }
+}
+
+/* ==========================================================================
+   CORE FIELD — the nucleus's reach across the system map
+   --------------------------------------------------------------------------
+   Absolutely positioned over the whole map and centred on the core, behind
+   the rails. It is wider than it is tall because the map is: the spokes are
+   drawn on a 1.6:1 ellipse so they read as radial rather than as a squashed
+   circle once the element is stretched to the section.
+   ========================================================================== */
+
+.coreField {
+  position: absolute;
+  inset: -8% -4%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.coreFieldSvg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.coreRing,
+.coreRingMid {
+  fill: none;
+  stroke: rgb(148 163 184 / 0.14);
+  stroke-width: 1;
+  stroke-dasharray: 3 7;
+  vector-effect: non-scaling-stroke;
+}
+.coreRingMid {
+  stroke: rgb(79 209 255 / 0.2);
+  stroke-dasharray: 2 9;
+}
+:global(.light) .coreRing {
+  stroke: rgb(15 23 42 / 0.1);
+}
+:global(.light) .coreRingMid {
+  stroke: rgb(14 116 144 / 0.16);
+}
+
+.coreSpoke,
+.coreSpokeLong {
+  stroke: rgb(148 163 184 / 0.1);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.coreSpokeLong {
+  stroke: rgb(79 209 255 / 0.13);
+}
+:global(.light) .coreSpoke {
+  stroke: rgb(15 23 42 / 0.07);
+}
+:global(.light) .coreSpokeLong {
+  stroke: rgb(14 116 144 / 0.11);
+}
+
+.corePoint {
+  fill: rgb(148 163 184 / 0.34);
+}
+.corePointWarm {
+  fill: rgb(85 135 255 / 0.4);
+}
+.corePointBright {
+  fill: rgb(79 209 255 / 0.55);
+}
+:global(.light) .corePoint {
+  fill: rgb(15 23 42 / 0.16);
+}
+:global(.light) .corePointWarm {
+  fill: rgb(37 99 255 / 0.22);
+}
+:global(.light) .corePointBright {
+  fill: rgb(14 116 144 / 0.28);
+}
+
+/* Below the three-column layout the field would sit behind a single stacked
+   column of rows and read as noise, so it is dropped. */
+@media (max-width: 1099px) {
+  .coreField {
+    display: none;
+  }
+}

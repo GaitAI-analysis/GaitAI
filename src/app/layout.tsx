@@ -62,8 +62,10 @@ export const metadata: Metadata = {
     ],
   },
   manifest: assetPath("/manifest.webmanifest"),
+  alternates: { canonical: "/" },
   openGraph: {
     type: "website",
+    url: "/",
     title: "GaitAI — Intelligence in Motion",
     description:
       "AI that understands human movement — for security, healthcare, elderly care and smart environments.",
@@ -105,6 +107,26 @@ export default function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable}`}
     >
       <body className="font-sans antialiased">
+        {/*
+         * Organization node only. Every field here is already stated
+         * elsewhere on the site — name, site URL, logo. No founder, address,
+         * rating, employee count or sameAs profile is asserted, because none
+         * of those is documented in this repository.
+         */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "GaitAI",
+              url: "https://gaitai.in",
+              logo: "https://gaitai.in/brand/logo-main.png",
+              description:
+                "Research-led AI platform for movement intelligence.",
+            }),
+          }}
+        />
         <Providers>
           <div className="relative min-h-screen">
             <Navbar />

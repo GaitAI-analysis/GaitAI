@@ -109,7 +109,8 @@ export default function PrivacyPage() {
         available across deployments.
       </p>
       <p className="mt-4 text-soft-gray">
-        Clinical captures are taken with informed consent and retained only as
+        Clinical captures are intended to be collected with informed consent and
+        appropriate authorization, and retained only as
         long as the care workflow requires. In SecureVision, capabilities that
         do not require identity are the default; identity, re-identification
         and watchlist capabilities are a separate group that deploys only where

@@ -299,7 +299,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     overview:
       "For school environments, GaitAI can pair PediatricMotion developmental screening with SportsMotion for student athletes — structured movement observation across terms and seasons.",
     shortfall:
-      "Children's developmental movement and sports-injury prevention are rarely measured early; occasional visual checks can't separate growth variation from patterns worth following up.",
+      "Children's developmental movement and sports injury-risk screening are rarely measured early; occasional visual checks can't separate growth variation from patterns worth following up.",
     together:
       "PediatricMotion tracks developmental indicators like toe-walking and asymmetry across growth; SportsMotion screens student athletes' running mechanics for imbalance that may warrant review.",
     workflow: [

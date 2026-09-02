@@ -4900,6 +4900,10 @@ body {
     .env-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 3.5rem;
+      /* Each column ends where its own content does. Stretching them to a
+         shared height left the shorter column's rail hanging below its last
+         environment. */
+      align-items: start;
     }
   }
 
@@ -5011,15 +5015,6 @@ body {
     font-size: 11px;
     color: rgb(var(--c-soft-mute));
   }
-  .env-column-more {
-    margin-top: 1rem;
-    font-size: 12px;
-    color: rgb(var(--c-soft-mute));
-  }
-  .env-column--secure .env-column-more {
-    text-align: right;
-  }
-
   .env-branch {
     position: relative;
     margin-top: 1.1rem;
@@ -5042,7 +5037,7 @@ body {
   .env-item::before {
     content: "";
     position: absolute;
-    top: 2rem;
+    top: 1.8rem;
     left: calc(var(--env-gutter) * -1 - 3.5px);
     width: 7px;
     height: 7px;
@@ -5057,7 +5052,7 @@ body {
   .env-item::after {
     content: "";
     position: absolute;
-    top: calc(2rem + 3px);
+    top: calc(1.8rem + 3px);
     left: calc(var(--env-gutter) * -1 + 4px);
     width: calc(var(--env-gutter) - 10px);
     height: 1px;
@@ -5093,7 +5088,7 @@ body {
     display: flex;
     align-items: flex-start;
     gap: 0.9rem;
-    padding: 0.85rem 0.9rem 0.95rem;
+    padding: 0.6rem 0.9rem 0.65rem;
     border-radius: 0.85rem;
     border: 1px solid transparent;
     box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.05);

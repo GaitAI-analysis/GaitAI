@@ -23,19 +23,17 @@ import { useCaseDetails } from "@/data/usecase-details";
  * breakpoint: side by side on desktop, stacked on mobile, the trunks always
  * arrive where the rail begins.
  *
- * Content stays a teaser: name and outcome only. /use-cases owns the
- * problem-led treatment, the product mix and the detail. Both columns read
- * from `industryUseCases`, so nothing here is restated by hand — and each
- * environment's scene is drawn line art rather than stock photography.
+ * Both columns list every environment in their family — the breadth is the
+ * point, so nothing is collapsed behind a "+ more" count. Content per row
+ * stays light (name and outcome only); /use-cases still owns the problem-led
+ * treatment, the product mix and the detail.
+ *
+ * Both columns read from `industryUseCases`, so nothing here is restated by
+ * hand, and each environment's scene is drawn line art rather than stock
+ * photography. The columns are top-aligned and finish at their own heights —
+ * MobilityCare has eleven entries to SecureVision's six, and padding one out
+ * to match the other would only add empty rail.
  */
-
-/**
- * How many environments each column shows before deferring to /use-cases —
- * the teaser cap kept from the previous strip (null would show all of them).
- * The hub still states each family's real count, so the diagram is complete
- * even though the list is a sample.
- */
-const SHOWN_PER_VERTICAL: number | null = 5;
 
 const hrefFor = (caseId: string, vertical: Vertical) => {
   const detail = useCaseDetails.find((d) => d.caseId === caseId);
@@ -62,15 +60,22 @@ function EnvironmentBranch({
   label: string;
   accent: "care" | "secure";
 }) {
-  const all = industryUseCases.filter((u) => u.vertical === vertical);
-  const entries = SHOWN_PER_VERTICAL ? all.slice(0, SHOWN_PER_VERTICAL) : all;
+  /*
+   * Every environment in the family, in data order. There is no cap: the
+   * section previously showed five per column and deferred the rest to a
+   * "+ 6 more MobilityCare environments" line, which hid the breadth that is
+   * the whole point of the section.
+   */
+  const entries = industryUseCases.filter((u) => u.vertical === vertical);
 
   return (
     <div className={COLUMN_CLASS[accent]}>
       <div className="env-column-head">
         <span aria-hidden="true" className="env-column-node" />
         <h3 className="env-column-title">{label}</h3>
-        <span className="env-column-count">{all.length} environments</span>
+        <span className="env-column-count">
+          {entries.length} environments
+        </span>
       </div>
 
       <div className={BRANCH_CLASS[accent]}>
@@ -91,12 +96,6 @@ function EnvironmentBranch({
           ))}
         </ul>
       </div>
-
-      {all.length > entries.length && (
-        <p className="env-column-more">
-          + {all.length - entries.length} more {label} environments
-        </p>
-      )}
     </div>
   );
 }

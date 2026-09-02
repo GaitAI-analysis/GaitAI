@@ -50,8 +50,8 @@ export function MobilityCareHero() {
             id="mobilitycare-hero-title"
             className="mt-6 text-balance font-display text-[clamp(2.3rem,8vw,3.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-soft-white lg:text-[clamp(2.7rem,3.9vw,4.6rem)]"
           >
-            AI as a silent guardian for human safety,{" "}
-            <span className="text-gradient-mobility">health and identity.</span>
+            Movement intelligence for assessment, recovery and{" "}
+            <span className="text-gradient-mobility">longitudinal care.</span>
           </h1>
 
           <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg lg:mt-5 lg:text-base">

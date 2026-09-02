@@ -366,7 +366,7 @@ export const mobilityProducts: GaitProduct[] = [
     name: "GaitAI RemoteCare",
     short: "RemoteCare",
     label: "Home-based remote gait monitoring",
-    headline: "Walk at home. Get assessed by AI.",
+    headline: "Walk at home. Turn movement into a clinician-ready report.",
     description:
       "Patients upload guided walking videos from home; clinicians receive AI-generated progress reports and review them on a unified dashboard.",
     users: [
@@ -517,7 +517,7 @@ export const secureProducts: GaitProduct[] = [
       "Privacy mode",
       "Audit logs",
       "Retention controls",
-      "Anonymized heatmaps",
+      "Privacy-aware aggregated heatmaps",
     ],
     icon: Lock,
     vertical: "securevision",
@@ -557,7 +557,7 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI ForensicSearch",
     short: "ForensicSearch",
     label: "Post-event video investigation",
-    headline: "Search hours of CCTV in minutes — by movement.",
+    headline: "Search recorded CCTV by movement, timeline and event path.",
     description:
       "Searches uploaded CCTV footage for a person, movement pattern, timeline, or event path after an incident.",
     users: [
@@ -992,7 +992,7 @@ export const aiPipeline = [
     id: "fallrisk-model",
     icon: AlertTriangle,
     title: "Fall-Risk Model",
-    desc: "Combines variability, slow speed, instability and posture into clinical fall-risk scores.",
+    desc: "Combines variability, slow speed, instability and posture into fall-risk screening indicators.",
   },
   {
     id: "rehab-model",

@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import {
-  PILOT_DURATION,
+  PILOT_SCOPE,
   deploymentFacts,
   deploymentSteps,
 } from "@/data/trust";
@@ -29,7 +29,7 @@ export function DeployGaitAI() {
               <span className="text-gradient">in five steps.</span>
             </>
           }
-          description={`A GaitAI engagement is scoped around one environment and the modules it needs. A typical pilot runs ${PILOT_DURATION}.`}
+          description={`A GaitAI engagement is scoped around one environment and the modules it needs. ${PILOT_SCOPE}`}
           align="left"
         />
 
@@ -62,9 +62,11 @@ export function DeployGaitAI() {
           </ol>
         </Reveal>
 
-        <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/[0.08] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-300">
-          Typical pilot · {PILOT_DURATION}
-        </div>
+        <p className="mt-8 max-w-2xl text-[12.5px] leading-relaxed text-soft-mute">
+          Timelines are agreed with the deployment partner rather than quoted
+          up front — they follow the environment, the integration required and
+          the number of modules involved.
+        </p>
 
         {/* Procurement questions */}
         <Reveal>

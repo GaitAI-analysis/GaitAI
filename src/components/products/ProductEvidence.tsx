@@ -39,10 +39,12 @@ export function ProductEvidence({
   return (
     <div className="card relative overflow-hidden p-6">
       <p className="text-sm leading-relaxed text-soft-gray">
-        The capabilities this product is built on rest on published work. That
-        record covers the movement-analysis methods themselves — it does not
-        include a clinical validation study, an accuracy benchmark or a trial
-        result for this product&apos;s outputs.
+        Published work is the <span className="text-soft-white">research
+        foundation</span> for the capabilities this product is built on. That
+        record covers the movement-analysis methods themselves — it is{" "}
+        <span className="text-soft-white">not a validation</span> of this
+        product&apos;s outputs, and there is no clinical validation study,
+        accuracy benchmark or trial result behind them.
       </p>
 
       <dl className="mt-5 space-y-4">
@@ -60,7 +62,9 @@ export function ProductEvidence({
 
       <div className="mt-6 border-t border-white/[0.06] pt-5">
         <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-          {publications.size === 1 ? "Record" : `${publications.size} records`}
+          {publications.size === 1
+            ? "Research foundation · 1 record"
+            : `Research foundation · ${publications.size} records`}
         </div>
         <ul className="mt-3 space-y-2.5">
           {Array.from(publications.values())

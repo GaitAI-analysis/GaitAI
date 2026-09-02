@@ -6,6 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { AIPipelineDiagram } from "@/components/visuals/AIPipelineDiagram";
 import { JourneyTimeline } from "@/components/sections/JourneyTimeline";
 import { MovementHeroBackground } from "@/components/sections/MovementHeroBackground";
+import { ResearchAreaEvidence } from "@/components/research/ResearchAreaEvidence";
 import { researchAreas } from "@/data/evidence";
 import { productCount } from "@/data/products";
 import { FOUNDER_NAME, papers, patent } from "@/data/publications";
@@ -191,15 +192,26 @@ export default function ResearchPage() {
                 <span className="text-gradient">what backs it.</span>
               </>
             }
-            description="Research → capability → product. Each area below lists the papers and IP behind it, the capabilities it grounds and the products built on those capabilities. Every link is a documented relationship, not an association."
+            description="Each area below is a research foundation: published work that informed a capability, and the products built on that capability. A foundation is not a validation — the distinction is spelled out below the chain."
             align="left"
           />
 
-          {/* The chain in one line per area, before the detail below it —
-              research → capability → product, read at a glance. Every link is
-              a documented relationship from the graph, not an association. */}
+          {/* The chain, one line per area. Column headers name what each step
+              actually is, because the previous version let "research → product"
+              be read as "this paper validates these products". It does not. */}
           <Reveal>
             <ol className="mt-12 overflow-hidden rounded-2xl border border-white/[0.08]">
+              <li className="hidden gap-x-4 border-b border-white/[0.08] bg-white/[0.03] px-5 py-3 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.1fr)] sm:px-6">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
+                  Research foundation
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
+                  Capability informed by this work
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
+                  Related GaitAI products
+                </span>
+              </li>
               {researchAreas.map((area) => (
                 <li
                   key={`chain-${area.id}`}
@@ -234,90 +246,53 @@ export default function ResearchPage() {
             </ol>
           </Reveal>
 
-          <div className="mt-4 space-y-4">
+          {/* Said plainly, immediately after the chain. */}
+          <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5 sm:p-6">
+            <h3 className="text-[10.5px] font-semibold uppercase tracking-[0.2em] text-soft-white">
+              How to read this
+            </h3>
+            <dl className="mt-4 grid gap-x-10 gap-y-4 sm:grid-cols-3">
+              <div>
+                <dt className="text-[12.5px] font-semibold text-soft-white">
+                  Research foundation
+                </dt>
+                <dd className="mt-1 text-[12.5px] leading-relaxed text-soft-mute">
+                  Peer-reviewed work, or the granted patent, on the underlying
+                  method. Real, citable, and listed per area.
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[12.5px] font-semibold text-soft-white">
+                  Capability informed by this work
+                </dt>
+                <dd className="mt-1 text-[12.5px] leading-relaxed text-soft-mute">
+                  The platform capability that method informs — pose
+                  estimation, gait analysis, movement biometrics and so on.
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[12.5px] font-semibold text-soft-white">
+                  Direct product validation
+                </dt>
+                <dd className="mt-1 text-[12.5px] leading-relaxed text-soft-mute">
+                  <span className="text-amber-300">None published.</span> No
+                  study in this record validates any GaitAI product&apos;s
+                  output, and nothing on this page should be read as one.
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {/* Each area reads research → capability → product. The detail used
+              to be one bordered three-column panel per area; it is now an open
+              editorial layout with progressive disclosure. Same records, same
+              capabilities, same product relationships. */}
+          <div className="mt-14 divide-y divide-white/[0.07]">
             {researchAreas.map((area) => (
               <Reveal key={area.id}>
-                <article
-                  id={area.id}
-                  className="overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-b from-white/[0.03] to-transparent"
-                >
-                  <div className="border-b border-white/[0.06] p-6 sm:p-8">
-                    <h3 className="font-display text-xl text-soft-white sm:text-2xl">
-                      {area.title}
-                    </h3>
-                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-soft-mute">
-                      {area.summary}
-                    </p>
-                  </div>
-
-                  <div className="grid divide-white/[0.06] lg:grid-cols-3 lg:divide-x">
-                    {/* Publications & IP */}
-                    <div className="border-b border-white/[0.06] p-6 lg:border-b-0">
-                      <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                        {area.publications.length === 1
-                          ? "Record"
-                          : `${area.publications.length} records`}
-                      </h4>
-                      <ul className="mt-3 space-y-3">
-                        {area.publications.map((publication) => (
-                          <li key={publication.id}>
-                            <Link
-                              href={`/publications/${publication.id}/`}
-                              className="group block"
-                            >
-                              <span className="block text-[12.5px] leading-snug text-soft-white transition-colors group-hover:text-cyan-300">
-                                {publication.title}
-                              </span>
-                              <span className="mt-1 block text-[11px] text-soft-mute">
-                                {publication.venue} · {publication.year}
-                                {publication.kind === "patent"
-                                  ? ` · Patent ${publication.patentNumber}`
-                                  : ""}
-                              </span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Capabilities grounded */}
-                    <div className="border-b border-white/[0.06] p-6 lg:border-b-0">
-                      <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                        Capabilities grounded
-                      </h4>
-                      <dl className="mt-3 space-y-3">
-                        {area.capabilities.map((capability) => (
-                          <div key={capability.id}>
-                            <dt className="text-[12.5px] font-medium text-soft-white">
-                              {capability.title}
-                            </dt>
-                            <dd className="mt-0.5 text-[11.5px] leading-relaxed text-soft-mute">
-                              {capability.description}
-                            </dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </div>
-
-                    {/* Products using them */}
-                    <div className="p-6">
-                      <h4 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                        Products using them · {area.products.length}
-                      </h4>
-                      <div className="mt-3 flex flex-wrap gap-1.5">
-                        {area.products.map((product) => (
-                          <Link
-                            key={product.id}
-                            href={product.href}
-                            className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] font-medium text-soft-gray transition-colors hover:border-cyan-300/40 hover:text-soft-white"
-                          >
-                            {product.short}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </article>
+                <div className="py-14 first:pt-0 last:pb-0">
+                  <ResearchAreaEvidence area={area} />
+                </div>
               </Reveal>
             ))}
           </div>

@@ -41,8 +41,23 @@ export interface ResearchArea {
   publications: Publication[];
   /** Capability nodes this area underpins. */
   capabilities: { id: string; title: string; description: string }[];
-  /** Products that use at least one of those capabilities. */
-  products: { id: string; short: string; vertical: string; href: string }[];
+  /**
+   * Products that use at least one of those capabilities, ordered by how many
+   * of *this area's* capabilities each one draws on — so the most directly
+   * connected products come first. Ties keep canonical product order. The
+   * ordering is derived from the same `powered-by` relations as the list
+   * itself; no relationship is added, removed or weighted by hand.
+   */
+  products: {
+    id: string;
+    short: string;
+    /** Professional one-line label from the product record. */
+    label: string;
+    vertical: string;
+    href: string;
+    /** Which of this area's capabilities this product is built on. */
+    capabilityIds: string[];
+  }[];
 }
 
 /** Capability-level evidence attached to one product. */
@@ -132,9 +147,18 @@ export const researchAreas: ResearchArea[] = gaitscapeNodes
         .map((product) => ({
           id: product.id,
           short: product.short,
+          label: product.label,
           vertical: product.vertical,
           href: `/${product.vertical}/${product.id}/`,
-        })),
+          capabilityIds: (productToCapabilities.get(product.id) ?? []).filter(
+            (id) => capabilityIds.includes(id),
+          ),
+        }))
+        // Strongest connection first: a product built on two of this area's
+        // capabilities is more directly grounded in it than one built on a
+        // single capability. `sort` is stable, so equal counts retain the
+        // canonical product order above.
+        .sort((a, b) => b.capabilityIds.length - a.capabilityIds.length),
     };
   })
   .sort((a, b) => b.publications.length - a.publications.length);

@@ -16,10 +16,18 @@
 // `source` names that origin so a reviewer can check it.
 //
 // LANGUAGE RULE
-// Capability language only — "supports", "designed for", "configurable",
-// "available". No certification, no compliance status, no guarantee. What is
-// deliberately NOT claimed is listed in `notClaimed` and rendered on the page,
-// because saying so plainly is more useful to a buyer than staying quiet.
+// These are ARCHITECTURAL CAPABILITIES, not operational facts. This repository
+// is the marketing site: src/lib/ contains only website concerns (comments,
+// posts, media, auth), and no movement-analytics pipeline, retention job,
+// audit-log writer or blur stage exists in it. So every entry below is phrased
+// as design intent — "designed to", "can be configured to", "the architecture
+// supports" — never as something already running in production. The website's
+// own controls are separate and ARE implemented (Firestore rules, admin
+// gating, Turnstile, static delivery); those are stated as fact on the page.
+//
+// No certification, no compliance status, no guarantee. What is deliberately
+// NOT claimed is listed in `notClaimed` and rendered on the page, because
+// saying so plainly is more useful to a buyer than staying quiet.
 // ============================================================================
 
 export interface PrivacyControl {
@@ -35,61 +43,61 @@ export const privacyControls: PrivacyControl[] = [
   {
     topic: "Processing location",
     support:
-      "Designed for edge and on-device inference as well as server-side processing; the optimised edge pipeline is the subject of the granted patent. Which mode a site runs is a deployment decision.",
+      "Designed for edge and on-device inference as well as server-side processing; the optimised edge pipeline is the subject of the granted patent. Which mode a given site runs is a deployment decision.",
     source: "Patent 402202 · Edge inference capability",
   },
   {
     topic: "Non-identifying mode",
     support:
-      "Skeleton-only processing replaces identifiable video as the analytic substrate, so movement analytics can run without identity. SecureVision leads with identity-free capabilities by default.",
+      "The architecture is designed so skeleton-only processing can replace identifiable video as the analytic substrate, letting movement analytics run without identity. SecureVision is designed to lead with identity-free capabilities by default.",
     source: "PrivacyGuard · pipeline stages",
   },
   {
     topic: "Face blur",
     support:
-      "Optional face blur is applied as a pipeline transformation stage — before analytics, not after.",
+      "Face blur is designed as an optional pipeline transformation stage that can be applied before analytics rather than after.",
     source: "PrivacyGuard · processing pipeline",
   },
   {
     topic: "Raw video handling",
     support:
-      "Raw streams enter the pipeline and are transformed into movement features; analytics operate on those features rather than on raw footage.",
+      "The pipeline is designed to transform raw streams into movement features, so analytics operate on those features rather than on raw footage.",
     source: "PrivacyGuard · privacy stack",
   },
   {
     topic: "Retention controls",
     support:
-      "Retention is configurable per data class, with retention schedules set per site. Clinical captures are retained only as long as the care workflow requires.",
+      "Retention is intended to be configurable per data class, with schedules set per site, so clinical captures need be kept only as long as the care workflow requires. Actual periods are agreed per deployment.",
     source: "PrivacyGuard · deployment · shared clinical privacy note",
   },
   {
     topic: "Role-based access",
     support:
-      "An authorization layer mediates dashboard views, so roles see only permitted data. Policy is configured per site and per role.",
+      "An authorization layer is designed to mediate dashboard views so roles see only permitted data, with policy configured per site and per role.",
     source: "PrivacyGuard · access model",
   },
   {
     topic: "Audit logs",
     support:
-      "Access and policy-change events are logged, and audit logs can be exported for an organisation's own compliance review.",
+      "The design provides for logging of access and policy-change events, with audit logs exportable for an organisation's own compliance review.",
     source: "PrivacyGuard · audit and policy logs",
   },
   {
     topic: "Consent",
     support:
-      "Clinical assessments are captured with informed consent. Policy and consent records are held alongside the audit log.",
+      "Clinical assessments are intended to be captured with informed consent, with policy and consent records held alongside the audit log.",
     source: "Shared clinical privacy note · PrivacyGuard output schema",
   },
   {
     topic: "Data in transit",
     support:
-      "Captures are uploaded over encrypted channels.",
+      "Captures are intended to be uploaded over encrypted channels. Transport and storage configuration is agreed per deployment.",
     source: "Shared clinical privacy note",
   },
   {
     topic: "Biometric and identity processing",
     support:
-      "Identity-bearing modules (ReID, AccessMotion, Watchlist) run behind stricter policy gates and deploy only where there is lawful authority, consent and a full audit trail. Where non-identifying movement intelligence is sufficient, that is the default.",
+      "Identity-bearing modules (ReID, AccessMotion, Watchlist) are gated behind stricter policy controls and are offered only where there is lawful authority, consent and a full audit trail. Where non-identifying movement intelligence is sufficient, that is the intended default.",
     source: "Responsible-deployment policy · Watchlist product record",
   },
   {
@@ -101,7 +109,7 @@ export const privacyControls: PrivacyControl[] = [
   {
     topic: "Scope of the controls",
     support:
-      "These controls govern the GaitAI pipeline. Lawful basis, consent management and decisions about deployment remain with the deploying organisation, and privacy-aware architecture is not a guarantee of anonymity.",
+      "These are architectural capabilities of the GaitAI pipeline rather than a description of a running deployment; what a given site enables is agreed with it. Lawful basis, consent management and deployment decisions remain with the deploying organisation, and privacy-aware architecture is not a guarantee of anonymity.",
     source: "PrivacyGuard · documented limitations",
   },
 ];
@@ -139,7 +147,7 @@ export const deploymentSteps: DeploymentStep[] = [
   },
   {
     title: "Configure intelligence modules",
-    desc: "Select the modules the environment needs. Products share one movement engine, so a single capture workflow can feed several of them.",
+    desc: "Select the modules the environment needs. Products share one underlying movement-processing engine, so a single capture workflow can feed several of them.",
   },
   {
     title: "Validate with the team",
@@ -151,8 +159,17 @@ export const deploymentSteps: DeploymentStep[] = [
   },
 ];
 
-/** Typical pilot length, as already stated on the MobilityCare page. */
-export const PILOT_DURATION = "4–6 weeks";
+/**
+ * Pilot scoping, not a duration.
+ *
+ * The site previously advertised a "4–6 week pilot". That figure traced back
+ * to a single marketing line and nothing else — no pilot process, engagement
+ * template or completed pilot is documented anywhere in this repository — so
+ * quoting it as typical was an unsupported commitment. Scope is described
+ * instead of a number.
+ */
+export const PILOT_SCOPE =
+  "Pilot scope and duration depend on the environment, integration requirements and the modules selected.";
 
 export interface DeploymentFact {
   question: string;
@@ -196,7 +213,8 @@ export const deploymentFacts: DeploymentFact[] = [
       "A clinician, therapist or caregiver reviews clinical outputs; a trained operator reviews safety events. Every output is decision support — it does not diagnose, and it does not act on its own.",
   },
   {
-    question: "How long is a pilot?",
-    answer: `Typically ${PILOT_DURATION}, scoped around one environment and a small set of modules.`,
+    question: "How is a pilot scoped?",
+    answer:
+      "Pilot timelines are defined with the deployment partner based on scope — the environment, the integration required and how many modules are involved. A pilot is normally scoped around a single environment to keep it reviewable.",
   },
 ];

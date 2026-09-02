@@ -2,6 +2,15 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { ResearchSignal } from "@/components/visuals/ResearchSignal";
+import {
+  RecordInstrumentPanel,
+  type RecordMetric,
+} from "@/components/visuals/RecordInstrumentPanel";
+import {
+  EvidenceChainMotif,
+  PrivacyLayerMotif,
+} from "@/components/visuals/ResearchMotifs";
 import { researchAreas } from "@/data/evidence";
 import { FOUNDER_NAME, papers } from "@/data/publications";
 
@@ -20,12 +29,54 @@ const featuredPapers = [...papers].sort((a, b) => b.year - a.year).slice(0, 3);
  * The full evidence map, the method commitments and what the record does not
  * cover all live on /research; Home carries the attributed record, the three
  * most recent references and the two links out — a teaser, not the story.
+ *
+ * The section leads with the diagram rather than with prose. `ResearchSignal`
+ * draws the actual chain — captured gait → the layered movement engine → the
+ * capabilities the published record backs — and separates the data path
+ * (solid) from the evidence path (dashed), so "research basis" is something
+ * the reader can see the shape of before reading a word of it. Every label in
+ * it, and every dial reading in the instrument panel below, is derived from
+ * `researchAreas` and `publications.ts`.
  */
-const record = [
-  { value: `${papers.length}`, label: "Peer-reviewed papers" },
-  { value: "1", label: "Granted patent (India)" },
-  { value: `${researchAreas.length}`, label: "Research areas" },
-  { value: "10+ yrs", label: "Of founder gait research" },
+
+/**
+ * Distinct records (papers + patent) reaching each capability through the
+ * research areas that ground it. Derived — a capability with no research area
+ * mapped to it never appears, which is the honest answer for it.
+ */
+const capabilityRecords = (() => {
+  const acc = new Map<string, { id: string; title: string; records: Set<string> }>();
+  for (const area of researchAreas) {
+    for (const capability of area.capabilities) {
+      const entry =
+        acc.get(capability.id) ??
+        { id: capability.id, title: capability.title, records: new Set<string>() };
+      for (const publication of area.publications) entry.records.add(publication.id);
+      acc.set(capability.id, entry);
+    }
+  }
+  return Array.from(acc.values())
+    .map((entry) => ({ id: entry.id, title: entry.title, records: entry.records.size }))
+    .sort((a, b) => b.records - a.records);
+})();
+
+const signalAreas = researchAreas.map((area) => ({
+  id: area.id,
+  title: area.title,
+  records: area.publications.length,
+}));
+
+/** Dial readings are counts, not ratios: lit segments = the record itself. */
+const record: RecordMetric[] = [
+  { value: `${papers.length}`, label: "Peer-reviewed papers", lit: papers.length, tone: "cyan" },
+  { value: "1", label: "Granted patent (India)", lit: 1, tone: "violet" },
+  {
+    value: `${researchAreas.length}`,
+    label: "Research areas",
+    lit: researchAreas.length,
+    tone: "royal",
+  },
+  { value: "10+ yrs", label: "Of founder gait research", lit: 10, tone: "emerald" },
 ];
 
 export function ResearchCredibility() {
@@ -38,6 +89,7 @@ export function ResearchCredibility() {
         <div className="absolute left-[8%] top-[15%] h-72 w-72 rounded-full bg-radial-violet opacity-40 blur-3xl" />
         <div className="absolute bottom-[15%] right-[8%] h-72 w-72 rounded-full bg-radial-cyan opacity-40 blur-3xl" />
       </div>
+      <div className="res-dotfield pointer-events-none absolute inset-0 -z-10" />
 
       <div className="container-wide">
         <SectionHeading
@@ -52,10 +104,42 @@ export function ResearchCredibility() {
           align="left"
         />
 
+        {/* ── The chain, drawn: capture → engine → the capabilities the
+            record backs, with published work grounding the engine ── */}
+        <Reveal delay={0.08}>
+          <figure className="res-stage mt-12">
+            <ResearchSignal
+              areas={signalAreas}
+              capabilities={capabilityRecords}
+              className="hidden sm:block"
+            />
+            <ResearchSignal
+              areas={signalAreas}
+              capabilities={capabilityRecords}
+              compact
+              className="sm:hidden"
+            />
+            <figcaption className="res-stage-legend">
+              <span className="res-legend-key">
+                <span aria-hidden="true" className="res-legend-swatch res-legend-swatch--data" />
+                Solid — the data path
+              </span>
+              <span aria-hidden="true" className="res-stage-legend-rule" />
+              <span className="res-legend-key">
+                <span
+                  aria-hidden="true"
+                  className="res-legend-swatch res-legend-swatch--evidence"
+                />
+                Dashed — published evidence grounding the engine
+              </span>
+            </figcaption>
+          </figure>
+        </Reveal>
+
         {/* Founder research record — explicitly attributed */}
         <Reveal>
-          <div className="mt-12 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent">
-            <div className="border-b border-white/[0.06] p-7 sm:p-9">
+          <div className="res-record-block mt-14">
+            <div className="res-record-head">
               <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/[0.08] px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
                 <span className="pill-dot" />
                 Founder research record
@@ -81,21 +165,10 @@ export function ResearchCredibility() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-px sm:grid-cols-4">
-              {record.map((item) => (
-                <div
-                  key={item.label}
-                  className="bg-gunmetal/30 p-5 text-center sm:p-6"
-                >
-                  <div className="stat-num text-xl text-soft-white sm:text-2xl">
-                    {item.value}
-                  </div>
-                  <div className="mt-1.5 text-[10.5px] uppercase tracking-[0.18em] text-soft-mute">
-                    {item.label}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <RecordInstrumentPanel
+              metrics={record}
+              caption="Twelve segments per dial; the lit segments are the count itself — nothing scaled, weighted or inferred."
+            />
           </div>
         </Reveal>
 
@@ -133,49 +206,57 @@ export function ResearchCredibility() {
           </div>
         </Reveal>
 
-        {/* Two decision points: the evidence map, and the privacy layer */}
+        {/* Two decision points: the evidence map, and the privacy layer.
+            Each opens with the mechanism drawn, so the card is a diagram with
+            an explanation rather than a bordered paragraph. */}
         <div className="mt-12 grid gap-4 lg:grid-cols-2">
-          <div className="card relative overflow-hidden p-7">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              Evidence map
+          <div className="res-decision res-decision--cyan">
+            <EvidenceChainMotif />
+            <div className="res-decision-body">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+                Evidence map
+              </div>
+              <h3 className="mt-4 font-display text-xl text-soft-white">
+                See which paper or patent sits behind which capability.
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-soft-mute">
+                Each research area on /research lists its publications, the
+                capabilities it underpins and the products built on those
+                capabilities — so you can trace a claim rather than take it.
+              </p>
+              <Link
+                href="/research"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"
+              >
+                Open the evidence map
+                <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+              </Link>
             </div>
-            <h3 className="mt-4 font-display text-xl text-soft-white">
-              See which paper or patent sits behind which capability.
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-              Each research area on /research lists its publications, the
-              capabilities it underpins and the products built on those
-              capabilities — so you can trace a claim rather than take it.
-            </p>
-            <Link
-              href="/research"
-              className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"
-            >
-              Open the evidence map
-              <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-            </Link>
           </div>
 
-          <div className="card relative overflow-hidden p-7">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
-              Privacy by design
+          <div className="res-decision res-decision--emerald">
+            <PrivacyLayerMotif />
+            <div className="res-decision-body">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+                Privacy by design
+              </div>
+              <h3 className="mt-4 font-display text-xl text-soft-white">
+                Skeleton-only analytics. Face blur. Role-based access. Audit logs.
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-soft-mute">
+                PrivacyGuard applies these controls at the pipeline level, before
+                analytics — with configurable retention and exportable audit
+                logs. It is privacy-aware architecture, not a guarantee of
+                anonymity.
+              </p>
+              <Link
+                href="/legal/security"
+                className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300 transition-colors hover:text-emerald-200"
+              >
+                Read the control documentation
+                <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+              </Link>
             </div>
-            <h3 className="mt-4 font-display text-xl text-soft-white">
-              Skeleton-only analytics. Face blur. Role-based access. Audit logs.
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-              PrivacyGuard applies these controls at the pipeline level, before
-              analytics — with configurable retention and exportable audit
-              logs. It is privacy-aware architecture, not a guarantee of
-              anonymity.
-            </p>
-            <Link
-              href="/legal/security"
-              className="mt-5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-300 transition-colors hover:text-emerald-200"
-            >
-              Read the control documentation
-              <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
-            </Link>
           </div>
         </div>
 

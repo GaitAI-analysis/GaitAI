@@ -1,0 +1,970 @@
+/* ==========================================================================
+   THE ANALYTICAL DESIGN LANGUAGE
+   --------------------------------------------------------------------------
+   One stylesheet for every interactive analytical surface — the environment
+   explorer, the stack configurator, the coverage matrix, the evidence
+   explorer, the movement lab and the home teaser — so five experiences built
+   over four weeks cannot each invent their own chip, panel and matrix.
+
+   It borrows the site's existing identity rather than adding to it: midnight
+   navy surfaces, hairline slate rules, cyan for the reading, royal blue for
+   structure, restrained violet for the second family, and champagne amber
+   used for exactly one thing — a candidate event that needs a human. No
+   glows, no neon, no decorative icons: typography, thin lines, state dots and
+   real analytical graphics.
+
+   Every colour resolves through the site's own tokens, so the light theme
+   follows automatically; the handful of places that need a different value in
+   light mode override the token, never the rule.
+   ========================================================================== */
+
+.lab {
+  --an-cyan: #4fd1ff;
+  --an-royal: #5587ff;
+  --an-violet: #a78bfa;
+  --an-teal: #2dd4bf;
+  --an-amber: #e4c48a;
+  --an-line: rgb(148 163 184 / 0.14);
+  --an-line-mid: rgb(148 163 184 / 0.28);
+  --an-grid: rgb(148 163 184 / 0.07);
+  --an-ink: rgb(var(--c-soft-white));
+  --an-body: rgb(var(--c-soft-gray));
+  --an-mute: rgb(var(--c-soft-mute));
+  --an-surface: rgb(var(--c-obsidian-400) / 0.55);
+  --an-surface-2: rgb(var(--c-obsidian-300) / 0.6);
+  --an-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+:global(.light) .lab {
+  --an-cyan: #0e7490;
+  --an-royal: #2563ff;
+  --an-violet: #6d28d9;
+  --an-teal: #0f766e;
+  --an-amber: #a16207;
+  --an-line: rgb(15 23 42 / 0.1);
+  --an-line-mid: rgb(15 23 42 / 0.2);
+  --an-grid: rgb(15 23 42 / 0.06);
+  --an-surface: #ffffff;
+  --an-surface-2: rgb(241 245 249 / 0.8);
+}
+
+/* Family accents. Applied to a subtree, read by everything inside it. */
+.famCare {
+  --an-accent: var(--an-cyan);
+  --an-accent-soft: rgb(79 209 255 / 0.32);
+}
+.famSecure {
+  --an-accent: var(--an-royal);
+  --an-accent-soft: rgb(85 135 255 / 0.32);
+}
+:global(.light) .famCare {
+  --an-accent-soft: rgb(14 116 144 / 0.3);
+}
+:global(.light) .famSecure {
+  --an-accent-soft: rgb(37 99 255 / 0.3);
+}
+
+/* ==========================================================================
+   1 · TYPE ROLES
+   ========================================================================== */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--an-cyan);
+}
+.eyebrowRule {
+  display: block;
+  height: 1px;
+  width: 1.75rem;
+  background: linear-gradient(90deg, var(--an-cyan), transparent);
+}
+
+.label {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+.labelAccent {
+  color: var(--an-accent, var(--an-cyan));
+}
+
+.value {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--an-ink);
+}
+
+.note {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--an-mute);
+}
+
+/* ==========================================================================
+   2 · SURFACES
+   ========================================================================== */
+
+.panel {
+  position: relative;
+  border: 1px solid var(--an-line);
+  border-radius: 1.1rem;
+  background: var(--an-surface);
+  overflow: hidden;
+}
+.panelGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(var(--an-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--an-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 90% 80% at 20% 0%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 20% 0%, #000 20%, transparent 75%);
+}
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--an-line);
+}
+.panelBody {
+  padding: 1.1rem;
+}
+.panelRule {
+  height: 1px;
+  background: var(--an-line);
+}
+
+/* A hairline stat readout — the header row above an explorer. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--an-line);
+  border: 1px solid var(--an-line);
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.stat {
+  background: var(--an-surface);
+  padding: 0.95rem 1rem 1rem;
+}
+.statValue {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--an-ink);
+}
+.statLabel {
+  margin-top: 0.45rem;
+  display: block;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+
+/* ==========================================================================
+   3 · CONTROLS — chips, chip scrollers, segmented tabs
+   ========================================================================== */
+
+.controlRow {
+  display: grid;
+  gap: 0.9rem;
+}
+.controlGroup {
+  min-width: 0;
+}
+.controlLabel {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+
+/* Horizontal scroller: the only shape a 17-item filter takes on a phone. */
+.chips {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 0.2rem;
+  scroll-snap-type: x proximity;
+}
+.chips::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .chips {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+.chip {
+  flex: none;
+  scroll-snap-align: start;
+  border: 1px solid var(--an-line);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.42rem 0.8rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--an-body);
+  cursor: pointer;
+  transition: border-color 0.3s var(--an-ease), color 0.3s var(--an-ease),
+    background-color 0.3s var(--an-ease);
+}
+.chip:hover {
+  border-color: var(--an-line-mid);
+  color: var(--an-ink);
+}
+.chipOn {
+  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
+  background: rgb(79 209 255 / 0.08);
+  color: var(--an-ink);
+}
+:global(.light) .chipOn {
+  background: rgb(37 99 255 / 0.07);
+}
+.chipCount {
+  margin-left: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--an-mute);
+}
+.chipDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.chip:focus-visible,
+.tab:focus-visible,
+.cell:focus-visible,
+.rowHead:focus-visible {
+  outline: 2px solid var(--an-cyan);
+  outline-offset: 2px;
+}
+
+/* Segmented tabs — mode switches (family, MobilityCare / SecureVision). */
+.tabs {
+  display: inline-flex;
+  gap: 1px;
+  padding: 2px;
+  border: 1px solid var(--an-line);
+  border-radius: 999px;
+  background: var(--an-surface-2);
+}
+.tab {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.4rem 0.95rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+  cursor: pointer;
+  transition: color 0.3s var(--an-ease), background-color 0.3s var(--an-ease);
+}
+.tab:hover {
+  color: var(--an-ink);
+}
+.tabOn {
+  background: rgb(148 163 184 / 0.12);
+  color: var(--an-ink);
+}
+
+/* Numbered step header for the configurator. */
+.step {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+}
+.stepIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: var(--an-accent, var(--an-cyan));
+}
+.stepTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--an-ink);
+}
+
+/* ==========================================================================
+   4 · RESULT LISTS — the "signal → capability → output" columns
+   ========================================================================== */
+
+.columns {
+  display: grid;
+  gap: 1px;
+  background: var(--an-line);
+}
+@media (min-width: 768px) {
+  .columns2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .columns3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .columns4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.column {
+  background: var(--an-surface);
+  padding: 1.05rem 1.1rem 1.2rem;
+}
+.columnHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--an-line);
+}
+
+.list {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.item {
+  display: flex;
+  gap: 0.55rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--an-body);
+}
+.dot {
+  margin-top: 0.52em;
+  height: 4px;
+  width: 4px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--an-accent, var(--an-cyan));
+}
+.dotMute {
+  background: var(--an-line-mid);
+}
+.dotAmber {
+  background: var(--an-amber);
+}
+
+/* ==========================================================================
+   5 · MODULE CARDS — a recommended module, stated with its reason
+   ========================================================================== */
+
+.module {
+  display: block;
+  border: 1px solid var(--an-line);
+  border-radius: 0.9rem;
+  background: var(--an-surface);
+  padding: 1rem 1.05rem 1.05rem;
+  text-decoration: none;
+  transition: border-color 0.35s var(--an-ease), transform 0.35s var(--an-ease);
+}
+.module:hover {
+  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
+  transform: translateY(-1px);
+}
+.modulePrimary {
+  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
+  background: linear-gradient(
+    180deg,
+    rgb(79 209 255 / 0.05),
+    transparent 60%
+  );
+}
+:global(.light) .modulePrimary {
+  background: linear-gradient(180deg, rgb(37 99 255 / 0.05), transparent 60%);
+}
+.moduleName {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--an-ink);
+}
+.moduleLabel {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--an-body);
+}
+.reasons {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.reason {
+  border: 1px solid var(--an-line);
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+.reasonOn {
+  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
+  color: var(--an-accent, var(--an-cyan));
+}
+.moduleGo {
+  margin-top: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--an-accent, var(--an-cyan));
+}
+.moduleGoArrow {
+  transition: transform 0.35s var(--an-ease);
+}
+.module:hover .moduleGoArrow {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   6 · MATRIX — capability × environment, and product × stage
+   ========================================================================== */
+
+.matrixScroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.matrix {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 640px;
+  width: 100%;
+  font-size: 0.75rem;
+}
+.matrix th,
+.matrix td {
+  padding: 0;
+  border-bottom: 1px solid var(--an-line);
+}
+.matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--an-surface-2);
+  vertical-align: bottom;
+}
+.colHead {
+  padding: 0.6rem 0.35rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+  text-align: center;
+  line-height: 1.3;
+}
+.colHeadOn {
+  color: var(--an-ink);
+}
+.rowHeadCell {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--an-surface-2);
+  border-right: 1px solid var(--an-line);
+}
+.rowHead {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0.62rem 0.85rem;
+  text-align: left;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--an-body);
+  cursor: pointer;
+}
+.rowHead:hover,
+.rowHeadOn {
+  color: var(--an-ink);
+}
+
+.cell {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0.55rem 0.3rem;
+  cursor: pointer;
+}
+.cellInner {
+  display: block;
+  margin: 0 auto;
+  height: 9px;
+  width: 9px;
+  border-radius: 2px;
+}
+/* Three discrete states — never a gradient, because there is no scale. */
+.cellPrimary .cellInner {
+  background: var(--an-cyan);
+}
+.cellSupporting .cellInner {
+  background: transparent;
+  border: 1px solid var(--an-line-mid);
+}
+.cellNone .cellInner {
+  background: var(--an-grid);
+  border-radius: 999px;
+  height: 3px;
+  width: 3px;
+}
+.cellSecure.cellPrimary .cellInner {
+  background: var(--an-royal);
+}
+.cellOn {
+  background: rgb(148 163 184 / 0.09);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding-top: 0.9rem;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.6875rem;
+  color: var(--an-mute);
+}
+.legendSwatch {
+  height: 8px;
+  width: 8px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* ==========================================================================
+   7 · PIPELINE — the stage rail every analytical flow shares
+   ========================================================================== */
+
+.pipeline {
+  display: grid;
+  gap: 0.55rem;
+}
+@media (min-width: 900px) {
+  .pipeline {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+}
+.stage {
+  position: relative;
+  border: 1px solid var(--an-line);
+  border-radius: 0.75rem;
+  background: var(--an-surface);
+  padding: 0.7rem 0.85rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.35s var(--an-ease), background-color 0.35s var(--an-ease);
+}
+.stage:hover {
+  border-color: var(--an-line-mid);
+}
+.stageOn {
+  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
+  background: rgb(79 209 255 / 0.06);
+}
+:global(.light) .stageOn {
+  background: rgb(37 99 255 / 0.05);
+}
+.stagePast {
+  border-color: var(--an-line-mid);
+}
+.stageIndex {
+  display: block;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  color: var(--an-mute);
+}
+.stageName {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--an-ink);
+}
+.stageNote {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--an-mute);
+}
+/* The connector between stages: an arrow on wide screens, a tick below. */
+.stage + .stage::before {
+  content: "";
+  position: absolute;
+  left: 1.1rem;
+  top: -0.55rem;
+  height: 0.55rem;
+  width: 1px;
+  background: var(--an-line-mid);
+}
+@media (min-width: 900px) {
+  .stage + .stage::before {
+    left: -0.55rem;
+    top: 50%;
+    height: 1px;
+    width: 0.55rem;
+  }
+}
+
+/* ==========================================================================
+   8 · ANALYTICAL GRAPHICS — metric, sparkline, distribution, trajectory
+   ========================================================================== */
+
+.metric {
+  border: 1px solid var(--an-line);
+  border-radius: 0.75rem;
+  background: var(--an-surface);
+  padding: 0.75rem 0.85rem 0.8rem;
+}
+.metricLabel {
+  display: block;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+.metricValue {
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--an-ink);
+}
+.metricUnit {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--an-mute);
+}
+.metricNote {
+  margin-top: 0.45rem;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--an-mute);
+}
+.metricChart {
+  margin-top: 0.6rem;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.gLine {
+  fill: none;
+  stroke: var(--an-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.gGrid {
+  fill: none;
+  stroke: var(--an-grid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.gDash {
+  fill: none;
+  stroke: var(--an-line-mid);
+  stroke-width: 1;
+  stroke-dasharray: 2.5 4;
+  vector-effect: non-scaling-stroke;
+}
+.gTrace {
+  fill: none;
+  stroke: var(--an-accent, var(--an-cyan));
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.gTraceMute {
+  fill: none;
+  stroke: var(--an-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.gTraceAmber {
+  stroke: var(--an-amber);
+}
+.gFill {
+  fill: var(--an-accent, var(--an-cyan));
+  opacity: 0.1;
+  stroke: none;
+}
+.gDot {
+  fill: var(--an-accent, var(--an-cyan));
+}
+.gDotAmber {
+  fill: var(--an-amber);
+}
+.gNode {
+  fill: rgb(var(--c-obsidian-400));
+  stroke: var(--an-accent, var(--an-cyan));
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .gNode {
+  fill: #ffffff;
+}
+.gBone {
+  fill: none;
+  stroke: var(--an-accent, var(--an-cyan));
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.gBoneMute {
+  stroke: var(--an-line-mid);
+  stroke-width: 1.1;
+}
+.gJoint {
+  fill: var(--an-accent, var(--an-cyan));
+}
+.gText {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: var(--an-mute);
+}
+.gTextInk {
+  fill: var(--an-ink);
+}
+.gZone {
+  fill: var(--an-grid);
+  stroke: var(--an-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.gDensity {
+  stroke: none;
+}
+
+/* Distribution bars — a shape, never a measurement. */
+.dist {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 44px;
+}
+.distBar {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 1px 1px 0 0;
+  background: var(--an-line-mid);
+}
+.distBarOn {
+  background: var(--an-accent, var(--an-cyan));
+}
+
+/* Risk indicator: three bands, one lit. Amber only at the top band. */
+.risk {
+  display: flex;
+  gap: 3px;
+}
+.riskBand {
+  height: 4px;
+  flex: 1 1 0;
+  border-radius: 999px;
+  background: var(--an-grid);
+}
+.riskBandOn {
+  background: var(--an-teal);
+}
+.riskBandOnMid {
+  background: var(--an-cyan);
+}
+.riskBandOnHigh {
+  background: var(--an-amber);
+}
+
+/* ==========================================================================
+   9 · EXPLAINABILITY — why an indicator was surfaced
+   ========================================================================== */
+
+.explain {
+  border: 1px solid var(--an-line);
+  border-radius: 1rem;
+  background: var(--an-surface);
+  overflow: hidden;
+}
+.explainHead {
+  padding: 0.9rem 1.05rem;
+  border-bottom: 1px solid var(--an-line);
+}
+.explainTitle {
+  margin-top: 0.4rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--an-ink);
+}
+.factors {
+  display: grid;
+  gap: 1px;
+  background: var(--an-line);
+}
+.factor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--an-surface);
+  padding: 0.62rem 1.05rem;
+  font-size: 0.8125rem;
+  color: var(--an-body);
+}
+.factorTrend {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--an-amber);
+}
+.factorTrendDown {
+  color: var(--an-cyan);
+}
+.boundary {
+  display: grid;
+  gap: 1px;
+  background: var(--an-line);
+  border-top: 1px solid var(--an-line);
+}
+@media (min-width: 640px) {
+  .boundary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.boundaryCell {
+  background: var(--an-surface);
+  padding: 0.85rem 1.05rem 0.95rem;
+}
+.boundaryUsed {
+  color: var(--an-ink);
+}
+.boundaryNot {
+  color: var(--an-mute);
+}
+
+/* ==========================================================================
+   10 · MOTION — restrained, and off entirely when asked
+   ========================================================================== */
+
+@keyframes anSweep {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.sweep {
+  stroke-dasharray: 100;
+  animation: anSweep 1.6s var(--an-ease) forwards;
+}
+
+@keyframes anFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.enter {
+  animation: anFade 0.4s var(--an-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep,
+  .enter {
+    animation: none;
+  }
+  .module,
+  .moduleGoArrow,
+  .chip,
+  .stage,
+  .cell {
+    transition: none;
+  }
+  .module:hover {
+    transform: none;
+  }
+  .module:hover .moduleGoArrow {
+    transform: none;
+  }
+}

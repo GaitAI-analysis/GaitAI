@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { UseCaseAudienceGrid } from "@/components/usecases/UseCaseAudienceGrid";
 import { UseCaseExplorer } from "@/components/usecases/UseCaseExplorer";
-import { UseCaseSystemMap } from "@/components/usecases/UseCaseSystemMap";
 import { EnvironmentIntelligence } from "@/components/analytics/EnvironmentIntelligence";
 import { DeploymentConstellation } from "@/components/usecases/DeploymentConstellation";
 import { DiagramField } from "@/components/visuals/DiagramField";
@@ -94,33 +93,27 @@ export default function UseCasesPage() {
             </div>
           </div>
 
-          {/* Orientation, drawn as the graph it is: every environment wired
-              to the one engine both families share. It replaces the pair of
-              summary cards that used to sit here — those answered "which
-              family am I?" with five example words each, where this answers it
-              by naming all seventeen and linking each one. */}
-          <div className="mt-14 sm:mt-16">
-            <UseCaseSystemMap />
-          </div>
         </div>
       </section>
 
       {/* ── WHO GAITAI SERVES ── */}
       <UseCaseAudienceGrid />
 
+      {/* ── DISCOVERY + BOTH FAMILY GROUPS ── */}
+      <UseCaseExplorer />
+
       {/* ── ENVIRONMENT INTELLIGENCE EXPLORER ──
-          The analytical counterpart to the catalogue below it: configure an
-          environment, an objective and the capture available, and read the
-          resulting module mix, signals, analytics, outputs and privacy
-          posture. State lives in the URL. */}
+          The analytical counterpart to the catalogue ABOVE it, and it sits
+          below that catalogue on purpose: the page's job is to help someone
+          find their environment, and it used to open with a control surface
+          instead. Configure an environment, an objective and the capture
+          available, and read the resulting module mix, signals, analytics,
+          outputs and privacy posture. State lives in the URL. */}
       <section id="explore" className="section border-y border-white/[0.07] bg-obsidian-300/25">
         <div className="container-wide">
           <EnvironmentIntelligence />
         </div>
       </section>
-
-      {/* ── DISCOVERY + BOTH FAMILY GROUPS ── */}
-      <UseCaseExplorer />
 
       {/* ── CROSS-ENVIRONMENT CTA ── */}
       <section className="section">

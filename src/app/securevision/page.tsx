@@ -28,9 +28,6 @@ const secureUseCases = industryUseCases.filter(
 const secureSignals = intelligenceVocabularyFor("securevision");
 
 export default function SecureVisionPage() {
-  const suspicious = productById("suspiciousmotion");
-  const crowdsense = productById("crowdsense");
-  const industrial = productById("industrialsafety");
   const privacy = productById("privacyguard");
 
   return (
@@ -158,7 +155,7 @@ export default function SecureVisionPage() {
                 <span className="text-gradient-secure">two governance tiers.</span>
               </>
             }
-            description="Most of SecureVision works without identifying anyone. A smaller, clearly separated group handles identity and investigation, and is intended only for lawful, authorized deployments."
+            description="Each group carries its own governance requirements, and the two are never interchangeable."
             align="left"
           />
           <div className="mt-14">
@@ -260,59 +257,6 @@ export default function SecureVisionPage() {
           </div>
         </section>
       )}
-
-      {/* SUSPICIOUSMOTION + CROWDSENSE + INDUSTRIAL */}
-      <section className="section">
-        <div className="container-wide">
-          <SectionHeading
-            eyebrow="Featured · Anomaly · Crowd · Worker safety"
-            title={
-              <>
-                Three intelligence modes.{" "}
-                <span className="text-gradient-secure">One safety layer.</span>
-              </>
-            }
-            description="From restricted-zone anomalies to stadium-scale crowd intelligence — SecureVision is built for the operations rooms running real spaces."
-            align="left"
-          />
-
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {[suspicious, crowdsense, industrial].filter(Boolean).map((p, i) => {
-              if (!p) return null;
-              return (
-                <Reveal key={p.id} delay={i * 0.1}>
-                  <article
-                    id={p.id}
-                    className="card-glow relative h-full overflow-hidden p-7"
-                  >
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-royal-300">
-                      GaitAI · {p.short}
-                    </div>
-                    <h3 className="mt-1.5 font-display text-lg font-semibold text-soft-white">
-                      {p.headline}
-                    </h3>
-                    <p className="mt-2 text-[13px] leading-relaxed text-soft-mute">
-                      {p.description}
-                    </p>
-                  </div>
-                    <div className="mt-5 flex flex-wrap gap-1.5">
-                      {p.outputs.map((o) => (
-                        <span
-                          key={o}
-                          className="rounded-full border border-royal-300/30 bg-royal-300/8 px-2 py-0.5 text-[10px] font-medium text-royal-200"
-                        >
-                          {o}
-                        </span>
-                      ))}
-                    </div>
-                  </article>
-                </Reveal>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* DEPLOYMENT ENVIRONMENTS */}
       <section className="section bg-obsidian-300/40">

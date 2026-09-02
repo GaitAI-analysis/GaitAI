@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Publication } from "@/data/publications";
+import { assetPath } from "@/lib/paths";
 import { displayDate, topicsFor } from "./topics";
 import {
   PublicationCoverArt,
@@ -21,9 +23,17 @@ import {
  * detail page's first-page view and the patent-certificate hero — it is only
  * no longer the grid's visual.
  *
- * The image area is a fixed 16:10 box rather than a fixed pixel height, so the
- * art holds one aspect ratio at every card width and the covers keep an even
+ * The visual is now the record's commissioned `artwork` where one exists — a
+ * drawn banner of the paper's subject — with `PublicationCoverArt` kept as the
+ * fallback for any record that has none. Everything around it still comes from
+ * the record: date, title, venue, topics, kind and link. No text inside an
+ * artwork is treated as metadata.
+ *
+ * The image area is a fixed 5:2 box rather than a fixed pixel height, so the
+ * art holds one aspect ratio at every card width and the banners keep an even
  * rhythm across the grid instead of growing squarer as the column narrows.
+ * 5:2 is the artwork's own proportion: these are left-to-right method
+ * diagrams, and a squarer box would crop the flow they exist to show.
  */
 export function PublicationCard({ publication }: { publication: Publication }) {
   const topics = topicsFor(publication).slice(0, 3);
@@ -39,11 +49,35 @@ export function PublicationCard({ publication }: { publication: Publication }) {
     >
       {/* Cover art. The scale is deliberately tiny — the art is a fixed
           composition, and a large zoom would push the motif out of frame. */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden border-b border-soft-white/[0.07]">
-        <PublicationCoverArt
-          publication={publication}
-          className="transition-transform duration-500 ease-out group-hover:scale-[1.02]"
-        />
+      <div
+        className={`relative aspect-[5/2] w-full overflow-hidden border-b ${
+          isPatent ? "border-amber-300/25" : "border-soft-white/[0.07]"
+        }`}
+      >
+        {publication.artwork ? (
+          <Image
+            src={assetPath(publication.artwork)}
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+          />
+        ) : (
+          <PublicationCoverArt
+            publication={publication}
+            className="transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+          />
+        )}
+
+        {/* The patent is the one record with a different status, so it is the
+            one card with a champagne edge — a hairline over the artwork, not a
+            second colour scheme. */}
+        {isPatent && (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/60 to-transparent"
+          />
+        )}
 
         <span
           className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] backdrop-blur-md ${

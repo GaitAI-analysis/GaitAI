@@ -43,6 +43,18 @@ export interface Publication {
    * `cover` (PDF first page / certificate capture) is the fallback.
    */
   figure?: string;
+  /**
+   * Commissioned card artwork for the publications grid: an illustration of
+   * the paper's SUBJECT, extracted from the approved artwork set.
+   *
+   * Deliberately distinct from `figure`, which would be a figure taken from
+   * the paper itself. This is neither that nor a page capture: it is a drawn
+   * banner, so the grid can carry nine different pictures without implying any
+   * of them is a published result. Any label inside an artwork describes the
+   * method it depicts — the card's title, venue, year, type, topics and link
+   * all come from this record and never from the image.
+   */
+  artwork?: string;
   abstract?: string;
   keywords?: string[];
   patentNumber?: string;
@@ -71,6 +83,7 @@ export const patent: Publication = {
   date: "Granted 27 July 2022",
   authors: ["Anubha Parashar", "Apoorva Parashar"],
   cover: "/publications/patent-certificate.jpg",
+  artwork: "/assets/images/publications/edge-gait-patent-402202.webp",
   patentNumber: "402202",
   applicationNumber: "202111034240",
   filingDate: "29 July 2021",
@@ -105,6 +118,7 @@ export const papers: Publication[] = [
     doi: "10.1007/s10462-022-10365-4",
     externalUrl: "https://doi.org/10.1007/s10462-022-10365-4",
     cover: "/publications/paper-ai-review.jpg",
+    artwork: "/assets/images/publications/gait-covariates-review.webp",
     keywords: [
       "Gait recognition",
       "Biometrics",
@@ -131,6 +145,7 @@ export const papers: Publication[] = [
     doi: "10.1016/j.neucom.2022.07.002",
     externalUrl: "https://doi.org/10.1016/j.neucom.2022.07.002",
     cover: "/publications/paper-neurocomputing.jpg",
+    artwork: "/assets/images/publications/gait-intra-class-variations.webp",
     keywords: [
       "Gait recognition",
       "Biometrics",
@@ -159,6 +174,7 @@ export const papers: Publication[] = [
       "Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques Anubha Parashar"
     ),
     cover: "/publications/paper-eaai.jpg",
+    artwork: "/assets/images/publications/model-based-gait-recognition.webp",
     keywords: [
       "Artificial Intelligence",
       "Gait Recognition",
@@ -180,6 +196,7 @@ export const papers: Publication[] = [
       "Journey into Gait Biometrics Integrating Deep Learning for Enhanced Pattern Recognition Anubha Parashar"
     ),
     cover: "/publications/paper-dsp.jpg",
+    artwork: "/assets/images/publications/deep-learning-gait-pattern-recognition.webp",
     keywords: [
       "Gait Recognition",
       "Biometrics",
@@ -207,6 +224,7 @@ export const papers: Publication[] = [
       "Data Preprocessing and Feature Selection Techniques in Gait Recognition Anubha Parashar"
     ),
     cover: "/publications/paper-prl.jpg",
+    artwork: "/assets/images/publications/gait-preprocessing-feature-selection.webp",
     keywords: [
       "Gait recognition",
       "Data preprocessing",
@@ -228,6 +246,7 @@ export const papers: Publication[] = [
       "Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition Anubha Parashar Image and Vision Computing"
     ),
     cover: "/publications/paper-ivc.jpg",
+    artwork: "/assets/images/publications/ml-vs-deep-learning-gait-comparison.webp",
     keywords: [
       "Gait recognition",
       "Machine learning",
@@ -252,6 +271,7 @@ export const papers: Publication[] = [
       "A robust covariate-invariant gait recognition based on pose features Anubha Parashar IET Biometrics"
     ),
     cover: "/publications/paper-iet-pose.jpg",
+    artwork: "/assets/images/publications/pose-covariate-invariant-gait.webp",
     keywords: [
       "Biometrics",
       "Covariates",
@@ -274,6 +294,7 @@ export const papers: Publication[] = [
       "Protection of gait data set for preserving its privacy in deep learning pipeline Anubha Parashar IET Biometrics"
     ),
     cover: "/publications/paper-iet-privacy.jpg",
+    artwork: "/assets/images/publications/privacy-preserving-gait-data.webp",
     keywords: [
       "De-identification",
       "Gait anonymization",

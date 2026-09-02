@@ -480,7 +480,7 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI IndustrialSafety",
     short: "IndustrialSafety",
     label: "Worker movement & fall/slip safety analytics",
-    headline: "Worker safety — measured, monitored, alerted.",
+    headline: "Worker movement safety — measured, monitored, flagged.",
     description:
       "Flags movement patterns associated with falls, slips, restricted-zone entry, fatigue-like movement and emergency movement events across industrial sites.",
     users: [
@@ -511,7 +511,7 @@ export const secureProducts: GaitProduct[] = [
     label: "Privacy-preserving movement analytics",
     headline: "Movement intelligence — without invasive surveillance.",
     description:
-      "Skeleton-only analytics, face blur, role-based access, configurable retention and audit logs that make GaitAI deployable in privacy-sensitive environments.",
+      "The architectural privacy layer for GaitAI: designed to support skeleton-only analytics, face blur, role-based access, configurable retention and audit logs in privacy-sensitive environments.",
     users: ["All security customers", "Enterprises", "Public-sector deployments"],
     outputs: [
       "Privacy mode",
@@ -532,7 +532,7 @@ export const secureProducts: GaitProduct[] = [
     label: "Campus & workplace movement safety",
     headline: "Quiet, intelligent safety for the spaces people work and learn.",
     description:
-      "Monitors movement events across office parks, universities, hospitals and corporate campuses.",
+      "Surfaces movement-safety events across office parks, universities, hospitals and corporate campuses for operator review.",
     users: [
       "Universities",
       "IT parks",
@@ -667,7 +667,7 @@ export const secureProducts: GaitProduct[] = [
     label: "Retail movement & loss-prevention support",
     headline: "Movement intelligence for the modern retail floor.",
     description:
-      "Monitors unusual movement, loitering, queue congestion, staff safety and emergency flow inside retail environments.",
+      "Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
     users: ["Retail chains", "Malls", "Big-box stores"],
     outputs: [
       "Loitering alert",
@@ -689,7 +689,7 @@ export const secureProducts: GaitProduct[] = [
     label: "Policy-governed watchlist matching for authorized deployments",
     headline: "Policy-governed matching, authorized environments only.",
     description:
-      "Policy-governed candidate matching against an authorized list, with confidence scoring, access controls and full audit history. Restricted to environments with lawful authority — not offered for general-public surveillance.",
+      "Policy-governed candidate matching against an authorized list, with confidence scoring, access controls and audit history. Restricted to environments with lawful authority — not offered for general-public surveillance.",
     users: [
       "Authorized law enforcement",
       "Defense agencies",
@@ -729,7 +729,7 @@ export const productById = (id: string) =>
 // ----------------------------------------------------------------------------
 // One place to phrase "how many products, and what kind". The count is always
 // derived from the arrays above, and the wording describes the architecture —
-// modular products on one shared movement engine — without implying that all
+// modular products on one Movement Intelligence Platform — without implying that all
 // of them are equally mature, shipped or deployed. See ProductStatus.
 // ----------------------------------------------------------------------------
 
@@ -754,6 +754,12 @@ export interface UseCaseEntry {
   vertical: Vertical;
   problem: string;
   productIds: string[];
+  /**
+   * What the product mix PRODUCES in this environment — reports, alerts,
+   * measures. Rendered under an "Outputs" label, never "Outcome": nothing in
+   * this repository documents a measured real-world outcome for any
+   * environment, so the copy must not imply one.
+   */
   outcome: string;
   accent: "teal" | "blue" | "gold" | "cyan" | "violet" | "emerald";
 }
@@ -801,7 +807,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Heart,
     vertical: "mobilitycare",
     problem:
-      "Monthly screenings miss the gradual decline that precedes a fall.",
+      "Monthly screenings can miss gradual mobility changes associated with elevated fall risk.",
     productIds: ["fallrisk", "seniorcare", "watchcare"],
     outcome:
       "Monthly screening, fall-risk trend, caregiver alerts, mobility decline reports.",
@@ -933,7 +939,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Wrench,
     vertical: "mobilitycare",
     problem:
-      "Device-fit quality is judged by intuition; symmetry and loading data is missing from the loop.",
+      "Device-fit quality is often judged by observation, with symmetry and loading data missing from the loop.",
     productIds: ["prostheticfit", "walkscan"],
     outcome:
       "Assistive-device fit comparison, walking symmetry, longitudinal mobility improvement.",

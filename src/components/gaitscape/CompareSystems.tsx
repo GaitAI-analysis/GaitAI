@@ -84,7 +84,7 @@ export function CompareSystems() {
         attr("Privacy approach", (p) => systemFactsFor(p.id).privacy),
         attr("Output", (p) => p.outputs.join(" · ")),
         attr("Intended users", (p) => p.users.join(" · ")),
-        attr("Outcome", (p) =>
+        attr("Intended outcome", (p) =>
           (productMapFor(p.id)?.outcomes ?? [])
             .map((o) => nodeById.get(o)?.title)
             .filter(Boolean)

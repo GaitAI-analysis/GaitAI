@@ -334,7 +334,7 @@ function buildCellDetail(cell: Cell) {
           ? `${firstSignal.title} (with ${Math.max(0, (map?.signals.length ?? 1) - 1)} more)`
           : "Applies across all connected camera analytics",
       },
-      { label: "Outcome", value: firstOutcome?.title ?? product.headline },
+      { label: "Intended outcome", value: firstOutcome?.title ?? product.headline },
       ...(evidence ? [{ label: "Documented as", value: evidence }] : []),
     ],
   };

@@ -1,6 +1,6 @@
 import { GAIT_PHASES, GAIT_HEAD, type Pt } from "@/components/visuals/gait-phases";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
-import styles from "./landing.module.css";
+import styles from "./scenes.module.css";
 
 /**
  * One bespoke visual per story — four different pictures of four different
@@ -215,7 +215,20 @@ const TREND = [
   { label: "WEEK 8", v: 74 },
 ] as const;
 
-export function TrajectoryVisual() {
+export function TrajectoryVisual({
+  /**
+   * Whether to print the illustrative score at each assessment.
+   *
+   * The journal index sets this false: on a landing page a reader meets
+   * "86 → 81 → 74" with no context at all, and three bare numerals are the
+   * easiest thing on a page to mistake for data. The shape carries the whole
+   * argument without them, and the essay itself is where the example numbers
+   * belong. Where they are shown, the visual says so.
+   */
+  showValues = true,
+}: {
+  showValues?: boolean;
+} = {}) {
   const x0 = 74;
   const x1 = 452;
   const step = (x1 - x0) / (TREND.length - 1);
@@ -261,14 +274,16 @@ export function TrajectoryVisual() {
             cy={pts[i][1]}
             r={i === 0 ? 7 : 5.5}
           />
-          <text
-            className={styles.scScore}
-            x={pts[i][0]}
-            y={pts[i][1] - 18}
-            textAnchor="middle"
-          >
-            {t.v}
-          </text>
+          {showValues && (
+            <text
+              className={styles.scScore}
+              x={pts[i][0]}
+              y={pts[i][1] - 18}
+              textAnchor="middle"
+            >
+              {t.v}
+            </text>
+          )}
           <text
             className={styles.scLabel}
             x={pts[i][0]}

@@ -1,28 +1,59 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
+import { PlatformHub } from "@/components/visuals/PlatformHub";
+import { EnvironmentScene } from "@/components/visuals/EnvironmentScenes";
 import { industryUseCases, type Vertical } from "@/data/products";
 import { useCaseDetails } from "@/data/usecase-details";
 
 /**
- * Compact environment strip for the home page — "where is this used?".
+ * Where GaitAI is used — drawn as the graph it actually is.
  *
- * Deliberately not a card grid, and deliberately not the full list:
- * /use-cases owns the complete problem-led treatment, so this shows the first
- * few per vertical as dense rows (name + the outcome it produces), says how
- * many more there are, and links out. Both columns read from
- * `industryUseCases`, so nothing is restated.
+ * A central hub carries the platform statement and two trunk branches leave
+ * it: cyan/teal down the left to MobilityCare, royal/violet down the right to
+ * SecureVision. Each trunk lands on its column's rail, and every environment
+ * hangs off that rail on its own glowing node with a short connector lead, so
+ * the panels are visibly wired to the hub. A slow pulse travels each rail in
+ * turn, in the same direction the branch flows.
+ *
+ * The two rails are deliberately mirrored — MobilityCare's runs down the left
+ * edge, SecureVision's down the right — which keeps the fan symmetric at every
+ * breakpoint: side by side on desktop, stacked on mobile, the trunks always
+ * arrive where the rail begins.
+ *
+ * Content stays a teaser: name and outcome only. /use-cases owns the
+ * problem-led treatment, the product mix and the detail. Both columns read
+ * from `industryUseCases`, so nothing here is restated by hand — and each
+ * environment's scene is drawn line art rather than stock photography.
  */
-/** How many environments each column shows before deferring to /use-cases. */
-const TEASER_PER_VERTICAL = 5;
+
+/**
+ * How many environments each column shows before deferring to /use-cases —
+ * the teaser cap kept from the previous strip (null would show all of them).
+ * The hub still states each family's real count, so the diagram is complete
+ * even though the list is a sample.
+ */
+const SHOWN_PER_VERTICAL: number | null = 5;
 
 const hrefFor = (caseId: string, vertical: Vertical) => {
   const detail = useCaseDetails.find((d) => d.caseId === caseId);
   return detail ? `/use-cases/${detail.slug}/` : `/${vertical}/`;
 };
 
-function EnvironmentColumn({
+/** Full class names, written out — Tailwind drops @layer rules it can't find. */
+const COLUMN_CLASS = {
+  care: "env-column env-column--care",
+  secure: "env-column env-column--secure",
+} as const;
+
+const BRANCH_CLASS = {
+  care: "env-branch env-branch--care",
+  secure: "env-branch env-branch--secure",
+} as const;
+
+function EnvironmentBranch({
   vertical,
   label,
   accent,
@@ -32,64 +63,37 @@ function EnvironmentColumn({
   accent: "care" | "secure";
 }) {
   const all = industryUseCases.filter((u) => u.vertical === vertical);
-  // A teaser, not the index: /use-cases carries all of them, problem-led.
-  const entries = all.slice(0, TEASER_PER_VERTICAL);
-  const tone =
-    accent === "care"
-      ? {
-          label: "text-teal-300",
-          rule: "bg-teal-300/40",
-          hover: "hover:border-teal-300/30",
-        }
-      : {
-          label: "text-royal-300",
-          rule: "bg-royal-300/40",
-          hover: "hover:border-royal-300/30",
-        };
+  const entries = SHOWN_PER_VERTICAL ? all.slice(0, SHOWN_PER_VERTICAL) : all;
 
   return (
-    <div>
-      <div className="flex items-center gap-3">
-        <span
-          aria-hidden="true"
-          className={`h-1 w-6 rounded-full ${tone.rule}`}
-        />
-        <h3
-          className={`text-[11px] font-semibold uppercase tracking-[0.18em] ${tone.label}`}
-        >
-          {label}
-        </h3>
-        <span className="text-[11px] text-soft-mute">
-          {all.length} environments
-        </span>
+    <div className={COLUMN_CLASS[accent]}>
+      <div className="env-column-head">
+        <span aria-hidden="true" className="env-column-node" />
+        <h3 className="env-column-title">{label}</h3>
+        <span className="env-column-count">{all.length} environments</span>
       </div>
 
-      <ul className="mt-4 border-t border-white/[0.06]">
-        {entries.map((entry) => (
-          <li key={entry.id}>
-            <Link
-              href={hrefFor(entry.id, entry.vertical)}
-              className={`group flex items-baseline justify-between gap-4 border-b border-white/[0.06] py-3.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60 ${tone.hover}`}
-            >
-              <span className="min-w-0">
-                <span className="block text-sm font-medium text-soft-white">
-                  {entry.industry}
+      <div className={BRANCH_CLASS[accent]}>
+        <ul className="env-list">
+          {entries.map((entry, i) => (
+            <li key={entry.id} className="env-item" style={{ "--env-i": i } as CSSProperties}>
+              <Link href={hrefFor(entry.id, entry.vertical)} className="env-panel">
+                <span aria-hidden="true" className="env-scene">
+                  <EnvironmentScene id={entry.id} />
                 </span>
-                <span className="mt-1 block text-[12.5px] leading-relaxed text-soft-mute">
-                  {entry.outcome}
+                <span className="env-copy">
+                  <span className="env-name">{entry.industry}</span>
+                  <span className="env-outcome">{entry.outcome}</span>
                 </span>
-              </span>
-              <ArrowUpRight
-                aria-hidden="true"
-                className={`mt-1 h-3.5 w-3.5 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 ${tone.label}`}
-              />
-            </Link>
-          </li>
-        ))}
-      </ul>
+                <ArrowUpRight aria-hidden="true" className="env-arrow" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {all.length > entries.length && (
-        <p className="mt-4 text-[12px] text-soft-mute">
+        <p className="env-column-more">
           + {all.length - entries.length} more {label} environments
         </p>
       )}
@@ -98,8 +102,20 @@ function EnvironmentColumn({
 }
 
 export function EnvironmentStrip() {
+  const careCount = industryUseCases.filter((u) => u.vertical === "mobilitycare").length;
+  const secureCount = industryUseCases.filter((u) => u.vertical === "securevision").length;
+
   return (
-    <section id="environments" className="section bg-obsidian-300/40">
+    <section
+      id="environments"
+      className="section env-section relative overflow-hidden bg-obsidian-300/40"
+    >
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="env-ambient env-ambient--care" />
+        <div className="env-ambient env-ambient--secure" />
+      </div>
+      <div className="env-dotfield pointer-events-none absolute inset-0 -z-10" />
+
       <div className="container-wide">
         <SectionHeading
           eyebrow="Where it is used"
@@ -113,22 +129,39 @@ export function EnvironmentStrip() {
           align="left"
         />
 
-        <Reveal>
-          <div className="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-14">
-            <EnvironmentColumn
-              vertical="mobilitycare"
-              label="MobilityCare"
-              accent="care"
+        {/* The hub, and the two families leaving it. */}
+        <Reveal delay={0.06}>
+          <figure className="env-hub-stage">
+            <PlatformHub
+              careCount={careCount}
+              secureCount={secureCount}
+              total={industryUseCases.length}
+              className="hidden sm:block"
             />
-            <EnvironmentColumn
-              vertical="securevision"
-              label="SecureVision"
-              accent="secure"
+            <PlatformHub
+              careCount={careCount}
+              secureCount={secureCount}
+              total={industryUseCases.length}
+              compact
+              className="sm:hidden"
             />
-          </div>
+          </figure>
         </Reveal>
 
-        <div className="mt-10">
+        <div className="env-grid">
+          <EnvironmentBranch
+            vertical="mobilitycare"
+            label="MobilityCare"
+            accent="care"
+          />
+          <EnvironmentBranch
+            vertical="securevision"
+            label="SecureVision"
+            accent="secure"
+          />
+        </div>
+
+        <div className="mt-12">
           <Link
             href="/use-cases"
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"

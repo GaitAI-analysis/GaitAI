@@ -3314,3 +3314,2019 @@ body {
     animation: none;
   }
 }
+
+/* =========================================================================
+   RESEARCH SIGNAL — the research GaitAI is built on, drawn
+   One 10s choreography drives the whole diagram, in this order:
+     0.0–2.4s  the two captured poses illuminate, the capture sweep passes
+     1.4–3.8s  the sampled signal travels into the movement engine
+     2.6–5.4s  the four record nodes pulse and their dashed evidence traces
+               march into the top vertex of the stack
+     4.6–7.6s  the stack axis carries the signal down through the layers and
+               the capability traces sweep out to their nodes
+   The top research signal has its own slow, continuous dash flow (16s) so the
+   band never looks parked between cycles. Nothing flashes.
+   ========================================================================= */
+
+@layer components {
+  .res-signal {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* ── Section ground ── */
+  .res-dotfield {
+    background-image: radial-gradient(rgb(148 163 184 / 0.14) 1px, transparent 1px);
+    background-size: 30px 30px;
+    opacity: 0.5;
+    mask-image: radial-gradient(ellipse 76% 58% at 50% 32%, #000 12%, transparent 76%);
+    -webkit-mask-image: radial-gradient(ellipse 76% 58% at 50% 32%, #000 12%, transparent 76%);
+  }
+  .light .res-dotfield {
+    background-image: radial-gradient(rgb(15 23 42 / 0.1) 1px, transparent 1px);
+    opacity: 0.4;
+  }
+
+  /* ── Stage + legend ── */
+  .res-stage {
+    position: relative;
+  }
+  .res-stage-legend {
+    margin-top: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.85rem;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: rgb(var(--c-soft-mute));
+  }
+  .res-legend-key {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .res-legend-swatch {
+    display: block;
+    width: 1.6rem;
+    height: 0;
+    border-top-width: 1.5px;
+  }
+  .res-legend-swatch--data {
+    border-top-style: solid;
+    border-top-color: rgb(79 209 255 / 0.85);
+  }
+  .res-legend-swatch--evidence {
+    border-top-style: dashed;
+    border-top-color: rgb(156 100 241 / 0.8);
+  }
+  .light .res-legend-swatch--data {
+    border-top-color: rgb(16 143 192 / 0.9);
+  }
+  .light .res-legend-swatch--evidence {
+    border-top-color: rgb(95 37 191 / 0.85);
+  }
+  .res-stage-legend-rule {
+    height: 1px;
+    flex: 1 1 2rem;
+    background: linear-gradient(90deg, rgb(148 163 184 / 0.3), rgb(148 163 184 / 0.05));
+  }
+  .light .res-stage-legend-rule {
+    background: linear-gradient(90deg, rgb(15 23 42 / 0.22), rgb(15 23 42 / 0.05));
+  }
+
+  /* ── Type inside the drawing ── */
+  .res-label {
+    font-family: var(--font-inter), Inter, system-ui, sans-serif;
+    fill: rgb(var(--c-soft-gray));
+    font-weight: 500;
+  }
+  .res-mono {
+    font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+    fill: rgb(var(--c-soft-mute));
+    letter-spacing: 0.16em;
+  }
+
+  /* ── Radial field behind the engine ── */
+  .res-ring {
+    fill: none;
+    stroke: rgb(148 163 184 / 0.16);
+    stroke-width: 1;
+    stroke-dasharray: 2 9;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: resRingBreathe 19s ease-in-out infinite;
+    animation-delay: calc(var(--res-i, 0) * -3.4s);
+  }
+  .light .res-ring {
+    stroke: rgb(15 23 42 / 0.14);
+  }
+
+  /* ── 1 · The flowing research signal ── */
+  .res-trace {
+    fill: none;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-trace-flow {
+    fill: none;
+    stroke: #bfe9ff;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 5 100;
+    opacity: 0.85;
+    will-change: stroke-dashoffset;
+    animation: resTraceFlow 16s linear infinite;
+  }
+  .light .res-trace-flow {
+    stroke: #0a6890;
+  }
+  .res-band-fill {
+    opacity: 0.5;
+  }
+
+  .res-record-halo {
+    fill: rgb(79 209 255 / 0.12);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: resNodeHalo 10s ease-in-out infinite;
+    animation-delay: calc(2.6s + var(--res-i, 0) * 0.5s);
+  }
+  .res-record-ring {
+    fill: rgb(var(--c-obsidian-400) / 0.85);
+    stroke: rgb(79 209 255 / 0.6);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-record-ring {
+    fill: #ffffff;
+    stroke: rgb(16 143 192 / 0.75);
+  }
+  .res-record-dot {
+    fill: #bfe9ff;
+  }
+  .light .res-record-dot {
+    fill: #0a6890;
+  }
+  .res-record-tick {
+    stroke: rgb(148 163 184 / 0.32);
+    stroke-width: 1;
+    stroke-dasharray: 1.5 3.5;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-record-tick {
+    stroke: rgb(15 23 42 / 0.24);
+  }
+  .res-record .res-label {
+    fill: rgb(var(--c-soft-white));
+  }
+
+  /* Dashed evidence: published work grounding the engine. */
+  .res-evidence {
+    fill: none;
+    stroke: rgb(156 100 241 / 0.45);
+    stroke-width: 1.1;
+    stroke-dasharray: 3 5;
+    vector-effect: non-scaling-stroke;
+    will-change: stroke-dashoffset;
+    animation: resEvidenceMarch 10s linear infinite;
+    animation-delay: calc(var(--res-i, 0) * -1.1s);
+  }
+  .light .res-evidence {
+    stroke: rgb(95 37 191 / 0.5);
+  }
+
+  /* ── 2 · Capture ── */
+  .res-frame {
+    fill: rgb(79 209 255 / 0.02);
+    stroke: rgb(148 163 184 / 0.2);
+    stroke-width: 1;
+    stroke-dasharray: 4 6;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-frame {
+    fill: rgb(37 99 255 / 0.02);
+    stroke: rgb(15 23 42 / 0.18);
+  }
+  .res-crop {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.55);
+    stroke-width: 1.4;
+    stroke-linecap: square;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-crop {
+    stroke: rgb(16 143 192 / 0.7);
+  }
+  .res-scan {
+    stroke: rgb(79 209 255 / 0.5);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: resScan 10s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  .light .res-scan {
+    stroke: rgb(16 143 192 / 0.5);
+  }
+  .res-ground {
+    stroke: rgb(148 163 184 / 0.26);
+    stroke-width: 1;
+    stroke-dasharray: 1.5 7;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-ground {
+    stroke: rgb(15 23 42 / 0.22);
+  }
+
+  .res-walker,
+  .res-figure {
+    color: rgb(96 214 255 / 0.92);
+  }
+  .light .res-walker,
+  .light .res-figure {
+    color: rgb(16 143 192 / 0.95);
+  }
+  .res-walker {
+    opacity: 0.34;
+    will-change: opacity;
+    animation: resWalker 10s ease-in-out infinite;
+    animation-delay: calc(var(--res-i, 0) * 0.55s);
+  }
+  .res-bone {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-bone--far {
+    opacity: 0.5;
+    stroke-width: 1.15;
+  }
+  .res-joint {
+    fill: currentColor;
+  }
+  .res-walker-head {
+    fill: rgb(var(--c-obsidian-300) / 0.9);
+    stroke: currentColor;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-walker-head {
+    fill: #ffffff;
+  }
+  .res-walker-contact {
+    fill: currentColor;
+    opacity: 0.16;
+    filter: blur(1.1px);
+  }
+
+  .res-sample {
+    stroke: rgb(120 190 255 / 0.45);
+    stroke-width: 1.15;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-sample--strong {
+    stroke: rgb(79 209 255 / 0.8);
+    stroke-width: 1.8;
+  }
+  .light .res-sample {
+    stroke: rgb(27 78 217 / 0.45);
+  }
+  .light .res-sample--strong {
+    stroke: rgb(16 143 192 / 0.8);
+  }
+  .res-baseline {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.4);
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-baseline {
+    stroke: rgb(16 143 192 / 0.5);
+  }
+
+  /* Solid data path — capture into the engine. */
+  .res-data {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.35);
+    stroke-width: 1.3;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-data {
+    stroke: rgb(16 143 192 / 0.45);
+  }
+  .res-data-flow {
+    fill: none;
+    stroke: #bfe9ff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 12 100;
+    stroke-dashoffset: 112;
+    opacity: 0;
+    will-change: stroke-dashoffset, opacity;
+    animation: resDataFlow 10s ease-in-out infinite;
+    animation-delay: 1.4s;
+  }
+  .light .res-data-flow {
+    stroke: #0a6890;
+  }
+
+  /* ── 3 · The layered movement engine ── */
+  .res-plate-wall {
+    opacity: 0.9;
+  }
+  .res-wall-stop-a {
+    stop-color: #0b1120;
+    stop-opacity: 0.75;
+  }
+  .res-wall-stop-b {
+    stop-color: #0b1120;
+    stop-opacity: 0.3;
+  }
+  .light .res-wall-stop-a {
+    stop-color: #94a3b8;
+    stop-opacity: 0.45;
+  }
+  .light .res-wall-stop-b {
+    stop-color: #cbd5e1;
+    stop-opacity: 0.35;
+  }
+  .res-plate-face {
+    opacity: 0.9;
+  }
+  .res-plate-rim {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.34);
+    stroke-width: 1.1;
+    vector-effect: non-scaling-stroke;
+    animation: resPlateRim 10s ease-in-out infinite;
+    animation-delay: calc(4.6s + var(--res-i, 0) * 0.45s);
+  }
+  .light .res-plate-rim {
+    stroke: rgb(16 143 192 / 0.45);
+  }
+  .res-plate-label {
+    font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    fill: rgb(var(--c-soft-white));
+  }
+  .res-plate-index {
+    opacity: 0.7;
+  }
+
+  .res-motif-bone,
+  .res-motif-edge {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.55);
+    stroke-width: 1;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-motif-edge {
+    stroke: rgb(124 58 237 / 0.4);
+  }
+  .res-motif-node {
+    fill: rgb(191 233 255 / 0.85);
+  }
+  .res-motif-bar {
+    stroke: rgb(120 190 255 / 0.5);
+    stroke-width: 1;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-motif-bar--strong {
+    stroke: rgb(79 209 255 / 0.85);
+    stroke-width: 1.6;
+  }
+  .res-motif-keep {
+    fill: rgb(16 185 129 / 0.06);
+    stroke: rgb(16 185 129 / 0.5);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-motif-hatch {
+    stroke: rgb(16 185 129 / 0.35);
+    stroke-width: 0.9;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-motif-bone {
+    stroke: rgb(16 143 192 / 0.6);
+  }
+  .light .res-motif-edge {
+    stroke: rgb(95 37 191 / 0.45);
+  }
+  .light .res-motif-node {
+    fill: rgb(10 104 144 / 0.9);
+  }
+  .light .res-motif-bar {
+    stroke: rgb(27 78 217 / 0.5);
+  }
+  .light .res-motif-bar--strong {
+    stroke: rgb(16 143 192 / 0.85);
+  }
+  .light .res-motif-keep {
+    fill: rgb(4 120 87 / 0.06);
+    stroke: rgb(4 120 87 / 0.5);
+  }
+  .light .res-motif-hatch {
+    stroke: rgb(4 120 87 / 0.35);
+  }
+
+  .res-axis {
+    stroke: rgb(79 209 255 / 0.28);
+    stroke-width: 1;
+    stroke-dasharray: 2 5;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-axis {
+    stroke: rgb(16 143 192 / 0.35);
+  }
+  .res-axis-dot {
+    fill: #bfe9ff;
+    opacity: 0;
+    will-change: transform, opacity;
+    animation: resAxisDrop 10s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: calc(4.2s + var(--res-i, 0) * 0.42s);
+  }
+  .light .res-axis-dot {
+    fill: #0a6890;
+  }
+
+  /* ── 4 · Engine → capability ── */
+  .res-bus-link {
+    stroke: rgb(79 209 255 / 0.35);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-bus-halo {
+    fill: rgb(79 209 255 / 0.12);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: resNodeHalo 10s ease-in-out infinite;
+    animation-delay: 5.2s;
+  }
+  .res-bus-ring {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.6);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-bus-dot {
+    fill: #bfe9ff;
+  }
+  .light .res-bus-link {
+    stroke: rgb(16 143 192 / 0.4);
+  }
+  .light .res-bus-halo {
+    fill: rgb(16 143 192 / 0.14);
+  }
+  .light .res-bus-ring {
+    stroke: rgb(16 143 192 / 0.65);
+  }
+  .light .res-bus-dot {
+    fill: #0a6890;
+  }
+
+  .res-cap-trace {
+    fill: none;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.65;
+  }
+  .res-cap-flow {
+    fill: none;
+    stroke: #d8c7ff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 14 100;
+    stroke-dashoffset: 114;
+    opacity: 0;
+    will-change: stroke-dashoffset, opacity;
+    animation: resCapFlow 10s ease-in-out infinite;
+    animation-delay: calc(5.4s + var(--res-i, 0) * 0.22s);
+  }
+  .light .res-cap-flow {
+    stroke: #5f25bf;
+  }
+  .res-cap-halo {
+    fill: rgb(124 58 237 / 0.14);
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: resNodeHalo 10s ease-in-out infinite;
+    animation-delay: calc(6s + var(--res-i, 0) * 0.22s);
+  }
+  .res-cap-node {
+    fill: rgb(var(--c-obsidian-400) / 0.9);
+    stroke: rgb(156 100 241 / 0.85);
+    stroke-width: 1.3;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-cap-halo {
+    fill: rgb(95 37 191 / 0.12);
+  }
+  .light .res-cap-node {
+    fill: #ffffff;
+    stroke: rgb(95 37 191 / 0.9);
+  }
+  .res-cap .res-label {
+    fill: rgb(var(--c-soft-white));
+  }
+  .res-cap-count {
+    fill: rgb(var(--c-soft-mute));
+  }
+
+  /* ── Zone ruler ── */
+  .res-ruler-line {
+    stroke: rgb(148 163 184 / 0.2);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-ruler-tick {
+    stroke: rgb(148 163 184 / 0.35);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-ruler-line {
+    stroke: rgb(15 23 42 / 0.16);
+  }
+  .light .res-ruler-tick {
+    stroke: rgb(15 23 42 / 0.3);
+  }
+
+  /* The compact variant is usually scrolled past quickly — it keeps the flow
+     but drops the per-frame illumination cycle. */
+  .light .res-walker {
+    animation-name: resWalkerLight;
+  }
+  .res-signal--compact .res-walker {
+    animation: none;
+    opacity: calc(0.4 + var(--res-i, 0) * 0.28);
+  }
+  .light .res-signal--compact .res-walker {
+    opacity: calc(0.6 + var(--res-i, 0) * 0.2);
+  }
+  .res-signal--compact .res-scan {
+    animation: none;
+    opacity: 0.35;
+  }
+}
+
+/* ── The founder-record block and its instrument panel ── */
+@layer components {
+  .res-record-block {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    background-image: linear-gradient(
+        to bottom,
+        rgb(255 255 255 / 0.045),
+        rgb(255 255 255 / 0)
+      ),
+      radial-gradient(120% 90% at 8% 0%, rgb(79 209 255 / 0.09), transparent 60%);
+  }
+  .light .res-record-block {
+    border-color: rgb(15 23 42 / 0.1);
+    background-image: linear-gradient(to bottom, #ffffff, rgb(248 250 252 / 0.6)),
+      radial-gradient(120% 90% at 8% 0%, rgb(16 143 192 / 0.08), transparent 60%);
+  }
+  .res-record-head {
+    border-bottom: 1px solid rgb(255 255 255 / 0.06);
+    padding: 1.75rem;
+  }
+  .light .res-record-head {
+    border-bottom-color: rgb(15 23 42 / 0.08);
+  }
+  @media (min-width: 640px) {
+    .res-record-head {
+      padding: 2.25rem;
+    }
+  }
+
+  .res-panel {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background-color: rgb(var(--c-obsidian-400) / 0.55);
+    background-image: radial-gradient(
+        90% 140% at 50% -30%,
+        rgb(79 209 255 / 0.1),
+        transparent 62%
+      ),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.03), rgb(255 255 255 / 0));
+  }
+  .light .res-panel {
+    background-color: rgb(248 250 252 / 0.8);
+    background-image: radial-gradient(
+      90% 140% at 50% -30%,
+      rgb(16 143 192 / 0.1),
+      transparent 62%
+    );
+  }
+  /* Rim light along the top edge — the panel is lit from above. */
+  .res-panel-rim {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(79 209 255 / 0.45) 22%,
+      rgb(156 100 241 / 0.35) 62%,
+      transparent
+    );
+  }
+  /* Slow highlight travelling across the face. */
+  .res-panel-sweep {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: linear-gradient(
+      100deg,
+      transparent 38%,
+      rgb(255 255 255 / 0.05) 50%,
+      transparent 62%
+    );
+    background-size: 260% 100%;
+    background-repeat: no-repeat;
+    will-change: background-position;
+    animation: resPanelSweep 11s ease-in-out infinite;
+  }
+  .light .res-panel-sweep {
+    background-image: linear-gradient(
+      100deg,
+      transparent 38%,
+      rgb(37 99 255 / 0.06) 50%,
+      transparent 62%
+    );
+  }
+  /* Interior hairlines, drawn rather than bordered so the cell count can
+     change at the breakpoint without an off-by-one divider. */
+  .res-panel-grid-lines {
+    position: absolute;
+    inset: 14% 0;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-image: linear-gradient(
+        to bottom,
+        transparent,
+        rgb(148 163 184 / 0.22),
+        transparent
+      ),
+      linear-gradient(to right, transparent, rgb(148 163 184 / 0.22), transparent);
+    background-size: 1px 100%, 100% 1px;
+    background-position: 50% 0, 0 50%;
+  }
+  .light .res-panel-grid-lines {
+    background-image: linear-gradient(
+        to bottom,
+        transparent,
+        rgb(15 23 42 / 0.14),
+        transparent
+      ),
+      linear-gradient(to right, transparent, rgb(15 23 42 / 0.14), transparent);
+  }
+  @media (min-width: 640px) {
+    .res-panel-grid-lines {
+      background-image: linear-gradient(
+          to bottom,
+          transparent,
+          rgb(148 163 184 / 0.22),
+          transparent
+        ),
+        linear-gradient(to bottom, transparent, rgb(148 163 184 / 0.22), transparent),
+        linear-gradient(to bottom, transparent, rgb(148 163 184 / 0.22), transparent);
+      background-size: 1px 100%;
+      background-position: 25% 0, 50% 0, 75% 0;
+    }
+    .light .res-panel-grid-lines {
+      background-image: linear-gradient(
+          to bottom,
+          transparent,
+          rgb(15 23 42 / 0.14),
+          transparent
+        ),
+        linear-gradient(to bottom, transparent, rgb(15 23 42 / 0.14), transparent),
+        linear-gradient(to bottom, transparent, rgb(15 23 42 / 0.14), transparent);
+    }
+  }
+
+  .res-panel-cells {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 640px) {
+    .res-panel-cells {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .res-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 1.6rem 1rem 1.75rem;
+    text-align: center;
+  }
+  .res-cell-dial {
+    position: relative;
+    width: 5.75rem;
+    height: 5.75rem;
+  }
+  .res-cell-dial svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .res-cell-value {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    color: rgb(var(--c-soft-white));
+  }
+  @media (min-width: 640px) {
+    .res-cell-value {
+      font-size: 1.3rem;
+    }
+  }
+  /* A long reading ("10+ yrs") would otherwise overrun its dial. */
+  .res-cell-value--wide {
+    font-size: 0.85rem;
+    letter-spacing: -0.03em;
+  }
+  @media (min-width: 640px) {
+    .res-cell-value--wide {
+      font-size: 0.9rem;
+    }
+  }
+  .res-cell-label {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    line-height: 1.5;
+    color: rgb(var(--c-soft-mute));
+  }
+  .res-panel-caption {
+    position: relative;
+    border-top: 1px solid rgb(255 255 255 / 0.06);
+    padding: 0.85rem 1.75rem 1rem;
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: rgb(var(--c-soft-mute));
+  }
+  .light .res-panel-caption {
+    border-top-color: rgb(15 23 42 / 0.08);
+  }
+
+  /* ── Dials ── */
+  .res-dial {
+    --res-dial-accent: 79 209 255;
+    overflow: visible;
+  }
+  .res-dial--cyan {
+    --res-dial-accent: 79 209 255;
+  }
+  .res-dial--royal {
+    --res-dial-accent: 96 132 255;
+  }
+  .res-dial--violet {
+    --res-dial-accent: 156 100 241;
+  }
+  .res-dial--emerald {
+    --res-dial-accent: 52 211 153;
+  }
+  .light .res-dial--cyan {
+    --res-dial-accent: 16 143 192;
+  }
+  .light .res-dial--royal {
+    --res-dial-accent: 27 78 217;
+  }
+  .light .res-dial--violet {
+    --res-dial-accent: 95 37 191;
+  }
+  .light .res-dial--emerald {
+    --res-dial-accent: 4 120 87;
+  }
+
+  .res-dial-face {
+    fill: rgb(var(--res-dial-accent) / 0.05);
+    stroke: rgb(var(--res-dial-accent) / 0.14);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-dial-inner {
+    fill: rgb(var(--res-dial-accent) / 0.06);
+  }
+  .res-dial-track {
+    fill: none;
+    stroke: rgb(148 163 184 / 0.2);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-dial-track {
+    stroke: rgb(15 23 42 / 0.14);
+  }
+  .res-dial-live {
+    fill: none;
+    stroke: rgb(var(--res-dial-accent) / 0.85);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 100;
+    will-change: stroke-dashoffset;
+    animation: resDialDraw 11s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+  .res-dial-seg {
+    stroke: rgb(148 163 184 / 0.22);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-dial-seg {
+    stroke: rgb(15 23 42 / 0.16);
+  }
+  .res-dial-seg--lit {
+    stroke: rgb(var(--res-dial-accent) / 0.9);
+    animation: resSegLight 11s ease-in-out infinite;
+    animation-delay: calc(var(--res-i, 0) * 0.09s);
+  }
+  .res-dial-needle {
+    stroke: rgb(var(--res-dial-accent) / 0.7);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-dial-hub {
+    fill: rgb(var(--res-dial-accent) / 0.9);
+  }
+
+  /* ── The two decision points ── */
+  .res-decision {
+    --res-decision-accent: 79 209 255;
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    border: 1px solid rgb(var(--res-decision-accent) / 0.16);
+    background-color: rgb(var(--c-obsidian-200) / 0.6);
+    background-image: radial-gradient(
+      110% 80% at 50% 0%,
+      rgb(var(--res-decision-accent) / 0.1),
+      transparent 60%
+    );
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 24px 60px -44px rgb(0 0 0 / 0.7);
+    transition:
+      border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .res-decision--cyan {
+    --res-decision-accent: 79 209 255;
+  }
+  .res-decision--emerald {
+    --res-decision-accent: 52 211 153;
+  }
+  .light .res-decision--cyan {
+    --res-decision-accent: 16 143 192;
+  }
+  .light .res-decision--emerald {
+    --res-decision-accent: 4 120 87;
+  }
+  .light .res-decision {
+    background-color: #ffffff;
+    border-color: rgb(var(--res-decision-accent) / 0.24);
+    box-shadow: 0 18px 44px -32px rgb(15 23 42 / 0.22);
+  }
+  .res-decision:hover {
+    border-color: rgb(var(--res-decision-accent) / 0.34);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.07),
+      0 30px 70px -46px rgb(var(--res-decision-accent) / 0.45);
+  }
+  .res-motif-strip {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid rgb(var(--res-decision-accent) / 0.12);
+    background-image: radial-gradient(
+      80% 120% at 20% 0%,
+      rgb(var(--res-decision-accent) / 0.07),
+      transparent 64%
+    );
+  }
+  .res-decision-body {
+    padding: 1.6rem 1.75rem 1.75rem;
+  }
+
+  .res-chain-trace {
+    fill: none;
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-chain-flow {
+    fill: none;
+    stroke: #bfe9ff;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 10 100;
+    stroke-dashoffset: 110;
+    opacity: 0;
+    animation: resChainFlow 7s ease-in-out infinite;
+    animation-delay: calc(var(--res-i, 0) * 0.7s);
+  }
+  .light .res-chain-flow {
+    stroke: #0a6890;
+  }
+  .res-chain-halo {
+    fill: rgb(79 209 255 / 0.07);
+  }
+  .res-chain-ring {
+    fill: rgb(var(--c-obsidian-400) / 0.7);
+    stroke: rgb(79 209 255 / 0.45);
+    stroke-width: 1.1;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-chain-ring {
+    fill: #ffffff;
+    stroke: rgb(16 143 192 / 0.5);
+  }
+  .res-chain-glyph {
+    fill: none;
+    stroke: rgb(191 233 255 / 0.8);
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-chain-glyph {
+    stroke: rgb(10 104 144 / 0.85);
+  }
+  .res-chain-dot {
+    fill: rgb(191 233 255 / 0.85);
+  }
+  .light .res-chain-dot {
+    fill: rgb(10 104 144 / 0.9);
+  }
+
+  .res-privacy-bound {
+    fill: rgb(52 211 153 / 0.03);
+    stroke: rgb(52 211 153 / 0.32);
+    stroke-width: 1;
+    stroke-dasharray: 4 5;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-privacy-blur {
+    fill: rgb(52 211 153 / 0.16);
+    stroke: rgb(52 211 153 / 0.4);
+    stroke-width: 0.9;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-privacy-hatch {
+    stroke: rgb(52 211 153 / 0.6);
+    stroke-width: 0.8;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-privacy-link {
+    stroke: rgb(52 211 153 / 0.35);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-privacy-node {
+    fill: rgb(52 211 153 / 0.85);
+    animation: resPrivacyNode 7s ease-in-out infinite;
+    animation-delay: calc(var(--res-i, 0) * 0.5s);
+  }
+  .res-privacy-divider {
+    stroke: rgb(52 211 153 / 0.18);
+    stroke-width: 1;
+    stroke-dasharray: 3 5;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-privacy-track {
+    stroke: rgb(148 163 184 / 0.25);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-privacy-track-live {
+    stroke: rgb(52 211 153 / 0.75);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-privacy-track-tick {
+    stroke: rgb(148 163 184 / 0.3);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .res-privacy-knob {
+    fill: rgb(var(--c-obsidian-400) / 0.9);
+    stroke: rgb(52 211 153 / 0.85);
+    stroke-width: 1.4;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .res-privacy-divider {
+    stroke: rgb(4 120 87 / 0.2);
+  }
+  .light .res-privacy-track,
+  .light .res-privacy-track-tick {
+    stroke: rgb(15 23 42 / 0.2);
+  }
+  .light .res-privacy-track-live {
+    stroke: rgb(4 120 87 / 0.75);
+  }
+  .light .res-privacy-knob {
+    fill: #ffffff;
+    stroke: rgb(4 120 87 / 0.85);
+  }
+  .res-decision--emerald .res-figure {
+    color: rgb(110 231 183 / 0.9);
+  }
+  .light .res-privacy-bound {
+    fill: rgb(4 120 87 / 0.03);
+    stroke: rgb(4 120 87 / 0.35);
+  }
+  .light .res-privacy-blur {
+    fill: rgb(4 120 87 / 0.14);
+    stroke: rgb(4 120 87 / 0.4);
+  }
+  .light .res-privacy-hatch {
+    stroke: rgb(4 120 87 / 0.6);
+  }
+  .light .res-privacy-link {
+    stroke: rgb(4 120 87 / 0.4);
+  }
+  .light .res-privacy-node {
+    fill: rgb(4 120 87 / 0.9);
+  }
+  .light .res-decision--emerald .res-figure {
+    color: rgb(4 120 87 / 0.9);
+  }
+}
+
+@keyframes resTraceFlow {
+  from {
+    stroke-dashoffset: 105;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes resRingBreathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes resNodeHalo {
+  0%,
+  22%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  8% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+@keyframes resEvidenceMarch {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -64;
+  }
+}
+
+@keyframes resScan {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.75;
+  }
+  22% {
+    opacity: 0.75;
+  }
+  28% {
+    transform: translateY(var(--res-scan-run, 200px));
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(var(--res-scan-run, 200px));
+    opacity: 0;
+  }
+}
+
+@keyframes resWalker {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  14%,
+  26% {
+    opacity: 0.95;
+  }
+  44% {
+    opacity: 0.4;
+  }
+}
+
+/* Same cadence as resWalker, lifted for the light theme. */
+@keyframes resWalkerLight {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  14%,
+  26% {
+    opacity: 1;
+  }
+  44% {
+    opacity: 0.62;
+  }
+}
+
+@keyframes resDataFlow {
+  0% {
+    stroke-dashoffset: 112;
+    opacity: 0;
+  }
+  4% {
+    opacity: 0.9;
+  }
+  24% {
+    opacity: 0.9;
+  }
+  30% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes resPlateRim {
+  0%,
+  100% {
+    stroke: rgb(79 209 255 / 0.28);
+  }
+  8% {
+    stroke: rgb(79 209 255 / 0.7);
+  }
+  24% {
+    stroke: rgb(79 209 255 / 0.3);
+  }
+}
+
+@keyframes resAxisDrop {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.95;
+  }
+  26% {
+    opacity: 0.95;
+  }
+  32% {
+    transform: translateY(var(--res-axis-run, 200px));
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(var(--res-axis-run, 200px));
+    opacity: 0;
+  }
+}
+
+@keyframes resCapFlow {
+  0% {
+    stroke-dashoffset: 114;
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.85;
+  }
+  22% {
+    opacity: 0.85;
+  }
+  28% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes resPanelSweep {
+  0%,
+  100% {
+    background-position: -80% 0;
+  }
+  55%,
+  70% {
+    background-position: 180% 0;
+  }
+}
+
+@keyframes resDialDraw {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  14%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes resSegLight {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  18% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes resChainFlow {
+  0% {
+    stroke-dashoffset: 110;
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.9;
+  }
+  34% {
+    opacity: 0.9;
+  }
+  42% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes resPrivacyNode {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  24% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .res-trace-flow,
+  .res-ring,
+  .res-record-halo,
+  .res-evidence,
+  .res-scan,
+  .res-walker,
+  .res-data-flow,
+  .res-plate-rim,
+  .res-axis-dot,
+  .res-cap-flow,
+  .res-cap-halo,
+  .res-bus-halo,
+  .res-panel-sweep,
+  .res-dial-live,
+  .res-dial-seg--lit,
+  .res-chain-flow,
+  .res-privacy-node {
+    animation: none;
+    will-change: auto;
+  }
+  .res-trace-flow,
+  .res-data-flow,
+  .res-cap-flow,
+  .res-chain-flow,
+  .res-scan,
+  .res-axis-dot {
+    display: none;
+  }
+  .res-walker {
+    opacity: calc(0.42 + var(--res-i, 0) * 0.3);
+  }
+  .light .res-walker {
+    opacity: calc(0.62 + var(--res-i, 0) * 0.2);
+  }
+  .res-dial-live {
+    stroke-dasharray: none;
+  }
+  .res-decision:hover {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 24px 60px -44px rgb(0 0 0 / 0.7);
+  }
+}
+
+/* =========================================================================
+   ENVIRONMENTS — one platform, two worlds, seventeen environments
+   The section is one graph: a ringed hub, two trunk branches, two rails and
+   a node per environment. A single 9s choreography runs it:
+     0.0–3.0s  the two trunks flow outward from the hub to the rail entries
+     1.2–4.2s  the fan branches sweep, staggered
+     2.6–3.4s  each entry node takes the pulse
+     3.1–7.6s  a glow travels each rail and lights every environment node as
+               it passes
+   MobilityCare runs cyan down the left rail; SecureVision runs royal/violet
+   down the right. Both rails are outer-edged, so the trunks land where the
+   rail starts at every breakpoint.
+   ========================================================================= */
+
+@layer components {
+  /* ── Section ground ── */
+  .env-ambient {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(80px);
+    aspect-ratio: 1;
+  }
+  .env-ambient--care {
+    left: -12%;
+    top: 12%;
+    width: min(520px, 55%);
+    background: radial-gradient(closest-side, rgb(79 209 255 / 0.12), transparent 72%);
+  }
+  .env-ambient--secure {
+    right: -10%;
+    bottom: 4%;
+    width: min(520px, 55%);
+    background: radial-gradient(closest-side, rgb(124 58 237 / 0.12), transparent 72%);
+  }
+  .env-dotfield {
+    background-image: radial-gradient(rgb(148 163 184 / 0.14) 1px, transparent 1px);
+    background-size: 32px 32px;
+    opacity: 0.45;
+    mask-image: radial-gradient(ellipse 70% 46% at 50% 26%, #000 10%, transparent 74%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 46% at 50% 26%, #000 10%, transparent 74%);
+  }
+  .light .env-dotfield {
+    background-image: radial-gradient(rgb(15 23 42 / 0.1) 1px, transparent 1px);
+    opacity: 0.4;
+  }
+
+  /* ── Hub ── */
+  .env-hub-stage {
+    position: relative;
+    margin-top: 2.5rem;
+    /* The trunks end above the SVG's lower edge; pulling the stage up lets
+       each column head sit directly under its entry node. */
+    margin-bottom: -1.5rem;
+  }
+  .env-hub {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .env-halo {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: envHaloBreathe 12s ease-in-out infinite;
+  }
+  .env-tick {
+    stroke: rgb(148 163 184 / 0.26);
+    stroke-width: 1;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .env-tick--major {
+    stroke: rgb(79 209 255 / 0.5);
+  }
+  .light .env-tick {
+    stroke: rgb(15 23 42 / 0.2);
+  }
+  .light .env-tick--major {
+    stroke: rgb(16 143 192 / 0.6);
+  }
+  .env-ring-spin {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.32);
+    stroke-width: 1;
+    stroke-dasharray: 3 7;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: envRingSpin 44s linear infinite;
+  }
+  .env-ring {
+    fill: none;
+    stroke: rgb(148 163 184 / 0.2);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .env-ring-spin {
+    stroke: rgb(16 143 192 / 0.4);
+  }
+  .light .env-ring {
+    stroke: rgb(15 23 42 / 0.16);
+  }
+  .env-disc-rim {
+    fill: none;
+    stroke: rgb(79 209 255 / 0.4);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+  .env-disc-inner {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.07);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  .light .env-disc-rim {
+    stroke: rgb(16 143 192 / 0.45);
+  }
+  .light .env-disc-inner {
+    stroke: rgb(15 23 42 / 0.07);
+  }
+  .env-hub-title {
+    font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    fill: rgb(var(--c-soft-white));
+  }
+  .env-mono {
+    font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+    fill: rgb(var(--c-soft-mute));
+    letter-spacing: 0.16em;
+  }
+
+  /* ── The two families ── */
+  .env-family--care {
+    color: #7fe0ff;
+  }
+  .env-family--secure {
+    color: #9aa8ff;
+  }
+  .light .env-family--care {
+    color: #108fc0;
+  }
+  .light .env-family--secure {
+    color: #1b4ed9;
+  }
+  .env-family--care .env-count {
+    fill: rgb(127 224 255 / 0.75);
+  }
+  .env-family--secure .env-count {
+    fill: rgb(154 168 255 / 0.75);
+  }
+  .light .env-family--care .env-count {
+    fill: rgb(16 143 192 / 0.85);
+  }
+  .light .env-family--secure .env-count {
+    fill: rgb(27 78 217 / 0.85);
+  }
+
+  .env-port {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.1;
+    opacity: 0.55;
+    vector-effect: non-scaling-stroke;
+  }
+  .env-port-dot {
+    fill: currentColor;
+    opacity: 0.85;
+  }
+
+  .env-trace {
+    fill: none;
+    stroke-width: 1.1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.7;
+  }
+  .env-trace--trunk {
+    stroke-width: 1.5;
+    opacity: 0.9;
+  }
+  .env-flow {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 16 100;
+    stroke-dashoffset: 116;
+    opacity: 0;
+    will-change: stroke-dashoffset, opacity;
+    animation: envFlow 9s ease-in-out infinite;
+    animation-delay: calc(1.2s + var(--env-i, 0) * 0.3s);
+  }
+  .env-flow--trunk {
+    stroke-width: 2.1;
+    animation-delay: 0s;
+  }
+  .env-tip {
+    fill: currentColor;
+    opacity: 0.3;
+    animation: envTipPulse 9s ease-in-out infinite;
+    animation-delay: calc(1.9s + var(--env-i, 0) * 0.3s);
+  }
+
+  .env-entry-halo {
+    fill: currentColor;
+    opacity: 0.12;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: envEntryPulse 9s ease-in-out infinite;
+    animation-delay: 2.6s;
+  }
+  .env-entry-ring {
+    fill: rgb(var(--c-obsidian-400) / 0.9);
+    stroke: currentColor;
+    stroke-width: 1.3;
+    vector-effect: non-scaling-stroke;
+  }
+  .env-entry-dot {
+    fill: currentColor;
+  }
+  .light .env-entry-ring {
+    fill: #ffffff;
+  }
+
+  /* ── Columns, rails and nodes ── */
+  .env-grid {
+    display: grid;
+    gap: 3.5rem;
+    margin-top: 2.5rem;
+  }
+  @media (min-width: 1024px) {
+    .env-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3.5rem;
+    }
+  }
+
+  .env-column {
+    --env-accent: 79 209 255;
+    --env-gutter: 2.25rem;
+  }
+  .env-column--care {
+    --env-accent: 79 209 255;
+  }
+  .env-column--secure {
+    --env-accent: 85 135 255;
+  }
+  .light .env-column--care {
+    --env-accent: 16 143 192;
+  }
+  .light .env-column--secure {
+    --env-accent: 27 78 217;
+  }
+  @media (min-width: 640px) {
+    .env-column {
+      --env-gutter: 2.75rem;
+    }
+  }
+
+  /* The rail runs the height of the column, so it starts under the hub's
+     entry node and passes the column head on its way down the list. */
+  .env-column {
+    position: relative;
+  }
+  .env-column::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0.5rem 0;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--env-accent) / 0),
+      rgb(var(--env-accent) / 0.55) 14%,
+      rgb(var(--env-accent) / 0.28) 62%,
+      rgb(var(--env-accent) / 0)
+    );
+  }
+  .env-column--secure::before {
+    inset: 0 0 0.5rem auto;
+  }
+  /* The pulse travelling it. */
+  .env-column::after {
+    content: "";
+    position: absolute;
+    top: -10%;
+    height: 10%;
+    left: -1px;
+    width: 3px;
+    border-radius: 9999px;
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--env-accent) / 0),
+      rgb(var(--env-accent) / 0.9) 55%,
+      rgb(var(--env-accent) / 0)
+    );
+    filter: blur(1px);
+    will-change: transform;
+    animation: envRailFlow 9s cubic-bezier(0.35, 0, 0.65, 1) infinite;
+    animation-delay: var(--env-rail-delay, 2.9s);
+  }
+  .env-column--secure::after {
+    left: auto;
+    right: -1px;
+    --env-rail-delay: 3.3s;
+  }
+
+  .env-column-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-left: var(--env-gutter);
+  }
+  .env-column--secure .env-column-head {
+    flex-direction: row-reverse;
+    padding-left: 0;
+    padding-right: var(--env-gutter);
+  }
+  /* The head's own node sits on the rail — the junction is labelled. */
+  .env-column-node {
+    position: absolute;
+    top: calc(50% - 4px);
+    left: -3.5px;
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: rgb(var(--env-accent));
+    box-shadow: 0 0 12px 1px rgb(var(--env-accent) / 0.55);
+  }
+  .env-column--secure .env-column-node {
+    left: auto;
+    right: -3.5px;
+  }
+  .env-column-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgb(var(--env-accent));
+  }
+  .env-column-count {
+    font-size: 11px;
+    color: rgb(var(--c-soft-mute));
+  }
+  .env-column-more {
+    margin-top: 1rem;
+    font-size: 12px;
+    color: rgb(var(--c-soft-mute));
+  }
+  .env-column--secure .env-column-more {
+    text-align: right;
+  }
+
+  .env-branch {
+    position: relative;
+    margin-top: 1.1rem;
+    padding-left: var(--env-gutter);
+  }
+  .env-column--secure .env-branch {
+    padding-left: 0;
+    padding-right: var(--env-gutter);
+  }
+
+  .env-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .env-item {
+    position: relative;
+  }
+  /* Connection node on the rail. */
+  .env-item::before {
+    content: "";
+    position: absolute;
+    top: 2rem;
+    left: calc(var(--env-gutter) * -1 - 3.5px);
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: rgb(var(--env-accent) / 0.9);
+    box-shadow: 0 0 10px 1px rgb(var(--env-accent) / 0.5);
+    opacity: 0.5;
+    animation: envItemNode 9s ease-in-out infinite;
+    animation-delay: calc(3.1s + var(--env-i, 0) * var(--env-step, 0.4s));
+  }
+  /* Lead from the rail into the panel. */
+  .env-item::after {
+    content: "";
+    position: absolute;
+    top: calc(2rem + 3px);
+    left: calc(var(--env-gutter) * -1 + 4px);
+    width: calc(var(--env-gutter) - 10px);
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgb(var(--env-accent) / 0.7),
+      rgb(var(--env-accent) / 0.08)
+    );
+  }
+  .env-column--secure .env-item::before {
+    left: auto;
+    right: calc(var(--env-gutter) * -1 - 3.5px);
+  }
+  .env-column--secure .env-item::after {
+    left: auto;
+    right: calc(var(--env-gutter) * -1 + 4px);
+    background: linear-gradient(
+      270deg,
+      rgb(var(--env-accent) / 0.7),
+      rgb(var(--env-accent) / 0.08)
+    );
+  }
+  .env-branch--care {
+    --env-step: 0.36s;
+  }
+  .env-branch--secure {
+    --env-step: 0.72s;
+  }
+
+  /* ── Environment panels ── */
+  .env-panel {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 0.85rem 0.9rem 0.95rem;
+    border-radius: 0.85rem;
+    border: 1px solid transparent;
+    box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.05);
+    transition:
+      border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .light .env-panel {
+    box-shadow: inset 0 -1px 0 rgb(15 23 42 / 0.07);
+  }
+  .env-panel:hover,
+  .env-panel:focus-visible {
+    border-color: rgb(var(--env-accent) / 0.3);
+    background-color: rgb(var(--env-accent) / 0.05);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 22px 50px -40px rgb(var(--env-accent) / 0.7);
+    outline: none;
+  }
+  .env-panel:focus-visible {
+    border-color: rgb(var(--env-accent) / 0.6);
+  }
+
+  .env-scene {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.4rem;
+    height: 2.6rem;
+    padding: 0.2rem 0.25rem;
+    border-radius: 0.55rem;
+    border: 1px solid rgb(var(--env-accent) / 0.2);
+    background-color: rgb(var(--env-accent) / 0.05);
+    background-image: radial-gradient(
+      120% 120% at 50% 0%,
+      rgb(var(--env-accent) / 0.1),
+      transparent 70%
+    );
+    color: rgb(var(--env-accent) / 0.85);
+    transition:
+      border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .env-panel:hover .env-scene {
+    border-color: rgb(var(--env-accent) / 0.42);
+    color: rgb(var(--env-accent));
+  }
+  .env-scene-art {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .env-scene-ground {
+    stroke: currentColor;
+    opacity: 0.4;
+    stroke-dasharray: 1.4 2.6;
+  }
+  .env-scene-far {
+    opacity: 0.45;
+  }
+  .env-scene-figure {
+    opacity: 0.95;
+  }
+  .env-scene-signal {
+    stroke-dasharray: 2 2.2;
+    opacity: 0.8;
+  }
+  .env-scene-node {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .env-copy {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .env-name {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(var(--c-soft-white));
+  }
+  .env-outcome {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: rgb(var(--c-soft-mute));
+  }
+  .env-arrow {
+    flex: none;
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-top: 0.25rem;
+    color: rgb(var(--env-accent));
+    opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .env-panel:hover .env-arrow,
+  .env-panel:focus-visible .env-arrow {
+    opacity: 1;
+  }
+
+  /* The compact hub is usually scrolled past quickly — the trunks still flow,
+     the fan tips hold steady. */
+  .env-hub--compact .env-tip {
+    animation: none;
+    opacity: 0.55;
+  }
+}
+
+@keyframes envHaloBreathe {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes envRingSpin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes envFlow {
+  0% {
+    stroke-dashoffset: 116;
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.9;
+  }
+  26% {
+    opacity: 0.9;
+  }
+  33% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes envTipPulse {
+  0%,
+  100% {
+    opacity: 0.28;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  34% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes envEntryPulse {
+  0%,
+  26%,
+  100% {
+    opacity: 0.12;
+    transform: scale(1);
+  }
+  10% {
+    opacity: 0.4;
+    transform: scale(1.28);
+  }
+}
+
+@keyframes envRailFlow {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  4% {
+    opacity: 1;
+  }
+  46% {
+    opacity: 1;
+  }
+  52% {
+    transform: translateY(1100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(1100%);
+    opacity: 0;
+  }
+}
+
+@keyframes envItemNode {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  6% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .env-halo,
+  .env-ring-spin,
+  .env-flow,
+  .env-tip,
+  .env-entry-halo,
+  .env-column::after,
+  .env-item::before {
+    animation: none;
+    will-change: auto;
+  }
+  .env-flow,
+  .env-column::after {
+    display: none;
+  }
+  .env-tip {
+    opacity: 0.55;
+  }
+  .env-entry-halo {
+    opacity: 0.22;
+  }
+  .env-item::before {
+    opacity: 0.85;
+  }
+}

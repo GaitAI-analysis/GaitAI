@@ -178,9 +178,9 @@ export const mobilityProducts: GaitProduct[] = [
     name: "GaitAI SportsMotion",
     short: "SportsMotion",
     label: "Sports gait, running & injury-risk analytics",
-    headline: "Athlete movement, asymmetry, fatigue, return-to-play.",
+    headline: "Athlete movement, asymmetry and fatigue — measured.",
     description:
-      "Analyzes walking and running mechanics to detect asymmetry, imbalance, fatigue-related change, and return-to-play readiness.",
+      "Analyzes walking and running mechanics to surface asymmetry, imbalance and fatigue-related change, supporting return-to-play review with longitudinal movement evidence.",
     users: [
       "Sports academies",
       "Runners",
@@ -194,6 +194,7 @@ export const mobilityProducts: GaitProduct[] = [
       "Knee / hip movement markers",
       "Fatigue trend",
       "Injury-risk indicators",
+      "Return-to-play review summary",
       "Performance report",
     ],
     icon: Trophy,
@@ -421,7 +422,7 @@ export const secureProducts: GaitProduct[] = [
     label: "Suspicious movement & anomaly detection",
     headline: "Anomalies surfaced — without identifying anyone first.",
     description:
-      "Detects unusual human movement events — loitering, running, restricted-zone entry, tailgating, perimeter events — without requiring identity recognition.",
+      "Surfaces candidate movement events — loitering, running, restricted-zone entry, tailgating-like patterns and perimeter events — for operator review, without requiring identity recognition.",
     users: [
       "Campuses",
       "Offices",
@@ -449,9 +450,9 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI CrowdSense",
     short: "CrowdSense",
     label: "Crowd flow, density, queue & public-space analytics",
-    headline: "See crowd flow, bottlenecks and movement risk live.",
+    headline: "See crowd flow, bottlenecks and density-risk indicators.",
     description:
-      "Analyzes crowd movement, density, queues, bottlenecks, flow direction and panic-like movement for smart-city scale public spaces.",
+      "Analyzes crowd movement, density, queues, bottlenecks, flow direction and abnormal crowd-motion indicators for smart-city scale public spaces.",
     users: [
       "Smart cities",
       "Stadiums",
@@ -481,7 +482,7 @@ export const secureProducts: GaitProduct[] = [
     label: "Worker movement & fall/slip safety analytics",
     headline: "Worker safety — measured, monitored, alerted.",
     description:
-      "Detects falls, slips, unsafe zones, fatigue-like movement and emergency evacuation status across industrial sites.",
+      "Flags movement patterns associated with falls, slips, restricted-zone entry, fatigue-like movement and emergency movement events across industrial sites.",
     users: [
       "Factories",
       "Warehouses",
@@ -636,9 +637,9 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI EventShield",
     short: "EventShield",
     label: "Large-event movement & crowd-risk intelligence",
-    headline: "Stadium, concert, conference — crowd risk in real time.",
+    headline: "Stadium, concert, conference — crowd-movement indicators.",
     description:
-      "Provides movement intelligence for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
+      "Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
     users: [
       "Event organizers",
       "Stadiums",
@@ -766,7 +767,8 @@ export const industryUseCases: UseCaseEntry[] = [
     problem:
       "Therapists need objective evidence that therapy is working — beyond subjective observation.",
     productIds: ["walkscan", "rehabtrack", "sportsmotion"],
-    outcome: "Objective gait reports, rehab progress, patient retention.",
+    outcome:
+      "Objective gait reports, rehab progress and clearer longitudinal progress communication.",
     accent: "teal",
   },
   {
@@ -790,7 +792,7 @@ export const industryUseCases: UseCaseEntry[] = [
       "Injury-prevention and return-to-play decisions are inconsistent without measurable movement data.",
     productIds: ["sportsmotion", "watchcare", "rehabtrack"],
     outcome:
-      "Performance gait analytics, injury-risk screening, return-to-play progress.",
+      "Performance movement analytics, injury-risk indicators and return-to-play review evidence.",
     accent: "cyan",
   },
   {
@@ -838,7 +840,7 @@ export const industryUseCases: UseCaseEntry[] = [
       "Crowded transport hubs need anomaly + flow intelligence — without invasive identification.",
     productIds: ["crowdsense", "reid", "suspiciousmotion"],
     outcome:
-      "Passenger flow, missing-person support, suspicious-movement alerts.",
+      "Passenger-flow indicators, authorized post-event cross-camera investigation support and candidate movement-event alerts.",
     accent: "blue",
   },
   {
@@ -874,7 +876,7 @@ export const industryUseCases: UseCaseEntry[] = [
       "Worker falls and unsafe zones often go unnoticed until a serious incident.",
     productIds: ["industrialsafety", "suspiciousmotion"],
     outcome:
-      "Worker fall / slip detection, restricted-zone entry, evacuation, fatigue trend.",
+      "Worker fall / slip indicators, restricted-zone entry, evacuation movement summaries and fatigue-like movement trend.",
     accent: "blue",
   },
   {
@@ -895,7 +897,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Flag,
     vertical: "securevision",
     problem:
-      "High-density events need crowd-risk awareness in seconds, not after the news cycle.",
+      "High-density events need crowd-movement awareness during the event, not after the news cycle.",
     productIds: ["eventshield", "crowdsense"],
     outcome:
       "Crowd-density indicators, bottleneck alerts, entry/exit flow, sudden-dispersal movement alerts and evacuation-flow summaries.",
@@ -1002,7 +1004,7 @@ export const aiPipeline = [
     id: "sports-model",
     icon: Dumbbell,
     title: "Sports Injury-Risk Model",
-    desc: "Detects landing imbalance, asymmetry and fatigue patterns for athlete performance.",
+    desc: "Surfaces landing imbalance, asymmetry and fatigue-like patterns for athlete review.",
   },
   {
     id: "watchcare-model",
@@ -1049,13 +1051,13 @@ export const watchcareFeatures = [
   },
   {
     title: "Fall-Risk Trend",
-    desc: "Tracks gradual gait changes that quietly raise the risk of falls.",
+    desc: "Tracks gradual gait changes associated with elevated fall risk.",
     icon: HeartPulse,
     audience: "Senior care · Hospitals",
   },
   {
     title: "Rehab Adherence",
-    desc: "Confirms whether a patient is walking and moving enough during recovery.",
+    desc: "Estimates daily mobility and activity patterns during recovery for clinician and caregiver review.",
     icon: ClipboardCheck,
     audience: "Physio clinics · Rehab centers",
   },
@@ -1101,7 +1103,7 @@ export const workflowStages = [
   {
     step: "04",
     title: "Clinician / Operator Acts",
-    desc: "The right person — clinician, therapist, caregiver or security operator — receives the right signal in seconds.",
+    desc: "The right person — clinician, therapist, caregiver or security operator — receives the right signal, with the movement evidence behind it.",
   },
 ];
 
@@ -1112,6 +1114,12 @@ export const workflowStages = [
 // Wording policy: each pillar states what the published record covers or what
 // the architecture provides. No pillar claims validation studies, named
 // collaborators or clinical approval — none are documented in this repository.
+//
+// Currently unrendered: this was the "What that record grounds" block on the
+// home page, removed because /research covers the same ground in more depth
+// (its method commitments, and the per-area evidence map that names the
+// peer-reviewed gait-recognition and pose work directly). Kept here so the
+// content is not lost if a page wants it again.
 export const researchPillars = [
   {
     title: "Peer-reviewed gait recognition",

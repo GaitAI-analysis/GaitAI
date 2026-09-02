@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { industryUseCases, type Vertical } from "@/data/products";
 import { useCaseDetails } from "@/data/usecase-details";
+import { CoreField } from "./CoreField";
 import styles from "./usecases.module.css";
 
 /**
@@ -149,6 +150,10 @@ export function UseCaseSystemMap() {
 
   return (
     <div className={styles.map}>
+      {/* The nucleus's reach: spokes, arcs and a point field centred on the
+          core and spanning the whole map, behind both rails. */}
+      <CoreField />
+
       <Rail
         vertical="mobilitycare"
         tone="care"

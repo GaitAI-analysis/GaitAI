@@ -5,6 +5,8 @@ import { UseCaseAudienceGrid } from "@/components/usecases/UseCaseAudienceGrid";
 import { UseCaseExplorer } from "@/components/usecases/UseCaseExplorer";
 import { UseCaseSystemMap } from "@/components/usecases/UseCaseSystemMap";
 import { EnvironmentIntelligence } from "@/components/analytics/EnvironmentIntelligence";
+import { DeploymentConstellation } from "@/components/usecases/DeploymentConstellation";
+import { DiagramField } from "@/components/visuals/DiagramField";
 import { industryUseCases } from "@/data/products";
 import { ctas } from "@/data/content";
 import styles from "@/components/usecases/usecases.module.css";
@@ -38,46 +40,58 @@ const RIBBON = ["Environment", "Problem", "Products", "Outputs"];
 export default function UseCasesPage() {
   return (
     <>
-      {/* ── HERO ── */}
+      {/* ── HERO ──
+          The section carries the shared ecosystem field: a blueprint grid,
+          contour bands and a node lattice that clusters toward the lower
+          centre, where the system map's core sits. The hero's right half is
+          the deployment constellation, so the first screen states the page's
+          claim as a diagram rather than as an empty half. */}
       <section className="site-page-intro relative overflow-hidden pb-14">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-glow opacity-60 blur-3xl" />
-        </div>
-        <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-30" />
+        <DiagramField variant="ecosystem" gridMask="maskRight" className="-z-10" />
 
         <div className="container-wide">
-          <div className="max-w-3xl">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-              Use cases
-            </span>
-            {/* The count is the headline. It comes from the records, so the
-                number and the map below it can never disagree. */}
-            <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
-              {industryUseCases.length} environments,{" "}
-              <span className="text-gradient">each with its own question.</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
-              Every environment brings a different problem, a different product
-              mix and a different output. Find the one that looks like yours and
-              see the products, signals and outputs that fit it.
-            </p>
-          </div>
-
-          {/* How every environment below is structured. */}
-          <div className={styles.ribbon}>
-            {RIBBON.map((step, i) => (
-              <span key={step} className={styles.ribbonStep}>
-                {i === 0 && (
-                  <span aria-hidden="true" className={styles.ribbonDot} />
-                )}
-                {step}
-                {i < RIBBON.length - 1 && (
-                  <span aria-hidden="true" className={styles.ribbonArrow}>
-                    →
-                  </span>
-                )}
+          <div className={styles.heroGrid}>
+            <div className="min-w-0 max-w-2xl">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+                Use cases
               </span>
-            ))}
+              {/* The count is the headline. It comes from the records, so the
+                  number and the map below it can never disagree. */}
+              <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
+                {industryUseCases.length} environments,{" "}
+                <span className="text-gradient">each with its own question.</span>
+              </h1>
+              <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
+                Every environment brings a different problem, a different
+                product mix and a different output. Find the one that looks
+                like yours and see the products, signals and outputs that fit
+                it.
+              </p>
+
+              {/* How every environment below is structured. */}
+              <div className={styles.ribbon}>
+                {RIBBON.map((step, i) => (
+                  <span key={step} className={styles.ribbonStep}>
+                    {i === 0 && (
+                      <span aria-hidden="true" className={styles.ribbonDot} />
+                    )}
+                    {step}
+                    {i < RIBBON.length - 1 && (
+                      <span aria-hidden="true" className={styles.ribbonArrow}>
+                        →
+                      </span>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Nine of the seventeen environments, each on a light trail back
+                to one origin — placed so the origin sits directly above the
+                system map's core. */}
+            <div className={styles.heroArt}>
+              <DeploymentConstellation />
+            </div>
           </div>
 
           {/* Orientation, drawn as the graph it is: every environment wired

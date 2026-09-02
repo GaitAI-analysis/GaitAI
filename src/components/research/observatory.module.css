@@ -1375,6 +1375,17 @@
 :global(.light) .fPulse {
   stroke: #0a6890;
 }
+/* One stage on the rail: the node, the glyph inside it and the micro-label
+   under it share a tone, so the emphasis on the two ends — and the hover —
+   applies to the whole stage rather than to one of its parts. */
+.fStageGroup .fStageNode,
+.fStageGroup .fGlyph,
+.fStageGroup .fNodeLabel {
+  transition:
+    stroke 0.4s var(--obs-ease),
+    color 0.4s var(--obs-ease),
+    fill 0.4s var(--obs-ease);
+}
 .fStageNode {
   fill: rgb(var(--c-obsidian-400) / 0.95);
   stroke: var(--obs-line-strong);
@@ -1384,14 +1395,47 @@
 :global(.light) .fStageNode {
   fill: #ffffff;
 }
-.fStageNodeStrong {
-  stroke: var(--obs-cyan);
-}
 .fGlyph {
   color: var(--obs-mute);
 }
-.fGlyphStrong {
+
+/* The two emphasised ends: the record the page is about, and the output
+   somebody actually reviews. */
+.fStageGroupStrong .fStageNode {
+  stroke: var(--obs-cyan);
+}
+.fStageGroupStrong .fGlyph {
   color: var(--obs-cyan);
+}
+.fStageGroupStrong .fNodeLabel {
+  fill: var(--obs-cyan);
+  opacity: 0.85;
+}
+
+/* Pointing at a stage brings its own drawing up. Nothing moves and nothing
+   here is a control — the rail is decorative and the stage copy below it is
+   the real content — so the response is a tone change and nothing else. */
+.fStageGroup:hover .fStageNode {
+  stroke: var(--obs-cyan);
+}
+.fStageGroup:hover .fGlyph {
+  color: var(--obs-cyan);
+}
+.fStageGroup:hover .fNodeLabel {
+  fill: var(--obs-cyan);
+  opacity: 1;
+}
+
+/* The micro-label on the diagram: one word per stage, at legend weight. The
+   full stage names live in the list below, so this stays deliberately quiet. */
+.fNodeLabel {
+  font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-anchor: middle;
+  fill: var(--obs-mute);
+  opacity: 0.72;
 }
 
 .flowStages {
@@ -1836,7 +1880,10 @@
   }
   .ledgerRow::after,
   .ledgerArrow,
-  .panelRecord {
+  .panelRecord,
+  .fStageGroup .fStageNode,
+  .fStageGroup .fGlyph,
+  .fStageGroup .fNodeLabel {
     transition: none;
   }
 }

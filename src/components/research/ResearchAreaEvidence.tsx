@@ -3,6 +3,9 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { ResearchArea } from "@/data/evidence";
+import { CapabilityCard } from "./CapabilityCard";
+import { ResearchSpine, ResearchSpineStacked } from "./ResearchSpine";
+import styles from "./research.module.css";
 
 /**
  * One research area, presented as a chain rather than a table:
@@ -61,53 +64,12 @@ function Disclosure({
   );
 }
 
-/**
- * The bridge between the two columns: a few thin traces leaving the record
- * list and resolving into one node per capability. Abstract on purpose — it
- * carries no data, only the direction of the argument.
- */
-function ResearchBridge({ capabilities }: { capabilities: number }) {
-  const ys = Array.from(
-    { length: capabilities },
-    (_, i) => ((i + 0.5) / capabilities) * 100,
-  );
-
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 64 100"
-      preserveAspectRatio="none"
-      className="hidden h-full w-full lg:block"
-    >
-      {ys.map((y, i) => (
-        <path
-          key={i}
-          d={`M0 50 C26 50 34 ${y} 58 ${y}`}
-          fill="none"
-          stroke="rgb(79 209 255 / 0.28)"
-          strokeWidth="1"
-          vectorEffect="non-scaling-stroke"
-        />
-      ))}
-      {ys.map((y, i) => (
-        <circle
-          key={`n${i}`}
-          cx="59.5"
-          cy={y}
-          r="1.6"
-          fill="rgb(79 209 255 / 0.6)"
-          vectorEffect="non-scaling-stroke"
-        />
-      ))}
-      <circle cx="1.5" cy="50" r="1.6" fill="rgb(79 209 255 / 0.45)" />
-    </svg>
-  );
-}
-
 export function ResearchAreaEvidence({ area }: { area: ResearchArea }) {
   const [allRecords, setAllRecords] = useState(false);
   const [allProducts, setAllProducts] = useState(false);
   const [activeCapability, setActiveCapability] = useState<string | null>(null);
+  /** Index of the selected capability — the spine lights that tap. */
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
 
   const records = allRecords
@@ -118,17 +80,19 @@ export function ResearchAreaEvidence({ area }: { area: ResearchArea }) {
     ? area.capabilities.find((c) => c.id === activeCapability)?.title
     : null;
 
-  /** Product count per capability — the small label on each module. */
-  const productsPerCapability = useMemo(() => {
-    const counts = new Map<string, number>();
+  /**
+   * Products per capability. The card groups the pills itself, so this is the
+   * list rather than a count — the count is its length.
+   */
+  const productsFor = useMemo(() => {
+    const map = new Map<string, typeof area.products>();
     for (const capability of area.capabilities) {
-      counts.set(
+      map.set(
         capability.id,
-        area.products.filter((p) => p.capabilityIds.includes(capability.id))
-          .length,
+        area.products.filter((p) => p.capabilityIds.includes(capability.id)),
       );
     }
-    return counts;
+    return map;
   }, [area]);
 
   const scoped = activeCapability
@@ -151,10 +115,10 @@ export function ResearchAreaEvidence({ area }: { area: ResearchArea }) {
     <article id={area.id} className="scroll-mt-32">
       {/* ─────────── HEADER ─────────── */}
       <header className="max-w-3xl">
-        <h3 className="font-display text-xl text-soft-white sm:text-2xl">
+        <h3 className="font-display text-[1.625rem] leading-[1.15] tracking-[-0.02em] text-soft-white sm:text-[2rem]">
           {area.title}
         </h3>
-        <p className="mt-2.5 text-sm leading-relaxed text-soft-gray">
+        <p className="mt-4 text-[0.9375rem] leading-relaxed text-soft-gray sm:text-base">
           {area.summary}
         </p>
         <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-soft-mute">
@@ -190,22 +154,19 @@ export function ResearchAreaEvidence({ area }: { area: ResearchArea }) {
       </header>
 
       {/* ─────────── EVIDENCE → CAPABILITY ─────────── */}
-      <div className="mt-10 grid gap-10 lg:mt-12 lg:grid-cols-[minmax(0,1fr)_64px_minmax(0,0.94fr)] lg:gap-0">
+      <div className="mt-12 grid gap-0 lg:mt-14 lg:grid-cols-[minmax(0,1fr)_88px_minmax(0,1.04fr)]">
         {/* Records */}
-        <section>
+        <section className="lg:pr-10">
           <h4 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soft-mute">
             Research foundation
           </h4>
 
           <ol className="mt-5">
             {records.map((publication, i) => (
-              <li
-                key={publication.id}
-                className="border-t border-white/[0.07] first:border-t-0"
-              >
+              <li key={publication.id}>
                 <Link
                   href={`/publications/${publication.id}/`}
-                  className="group grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-4 py-5 first:pt-0"
+                  className={`${styles.refRow} group grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-4`}
                 >
                   <span
                     aria-hidden="true"
@@ -266,53 +227,50 @@ export function ResearchAreaEvidence({ area }: { area: ResearchArea }) {
           )}
         </section>
 
-        {/* Bridge — desktop only; it restates the layout, not new information */}
-        <div aria-hidden="true" className="hidden lg:block">
-          <ResearchBridge capabilities={area.capabilities.length} />
+        {/* Signal bus — desktop only. Below lg the columns stack, so a
+            horizontal hand-off has nothing to mean and a short vertical
+            lead-in replaces it. */}
+        <div className="hidden lg:block">
+          <ResearchSpine
+            count={area.capabilities.length}
+            activeIndex={activeIndex}
+          />
+        </div>
+        <div className="lg:hidden">
+          <ResearchSpineStacked />
         </div>
 
         {/* Capabilities */}
-        <section className="lg:pl-2">
+        <section className="lg:pl-1">
           <h4 className="text-[10px] font-semibold uppercase tracking-[0.2em] text-soft-mute">
             Capability informed by this work
           </h4>
 
-          <div className="mt-5 space-y-1">
-            {area.capabilities.map((capability) => {
+          <div className="mt-5 space-y-3">
+            {area.capabilities.map((capability, i) => {
               const isActive = activeCapability === capability.id;
               const isLinked = hoveredCapabilities.includes(capability.id);
-              const dimmed =
-                (activeCapability !== null && !isActive) ||
-                (hoveredProduct !== null && !isLinked);
 
               return (
-                <button
+                <CapabilityCard
                   key={capability.id}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={() => {
+                  title={capability.title}
+                  description={capability.description}
+                  products={productsFor.get(capability.id) ?? []}
+                  isActive={isActive}
+                  isLinked={isLinked}
+                  isDimmed={
+                    (activeCapability !== null && !isActive) ||
+                    (hoveredProduct !== null && !isLinked)
+                  }
+                  onToggle={() => {
                     setActiveCapability(isActive ? null : capability.id);
+                    setActiveIndex(isActive ? null : i);
                     setAllProducts(false);
                   }}
-                  className={`block w-full border-l py-4 pl-5 pr-2 text-left transition-all duration-300 ${
-                    isActive || isLinked
-                      ? "border-cyan-300/70"
-                      : "border-white/[0.12] hover:border-cyan-300/40"
-                  } ${dimmed ? "opacity-40" : "opacity-100"}`}
-                >
-                  <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-cyan-300/70">
-                    {productsPerCapability.get(capability.id) ?? 0}{" "}
-                    {productsPerCapability.get(capability.id) === 1
-                      ? "product"
-                      : "products"}
-                  </span>
-                  <span className="mt-1.5 block font-display text-[1.0625rem] leading-snug text-soft-white">
-                    {capability.title}
-                  </span>
-                  <span className="mt-1.5 block text-[13px] leading-relaxed text-soft-mute">
-                    {capability.description}
-                  </span>
-                </button>
+                  onProductFocus={setHoveredProduct}
+                  onProductBlur={() => setHoveredProduct(null)}
+                />
               );
             })}
           </div>
@@ -320,7 +278,10 @@ export function ResearchAreaEvidence({ area }: { area: ResearchArea }) {
           {activeCapability && (
             <button
               type="button"
-              onClick={() => setActiveCapability(null)}
+              onClick={() => {
+                setActiveCapability(null);
+                setActiveIndex(null);
+              }}
               className="mt-5 text-[11.5px] text-soft-mute underline decoration-white/20 underline-offset-4 transition-colors hover:text-soft-white"
             >
               Clear selection

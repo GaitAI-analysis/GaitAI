@@ -7,6 +7,12 @@ import { AIPipelineDiagram } from "@/components/visuals/AIPipelineDiagram";
 import { JourneyTimeline } from "@/components/sections/JourneyTimeline";
 import { MovementHeroBackground } from "@/components/sections/MovementHeroBackground";
 import { ResearchAreaEvidence } from "@/components/research/ResearchAreaEvidence";
+import {
+  ResearchRecordPanel,
+  type RecordCell,
+} from "@/components/research/ResearchRecordPanel";
+import { ResearchPillars } from "@/components/research/ResearchPillars";
+import { FeaturedReferences } from "@/components/research/FeaturedReferences";
 import { researchAreas } from "@/data/evidence";
 import { productCount } from "@/data/products";
 import { FOUNDER_NAME, papers, patent } from "@/data/publications";
@@ -37,11 +43,30 @@ export const metadata: Metadata = {
 
 const publicationYears = papers.map((p) => p.year);
 
-const recordStats = [
-  { value: `${papers.length}`, label: "Peer-reviewed papers" },
-  { value: "1", label: "Granted patent (India)" },
-  { value: `${researchAreas.length}`, label: "Research areas" },
-  { value: `${productCount}`, label: "Modular products" },
+/**
+ * Lit segments are the figure itself, not a share of a target — so the bar
+ * under each numeral can be counted and checked against it.
+ */
+const recordCells: RecordCell[] = [
+  {
+    value: `${papers.length}`,
+    label: "Peer-reviewed papers",
+    lit: papers.length,
+    tone: "cyan",
+  },
+  { value: "1", label: "Granted patent (India)", lit: 1, tone: "violet" },
+  {
+    value: `${researchAreas.length}`,
+    label: "Research areas",
+    lit: researchAreas.length,
+    tone: "royal",
+  },
+  {
+    value: "10+ yrs",
+    label: "Of founder gait research",
+    lit: 10,
+    tone: "emerald",
+  },
 ];
 
 /** Method commitments — each describes practice or architecture, not results. */
@@ -166,20 +191,15 @@ export default function ResearchPage() {
             </div>
           </div>
 
-          <div className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl glass sm:grid-cols-4">
-            {recordStats.map((s) => (
-              <div key={s.label} className="bg-gunmetal/30 p-6 text-center">
-                <div className="stat-num text-2xl text-soft-white sm:text-3xl">
-                  {s.value}
-                </div>
-                <div className="mt-1.5 text-[10.5px] uppercase tracking-[0.18em] text-soft-mute">
-                  {s.label}
-                </div>
-              </div>
-            ))}
+          <div className="mt-12">
+            <ResearchRecordPanel cells={recordCells} />
           </div>
         </div>
       </section>
+
+      {/* WHAT THIS RESEARCH ENABLES — the scannable answer; the evidence map
+          below is the traceable one */}
+      <ResearchPillars />
 
       {/* EVIDENCE MAP — research area → publications → capabilities → products */}
       <section id="areas" className="section">
@@ -298,6 +318,10 @@ export default function ResearchPage() {
           </div>
         </div>
       </section>
+
+      {/* FEATURED REFERENCES — the records themselves, after the map that
+          explains what they back */}
+      <FeaturedReferences />
 
       {/* JOURNEY TIMELINE */}
       <JourneyTimeline variant="muted" />

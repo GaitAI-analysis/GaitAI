@@ -250,8 +250,8 @@ export function EvidencePillar({
                 {area.architecturalProducts.length}
               </span>
               <p className="mt-2 max-w-prose text-[12px] leading-relaxed text-soft-mute">
-                These draw on a broad platform capability this work touches,
-                not on what the record specifically addresses. Listed for
+                These reuse a shared platform capability this work touches,
+                not the specific subject the record addresses. Listed for
                 traceability — not as evidence for these products.
               </p>
               <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -269,14 +269,6 @@ export function EvidencePillar({
             </div>
           )}
 
-          {area.implementationNote && (
-            <p
-              hidden={!open}
-              className="mt-5 border-t border-white/[0.07] pt-4 text-[12px] leading-relaxed text-soft-mute"
-            >
-              {area.implementationNote}
-            </p>
-          )}
 
           {!open && hiddenProducts > 0 && (
             <button
@@ -301,6 +293,53 @@ export function EvidencePillar({
         hidden={!open}
         className="mt-8 border-t border-white/[0.07] pt-7"
       >
+        {/* ── RESEARCH PRINCIPLE vs IMPLEMENTATION CONTROL ──
+            Two labelled lists, side by side, rather than one footnote
+            sentence. The privacy row used to name the shipped controls as
+            the capability the paper informed and then disclaim them
+            underneath; separating them is the only way the distinction
+            actually reads. */}
+        {area.boundary && (
+          <div className="mb-8 border-b border-white/[0.07] pb-7">
+            <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
+              <div className="min-w-0">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-300/85">
+                  {area.boundary.foundationLabel}
+                </span>
+                <ul className="mt-2.5 space-y-1.5">
+                  {area.boundary.foundation.map((item) => (
+                    <li
+                      key={item}
+                      className="text-[12px] leading-snug text-soft-gray"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="min-w-0 border-t border-white/[0.07] pt-5 sm:border-l sm:border-t-0 sm:pl-6 sm:pt-0">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
+                  {area.boundary.controlsLabel}
+                </span>
+                <ul className="mt-2.5 space-y-1.5">
+                  {area.boundary.controls.map((item) => (
+                    <li
+                      key={item}
+                      className="text-[12px] leading-snug text-soft-gray"
+                    >
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <p className="mt-4 max-w-prose text-[12px] leading-relaxed text-soft-mute">
+              {area.boundary.note}
+            </p>
+          </div>
+        )}
         <span
           className={`${styles.evColLabel} text-[10px] font-semibold uppercase tracking-[0.2em]`}
         >

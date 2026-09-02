@@ -73,7 +73,12 @@ const capabilityNodes: GaitscapeNode[] = [
   { id: "cap-edge", type: "capability", title: "Edge inference", shortDescription: "Optimized on-device movement analytics pipelines." },
   { id: "cap-anomaly", type: "capability", title: "Anomaly detection", shortDescription: "Surfacing unusual movement without identifying anyone first." },
   { id: "cap-risk", type: "capability", title: "Risk scoring", shortDescription: "Combining movement signals into fall, injury and safety risk indicators." },
-  { id: "cap-privacy", type: "capability", title: "Privacy-aware analytics", shortDescription: "Skeleton-only analytics, face blur, audit logs, retention controls." },
+  // The capability the privacy RESEARCH informs is a principle — handling
+  // gait data with minimal identity exposure. The shipped controls
+  // (skeleton-only processing, face blur, retention, access, audit) are a
+  // separate implementation and are listed as such on /research; naming them
+  // here made the paper read as proof of the controls.
+  { id: "cap-privacy", type: "capability", title: "Privacy-aware analytics", shortDescription: "Privacy-aware data handling that minimises unnecessary identity exposure." },
   { id: "cap-explain", type: "capability", title: "Explainable reporting", shortDescription: "Clinician- and operator-friendly reports, scores and trends." },
 ];
 
@@ -427,7 +432,7 @@ const FACT_OVERRIDES: Record<string, Partial<SystemFacts>> = {
   },
   clinicaltrials: {
     environment: "Research studies & clinical trials",
-    deployment: "Study dashboards, biomarker export",
+    deployment: "Study dashboards, gait-measure export",
   },
   forensicsearch: {
     input: "Uploaded CCTV footage (post-event)",
@@ -444,7 +449,7 @@ const FACT_OVERRIDES: Record<string, Partial<SystemFacts>> = {
   },
   watchlist: {
     environment: "Lawfully authorized deployments only",
-    privacy: "Policy + consent logs, full audit trail, legal governance",
+    privacy: "Policy + consent logs, auditability, legal governance",
   },
 };
 

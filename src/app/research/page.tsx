@@ -1,14 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { ResearchHero } from "@/components/research/ResearchHero";
 import { ResearchLabs, type LabArea } from "@/components/research/ResearchLabs";
-import { EvidenceBoundary } from "@/components/research/EvidenceBoundary";
-import {
-  ResearchPipeline,
-  type PipelineCapability,
-} from "@/components/research/ResearchPipeline";
 import { ResearchTelemetry } from "@/components/research/ResearchTelemetry";
-import { ResearchLineage } from "@/components/research/ResearchLineage";
 import {
   EvidenceObservatory,
   type ObservatoryArea,
@@ -16,14 +11,9 @@ import {
 import type { PillarKind } from "@/components/research/PillarVisual";
 import { PublicationLedger } from "@/components/research/PublicationLedger";
 import { ResearchJourney } from "@/components/research/ResearchJourney";
-import { ResearchToProductFlow } from "@/components/research/ResearchToProductFlow";
 import { ResearchManifesto } from "@/components/research/ResearchManifesto";
 import { ResearchPrinciples } from "@/components/research/ResearchPrinciples";
 import { ResearchCollaborationCTA } from "@/components/research/ResearchCollaborationCTA";
-import {
-  EvidenceExplorer,
-  type ExplorerArea,
-} from "@/components/analytics/EvidenceExplorer";
 import { researchAreas, type AreaProduct } from "@/data/evidence";
 import { mobilityProducts, productCount, secureProducts } from "@/data/products";
 import {
@@ -41,39 +31,44 @@ export const metadata: Metadata = {
 };
 
 /**
- * The research page, composed as an observatory.
+ * The research page.
  *
- * One argument runs top to bottom — a decade of founder-led work, a published
- * record, the capabilities that record informs, and the platform built on
- * them — and every section states its part of that argument in a different
- * spatial composition, so the page never falls into heading / paragraph /
- * cards:
+ * ONE argument, stated ONCE:
+ *
+ *   research foundation → capability → product
+ *
+ * The page used to state that relationship five times over — a pipeline
+ * diagram, a provenance lineage, the evidence map, a filterable evidence
+ * explorer, and a five-stage research-to-product rail — each in a different
+ * spatial composition. Four of them were removed. A reader who has understood
+ * the evidence map has understood all five, and the repetition was most of
+ * this route's length.
+ *
+ * What is left, top to bottom:
  *
  *   hero          cinematic instrument view of a captured stride
- *   telemetry     hairline readout of the record
- *   lineage       provenance drawn as one trunk and two branches
- *   evidence map  the interactive centrepiece: pillar → capability → module
- *   ledger        the published record as an academic archive
+ *   telemetry     hairline readout of the record's scale
+ *   foundations   the four pillars, each stated as a scientific scene
+ *   evidence map  the one interactive surface: pillar → capability → module
+ *   record        the published record as an academic archive
  *   journey       four milestones on a drawn stride path
- *   pipeline      research → output as five stages on one signal
- *   manifesto     the four method commitments as an editorial document
+ *   how we work   the four method commitments
  *   principles    responsible research as a thin rail
  *   closing       the collaboration statement over a trajectory field
  *
  * Every figure, record, capability mapping and product link is derived from
  * `researchAreas`, `publications.ts` and `products.ts` — nothing on this page
- * is hand-maintained.
+ * is hand-maintained, and removing sections removed no data.
  *
- * The evidence-boundary panel that used to sit between the manifesto and the
- * principles rail was removed at the owner's request. The research-foundation
- * versus product-validation distinction it carried is still stated on the
- * page, in the pipeline section: "Research establishes the methodological
- * foundation. Product-specific validation establishes fitness for a
- * particular use." The four validation gaps it listed are no longer stated
- * anywhere on this route.
+ * WHAT THE REMOVED SECTIONS CARRIED, and where it now lives:
+ *   · the pipeline's capability list — in the evidence map, per pillar
+ *   · the lineage's provenance      — in the journey and the record
+ *   · the explorer's filters        — the full record is /publications
+ *   · the research/product boundary — stated under the evidence map, in the
+ *     same words, because it is a claim-safety statement and not decoration
+ *   · the evidence-status panel     — removed at the owner's request, twice
  *
- * The `#attribution` anchor is preserved — the home page links straight to it.
- * `#evidence-boundary` is gone with the section; nothing linked to it.
+ * The `#attribution` anchor is preserved: the home page links straight to it.
  */
 
 /** Which scientific visual belongs to which research pillar. */
@@ -129,39 +124,6 @@ const labAreas: LabArea[] = researchAreas.map((area) => ({
   capabilities: area.capabilities.length,
 }));
 
-/**
- * The capabilities the published record actually reaches, with the number of
- * shipped modules built on each. Derived by walking the areas rather than
- * listed: a capability with no research node mapped to it must be absent from
- * the pipeline, not present with a zero.
- */
-const pipelineCapabilities: PipelineCapability[] = (() => {
-  const byId = new Map<string, PipelineCapability & { ids: Set<string> }>();
-  for (const area of researchAreas) {
-    for (const capability of area.capabilities) {
-      if (!byId.has(capability.id)) {
-        byId.set(capability.id, {
-          id: capability.id,
-          title: capability.title,
-          description: capability.description,
-          modules: 0,
-          ids: new Set<string>(),
-        });
-      }
-    }
-  }
-  for (const area of researchAreas) {
-    for (const product of area.products) {
-      for (const capabilityId of product.capabilityIds) {
-        byId.get(capabilityId)?.ids.add(product.id);
-      }
-    }
-  }
-  return [...byId.values()]
-    .map(({ ids, ...rest }) => ({ ...rest, modules: ids.size }))
-    .sort((a, b) => b.modules - a.modules);
-})();
-
 const telemetry = [
   { value: papers.length, label: "Peer-reviewed papers", pad: true },
   { value: 1, label: "Granted patent", pad: true },
@@ -186,56 +148,19 @@ const ledgerRecords = [
   year: record.year,
 }));
 
-/**
- * The same four areas, shaped for the Evidence Explorer: full record metadata
- * (venue, publisher, year, type, keywords) so the surface can filter by year
- * and record type, and the two product tiers kept separate so the chain can
- * show "directly informed" and "architecturally relevant" as different things.
- * Derived from `researchAreas` — nothing added.
- */
-const explorerProduct = (product: AreaProduct) => ({
-  id: product.id,
-  short: product.short,
-  label: product.label,
-  family: product.vertical,
-  href: product.href,
-});
-
-const explorerAreas: ExplorerArea[] = researchAreas.map((area) => ({
-  id: area.id,
-  title: area.title,
-  summary: area.summary,
-  records: area.publications.map((publication) => ({
-    id: publication.id,
-    title: publication.title,
-    venue: publication.venue,
-    publisher: publication.publisher,
-    year: publication.year,
-    kind: publication.kind,
-    href: `/publications/${publication.id}/`,
-    keywords: publication.keywords ?? [],
-  })),
-  capabilities: area.capabilities,
-  directProducts: area.directProducts.map(explorerProduct),
-  architecturalProducts: area.architecturalProducts.map(explorerProduct),
-  boundary: area.boundary,
-}));
-
-const publicationYears = papers.map((p) => p.year);
-
 export default function ResearchPage() {
   return (
     <div className={styles.page}>
       <ResearchHero />
 
-      {/* ─────────── 01 · TELEMETRY ─────────── */}
+      {/* ─────────── TELEMETRY — the record's scale, above the fold ─────────── */}
       <section className="border-t border-white/[0.07] bg-obsidian-300/25 pb-4 pt-2 sm:pb-6">
         <div className="container-wide">
           <ResearchTelemetry metrics={telemetry} />
         </div>
       </section>
 
-      {/* ─────────── 01b · THE FOUR RESEARCH LABS ─────────── */}
+      {/* ─────────── 01 · THE FOUR RESEARCH FOUNDATIONS ─────────── */}
       <section id="pillars" className="border-t border-white/[0.07] py-14 sm:py-16">
         <div className="container-wide">
           <div className={styles.sectionLabel}>
@@ -254,72 +179,11 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 01c · CAPTURE → ENGINE → CAPABILITIES ─────────── */}
-      <section className="border-t border-white/[0.07] py-16 sm:py-20">
-        <div className="container-wide">
-          <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>01</span>
-            <div className="min-w-0">
-              <h2 className={styles.eyebrow}>
-                <span aria-hidden="true" className={styles.eyebrowRule} />
-                What the record grounds
-              </h2>
-              <p className="mt-3 max-w-xl text-[13.5px] leading-relaxed text-soft-mute">
-                What goes in, the layers it passes through, and the
-                capabilities that come out with published work behind them.
-              </p>
-            </div>
-          </div>
-
-          <Reveal>
-            <div className="mt-10 sm:mt-12">
-              <ResearchPipeline capabilities={pipelineCapabilities} />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ─────────── 02 · PROVENANCE LINEAGE ─────────── */}
-      <section
-        id="attribution"
-        className="border-y border-white/[0.07] py-16 sm:py-20"
-      >
-        <div className="container-wide">
-          <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>02</span>
-            <div className="min-w-0">
-              <h2 className={styles.eyebrow}>
-                <span aria-hidden="true" className={styles.eyebrowRule} />
-                Research provenance
-              </h2>
-              <p className="mt-3 max-w-xl text-[13.5px] leading-relaxed text-soft-mute">
-                Whose work this is, and what was built on it.
-              </p>
-            </div>
-          </div>
-
-          <Reveal>
-            <div className="mt-10 sm:mt-12">
-              <ResearchLineage
-                papers={papers.length}
-                patentNumber={patent.patentNumber ?? ""}
-                founder={FOUNDER_NAME}
-                yearFrom={2014}
-                yearTo={Math.max(...publicationYears)}
-                careCount={mobilityProducts.length}
-                secureCount={secureProducts.length}
-                moduleCount={productCount}
-              />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ─────────── 03 · EVIDENCE MAP — the centrepiece ─────────── */}
+      {/* ─────────── 02 · EVIDENCE MAP — the one map ─────────── */}
       <section id="evidence-map" className="section">
         <div className="container-wide">
           <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>03</span>
+            <span className={styles.sectionIndex}>02</span>
             <div className="min-w-0">
               <h2 className={styles.eyebrow}>
                 <span aria-hidden="true" className={styles.eyebrowRule} />
@@ -327,80 +191,54 @@ export default function ResearchPage() {
               </h2>
             </div>
           </div>
-
           <h3 className="mt-8 max-w-3xl font-display text-[1.875rem] leading-[1.12] tracking-[-0.03em] text-balance text-soft-white sm:text-[2.5rem]">
-            See how published research informs{" "}
-            <span className={styles.heroSpectrum}>
-              GaitAI&apos;s capability layer.
-            </span>
+            Which research informs{" "}
+            <span className={styles.heroSpectrum}>which capability,</span> and
+            which products are built on it.
           </h3>
-          <p className="mt-5 max-w-2xl text-[13.5px] leading-relaxed text-soft-mute">
-            Select a pillar to trace it: the records it cites, the capabilities
-            those records informed, and the modules documented as built on those
-            capabilities.
+          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-soft-mute">
+            Select a pillar. The map redraws to that pillar&apos;s record, the
+            capabilities it informs and the modules built on them.
           </p>
 
-          <div className="mt-12 sm:mt-14">
+          <div className="mt-10 sm:mt-12">
             <EvidenceObservatory areas={observatoryAreas} />
           </div>
-        </div>
-      </section>
 
-      {/* ─────────── 04 · EVIDENCE EXPLORER ─────────── */}
-      <section
-        id="evidence-explorer-section"
-        className="border-y border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20"
-      >
-        <div className="container-wide">
-          <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>04</span>
-            <div className="min-w-0">
-              <h2 className={styles.eyebrow}>
-                <span aria-hidden="true" className={styles.eyebrowRule} />
-                Evidence explorer
-              </h2>
-              <p className="mt-3 max-w-xl text-[13.5px] leading-relaxed text-soft-mute">
-                The whole record, filterable — and the chain it supports,
-                stated stage by stage.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-10 sm:mt-12">
-            <EvidenceExplorer areas={explorerAreas} />
+          {/* The research-foundation vs product-validation distinction. It
+              travelled with the research-to-product section; it is a
+              claim-safety statement, so it stays on the page in the same
+              words, attached to the map that makes the mapping claim. */}
+          <div className="mt-10 flex flex-wrap items-end justify-between gap-6 border-t border-white/[0.07] pt-6">
+            <p className="max-w-2xl text-[13.5px] leading-relaxed text-soft-mute">
+              Research establishes the methodological foundation.
+              Product-specific validation establishes fitness for a particular
+              use.
+            </p>
+            <Link
+              href="/research/evidence/"
+              className="group inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"
+            >
+              Explore the full record
+              <span
+                aria-hidden="true"
+                className="transition-transform duration-300 group-hover:translate-x-0.5"
+              >
+                →
+              </span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* ─────────── 04b · WHERE THE EVIDENCE STOPS ─────────── */}
-      <section id="evidence-boundary" className="section">
-        <div className="container-wide">
-          <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>04</span>
-            <div className="min-w-0">
-              <h2 className={styles.eyebrow}>
-                <span aria-hidden="true" className={styles.eyebrowRule} />
-                Evidence status
-              </h2>
-            </div>
-          </div>
-
-          <Reveal>
-            <div className="mt-12 sm:mt-14">
-              <EvidenceBoundary />
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ─────────── 05 · THE LEDGER ─────────── */}
+      {/* ─────────── 03 · THE RECORD ─────────── */}
       <section
         id="record"
         className="border-y border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20"
       >
         <div className="container-wide">
           <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>05</span>
+            <span className={styles.sectionIndex}>03</span>
             <div className="min-w-0">
               <h2 className={styles.eyebrow}>
                 <span aria-hidden="true" className={styles.eyebrowRule} />
@@ -423,11 +261,11 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 06 · JOURNEY ─────────── */}
+      {/* ─────────── 04 · JOURNEY ─────────── */}
       <section id="journey" className="section">
         <div className="container-wide">
           <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>06</span>
+            <span className={styles.sectionIndex}>04</span>
             <div className="min-w-0">
               <h2 className={styles.eyebrow}>
                 <span aria-hidden="true" className={styles.eyebrowRule} />
@@ -444,35 +282,11 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 07 · RESEARCH → PRODUCT ─────────── */}
-      <section
-        id="research-to-product"
-        className="border-y border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20"
-      >
-        <div className="container-wide">
-          <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>07</span>
-            <div className="min-w-0">
-              <h2 className={styles.eyebrow}>
-                <span aria-hidden="true" className={styles.eyebrowRule} />
-                From research to product
-              </h2>
-            </div>
-          </div>
-          <h3 className="mt-8 max-w-2xl font-display text-[1.75rem] leading-[1.15] tracking-[-0.025em] text-balance text-soft-white sm:text-[2.125rem]">
-            Where the record ends and{" "}
-            <span className={styles.heroSpectrum}>the platform begins.</span>
-          </h3>
-
-          <ResearchToProductFlow />
-        </div>
-      </section>
-
-      {/* ─────────── 08 · MANIFESTO ─────────── */}
+      {/* ─────────── 05 · MANIFESTO ─────────── */}
       <section className="section">
         <div className="container-wide">
           <div className={styles.sectionLabel}>
-            <span className={styles.sectionIndex}>08</span>
+            <span className={styles.sectionIndex}>05</span>
             <div className="min-w-0">
               <h2 className={styles.eyebrow}>
                 <span aria-hidden="true" className={styles.eyebrowRule} />
@@ -489,10 +303,10 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 09 · RESPONSIBLE RESEARCH ─────────── */}
+      {/* ─────────── 06 · RESPONSIBLE RESEARCH ─────────── */}
       <ResearchPrinciples />
 
-      {/* ─────────── 10 · CLOSING ─────────── */}
+      {/* ─────────── 07 · CLOSING ─────────── */}
       <ResearchCollaborationCTA />
     </div>
   );

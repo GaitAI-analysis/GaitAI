@@ -13,8 +13,16 @@ import {
   recommendStack,
   type CaptureSource,
 } from "@/data/analytics";
-import { ChipScroller } from "./controls";
-import { Eyebrow, StepHeader, familyClass } from "./primitives";
+import {
+  EnvironmentSelect,
+  GuidedStep,
+  GuidedSteps,
+  OptionSelect,
+  ResultBody,
+  ResultHeader,
+  SelectionSummary,
+} from "./guided";
+import { Eyebrow, familyClass } from "./primitives";
 import { StackRecommendation } from "./StackRecommendation";
 import { parseOne, useQueryState } from "./useQueryState";
 import styles from "./analytics.module.css";
@@ -186,101 +194,103 @@ export function StackConfigurator({
     ? [stack.primary.product.id, ...stack.supporting.map((e) => e.product.id)]
     : [];
 
+  const envGroups = [
+    {
+      family: "mobilitycare",
+      label: FAMILY_LABEL.mobilitycare,
+      options: analyticsEnvironments.filter((e) => e.family === "mobilitycare"),
+    },
+    {
+      family: "securevision",
+      label: FAMILY_LABEL.securevision,
+      options: analyticsEnvironments.filter((e) => e.family === "securevision"),
+    },
+  ];
+
+  const objective = objectiveId ? objectiveById.get(objectiveId) : undefined;
+  const sourceLabels = sources
+    .map((id) => CAPTURE_SOURCES.find((c) => c.id === id)?.label)
+    .filter((label): label is string => Boolean(label));
+
+  /* The selection, in sequence order, for the summary strip. */
+  const summaryTerms = [
+    environment?.name,
+    objective?.label,
+    sourceLabels.length ? sourceLabels.join(" + ") : undefined,
+  ].filter((term): term is string => Boolean(term));
+
   return (
     <div className={`${styles.lab} ${familyClass(family)}`} id="stack">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0">
-          <Eyebrow>Find your GaitAI stack</Eyebrow>
-          <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
-            Configure movement intelligence{" "}
-            <span className="text-gradient">around your environment.</span>
-          </h2>
-          <p className="mt-5 max-w-2xl text-sm leading-relaxed text-soft-gray">
-            Three answers — environment, objective and available signals — and
-            the configurator names the modules documented for that
-            combination, with the reason for each.
-          </p>
-        </div>
-        {(environmentId || objectiveId || sources.length > 0) && (
-          <button
-            type="button"
-            onClick={reset}
-            className="text-[10px] uppercase tracking-[0.18em] text-soft-mute transition-colors hover:text-soft-white"
-          >
-            Start over
-          </button>
-        )}
+      <div className="max-w-2xl">
+        <Eyebrow>Product finder</Eyebrow>
+        <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
+          Find the right{" "}
+          <span className="text-gradient">GaitAI product mix.</span>
+        </h2>
+        <p className="mt-5 text-sm leading-relaxed text-soft-gray">
+          Answer three questions — where you will deploy, what you need to
+          understand, and what you can capture — and the finder names the
+          modules documented for that combination, with the reason for each.
+        </p>
       </div>
 
-      <div className={`${styles.panel} mt-8`}>
-        <div className={`${styles.panelBody} grid gap-7`}>
-          <div>
-            <StepHeader
-              index="01"
-              title="Where will you use GaitAI?"
-              hint={`${analyticsEnvironments.length} documented environments across both families.`}
-            />
-            <ChipScroller
-              groupLabel="Environment"
-              label={FAMILY_LABEL.mobilitycare}
-              options={analyticsEnvironments
-                .filter((item) => item.family === "mobilitycare")
-                .map((item) => ({ id: item.id, label: item.name }))}
-              selected={environmentId ? [environmentId] : []}
-              onSelect={chooseEnvironment}
-            />
-            <div className="mt-3">
-              <ChipScroller
-                groupLabel="Environment"
-                label={FAMILY_LABEL.securevision}
-                options={analyticsEnvironments
-                  .filter((item) => item.family === "securevision")
-                  .map((item) => ({ id: item.id, label: item.name }))}
-                selected={environmentId ? [environmentId] : []}
-                onSelect={chooseEnvironment}
-              />
-            </div>
-          </div>
+      <GuidedSteps>
+        <GuidedStep
+          index="01"
+          lead
+          done={Boolean(environmentId)}
+          title="Where will you deploy?"
+          hint={`${analyticsEnvironments.length} documented environments. This choice decides which objectives and capture modes apply below.`}
+        >
+          <EnvironmentSelect
+            groups={envGroups}
+            selected={environmentId}
+            onSelect={chooseEnvironment}
+          />
+        </GuidedStep>
 
-          <div className={styles.panelRule} />
+        <GuidedStep
+          index="02"
+          waiting={!environment}
+          done={Boolean(objectiveId)}
+          title="What do you need to understand?"
+          hint={
+            environment
+              ? `Objectives a module in ${environment.name} is documented for.`
+              : "Choose an environment first — objectives are scoped to it."
+          }
+        >
+          <OptionSelect
+            groupLabel="Objective"
+            options={objectiveOptions}
+            selected={objectiveId ? [objectiveId] : []}
+            onSelect={chooseObjective}
+          />
+        </GuidedStep>
 
-          <div>
-            <StepHeader
-              index="02"
-              title="What do you want to understand?"
-              hint={
-                environment
-                  ? `Objectives a module in ${environment.name} is documented for.`
-                  : "Pick an environment first to see which objectives apply there."
-              }
-            />
-            <ChipScroller
-              groupLabel="Objective"
-              multi
-              options={objectiveOptions}
-              selected={objectiveId ? [objectiveId] : []}
-              onSelect={chooseObjective}
-            />
-          </div>
+        <GuidedStep
+          index="03"
+          waiting={!environment}
+          done={sources.length > 0}
+          title="What can you capture?"
+          hint="Optional. A module that cannot work from what you have is left out rather than ranked low."
+        >
+          <OptionSelect
+            groupLabel="Available capture"
+            multi
+            options={sourceOptions}
+            selected={sources}
+            onSelect={toggleSource}
+          />
+        </GuidedStep>
+      </GuidedSteps>
 
-          <div className={styles.panelRule} />
-
-          <div>
-            <StepHeader
-              index="03"
-              title="What signals are available?"
-              hint="Optional. A module that cannot work from what you have is left out rather than ranked low."
-            />
-            <ChipScroller
-              groupLabel="Available signals"
-              multi
-              options={sourceOptions}
-              selected={sources}
-              onSelect={toggleSource}
-            />
-          </div>
-        </div>
-      </div>
+      <SelectionSummary
+        terms={summaryTerms}
+        family={family ? `Recommended for ${FAMILY_LABEL[family]}` : undefined}
+        onReset={reset}
+        idlePlaceholder="Choose an environment to see recommended modules"
+      />
 
       {!stack.primary && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -298,7 +308,15 @@ export function StackConfigurator({
         </div>
       )}
 
-      <div className="mt-4" aria-live="polite">
+      {stack.primary && (
+        <ResultHeader
+          kicker="Recommended modules"
+          title={`${stack.primary.product.short} leads this configuration`}
+          forLabel={summaryTerms.length ? `for ${summaryTerms.join(" · ")}` : undefined}
+        />
+      )}
+
+      <ResultBody reveal={`${environmentId ?? ""}|${objectiveId ?? ""}|${sources.join(",")}`}>
         <StackRecommendation
           stack={stack}
           actions={
@@ -326,7 +344,7 @@ export function StackConfigurator({
             ) : undefined
           }
         />
-      </div>
+      </ResultBody>
     </div>
   );
 }

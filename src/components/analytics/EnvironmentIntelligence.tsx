@@ -22,13 +22,21 @@ import {
   responsibleUseFor,
   type CaptureSource,
 } from "@/data/analytics";
-import { ChipScroller, SegmentTabs } from "./controls";
+import {
+  EnvironmentSelect,
+  FamilyScopeToggle,
+  GuidedPair,
+  GuidedPairStep,
+  GuidedStep,
+  GuidedSteps,
+  OptionSelect,
+  ResultHeader,
+  SelectionSummary,
+} from "./guided";
 import {
   Eyebrow,
   ResultColumn,
   ResultColumns,
-  StatRow,
-  StepHeader,
   familyClass,
 } from "./primitives";
 import { ModuleStageMatrix } from "./ModuleStageMatrix";
@@ -225,120 +233,132 @@ export function EnvironmentIntelligence() {
     disabled: !environment.objectiveIds.includes(item.id),
   }));
 
+  const envGroups = (
+    family === "all"
+      ? ["mobilitycare", "securevision"]
+      : [family]
+  ).map((fam) => ({
+    family: fam,
+    label: FAMILY_LABEL[fam as keyof typeof FAMILY_LABEL],
+    options: environments.filter((item) => item.family === fam),
+  }));
+
+  const summaryTerms = [
+    environment.name,
+    objective?.label,
+    sources.length
+      ? sources.map((src) => CAPTURE_SOURCE_LABEL[src]).join(" + ")
+      : undefined,
+  ].filter((term): term is string => Boolean(term));
+
   return (
     <div className={`${styles.lab} ${familyClass(environment.family)}`}>
-      <Eyebrow>Explore by environment</Eyebrow>
-      <h2 className="mt-5 max-w-3xl font-display text-display-md text-balance text-soft-white">
-        Build a movement-intelligence stack{" "}
-        <span className="text-gradient">for your environment.</span>
-      </h2>
-      <p className="mt-5 max-w-2xl text-sm leading-relaxed text-soft-gray">
-        Choose where you work, what you need to understand and what you can
-        capture. Everything below is read from the same product, environment
-        and capability records the rest of the site uses.
-      </p>
-
-      <div className="mt-8">
-        <StatRow
-          stats={[
-            { value: String(ENVIRONMENT_COUNT), label: "Environments" },
-            { value: String(MODULE_COUNT), label: "Modules" },
-            { value: String(CAPABILITY_COUNT), label: "Capabilities" },
-            { value: String(FAMILY_COUNT), label: "Product families" },
-          ]}
-        />
+      <div className="max-w-2xl">
+        <Eyebrow>Scenario explorer</Eyebrow>
+        <h2 className="mt-5 font-display text-display-md text-balance text-soft-white">
+          See how GaitAI fits{" "}
+          <span className="text-gradient">your environment.</span>
+        </h2>
+        <p className="mt-5 text-sm leading-relaxed text-soft-gray">
+          Pick a setting, an objective and the capture you have, and read the
+          scenario it produces — the problem, the approach, the modules
+          involved and what they output.
+        </p>
+        {/* The same four counters the bordered stat grid carried, as one
+            line: the numbers were worth keeping, the box was not. */}
+        <p className="mt-4 font-mono text-[10.5px] uppercase tracking-[0.16em] text-soft-mute">
+          {ENVIRONMENT_COUNT} environments · {MODULE_COUNT} modules ·{" "}
+          {CAPABILITY_COUNT} capabilities · {FAMILY_COUNT} families
+        </p>
       </div>
 
-      {/* ── CONTROLS ── */}
-      <div className={`${styles.panel} mt-6`}>
-        <div className={styles.panelHead}>
-          <span className={styles.label}>Configure</span>
-          <span className={`${styles.label} ml-auto`}>
-            {environments.length} environments in view
-          </span>
-        </div>
+      {/* Scope first, on its own band: this changes which environments exist,
+          which is a different kind of control from the filters below it. */}
+      <FamilyScopeToggle
+        caption="Scope"
+        value={family}
+        onChange={chooseFamily}
+        options={[
+          { id: "all", label: "Both families" },
+          { id: "mobilitycare", label: FAMILY_LABEL.mobilitycare },
+          { id: "securevision", label: FAMILY_LABEL.securevision },
+        ]}
+        meta={`${environments.length} environments in view`}
+      />
 
-        <div className={`${styles.panelBody} grid gap-6`}>
-          <div className="flex flex-wrap items-center gap-3">
-            <SegmentTabs
-              label="Product family"
-              value={family}
-              onChange={chooseFamily}
-              options={[
-                { id: "all", label: "Both families" },
-                { id: "mobilitycare", label: FAMILY_LABEL.mobilitycare },
-                { id: "securevision", label: FAMILY_LABEL.securevision },
-              ]}
-            />
-          </div>
+      <GuidedSteps>
+        <GuidedStep
+          index="01"
+          lead
+          done
+          title="Which setting is yours?"
+          hint="The scenario below is built from this environment's own documented problem, module mix and outputs."
+        >
+          <EnvironmentSelect
+            groups={envGroups}
+            selected={environmentId}
+            onSelect={chooseEnvironment}
+          />
+        </GuidedStep>
+      </GuidedSteps>
 
-          <div>
-            <StepHeader index="01" title="Environment" />
-            <ChipScroller
-              groupLabel="Environment"
-              options={environments.map((item) => ({
-                id: item.id,
-                label: item.name,
-                count: item.productIds.length,
-              }))}
-              selected={[environmentId]}
-              onSelect={chooseEnvironment}
-            />
-          </div>
+      {/* Objective and capture share one band: on this page the environment is
+          already the subject, so these two refine a scenario rather than
+          building one. It also gives this page a different rhythm from the
+          product finder's three stacked bands. */}
+      <GuidedPair>
+        <GuidedPairStep
+          index="02"
+          title="Objective"
+          hint={
+            objective
+              ? objective.question
+              : "Optional — leave clear to see the whole documented mix."
+          }
+        >
+          <OptionSelect
+            groupLabel="Objective"
+            multi
+            options={objectiveOptions}
+            selected={objectiveId ? [objectiveId] : []}
+            onSelect={chooseObjective}
+          />
+        </GuidedPairStep>
 
-          <div>
-            <StepHeader
-              index="02"
-              title="Objective"
-              hint={
-                objective
-                  ? objective.question
-                  : "Optional — leave clear to see the whole documented mix."
-              }
-            />
-            <ChipScroller
-              groupLabel="Objective"
-              multi
-              options={objectiveOptions}
-              selected={objectiveId ? [objectiveId] : []}
-              onSelect={chooseObjective}
-            />
-          </div>
+        <GuidedPairStep
+          index="03"
+          title="Available capture"
+          hint="Optional — narrows the mix to modules that can work from what you have."
+        >
+          <OptionSelect
+            groupLabel="Available capture"
+            multi
+            options={CAPTURE_SOURCES.map((source) => ({
+              id: source.id,
+              label: source.label,
+              disabled: !environment.sources.includes(source.id),
+            }))}
+            selected={sources}
+            onSelect={toggleSource}
+          />
+        </GuidedPairStep>
+      </GuidedPair>
 
-          <div>
-            <StepHeader
-              index="03"
-              title="Available capture"
-              hint="Optional — narrows the mix to modules that can work from what you have."
-            />
-            <ChipScroller
-              groupLabel="Available capture"
-              multi
-              options={CAPTURE_SOURCES.map((source) => ({
-                id: source.id,
-                label: source.label,
-                disabled: !environment.sources.includes(source.id),
-              }))}
-              selected={sources}
-              onSelect={toggleSource}
-              action={
-                sources.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSources([]);
-                      setQuery({ signal: undefined });
-                    }}
-                    className="text-[9.5px] uppercase tracking-[0.18em] text-cyan-300"
-                  >
-                    Clear
-                  </button>
-                ) : undefined
-              }
-            />
-          </div>
-        </div>
-      </div>
+      <SelectionSummary
+        terms={summaryTerms}
+        family={FAMILY_LABEL[environment.family]}
+        idlePlaceholder="Choose a setting to build a scenario"
+      />
+
+      <ResultHeader
+        kicker="Deployment scenario"
+        title={environment.name}
+        forLabel={
+          summaryTerms.length > 1
+            ? `· ${summaryTerms.slice(1).join(" · ")}`
+            : undefined
+        }
+      />
 
       {/* ── RESULT PANEL ── */}
       <div className={`${styles.panel} mt-4`} aria-live="polite">

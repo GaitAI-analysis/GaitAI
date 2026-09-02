@@ -1,11 +1,3 @@
-import {
-  Activity,
-  Building2,
-  HeartPulse,
-  ShieldCheck,
-  Stethoscope,
-  Trophy,
-} from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { Intersection } from "@/components/sections/about/Intersection";
 import styles from "./usecases.module.css";
@@ -19,6 +11,11 @@ import styles from "./usecases.module.css";
  * than a page. Meaning is preserved: each line keeps the audience's actual
  * benefit and drops only the enumeration.
  *
+ * The cards carry no icon. Each one used to open with a Lucide glyph in a
+ * tinted tile — a heart for patients, a trophy for sports — which marked the
+ * card without telling a reader anything the title did not already say. The
+ * hierarchy is typographic now: audience name, then its value line.
+ *
  * This replaces the two-column definition list this page used to render
  * (the old WhoWeServe section, now removed): that form was a list to read,
  * and the page needs a grid to scan.
@@ -27,32 +24,26 @@ const audiences = [
   {
     title: "Patients",
     line: "Mobility screening and rehabilitation progress they can actually see.",
-    Icon: HeartPulse,
   },
   {
     title: "Elderly people",
     line: "Movement changes surfaced for review, at home or in care.",
-    Icon: Activity,
   },
   {
     title: "Doctors & physiotherapists",
     line: "Objective gait reports alongside their own clinical judgement.",
-    Icon: Stethoscope,
   },
   {
     title: "Sports professionals",
     line: "Posture, asymmetry and movement-efficiency analytics for athletes.",
-    Icon: Trophy,
   },
   {
     title: "Security teams",
     line: "Privacy-aware safety intelligence, identity only where authorized.",
-    Icon: ShieldCheck,
   },
   {
     title: "Organizations",
     line: "A movement-intelligence layer for enterprises, campuses and cities.",
-    Icon: Building2,
   },
 ];
 
@@ -75,9 +66,6 @@ export function UseCaseAudienceGrid() {
           <div className={styles.audienceGrid}>
             {audiences.map((a) => (
               <div key={a.title} className={styles.audienceCard}>
-                <span className={styles.audienceIcon}>
-                  <a.Icon aria-hidden="true" className="h-4 w-4" />
-                </span>
                 <h3 className={styles.audienceCardTitle}>{a.title}</h3>
                 <p className={styles.audienceLine}>{a.line}</p>
               </div>

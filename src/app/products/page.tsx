@@ -61,17 +61,22 @@ export default function ProductsPage() {
           <div className="relative">
             <div className="relative z-10 max-w-2xl">
               <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-                Our product ecosystem
+                Product finder
               </span>
               <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
-                Movement intelligence{" "}
-                <span className="text-gradient">for real-world impact.</span>
+                Find the right{" "}
+                <span className="text-gradient">GaitAI product mix.</span>
               </h1>
+              {/* "the same capture, pose, gait and quality layers" overstated
+                  the architecture: the modules share a movement-processing
+                  foundation, not one identical pipeline. */}
               <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-                Two product families. One Movement Intelligence Platform. Every one of the{" "}
-                {productCount} modules is built on the same capture, pose, gait
-                and quality layers — the family decides what the measurement is
-                read for.
+                Two product families. One Movement Intelligence Platform.
+                GaitAI&apos;s {productCount} modules share a common
+                movement-processing foundation, with capability-specific
+                pipelines for pose, gait, trajectory, sensor and privacy-aware
+                analysis. Choose your environment, objective and available
+                signals to see the best-fit modules.
               </p>
             </div>
 

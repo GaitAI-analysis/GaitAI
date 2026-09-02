@@ -2,6 +2,8 @@ import { Fragment, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { InsightBlock } from "@/data/insights";
+import { GaitCycleDiagram, StateStrip, TrendTrack } from "./diagrams";
+import styles from "./journal.module.css";
 
 /* ─────────────────────────────────────────────────────────────────────────
    Inline text — a deliberately tiny subset: **bold** and [label](/href).
@@ -122,17 +124,14 @@ function Block({ block }: { block: InsightBlock }) {
     }
 
     case "quote":
+      // A pull quote is a pause in the reading, so it gets space and scale
+      // instead of a box: centred, wider than the column, no quote marks.
       return (
-        <figure className="my-11 lg:-mx-10">
-          <blockquote className="relative pl-6 sm:pl-8">
-            <span
-              aria-hidden
-              className="absolute left-0 top-1 h-[calc(100%-0.5rem)] w-px bg-gradient-to-b from-cyan-300/70 via-royal-400/40 to-transparent"
-            />
-            <p className="font-display text-[1.4rem] leading-[1.45] text-balance text-soft-white sm:text-[1.7rem]">
-              {block.text}
-            </p>
+        <figure className={styles.pull}>
+          <blockquote>
+            <p className={styles.pullText}>{block.text}</p>
           </blockquote>
+          <span aria-hidden className={styles.pullRule} />
         </figure>
       );
 
@@ -248,6 +247,25 @@ function Block({ block }: { block: InsightBlock }) {
           )}
         </figure>
       );
+
+    case "matters":
+      return (
+        <aside className={styles.matters}>
+          <p className={styles.mattersLabel}>Why this matters</p>
+          <p className={styles.mattersText}>
+            <Inline text={block.text} />
+          </p>
+        </aside>
+      );
+
+    case "gaitcycle":
+      return <GaitCycleDiagram caption={block.caption} />;
+
+    case "states":
+      return <StateStrip items={block.items} caption={block.caption} />;
+
+    case "trend":
+      return <TrendTrack points={block.points} caption={block.caption} />;
 
     case "note":
       return (

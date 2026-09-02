@@ -15,34 +15,33 @@ import styles from "./engine.module.css";
  *
  * The message is a transformation, not three connected bubbles:
  *
- *   MOVEMENT → SIGNAL → INTERPRETATION → INTELLIGENCE → APPLICATION
+ *   MOVEMENT → SIGNAL EXTRACTION → INTELLIGENCE → APPLICATION
  *
  * Each world therefore carries a real internal system rather than a tint, and
  * the three systems share one temporal "Motion DNA" language — samples taken
  * over time — expressed three ways:
  *
- *   MobilityCare — biomechanical Motion DNA. A stride's joint-angle field,
- *     four genuine gait poses (heel strike → mid-stance → toe-off → swing)
- *     phase-aligned to that field, and a time axis whose samples are taken at
- *     a fixed rate and plotted against the phase-warped stride, so their
- *     spacing is irregular the way real gait timing is. Not a bar meter: the
- *     dominant marks are events and cadence intervals, and the sample ticks
- *     are deliberately near-flat.
- *   Engine — processed Motion DNA. A radial sample ring illuminated by a
- *     single sweep per loop rather than spun, an ingest arc that responds when
- *     the inbound signal lands, processing nodes that come up in turn, and an
- *     emit arc when the output leaves.
- *   SecureVision — anonymous spatial Motion DNA. A plan view of a monitored
- *     space with nobody in it: the surveyed boundary of the monitored area,
- *     trajectories through it, the gate events where a trajectory crosses that
- *     boundary, computed intersections, density contours where flow
- *     concentrates, the expected flow field as sparse vectors, a restricted
- *     area, and one route that leaves the expected flow and enters it. No
- *     figure, no silhouette, no camera, no shield: the privacy claim is the
- *     drawing itself — movement fully legible, identity absent because it was
- *     never in the data.
+ *   MobilityCare — biomechanical. A stride's joint-angle field, four genuine
+ *     gait poses (heel strike → stance → toe-off → swing) phase-aligned to
+ *     that field, and a time axis of gait events and cadence intervals. Not a
+ *     bar meter: the dominant marks are events and intervals, and the sample
+ *     ticks are deliberately near-flat.
+ *   Engine — signal interpretation. A radial sample ring that is illuminated
+ *     by a single sweep per loop rather than spun, an ingest arc that responds
+ *     when the inbound signal lands, and an emit arc when the output leaves.
+ *   SecureVision — anonymous human movement intelligence in public space. A
+ *     plan view of a monitored environment: anonymous pedestrian poses walking
+ *     it, each standing on the route it is walking, over density contours,
+ *     restricted-zone geometry, computed intersections and one flagged
+ *     deviation. The figures are pose graphs, not silhouettes — no face, no
+ *     fill, no bounding box, no camera and no shield — so the side reads as
+ *     people whose movement is measured, with nobody identified.
  *
- * COLOUR is the transformation too: the signal runs cyan (biomechanical
+ * So both worlds start from people and diverge in what the movement is read
+ * for: PEOPLE -> GAIT -> HEALTH on one side, PEOPLE -> TRAJECTORIES -> SAFETY
+ * on the other, off one engine.
+ *
+ * COLOUR is the transformation too: the signal itself runs cyan (biomechanical
  * capture) → electric blue (engine) → violet (spatial intelligence). The
  * channels are gradient-stroked, so the colour changes along the travel rather
  * than only between the circles.
@@ -88,6 +87,8 @@ type Geometry = {
   /* ── SecureVision field extent, as a fraction of worldR ── */
   fieldU: number;
   fieldV: number;
+  /** Pedestrian size against this composition's world. */
+  pedScale: number;
 
   /* ── Channel spread at the world end and at the engine end ── */
   fanWorld: number;
@@ -128,6 +129,7 @@ const WIDE: Geometry = {
 
   fieldU: 0.82,
   fieldV: 0.74,
+  pedScale: 1.08,
 
   fanWorld: 96,
   fanEngine: 34,
@@ -151,23 +153,20 @@ const STACKED: Geometry = {
   world: [210, 216],
   worldR: 120,
 
-  /* Tuned so the vertical composition carries the *same four* gait events as
-     the wide one — an abbreviated three-pose cycle dropped toe-off, which is
-     the event the whole sequence turns on. Every band's half-width is inside
-     the world disc's chord at that band's own height. */
-  phaseTop: 126,
-  phaseBase: 170,
-  phaseX: 72,
-  walkerIdx: [0, 2, 3, 4],
-  walkerBaseY: 222,
-  walkerScale: 0.78,
-  walkerSpacing: 48,
-  axisY: 290,
-  axisX: 80,
-  cadenceY: 306,
+  phaseTop: 120,
+  phaseBase: 166,
+  phaseX: 66,
+  walkerIdx: [0, 2, 4],
+  walkerBaseY: 220,
+  walkerScale: 0.86,
+  walkerSpacing: 54,
+  axisY: 286,
+  axisX: 86,
+  cadenceY: 302,
 
   fieldU: 0.82,
   fieldV: 0.74,
+  pedScale: 0.86,
 
   fanWorld: 70,
   fanEngine: 26,
@@ -216,104 +215,163 @@ function kneeAngle(t: number) {
   return 0.06 + 0.24 * bump(0.14, 0.09) + 0.9 * bump(0.73, 0.12);
 }
 
-/** Where each canonical event actually falls in the gait cycle. The events are
-    drawn evenly spaced — they are a filmstrip — but they are *not* evenly
-    spaced in time, and everything plotted against time (the joint-angle field,
-    the sample ticks) is mapped through this, which is what makes the temporal
-    progression biomechanically convincing rather than a pose slid sideways. */
-const CYCLE_T = [0, 0.12, 0.3, 0.6, 0.8] as const;
+/* ═══ SecureVision: the people the trajectories belong to ═════════════════
+   Anonymous pedestrian forms, in the same pose-graph language as the
+   MobilityCare walkers but seen three-quarter-on rather than in profile —
+   MobilityCare studies one person's gait side-on; SecureVision watches several
+   people cross a space. Each figure is a stick pose with joints: no face, no
+   silhouette fill, no bounding box, nothing that identifies anybody.
 
-/* ═══ SecureVision: the anonymous spatial movement field ═══════════════════
-   A plan view of a monitored space with nobody in it. What is drawn is the
-   movement, never the mover.
+   Local frame: feet on y = 0, hip at y = -19, neck at y = -40, head above
+   that, so a figure can be dropped onto a ground position and stand on it.
+   The five poses are authored rather than generated so each reads as a
+   distinct stance — stride width, arm swing and torso lean all differ, which
+   is what stops five figures reading as one figure stamped five times. */
+const PED_HIP: Pt = [0, -19];
+
+type PedPose = {
+  id: string;
+  /** Torso lean at the neck, in local x. */
+  lean: number;
+  /** shoulder → elbow → wrist */
+  armA: readonly [Pt, Pt, Pt];
+  armB: readonly [Pt, Pt, Pt];
+  /** hip → knee → ankle */
+  legA: readonly [Pt, Pt, Pt];
+  legB: readonly [Pt, Pt, Pt];
+};
+
+const PED_POSES: readonly PedPose[] = [
+  {
+    id: "stride",
+    lean: 0.6,
+    armA: [[-5, -38], [-7, -30], [-7.5, -22]],
+    armB: [[5.5, -38], [7.5, -31], [10, -25]],
+    legA: [[0, -19], [-5, -10], [-9, 0]],
+    legB: [[0, -19], [5.5, -10], [9.5, -1]],
+  },
+  {
+    id: "swing",
+    lean: -0.3,
+    armA: [[-4.5, -38], [-5.5, -30], [-6, -21]],
+    armB: [[4.5, -38], [5.5, -30], [6, -21]],
+    legA: [[0, -19], [-3, -10], [-4, 0]],
+    legB: [[0, -19], [3, -11], [4.5, -2.5]],
+  },
+  {
+    id: "wide",
+    lean: 1,
+    armA: [[-6, -38], [-8.5, -31], [-11, -24]],
+    armB: [[6, -38], [8.5, -32], [11, -26]],
+    legA: [[0, -19], [-6.5, -11], [-12, 0]],
+    legB: [[0, -19], [6, -10], [11, 0]],
+  },
+  {
+    id: "turn",
+    lean: -1,
+    armA: [[-5, -38], [-7, -32], [-5.5, -24]],
+    armB: [[5, -38], [7, -31], [9.5, -24]],
+    legA: [[0, -19], [-4, -10], [-6, 0]],
+    legB: [[0, -19], [4, -11], [6.5, -3]],
+  },
+  {
+    id: "slow",
+    lean: 0.4,
+    armA: [[-5, -38], [-6.5, -30], [-8, -21]],
+    armB: [[5, -38], [6.5, -32], [9, -27]],
+    legA: [[0, -19], [-4.5, -10], [-7, 0]],
+    legB: [[0, -19], [3.5, -10], [5.5, 0]],
+  },
+];
+
+/** Which route each figure stands on, where along it, and how big.
+    Route -1 is the flagged departure, so one figure is standing on the route
+    that gets flagged — the amber trail runs out from under their feet.
+    Scale doubles as the depth cue: figures further up the field are further
+    away and smaller, and the stroke weight follows. */
+const PED_PLACEMENT: readonly {
+  route: number;
+  f: number;
+  s: number;
+  pose: number;
+  w: number;
+  flip: boolean;
+  /** Dropped from the stacked composition, which has less room. */
+  wideOnly?: boolean;
+}[] = [
+  { route: 0, f: 0.3, s: 0.6, pose: 2, w: 1.1, flip: false },
+  { route: 0, f: 0.74, s: 0.58, pose: 3, w: 1.1, flip: true },
+  { route: 1, f: 0.4, s: 0.76, pose: 4, w: 1.3, flip: false, wideOnly: true },
+  { route: 2, f: 0.16, s: 0.94, pose: 0, w: 1.5, flip: false },
+  { route: -1, f: 0.45, s: 0.88, pose: 1, w: 1.5, flip: true },
+];
+
+/* ═══ SecureVision: the spatial movement field ═════════════════════════════
+   The plan view the pedestrians walk on: surveyed ground, density contours
+   where flow concentrates, a restricted-area polygon, tracked routes that
+   follow the expected flow, and one route that deviates into the zone. The
+   contrast with MobilityCare is the reading, not the subject — both sides are
+   people; this one measures where they go rather than how they walk.
 
    Routes are declared as points in a normalized (u, v) field where u and v run
    -1..1 across the world. Declaring them as points rather than as hand-written
-   Bézier strings is what lets the boundary gates and the intersections below be
-   *computed* from the real geometry instead of eyeballed, and lets the
-   per-route temporal samples be placed by arc length, so all of it stays
-   correct at either composition size. */
+   Bézier strings is what lets the intersections below be *computed* from the
+   real geometry instead of eyeballed, and lets the per-route temporal samples
+   be placed by arc length, so both stay correct at either composition size. */
 type UV = readonly [number, number];
 
-/** The surveyed boundary of the monitored area. An octagon rather than a
-    rectangle because the field is inscribed in a circle: a rectangle's corners
-    would be clipped away by the world disc, and a clipped boundary reads as an
-    accident rather than as a survey. */
-const SECURE_PERIMETER: readonly UV[] = [
-  [-0.94, -0.48],
-  [-0.58, -0.9],
-  [0.58, -0.9],
-  [0.94, -0.48],
-  [0.94, 0.48],
-  [0.58, 0.9],
-  [-0.58, 0.9],
-  [-0.94, 0.48],
-];
-
-/** Trajectories following the expected flow. Individually varied — a set of
-    identical bows is what made an earlier version read as a waveform — and
-    every one of them begins outside the boundary, so the gate events below can
-    be computed from real crossings instead of being placed by eye. */
+/** Routes following the expected flow. Individually varied — four identical
+    bows is what made an earlier version read as an audio waveform. Endpoint
+    v values are kept inside the world disc so their event nodes survive the
+    clip at both sizes. */
 const SECURE_TRACKS: readonly (readonly UV[])[] = [
-  /* Three lanes across the space. */
-  [[-1.06, -0.42], [-0.5, -0.68], [0.05, -0.5], [0.58, -0.6], [1.06, -0.54]],
-  [[-1.06, -0.06], [-0.46, 0.1], [0.1, -0.04], [0.6, 0.12], [1.06, 0.04]],
-  [[-1.06, 0.42], [-0.44, 0.36], [0.12, 0.47], [0.62, 0.38], [1.06, 0.44]],
-  /* One that turns and leaves through the far boundary. */
-  [[-1.06, -0.2], [-0.62, -0.34], [-0.2, -0.6], [0.06, -0.86], [0.2, -1.06]],
-  /* One that enters from the near boundary and merges into the middle lane,
-     ending on a tracked event inside the space rather than at a gate. */
-  [[-0.46, 1.06], [-0.36, 0.68], [-0.22, 0.4], [-0.04, 0.16], [0.2, 0.04]],
+  [[-1, -0.5], [-0.5, -0.7], [0.05, -0.5], [0.58, -0.6], [1, -0.66]],
+  [[-1, -0.05], [-0.46, 0.11], [0.1, -0.03], [0.6, 0.13], [1, 0.05]],
+  [[-1, 0.52], [-0.44, 0.47], [0.12, 0.6], [0.62, 0.49], [1, 0.56]],
 ];
 
 /** A cross-flow route, so the field has genuine crossings to mark. */
 const SECURE_CROSS: readonly UV[] = [
-  [-0.3, -1.06],
-  [-0.34, -0.4],
-  [-0.5, 0.2],
-  [-0.6, 0.7],
-  [-0.56, 1.06],
+  [-0.72, -0.9],
+  [-0.3, -0.34],
+  [0.08, 0.22],
+  [0.46, 0.78],
 ];
 
 /** The anomaly: enters on the expected flow, then veers into the zone. */
 const SECURE_ANOMALY: readonly UV[] = [
-  [-1.06, 0.16],
-  [-0.5, 0.26],
-  [-0.02, 0.2],
-  [0.24, 0.46],
-  [0.42, 0.74],
+  [-1, 0.2],
+  [-0.54, 0.34],
+  [-0.1, 0.24],
+  [0.18, 0.5],
+  [0.44, 0.74],
 ];
 
 /** Where that route was expected to continue — drawn as a faint ghost so the
     deviation is legible as a deviation, not just as another line. */
 const SECURE_EXPECTED: readonly UV[] = [
-  [-0.02, 0.2],
-  [0.4, 0.28],
-  [0.78, 0.2],
-  [1.06, 0.26],
+  [-0.1, 0.24],
+  [0.32, 0.34],
+  [0.7, 0.24],
+  [0.99, 0.32],
 ];
 
-/** Restricted-area perimeter. Placed where no expected route runs: an ordinary
-    lane crossing the restricted area would undo the whole reading. */
+/** Restricted-area perimeter. */
 const SECURE_ZONE: readonly UV[] = [
-  [0.1, 0.62],
-  [0.66, 0.54],
-  [0.72, 0.76],
-  [0.16, 0.9],
+  [0.1, 0.42],
+  [0.78, 0.28],
+  [0.88, 0.8],
+  [0.16, 0.88],
 ];
 
-/** Sparse flow vectors: sample positions in the expected flow field, placed in
-    the gaps between routes so the field reads as a field and not as more
-    trajectories. */
+/** Sparse flow vectors: sample positions in the expected flow field. */
 const SECURE_VECTORS: readonly UV[] = [
-  [-0.7, -0.72],
-  [-0.16, -0.8],
-  [0.36, -0.82],
-  [0.78, -0.3],
-  [0.5, -0.24],
-  [0.9, -0.12],
-  [-0.78, 0.66],
-  [-0.06, 0.86],
+  [-0.66, -0.3],
+  [-0.16, -0.78],
+  [0.3, -0.26],
+  [-0.62, 0.26],
+  [0.72, -0.02],
+  [-0.2, 0.72],
 ];
 
 /** Catmull-Rom through the points, emitted as a smooth cubic path. */
@@ -421,21 +479,11 @@ function polyHits(p: readonly Pt[], q: readonly Pt[]): Pt[] {
 }
 
 /** A closed density isoline. The radius is perturbed deterministically so it
-    reads as a contour rather than as a target ring or a radar sweep; `seed`
-    shifts the perturbation so a second cluster is not a copy of the first. */
-function contour(
-  cx: number,
-  cy: number,
-  rx: number,
-  ry: number,
-  seed = 0,
-) {
+    reads as a contour rather than as a target ring or a radar sweep. */
+function contour(cx: number, cy: number, rx: number, ry: number) {
   const pts: Pt[] = Array.from({ length: 24 }, (_, i) => {
     const a = (i / 24) * Math.PI * 2;
-    const k =
-      1 +
-      0.17 * Math.sin(3 * a + 0.7 + seed) +
-      0.09 * Math.cos(2 * a - 0.3 - seed);
+    const k = 1 + 0.17 * Math.sin(3 * a + 0.7) + 0.09 * Math.cos(2 * a - 0.3);
     return [cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k];
   });
   return `${smoothPath([...pts, pts[0], pts[1]])} Z`;
@@ -509,6 +557,73 @@ function Walker({
   );
 }
 
+/** One anonymous pedestrian, standing on the ground point it is given.
+    The strokes are drawn twice — a wide, very faint copy under the real one —
+    which is the whole of the "glow": a filter would be the only filter in the
+    composition, and a fill would make a silhouette. */
+function Pedestrian({
+  pose,
+  at,
+  s,
+  w,
+  flip,
+}: {
+  pose: PedPose;
+  at: Pt;
+  s: number;
+  w: number;
+  flip: boolean;
+}) {
+  const pts = (p: readonly Pt[]) => p.map(([x, y]) => `${x},${y}`).join(" ");
+  const neck: Pt = [pose.lean, -40];
+  const limbs = [pose.armA, pose.armB, pose.legA, pose.legB];
+  const joints: Pt[] = [
+    PED_HIP,
+    pose.armA[1],
+    pose.armB[1],
+    pose.legA[1],
+    pose.legB[1],
+  ];
+
+  const strokes = (
+    <>
+      {limbs.map((limb, i) => (
+        <polyline key={i} points={pts(limb)} />
+      ))}
+      <line
+        x1={pose.armA[0][0]}
+        y1={pose.armA[0][1]}
+        x2={pose.armB[0][0]}
+        y2={pose.armB[0][1]}
+      />
+      <line x1={PED_HIP[0]} y1={PED_HIP[1]} x2={neck[0]} y2={neck[1]} />
+    </>
+  );
+
+  return (
+    <g
+      className={styles.ped}
+      transform={`translate(${at[0].toFixed(1)} ${at[1].toFixed(1)}) scale(${(flip ? -s : s).toFixed(3)} ${s.toFixed(3)})`}
+      style={{ "--ped-w": w } as CSSProperties}
+    >
+      {/* Ground contact — grounds the figure in the plan view the way the
+          dashed line grounds the MobilityCare walkers. */}
+      <ellipse className={styles.pedContact} cx={0} cy={0} rx={6} ry={1.6} />
+      <g className={styles.pedHalo}>{strokes}</g>
+      <g className={styles.pedBody}>{strokes}</g>
+      <circle
+        className={styles.pedHead}
+        cx={pose.lean * 1.15}
+        cy={-45.5}
+        r={4.3}
+      />
+      {joints.map(([jx, jy], i) => (
+        <circle key={i} className={styles.pedJoint} cx={jx} cy={jy} r={1.5} />
+      ))}
+    </g>
+  );
+}
+
 export function MovementEngineCore({
   variant = "wide",
   focus = null,
@@ -534,15 +649,15 @@ export function MovementEngineCore({
 
   /* Four canonical events across the stride, evenly spaced along x so the
      sequence reads as a strip. Their gait phase, however, is *not* evenly
-     spaced in time, so everything plotted against time is mapped through the
-     piecewise x ↔ stride-fraction pair below — which is what keeps every pose
-     sitting on its own phase of the curve. */
+     spaced in time, so the joint-angle field below is plotted against a
+     piecewise mapping from x back to stride fraction — which is what keeps
+     every pose sitting on its own phase of the curve. */
   const walkerX0 =
     careCentre[0] - ((geo.walkerIdx.length - 1) * geo.walkerSpacing) / 2;
   const events = geo.walkerIdx.map((idx, i) => ({
     idx,
     x: walkerX0 + i * geo.walkerSpacing,
-    t: CYCLE_T[idx] ?? idx / GAIT_PHASES.length,
+    t: idx / GAIT_PHASES.length,
     phase: GAIT_PHASES[idx],
   }));
   const groundY = geo.walkerBaseY + 48 * geo.walkerScale;
@@ -554,18 +669,6 @@ export function MovementEngineCore({
     const a = events[i];
     const b = events[i + 1];
     return a.t + ((x - a.x) * (b.t - a.t)) / (b.x - a.x);
-  };
-
-  /** Its inverse: where a moment in the stride lands on the strip. A fixed
-      sample rate run through this comes out irregularly spaced, which is the
-      honest picture of gait timing — and the opposite of a level meter's
-      perfectly even comb. */
-  const tToX = (t: number) => {
-    let i = 0;
-    while (i < events.length - 2 && t > events[i + 1].t) i++;
-    const a = events[i];
-    const b = events[i + 1];
-    return a.x + ((t - a.t) * (b.x - a.x)) / (b.t - a.t);
   };
 
   /* Two stacked channels, each with its own baseline — the way a gait report
@@ -585,19 +688,6 @@ export function MovementEngineCore({
       }),
     );
 
-  /* The time axis samples: 29 of them at a fixed rate over the stride window
-     the axis covers, each placed at the x its own moment maps to. */
-  const axisT0 = xToT(careCentre[0] - geo.axisX);
-  const axisT1 = xToT(careCentre[0] + geo.axisX);
-  const axisSamples = Array.from({ length: 29 }, (_, i) => {
-    const t = axisT0 + ((axisT1 - axisT0) * i) / 28;
-    return {
-      x: tToX(t),
-      /* Slight deterministic variation only: a tall tick reads as audio. */
-      h: 2.4 + 1.6 * Math.abs(Math.sin(i * 1.7)),
-    };
-  });
-
   /* ══ SecureVision ═════════════════════════════════════════════════════
      Normalized field coords -> absolute. The field is wider than it is tall
      so the flow reads as directional, and covers a little under 60% of the
@@ -610,15 +700,17 @@ export function MovementEngineCore({
     secureCentre[1] + v * fh,
   ];
 
-  const perimeter = SECURE_PERIMETER.map(F);
-  /** Closed ring, for the crossing maths. */
-  const perimeterRing = [...perimeter, perimeter[0]];
   const tracks = SECURE_TRACKS.map((t) => t.map(F));
   const crossRoute = SECURE_CROSS.map(F);
   const anomaly = SECURE_ANOMALY.map(F);
   const expected = SECURE_EXPECTED.map(F);
   const zone = SECURE_ZONE.map(F);
-  const zoneRing = [...zone, zone[0]];
+
+  /* Real crossings, computed from the polylines above. */
+  const junctions = [
+    ...tracks.flatMap((t) => polyHits(t, crossRoute)),
+    ...polyHits(anomaly, crossRoute),
+  ];
 
   /* Per-route temporal samples and a direction chevron, placed by arc length
      on the flattened curve. This is the SecureVision dialect of the same
@@ -626,8 +718,8 @@ export function MovementEngineCore({
      taken along a trajectory instead of against a clock or a radius. */
   const trackFlat = tracks.map((t) => flatten(t));
   const trackDetail = trackFlat.map((flat) => ({
-    samples: [0.22, 0.4, 0.58, 0.76].map((f) => alongPoly(flat, f).p),
-    chevron: alongPoly(flat, 0.5),
+    samples: [0.16, 0.32, 0.48, 0.64, 0.8].map((f) => alongPoly(flat, f).p),
+    chevron: alongPoly(flat, 0.56),
   }));
 
   /* The deviating route is only anomalous *after* it deviates. Drawing the
@@ -642,66 +734,27 @@ export function MovementEngineCore({
   const anomalyApproach = anomalyFlat.slice(0, splitAt + 1);
   const anomalyDeviation = anomalyFlat.slice(splitAt);
   const anomalyDetail = {
-    samples: [0.24, 0.5, 0.76].map((f) => alongPoly(anomalyApproach, f).p),
-    chevron: alongPoly(anomalyApproach, 0.56),
+    samples: [0.2, 0.4, 0.6].map(
+      (f) => alongPoly(anomalyApproach, f).p,
+    ),
+    chevron: alongPoly(anomalyApproach, 0.55),
   };
 
-  /* Gate events: where a trajectory crosses the surveyed boundary. Computed,
-     not placed — which is what makes them mean "counted crossing" rather than
-     "dot near the edge". */
-  const crossFlat = flatten(crossRoute);
-  const routeFlats = [...trackFlat, crossFlat, anomalyFlat];
-  const gates = routeFlats.flatMap((route) => polyHits(route, perimeterRing));
+  /* The people the routes belong to. Each figure's feet are solved onto the
+     route it is walking, so the association between a person and their
+     trajectory is geometric rather than eyeballed, and stays right at both
+     composition sizes. One of them stands on the route that gets flagged. */
+  const pedestrians = PED_PLACEMENT.filter(
+    (q) => !(q.wideOnly && geo.stacked),
+  ).map((q) => ({
+    ...q,
+    at: alongPoly(q.route < 0 ? anomalyDeviation : trackFlat[q.route], q.f).p,
+    scale: q.s * geo.pedScale,
+  }));
 
-  /* Real intersections between trajectories, from the same geometry. The
-     merge terminal is marked separately, so any crossing that coincides with
-     it is dropped rather than drawn twice. */
-  const mergeEnd = trackFlat[trackFlat.length - 1].at(-1) as Pt;
-  const junctions = routeFlats
-    .flatMap((a, i) => routeFlats.slice(i + 1).flatMap((b) => polyHits(a, b)))
-    .filter(([x, y]) => Math.hypot(x - mergeEnd[0], y - mergeEnd[1]) > 7)
-    /* Two routes crossing a third within a few px of each other produce marks
-       that overlap into a blot; the first one drawn stands for both. */
-    .filter(
-      (p, i, all) =>
-        !all.some(
-          (q, j) => j < i && Math.hypot(p[0] - q[0], p[1] - q[1]) < 12,
-        ),
-    );
-
-  /* The deviation point is where the ghost continuation begins; the breach is
-     the computed crossing of the restricted boundary; the flagged event is
-     where the route ended up inside it. */
+  /* The deviation point is where the ghost continuation begins. */
   const deviation = expected[0];
-  const breach = polyHits(anomalyDeviation, zoneRing)[0];
   const flagged = anomaly[anomaly.length - 1];
-
-  /* Restricted-area hatching, clipped to the zone: 45° hairlines across its
-     bounding box, so the zone reads as governed ground rather than as one more
-     outline. */
-  const zoneBox = {
-    x0: Math.min(...zone.map((p) => p[0])),
-    x1: Math.max(...zone.map((p) => p[0])),
-    y0: Math.min(...zone.map((p) => p[1])),
-    y1: Math.max(...zone.map((p) => p[1])),
-  };
-  const hatchStep = geo.stacked ? 11 : 15;
-  const hatch = Array.from(
-    {
-      length: Math.ceil(
-        (zoneBox.x1 - zoneBox.x0 + (zoneBox.y1 - zoneBox.y0)) / hatchStep,
-      ),
-    },
-    (_, i) => {
-      const x = zoneBox.x0 - (zoneBox.y1 - zoneBox.y0) + i * hatchStep;
-      return {
-        x1: x,
-        y1: zoneBox.y0,
-        x2: x + (zoneBox.y1 - zoneBox.y0),
-        y2: zoneBox.y1,
-      };
-    },
-  );
 
   /* ══ Channels: care → engine → secure ════════════════════════════════
      The channels are not parallel rails. They leave the world spread wide
@@ -799,10 +852,10 @@ export function MovementEngineCore({
   ) => {
     const [wx, wy] = centre;
     const edge = below ? wy + geo.worldR : wy - geo.worldR;
-    const ruleY = below ? edge + 17 : edge - 78;
-    const titleY = below ? edge + 42 : edge - 56;
-    const subY = below ? [edge + 61, edge + 78] : [edge - 34, edge - 17];
-    const stemY = below ? edge + 8 : edge - 8;
+    const ruleY = below ? edge + 19 : edge - 82;
+    const titleY = below ? edge + 45 : edge - 60;
+    const subY = below ? [edge + 65, edge + 82] : [edge - 40, edge - 23];
+    const stemY = below ? edge + 11 : edge - 11;
     return (
       <g className={styles.labelGroup}>
         <line
@@ -838,19 +891,10 @@ export function MovementEngineCore({
     );
   };
 
-  /** A heading chevron on a route, at a point and local heading. */
-  const chevron = ({ p, a }: { p: Pt; a: number }) => (
-    <polyline
-      className={styles.secChevron}
-      transform={`rotate(${a.toFixed(1)} ${p[0].toFixed(1)} ${p[1].toFixed(1)})`}
-      points={`${(p[0] - 2.6).toFixed(1)},${(p[1] - 2.6).toFixed(1)} ${(p[0] + 1.4).toFixed(1)},${p[1].toFixed(1)} ${(p[0] - 2.6).toFixed(1)},${(p[1] + 2.6).toFixed(1)}`}
-    />
-  );
-
   return (
     <svg
       role="img"
-      aria-label="How the GaitAI ecosystem turns human movement into intelligence. On the left, MobilityCare: a stride's joint-angle field, four walking poses from heel strike through mid-stance and toe-off to swing, and a time axis of gait events and cadence intervals. In the centre, the GaitAI Movement Intelligence Engine, shown as a sampling ring that illuminates as the signal arrives and leaves. On the right, SecureVision: an anonymous plan view of a monitored space — its surveyed boundary, trajectories crossing it, the crossing and intersection events computed from them, density contours, the expected flow field, a restricted area, and one route that leaves the expected flow and enters that area, flagged. Nobody is depicted."
+      aria-label="How the GaitAI ecosystem turns human movement into intelligence. On the left, MobilityCare: a stride's joint-angle field, four walking poses from heel strike to swing, and a time axis of gait events. In the centre, the GaitAI Movement Intelligence Engine, shown as a sampling ring that illuminates as the signal arrives. On the right, SecureVision: a plan view of a public space with anonymous pedestrian figures walking through it, each standing on its own tracked route, over density contours and a restricted zone, with one route deviating into that zone and flagged."
       viewBox={`0 0 ${geo.w} ${geo.h}`}
       data-focus={focus ?? "none"}
       className={`${styles.engine} ${
@@ -908,9 +952,6 @@ export function MovementEngineCore({
         </clipPath>
         <clipPath id={`eng-care-clip-${k}`}>
           <circle cx={careCentre[0]} cy={careCentre[1]} r={geo.worldR - 1} />
-        </clipPath>
-        <clipPath id={`eng-zone-clip-${k}`}>
-          <polygon points={zone.map(([x, y]) => `${x},${y}`).join(" ")} />
         </clipPath>
       </defs>
 
@@ -1024,10 +1065,9 @@ export function MovementEngineCore({
 
           {/* ── Band 3: the gait-event time axis ──
               Deliberately not a bar meter. The sample ticks are near-flat and
-              irregularly spaced — a fixed sample rate plotted against the
-              phase-warped stride — and what carries the band is the gait
-              events, the stems tying each event to the pose above it, and the
-              cadence intervals between them. Time and walking, not audio. */}
+              only lightly varied; what carries the band is the gait events,
+              the stems tying each event to the pose above it, and the cadence
+              intervals between them. Time and movement, not audio. */}
           <g>
             <line
               className={styles.axisLine}
@@ -1036,16 +1076,23 @@ export function MovementEngineCore({
               x2={careCentre[0] + geo.axisX}
               y2={geo.axisY}
             />
-            {axisSamples.map((s, i) => (
-              <line
-                key={`st${i}`}
-                className={styles.axisSample}
-                x1={s.x}
-                y1={geo.axisY}
-                x2={s.x}
-                y2={geo.axisY - s.h}
-              />
-            ))}
+            {Array.from({ length: 29 }, (_, i) => {
+              const x =
+                careCentre[0] - geo.axisX + (i * geo.axisX * 2) / 28;
+              /* Slight deterministic variation: a perfect comb reads as a
+                 ruler, and a tall one reads as an equalizer. */
+              const h = 2.4 + 1.6 * Math.abs(Math.sin(i * 1.7));
+              return (
+                <line
+                  key={`st${i}`}
+                  className={styles.axisSample}
+                  x1={x}
+                  y1={geo.axisY}
+                  x2={x}
+                  y2={geo.axisY - h}
+                />
+              );
+            })}
             {events.map((e, i) => (
               <g key={`ev${e.idx}`} style={{ "--eng-i": i } as CSSProperties}>
                 <line
@@ -1092,10 +1139,7 @@ export function MovementEngineCore({
         )}
       </g>
 
-      {/* ═══ SECUREVISION WORLD ═══
-          Anonymous spatial movement intelligence. Nobody is drawn: the field
-          is the surveyed space, the trajectories through it, and what the
-          system computes from them. */}
+      {/* ═══ SECUREVISION WORLD ═══ */}
       <g
         className={`${styles.world} ${styles.secure}`}
         onMouseEnter={onFocus ? () => onFocus("secure") : undefined}
@@ -1138,66 +1182,29 @@ export function MovementEngineCore({
             ))}
           </g>
 
-          {/* The monitored area's surveyed boundary, with a survey mark at
-              each vertex. This is the structure that stops the world reading
-              as an empty circle: everything else sits inside a bounded,
-              measured space. */}
-          <polygon
-            className={styles.secPerimeter}
-            points={perimeter.map(([x, y]) => `${x},${y}`).join(" ")}
-          />
-          {perimeter.map(([x, y], i) => (
-            <circle
-              key={`pv${i}`}
-              className={styles.secPerimeterMark}
-              cx={x}
-              cy={y}
-              r={1.6}
-            />
-          ))}
-
-          {/* Density contours where the flow concentrates — two clusters, at
-              the two places the routes actually converge. */}
+          {/* Density contours where the flow concentrates. */}
           <g className={styles.secDensity}>
             {[1, 0.66, 0.36].map((s, i) => {
-              const [dx, dy] = F([-0.42, -0.2]);
+              const [dx, dy] = F([-0.44, -0.22]);
               return (
                 <path
-                  key={`da${i}`}
+                  key={i}
                   className={styles.secContour}
                   d={contour(dx, dy, fw * 0.3 * s, fh * 0.34 * s)}
                 />
               );
             })}
-            {[1, 0.6].map((s, i) => {
-              const [dx, dy] = F([0.24, -0.62]);
-              return (
-                <path
-                  key={`db${i}`}
-                  className={styles.secContour}
-                  d={contour(dx, dy, fw * 0.2 * s, fh * 0.22 * s, 2.1)}
-                />
-              );
-            })}
           </g>
 
-          {/* Restricted area: perimeter, governed ground, survey marks. */}
+          {/* Restricted-area perimeter, with survey marks at its vertices. */}
           <polygon
             className={styles.secZone}
             points={zone.map(([x, y]) => `${x},${y}`).join(" ")}
           />
-          <g
-            className={styles.secZoneHatch}
-            clipPath={`url(#eng-zone-clip-${k})`}
-          >
-            {hatch.map((h, i) => (
-              <line key={`zh${i}`} x1={h.x1} y1={h.y1} x2={h.x2} y2={h.y2} />
-            ))}
-          </g>
           {zone.map(([x, y], i) => (
             <g key={`zm${i}`} className={styles.secZoneMark}>
-              <line x1={x - 2.6} y1={y} x2={x + 2.6} y2={y} />
-              <line x1={x} y1={y - 2.6} x2={x} y2={y + 2.6} />
+              <line x1={x - 3.5} y1={y} x2={x + 3.5} y2={y} />
+              <line x1={x} y1={y - 3.5} x2={x} y2={y + 3.5} />
             </g>
           ))}
 
@@ -1217,9 +1224,6 @@ export function MovementEngineCore({
             })}
           </g>
 
-          {/* Cross-flow route — finer, so it reads as a secondary path. */}
-          <path className={styles.secCross} d={smoothPath(crossRoute)} />
-
           {/* Tracked routes following the expected flow, each carrying its own
               temporal samples and a heading chevron. */}
           {tracks.map((t, i) => {
@@ -1238,10 +1242,17 @@ export function MovementEngineCore({
                     r={1.15}
                   />
                 ))}
-                {chevron(detail.chevron)}
+                <polyline
+                  className={styles.secChevron}
+                  transform={`rotate(${detail.chevron.a.toFixed(1)} ${detail.chevron.p[0].toFixed(1)} ${detail.chevron.p[1].toFixed(1)})`}
+                  points={`${(detail.chevron.p[0] - 2.6).toFixed(1)},${(detail.chevron.p[1] - 2.6).toFixed(1)} ${(detail.chevron.p[0] + 1.4).toFixed(1)},${detail.chevron.p[1].toFixed(1)} ${(detail.chevron.p[0] - 2.6).toFixed(1)},${(detail.chevron.p[1] + 2.6).toFixed(1)}`}
+                />
               </g>
             );
           })}
+
+          {/* Cross-flow route. */}
+          <path className={styles.secCross} d={smoothPath(crossRoute)} />
 
           {/* Route intersections, at the computed crossings. */}
           {junctions.map(([x, y], i) => (
@@ -1250,34 +1261,41 @@ export function MovementEngineCore({
               className={styles.secJunction}
               cx={x}
               cy={y}
-              r={2.8}
+              r={3.4}
             />
           ))}
 
-          {/* Anonymous crossing events, where a route meets the boundary. */}
-          {gates.map(([x, y], i) => (
-            <circle
-              key={`g${i}`}
-              className={styles.secGate}
-              cx={x}
-              cy={y}
-              r={2.2}
-            />
+          {/* Anonymous event nodes at every route entry and exit. */}
+          {tracks.map((t, i) => (
+            <g key={`n${i}`}>
+              <circle
+                className={styles.secNode}
+                cx={t[0][0]}
+                cy={t[0][1]}
+                r={2.4}
+              />
+              <circle
+                className={styles.secNode}
+                cx={t[t.length - 1][0]}
+                cy={t[t.length - 1][1]}
+                r={2.4}
+              />
+            </g>
           ))}
 
-          {/* The tracked event one route ends on, inside the space. */}
-          <circle
-            className={styles.secNodeRing}
-            cx={mergeEnd[0]}
-            cy={mergeEnd[1]}
-            r={4.4}
-          />
-          <circle
-            className={styles.secNode}
-            cx={mergeEnd[0]}
-            cy={mergeEnd[1]}
-            r={1.8}
-          />
+          {/* The people. Drawn over the field so they are the first thing
+              read, and under the flagged route so the accent still lands on
+              top of everything. */}
+          {pedestrians.map((q, i) => (
+            <Pedestrian
+              key={`ped${i}`}
+              pose={PED_POSES[q.pose]}
+              at={q.at}
+              s={q.scale}
+              w={q.w}
+              flip={q.flip}
+            />
+          ))}
 
           {/* The deviating route: an ordinary approach, the continuation it
               was expected to follow as a ghost, then the departure itself. */}
@@ -1285,7 +1303,11 @@ export function MovementEngineCore({
           {anomalyDetail.samples.map(([sx, sy], j) => (
             <circle key={`as${j}`} className={styles.secSample} cx={sx} cy={sy} r={1.15} />
           ))}
-          {chevron(anomalyDetail.chevron)}
+          <polyline
+            className={styles.secChevron}
+            transform={`rotate(${anomalyDetail.chevron.a.toFixed(1)} ${anomalyDetail.chevron.p[0].toFixed(1)} ${anomalyDetail.chevron.p[1].toFixed(1)})`}
+            points={`${(anomalyDetail.chevron.p[0] - 2.6).toFixed(1)},${(anomalyDetail.chevron.p[1] - 2.6).toFixed(1)} ${(anomalyDetail.chevron.p[0] + 1.4).toFixed(1)},${anomalyDetail.chevron.p[1].toFixed(1)} ${(anomalyDetail.chevron.p[0] - 2.6).toFixed(1)},${(anomalyDetail.chevron.p[1] + 2.6).toFixed(1)}`}
+          />
           <path className={styles.secGhost} d={smoothPath(expected)} />
           <path className={styles.secAnomaly} d={polyD(anomalyDeviation)} />
           <path
@@ -1299,23 +1321,6 @@ export function MovementEngineCore({
             cy={deviation[1]}
             r={3.2}
           />
-          {/* Where the deviation actually crosses the restricted boundary. */}
-          {breach ? (
-            <g className={styles.secBreach}>
-              <line
-                x1={breach[0] - 3}
-                y1={breach[1] - 3}
-                x2={breach[0] + 3}
-                y2={breach[1] + 3}
-              />
-              <line
-                x1={breach[0] - 3}
-                y1={breach[1] + 3}
-                x2={breach[0] + 3}
-                y2={breach[1] - 3}
-              />
-            </g>
-          ) : null}
           <circle
             className={styles.secAlertPulse}
             cx={flagged[0]}
@@ -1342,18 +1347,11 @@ export function MovementEngineCore({
       {/* ═══ CHANNELS: care → engine → secure ═══
           Gradient-stroked, so the signal changes colour along the travel:
           cyan out of MobilityCare, electric blue at the engine, violet into
-          SecureVision. Each channel is a sampled trace, not a pipe: the
-          static dots are the samples, and one travelling point runs them. */}
+          SecureVision. */}
       <g className={styles.chIn}>
         {inflow.map((d, i) => (
           <g key={`in${i}`} style={{ "--eng-i": i } as CSSProperties}>
             <path className={styles.trace} d={d} stroke={`url(#eng-in-${k})`} />
-            <path
-              className={styles.traceSample}
-              d={d}
-              pathLength={100}
-              stroke={`url(#eng-in-${k})`}
-            />
             <path
               className={styles.traceIn}
               d={d}
@@ -1373,12 +1371,6 @@ export function MovementEngineCore({
         {outflow.map((d, i) => (
           <g key={`out${i}`} style={{ "--eng-i": i } as CSSProperties}>
             <path className={styles.trace} d={d} stroke={`url(#eng-out-${k})`} />
-            <path
-              className={styles.traceSample}
-              d={d}
-              pathLength={100}
-              stroke={`url(#eng-out-${k})`}
-            />
             <path
               className={styles.traceOut}
               d={d}

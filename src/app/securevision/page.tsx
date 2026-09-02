@@ -73,8 +73,8 @@ export default function SecureVisionPage() {
                 <span className="text-soft-white">
                   a decade of founder-led gait research
                 </span>
-                , with PrivacyGuard enabled by default and audit controls
-                throughout.
+                , with PrivacyGuard defining the default design posture and
+                audit controls throughout.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-6">

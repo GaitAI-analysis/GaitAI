@@ -1,15 +1,31 @@
 /*
  * Product ecosystem engine — /products/
  *
- * RESPONSIVE GATING lives here, not in Tailwind. The previous version passed
+ * RESPONSIVE GATING lives here, not in Tailwind. An earlier version passed
  * `hidden sm:block` / `sm:hidden` from the page. Both `.hidden{display:none}`
  * and this module's `.engine{display:block}` are single-class rules, and the
  * module ships in a later stylesheet, so `display:block` won and BOTH the wide
  * and stacked compositions rendered at once. Gating inside the module removes
  * the race entirely.
  *
- * One 11s loop: a movement signal enters from MobilityCare, the core rings
- * process it, an output trace leaves toward SecureVision, everything fades.
+ * ONE 11s LOOP, strictly sequenced — nothing here animates simultaneously,
+ * nothing flashes, nothing spins continuously:
+ *
+ *   0.0s  a gait sample activates in MobilityCare (poses brighten in stride
+ *         order, a highlight runs the hip trace)
+ *   0.6s  the temporal signal travels the inbound channels
+ *   2.0s  the engine's ingest arc responds to the arriving signal
+ *   2.4s  the processing rings illuminate — they do NOT rotate
+ *   2.6s  one illumination sweep crosses the radial sample ring
+ *   3.0s  the internal processing nodes come up in turn
+ *   3.2s  a single slow processing pulse leaves the core
+ *   4.4s  the emit arc opens
+ *   4.6s  the processed output travels toward SecureVision
+ *   6.0s  the output forks into capabilities
+ *   6.6s  the anonymous spatial routes respond in turn
+ *   7.4s  the deviating route runs its path
+ *   9.6s  the flagged event pulses once
+ *  10.9s  everything has settled
  */
 
 .engine {
@@ -25,10 +41,15 @@
 .stackedOnly {
   display: block;
   margin-inline: auto;
-  max-width: 420px;
+  max-width: 460px;
 }
 
-@media (min-width: 860px) {
+/* The switch is at 1000px, not at a phone/tablet boundary, because the gate is
+   legibility rather than device class: the wide composition is 1240 units of
+   viewBox, so in a container much under 1000px its sub-labels and the engine
+   descriptor scale below readable size. The vertical composition carries the
+   same content at a usable size, so it holds the whole tablet range. */
+@media (min-width: 1000px) {
   .wideOnly {
     display: block;
   }
@@ -51,6 +72,29 @@
   color: #5f25bf;
 }
 
+/* ── The signal's colour transformation ──
+   Stops live in CSS so the light theme can darken the whole progression
+   without a second set of gradient elements. cyan (biomechanical capture) →
+   electric blue (engine) → violet (spatial intelligence). */
+.stopCare {
+  stop-color: #4fd1ff;
+}
+.stopEngine {
+  stop-color: #3b82f6;
+}
+.stopSecure {
+  stop-color: #a78bfa;
+}
+:global(.light) .stopCare {
+  stop-color: #0e8ab8;
+}
+:global(.light) .stopEngine {
+  stop-color: #2358c8;
+}
+:global(.light) .stopSecure {
+  stop-color: #6d34c9;
+}
+
 /* ── Worlds ── */
 .world {
   transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -65,6 +109,34 @@
   transition: opacity 0.5s ease;
 }
 
+/* ── Labels, anchored to their world ──
+   A short accent rule, the wording, then a hairline stem into a node sitting
+   on the world ring — so the label reads as part of that world rather than as
+   a heading floating above the diagram. */
+.labelGroup {
+  color: inherit;
+}
+
+.labelRule {
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.labelStem {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.34;
+  vector-effect: non-scaling-stroke;
+}
+
+.labelAnchor {
+  fill: currentColor;
+  opacity: 0.6;
+}
+
 .worldLabel {
   fill: currentColor;
   font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
@@ -75,7 +147,7 @@
 
 .worldSub {
   fill: rgb(var(--c-soft-mute));
-  font-size: 11.5px;
+  font-size: 12.5px;
   text-anchor: middle;
 }
 
@@ -90,22 +162,93 @@
   opacity: 0.5;
 }
 
-/* ── Walking sequence ── */
+/* ═══ MOBILITYCARE: the biomechanical temporal field ═════════════════════
+   Three bands over one stride — joint kinematics, the poses those kinematics
+   describe, and the time axis they are sampled against. Every band is plotted
+   against the same stride, so a pose, its point on the hip trace and its
+   event on the axis all sit on one vertical. */
+
+/* Band 1 — joint-angle field. */
+.phaseAxis {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.26;
+  vector-effect: non-scaling-stroke;
+}
+
+.phaseBaseline {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.16;
+  vector-effect: non-scaling-stroke;
+}
+
+.phaseSep {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 1.5 5;
+  opacity: 0.18;
+  vector-effect: non-scaling-stroke;
+}
+
+.phaseHip {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The second joint reads teal against the hip's cyan: two channels, one
+   family, no new colour introduced into the composition. */
+.phaseKnee {
+  fill: none;
+  stroke: #5eead4;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.42;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .phaseKnee {
+  stroke: #0f766e;
+}
+
+/* The sample that activates at the top of the loop. */
+.phaseHipFlow {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 13 100;
+  stroke-dashoffset: 113;
+  opacity: 0;
+  animation: engPathFlow 11s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+.phaseNode {
+  fill: currentColor;
+  opacity: 0.65;
+}
+
+.phaseNodeKnee {
+  fill: #5eead4;
+  opacity: 0.6;
+}
+:global(.light) .phaseNodeKnee {
+  fill: #0f766e;
+}
+
+/* Band 2 — the walking sequence. */
 .walker {
   color: inherit;
   opacity: 0.42;
   animation: engWalk 11s linear infinite;
-  animation-delay: calc(var(--eng-i, 0) * 0.42s);
+  animation-delay: calc(var(--eng-i, 0) * 0.34s);
 }
 
-.walkerGhost {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1;
-  stroke-linecap: round;
-  opacity: 0.22;
-  vector-effect: non-scaling-stroke;
-}
 
 .bone {
   fill: none;
@@ -147,39 +290,133 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* ── Mobility signal ── */
-.mobilitySignal {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: engBreathe 9s ease-in-out infinite;
-}
-
-.sample {
+/* Band 3 — the gait-event time axis.
+   Explicitly not a level meter: the sample ticks are held near-flat and only
+   lightly varied, and what carries the band is the events, their stems up to
+   the pose that produced them, and the cadence intervals between them. */
+.axisLine {
   stroke: currentColor;
-  stroke-width: 1.1;
-  stroke-linecap: round;
-  opacity: 0.45;
+  stroke-width: 1;
+  opacity: 0.3;
   vector-effect: non-scaling-stroke;
 }
 
-.sampleStrong {
+.axisSample {
   stroke: currentColor;
-  stroke-width: 1.9;
+  stroke-width: 1;
   stroke-linecap: round;
-  opacity: 0.85;
+  opacity: 0.3;
   vector-effect: non-scaling-stroke;
 }
 
-/* ── SecureVision: anonymous spatial movement field ───────────────────────
-   Everything here is abstract by intent. No figure, silhouette, camera or
-   shield appears on this side — the SecureVision story is movement through a
-   space with nobody identified, and the visual has to say that on its own.
-   The whole field is one violet family; the single amber accent is reserved
-   for the flagged deviation, so the eye lands on the anomaly and nowhere
-   else. `--eng-*` variables carry the per-track animation stagger. */
+.eventStem {
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 1.5 4.5;
+  opacity: 0.24;
+  vector-effect: non-scaling-stroke;
+}
 
-/* Surveyed ground. Deliberately near the noise floor: it should register as
-   a bounded, measured space, not as a decorative grid. */
+.eventTick {
+  stroke: currentColor;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.62;
+  vector-effect: non-scaling-stroke;
+}
+
+.eventNode {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Heel strike — the stride boundary, and the only filled event. */
+.eventStrike {
+  fill: currentColor;
+  opacity: 0.9;
+}
+
+.interval line {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.34;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ═══ SECUREVISION: anonymous human movement in public space ═════════════
+   People, then their trajectories, then the safety reading — the same order
+   MobilityCare goes people → gait → health. What is withheld is identity, not
+   humanity: the figures are pose graphs with no face, no silhouette fill and
+   no bounding box, and nothing on this side is a camera, a shield or a warning
+   sign. The whole field is one violet family; the single amber accent is
+   reserved for the flagged deviation, so the eye lands on the anomaly and
+   nowhere else. `--eng-i` carries the per-route animation stagger. */
+
+/* ── The pedestrians ──
+   Sized to be read, not to hide: the figures sit well above the routes they
+   walk (0.34) and below the world's own title, which is the one thing on this
+   side that should be brighter than they are. `--ped-w` carries the per-figure
+   stroke weight, which tracks the depth the figure is placed at — the strokes
+   are non-scaling like everything else here, so scale alone would not thin a
+   distant figure's lines. */
+.ped {
+  color: inherit;
+  opacity: 0.78;
+}
+
+.pedBody polyline,
+.pedBody line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--ped-w, 1.3);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The entire "glow": a wide, very faint copy of the same strokes underneath.
+   A blur filter would be the only filter in the composition, and any fill
+   would turn a pose graph into a silhouette. */
+.pedHalo polyline,
+.pedHalo line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: calc(var(--ped-w, 1.3) + 3.4px);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.12;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Filled with the page ground, so the head reads as a head and cleanly
+   occludes any route line passing behind it. Never a face. */
+.pedHead {
+  fill: rgb(var(--c-obsidian-300) / 0.92);
+  stroke: currentColor;
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .pedHead {
+  fill: #ffffff;
+}
+
+.pedJoint {
+  fill: currentColor;
+  opacity: 0.9;
+}
+
+/* Ground contact, so a figure stands in the plan rather than floating over
+   it — the counterpart of the dashed floor under the MobilityCare walkers. */
+.pedContact {
+  fill: currentColor;
+  opacity: 0.2;
+}
+
+/* Surveyed ground. Deliberately near the noise floor: it should register as a
+   bounded, measured space, not as a decorative grid. */
 .secGrid line {
   stroke: currentColor;
   stroke-width: 1;
@@ -192,7 +429,7 @@
 .secDensity {
   transform-box: fill-box;
   transform-origin: center;
-  animation: engBreathe2 13s ease-in-out infinite;
+  animation: engBreathe 13s ease-in-out infinite;
 }
 
 .secContour {
@@ -234,7 +471,7 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* Tracked paths. */
+/* Tracked routes. */
 .secTrack {
   fill: none;
   stroke: currentColor;
@@ -243,7 +480,25 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* Temporal sequencing: a short trace runs each track in turn, so the field
+/* The SecureVision dialect of Motion DNA: samples taken along a trajectory,
+   the spatial counterpart of MobilityCare's samples against a clock and the
+   engine's samples around a radius. */
+.secSample {
+  fill: currentColor;
+  opacity: 0.58;
+}
+
+.secChevron {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Temporal sequencing: a short trace runs each route in turn, so the field
    reads as movement over time rather than as a static plot. */
 .secTrackFlow {
   fill: none;
@@ -251,11 +506,11 @@
   stroke-width: 1.9;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  stroke-dasharray: 12 100;
-  stroke-dashoffset: 112;
+  stroke-dasharray: 13 100;
+  stroke-dashoffset: 113;
   opacity: 0;
   animation: engPathFlow 11s ease-in-out infinite;
-  animation-delay: calc(5.6s + var(--eng-i, 0) * 0.34s);
+  animation-delay: calc(6.6s + var(--eng-i, 0) * 0.34s);
 }
 
 /* Cross-flow route — finer, so it reads as a secondary path. */
@@ -283,23 +538,28 @@
   opacity: 0.5;
 }
 
-/* The expected continuation the deviating path failed to follow. */
+/* The expected continuation the deviating route failed to follow. Tinted with
+   the accent rather than the field colour: it belongs to the flagged route, and
+   in the field's own violet it disappeared under the neighbouring routes. */
 .secGhost {
   fill: none;
-  stroke: currentColor;
+  stroke: #fbbf24;
   stroke-width: 1;
-  stroke-dasharray: 2 6;
-  opacity: 0.28;
+  stroke-dasharray: 2.5 5;
+  opacity: 0.34;
   vector-effect: non-scaling-stroke;
+}
+:global(.light) .secGhost {
+  stroke: #b45309;
 }
 
 /* The deviation itself. Amber, and the only amber in the field. */
 .secAnomaly {
   fill: none;
   stroke: #fbbf24;
-  stroke-width: 1.6;
+  stroke-width: 1.5;
   stroke-linecap: round;
-  opacity: 0.6;
+  opacity: 0.5;
   vector-effect: non-scaling-stroke;
 }
 
@@ -309,11 +569,11 @@
   stroke-width: 2.1;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  stroke-dasharray: 14 100;
-  stroke-dashoffset: 114;
+  stroke-dasharray: 13 100;
+  stroke-dashoffset: 113;
   opacity: 0;
   animation: engPathFlow 11s ease-in-out infinite;
-  animation-delay: 7.1s;
+  animation-delay: 7.4s;
 }
 
 .secDeviation {
@@ -338,7 +598,7 @@
   transform-origin: center;
   opacity: 0;
   animation: engAlert 11s ease-out infinite;
-  animation-delay: 7.6s;
+  animation-delay: 9.6s;
 }
 
 :global(.light) .secAnomaly,
@@ -353,66 +613,156 @@
   fill: #b45309;
 }
 
-/* ── Flow traces ── */
+/* ═══ CHANNELS: care → engine → secure ═══════════════════════════════════
+   Stroked with the transformation gradients, so the colour changes along the
+   travel. No `stroke` is declared here on purpose: the gradient arrives as a
+   presentation attribute, which a class rule would override. */
 .trace {
   fill: none;
-  stroke: currentColor;
   stroke-width: 1;
-  opacity: 0.22;
+  opacity: 0.26;
   vector-effect: non-scaling-stroke;
 }
 
 .traceIn,
 .traceOut {
   fill: none;
-  stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
-  stroke-dasharray: 16 100;
-  stroke-dashoffset: 116;
+  stroke-dasharray: 15 100;
+  stroke-dashoffset: 115;
   opacity: 0;
+  animation: engFlow 11s ease-in-out infinite;
   will-change: stroke-dashoffset, opacity;
 }
 
-/* 0–30% of the loop: movement signal travels into the engine. */
 .traceIn {
-  animation: engFlow 11s ease-in-out infinite;
-  animation-delay: calc(var(--eng-i, 0) * 0.36s);
+  animation-delay: calc(0.6s + var(--eng-i, 0) * 0.3s);
 }
 
-/* 45–75%: the processed output leaves toward SecureVision. */
 .traceOut {
-  animation: engFlow 11s ease-in-out infinite;
-  animation-delay: calc(4.9s + var(--eng-i, 0) * 0.36s);
+  animation-delay: calc(4.6s + var(--eng-i, 0) * 0.3s);
 }
 
-/* ── The engine ── */
+/* Tiny travelling signal points, running just ahead of each trace. Drawn as a
+   round-capped near-zero dash rather than with `offset-path`, which keeps them
+   to one paint path and identical across engines. */
+.traceDotIn,
+.traceDotOut {
+  fill: none;
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 0.4 100;
+  stroke-dashoffset: 100.4;
+  opacity: 0;
+  animation: engDot 11s ease-in-out infinite;
+}
+
+.traceDotIn {
+  animation-delay: calc(0.5s + var(--eng-i, 0) * 0.3s);
+}
+
+.traceDotOut {
+  animation-delay: calc(4.5s + var(--eng-i, 0) * 0.3s);
+}
+
+/* Pointing at one world carries that world's channel with it. Without this the
+   focus state dimmed a world but left the channel feeding it at full strength,
+   which read as a highlight applied to the wrong half of the system. */
+.chIn,
+.chOut {
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.engine[data-focus="secure"] .chIn,
+.engine[data-focus="care"] .chOut {
+  opacity: 0.38;
+}
+
+/* One restrained fork on the output side: intelligence becoming capabilities.
+   Two short stubs, held well below the main channels. */
+.branch {
+  fill: none;
+  stroke-width: 1;
+  stroke-dasharray: 2.5 3.5;
+  opacity: 0.16;
+  vector-effect: non-scaling-stroke;
+  animation: engBranch 11s ease-in-out infinite;
+  animation-delay: 6s;
+}
+
+.branchNode {
+  fill: #a78bfa;
+  opacity: 0.4;
+}
+:global(.light) .branchNode {
+  fill: #6d34c9;
+}
+
+/* ═══ THE ENGINE ═════════════════════════════════════════════════════════
+   An instrument that processes, not a badge that spins. The rings hold still
+   and illuminate; the sample ring is crossed by a single sweep per loop; the
+   ingest and emit arcs respond to the signal arriving and leaving. */
 .coreGlow {
   transform-box: fill-box;
   transform-origin: center;
   animation: engGlow 11s ease-in-out infinite;
 }
 
-.ringSpin,
-.ringSpinBack {
+.ringOuter,
+.ringInner {
   fill: none;
-  stroke: rgb(79 209 255 / 0.26);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
-  transform-box: fill-box;
-  transform-origin: center;
+  animation: engRing 11s ease-in-out infinite;
+  animation-delay: 2.4s;
 }
 
-.ringSpin {
+.ringOuter {
+  stroke: #4fd1ff;
   stroke-dasharray: 4 12;
-  animation: engSpin 52s linear infinite;
+  stroke-opacity: 0.2;
 }
 
-.ringSpinBack {
-  stroke: rgb(139 92 246 / 0.22);
+.ringInner {
+  stroke: #6d8bff;
   stroke-dasharray: 2 9;
-  animation: engSpinBack 38s linear infinite;
+  stroke-opacity: 0.18;
+  animation-delay: 2.7s;
+}
+:global(.light) .ringOuter {
+  stroke: #0e8ab8;
+}
+:global(.light) .ringInner {
+  stroke: #2358c8;
+}
+
+/* Inbound response and outbound emission. */
+.ingestArc,
+.emitArc {
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-opacity: 0.14;
+  animation: engArc 11s ease-in-out infinite;
+}
+
+.ingestArc {
+  stroke: #4fd1ff;
+  animation-delay: 2s;
+}
+
+.emitArc {
+  stroke: #a78bfa;
+  animation-delay: 4.4s;
+}
+:global(.light) .ingestArc {
+  stroke: #0e8ab8;
+}
+:global(.light) .emitArc {
+  stroke: #6d34c9;
 }
 
 .ticks line {
@@ -421,24 +771,36 @@
   vector-effect: non-scaling-stroke;
 }
 
-.dnaTick {
-  stroke: rgb(120 190 255 / 0.42);
-  stroke-width: 1.1;
+/* The radial sample ring. One illumination sweep per loop, staggered by
+   sample index — the samples brighten in turn, the ring never rotates. */
+.dnaTick,
+.dnaStrong {
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
+  animation-duration: 11s;
+  animation-timing-function: ease-out;
+  animation-iteration-count: infinite;
+  animation-delay: calc(2.6s + var(--eng-i, 0) * 0.011s);
+}
+
+.dnaTick {
+  stroke: #78beff;
+  stroke-width: 1.1;
+  stroke-opacity: 0.38;
+  animation-name: engSweepTick;
 }
 
 .dnaStrong {
-  stroke: rgb(79 209 255 / 0.8);
+  stroke: #4fd1ff;
   stroke-width: 1.8;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
+  stroke-opacity: 0.72;
+  animation-name: engSweepStrong;
 }
-
-.dna {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: engDna 44s linear infinite;
+:global(.light) .dnaTick {
+  stroke: #2b6ea8;
+}
+:global(.light) .dnaStrong {
+  stroke: #0e8ab8;
 }
 
 .orbit {
@@ -450,7 +812,12 @@
 
 .orbitNode {
   fill: #7fe0ff;
-  opacity: 0.85;
+  opacity: 0.4;
+  animation: engNode 11s ease-in-out infinite;
+  animation-delay: calc(3s + var(--eng-i, 0) * 0.22s);
+}
+:global(.light) .orbitNode {
+  fill: #0e8ab8;
 }
 
 .coreDisc {
@@ -462,12 +829,12 @@
 
 .coreEdge {
   fill: none;
-  stroke: rgb(79 209 255 / 0.45);
+  stroke: rgb(59 130 246 / 0.5);
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
 }
 
-/* The processing pulse — a ring that expands out of the core once per loop. */
+/* The processing pulse — one slow ring out of the core per loop. */
 .corePulse {
   fill: none;
   stroke: rgb(79 209 255 / 0.5);
@@ -477,7 +844,7 @@
   transform-origin: center;
   opacity: 0;
   animation: engPulse 11s ease-out infinite;
-  animation-delay: 3.4s;
+  animation-delay: 3.2s;
 }
 
 .coreBrand {
@@ -496,66 +863,159 @@
   text-anchor: middle;
 }
 
-/* Pointing at the engine lights its rings. */
-.engine[data-focus="engine"] .ringSpin,
-.engine[data-focus="engine"] .ringSpinBack {
-  stroke-opacity: 0.55;
+/* What the engine does, at the smallest legible weight. */
+.coreDesc {
+  fill: rgb(var(--c-soft-mute));
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-anchor: middle;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* Pointing at the engine lights its rings and its two response arcs. */
+.engine[data-focus="engine"] .ringOuter,
+.engine[data-focus="engine"] .ringInner {
+  stroke-opacity: 0.5;
+}
+.engine[data-focus="engine"] .ingestArc,
+.engine[data-focus="engine"] .emitArc {
+  stroke-opacity: 0.5;
 }
 .engine[data-focus="engine"] .coreEdge {
-  stroke: rgb(79 209 255 / 0.85);
+  stroke: rgb(59 130 246 / 0.9);
+}
+
+/* ── Light theme contrast ──────────────────────────────────────────────────
+   The composition is tuned for the dark surface, where a 0.2–0.4 alpha on a
+   slate hairline reads as a considered instrument line. On the near-white
+   surface the same alphas fall under the paper and the whole graphic goes
+   washed out, so the structural strokes are lifted here rather than compromised
+   in the dark palette. */
+:global(.light) .walker {
+  opacity: 0.62;
+}
+:global(.light) .worldRing {
+  opacity: 0.32;
+}
+:global(.light) .ground {
+  stroke: rgb(100 116 139 / 0.45);
+}
+:global(.light) .ticks line {
+  stroke: rgb(71 85 105 / 0.4);
+}
+:global(.light) .orbit {
+  stroke: rgb(71 85 105 / 0.3);
+}
+:global(.light) .dnaTick {
+  stroke-opacity: 0.5;
+}
+:global(.light) .dnaStrong {
+  stroke-opacity: 0.85;
+}
+:global(.light) .secGrid line {
+  opacity: 0.24;
+}
+:global(.light) .secContour {
+  opacity: 0.42;
+}
+:global(.light) .secTrack {
+  opacity: 0.48;
+}
+:global(.light) .secCross {
+  opacity: 0.38;
+}
+:global(.light) .corePulse {
+  stroke: rgb(35 88 200 / 0.5);
+}
+:global(.light) .phaseKnee {
+  opacity: 0.55;
+}
+:global(.light) .axisSample,
+:global(.light) .axisLine {
+  opacity: 0.45;
 }
 
 /* ── Keyframes ── */
+
+/* Channel travel. */
+/* The end offset is the dash length, not zero: `stroke-dashoffset` is modular
+   in the pattern period, so animating to 0 wraps the dash back to the start of
+   the path while it is still fully opaque. Ending at the dash length leaves it
+   exactly one length past the end, i.e. fully exited. */
 @keyframes engFlow {
   0% {
     opacity: 0;
-    stroke-dashoffset: 116;
+    stroke-dashoffset: 115;
   }
-  4% {
+  3% {
     opacity: 0.95;
   }
-  26% {
+  19% {
     opacity: 0.95;
-    stroke-dashoffset: 0;
   }
-  32% {
+  22% {
     opacity: 0;
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 15;
   }
   100% {
     opacity: 0;
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 15;
   }
 }
 
+/* The travelling signal point. */
+@keyframes engDot {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 100.4;
+  }
+  3% {
+    opacity: 0.9;
+  }
+  19% {
+    opacity: 0.9;
+  }
+  22% {
+    opacity: 0;
+    stroke-dashoffset: 0.4;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0.4;
+  }
+}
+
+/* A short trace running an existing path — used by the hip trace, the spatial
+   routes and the deviating route. */
 @keyframes engPathFlow {
   0% {
     opacity: 0;
-    stroke-dashoffset: 112;
+    stroke-dashoffset: 113;
   }
-  5% {
+  4% {
     opacity: 0.85;
   }
-  22% {
+  19% {
     opacity: 0.85;
-    stroke-dashoffset: 0;
   }
-  28% {
+  23% {
     opacity: 0;
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 13;
   }
   100% {
     opacity: 0;
-    stroke-dashoffset: 0;
+    stroke-dashoffset: 13;
   }
 }
 
+/* A gait sample activating: each pose comes up in stride order. */
 @keyframes engWalk {
   0% {
     opacity: 0.42;
   }
   3% {
-    opacity: 0.85;
+    opacity: 0.88;
   }
   11% {
     opacity: 0.45;
@@ -568,55 +1028,114 @@
 @keyframes engGlow {
   0%,
   100% {
-    opacity: 0.55;
+    opacity: 0.5;
     transform: scale(0.96);
   }
-  38% {
+  30% {
     opacity: 1;
-    transform: scale(1.06);
+    transform: scale(1.05);
   }
 }
 
-@keyframes engPulse {
-  0% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  55% {
-    opacity: 0;
-    transform: scale(1.42);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.42);
-  }
-}
-
-@keyframes engSpin {
-  to {
-    transform: rotate(-360deg);
-  }
-}
-
-@keyframes engSpinBack {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes engDna {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes engBreathe {
+/* Restrained ring illumination — no rotation. */
+@keyframes engRing {
   0%,
   100% {
-    transform: scaleY(0.93);
+    stroke-opacity: 0.18;
   }
-  50% {
-    transform: scaleY(1.08);
+  10% {
+    stroke-opacity: 0.5;
+  }
+  34% {
+    stroke-opacity: 0.2;
+  }
+}
+
+/* The engine's response to a signal arriving, and to one leaving. */
+@keyframes engArc {
+  0%,
+  100% {
+    stroke-opacity: 0.13;
+  }
+  8% {
+    stroke-opacity: 0.58;
+  }
+  26% {
+    stroke-opacity: 0.15;
+  }
+}
+
+/* One sample brightening as the sweep passes it. Base values are repeated
+   literally: `inherit` inside a keyframe resolves against the parent element,
+   not against the rule that set the sample's own stroke-opacity. */
+@keyframes engSweepTick {
+  0%,
+  3% {
+    stroke-opacity: 0.38;
+  }
+  5% {
+    stroke-opacity: 1;
+  }
+  12%,
+  100% {
+    stroke-opacity: 0.38;
+  }
+}
+
+@keyframes engSweepStrong {
+  0%,
+  3% {
+    stroke-opacity: 0.72;
+  }
+  5% {
+    stroke-opacity: 1;
+  }
+  12%,
+  100% {
+    stroke-opacity: 0.72;
+  }
+}
+
+/* Internal processing nodes coming up in turn. */
+@keyframes engNode {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  6% {
+    opacity: 1;
+  }
+  22% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes engBranch {
+  0%,
+  100% {
+    opacity: 0.14;
+  }
+  8% {
+    opacity: 0.42;
+  }
+  30% {
+    opacity: 0.16;
+  }
+}
+
+/* A single slow pulse out of the core. */
+@keyframes engPulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  22% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
   }
 }
 
@@ -624,7 +1143,7 @@
    sampled over time rather than as a fixed plot. Uniform scale, not scaleY:
    contours are a plan-view shape, and squashing them vertically would make
    them read as a waveform envelope. */
-@keyframes engBreathe2 {
+@keyframes engBreathe {
   0%,
   100% {
     transform: scale(0.97);
@@ -636,20 +1155,20 @@
   }
 }
 
-/* The flagged deviation: one expanding ring per loop, after the anomaly
-   trace has run its path. */
+/* The flagged deviation: one expanding ring per loop, after the deviating
+   route has run its path. */
 @keyframes engAlert {
   0% {
     opacity: 0.7;
     transform: scale(0.9);
   }
-  40% {
+  12% {
     opacity: 0;
-    transform: scale(2.1);
+    transform: scale(2);
   }
   100% {
     opacity: 0;
-    transform: scale(2.1);
+    transform: scale(2);
   }
 }
 
@@ -658,6 +1177,9 @@
      nothing to say, so they go rather than sitting there as stubs. */
   .traceIn,
   .traceOut,
+  .traceDotIn,
+  .traceDotOut,
+  .phaseHipFlow,
   .secTrackFlow,
   .secAnomalyFlow,
   .secAlertPulse,
@@ -665,26 +1187,45 @@
     display: none;
   }
   .walker,
-  .mobilitySignal,
   .secDensity,
   .coreGlow,
-  .ringSpin,
-  .ringSpinBack,
-  .dna {
+  .ringOuter,
+  .ringInner,
+  .ingestArc,
+  .emitArc,
+  .dnaTick,
+  .dnaStrong,
+  .orbitNode,
+  .branch {
     animation: none;
   }
+  /* Held at the states that carry the meaning, so the still frame still reads
+     movement → signal → intelligence → application. */
   .walker {
-    opacity: calc(0.4 + var(--eng-i, 0) * 0.1);
+    opacity: calc(0.4 + var(--eng-i, 0) * 0.09);
   }
   .coreGlow {
     opacity: 0.85;
     transform: none;
   }
-  .mobilitySignal,
   .secDensity {
     transform: none;
   }
-  /* The anomaly still has to read as the anomaly without its trace. */
+  .ringOuter,
+  .ringInner {
+    stroke-opacity: 0.32;
+  }
+  .ingestArc,
+  .emitArc {
+    stroke-opacity: 0.45;
+  }
+  .orbitNode {
+    opacity: 0.8;
+  }
+  .branch {
+    opacity: 0.24;
+  }
+  /* The deviation still has to read as the deviation without its trace. */
   .secAnomaly {
     opacity: 0.85;
     stroke-width: 2;

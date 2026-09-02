@@ -5,11 +5,11 @@ import { Intersection } from "./Intersection";
 const audiences = [
   {
     title: "Patients",
-    desc: "Early mobility screening, fall-risk detection, rehabilitation progress tracking and better clinical decision-making.",
+    desc: "Early mobility screening, fall-risk indicators, rehabilitation progress tracking and better-informed clinical review.",
   },
   {
     title: "Elderly people",
-    desc: "Safer monitoring at home and in care settings, with timely alerts before incidents — not after.",
+    desc: "Safer monitoring at home and in care settings, with early movement-change indicators surfaced for review.",
   },
   {
     title: "Doctors & physiotherapists",

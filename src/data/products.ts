@@ -122,7 +122,7 @@ export const mobilityProducts: GaitProduct[] = [
     id: "fallrisk",
     name: "GaitAI FallRisk",
     short: "FallRisk",
-    label: "Fall-risk screening & prevention intelligence",
+    label: "Fall-risk screening & mobility intelligence",
     headline: "Surface mobility decline and fall-risk indicators early.",
     description:
       "Uses gait, balance, variability, posture and longitudinal movement trends to sort elderly and at-risk patients into low / medium / high screening categories for clinician review.",
@@ -210,7 +210,7 @@ export const mobilityProducts: GaitProduct[] = [
     label: "Smartwatch & wearable-based mobility monitoring",
     headline: "Continuous movement intelligence from the wrist.",
     description:
-      "Combines smartwatch, mobile and wearable sensor data with AI models to monitor daily mobility, activity decline, gait variability and fall-risk trends.",
+      "Combines smartwatch, mobile and wearable sensor data to estimate daily mobility and activity patterns, gait variability and longitudinal fall-risk indicators for clinician, caregiver or remote-care review.",
     users: [
       "Elderly users",
       "Caregivers",
@@ -290,7 +290,7 @@ export const mobilityProducts: GaitProduct[] = [
     label: "Elderly mobility & frailty monitoring",
     headline: "Monthly mobility, frailty trends, caregiver summaries.",
     description:
-      "Runs periodic mobility assessments for senior citizens and surfaces decline before it leads to injury.",
+      "Runs periodic mobility assessments for senior citizens and surfaces longitudinal mobility changes and decline indicators for caregiver or clinician review.",
     users: [
       "Assisted-living homes",
       "Senior-care chains",
@@ -343,7 +343,7 @@ export const mobilityProducts: GaitProduct[] = [
     label: "Prosthetic & orthotic fitting intelligence",
     headline: "How well does the device walk?",
     description:
-      "Evaluates how assistive devices affect walking symmetry and mobility — quantifying fit, comfort and improvement.",
+      "Quantifies movement changes associated with prosthetic or orthotic use — symmetry, cadence, gait timing, posture and loading proxies, compared before and after a fitting change.",
     users: [
       "Prosthetic / orthotic clinics",
       "Rehab hospitals",
@@ -392,7 +392,7 @@ export const mobilityProducts: GaitProduct[] = [
     name: "GaitAI ClinicalTrials",
     short: "ClinicalTrials",
     label: "Digital gait biomarkers for research",
-    headline: "Research-grade movement outcomes.",
+    headline: "Standardized movement outcomes for research workflows.",
     description:
       "Provides measurable gait and movement outcomes for clinical studies, trials, and medical-device validation programs.",
     users: ["Pharma", "CROs", "Universities", "Hospitals", "Medical-device companies"],

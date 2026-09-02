@@ -1371,7 +1371,7 @@ export const productDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "clinicaltrials",
-    valueProp: "Research-grade movement outcomes for longitudinal studies.",
+    valueProp: "Standardized movement-analysis outputs for longitudinal studies.",
     overview:
       "ClinicalTrials provides structured gait and movement measurements that can be collected repeatedly across participants and study visits.",
     environments: ["CROs", "Academia", "Pharma", "Device studies"],

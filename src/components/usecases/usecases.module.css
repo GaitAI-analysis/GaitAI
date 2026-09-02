@@ -828,6 +828,7 @@
 .map {
   --map-line: rgb(148 163 184 / 0.16);
   --map-line-mid: rgb(148 163 184 / 0.28);
+  position: relative;
   display: grid;
   gap: 2.5rem;
   grid-template-columns: minmax(0, 1fr);
@@ -849,6 +850,7 @@
 
 .mapRail {
   position: relative;
+  z-index: 1;
   min-width: 0;
 }
 
@@ -1151,6 +1153,7 @@
 
 .mapCore {
   position: relative;
+  z-index: 1;
   display: grid;
   place-items: center;
   min-width: 0;
@@ -1417,5 +1420,34 @@
   }
   .mapRow:hover {
     transform: none;
+  }
+}
+
+/* ==========================================================================
+   HERO — text column beside the deployment constellation
+   --------------------------------------------------------------------------
+   The hero used to be one 3xl column on an otherwise empty band. The art now
+   takes the right half from 1024px up; below that it drops under the copy,
+   where it still works as a wide banner, and below 768px the drawing crops
+   itself rather than shrinking its labels (see constellation.module.css).
+   ========================================================================== */
+
+.heroGrid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+@media (min-width: 1024px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    gap: 3rem;
+  }
+}
+.heroArt {
+  min-width: 0;
+}
+@media (max-width: 1023px) {
+  .heroArt {
+    margin-top: -0.5rem;
   }
 }

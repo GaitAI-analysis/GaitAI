@@ -1,8 +1,8 @@
 import { Reveal } from "@/components/ui/Reveal";
 
 /**
- * "The intersection" callout — rendered at the end of the WhoWeServe
- * section on /about and the home page.
+ * "The intersection" callout — rendered at the end of the audience
+ * section on /use-cases.
  */
 export function Intersection() {
   return (

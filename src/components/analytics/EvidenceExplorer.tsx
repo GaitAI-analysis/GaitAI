@@ -610,11 +610,21 @@ function AreaChain({ area }: { area: ExplorerArea }) {
       <div className={styles.panelRule} />
       <div className={`${styles.panelBody} bg-white/[0.015]`}>
         <span className={styles.label}>05 · Product-specific validation</span>
+        {/* This used to restate the whole foundation-vs-validation argument
+            under every pillar. Four identical paragraphs made the page's one
+            act of candour read as boilerplate, so the argument is now made
+            once, as its own section, and each pillar points at it. What stays
+            here is the part that genuinely differs per pillar: the separate
+            implementation controls below. */}
         <p className="mt-2.5 max-w-3xl text-[13.5px] leading-relaxed text-soft-gray">
-          A separate step. Research establishes the methodological foundation;
-          product-specific validation establishes fitness for a particular use,
-          and is carried out per product and per deployment. This chain shows
-          what informs a capability — not that a module has been validated.
+          A separate step, carried out per product and per deployment. See{" "}
+          <a
+            href="#evidence-boundary"
+            className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
+          >
+            research foundation ≠ product validation
+          </a>
+          .
         </p>
         {area.boundary && (
           <div className="mt-4">

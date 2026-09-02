@@ -1,0 +1,658 @@
+/* =========================================================================
+   RESEARCH LABS — the four pillars as four scientific scenes
+   ---------------------------------------------------------------------------
+   One stylesheet for the four visuals and the section that frames them. The
+   pillars used to be four boxes of prose with a 34px glyph; each is now a
+   full-width scene that states its method as a picture.
+
+   Rules, same as the observatory sheet:
+     · hairlines and instrument type, not borders around everything
+     · one accent per meaning — cyan = the research signal, violet = the
+       spatial/secure side, champagne = the granted patent and nothing else
+     · every scene animates once on entry and then rests
+   ========================================================================= */
+
+.labs {
+  --l-cyan: #4fd1ff;
+  --l-cyan-soft: rgb(79 209 255 / 0.5);
+  --l-violet: #9c64f1;
+  --l-gold: #e4c48a;
+  --l-line: rgb(148 163 184 / 0.16);
+  --l-line-mid: rgb(148 163 184 / 0.28);
+  --l-ink: rgb(var(--c-soft-white));
+  --l-body: rgb(var(--c-soft-gray));
+  --l-mute: rgb(var(--c-soft-mute));
+  --l-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(.light) .labs {
+  --l-cyan: #0e8ab8;
+  --l-cyan-soft: rgb(14 138 184 / 0.55);
+  --l-violet: #6d34c9;
+  --l-gold: #8a6320;
+  --l-line: rgb(71 85 105 / 0.2);
+  --l-line-mid: rgb(71 85 105 / 0.32);
+}
+
+/* ── One pillar ── */
+
+.lab {
+  position: relative;
+  padding: 3rem 0;
+  border-top: 1px solid var(--l-line);
+}
+
+.lab:first-child {
+  border-top: 0;
+}
+
+@media (min-width: 1024px) {
+  .lab {
+    display: grid;
+    grid-template-columns: minmax(0, 0.33fr) minmax(0, 0.67fr);
+    gap: 2.5rem;
+    align-items: center;
+    padding: 3.75rem 0;
+  }
+  /* Alternating sides, so four scenes in a column never fall into a rhythm of
+     identical rows. The scene is always the wide half. */
+  .labFlip {
+    grid-template-columns: minmax(0, 0.67fr) minmax(0, 0.33fr);
+  }
+  .labFlip .labCopy {
+    order: 2;
+  }
+  .labFlip .labStage {
+    order: 1;
+  }
+}
+
+.labCopy {
+  min-width: 0;
+}
+
+.labIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--l-cyan);
+}
+
+.labTitle {
+  margin-top: 0.85rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.4vw, 1.7rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.028em;
+  color: var(--l-ink);
+}
+
+.labSummary {
+  margin-top: 0.9rem;
+  max-width: 26rem;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--l-mute);
+}
+
+.labRecords {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--l-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--l-mute);
+}
+
+.labRecordsCount {
+  color: var(--l-cyan);
+}
+
+.labRecordsPatent {
+  color: var(--l-gold);
+}
+
+.labStage {
+  position: relative;
+  min-width: 0;
+  margin-top: 1.75rem;
+}
+
+@media (min-width: 1024px) {
+  .labStage {
+    margin-top: 0;
+  }
+}
+
+/* The scene sits on its own faint capture ground rather than in a card: a
+   border around a diagram makes it an illustration, and these are readouts. */
+.labStage::before {
+  content: "";
+  position: absolute;
+  inset: -1rem -0.5rem;
+  border-radius: 1.25rem;
+  background: radial-gradient(
+    75% 70% at 50% 45%,
+    rgb(79 209 255 / 0.045),
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ── Shared scene primitives ─────────────────────────────────────────────
+   Every scene draws through these, so four different pictures still read as
+   one instrument family. `--s-i` carries per-element entry stagger. */
+
+.sLabel {
+  fill: var(--l-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+}
+
+.sDim {
+  fill: var(--l-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  opacity: 0.7;
+}
+
+.sAxis {
+  stroke: var(--l-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.sFloor {
+  stroke: var(--l-line-mid);
+  stroke-width: 1;
+  stroke-dasharray: 1.5 7;
+  vector-effect: non-scaling-stroke;
+}
+
+.sBone,
+.sBoneStrong {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sBone {
+  stroke-width: 1.3;
+}
+
+.sBoneStrong {
+  stroke-width: 1.6;
+}
+
+.sBoneFar {
+  opacity: 0.42;
+}
+
+.sJoint {
+  fill: var(--l-cyan);
+}
+
+.sJointSoft {
+  fill: var(--l-cyan);
+  opacity: 0.55;
+}
+
+.sHead {
+  fill: rgb(var(--c-obsidian-300) / 0.85);
+  stroke: var(--l-cyan);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .sHead {
+  fill: #ffffff;
+}
+
+.sCurve {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  
+}
+
+.sPose {
+  
+}
+
+.sFlow line,
+.sFlow polyline {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 01 biometrics ── */
+
+.sCells rect {
+  fill: var(--l-cyan);
+  fill-opacity: calc(0.1 + var(--s-w, 0.5) * 0.55);
+  stroke: var(--l-cyan-soft);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.sCellValue {
+  fill: var(--l-cyan);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.sSignature line {
+  stroke: var(--l-cyan);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.sMatchNode {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.3;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.sMatchHit {
+  fill: var(--l-cyan);
+  fill-opacity: 0.18;
+  stroke: var(--l-cyan);
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.sMatchLink {
+  stroke: var(--l-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.sMatch g {
+  
+}
+
+/* ── 02 pose biomechanics ── */
+
+.sArc {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.sKeypoint {
+  fill: rgb(var(--c-obsidian-300) / 0.9);
+  stroke: var(--l-cyan);
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .sKeypoint {
+  fill: #ffffff;
+}
+
+.sLeader {
+  stroke: var(--l-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+.sCallout {
+  fill: var(--l-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+}
+
+.sTick {
+  stroke: var(--l-cyan);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.sEventNode {
+  fill: var(--l-cyan);
+  opacity: 0.85;
+}
+
+.sDerived {
+  fill: var(--l-body);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+}
+
+.sDerivedRule {
+  stroke: var(--l-cyan);
+  stroke-width: 1;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 03 privacy transformation ──
+   The body is a silhouette (tapered torso polygon plus thick limbs), not fat
+   strokes laid over the skeleton: those read as a smear, which cost the
+   sequence the very contrast it exists to show. */
+
+.pBody {
+  fill: var(--l-cyan);
+  fill-opacity: 0.34;
+  stroke: var(--l-cyan);
+  stroke-opacity: 0.34;
+}
+
+.pBodyOutline {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-opacity: 0.55;
+}
+
+.pBody .pTorso,
+.pBodyOutline .pTorso {
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.pBody .pTorso {
+  fill: var(--l-cyan);
+  fill-opacity: 0.34;
+}
+
+.pBodyOutline .pTorso {
+  fill: none;
+}
+
+.pLimb,
+.pLimbLeg {
+  fill: none;
+  stroke: inherit;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pLimb {
+  stroke-width: 7;
+}
+
+.pLimbLeg {
+  stroke-width: 9;
+}
+
+.pBodyOutline .pLimb,
+.pBodyOutline .pLimbLeg {
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+
+.pHeadMass {
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.pBody .pHeadMass {
+  fill: var(--l-cyan);
+  fill-opacity: 0.4;
+  stroke: none;
+}
+
+.pBodyOutline .pHeadMass {
+  fill: none;
+}
+
+.pSkeletonHead {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.4;
+  stroke-dasharray: 2.5 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.pDot {
+  fill: var(--l-cyan);
+  opacity: 0.85;
+}
+
+/* The trajectory is the subject of the last stage, so it carries more weight
+   than the joints beside it rather than less. */
+.pTrail {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+
+.pTrailNode {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.2;
+  opacity: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.pDot {
+  opacity: 0.4;
+}
+
+.pStageLabel {
+  fill: var(--l-ink);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+
+.pStrip line,
+.pStrip polyline {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.pBar rect {
+  fill: var(--l-cyan);
+  fill-opacity: 0.16;
+  stroke: var(--l-cyan-soft);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: bottom;
+  
+}
+
+.pClosing {
+  fill: var(--l-cyan);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  opacity: 0.8;
+}
+
+/* ── 04 edge inference ── */
+
+.eRail {
+  stroke: var(--l-cyan);
+  stroke-width: 1;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Packets travel the rail on a slow loop — the one continuous motion in the
+   four scenes, because "inference runs on the device" is a claim about
+   something still happening. */
+/* Exists only as motion, so unlike every other element here it is correct for
+   the packet to be invisible at rest. The animation is added in the
+   no-preference block below. */
+.ePacket {
+  fill: var(--l-cyan);
+  opacity: 0;
+}
+
+@keyframes ePacketRun {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  4% {
+    opacity: 0.95;
+  }
+  92% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(640px);
+  }
+}
+
+.eNodeRing {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1;
+  opacity: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+
+.eNodeDisc {
+  fill: rgb(var(--c-obsidian-300) / 0.92);
+}
+:global(.light) .eNodeDisc {
+  fill: #ffffff;
+}
+
+.eGlyph {
+  fill: none;
+  stroke: var(--l-cyan);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.eGlyph circle {
+  fill: var(--l-cyan);
+  stroke: none;
+}
+
+.eStage {
+  fill: var(--l-ink);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+}
+
+.eDetail {
+  fill: var(--l-mute);
+  font-size: 8.5px;
+}
+
+.ePatentSpan {
+  fill: none;
+  stroke: var(--l-gold);
+  stroke-width: 1;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.ePatentNode {
+  fill: var(--l-gold);
+  opacity: 0.9;
+}
+
+.ePatentLabel {
+  fill: var(--l-gold);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+}
+
+.eHeld line {
+  stroke: var(--l-line-mid);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Group entries: the stride-event rail and the patent milestone arrive after
+   the scene they annotate has settled. */
+.sEvents,
+.ePatent {
+  
+}
+
+
+/* ── The entrances ────────────────────────────────────────────────────────
+   Same constraint as the hero: the scenes are declared in their finished
+   state, and only `transform` is animated. Nothing here gates visibility on an
+   animation having run, so a scene is never blank because one failed to start.
+   The edge pipeline's packets are the exception, and correctly so — they exist
+   only as motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .sPose {
+    animation: sIn 0.8s var(--l-ease) both;
+    animation-delay: calc(0.1s + var(--s-i, 0) * 0.1s);
+  }
+
+  /* Packets travel the edge pipeline on a loop — the one continuous motion in
+     the four scenes, because "inference runs on the device" is a claim about
+     something still happening. */
+  .ePacket {
+    animation: ePacketRun 5.4s linear infinite;
+    animation-delay: calc(var(--e-k, 0) * 1.8s);
+  }
+}
+
+@keyframes sIn {
+  from {
+    transform: translateY(8px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+

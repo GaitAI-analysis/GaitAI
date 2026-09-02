@@ -1,33 +1,38 @@
 import Link from "next/link";
-import {
-  ResearchFoundations,
-  type FoundationCard,
-} from "./ResearchFoundations";
+import { ResearchHeroLab } from "./ResearchHeroLab";
 import styles from "./observatory.module.css";
 
 /**
  * The research hero.
  *
- * The headline, lede and both calls to action are unchanged. What changed is
- * what sits beside them: the column used to hold a full instrument view of a
- * captured stride, which is a picture of the *subject*. The headline claims a
- * published record, so the first screen now shows that record — the four
- * research foundations and how much published work backs each — and the
- * captured-stride language moved down into the capture-to-capabilities
- * pipeline, where it belongs to a stage rather than standing alone.
+ * Two earlier versions of this hero were a heading, a paragraph and two
+ * buttons — first over an instrument view held inside a card, then over
+ * nothing at all beside a cluster of summary cards. Both read as a document
+ * masthead. The page claims a published record about human movement, so the
+ * first screen now IS that subject: a motion-capture lab running full-bleed
+ * behind the type, with the headline set on the cleared left third.
  *
- * The eyebrow says what the page is a basis for. Nothing here states a count:
- * the foundation cards take theirs from `researchAreas`.
+ * The copy is unchanged — eyebrow, headline, lede and both calls to action.
+ * The capture caption under them names what the lab is showing, which is the
+ * only text the visual needs: HUMAN GAIT → TEMPORAL SIGNAL → REPRESENTATION.
+ *
+ * The four foundation cards that used to sit on the right moved to their own
+ * section, where they can be the four visual labs they describe rather than
+ * four boxes of prose competing with the hero.
  */
-export function ResearchHero({ areas }: { areas: FoundationCard[] }) {
+export function ResearchHero() {
   return (
-    <section className={`site-page-intro ${styles.hero} pb-14 sm:pb-16`}>
+    <section className={`site-page-intro ${styles.heroLab} pb-16 sm:pb-20`}>
+      <div className={styles.heroLabStage}>
+        <ResearchHeroLab />
+      </div>
+
       <div className="container-wide">
-        <div className={styles.heroGrid}>
+        <div className={styles.heroLabGrid}>
           <div className="min-w-0">
             <span className={styles.eyebrow}>
               <span aria-hidden="true" className={styles.eyebrowRule} />
-              Research basis · Responsible AI
+              Research at GaitAI
             </span>
 
             <h1 className={styles.heroTitle}>
@@ -51,9 +56,23 @@ export function ResearchHero({ areas }: { areas: FoundationCard[] }) {
                 Browse publications
               </Link>
             </div>
-          </div>
 
-          <ResearchFoundations areas={areas} />
+            {/* What the lab behind this is showing. */}
+            <div className={styles.labCaption}>
+              {["Human gait", "Temporal signal", "Representation"].map(
+                (step, i) => (
+                  <span key={step} className={styles.labCaptionStep}>
+                    {i > 0 && (
+                      <span aria-hidden="true" className={styles.labCaptionArrow}>
+                        →
+                      </span>
+                    )}
+                    {step}
+                  </span>
+                ),
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Reveal } from "@/components/ui/Reveal";
 import { ResearchHero } from "@/components/research/ResearchHero";
-import type { FoundationCard } from "@/components/research/ResearchFoundations";
+import { ResearchLabs, type LabArea } from "@/components/research/ResearchLabs";
+import { EvidenceBoundary } from "@/components/research/EvidenceBoundary";
 import {
   ResearchPipeline,
   type PipelineCapability,
@@ -114,17 +115,18 @@ const observatoryAreas: ObservatoryArea[] = researchAreas.map((area) => ({
 }));
 
 /**
- * The four pillars as the hero states them. Paper and patent counts are
+ * The four pillars, for the four visual labs. Paper and patent counts are
  * counted off each area's own resolved records — three of the four rest on a
  * single record, and writing the numbers by hand here would be the one place
  * they could drift from `publications.ts`.
  */
-const foundationCards: FoundationCard[] = researchAreas.map((area) => ({
+const labAreas: LabArea[] = researchAreas.map((area) => ({
   id: area.id,
   title: area.title,
   summary: area.summary,
   papers: area.publications.filter((p) => p.kind === "journal").length,
   patents: area.publications.filter((p) => p.kind === "patent").length,
+  capabilities: area.capabilities.length,
 }));
 
 /**
@@ -224,7 +226,7 @@ const publicationYears = papers.map((p) => p.year);
 export default function ResearchPage() {
   return (
     <div className={styles.page}>
-      <ResearchHero areas={foundationCards} />
+      <ResearchHero />
 
       {/* ─────────── 01 · TELEMETRY ─────────── */}
       <section className="border-t border-white/[0.07] bg-obsidian-300/25 pb-4 pt-2 sm:pb-6">
@@ -233,7 +235,26 @@ export default function ResearchPage() {
         </div>
       </section>
 
-      {/* ─────────── 01b · CAPTURE → ENGINE → CAPABILITIES ─────────── */}
+      {/* ─────────── 01b · THE FOUR RESEARCH LABS ─────────── */}
+      <section id="pillars" className="border-t border-white/[0.07] py-14 sm:py-16">
+        <div className="container-wide">
+          <div className={styles.sectionLabel}>
+            <span className={styles.sectionIndex}>01</span>
+            <div className="min-w-0">
+              <h2 className={styles.eyebrow}>
+                <span aria-hidden="true" className={styles.eyebrowRule} />
+                Four research pillars
+              </h2>
+            </div>
+          </div>
+
+          <div className="mt-8 sm:mt-10">
+            <ResearchLabs areas={labAreas} />
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────── 01c · CAPTURE → ENGINE → CAPABILITIES ─────────── */}
       <section className="border-t border-white/[0.07] py-16 sm:py-20">
         <div className="container-wide">
           <div className={styles.sectionLabel}>
@@ -348,6 +369,27 @@ export default function ResearchPage() {
           <div className="mt-10 sm:mt-12">
             <EvidenceExplorer areas={explorerAreas} />
           </div>
+        </div>
+      </section>
+
+      {/* ─────────── 04b · WHERE THE EVIDENCE STOPS ─────────── */}
+      <section id="evidence-boundary" className="section">
+        <div className="container-wide">
+          <div className={styles.sectionLabel}>
+            <span className={styles.sectionIndex}>04</span>
+            <div className="min-w-0">
+              <h2 className={styles.eyebrow}>
+                <span aria-hidden="true" className={styles.eyebrowRule} />
+                Evidence status
+              </h2>
+            </div>
+          </div>
+
+          <Reveal>
+            <div className="mt-12 sm:mt-14">
+              <EvidenceBoundary />
+            </div>
+          </Reveal>
         </div>
       </section>
 

@@ -1,0 +1,236 @@
+/* =========================================================================
+   EVIDENCE BOUNDARY — research foundation ≠ product validation
+   ---------------------------------------------------------------------------
+   Two zones either side of one statement. Cool cyan for what is established,
+   muted amber for what a product would still need. Deliberately not red: an
+   honestly stated limitation is not an error state, and colouring it as one
+   would misread the section as badly as omitting it.
+   ========================================================================= */
+
+.boundary {
+  --b-cyan: #4fd1ff;
+  --b-cyan-soft: rgb(79 209 255 / 0.45);
+  --b-amber: #e0b567;
+  --b-amber-soft: rgb(224 181 103 / 0.4);
+  --b-line: rgb(148 163 184 / 0.16);
+  --b-ink: rgb(var(--c-soft-white));
+  --b-mute: rgb(var(--c-soft-mute));
+  --b-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(.light) .boundary {
+  --b-cyan: #0e8ab8;
+  --b-cyan-soft: rgb(14 138 184 / 0.5);
+  --b-amber: #8a6320;
+  --b-amber-soft: rgb(138 99 32 / 0.45);
+  --b-line: rgb(71 85 105 / 0.2);
+}
+
+/* ── The statement, set as an axis across the section ── */
+
+.axis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem 1rem;
+  text-align: center;
+}
+
+.axisTermLeft,
+.axisTermRight {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.05rem, 2.2vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+.axisTermLeft {
+  color: var(--b-cyan);
+}
+
+.axisTermRight {
+  color: var(--b-amber);
+}
+
+.axisSign {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--b-ink);
+}
+
+.axisRuleLeft,
+.axisRuleRight {
+  display: none;
+  height: 1px;
+  flex: 1;
+  min-width: 2rem;
+}
+
+@media (min-width: 720px) {
+  .axisRuleLeft,
+  .axisRuleRight {
+    display: block;
+  }
+  .axisRuleLeft {
+    background: linear-gradient(90deg, transparent, var(--b-cyan-soft));
+  }
+  .axisRuleRight {
+    background: linear-gradient(90deg, var(--b-amber-soft), transparent);
+  }
+}
+
+/* ── The two zones ── */
+
+.zones {
+  margin-top: 2.75rem;
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 900px) {
+  .zones {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0;
+  }
+  /* One hairline between them carries the divide — a border on each zone
+     would draw two boxes and lose the sense of a single boundary. */
+  .zoneRequired {
+    border-left: 1px solid var(--b-line);
+    padding-left: 2.5rem;
+  }
+  .zoneEstablished {
+    padding-right: 2.5rem;
+  }
+}
+
+.zone {
+  position: relative;
+  min-width: 0;
+}
+
+.zoneHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-bottom: 1.25rem;
+}
+
+.zoneLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.zoneEstablished .zoneLabel {
+  color: var(--b-cyan);
+}
+
+.zoneRequired .zoneLabel {
+  color: var(--b-amber);
+}
+
+.zoneNote {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--b-mute);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--b-line);
+  opacity: 0;
+  animation: bIn 0.7s var(--b-ease) both;
+  animation-delay: calc(var(--b-i, 0) * 0.08s);
+}
+
+@keyframes bIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Filled mark: this one is done. */
+.markDone {
+  display: inline-flex;
+  height: 1.35rem;
+  width: 1.35rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--b-cyan-soft);
+  background: rgb(79 209 255 / 0.12);
+  color: var(--b-cyan);
+}
+:global(.light) .markDone {
+  background: rgb(14 138 184 / 0.1);
+}
+
+/* Open mark: this one is outstanding, and the ring says so without alarm. */
+.markOpen {
+  display: inline-block;
+  height: 1.35rem;
+  width: 1.35rem;
+  flex: none;
+  border-radius: 999px;
+  border: 1px dashed var(--b-amber-soft);
+}
+
+.itemTerm {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--b-ink);
+}
+
+.itemDetail {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--b-mute);
+}
+
+.foot {
+  margin: 2.5rem auto 0;
+  max-width: 44rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--b-line);
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--b-mute);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

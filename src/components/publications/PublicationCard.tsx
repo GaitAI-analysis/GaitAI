@@ -29,6 +29,11 @@ import {
  * the record: date, title, venue, topics, kind and link. No text inside an
  * artwork is treated as metadata.
  *
+ * The kind used to be a pill floating over the top-left of the image. The new
+ * artwork puts its first label exactly there — "Pose", "Gait Data",
+ * "Traditional Methods" — so the kind moved into the metadata row beside the
+ * date, where it reads as what it is: 2024 · Journal article.
+ *
  * The image area is a fixed 5:2 box rather than a fixed pixel height, so the
  * art holds one aspect ratio at every card width and the banners keep an even
  * rhythm across the grid instead of growing squarer as the column narrows.
@@ -79,21 +84,16 @@ export function PublicationCard({ publication }: { publication: Publication }) {
           />
         )}
 
-        <span
-          className={`absolute left-3 top-3 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] backdrop-blur-md ${
-            isPatent
-              ? "border-amber-300/40 bg-obsidian/80 text-amber-300"
-              : "border-soft-white/15 bg-obsidian/70 text-soft-gray"
-          }`}
-        >
-          {kind}
-        </span>
       </div>
 
       {/* Body: date → title (clamped) → venue → topics → call to action */}
       <div className="flex flex-1 flex-col p-5">
-        <div className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-          {displayDate(publication)}
+        <div className="flex flex-wrap items-baseline gap-x-2 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
+          <span>{displayDate(publication)}</span>
+          <span aria-hidden="true">·</span>
+          <span className={isPatent ? "text-amber-300" : "text-soft-gray"}>
+            {kind}
+          </span>
         </div>
         <h3 className="mt-2 line-clamp-3 font-display text-[1.2rem] font-semibold leading-[1.3] text-soft-white sm:text-[1.26rem]">
           {publication.title}

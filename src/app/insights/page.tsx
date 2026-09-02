@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { Newspaper } from "lucide-react";
+import Link from "next/link";
 import { LivePostsMount } from "@/components/posts/LivePostsMount";
-import { InsightsLibrary } from "@/components/insights/InsightsLibrary";
-import { insightsByDate } from "@/data/insights";
+import { FeaturedStory } from "@/components/insights/FeaturedStory";
+import { JournalLibrary } from "@/components/insights/JournalLibrary";
+import { StartHere } from "@/components/insights/StartHere";
+import { insightsByDate, TOPIC_FILTERS } from "@/data/insights";
+import styles from "@/components/insights/journal.module.css";
 
 export const metadata: Metadata = {
   title: "Insights — Research notes & technical essays",
@@ -12,61 +15,149 @@ export const metadata: Metadata = {
 };
 
 /**
- * Insights landing.
+ * GaitAI Insights — the journal.
  *
- * Two content sources sit on this page. The editorial library (`data/insights`)
- * is versioned with the codebase and statically rendered. Below it, any post
- * marked verified in Firestore is surfaced through the existing live list —
- * which renders nothing at all when there is none, so the editorial index is
- * never interrupted by an empty state.
+ * The page has one job: make a first-time reader want to open an essay. So it
+ * is built as a publication rather than as a card grid —
+ *
+ *   masthead   what this section publishes, and a standing index of its
+ *              subjects, with the featured story immediately below the fold
+ *              line rather than a screen of empty dark
+ *   featured   the lead essay at full width, its own imagery carrying the
+ *              type, and three things the reader will learn
+ *   library    the remaining essays at deliberately different weights, each
+ *              introduced by the question it answers
+ *   start here the five pieces as a reading path for a first visit
+ *
+ * Two content sources still sit on this page. The editorial library
+ * (`data/insights`) is versioned with the codebase and statically rendered.
+ * Below it, any post marked verified in Firestore is surfaced through the live
+ * list — which renders nothing when there is none, so the index is never
+ * interrupted by an empty state.
  */
+
+/** The lead essay's argument, as the chain it actually follows. */
+const FEATURE_CHAIN = ["Capture", "Pose", "Gait", "Fusion", "Intelligence"];
+
 export default function InsightsPage() {
+  const [featured, ...rest] = insightsByDate;
+  const subjects = TOPIC_FILTERS.filter((filter) => filter.key !== "all").map(
+    (filter) => ({
+      label: filter.label,
+      count: insightsByDate.filter((article) =>
+        article.topics.includes(filter.key as never),
+      ).length,
+    }),
+  );
+
   return (
-    <>
-      {/* ─────────── HERO ─────────── */}
-      <section className="site-page-intro relative overflow-hidden pb-4">
+    <div className={styles.journal}>
+      {/* ─────────── MASTHEAD ─────────── */}
+      <section className={`site-page-intro ${styles.hero} pb-10 sm:pb-12`}>
+        <span aria-hidden="true" className={`${styles.heroField} -z-10`} />
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div
-            className="absolute left-1/2 top-[6%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full opacity-50 blur-3xl"
+            className="absolute left-[6%] top-[2%] h-[420px] w-[720px] rounded-full opacity-45 blur-3xl"
             style={{
               background:
-                "radial-gradient(closest-side, rgba(79,209,255,0.16), transparent 70%)",
+                "radial-gradient(closest-side, rgba(79,209,255,0.13), transparent 70%)",
             }}
           />
-          <div className="absolute right-[10%] bottom-[8%] h-72 w-72 rounded-full bg-radial-violet opacity-40 blur-3xl" />
         </div>
-        <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-30" />
 
         <div className="container-wide">
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-300/30 bg-cyan-300/[0.08] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              <Newspaper className="h-3.5 w-3.5" />
-              GaitAI Insights
+          <div className={styles.heroGrid}>
+            <div className="min-w-0">
+              <p className={styles.kicker}>
+                <span aria-hidden="true" className={styles.kickerRule} />
+                GaitAI Insights
+              </p>
+
+              <h1 className={styles.heroTitle}>
+                <span className={styles.heroTitleLine}>Ideas at the</span>
+                <span className={styles.heroTitleLine}>intersection of</span>
+                <span className={`${styles.heroTitleLine} ${styles.heroSpectrum}`}>
+                  movement, intelligence
+                </span>
+                <span className={styles.heroTitleLine}>and human life.</span>
+              </h1>
+
+              <p className={styles.heroLede}>
+                Research notes, technical essays and responsible-AI perspectives
+                from the systems behind GaitAI.
+              </p>
+
+              <div className={styles.heroFoot}>
+                <Link href="#featured" className={styles.heroJump}>
+                  Start here
+                  <span aria-hidden="true" className={styles.heroJumpArrow}>
+                    ↓
+                  </span>
+                </Link>
+                <span className={styles.meta}>
+                  {insightsByDate.length} essays · updated regularly
+                </span>
+              </div>
             </div>
-            <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
-              Insights from the <span className="text-gradient">GaitAI lab.</span>
-            </h1>
-            <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Research notes, technical essays and responsible-AI perspectives from
-              the systems behind GaitAI.
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-soft-mute">
-              Movement intelligence, multimodal AI, privacy and the evidence behind
-              what we build.
-            </p>
+
+            {/* A standing index of what the journal covers. */}
+            <div className={styles.heroIndex}>
+              {subjects.map((subject) => (
+                <div key={subject.label} className={styles.heroIndexRow}>
+                  <span>{subject.label}</span>
+                  <span className={styles.heroIndexCount}>
+                    {String(subject.count).padStart(2, "0")}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─────────── EDITORIAL LIBRARY ─────────── */}
-      <section className="section pt-14 sm:pt-16">
+      {/* ─────────── FEATURED ─────────── */}
+      <section id="featured" className="pb-16 sm:pb-20">
         <div className="container-wide">
-          <InsightsLibrary articles={insightsByDate} />
+          <FeaturedStory article={featured} chain={FEATURE_CHAIN} />
+        </div>
+      </section>
 
-          {/* Verified Firestore posts, when any exist. Silent otherwise. */}
+      {/* ─────────── LIBRARY ─────────── */}
+      <section className="pb-16 sm:pb-20">
+        <div className="container-wide">
+          <div className={styles.sectionHead}>
+            <h2 className={styles.sectionHeadTitle}>Latest from the lab</h2>
+            <span className={styles.sectionHeadNote}>
+              {rest.length} more essays
+            </span>
+          </div>
+          <div className="mt-8">
+            <JournalLibrary articles={rest} />
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────── START HERE ─────────── */}
+      <section className="border-t border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20">
+        <div className="container-wide">
+          <div className={styles.sectionHead}>
+            <h2 className={styles.sectionHeadTitle}>
+              New to GaitAI? Start here.
+            </h2>
+            <span className={styles.sectionHeadNote}>
+              A reading path · {insightsByDate.length} steps
+            </span>
+          </div>
+          <StartHere articles={insightsByDate} />
+        </div>
+      </section>
+
+      {/* Verified Firestore posts, when any exist. Silent otherwise. */}
+      <section className="py-4">
+        <div className="container-wide">
           <LivePostsMount hideWhenEmpty />
         </div>
       </section>
-    </>
+    </div>
   );
 }

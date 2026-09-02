@@ -22,7 +22,6 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "suspiciousmotion",
-    valueProp: "Anomalies surfaced — without identifying anyone first.",
     overview:
       "SuspiciousMotion surfaces candidate movement events — loitering, running, restricted-zone entry and tailgating-like patterns — from camera streams for operator review, using movement-first processing that does not require identity recognition.",
     environments: ["Campus", "Transport hub", "Enterprise", "Public space"],
@@ -368,7 +367,6 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "privacyguard",
-    valueProp: "Movement intelligence — without invasive surveillance.",
     overview:
       "PrivacyGuard is the architectural privacy-control layer for SecureVision, designed to support skeleton-only analytics, face blur, privacy-aware aggregated heatmaps, role-based access, audit logs, retention controls and consent/policy logging. What a given site enables is a deployment decision.",
     environments: ["All SecureVision sites", "Public sector", "Enterprise"],
@@ -480,7 +478,6 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "campusshield",
-    valueProp: "Quiet, intelligent safety for the spaces people work and learn.",
     overview:
       "CampusShield combines movement-event monitoring across campus spaces — visitor movement timelines, after-hours alerts, fall detection, restricted-zone monitoring and tailgating indicators.",
     environments: ["University", "Corporate campus", "Hospital", "R&D campus"],
@@ -592,7 +589,6 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "forensicsearch",
-    valueProp: "Search recorded CCTV by movement, timeline and event path.",
     overview:
       "ForensicSearch indexes movement and event evidence in recorded footage so authorized investigators can narrow hours of multi-camera video by time, path, movement pattern or tracked subject.",
     environments: ["Enterprise security", "Campus", "Transport", "Retail"],
@@ -816,7 +812,6 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "accessmotion",
-    valueProp: "A passive second factor — your walk.",
     overview:
       "AccessMotion uses gait and movement consistency as an additional authentication signal alongside authorized primary methods — a passive second factor for high-security spaces.",
     environments: ["Data centre", "R&D lab", "Defence campus", "High-security office"],
@@ -1038,7 +1033,6 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "retailguard",
-    valueProp: "Movement intelligence for the modern retail floor.",
     overview:
       "RetailGuard provides movement-aware operational analytics across retail zones — loitering alerts, queue analytics, emergency flow, staff-safety events and crowd heatmaps.",
     environments: ["Retail chain", "Mall", "Big-box store"],

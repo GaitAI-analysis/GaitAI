@@ -10,13 +10,23 @@
 // report values, never measured performance claims.
 // ============================================================================
 
+import { productById } from "./products";
 import { RESPONSIBLE_USE_CARE } from "./responsible-use";
 
 export interface ProductDetail {
   /** Route slug — /mobilitycare/[slug]/ — matches GaitProduct.id */
   slug: string;
-  /** One-line value proposition under the product name */
-  valueProp: string;
+  /**
+   * One-line value proposition under the product name.
+   *
+   * OPTIONAL, and omitted wherever it would only restate the canonical
+   * `headline` from products.ts. Seven records used to carry a
+   * byte-identical copy, which is a silent drift surface: correcting the
+   * headline left the detail page serving the old line. Set this only when
+   * the detail page genuinely needs a different line; otherwise
+   * `productValueProp()` resolves the canonical one.
+   */
+  valueProp?: string;
   /** Short overview paragraph */
   overview: string;
   /** Environment tags shown in the hero */
@@ -71,7 +81,6 @@ export const productDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "walkscan",
-    valueProp: "Turn a walking video into a clinician-ready movement report.",
     overview:
       "WalkScan converts a short walking video into structured gait and mobility measurements. It is designed to give clinicians and movement professionals a measured layer of evidence alongside visual observation.",
     environments: ["Clinic", "Rehab", "Sports", "Research"],
@@ -1155,12 +1164,12 @@ export const productDetails: ProductDetail[] = [
     environments: ["Prosthetics", "Orthotics", "Rehab", "Device research"],
     glance: {
       input: "Before / after walks",
-      analysis: "Fit comparison",
-      output: "Fit evidence",
+      analysis: "Movement comparison",
+      output: "Movement evidence",
       user: "Prosthetist",
     },
     problem:
-      "Device-fit quality is often judged from subjective comfort and a brief visual check, leaving symmetry and loading changes invisible during fitting decisions.",
+      "The movement effect of a fitting change is often judged from a brief visual check, leaving symmetry and loading changes invisible during fitting decisions.",
     solution:
       "Walks captured before and after an adjustment are compared side by side, so the movement effect of each fitting change is measured rather than assumed.",
     whoFor: [
@@ -1170,7 +1179,7 @@ export const productDetails: ProductDetail[] = [
       "Assistive-device researchers",
     ],
     receives: [
-      "Device-fit comparison",
+      "Movement comparison per configuration",
       "Walking symmetry",
       "Loading-asymmetry proxy",
       "Step pattern",
@@ -1497,6 +1506,14 @@ export const productDetails: ProductDetail[] = [
 
 export const productDetailBySlug = (slug: string) =>
   allProductDetails.find((d) => d.slug === slug);
+
+/**
+ * The one-liner for a product detail page: the record's own `valueProp`
+ * where it differs from the canonical headline, otherwise the headline
+ * itself. One string, one place to edit it.
+ */
+export const productValueProp = (slug: string): string =>
+  productDetailBySlug(slug)?.valueProp ?? productById(slug)?.headline ?? "";
 
 // Combined lookup across both verticals. The secure file only imports the
 // ProductDetail *type* from here, so this import is not a runtime cycle.

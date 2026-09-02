@@ -22,10 +22,11 @@
  *   4.4s  the emit arc opens
  *   4.6s  the processed output travels toward SecureVision
  *   6.0s  the output forks into capabilities
- *   6.6s  the anonymous spatial routes respond in turn
- *   7.4s  the deviating route runs its path
- *   9.6s  the flagged event pulses once
- *  10.9s  everything has settled
+ *   6.3s  the spatial density field lifts as the intelligence lands
+ *   6.5s  the anonymous trajectories respond in turn
+ *   8.2s  the deviating route runs its path
+ *   9.7s  the flagged event pulses once
+ *  11.0s  everything has settled
  */
 
 .engine {
@@ -346,73 +347,30 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* ═══ SECUREVISION: anonymous human movement in public space ═════════════
-   People, then their trajectories, then the safety reading — the same order
-   MobilityCare goes people → gait → health. What is withheld is identity, not
-   humanity: the figures are pose graphs with no face, no silhouette fill and
-   no bounding box, and nothing on this side is a camera, a shield or a warning
-   sign. The whole field is one violet family; the single amber accent is
-   reserved for the flagged deviation, so the eye lands on the anomaly and
-   nowhere else. `--eng-i` carries the per-route animation stagger. */
+/* ═══ SECUREVISION: anonymous spatial movement intelligence ═════════════
+   A monitored space with nobody in it. Everything here is the movement rather
+   than the mover: a surveyed boundary, trajectories through it, the crossings
+   and intersections computed from them, where flow concentrates, where it is
+   expected to go, and where it is not allowed to go. No figure, no silhouette,
+   no camera and no shield — the privacy claim is the drawing itself.
 
-/* ── The pedestrians ──
-   Sized to be read, not to hide: the figures sit well above the routes they
-   walk (0.34) and below the world's own title, which is the one thing on this
-   side that should be brighter than they are. `--ped-w` carries the per-figure
-   stroke weight, which tracks the depth the figure is placed at — the strokes
-   are non-scaling like everything else here, so scale alone would not thin a
-   distant figure's lines. */
-.ped {
-  color: inherit;
-  opacity: 0.78;
-}
+   The whole field is one violet family; the single amber accent is reserved
+   for the flagged deviation, so the eye lands on the anomaly and nowhere else.
+   `--eng-i` carries the per-route animation stagger. */
 
-.pedBody polyline,
-.pedBody line {
+/* The monitored area's surveyed boundary. Solid, because a dashed outline in
+   this field means "restricted" — this one only means "measured". */
+.secPerimeter {
   fill: none;
   stroke: currentColor;
-  stroke-width: var(--ped-w, 1.3);
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  stroke-width: 1;
+  opacity: 0.18;
   vector-effect: non-scaling-stroke;
 }
 
-/* The entire "glow": a wide, very faint copy of the same strokes underneath.
-   A blur filter would be the only filter in the composition, and any fill
-   would turn a pose graph into a silhouette. */
-.pedHalo polyline,
-.pedHalo line {
-  fill: none;
-  stroke: currentColor;
-  stroke-width: calc(var(--ped-w, 1.3) + 3.4px);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.12;
-  vector-effect: non-scaling-stroke;
-}
-
-/* Filled with the page ground, so the head reads as a head and cleanly
-   occludes any route line passing behind it. Never a face. */
-.pedHead {
-  fill: rgb(var(--c-obsidian-300) / 0.92);
-  stroke: currentColor;
-  stroke-width: 1.3;
-  vector-effect: non-scaling-stroke;
-}
-:global(.light) .pedHead {
-  fill: #ffffff;
-}
-
-.pedJoint {
+.secPerimeterMark {
   fill: currentColor;
-  opacity: 0.9;
-}
-
-/* Ground contact, so a figure stands in the plan rather than floating over
-   it — the counterpart of the dashed floor under the MobilityCare walkers. */
-.pedContact {
-  fill: currentColor;
-  opacity: 0.2;
+  opacity: 0.4;
 }
 
 /* Surveyed ground. Deliberately near the noise floor: it should register as a
@@ -425,19 +383,22 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* Density contours where the flow concentrates. */
+/* Density contours where the flow concentrates. The field lifts once, when the
+   processed intelligence reaches this world — it belongs to the one sequence
+   rather than breathing on a clock of its own. */
 .secDensity {
   transform-box: fill-box;
   transform-origin: center;
-  animation: engBreathe 13s ease-in-out infinite;
+  animation: engField 11s ease-in-out infinite;
+  animation-delay: 6.3s;
 }
 
 .secContour {
   fill: currentColor;
-  fill-opacity: 0.035;
+  fill-opacity: 0.04;
   stroke: currentColor;
   stroke-width: 1;
-  opacity: 0.3;
+  opacity: 0.34;
   vector-effect: non-scaling-stroke;
 }
 
@@ -455,7 +416,16 @@
 .secZoneMark line {
   stroke: currentColor;
   stroke-width: 1;
-  opacity: 0.6;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Governed ground inside the restricted area. Held at the noise floor: it is
+   there to say the area is administered, not to draw attention to itself. */
+.secZoneHatch line {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.1;
   vector-effect: non-scaling-stroke;
 }
 
@@ -471,12 +441,14 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* Tracked routes. */
+/* Tracked routes. Carried at a slightly heavier weight than the rest of the
+   field so this world's line weight answers the MobilityCare figures across
+   the composition — the two sides have to feel equally intentional. */
 .secTrack {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.2;
-  opacity: 0.34;
+  opacity: 0.42;
   vector-effect: non-scaling-stroke;
 }
 
@@ -510,7 +482,7 @@
   stroke-dashoffset: 113;
   opacity: 0;
   animation: engPathFlow 11s ease-in-out infinite;
-  animation-delay: calc(6.6s + var(--eng-i, 0) * 0.34s);
+  animation-delay: calc(6.5s + var(--eng-i, 0) * 0.22s);
 }
 
 /* Cross-flow route — finer, so it reads as a secondary path. */
@@ -532,10 +504,27 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* Anonymous event nodes. */
-.secNode {
+/* Anonymous event nodes. `.secGate` marks a computed crossing of the surveyed
+   boundary — the counted event a system like this actually records — and
+   `.secNode` with its ring marks the one tracked event a route ends on inside
+   the space. Neither carries an identity: an event here is a time and a place,
+   and that is all the data there is. */
+.secGate {
   fill: currentColor;
   opacity: 0.5;
+}
+
+.secNode {
+  fill: currentColor;
+  opacity: 0.7;
+}
+
+.secNodeRing {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
 }
 
 /* The expected continuation the deviating route failed to follow. Tinted with
@@ -572,8 +561,8 @@
   stroke-dasharray: 13 100;
   stroke-dashoffset: 113;
   opacity: 0;
-  animation: engPathFlow 11s ease-in-out infinite;
-  animation-delay: 7.4s;
+  animation: engPathFlowQuick 11s ease-in-out infinite;
+  animation-delay: 8.2s;
 }
 
 .secDeviation {
@@ -581,6 +570,17 @@
   stroke: #fbbf24;
   stroke-width: 1.2;
   opacity: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Where the deviation crosses the restricted boundary — computed from the two
+   geometries, not placed by eye. Small on purpose: a marked crossing, not an
+   alarm. */
+.secBreach line {
+  stroke: #fbbf24;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.6;
   vector-effect: non-scaling-stroke;
 }
 
@@ -598,12 +598,13 @@
   transform-origin: center;
   opacity: 0;
   animation: engAlert 11s ease-out infinite;
-  animation-delay: 9.6s;
+  animation-delay: 9.7s;
 }
 
 :global(.light) .secAnomaly,
 :global(.light) .secDeviation,
-:global(.light) .secAlertPulse {
+:global(.light) .secAlertPulse,
+:global(.light) .secBreach line {
   stroke: #b45309;
 }
 :global(.light) .secAnomalyFlow {
@@ -643,6 +644,19 @@
 
 .traceOut {
   animation-delay: calc(4.6s + var(--eng-i, 0) * 0.3s);
+}
+
+/* The channel's own samples. The movement signal is a sampled stream, so the
+   channel is drawn as sampled points rather than as a continuous pipe — a
+   near-zero round-capped dash on the real path, so the dots follow the curve
+   exactly and cost one paint path. */
+.traceSample {
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 0.35 5.2;
+  opacity: 0.34;
 }
 
 /* Tiny travelling signal points, running just ahead of each trace. Drawn as a
@@ -916,6 +930,12 @@
 :global(.light) .secGrid line {
   opacity: 0.24;
 }
+:global(.light) .secPerimeter {
+  opacity: 0.32;
+}
+:global(.light) .secZoneHatch line {
+  opacity: 0.18;
+}
 :global(.light) .secContour {
   opacity: 0.42;
 }
@@ -1000,6 +1020,29 @@
     opacity: 0.85;
   }
   23% {
+    opacity: 0;
+    stroke-dashoffset: 13;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 13;
+  }
+}
+
+/* The deviating route's own travel, quicker than a lane's, so the flagged path
+   has finished before the event it triggers pulses. */
+@keyframes engPathFlowQuick {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 113;
+  }
+  4% {
+    opacity: 0.85;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  15% {
     opacity: 0;
     stroke-dashoffset: 13;
   }
@@ -1139,19 +1182,23 @@
   }
 }
 
-/* Density contours settle and swell very slightly, so the field reads as
-   sampled over time rather than as a fixed plot. Uniform scale, not scaleY:
-   contours are a plan-view shape, and squashing them vertically would make
-   them read as a waveform envelope. */
-@keyframes engBreathe {
+/* The density field resolving as the intelligence arrives: one small lift per
+   loop, then back to rest. Uniform scale, not scaleY — contours are a plan-view
+   shape, and squashing them vertically would make them read as a waveform
+   envelope. */
+@keyframes engField {
   0%,
   100% {
-    transform: scale(0.97);
-    opacity: 0.85;
+    transform: scale(0.985);
+    opacity: 0.8;
   }
-  50% {
-    transform: scale(1.04);
+  8% {
+    transform: scale(1.025);
     opacity: 1;
+  }
+  30% {
+    transform: scale(0.99);
+    opacity: 0.85;
   }
 }
 
@@ -1210,6 +1257,7 @@
   }
   .secDensity {
     transform: none;
+    opacity: 0.95;
   }
   .ringOuter,
   .ringInner {

@@ -170,19 +170,85 @@
   vector-effect: non-scaling-stroke;
 }
 
-/* ── Trajectories (SecureVision) ── */
-.path {
-  fill: none;
+/* ── SecureVision: anonymous spatial movement field ───────────────────────
+   Everything here is abstract by intent. No figure, silhouette, camera or
+   shield appears on this side — the SecureVision story is movement through a
+   space with nobody identified, and the visual has to say that on its own.
+   The whole field is one violet family; the single amber accent is reserved
+   for the flagged deviation, so the eye lands on the anomaly and nowhere
+   else. `--eng-*` variables carry the per-track animation stagger. */
+
+/* Surveyed ground. Deliberately near the noise floor: it should register as
+   a bounded, measured space, not as a decorative grid. */
+.secGrid line {
   stroke: currentColor;
   stroke-width: 1;
-  opacity: 0.26;
+  stroke-dasharray: 1.5 9;
+  opacity: 0.12;
   vector-effect: non-scaling-stroke;
 }
 
-.pathFlow {
+/* Density contours where the flow concentrates. */
+.secDensity {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: engBreathe2 13s ease-in-out infinite;
+}
+
+.secContour {
+  fill: currentColor;
+  fill-opacity: 0.035;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Restricted-area perimeter. */
+.secZone {
+  fill: currentColor;
+  fill-opacity: 0.04;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.secZoneMark line {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Flow vectors — the direction of the expected field. */
+.secVectors line,
+.secVectors polyline {
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.7;
+  stroke-width: 1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Tracked paths. */
+.secTrack {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  opacity: 0.34;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Temporal sequencing: a short trace runs each track in turn, so the field
+   reads as movement over time rather than as a static plot. */
+.secTrackFlow {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
   stroke-dasharray: 12 100;
@@ -192,22 +258,99 @@
   animation-delay: calc(5.6s + var(--eng-i, 0) * 0.34s);
 }
 
-.pathNode {
-  fill: currentColor;
-  opacity: 0.55;
-}
-
-.pathNodeMid {
-  fill: currentColor;
-  opacity: 0.9;
-}
-
-.correspondence {
+/* Cross-flow route — finer, so it reads as a secondary path. */
+.secCross {
+  fill: none;
   stroke: currentColor;
   stroke-width: 1;
-  stroke-dasharray: 2 5;
-  opacity: 0.3;
+  stroke-dasharray: 7 5;
+  opacity: 0.26;
   vector-effect: non-scaling-stroke;
+}
+
+/* Route intersections, at computed crossings. */
+.secJunction {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Anonymous event nodes. */
+.secNode {
+  fill: currentColor;
+  opacity: 0.5;
+}
+
+/* The expected continuation the deviating path failed to follow. */
+.secGhost {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  opacity: 0.28;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The deviation itself. Amber, and the only amber in the field. */
+.secAnomaly {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.secAnomalyFlow {
+  fill: none;
+  stroke: #fde68a;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 14 100;
+  stroke-dashoffset: 114;
+  opacity: 0;
+  animation: engPathFlow 11s ease-in-out infinite;
+  animation-delay: 7.1s;
+}
+
+.secDeviation {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 1.2;
+  opacity: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+
+.secAlert {
+  fill: #fbbf24;
+  opacity: 0.85;
+}
+
+.secAlertPulse {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: engAlert 11s ease-out infinite;
+  animation-delay: 7.6s;
+}
+
+:global(.light) .secAnomaly,
+:global(.light) .secDeviation,
+:global(.light) .secAlertPulse {
+  stroke: #b45309;
+}
+:global(.light) .secAnomalyFlow {
+  stroke: #d97706;
+}
+:global(.light) .secAlert {
+  fill: #b45309;
 }
 
 /* ── Flow traces ── */
@@ -477,15 +620,53 @@
   }
 }
 
+/* Density contours settle and swell very slightly, so the field reads as
+   sampled over time rather than as a fixed plot. Uniform scale, not scaleY:
+   contours are a plan-view shape, and squashing them vertically would make
+   them read as a waveform envelope. */
+@keyframes engBreathe2 {
+  0%,
+  100% {
+    transform: scale(0.97);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+/* The flagged deviation: one expanding ring per loop, after the anomaly
+   trace has run its path. */
+@keyframes engAlert {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+  40% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  /* The travelling traces exist only as motion — with motion off they have
+     nothing to say, so they go rather than sitting there as stubs. */
   .traceIn,
   .traceOut,
-  .pathFlow,
+  .secTrackFlow,
+  .secAnomalyFlow,
+  .secAlertPulse,
   .corePulse {
     display: none;
   }
   .walker,
   .mobilitySignal,
+  .secDensity,
   .coreGlow,
   .ringSpin,
   .ringSpinBack,
@@ -499,7 +680,13 @@
     opacity: 0.85;
     transform: none;
   }
-  .mobilitySignal {
+  .mobilitySignal,
+  .secDensity {
     transform: none;
+  }
+  /* The anomaly still has to read as the anomaly without its trace. */
+  .secAnomaly {
+    opacity: 0.85;
+    stroke-width: 2;
   }
 }

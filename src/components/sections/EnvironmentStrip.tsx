@@ -8,11 +8,15 @@ import { useCaseDetails } from "@/data/usecase-details";
 /**
  * Compact environment strip for the home page — "where is this used?".
  *
- * Deliberately not a card grid: /use-cases already owns the full problem-led
- * treatment, so here each environment is a single dense row (name + the
- * outcome it produces) linking straight to its deployment page. Both columns
- * read from `industryUseCases`, so nothing is restated.
+ * Deliberately not a card grid, and deliberately not the full list:
+ * /use-cases owns the complete problem-led treatment, so this shows the first
+ * few per vertical as dense rows (name + the outcome it produces), says how
+ * many more there are, and links out. Both columns read from
+ * `industryUseCases`, so nothing is restated.
  */
+/** How many environments each column shows before deferring to /use-cases. */
+const TEASER_PER_VERTICAL = 5;
+
 const hrefFor = (caseId: string, vertical: Vertical) => {
   const detail = useCaseDetails.find((d) => d.caseId === caseId);
   return detail ? `/use-cases/${detail.slug}/` : `/${vertical}/`;
@@ -27,7 +31,9 @@ function EnvironmentColumn({
   label: string;
   accent: "care" | "secure";
 }) {
-  const entries = industryUseCases.filter((u) => u.vertical === vertical);
+  const all = industryUseCases.filter((u) => u.vertical === vertical);
+  // A teaser, not the index: /use-cases carries all of them, problem-led.
+  const entries = all.slice(0, TEASER_PER_VERTICAL);
   const tone =
     accent === "care"
       ? {
@@ -54,7 +60,7 @@ function EnvironmentColumn({
           {label}
         </h3>
         <span className="text-[11px] text-soft-mute">
-          {entries.length} environments
+          {all.length} environments
         </span>
       </div>
 
@@ -81,6 +87,12 @@ function EnvironmentColumn({
           </li>
         ))}
       </ul>
+
+      {all.length > entries.length && (
+        <p className="mt-4 text-[12px] text-soft-mute">
+          + {all.length - entries.length} more {label} environments
+        </p>
+      )}
     </div>
   );
 }

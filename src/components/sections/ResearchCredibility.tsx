@@ -2,9 +2,8 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { researchPillars } from "@/data/products";
 import { researchAreas } from "@/data/evidence";
-import { FOUNDER_NAME, papers, patent } from "@/data/publications";
+import { FOUNDER_NAME, papers } from "@/data/publications";
 
 // Three most recent papers as a teaser — the full library lives on
 // /publications, so Home shows references rather than restating the grid.
@@ -18,7 +17,9 @@ const featuredPapers = [...papers].sort((a, b) => b.year - a.year).slice(0, 3);
  * founder's academic and IP output, and GaitAI is the platform built on top
  * of them. It does not claim company-owned publications, validation studies,
  * benchmarks, datasets or pilots — none are documented in this repository.
- * The full evidence map lives on /research.
+ * The full evidence map, the method commitments and what the record does not
+ * cover all live on /research; Home carries the attributed record, the three
+ * most recent references and the two links out — a teaser, not the story.
  */
 const record = [
   { value: `${papers.length}`, label: "Peer-reviewed papers" },
@@ -47,7 +48,7 @@ export function ResearchCredibility() {
               <span className="text-gradient">published research record.</span>
             </>
           }
-          description="GaitAI's movement engine comes out of peer-reviewed work on gait recognition, pose-based gait analysis, privacy-preserving gait data and edge inference — and ships with the access, audit and retention controls enterprises and clinicians need."
+          description="The platform's movement engine comes out of peer-reviewed work on gait recognition, pose-based gait analysis, privacy-preserving gait data and edge inference."
           align="left"
         />
 
@@ -62,22 +63,19 @@ export function ResearchCredibility() {
               <p className="mt-4 max-w-3xl font-display text-xl leading-snug text-balance text-soft-white sm:text-2xl">
                 {papers.length} peer-reviewed papers and one granted Indian
                 patent, authored by founder {FOUNDER_NAME} with academic
-                co-authors — the research GaitAI&apos;s movement engine is
-                built on.
+                co-authors — the research this platform is built on.
               </p>
+              {/* The full attribution — publishers, years, patent scope and
+                  the founder-vs-company distinction — is set out on /research;
+                  Home states the fact and links there. */}
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-soft-mute">
-                Published with Springer, Elsevier and Wiley · IET between{" "}
-                {Math.min(...papers.map((p) => p.year))} and{" "}
-                {Math.max(...papers.map((p) => p.year))}. The patent (
-                {patent.patentNumber}) covers the covariate-based gait
-                recognition pipeline for edge analytics. These are academic and
-                individually held records rather than company-produced output —
-                the distinction is kept explicit on{" "}
+                Academic and individually held records rather than
+                company-produced output.{" "}
                 <Link
-                  href="/research"
+                  href="/research#attribution"
                   className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
                 >
-                  the research page
+                  How we draw that line
                 </Link>
                 .
               </p>
@@ -101,44 +99,12 @@ export function ResearchCredibility() {
           </div>
         </Reveal>
 
-        {/* What that grounds — editorial framework rather than four cards */}
-        <Reveal>
-          <div className="mt-14 border-t border-white/[0.06]">
-            <h3 className="pt-8 text-[11px] font-semibold uppercase tracking-[0.18em] text-soft-white">
-              What that record grounds
-            </h3>
-            <dl className="mt-2 grid gap-x-12 sm:grid-cols-2">
-              {researchPillars.map((pillar, i) => (
-                <div
-                  key={pillar.title}
-                  className="flex gap-4 border-b border-white/[0.06] py-6"
-                >
-                  <span
-                    aria-hidden="true"
-                    className="font-mono text-[11px] tabular-nums text-cyan-300/70"
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div className="min-w-0">
-                    <dt className="font-display text-lg font-semibold text-soft-white">
-                      {pillar.title}
-                    </dt>
-                    <dd className="mt-1.5 text-sm leading-relaxed text-soft-mute">
-                      {pillar.desc}
-                    </dd>
-                  </div>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </Reveal>
-
         {/* Featured references — a teaser, not the library */}
         <Reveal>
           <div className="mt-14 border-t border-white/[0.06]">
             <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 pt-8">
               <h3 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-soft-white">
-                Featured references
+                Most recent references
               </h3>
               <Link
                 href="/publications"

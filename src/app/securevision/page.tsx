@@ -72,7 +72,7 @@ export default function SecureVisionPage() {
                 analytics, crowd flow, anomaly detection and post-event
                 investigation — grounded in{" "}
                 <span className="text-soft-white">
-                  a decade of founder-led gait research
+                  a decade of founder research in gait and human movement
                 </span>
                 , with PrivacyGuard defining the default design posture and
                 auditability by design.
@@ -268,7 +268,7 @@ export default function SecureVisionPage() {
             eyebrow="Featured · Anomaly · Crowd · Worker safety"
             title={
               <>
-                Three engines.{" "}
+                Three intelligence modes.{" "}
                 <span className="text-gradient-secure">One safety layer.</span>
               </>
             }

@@ -542,7 +542,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     shortfall:
       "Falls and unsafe-zone entries in large facilities often go unnoticed until harm is done; safety reviews happen after incidents instead of during them.",
     together:
-      "IndustrialSafety detects safety events and summarises evacuation flow; SuspiciousMotion covers the security side — perimeter, after-hours and restricted-area movement — on the same camera estate.",
+      "IndustrialSafety flags candidate safety events and summarises evacuation flow; SuspiciousMotion covers the security side — perimeter, after-hours and restricted-area movement — on the same camera estate.",
     workflow: [
       "Zones mapped to the site safety plan",
       "Worker movement monitored across shifts",
@@ -610,11 +610,11 @@ export const useCaseDetails: UseCaseDetail[] = [
     shortfall:
       "High-density events change by the minute; without live density and flow indicators, operations teams learn about bottlenecks when they've already formed.",
     together:
-      "CrowdSense provides the aggregate movement analytics; EventShield specialises them for events — gate flow against plan, density against capacity, panic-like movement detection and evacuation summaries.",
+      "CrowdSense provides the aggregate movement analytics; EventShield specialises them for events — gate flow against plan, density against capacity, abnormal crowd-motion indicators and evacuation summaries.",
     workflow: [
       "Zones, gates and capacities configured pre-event",
       "Live flow and density track against the event plan",
-      "Bottleneck and panic-like indicators alert operations",
+      "Bottleneck and abnormal crowd-motion indicators reach operations",
       "Teams adjust gates, routes and announcements",
       "Post-event reports feed the next plan",
     ],

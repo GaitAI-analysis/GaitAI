@@ -66,7 +66,7 @@ export const gaitscapeChallenges: GaitscapeChallenge[] = [
     id: "ch-anomaly",
     question: "How can abnormal movement become an actionable safety signal?",
     summary:
-      "Loitering, running, falls and restricted-zone entry become operator alerts in seconds — without identifying anyone first.",
+      "Loitering, running, falls and restricted-zone entry become operator alerts for review — without identifying anyone first.",
     signalIds: ["sig-behaviour", "sig-trajectory"],
     capabilityIds: ["cap-anomaly", "cap-har", "cap-edge"],
     productIds: ["suspiciousmotion", "eventshield", "retailguard"],

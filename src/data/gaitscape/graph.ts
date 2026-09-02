@@ -72,7 +72,7 @@ const capabilityNodes: GaitscapeNode[] = [
   { id: "cap-fusion", type: "capability", title: "Multimodal sensor fusion", shortDescription: "Smartwatch and IMU signals fused with video features." },
   { id: "cap-edge", type: "capability", title: "Edge inference", shortDescription: "Optimized on-device movement analytics pipelines." },
   { id: "cap-anomaly", type: "capability", title: "Anomaly detection", shortDescription: "Surfacing unusual movement without identifying anyone first." },
-  { id: "cap-risk", type: "capability", title: "Risk prediction", shortDescription: "Combining movement signals into fall / injury / safety risk scores." },
+  { id: "cap-risk", type: "capability", title: "Risk scoring", shortDescription: "Combining movement signals into fall, injury and safety risk indicators." },
   { id: "cap-privacy", type: "capability", title: "Privacy-aware analytics", shortDescription: "Skeleton-only analytics, face blur, audit logs, retention controls." },
   { id: "cap-explain", type: "capability", title: "Explainable reporting", shortDescription: "Clinician- and operator-friendly reports, scores and trends." },
 ];
@@ -86,7 +86,7 @@ const outcomeNodes: GaitscapeNode[] = [
   { id: "out-identity", type: "outcome", title: "Movement-based identity", shortDescription: "Recognition and access support when faces aren't enough." },
   { id: "out-safer-spaces", type: "outcome", title: "Safer public environments", shortDescription: "Movement awareness across campuses, cities, industry and events." },
   { id: "out-privacy", type: "outcome", title: "Privacy-aware monitoring", shortDescription: "Movement intelligence without invasive surveillance." },
-  { id: "out-realtime", type: "outcome", title: "Real-time safety analytics", shortDescription: "Live alerts operators can act on in seconds." },
+  { id: "out-realtime", type: "outcome", title: "Real-time safety analytics", shortDescription: "Movement-event alerts operators can review and act on." },
 ];
 
 // Research areas — each backed by publications / the granted patent listed

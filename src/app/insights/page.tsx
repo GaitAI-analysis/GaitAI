@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LivePostsMount } from "@/components/posts/LivePostsMount";
-import { FeaturedStory } from "@/components/insights/FeaturedStory";
-import { JournalLibrary } from "@/components/insights/JournalLibrary";
-import { StartHere } from "@/components/insights/StartHere";
-import { insightsByDate, TOPIC_FILTERS } from "@/data/insights";
-import styles from "@/components/insights/journal.module.css";
+import { JournalHeroVisual } from "@/components/insights/JournalHeroVisual";
+import { ThoughtStream } from "@/components/insights/ThoughtStream";
+import { PullLine } from "@/components/insights/PullLine";
+import { FeatureCover } from "@/components/insights/FeatureCover";
+import { StoryModules } from "@/components/insights/StoryModules";
+import { IdeasConstellation } from "@/components/insights/IdeasConstellation";
+import { FiveMinuteLab } from "@/components/insights/FiveMinuteLab";
+import { FoundationsPath } from "@/components/insights/FoundationsPath";
+import { insightArticles } from "@/data/insights";
+import styles from "@/components/insights/landing.module.css";
 
 export const metadata: Metadata = {
   title: "Insights — Research notes & technical essays",
@@ -15,145 +20,272 @@ export const metadata: Metadata = {
 };
 
 /**
- * GaitAI Insights — the journal.
+ * THE GAITAI JOURNAL — /insights
  *
- * The page has one job: make a first-time reader want to open an essay. So it
- * is built as a publication rather than as a card grid —
+ * The index was a masthead, a featured card and a 2×2 grid of four
+ * near-identical rectangles. It was tidy and it was a blog. This is a
+ * publication:
  *
- *   masthead   what this section publishes, and a standing index of its
- *              subjects, with the featured story immediately below the fold
- *              line rather than a screen of empty dark
- *   featured   the lead essay at full width, its own imagery carrying the
- *              type, and three things the reader will learn
- *   library    the remaining essays at deliberately different weights, each
- *              introduced by the question it answers
- *   start here the five pieces as a reading path for a first visit
+ *   opening      one question at full height over one movement visual — a
+ *                reader should know what this is about before reading a
+ *                sentence of body copy
+ *   stream       the five essays introduced by the five questions they
+ *                answer, one story surfacing at a time
+ *   pull         a line from an essay, alone, as a pacing beat
+ *   cover        the lead essay at full measure with its own contents list
+ *   stories      the other four as four different compositions, each with a
+ *                drawn visual of its own argument
+ *   constellation the five themes and the fact that no essay sits under just
+ *                one of them
+ *   lab          five ideas in about a minute each, for a reader not ready
+ *                to start a nine-minute essay
+ *   foundations  the five as one intentional collection, in reading order
  *
- * Two content sources still sit on this page. The editorial library
- * (`data/insights`) is versioned with the codebase and statically rendered.
- * Below it, any post marked verified in Firestore is surfaced through the live
- * list — which renders nothing when there is none, so the index is never
- * interrupted by an empty state.
+ * WHERE THE WORDS COME FROM
+ * Every question, hook, section list, call to action, series title and pull
+ * quote on this page is a field on the article it belongs to. The index never
+ * writes a question an essay does not answer, and the two pull lines are
+ * verbatim `quote` blocks from the essays they credit.
+ *
+ * The live Firestore list stays at the foot, rendering nothing when there are
+ * no verified posts, so the journal is never interrupted by an empty state.
  */
 
-/** The lead essay's argument, as the chain it actually follows. */
-const FEATURE_CHAIN = ["Capture", "Pose", "Gait", "Fusion", "Intelligence"];
+/**
+ * Editorial theme per issue. These are labels for the collection, not new
+ * claims: each one names the subject its essay already covers, and the two
+ * that are not literal topic labels ("Movement & Identity", "AI Evidence")
+ * describe essays about exactly that.
+ */
+const ISSUE_THEME: Record<string, string> = {
+  "from-walking-video-to-movement-intelligence": "Movement Intelligence",
+  "your-walk-is-more-than-a-biometric": "Movement & Identity",
+  "movement-intelligence-without-identification": "Responsible AI",
+  "fall-risk-is-a-trend-not-a-number": "Mobility",
+  "when-fusion-looks-better-than-it-is": "AI Evidence",
+};
+
+const bySeries = [...insightArticles].sort((a, b) => a.seriesStep - b.seriesStep);
+const lead = bySeries[0];
+const others = bySeries.slice(1);
 
 export default function InsightsPage() {
-  const [featured, ...rest] = insightsByDate;
-  const subjects = TOPIC_FILTERS.filter((filter) => filter.key !== "all").map(
-    (filter) => ({
-      label: filter.label,
-      count: insightsByDate.filter((article) =>
-        article.topics.includes(filter.key as never),
-      ).length,
-    }),
-  );
-
   return (
     <div className={styles.journal}>
-      {/* ─────────── MASTHEAD ─────────── */}
-      <section className={`site-page-intro ${styles.hero} pb-10 sm:pb-12`}>
-        <span aria-hidden="true" className={`${styles.heroField} -z-10`} />
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div
-            className="absolute left-[6%] top-[2%] h-[420px] w-[720px] rounded-full opacity-45 blur-3xl"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(79,209,255,0.13), transparent 70%)",
-            }}
-          />
-        </div>
-
+      {/* ═══════════ THE OPENING ═══════════ */}
+      <section className={styles.open}>
         <div className="container-wide">
-          <div className={styles.heroGrid}>
+          <div className={styles.openGrid}>
             <div className="min-w-0">
               <p className={styles.kicker}>
                 <span aria-hidden="true" className={styles.kickerRule} />
-                GaitAI Insights
+                The GaitAI Journal
               </p>
 
-              <h1 className={styles.heroTitle}>
-                <span className={styles.heroTitleLine}>Ideas at the</span>
-                <span className={styles.heroTitleLine}>intersection of</span>
-                <span className={`${styles.heroTitleLine} ${styles.heroSpectrum}`}>
-                  movement, intelligence
+              {/* The lead essay's own question, asked at cover size. */}
+              <h1 className={styles.openTitle}>
+                <span className={styles.openTitleLine}>What does an AI</span>
+                <span className={styles.openTitleLine}>system </span>
+                <span className={`${styles.openTitleLine} ${styles.spectrum}`}>
+                  actually see
                 </span>
-                <span className={styles.heroTitleLine}>and human life.</span>
+                <span className={styles.openTitleLine}>when you walk?</span>
               </h1>
 
-              <p className={styles.heroLede}>
-                Research notes, technical essays and responsible-AI perspectives
-                from the systems behind GaitAI.
+              <p className={styles.openLede}>
+                Ideas about movement, intelligence and the evidence between
+                them.
               </p>
 
-              <div className={styles.heroFoot}>
-                <Link href="#featured" className={styles.heroJump}>
-                  Start here
-                  <span aria-hidden="true" className={styles.heroJumpArrow}>
-                    ↓
-                  </span>
-                </Link>
-                <span className={styles.meta}>
-                  {insightsByDate.length} essays · updated regularly
+              <p className={styles.openStrap}>
+                <span>Research notes</span>
+                <span aria-hidden="true" className={styles.openStrapDot}>
+                  ·
                 </span>
-              </div>
+                <span>Technical essays</span>
+                <span aria-hidden="true" className={styles.openStrapDot}>
+                  ·
+                </span>
+                <span>Responsible AI</span>
+              </p>
+
+              <Link href="#stream" className={styles.openScroll}>
+                Scroll to explore
+                <span aria-hidden="true" className={styles.openScrollArrow}>
+                  ↓
+                </span>
+              </Link>
             </div>
 
-            {/* A standing index of what the journal covers. */}
-            <div className={styles.heroIndex}>
-              {subjects.map((subject) => (
-                <div key={subject.label} className={styles.heroIndexRow}>
-                  <span>{subject.label}</span>
-                  <span className={styles.heroIndexCount}>
-                    {String(subject.count).padStart(2, "0")}
-                  </span>
-                </div>
-              ))}
+            <div className={styles.openStage}>
+              <JournalHeroVisual />
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─────────── FEATURED ─────────── */}
-      <section id="featured" className="pb-16 sm:pb-20">
+      {/* ═══════════ THE THOUGHT STREAM ═══════════ */}
+      <section id="stream" className="py-20 sm:py-24">
         <div className="container-wide">
-          <FeaturedStory article={featured} chain={FEATURE_CHAIN} />
-        </div>
-      </section>
-
-      {/* ─────────── LIBRARY ─────────── */}
-      <section className="pb-16 sm:pb-20">
-        <div className="container-wide">
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionHeadTitle}>Latest from the lab</h2>
-            <span className={styles.sectionHeadNote}>
-              {rest.length} more essays
-            </span>
-          </div>
-          <div className="mt-8">
-            <JournalLibrary articles={rest} />
-          </div>
-        </div>
-      </section>
-
-      {/* ─────────── START HERE ─────────── */}
-      <section className="border-t border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20">
-        <div className="container-wide">
-          <div className={styles.sectionHead}>
-            <h2 className={styles.sectionHeadTitle}>
-              New to GaitAI? Start here.
+          <div className={styles.sectionLead}>
+            <p className={styles.sectionLabel}>What we&apos;re thinking about</p>
+            <h2 className={styles.sectionTitle}>
+              Five questions,{" "}
+              <span className={styles.spectrum}>five essays.</span>
             </h2>
-            <span className={styles.sectionHeadNote}>
-              A reading path · {insightsByDate.length} steps
-            </span>
           </div>
-          <StartHere articles={insightsByDate} />
+
+          <div className="mt-12 sm:mt-14">
+            <ThoughtStream
+              items={bySeries.map((article) => ({
+                slug: article.slug,
+                step: article.seriesStep,
+                question: article.question,
+                title: article.title,
+                category: article.category,
+                readMinutes: article.readMinutes,
+                ctaLabel: article.ctaLabel,
+                hero: { src: article.hero.src, alt: article.hero.alt },
+              }))}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ PACING ═══════════ */}
+      <section className="py-16 sm:py-20">
+        <div className="container-wide">
+          <PullLine
+            text="A single frame shows a posture. Only a sequence shows a gait."
+            source="From Walking Video to Movement Intelligence"
+            slug="from-walking-video-to-movement-intelligence"
+          />
+        </div>
+      </section>
+
+      {/* ═══════════ THE COVER ═══════════ */}
+      <section id="feature" className="pb-20 sm:pb-24">
+        <div className="container-wide">
+          <p className={styles.sectionLabel}>Feature story</p>
+          <div className="mt-8 sm:mt-10">
+            <FeatureCover
+              article={{
+                slug: lead.slug,
+                step: lead.seriesStep,
+                issueLabel: ISSUE_THEME[lead.slug] ?? lead.category,
+                title: lead.title,
+                titleAccent: lead.titleAccent,
+                subtitle: lead.subtitle,
+                question: lead.question,
+                deck: lead.deck,
+                readMinutes: lead.readMinutes,
+                ctaLabel: lead.ctaLabel,
+                hero: { src: lead.hero.src, alt: lead.hero.alt },
+                contents: lead.sections.map((section) => ({
+                  number: section.number,
+                  label: section.navLabel,
+                })),
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ THE OTHER FOUR ═══════════ */}
+      <section className="border-y border-white/[0.07]">
+        <div className="container-wide">
+          <div className="py-14 sm:py-16">
+            <p className={styles.sectionLabel}>In this issue</p>
+            <h2 className={styles.sectionTitle}>
+              Four more{" "}
+              <span className={styles.spectrum}>lines of enquiry.</span>
+            </h2>
+          </div>
+        </div>
+        <div className="container-wide">
+          <StoryModules
+            articles={others.map((article) => ({
+              slug: article.slug,
+              step: article.seriesStep,
+              issueLabel: ISSUE_THEME[article.slug] ?? article.category,
+              title: article.title,
+              question: article.question,
+              excerpt: article.excerpt,
+              readMinutes: article.readMinutes,
+              ctaLabel: article.ctaLabel,
+            }))}
+          />
+        </div>
+      </section>
+
+      {/* ═══════════ PACING ═══════════ */}
+      <section className="py-20 sm:py-24">
+        <div className="container-wide">
+          <PullLine
+            text="Two people can share a score and have entirely different trajectories."
+            source="A Fall-Risk Score Is Not Enough"
+            slug="fall-risk-is-a-trend-not-a-number"
+          />
+        </div>
+      </section>
+
+      {/* ═══════════ THE CONSTELLATION ═══════════ */}
+      <section className="pb-20 sm:pb-24">
+        <div className="container-wide">
+          <div className={styles.sectionLead}>
+            <p className={styles.sectionLabel}>Movement · Intelligence · Privacy · Mobility · Evidence</p>
+            <h2 className={styles.sectionTitle}>The ideas connect.</h2>
+            <p className={styles.sectionNote}>
+              No essay here sits under a single theme. Point at a story to see
+              which of the five it actually spans.
+            </p>
+          </div>
+
+          <div className="mt-12 sm:mt-14">
+            <IdeasConstellation />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ THE FIVE-MINUTE LAB ═══════════ */}
+      <section className="border-t border-white/[0.07] bg-obsidian-300/25 py-20 sm:py-24">
+        <div className="container-wide">
+          <div className={styles.sectionLead}>
+            <p className={styles.sectionLabel}>The five-minute lab</p>
+            <h2 className={styles.sectionTitle}>
+              One idea,{" "}
+              <span className={styles.spectrum}>about a minute.</span>
+            </h2>
+            <p className={styles.sectionNote}>
+              Not ready for a full essay? Each of these is one hinge point of
+              the collection, as a contrast you can read at a glance.
+            </p>
+          </div>
+
+          <div className="mt-12 sm:mt-14">
+            <FiveMinuteLab />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════ FOUNDATIONS ═══════════ */}
+      <section className="border-t border-white/[0.07] py-20 sm:py-24">
+        <div className="container-wide">
+          <FoundationsPath
+            steps={bySeries.map((article) => ({
+              slug: article.slug,
+              step: article.seriesStep,
+              theme: ISSUE_THEME[article.slug] ?? article.category,
+              seriesTitle: article.seriesTitle,
+              title: article.title,
+              readMinutes: article.readMinutes,
+            }))}
+          />
         </div>
       </section>
 
       {/* Verified Firestore posts, when any exist. Silent otherwise. */}
-      <section className="py-4">
+      <section className="pb-4">
         <div className="container-wide">
           <LivePostsMount hideWhenEmpty />
         </div>

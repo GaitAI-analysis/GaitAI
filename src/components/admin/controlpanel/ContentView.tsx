@@ -521,6 +521,7 @@ function PostComposer({
                       onClick={() =>
                         update("tags", draft.tags.filter((x) => x !== t))
                       }
+                      aria-label={`Remove tag ${t}`}
                       className="text-soft-mute hover:text-red-300"
                     >
                       <X className="h-3 w-3" />

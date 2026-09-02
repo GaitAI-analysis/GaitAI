@@ -231,7 +231,7 @@ export function EvidencePillar({
           <span
             className={`${styles.evColLabel} text-[10px] font-semibold uppercase tracking-[0.2em]`}
           >
-            Directly informed products
+            Products using capabilities informed by this work
           </span>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {area.directProducts.map((product, i) => (

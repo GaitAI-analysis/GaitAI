@@ -88,7 +88,7 @@ export function SecureCapabilityGroups() {
             eyebrow="Privacy-aware safety intelligence"
             count={privacyAwareProducts.length}
             title="Safety analytics that never need to know who someone is."
-            description="Anomaly detection, crowd flow, worker safety and campus monitoring run on movement features rather than identity. PrivacyGuard applies skeleton-only processing, optional face blur, role-based access and configurable retention at the pipeline level. This is the default posture for SecureVision — privacy-aware architecture, not a guarantee of anonymity."
+            description="Anomaly detection, crowd flow, worker safety and campus monitoring run on movement features rather than identity. PrivacyGuard is designed to support skeleton-only processing, optional face blur, role-based access and configurable retention at the pipeline level. This is the default posture for SecureVision — privacy-aware architecture, not a guarantee of anonymity."
             tone="secure"
           />
         </Reveal>

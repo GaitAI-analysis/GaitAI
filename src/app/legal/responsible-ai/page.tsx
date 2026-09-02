@@ -22,8 +22,8 @@ export default function ResponsibleAIPage() {
         rather than a caveat attached to it. SecureVision leads with anomaly
         detection, crowd flow, worker safety and post-event investigation —
         capabilities that do not require identification. Biometric,
-        re-identification and watchlist capabilities deploy only with lawful
-        authority, consent and a full audit trail.
+        re-identification and watchlist capabilities are intended only for
+        lawful, authorized deployments with consent and a full audit trail.
       </p>
 
       <p className="mt-4 text-soft-gray">

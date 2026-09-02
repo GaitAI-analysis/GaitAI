@@ -40,7 +40,7 @@ const CARE_PRIVACY =
   "Assessments are captured with informed consent, uploaded over encrypted channels and retained only as long as the care workflow requires, with role-based access and audit logging. GaitAI outputs are AI-generated movement metrics for assessment support and monitoring — they do not diagnose medical conditions and do not replace clinical judgement.";
 
 const SECURE_PRIVACY_UC =
-  "Deployments run on SecureVision's privacy-first architecture: movement-level processing, optional face blur, anonymized aggregate analytics, role-based access, audit logs and configurable retention. Movement events are decision support for trained operators; identity-requiring modules operate only under lawful, policy-governed authorization.";
+  "Deployments run on SecureVision's privacy-first architecture: movement-level processing, optional face blur, privacy-aware (aggregated) analytics, role-based access, audit logs and configurable retention. Movement events are decision support for trained operators; identity-requiring modules operate only under lawful, policy-governed authorization.";
 
 export const useCaseDetails: UseCaseDetail[] = [
   // ==========================================================================
@@ -475,7 +475,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     shortfall:
       "Cities need crowd-risk awareness and workable post-event investigation, but public deployments cannot be built on unrestricted identifiable video.",
     together:
-      "CrowdSense produces anonymized flow and density intelligence for city operations; ForensicSearch narrows authorized post-event review; PrivacyGuard enforces blur, skeleton-mode, access control and retention across everything.",
+      "CrowdSense produces privacy-aware (aggregated) flow and density intelligence for city operations; ForensicSearch narrows authorized post-event review; PrivacyGuard enforces blur, skeleton-mode, access control and retention across everything.",
     workflow: [
       "Public zones configured with civic oversight",
       "Aggregate flow and density feed city operations",
@@ -484,9 +484,9 @@ export const useCaseDetails: UseCaseDetail[] = [
       "Privacy reports support governance review",
     ],
     outcome:
-      "Crowd-risk insight, anonymized spatial analytics and privacy-aware post-event investigation.",
+      "Crowd-risk insight, privacy-aware (aggregated) spatial analytics and audited post-event investigation.",
     signals: [
-      "Anonymized crowd heatmaps",
+      "Privacy-aware (aggregated) crowd heatmaps",
       "Zone density trends",
       "Crowd-risk alerts",
       "Audited case-scoped investigation results",

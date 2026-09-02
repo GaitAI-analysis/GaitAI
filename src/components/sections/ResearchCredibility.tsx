@@ -244,10 +244,10 @@ export function ResearchCredibility() {
                 Skeleton-only analytics. Face blur. Role-based access. Audit logs.
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-soft-mute">
-                PrivacyGuard applies these controls at the pipeline level, before
-                analytics — with configurable retention and exportable audit
-                logs. It is privacy-aware architecture, not a guarantee of
-                anonymity.
+                PrivacyGuard is designed to support these controls at the
+                pipeline level, before analytics — with configurable retention
+                and exportable audit logs. It is privacy-aware architecture,
+                not a guarantee of anonymity.
               </p>
               <Link
                 href="/legal/security"

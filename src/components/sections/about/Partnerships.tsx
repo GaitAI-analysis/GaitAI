@@ -16,7 +16,7 @@ import { Reveal } from "@/components/ui/Reveal";
 const programmes = [
   {
     title: "Clinical collaboration",
-    desc: "Physiotherapy, neurology, orthopedic and rehabilitation teams who want an objective movement layer alongside their own assessment — and who are willing to pressure-test the outputs against clinical judgement.",
+    desc: "Physiotherapy, neurology, orthopedic and rehabilitation teams who want a measured movement layer alongside their own assessment — and who are willing to pressure-test the outputs against clinical judgement.",
     looking: "Clinics, rehab centres, hospital departments",
   },
   {
@@ -31,7 +31,7 @@ const programmes = [
   },
   {
     title: "Research collaboration",
-    desc: "University groups, CROs and hospital research teams working on gait biomarkers, movement analytics or privacy-preserving movement AI, including joint publication.",
+    desc: "University groups, CROs and hospital research teams working on candidate gait measures, movement analytics or privacy-preserving movement AI, including joint publication.",
     looking: "University labs, CROs, research teams",
   },
 ];

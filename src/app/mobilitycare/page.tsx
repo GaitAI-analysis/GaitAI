@@ -327,7 +327,7 @@ export default function MobilityCarePage() {
                     </div>
                     <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.02] p-3">
                       <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-                        Outcome
+                        Outputs
                       </div>
                       <div className="mt-1 text-[12.5px] leading-relaxed text-soft-white">
                         {u.outcome}

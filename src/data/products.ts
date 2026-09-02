@@ -95,7 +95,7 @@ export const mobilityProducts: GaitProduct[] = [
     label: "Camera-based gait assessment report",
     headline: "Turn a walking video into a clinician-ready movement report.",
     description:
-      "Analyzes a short walking video and converts gait into objective clinical and mobility metrics — ready as a downloadable PDF.",
+      "Analyzes a short walking video and turns it into gait and mobility metrics — ready as a downloadable PDF.",
     users: [
       "Physiotherapy clinics",
       "Rehab centers",
@@ -392,9 +392,9 @@ export const mobilityProducts: GaitProduct[] = [
     name: "GaitAI ClinicalTrials",
     short: "ClinicalTrials",
     label: "Digital gait measures for research",
-    headline: "Standardized movement outcomes for research workflows.",
+    headline: "Standardized movement outputs for research workflows.",
     description:
-      "Provides measurable gait and movement outcomes for clinical studies, trials, and medical-device validation programs.",
+      "Provides measurable gait and movement outputs for research studies, trials and device-evaluation workflows.",
     users: ["Pharma", "CROs", "Universities", "Hospitals", "Medical-device companies"],
     outputs: [
       "Study dashboard",
@@ -686,7 +686,7 @@ export const secureProducts: GaitProduct[] = [
     id: "watchlist",
     name: "GaitAI Watchlist",
     short: "Watchlist",
-    label: "Legally governed gait-based watchlist matching",
+    label: "Policy-governed watchlist matching for authorized deployments",
     headline: "Policy-governed matching, authorized environments only.",
     description:
       "Policy-governed candidate matching against an authorized list, with confidence scoring, access controls and full audit history. Restricted to environments with lawful authority — not offered for general-public surveillance.",
@@ -825,7 +825,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Home,
     vertical: "mobilitycare",
     problem:
-      "Remote patients are invisible between visits — and decline is silent.",
+      "Between visits, remote patients are hard to follow — and mobility decline can go unnoticed.",
     productIds: ["remotecare", "watchcare", "fallrisk"],
     outcome:
       "Remote monitoring, daily mobility trend, family + caregiver dashboard.",
@@ -849,10 +849,10 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Building2,
     vertical: "securevision",
     problem:
-      "Public spaces need real-time crowd intelligence that respects privacy by default.",
+      "Public spaces need crowd intelligence designed for real-time operational workflows, with privacy respected by default.",
     productIds: ["crowdsense", "forensicsearch", "privacyguard"],
     outcome:
-      "Public-space movement, crowd-risk alerts, anonymized analytics.",
+      "Public-space movement, crowd-risk alerts, privacy-aware (aggregated) analytics.",
     accent: "blue",
   },
   {
@@ -873,7 +873,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Workflow,
     vertical: "securevision",
     problem:
-      "Worker falls and unsafe zones often go unnoticed until a serious incident.",
+      "Worker falls and unsafe-zone entries can be difficult to spot in time.",
     productIds: ["industrialsafety", "suspiciousmotion"],
     outcome:
       "Worker fall / slip indicators, restricted-zone entry, evacuation movement summaries and fatigue-like movement trend.",
@@ -909,7 +909,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Dumbbell,
     vertical: "mobilitycare",
     problem:
-      "Premium gyms and wellness centers need a screening layer that turns movement quality into a member benefit.",
+      "Fitness and wellness centers are looking for a screening layer that turns movement quality into a member benefit.",
     productIds: ["sportsmotion", "walkscan"],
     outcome:
       "Movement baseline, posture and gait screening, premium wellness reports.",

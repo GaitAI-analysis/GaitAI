@@ -742,7 +742,7 @@ export const insightArticles: InsightArticle[] = [
             items: [
               "**Face blurring or redaction** at or near the point of capture",
               "**Skeletal representation** — retaining geometry while discarding appearance",
-              "**Anonymized identifiers** in place of any personal reference",
+              "**Non-identifying identifiers** in place of any personal reference",
               "**Short-lived track identifiers** that maintain continuity within a sequence, then expire",
               "**Aggregated metrics** where only counts, flows or rates leave the system",
             ],

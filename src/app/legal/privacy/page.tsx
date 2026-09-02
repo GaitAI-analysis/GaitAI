@@ -113,8 +113,9 @@ export default function PrivacyPage() {
         appropriate authorization, and retained only as
         long as the care workflow requires. In SecureVision, capabilities that
         do not require identity are the default; identity, re-identification
-        and watchlist capabilities are a separate group that deploys only where
-        there is lawful authority, access control and a full audit trail.
+        and watchlist capabilities are a separate group that is intended only
+        for lawful, authorized deployments with access control and a full audit
+        trail.
       </p>
 
       <div className="mt-8 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.04] p-5 sm:p-6">

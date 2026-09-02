@@ -65,9 +65,9 @@ export const productDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "walkscan",
-    valueProp: "Turn a walking video into an objective movement report.",
+    valueProp: "Turn a walking video into a clinician-ready movement report.",
     overview:
-      "WalkScan converts a short walking video into structured gait and mobility measurements. It is designed to give clinicians and movement professionals an objective layer of evidence alongside visual observation.",
+      "WalkScan converts a short walking video into structured gait and mobility measurements. It is designed to give clinicians and movement professionals a measured layer of evidence alongside visual observation.",
     environments: ["Clinic", "Rehab", "Sports", "Research"],
     glance: {
       input: "Walking video",
@@ -222,7 +222,7 @@ export const productDetails: ProductDetail[] = [
       "Caregiver / clinician summary",
     ],
     whyItMatters:
-      "A visible risk category with named contributors lets care teams prioritise attention before decline turns into an incident — instead of reviewing mobility only after one.",
+      "A visible risk category with named contributors gives care teams a structured basis for deciding who to review next, instead of relying on ad-hoc observation.",
     workflow: [
       "Run a walking assessment (or reuse a WalkScan session)",
       "AI compares indicators against the person's own baseline",
@@ -943,7 +943,7 @@ export const productDetails: ProductDetail[] = [
       "FallRisk integration",
     ],
     whyItMatters:
-      "Routine, low-effort assessments make slow decline visible early — while there is still time for prevention rather than reaction.",
+      "Routine, low-effort assessments make gradual change visible on a chart rather than only in hindsight, while a review is still useful.",
     workflow: [
       "Establish a mobility baseline on enrolment",
       "Run a short monthly walking assessment",

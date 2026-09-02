@@ -79,8 +79,8 @@ export function Hero() {
           >
             GaitAI turns video, wearable signals and human movement into
             actionable intelligence across MobilityCare and SecureVision — one
-            movement engine powering {productCount} modular
-            movement-intelligence products.
+            Movement Intelligence Platform with {productCount} modular
+            products.
           </motion.p>
 
           <motion.div
@@ -110,15 +110,17 @@ export function Hero() {
             </Link>
           </motion.div>
 
+          {/* The two vertical panels immediately below spell out the same
+              coverage in full, so the hero states the span rather than
+              listing it. */}
           <motion.div
             variants={fadeUp}
             custom={4}
             className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-soft-gray/80 sm:mt-16"
           >
             <span>
-              Spanning clinical gait, fall-risk, rehabilitation, sports
-              performance, wearable mobility, neurological movement,
-              surveillance, security, crowd intelligence and public safety.
+              Clinical mobility and privacy-aware public safety, on one
+              platform.
             </span>
           </motion.div>
         </motion.div>

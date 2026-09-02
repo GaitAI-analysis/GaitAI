@@ -25,7 +25,7 @@ export function HowItWorks() {
               <span className="text-gradient">Act on intelligence.</span>
             </>
           }
-          description="A four-stage pipeline that turns walking videos, wearable signals and CCTV movement into clinically useful and operationally actionable insight — in seconds."
+          description="A four-stage pipeline that turns walking videos, wearable signals and CCTV movement into insight a clinician or operator can review and act on."
         />
 
         <div ref={ref} className="relative mt-20">

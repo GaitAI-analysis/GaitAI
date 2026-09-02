@@ -12,7 +12,7 @@ import {
 
 export const metadata: Metadata = {
   title: `All Products — ${productCount} modular movement-intelligence products`,
-  description: `Every GaitAI product across MobilityCare and SecureVision — ${productCount} modular movement-intelligence products on one movement engine. Filter by Healthcare, Sports, Elderly Care, Wearables, Security, Crowd, Industrial and more, then see how a pilot runs.`,
+  description: `Every GaitAI product across MobilityCare and SecureVision — ${productCount} modular movement-intelligence products on one Movement Intelligence Platform. Filter by Healthcare, Sports, Elderly Care, Wearables, Security, Crowd, Industrial and more, then see how deployment works.`,
   alternates: { canonical: "/products" },
 };
 
@@ -29,16 +29,18 @@ export default function ProductsPage() {
         <div className="container-wide">
           <div className="mx-auto max-w-3xl text-center">
             <div className="inline-flex items-center rounded-full border border-cyan-300/30 bg-cyan-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
-              {productCount} modular products · One movement engine
+              {productCount} products · One Movement Intelligence Platform
             </div>
             <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white">
               {productCount} products.{" "}
-              <span className="text-gradient">One movement platform.</span>
+              <span className="text-gradient">
+                One Movement Intelligence Platform.
+              </span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              Every product is a module on the same movement engine, organised
-              into two families. Start with the family that matches your
-              environment.
+              Every product is a module on the same Movement Intelligence
+              Platform, organised into two families. Start with the family that
+              matches your environment.
             </p>
           </div>
 

@@ -3,25 +3,36 @@ import {
   ResearchFoundations,
   type FoundationCard,
 } from "./ResearchFoundations";
+import { ResearchHeroScene } from "./ResearchHeroScene";
+import { DiagramField } from "@/components/visuals/DiagramField";
 import styles from "./observatory.module.css";
 
 /**
  * The research hero.
  *
- * The headline, lede and both calls to action are unchanged. What changed is
- * what sits beside them: the column used to hold a full instrument view of a
- * captured stride, which is a picture of the *subject*. The headline claims a
- * published record, so the first screen now shows that record — the four
- * research foundations and how much published work backs each — and the
- * captured-stride language moved down into the capture-to-capabilities
- * pipeline, where it belongs to a stage rather than standing alone.
+ * The headline, lede and both calls to action are unchanged. What sits beside
+ * them has changed twice: it was an instrument view of a captured stride,
+ * then the four foundation cards, and it is now the pipeline the page is
+ * actually about — capture, pose, features, representation — drawn as one
+ * continuous labelled figure.
  *
- * The eyebrow says what the page is a basis for. Nothing here states a count:
- * the foundation cards take theirs from `researchAreas`.
+ * The foundations moved DOWN, out of the hero column and into a four-across
+ * row under it, which is where the reference composition puts its pillars and
+ * where four cards can carry a visual each instead of being squeezed into a
+ * two-by-two beside a headline.
+ *
+ * The section carries the shared research field: contour bands running left to
+ * right and a node lattice that thickens toward the right, echoing the
+ * figure's own signal-to-representation direction.
+ *
+ * Nothing here states a count: the foundation cards take theirs from
+ * `researchAreas`.
  */
 export function ResearchHero({ areas }: { areas: FoundationCard[] }) {
   return (
-    <section className={`site-page-intro ${styles.hero} pb-14 sm:pb-16`}>
+    <section className={`site-page-intro ${styles.hero} pb-12 sm:pb-16`}>
+      <DiagramField variant="research" gridMask="maskRight" className="-z-10" />
+
       <div className="container-wide">
         <div className={styles.heroGrid}>
           <div className="min-w-0">
@@ -53,6 +64,14 @@ export function ResearchHero({ areas }: { areas: FoundationCard[] }) {
             </div>
           </div>
 
+          {/* Capture → pose → features → representation, as one figure. */}
+          <div className={styles.heroScene}>
+            <ResearchHeroScene />
+          </div>
+        </div>
+
+        {/* The four pillars, each with the motif of what it studies. */}
+        <div className={styles.heroFoundations}>
           <ResearchFoundations areas={areas} />
         </div>
       </div>

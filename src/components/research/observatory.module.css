@@ -107,17 +107,11 @@
 }
 @media (min-width: 1024px) {
   .heroGrid {
-    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-    gap: 3.5rem;
-    /* Was 74vh, sized for a full instrument visual. The foundation cluster
-       that replaced it is a fixed two-by-two, so the old height left a band of
-       empty column under it on tall displays. */
-    min-height: 60vh;
-  }
-}
-@media (min-width: 1280px) {
-  .heroGrid {
-    min-height: 62vh;
+    /* The figure takes the wider half: it is a four-stage drawing and needs
+       the room to stay legible at 1px stroke. */
+    grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+    gap: 3rem;
+    align-items: center;
   }
 }
 
@@ -2381,4 +2375,60 @@
   .fCard:hover {
     transform: none;
   }
+}
+
+/* ── Hero scene + the foundation row under it ─────────────────────────── */
+
+.heroScene {
+  min-width: 0;
+}
+/* The figure bleeds toward the viewport edge from 1280px up, the way the
+   reference lets its scene run off the frame — it is atmosphere as much as
+   diagram, and a hard right margin makes it read as a picture in a box. */
+@media (min-width: 1280px) {
+  .heroScene {
+    margin-right: -5vw;
+  }
+}
+@media (max-width: 1023px) {
+  .heroScene {
+    order: -1;
+    margin-inline: -1rem;
+  }
+}
+
+.heroFoundations {
+  margin-top: 3rem;
+}
+@media (min-width: 1024px) {
+  .heroFoundations {
+    margin-top: 3.5rem;
+  }
+}
+
+/* Four across on wide screens: the pillars are the page's index, and a
+   two-by-two beside a headline could not carry a visual each. */
+@media (min-width: 1024px) {
+  .foundationsGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The motif replaces the icon box. It is a real drawing, so it gets a framed
+   plate with the card's own grain rather than a 2rem square. */
+.fCardArt {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--obs-line);
+  border-radius: 0.7rem;
+  background:
+    radial-gradient(ellipse 90% 80% at 30% 0%, rgb(79 209 255 / 0.07), transparent 70%),
+    linear-gradient(180deg, rgb(148 163 184 / 0.04), transparent 70%);
+  aspect-ratio: 16 / 9;
+}
+.fCardArt svg {
+  display: block;
+  height: 100%;
+  width: 100%;
 }

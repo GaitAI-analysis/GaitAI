@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { Cpu, Fingerprint, PersonStanding, ShieldCheck } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { PillarVisual, type PillarKind } from "./PillarVisual";
 import styles from "./observatory.module.css";
 
 /**
@@ -28,11 +27,18 @@ export type FoundationCard = {
   patents: number;
 };
 
-const ICON: Record<string, LucideIcon> = {
-  "res-gait-biometrics": Fingerprint,
-  "res-pose-gait": PersonStanding,
-  "res-privacy": ShieldCheck,
-  "res-edge": Cpu,
+/**
+ * Which scientific motif belongs to which pillar. These are the same drawings
+ * the evidence map uses, so a reader meets each pillar's visual identity in
+ * the hero and recognises it again further down the page. They replaced four
+ * generic line icons in bordered boxes — an icon says "there is a category
+ * here", where the motif says what the category studies.
+ */
+const KIND: Record<string, PillarKind> = {
+  "res-gait-biometrics": "biometrics",
+  "res-pose-gait": "pose",
+  "res-privacy": "privacy",
+  "res-edge": "edge",
 };
 
 /** "6 papers" · "1 paper" · "1 granted patent" — from the record, pluralised. */
@@ -58,7 +64,7 @@ export function ResearchFoundations({
 
       <ul className={styles.foundationsGrid}>
         {areas.map((area, i) => {
-          const Icon = ICON[area.id] ?? PersonStanding;
+          const kind = KIND[area.id] ?? "pose";
           return (
             <li key={area.id}>
               <Link
@@ -66,8 +72,8 @@ export function ResearchFoundations({
                 className={styles.fCard}
                 style={{ ["--f-i" as string]: i }}
               >
-                <span aria-hidden="true" className={styles.fCardIcon}>
-                  <Icon className="h-[18px] w-[18px]" />
+                <span aria-hidden="true" className={styles.fCardArt}>
+                  <PillarVisual kind={kind} />
                 </span>
                 <span className={styles.fCardTitle}>{area.title}</span>
                 <span className={styles.fCardSummary}>{area.summary}</span>

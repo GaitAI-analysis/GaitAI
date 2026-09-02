@@ -1,0 +1,263 @@
+/* ==========================================================================
+   RESEARCH HERO SCENE
+   --------------------------------------------------------------------------
+   The figure runs cool on the left and warm on the right: cyan where the
+   signal is still a measurement, violet where it has become a representation.
+   That is the only colour story in it, and it carries the whole argument.
+
+   Strokes are hairlines with `vector-effect: non-scaling-stroke`, so the
+   drawing keeps 1px lines at every width instead of thickening as it scales.
+   ========================================================================== */
+
+.wrap {
+  position: relative;
+  width: 100%;
+}
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ── ground plane ── */
+.plane line {
+  stroke: rgb(148 163 184 / 0.13);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .plane line {
+  stroke: rgb(15 23 42 / 0.1);
+}
+.platform {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.28);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── capture ── */
+.axis {
+  stroke: rgb(148 163 184 / 0.28);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.tick {
+  stroke: rgb(148 163 184 / 0.28);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.trace,
+.traceLit {
+  fill: none;
+  stroke: rgb(148 163 184 / 0.34);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.traceLit {
+  stroke: rgb(79 209 255 / 0.62);
+  stroke-width: 1.3;
+}
+:global(.light) .trace {
+  stroke: rgb(15 23 42 / 0.3);
+}
+:global(.light) .traceLit {
+  stroke: rgb(14 116 144 / 0.7);
+}
+
+/* ── bridges between stages ── */
+.bridge,
+.bridgeWarm {
+  fill: none;
+  stroke: url(#rs-bridge);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 5;
+  vector-effect: non-scaling-stroke;
+}
+.bridgeWarm {
+  stroke: rgb(167 139 250 / 0.4);
+}
+
+/* ── the figure's colour context (the skeleton owns its own strokes) ── */
+.figure {
+  color: #4fd1ff;
+}
+:global(.light) .figure {
+  color: #0e7490;
+}
+
+/* ── projection lines from joints to the feature cloud ── */
+.projection line {
+  stroke: rgb(79 209 255 / 0.24);
+  stroke-width: 1;
+  stroke-dasharray: 2 6;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── feature cloud ── */
+.feature {
+  fill: rgb(148 163 184 / 0.45);
+}
+.featureWarm {
+  fill: rgb(85 135 255 / 0.5);
+}
+.featureLit {
+  fill: rgb(79 209 255 / 0.7);
+}
+:global(.light) .feature {
+  fill: rgb(15 23 42 / 0.22);
+}
+:global(.light) .featureWarm {
+  fill: rgb(37 99 255 / 0.4);
+}
+:global(.light) .featureLit {
+  fill: rgb(14 116 144 / 0.55);
+}
+
+/* ── latent burst ── */
+.ray,
+.rayLit {
+  stroke: rgb(167 139 250 / 0.28);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.rayLit {
+  stroke: rgb(196 181 253 / 0.5);
+}
+:global(.light) .ray {
+  stroke: rgb(109 40 217 / 0.22);
+}
+:global(.light) .rayLit {
+  stroke: rgb(109 40 217 / 0.38);
+}
+.burst {
+  fill: rgb(167 139 250 / 0.45);
+}
+.burstLit {
+  fill: rgb(233 213 255 / 0.75);
+}
+:global(.light) .burst {
+  fill: rgb(109 40 217 / 0.35);
+}
+:global(.light) .burstLit {
+  fill: rgb(109 40 217 / 0.6);
+}
+.latentCore {
+  fill: #f5f3ff;
+}
+:global(.light) .latentCore {
+  fill: #6d28d9;
+}
+
+/* Joint trajectories across the stride. */
+.trajectory path {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.45);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .trajectory path {
+  stroke: rgb(14 116 144 / 0.5);
+}
+
+.trajectoryMark circle {
+  fill: rgb(79 209 255 / 0.75);
+}
+:global(.light) .trajectoryMark circle {
+  fill: rgb(14 116 144 / 0.7);
+}
+
+/* ── annotations ── */
+.labels text {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  fill: rgb(var(--c-soft-mute));
+}
+
+/* On a phone the figure keeps its proportions but the annotations would be
+   6px, so they are dropped and the drawing reads as the diagram it is. */
+@media (max-width: 767px) {
+  .labels {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   POSE SKELETON
+   --------------------------------------------------------------------------
+   Everything is hairline and non-scaling, so the wireframe stays 1px through
+   the group's scale transform. The structure is graded: spine and limbs at
+   full strength, ribs and the far side lower, so the drawing reads front to
+   back rather than as one flat mesh.
+   ========================================================================== */
+
+.skeleton {
+  color: #4fd1ff;
+}
+:global(.light) .skeleton {
+  color: #0e7490;
+}
+
+.skBone {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.skSpine {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.skRib {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.skPelvis {
+  fill: rgb(79 209 255 / 0.1);
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.skFar {
+  opacity: 0.42;
+}
+.skAxial {
+  opacity: 0.92;
+}
+.skSkull {
+  fill: rgb(var(--c-obsidian-500) / 0.55);
+  stroke: currentColor;
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .skSkull {
+  fill: rgb(255 255 255 / 0.8);
+}
+.skJaw,
+.skNeck {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.75;
+}
+.skJoint {
+  fill: currentColor;
+  opacity: 0.9;
+}

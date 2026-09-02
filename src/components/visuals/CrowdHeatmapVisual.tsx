@@ -129,7 +129,7 @@ export function CrowdHeatmapVisual() {
       </g>
       <g fontFamily="ui-monospace, monospace" letterSpacing="1.5">
         <text x="222" y="200" fontSize="9" fill="#94A3B8">
-          12:41:38 LIVE
+          12:41:38 DEMO
         </text>
         <circle cx="218" cy="197" r="2.5" fill="#10B981">
           <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite" />

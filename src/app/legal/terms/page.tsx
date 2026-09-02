@@ -4,21 +4,23 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Terms of use",
   description:
-    "Terms covering use of the GaitAI website, its research content and its comment areas, and the basis on which product information is published.",
+    "Terms covering use of the GaitAI website: informational content, demo requests, intellectual property, acceptable use, and the basis on which product information and demo visuals are published.",
 };
 
 /**
- * Written to cover what this website actually offers today: informational
- * content, a research library, a demo-request form and moderated comment
- * areas. It deliberately does not pretend to be a product licence or a
- * services agreement, because no product is sold through this site.
+ * Scoped to what this website actually is: an informational site with a
+ * research library, a demo-request form and moderated comment areas. It is
+ * not a product licence and not a services agreement, because nothing is sold
+ * or provisioned here — so it says that rather than gesturing at terms that
+ * do not exist yet.
  *
- * TODO (needs the company's own legal input, not a guess):
+ * TODO (needs the company's own legal input — must not be guessed):
  *   - registered entity name, address and governing jurisdiction
- *   - the pilot/evaluation agreement these terms should point to
+ *   - the pilot/evaluation agreement these terms should reference
  *   - liability, indemnity and dispute-resolution positions
- * Until those are settled this page states scope and limits truthfully rather
- * than presenting invented clauses.
+ * Anything in that list is omitted from the page rather than approximated.
+ * No governing law, warranty, contracting entity or enterprise term is
+ * stated anywhere below.
  */
 export default function TermsPage() {
   return (
@@ -30,61 +32,99 @@ export default function TermsPage() {
         Terms of use
       </h1>
       <p className="mt-6 text-soft-gray">
-        These terms cover your use of this website. They are not a product
-        licence and not a services agreement — nothing is sold or provisioned
-        through this site. Any pilot or deployment is governed by a separate
-        written agreement.
+        These terms cover your use of this website. Commercial engagements —
+        pilots, evaluations and deployments — are governed by a separate
+        written agreement with the contracting entity for that engagement;
+        nothing on this site creates one.
       </p>
 
       <h2 className="mt-12 font-display text-xl text-soft-white">
-        Using this site
+        Informational use
+      </h2>
+      <p className="mt-4 text-soft-gray">
+        This site exists to explain what GaitAI is and what its products are
+        designed to do. Product pages describe intended capability. They are
+        not a specification, and capabilities may change as the platform
+        develops.
+      </p>
+      <p className="mt-4 text-soft-gray">
+        Dashboards, reports, consoles and console footage shown on this site
+        use{" "}
+        <span className="text-soft-white">
+          illustrative synthetic values, labelled as such
+        </span>
+        . They are design demonstrations, not measured results, not output from
+        a real assessment, and not data from any real person or organisation.
+      </p>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">
+        No medical or professional advice
+      </h2>
+      <p className="mt-4 text-soft-gray">
+        Nothing on this site is medical, clinical, diagnostic, legal or
+        security advice, and no GaitAI output diagnoses a condition. Movement
+        metrics are decision support for a qualified professional; clinical,
+        safety and operational decisions remain theirs. Do not rely on anything
+        here in place of professional judgement.
+      </p>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">
+        Demo and contact requests
+      </h2>
+      <p className="mt-4 text-soft-gray">
+        Submitting the form is a request to be contacted — it does not create
+        an agreement, reserve capacity or commit either side to a pilot. Please
+        give accurate details so we can respond, and please do not include
+        health, clinical, personal or confidential information. How the
+        submission is handled is set out in the{" "}
+        <Link
+          className="text-cyan-300 transition-colors hover:text-cyan-200"
+          href="/legal/privacy"
+        >
+          Privacy Policy
+        </Link>
+        .
+      </p>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">
+        Intellectual property
+      </h2>
+      <p className="mt-4 text-soft-gray">
+        The GaitAI name, wordmark, product names, site design, copy and visuals
+        are owned by GaitAI. You may read, share and quote this site with
+        attribution; please don&apos;t reproduce or adapt it in a way that
+        suggests endorsement, affiliation or that the material is your own.
+      </p>
+      <p className="mt-4 text-soft-gray">
+        Papers listed in the{" "}
+        <Link
+          className="text-cyan-300 transition-colors hover:text-cyan-200"
+          href="/publications"
+        >
+          research library
+        </Link>{" "}
+        remain the copyright of their publishers and authors, and the granted
+        patent is held by its named inventors. We link to the publisher of
+        record; obtain the work from there and cite it accordingly.
+      </p>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">
+        Acceptable use
       </h2>
       <ul className="mt-5 space-y-3 text-[13.5px] leading-relaxed text-soft-gray">
         <li>
-          <span className="font-semibold text-soft-white">
-            Informational content.
-          </span>{" "}
-          Product pages describe what GaitAI&apos;s modules are designed to do.
-          Figures shown inside dashboards, reports and console visuals are
-          illustrative synthetic values, labelled as such, and are not measured
-          results.
+          Don&apos;t attempt to disrupt, probe or gain unauthorised access to
+          the site or the services behind it.
         </li>
         <li>
-          <span className="font-semibold text-soft-white">
-            Not medical advice.
-          </span>{" "}
-          Nothing on this site is medical, clinical or diagnostic advice, and no
-          GaitAI output diagnoses a condition. Clinical decisions remain with a
-          qualified professional.
+          Don&apos;t scrape or republish the site wholesale, or misrepresent
+          its content as a capability, certification or result GaitAI has not
+          stated.
         </li>
         <li>
-          <span className="font-semibold text-soft-white">
-            Research content.
-          </span>{" "}
-          Papers listed in the{" "}
-          <Link
-            className="text-cyan-300 transition-colors hover:text-cyan-200"
-            href="/publications"
-          >
-            research library
-          </Link>{" "}
-          remain the copyright of their publishers and authors. We link to the
-          publisher of record; please obtain the work from there and cite it
-          accordingly.
-        </li>
-        <li>
-          <span className="font-semibold text-soft-white">Comments.</span>{" "}
-          Where comments are enabled, keep them lawful and civil, and do not
+          Where comments are enabled, keep them lawful and civil, and don&apos;t
           post personal, health or confidential information about yourself or
           anyone else. Comments are moderated and may be hidden or removed.
-        </li>
-        <li>
-          <span className="font-semibold text-soft-white">
-            Brand and content.
-          </span>{" "}
-          The GaitAI name, wordmark, product names and site content are ours.
-          Please don&apos;t reproduce them in a way that suggests endorsement or
-          affiliation.
         </li>
       </ul>
 
@@ -107,20 +147,30 @@ export default function TermsPage() {
       </p>
 
       <h2 className="mt-12 font-display text-xl text-soft-white">
-        No warranty on published information
+        Third-party links and services
       </h2>
       <p className="mt-4 text-soft-gray">
-        The site is provided as-is. We keep it accurate and correct it when we
-        find an error, but we make no warranty that every description is
-        complete or current, and product capabilities may change. GaitAI claims
-        no certification, regulatory clearance or measured performance figure
-        anywhere on this site.
+        This site links to publishers, patent registries and other external
+        sites, and uses third-party services to deliver the demo form,
+        comments and embedded media. Those destinations and providers apply
+        their own terms and privacy practices, which we don&apos;t control.
       </p>
 
-      <p className="mt-8 text-soft-gray">
-        The governing entity, jurisdiction and the full contractual terms for
-        pilots will be published here before commercial launch. For anything in
-        the meantime, contact{" "}
+      <h2 className="mt-12 font-display text-xl text-soft-white">
+        Availability and accuracy
+      </h2>
+      <p className="mt-4 text-soft-gray">
+        The site is provided as-is and as-available. We don&apos;t guarantee
+        uninterrupted access, and content may be updated or corrected at any
+        time. We keep it accurate and fix errors when we find them, but we
+        don&apos;t warrant that every description is complete or current.
+        GaitAI claims no certification, regulatory clearance or measured
+        performance figure anywhere on this site.
+      </p>
+
+      <p className="mt-10 text-soft-gray">
+        Questions about these terms, or about the agreement that would govern a
+        pilot:{" "}
         <a
           className="text-cyan-300 transition-colors hover:text-cyan-200"
           href="mailto:legal@gaitai.com"

@@ -143,9 +143,14 @@ export default function PrivacyPage() {
         compliance status — not GDPR, DPDP Act, HIPAA, ISO 27001 or SOC 2. For
         a product deployment, the lawful basis for processing, consent
         management and any data-protection assessment rest with the deploying
-        organisation. A full jurisdiction-specific policy, naming the
-        contracting entity and retention periods, will be published here before
-        commercial launch.
+        organisation.
+      </p>
+      <p className="mt-4 text-soft-gray">
+        For commercial deployments, contractual privacy terms, retention
+        periods and jurisdiction-specific requirements are defined for the
+        applicable deployment and contracting entity. Movement data, retention
+        and access obligations differ too much between a clinic, a campus and a
+        transport hub for a single blanket policy to be meaningful.
       </p>
 
       <p className="mt-8 text-soft-gray">

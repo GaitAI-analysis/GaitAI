@@ -369,7 +369,7 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "privacyguard",
     valueProp: "Movement intelligence — without invasive surveillance.",
     overview:
-      "PrivacyGuard is the privacy-control layer for SecureVision: skeleton-only analytics, face blur, anonymized heatmaps, role-based access, audit logs, retention controls and consent/policy logging across every deployment.",
+      "PrivacyGuard is the privacy-control layer for SecureVision: skeleton-only analytics, face blur, privacy-aware aggregated heatmaps, role-based access, audit logs, retention controls and consent/policy logging across every deployment.",
     environments: ["All SecureVision sites", "Public sector", "Enterprise"],
     glance: {
       input: "Raw streams",
@@ -390,7 +390,7 @@ export const secureProductDetails: ProductDetail[] = [
     receives: [
       "Skeleton-only analytics mode",
       "Face blur",
-      "Anonymized heatmaps",
+      "Privacy-aware aggregated heatmaps",
       "Role-based access",
       "Audit logs",
       "Retention controls",
@@ -591,7 +591,7 @@ export const secureProductDetails: ProductDetail[] = [
   // ==========================================================================
   {
     slug: "forensicsearch",
-    valueProp: "Search hours of CCTV in minutes — by movement.",
+    valueProp: "Search recorded CCTV by movement, timeline and event path.",
     overview:
       "ForensicSearch indexes movement and event evidence in recorded footage so authorized investigators can narrow hours of multi-camera video by time, path, movement pattern or tracked subject.",
     environments: ["Enterprise security", "Campus", "Transport", "Retail"],

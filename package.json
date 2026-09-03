@@ -8,13 +8,14 @@
     "start": "next start",
     "lint": "next lint",
     "test:firebase": "node scripts/test-firebase.mjs",
-    "predev": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs",
-    "prebuild": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run validate:gaitai",
+    "predev": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run build:knowledge",
+    "prebuild": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run validate:gaitai && npm run build:knowledge",
     "typecheck": "tsc --noEmit",
     "validate:gaitai": "tsx scripts/validate-gaitai.mjs",
     "deploy:rules": "firebase deploy --only firestore:rules",
     "verify": "npm run typecheck && npm run lint && npm run validate:gaitai",
-    "check:links": "node scripts/check-links.mjs"
+    "check:links": "node scripts/check-links.mjs",
+    "build:knowledge": "tsx scripts/build-knowledge.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",

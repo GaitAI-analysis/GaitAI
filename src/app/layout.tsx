@@ -11,6 +11,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { IntelligenceSearch } from "@/components/search/IntelligenceSearch";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/layout/PageTransition";
+import { AskGaitAI } from "@/components/assistant/AskGaitAI";
 import { assetPath } from "@/lib/paths";
 
 const inter = Inter({
@@ -162,6 +163,10 @@ export default function RootLayout({
               <PageTransition>{children}</PageTransition>
             </main>
             <Footer />
+            {/* Ask GaitAI. Mounted last and positioned fixed, so it overlays
+                every route without entering any page's layout — and renders
+                nothing at all when no backend endpoint is configured. */}
+            <AskGaitAI />
           </div>
         </Providers>
       </body>

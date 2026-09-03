@@ -31,19 +31,20 @@
 6. [Routing & sitemap](#routing--sitemap)
 7. [Firebase & the comment system](#firebase--the-comment-system)
 8. [Admin Control Panel](#admin-control-panel)
-9. [Environment variables & secrets](#environment-variables--secrets)
-10. [Getting started](#getting-started)
-11. [Scripts](#scripts)
-12. [Deployment (CI/CD)](#deployment-cicd)
-13. [Design system](#design-system)
-14. [Theming — dark & light](#theming--dark--light)
-15. [Navigation, transitions & animation](#navigation-transitions--animation)
-16. [Code-rendered visuals](#code-rendered-visuals)
-17. [Founder](#founder)
-18. [Security notes](#security-notes)
-19. [Related docs](#related-docs)
-20. [Roadmap](#roadmap)
-21. [License](#license)
+9. [Ask GaitAI — the movement-intelligence guide](#ask-gaitai--the-movement-intelligence-guide)
+10. [Environment variables & secrets](#environment-variables--secrets)
+11. [Getting started](#getting-started)
+12. [Scripts](#scripts)
+13. [Deployment (CI/CD)](#deployment-cicd)
+14. [Design system](#design-system)
+15. [Theming — dark & light](#theming--dark--light)
+16. [Navigation, transitions & animation](#navigation-transitions--animation)
+17. [Code-rendered visuals](#code-rendered-visuals)
+18. [Founder](#founder)
+19. [Security notes](#security-notes)
+20. [Related docs](#related-docs)
+21. [Roadmap](#roadmap)
+22. [License](#license)
 
 ---
 
@@ -273,6 +274,39 @@ Optional hardening (pluggable, off by default): Cloudflare **Turnstile** CAPTCHA
 
 ---
 
+## Ask GaitAI — the movement-intelligence guide
+
+A grounded assistant in the bottom-right corner of every route. It answers from
+GaitAI's **own records** — the same typed data modules the pages render — and
+links to the pages those records came from.
+
+**Not a general chatbot.** `npm run build:knowledge` flattens `products.ts`,
+`product-details*.ts`, `usecase-details.ts`, `publications.ts`, `evidence.ts`,
+`insights.ts`, `gaitscape/graph.ts`, `trust.ts` and the `/legal` prose into
+`functions/knowledge.json` — 113 records. Retrieval (BM25 + page awareness +
+the canonical environment→module mapping) picks seven, and only those reach the
+model. Rename a module and the assistant's answer changes with no edit to the
+assistant; it cannot assert something the site does not, because it has nothing
+else to read.
+
+**The key is never in the browser.** The site is a static export on GitHub
+Pages, so the model call lives in a Firebase Cloud Function in the existing
+`gaitai-intelligence` project, with the credential in Secret Manager. The
+browser is told one thing — the endpoint URL, which is not a secret. Set
+`NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` to enable it; leave it blank and the
+assistant does not mount at all.
+
+**Guardrails are quoted, not rewritten.** The system policy embeds
+`notClaimed` from `trust.ts` and the `RESPONSIBLE_USE_*` statements from
+`responsible-use.ts` verbatim, so the assistant cannot make a stronger claim
+than `/legal/security/` or any module page does. No diagnosis, no invented
+accuracy figures, no certification status, and research foundation is kept
+distinct from product-specific validation.
+
+Full architecture, deployment and testing: **`docs/ask-gaitai.md`**.
+
+---
+
 ## Environment variables & secrets
 
 **No credentials live in this repository.** All Firebase client config is env-driven.
@@ -287,6 +321,9 @@ Optional hardening (pluggable, off by default): Cloudflare **Turnstile** CAPTCHA
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | ✅ | Firebase web app config |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | — | Enables the CAPTCHA gate when set |
 | `ADMIN_PASSWORD` | — | Legacy admin password (unused in prod) |
+| `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` | — | Ask GaitAI backend URL. A URL, not a secret — the model key lives in Secret Manager. Blank ⇒ the assistant does not mount. A GitHub Actions **variable**, not a secret |
+| `LLM_API_KEY` | — | **Server only.** Anthropic key, in Google Secret Manager. Never in `.env*`, never in the bundle |
+| `LLM_MODEL` | — | **Server only.** Model id for the assistant. Defaults to `claude-opus-5` |
 
 - **Local:** `cp .env.example .env.local` and fill in the values. `.env.local` is gitignored (as is every `.env*` except the template).
 - **CI:** the same six `NEXT_PUBLIC_FIREBASE_*` names must exist as **GitHub Actions repository secrets** (Repo → Settings → Secrets and variables → Actions). Both deploy workflows inject them at build time and **fail fast with a clear error if they're missing** (via the `predev`/`prebuild` guard script).
@@ -323,7 +360,10 @@ To verify the Firebase connection, open any publication page with DevTools open 
 | `npm run build` | Static production export to `out/` (runs `prebuild` first) |
 | `npm run start` | Serve a production build locally |
 | `npm run lint` | ESLint (Next.js config) |
-| `predev` / `prebuild` | `scripts/generate-firebase-config.mjs` — validates the Firebase env vars (fail-fast) and emits the gitignored `public/firebase-config.js` |
+| `npm run build:knowledge` | Regenerates `functions/knowledge.json` — the Ask GaitAI corpus — from the site's data modules |
+| `npm --prefix functions run test:retrieval` | Ask GaitAI acceptance suite. No API key, no network, no cost. Runs in CI |
+| `npm --prefix functions run test:answers` | The same questions through the model. Needs a key |
+| `predev` / `prebuild` | `scripts/generate-firebase-config.mjs` — validates the Firebase env vars (fail-fast) and emits the gitignored `public/firebase-config.js`; then rebuilds the Ask GaitAI corpus |
 
 ---
 
@@ -414,6 +454,7 @@ Ph.D. in Computer Science & Engineering (AI) from Manipal University Jaipur; doc
 | `FIREBASE_SETUP_HANDOFF.txt` | Step-by-step Firebase configuration guide for the backend team + the exact values they must hand back |
 | `firestore.rules` | The complete, paste-into-console Firestore security ruleset |
 | `storage.rules` | Public-read/admin-write rules and file limits for Insights media |
+| `docs/ask-gaitai.md` | Ask GaitAI: backend architecture, knowledge index, retrieval, guardrails, secrets, deployment, testing and cost |
 | `src/server-only/README.md` | Why the legacy admin route + REST API are archived |
 
 ---

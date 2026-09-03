@@ -1,0 +1,841 @@
+/* ==========================================================================
+   ASK GAITAI
+   --------------------------------------------------------------------------
+   The assistant carries its own tokens for the same reason the intelligence
+   palette does: it mounts at the app root, outside any themed subtree, and it
+   has to read correctly on both branches without inheriting a page's local
+   colours.
+
+   The vocabulary is the site's own — midnight ground, hairline borders, a
+   cyan accent used sparingly, mono microlabels, generous vertical rhythm.
+   There is no gradient fill, no drop shadow on a control, no coloured chat
+   bubble facing another coloured chat bubble. It should read as an instrument
+   panel that belongs to GaitAI, not as a plugin.
+   ========================================================================== */
+
+.root {
+  /* ── Surfaces ── */
+  --ai-ground: rgb(var(--c-obsidian-400) / 0.94);
+  --ai-raise: rgb(255 255 255 / 0.045);
+  --ai-raise-strong: rgb(255 255 255 / 0.08);
+
+  /* ── Lines. Two weights only: a hairline and a visible edge. ── */
+  --ai-line: rgb(148 163 184 / 0.16);
+  --ai-line-mid: rgb(148 163 184 / 0.28);
+
+  /* ── Type ── */
+  --ai-ink: rgb(var(--c-soft-white));
+  --ai-body: rgb(var(--c-soft-gray));
+  --ai-mute: rgb(var(--c-soft-mute));
+
+  /* ── Accents. Cyan carries the mark and every link; violet appears once,
+        behind the visitor's own question, and nowhere else. ── */
+  --ai-accent: #4fd1ff;
+  --ai-accent-soft: rgb(79 209 255 / 0.14);
+  --ai-question-bg: rgb(124 58 237 / 0.14);
+  --ai-question-line: rgb(156 100 241 / 0.3);
+
+  --ai-shadow: 0 32px 80px -28px rgb(2 6 14 / 0.78);
+
+  position: fixed;
+  /* Clear of the footer's own padding, and of the safe-area inset on a phone
+     with a home indicator. */
+  right: clamp(1rem, 2.5vw, 1.75rem);
+  bottom: calc(clamp(1rem, 2.5vw, 1.75rem) + env(safe-area-inset-bottom, 0px));
+  /* Under the navbar (50) and the mobile drawer (60) so it can never cover
+     navigation; under the GaitScape fullscreen fallback (120) so it does not
+     float over an expanded graph. */
+  z-index: 46;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+/* The open panel is a modal surface and outranks the page chrome, but still
+   sits below the ⌘K palette (140) so search can always be reached. */
+.root[data-open="true"] {
+  z-index: 130;
+}
+
+:global(.light) .root {
+  --ai-ground: rgb(255 255 255 / 0.98);
+  --ai-raise: rgb(15 23 42 / 0.035);
+  --ai-raise-strong: rgb(15 23 42 / 0.06);
+  --ai-line: rgb(15 23 42 / 0.1);
+  --ai-line-mid: rgb(15 23 42 / 0.18);
+  --ai-accent: #0e7490;
+  --ai-accent-soft: rgb(14 116 144 / 0.1);
+  --ai-question-bg: rgb(124 58 237 / 0.08);
+  --ai-question-line: rgb(124 58 237 / 0.28);
+  --ai-shadow: 0 28px 70px -30px rgb(15 23 42 / 0.28);
+}
+
+/* ==========================================================================
+   LAUNCHER
+   ========================================================================== */
+
+.launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--ai-line-mid);
+  border-radius: 999px;
+  background: var(--ai-ground);
+  padding: 0.6rem 1rem 0.6rem 0.85rem;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ai-body);
+  cursor: pointer;
+  box-shadow: var(--ai-shadow);
+  backdrop-filter: blur(14px);
+  transition:
+    border-color 0.35s ease,
+    color 0.35s ease,
+    background-color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s ease;
+}
+
+/* Minimum thumb target on a coarse pointer. */
+@media (pointer: coarse) {
+  .launcher {
+    min-height: 44px;
+  }
+}
+
+.launcher:hover {
+  border-color: rgb(79 209 255 / 0.4);
+  color: var(--ai-ink);
+  /* One restrained glow, not a halo. */
+  box-shadow:
+    var(--ai-shadow),
+    0 0 0 1px rgb(79 209 255 / 0.12),
+    0 0 24px -6px rgb(79 209 255 / 0.35);
+}
+
+.launcher:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: 3px;
+}
+
+.launcher:active {
+  transform: translateY(1px);
+}
+
+/* Out of the way while the panel occupies the same corner. Kept in the DOM,
+   and kept focusable, so focus can return to it on close. */
+.launcher[data-hidden="true"] {
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+}
+
+.launcherMark {
+  font-size: 13px;
+  line-height: 1;
+  color: var(--ai-accent);
+}
+
+.launcherLabel {
+  white-space: nowrap;
+}
+
+/* ── The one-time first-visit reveal ──
+   The label's width and opacity animate open once. No loop, no bounce, no
+   pulse: it announces itself and then behaves like any other control. */
+.launcher[data-revealed="false"] .launcherLabel {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.launcher .launcherLabel {
+  max-width: 12rem;
+  opacity: 1;
+  transition:
+    max-width 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s ease 0.1s;
+}
+
+/* ==========================================================================
+   PANEL
+   ========================================================================== */
+
+.panel {
+  display: flex;
+  width: min(26rem, calc(100vw - 2rem));
+  /* Never taller than the viewport minus the fixed header, so the panel can
+     not hide the navigation it might be telling someone to use. */
+  max-height: min(38rem, calc(100vh - var(--site-header-height) - 3.5rem));
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--ai-line-mid);
+  border-radius: 1.125rem;
+  background: var(--ai-ground);
+  box-shadow: var(--ai-shadow);
+  backdrop-filter: blur(18px);
+  animation: ai-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes ai-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Header ── */
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--ai-line);
+  padding: 1rem 1.1rem 0.9rem;
+}
+
+.identity {
+  min-width: 0;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ai-ink);
+}
+
+.mark {
+  font-size: 11px;
+  color: var(--ai-accent);
+}
+
+.tagline {
+  margin-top: 0.35rem;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ai-mute);
+}
+
+.headerControls {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.quietButton {
+  border: 0;
+  border-radius: 0.4rem;
+  background: none;
+  padding: 0.25rem 0.4rem;
+  font-size: 11px;
+  color: var(--ai-mute);
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.quietButton:hover {
+  color: var(--ai-body);
+}
+
+.quietButton:focus-visible,
+.closeButton:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: 2px;
+}
+
+.closeButton {
+  display: grid;
+  height: 26px;
+  width: 26px;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+  background: none;
+  font-size: 11px;
+  color: var(--ai-mute);
+  cursor: pointer;
+  transition:
+    color 0.25s ease,
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.closeButton:hover {
+  border-color: var(--ai-line);
+  background: var(--ai-raise);
+  color: var(--ai-ink);
+}
+
+@media (pointer: coarse) {
+  .closeButton {
+    height: 40px;
+    width: 40px;
+  }
+  .quietButton {
+    min-height: 40px;
+  }
+}
+
+/* ── Transcript ── */
+
+.scroller {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.1rem 1.1rem 0.5rem;
+  scrollbar-width: thin;
+}
+
+.opening {
+  padding-bottom: 0.5rem;
+}
+
+.openingLead {
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--ai-ink);
+}
+
+.openingDetail {
+  margin-top: 0.4rem;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ai-mute);
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+}
+
+.thread:not(:empty) {
+  padding-top: 0.25rem;
+}
+
+/* The visitor's own words: a small tinted card, aligned right, never the full
+   width — it should read as "you said this", not as a second speaker. */
+.question {
+  max-width: 88%;
+  align-self: flex-end;
+  border: 1px solid var(--ai-question-line);
+  border-radius: 0.85rem 0.85rem 0.3rem 0.85rem;
+  background: var(--ai-question-bg);
+  padding: 0.55rem 0.75rem;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ai-ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* The answer is open text on the panel's own ground, marked by a hairline
+   rule rather than boxed. */
+.answer {
+  display: grid;
+  grid-template-columns: 10px 1fr;
+  gap: 0.7rem;
+}
+
+.answerMark {
+  margin-top: 0.35rem;
+  width: 2px;
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    var(--ai-accent) 0%,
+    rgb(79 209 255 / 0.08) 100%
+  );
+}
+
+.answerContent {
+  min-width: 0;
+}
+
+.answerBody {
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--ai-body);
+}
+
+.answerBody > * + * {
+  margin-top: 0.7rem;
+}
+
+.answerBody strong {
+  font-weight: 600;
+  color: var(--ai-ink);
+}
+
+.answerLead {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ai-ink);
+}
+
+.answerList {
+  display: grid;
+  gap: 0.4rem;
+  padding-left: 1.05rem;
+}
+
+.answerList li {
+  padding-left: 0.15rem;
+}
+
+.answerList:where(ul) {
+  list-style: disc;
+}
+
+.answerList:where(ol) {
+  list-style: decimal;
+}
+
+.answerList::marker,
+.answerList li::marker {
+  color: var(--ai-mute);
+}
+
+.code {
+  border-radius: 0.3rem;
+  background: var(--ai-raise);
+  padding: 0.1rem 0.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.86em;
+  color: var(--ai-accent);
+}
+
+.inlineLink {
+  color: var(--ai-accent);
+  text-decoration: underline;
+  text-decoration-color: rgb(79 209 255 / 0.35);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.25s ease;
+}
+
+.inlineLink:hover {
+  text-decoration-color: var(--ai-accent);
+}
+
+.inlineLink:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* ── Generation indicator ──
+   Named for what it is doing, and gone as soon as the first token lands. */
+
+.thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 12.5px;
+  color: var(--ai-mute);
+}
+
+.thinkingScan {
+  position: relative;
+  display: inline-block;
+  height: 1px;
+  width: 22px;
+  overflow: hidden;
+  background: var(--ai-line-mid);
+}
+
+.thinkingScan::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ai-accent);
+  animation: ai-scan 1.4s ease-in-out infinite;
+}
+
+@keyframes ai-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ── Sources ── */
+
+.microLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ai-mute);
+}
+
+.sources {
+  margin-top: 1rem;
+  border-top: 1px solid var(--ai-line);
+  padding-top: 0.7rem;
+}
+
+.sourceList {
+  display: grid;
+  margin-top: 0.5rem;
+  gap: 1px;
+}
+
+.sourceLink {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  border-radius: 0.45rem;
+  margin-left: -0.4rem;
+  padding: 0.35rem 0.4rem;
+  transition: background-color 0.25s ease;
+}
+
+.sourceLink:hover {
+  background: var(--ai-raise);
+}
+
+.sourceLink:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: -2px;
+}
+
+.sourceTitle {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12.5px;
+  color: var(--ai-ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sourceKind {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ai-mute);
+}
+
+.sourceArrow {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--ai-accent);
+}
+
+/* ── Quick prompts / follow-ups ── */
+
+.prompts {
+  margin-top: 1rem;
+}
+
+.promptRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.opening .promptRow {
+  margin-top: 1rem;
+}
+
+.prompt {
+  border: 1px solid var(--ai-line);
+  border-radius: 999px;
+  background: var(--ai-raise);
+  padding: 0.4rem 0.75rem;
+  font-size: 12px;
+  color: var(--ai-body);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.prompt:hover:not(:disabled) {
+  border-color: rgb(79 209 255 / 0.35);
+  background: var(--ai-accent-soft);
+  color: var(--ai-ink);
+}
+
+.prompt:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.prompt:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .prompt {
+    min-height: 40px;
+  }
+}
+
+/* ── Demo handoff ── */
+
+.cta {
+  margin-top: 1rem;
+  border: 1px solid var(--ai-line);
+  border-radius: 0.7rem;
+  background: var(--ai-raise);
+  padding: 0.75rem 0.85rem;
+}
+
+.ctaLead {
+  font-size: 12px;
+  color: var(--ai-mute);
+}
+
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0.55rem;
+  border: 1px solid rgb(79 209 255 / 0.35);
+  gap: 0.35rem;
+  border-radius: 999px;
+  background: var(--ai-accent-soft);
+  padding: 0.4rem 0.85rem;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ai-ink);
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+
+.ctaButton:hover {
+  border-color: var(--ai-accent);
+  background: rgb(79 209 255 / 0.2);
+}
+
+.ctaButton:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: 2px;
+}
+
+/* ── Failure ── */
+
+.failure {
+  min-width: 0;
+}
+
+.failureLead {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ai-ink);
+}
+
+.failureDetail {
+  margin-top: 0.35rem;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ai-mute);
+}
+
+.failureActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+/* ── Composer ── */
+
+.composer {
+  border-top: 1px solid var(--ai-line);
+  padding: 0.8rem 1.1rem calc(0.8rem + env(safe-area-inset-bottom, 0px));
+}
+
+.inputShell {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  border: 1px solid var(--ai-line);
+  border-radius: 0.75rem;
+  background: var(--ai-raise);
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+  transition: border-color 0.25s ease;
+}
+
+.inputShell:focus-within {
+  border-color: rgb(79 209 255 / 0.4);
+}
+
+.input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: none;
+  padding: 0.2rem 0;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ai-ink);
+  resize: none;
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--ai-mute);
+}
+
+.send {
+  display: grid;
+  height: 30px;
+  width: 30px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--ai-line-mid);
+  border-radius: 0.55rem;
+  background: none;
+  font-size: 13px;
+  color: var(--ai-body);
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.send:hover:not(:disabled) {
+  border-color: rgb(79 209 255 / 0.45);
+  background: var(--ai-accent-soft);
+  color: var(--ai-ink);
+}
+
+.send:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.send:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .send {
+    height: 40px;
+    width: 40px;
+  }
+}
+
+.privacyNote {
+  margin-top: 0.55rem;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: var(--ai-mute);
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   MOBILE — a bottom sheet, not a shrunken card
+   --------------------------------------------------------------------------
+   Header fixed, transcript scrolls, composer pinned above the safe-area inset.
+   `dvh` rather than `vh` so the sheet resizes with the URL bar and the virtual
+   keyboard instead of extending under them.
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .root[data-open="true"] {
+    inset: 0;
+    right: 0;
+    bottom: 0;
+    gap: 0;
+  }
+
+  .panel {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    /* Opaque, and no blur. At full-screen the translucent desktop surface is
+       showing the page THROUGH the sheet rather than behind a floating card,
+       which reads as a rendering fault; and a viewport-sized backdrop-filter
+       is the most expensive thing on the page on exactly the devices least
+       able to afford it. */
+    background: rgb(var(--c-obsidian-400));
+    backdrop-filter: none;
+  }
+
+  .header {
+    padding: max(1rem, env(safe-area-inset-top, 0px)) 1.1rem 0.9rem;
+  }
+
+  .question,
+  .answerBody,
+  .input {
+    /* 16px stops iOS Safari zooming the viewport on focus, and reads better
+       at arm's length. */
+    font-size: 15px;
+  }
+
+  .scroller {
+    padding: 1.1rem 1.1rem 0.75rem;
+  }
+
+  .prompt {
+    font-size: 13px;
+  }
+}
+
+/* A landscape phone has almost no height; the sheet is the only sane shape
+   there too. */
+@media (max-height: 520px) and (max-width: 900px) {
+  .panel {
+    max-height: calc(100dvh - 1rem);
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   Nothing animates. The scan indicator becomes a static rule — the text beside
+   it already says what is happening.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .panel {
+    animation: none;
+  }
+
+  .launcher,
+  .launcher .launcherLabel,
+  .prompt,
+  .send,
+  .sourceLink,
+  .ctaButton {
+    transition: none;
+  }
+
+  .thinkingScan::after {
+    animation: none;
+    opacity: 0.5;
+  }
+}

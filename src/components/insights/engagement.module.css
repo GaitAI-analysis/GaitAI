@@ -1,0 +1,57 @@
+/*
+ * The journal's engagement line — views, likes, comments.
+ *
+ * Set at the weight of the metadata it joins: 10.5px mono, uppercase-free,
+ * muted, with hairline marks. It is editorial metadata, not a social bar, so
+ * there are no pills, no counts in boxes and no colour except the one the like
+ * takes when it is the reader's own.
+ */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+  transition: color 0.3s ease;
+}
+
+.mark {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.link:hover,
+.like:hover {
+  color: rgb(var(--c-soft-white));
+}
+
+.like:focus-visible,
+.link:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* The one colour on the line, and only once the reader has acted. */
+.liked {
+  color: #f0a2c0;
+}
+:global(.light) .liked {
+  color: #b4326a;
+}
+.liked .mark {
+  opacity: 1;
+}

@@ -15,6 +15,9 @@ rules_version = '2';
 //   pendingCommentQueue → flat moderation mirror; same as pendingComments.
 //   reportedComments    → anyone may CREATE a report (validated);
 //                         only the admin may read / update / delete.
+//   articleStats        → anyone may READ, and may raise ONE counter by ONE
+//                         step per write (views +1, or likes +/-1, never both);
+//                         only the admin may delete.
 // =============================================================================
 
 service cloud.firestore {
@@ -81,6 +84,53 @@ service cloud.firestore {
       allow read: if resource.data.hidden == false || isAdmin();
       allow create: if commentFieldsValid(request.resource.data);
       allow update, delete: if isAdmin();
+    }
+
+    // ---- ARTICLE ENGAGEMENT COUNTERS ---------------------------------------
+    // articleStats/{slug} → { views, likes, updatedAt }
+    //
+    // A static site has no server, so the reader's browser writes these. That
+    // is only safe if the rules make an abusive write impossible to express,
+    // which is what the two functions below do: ONE write may move views by
+    // +1, or likes by +1/-1, and never both in the same write. No other field
+    // may appear, the counters must stay non-negative integers, and nothing
+    // can be set to an arbitrary value — a client cannot write views = 999999,
+    // it can only ask for "one more" and be told yes.
+    //
+    // Anyone may read: the counts are shown publicly on the journal.
+    // Only the admin may delete, so a slug's history cannot be wiped.
+    function statsShapeValid() {
+      return request.resource.data.keys().hasOnly(['views', 'likes', 'updatedAt'])
+        && request.resource.data.views is int
+        && request.resource.data.likes is int
+        && request.resource.data.views >= 0
+        && request.resource.data.likes >= 0;
+    }
+
+    // Exactly one counter may take one step. Deltas are computed against the
+    // stored document, so the client's arithmetic is never trusted.
+    function statsStepValid() {
+      return (request.resource.data.views - resource.data.views) >= 0
+        && (request.resource.data.views - resource.data.views) <= 1
+        && (request.resource.data.likes - resource.data.likes) >= -1
+        && (request.resource.data.likes - resource.data.likes) <= 1
+        && (
+             (request.resource.data.views - resource.data.views) == 0
+             || (request.resource.data.likes - resource.data.likes) == 0
+           );
+    }
+
+    match /articleStats/{slug} {
+      allow read: if true;
+
+      // First write for a slug: one counter starts at 1, the other at 0.
+      allow create: if statsShapeValid()
+        && request.resource.data.views <= 1
+        && request.resource.data.likes <= 1
+        && (request.resource.data.views + request.resource.data.likes) <= 1;
+
+      allow update: if statsShapeValid() && statsStepValid();
+      allow delete: if isAdmin();
     }
 
     // ---- Reported comments -------------------------------------------------

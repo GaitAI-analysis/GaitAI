@@ -118,7 +118,7 @@ export function JournalClose({
         <p className={styles.closeLede}>
           The GaitAI Journal follows the signals: how movement becomes
           evidence, where AI should be trusted, and where it should be
-          questioned. Technical essays, research notes, engineering stories and
+          questioned. Research notes, engineering stories, product notes and
           updates from the team building GaitAI.
         </p>
 

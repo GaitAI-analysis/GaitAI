@@ -1,5 +1,5 @@
 /**
- * The GaitAI Journal — the editorial layer. (Route stays /insights.)
+ * The GaitAI blog — the editorial layer. (Route stays /insights.)
  *
  * Long-form essays and research notes are authored here as structured content
  * rather than free-form markdown, so every article renders through one shared
@@ -51,17 +51,17 @@ export type PostType =
 
 /** Singular — the label a card and an article carry. */
 export const POST_TYPE_LABEL: Record<PostType, string> = {
-  essay: "Technical Essay",
+  essay: "Technical Article",
   research: "Research Note",
   product: "Product Update",
   engineering: "Engineering Note",
-  update: "From GaitAI",
+  update: "GaitAI Update",
   announcement: "Announcement",
 };
 
 /** Plural — the label a filter chip and a section heading carry. */
 export const POST_TYPE_PLURAL: Record<PostType, string> = {
-  essay: "Essays",
+  essay: "Articles",
   research: "Research notes",
   product: "Product updates",
   engineering: "Engineering",

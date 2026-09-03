@@ -111,6 +111,11 @@ export function JournalClose({
   return (
     <section className={styles.close} aria-labelledby="journal-close">
       <div className="container-wide">
+        {/* The brief's subscription copy lands here. There is no subscribe
+            form on this site — see the note at the top of this section — so
+            this is the surface it belongs on: the moment the page invites you
+            to keep reading. Nothing here calls itself a Journal subscription,
+            or a subscription at all. */}
         <h2 id="journal-close" className={styles.closeTitle}>
           Stay close to the <span className={styles.spectrum}>signal.</span>
         </h2>
@@ -140,8 +145,8 @@ export function JournalClose({
         </div>
 
         {/* The index. A horizontal list of five, not five more cards. */}
-        <nav className={styles.index} aria-label="The journal">
-          <p className={styles.indexLabel}>The journal</p>
+        <nav className={styles.index} aria-label="The blog">
+          <p className={styles.indexLabel}>The blog</p>
           <ol className={styles.indexList}>
             {entries.map((entry) => (
               <li key={entry.step} className={styles.indexItem}>

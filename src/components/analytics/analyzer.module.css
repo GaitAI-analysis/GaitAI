@@ -1,0 +1,767 @@
+/* =========================================================================
+   MOVEMENT ANALYZER — bring a clip, see what can be measured
+   -------------------------------------------------------------------------
+   Deep navy, hairlines, cyan for the signal and violet where the signal has
+   become a representation. No white upload box, no dashboard chrome.
+
+   Every state is declared in its finished form; the only animation is the
+   progress list and a cursor that follows the video, both of which carry
+   meaning. Nothing here depends on an animation having run to be legible.
+   ========================================================================= */
+
+.lab {
+  --ma-cyan: #4fd1ff;
+  --ma-blue: #5587ff;
+  --ma-violet: #a78bfa;
+  --ma-line: rgb(148 163 184 / 0.16);
+  --ma-line-mid: rgb(148 163 184 / 0.3);
+  --ma-ink: rgb(var(--c-soft-white));
+  --ma-body: rgb(var(--c-soft-gray));
+  --ma-mute: rgb(var(--c-soft-mute));
+  --ma-surface: rgb(148 163 184 / 0.03);
+  --ma-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --ma-display: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  --ma-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+:global(.light) .lab {
+  --ma-cyan: #0e7490;
+  --ma-blue: #2563ff;
+  --ma-violet: #6d28d9;
+  --ma-line: rgb(15 23 42 / 0.12);
+  --ma-line-mid: rgb(15 23 42 / 0.22);
+  --ma-surface: rgb(15 23 42 / 0.03);
+}
+
+.stopCyan {
+  stop-color: var(--ma-cyan);
+}
+.stopBlue {
+  stop-color: var(--ma-blue);
+}
+.stopViolet {
+  stop-color: var(--ma-violet);
+}
+
+/* ── Intake ─────────────────────────────────────────────────────────────── */
+
+.intake {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 900px) {
+  .intake {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  }
+}
+
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 17rem;
+  padding: 2.25rem;
+  border: 1px dashed var(--ma-line-mid);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgb(79 209 255 / 0.05), transparent 70%),
+    var(--ma-surface);
+  transition:
+    border-color 0.3s var(--ma-ease),
+    background 0.3s var(--ma-ease);
+}
+
+.dropOn {
+  border-color: var(--ma-cyan);
+  background:
+    radial-gradient(120% 90% at 20% 0%, rgb(79 209 255 / 0.1), transparent 70%),
+    var(--ma-surface);
+}
+
+.dropTitle {
+  font-family: var(--ma-display);
+  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ma-ink);
+}
+
+.dropMeta {
+  font-family: var(--ma-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-mute);
+}
+
+/* A real <label> wrapping a real <input type=file>: the whole control is
+   focusable and activatable from the keyboard with no JS click forwarding. */
+.browse {
+  margin-top: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.browse > span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.15rem;
+  border: 1px solid var(--ma-cyan);
+  border-radius: 999px;
+  background: rgb(79 209 255 / 0.1);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ma-ink);
+  transition: background 0.3s var(--ma-ease);
+}
+
+.browse:hover > span {
+  background: rgb(79 209 255 / 0.18);
+}
+
+/* Visually hidden, still in the tab order and still the real control. */
+.file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.file:focus-visible + span {
+  outline: 2px solid var(--ma-cyan);
+  outline-offset: 3px;
+}
+
+.privacy {
+  margin-top: 1.1rem;
+  max-width: 34rem;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ma-mute);
+}
+
+.samples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.5rem;
+  border: 1px solid var(--ma-line);
+  border-radius: 1.25rem;
+  background: var(--ma-surface);
+}
+
+.samplesLabel {
+  font-family: var(--ma-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ma-mute);
+}
+
+.sample {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--ma-line);
+  border-radius: 0.8rem;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s var(--ma-ease);
+}
+
+.sample:hover {
+  border-color: var(--ma-cyan);
+}
+
+.sample:focus-visible {
+  outline: 2px solid var(--ma-cyan);
+  outline-offset: 2px;
+}
+
+.sampleName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ma-ink);
+}
+
+.sampleNote {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ma-mute);
+}
+
+.samplesNote {
+  margin-top: 0.3rem;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--ma-mute);
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────── */
+
+.error {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid rgb(224 181 103 / 0.4);
+  border-radius: 0.8rem;
+  background: rgb(224 181 103 / 0.06);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ma-body);
+}
+
+.errorAction {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--ma-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-cyan);
+  cursor: pointer;
+}
+
+/* ── Workspace ──────────────────────────────────────────────────────────── */
+
+.work {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1000px) {
+  /* The split only exists where both halves fit. Below this the stack is
+     video, then analysis, which is the order a reader wants on a phone. */
+  .work {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: start;
+  }
+}
+
+.stage,
+.panel {
+  min-width: 0;
+  border: 1px solid var(--ma-line);
+  border-radius: 1.1rem;
+  background: var(--ma-surface);
+  overflow: hidden;
+}
+
+.stageHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--ma-line);
+}
+
+.stageName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ma-ink);
+}
+
+.stageOrigin {
+  font-family: var(--ma-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-cyan);
+}
+
+.player {
+  position: relative;
+  background: rgb(var(--c-obsidian-400) / 0.6);
+}
+
+.video {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 60vh;
+}
+
+.videoHidden {
+  /* Kept in the DOM and still the timeline source, but not rendered: the
+     privacy view is a substitution, not an overlay. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.privacyView {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+}
+
+.privacyNote {
+  font-family: var(--ma-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-violet);
+  text-align: center;
+}
+
+.stageFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.1rem;
+  padding: 0.85rem 1.1rem;
+  border-top: 1px solid var(--ma-line);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 11.5px;
+  color: var(--ma-body);
+  cursor: pointer;
+}
+
+.toggle input {
+  accent-color: var(--ma-violet);
+}
+
+.timeRead {
+  font-family: var(--ma-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--ma-mute);
+  font-variant-numeric: tabular-nums;
+}
+
+.clear {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--ma-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-cyan);
+  cursor: pointer;
+}
+
+/* ── Progress ───────────────────────────────────────────────────────────── */
+
+/* Real progress: the share of the clip sampled so far, not a fake timer. */
+.progress {
+  padding: 1.2rem 1.2rem 0;
+}
+
+.progressLabel {
+  display: block;
+  font-family: var(--ma-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-cyan);
+}
+
+.progressTrack {
+  display: block;
+  margin-top: 0.6rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--ma-line);
+  overflow: hidden;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--ma-cyan),
+    var(--ma-blue) 60%,
+    var(--ma-violet)
+  );
+  transition: width 0.2s linear;
+}
+
+
+.stages {
+  margin: 0;
+  padding: 1.4rem 1.2rem;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.stageRow {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--ma-line);
+  font-size: 12.5px;
+  color: var(--ma-mute);
+  transition: color 0.3s var(--ma-ease);
+}
+
+.stageRow:first-child {
+  border-top: 0;
+}
+
+.stageNo {
+  font-family: var(--ma-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ma-mute);
+}
+
+.stageDone {
+  color: var(--ma-body);
+}
+
+.stageDone .stageNo {
+  color: var(--ma-cyan);
+}
+
+.stageNow {
+  color: var(--ma-ink);
+}
+
+.stageNow .stageNo {
+  color: var(--ma-cyan);
+}
+
+/* ── Tabs and body ──────────────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.75rem 0.9rem 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--ma-line);
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: none;
+  padding: 0.55rem 0.85rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: var(--ma-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ma-mute);
+  cursor: pointer;
+  transition: color 0.3s var(--ma-ease);
+}
+
+.tab:hover {
+  color: var(--ma-body);
+}
+
+.tabOn {
+  color: var(--ma-ink);
+  border-bottom-color: var(--ma-cyan);
+}
+
+.body {
+  padding: 1.3rem 1.2rem 1.4rem;
+}
+
+/* ── Facts ──────────────────────────────────────────────────────────────── */
+
+.facts {
+  margin: 0;
+  display: grid;
+  gap: 1px;
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--ma-line);
+  border: 1px solid var(--ma-line);
+  border-radius: 0.7rem;
+  overflow: hidden;
+}
+
+@media (min-width: 520px) {
+  .facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.fact {
+  padding: 0.8rem 0.9rem;
+  background: rgb(var(--c-obsidian-300) / 0.5);
+}
+:global(.light) .fact {
+  background: rgb(255 255 255 / 0.6);
+}
+
+.factKey {
+  font-family: var(--ma-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-mute);
+}
+
+.factVal {
+  margin: 0.35rem 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ma-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Inline definitions ─────────────────────────────────────────────────── */
+
+.term {
+  display: inline;
+}
+
+.termBtn {
+  margin-left: 0.3rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  font-size: 10px;
+  color: var(--ma-cyan);
+  cursor: pointer;
+}
+
+.termBtn:focus-visible {
+  outline: 2px solid var(--ma-cyan);
+  outline-offset: 2px;
+}
+
+.termBody {
+  display: block;
+  margin-top: 0.45rem;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 11px;
+  line-height: 1.6;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ma-body);
+}
+
+/* ── Figures ────────────────────────────────────────────────────────────── */
+
+.figure {
+  margin: 0 0 1.1rem;
+}
+
+.trace,
+.path {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.path {
+  max-width: 20rem;
+  margin-inline: auto;
+}
+
+.axis {
+  stroke: var(--ma-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.traceLine {
+  fill: none;
+  stroke: url(#ma-trace);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.event {
+  stroke: var(--ma-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+
+.cursor {
+  stroke: var(--ma-violet);
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.pathFrame {
+  fill: none;
+  stroke: var(--ma-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.pathLine {
+  fill: none;
+  stroke: var(--ma-cyan);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.75;
+  vector-effect: non-scaling-stroke;
+}
+
+.pathDot {
+  fill: var(--ma-cyan);
+  opacity: 0.5;
+}
+
+.pathNow {
+  fill: none;
+  stroke: var(--ma-violet);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.caption {
+  margin-top: 0.6rem;
+  font-family: var(--ma-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ma-mute);
+}
+
+/* ── Notes and boundaries ───────────────────────────────────────────────── */
+
+.note {
+  margin-top: 1rem;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--ma-mute);
+}
+
+/* The scope statement. It appears on every tab because every tab needs it. */
+.boundary {
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--ma-line);
+  font-size: 11.5px;
+  line-height: 1.75;
+  color: var(--ma-mute);
+}
+
+.chain {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chainRow {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--ma-line);
+}
+
+.chainRow:first-child {
+  border-top: 0;
+}
+
+.chainNo {
+  flex: none;
+  font-family: var(--ma-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--ma-cyan);
+}
+
+.chainKey {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ma-ink);
+}
+
+.chainVal {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--ma-mono);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--ma-mute);
+}
+
+.links {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.1rem;
+}
+
+.link {
+  font-family: var(--ma-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-cyan);
+  transition: color 0.3s var(--ma-ease);
+}
+
+.link:hover {
+  color: var(--ma-ink);
+}
+
+.after {
+  padding: 1.1rem 1.2rem 1.3rem;
+  border-top: 1px solid var(--ma-line);
+}
+
+.afterLabel {
+  font-family: var(--ma-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-mute);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop,
+  .sample,
+  .stageRow,
+  .tab,
+  .link,
+  .browse > span {
+    transition: none;
+  }
+}

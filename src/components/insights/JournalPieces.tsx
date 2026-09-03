@@ -28,13 +28,16 @@ export function JournalOpening({ children }: { children: React.ReactNode }) {
               <span className={styles.mastheadSub}>Intelligence in motion</span>
             </p>
 
-            <h1 id="journal-question" className={styles.openingQuestion}>
+            {/* h2, not h1: the archive masthead above now opens the page
+                and owns its single h1. This is the narrative section's
+                heading, and the section is aria-labelledby it either way. */}
+            <h2 id="journal-question" className={styles.openingQuestion}>
               <span className={styles.openingLine}>What does AI</span>
               <span className={styles.openingLine}>see when</span>
               <span className={`${styles.openingLine} ${styles.spectrum}`}>
                 you walk?
               </span>
-            </h1>
+            </h2>
 
             <Link href="#story-01" className={styles.openingScroll}>
               Scroll to follow the signal

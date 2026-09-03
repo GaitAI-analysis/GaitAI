@@ -1153,7 +1153,7 @@ details[open] > .summaryBody {
   color: var(--jr-mute);
 }
 
-/* ── Section rail (sticky) ── */
+/* ── Section rail ── */
 
 .rail {
   font-size: 0.8125rem;
@@ -1206,11 +1206,11 @@ details[open] > .summaryBody {
   transition: width 0.3s var(--jr-ease);
 }
 
-/* Mobile: the rail becomes a horizontal scroller under the header. */
+/* Mobile: the rail becomes a horizontal scroller. It used to stick under the
+   header for the length of the article; like the desktop rail it now scrolls
+   away with the content it indexes. The band treatment stays — it was drawn
+   for this strip, not for the pinning. */
 .railMobile {
-  position: sticky;
-  top: var(--site-header-height);
-  z-index: 30;
   margin: 0 -1.25rem;
   padding: 0.6rem 1.25rem;
   background-color: rgb(var(--c-obsidian-500) / 0.9);

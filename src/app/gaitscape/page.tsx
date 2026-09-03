@@ -6,6 +6,7 @@ import { CapabilityMatrix } from "@/components/gaitscape/CapabilityMatrix";
 import { CompareSystems } from "@/components/gaitscape/CompareSystems";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/gaitscape" },
   title: "GaitScape — Human Movement Intelligence Landscape | GaitAI",
   description:
     "Explore how GaitAI connects human movement signals, AI capabilities, research and products across mobility, healthcare, safety and secure environments.",
@@ -83,7 +84,7 @@ export default function GaitscapePage() {
               and the configurator turns it into a recommendation. */}
           <div className="mt-14 flex flex-wrap items-center gap-3 border-t border-white/[0.07] pt-8">
             <Link href="/movement-lab" className="btn-ghost">
-              Open the Movement Intelligence Lab →
+              Open the Movement Studio →
             </Link>
             <Link href="/products#stack" className="btn-ghost">
               Find your GaitAI stack →

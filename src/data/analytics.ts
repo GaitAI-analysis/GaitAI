@@ -6,7 +6,7 @@
 //   /use-cases   Environment Intelligence Explorer
 //   /products    Find Your GaitAI Stack, Intelligence Coverage Map, Compare
 //   /research    Evidence Explorer
-//   /movement-lab Movement Signal Lab
+//   /movement-lab Movement Studio
 //   /            "What can movement tell us?" teaser
 //
 // NOTHING HERE IS NEW CONTENT. Every entity and every relationship is read

@@ -62,13 +62,17 @@ export const navLinks: readonly NavItem[] = [
         description: "Interactive intelligence landscape",
       },
       {
-        label: "Movement Intelligence Lab",
+        label: "Movement Studio",
         href: "/movement-lab",
-        // 40 chars, so it sits on one line in the w-72 panel like the two
-        // items above it. The requested wording ran to 61 and wrapped,
-        // making this the only two-line row in the menu; "Interactive"
-        // also repeated GaitScape's subtitle directly above.
-        description: "Movement becoming reportable intelligence",
+        // The requested subtitle was "Upload, analyze & explore movement".
+        // "Upload" is dropped: nothing on that route accepts a file, and the
+        // footage matcher on it says in as many words that nothing is
+        // uploaded or analysed. A nav item promising an upload would be a
+        // false capability claim in the most prominent place on the site,
+        // and would contradict the page it opens. Restore the word the day
+        // an upload path ships. 26 chars, so it holds one line in the w-72
+        // panel like the two items above it.
+        description: "Analyze & explore movement",
       },
     ],
   },

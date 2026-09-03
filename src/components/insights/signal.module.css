@@ -566,60 +566,6 @@
    5 · STORY 01's STAGE VISUAL
    ========================================================================== */
 
-.stageFrame {
-  fill: rgb(148 163 184 / 0.03);
-  stroke: var(--jr-line);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-/* The first panel's body: the same wide-stroke silhouette the hero uses, so
-   "pixels" reads as a person rather than as two ovals. */
-.stageMass polyline,
-.stageMass line {
-  fill: none;
-  stroke: rgb(79 209 255 / 0.18);
-  stroke-width: 13;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.stageMass line {
-  stroke-width: 21;
-}
-.stageMass circle {
-  fill: rgb(79 209 255 / 0.2);
-}
-:global(.light) .stageMass polyline,
-:global(.light) .stageMass line {
-  stroke: rgb(14 116 144 / 0.16);
-}
-:global(.light) .stageMass circle {
-  fill: rgb(14 116 144 / 0.18);
-}
-.stageMark {
-  fill: none;
-  stroke: #dff3ff;
-  stroke-width: 1;
-  opacity: 0.6;
-  vector-effect: non-scaling-stroke;
-}
-:global(.light) .stageMark {
-  stroke: #0e7490;
-}
-.stageTrace {
-  fill: none;
-  stroke: var(--jr-cyan);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-.stageStep,
-.stageStepHead {
-  fill: none;
-  stroke: var(--jr-line);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
 /* ==========================================================================
    6 · THE EDITORIAL PAUSES
    ========================================================================== */
@@ -890,3 +836,217 @@
     transform: none;
   }
 }
+
+/* =========================================================================
+   STORY 01 · THE FIVE-STAGE STAGE
+   -------------------------------------------------------------------------
+   Capture, gait phases, joint trajectories, the spatio-temporal field and the
+   Motion DNA signature — one composition rather than three panels.
+
+   Every element is declared in its FINISHED state. The only animation is a
+   staggered fade, added inside prefers-reduced-motion: no-preference, so the
+   picture is complete whether or not it runs. `--s-i` staggers the stages and
+   `--g-i` the elements within one.
+   ========================================================================= */
+
+.ssStopCyan {
+  stop-color: var(--jr-cyan);
+}
+.ssStopBlue {
+  stop-color: var(--jr-blue);
+}
+.ssStopViolet {
+  stop-color: var(--jr-violet);
+}
+
+.ssIn {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ssIn {
+    animation: ssIn 0.9s var(--jr-ease) both;
+    animation-delay: calc(var(--s-i, 0) * 0.12s);
+  }
+}
+
+/* Only transform moves. Fading in from zero opacity would leave the stage
+   blank wherever the animation does not run. */
+@keyframes ssIn {
+  from {
+    transform: translateY(10px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* ── 01 capture ── */
+.ssFrame {
+  fill: rgb(148 163 184 / 0.02);
+  stroke: var(--jr-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssCorner {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.4;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssMass polyline,
+.ssMass line {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 13;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.26;
+}
+
+.ssMassHead {
+  fill: var(--jr-cyan);
+  fill-opacity: 0.28;
+  stroke: none;
+}
+
+.ssShadow {
+  fill: var(--jr-cyan);
+  opacity: 0.1;
+}
+
+/* ── 02 gait phases ── */
+.ssBone {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssBoneFar {
+  opacity: 0.45;
+}
+
+.ssJoint {
+  fill: var(--jr-cyan);
+}
+
+.ssHead {
+  fill: rgb(var(--c-obsidian-300) / 0.85);
+  stroke: var(--jr-cyan);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .ssHead {
+  fill: #ffffff;
+}
+
+/* Temporal history: the earlier events sit further back. */
+.ssGhost {
+  opacity: calc(0.12 + var(--g-i, 0) * 0.09);
+}
+
+.ssLead {
+  opacity: 1;
+}
+
+.ssArc {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 2.5 3.5;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssEvent {
+  fill: var(--jr-cyan);
+  opacity: 0.8;
+}
+
+/* ── 03 trajectories ── */
+.ssTrail {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: calc(0.55 - var(--g-i, 0) * 0.08);
+  vector-effect: non-scaling-stroke;
+}
+
+.ssTrailNode {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.2;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssMarkers line {
+  stroke: var(--jr-cyan);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 04 the spatio-temporal field ── */
+.ssField rect {
+  fill: var(--jr-blue);
+  fill-opacity: calc(0.06 + var(--w, 0.5) * 0.5);
+  stroke: rgb(85 135 255 / 0.28);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssAxis {
+  stroke: var(--jr-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 05 Motion DNA ── */
+.ssDna line {
+  stroke: var(--jr-violet);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssDnaKey {
+  stroke-width: 2.4 !important;
+  opacity: 0.95 !important;
+}
+
+.ssDnaCore {
+  fill: none;
+  stroke: var(--jr-violet);
+  stroke-width: 1;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── The signal that runs the whole width ── */
+.ssRun {
+  fill: none;
+  stroke: url(#ss-run);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  opacity: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.ssLabelKey {
+  fill: var(--jr-violet);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+

@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, ChevronDown, Home, Menu, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  ChevronDown,
+  ChevronRight,
+  Home,
+  Menu,
+  X,
+} from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
@@ -160,20 +167,39 @@ export function Navbar() {
                                     href={child.href}
                                     aria-current={childActive ? "page" : undefined}
                                     className={cn(
-                                      "block rounded-xl px-3 py-2 text-sm transition-colors",
+                                      "menu-card px-3 py-2 text-sm",
                                       childActive
-                                        ? "bg-white/[0.06] text-cyan-300"
-                                        : "text-soft-gray hover:bg-white/[0.04] hover:text-soft-white"
+                                        ? "menu-card-on text-cyan-300"
+                                        : "text-soft-gray hover:text-soft-white"
                                     )}
                                   >
-                                    {child.label}
-                                    {/* Purpose line — a label like "GaitScape"
-                                        means nothing on a first visit. */}
-                                    {child.description && (
-                                      <span className="mt-0.5 block text-[11px] leading-snug text-soft-mute">
-                                        {child.description}
-                                      </span>
-                                    )}
+                                    <span className="min-w-0">
+                                      {child.label}
+                                      {/* Purpose line — a label like
+                                          "GaitScape" means nothing on a first
+                                          visit. It brightens with the title:
+                                          see .menu-card-sub. */}
+                                      {child.description && (
+                                        <span
+                                          className={cn(
+                                            "menu-card-sub mt-0.5 block text-[11px] leading-snug",
+                                            childActive
+                                              ? "text-soft-gray"
+                                              : "text-soft-mute"
+                                          )}
+                                        >
+                                          {child.description}
+                                        </span>
+                                      )}
+                                    </span>
+                                    {/* The panel's only motion: a chevron
+                                        arriving from the left on the row the
+                                        pointer is over, so a menu item is
+                                        never mistaken for a heading. */}
+                                    <ChevronRight
+                                      aria-hidden="true"
+                                      className="menu-card-arrow h-3.5 w-3.5"
+                                    />
                                   </Link>
                                 );
                               })}
@@ -309,18 +335,27 @@ export function Navbar() {
                               onClick={() => setOpen(false)}
                               aria-current={childActive ? "page" : undefined}
                               className={cn(
-                                "block py-2.5 text-lg transition-colors",
+                                "menu-card px-3 py-2.5 text-lg",
                                 childActive
-                                  ? "text-cyan-300"
+                                  ? "menu-card-on text-cyan-300"
                                   : "text-soft-mute hover:text-soft-white"
                               )}
                             >
-                              {child.label}
-                              {child.description && (
-                                <span className="mt-0.5 block text-[12px] leading-snug text-soft-mute">
-                                  {child.description}
-                                </span>
-                              )}
+                              <span className="min-w-0">
+                                {child.label}
+                                {child.description && (
+                                  <span className="menu-card-sub mt-0.5 block text-[12px] leading-snug text-soft-mute">
+                                    {child.description}
+                                  </span>
+                                )}
+                              </span>
+                              {/* On a phone there is no hover to reveal it,
+                                  so the chevron is simply present — see the
+                                  `(hover: none)` block in interactions.css. */}
+                              <ChevronRight
+                                aria-hidden="true"
+                                className="menu-card-arrow h-4 w-4"
+                              />
                             </Link>
                           );
                         })}

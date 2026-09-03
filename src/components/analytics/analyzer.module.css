@@ -1,12 +1,13 @@
 /* =========================================================================
-   MOVEMENT ANALYZER — bring a clip, see what can be measured
+   LIVE MOVEMENT INTELLIGENCE WORKBENCH
    -------------------------------------------------------------------------
    Deep navy, hairlines, cyan for the signal and violet where the signal has
-   become a representation. No white upload box, no dashboard chrome.
+   become a representation. Instrument surfaces, not dashboard chrome.
 
-   Every state is declared in its finished form; the only animation is the
-   progress list and a cursor that follows the video, both of which carry
-   meaning. Nothing here depends on an animation having run to be legible.
+   Every element is declared in its finished state. The only motion is the
+   progress bar, a waiting shimmer and the cursors that follow the video —
+   each of which carries meaning, and none of which anything depends on. A
+   browser that runs no animation still shows a complete, legible page.
    ========================================================================= */
 
 .lab {
@@ -19,9 +20,14 @@
   --ma-body: rgb(var(--c-soft-gray));
   --ma-mute: rgb(var(--c-soft-mute));
   --ma-surface: rgb(148 163 184 / 0.03);
+  --ma-deep: rgb(8 14 26 / 0.55);
   --ma-mono: var(--font-jetbrains), ui-monospace, monospace;
   --ma-display: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
   --ma-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 :global(.light) .lab {
@@ -31,16 +37,136 @@
   --ma-line: rgb(15 23 42 / 0.12);
   --ma-line-mid: rgb(15 23 42 / 0.22);
   --ma-surface: rgb(15 23 42 / 0.03);
+  --ma-deep: rgb(241 245 249 / 0.7);
 }
 
-.stopCyan {
-  stop-color: var(--ma-cyan);
+/* ── Header bar: status, lens, disclosure ───────────────────────────────── */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding-bottom: 0.25rem;
 }
-.stopBlue {
-  stop-color: var(--ma-blue);
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgb(79 209 255 / 0.32);
+  border-radius: 999px;
+  background: rgb(79 209 255 / 0.07);
+  color: var(--ma-cyan);
+  font-family: var(--ma-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
-.stopViolet {
-  stop-color: var(--ma-violet);
+
+.pillDot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--ma-cyan);
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.16);
+}
+
+.modes {
+  display: inline-flex;
+  padding: 0.2rem;
+  border: 1px solid var(--ma-line);
+  border-radius: 999px;
+  background: var(--ma-surface);
+}
+
+.modeBtn {
+  padding: 0.32rem 0.85rem;
+  border-radius: 999px;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 0.25s var(--ma-ease),
+    border-color 0.25s var(--ma-ease),
+    background 0.25s var(--ma-ease);
+}
+
+/* HOVER takes a surface, not just a brighter label — the site's interaction
+   system rules out states carried by a 1px colour change. */
+.modeBtn:hover {
+  color: var(--ma-ink);
+  background: var(--interactive-hover-bg);
+}
+
+/* SELECTED keeps its accent ring through hover, so the chosen lens and the
+   pointed-at lens are never the same thing. */
+.modeOn,
+.modeOn:hover {
+  background: rgb(85 135 255 / 0.16);
+  border-color: rgb(85 135 255 / 0.55);
+  color: var(--ma-ink);
+}
+
+@media (pointer: coarse) {
+  .modeBtn {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 1rem;
+  }
+}
+
+.howBtn {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ma-cyan);
+  font-family: var(--ma-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.howBtn:hover {
+  text-decoration: underline;
+}
+
+.how {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--ma-line);
+  border-left: 2px solid rgb(79 209 255 / 0.4);
+  border-radius: 0.9rem;
+  background: var(--ma-surface);
+  color: var(--ma-body);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.how strong {
+  color: var(--ma-ink);
+}
+
+.howLabels {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--ma-line);
+  color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
 }
 
 /* ── Intake ─────────────────────────────────────────────────────────────── */
@@ -53,7 +179,7 @@
 
 @media (min-width: 900px) {
   .intake {
-    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
   }
 }
 
@@ -70,61 +196,71 @@
   background:
     radial-gradient(120% 90% at 20% 0%, rgb(79 209 255 / 0.05), transparent 70%),
     var(--ma-surface);
+  /* The whole zone is a target: the dashed edge is the drop affordance, and
+     the pointer is for the click that opens the picker — a dashed box saying
+     "drop a clip here" invites one, and on a phone there is no drag. */
+  cursor: pointer;
   transition:
     border-color 0.3s var(--ma-ease),
     background 0.3s var(--ma-ease);
 }
 
+.drop:hover {
+  border-color: var(--interactive-hover-border);
+}
+
+/* DRAG-OVER — the strongest state the zone has, so a dragged file is never
+   in doubt about where it is about to land. */
 .dropOn {
   border-color: var(--ma-cyan);
+  border-style: solid;
   background:
-    radial-gradient(120% 90% at 20% 0%, rgb(79 209 255 / 0.1), transparent 70%),
+    radial-gradient(120% 90% at 20% 0%, rgb(79 209 255 / 0.12), transparent 70%),
     var(--ma-surface);
 }
 
 .dropTitle {
-  font-family: var(--ma-display);
-  font-size: clamp(1.15rem, 2.2vw, 1.5rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  margin: 0;
   color: var(--ma-ink);
+  font-family: var(--ma-display);
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
 }
 
 .dropMeta {
-  font-family: var(--ma-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  margin: 0;
   color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
 }
 
-/* A real <label> wrapping a real <input type=file>: the whole control is
-   focusable and activatable from the keyboard with no JS click forwarding. */
 .browse {
-  margin-top: 0.9rem;
+  margin-top: 0.5rem;
   display: inline-flex;
-  align-items: center;
-  cursor: pointer;
 }
 
 .browse > span {
   display: inline-flex;
   align-items: center;
-  padding: 0.6rem 1.15rem;
-  border: 1px solid var(--ma-cyan);
+  padding: 0.6rem 1.2rem;
+  border: 1px solid rgb(79 209 255 / 0.42);
   border-radius: 999px;
-  background: rgb(79 209 255 / 0.1);
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--ma-ink);
-  transition: background 0.3s var(--ma-ease);
+  background: rgb(79 209 255 / 0.08);
+  color: var(--ma-cyan);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition:
+    background 0.25s var(--ma-ease),
+    border-color 0.25s var(--ma-ease);
 }
 
 .browse:hover > span {
-  background: rgb(79 209 255 / 0.18);
+  background: rgb(79 209 255 / 0.16);
+  border-color: var(--ma-cyan);
 }
 
-/* Visually hidden, still in the tab order and still the real control. */
+/* Visually hidden, but a real focusable input. */
 .file {
   position: absolute;
   width: 1px;
@@ -143,258 +279,356 @@
 }
 
 .privacy {
-  margin-top: 1.1rem;
+  margin: 0.75rem 0 0;
   max-width: 34rem;
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--ma-mute);
+  color: var(--ma-body);
+  font-size: 0.8rem;
+  line-height: 1.65;
 }
 
+.privacy strong {
+  color: var(--ma-cyan);
+  font-family: var(--ma-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sideLabel {
+  margin: 0;
+  color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sideNote {
+  margin: 0;
+  color: var(--ma-mute);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.cam,
 .samples {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  padding: 1.5rem;
+  padding: 1.1rem;
   border: 1px solid var(--ma-line);
-  border-radius: 1.25rem;
+  border-radius: 1rem;
   background: var(--ma-surface);
 }
 
-.samplesLabel {
-  font-family: var(--ma-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+.camBtn {
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--ma-line-mid);
+  border-radius: 999px;
+  background: none;
+  color: var(--ma-ink);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ma-ease);
+}
+
+.camBtn:hover {
+  border-color: var(--ma-cyan);
+  color: var(--ma-cyan);
+}
+
+.camView {
+  width: 100%;
+  border-radius: 0.7rem;
+  border: 1px solid rgb(79 209 255 / 0.35);
+  background: #060b16;
+}
+
+.camNote {
+  margin: 0;
   color: var(--ma-mute);
+  font-size: 0.74rem;
+  line-height: 1.6;
 }
 
 .sample {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.85rem 1rem;
+  gap: 0.15rem;
+  padding: 0.7rem 0.85rem;
   border: 1px solid var(--ma-line);
-  border-radius: 0.8rem;
+  border-radius: 0.7rem;
   background: none;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.3s var(--ma-ease);
+  transition: border-color 0.25s var(--ma-ease);
 }
 
 .sample:hover {
   border-color: var(--ma-cyan);
 }
 
-.sample:focus-visible {
-  outline: 2px solid var(--ma-cyan);
-  outline-offset: 2px;
-}
-
 .sampleName {
-  font-size: 13px;
-  font-weight: 600;
   color: var(--ma-ink);
+  font-size: 0.85rem;
 }
 
 .sampleNote {
-  font-size: 11px;
-  line-height: 1.5;
   color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.68rem;
 }
 
-.samplesNote {
-  margin-top: 0.3rem;
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--ma-mute);
-}
-
-/* ── Error ──────────────────────────────────────────────────────────────── */
+/* ── Errors ─────────────────────────────────────────────────────────────── */
 
 .error {
-  margin-top: 1rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem 1rem;
+  margin: 0;
   padding: 0.9rem 1.1rem;
-  border: 1px solid rgb(224 181 103 / 0.4);
+  border: 1px solid rgb(251 191 36 / 0.35);
   border-radius: 0.8rem;
-  background: rgb(224 181 103 / 0.06);
-  font-size: 12.5px;
-  line-height: 1.6;
+  background: rgb(251 191 36 / 0.06);
   color: var(--ma-body);
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
 
 .errorAction {
   border: 0;
   background: none;
   padding: 0;
-  font-family: var(--ma-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--ma-cyan);
+  font-family: var(--ma-mono);
+  font-size: 0.75rem;
   cursor: pointer;
 }
 
-/* ── Workspace ──────────────────────────────────────────────────────────── */
+/* ── Workbench ──────────────────────────────────────────────────────────── */
 
 .work {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1.25rem;
+}
+
+.split {
+  display: grid;
+  gap: 1rem;
   grid-template-columns: minmax(0, 1fr);
 }
 
 @media (min-width: 1000px) {
-  /* The split only exists where both halves fit. Below this the stack is
-     video, then analysis, which is the order a reader wants on a phone. */
-  .work {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    align-items: start;
+  .split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.stage,
-.panel {
-  min-width: 0;
+.viewport {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
   border: 1px solid var(--ma-line);
-  border-radius: 1.1rem;
-  background: var(--ma-surface);
+  border-radius: 1rem;
   overflow: hidden;
+  background: var(--ma-deep);
 }
 
-.stageHead {
+.viewHead {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.85rem 1.1rem;
+  gap: 0.4rem 1rem;
+  padding: 0.7rem 0.9rem;
   border-bottom: 1px solid var(--ma-line);
 }
 
-.stageName {
-  min-width: 0;
+.viewLabel {
+  color: var(--ma-ink);
+  font-family: var(--ma-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.viewMeta {
+  color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--ma-ink);
-}
-
-.stageOrigin {
-  font-family: var(--ma-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ma-cyan);
-}
-
-.player {
-  position: relative;
-  background: rgb(var(--c-obsidian-400) / 0.6);
+  max-width: 60%;
 }
 
 .video {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 60vh;
+  background: #060b16;
 }
 
-.videoHidden {
-  /* Kept in the DOM and still the timeline source, but not rendered: the
-     privacy view is a substitution, not an overlay. */
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
+.psStage {
+  display: block;
+  width: 100%;
+  height: auto;
+  background:
+    radial-gradient(90% 70% at 50% 100%, rgb(85 135 255 / 0.07), transparent 70%),
+    #060b16;
 }
 
-.privacyView {
+.viewWait {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1.5rem;
+  justify-content: center;
+  min-height: 12rem;
+  background: #060b16;
 }
 
-.privacyNote {
-  font-family: var(--ma-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ma-violet);
-  text-align: center;
+.viewWaitBar {
+  width: 55%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ma-cyan),
+    var(--ma-violet),
+    transparent
+  );
+  opacity: 0.6;
 }
 
-.stageFoot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.1rem;
-  padding: 0.85rem 1.1rem;
-  border-top: 1px solid var(--ma-line);
+@media (prefers-reduced-motion: no-preference) {
+  .viewWaitBar {
+    animation: maWait 2.4s var(--ma-ease) infinite;
+  }
+  @keyframes maWait {
+    0%,
+    100% {
+      transform: scaleX(0.4);
+    }
+    50% {
+      transform: scaleX(1);
+    }
+  }
 }
 
-.toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 11.5px;
-  color: var(--ma-body);
-  cursor: pointer;
+/* ── Pose figure ────────────────────────────────────────────────────────── */
+
+.psGrid line {
+  stroke: rgb(148 163 184 / 0.1);
+  stroke-width: 1;
 }
 
-.toggle input {
-  accent-color: var(--ma-violet);
+.psPath {
+  fill: none;
+  stroke: hsl(calc(192 + var(--g, 0) * 13) 88% 64%);
+  stroke-width: 1.4;
+  stroke-opacity: 0.34;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.timeRead {
-  font-family: var(--ma-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.1em;
-  color: var(--ma-mute);
-  font-variant-numeric: tabular-nums;
+:global(.light) .psPath {
+  stroke: hsl(calc(196 + var(--g, 0) * 13) 72% 42%);
+  stroke-opacity: 0.5;
 }
 
-.clear {
-  margin-left: auto;
-  border: 0;
-  background: none;
-  padding: 0;
-  font-family: var(--ma-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--ma-cyan);
-  cursor: pointer;
+.psBone {
+  stroke: var(--ma-cyan);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-opacity: 0.92;
 }
 
-/* ── Progress ───────────────────────────────────────────────────────────── */
+.psBoneGhost {
+  stroke: var(--ma-blue);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  /* Order 1 is the oldest instant kept, 4 the most recent. */
+  stroke-opacity: calc(0.07 * var(--g, 1));
+}
 
-/* Real progress: the share of the clip sampled so far, not a fake timer. */
+.psBoneOther {
+  stroke: var(--ma-violet);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-opacity: 0.42;
+}
+
+.psJoint {
+  fill: #060b16;
+  stroke: var(--ma-cyan);
+  stroke-width: 1.6;
+}
+
+.psKeyJoint {
+  fill: var(--ma-cyan);
+  fill-opacity: 0.9;
+  stroke: #060b16;
+  stroke-width: 1.2;
+}
+
+.psCentre line {
+  stroke: var(--ma-violet);
+  stroke-width: 1.6;
+}
+
+.psCentre circle {
+  fill: none;
+  stroke: var(--ma-violet);
+  stroke-width: 1.2;
+  stroke-opacity: 0.55;
+  stroke-dasharray: 3 5;
+}
+
+.psField circle {
+  fill: none;
+  stroke: var(--ma-blue);
+  stroke-width: 1.4;
+  stroke-opacity: 0.6;
+}
+
+/* ── Processing ─────────────────────────────────────────────────────────── */
+
+.run {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem 1.3rem;
+  border: 1px solid var(--ma-line);
+  border-radius: 1rem;
+  background: var(--ma-surface);
+}
+
 .progress {
-  padding: 1.2rem 1.2rem 0;
+  display: grid;
+  gap: 0.5rem;
 }
 
 .progressLabel {
-  display: block;
+  color: var(--ma-ink);
   font-family: var(--ma-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ma-cyan);
 }
 
 .progressTrack {
   display: block;
-  margin-top: 0.6rem;
-  height: 2px;
-  border-radius: 999px;
+  height: 3px;
+  border-radius: 3px;
   background: var(--ma-line);
   overflow: hidden;
 }
@@ -402,45 +636,32 @@
 .progressFill {
   display: block;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--ma-cyan),
-    var(--ma-blue) 60%,
-    var(--ma-violet)
-  );
-  transition: width 0.2s linear;
+  background: linear-gradient(90deg, var(--ma-cyan), var(--ma-blue), var(--ma-violet));
+  transition: width 0.3s var(--ma-ease);
 }
 
-
 .stages {
+  display: grid;
+  gap: 0.4rem;
   margin: 0;
-  padding: 1.4rem 1.2rem;
+  padding: 0;
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
 }
 
 .stageRow {
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.7rem 0;
-  border-top: 1px solid var(--ma-line);
-  font-size: 12.5px;
+  align-items: baseline;
+  gap: 0.7rem;
   color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
   transition: color 0.3s var(--ma-ease);
 }
 
-.stageRow:first-child {
-  border-top: 0;
-}
-
 .stageNo {
-  font-family: var(--ma-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  color: var(--ma-mute);
+  color: var(--ma-line-mid);
+  font-size: 0.68rem;
 }
 
 .stageDone {
@@ -459,229 +680,391 @@
   color: var(--ma-cyan);
 }
 
-/* ── Tabs and body ──────────────────────────────────────────────────────── */
+/* ── Completion, suitability ────────────────────────────────────────────── */
+
+.complete {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--ma-cyan);
+  font-family: var(--ma-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.suit {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--ma-line);
+  border-left: 2px solid rgb(85 135 255 / 0.5);
+  border-radius: 0.9rem;
+  background: var(--ma-surface);
+}
+
+.suit p {
+  margin: 0;
+  color: var(--ma-body);
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.suitTag {
+  color: var(--ma-ink);
+  font-family: var(--ma-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.suitAction {
+  margin-left: 0.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ma-cyan);
+  font-family: var(--ma-mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.suitAction:hover {
+  text-decoration: underline;
+}
+
+/* ── Timeline ───────────────────────────────────────────────────────────── */
+
+.timeline {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.9rem 1.1rem 1rem;
+  border: 1px solid var(--ma-line);
+  border-radius: 0.9rem;
+  background: var(--ma-surface);
+}
+
+.tlChart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tlBar {
+  stroke: var(--ma-blue);
+  stroke-width: 3;
+  stroke-opacity: 0.5;
+  stroke-linecap: round;
+}
+
+.tlPosed {
+  fill: var(--ma-cyan);
+  fill-opacity: 0.85;
+}
+
+.tlCursor {
+  stroke: var(--ma-violet);
+  stroke-width: 1.6;
+}
+
+/* Native <input type="range">, on purpose: it brings its own thumb, its own
+   track and its own arrow-key behaviour, all of which a hand-drawn scrubber
+   would have had to reinvent — and a drag control with no visible handle is
+   the affordance failure that matters most here. It only needed the cursor
+   the UA does not give it, and a taller grab area for a thumb. */
+.tlRange {
+  width: 100%;
+  accent-color: var(--ma-cyan);
+  cursor: grab;
+}
+
+.tlRange:active {
+  cursor: grabbing;
+}
+
+@media (pointer: coarse) {
+  .tlRange {
+    height: 2.25rem;
+  }
+}
+
+.tlMeta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.3rem 1rem;
+  margin: 0;
+  color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
+.tlTime {
+  color: var(--ma-ink);
+}
+
+/* ── Motion DNA ─────────────────────────────────────────────────────────── */
+
+.dna {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.3rem 1.4rem 1.1rem;
+  border: 1px solid var(--ma-line);
+  border-radius: 1rem;
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgb(167 139 250 / 0.06), transparent 70%),
+    var(--ma-surface);
+}
+
+.dnaHead {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.dnaTitle {
+  margin: 0;
+  color: var(--ma-ink);
+  font-family: var(--ma-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.dnaSub {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--ma-body);
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.dnaChart {
+  display: block;
+  width: 100%;
+  height: auto;
+  cursor: crosshair;
+}
+
+.dnaBase {
+  stroke: var(--ma-line);
+  stroke-width: 1;
+}
+
+.dnaArea {
+  fill: hsl(calc(192 + var(--g, 0) * 14) 88% 62%);
+  fill-opacity: 0.1;
+  stroke: none;
+}
+
+.dnaLine {
+  fill: none;
+  stroke: hsl(calc(192 + var(--g, 0) * 14) 88% 66%);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+:global(.light) .dnaLine {
+  stroke: hsl(calc(196 + var(--g, 0) * 14) 74% 40%);
+}
+
+:global(.light) .dnaArea {
+  fill: hsl(calc(196 + var(--g, 0) * 14) 74% 45%);
+  fill-opacity: 0.12;
+}
+
+.dnaLabel {
+  fill: rgb(var(--c-soft-mute));
+  font-family: var(--ma-mono);
+  font-size: 15px;
+  letter-spacing: 0.04em;
+}
+
+.dnaCursor {
+  stroke: var(--ma-violet);
+  stroke-width: 2;
+}
+
+/* ── Tabs ───────────────────────────────────────────────────────────────── */
 
 .tabs {
   display: flex;
-  gap: 0.3rem;
-  padding: 0.75rem 0.9rem 0;
-  overflow-x: auto;
-  scrollbar-width: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.5rem;
   border-bottom: 1px solid var(--ma-line);
 }
 
-.tabs::-webkit-scrollbar {
-  display: none;
-}
-
 .tab {
-  flex: none;
-  padding: 0.55rem 0.85rem;
+  padding: 0.55rem 0.9rem;
   border: 0;
   border-bottom: 2px solid transparent;
   background: none;
-  font-family: var(--ma-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.3s var(--ma-ease);
+  transition:
+    color 0.25s var(--ma-ease),
+    border-color 0.25s var(--ma-ease);
 }
 
+/* An underline tab set: HOVER previews the underline at low strength so the
+   row reads as a set of switches at rest, and SELECTED lands it in full. */
 .tab:hover {
-  color: var(--ma-body);
+  color: var(--ma-ink);
+  border-bottom-color: var(--interactive-hover-border);
 }
 
-.tabOn {
+.tabOn,
+.tabOn:hover {
   color: var(--ma-ink);
   border-bottom-color: var(--ma-cyan);
+  font-weight: 600;
 }
+
+@media (pointer: coarse) {
+  .tab {
+    min-height: var(--interactive-touch-target);
+  }
+}
+
+.tabAuto {
+  margin-left: auto;
+  padding-right: 0.3rem;
+  color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+}
+
+/* ── Readouts ───────────────────────────────────────────────────────────── */
 
 .body {
-  padding: 1.3rem 1.2rem 1.4rem;
+  display: grid;
+  gap: 1.1rem;
 }
 
-/* ── Facts ──────────────────────────────────────────────────────────────── */
-
 .facts {
-  margin: 0;
   display: grid;
   gap: 1px;
-  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
   background: var(--ma-line);
   border: 1px solid var(--ma-line);
-  border-radius: 0.7rem;
+  border-radius: 0.9rem;
   overflow: hidden;
 }
 
-@media (min-width: 520px) {
+/* Auto-fit rather than a fixed pair: three readouts in a two-column grid
+   leave a fourth cell empty, and an empty cell reads as something missing. */
+@media (min-width: 700px) {
   .facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   }
 }
 
 .fact {
-  padding: 0.8rem 0.9rem;
-  background: rgb(var(--c-obsidian-300) / 0.5);
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.95rem 1.1rem;
+  background: rgb(8 14 26 / 0.6);
 }
+
 :global(.light) .fact {
-  background: rgb(255 255 255 / 0.6);
+  background: rgb(255 255 255 / 0.72);
 }
 
 .factKey {
-  font-family: var(--ma-mono);
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .factVal {
-  margin: 0.35rem 0 0;
-  font-size: 14px;
-  font-weight: 600;
+  margin: 0;
   color: var(--ma-ink);
-  font-variant-numeric: tabular-nums;
+  font-family: var(--ma-display);
+  font-size: 1.05rem;
+  letter-spacing: -0.005em;
 }
 
-/* ── Inline definitions ─────────────────────────────────────────────────── */
-
-.term {
-  display: inline;
-}
-
-.termBtn {
-  margin-left: 0.3rem;
-  border: 0;
-  background: none;
-  padding: 0;
-  font-size: 10px;
-  color: var(--ma-cyan);
-  cursor: pointer;
-}
-
-.termBtn:focus-visible {
-  outline: 2px solid var(--ma-cyan);
-  outline-offset: 2px;
-}
-
-.termBody {
-  display: block;
-  margin-top: 0.45rem;
-  font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 11px;
+.factNote {
+  margin: 0;
+  color: var(--ma-mute);
+  font-size: 0.76rem;
   line-height: 1.6;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--ma-body);
 }
 
-/* ── Figures ────────────────────────────────────────────────────────────── */
+.boundary {
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--ma-line);
+  border-left: 2px solid rgb(167 139 250 / 0.45);
+  border-radius: 0.8rem;
+  background: var(--ma-surface);
+  color: var(--ma-body);
+  font-size: 0.82rem;
+  line-height: 1.75;
+}
 
 .figure {
-  margin: 0 0 1.1rem;
-}
-
-.trace,
-.path {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-.path {
-  max-width: 20rem;
-  margin-inline: auto;
-}
-
-.axis {
-  stroke: var(--ma-line-mid);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.traceLine {
-  fill: none;
-  stroke: url(#ma-trace);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.event {
-  stroke: var(--ma-cyan);
-  stroke-width: 1;
-  stroke-dasharray: 2 3;
-  opacity: 0.35;
-  vector-effect: non-scaling-stroke;
-}
-
-.cursor {
-  stroke: var(--ma-violet);
-  stroke-width: 1.6;
-  vector-effect: non-scaling-stroke;
-}
-
-.pathFrame {
-  fill: none;
-  stroke: var(--ma-line);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.pathLine {
-  fill: none;
-  stroke: var(--ma-cyan);
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  opacity: 0.75;
-  vector-effect: non-scaling-stroke;
-}
-
-.pathDot {
-  fill: var(--ma-cyan);
-  opacity: 0.5;
-}
-
-.pathNow {
-  fill: none;
-  stroke: var(--ma-violet);
-  stroke-width: 1.8;
-  vector-effect: non-scaling-stroke;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
 }
 
 .caption {
-  margin-top: 0.6rem;
-  font-family: var(--ma-mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  margin: 0;
   color: var(--ma-mute);
+  font-size: 0.75rem;
+  line-height: 1.6;
 }
 
-/* ── Notes and boundaries ───────────────────────────────────────────────── */
-
-.note {
-  margin-top: 1rem;
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--ma-mute);
+.seq {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-/* The scope statement. It appears on every tab because every tab needs it. */
-.boundary {
-  margin-top: 1.1rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--ma-line);
-  font-size: 11.5px;
-  line-height: 1.75;
-  color: var(--ma-mute);
+.seqAxis {
+  stroke: var(--ma-line-mid);
+  stroke-width: 1;
 }
+
+.seqLow {
+  stroke: var(--ma-cyan);
+  stroke-width: 1.8;
+  stroke-opacity: 0.85;
+}
+
+.seqHigh {
+  stroke: var(--ma-violet);
+  stroke-width: 1.8;
+  stroke-opacity: 0.85;
+}
+
+.seqDot {
+  fill: #060b16;
+  stroke: var(--ma-cyan);
+  stroke-width: 1.4;
+}
+
+:global(.light) .seqDot {
+  fill: #ffffff;
+}
+
+/* ── Chain ──────────────────────────────────────────────────────────────── */
 
 .chain {
+  display: grid;
+  gap: 0.7rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -689,79 +1072,85 @@
 
 .chainRow {
   display: flex;
+  align-items: baseline;
   gap: 0.8rem;
-  padding: 0.7rem 0;
-  border-top: 1px solid var(--ma-line);
-}
-
-.chainRow:first-child {
-  border-top: 0;
 }
 
 .chainNo {
-  flex: none;
-  font-family: var(--ma-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
   color: var(--ma-cyan);
+  font-family: var(--ma-mono);
+  font-size: 0.68rem;
+  flex: none;
 }
 
 .chainKey {
   display: block;
-  font-size: 12.5px;
-  font-weight: 600;
   color: var(--ma-ink);
+  font-family: var(--ma-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .chainVal {
   display: block;
-  margin-top: 0.2rem;
-  font-family: var(--ma-mono);
-  font-size: 10.5px;
-  line-height: 1.6;
-  color: var(--ma-mute);
+  color: var(--ma-body);
+  font-size: 0.82rem;
+  line-height: 1.65;
 }
 
+/* ── Links, footer ──────────────────────────────────────────────────────── */
+
 .links {
-  margin-top: 1rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem 1.1rem;
+  gap: 0.5rem 1.1rem;
 }
 
 .link {
-  font-family: var(--ma-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--ma-cyan);
-  transition: color 0.3s var(--ma-ease);
+  font-family: var(--ma-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-decoration: none;
 }
 
 .link:hover {
-  color: var(--ma-ink);
+  text-decoration: underline;
 }
 
 .after {
-  padding: 1.1rem 1.2rem 1.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1.2rem;
+  padding-top: 1rem;
   border-top: 1px solid var(--ma-line);
 }
 
 .afterLabel {
-  font-family: var(--ma-mono);
-  font-size: 9.5px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
   color: var(--ma-mute);
+  font-family: var(--ma-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .drop,
-  .sample,
-  .stageRow,
-  .tab,
-  .link,
-  .browse > span {
-    transition: none;
-  }
+.clear {
+  margin-left: auto;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--ma-line-mid);
+  border-radius: 999px;
+  background: none;
+  color: var(--ma-body);
+  font-family: var(--ma-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ma-ease);
+}
+
+.clear:hover {
+  border-color: var(--ma-cyan);
+  color: var(--ma-cyan);
 }

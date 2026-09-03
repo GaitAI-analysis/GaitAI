@@ -2,70 +2,75 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { assetPath } from "@/lib/paths";
+import { productById } from "@/data/products";
 import {
   STAGES,
-  useMotionAnalysis,
-  type MotionResult,
-} from "./useMotionAnalysis";
+  primaryPose,
+  usePoseAnalysis,
+  LM,
+  type PoseResult,
+  type Suitability,
+} from "./usePoseAnalysis";
+import { PoseStage } from "./PoseStage";
+import { MotionDNA, motionChannels } from "./MotionDNA";
 import styles from "./analyzer.module.css";
 
 /**
- * MOVEMENT ANALYZER — bring a clip, and see what can actually be measured.
+ * LIVE MOVEMENT INTELLIGENCE WORKBENCH
  *
- * WHAT IS REAL HERE, AND WHY IT IS SHAPED THIS WAY
- * This site is a static export with no API routes and no ML dependency, so
- * there is no endpoint that could run GaitAI's pose model on an uploaded clip.
- * Rather than mock one, this measures what a browser genuinely can: frame
- * differencing on a canvas. Every number shown is computed from the reader's
- * own video — duration, frames sampled, motion energy over time, the centroid
- * of that motion, its drift and direction, its reversals, and an ESTIMATED
- * period from autocorrelation of the energy trace.
+ * Bring a clip; watch a pose model take it apart. What runs here is real:
+ * MediaPipe's BlazePose landmarker, in the tab, on the reader's own file. See
+ * `usePoseAnalysis.ts` for what that does and does not yield.
  *
- * The clip never leaves the device. It is read with `URL.createObjectURL` and
- * drawn to a canvas; nothing is uploaded, stored or transmitted. That is why
- * the privacy line is allowed to say so, and it is the only privacy claim made.
+ * The composition is built around one idea — the same instant, twice. Left is
+ * the frame as recorded; right is the movement abstraction the model built
+ * from it. A single timeline drives the video, the skeleton, the trajectories
+ * and the Motion DNA channels together, because they are all indexed by time
+ * and a reader learns more from scrubbing than from watching.
  *
- * WHAT IS DELIBERATELY ABSENT
- * No pose estimation, so no joint angles, no left/right symmetry, no per-limb
- * stride timing, and nothing clinical. The MobilityCare and SecureVision tabs
- * say what the real pipeline would add rather than printing numbers this demo
- * cannot compute. There is no fabricated score anywhere in this component.
+ * ON HONESTY, AND WHERE IT LIVES
+ * Everything shown is measured. Nothing is scored. There is no cadence, no
+ * stride length, no walking speed, no symmetry percentage and no risk rating
+ * anywhere in this file, because none of those can be computed from an
+ * uncalibrated clip in a browser — and a fabricated clinical number would be
+ * worse than an honest trajectory. The limits are stated once, in a status
+ * pill and a disclosure, instead of crowding every result with disclaimers.
  */
 
 const MAX_BYTES = 60 * 1024 * 1024;
 const ACCEPT = "video/mp4,video/quicktime,video/webm";
+/** Length of a camera-recorded clip. Long enough for several movement cycles. */
+const CLIP_SECONDS = 6;
 
-/** Sample clips already in the repository. Site animations, not footage. */
-const SAMPLES = [
-  {
-    id: "capture",
-    label: "Walking capture",
-    note: "Site animation · a figure walking across frame",
-    src: "/assets/videos/workflow/stage-01-capture.mp4",
-  },
-  {
-    id: "spatial",
-    label: "Spatial movement",
-    note: "Site animation · movement through a space",
-    src: "/assets/videos/securevision/securevision-hero.mp4",
-  },
-] as const;
+/**
+ * Bundled sample clips. Empty on purpose.
+ *
+ * Every video in this repository is a rendered marketing animation with
+ * readouts drawn into the picture — cadence figures, mobility scores, identity
+ * matches, bounding brackets. Feeding one of those to a pose model would show
+ * a reader someone else's fabricated overlay sitting on top of a real
+ * analysis, which is precisely the confusion this page exists to avoid. Drop
+ * clean footage in `public/assets/videos/samples/` and add it here; the block
+ * renders itself as soon as there is something honest to put in it.
+ */
+const SAMPLES: { id: string; label: string; note: string; src: string }[] = [];
 
-type Tab = "overview" | "signals" | "mobility" | "secure" | "technical";
+type Mode = "auto" | "mobility" | "secure";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "overview", label: "Overview" },
-  { id: "signals", label: "Movement signals" },
-  { id: "mobility", label: "MobilityCare" },
-  { id: "secure", label: "SecureVision" },
-  { id: "technical", label: "Technical view" },
+const MODES: { id: Mode; label: string; note: string }[] = [
+  { id: "auto", label: "Auto", note: "Pick a lens from what is in the clip" },
+  { id: "mobility", label: "MobilityCare", note: "Body movement over time" },
+  { id: "secure", label: "SecureVision", note: "Spatial flow, no identity" },
 ];
+
+type Tab = { id: string; label: string };
 
 const ERRORS: Record<string, string> = {
   "unsupported-type":
     "That file type is not supported. Use an MP4, MOV or WebM video.",
   "too-large": "That file is over 60 MB. Try a shorter or smaller clip.",
+  "runtime-failed":
+    "The pose runtime could not be loaded, so no landmarks could be detected. Check the connection and try again — the model is fetched once, then cached.",
   "no-duration":
     "The browser could not read a duration from that file — it may be corrupted or use a codec this browser cannot decode.",
   "no-frames":
@@ -79,163 +84,379 @@ const ERRORS: Record<string, string> = {
     "Playback stopped advancing, so sampling could not finish. The file may use a codec this browser struggles with — try a different clip.",
   "load-failed":
     "That video could not be loaded. It may use a codec this browser cannot decode.",
+  "camera-denied":
+    "Camera access was declined, so nothing was recorded. Choosing a file works the same way.",
+  "camera-unavailable":
+    "No camera is available to this browser. Choose a video file instead.",
+  "record-failed":
+    "The recording could not be completed. Choose a video file instead.",
   failed: "Analysis could not be completed for that file.",
 };
 
-/** A small definition, revealed on demand. Never the only copy of a fact. */
-function Term({ term, children }: { term: string; children: string }) {
-  const [open, setOpen] = useState(false);
+/**
+ * Which lens to show. In auto, the clip decides.
+ *
+ * A clip with no subject in it lands on the spatial lens: there are no
+ * landmarks to read, but the motion field still describes where movement was
+ * and which way it went, which is what that lens is made of.
+ */
+function resolveMode(
+  mode: Mode,
+  suitability: Suitability,
+): "mobility" | "secure" {
+  if (mode !== "auto") return mode;
+  return suitability === "no-person" ? "secure" : "mobility";
+}
+
+const PCT = (v: number) => `${(v * 100).toFixed(1)}% of frame`;
+
+/** A product, named from the repository's own taxonomy. */
+function ProductLink({ slug, family }: { slug: string; family: string }) {
+  const product = productById(slug);
+  if (!product) return null;
   return (
-    <span className={styles.term}>
-      {term}
-      <button
-        type="button"
-        className={styles.termBtn}
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span className="sr-only">{`What ${term} means`}</span>
-        <span aria-hidden="true">ⓘ</span>
-      </button>
-      {open && <span className={styles.termBody}>{children}</span>}
-    </span>
+    <Link href={`/${family}/${slug}`} className={styles.link}>
+      {product.short} →
+    </Link>
   );
 }
 
-/** The temporal energy trace, with a cursor at the video's position. */
-function Trace({
+/**
+ * Local extrema of a channel — the real turning points in a tracked series.
+ *
+ * These are NOT gait events. Heel strike and toe-off need foot-contact
+ * detection this does not do, so the strip built from them is called a
+ * movement sequence and the marks are called what they are: the instants where
+ * a tracked series turned around.
+ */
+function turningPoints(
+  values: (number | null)[],
+  times: number[],
+): { t: number; kind: "low" | "high" }[] {
+  const out: { t: number; kind: "low" | "high" }[] = [];
+  let lastT = -Infinity;
+  for (let i = 1; i < values.length - 1; i += 1) {
+    const a = values[i - 1];
+    const b = values[i];
+    const c = values[i + 1];
+    if (a === null || b === null || c === null) continue;
+    const kind = b < a && b < c ? "low" : b > a && b > c ? "high" : null;
+    if (!kind) continue;
+    /* Sampling jitter produces clusters; one mark per 0.18 s is plenty. */
+    if (times[i] - lastT < 0.18) continue;
+    lastT = times[i];
+    out.push({ t: times[i], kind });
+  }
+  return out;
+}
+
+/** The hip midpoint per instant, or null where it was not tracked. */
+function hipSeries(result: PoseResult): (number | null)[] {
+  return result.samples.map((s) => {
+    const pose = primaryPose(s);
+    const lh = pose?.[LM.lHip];
+    const rh = pose?.[LM.rHip];
+    if (!lh || !rh || lh.visibility < 0.5 || rh.visibility < 0.5) return null;
+    return (lh.y + rh.y) / 2;
+  });
+}
+
+/* ── Timeline: one control for every view on screen ───────────────────────── */
+
+function Timeline({
   result,
   time,
+  onSeek,
 }: {
-  result: MotionResult;
+  result: PoseResult;
   time: number;
+  onSeek: (t: number) => void;
 }) {
-  const W = 640;
-  const H = 120;
-  const { samples, peakEnergy, duration } = result;
-  const x = (t: number) => (t / duration) * W;
-  const y = (e: number) => H - 6 - (e / (peakEnergy || 1)) * (H - 18);
-
-  const d = samples
-    .map((s, i) => `${i ? "L" : "M"}${x(s.t).toFixed(1)} ${y(s.energy).toFixed(1)}`)
-    .join(" ");
+  const W = 1000;
+  const H = 46;
+  const peak = result.peakEnergy || 1;
+  const span = result.duration || 1;
+  const x = (t: number) => (t / span) * W;
 
   return (
-    <figure className={styles.figure}>
+    <div className={styles.timeline}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        className={styles.trace}
-        role="img"
-        aria-label={`Movement intensity over ${duration.toFixed(1)} seconds, from ${samples.length} sampled instants. Peak intensity occurs at ${samples.reduce((a, b) => (b.energy > a.energy ? b : a)).t.toFixed(1)} seconds.`}
+        className={styles.tlChart}
+        aria-hidden="true"
       >
-        <defs>
-          <linearGradient id="ma-trace" gradientUnits="userSpaceOnUse" x1="0" x2={W}>
-            <stop offset="0" className={styles.stopCyan} />
-            <stop offset="0.55" className={styles.stopBlue} />
-            <stop offset="1" className={styles.stopViolet} />
-          </linearGradient>
-        </defs>
-        <line className={styles.axis} x1={0} y1={H - 6} x2={W} y2={H - 6} />
-        <path className={styles.traceLine} d={d} />
-        {result.events.map((t) => (
+        {/* Measured motion energy per instant — the clip's shape at a glance. */}
+        {result.samples.map((s) => (
           <line
-            key={t}
-            className={styles.event}
-            x1={x(t)}
-            y1={H - 6}
-            x2={x(t)}
-            y2={12}
+            key={`e${s.t}`}
+            className={styles.tlBar}
+            x1={x(s.t)}
+            y1={H - 10}
+            x2={x(s.t)}
+            y2={H - 10 - (s.energy / peak) * (H - 20)}
           />
         ))}
+        {/* Where a body was actually tracked. */}
+        {result.samples.map((s) =>
+          s.poses.length ? (
+            <circle
+              key={`p${s.t}`}
+              className={styles.tlPosed}
+              cx={x(s.t)}
+              cy={H - 4}
+              r={1.9}
+            />
+          ) : null,
+        )}
         <line
-          className={styles.cursor}
-          x1={x(Math.min(time, duration))}
-          y1={4}
-          x2={x(Math.min(time, duration))}
-          y2={H - 6}
+          className={styles.tlCursor}
+          x1={x(Math.min(time, span))}
+          y1={2}
+          x2={x(Math.min(time, span))}
+          y2={H - 2}
         />
       </svg>
-      <figcaption className={styles.caption}>
-        Movement intensity per sampled instant · {result.events.length} local
-        maxima marked
-      </figcaption>
-    </figure>
+
+      <input
+        type="range"
+        className={styles.tlRange}
+        min={0}
+        max={span}
+        step={0.02}
+        value={Math.min(time, span)}
+        onChange={(e) => onSeek(Number(e.target.value))}
+        aria-label="Scrub the clip — the video, the skeleton, the trajectories and the Motion DNA channels all follow"
+      />
+
+      {/* One instruction for the one control that drives every view on
+           screen. A reader who does not touch this sees a still frame and a
+           still skeleton and concludes the analysis is a picture. */}
+      <p className="ix-hint">
+        Drag to scrub — video, skeleton, trajectories and channels follow
+      </p>
+
+      <p className={styles.tlMeta}>
+        <span className={styles.tlTime}>
+          {time.toFixed(2)}s / {span.toFixed(2)}s
+        </span>
+        <span>
+          {result.samples.length} instants sampled · {result.posedSamples} with
+          a tracked body
+        </span>
+      </p>
+    </div>
   );
 }
 
-/** The centroid path — a coordinate per instant, and nothing else. */
-function Path({ result, time }: { result: MotionResult; time: number }) {
-  const W = 320;
-  const H = 200;
-  const pts = result.samples.map((s) => ({
-    x: 10 + s.cx * (W - 20),
-    y: 10 + s.cy * (H - 20),
-    t: s.t,
-  }));
-  const d = pts
-    .map((p, i) => `${i ? "L" : "M"}${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
-    .join(" ");
-  const now = pts.reduce((a, b) => (Math.abs(b.t - time) < Math.abs(a.t - time) ? b : a), pts[0]);
+/* ── Movement sequence: turning points, honestly named ────────────────────── */
+
+function SequenceStrip({ result }: { result: PoseResult }) {
+  const times = result.samples.map((s) => s.t);
+  const points = turningPoints(hipSeries(result), times);
+  if (points.length < 2) return null;
+
+  const W = 1000;
+  const span = result.duration || 1;
 
   return (
     <figure className={styles.figure}>
       <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className={styles.path}
+        viewBox={`0 0 ${W} 54`}
+        className={styles.seq}
         role="img"
-        aria-label={`Path of the moving region across the frame. Net drift ${(result.driftX * 100).toFixed(0)} percent of frame width horizontally and ${(result.driftY * 100).toFixed(0)} percent vertically. ${result.reversals} direction reversals.`}
+        aria-label={`Movement sequence: ${points.length} instants where the body centre's vertical travel turned around, across ${span.toFixed(1)} seconds.`}
       >
-        <rect className={styles.pathFrame} x={4} y={4} width={W - 8} height={H - 8} rx={3} />
-        <path className={styles.pathLine} d={d} />
-        {pts.map((p) => (
-          <circle key={p.t} className={styles.pathDot} cx={p.x} cy={p.y} r={1.6} />
+        <line className={styles.seqAxis} x1={0} y1={38} x2={W} y2={38} />
+        {points.map((p, i) => (
+          <g key={`${p.t}-${i}`} style={{ ["--g" as string]: i }}>
+            <line
+              className={p.kind === "low" ? styles.seqLow : styles.seqHigh}
+              x1={(p.t / span) * W}
+              y1={38}
+              x2={(p.t / span) * W}
+              y2={p.kind === "low" ? 22 : 8}
+            />
+            <circle
+              className={styles.seqDot}
+              cx={(p.t / span) * W}
+              cy={p.kind === "low" ? 22 : 8}
+              r={2.6}
+            />
+          </g>
         ))}
-        <circle className={styles.pathNow} cx={now.x} cy={now.y} r={5} />
       </svg>
       <figcaption className={styles.caption}>
-        Centre of changed pixels, per instant · position only, no identity
+        Movement sequence · {points.length} turning points in the body
+        centre&apos;s vertical travel. These are measured extrema, not gait
+        events: heel strike and toe-off need foot-contact detection this
+        analysis does not perform.
       </figcaption>
     </figure>
   );
 }
+
+/* ── Suitability: what this clip is good for ──────────────────────────────── */
+
+function SuitabilityBanner({
+  result,
+  mode,
+  setMode,
+}: {
+  result: PoseResult;
+  mode: Mode;
+  setMode: (m: Mode) => void;
+}) {
+  if (result.suitability === "no-person") {
+    return (
+      <div className={styles.suit} role="status">
+        <span className={styles.suitTag}>No body found</span>
+        <p>
+          The pose model found no person in any sampled instant, so there are no
+          landmarks to work from. The motion field is measured from the pixels
+          and still describes what moved — but for body movement, this needs a
+          clip with a person in frame.
+        </p>
+      </div>
+    );
+  }
+
+  if (result.frameWideChange) {
+    return (
+      <div className={styles.suit} role="status">
+        <span className={styles.suitTag}>The camera appears to move</span>
+        <p>
+          {(result.meanChanged * 100).toFixed(0)}% of the frame changes between
+          instants, which is what a pan or a handheld shot looks like — a fixed
+          camera watching one subject changes a small share of the picture. The
+          body-level ranges will include that camera movement, so the spatial
+          lens is the safer read on this clip.
+          {mode !== "secure" && (
+            <button
+              type="button"
+              className={styles.suitAction}
+              onClick={() => setMode("secure")}
+            >
+              Analyze with SecureVision →
+            </button>
+          )}
+        </p>
+      </div>
+    );
+  }
+
+  if (result.suitability === "intermittent") {
+    return (
+      <div className={styles.suit} role="status">
+        <span className={styles.suitTag}>Body tracked intermittently</span>
+        <p>
+          A body was found in {result.posedSamples} of {result.samples.length}{" "}
+          instants, so the temporal channels have gaps — and they are drawn with
+          those gaps left in. A clip where the whole body stays in frame gives
+          continuous signals.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.suit} role="status">
+      <span className={styles.suitTag}>Single subject tracked</span>
+      <p>
+        One body, tracked in {result.posedSamples} of {result.samples.length}{" "}
+        sampled instants
+        {result.direction !== "in place"
+          ? `, travelling ${result.direction} across frame.`
+          : ", moving in place."}{" "}
+        {result.oscillationSeconds
+          ? "The trunk shows a repeating vertical rhythm, which is what walking looks like to this model."
+          : "No repeating vertical rhythm was clear enough to report."}
+      </p>
+    </div>
+  );
+}
+
+/* ── The workbench ────────────────────────────────────────────────────────── */
 
 export function MovementAnalyzer() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const camRef = useRef<HTMLVideoElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const urlRef = useRef<string | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const [src, setSrc] = useState<string | null>(null);
-  const [name, setName] = useState<string>("");
-  const [origin, setOrigin] = useState<"upload" | "sample" | null>(null);
+  const [name, setName] = useState("");
+  const [origin, setOrigin] = useState<"upload" | "sample" | "camera" | null>(
+    null,
+  );
   const [dragging, setDragging] = useState(false);
   const [inputError, setInputError] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("overview");
+  const [mode, setMode] = useState<Mode>("auto");
+  const [tab, setTab] = useState("");
   const [time, setTime] = useState(0);
-  const [privacy, setPrivacy] = useState(false);
+  const [how, setHow] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [canRecord, setCanRecord] = useState(false);
 
   const { phase, stageIndex, progress, error, result, analyse, reset } =
-    useMotionAnalysis();
+    usePoseAnalysis();
 
-  /* Object URLs are revoked when replaced and on unmount. */
+  /* The camera option only appears where it can actually work. */
+  useEffect(() => {
+    setCanRecord(
+      typeof navigator !== "undefined" &&
+        !!navigator.mediaDevices?.getUserMedia &&
+        typeof MediaRecorder !== "undefined" &&
+        MediaRecorder.isTypeSupported("video/webm"),
+    );
+  }, []);
+
   const releaseUrl = useCallback(() => {
     if (urlRef.current) {
       URL.revokeObjectURL(urlRef.current);
       urlRef.current = null;
     }
   }, []);
-  useEffect(() => releaseUrl, [releaseUrl]);
+
+  const stopStream = useCallback(() => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  }, []);
+
+  useEffect(
+    () => () => {
+      releaseUrl();
+      stopStream();
+    },
+    [releaseUrl, stopStream],
+  );
 
   const clear = useCallback(() => {
     reset();
     releaseUrl();
+    stopStream();
     setSrc(null);
     setName("");
     setOrigin(null);
     setTime(0);
-    setPrivacy(false);
-    setTab("overview");
+    setTab("");
     setInputError(null);
-  }, [releaseUrl, reset]);
+  }, [releaseUrl, reset, stopStream]);
+
+  const take = useCallback(
+    (file: File | Blob, label: string, from: "upload" | "camera") => {
+      reset();
+      releaseUrl();
+      const url = URL.createObjectURL(file);
+      urlRef.current = url;
+      setSrc(url);
+      setName(label);
+      setOrigin(from);
+      setTime(0);
+      setTab("");
+    },
+    [releaseUrl, reset],
+  );
 
   const accept = useCallback(
     (file: File) => {
@@ -248,50 +469,197 @@ export function MovementAnalyzer() {
         setInputError("too-large");
         return;
       }
-      reset();
-      releaseUrl();
-      const url = URL.createObjectURL(file);
-      urlRef.current = url;
-      setSrc(url);
-      setName(file.name);
-      setOrigin("upload");
-      setTime(0);
+      take(file, file.name, "upload");
     },
-    [releaseUrl, reset],
+    [take],
   );
 
-  const loadSample = useCallback(
-    (sample: (typeof SAMPLES)[number]) => {
-      reset();
-      releaseUrl();
-      setSrc(assetPath(sample.src));
-      setName(sample.label);
-      setOrigin("sample");
-      setTime(0);
-      setInputError(null);
-    },
-    [releaseUrl, reset],
-  );
+  /** Record a short clip from the camera. It is held in memory, never sent. */
+  const record = useCallback(async () => {
+    setInputError(null);
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 960 }, height: { ideal: 720 } },
+        audio: false,
+      });
+    } catch (e) {
+      setInputError(
+        e instanceof DOMException && e.name === "NotAllowedError"
+          ? "camera-denied"
+          : "camera-unavailable",
+      );
+      return;
+    }
+    streamRef.current = stream;
+    setRecording(true);
+    if (camRef.current) {
+      camRef.current.srcObject = stream;
+      void camRef.current.play().catch(() => undefined);
+    }
 
-  /* Analysis starts once the browser has metadata and a decodable frame. */
+    try {
+      const chunks: Blob[] = [];
+      const recorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+      recorder.ondataavailable = (e) => {
+        if (e.data.size) chunks.push(e.data);
+      };
+      const done = new Promise<void>((resolve) => {
+        recorder.onstop = () => resolve();
+      });
+      recorder.start();
+      await new Promise((r) => window.setTimeout(r, CLIP_SECONDS * 1000));
+      recorder.stop();
+      await done;
+      stopStream();
+      setRecording(false);
+      if (!chunks.length) {
+        setInputError("record-failed");
+        return;
+      }
+      take(
+        new Blob(chunks, { type: "video/webm" }),
+        `Camera clip · ${CLIP_SECONDS}s`,
+        "camera",
+      );
+    } catch {
+      stopStream();
+      setRecording(false);
+      setInputError("record-failed");
+    }
+  }, [stopStream, take]);
+
+  /* Analysis begins as soon as a decodable frame exists. */
   const onLoaded = useCallback(() => {
     const video = videoRef.current;
-    if (video) void analyse(video);
-  }, [analyse]);
+    if (video && phase === "idle") void analyse(video);
+  }, [analyse, phase]);
 
-  const summary = useMemo(() => {
+  /* Back to the start once the pass is done, so the reader scrubs a clip that
+     is sitting on its first frame rather than its last. */
+  useEffect(() => {
+    if (phase === "ready" && videoRef.current) {
+      videoRef.current.currentTime = 0;
+      setTime(0);
+    }
+  }, [phase]);
+
+  const seek = useCallback((t: number) => {
+    const video = videoRef.current;
+    if (video) video.currentTime = t;
+    setTime(t);
+  }, []);
+
+  const channels = useMemo(
+    () => (result ? motionChannels(result) : []),
+    [result],
+  );
+
+  const view = result ? resolveMode(mode, result.suitability) : "mobility";
+
+  const tabs: Tab[] = useMemo(
+    () =>
+      view === "secure"
+        ? [
+            { id: "flow", label: "Spatial flow" },
+            { id: "presence", label: "Scene" },
+            { id: "technical", label: "How it ran" },
+          ]
+        : [
+            { id: "sequence", label: "Movement sequence" },
+            { id: "body", label: "Body signals" },
+            { id: "technical", label: "How it ran" },
+          ],
+    [view],
+  );
+
+  const activeTab = tabs.some((t) => t.id === tab) ? tab : tabs[0].id;
+
+  const hipTravel = useMemo(() => {
     if (!result) return null;
-    const spm =
-      result.periodSeconds && result.periodSeconds > 0
-        ? Math.round(60 / result.periodSeconds)
-        : null;
-    return { spm };
+    const ys = hipSeries(result).filter((v): v is number => v !== null);
+    return ys.length >= 6 ? Math.max(...ys) - Math.min(...ys) : null;
   }, [result]);
 
   const message = inputError ?? error;
 
   return (
     <div className={styles.lab}>
+      {/* ─────────── HEADER: what this is, and which lens ─────────── */}
+      <div className={styles.bar}>
+        <span className={styles.pill}>
+          <span className={styles.pillDot} aria-hidden="true" />
+          Browser movement analysis
+        </span>
+
+        <div className={styles.modes} role="group" aria-label="Analysis lens">
+          {MODES.map((m) => (
+            <button
+              key={m.id}
+              type="button"
+              className={`${styles.modeBtn} ${mode === m.id ? styles.modeOn : ""}`}
+              aria-pressed={mode === m.id}
+              title={m.note}
+              onClick={() => setMode(m.id)}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          className={styles.howBtn}
+          aria-expanded={how}
+          onClick={() => setHow((v) => !v)}
+        >
+          How this analysis works {how ? "↑" : "→"}
+        </button>
+      </div>
+
+      {how && (
+        <div className={styles.how}>
+          <p>
+            A pose model runs in this tab on the clip you choose. It is
+            MediaPipe&apos;s BlazePose landmarker (Tasks Vision 1.0.1), which
+            locates 33 body landmarks per person per sampled instant. The model
+            weights come from this site; the clip is read with an object URL and
+            never leaves the device. There is no server in this: the site is a
+            static export with no API routes, so client-side inference is the
+            only kind available here.
+          </p>
+          <p>
+            Everything on screen is derived from those landmarks or from
+            luminance differencing between instants — joint trajectories, the
+            body centre, travel and reversals, the vertical rhythm of the trunk,
+            each ankle&apos;s vertical travel, and the Motion DNA channels.
+          </p>
+          <p>
+            <strong>What this does not compute:</strong> cadence, stride length,
+            walking speed, a symmetry percentage, a mobility or balance score,
+            fall risk, or anything clinical. Those need calibrated capture,
+            known scale and a validated pipeline — the pose landmarker on its
+            own cannot produce them, and no number of that kind is shown here.
+            Identity is not extracted either: this holds landmark coordinates,
+            not faces or appearance.
+          </p>
+          <p className={styles.howLabels}>
+            <span>
+              <strong>Browser movement analysis</strong> — what runs on this
+              page.
+            </span>
+            <span>
+              <strong>Illustrative demo</strong> — the pipeline walkthroughs
+              elsewhere on this page, which run on synthetic data.
+            </span>
+            <span>
+              <strong>GaitAI analysis</strong> — the product pipeline, which is
+              not what this is.
+            </span>
+          </p>
+        </div>
+      )}
+
       {/* ─────────── INTAKE ─────────── */}
       {!src && (
         <div className={styles.intake}>
@@ -308,17 +676,26 @@ export function MovementAnalyzer() {
               const file = e.dataTransfer.files?.[0];
               if (file) accept(file);
             }}
+            /* A dashed box reading "drop a clip here" invites a click, and on
+               a phone there is no drag to offer instead — so the whole zone
+               opens the picker. The label below stays the real, focusable
+               control; this only forwards clicks that landed on the ground
+               between the words, and never the label's own click. */
+            onClick={(e) => {
+              if ((e.target as HTMLElement).closest("label")) return;
+              fileRef.current?.click();
+            }}
           >
-            <p className={styles.dropTitle}>Drag &amp; drop a walking video</p>
+            <p className={styles.dropTitle}>Drop in a movement clip</p>
             <p className={styles.dropMeta}>
-              MP4 / MOV / WebM · up to 60 MB · recommended 5–20 seconds
+              MP4 / MOV / WebM · up to 60 MB · 5–20 seconds works best
             </p>
 
             {/* A real label-wrapped file input: keyboard and screen-reader
                 reachable, no click-forwarding trickery. */}
             <label className={styles.browse}>
               <input
-                ref={inputRef}
+                ref={fileRef}
                 type="file"
                 accept={ACCEPT}
                 className={styles.file}
@@ -332,28 +709,78 @@ export function MovementAnalyzer() {
             </label>
 
             <p className={styles.privacy}>
-              Analysis runs entirely in your browser. The file is read locally
-              and drawn to a canvas — it is never uploaded, stored or sent
-              anywhere.
+              <strong>Your file · local only.</strong> It is read inside this
+              tab and handed to the pose model frame by frame. Nothing is
+              uploaded, stored or transmitted.
             </p>
           </div>
 
-          <div className={styles.samples}>
-            <p className={styles.samplesLabel}>Or analyse a sample clip</p>
-            {SAMPLES.map((sample) => (
-              <button
-                key={sample.id}
-                type="button"
-                className={styles.sample}
-                onClick={() => loadSample(sample)}
-              >
-                <span className={styles.sampleName}>{sample.label}</span>
-                <span className={styles.sampleNote}>{sample.note}</span>
-              </button>
-            ))}
-            <p className={styles.samplesNote}>
-              These are animations already on this site, not clinical footage.
-              They are analysed by the same code as an uploaded file.
+          <div className={styles.side}>
+            {canRecord && (
+              <div className={styles.cam}>
+                <p className={styles.sideLabel}>No clip to hand?</p>
+                {recording ? (
+                  <>
+                    <video
+                      ref={camRef}
+                      className={styles.camView}
+                      muted
+                      playsInline
+                    />
+                    <p className={styles.camNote}>
+                      Recording {CLIP_SECONDS} seconds · walk across the frame
+                      if you have the room
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.camBtn}
+                      onClick={() => void record()}
+                    >
+                      Record {CLIP_SECONDS}s from your camera
+                    </button>
+                    <p className={styles.camNote}>
+                      The recording is held in this tab&apos;s memory, analysed
+                      there, and discarded when you leave. It is never uploaded.
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
+
+            {SAMPLES.length > 0 && (
+              <div className={styles.samples}>
+                <p className={styles.sideLabel}>Or analyse a sample clip</p>
+                {SAMPLES.map((sample) => (
+                  <button
+                    key={sample.id}
+                    type="button"
+                    className={styles.sample}
+                    onClick={() => {
+                      reset();
+                      releaseUrl();
+                      setSrc(sample.src);
+                      setName(sample.label);
+                      setOrigin("sample");
+                      setTime(0);
+                      setTab("");
+                      setInputError(null);
+                    }}
+                  >
+                    <span className={styles.sampleName}>{sample.label}</span>
+                    <span className={styles.sampleNote}>{sample.note}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <p className={styles.sideNote}>
+              A clip with one person walking across the frame, camera held
+              still, whole body visible, gives this the most to work with. A
+              busy public scene works too — it just answers a different
+              question, and the analysis will say which one.
             </p>
           </div>
         </div>
@@ -363,91 +790,82 @@ export function MovementAnalyzer() {
         <p role="alert" className={styles.error}>
           {ERRORS[message] ?? ERRORS.failed}
           {src && (
-            <button type="button" className={styles.errorAction} onClick={clear}>
+            <button
+              type="button"
+              className={styles.errorAction}
+              onClick={clear}
+            >
               Try another clip
             </button>
           )}
         </p>
       )}
 
-      {/* ─────────── WORKSPACE ─────────── */}
+      {/* ─────────── WORKBENCH ─────────── */}
       {src && (
         <div className={styles.work}>
-          <div className={styles.stage}>
-            <div className={styles.stageHead}>
-              <span className={styles.stageName} title={name}>
-                {name}
-              </span>
-              <span className={styles.stageOrigin}>
-                {origin === "sample" ? "Sample clip" : "Your file · local only"}
-              </span>
-            </div>
-
-            <div className={styles.player}>
+          {/* The clip stays mounted through the whole run: the analysis samples
+              this element, and afterwards the reader scrubs it. */}
+          <div className={styles.split}>
+            <figure className={styles.viewport}>
+              <figcaption className={styles.viewHead}>
+                <span className={styles.viewLabel}>What the camera sees</span>
+                <span className={styles.viewMeta} title={name}>
+                  {origin === "camera"
+                    ? "Your camera · local only"
+                    : origin === "sample"
+                      ? "Sample clip"
+                      : "Your file · local only"}
+                </span>
+              </figcaption>
               <video
                 ref={videoRef}
                 src={src}
-                className={`${styles.video} ${privacy ? styles.videoHidden : ""}`}
+                className={styles.video}
                 playsInline
                 muted
-                controls={!privacy}
+                controls={phase === "ready"}
                 preload="auto"
-                crossOrigin="anonymous"
                 onLoadedData={onLoaded}
                 onError={() => setInputError("load-failed")}
                 onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
               />
+            </figure>
 
-              {/* Privacy-aware visualisation: the derived signal only. It is
-                  named for what it is — the analysis never had identity to
-                  remove, because it only ever held a coordinate. */}
-              {privacy && result && (
-                <div className={styles.privacyView}>
-                  <Path result={result} time={time} />
-                  <p className={styles.privacyNote}>
-                    Privacy-aware visualisation · everything this analysis
-                    derived is on screen
-                  </p>
+            <figure className={styles.viewport}>
+              <figcaption className={styles.viewHead}>
+                <span className={styles.viewLabel}>What GaitAI sees</span>
+                <span className={styles.viewMeta}>
+                  {result
+                    ? `33 landmarks · ${result.samples.length} instants`
+                    : "Building the abstraction"}
+                </span>
+              </figcaption>
+              {result ? (
+                <PoseStage result={result} time={time} />
+              ) : (
+                <div className={styles.viewWait} aria-hidden="true">
+                  <span className={styles.viewWaitBar} />
                 </div>
               )}
-            </div>
-
-            {result && (
-              <div className={styles.stageFoot}>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    checked={privacy}
-                    onChange={(e) => setPrivacy(e.target.checked)}
-                  />
-                  <span>Privacy-aware visualisation</span>
-                </label>
-                <span className={styles.timeRead}>
-                  {time.toFixed(2)}s / {result.duration.toFixed(2)}s
-                </span>
-                <button type="button" className={styles.clear} onClick={clear}>
-                  Analyse another clip
-                </button>
-              </div>
-            )}
+            </figure>
           </div>
 
-          <div className={styles.panel}>
-            {/* ── Progress ── */}
-            {phase === "running" && (
-              <>
-                <div className={styles.progress}>
-                  <span className={styles.progressLabel}>
-                    Analysing · {Math.round(progress * 100)}% of clip
-                  </span>
-                  <span className={styles.progressTrack}>
-                    <span
-                      className={styles.progressFill}
-                      style={{ width: `${Math.round(progress * 100)}%` }}
-                    />
-                  </span>
-                </div>
-                <ol className={styles.stages} aria-live="polite">
+          {/* ── Processing ── */}
+          {phase === "running" && (
+            <div className={styles.run}>
+              <div className={styles.progress}>
+                <span className={styles.progressLabel}>
+                  Analysing · {Math.round(progress * 100)}% of clip
+                </span>
+                <span className={styles.progressTrack}>
+                  <span
+                    className={styles.progressFill}
+                    style={{ width: `${Math.round(progress * 100)}%` }}
+                  />
+                </span>
+              </div>
+              <ol className={styles.stages} aria-live="polite">
                 {STAGES.map((s, i) => (
                   <li
                     key={s.id}
@@ -464,235 +882,409 @@ export function MovementAnalyzer() {
                     </span>
                     {s.label}
                   </li>
-                  ))}
-                </ol>
-              </>
-            )}
+                ))}
+              </ol>
+            </div>
+          )}
 
-            {phase === "ready" && result && (
-              <>
-                <div role="tablist" aria-label="Analysis" className={styles.tabs}>
-                  {TABS.map((t) => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      role="tab"
-                      aria-selected={tab === t.id}
-                      className={`${styles.tab} ${tab === t.id ? styles.tabOn : ""}`}
-                      onClick={() => setTab(t.id)}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
-                </div>
+          {/* ── Results ── */}
+          {phase === "ready" && result && (
+            <>
+              <p className={styles.complete}>
+                <span aria-hidden="true">✓</span> Movement analysis complete
+              </p>
 
-                {/* ── OVERVIEW ── */}
-                {tab === "overview" && (
-                  <div className={styles.body}>
-                    <dl className={styles.facts}>
-                      {[
-                        ["Duration", `${result.duration.toFixed(2)} s`],
-                        ["Resolution", `${result.width} × ${result.height}`],
-                        ["Instants sampled", String(result.sampled)],
-                        [
-                          "Movement detected",
-                          result.motionDetected ? "Yes" : "None above noise floor",
-                        ],
-                        ["Primary direction", result.direction],
-                        ["Processing", "In-browser · frame differencing"],
-                      ].map(([k, v]) => (
-                        <div key={k} className={styles.fact}>
-                          <dt className={styles.factKey}>{k}</dt>
-                          <dd className={styles.factVal}>{v}</dd>
-                        </div>
-                      ))}
-                    </dl>
+              <SuitabilityBanner result={result} mode={mode} setMode={setMode} />
 
-                    {!result.motionDetected && (
-                      <p className={styles.note}>
-                        Frame-to-frame change stayed below the noise floor, so
-                        no movement signal was built. A clip with a person
-                        moving across the frame will produce one.
-                      </p>
-                    )}
+              <Timeline result={result} time={time} onSeek={seek} />
 
-                    <p className={styles.boundary}>
-                      Every value above is measured from this clip in your
-                      browser. This demo does not run GaitAI&apos;s pose model,
-                      so it locates no joints and produces no clinical output.
+              {/* ── MOTION DNA — the signature module ── */}
+              {channels.length > 0 && (
+                <section className={styles.dna}>
+                  <header className={styles.dnaHead}>
+                    <h3 className={styles.dnaTitle}>Motion DNA</h3>
+                    <p className={styles.dnaSub}>
+                      {channels.length === 1
+                        ? "One temporal channel, a real series pulled from this clip and normalised into its own band. Nothing else in it could be measured well enough to plot."
+                        : `${channels.length} temporal channels, each one a real series pulled from this clip. Every channel is normalised into its own band, so what you are comparing is shape over time, not amplitude between channels.`}
                     </p>
-                  </div>
-                )}
+                  </header>
+                  <MotionDNA
+                    result={result}
+                    channels={channels}
+                    time={time}
+                    onSeek={seek}
+                  />
+                  <p className={styles.caption}>
+                    Click anywhere in the chart to move the clip there.
+                  </p>
+                </section>
+              )}
 
-                {/* ── MOVEMENT SIGNALS ── */}
-                {tab === "signals" && (
-                  <div className={styles.body}>
-                    <Trace result={result} time={time} />
-                    <Path result={result} time={time} />
-                    <p className={styles.note}>
-                      Scrub or play the clip — the cursor and the path marker
-                      follow it.
-                    </p>
-                  </div>
-                )}
-
-                {/* ── MOBILITYCARE ── */}
-                {tab === "mobility" && (
-                  <div className={styles.body}>
-                    <dl className={styles.facts}>
-                      <div className={styles.fact}>
-                        <dt className={styles.factKey}>
-                          <Term term="Estimated period">
-                            The dominant repeat interval in the movement-intensity
-                            trace, found by autocorrelation. It is a property of
-                            the whole frame, not of a limb.
-                          </Term>
-                        </dt>
-                        <dd className={styles.factVal}>
-                          {result.periodSeconds
-                            ? `${result.periodSeconds.toFixed(2)} s`
-                            : "No clear periodicity"}
-                        </dd>
-                      </div>
-                      <div className={styles.fact}>
-                        <dt className={styles.factKey}>
-                          <Term term="Estimated rate">
-                            Sixty divided by the estimated period — how often the
-                            dominant movement cycle repeats per minute. Not a
-                            step count: without pose, individual steps are not
-                            located.
-                          </Term>
-                        </dt>
-                        <dd className={styles.factVal}>
-                          {summary?.spm ? `${summary.spm} cycles/min` : "—"}
-                        </dd>
-                      </div>
-                      <div className={styles.fact}>
-                        <dt className={styles.factKey}>Movement events</dt>
-                        <dd className={styles.factVal}>
-                          {result.events.length} local maxima
-                        </dd>
-                      </div>
-                    </dl>
-
-                    <p className={styles.boundary}>
-                      What the full MobilityCare pipeline adds, and this demo
-                      cannot: pose estimation, so per-limb stride timing, gait
-                      symmetry, joint-angle trends and posture indicators. Those
-                      need the model, not a frame difference — and none of them
-                      is shown here rather than estimated.
-                    </p>
-
-                    <div className={styles.links}>
-                      {[
-                        ["WalkScan", "/mobilitycare/walkscan"],
-                        ["FallRisk", "/mobilitycare/fallrisk"],
-                        ["RehabTrack", "/mobilitycare/rehabtrack"],
-                      ].map(([label, href]) => (
-                        <Link key={href} href={href} className={styles.link}>
-                          {label} →
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── SECUREVISION ── */}
-                {tab === "secure" && (
-                  <div className={styles.body}>
-                    <Path result={result} time={time} />
-                    <dl className={styles.facts}>
-                      <div className={styles.fact}>
-                        <dt className={styles.factKey}>Net drift</dt>
-                        <dd className={styles.factVal}>
-                          {`${(result.driftX * 100).toFixed(0)}% x · ${(result.driftY * 100).toFixed(0)}% y`}
-                        </dd>
-                      </div>
-                      <div className={styles.fact}>
-                        <dt className={styles.factKey}>
-                          <Term term="Direction reversals">
-                            How many times the moving region changed horizontal
-                            direction — a path that turns back on itself.
-                          </Term>
-                        </dt>
-                        <dd className={styles.factVal}>{result.reversals}</dd>
-                      </div>
-                      <div className={styles.fact}>
-                        <dt className={styles.factKey}>Representation</dt>
-                        <dd className={styles.factVal}>Position only</dd>
-                      </div>
-                    </dl>
-
-                    <p className={styles.boundary}>
-                      This is the whole of what the analysis holds about the
-                      subject: a coordinate per instant. Nothing identifying is
-                      derived, because nothing identifying is extracted. The
-                      full SecureVision pipeline adds zone geometry, dwell and
-                      flagged deviation against an expected flow — none of which
-                      is inferred here.
-                    </p>
-
-                    <div className={styles.links}>
-                      {[
-                        ["SuspiciousMotion", "/securevision/suspiciousmotion"],
-                        ["CrowdSense", "/securevision/crowdsense"],
-                      ].map(([label, href]) => (
-                        <Link key={href} href={href} className={styles.link}>
-                          {label} →
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── TECHNICAL ── */}
-                {tab === "technical" && (
-                  <div className={styles.body}>
-                    <ol className={styles.chain}>
-                      {[
-                        ["Video", `${result.width} × ${result.height}, ${result.duration.toFixed(2)}s, decoded locally`],
-                        ["Frames", `${result.sampled + 1} sampled, scaled to 160px wide, luminance only`],
-                        ["Motion field", `absolute luminance difference per pixel, threshold 18/255`],
-                        ["Temporal features", `energy and centroid per instant, ${result.sampled} points`],
-                        ["Derived", `drift, direction, reversals, autocorrelation period`],
-                      ].map(([k, v], i) => (
-                        <li key={k} className={styles.chainRow}>
-                          <span className={styles.chainNo}>
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-                          <span>
-                            <span className={styles.chainKey}>{k}</span>
-                            <span className={styles.chainVal}>{v}</span>
-                          </span>
-                        </li>
-                      ))}
-                    </ol>
-                    <p className={styles.boundary}>
-                      This chain stops where GaitAI&apos;s begins. The product
-                      pipeline continues into pose estimation, gait-cycle
-                      segmentation, multimodal fusion and signal-quality
-                      gating — none of which runs in a browser tab.
-                    </p>
-                  </div>
-                )}
-
-                {/* ── AFTER RESULTS ── */}
-                <div className={styles.after}>
-                  <span className={styles.afterLabel}>
-                    Want this on real footage?
+              {/* ── Mode readouts ── */}
+              <div role="tablist" aria-label="Readouts" className={styles.tabs}>
+                {tabs.map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeTab === t.id}
+                    className={`${styles.tab} ${activeTab === t.id ? styles.tabOn : ""}`}
+                    onClick={() => setTab(t.id)}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+                {mode === "auto" && (
+                  <span className={styles.tabAuto}>
+                    Auto chose{" "}
+                    {view === "secure" ? "SecureVision" : "MobilityCare"}
                   </span>
+                )}
+              </div>
+
+              {/* ── MOBILITYCARE · movement sequence ── */}
+              {activeTab === "sequence" && (
+                <div className={styles.body}>
+                  <SequenceStrip result={result} />
+                  <dl className={styles.facts}>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Vertical rhythm</dt>
+                      <dd className={styles.factVal}>
+                        {result.oscillationSeconds
+                          ? `${result.oscillationSeconds.toFixed(2)} s per cycle`
+                          : "No clear periodicity"}
+                      </dd>
+                      <dd className={styles.factNote}>
+                        Dominant repeat interval in the trunk&apos;s vertical
+                        movement, by autocorrelation. An estimate of a rhythm —
+                        not a step count, and not cadence.
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Travel across frame</dt>
+                      <dd className={styles.factVal}>
+                        {result.direction === "in place"
+                          ? "In place"
+                          : `${result.direction} · ${PCT(Math.abs(result.driftX))}`}
+                      </dd>
+                      <dd className={styles.factNote}>
+                        {result.posedSamples > 0
+                          ? "Net movement of the hip midpoint, as a share of frame width. Without known scale it cannot become a distance."
+                          : "No body was tracked here, so this is the motion field's centroid rather than a hip midpoint."}
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Direction reversals</dt>
+                      <dd className={styles.factVal}>{result.reversals}</dd>
+                      <dd className={styles.factNote}>
+                        How many times the body centre changed horizontal
+                        direction — a there-and-back walk shows up here.
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <p className={styles.boundary}>
+                    What the MobilityCare pipeline adds and this page does not:
+                    walking speed, cadence, stride and step length, asymmetry
+                    and posture markers — all of which need calibrated capture
+                    and known scale. None of them is estimated here.
+                  </p>
+
                   <div className={styles.links}>
-                    <Link href="/mobilitycare" className={styles.link}>
-                      Explore MobilityCare →
-                    </Link>
-                    <Link href="/securevision" className={styles.link}>
-                      Explore SecureVision →
-                    </Link>
+                    <ProductLink slug="walkscan" family="mobilitycare" />
+                    <ProductLink slug="fallrisk" family="mobilitycare" />
+                    <ProductLink slug="sportsmotion" family="mobilitycare" />
                   </div>
                 </div>
-              </>
-            )}
-          </div>
+              )}
+
+              {/* ── MOBILITYCARE · body signals ── */}
+              {activeTab === "body" && (
+                <div className={styles.body}>
+                  <dl className={styles.facts}>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>
+                        Body centre · vertical travel
+                      </dt>
+                      <dd className={styles.factVal}>
+                        {hipTravel !== null
+                          ? PCT(hipTravel)
+                          : "Not enough tracked instants"}
+                      </dd>
+                      <dd className={styles.factNote}>
+                        Range of the hip midpoint&apos;s height across the clip,
+                        as a share of frame height.
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>
+                        Left ankle · vertical travel
+                      </dt>
+                      <dd className={styles.factVal}>
+                        {result.ankleRange
+                          ? PCT(result.ankleRange.left)
+                          : "Ankle not tracked long enough"}
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>
+                        Right ankle · vertical travel
+                      </dt>
+                      <dd className={styles.factVal}>
+                        {result.ankleRange
+                          ? PCT(result.ankleRange.right)
+                          : "Ankle not tracked long enough"}
+                      </dd>
+                    </div>
+                    {result.ankleRange && (
+                      <div className={styles.fact}>
+                        <dt className={styles.factKey}>
+                          Difference between them
+                        </dt>
+                        <dd className={styles.factVal}>
+                          {PCT(
+                            Math.abs(
+                              result.ankleRange.left - result.ankleRange.right,
+                            ),
+                          )}
+                        </dd>
+                        <dd className={styles.factNote}>
+                          The gap between two measured ranges, in frame units.
+                          Deliberately not called a symmetry score: real
+                          asymmetry has to account for viewing angle, limb
+                          occlusion and scale, none of which is known here.
+                        </dd>
+                      </div>
+                    )}
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Landmarks tracked</dt>
+                      <dd className={styles.factVal}>
+                        33 × {result.posedSamples} instants
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <p className={styles.boundary}>
+                    Every figure here is a range or a count measured from the
+                    detected landmarks, in frame-relative units. Nothing is
+                    converted into metres, seconds per step or a score, because
+                    that conversion needs calibration this clip does not carry.
+                  </p>
+
+                  <div className={styles.links}>
+                    <ProductLink slug="walkscan" family="mobilitycare" />
+                    <ProductLink slug="rehabtrack" family="mobilitycare" />
+                    <ProductLink slug="neuromotion" family="mobilitycare" />
+                  </div>
+                </div>
+              )}
+
+              {/* ── SECUREVISION · spatial flow ── */}
+              {activeTab === "flow" && (
+                <div className={styles.body}>
+                  <dl className={styles.facts}>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Direction of flow</dt>
+                      <dd className={styles.factVal}>
+                        {result.direction === "in place"
+                          ? "No net direction"
+                          : result.direction}
+                      </dd>
+                      <dd className={styles.factNote}>
+                        {result.posedSamples > 0
+                          ? "Net travel of the tracked body centre across the frame."
+                          : "Net travel of the centre of changed pixels. No body was tracked in this clip, so this is the motion field's own centroid, not a person."}
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Net displacement</dt>
+                      <dd className={styles.factVal}>
+                        {`${(result.driftX * 100).toFixed(0)}% x · ${(result.driftY * 100).toFixed(0)}% y`}
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Path reversals</dt>
+                      <dd className={styles.factVal}>{result.reversals}</dd>
+                      <dd className={styles.factNote}>
+                        A path that turns back on itself. Loitering and pacing
+                        look like this, before any judgement is made about them.
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Motion energy</dt>
+                      <dd className={styles.factVal}>
+                        {`mean ${(result.meanEnergy * 100).toFixed(2)} · peak ${(result.peakEnergy * 100).toFixed(2)}`}
+                      </dd>
+                      <dd className={styles.factNote}>
+                        Mean luminance change between sampled instants, ×100.
+                        Measured from pixels, so it works with or without a
+                        person in frame.
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <p className={styles.boundary}>
+                    This lens holds positions and paths — where movement was,
+                    and which way it went. No face, no appearance and no
+                    identity is extracted, so none can be shown; and no anomaly
+                    or risk is scored, because flagging deviation needs an
+                    expected flow for a specific space, which one clip does not
+                    define.
+                  </p>
+
+                  <div className={styles.links}>
+                    <ProductLink slug="crowdsense" family="securevision" />
+                    <ProductLink slug="suspiciousmotion" family="securevision" />
+                    <ProductLink slug="privacyguard" family="securevision" />
+                  </div>
+                </div>
+              )}
+
+              {/* ── SECUREVISION · presence ── */}
+              {activeTab === "presence" && (
+                <div className={styles.body}>
+                  <dl className={styles.facts}>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Bodies tracked</dt>
+                      <dd className={styles.factVal}>
+                        {result.posedSamples === 0
+                          ? "None"
+                          : "One subject at a time"}
+                      </dd>
+                      <dd className={styles.factNote}>
+                        This model returns a single subject per instant, so
+                        there is no head count here and none is estimated. A
+                        crowd shows up in the motion field, not as a number of
+                        people.
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Instants with presence</dt>
+                      <dd className={styles.factVal}>
+                        {result.posedSamples} of {result.samples.length}
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Frame-wide change</dt>
+                      <dd className={styles.factVal}>
+                        {`${(result.meanChanged * 100).toFixed(1)}% of pixels`}
+                      </dd>
+                      <dd className={styles.factNote}>
+                        {result.frameWideChange
+                          ? "Most of the picture changes between instants, which usually means the camera is moving or the whole scene is animated."
+                          : "A small share of the picture changes between instants, which is what a fixed viewpoint looks like."}
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Representation held</dt>
+                      <dd className={styles.factVal}>
+                        Landmark coordinates only
+                      </dd>
+                      <dd className={styles.factNote}>
+                        Body-point positions per instant. Nothing about
+                        appearance, clothing or face is extracted or retained.
+                      </dd>
+                    </div>
+                    <div className={styles.fact}>
+                      <dt className={styles.factKey}>Clip</dt>
+                      <dd className={styles.factVal}>
+                        {result.duration.toFixed(2)} s · {result.width} ×{" "}
+                        {result.height}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <p className={styles.boundary}>
+                    Occupancy is not reported here at all: a density estimate
+                    for a space needs the camera&apos;s geometry, a defined
+                    zone and a detector that can separate people, and this
+                    model returns one subject per frame. The SecureVision
+                    pipeline adds all three, along with dwell and flow against
+                    an expected pattern.
+                  </p>
+
+                  <div className={styles.links}>
+                    <ProductLink slug="crowdsense" family="securevision" />
+                    <ProductLink slug="privacyguard" family="securevision" />
+                  </div>
+                </div>
+              )}
+
+              {/* ── HOW IT RAN ── */}
+              {activeTab === "technical" && (
+                <div className={styles.body}>
+                  <ol className={styles.chain}>
+                    {[
+                      [
+                        "Runtime",
+                        "MediaPipe Tasks Vision 1.0.1 · PoseLandmarker (BlazePose), WebAssembly, in this browser tab",
+                      ],
+                      [
+                        "Model",
+                        "pose_landmarker_lite, 5.5 MB, served from this site's own origin and fetched only when an analysis starts",
+                      ],
+                      [
+                        "Decode",
+                        `${result.width} × ${result.height}, ${result.duration.toFixed(2)}s, read through an object URL and played once`,
+                      ],
+                      [
+                        "Inference",
+                        `detectForVideo on ${result.samples.length} instants, one subject per instant, 33 landmarks, confidence floor 0.5`,
+                      ],
+                      [
+                        "Motion field",
+                        `luminance differencing at 192 px wide, per-pixel threshold 12/255, alongside every inference — ${(result.meanChanged * 100).toFixed(1)}% of pixels changed per instant`,
+                      ],
+                      [
+                        "Derived",
+                        "joint trajectories, body-centre path, travel and reversals, hip-vertical autocorrelation, per-ankle vertical range, Motion DNA channels",
+                      ],
+                      [
+                        "Not computed",
+                        "how many people are in frame, cadence, stride length, walking speed, symmetry score, mobility or balance score, fall risk, identity",
+                      ],
+                    ].map(([k, v], i) => (
+                      <li key={k} className={styles.chainRow}>
+                        <span className={styles.chainNo}>
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <span>
+                          <span className={styles.chainKey}>{k}</span>
+                          <span className={styles.chainVal}>{v}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                  <p className={styles.boundary}>
+                    This chain stops where the product pipeline begins. GaitAI
+                    continues into gait-cycle segmentation, calibrated spatial
+                    measurement, multimodal fusion and signal-quality gating —
+                    none of which runs in a browser tab.
+                  </p>
+                </div>
+              )}
+
+              {/* ── WHERE THE SIGNAL GOES ── */}
+              <div className={styles.after}>
+                <span className={styles.afterLabel}>This signal can power</span>
+                <div className={styles.links}>
+                  <Link href="/mobilitycare" className={styles.link}>
+                    MobilityCare →
+                  </Link>
+                  <Link href="/securevision" className={styles.link}>
+                    SecureVision →
+                  </Link>
+                  <Link href="/research" className={styles.link}>
+                    The research behind it →
+                  </Link>
+                </div>
+                <button type="button" className={styles.clear} onClick={clear}>
+                  Analyse another clip
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>

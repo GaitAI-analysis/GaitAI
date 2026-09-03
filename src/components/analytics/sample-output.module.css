@@ -1,0 +1,278 @@
+/* ==========================================================================
+   SAMPLE OUTPUT VIEWER
+   --------------------------------------------------------------------------
+   Layout only. Every colour is an --an-* token inherited from the .lab
+   subtree the viewer is mounted inside, so this surface follows the analytics
+   palette in both themes without redefining it. No new accents, no icons.
+   ========================================================================== */
+
+.wrap {
+  margin-top: 1.75rem;
+}
+
+/* ── Trigger ──
+   Collapsed by default. Reads as an offer on the page, not a control panel. */
+
+.trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--an-line-mid);
+  border-radius: 0.875rem;
+  background: var(--an-surface-2);
+  padding: 0.9rem 1.1rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.3s var(--an-ease),
+    background-color 0.3s var(--an-ease);
+}
+.trigger:hover {
+  border-color: var(--an-accent-soft);
+}
+.trigger:focus-visible {
+  outline: 2px solid var(--an-accent-soft);
+  outline-offset: 3px;
+}
+
+.triggerText {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.triggerLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+
+.triggerAction {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--an-ink);
+}
+
+.triggerMark {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--an-accent);
+}
+
+/* ── Panel content ── */
+
+.boundary {
+  margin-top: 0.75rem;
+  max-width: 62ch;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--an-body);
+}
+
+.tabsRow {
+  margin-top: 1.1rem;
+}
+
+.body {
+  margin-top: 1.25rem;
+}
+
+.lead {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--an-mute);
+}
+
+/* ── Metrics ── */
+
+.metrics {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 720px) {
+  .metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.metricCell {
+  min-width: 0;
+}
+
+/* The metric itself is the button, so the whole readout is the hit area. */
+.metricButton {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.metricButton:focus-visible {
+  outline: 2px solid var(--an-accent-soft);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+}
+
+.hint {
+  margin-top: 0.4rem;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--an-mute);
+}
+
+/* ── Phase bar ──
+   The share is drawn AND printed: the bar shows proportion at a glance, the
+   list carries the number, so nothing is conveyed by width alone. */
+
+.phases {
+  margin-top: 1.1rem;
+}
+
+.phaseBar {
+  display: flex;
+  height: 0.5rem;
+  gap: 2px;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.phaseSeg {
+  background: var(--an-accent);
+  opacity: 0.85;
+  border-radius: 2px;
+}
+.phaseSeg:nth-child(2) { opacity: 0.62; }
+.phaseSeg:nth-child(3) { opacity: 0.44; }
+.phaseSeg:nth-child(4) { opacity: 0.3; }
+
+.phaseList {
+  margin-top: 0.9rem;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.phaseRow {
+  display: grid;
+  grid-template-columns: minmax(0, 8rem) 3rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.65rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--an-line);
+}
+
+.phaseName {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--an-ink);
+}
+
+.phaseShare {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--an-accent);
+}
+
+.phaseHint {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--an-mute);
+}
+
+@media (max-width: 560px) {
+  .phaseRow {
+    grid-template-columns: minmax(0, 1fr) 3rem;
+  }
+  /* On a phone the hint takes its own row rather than a 4rem column. */
+  .phaseHint {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── Series ── */
+
+.seriesGrid {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 1.25rem;
+}
+@media (min-width: 720px) {
+  .seriesGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.series {
+  min-width: 0;
+  margin: 0;
+}
+
+.seriesLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+
+/* ── Rows ── */
+
+.rows {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--an-line);
+}
+
+.rowLabel {
+  font-size: 12.5px;
+  color: var(--an-body);
+}
+
+.rowValue {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--an-ink);
+  text-align: right;
+}
+
+/* ── Notes ── */
+
+.notes {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.5rem;
+  border-top: 1px solid var(--an-line);
+  padding-top: 0.9rem;
+}
+
+.note {
+  max-width: 68ch;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--an-mute);
+}
+
+.footer {
+  margin-top: 1.25rem;
+}

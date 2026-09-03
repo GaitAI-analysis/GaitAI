@@ -173,7 +173,15 @@ export default function InsightArticlePage({
       />
       <ReadingProgress targetId={ARTICLE_ID} />
 
-      <article id={ARTICLE_ID} className="relative w-full overflow-hidden pb-20 sm:pb-24">
+      {/* `overflow-x-clip`, NOT `overflow-hidden`.
+          `overflow: hidden` makes an element a scroll container, and a scroll
+          container becomes the containing block for every `position: sticky`
+          descendant — so the section rail and the mobile strip both had
+          nothing to stick to and scrolled away with the page. `overflow-x:
+          clip` still clips the hero's decorative bleed sideways, but does not
+          create a scroll container, so sticky resolves against the viewport
+          again. It is also the only axis that ever needed clipping. */}
+      <article id={ARTICLE_ID} className="relative w-full overflow-x-clip pb-20 sm:pb-24">
         {/* ─────────── HERO ─────────── */}
         <header className="site-page-intro-compact relative overflow-hidden pb-10">
           <span aria-hidden="true" className={`${styles.heroField} -z-10`} />

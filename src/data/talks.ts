@@ -421,3 +421,130 @@ export const talksNewestFirst = [...talkRecords].sort((a, b) => b.year - a.year)
  * only honest ordering.
  */
 export const featuredTalk = talksOfKind("invited-talk")[0];
+
+// ============================================================================
+// DERIVED VIEWS FOR THE TIMELINE
+// ----------------------------------------------------------------------------
+// Everything below is computed from the records above. No record is added,
+// renamed or re-dated here, and no talk is assigned a subject the source does
+// not support.
+// ============================================================================
+
+/** The span the record actually covers, for the page's "at a glance" strip. */
+export const talkSpan = {
+  from: Math.min(...talkRecords.map((t) => t.year)),
+  to: Math.max(...talkRecords.map((t) => t.year)),
+} as const;
+
+/** Distinct presentation formats present in the record. */
+export const talkFormatCount = talkKindsPresent.length;
+
+/**
+ * A short, stable anchor per record, so an individual talk is shareable:
+ *
+ *   /research/talks/#global-ai-jaipur-fundamentals-of-2025
+ *
+ * DERIVED, not a second identifier to maintain. The record's own `id` already
+ * encodes its title; this strips the ordinal prefix that only exists to keep
+ * ids unique, trims to the first few words, and appends the year — which is
+ * what makes a shared link readable. Uniqueness is asserted below rather than
+ * assumed, because a silent collision would make one record's link open a
+ * different record.
+ */
+function deriveAnchor(talk: TalkRecord): string {
+  const base = talk.id
+    .replace(/^(talk|conference|presentation|poster)-\d+-/, "")
+    .replace(/^(talk|conference|presentation|poster)-/, "")
+    /* "Speaker —" and "Speaker for an" are how the source phrases a talk;
+       they carry no information once every entry starts with them. */
+    .replace(/^speaker-(for-an-)?/, "")
+    .split("-")
+    .slice(0, 5)
+    .join("-")
+    /* Some ids already end in their year (the poster does); don't print it
+       twice. */
+    .replace(/-\d{4}$/, "");
+  return `${base}-${talk.year}`;
+}
+
+const anchorById = new Map(talkRecords.map((t) => [t.id, deriveAnchor(t)]));
+
+{
+  const seen = new Set<string>();
+  for (const anchor of anchorById.values()) {
+    if (seen.has(anchor)) {
+      throw new Error(
+        `Duplicate talk anchor "${anchor}". Two records would share a deep link.`,
+      );
+    }
+    seen.add(anchor);
+  }
+}
+
+/** The URL fragment for one record. */
+export const talkAnchor = (talk: TalkRecord) => anchorById.get(talk.id)!;
+
+/** Reverse lookup, for resolving an incoming `#fragment` to a record. */
+export const talkByAnchor = new Map(
+  talkRecords.map((t) => [talkAnchor(t), t] as const),
+);
+
+/**
+ * RESEARCH THREADS — the record grouped by subject rather than by date.
+ *
+ * The ONLY subject grouping this data supports is `researchAreaId`, which
+ * talks.ts assigns explicitly and never infers from wording. So the threads
+ * are the three GaitAI research areas the record actually reaches, plus one
+ * honest remainder.
+ *
+ * That remainder is not a topic. Thirteen records — the IoT sessions, the
+ * teaching and faculty-development talks, the LLM workshop, the e-commerce
+ * convention paper, the arthritis paper — map to no GaitAI research area, and
+ * inventing "AI / Machine learning" or "Education" buckets for them would
+ * assign subjects the source never states. It is named for what it is: part of
+ * the academic record, outside this platform's research lineage.
+ */
+export interface TalkThread {
+  id: string;
+  title: string;
+  /** One line of context. For a research area this is the area's own summary. */
+  summary: string;
+  /** Present only for a real research area; absent for the remainder. */
+  researchAreaId?: string;
+  talks: TalkRecord[];
+}
+
+export const talkThreads: TalkThread[] = (() => {
+  const threads: TalkThread[] = [];
+
+  for (const area of researchAreas) {
+    const talks = talksNewestFirst.filter((t) => t.researchAreaId === area.id);
+    if (!talks.length) continue;
+    threads.push({
+      id: area.id,
+      title: area.title,
+      summary: area.summary,
+      researchAreaId: area.id,
+      talks,
+    });
+  }
+
+  /* Ordered by weight of record, so the thread the platform is most built on
+     leads. */
+  threads.sort((a, b) => b.talks.length - a.talks.length);
+
+  const unmapped = talksNewestFirst.filter((t) => !t.researchAreaId);
+  if (unmapped.length) {
+    threads.push({
+      id: "outside-lineage",
+      title: "Wider academic record",
+      summary:
+        "Sessions and papers that map to no GaitAI research area — teaching " +
+        "and faculty-development talks, IoT and AI sessions, and conference " +
+        "papers outside movement research.",
+      talks: unmapped,
+    });
+  }
+
+  return threads;
+})();

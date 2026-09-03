@@ -631,7 +631,14 @@
   transform: translateY(-50%);
   display: none;
 }
-@media (min-width: 1280px) {
+/* 1536px, not 1280. The rail is fixed to the viewport's left edge and its
+   active item runs about 115px in — number, tick, then the story's label —
+   while `container-wide` (1320px + 48px padding) puts body text at 48px on a
+   1280 screen and 108px on a 1440 one. So at those widths the one label that
+   is visible sat on top of the masthead's own deck. From 1536 the container
+   is centred with a gutter wide enough for the rail to live in, which is the
+   only width where an edge rail is an edge rail. */
+@media (min-width: 1536px) {
   .rail {
     display: block;
   }

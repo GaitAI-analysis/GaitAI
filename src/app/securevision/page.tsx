@@ -35,13 +35,20 @@ export default function SecureVisionPage() {
       {/* HERO — video is a direct child of the section (full browser width),
           never inside any max-width container. Content sits on top. */}
       <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 lg:min-h-[600px] lg:pb-0 lg:pt-0">
+        {/* Extracted first frame as the poster, so the hero paints before the
+            video decodes; `preload="metadata"` instead of "auto" so the file
+            is not fetched in full up front. Reduced motion is a CSS concern —
+            see .securevision-hero-video. */}
         <video
           className="securevision-hero-video"
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
+          poster={assetPath(
+            "/assets/videos/securevision/securevision-hero-poster.jpg",
+          )}
           aria-hidden="true"
         >
           <source

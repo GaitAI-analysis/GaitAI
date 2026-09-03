@@ -5351,3 +5351,34 @@ body {
     opacity: 0.85;
   }
 }
+
+/* ==========================================================================
+   HERO VIDEO — REDUCED MOTION
+   --------------------------------------------------------------------------
+   Both hero videos autoplay a continuous loop, which is exactly what
+   prefers-reduced-motion asks us not to do. CSS handles it rather than JS so
+   MobilityCareHero and the SecureVision hero stay Server Components: the
+   <video> is hidden and its media layer keeps the poster as a background, so
+   the reader still gets the full hero image — the final frame, not an empty
+   box. Nothing is hidden that carries information; the footage is decorative
+   and already aria-hidden.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .mobilitycare-hero__video,
+  .securevision-hero-video {
+    display: none;
+  }
+
+  .mobilitycare-hero__media {
+    background-image: url("/assets/videos/mobilitycare/mobilitycare-hero-v2-poster.jpg");
+    background-size: cover;
+    background-position: center 42%;
+  }
+
+  .securevision-hero {
+    background-image: url("/assets/videos/securevision/securevision-hero-poster.jpg");
+    background-size: cover;
+    background-position: center center;
+  }
+}

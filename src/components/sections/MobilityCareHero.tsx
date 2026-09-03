@@ -22,13 +22,25 @@ export function MobilityCareHero() {
     >
       {/* Background media layer */}
       <div className="mobilitycare-hero__media" aria-hidden="true">
+        {/* `poster` is the extracted first frame: it paints immediately, so
+            the hero has no blank interval before the first decoded frame and
+            no shift when one arrives. `preload="metadata"` replaces "auto" —
+            the browser no longer pulls the whole 0.6 MB file before it needs
+            to, and autoplay still starts from the buffered head.
+
+            Reduced motion is handled in CSS (see .mobilitycare-hero__video):
+            the video is hidden and the poster stays as the layer's background,
+            so this stays a Server Component with no JS. */}
         <video
           className="mobilitycare-hero__video"
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
+          poster={assetPath(
+            "/assets/videos/mobilitycare/mobilitycare-hero-v2-poster.jpg",
+          )}
         >
           <source
             src={assetPath("/assets/videos/mobilitycare/mobilitycare-hero-v2.mp4")}

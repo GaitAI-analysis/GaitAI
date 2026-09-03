@@ -5,6 +5,7 @@ import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { SYNTHETIC_LABEL } from "@/data/lab-demo";
 import { CAPABILITY_COUNT, MODULE_COUNT, SIGNAL_COUNT } from "@/data/analytics";
 import { StatRow } from "@/components/analytics/primitives";
+import { LabHeroInstrument } from "@/components/analytics/LabHeroInstrument";
 import styles from "@/components/analytics/analytics.module.css";
 
 export const metadata: Metadata = {
@@ -37,6 +38,12 @@ export default function MovementLabPage() {
         <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-25" />
 
         <div className="container-wide">
+          {/* Two columns from lg: the copy keeps the left, the instrument
+              takes the right half that was empty. Below lg the instrument
+              moves under the description, where it is a diagram rather than a
+              hero panel. */}
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:gap-12">
+          <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
               Movement Intelligence Lab
@@ -44,16 +51,16 @@ export default function MovementLabPage() {
             <SyntheticDataBadge label={SYNTHETIC_LABEL} />
           </div>
 
-          <h1 className="mt-5 max-w-3xl font-display text-display-xl text-balance text-soft-white">
+          <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
             See movement become{" "}
             <span className="text-gradient">intelligence.</span>
           </h1>
-          <p className="mt-6 max-w-2xl text-base leading-relaxed text-soft-gray sm:text-lg">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
             Explore how GaitAI transforms movement signals into structured
             analytical outputs — stage by stage, in both product families.
           </p>
 
-          <div className="mt-8 max-w-3xl">
+          <div className="mt-8">
             <StatRow
               stats={[
                 { value: String(MODULE_COUNT), label: "Modules on this pipeline" },
@@ -65,7 +72,7 @@ export default function MovementLabPage() {
           </div>
 
           {/* The boundary, stated before the reader touches anything. */}
-          <div className={`${styles.panel} mt-6 max-w-3xl`}>
+          <div className={`${styles.panel} mt-6`}>
             <div className={styles.panelBody}>
               <span className={styles.label}>What this is, and is not</span>
               <p className={`${styles.note} mt-2`}>
@@ -82,6 +89,13 @@ export default function MovementLabPage() {
                 SecureVision mode is identity-free by construction: it has no
                 identification layer to switch on.
               </p>
+            </div>
+          </div>
+          </div>
+
+            {/* ── The instrument ── */}
+            <div className="relative min-w-0 lg:pt-6">
+              <LabHeroInstrument />
             </div>
           </div>
         </div>

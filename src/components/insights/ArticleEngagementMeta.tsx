@@ -9,7 +9,12 @@ import styles from "./engagement.module.css";
  * views, likes, comments, formatting, icons and accessibility cannot drift
  * apart between one essay and the next:
  *
- *   👁 1.2K views    ♡ 24 likes    💬 6 comments
+ *   1.2K views    ♡ 24 likes    💬 6 comments
+ *
+ * VIEWS ARE TEXT, WITH NO GLYPH. They had a hairline eye beside them; the
+ * count is metadata a reader skims past, and a pictogram on it made it look
+ * like a control next to two things that are. The like and the comment link
+ * keep their marks because they ARE controls.
  *
  * It replaces two components that split this job — an inline view count in
  * the kicker and a separate likes/comments row under the headline — which is
@@ -70,7 +75,6 @@ export function ArticleEngagementMeta({
       {/* ── Views ── mandatory: every article shows its own count. */}
       {status === "loading" ? (
         <span className={styles.stat} aria-hidden="true">
-          <EyeMark />
           <span className={styles.skeleton} />
         </span>
       ) : (
@@ -80,7 +84,6 @@ export function ArticleEngagementMeta({
             title={formatExact(views, "view")}
             aria-label={formatExact(views, "view")}
           >
-            <EyeMark />
             <span aria-hidden="true">{formatCount(views, "view")}</span>
           </span>
         )
@@ -122,27 +125,6 @@ export function ArticleEngagementMeta({
 /* Hairline marks at the weight of the surrounding type — this row is set in
    10.5px mono, and a filled icon at that size reads as a blob. */
 
-function EyeMark() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 16 16" className={styles.mark}>
-      <path
-        d="M1.6 8S4 4.2 8 4.2 14.4 8 14.4 8 12 11.8 8 11.8 1.6 8 1.6 8Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.1"
-        strokeLinejoin="round"
-      />
-      <circle
-        cx="8"
-        cy="8"
-        r="1.7"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.1"
-      />
-    </svg>
-  );
-}
 
 function HeartMark({ filled }: { filled: boolean }) {
   return (

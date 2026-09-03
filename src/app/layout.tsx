@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/layout/Navbar";
+import { IntelligenceSearch } from "@/components/search/IntelligenceSearch";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { assetPath } from "@/lib/paths";
@@ -130,6 +131,10 @@ export default function RootLayout({
         <Providers>
           <div className="relative min-h-screen">
             <Navbar />
+            {/* Cmd/Ctrl + K over the whole site. Mounted once at the root and
+                renders nothing until opened, so it costs one keydown listener
+                and no markup on any route. */}
+            <IntelligenceSearch />
             <main className="site-main relative">
               <PageTransition>{children}</PageTransition>
             </main>

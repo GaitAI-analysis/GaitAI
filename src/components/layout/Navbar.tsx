@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, ChevronDown, Home, Menu, X } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
+import { SearchTrigger } from "@/components/search/SearchTrigger";
 import { navLinks } from "@/data/content";
 import { cn } from "@/lib/utils";
 import { assetPath } from "@/lib/paths";
@@ -222,6 +223,9 @@ export function Navbar() {
             </nav>
 
             <div className="flex items-center gap-2">
+              {/* Opens the Cmd/Ctrl + K palette. md and up only — the
+                  shortcut has no meaning on a phone. */}
+              <SearchTrigger />
               <ThemeToggle />
               <Link
                 href="/#contact"

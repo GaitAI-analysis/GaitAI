@@ -15,6 +15,10 @@ import styles from "./journal.module.css";
  *
  * The series line shows position in the reading path without implying the
  * essays depend on each other.
+ *
+ * Both cards read their own counters (`liveStats`), because there is no
+ * page-level stats hook here the way there is on the archive — without it
+ * these were the only cards in the journal showing no view count.
  */
 export function NextStory({
   current,
@@ -51,7 +55,7 @@ export function NextStory({
       </p>
 
       <div className="mt-8">
-        <StoryCard article={next} variant="full" />
+        <StoryCard article={next} variant="full" liveStats />
       </div>
 
       {alternate && (
@@ -60,7 +64,7 @@ export function NextStory({
             <span className={styles.sectionHeadTitle}>Or start somewhere else</span>
           </p>
           <div className="mt-5">
-            <StoryCard article={alternate} variant="wide" />
+            <StoryCard article={alternate} variant="wide" liveStats />
           </div>
         </div>
       )}

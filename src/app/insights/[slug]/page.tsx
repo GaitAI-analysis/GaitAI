@@ -19,8 +19,7 @@ import { ReadingProgress } from "@/components/insights/ReadingProgress";
 import { TwoMinute } from "@/components/insights/TwoMinute";
 import { NextStory } from "@/components/insights/NextStory";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
-import { ArticleEngagement } from "@/components/insights/ArticleEngagement";
-import { ArticleViews } from "@/components/insights/ArticleViews";
+import { ArticleEngagementMeta } from "@/components/insights/ArticleEngagementMeta";
 import { assetPath } from "@/lib/paths";
 import styles from "@/components/insights/journal.module.css";
 
@@ -213,10 +212,6 @@ export default function InsightArticlePage({
                 <time dateTime={article.date}>
                   {formatInsightDate(article.date)}
                 </time>
-                {/* Real view count, inline in this row. Client-only, so it
-                    appears once the counter is known and is simply absent
-                    before then — the row reads correctly either way. */}
-                <ArticleViews slug={article.slug} />
                 <span aria-hidden="true" className={styles.articleKickerRule} />
               </p>
 
@@ -224,15 +219,18 @@ export default function InsightArticlePage({
                 <Headline article={article} />
               </h1>
 
-              {/* Real views, likes and comments. Client-only: it writes one
-                  view per session and reads the counters, and it renders
-                  nothing at all for any counter whose number is unknown. */}
-              <ArticleEngagement slug={article.slug} className="mt-6" />
               {article.subtitle && (
                 <p className={styles.articleSub}>{article.subtitle}</p>
               )}
               <p className={styles.articleDeck}>{article.deck}</p>
               <p className={styles.hook}>{article.openingHook}</p>
+
+              {/* Real views, likes and approved comments — the last line of
+                  the header, above the fold and above the 2-minute panel,
+                  where a journal puts what it credits. One component for
+                  every article (see ArticleEngagementMeta): views are always
+                  shown once known, and no counter is shown before it is. */}
+              <ArticleEngagementMeta slug={article.slug} className="mt-7" />
             </div>
           </div>
         </header>

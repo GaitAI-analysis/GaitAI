@@ -14,8 +14,13 @@
   /* The stats carry their own padding now (see .stat), so the gap gives back
      what the padding adds and the whole row pulls left by that padding —
      the first item's text stays flush with the type above it. */
-  gap: 0.35rem;
+  gap: 0.35rem 0.5rem;
   margin-inline: -0.5rem;
+  /* The line is reserved before the numbers arrive, so a count landing after
+     the read resolves does not push the article down. On a phone the row
+     wraps onto a second line rather than overflowing, and the reservation
+     grows with it. */
+  min-height: 1.75rem;
 }
 
 /* The line is set at metadata weight on purpose, which left the like reading
@@ -129,4 +134,33 @@
   height: 11px;
   flex-shrink: 0;
   opacity: 0.65;
+}
+
+/* ── The loading placeholder ──────────────────────────────────────────────
+   A quiet bar the width of a formatted count, so the row holds its shape
+   while the read is in flight and no reader is ever shown "0 views" or a
+   spinner in place of a number. Deliberately not animated: a shimmer in a
+   journal's byline is a UI trick, and it would have to be turned off again
+   for reduced motion. */
+.skeleton {
+  display: inline-block;
+  width: 4.25rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgb(var(--c-soft-mute) / 0.18);
+}
+
+:global(.light) .skeleton {
+  background: rgb(15 23 42 / 0.1);
+}
+
+/* ── Light theme ──
+   Dark keeps the muted blue-gray of the metadata around it; light needs its
+   own ink, because slate-500 on paper is a wash rather than a colour. */
+:global(.light) .stat {
+  color: rgb(71 85 105);
+}
+:global(.light) .link:hover,
+:global(.light) .like:hover {
+  color: rgb(15 23 42);
 }

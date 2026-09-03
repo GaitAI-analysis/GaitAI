@@ -9,6 +9,7 @@ import {
   formatInsightDate,
   insightHref,
 } from "@/data/insights";
+import { CardStats } from "./CardStats";
 import { JournalCover } from "./JournalCover";
 import styles from "./journal.module.css";
 
@@ -59,6 +60,7 @@ export function StoryCard({
   commentCount,
   views,
   likes,
+  liveStats = false,
 }: {
   article: InsightArticle;
   variant?: StoryVariant;
@@ -68,10 +70,15 @@ export function StoryCard({
    * about a record, and "0 comments" on every card in a young journal is noise.
    */
   commentCount?: number;
-  /** Real view and like counts, or undefined while unknown. Undefined and
-      zero both render nothing — see ArticleEngagement for why. */
+  /** Real view and like counts, or undefined while unknown. A view count of
+      zero IS shown once known; an unknown one is not. Likes show above zero
+      only — see ArticleEngagementMeta for why. */
   views?: number;
   likes?: number;
+  /** Fetch this card's own counters instead of being handed them. For cards
+      outside the archive listing — the two at the foot of an article — which
+      have no page-level stats hook above them. */
+  liveStats?: boolean;
   /** Above-the-fold cards load eagerly; everything else waits. */
   priority?: boolean;
 }) {
@@ -120,11 +127,13 @@ export function StoryCard({
               number. The field is absent only when the count is unknown —
               which is what `undefined` means here, Firestore being
               unreachable or not yet answered. */}
-          {typeof views === "number" && (
+          {typeof views === "number" ? (
             <>
               <span aria-hidden="true">·</span>
               <span>{formatCount(views, "view")}</span>
             </>
+          ) : (
+            liveStats && <CardStats slug={article.slug} />
           )}
           {typeof likes === "number" && likes > 0 && (
             <>

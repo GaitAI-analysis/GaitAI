@@ -1,15 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { assetPath } from "@/lib/paths";
 import { cn } from "@/lib/utils";
-import {
-  resolveThemeMedia,
-  themeMedia,
-  type ThemeMediaKey,
-} from "@/lib/theme-media";
+import { resolveThemeMedia, type ThemeMediaKey } from "@/lib/theme-media";
 
 /**
  * Theme-aware media, resolved to ONE source before anything is fetched.
@@ -89,47 +85,39 @@ export function ThemeImage({
   );
 }
 
-/* ── Video, with an optional vector composition for light mode ────────────── */
+/* ── Video ────────────────────────────────────────────────────────────────── */
 
 /**
- * Plays the theme's own footage. Where a `vector-light` entry has no light
- * film, `lightVisual` is rendered instead and NO video is requested in light
- * mode at all — the cheapest possible light variant.
+ * Plays the theme's own footage — which, for every film on this site, is the
+ * same film in both themes. Light mode used to be able to substitute a vector
+ * composition here; it no longer can, because the footage is the product being
+ * shown and a theme must not restage it. What changes in light mode is the
+ * page around the media, never the media.
  *
- * `poster` is always the poster for the source actually being played, so a
- * dark poster never sits under a light film.
+ * `poster` is always the poster for the source actually being played.
  */
 export function ThemeVideo({
   mediaKey,
   className,
-  lightVisual,
   reduceMotion,
   posterAlt = "",
   sizes,
 }: {
   mediaKey: ThemeMediaKey;
   className?: string;
-  lightVisual?: ReactNode;
   reduceMotion?: boolean;
   posterAlt?: string;
   sizes?: string;
 }) {
   const isDark = useResolvedDark();
-  const entry = themeMedia[mediaKey];
 
   if (isDark === null) {
     return <span aria-hidden="true" className="absolute inset-0" />;
   }
 
-  /* Light mode with a vector stand-in: draw it, fetch nothing. */
-  if (!isDark && entry.kind === "vector-light" && lightVisual) {
-    return <>{lightVisual}</>;
-  }
-
   const { src, poster } = resolveThemeMedia(mediaKey, isDark);
 
-  /* Reduced motion gets the poster for the same source, never the other
-     theme's poster. */
+  /* Reduced motion gets the poster for the same source. */
   if (reduceMotion) {
     return poster ? (
       <Image

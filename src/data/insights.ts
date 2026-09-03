@@ -146,6 +146,23 @@ export interface InsightSection {
   blocks: InsightBlock[];
 }
 
+/**
+ * Which drawn cover an essay carries. One per essay, and each is a different
+ * archetype — see components/insights/JournalCover.tsx for the compositions.
+ *
+ *   pipeline    a filmstrip resolving into one signal
+ *   divergence  one trace splitting into five named readings
+ *   reduction   appearance stripped back to movement
+ *   trajectory  five sessions and a diverging future
+ *   fusion      four streams, one missing, one corrupted
+ */
+export type CoverConcept =
+  | "pipeline"
+  | "divergence"
+  | "reduction"
+  | "trajectory"
+  | "fusion";
+
 export interface InsightArticle {
   slug: string;
   /** Display headline. */
@@ -193,7 +210,23 @@ export interface InsightArticle {
   seriesStep: number;
   /** How this article is named inside the reading path. */
   seriesTitle: string;
+  /**
+   * The raster hero. Retained for the SHARE CARD only — OpenGraph, Twitter
+   * and the BlogPosting image all need an absolute raster URL, which a drawn
+   * cover cannot be. It is no longer rendered on the site.
+   */
   hero: { src: string; alt: string; width: number; height: number };
+  /**
+   * The drawn cover, used everywhere a cover appears on the site: the archive
+   * grid, the article hero, related and next-story cards.
+   *
+   * `concept` selects one of five compositions in JournalCover — each a
+   * different archetype, focal element and figure count, assigned from what
+   * the essay actually argues. The five commissioned rasters this replaced
+   * were four variations of one glowing walker, which made the archive read
+   * as a template and told a reader nothing about which essay was which.
+   */
+  cover: { concept: CoverConcept; alt: string };
   tags: string[];
   seo: { title: string; description: string };
   intro: InsightBlock[];
@@ -249,6 +282,10 @@ export const insightArticles: InsightArticle[] = [
       alt: "Smartphone video, CCTV and wearable signals converging into a holographic walking figure and gait measurement readouts",
       width: 1672,
       height: 941,
+    },
+    cover: {
+      concept: "pipeline",
+      alt: "A filmstrip of captured frames resolving into a single movement signal.",
     },
     tags: ["Movement Intelligence", "Gait AI", "Pose Estimation", "Sensor Fusion"],
     seo: {
@@ -614,6 +651,10 @@ export const insightArticles: InsightArticle[] = [
       width: 1672,
       height: 941,
     },
+    cover: {
+      concept: "divergence",
+      alt: "One gait signal branching into five readings: identity, mobility, recovery, risk and safety.",
+    },
     tags: ["Gait Biometrics", "Movement Intelligence", "Mobility", "Research"],
     seo: {
       title: "Your Walk Is More Than a Biometric",
@@ -863,6 +904,10 @@ export const insightArticles: InsightArticle[] = [
       alt: "A CCTV feed passing through a privacy transformation into an anonymous skeletal movement representation and analytics panels",
       width: 1672,
       height: 941,
+    },
+    cover: {
+      concept: "reduction",
+      alt: "Four stages of abstraction — pixels, silhouette, pose, trajectory — with identity information falling away and movement information retained.",
     },
     tags: ["Responsible AI", "Privacy", "Computer Vision", "SecureVision"],
     seo: {
@@ -1114,6 +1159,10 @@ export const insightArticles: InsightArticle[] = [
       width: 1672,
       height: 941,
     },
+    cover: {
+      concept: "trajectory",
+      alt: "Five assessments on a timeline, a declining trend, and a cone of possible directions opening from the latest reading.",
+    },
     tags: ["Mobility", "Fall Risk", "Longitudinal Monitoring", "MobilityCare"],
     seo: {
       title: "A Fall-Risk Score Is Not Enough: Why Mobility Must Be Measured Over Time",
@@ -1360,6 +1409,10 @@ export const insightArticles: InsightArticle[] = [
       alt: "Multiple sensor inputs feeding a central fusion model, with missing-data and corruption warnings, attribution audit and statistical validation outputs",
       width: 1672,
       height: 941,
+    },
+    cover: {
+      concept: "fusion",
+      alt: "Four input streams converging on one fusion node — one missing, one corrupted — with an uncertainty band leaving it.",
     },
     tags: ["Multimodal AI", "Sensor Fusion", "Model Evaluation", "Research"],
     seo: {

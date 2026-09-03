@@ -13,6 +13,7 @@ import {
   type InsightArticle,
 } from "@/data/insights";
 import { InsightProse } from "@/components/insights/InsightProse";
+import { JournalCover } from "@/components/insights/JournalCover";
 import { SectionRail } from "@/components/insights/SectionRail";
 import { ReadingProgress } from "@/components/insights/ReadingProgress";
 import { TwoMinute } from "@/components/insights/TwoMinute";
@@ -236,20 +237,18 @@ export default function InsightArticlePage({
           </div>
         </header>
 
-        {/* ─────────── HERO IMAGE ─────────── */}
+        {/* ─────────── HERO COVER ───────────
+            The essay's drawn cover, so the hero and the archive card show the
+            same picture. It replaced the raster hero, which was one of four
+            near-identical glowing walkers; the raster survives only as the
+            share-card image, where an absolute URL is required. */}
         <div className="container-wide">
-          <figure className={`${styles.articleMedia} ${styles.articleMediaDrift}`}>
-            <img
-              src={assetPath(article.hero.src)}
-              alt={article.hero.alt}
-              width={article.hero.width}
-              height={article.hero.height}
-              loading="eager"
-              // eslint-disable-next-line react/no-unknown-property
-              fetchPriority="high"
-              decoding="async"
-              sizes="100vw"
-            />
+          <figure className={styles.articleMedia}>
+            <JournalCover concept={article.cover.concept} />
+            {/* The cover is decorative to a screen reader — the headline
+                above it already says what the essay is — but its description
+                is the one place the artwork's meaning is stated in words. */}
+            <figcaption className="sr-only">{article.cover.alt}</figcaption>
             <span aria-hidden="true" className={styles.articleMediaVignette} />
           </figure>
         </div>

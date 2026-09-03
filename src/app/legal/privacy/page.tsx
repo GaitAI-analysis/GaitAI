@@ -22,6 +22,8 @@ export const metadata: Metadata = {
  *   - embedded post media can come from youtube-nocookie.com / Vimeo
  *   - journal articles keep a view and like counter in Firestore
  *     (src/lib/article-stats.ts); the dedup key is sessionStorage-only
+ *   - blog subscriptions store the address in Firestore, keyed by its own
+ *     SHA-256 so the list cannot be enumerated (src/lib/subscribe.ts)
  *   - the Movement Lab analyser runs MediaPipe in the tab and uploads
  *     nothing (src/components/analytics/usePoseAnalysis.ts)
  *   - there is NO analytics suite, tag manager or advertising script anywhere
@@ -59,7 +61,8 @@ export default function PrivacyPage() {
         The site is a static site. There is no account system, no advertising,
         no tag manager and no third-party analytics or tracking script. Two
         things are counted, and both are listed below: journal article views,
-        and likes if you press the button.
+        and likes if you press the button. One thing is stored because you
+        asked for it: your email address, if you subscribe to the blog.
       </p>
 
       <dl className="mt-6 border-t border-white/[0.08]">
@@ -84,6 +87,64 @@ export default function PrivacyPage() {
             stored in Google Firebase (Firestore). Comment forms are protected
             by Cloudflare Turnstile, which performs a bot check. Comments are
             moderated and can be hidden by an administrator.
+          </dd>
+        </div>
+        <div className="border-b border-white/[0.08] py-5">
+          <dt className="text-sm font-semibold text-soft-white">
+            Blog subscription
+          </dt>
+          <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
+            <strong className="font-semibold text-soft-white">
+              What is collected.
+            </strong>{" "}
+            If you subscribe on the blog, an article page or in the footer, we
+            store the email address you type, which of those three places you
+            typed it, and the times the record was created and last changed.
+            Nothing else — no name, no IP address, no device fingerprint and no
+            marketing profile. The record is held in Google Firebase
+            (Firestore).
+            <br />
+            <br />
+            <strong className="font-semibold text-soft-white">Purpose.</strong>{" "}
+            To send you GaitAI blog and product updates — research notes,
+            engineering stories and company news. The list is not used for
+            anything else, is not shared, and is never sold or given to an
+            advertising network.
+            <br />
+            <br />
+            <strong className="font-semibold text-soft-white">
+              How the record is stored.
+            </strong>{" "}
+            Each subscription is filed under a SHA-256 hash of your own address
+            rather than a sequential id. That is what lets the site refuse a
+            duplicate and find your record when you unsubscribe, without the
+            subscriber list being readable or exportable by anyone visiting the
+            site.
+            <br />
+            <br />
+            <strong className="font-semibold text-soft-white">
+              Unsubscribing.
+            </strong>{" "}
+            Use the{" "}
+            <Link
+              href="/insights/unsubscribe"
+              className="text-cyan-300 underline decoration-cyan-300/35 underline-offset-4"
+            >
+              unsubscribe page
+            </Link>{" "}
+            at any time — enter the address you subscribed with; no account or
+            sign-in is needed. Your record is then marked as unsubscribed and
+            stops receiving anything.
+            <br />
+            <br />
+            <strong className="font-semibold text-soft-white">
+              Retention.
+            </strong>{" "}
+            An active subscription is kept until you unsubscribe. An
+            unsubscribed record is kept — flagged, and never sent to — so that
+            a later import cannot quietly put you back on the list. If you want
+            the record deleted outright rather than flagged, ask us at the
+            address below and we will remove it.
           </dd>
         </div>
         <div className="border-b border-white/[0.08] py-5">

@@ -1,0 +1,355 @@
+/*
+ * SUBSCRIBE — one block, three sizes.
+ *
+ * The only ornament is the site's own device: a hairline signal running into
+ * the field and terminating at a small node beside the button. It brightens
+ * on focus and settles brighter once the address is stored. No envelope, no
+ * illustration, no card with a gradient border.
+ *
+ * Both themes are written here rather than left to inherit: the dark branch
+ * is a light on black, and the light branch is ink on paper with the same
+ * geometry (see the semantic tokens in globals.css).
+ */
+
+.block {
+  --sub-accent: #4fd1ff;
+  --sub-accent-soft: rgb(79 209 255 / 0.4);
+  --sub-line: rgb(148 163 184 / 0.22);
+  --sub-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  width: 100%;
+}
+
+:global(.light) .block {
+  --sub-accent: #0e7490;
+  --sub-accent-soft: rgb(14 116 144 / 0.45);
+  --sub-line: rgb(15 23 42 / 0.16);
+}
+
+/* ── Copy ── */
+.title {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: rgb(var(--c-soft-white));
+  text-wrap: balance;
+}
+
+.blurb {
+  margin-top: 0.55rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: rgb(var(--c-soft-gray));
+  max-width: 34rem;
+}
+
+/* ── The field row ──
+   `position: relative` so the signal can be drawn behind it, and wrap on a
+   phone so the button becomes a full-width row of its own. */
+.form {
+  position: relative;
+  margin-top: 1.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.6rem;
+  max-width: 34rem;
+}
+
+/* THE SIGNAL. A hairline entering from the left edge of the row, sitting
+   behind the field, fading as it arrives. It is one element and one
+   gradient — the "line travels toward the node" reading comes from the
+   direction of the fade, not from an animation that never stops. */
+.signal {
+  position: absolute;
+  left: -1.75rem;
+  top: 50%;
+  height: 1px;
+  width: 1.75rem;
+  background: linear-gradient(90deg, transparent, var(--sub-line));
+  transition: background 0.25s var(--sub-ease);
+}
+
+.form:focus-within .signal {
+  background: linear-gradient(90deg, transparent, var(--sub-accent-soft));
+}
+
+@media (max-width: 640px) {
+  /* No room for a lead-in on a phone; the node beside the button still
+     carries the idea. */
+  .signal {
+    display: none;
+  }
+}
+
+.input {
+  flex: 1 1 15rem;
+  min-width: 0;
+  border: 1px solid var(--sub-line);
+  border-radius: 0.6rem;
+  background: var(--input-bg);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.875rem;
+  color: rgb(var(--c-soft-white));
+  transition:
+    border-color 0.25s var(--sub-ease),
+    box-shadow 0.25s var(--sub-ease);
+}
+
+.input::placeholder {
+  color: rgb(var(--c-soft-mute) / 0.85);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--sub-accent);
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.12);
+}
+
+:global(.light) .input:focus {
+  box-shadow: 0 0 0 3px rgb(14 116 144 / 0.12);
+}
+
+.input:disabled {
+  opacity: 0.6;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--sub-accent-soft);
+  border-radius: 0.6rem;
+  background: rgb(79 209 255 / 0.08);
+  padding: 0.7rem 1.05rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-white));
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.25s var(--sub-ease),
+    border-color 0.25s var(--sub-ease);
+}
+
+:global(.light) .button {
+  background: rgb(14 116 144 / 0.08);
+}
+
+.button:hover:not(:disabled) {
+  background: rgb(79 209 255 / 0.14);
+  border-color: var(--sub-accent);
+}
+
+:global(.light) .button:hover:not(:disabled) {
+  background: rgb(14 116 144 / 0.13);
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--interactive-focus-ring, #4fd1ff);
+  outline-offset: 2px;
+}
+
+/* THE NODE. Where the signal terminates. An open ring at rest, filled while
+   the field has focus, and filled brighter once the address is stored. */
+.node {
+  height: 6px;
+  width: 6px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--sub-accent-soft);
+  transition:
+    background-color 0.25s var(--sub-ease),
+    border-color 0.25s var(--sub-ease),
+    box-shadow 0.25s var(--sub-ease);
+}
+
+.form:focus-within .node {
+  background: var(--sub-accent);
+  border-color: var(--sub-accent);
+}
+
+.buttonDone .node {
+  background: var(--sub-accent);
+  border-color: var(--sub-accent);
+  /* The one hairline halo this block is allowed, and only once the write
+     has actually landed. */
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.18);
+}
+
+.arrow {
+  transition: transform 0.25s var(--sub-ease);
+}
+
+.button:hover:not(:disabled) .arrow {
+  transform: translateX(2px);
+}
+
+/* ── Verdict ──
+   The line is always in the DOM so a result arriving does not move the
+   page; it is simply empty until there is something to say. */
+.note {
+  min-height: 1.15rem;
+  margin-top: 0.7rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: rgb(var(--c-soft-mute));
+}
+
+.ok {
+  color: var(--sub-accent);
+}
+
+.warn {
+  color: rgb(var(--c-soft-white));
+}
+
+.bad {
+  color: #fca5a5;
+}
+
+:global(.light) .bad {
+  color: #b91c1c;
+}
+
+.legal {
+  margin-top: 0.5rem;
+  max-width: 34rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-mute));
+}
+
+.legalLink {
+  color: rgb(var(--c-soft-gray));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--sub-line);
+}
+
+.legalLink:hover {
+  color: rgb(var(--c-soft-white));
+}
+
+/* ═══════════════ VARIANTS ═══════════════ */
+
+/* The block that closes /insights — the largest of the three, with a rule
+   above it so it reads as the end of the archive rather than another card. */
+.blog {
+  border-top: 1px solid var(--sub-line);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+}
+
+.blog .title {
+  font-size: clamp(1.5rem, 3vw, 2.05rem);
+}
+
+/* The end of an article. Quieter than the blog block: the reader has just
+   finished something and the next thing on the page is the next story. */
+.article {
+  border-top: 1px solid var(--sub-line);
+  padding-top: 2rem;
+  margin-top: 2.5rem;
+}
+
+.article .title {
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+}
+
+.article .blurb {
+  font-size: 0.875rem;
+}
+
+/* The footer line. No rule of its own — the footer supplies one — and the
+   type drops to the footer's own scale so it cannot dominate the column. */
+.footer .title {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-white));
+}
+
+.footer .blurb {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+}
+
+.footer .form {
+  margin-top: 0.9rem;
+  max-width: 24rem;
+}
+
+.footer .input {
+  flex: 1 1 11rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.footer .button {
+  padding: 0.55rem 0.8rem;
+  font-size: 10px;
+}
+
+/* The footer's button is the compact "[ → ]" the brief asks for: the node and
+   the arrow, with the word available to a screen reader only. */
+.footer .buttonLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.footer .note,
+.footer .legal {
+  max-width: 24rem;
+}
+
+.footer .legal {
+  font-size: 0.6875rem;
+}
+
+/* ── Touch ── the field row and the button both reach the site's target. */
+@media (pointer: coarse) {
+  .input,
+  .button {
+    min-height: var(--interactive-touch-target, 44px);
+  }
+}
+
+/* ── Mobile ── the button becomes its own full-width row. */
+@media (max-width: 640px) {
+  .form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal,
+  .input,
+  .button,
+  .node,
+  .arrow {
+    transition: none;
+  }
+}

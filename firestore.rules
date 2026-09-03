@@ -262,6 +262,71 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---- BLOG SUBSCRIBERS -------------------------------------------------
+    // subscribers/{sha256(lowercased email)} → { email, emailHash, status,
+    //                                            source, createdAt, updatedAt }
+    //
+    // The site is a static export with no server, so the browser writes here
+    // directly and this block is the entire enforcement layer.
+    //
+    // WHY get IS OPEN AND list IS NOT. A mailing list must do two things a
+    // random document id cannot: refuse the same address twice, and let
+    // someone leave. Addressing each row by the hash of the address gives
+    // both without ever exposing the list — `get` answers "is THIS address
+    // subscribed" only to someone who already knows the address, while `list`
+    // stays closed so the collection can never be enumerated or exported by a
+    // visitor. That is the trade a serverless list makes, and it is made here
+    // deliberately: the alternative, inferring a duplicate from a denied
+    // write, cannot tell a duplicate from an unpublished rule — which is
+    // exactly how articleStats sat broken in production.
+    //
+    // WHAT A VISITOR MAY DO. Create their own row, flip it to unsubscribed,
+    // or flip it back. Nothing else: the field list is closed, the id must
+    // match the emailHash in the payload, and no write may touch `email`,
+    // `source` or `createdAt` after the row exists — so a passer-by cannot
+    // rewrite somebody else's address into their row.
+    function subscriberShapeValid(d) {
+      return d.keys().hasOnly([
+               'email','emailHash','status','source','createdAt','updatedAt'
+             ])
+        && d.keys().hasAll(['email','emailHash','status','createdAt','updatedAt'])
+        && d.email is string && d.email.size() >= 6 && d.email.size() <= 254
+        && d.email == d.email.lower()
+        // No backslash class here on purpose: a rules string literal
+        // escapes before the regex engine sees it, and an escaping
+        // mistake in THIS line would fail the publish for the whole
+        // file. Whitespace is already excluded by the client and by
+        // `email == email.lower()` plus the size bounds above.
+        && d.email.matches('^[^@]+@[^@]+[.][^@]+$')
+        && d.emailHash is string && d.emailHash.size() == 64
+        && d.status in ['active','unsubscribed']
+        && (!('source' in d.keys())
+            || d.source in ['blog','article','footer','unsubscribe-page'])
+        && d.createdAt is timestamp
+        && d.updatedAt is timestamp;
+    }
+
+    // Only the status may move, and only between the two known values. Every
+    // other field must be byte-identical to what is stored.
+    function subscriberStatusChangeOnly() {
+      return request.resource.data.diff(resource.data)
+               .affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status in ['active','unsubscribed']
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /subscribers/{emailHash} {
+      allow get: if true;
+      allow list: if isAdmin();
+
+      allow create: if subscriberShapeValid(request.resource.data)
+        && request.resource.data.emailHash == emailHash
+        && request.resource.data.status == 'active';
+
+      allow update: if isAdmin() || subscriberStatusChangeOnly();
+      allow delete: if isAdmin();
+    }
+
     // ---- ASK GAITAI ------------------------------------------------------
     // There is no rate-limit collection any more.
     //

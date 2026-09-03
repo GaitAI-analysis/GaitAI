@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Github, Linkedin, Mail, Twitter } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 import { ctas } from "@/data/content";
 import { contact, mailto } from "@/data/contact";
 
@@ -133,7 +134,17 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Compact by design: one line of type, one field and the node.
+            The footer already carries four link columns and a wordmark, and a
+            signup box the size of a hero would own the page it appears on —
+            which is every page. */}
         <div className="divider mt-16" />
+
+        <div className="mt-10 max-w-xl">
+          <SubscribeForm variant="footer" />
+        </div>
+
+        <div className="divider mt-10" />
 
         <div className="mt-8 flex flex-col items-start justify-between gap-4 text-xs text-soft-mute sm:flex-row sm:items-center">
           <p>

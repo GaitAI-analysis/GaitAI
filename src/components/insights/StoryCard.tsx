@@ -55,9 +55,16 @@ export function StoryCard({
   article,
   variant = "standard",
   priority = false,
+  commentCount,
 }: {
   article: InsightArticle;
   variant?: StoryVariant;
+  /**
+   * Real approved-comment count, or undefined. Undefined and zero both render
+   * nothing: a count that is really a loading state would be a false statement
+   * about a record, and "0 comments" on every card in a young journal is noise.
+   */
+  commentCount?: number;
   /** Above-the-fold cards load eagerly; everything else waits. */
   priority?: boolean;
 }) {
@@ -101,6 +108,14 @@ export function StoryCard({
           <time dateTime={article.date}>{formatInsightDate(article.date)}</time>
           <span aria-hidden="true">·</span>
           <span>{article.readMinutes} min read</span>
+          {typeof commentCount === "number" && commentCount > 0 && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>
+                {commentCount} {commentCount === 1 ? "comment" : "comments"}
+              </span>
+            </>
+          )}
         </div>
 
         <h3 className={styles.cardTitle}>

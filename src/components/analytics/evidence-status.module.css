@@ -1,0 +1,163 @@
+/* ==========================================================================
+   EVIDENCE STATUS PANEL
+   --------------------------------------------------------------------------
+   Self-contained tokens: this panel is mounted on product detail pages, which
+   are not inside a .lab subtree, so it defines the few colours it needs for
+   both themes rather than inheriting --an-*.
+
+   The state marks are SHAPES as well as tones — filled, half, open ring — so
+   the three states survive greyscale, colour-blindness and a printout. Every
+   row also names its state in words.
+   ========================================================================== */
+
+.wrap {
+  --ev-line: rgb(148 163 184 / 0.16);
+  --ev-line-mid: rgb(148 163 184 / 0.28);
+  --ev-ink: rgb(var(--c-soft-white));
+  --ev-body: rgb(var(--c-soft-gray));
+  --ev-mute: rgb(var(--c-soft-mute));
+  --ev-on: #4fd1ff;
+  --ev-surface: rgb(var(--c-soft-white) / 0.02);
+
+  border: 1px solid var(--ev-line-mid);
+  border-radius: 1rem;
+  background: var(--ev-surface);
+  padding: 1.25rem 1.35rem 1.15rem;
+}
+
+:global(.light) .wrap {
+  --ev-line: rgb(15 23 42 / 0.1);
+  --ev-line-mid: rgb(15 23 42 / 0.18);
+  --ev-on: #0e7490;
+  --ev-surface: rgb(15 23 42 / 0.015);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ev-ink);
+}
+
+.summary {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ev-mute);
+}
+
+.lead {
+  margin-top: 0.6rem;
+  max-width: 60ch;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ev-mute);
+}
+
+.rows {
+  margin-top: 1rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 0.85rem minmax(0, 1fr);
+  gap: 0.15rem 0.7rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--ev-line);
+}
+
+.rowHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+  min-width: 0;
+}
+
+.rowLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ev-ink);
+}
+
+.state {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ev-mute);
+}
+
+.stateOn {
+  color: var(--ev-on);
+}
+
+.rowDetail {
+  grid-column: 2;
+  max-width: 64ch;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--ev-mute);
+}
+
+/* ── State marks: three distinct shapes ── */
+
+.mark {
+  margin-top: 0.32rem;
+  height: 0.55rem;
+  width: 0.55rem;
+  border-radius: 2px;
+}
+
+/* Established — filled square. */
+.markOn {
+  background: var(--ev-on);
+}
+
+/* In development — half-filled square, split on the diagonal. */
+.markPart {
+  border: 1px solid var(--ev-line-mid);
+  background: linear-gradient(
+    135deg,
+    var(--ev-on) 0%,
+    var(--ev-on) 50%,
+    transparent 50%,
+    transparent 100%
+  );
+}
+
+/* Not yet published — open ring. Not a cross: it is an absence, not a fault. */
+.markOff {
+  border: 1px solid var(--ev-line-mid);
+  border-radius: 999px;
+  background: none;
+}
+
+.foot {
+  margin-top: 1rem;
+  border-top: 1px solid var(--ev-line);
+  padding-top: 0.85rem;
+}
+
+.link {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ev-on);
+  transition: color 0.3s ease;
+}
+
+.link:hover {
+  color: var(--ev-ink);
+}

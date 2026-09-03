@@ -16,6 +16,9 @@ import { evidenceForProduct } from "@/data/evidence";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductEvidence } from "@/components/products/ProductEvidence";
+import { EvidenceStatus } from "@/components/analytics/EvidenceStatus";
+import { SampleOutputViewer } from "@/components/analytics/SampleOutputViewer";
+import { hasSampleOutput } from "@/data/sample-outputs";
 import { cn } from "@/lib/utils";
 
 const familyConfig = {
@@ -246,10 +249,21 @@ export function ProductDetailView({ slug }: { slug: string }) {
   // basis" section; the rest render none rather than a vague gesture.
   const hasEvidence = evidenceForProduct(slug).length > 0;
 
+  /**
+   * A synthetic sample output exists for eight of the modules. The rest render
+   * no viewer rather than an empty offer — and evidence-status.ts reads the
+   * same absence, so the "Interactive demo" row and this section can never
+   * disagree.
+   */
+  const hasSample = hasSampleOutput(slug);
+
   const navItems = useMemo<NavItem[]>(() => {
     if (!detail) return [];
     const evidenceItem: NavItem[] = hasEvidence
       ? [{ id: "evidence", label: "Research basis" }]
+      : [];
+    const sampleItem: NavItem[] = hasSample
+      ? [{ id: "sample", label: "Sample output" }]
       : [];
 
     if (view === "executive") {
@@ -263,6 +277,8 @@ export function ProductDetailView({ slug }: { slug: string }) {
         { id: "workflow", label: "Workflow" },
         { id: "deployment", label: "Deployment" },
         ...evidenceItem,
+        { id: "evidence-status", label: "Evidence status" },
+        ...sampleItem,
         { id: "privacy", label: "Privacy" },
         { id: "related", label: "Related products" },
         { id: "pilot", label: "Pilot" },
@@ -282,6 +298,8 @@ export function ProductDetailView({ slug }: { slug: string }) {
     items.push(
       { id: "quality", label: "Quality checks" },
       ...evidenceItem,
+      { id: "evidence-status", label: "Evidence status" },
+      ...sampleItem,
       { id: "privacy", label: "Privacy" },
       { id: "integration", label: "Integration" },
       { id: "limitations", label: "Limitations" },
@@ -289,7 +307,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
       { id: "pilot", label: "Pilot" }
     );
     return items;
-  }, [detail, view, hasEvidence]);
+  }, [detail, view, hasEvidence, hasSample]);
 
   /**
    * Section numbers are derived from the contents order rather than hardcoded,
@@ -696,6 +714,30 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 title="Research basis"
               >
                 <ProductEvidence productId={slug} accentText={a.text} />
+              </SectionBlock>
+            )}
+
+            {/* Shared: how far the evidence goes. Rendered for EVERY module,
+                including those with no research foundation — the panel's job
+                is to state the position, and "not yet published" is a
+                position. Every row is derived; see data/evidence-status.ts. */}
+            <SectionBlock
+              id="evidence-status"
+              index={sectionIndex("evidence-status")}
+              title="Evidence status"
+            >
+              <EvidenceStatus productId={slug} />
+            </SectionBlock>
+
+            {/* Shared: the module's own output, on synthetic data. Collapsed
+                by default; the viewer always renders its own label. */}
+            {hasSample && (
+              <SectionBlock
+                id="sample"
+                index={sectionIndex("sample")}
+                title="Sample output"
+              >
+                <SampleOutputViewer productId={slug} family={product.vertical} />
               </SectionBlock>
             )}
 

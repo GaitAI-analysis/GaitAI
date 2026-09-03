@@ -12,6 +12,7 @@
     "prebuild": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run validate:gaitai",
     "typecheck": "tsc --noEmit",
     "validate:gaitai": "tsx scripts/validate-gaitai.mjs",
+    "deploy:rules": "firebase deploy --only firestore:rules",
     "verify": "npm run typecheck && npm run lint && npm run validate:gaitai",
     "check:links": "node scripts/check-links.mjs"
   },

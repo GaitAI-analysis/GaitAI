@@ -55,3 +55,21 @@
 .liked .mark {
   opacity: 1;
 }
+
+/* ── Inline in the article's own metadata row ──────────────────────────────
+   No type of its own: it inherits the kicker's font, size, tracking and
+   colour, so the view count reads as one more item in that row rather than as
+   a widget dropped into it. Only the mark needs sizing. */
+.inlineStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.inlineMark {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  opacity: 0.65;
+}

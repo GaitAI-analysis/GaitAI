@@ -1,0 +1,6 @@
+{
+  "//": "Rules deployment only. Hosting is not configured here: the site is a static export published elsewhere, and adding a hosting target would invite `firebase deploy` to publish it from a developer machine.",
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

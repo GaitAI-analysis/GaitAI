@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { assetPath } from "@/lib/paths";
 import { productById } from "@/data/products";
 import {
   STAGES,
@@ -43,17 +44,70 @@ const ACCEPT = "video/mp4,video/quicktime,video/webm";
 const CLIP_SECONDS = 6;
 
 /**
- * Bundled sample clips. Empty on purpose.
+ * THE BUILT-IN DEMO.
  *
- * Every video in this repository is a rendered marketing animation with
- * readouts drawn into the picture — cadence figures, mobility scores, identity
- * matches, bounding brackets. Feeding one of those to a pose model would show
- * a reader someone else's fabricated overlay sitting on top of a real
- * analysis, which is precisely the confusion this page exists to avoid. Drop
- * clean footage in `public/assets/videos/samples/` and add it here; the block
- * renders itself as soon as there is something honest to put in it.
+ * WHY THIS IS A RENDERED FIGURE AND NOT FOOTAGE OF A PERSON. Every other video
+ * in this repository has fabricated readouts drawn into the picture — cadence
+ * figures, mobility scores, identity matches, "FALL RISK MEDIUM", a patient id
+ * — and most also carry a skeleton overlay burned onto the subject. Feeding
+ * one of those to a pose model would put someone else's invented overlay on
+ * top of a real analysis, which is the exact confusion this page exists to
+ * avoid. This clip is built instead from the one asset in the repository that
+ * the pose model provably detects: the wireframe figure from the journal
+ * artwork, moving across a still frame.
+ *
+ * WHAT IT THEREFORE DOES AND DOES NOT SHOW. The analysis of it is real —
+ * BlazePose finds the body in about three quarters of the sampled instants and
+ * every trajectory, drift and range comes from those landmarks. But the figure
+ * holds one pose as it travels, so there is no true stride: the lab will
+ * report travel and direction, and will say plainly that no repeating vertical
+ * rhythm was clear enough to report. That is the honest reading of this clip,
+ * and it is why the label calls it a prepared demonstration clip rather than a
+ * walking subject.
+ *
+ * REPLACING IT. Drop a licensed clip of a person walking into
+ * `public/assets/videos/samples/`, point `src` and `poster` at it, and the
+ * demo becomes a real gait demonstration with no other change.
+ *
+ * ON A SECUREVISION DEMO. There is none, deliberately. `pose_landmarker_lite`
+ * returns one subject per frame, so a crowd clip is undetectable to it — a
+ * three-figure version of this clip was measured at 1% detection, which would
+ * have told visitors "no bodies found" over footage plainly containing three.
+ * The spatial lens still runs on a visitor's own public-space clip; the demo
+ * tab says so in that mode rather than shipping a demo that misreports.
  */
-const SAMPLES: { id: string; label: string; note: string; src: string }[] = [];
+type Demo = {
+  id: string;
+  label: string;
+  src: string;
+  poster: string;
+  seconds: number;
+  description: string;
+};
+
+const MOBILITY_DEMO: Demo = {
+  id: "mobility-walk",
+  label: "Walking analysis demo",
+  src: "/assets/videos/samples/mobility-walk-demo.mp4",
+  poster: "/assets/videos/samples/mobility-walk-demo-poster.jpg",
+  seconds: 10,
+  description:
+    "A prepared demonstration clip: a rendered movement figure crossing a still frame, built for this lab so the pose model has something to find. Analysed in your browser by the same pipeline as your own footage.",
+};
+
+/** Which built-in demo a lens offers, if any. */
+function demoFor(view: "mobility" | "secure"): Demo | null {
+  return view === "mobility" ? MOBILITY_DEMO : null;
+}
+
+/** Which input the intake is showing. One pipeline, three sources. */
+type Source = "demo" | "upload" | "camera";
+
+const SOURCES: { id: Source; label: string; hint: string }[] = [
+  { id: "demo", label: "Demo", hint: "Try instantly" },
+  { id: "upload", label: "Upload", hint: "Use your own clip" },
+  { id: "camera", label: "Camera", hint: "Record 6 seconds" },
+];
 
 type Mode = "auto" | "mobility" | "secure";
 
@@ -380,15 +434,20 @@ function SuitabilityBanner({
 export function MovementAnalyzer() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const camRef = useRef<HTMLVideoElement>(null);
+  const sourceRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const urlRef = useRef<string | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const [src, setSrc] = useState<string | null>(null);
   const [name, setName] = useState("");
-  const [origin, setOrigin] = useState<"upload" | "sample" | "camera" | null>(
+  const [origin, setOrigin] = useState<"upload" | "demo" | "camera" | null>(
     null,
   );
+  /* The intake defaults to the demo: a visitor can see the whole pipeline
+     without having to go and find a video first. Nothing analyses until they
+     press the button. */
+  const [source, setSource] = useState<Source>("demo");
   const [dragging, setDragging] = useState(false);
   const [inputError, setInputError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("auto");
@@ -454,6 +513,25 @@ export function MovementAnalyzer() {
       setOrigin(from);
       setTime(0);
       setTab("");
+    },
+    [releaseUrl, reset],
+  );
+
+  /**
+   * Start the built-in demo. It goes down the same path as an uploaded file —
+   * the only difference is that the source is a URL on this site rather than
+   * an object URL, so there is nothing to revoke afterwards.
+   */
+  const runDemo = useCallback(
+    (demo: Demo) => {
+      reset();
+      releaseUrl();
+      setSrc(assetPath(demo.src));
+      setName(demo.label);
+      setOrigin("demo");
+      setTime(0);
+      setTab("");
+      setInputError(null);
     },
     [releaseUrl, reset],
   );
@@ -581,6 +659,17 @@ export function MovementAnalyzer() {
     return ys.length >= 6 ? Math.max(...ys) - Math.min(...ys) : null;
   }, [result]);
 
+  /**
+   * Which demo the intake offers.
+   *
+   * NOT from `view`: that resolves AUTO using the analysis result, and before
+   * anything has been analysed it falls back to "mobility" — so the intake
+   * showed the walking demo even with SecureVision selected. This reads the
+   * mode selector directly. AUTO offers the walking demo because it is the
+   * only built-in one; SecureVision says why it has none.
+   */
+  const demo = demoFor(mode === "secure" ? "secure" : "mobility");
+
   const message = inputError ?? error;
 
   return (
@@ -663,63 +752,200 @@ export function MovementAnalyzer() {
       {/* ─────────── INTAKE ─────────── */}
       {!src && (
         <div className={styles.intake}>
+          <header className={styles.intakeHead}>
+            <h3 className={styles.intakeTitle}>Try movement analysis</h3>
+            <p className={styles.intakeLead}>
+              Start instantly with a prepared demo clip, use your own video, or
+              record a short walk. All three run the same pipeline in this tab.
+            </p>
+          </header>
+
+          {/* One control, three sources. Tabs rather than three competing
+              panels: the choice is what to analyse, not which product to use. */}
           <div
-            className={`${styles.drop} ${dragging ? styles.dropOn : ""}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
+            role="tablist"
+            aria-label="Choose what to analyse"
+            className={styles.sources}
+            onKeyDown={(event) => {
+              const i = SOURCES.findIndex((o) => o.id === source);
+              let next: number | null = null;
+              if (event.key === "ArrowRight") next = (i + 1) % SOURCES.length;
+              else if (event.key === "ArrowLeft")
+                next = (i - 1 + SOURCES.length) % SOURCES.length;
+              else if (event.key === "Home") next = 0;
+              else if (event.key === "End") next = SOURCES.length - 1;
+              if (next === null) return;
+              event.preventDefault();
+              setSource(SOURCES[next].id);
+              sourceRef.current
+                ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+                [next]?.focus();
             }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault();
-              setDragging(false);
-              const file = e.dataTransfer.files?.[0];
-              if (file) accept(file);
-            }}
-            /* A dashed box reading "drop a clip here" invites a click, and on
-               a phone there is no drag to offer instead — so the whole zone
-               opens the picker. The label below stays the real, focusable
-               control; this only forwards clicks that landed on the ground
-               between the words, and never the label's own click. */
-            onClick={(e) => {
-              if ((e.target as HTMLElement).closest("label")) return;
-              fileRef.current?.click();
-            }}
+            ref={sourceRef}
           >
-            <p className={styles.dropTitle}>Drop in a movement clip</p>
-            <p className={styles.dropMeta}>
-              MP4 / MOV / WebM · up to 60 MB · 5–20 seconds works best
-            </p>
-
-            {/* A real label-wrapped file input: keyboard and screen-reader
-                reachable, no click-forwarding trickery. */}
-            <label className={styles.browse}>
-              <input
-                ref={fileRef}
-                type="file"
-                accept={ACCEPT}
-                className={styles.file}
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) accept(file);
-                  e.target.value = "";
-                }}
-              />
-              <span>Choose a video</span>
-            </label>
-
-            <p className={styles.privacy}>
-              <strong>Your file · local only.</strong> It is read inside this
-              tab and handed to the pose model frame by frame. Nothing is
-              uploaded, stored or transmitted.
-            </p>
+            {SOURCES.map((option, i) => (
+              <button
+                key={option.id}
+                type="button"
+                role="tab"
+                aria-selected={source === option.id}
+                aria-controls="movement-intake-panel"
+                tabIndex={source === option.id ? 0 : -1}
+                onClick={() => setSource(option.id)}
+                className={`${styles.sourceBtn} ${
+                  source === option.id ? styles.sourceOn : ""
+                }`}
+              >
+                <span className={styles.sourceName}>{option.label}</span>
+                <span className={styles.sourceHint}>{option.hint}</span>
+                <span className={styles.sourceNum} aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </button>
+            ))}
           </div>
 
-          <div className={styles.side}>
-            {canRecord && (
+          <div id="movement-intake-panel" className={styles.intakePanel}>
+            {/* ── DEMO ── */}
+            {source === "demo" &&
+              (demo ? (
+                <div className={styles.demo}>
+                  {/* A poster, not a playing video: the clip itself is not
+                      fetched until the reader asks for it. */}
+                  <figure className={styles.demoPreview}>
+                    <img
+                      src={assetPath(demo.poster)}
+                      alt="A rendered movement figure mid-stride, crossing a dark frame — the first frame of the prepared demonstration clip."
+                      loading="lazy"
+                      decoding="async"
+                      className={styles.demoPoster}
+                    />
+                    <figcaption className={styles.demoCaption}>
+                      <span className={styles.demoKicker}>
+                        Demo walking clip
+                      </span>
+                      <span className={styles.demoMeta}>
+                        ~{demo.seconds} sec · illustrative sample
+                      </span>
+                    </figcaption>
+                  </figure>
+
+                  <div className={styles.demoBody}>
+                    <p className={styles.demoName}>{demo.label}</p>
+                    <p className={styles.demoText}>{demo.description}</p>
+                    <button
+                      type="button"
+                      className={styles.demoBtn}
+                      onClick={() => runDemo(demo)}
+                    >
+                      Analyse demo
+                    </button>
+                    <p className={styles.privacy}>
+                      <strong>Built-in demo · local analysis</strong> This
+                      sample is analysed in your browser by the same local
+                      pipeline as your own clip. Nothing is uploaded.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                /* SecureVision has no built-in demo — see the note on
+                   MOBILITY_DEMO for why a crowd clip cannot honestly be one. */
+                <div className={styles.demoNone}>
+                  <p className={styles.demoName}>
+                    No built-in demo for the spatial lens
+                  </p>
+                  <p className={styles.demoText}>
+                    The built-in clip is prepared for MobilityCare&apos;s
+                    body-level analysis. The pose model reads one subject at a
+                    time, so a crowd clip would report no bodies at all —
+                    rather than ship a demo that misreports, this lens waits
+                    for a public-space clip of your own. Switch to MobilityCare
+                    for the built-in demo, or choose a video.
+                  </p>
+                  <div className={styles.demoNoneActions}>
+                    <button
+                      type="button"
+                      className={styles.demoBtn}
+                      onClick={() => setMode("mobility")}
+                    >
+                      Use the MobilityCare demo
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.camBtn}
+                      onClick={() => setSource("upload")}
+                    >
+                      Choose a video
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+            {/* ── UPLOAD ── */}
+            {source === "upload" && (
+              <div
+                className={`${styles.drop} ${dragging ? styles.dropOn : ""}`}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setDragging(true);
+                }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragging(false);
+                  const file = e.dataTransfer.files?.[0];
+                  if (file) accept(file);
+                }}
+                /* A dashed box reading "drop a clip here" invites a click, and
+                   on a phone there is no drag to offer instead — so the whole
+                   zone opens the picker. The label below stays the real,
+                   focusable control; this only forwards clicks that landed on
+                   the ground between the words, never the label's own. */
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest("label")) return;
+                  fileRef.current?.click();
+                }}
+              >
+                <p className={styles.dropTitle}>Drop in a movement clip</p>
+                <p className={styles.dropMeta}>
+                  MP4 / MOV / WebM · up to 60 MB
+                </p>
+
+                <label className={styles.browse}>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept={ACCEPT}
+                    className={styles.file}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) accept(file);
+                      e.target.value = "";
+                    }}
+                  />
+                  <span>Choose a video</span>
+                </label>
+
+                <p className={styles.privacy}>
+                  <strong>Your file · local only</strong> It is read inside
+                  this tab and handed to the pose model frame by frame. Nothing
+                  is uploaded, stored or transmitted.
+                </p>
+              </div>
+            )}
+
+            {/* ── CAMERA ── */}
+            {source === "camera" && (
               <div className={styles.cam}>
-                <p className={styles.sideLabel}>No clip to hand?</p>
-                {recording ? (
+                {!canRecord ? (
+                  <>
+                    <p className={styles.demoName}>Camera not available</p>
+                    <p className={styles.demoText}>
+                      This browser offers no camera this page can record from.
+                      The demo and an uploaded clip both work.
+                    </p>
+                  </>
+                ) : recording ? (
                   <>
                     <video
                       ref={camRef}
@@ -734,55 +960,36 @@ export function MovementAnalyzer() {
                   </>
                 ) : (
                   <>
+                    <p className={styles.demoName}>
+                      Record {CLIP_SECONDS} seconds
+                    </p>
+                    <p className={styles.demoText}>
+                      Your browser will ask for camera permission first.
+                    </p>
                     <button
                       type="button"
-                      className={styles.camBtn}
+                      className={styles.demoBtn}
                       onClick={() => void record()}
                     >
                       Record {CLIP_SECONDS}s from your camera
                     </button>
-                    <p className={styles.camNote}>
-                      The recording is held in this tab&apos;s memory, analysed
-                      there, and discarded when you leave. It is never uploaded.
+                    <p className={styles.privacy}>
+                      <strong>Your camera · local only</strong> The recording
+                      is held in this tab&apos;s memory, analysed there, and
+                      discarded when you leave. It is never uploaded.
                     </p>
                   </>
                 )}
               </div>
             )}
-
-            {SAMPLES.length > 0 && (
-              <div className={styles.samples}>
-                <p className={styles.sideLabel}>Or analyse a sample clip</p>
-                {SAMPLES.map((sample) => (
-                  <button
-                    key={sample.id}
-                    type="button"
-                    className={styles.sample}
-                    onClick={() => {
-                      reset();
-                      releaseUrl();
-                      setSrc(sample.src);
-                      setName(sample.label);
-                      setOrigin("sample");
-                      setTime(0);
-                      setTab("");
-                      setInputError(null);
-                    }}
-                  >
-                    <span className={styles.sampleName}>{sample.label}</span>
-                    <span className={styles.sampleNote}>{sample.note}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <p className={styles.sideNote}>
-              A clip with one person walking across the frame, camera held
-              still, whole body visible, gives this the most to work with. A
-              busy public scene works too — it just answers a different
-              question, and the analysis will say which one.
-            </p>
           </div>
+
+          {/* One place for the guidance that used to be repeated in the drop
+              zone and again in a paragraph beside it. */}
+          <p className={styles.bestResults}>
+            <span className={styles.bestLabel}>Best results</span>
+            One person · whole body visible · camera held still · 5–20 seconds
+          </p>
         </div>
       )}
 
@@ -810,11 +1017,17 @@ export function MovementAnalyzer() {
             <figure className={styles.viewport}>
               <figcaption className={styles.viewHead}>
                 <span className={styles.viewLabel}>What the camera sees</span>
+                {/* The demo says "analysed locally", not "illustrative
+                    demo · synthetic data": the readings on the right come from
+                    this clip through the same pose model as an uploaded file,
+                    so calling them synthetic would be the inaccurate label.
+                    What the clip itself is — a prepared, rendered figure — is
+                    stated where it is chosen and in the suitability banner. */}
                 <span className={styles.viewMeta} title={name}>
                   {origin === "camera"
                     ? "Your camera · local only"
-                    : origin === "sample"
-                      ? "Sample clip"
+                    : origin === "demo"
+                      ? "Demo clip · analysed locally in your browser"
                       : "Your file · local only"}
                 </span>
               </figcaption>

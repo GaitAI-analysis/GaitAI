@@ -171,18 +171,18 @@ This is an interactive technology demonstration. The stage,
       >
         <div className="container-wide">
           <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-            Bring your own clip
+            Try it on a clip
           </span>
           <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
-            Watch a pose model take your{" "}
+            Watch a pose model take a{" "}
             <span className="text-gradient">clip apart.</span>
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
-            Drop in a movement clip and a real pose model runs on it in your
-            browser — 33 body landmarks per sampled instant, joint
-            trajectories, the body&apos;s path through the frame, and the
-            temporal channels that make up its Motion DNA. Your file never
-            leaves the device.
+            Start with the prepared demo, bring your own video, or record a
+            short walk — a real pose model runs on it in your browser, finding
+            33 body landmarks per sampled instant, joint trajectories, the
+            body&apos;s path through the frame, and the temporal channels that
+            make up its Motion DNA. Nothing leaves the device.
           </p>
 
           <div className="mt-10">

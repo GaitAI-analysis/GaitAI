@@ -4,10 +4,8 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  ChevronRight,
 } from "lucide-react";
 import { industryUseCases, productById } from "@/data/products";
 import { productDetailBySlug, productValueProp } from "@/data/product-details";
@@ -371,23 +369,12 @@ export function ProductDetailView({ slug }: { slug: string }) {
         <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-obsidian/30 via-obsidian/60 to-obsidian" />
         <div className="container-wide relative">
-          {/* Breadcrumb */}
-          <nav
-            aria-label="Breadcrumb"
-            className="flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-soft-mute"
-          >
-            <Link
-              href={family.path}
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-soft-white"
-            >
-              <ArrowLeft className="h-3 w-3" />
-              {family.label}
-            </Link>
-            <ChevronRight aria-hidden className="h-3 w-3 opacity-60" />
-            <span className="text-soft-gray">{product.short}</span>
-          </nav>
-
-          <div className={cn("eyebrow mt-8", a.text)}>
+          {/* The page's own breadcrumb went when the Atlas arrived. The
+              location trail under the header already says
+              GaitAI > Products > MobilityCare > WalkScan, with every ancestor
+              a link, so this row was the same journey stated twice — two
+              location indicators stacked 40px apart. */}
+          <div className={cn("eyebrow", a.text)}>
             <span className="h-1 w-6 rounded-full bg-gradient-brand" />
             GaitAI · {family.label}
           </div>

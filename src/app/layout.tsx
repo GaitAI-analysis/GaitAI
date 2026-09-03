@@ -9,6 +9,8 @@ import "./interactions.css";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { IntelligenceSearch } from "@/components/search/IntelligenceSearch";
+import { LocationTrail } from "@/components/atlas/LocationTrail";
+import { AtlasOverlay } from "@/components/atlas/AtlasOverlay";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { AskGaitAI } from "@/components/assistant/AskGaitAI";
@@ -160,6 +162,11 @@ export default function RootLayout({
                 and no markup on any route. */}
             <IntelligenceSearch />
             <main className="site-main relative">
+              {/* GaitAI Atlas, level one: a 26px strip saying where this page
+                  sits in the site. In the layout rather than on each page so
+                  that all ~70 routes — including the fifty generated ones —
+                  answer the question the same way, from one tree. */}
+              <LocationTrail />
               <PageTransition>{children}</PageTransition>
             </main>
             <Footer />
@@ -167,6 +174,9 @@ export default function RootLayout({
                 every route without entering any page's layout — and renders
                 nothing at all when no backend endpoint is configured. */}
             <AskGaitAI />
+            {/* Atlas, level two. Renders nothing until it is opened, so it
+                costs one event listener and no markup on any route. */}
+            <AtlasOverlay />
           </div>
         </Providers>
       </body>

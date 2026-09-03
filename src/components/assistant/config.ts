@@ -23,4 +23,30 @@ export const ASSISTANT_ENABLED = ASK_ENDPOINT.length > 0;
 export const MAX_MESSAGE_LENGTH = 800;
 
 export const ASSISTANT_NAME = "Ask GaitAI";
-export const ASSISTANT_TAGLINE = "Your guide to movement intelligence.";
+
+/** The status line under the name, inside the panel. */
+export const ASSISTANT_TAGLINE = "Movement intelligence guide";
+
+/**
+ * What the assistant is for, in one sentence. Used where the assistant has to
+ * introduce itself to someone who has not opened it yet — the search palette's
+ * hand-off row, and the launcher's accessible name.
+ */
+export const ASSISTANT_BLURB =
+  "Explore movement intelligence, products, research and applications.";
+
+/**
+ * Anything on the page may open the assistant by dispatching this, optionally
+ * with a question to ask on arrival:
+ *
+ *   window.dispatchEvent(new CustomEvent(ASK_EVENT, { detail: { question } }))
+ *
+ * It is the same shape the search palette already uses to open itself
+ * (SEARCH_EVENT), so neither surface has to import the other's component or
+ * lift state into a shared provider.
+ */
+export const ASK_EVENT = "gaitai:open-ask";
+
+export interface AskEventDetail {
+  question?: string;
+}

@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "validate:gaitai": "tsx scripts/validate-gaitai.mjs",
     "rules:login": "npx -y firebase-tools@13 login",
+    "rules:whoami": "npx -y firebase-tools@13 login:list && npx -y firebase-tools@13 projects:list",
     "deploy:rules": "npx -y firebase-tools@13 deploy --only firestore:rules",
     "journal:doctor": "tsx scripts/journal-doctor.mjs",
     "site:doctor": "node scripts/site-doctor.mjs",

@@ -8,7 +8,7 @@ import { StatRow } from "@/components/analytics/primitives";
 import styles from "@/components/analytics/analytics.module.css";
 
 export const metadata: Metadata = {
-  title: "Movement Lab — See movement become intelligence",
+  title: "Movement Intelligence Lab — See movement become intelligence",
   description:
     "An interactive demonstration of the GaitAI pipeline: video, pose, gait cycle, movement features, analytics and output — in a MobilityCare mode and an identity-free SecureVision mode. Illustrative demo running on synthetic data.",
   alternates: { canonical: "/movement-lab" },
@@ -22,9 +22,9 @@ export const metadata: Metadata = {
  * metadata description, in a badge above the fold, in a boundary panel under
  * the hero, and again inside every stage that shows a reading.
  *
- * Not in the navbar. It is reached from the home teaser, the products
- * configurator, GaitScape and the relevant CTAs, which is the right amount of
- * prominence for an illustration.
+ * Reached from the Explore menu, the home teaser, the products configurator,
+ * GaitScape and the relevant CTAs. The route stays /movement-lab; only the
+ * visible name is the fuller "Movement Intelligence Lab".
  */
 export default function MovementLabPage() {
   return (
@@ -39,7 +39,7 @@ export default function MovementLabPage() {
         <div className="container-wide">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-              Movement Lab
+              Movement Intelligence Lab
             </span>
             <SyntheticDataBadge label={SYNTHETIC_LABEL} />
           </div>

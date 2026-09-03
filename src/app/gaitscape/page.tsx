@@ -5,9 +5,13 @@ import { GaitscapeExplorer } from "@/components/gaitscape/GaitscapeExplorer";
 import { CapabilityMatrix } from "@/components/gaitscape/CapabilityMatrix";
 import { CompareSystems } from "@/components/gaitscape/CompareSystems";
 
+/* The root layout's title template already appends " | GaitAI", so a page
+   title carrying its own suffix rendered "… | GaitAI | GaitAI". Titles here
+   name the page only. The OpenGraph title is not passed through the template,
+   so that one carries the brand itself. */
 export const metadata: Metadata = {
   alternates: { canonical: "/gaitscape" },
-  title: "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+  title: "GaitScape — Human Movement Intelligence Landscape",
   description:
     "Explore how GaitAI connects human movement signals, AI capabilities, research and products across mobility, healthcare, safety and secure environments.",
   openGraph: {

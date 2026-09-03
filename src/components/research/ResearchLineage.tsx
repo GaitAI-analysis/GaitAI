@@ -53,11 +53,12 @@ export function ResearchLineage({
 
   return (
     <>
-      {/* ── Desktop lineage ── */}
+      {/* ── The lineage, at every width ── */}
+      <div className={styles.diagramScroll}>
       <svg
         aria-hidden="true"
         viewBox="0 0 900 430"
-        className={`${styles.lineage} hidden lg:block`}
+        className={styles.lineage}
       >
         {/* Trunk: founder record → core */}
         <line className={styles.lnTrunk} x1={CX} y1={78} x2={CX} y2={172} />
@@ -161,41 +162,8 @@ export function ResearchLineage({
           {moduleCount} modular products
         </text>
       </svg>
+      </div>
 
-      {/* ── The same lineage as a rail, below lg ── */}
-      <ol className={`${styles.lnRail} lg:hidden`} aria-hidden="true">
-        <li className={styles.lnRailItem}>
-          <span className={styles.lnRailNode} />
-          <span className={styles.lnRailLabel}>Founder-led research</span>
-          <span className={styles.lnRailMeta}>
-            {yearFrom} → {yearTo} · {papers} peer-reviewed papers
-          </span>
-        </li>
-        <li className={`${styles.lnRailItem} ${styles.lnRailItemGold}`}>
-          <span className={styles.lnRailNode} />
-          <span className={styles.lnRailLabel}>Patent {patentNumber}</span>
-          <span className={styles.lnRailMeta}>Granted</span>
-        </li>
-        <li className={styles.lnRailItem}>
-          <span className={styles.lnRailNode} />
-          <span className={styles.lnRailLabel}>Movement Intelligence Core</span>
-        </li>
-        <li className={`${styles.lnRailItem} ${styles.lnRailSplit}`}>
-          <span className={styles.lnRailNode} />
-          <span className={styles.lnRailLabel}>
-            MobilityCare
-            <span className={styles.lnRailCare}> · {careCount} modules</span>
-          </span>
-          <span className={styles.lnRailLabel}>
-            SecureVision
-            <span className={styles.lnRailSecure}> · {secureCount} modules</span>
-          </span>
-        </li>
-        <li className={styles.lnRailItem}>
-          <span className={styles.lnRailNode} />
-          <span className={styles.lnRailLabel}>{moduleCount} modular products</span>
-        </li>
-      </ol>
 
       {/* The distinction, in the same words the page has always used. */}
       <p className={styles.provenanceNote}>

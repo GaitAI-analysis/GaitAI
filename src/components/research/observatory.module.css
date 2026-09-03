@@ -2791,3 +2791,42 @@
     align-items: center;
   }
 }
+
+/* ── One diagram, every width ────────────────────────────────────────────────
+   These three diagrams used to ship twice: an SVG for wide screens and a
+   stacked list repeating the same labels for narrow ones, both always in the
+   markup with one hidden. Every label was therefore served — and indexed —
+   twice. Now each diagram is emitted once, and where it is wider than the
+   viewport it scrolls inside this frame rather than being scaled down until
+   its type is unreadable. The page itself never scrolls sideways. */
+.diagramScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  /* Room for the scrollbar so it never sits on top of the drawing. */
+  padding-bottom: 0.25rem;
+}
+
+.diagramScroll > .lineage {
+  min-width: 46rem;
+}
+
+.diagramScroll > .emapGraph {
+  min-width: 34rem;
+}
+
+.diagramScroll > .journeyTrack {
+  min-width: 44rem;
+}
+
+/* Wide enough for the diagram to fit: no frame, no scrollbar, no min-width. */
+@media (min-width: 64rem) {
+  .diagramScroll {
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+  .diagramScroll > .lineage,
+  .diagramScroll > .emapGraph,
+  .diagramScroll > .journeyTrack {
+    min-width: 0;
+  }
+}

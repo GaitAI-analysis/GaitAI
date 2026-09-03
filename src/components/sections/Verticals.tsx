@@ -233,13 +233,13 @@ function FlagshipPanel({
               poster frame instead. The asset is a fixed dark cinematic
               render, identical in light and dark mode.
 
-              The synthetic-data pill that used to sit at bottom-left is gone.
+              The illustrative-values pill that used to sit at bottom-left is gone.
               It was the same badge repeated on top of every product visual on
               the site, and stacked on footage that already carries a "· Demo"
               tag in the opposite corner it read as chrome rather than as
               disclosure. The disclosure itself is unchanged: the console tag
               above still says "Demo", and the sr-only line below states in
-              full that this is illustrative footage on synthetic data. */}
+              full that this is illustrative footage with example values. */}
           {reduceMotion ? (
             <Image
               src={assetPath(videoPoster)}
@@ -263,7 +263,7 @@ function FlagshipPanel({
           )}
         </div>
         <p className="sr-only">
-          The console above is illustrative demo footage with synthetic data,
+          The console above is illustrative demo footage with example values,
           not a live feed or a real deployment.
         </p>
 

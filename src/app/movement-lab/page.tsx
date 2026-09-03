@@ -4,8 +4,7 @@ import { MovementLab } from "@/components/analytics/MovementLab";
 import { MovementAnalyzer } from "@/components/analytics/MovementAnalyzer";
 import { SignalIntelligenceExplorer } from "@/components/analytics/SignalIntelligenceExplorer";
 import { FootageMatch } from "@/components/analytics/FootageMatch";
-import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
-import { SYNTHETIC_LABEL } from "@/data/lab-demo";
+import { IllustrativeBadge } from "@/components/ui/IllustrativeBadge";
 import { CAPABILITY_COUNT, MODULE_COUNT, SIGNAL_COUNT } from "@/data/analytics";
 import { StatRow } from "@/components/analytics/primitives";
 import { LabHeroInstrument } from "@/components/analytics/LabHeroInstrument";
@@ -19,7 +18,7 @@ import styles from "@/components/analytics/analytics.module.css";
 const STUDIO_TITLE = "Movement Studio";
 const STUDIO_STRAP = "Analyze & explore movement";
 const STUDIO_DESCRIPTION =
-  "An interactive demonstration of the GaitAI pipeline: video, pose, gait cycle, movement features, analytics and output — in a MobilityCare mode and an identity-free SecureVision mode. Illustrative demo running on synthetic data.";
+  "An interactive demonstration of the GaitAI pipeline: video, pose, gait cycle, movement features, analytics and output — in a MobilityCare mode and an identity-free SecureVision mode. An illustrative demonstration with example values.";
 
 export const metadata: Metadata = {
   title: `${STUDIO_TITLE} — See movement become intelligence`,
@@ -62,7 +61,7 @@ export default function MovementLabPage() {
       {/* One WebPage node, so the rename reaches structured data too. The
           `url` is the existing route: the name changed, the address did not.
           No SoftwareApplication node — this page demonstrates a pipeline on
-          synthetic data and offers no application to download or run. */}
+          example values and offers no application to download or run. */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -99,7 +98,7 @@ export default function MovementLabPage() {
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
               Movement Studio
             </span>
-            <SyntheticDataBadge label={SYNTHETIC_LABEL} />
+            <IllustrativeBadge />
           </div>
 
           <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
@@ -127,19 +126,17 @@ export default function MovementLabPage() {
             <div className={styles.panelBody}>
               <span className={styles.label}>What this is, and is not</span>
               <p className={`${styles.note} mt-2`}>
-                This is an interactive technology demonstration running on
-                synthetic data. It is not a medical device, not a diagnostic
-                tool and not a live system, and no reading in it is a
-                product-performance figure, a benchmark or a clinical result.
-                The stage names, capability names, feature names and output
-                names are the platform&apos;s own — the values are invented for
-                illustration.
+This is an interactive technology demonstration. The stage,
+                capability, feature and output names are the platform&apos;s
+                own; the readings beside them are example values chosen to make
+                the pipeline legible, not measurements, benchmarks or clinical
+                results. It is not a medical device and not a live system.
               </p>
               <p className={`${styles.note} mt-2`}>
                 Nothing is uploaded from this page. The analyzer below reads a
                 file you choose entirely inside your browser — it is never
                 transmitted, stored or retained anywhere — and the staged
-                walkthroughs further down use synthetic data only. The
+                walkthroughs further down use example values only. The
                 SecureVision mode is identity-free by construction: it has no
                 identification layer to switch on.
               </p>
@@ -163,8 +160,8 @@ export default function MovementLabPage() {
           This site is a static export with no API routes, so client-side
           inference is not a fallback here — it is the only kind available.
           Every figure the workbench reports is computed from the clip in front
-          of the reader, which is why it carries no synthetic badge: it uses no
-          synthetic data. What a browser pose model cannot produce (cadence,
+          of the reader, which is why it carries no illustrative badge: none
+          of its values are examples. What a browser pose model cannot produce (cadence,
           stride length, walking speed, any clinical score) it does not show,
           and the workbench's own disclosure says so — deliberately there
           rather than here, so this heading can be about what the tool does. */}
@@ -199,7 +196,7 @@ export default function MovementLabPage() {
           intelligence?": pick a capture source and the whole chain it feeds
           redraws. The lab below then answers the same question at one stage's
           depth. This surface is relationship data only — no measurements, so
-          no synthetic-data badge; there are no invented numbers on it. */}
+          no illustrative badge; there are no invented numbers on it. */}
       <section className="border-t border-white/[0.07] py-14 sm:py-16">
         <div className="container-wide">
           <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">

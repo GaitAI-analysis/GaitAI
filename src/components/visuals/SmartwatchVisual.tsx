@@ -103,7 +103,7 @@ export function SmartwatchVisual({
       {/* In normal flow below the watch. The strap tail above is absolutely
           positioned and overhangs, so the caption is spaced to clear it. */}
       <p className="mt-14 text-center text-[9.5px] font-semibold uppercase tracking-[0.16em] text-soft-mute">
-        Illustrative demo · Synthetic data
+        Illustrative demo · Example values
       </p>
     </div>
   );

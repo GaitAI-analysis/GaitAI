@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import type { Vertical } from "@/data/products";
-import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
+import { IllustrativeBadge } from "@/components/ui/IllustrativeBadge";
 import { SegmentTabs } from "./controls";
 import { SignalMetric, MiniTrendChart } from "./graphics";
 import { Panel, familyClass } from "./primitives";
@@ -19,8 +19,8 @@ import viewer from "./sample-output.module.css";
  * component for all eight modules that have a sample, so the artefact reads as
  * one product family rather than eight bespoke mockups.
  *
- * EVERY FIGURE IS SYNTHETIC, and this component is built so it cannot be used
- * otherwise: `SampleOutput.synthetic` is the literal `true`, the badge renders
+ * EVERY FIGURE IS AN EXAMPLE, and this component is built so it cannot be used
+ * otherwise: `SampleOutput.illustrative` is the literal `true`, the badge renders
  * unconditionally at the top of the panel, and each record carries its own
  * boundary sentence — what the artefact is for, and what it is not. There is
  * no prop that suppresses either.
@@ -193,7 +193,7 @@ export function SampleOutputViewer({
           <Panel grid>
             {/* Unconditional. There is no branch that renders the figures
                 below without this label. */}
-            <SyntheticDataBadge label="Illustrative demo · Synthetic data" />
+            <IllustrativeBadge />
             <p className={viewer.boundary}>{sample.boundary}</p>
 
             <div className={viewer.tabsRow}>

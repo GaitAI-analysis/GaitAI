@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Github, Linkedin, Mail, Twitter } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ctas } from "@/data/content";
+import { contact, mailto } from "@/data/contact";
 
 /**
  * The single footer link source.
@@ -24,12 +25,18 @@ const footerLinks = [
   },
   {
     heading: "Solutions",
+    /* Each named environment goes to its own page. These four used to point at
+       `/use-cases#hospitals` and the like, but that page carries no such
+       anchors, so every one of them silently landed the reader at the top of
+       the index — a specific label promising a specific page and delivering a
+       generic one. The slugs below are the real routes from
+       `usecase-details.ts`. */
     items: [
       { label: "Use cases", href: "/use-cases" },
-      { label: "Hospitals", href: "/use-cases#hospitals" },
-      { label: "Sports academies", href: "/use-cases#sports" },
-      { label: "Elderly care", href: "/use-cases#elderly" },
-      { label: "Smart cities", href: "/use-cases#smartcities" },
+      { label: "Hospitals", href: "/use-cases/hospitals" },
+      { label: "Sports academies", href: "/use-cases/sports-academies" },
+      { label: "Elderly care", href: "/use-cases/elderly-care-centers" },
+      { label: "Smart cities", href: "/use-cases/smart-cities" },
     ],
   },
   {
@@ -58,7 +65,7 @@ const socials = [
   { icon: Twitter, href: "https://twitter.com/gaitai", label: "Twitter" },
   { icon: Linkedin, href: "https://www.linkedin.com/company/gaitai", label: "LinkedIn" },
   { icon: Github, href: "https://github.com/gaitai", label: "GitHub" },
-  { icon: Mail, href: "mailto:hello@gaitai.com", label: "Email" },
+  { icon: Mail, href: mailto(contact.general), label: "Email" },
 ];
 
 const legal = [

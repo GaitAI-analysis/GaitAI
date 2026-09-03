@@ -38,7 +38,7 @@ import styles from "./signalchain.module.css";
  * string. There is no similarity scoring and no fallback that would put a
  * module under something it does not claim.
  *
- * This is relationship data, not measurement, so it carries no synthetic-data
+ * This is relationship data, not measurement, so it carries no illustrative
  * badge — there are no invented numbers on this surface to label.
  */
 

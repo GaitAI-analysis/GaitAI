@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notClaimed, privacyControls } from "@/data/trust";
+import { contact, mailto, CONTACT_FORM_HREF } from "@/data/contact";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/legal/security" },
@@ -192,11 +193,18 @@ export default function SecurityPage() {
         details contact{" "}
         <a
           className="text-cyan-300 transition-colors hover:text-cyan-200"
-          href="mailto:security@gaitai.com"
+          href={mailto(contact.security)}
         >
-          security@gaitai.com
+          {contact.security}
         </a>
-        .
+        . If a message bounces, the{" "}
+        <Link
+          className="text-cyan-300 transition-colors hover:text-cyan-200"
+          href={CONTACT_FORM_HREF}
+        >
+          contact form
+        </Link>{" "}
+        reaches the same people.
       </p>
     </>
   );

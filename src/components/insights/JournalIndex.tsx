@@ -292,7 +292,10 @@ export function JournalIndex() {
         {/* ── Cover story ── */}
         {featured && (
           <div className={styles.featured}>
-            <p className={styles.featuredLabel}>Cover story</p>
+            {/* The section's real heading, not a decorative label: the cover
+                story's own title is an h3, so without an h2 here the page
+                jumped straight from h1 to h3. Same class, same appearance. */}
+            <h2 className={styles.featuredLabel}>Cover story</h2>
             <StoryCard
               article={featured}
               variant="full"

@@ -1,5 +1,6 @@
 import { allProducts, industryUseCases } from "@/data/products";
 import { allPublications } from "@/data/publications";
+import { useCaseHrefById } from "@/data/usecase-details";
 import type {
   GaitscapeNode,
   GaitscapeRelationship,
@@ -162,7 +163,7 @@ const domainNodes: GaitscapeNode[] = industryUseCases.map((u) => ({
   title: u.industry,
   shortDescription: u.problem,
   vertical: u.vertical,
-  href: `/use-cases#${u.id}`,
+  href: useCaseHrefById(u.id),
 }));
 
 export const gaitscapeNodes: GaitscapeNode[] = [

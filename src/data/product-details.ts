@@ -1512,6 +1512,17 @@ export const productDetailBySlug = (slug: string) =>
  * where it differs from the canonical headline, otherwise the headline
  * itself. One string, one place to edit it.
  */
+/**
+ * The module's own overview sentence, for a flagship block on a vertical page.
+ *
+ * `productValueProp` is not the right field there: several modules have no
+ * `valueProp`, so it falls back to the headline — which is already the
+ * flagship block's own h2 and the product card's title, putting the same
+ * sentence on the page three times. The overview says something new.
+ */
+export const productOverview = (slug: string): string =>
+  productDetailBySlug(slug)?.overview ?? productById(slug)?.description ?? "";
+
 export const productValueProp = (slug: string): string =>
   productDetailBySlug(slug)?.valueProp ?? productById(slug)?.headline ?? "";
 

@@ -220,7 +220,7 @@ async function main() {
         ),
         sample &&
           para(
-            "Illustrative sample output (synthetic, not a measured result)",
+            "Illustrative sample output (example values, not a measured result)",
             sample.tabs.flatMap((t) => t.metrics?.map((m) => `${m.label} ${m.value}`) ?? []),
           ),
         para(
@@ -791,9 +791,9 @@ async function main() {
       title: "Movement Studio",
       category: "Experience",
       summary:
-        "Analyze and explore movement stage by stage, on synthetic data. Also known as the Movement Intelligence Lab.",
+        "Analyze and explore movement stage by stage, with example values. Also known as the Movement Intelligence Lab.",
       content:
-        "The Movement Studio (previously named the Movement Intelligence Lab) walks through the stages from movement capture to reportable intelligence: pose estimation, gait cycle segmentation, feature extraction, analytics and report generation for MobilityCare; trajectories, density and flow, candidate events and the operator view for SecureVision. Everything shown is an illustrative demo on synthetic data, not a measured result.",
+        "The Movement Studio (previously named the Movement Intelligence Lab) walks through the stages from movement capture to reportable intelligence: pose estimation, gait cycle segmentation, feature extraction, analytics and report generation for MobilityCare; trajectories, density and flow, candidate events and the operator view for SecureVision. Everything shown is an illustrative demo with example values, not a measured result.",
       keywords: [
         "movement studio",
         "movement lab",

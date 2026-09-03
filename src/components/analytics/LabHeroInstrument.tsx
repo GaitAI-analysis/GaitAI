@@ -177,7 +177,7 @@ export function LabHeroInstrument({ className }: { className?: string }) {
   return (
     <svg
       role="img"
-      aria-label="A synthetic walking sequence in five gait phases, with hip, knee, ankle and centre-of-mass trajectories, an extracted knee-flexion signal, stride markers and a cadence readout, feeding a pose to signals to features to intelligence pipeline."
+      aria-label="An illustrative walking sequence in five gait phases, with hip, knee, ankle and centre-of-mass trajectories, an extracted knee-flexion signal, stride markers and a cadence readout, feeding a pose to signals to features to intelligence pipeline."
       viewBox={`0 0 ${W} ${H}`}
       className={`${styles.instrument} ${className ?? ""}`}
     >
@@ -305,7 +305,7 @@ export function LabHeroInstrument({ className }: { className?: string }) {
       {/* ── Instrumentation annotations. Real constants only. ── */}
       <g className={styles.meta}>
         <text x={568} y={58} textAnchor="end">
-          SYNTHETIC STREAM · {SIGNAL_COUNT} SIGNALS
+          EXAMPLE STREAM · {SIGNAL_COUNT} SIGNALS
         </text>
         <text x={568} y={318} textAnchor="end">
           CAPABILITY LAYER · {CAPABILITY_COUNT}

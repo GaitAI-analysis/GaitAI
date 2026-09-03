@@ -1,5 +1,5 @@
 // ============================================================================
-// SAMPLE OUTPUTS — SYNTHETIC, AND SAID SO
+// SAMPLE OUTPUTS — ILLUSTRATIVE, AND SAID SO
 // ----------------------------------------------------------------------------
 // What a module's output actually looks like, so a reader can see the shape of
 // the deliverable instead of reading a description of it.
@@ -7,8 +7,8 @@
 // EVERY NUMBER IN THIS FILE IS INVENTED. None of it comes from an assessment,
 // a camera, a study or a customer. That is why:
 //
-//   · each record carries `synthetic: true` and the viewer renders
-//     SyntheticDataBadge unconditionally — there is no code path that shows
+//   · each record carries `illustrative: true` and the viewer renders
+//     IllustrativeBadge unconditionally — there is no code path that shows
 //     these figures without the label
 //   · values are plausible-but-round, never precise-looking (94%, not 93.7%),
 //     so they read as illustration rather than measurement
@@ -20,7 +20,7 @@
 //
 // The metric NAMES, output NAMES and field names are not invented — they come
 // from each module's documented `outputs` in products.ts and its detail record
-// in product-details*.ts. Only the illustrative values are synthetic.
+// in product-details*.ts. Only the readings themselves are examples.
 //
 // Modules without an entry simply have no sample viewer; evidence-status.ts
 // reads that absence and reports "interactive demo — not yet published" rather
@@ -69,7 +69,7 @@ export interface SampleOutput {
   /** What this artefact is, in the module's own vocabulary. */
   kind: string;
   /** Always true. Kept explicit so the viewer cannot be used without it. */
-  synthetic: true;
+  illustrative: true;
   /** The boundary this artefact must always carry. */
   boundary: string;
   tabs: SampleTab[];
@@ -83,7 +83,7 @@ const walkscan: SampleOutput = {
   productId: "walkscan",
   action: "View sample movement report",
   kind: "Movement report",
-  synthetic: true,
+  illustrative: true,
   boundary:
     "A structured movement report for clinician review. It does not diagnose, and it does not replace clinical judgement.",
   tabs: [
@@ -210,7 +210,7 @@ const fallrisk: SampleOutput = {
   productId: "fallrisk",
   action: "View sample screening summary",
   kind: "Screening summary",
-  synthetic: true,
+  illustrative: true,
   boundary:
     "Screening support for care teams — not a prediction that a specific individual will fall.",
   tabs: [
@@ -282,7 +282,7 @@ const rehabtrack: SampleOutput = {
   productId: "rehabtrack",
   action: "View longitudinal comparison",
   kind: "Recovery comparison",
-  synthetic: true,
+  illustrative: true,
   boundary:
     "A measured comparison across sessions. Recovery interpretation stays with the therapist.",
   tabs: [
@@ -326,7 +326,7 @@ const sportsmotion: SampleOutput = {
   productId: "sportsmotion",
   action: "View movement-performance analysis",
   kind: "Movement-performance analysis",
-  synthetic: true,
+  illustrative: true,
   boundary:
     "Movement-quality measurement for coaching review. Not an injury prediction.",
   tabs: [
@@ -372,7 +372,7 @@ const crowdsense: SampleOutput = {
   productId: "crowdsense",
   action: "View sample crowd-flow dashboard",
   kind: "Crowd-flow dashboard",
-  synthetic: true,
+  illustrative: true,
   boundary:
     "Aggregate movement analytics. No individual is identified, and figures are illustrative.",
   tabs: [
@@ -421,7 +421,7 @@ const suspiciousmotion: SampleOutput = {
   productId: "suspiciousmotion",
   action: "View candidate-event packet",
   kind: "Candidate-event packet",
-  synthetic: true,
+  illustrative: true,
   boundary:
     "A candidate movement event for trained operator review. Not a determination that anything occurred.",
   tabs: [
@@ -459,7 +459,7 @@ const industrialsafety: SampleOutput = {
   productId: "industrialsafety",
   action: "View candidate-event packet",
   kind: "Candidate-event packet",
-  synthetic: true,
+  illustrative: true,
   boundary:
     "A candidate movement-safety event for EHS operator review. Not an incident record.",
   tabs: [
@@ -497,7 +497,7 @@ const forensicsearch: SampleOutput = {
   productId: "forensicsearch",
   action: "View investigation timeline",
   kind: "Investigation timeline",
-  synthetic: true,
+  illustrative: true,
   boundary:
     "Candidate correspondences across cameras for authorized post-event review — never proof of identity.",
   tabs: [

@@ -250,7 +250,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
   const hasEvidence = evidenceForProduct(slug).length > 0;
 
   /**
-   * A synthetic sample output exists for eight of the modules. The rest render
+   * A sample output exists for eight of the modules. The rest render
    * no viewer rather than an empty offer — and evidence-status.ts reads the
    * same absence, so the "Interactive demo" row and this section can never
    * disagree.
@@ -754,7 +754,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
               <EvidenceStatus productId={slug} />
             </SectionBlock>
 
-            {/* Shared: the module's own output, on synthetic data. Collapsed
+            {/* Shared: the module's own output, with example values. Collapsed
                 by default; the viewer always renders its own label. */}
             {hasSample && (
               <SectionBlock

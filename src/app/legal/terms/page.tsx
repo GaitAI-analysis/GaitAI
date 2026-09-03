@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { contact, mailto, CONTACT_FORM_HREF } from "@/data/contact";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/legal/terms" },
@@ -52,10 +53,38 @@ export default function TermsPage() {
         Dashboards, reports, consoles and console footage shown on this site
         use{" "}
         <span className="text-soft-white">
-          illustrative synthetic values, labelled as such
+          illustrative example values, labelled as such
         </span>
         . They are design demonstrations, not measured results, not output from
         a real assessment, and not data from any real person or organisation.
+      </p>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">
+        The Movement Lab analyser
+      </h2>
+      <p className="mt-4 text-soft-gray">
+        The Movement Lab lets you run a pose model over a clip of your own. It
+        runs in your browser and uploads nothing — see the{" "}
+        <Link
+          className="text-cyan-300 transition-colors hover:text-cyan-200"
+          href="/legal/privacy"
+        >
+          Privacy Policy
+        </Link>{" "}
+        for how the file is handled. What it produces is a movement
+        abstraction and a set of measured, frame-relative descriptors. It is
+        not a gait assessment: it does not calculate cadence, stride length,
+        walking speed, symmetry, a mobility or balance score, or any clinical
+        or risk measure, and nothing it shows may be used for a clinical,
+        safety or employment decision about anyone.
+      </p>
+      <p className="mt-4 text-soft-gray">
+        Only analyse footage you have the right to analyse. Do not upload video
+        of other people without a lawful basis and their agreement where one is
+        required, and do not upload health, clinical or confidential material.
+        Results depend on what the model can see, so a clip may yield partial
+        readings or none at all; the analyser states which case applies rather
+        than filling the gap with an estimate.
       </p>
 
       <h2 className="mt-12 font-display text-xl text-soft-white">
@@ -174,11 +203,18 @@ export default function TermsPage() {
         pilot:{" "}
         <a
           className="text-cyan-300 transition-colors hover:text-cyan-200"
-          href="mailto:legal@gaitai.com"
+          href={mailto(contact.legal)}
         >
-          legal@gaitai.com
+          {contact.legal}
         </a>
-        .
+        . If a message bounces, the{" "}
+        <Link
+          className="text-cyan-300 transition-colors hover:text-cyan-200"
+          href={CONTACT_FORM_HREF}
+        >
+          contact form
+        </Link>{" "}
+        reaches the same people.
       </p>
     </>
   );

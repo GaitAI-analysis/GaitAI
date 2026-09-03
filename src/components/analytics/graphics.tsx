@@ -12,7 +12,7 @@ import styles from "./analytics.module.css";
  * same screenshot.
  *
  * THE RULE THESE COMPONENTS ENFORCE
- * Any component that can display a number takes a `synthetic` flag, and when
+ * Any component that can display a number takes an `illustrative` flag, and when
  * it is set the number is rendered with its own caption saying so. The lab is
  * a technology demonstration: none of its readings come from a real capture,
  * a real person or a real deployment, and a convincing dashboard without that
@@ -30,15 +30,15 @@ export function SignalMetric({
   value,
   unit,
   note,
-  synthetic = false,
+  illustrative = false,
   children,
 }: {
   label: string;
   value: string;
   unit?: string;
   note?: string;
-  /** Set for any illustrative reading. Renders the synthetic caption. */
-  synthetic?: boolean;
+  /** Set for any illustrative reading. Renders the example-value caption. */
+  illustrative?: boolean;
   /** An optional sparkline or distribution under the value. */
   children?: React.ReactNode;
 }) {
@@ -51,8 +51,8 @@ export function SignalMetric({
       </p>
       {children}
       {note && <p className={styles.metricNote}>{note}</p>}
-      {synthetic && (
-        <p className={styles.metricNote}>Illustrative · synthetic</p>
+      {illustrative && (
+        <p className={styles.metricNote}>Example value</p>
       )}
     </div>
   );

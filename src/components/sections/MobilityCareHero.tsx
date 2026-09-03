@@ -98,7 +98,7 @@ export function MobilityCareHero() {
             </Link>
           </div>
 
-          {/* The synthetic-data pill that used to sit here — between the CTAs
+          {/* The illustrative-values pill that used to sit here — between the CTAs
               and the capability chips, on top of the hero footage — is gone.
               It was the same badge repeated over every product visual on the
               site, and in the hero it read as a fifth control in the button

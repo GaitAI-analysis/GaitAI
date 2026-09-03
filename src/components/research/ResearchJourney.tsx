@@ -91,11 +91,11 @@ export function ResearchJourney() {
   const drawn = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <div ref={ref} className={styles.journeyStage}>
+    <div ref={ref} className={`${styles.journeyStage} ${styles.diagramScroll}`}>
       <svg
         aria-hidden="true"
         viewBox={`0 0 ${W} ${H}`}
-        className={`${styles.journeyTrack} hidden md:block`}
+        className={styles.journeyTrack}
       >
         <path className={styles.jPath} d={trackPath} />
         <motion.path

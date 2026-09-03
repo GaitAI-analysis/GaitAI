@@ -28,12 +28,12 @@ type ViewMode = "executive" | "technical";
 const familyConfig = {
   mobilitycare: {
     label: "MobilityCare",
-    eyebrow: "GaitAI · Deployment scenario",
+    eyebrow: "GaitAI · Application environment",
     gradient: "text-gradient",
   },
   securevision: {
     label: "SecureVision",
-    eyebrow: "GaitAI · Deployment scenario",
+    eyebrow: "GaitAI · Application environment",
     gradient: "text-gradient-secure",
   },
 } as const;
@@ -81,7 +81,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
       { id: "together", label: "How products work together" },
       { id: "pipeline", label: "Combined pipeline" },
       { id: "signals", label: "Signals & outputs" },
-      { id: "deployment", label: "Deployment considerations" },
+      { id: "deployment", label: "Deployment configuration" },
       { id: "privacy", label: "Privacy" },
       { id: "related", label: "Related use cases" },
       { id: "pilot", label: "Pilot" },
@@ -312,7 +312,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
                 <SectionBlock
                   id="deployment"
                   index="04"
-                  title="Deployment considerations"
+                  title="Deployment configuration"
                 >
                   <BulletList items={detail.deployment} dot={a.dot} />
                 </SectionBlock>
@@ -429,7 +429,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
                         rA.text
                       )}
                     >
-                      GaitAI · Deployment scenario
+                      GaitAI · Application environment
                     </div>
                     <h3 className="mt-1.5 font-display text-lg font-semibold text-soft-white">
                       {rBase?.industry ?? r.slug}

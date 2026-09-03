@@ -16,6 +16,7 @@ import {
 } from "@/data/insights";
 import { StoryCard } from "./StoryCard";
 import { useCommentCounts } from "./useCommentCounts";
+import { useArticleStats } from "./useArticleStats";
 import { JournalBackdrop } from "./JournalBackdrop";
 import styles from "./archive.module.css";
 
@@ -35,13 +36,16 @@ import styles from "./archive.module.css";
  * The narrative keeps its job — showing what the essays are ABOUT — and this
  * one does the job it was never meant to: showing what they ARE.
  *
- * Every value is a field on the article record. Nothing here is a metric:
- * there are no views, no likes and no popularity sort, because the repository
- * has none and inventing them is the one thing an editorial surface must not
- * do. "Newest" and "Reading order" are both real orderings of real fields.
+ * The editorial values are fields on the article record. The engagement
+ * values are real: views and likes come from articleStats/{slug} in Firestore
+ * in one read for the whole archive, comment counts from the live comments
+ * collection, and a card shows a counter only when a real number is behind it
+ * — never a zero, never a placeholder. "Most viewed" is offered only once
+ * those counters have loaded, because that ordering over an empty stats map is
+ * just "newest" under another name.
  */
 
-type Sort = "newest" | "series";
+type Sort = "newest" | "series" | "views";
 
 /** Only topics that actually match an article are offered. */
 const ACTIVE_TOPICS = TOPIC_FILTERS.filter(
@@ -67,6 +71,11 @@ export function JournalIndex() {
   const [topic, setTopic] = useState<InsightTopic | "all">("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("newest");
+
+  /* Real view and like counters, one read for the whole archive. Empty until
+     it resolves and empty if Firestore is unreachable, so a card shows a
+     count only once there is a real number behind it. */
+  const { stats, loaded: statsLoaded } = useArticleStats();
 
   /** Title, deck, excerpt, category and topics — what a reader would search. */
   const haystacks = useMemo(() => {
@@ -99,12 +108,17 @@ export function JournalIndex() {
       if (q && !(haystacks.get(article.slug) ?? "").includes(q)) return false;
       return true;
     });
-    return [...list].sort((a, b) =>
-      sort === "newest"
-        ? b.date.localeCompare(a.date)
-        : a.seriesStep - b.seriesStep,
-    );
-  }, [type, topic, query, sort, haystacks]);
+    return [...list].sort((a, b) => {
+      if (sort === "series") return a.seriesStep - b.seriesStep;
+      if (sort === "views") {
+        /* Most viewed, with the newest first among ties — which is also what
+           the whole archive is before any counter has been recorded. */
+        const delta = (stats[b.slug]?.views ?? 0) - (stats[a.slug]?.views ?? 0);
+        return delta !== 0 ? delta : b.date.localeCompare(a.date);
+      }
+      return b.date.localeCompare(a.date);
+    });
+  }, [type, topic, query, sort, haystacks, stats]);
 
   const dirty = type !== "all" || topic !== "all" || query !== "";
   const reset = () => {
@@ -117,6 +131,7 @@ export function JournalIndex() {
      Empty until it resolves, and empty if Firestore is unreachable — the
      cards then simply show no comment metadata rather than a fabricated one. */
   const commentCounts = useCommentCounts(insightArticles.map((a) => a.slug));
+
 
   /* The cover story is the newest piece, and it is only the cover when the
      reader has not started filtering — a "featured" card inside a filtered
@@ -147,7 +162,7 @@ export function JournalIndex() {
             <span className={styles.mastheadAccent}>GaitAI.</span>
           </h1>
           <p className={styles.mastheadDeck}>
-            Technical essays, research translation, engineering stories and
+            Research translation, engineering stories, product notes and
             updates from the team building GaitAI.
           </p>
           {/* Both lines are counted and dated from the records themselves: the
@@ -188,6 +203,11 @@ export function JournalIndex() {
             >
               <option value="newest">Newest first</option>
               <option value="series">Reading order</option>
+              {/* Offered only once real counters have loaded: a "most viewed"
+                  order over an empty stats map is just "newest" wearing
+                  another name, and the brief rules out popularity UI that no
+                  data stands behind. */}
+              {statsLoaded && <option value="views">Most viewed</option>}
             </select>
           </div>
         </div>
@@ -278,6 +298,8 @@ export function JournalIndex() {
               variant="full"
               priority
               commentCount={commentCounts[featured.slug]}
+              views={stats[featured.slug]?.views}
+              likes={stats[featured.slug]?.likes}
             />
           </div>
         )}
@@ -299,6 +321,8 @@ export function JournalIndex() {
                   article={article}
                   variant="tall"
                   commentCount={commentCounts[article.slug]}
+                  views={stats[article.slug]?.views}
+                  likes={stats[article.slug]?.likes}
                 />
               ))}
             </div>
@@ -347,8 +371,11 @@ export function JournalIndex() {
                         <span className={styles.seriesName}>
                           {article.seriesTitle}
                         </span>
+                        {/* Was "{category} · {n} min read". Both are gone
+                            from every reader-facing surface; the date is the
+                            metadata a journal row actually needs. */}
                         <span className={styles.seriesMeta}>
-                          {article.category} · {article.readMinutes} min read
+                          {formatInsightDate(article.date)}
                         </span>
                       </span>
                       <span aria-hidden="true" className={styles.seriesArrow}>

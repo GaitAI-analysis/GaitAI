@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
+import { formatCount } from "@/lib/article-stats";
 import type { InsightArticle } from "@/data/insights";
 import {
   INSIGHTS_AUTHOR,
@@ -56,6 +57,8 @@ export function StoryCard({
   variant = "standard",
   priority = false,
   commentCount,
+  views,
+  likes,
 }: {
   article: InsightArticle;
   variant?: StoryVariant;
@@ -65,6 +68,10 @@ export function StoryCard({
    * about a record, and "0 comments" on every card in a young journal is noise.
    */
   commentCount?: number;
+  /** Real view and like counts, or undefined while unknown. Undefined and
+      zero both render nothing — see ArticleEngagement for why. */
+  views?: number;
+  likes?: number;
   /** Above-the-fold cards load eagerly; everything else waits. */
   priority?: boolean;
 }) {
@@ -96,24 +103,37 @@ export function StoryCard({
       </div>
 
       <div className={styles.cardBody}>
+{/* Date first, then the subject, then whatever engagement is real. The
+            type label ("Technical Essay") and the read time were removed from
+            every card: the type is already what the filter chips select on, and
+            a read time is a promise about the reader rather than a fact about
+            the piece. */}
         <div className={styles.cardMeta}>
-          <span className={styles.cardCategory}>{typeLabel}</span>
+          <time className={styles.cardCategory} dateTime={article.date}>
+            {formatInsightDate(article.date)}
+          </time>
           {subject && (
             <>
               <span aria-hidden="true">·</span>
               <span>{subject}</span>
             </>
           )}
-          <span aria-hidden="true">·</span>
-          <time dateTime={article.date}>{formatInsightDate(article.date)}</time>
-          <span aria-hidden="true">·</span>
-          <span>{article.readMinutes} min read</span>
+          {typeof views === "number" && views > 0 && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{formatCount(views, "view")}</span>
+            </>
+          )}
+          {typeof likes === "number" && likes > 0 && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{formatCount(likes, "like")}</span>
+            </>
+          )}
           {typeof commentCount === "number" && commentCount > 0 && (
             <>
               <span aria-hidden="true">·</span>
-              <span>
-                {commentCount} {commentCount === 1 ? "comment" : "comments"}
-              </span>
+              <span>{formatCount(commentCount, "comment")}</span>
             </>
           )}
         </div>

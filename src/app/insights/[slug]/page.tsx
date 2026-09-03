@@ -18,6 +18,7 @@ import { ReadingProgress } from "@/components/insights/ReadingProgress";
 import { TwoMinute } from "@/components/insights/TwoMinute";
 import { NextStory } from "@/components/insights/NextStory";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
+import { ArticleEngagement } from "@/components/insights/ArticleEngagement";
 import { assetPath } from "@/lib/paths";
 import styles from "@/components/insights/journal.module.css";
 
@@ -196,13 +197,16 @@ export default function InsightArticlePage({
                 {/* The essays are issues of a collection, not posts. The number
                     is the article's own position in the Foundations path, so
                     the index and the article can never disagree about it. */}
+{/* The type label and the read time are gone from every reader-facing
+                    surface. What is left is what a journal actually credits: the
+                    issue, the author and the date. `postType`, `category` and
+                    `readMinutes` all remain in the record — they still drive
+                    filtering, the series rail and structured data. */}
                 <span className={styles.articleKickerCategory}>
                   Issue {String(article.seriesStep).padStart(2, "0")}
                 </span>
                 <span aria-hidden="true">·</span>
-                <span>{article.category}</span>
-                <span aria-hidden="true">·</span>
-                <span>{article.readMinutes} min read</span>
+                <span>{INSIGHTS_AUTHOR}</span>
                 <span aria-hidden="true">·</span>
                 <time dateTime={article.date}>
                   {formatInsightDate(article.date)}
@@ -213,6 +217,11 @@ export default function InsightArticlePage({
               <h1 className={styles.articleTitle}>
                 <Headline article={article} />
               </h1>
+
+              {/* Real views, likes and comments. Client-only: it writes one
+                  view per session and reads the counters, and it renders
+                  nothing at all for any counter whose number is unknown. */}
+              <ArticleEngagement slug={article.slug} className="mt-6" />
               {article.subtitle && (
                 <p className={styles.articleSub}>{article.subtitle}</p>
               )}
@@ -334,7 +343,7 @@ export default function InsightArticlePage({
           contentType "blog" is one of ALLOWED_CONTENT_TYPES; the mount is
           client-only and viewport-gated, so Firebase stays off the critical
           path until a reader scrolls this far. */}
-      <section className="border-t border-white/[0.07] py-14 sm:py-16">
+      <section id="discussion" className="border-t border-white/[0.07] py-14 sm:py-16">
         <div className="container-wide">
           <div className="mx-auto w-full max-w-[46rem] lg:mx-0">
             <DiscussionMount

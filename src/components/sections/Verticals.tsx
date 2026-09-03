@@ -2,12 +2,9 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeImage, ThemeVideo } from "@/components/ui/ThemeMedia";
-import { MobilityDashboardVisual } from "@/components/visuals/MobilityDashboardVisual";
-import { SecureOperationsVisual } from "@/components/visuals/SecureOperationsVisual";
 import type { ThemeMediaKey } from "@/lib/theme-media";
 import { capabilityIconById } from "@/components/icons/CapabilityIcons";
 import {
@@ -52,8 +49,6 @@ interface FlagshipPanelProps {
   brandKey: ThemeMediaKey;
   /** Key into `lib/theme-media.ts` for the console footage. */
   consoleKey: ThemeMediaKey;
-  /** What light mode draws in place of the dark film. */
-  lightConsole: ReactNode;
   visualLabel: string;
   /** Corner tag on the console surface. These are rendered demo footage,
    *  not a live feed, so the tag must not say "Live". */
@@ -154,7 +149,6 @@ function FlagshipPanel({
   href,
   brandKey,
   consoleKey,
-  lightConsole,
   visualLabel,
   consoleTag,
   products,
@@ -229,22 +223,18 @@ function FlagshipPanel({
           <div className="absolute right-5 top-4 z-10 rounded-md border border-white/10 bg-obsidian/70 px-2.5 py-1 font-mono text-[9px] text-soft-gray shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:right-7 sm:top-5 sm:text-[10px]">
             {consoleTag}
           </div>
-          {/* The console surface, per theme.
+          {/* The console surface: one cinematic render, both themes.
 
-              DARK plays the cinematic render, unchanged and frozen — the same
-              file, the same poster, the same framing that shipped.
+              Light mode briefly drew a vector console in its place. The
+              footage IS what is being shown here — its navy, its cyan, its
+              overlays and its contrast are the product's own console — so a
+              theme may change the page around it and must not restage it.
+              The shell keeps its dark tokens in light mode (see
+              `.light .product-visual-shell`), which is the same treatment the
+              two product heroes already use, so the panel reads as a screen
+              being shown rather than as a hole in a white page.
 
-              LIGHT draws the vector console for this product instead. The film
-              is lit for a night laboratory: on a white page it read as a hole
-              punched through the panel, and dimming or brightening a
-              photographic asset would only have made it a grey hole. The
-              vector version carries the same subject — walking figure, pose
-              tracking, movement analytics, the product's own console — in the
-              light palette, at the same aspect in the same frame, and it costs
-              no download at all.
-
-              Reduced motion still gets a still frame of whichever source the
-              theme is actually showing, never the other theme's poster.
+              Reduced motion gets this film's own poster frame.
 
               The disclosure is unchanged: the tag above says "Demo", and the
               sr-only line below states in full that this is illustrative
@@ -252,7 +242,6 @@ function FlagshipPanel({
           <ThemeVideo
             mediaKey={consoleKey}
             className="platform-console-video"
-            lightVisual={lightConsole}
             reduceMotion={reduceMotion}
             sizes="(max-width: 1024px) 100vw, 640px"
           />
@@ -359,7 +348,6 @@ export function Verticals() {
             href="/mobilitycare"
             brandKey="mobilityCareWordmark"
             consoleKey="mobilityCareHome"
-            lightConsole={<MobilityDashboardVisual />}
             visualLabel="Clinical mobility console"
             consoleTag="WalkScan · Demo"
             products={mobilityHighlights}
@@ -379,7 +367,6 @@ export function Verticals() {
             href="/securevision"
             brandKey="secureVisionWordmark"
             consoleKey="secureVisionHome"
-            lightConsole={<SecureOperationsVisual />}
             visualLabel="Privacy-aware ops console"
             consoleTag="SecureVision · Demo"
             products={secureHighlights}

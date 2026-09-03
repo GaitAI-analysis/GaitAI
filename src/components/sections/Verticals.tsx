@@ -170,10 +170,16 @@ function FlagshipPanel({
       custom={index}
       className="h-full"
     >
+      {/* Not a whole-panel link, deliberately: this is a section-sized surface
+          with autoplaying console footage in the middle of it, and a click
+          target that big is a surprise rather than an affordance. What it does
+          take from the shared language is the hint — hovering anywhere on the
+          panel brightens its CTA, so the destination announces itself before
+          the pointer reaches it. */}
       <article
         id={id}
         aria-labelledby={titleId}
-        className={`flagship-panel ${style.panel} flex h-full flex-col overflow-hidden p-5 sm:p-7 lg:p-8`}
+        className={`flagship-panel ${style.panel} group/panel flex h-full flex-col overflow-hidden p-5 sm:p-7 lg:p-8`}
       >
         <header className="flex min-h-20 items-center sm:min-h-24">
           <h2 id={titleId} className="sr-only">
@@ -313,7 +319,7 @@ function FlagshipPanel({
           className={`group/cta mt-auto flex min-h-16 items-center justify-between gap-5 border-t border-white/12 pt-6 text-[15px] font-bold transition-colors focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
         >
           <span>Explore {name}</span>
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/cta:translate-x-1 group-hover/cta:border-current/60">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/panel:border-current/60 group-hover/cta:translate-x-1 group-hover/cta:border-current/60">
             <ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
           </span>
         </Link>

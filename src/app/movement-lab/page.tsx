@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MovementLab } from "@/components/analytics/MovementLab";
+import { MovementAnalyzer } from "@/components/analytics/MovementAnalyzer";
 import { SignalIntelligenceExplorer } from "@/components/analytics/SignalIntelligenceExplorer";
 import { FootageMatch } from "@/components/analytics/FootageMatch";
 import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
@@ -135,7 +136,10 @@ export default function MovementLabPage() {
                 illustration.
               </p>
               <p className={`${styles.note} mt-2`}>
-                No personal data is used, uploaded or processed here. The
+                Nothing is uploaded from this page. The analyzer below reads a
+                file you choose entirely inside your browser — it is never
+                transmitted, stored or retained anywhere — and the staged
+                walkthroughs further down use synthetic data only. The
                 SecureVision mode is identity-free by construction: it has no
                 identification layer to switch on.
               </p>
@@ -147,6 +151,47 @@ export default function MovementLabPage() {
             <div className="relative min-w-0 lg:pt-6">
               <LabHeroInstrument />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── ANALYZE A MOVEMENT VIDEO ──
+          The one part of this page that runs on the reader's own footage.
+
+          IMPORTANT, AND THE REASON IT IS SHAPED THIS WAY: this site is a
+          static export with no API routes and no ML dependency, so there is no
+          endpoint that could run the pose model on an uploaded clip. Instead
+          of mocking one, the analyzer measures what a browser genuinely can —
+          frame differencing — and says plainly what that does and does not
+          include. Every figure it reports is computed from the clip in front
+          of the reader; nothing on it is invented, and it carries no synthetic
+          badge because it uses no synthetic data. */}
+      <section
+        id="analyze"
+        className="border-t border-white/[0.07] py-14 sm:py-16"
+      >
+        <div className="container-wide">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+            Bring your own clip
+          </span>
+          <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
+            Analyze a movement{" "}
+            <span className="text-gradient">video.</span>
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
+            Drop in a short walking clip and watch it become a temporal
+            movement signal — a real frame-by-frame analysis that runs in your
+            browser, not a simulation.
+          </p>
+          <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-soft-mute">
+            This measures motion from the frames themselves: intensity over
+            time, where the movement is in frame, how it travels. It does not
+            run GaitAI&apos;s pose model, so it locates no joints and produces
+            no gait or clinical measures — the panels say so where that matters.
+          </p>
+
+          <div className="mt-10">
+            <MovementAnalyzer />
           </div>
         </div>
       </section>

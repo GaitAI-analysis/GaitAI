@@ -1,0 +1,328 @@
+/* ==========================================================================
+   INTELLIGENCE SEARCH PALETTE
+   --------------------------------------------------------------------------
+   Its own tokens, both themes, because it mounts at the app root outside any
+   themed subtree. Glass surface over a dimmed page; no icons — the groups are
+   labelled in type and the keys are real <kbd>.
+   ========================================================================== */
+
+.scrim {
+  --gs-line: rgb(148 163 184 / 0.16);
+  --gs-line-mid: rgb(148 163 184 / 0.28);
+  --gs-ink: rgb(var(--c-soft-white));
+  --gs-body: rgb(var(--c-soft-gray));
+  --gs-mute: rgb(var(--c-soft-mute));
+  --gs-accent: #4fd1ff;
+  --gs-surface: rgb(var(--c-obsidian-400) / 0.92);
+  --gs-raise: rgb(var(--c-soft-white) / 0.05);
+
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8vh 1rem 1rem;
+  background: rgb(2 6 14 / 0.72);
+  backdrop-filter: blur(6px);
+}
+
+:global(.light) .scrim {
+  --gs-line: rgb(15 23 42 / 0.1);
+  --gs-line-mid: rgb(15 23 42 / 0.18);
+  --gs-accent: #0e7490;
+  --gs-surface: rgb(255 255 255 / 0.97);
+  --gs-raise: rgb(15 23 42 / 0.04);
+  background: rgb(15 23 42 / 0.34);
+}
+
+.palette {
+  display: flex;
+  width: 100%;
+  max-width: 40rem;
+  max-height: 78vh;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--gs-line-mid);
+  border-radius: 1rem;
+  background: var(--gs-surface);
+  box-shadow: 0 32px 80px -24px rgb(2 6 14 / 0.7);
+  animation: gs-in 0.18s ease-out both;
+}
+
+@keyframes gs-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palette {
+    animation: none;
+  }
+}
+
+/* ── Input ── */
+
+.inputRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--gs-line);
+  padding: 0.9rem 1rem;
+}
+
+.input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: none;
+  font-size: 15px;
+  color: var(--gs-ink);
+  outline: none;
+}
+
+.input::placeholder {
+  color: var(--gs-mute);
+}
+
+.esc,
+.key {
+  flex-shrink: 0;
+  border: 1px solid var(--gs-line-mid);
+  border-radius: 0.35rem;
+  padding: 0.15rem 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  color: var(--gs-mute);
+}
+
+/* ── Results ── */
+
+.results {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0.5rem 0.75rem;
+  overscroll-behavior: contain;
+}
+
+.group {
+  margin-top: 0.5rem;
+}
+
+.groupLabel {
+  padding: 0.4rem 0.6rem 0.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gs-mute);
+}
+
+.list {
+  display: grid;
+  gap: 1px;
+}
+
+.option {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 0;
+  border-radius: 0.55rem;
+  background: none;
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  cursor: pointer;
+  /* The active row is marked by a left rule AND a background, so the state
+     does not depend on the tint alone. */
+  border-left: 2px solid transparent;
+}
+
+.optionOn {
+  background: var(--gs-raise);
+  border-left-color: var(--gs-accent);
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--gs-accent);
+  outline-offset: -2px;
+}
+
+.optionMain {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.optionTitle {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--gs-ink);
+}
+
+.optionDetail {
+  overflow: hidden;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--gs-mute);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.optionMeta {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gs-mute);
+}
+
+.optionOn .optionMeta {
+  color: var(--gs-accent);
+}
+
+/* ── Empty / starter states ── */
+
+.empty {
+  max-width: 46ch;
+  padding: 1.1rem 0.7rem;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: var(--gs-mute);
+}
+
+.emptyTerm {
+  color: var(--gs-ink);
+}
+
+.starterLead {
+  padding: 0.7rem 0.7rem 0;
+  font-size: 11.5px;
+  color: var(--gs-mute);
+}
+
+/* ── Footer ── */
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  border-top: 1px solid var(--gs-line);
+  padding: 0.6rem 1rem;
+}
+
+.hintGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 10.5px;
+  color: var(--gs-mute);
+}
+
+/* ── Mobile ──
+   Near-fullscreen sheet with large touch targets; no tiny labels. */
+
+@media (max-width: 640px) {
+  .scrim {
+    padding: 0;
+  }
+  .palette {
+    max-width: none;
+    max-height: 100dvh;
+    height: 100dvh;
+    border: 0;
+    border-radius: 0;
+  }
+  .option {
+    padding: 0.7rem 0.6rem;
+  }
+  .optionTitle {
+    font-size: 14.5px;
+  }
+  .footer {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   NAVBAR TRIGGER
+   --------------------------------------------------------------------------
+   Typographic, matching the navbar's existing pill language. Tokens are
+   declared here because the trigger mounts in the navbar, not in .scrim.
+   ========================================================================== */
+
+.trigger {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  padding: 0.45rem 0.75rem 0.45rem 0.85rem;
+  font-size: 13px;
+  color: rgb(var(--c-soft-gray));
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease,
+    color 0.3s ease;
+}
+
+/* Shown from md up. On a phone the keyboard shortcut is meaningless and the
+   navbar has no room, so the palette is reached from the menu instead. */
+@media (min-width: 768px) {
+  .trigger {
+    display: inline-flex;
+  }
+}
+
+.trigger:hover {
+  background: rgb(255 255 255 / 0.1);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.2);
+  color: rgb(var(--c-soft-white));
+}
+
+.trigger:focus-visible {
+  outline: 2px solid rgb(79 209 255 / 0.6);
+  outline-offset: 2px;
+}
+
+:global(.light) .trigger {
+  background: rgb(15 23 42 / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.1);
+}
+:global(.light) .trigger:hover {
+  background: rgb(15 23 42 / 0.07);
+  box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.18);
+}
+
+.triggerLabel {
+  font-weight: 500;
+}
+
+.triggerKey {
+  border-radius: 0.3rem;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  padding: 0.1rem 0.35rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: rgb(var(--c-soft-mute));
+}
+
+:global(.light) .triggerKey {
+  box-shadow: inset 0 0 0 1px rgb(15 23 42 / 0.14);
+}

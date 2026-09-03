@@ -11,14 +11,14 @@ import { LabHeroInstrument } from "@/components/analytics/LabHeroInstrument";
 import styles from "@/components/analytics/analytics.module.css";
 
 export const metadata: Metadata = {
-  title: "Movement Intelligence Lab — See movement become intelligence",
+  title: "Movement Studio — See movement become intelligence",
   description:
     "An interactive demonstration of the GaitAI pipeline: video, pose, gait cycle, movement features, analytics and output — in a MobilityCare mode and an identity-free SecureVision mode. Illustrative demo running on synthetic data.",
   alternates: { canonical: "/movement-lab" },
 };
 
 /**
- * /movement-lab — the Movement Signal Lab.
+ * /movement-lab — the Movement Studio.
  *
  * A deliberate exception to the site's usual rule that every page states
  * facts: this page states a *demonstration*, and says so four times — in the
@@ -26,8 +26,10 @@ export const metadata: Metadata = {
  * the hero, and again inside every stage that shows a reading.
  *
  * Reached from the Explore menu, the home teaser, the products configurator,
- * GaitScape and the relevant CTAs. The route stays /movement-lab; only the
- * visible name is the fuller "Movement Intelligence Lab".
+ * GaitScape and the relevant CTAs. The URL stays /movement-lab: it is in the
+ * sitemap and linked from five places, and a static export cannot redirect,
+ * so renaming the route would break every one of them to no reader's
+ * benefit. Only the visible name changed, to "Movement Studio".
  */
 export default function MovementLabPage() {
   return (
@@ -48,7 +50,7 @@ export default function MovementLabPage() {
           <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-              Movement Intelligence Lab
+              Movement Studio
             </span>
             <SyntheticDataBadge label={SYNTHETIC_LABEL} />
           </div>

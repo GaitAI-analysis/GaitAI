@@ -32,12 +32,37 @@
  * DEGRADATION. Every function swallows its own failure. If Firebase is
  * unconfigured, blocked or offline, reads return nothing and writes are
  * dropped, and every surface renders no counters rather than a zero or a
- * placeholder — the difference between "no data" and "0 views" matters.
+ * placeholder — the difference between "no data" and "0 views" matters. It is
+ * swallowed for the READER, not for the developer: each distinct failure is
+ * printed once per page load with the fix in the hint (see reportOnce).
  */
+
+import { fbFail } from "@/lib/firebase-logger";
 
 export type ArticleStats = { views: number; likes: number };
 
 const COLLECTION = "articleStats";
+
+/**
+ * Failures here are swallowed by design — a counter that cannot be read must
+ * not break an article — but swallowing them SILENTLY is how this feature sat
+ * broken in production without anyone noticing: the rules granting access to
+ * `articleStats` were written in the same commit as the feature and never
+ * published, so every read and every write returned `permission-denied` and
+ * every surface simply showed nothing.
+ *
+ * So each distinct failure is now reported once per page load through the
+ * project's existing Firebase logger, whose hint for `permission-denied` is
+ * exactly the fix: publish `firestore.rules`. Once per operation, so a page
+ * with several cards does not print the same line five times.
+ */
+const reported = new Set<string>();
+
+function reportOnce(step: string, err: unknown) {
+  if (reported.has(step)) return;
+  reported.add(step);
+  fbFail(`articleStats · ${step}`, err);
+}
 
 const viewedKey = (slug: string) => `gaitai:viewed:${slug}`;
 export const likedKey = (slug: string) => `gaitai:liked:${slug}`;
@@ -67,9 +92,23 @@ export async function fetchAllArticleStats(): Promise<Record<string, ArticleStat
       };
     });
     return out;
-  } catch {
+  } catch (err) {
+    reportOnce("read all", err);
     return {};
   }
+}
+
+/**
+ * The same read, shared. Several cards on one page each need the whole map,
+ * so the first caller's promise is remembered and the rest await it — one
+ * network read per page load however many cards ask. Not a long-lived cache:
+ * it lives as long as the page does, and a reload gets fresh numbers.
+ */
+let allStatsPromise: Promise<Record<string, ArticleStats>> | null = null;
+
+export function fetchAllArticleStatsCached() {
+  allStatsPromise ??= fetchAllArticleStats();
+  return allStatsPromise;
 }
 
 export async function fetchArticleStats(slug: string): Promise<ArticleStats | null> {
@@ -82,7 +121,8 @@ export async function fetchArticleStats(slug: string): Promise<ArticleStats | nu
       views: typeof data.views === "number" ? data.views : 0,
       likes: typeof data.likes === "number" ? data.likes : 0,
     };
-  } catch {
+  } catch (err) {
+    reportOnce("read one", err);
     return null;
   }
 }
@@ -131,7 +171,8 @@ export async function registerView(slug: string): Promise<0 | 1> {
       { merge: true },
     );
     return 1;
-  } catch {
+  } catch (err) {
+    reportOnce("count a view", err);
     return 0;
   }
 }
@@ -169,7 +210,8 @@ export async function toggleLike(slug: string, next: boolean): Promise<-1 | 0 | 
       /* The count is stored; only this browser's memory of it is lost. */
     }
     return delta;
-  } catch {
+  } catch (err) {
+    reportOnce("record a like", err);
     return 0;
   }
 }

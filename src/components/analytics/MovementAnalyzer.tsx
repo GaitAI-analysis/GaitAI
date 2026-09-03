@@ -1017,12 +1017,13 @@ export function MovementAnalyzer() {
             <figure className={styles.viewport}>
               <figcaption className={styles.viewHead}>
                 <span className={styles.viewLabel}>What the camera sees</span>
-                {/* The demo says "analysed locally", not "illustrative
-                    demo · synthetic data": the readings on the right come from
-                    this clip through the same pose model as an uploaded file,
-                    so calling them synthetic would be the inaccurate label.
-                    What the clip itself is — a prepared, rendered figure — is
-                    stated where it is chosen and in the suitability banner. */}
+                {/* The demo says "analysed locally" rather than borrowing
+                    the illustrative-demo marker: the readings on the right
+                    come from this clip through the same pose model an
+                    uploaded file goes through, so calling them examples would
+                    be the inaccurate label. What the clip itself is — a
+                    prepared, rendered figure — is stated where it is chosen
+                    and in the suitability banner. */}
                 <span className={styles.viewMeta} title={name}>
                   {origin === "camera"
                     ? "Your camera · local only"

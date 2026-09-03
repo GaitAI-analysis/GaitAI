@@ -1,5 +1,8 @@
 node_modules
 .next
+# A build directory that got renamed out of the way of `.next` once, escaped
+# the rule above, and was committed with 323 MB of webpack cache in it.
+.next-acl-blocked
 out
 build
 dist

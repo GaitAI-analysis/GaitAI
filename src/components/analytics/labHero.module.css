@@ -1,0 +1,328 @@
+/* ==========================================================================
+   MOVEMENT LAB — HERO INSTRUMENT
+   --------------------------------------------------------------------------
+   No panel, no card, no surface. The drawing sits on the hero's own
+   background with a faint measurement grid and corner ticks, so it reads as an
+   instrument projected into the space rather than as another bordered UI box
+   on a page that already has several.
+
+   OPACITY IS THE COMPOSITION. The centre pose is the subject at full strength;
+   the two either side sit at ~55%, the outer pair at ~22%, trajectories
+   between 20% and 45%, and the grid at 6%. That hierarchy is what makes five
+   figures read as one person over time instead of a row of five people.
+
+   ANIMATION IS OPTIONAL, NOT LOAD-BEARING. One pulse crosses the pipeline
+   rail, the knee-flexion trace draws once, and the lead pose's joints breathe
+   very slightly. Everything is fully legible with all of it switched off,
+   which is the state prefers-reduced-motion gets.
+   ========================================================================== */
+
+.instrument {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+
+  --lh-cyan: #4fd1ff;
+  --lh-teal: #2dd4bf;
+  --lh-blue: #5587ff;
+  --lh-violet: #a78bfa;
+  --lh-gold: #e4c48a;
+  --lh-mute: rgb(148 163 184 / 0.9);
+  --lh-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+:global(.light) .instrument {
+  --lh-cyan: #0e7490;
+  --lh-teal: #0f766e;
+  --lh-blue: #2563ff;
+  --lh-violet: #6d28d9;
+  --lh-gold: #8a6320;
+  --lh-mute: rgb(71 85 105 / 0.9);
+}
+
+/* ── Ground ── */
+.grid line {
+  stroke: currentColor;
+  color: var(--lh-mute);
+  stroke-width: 0.5;
+  opacity: 0.09;
+}
+
+.ticks path {
+  fill: none;
+  stroke: var(--lh-cyan);
+  stroke-width: 1;
+  opacity: 0.35;
+  stroke-linecap: round;
+}
+
+.ground {
+  stroke: var(--lh-mute);
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+  opacity: 0.3;
+}
+
+/* ── Poses ── */
+.pose,
+.poseLead {
+  color: var(--lh-cyan);
+}
+
+.bone {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.boneFar {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.5;
+}
+
+/* Open circle, no fill, no features: a landmark, not a head with a face. */
+.head {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+}
+
+.joint {
+  fill: currentColor;
+  opacity: 0.75;
+}
+
+.jointLead {
+  fill: var(--lh-teal);
+  animation: lhJoint 4.5s var(--lh-ease) infinite;
+}
+
+/* ── Trajectories ── */
+.trails path {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.trailHip {
+  stroke: var(--lh-blue);
+  stroke-width: 1.2;
+  opacity: 0.45;
+}
+
+.trailKnee {
+  stroke: var(--lh-cyan);
+  stroke-width: 1.2;
+  opacity: 0.38;
+  stroke-dasharray: 5 4;
+}
+
+.trailAnkle {
+  stroke: var(--lh-teal);
+  stroke-width: 1.2;
+  opacity: 0.32;
+}
+
+.trailCom {
+  stroke: var(--lh-violet);
+  stroke-width: 1;
+  opacity: 0.28;
+  stroke-dasharray: 2 5;
+}
+
+.trailLabels text {
+  fill: var(--lh-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.14em;
+  opacity: 0.75;
+}
+
+/* ── Type ── */
+.stageLabel {
+  fill: var(--lh-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.signalName {
+  fill: var(--lh-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
+  opacity: 0.9;
+}
+
+.meta text {
+  fill: var(--lh-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
+  opacity: 0.7;
+}
+
+/* ── Signals ── */
+.axis {
+  stroke: var(--lh-mute);
+  stroke-width: 0.8;
+  opacity: 0.22;
+}
+
+.wave {
+  fill: none;
+  stroke: var(--lh-cyan);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
+  stroke-dasharray: 620;
+  stroke-dashoffset: 620;
+  animation: lhDraw 2.6s var(--lh-ease) 0.4s forwards;
+}
+
+.strideMark {
+  fill: var(--lh-blue);
+  opacity: 0.8;
+}
+
+.cadence line {
+  stroke: var(--lh-teal);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+
+/* ── Pipeline ── */
+.pipeRail {
+  stroke: var(--lh-mute);
+  stroke-width: 1;
+  opacity: 0.28;
+}
+
+.pipeNode {
+  fill: none;
+  stroke: var(--lh-cyan);
+  stroke-width: 1.4;
+  opacity: 0.85;
+}
+
+/* The output end is the one violet mark in the drawing. */
+.pipeNodeOut {
+  fill: var(--lh-violet);
+  opacity: 0.9;
+}
+
+.pipeLabel {
+  fill: var(--lh-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-anchor: middle;
+  opacity: 0.8;
+}
+
+.pulse {
+  fill: var(--lh-gold);
+  opacity: 0;
+  animation: lhPulse 6.5s var(--lh-ease) infinite;
+}
+
+/* ── Motion ── */
+@keyframes lhDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes lhPulse {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.95;
+  }
+  55% {
+    transform: translateX(400px);
+    opacity: 0.95;
+  }
+  66% {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+@keyframes lhJoint {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The static state is the complete state: the trace is fully drawn and the
+     pulse simply rests on the output node. */
+  .wave {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .jointLead {
+    animation: none;
+    opacity: 1;
+  }
+  .pulse {
+    animation: none;
+    opacity: 0.9;
+    transform: translateX(400px);
+  }
+}
+
+/* ── Small screens ───────────────────────────────────────────────────────
+   Below 640px the container is ~350px against a 620-unit viewBox — a scale of
+   0.56, which would put the 7.5px annotations on screen at about 4px. So the
+   drawing is SIMPLIFIED rather than shrunk: the two outer poses, the
+   trajectory end-labels, the cadence row and the instrumentation annotations
+   drop out, and what remains is the three-pose sequence, the trajectories, one
+   waveform, the stride marks and the pose to intelligence pipeline — with its
+   remaining type set larger so it is still readable at that scale. */
+@media (max-width: 639px) {
+  .poseOuter,
+  .trailLabels,
+  .meta,
+  .smallHide {
+    display: none;
+  }
+
+  .stageLabel {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+  }
+
+  .signalName,
+  .pipeLabel {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+  }
+
+  .ticks path {
+    opacity: 0.5;
+  }
+}

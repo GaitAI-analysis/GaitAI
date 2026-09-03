@@ -300,10 +300,29 @@ if (failures) {
   console.log(C.bad(`  ${failures} check(s) failed.`));
   if (!rulesLive) {
     console.log(C.b("\n  ROOT CAUSE: the deployed Firestore rules predate the counter."));
+    console.log("  No source change will fix it. Publish firestore.rules:\n");
+    console.log("      " + C.b("npm run rules:whoami") + "    which account firebase-tools holds");
+    console.log("      " + C.b("npm run rules:login") + "     add or refresh that login");
+    console.log("      " + C.b("npm run deploy:rules") + "    publish, then re-run this script");
     console.log(
-      "  Run " + C.b("npm run rules:login") + " once, then " + C.b("npm run deploy:rules") + ",",
+      C.dim(
+        "\n  THE SIGNED-IN ACCOUNT MUST OWN THE PROJECT. deploy:rules publishes\n" +
+          "  to the project named in .firebaserc, which is gaitai-intelligence —\n" +
+          "  the same project the site's NEXT_PUBLIC_FIREBASE_PROJECT_ID points\n" +
+          "  at. A login that cannot see that project fails the rules API with\n" +
+          "  HTTP 403 \"The caller does not have permission\", even though the\n" +
+          "  login itself succeeded. That looks nothing like a permissions\n" +
+          "  problem in the output and is easy to read as another rules bug.\n" +
+          "  It has already happened once here: firebase-tools held\n" +
+          "  anubhaparashar1025@gmail.com, whose projects:list does not include\n" +
+          "  gaitai-intelligence, so the deploy 403ed while the local rules file\n" +
+          "  was perfectly correct. Sign in as the account that owns the project\n" +
+          "  (login, or login:add then login:use), or give the signed-in account\n" +
+          "  the Firebase Rules Admin role on it. Run rules:whoami first — it\n" +
+          "  prints the account and every project that account can see.",
+      ),
     );
-    console.log("  then re-run this script. No source change will fix it.\n");
+    console.log("");
   }
   process.exit(1);
 }

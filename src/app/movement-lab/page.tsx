@@ -156,16 +156,18 @@ export default function MovementLabPage() {
       </section>
 
       {/* ── ANALYZE A MOVEMENT VIDEO ──
-          The one part of this page that runs on the reader's own footage.
+          The one part of this page that runs on the reader's own footage, and
+          the only one where a model actually runs: MediaPipe's BlazePose
+          landmarker, client-side, on a clip the reader chooses.
 
-          IMPORTANT, AND THE REASON IT IS SHAPED THIS WAY: this site is a
-          static export with no API routes and no ML dependency, so there is no
-          endpoint that could run the pose model on an uploaded clip. Instead
-          of mocking one, the analyzer measures what a browser genuinely can —
-          frame differencing — and says plainly what that does and does not
-          include. Every figure it reports is computed from the clip in front
-          of the reader; nothing on it is invented, and it carries no synthetic
-          badge because it uses no synthetic data. */}
+          This site is a static export with no API routes, so client-side
+          inference is not a fallback here — it is the only kind available.
+          Every figure the workbench reports is computed from the clip in front
+          of the reader, which is why it carries no synthetic badge: it uses no
+          synthetic data. What a browser pose model cannot produce (cadence,
+          stride length, walking speed, any clinical score) it does not show,
+          and the workbench's own disclosure says so — deliberately there
+          rather than here, so this heading can be about what the tool does. */}
       <section
         id="analyze"
         className="border-t border-white/[0.07] py-14 sm:py-16"
@@ -175,19 +177,15 @@ export default function MovementLabPage() {
             Bring your own clip
           </span>
           <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
-            Analyze a movement{" "}
-            <span className="text-gradient">video.</span>
+            Watch a pose model take your{" "}
+            <span className="text-gradient">clip apart.</span>
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
-            Drop in a short walking clip and watch it become a temporal
-            movement signal — a real frame-by-frame analysis that runs in your
-            browser, not a simulation.
-          </p>
-          <p className="mt-3 max-w-2xl text-[13px] leading-relaxed text-soft-mute">
-            This measures motion from the frames themselves: intensity over
-            time, where the movement is in frame, how it travels. It does not
-            run GaitAI&apos;s pose model, so it locates no joints and produces
-            no gait or clinical measures — the panels say so where that matters.
+            Drop in a movement clip and a real pose model runs on it in your
+            browser — 33 body landmarks per sampled instant, joint
+            trajectories, the body&apos;s path through the frame, and the
+            temporal channels that make up its Motion DNA. Your file never
+            leaves the device.
           </p>
 
           <div className="mt-10">

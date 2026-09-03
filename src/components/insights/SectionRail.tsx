@@ -10,11 +10,20 @@ import styles from "./journal.module.css";
  * Two presentations of the same list, because the two contexts want different
  * things:
  *
- *   desktop  a sticky rail beside the column, showing every section by its
- *            short label with the current one lit, plus a hairline that fills
- *            as the reader moves through the essay
- *   mobile   a sticky horizontal scroller under the header, which is the only
- *            shape that fits and still says where you are
+ *   desktop  a rail beside the column, showing every section by its short
+ *            label with the current one lit, plus a hairline that fills as
+ *            the reader moves through the essay
+ *   mobile   a horizontal scroller under the 2-minute version, which is the
+ *            only shape that fits and still says where you are
+ *
+ * NEITHER IS PINNED. Both sat in the viewport for the whole article — the
+ * desktop rail on `site-sticky-below-header`, the mobile strip on its own
+ * `position: sticky` — so a table of contents followed a reader who had
+ * already used it, down eight sections of an essay. They are in normal flow
+ * now: they start beside the article, they move with it, and they leave the
+ * viewport and stay gone. Nothing else changes; the observer below still
+ * lights the section being read for as long as the rail is on screen, and
+ * the anchors keep working after it is not.
  *
  * Labels come from each section's `navLabel` — "Signal", "Pose", "Fusion" —
  * rather than its sentence-length title, which is what makes a rail readable.
@@ -83,10 +92,7 @@ export function SectionRail({
   }
 
   return (
-      <nav
-        aria-label="Sections"
-        className={`${styles.rail} site-sticky-below-header`}
-      >
+      <nav aria-label="Sections" className={styles.rail}>
         <p className={styles.railLabel}>In this article</p>
         <ol className={styles.railList}>
           {sections.map((section, i) => (

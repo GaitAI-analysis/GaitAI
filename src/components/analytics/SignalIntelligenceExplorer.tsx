@@ -113,7 +113,12 @@ export function SignalIntelligenceExplorer() {
         families === "securevision" ? styles.famSecure : styles.famCare
       }`}
     >
-      {/* ── INPUT ── */}
+      {/* ── INPUT ──
+          Six labelled panels in a grid are a layout before they are a
+          control, so one line names the act. The instruction below the rail
+          already explains the second-level selection; this one is about the
+          first choice a reader has to make. */}
+      <p className="ix-hint mb-3">Choose a capture source to trace</p>
       <div className={styles.inputs} role="group" aria-label="Capture source">
         {CAPTURE_SOURCES.map((item) => {
           const on = item.id === source;

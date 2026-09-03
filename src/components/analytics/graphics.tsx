@@ -281,12 +281,22 @@ export function GaitCycleTimeline({
       </svg>
 
       {/* The events as real buttons under the drawing, so the timeline is
-          operable without hovering an SVG group. */}
+          operable without hovering an SVG group.
+
+          The hint earns its place: a row of five numbered event names under a
+          stick-figure drawing gives a reader no reason to think the drawing
+          answers to it. One line, once, above the controls — and only when
+          the timeline is actually operable, because a call site that passes no
+          `onSelect` renders it as a read-only drawing. */}
+      {onSelect && (
+        <p className="ix-hint mb-2 mt-1">Select an event to hold the stride there</p>
+      )}
       <div className={styles.chips}>
         {PHASE_LABELS.map((label, i) => (
           <button
             key={label}
             type="button"
+            disabled={!onSelect}
             aria-pressed={activeIndex === i}
             onClick={() => onSelect?.(i)}
             className={`${styles.chip} ${activeIndex === i ? styles.chipOn : ""}`}

@@ -47,7 +47,13 @@ export function PublicationListItem({
       </div>
 
       <div className="relative min-w-0 flex-1">
-        <h3 className="font-display text-base font-semibold leading-snug text-soft-white transition-colors group-hover:text-cyan-100 sm:text-[1.1rem]">
+        {/* The row is the link (see `row-surface` above), so the title is a
+            heading and not a second anchor. It still needs a resting cue: a
+            citation row is dense with type, and a title distinguishable only
+            by being white looks like every other heading on the site. A
+            hairline accent underline at rest, filled in when the row is
+            pointed at, is how a reference in a paper says the same thing. */}
+        <h3 className="font-display text-base font-semibold leading-snug text-soft-white underline decoration-cyan-300/30 decoration-1 underline-offset-4 transition-colors group-hover:text-cyan-100 group-hover:decoration-cyan-300/80 sm:text-[1.1rem]">
           {publication.title}
         </h3>
 

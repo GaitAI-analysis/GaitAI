@@ -91,7 +91,7 @@ export function Footer() {
                   aria-label={label}
                   target={href.startsWith("http") ? "_blank" : undefined}
                   rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="grid h-9 w-9 place-items-center rounded-full glass transition-all hover:border-cyan-300/40 hover:text-cyan-300 hover:shadow-glow-cyan"
+                  className="grid h-9 w-9 place-items-center rounded-full glass transition-all hover:border-cyan-300/40 hover:text-cyan-300 hover:shadow-glow-cyan active:scale-95 touch:h-11 touch:w-11"
                 >
                   <Icon aria-hidden="true" className="h-4 w-4" />
                 </Link>
@@ -113,7 +113,7 @@ export function Footer() {
                     <li key={item.label}>
                       <Link
                         href={item.href}
-                        className="text-sm text-soft-mute transition-colors hover:text-soft-white"
+                        className="inline-block text-sm text-soft-mute underline decoration-transparent decoration-1 underline-offset-4 transition-colors hover:text-soft-white hover:decoration-cyan-300/60 touch:py-1.5"
                       >
                         {item.label}
                       </Link>
@@ -145,7 +145,7 @@ export function Footer() {
               <Link
                 key={l.label}
                 href={l.href}
-                className="transition-colors hover:text-soft-white"
+                className="underline decoration-transparent decoration-1 underline-offset-4 transition-colors hover:text-soft-white hover:decoration-cyan-300/60"
               >
                 {l.label}
               </Link>

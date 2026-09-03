@@ -241,17 +241,38 @@
   transition: border-color 0.3s var(--an-ease), color 0.3s var(--an-ease),
     background-color 0.3s var(--an-ease);
 }
-.chip:hover {
-  border-color: var(--an-line-mid);
+/* HOVER takes a surface as well as a border: a border-only change is the 1px
+   difference the interaction system rules out. */
+.chip:hover:not(:disabled) {
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
   color: var(--an-ink);
 }
-.chipOn {
-  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
-  background: rgb(79 209 255 / 0.08);
-  color: var(--an-ink);
+.chip:active:not(:disabled) {
+  transform: translateY(0.5px);
 }
-:global(.light) .chipOn {
-  background: rgb(37 99 255 / 0.07);
+/* SELECTED is the accent at full strength plus a weight change, so it does
+   not depend on colour alone and stays ahead of hover. */
+.chipOn,
+.chipOn:hover {
+  border-color: var(--an-accent, rgb(79 209 255));
+  background: rgb(79 209 255 / 0.12);
+  color: var(--an-ink);
+  font-weight: 500;
+}
+:global(.light) .chipOn,
+:global(.light) .chipOn:hover {
+  background: rgb(37 99 255 / 0.09);
+}
+
+/* TOUCH — a 29px pill in a horizontal scroller is a miss waiting to happen. */
+@media (pointer: coarse) {
+  .chip {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.95rem;
+  }
 }
 .chipCount {
   margin-left: 0.4rem;
@@ -272,34 +293,117 @@
   outline-offset: 2px;
 }
 
-/* Segmented tabs — mode switches (family, MobilityCare / SecureVision). */
+/* --------------------------------------------------------------------------
+   Segmented tabs — mode switches (family, capture source, MobilityCare /
+   SecureVision).
+
+   These four words used to read as a caption: no track worth seeing, mono
+   type at 9.5px in the muted colour, and a "selected" state that was a flat
+   grey wash — the same neutral the hover used. On the home page that made the
+   site's single most important interaction look like a row of labels sitting
+   above a diagram.
+
+   The rebuild keeps every one of those typographic decisions and changes only
+   the things that carry the affordance: the track is now visibly a track, the
+   resting label is readable rather than muted, hover takes a real surface,
+   and SELECTED is the accent — border, tint and ink — so it is never the same
+   thing as HOVER. It is still a hairline switch, not a row of buttons.
+   -------------------------------------------------------------------------- */
+
+/* The wrapper exists only when there is a hint above the control. inline-grid
+   so it hugs the tablist and keeps working inside the flex rows the five call
+   sites put it in. */
+.segmented {
+  display: inline-grid;
+  gap: 0.55rem;
+  justify-items: start;
+}
+.segmentedHint {
+  padding-left: 0.15rem;
+}
+
 .tabs {
   display: inline-flex;
-  gap: 1px;
-  padding: 2px;
-  border: 1px solid var(--an-line);
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--an-line-mid);
   border-radius: 999px;
   background: var(--an-surface-2);
+  /* An inset top edge is what makes a pill read as a recessed track rather
+     than as a rounded rectangle drawn around some words. */
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.22);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+:global(.light) .tabs {
+  box-shadow: inset 0 1px 2px rgb(15 23 42 / 0.07);
+}
+
 .tab {
-  border: 0;
+  flex: none;
+  border: 1px solid transparent;
   border-radius: 999px;
   background: transparent;
-  padding: 0.4rem 0.95rem;
+  padding: 0.48rem 0.95rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 9.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--an-mute);
+  white-space: nowrap;
+  /* Readable at rest. A control whose label is the muted colour is a label. */
+  color: var(--an-body);
   cursor: pointer;
-  transition: color 0.3s var(--an-ease), background-color 0.3s var(--an-ease);
+  transition: color 0.25s var(--an-ease), background-color 0.25s var(--an-ease),
+    border-color 0.25s var(--an-ease);
 }
+
+/* HOVER is mostly a SURFACE change with a quiet border. It has to be clearly
+   the lesser of the two states — a hover border as strong as the selected one
+   is how a segmented control stops telling you what is chosen. */
 .tab:hover {
   color: var(--an-ink);
+  background: var(--interactive-hover-bg);
+  border-color: rgb(148 163 184 / 0.22);
 }
-.tabOn {
-  background: rgb(148 163 184 / 0.12);
+:global(.light) .tab:hover {
+  border-color: rgb(15 23 42 / 0.16);
+}
+
+/* SELECTED — the family accent at full strength, a tint behind it and a
+   weight change, and it outranks hover in both directions so the live
+   segment is never in doubt while the pointer is somewhere else. */
+.tabOn,
+.tabOn:hover {
+  background: var(--interactive-selected-bg);
+  border-color: var(--an-accent, rgb(79 209 255));
   color: var(--an-ink);
+  font-weight: 500;
+  box-shadow: 0 0 0 1px var(--an-accent-soft, rgb(79 209 255 / 0.32));
+}
+
+/* PRESSED — a tap has to land somewhere. */
+.tab:active {
+  transform: translateY(0.5px);
+}
+
+/* TOUCH — the pill keeps its typographic size; the target grows. */
+@media (pointer: coarse) {
+  .tab {
+    min-height: 40px;
+    padding-inline: 1.05rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .tab:active {
+    transition: none;
+    transform: none;
+  }
 }
 
 /* Numbered step header for the configurator. */
@@ -535,6 +639,12 @@
   background: var(--an-surface-2);
   border-right: 1px solid var(--an-line);
 }
+/* A row header is TYPE, not a control. It carried `cursor: pointer` while
+   every call site renders it as a plain <span> or <dt> with no handler — a
+   pointer cursor over static text is the affordance system lying, and two
+   call sites had already papered over it with `!cursor-default`. The hover
+   tint stays: brightening the row label you are reading across is a reading
+   aid, and with the arrow cursor back it no longer promises a click. */
 .rowHead {
   display: block;
   width: 100%;
@@ -545,7 +655,6 @@
   font-size: 0.75rem;
   line-height: 1.35;
   color: var(--an-body);
-  cursor: pointer;
 }
 .rowHead:hover,
 .rowHeadOn {
@@ -559,6 +668,18 @@
   background: transparent;
   padding: 0.55rem 0.3rem;
   cursor: pointer;
+  transition: background-color 0.2s var(--an-ease);
+}
+/* Each cell IS a button, and until now it had no hover at all: a 9px mark in
+   a 17-column grid gave a reader no reason to believe the grid answered to
+   them. HOVER lifts the cell, SELECTED stays a step past it. */
+.cell:hover {
+  background: var(--interactive-hover-bg);
+}
+.cell:hover .cellInner {
+  outline: 1px solid var(--interactive-hover-border);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 .cellInner {
   display: block;
@@ -634,11 +755,22 @@
   transition: border-color 0.35s var(--an-ease), background-color 0.35s var(--an-ease);
 }
 .stage:hover {
-  border-color: var(--an-line-mid);
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
 }
-.stageOn {
-  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
-  background: rgb(79 209 255 / 0.06);
+.stage:active {
+  transform: translateY(0.5px);
+}
+.stageOn,
+.stageOn:hover {
+  border-color: var(--an-accent, rgb(79 209 255));
+  background: rgb(79 209 255 / 0.08);
+  /* The selected stage also carries a filled index marker — see .stageIndex
+     under .stageOn — so the rail does not rely on tint alone. */
+}
+.stageOn .stageIndex {
+  color: var(--an-accent, var(--an-cyan));
+  font-weight: 600;
 }
 :global(.light) .stageOn {
   background: rgb(37 99 255 / 0.05);
@@ -989,6 +1121,13 @@
     transform: none;
   }
   .module:hover .moduleGoArrow {
+    transform: none;
+  }
+  /* The press settles are motion too — a 0.5px nudge is small enough to be
+     harmless and small enough not to be worth an exception. */
+  .chip:active,
+  .stage:active,
+  .tab:active {
     transform: none;
   }
 }

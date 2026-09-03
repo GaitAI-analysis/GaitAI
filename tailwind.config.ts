@@ -193,7 +193,29 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    /**
+     * `touch:` — a media variant for coarse pointers.
+     *
+     * Touch targets are part of the interaction system, and the parts of it
+     * that live in CSS modules can say `@media (pointer: coarse)` directly.
+     * The parts written in Tailwind could not, which is why several controls
+     * on the site were sized for a cursor and never for a thumb. Now:
+     *
+     *   className="h-8 touch:h-11"
+     *
+     * Deliberately `pointer: coarse` and not a width breakpoint: a small
+     * window on a desktop still has a mouse, and a large tablet still has a
+     * finger — the input device is the thing that decides target size.
+     */
+    ({
+      addVariant,
+    }: {
+      addVariant: (name: string, definition: string) => void;
+    }) => {
+      addVariant("touch", "@media (pointer: coarse)");
+    },
+  ],
 };
 
 export default config;

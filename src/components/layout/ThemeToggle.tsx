@@ -12,16 +12,29 @@ export function ThemeToggle() {
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    return <div className="h-9 w-9 rounded-full glass" aria-hidden />;
+    /* Same box as the real control, touch sizing included, so mounting the
+       toggle never nudges the header. */
+    return <div className="ix-hit-box h-9 w-9 rounded-full glass" aria-hidden />;
   }
 
   const isDark = theme === "dark";
 
   return (
+    /* The label says what the press will DO, not what the control is: "toggle
+       theme" leaves a screen-reader user to guess which theme they are in.
+       `.ix-hit-box` keeps the 36px box on a mouse and grows it to 44px on a
+       touch device, where the header has the room — the pseudo-element trick
+       cannot be used here because this button clips its own overflow for the
+       icon swap, which would clip the enlarged target away with it.
+
+       No aria-pressed: this is not an on/off state, it is a choice between
+       two named modes, and the label carries which one is next. */
     <button
+      type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      aria-label="Toggle theme"
-      className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-full glass transition-all duration-300 hover:border-white/20 hover:shadow-glow"
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      title={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      className="ix-hit-box relative grid h-9 w-9 place-items-center overflow-hidden rounded-full glass transition-all duration-300 hover:border-white/20 hover:shadow-glow active:scale-95"
     >
       <AnimatePresence mode="wait" initial={false}>
         {isDark ? (

@@ -569,16 +569,39 @@
   color: var(--obs-cyan);
 }
 @media (min-width: 1024px) {
+  /* On desktop the index becomes a rule-separated list, and the selected row
+     used to say so with nothing but a 1px cyan bottom border and an ink
+     title — which is precisely what :hover already did. A hovered pillar and
+     the open one looked the same. The open one now carries a persistent
+     accent bar down its left edge and an accent index, neither of which
+     hover ever takes. */
   .emapTabActive {
-    background-color: transparent;
+    background-color: rgb(79 209 255 / 0.04);
     border-bottom-color: var(--obs-cyan-soft);
+    box-shadow: inset 2px 0 0 var(--obs-cyan);
+    padding-left: 0.7rem;
   }
   .emapTabActive .emapTabTitle {
     color: var(--obs-ink);
   }
+  .emapTabActive .emapTabIndex {
+    color: var(--obs-cyan);
+  }
 }
+/* HOVER is a surface lift on an unselected row, and nothing at all on the
+   selected one — pointing at what is already open should not restate it. */
 .emapTab:hover .emapTabTitle {
   color: var(--obs-ink);
+}
+.emapTab:hover:not(.emapTabActive) {
+  background-color: var(--interactive-hover-bg);
+  border-color: var(--interactive-hover-border);
+}
+@media (min-width: 1024px) {
+  .emapTab:hover:not(.emapTabActive) {
+    border-color: transparent;
+    border-bottom-color: var(--obs-line);
+  }
 }
 .emapTab:focus-visible {
   outline: 2px solid var(--obs-cyan-soft);
@@ -2262,6 +2285,37 @@
    ========================================================================= */
 
 .lab {
+  /* ── HERO COMPONENT TOKENS ──
+     The hero is a technical drawing, and a drawing's legibility lives in
+     opacity as much as in hue. On black, a cyan hairline at 30% is a clear
+     measurement; on paper the same hairline is a smudge, so the light branch
+     needs its own STRENGTHS, not just its own colours — which is why these
+     are tokens rather than two sets of rules.
+
+     Dark values below are the approved literals, transcribed. */
+  --research-pose: var(--obs-cyan);
+  --research-pose-muted: 0.45;
+  --research-joint-op: 0.9;
+  --research-frame-gain: 1;
+  --research-grid: rgb(148 163 184 / 0.3);
+  --research-grid-soft: rgb(148 163 184 / 0.09);
+  --research-trajectory: 0.3;
+  --research-trajectory-lead: 0.46;
+  --research-trajectory-node: 0.65;
+  --research-signal: 0.55;
+  --research-leader: 0.28;
+  --research-label: var(--obs-mute);
+  --research-label-op: 0.48;
+  --research-frameid-op: 0.5;
+  --research-contact: 0.14;
+  --research-stem: 0.22;
+  --research-cell-fill: rgb(148 163 184 / 0.07);
+  --research-cell-line: rgb(148 163 184 / 0.14);
+  --research-cell-base: rgb(148 163 184 / 0.16);
+  --research-cell-lit-fill: rgb(79 209 255 / 0.22);
+  --research-cell-lit-line: rgb(79 209 255 / 0.34);
+  --research-cell-dot-lit: rgb(79 209 255 / 0.55);
+
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2306,15 +2360,49 @@
   stop-color: #6d34c9;
 }
 
+/* ── LIGHT BRANCH ──
+   A pale research canvas with a cool-gray grid, a deeper cyan skeleton and
+   annotations dark enough to read as annotations. The gain multiplies the
+   per-frame ramp the component sets, so the sequence keeps its hierarchy
+   (focal frame strongest, outer frames subdued) while every frame clears the
+   paper. `min()` caps it, so the focal frame stays exactly 1. */
+:global(.light) .lab {
+  /* A deeper cyan than the page's --obs-cyan: the skeleton is the subject of
+     the drawing and has to hold its own against paper, where the section
+     accents only have to hold against body copy. */
+  --research-pose: #0c7ea8;
+  --research-pose-muted: 0.6;
+  --research-joint-op: 1;
+  --research-frame-gain: 1.45;
+  --research-grid: rgb(51 65 85 / 0.26);
+  --research-grid-soft: rgb(51 65 85 / 0.14);
+  --research-trajectory: 0.5;
+  --research-trajectory-lead: 0.68;
+  --research-trajectory-node: 0.8;
+  --research-signal: 0.75;
+  --research-leader: 0.42;
+  --research-label: rgb(15 23 42 / 0.78);
+  --research-label-op: 0.75;
+  --research-frameid-op: 0.72;
+  --research-contact: 0.2;
+  --research-stem: 0.34;
+  --research-cell-fill: rgb(51 65 85 / 0.06);
+  --research-cell-line: rgb(51 65 85 / 0.2);
+  --research-cell-base: rgb(51 65 85 / 0.26);
+  --research-cell-lit-fill: rgb(14 126 168 / 0.2);
+  --research-cell-lit-line: rgb(14 126 168 / 0.5);
+  --research-cell-dot-lit: rgb(14 126 168 / 0.75);
+}
+
 /* ── Surveyed ground ── */
 .labGrid line {
-  stroke: rgb(148 163 184 / 0.3);
+  stroke: var(--research-grid);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 
 .labGridSoft {
-  stroke: rgb(148 163 184 / 0.09) !important;
+  stroke: var(--research-grid-soft) !important;
   stroke-dasharray: 2 10;
 }
 
@@ -2331,7 +2419,7 @@
    `calc()` ramp made every figure equally unremarkable and left the middle
    of the sequence too faint to recognise at normal zoom. */
 .labFrame {
-  opacity: var(--l-op, 0.6);
+  opacity: min(1, calc(var(--l-op, 0.6) * var(--research-frame-gain)));
 }
 
 /* The focal frame is the measurement. Slightly heavier bones and brighter
@@ -2355,7 +2443,7 @@
 
 .labBone {
   fill: none;
-  stroke: var(--obs-cyan);
+  stroke: var(--research-pose);
   stroke-width: 1.85;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -2363,18 +2451,18 @@
 }
 
 .labBoneFar {
-  opacity: 0.45;
+  opacity: var(--research-pose-muted);
   stroke-width: 1.2;
 }
 
 .labJoint {
-  fill: var(--obs-cyan);
-  opacity: 0.9;
+  fill: var(--research-pose);
+  opacity: var(--research-joint-op);
 }
 
 .labHead {
   fill: rgb(var(--c-obsidian-300) / 0.85);
-  stroke: var(--obs-cyan);
+  stroke: var(--research-pose);
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
@@ -2383,16 +2471,16 @@
 }
 
 .labContact {
-  fill: var(--obs-cyan);
-  opacity: 0.14;
+  fill: var(--research-pose);
+  opacity: var(--research-contact);
 }
 
 .labFrameId {
-  fill: var(--obs-mute);
+  fill: var(--research-label);
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.18em;
-  opacity: 0.5;
+  opacity: var(--research-frameid-op);
 }
 
 /* ── Joint trajectories ── */
@@ -2403,21 +2491,21 @@
   stroke: var(--obs-cyan);
   stroke-width: 1;
   stroke-linecap: round;
-  opacity: 0.3;
+  opacity: var(--research-trajectory);
   vector-effect: non-scaling-stroke;
 }
 /* The ankle path is the one a gait study reads first — the swing arc — so it
    carries a little more weight than the trunk and pelvis curves above it. */
 .labTrajPath:nth-of-type(3) {
   stroke-width: 1.3;
-  opacity: 0.46;
+  opacity: var(--research-trajectory-lead);
 }
 
 .labTrajNodes circle {
   fill: none;
   stroke: var(--obs-cyan);
   stroke-width: 1.2;
-  opacity: 0.65;
+  opacity: var(--research-trajectory-node);
   vector-effect: non-scaling-stroke;
 }
 
@@ -2427,7 +2515,7 @@
   stroke: url(#lab-signal);
   stroke-width: 1.5;
   stroke-linecap: round;
-  opacity: 0.55;
+  opacity: var(--research-signal);
   vector-effect: non-scaling-stroke;
 }
 
@@ -2435,7 +2523,7 @@
   stroke: var(--obs-cyan);
   stroke-width: 1;
   stroke-dasharray: 1.5 5;
-  opacity: 0.22;
+  opacity: var(--research-stem);
   vector-effect: non-scaling-stroke;
 }
 
@@ -2453,17 +2541,17 @@
   stroke: var(--obs-cyan);
   stroke-width: 1;
   stroke-dasharray: 2 4;
-  opacity: 0.28;
+  opacity: var(--research-leader);
   vector-effect: non-scaling-stroke;
 }
 
 .labNoteText {
-  fill: var(--obs-mute);
+  fill: var(--research-label);
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 9.5px;
   font-weight: 500;
   letter-spacing: 0.24em;
-  opacity: 0.48;
+  opacity: var(--research-label-op);
 }
 
 /* ── The focal measurement: knee flexion on the swing frame ──
@@ -2527,14 +2615,14 @@
   stroke-dasharray: 2 5;
 }
 .labInstrCell {
-  fill: rgb(148 163 184 / 0.07);
-  stroke: rgb(148 163 184 / 0.14);
+  fill: var(--research-cell-fill);
+  stroke: var(--research-cell-line);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 .labInstrCellLit {
-  fill: rgb(79 209 255 / 0.22);
-  stroke: rgb(79 209 255 / 0.34);
+  fill: var(--research-cell-lit-fill);
+  stroke: var(--research-cell-lit-line);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
@@ -2542,10 +2630,10 @@
   fill: rgb(148 163 184 / 0.3);
 }
 .labInstrLit {
-  fill: rgb(79 209 255 / 0.55);
+  fill: var(--research-cell-dot-lit);
 }
 .labInstrBase {
-  stroke: rgb(148 163 184 / 0.16) !important;
+  stroke: var(--research-cell-base) !important;
 }
 .labInstrWave {
   fill: none;

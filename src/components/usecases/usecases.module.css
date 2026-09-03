@@ -378,6 +378,31 @@
   border: 1px solid rgb(var(--c-soft-white) / 0.16);
   font-size: 12px;
   line-height: 1;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* The +/− ring is what says "this expands", so it reacts too. */
+.toggle:hover .toggleMark {
+  border-color: rgb(var(--c-soft-white) / 0.4);
+  background: var(--interactive-hover-bg);
+}
+
+/* TOUCH — both actions are 11px uppercase rows; the targets reach 44px
+   without changing a single typographic value. */
+@media (pointer: coarse) {
+  .toggle,
+  .explore {
+    min-height: var(--interactive-touch-target);
+  }
+  .actions {
+    gap: 0.5rem 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggleMark {
+    transition: none;
+  }
 }
 
 .explore {
@@ -469,10 +494,15 @@
   color: rgb(var(--c-soft-mute));
 }
 
+.search:hover {
+  border-color: var(--interactive-hover-border);
+}
+
 .search:focus {
   outline: none;
   border-color: rgb(79 209 255 / 0.45);
   background: rgb(var(--c-soft-white) / 0.05);
+  box-shadow: 0 0 0 3px var(--interactive-focus-ring-soft);
 }
 
 .familyTabs {
@@ -540,14 +570,58 @@
 }
 
 .facetChip:hover {
-  border-color: rgb(var(--c-soft-white) / 0.2);
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
   color: rgb(var(--c-soft-white));
 }
 
-.facetChipOn {
-  border-color: rgb(167 139 250 / 0.5);
-  background: rgb(167 139 250 / 0.12);
+.facetChip:active {
+  transform: translateY(0.5px);
+}
+
+/* SELECTED outranks hover in both directions and carries a weight change as
+   well as the violet, so it never depends on colour alone. */
+.facetChipOn,
+.facetChipOn:hover {
+  border-color: rgb(167 139 250 / 0.7);
+  background: rgb(167 139 250 / 0.14);
   color: rgb(var(--c-soft-white));
+  font-weight: 600;
+}
+
+.familyTab:active {
+  transform: translateY(0.5px);
+}
+
+.familyTabOn,
+.familyTabOn:hover {
+  border-color: rgb(79 209 255 / 0.6);
+  background: rgb(79 209 255 / 0.12);
+}
+
+/* TOUCH — a 22px facet pill and a 28px family tab are not thumb targets. The
+   type does not change; the boxes reach a comfortable height and the rows
+   gain space between them. */
+@media (pointer: coarse) {
+  .facetChip,
+  .familyTab {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.95rem;
+  }
+
+  .chipsRow,
+  .familyTabs {
+    gap: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .facetChip:active,
+  .familyTab:active {
+    transform: none;
+  }
 }
 
 .search:focus-visible,
@@ -650,14 +724,16 @@
     transparent 100%
   );
   padding: 0.95rem 1rem 1rem;
-  transition:
-    border-color 0.3s ease,
-    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Static card: an audience is described here, not opened. Border only. */
+/* A static card: an audience is DESCRIBED here, not opened. It used to lift
+   and take a cyan border, which is the exact treatment every clickable card
+   on the site uses — the lift is gone, and the border that stays is neutral
+   rather than the accent. So the hover reads as "this is the one you are
+   reading" and never as "this opens", and no pointer cursor promises a click
+   that does not exist. */
 .audienceCard:hover {
-  border-color: rgb(79 209 255 / 0.3);
+  border-color: var(--interactive-hover-border);
 }
 
 /* No icon tile: the title is the card's first element, so it carries no

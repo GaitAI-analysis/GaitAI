@@ -197,7 +197,14 @@ export function ProductGrid({ vertical, initialFilter }: ProductGridProps) {
       <Suspense fallback={null}>
         <FilterUrlSync onFilter={syncFromUrl} />
       </Suspense>
-      <div className="mb-8 flex flex-wrap items-center gap-2">
+      {/* A single-select filter row is a group, and it was an unnamed one —
+          nothing told a screen reader that these pills belong together or
+          what they act on. */}
+      <div
+        role="group"
+        aria-label="Filter products by capability"
+        className="mb-8 flex flex-wrap items-center gap-2 touch:gap-2.5"
+      >
         <FilterPill
           label={`All · ${products.length}`}
           active={active === "all"}
@@ -255,11 +262,13 @@ function FilterPill({
 }) {
   return (
     <button
+      type="button"
+      aria-pressed={active}
       onClick={onClick}
-      className={`relative rounded-full border px-4 py-1.5 text-xs font-medium transition-all ${
+      className={`relative inline-flex items-center rounded-full border px-4 py-1.5 text-xs font-medium transition-all active:translate-y-px touch:min-h-10 touch:px-5 ${
         active
-          ? "border-cyan-300/50 bg-cyan-300/10 text-cyan-200 shadow-[0_0_24px_-6px_rgba(79,209,255,0.5)]"
-          : "border-white/8 bg-white/[0.02] text-soft-mute hover:border-white/20 hover:text-soft-white"
+          ? "border-cyan-300/60 bg-cyan-300/12 font-semibold text-cyan-200 shadow-[0_0_24px_-6px_rgba(79,209,255,0.5)]"
+          : "border-white/8 bg-white/[0.02] text-soft-mute hover:border-white/25 hover:bg-white/[0.06] hover:text-soft-white"
       }`}
     >
       {label}

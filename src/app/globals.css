@@ -14,14 +14,107 @@
   --site-page-intro-space-compact: 2.375rem;
   --site-page-intro-space-roomy: 4.375rem;
 
-  /* Semantic legacy tokens (used by body / .glass / .pill / etc.) */
-  --bg: #070b14;
-  --bg-elev: #0e1322;
-  --surface: #111827;
-  --border: rgba(148, 163, 184, 0.12);
+  /* ═══════════════════════════════════════════════════════════════════════
+     THE THEME BRANCH POINT — DARK BRANCH
+     ─────────────────────────────────────────────────────────────────────────
+     One page, one DOM, one set of components; two branches of values. Every
+     token below is the CURRENT rendered dark value, transcribed rather than
+     reinterpreted — the dark branch is approved and this block exists to
+     reproduce it exactly, not to improve it. The light branch is in
+     `:root.light` and is designed for light on its own terms; the two never
+     compromise on a single "works in both" colour.
+
+     Components read the semantic names. The older short names below
+     (`--bg`, `--surface`, `--text`, …) are kept as ALIASES of these, so the
+     several hundred rules already written against them now flow from this
+     branch point with identical computed values instead of being a second,
+     parallel source of truth.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Ground and surfaces */
+  --page-bg: #070b14;
+  --surface-primary: #111827;
+  --surface-secondary: rgba(255, 255, 255, 0.04);
+  --surface-elevated: #0e1322;
+
+  /* Type */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  /* Lines. `--border-strong` is the shared name for both branches. */
+  --border-subtle: rgba(148, 163, 184, 0.12);
   --border-strong: rgba(148, 163, 184, 0.22);
-  --text: #f8fafc;
-  --text-mute: #94a3b8;
+
+  /* Product families — one accent per meaning, never mixed */
+  --mobility-accent: #2dd4bf;
+  --mobility-soft: rgb(45 212 191 / 0.12);
+  --secure-accent: #9c64f1;
+  --secure-soft: rgb(156 100 241 / 0.12);
+
+  /* Technical drawing: the vocabulary every instrument visual draws with */
+  --research-line: rgb(148 163 184 / 0.16);
+  --technical-grid: rgb(148 163 184 / 0.055);
+  --trajectory: #4fd1ff;
+  --chart-grid: rgba(148, 163, 184, 0.08);
+
+  /* Chrome */
+  --nav-bg: linear-gradient(180deg, var(--glass-bg-a) 0%, var(--glass-bg-b) 100%);
+  --dropdown-bg: rgb(var(--c-obsidian-200) / 0.95);
+  --dropdown-border: rgb(255 255 255 / 0.1);
+  --input-bg: rgb(var(--c-obsidian-200) / 0.7);
+
+  /* Elevation */
+  --shadow-soft: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  --shadow-dropdown: 0 24px 70px -20px rgba(0, 0, 0, 0.8);
+
+  /* ── GaitScape graph (component tokens) ──
+     The graph is a drawing, not a page: its canvas, hairlines, labels and one
+     colour per node CATEGORY all branch together, so `GaitscapeExplorer`
+     hands the DOM `var(--graph-node-signal)` and never a hex. */
+  --graph-bg:
+    radial-gradient(38% 34% at 50% 46%, rgb(231 211 160 / 0.045), transparent 70%),
+    radial-gradient(36% 52% at 15% 52%, rgb(94 234 212 / 0.035), transparent 72%),
+    radial-gradient(36% 52% at 85% 52%, rgb(139 156 246 / 0.04), transparent 72%),
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgb(37 99 255 / 0.05), transparent 72%),
+    linear-gradient(180deg, rgb(6 12 24 / 0.96), rgb(4 8 17 / 0.99));
+  --graph-frame: rgb(255 255 255 / 0.08);
+  --graph-edge: rgb(126 165 220 / 0.13);
+  --graph-edge-muted: rgb(126 165 220 / 0.22);
+  --graph-label: rgb(203 213 225 / 0.85);
+  --graph-label-major: rgb(233 240 250 / 0.95);
+  --graph-label-halo: rgb(4 8 17 / 0.88);
+  --graph-control-bg: rgb(var(--c-obsidian-200) / 0.85);
+  --graph-focus: #f8fafc;
+  --graph-shadow: 0 24px 70px -30px rgb(0 0 0 / 0.8);
+  --graph-shadow-sm: 0 16px 44px -18px rgb(0 0 0 / 0.7);
+
+  --graph-node-core: #e7d3a0;
+  --graph-node-mobility: #5eead4;
+  --graph-node-secure: #8b9cf6;
+  --graph-node-product: #5b9df5;
+  --graph-node-signal: #4fd1ff;
+  --graph-node-capability: #6d7ef0;
+  --graph-node-domain: #6fc3c3;
+  --graph-node-research: #d9c08c;
+  --graph-node-outcome: #b9a7f2;
+
+  /* ── Home hero: the WebGL scene's wrapper opacity ──
+     The scene is additive line art. At 29% it is atmosphere behind the
+     headline on black; on paper the same 29% is a watermark, so the light
+     branch lifts it. (The scene's own colours branch in HeroScene.tsx —
+     WebGL cannot read a custom property.) */
+  --hero-scene-opacity: 0.29;
+
+  /* Aliases — the short names the existing rules already use. Same value,
+     one owner. */
+  --bg: var(--page-bg);
+  --bg-elev: var(--surface-elevated);
+  --surface: var(--surface-primary);
+  --border: var(--border-subtle);
+  --text: var(--text-primary);
+  --text-mute: var(--text-muted);
   --royal: #2563ff;
   --violet: #7c3aed;
   --cyan: #4fd1ff;
@@ -49,24 +142,105 @@
   --pill-bg-b: rgba(255, 255, 255, 0.02);
   --card-bg-a: rgba(17, 24, 39, 0.7);
   --card-bg-b: rgba(11, 17, 30, 0.7);
-  --card-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
-    0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  --card-shadow: var(--shadow-soft);
   --card-glow-hover: 0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
     0 30px 60px -30px rgba(37, 99, 255, 0.4),
     0 0 80px -20px rgba(79, 209, 255, 0.35);
   --divider: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.25), transparent);
-  --grid-line: rgba(148, 163, 184, 0.08);
+  --grid-line: var(--chart-grid);
   --noise-opacity: 0.04;
 }
 
+/* ═════════════════════════════════════════════════════════════════════════
+   THE THEME BRANCH POINT — LIGHT BRANCH
+   ───────────────────────────────────────────────────────────────────────────
+   Designed for light, not derived by inverting dark. Two things drive it:
+
+   1. A COOL PAPER GROUND, NOT WHITE. #f6f8fc under white cards gives cards
+      somewhere to sit, so elevation comes from the surface stack rather than
+      from heavy shadows.
+   2. ACCENTS ARE DEEPENED, NOT REUSED. #4fd1ff is a light on black; on paper
+      it is a pastel. Every accent drops to a value that carries ~4.5:1
+      against the page, which is why light has its own accent set instead of
+      the dark one at higher opacity.
+
+   Only the tokens change. No component branches, no duplicate page.
+   ═════════════════════════════════════════════════════════════════════════ */
 :root.light {
-  --bg: #f6f8fc;
-  --bg-elev: #ffffff;
-  --surface: #ffffff;
-  --border: rgba(15, 23, 42, 0.1);
+  /* Ground and surfaces — paper, then white cards, then a lifted white */
+  --page-bg: #f6f8fc;
+  --surface-primary: #ffffff;
+  --surface-secondary: rgba(15, 23, 42, 0.035);
+  --surface-elevated: #ffffff;
+
+  /* Type — near-black navy rather than pure black, so it belongs to the
+     brand rather than to the browser default */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #475569;
+
+  --border-subtle: rgba(15, 23, 42, 0.1);
   --border-strong: rgba(15, 23, 42, 0.18);
-  --text: #0f172a;
-  --text-mute: #475569;
+
+  /* Deepened product accents: the dark teal/violet read as pastel on paper */
+  --mobility-accent: #0d9488;
+  --mobility-soft: rgb(13 148 136 / 0.1);
+  --secure-accent: #5f25bf;
+  --secure-soft: rgb(95 37 191 / 0.09);
+
+  /* Technical drawing on paper: ink hairlines, a cool-gray grid, and a
+     trajectory dark enough to read as a measurement rather than a haze */
+  --research-line: rgb(15 23 42 / 0.14);
+  --technical-grid: rgb(51 65 85 / 0.075);
+  --trajectory: #0e7490;
+  --chart-grid: rgba(15, 23, 42, 0.06);
+
+  /* Chrome */
+  --dropdown-bg: rgb(255 255 255 / 0.98);
+  --dropdown-border: rgb(15 23 42 / 0.1);
+  --input-bg: #ffffff;
+
+  /* Elevation is the light branch's depth cue, so it is soft and cool —
+     never the dark branch's near-black drop shadow */
+  --shadow-soft: 0 1px 0 0 rgba(255, 255, 255, 1) inset,
+    0 20px 50px -25px rgba(15, 23, 42, 0.18);
+  --shadow-dropdown: 0 18px 50px -22px rgba(15, 23, 42, 0.22);
+
+  /* ── GaitScape graph, light branch ──
+     Not the dark canvas lightened: a cool blueprint ground a shade deeper
+     than the page, so the stage reads as an inset instrument rather than a
+     hole in the paper, with the same three ambient lifts under the core and
+     the two verticals. Hairlines become ink, labels get a white halo instead
+     of a black one, and every node colour drops to a value that survives a
+     15–27% fill on paper. */
+  --graph-bg:
+    radial-gradient(38% 34% at 50% 46%, rgb(154 116 32 / 0.07), transparent 70%),
+    radial-gradient(36% 52% at 15% 52%, rgb(13 148 136 / 0.07), transparent 72%),
+    radial-gradient(36% 52% at 85% 52%, rgb(79 70 200 / 0.07), transparent 72%),
+    radial-gradient(ellipse 60% 50% at 50% 40%, rgb(37 99 255 / 0.05), transparent 72%),
+    linear-gradient(180deg, #eef2f9, #e6ecf6);
+  --graph-frame: rgb(15 23 42 / 0.1);
+  --graph-edge: rgb(51 65 85 / 0.26);
+  --graph-edge-muted: rgb(51 65 85 / 0.36);
+  --graph-label: rgb(30 41 59 / 0.92);
+  --graph-label-major: rgb(15 23 42);
+  --graph-label-halo: rgb(255 255 255 / 0.92);
+  --graph-control-bg: rgb(255 255 255 / 0.92);
+  --graph-focus: #0f172a;
+  --graph-shadow: 0 24px 70px -34px rgb(15 23 42 / 0.3);
+  --graph-shadow-sm: 0 16px 44px -20px rgb(15 23 42 / 0.24);
+
+  --graph-node-core: #96701c;
+  --graph-node-mobility: #0d9488;
+  --graph-node-secure: #4a41c4;
+  --graph-node-product: #1d5fd0;
+  --graph-node-signal: #0e7490;
+  --graph-node-capability: #4340cb;
+  --graph-node-domain: #0f766e;
+  --graph-node-research: #8a6320;
+  --graph-node-outcome: #6d28d9;
+
+  --hero-scene-opacity: 0.5;
 
   --c-obsidian: 246 248 252;       /* page bg */
   --c-obsidian-50: 226 232 240;     /* slate-200 */
@@ -88,13 +262,10 @@
   --pill-bg-b: rgba(15, 23, 42, 0.02);
   --card-bg-a: rgba(255, 255, 255, 1);
   --card-bg-b: rgba(250, 251, 253, 1);
-  --card-shadow: 0 1px 0 0 rgba(255, 255, 255, 1) inset,
-    0 20px 50px -25px rgba(15, 23, 42, 0.18);
   --card-glow-hover: 0 1px 0 0 rgba(255, 255, 255, 1) inset,
     0 25px 60px -20px rgba(37, 99, 255, 0.22),
     0 0 80px -20px rgba(79, 209, 255, 0.18);
   --divider: linear-gradient(90deg, transparent, rgba(15, 23, 42, 0.18), transparent);
-  --grid-line: rgba(15, 23, 42, 0.06);
   --noise-opacity: 0.02;
 }
 
@@ -161,6 +332,292 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #4fd1ff 0%, #7c3aed 100%);
 }
+/* =========================================================================
+   THE INTERACTION SYSTEM
+   -------------------------------------------------------------------------
+   One vocabulary for "you can act on this", used by every control on the
+   site, so that a chip on /use-cases, a tab on the home page and a node in
+   GaitScape all answer the same question the same way.
+
+   The rule this block enforces: a control must be legible as a control WITH
+   THE MOUSE PARKED. Hover is an enhancement — on a phone it never arrives —
+   so the resting state carries the affordance and hover only strengthens it.
+
+   Six states, and never colour alone:
+
+     DEFAULT    hairline border / defined surface, readable label
+     HOVER      stronger border + a tonal lift (desktop enhancement)
+     FOCUS      the GaitAI ring — 2px accent, 2px offset, always visible
+     PRESSED    a 1px settle, so a tap is felt
+     SELECTED   accent border + accent tint + full-contrast ink, persistent
+     DISABLED   reduced opacity + not-allowed, still readable
+
+   Everything below is either a token or a zero-specificity :where()
+   fallback, so a component that already styles a state keeps its own
+   treatment and inherits only what it never declared.
+   ========================================================================= */
+
+:root {
+  /* Resting definition — what says "control" before anything is pointed at. */
+  --interactive-border: rgba(148, 163, 184, 0.18);
+  --interactive-bg: rgba(255, 255, 255, 0.02);
+
+  /* Hover: a step up in both border and surface, never a jump. */
+  --interactive-hover-bg: rgba(148, 163, 184, 0.1);
+  --interactive-hover-border: rgba(148, 163, 184, 0.38);
+
+  /* Selected: the accent, persistent, and distinct from hover. */
+  --interactive-selected-bg: rgba(79, 209, 255, 0.12);
+  --interactive-selected-border: rgba(79, 209, 255, 0.55);
+  --interactive-selected-ink: #d8f4ff;
+
+  /* Focus: one ring, everywhere. */
+  --interactive-focus-ring: rgba(79, 209, 255, 0.85);
+  --interactive-focus-ring-soft: rgba(79, 209, 255, 0.28);
+  --interactive-focus-offset: 2px;
+
+  --interactive-disabled-opacity: 0.4;
+
+  /* The comfortable minimum for a finger. Applied through .ix-hit and the
+     coarse-pointer rules in each control's own stylesheet. */
+  --interactive-touch-target: 44px;
+}
+
+:root.light {
+  --interactive-border: rgba(15, 23, 42, 0.14);
+  --interactive-bg: rgba(15, 23, 42, 0.02);
+  --interactive-hover-bg: rgba(15, 23, 42, 0.06);
+  --interactive-hover-border: rgba(15, 23, 42, 0.28);
+  /* Light mode needs a darker, denser accent to hold the same weight against
+     paper that the cyan holds against navy. */
+  --interactive-selected-bg: rgba(14, 116, 144, 0.1);
+  --interactive-selected-border: rgba(14, 116, 144, 0.55);
+  --interactive-selected-ink: #06384a;
+  --interactive-focus-ring: rgba(12, 96, 122, 0.9);
+  --interactive-focus-ring-soft: rgba(12, 96, 122, 0.25);
+}
+
+/* Product-family selection language, per the brand rule: MobilityCare reads
+   cyan/teal, SecureVision reads violet, a neutral control keeps GaitAI cyan.
+   Set the family class on a subtree, never on a single control. */
+.ix-family-care {
+  --interactive-selected-bg: rgba(45, 212, 191, 0.12);
+  --interactive-selected-border: rgba(45, 212, 191, 0.55);
+  --interactive-selected-ink: #cffaf4;
+}
+.ix-family-secure {
+  --interactive-selected-bg: rgba(167, 139, 250, 0.14);
+  --interactive-selected-border: rgba(167, 139, 250, 0.55);
+  --interactive-selected-ink: #e7dcff;
+}
+:root.light .ix-family-care {
+  --interactive-selected-bg: rgba(15, 118, 110, 0.1);
+  --interactive-selected-border: rgba(15, 118, 110, 0.55);
+  --interactive-selected-ink: #06342f;
+}
+:root.light .ix-family-secure {
+  --interactive-selected-bg: rgba(109, 40, 217, 0.09);
+  --interactive-selected-border: rgba(109, 40, 217, 0.5);
+  --interactive-selected-ink: #2b1065;
+}
+
+/* -------------------------------------------------------------------------
+   1 · CURSOR — the oldest affordance there is, and it was missing.
+
+   A <button> gets cursor: default from the UA stylesheet, so every button on
+   the site that did not set one itself — the primary CTA included — showed an
+   arrow over a thing you were meant to press. Stated once here rather than in
+   forty components.
+   ------------------------------------------------------------------------- */
+
+:where(
+    button,
+    summary,
+    select,
+    label[for],
+    [role="button"],
+    [role="tab"],
+    [role="radio"],
+    [role="checkbox"],
+    [role="switch"],
+    [role="option"],
+    [role="menuitem"]
+  ):not(:disabled):not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+:where(button, [role="button"], [role="tab"], [role="option"], select)[disabled],
+:where(button, [role="button"], [role="tab"], [role="option"])[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: var(--interactive-disabled-opacity);
+}
+
+/* Prose stays selectable; a control's label does not, because dragging across
+   a chip should not leave a blue smear where a press was intended. */
+:where(button, [role="tab"], [role="radio"], [role="option"], summary) {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* -------------------------------------------------------------------------
+   2 · THE GAITAI FOCUS RING
+
+   One visible treatment for keyboard focus, at specificity 0 so it is a floor
+   and not a ceiling: a component with its own ring keeps it, and anything
+   that forgot one now has this. Tab through any page and every stop is seen.
+   ------------------------------------------------------------------------- */
+
+:where(
+    a[href],
+    area,
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [contenteditable="true"],
+    [tabindex]:not([tabindex="-1"]),
+    [role="button"],
+    [role="tab"],
+    [role="radio"],
+    [role="checkbox"],
+    [role="switch"],
+    [role="option"],
+    [role="menuitem"]
+  ):focus-visible {
+  outline: 2px solid var(--interactive-focus-ring);
+  outline-offset: var(--interactive-focus-offset);
+}
+
+/* Text fields read better with a filled ring than an offset outline: the
+   outline floats away from a rounded field, the ring hugs it. */
+:where(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+    select,
+    textarea
+  ):focus-visible {
+  outline-offset: 0;
+  box-shadow: 0 0 0 3px var(--interactive-focus-ring-soft);
+}
+
+/* -------------------------------------------------------------------------
+   3 · TOUCH TARGETS
+
+   .ix-hit grows a small control's hit area to 44px without moving anything on
+   screen — the box stays the size the design wants and the *target* becomes
+   the size a thumb wants. Used on icon buttons and metadata-weight actions,
+   which is where the design deliberately keeps a 28–36px box.
+   ------------------------------------------------------------------------- */
+
+/* These four are COMPONENTS, not bare globals, and they live in the Tailwind
+   components layer for one specific reason: a hint or a hit-area is placed by
+   the call site, so `mt-4` on an .ix-hint has to win over the class's own
+   margin. Unlayered rules in this file are emitted after @tailwind utilities
+   and would silently beat every spacing utility applied to them. */
+@layer components {
+  .ix-hit {
+    position: relative;
+  }
+  .ix-hit::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    min-width: var(--interactive-touch-target);
+    min-height: var(--interactive-touch-target);
+    width: 100%;
+    height: 100%;
+  }
+
+  /* .ix-hit is useless on a control that clips its own overflow — the pseudo
+     element is clipped away along with the pointer events it was carrying.
+     For those, grow the real box, and only where there is a finger to
+     accommodate, so no desktop layout moves. */
+  @media (pointer: coarse) {
+    .ix-hit-box {
+      min-width: var(--interactive-touch-target);
+      min-height: var(--interactive-touch-target);
+    }
+  }
+
+  /* ----------------------------------------------------------------------
+     4 · MICROCOPY — the interaction hint
+
+     Used only where an interface is novel enough that its shape cannot carry
+     the instruction on its own: a graph, a simulator, a scrubber, the home
+     page's input selector. Never on a button, a card or a nav item.
+
+     Set at the site's own metadata weight — 9.5px mono, wide tracking, the
+     muted colour — so an instruction reads as an annotation on the interface
+     rather than as a tutorial bolted to it.
+     ---------------------------------------------------------------------- */
+
+  .ix-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font-family: var(--font-jetbrains), ui-monospace, monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgb(var(--c-soft-mute));
+  }
+
+  .ix-hint-mark {
+    display: inline-block;
+    font-size: 10.5px;
+    letter-spacing: 0;
+    opacity: 0.85;
+  }
+}
+
+/* One drift toward the control it points at, twice, then still — a nudge, not
+   a pulse. Nothing here animates forever to get attention. */
+@keyframes ixHintNudge {
+  0%,
+  100% {
+    translate: 0 0;
+    opacity: 0.85;
+  }
+  50% {
+    translate: 0 2px;
+    opacity: 1;
+  }
+}
+
+.ix-hint-mark--cue {
+  animation: ixHintNudge 1.5s cubic-bezier(0.22, 0.61, 0.36, 1) 2;
+}
+
+/* A ring that blooms out of the already-selected control on a first visit,
+   then never again: it says "this one is chosen, and choosing is a thing you
+   can do here". One and a half seconds, twice, no residue. */
+@keyframes ixFirstVisit {
+  0% {
+    box-shadow: 0 0 0 0 var(--interactive-focus-ring-soft);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(79, 209, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 209, 255, 0);
+  }
+}
+
+.ix-first-visit {
+  animation: ixFirstVisit 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.35s 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ix-hint-mark--cue,
+  .ix-first-visit {
+    animation: none;
+  }
+}
+
 
 /* =========================================================================
    COMPONENTS
@@ -251,7 +708,7 @@ body {
   }
 
   .glass {
-    background: linear-gradient(180deg, var(--glass-bg-a) 0%, var(--glass-bg-b) 100%);
+    background: var(--nav-bg);
     border: 1px solid var(--border);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
@@ -311,6 +768,23 @@ body {
     box-shadow: 0 12px 30px -10px rgba(15, 23, 42, 0.18);
   }
 
+  /* PRESSED. Both buttons lift on hover, and a lift with nothing under it
+     means a press produced no feedback at all — on a phone, where there is
+     no hover, a tap did visibly nothing until the page changed. They now
+     settle back through the resting plane, which reads as depression. */
+  .btn-primary:active,
+  .btn-ghost:active {
+    transform: translateY(1px);
+    transition-duration: 80ms;
+  }
+  .btn-primary:active {
+    box-shadow: 0 6px 18px -8px rgba(37, 99, 255, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  }
+  .btn-ghost:active {
+    box-shadow: 0 4px 12px -8px rgba(0, 0, 0, 0.5);
+  }
+
   .card {
     @apply relative overflow-hidden rounded-2xl;
     background: linear-gradient(180deg, var(--card-bg-a) 0%, var(--card-bg-b) 100%);
@@ -336,6 +810,7 @@ body {
   }
 
   .hero-scene-mask {
+    opacity: var(--hero-scene-opacity);
     mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 68%, transparent 100%);
     -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 20%, #000 68%, transparent 100%);
   }
@@ -1521,12 +1996,7 @@ body {
    cyan around MobilityCare, faint violet around SecureVision. No grids,
    no particle fields — the graph stays the focus. */
 .gaitscape-stage {
-  background:
-    radial-gradient(38% 34% at 50% 46%, rgb(231 211 160 / 0.045), transparent 70%),
-    radial-gradient(36% 52% at 15% 52%, rgb(94 234 212 / 0.035), transparent 72%),
-    radial-gradient(36% 52% at 85% 52%, rgb(139 156 246 / 0.04), transparent 72%),
-    radial-gradient(ellipse 60% 50% at 50% 40%, rgb(37 99 255 / 0.05), transparent 72%),
-    linear-gradient(180deg, rgb(6 12 24 / 0.96), rgb(4 8 17 / 0.99));
+  background: var(--graph-bg);
 }
 
 /* Graph canvas height. Desktop fills the viewport space left below the
@@ -1540,6 +2010,15 @@ body {
    660px scale — never a bare 100vh. */
 .gaitscape-stage-canvas {
   height: 520px;
+  /* The whole stage pans under a drag, and nothing said so: an invisible
+     draggable region is the one affordance failure a hover state cannot
+     rescue. Grab over the ground, grabbing while it moves — and pointer over
+     a node, because .gaitscape-node is a descendant and wins. */
+  cursor: grab;
+}
+
+.gaitscape-stage-canvas:active {
+  cursor: grabbing;
 }
 
 /* First-run hint. Sits in normal flow immediately BELOW the stage (see
@@ -1656,13 +2135,25 @@ body {
   transition: color 200ms ease, background-color 200ms ease;
 }
 
+/* Hover was colour-only, which is exactly the 1px-of-difference the
+   interaction system rules out: the surface now lifts as well, so the
+   segment under the pointer reads as a target and not as a brighter label. */
 .gaitscape-seg-btn:hover {
   color: rgb(var(--c-soft-white));
+  background: var(--interactive-hover-bg);
 }
 
-.gaitscape-seg-btn--on {
+/* SELECTED stays clearly ahead of HOVER: the accent tint keeps its ring so a
+   hovered segment and the chosen segment can never be confused. */
+.gaitscape-seg-btn--on,
+.gaitscape-seg-btn--on:hover {
   background: rgb(79 209 255 / 0.12);
+  box-shadow: inset 0 0 0 1px rgb(79 209 255 / 0.42);
   color: #7ddcff;
+}
+
+.gaitscape-seg-btn:active {
+  transform: translateY(0.5px);
 }
 
 .gaitscape-seg-btn--solo {
@@ -1694,10 +2185,20 @@ body {
   color: rgb(var(--c-soft-mute) / 0.95);
 }
 
+/* Hover was missing entirely on both, so neither field looked any different
+   from the readouts beside it until it was clicked. */
+.gaitscape-input:hover,
+.gaitscape-select:hover {
+  border-color: var(--interactive-hover-border);
+}
+
 .gaitscape-input:focus,
 .gaitscape-select:focus {
   outline: none;
   border-color: rgb(79 209 255 / 0.5);
+  /* A border colour alone is a 1px change a keyboard user can miss; the ring
+     is the same one every other field on the site uses. */
+  box-shadow: 0 0 0 3px var(--interactive-focus-ring-soft);
 }
 
 .gaitscape-chip {
@@ -1715,6 +2216,8 @@ body {
 
 .gaitscape-chip:hover {
   border-color: rgb(79 209 255 / 0.4);
+  background: var(--interactive-hover-bg);
+  color: rgb(var(--c-soft-white));
 }
 
 .gaitscape-chip--on {
@@ -1764,7 +2267,7 @@ body {
   place-items: center;
   border-radius: 10px;
   border: 1px solid rgb(148 163 184 / 0.16);
-  background: rgb(var(--c-obsidian-200) / 0.85);
+  background: var(--graph-control-bg);
   color: rgb(var(--c-soft-gray));
   backdrop-filter: blur(6px);
   transition: color 180ms ease, border-color 180ms ease;
@@ -1773,6 +2276,44 @@ body {
 .gaitscape-tool:hover {
   color: rgb(var(--c-soft-white));
   border-color: rgb(79 209 255 / 0.4);
+  background: var(--interactive-hover-bg);
+}
+
+.gaitscape-tool:active {
+  transform: scale(0.94);
+}
+
+/* TOUCH — the graph's controls are sized for a cursor. On a coarse pointer
+   the boxes stay where the design put them and the *targets* grow to 44px,
+   so nothing reflows and nothing is a 22px pill under a thumb. */
+@media (pointer: coarse) {
+  .gaitscape-seg-btn,
+  .gaitscape-chip,
+  .gaitscape-group-row {
+    min-height: 38px;
+  }
+
+  .gaitscape-tool {
+    position: relative;
+  }
+  .gaitscape-tool::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    min-width: var(--interactive-touch-target);
+    min-height: var(--interactive-touch-target);
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gaitscape-tool:active,
+  .gaitscape-seg-btn:active {
+    transform: none;
+  }
 }
 
 /* Thin, quiet scrollbar for the grouping panel. */
@@ -1805,7 +2346,7 @@ body {
 
 .gaitscape-edge {
   fill: none;
-  stroke: rgb(126 165 220 / 0.13);
+  stroke: var(--graph-edge);
   stroke-width: 1;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
@@ -1814,7 +2355,7 @@ body {
 
 /* vertical → group branch */
 .gaitscape-edge--branch {
-  stroke: rgb(126 165 220 / 0.22);
+  stroke: var(--graph-edge-muted);
   stroke-dasharray: 1.5 6;
 }
 
@@ -1850,19 +2391,43 @@ body {
   transition: opacity 250ms ease;
 }
 
+/* --gs-node-fill is set per node in the markup, because the resting weight of
+   a dot depends on what kind of node it is (core, vertical, hub, leaf). It
+   has to be a custom property rather than an inline `fill-opacity`: an inline
+   value outranks every stylesheet, so the hover rule below used to be dead
+   CSS and a node looked *identical* under the pointer. */
 .gaitscape-node-dot {
+  fill-opacity: var(--gs-node-fill, 0.15);
   stroke-width: 1.3;
   vector-effect: non-scaling-stroke;
-  transition: fill-opacity 200ms ease;
+  transition: fill-opacity 200ms ease, stroke-width 200ms ease;
 }
 
-.gaitscape-node:hover .gaitscape-node-dot {
-  fill-opacity: 0.34;
+/* HOVER / FOCUS: the node fills in and its rim thickens, so "this circle is
+   a thing you can open" is answered before the tooltip arrives. */
+.gaitscape-node:hover .gaitscape-node-dot,
+.gaitscape-node:focus-visible .gaitscape-node-dot {
+  fill-opacity: calc(var(--gs-node-fill, 0.15) + 0.2);
+  stroke-width: 2;
+}
+
+/* The label sharpens with it — a dim label beside a lit node reads as a
+   decorative dot with a caption rather than as one target. */
+.gaitscape-node:hover .gaitscape-node-label,
+.gaitscape-node:focus-visible .gaitscape-node-label {
+  fill: var(--graph-label-major);
+  font-weight: 600;
 }
 
 .gaitscape-node:focus-visible .gaitscape-node-dot {
-  stroke: #f8fafc;
-  stroke-width: 2.2;
+  stroke: var(--graph-focus);
+  stroke-width: 2.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gaitscape-node-dot {
+    transition: none;
+  }
 }
 
 .gaitscape-node-halo {
@@ -1874,17 +2439,17 @@ body {
 }
 
 .gaitscape-node-label {
-  fill: rgb(203 213 225 / 0.85);
+  fill: var(--graph-label);
   text-anchor: middle;
   pointer-events: none;
   font-family: var(--font-inter), system-ui, sans-serif;
   paint-order: stroke;
-  stroke: rgb(4 8 17 / 0.88);
+  stroke: var(--graph-label-halo);
   stroke-width: 3.5px;
 }
 
 .gaitscape-node-label--major {
-  fill: rgb(233 240 250 / 0.95);
+  fill: var(--graph-label-major);
   font-weight: 600;
   stroke-width: 4.5px;
 }
@@ -1897,14 +2462,14 @@ body {
   pointer-events: none;
   border-radius: 12px;
   border: 1px solid rgb(148 163 184 / 0.18);
-  background: rgb(var(--c-obsidian-200) / 0.95);
+  background: var(--dropdown-bg);
   padding: 10px 12px;
-  box-shadow: 0 16px 44px -18px rgb(0 0 0 / 0.7);
+  box-shadow: var(--graph-shadow-sm);
   backdrop-filter: blur(8px);
 }
 
 .gaitscape-detail {
-  box-shadow: 0 24px 70px -30px rgb(0 0 0 / 0.8);
+  box-shadow: var(--graph-shadow);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2176,10 +2741,16 @@ body {
   color: rgb(var(--c-soft-mute) / 0.95);
 }
 
+.publib-input:hover,
+.publib-select:hover {
+  border-color: var(--interactive-hover-border);
+}
+
 .publib-input:focus,
 .publib-select:focus {
   outline: none;
   border-color: rgb(79 209 255 / 0.5);
+  box-shadow: 0 0 0 3px var(--interactive-focus-ring-soft);
 }
 
 /* =========================================================================

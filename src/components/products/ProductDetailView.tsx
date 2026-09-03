@@ -471,9 +471,29 @@ export function ProductDetailView({ slug }: { slug: string }) {
       {/* ------------------------------------------------ BODY */}
       <div className="container-wide">
         {/* View toggle */}
+        {/* Arrow keys move between the two views, which is what a tablist
+            promises a keyboard user the moment it declares itself one. */}
         <div
           role="tablist"
           aria-label="Detail view"
+          onKeyDown={(event) => {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+              return;
+            }
+            event.preventDefault();
+            const next =
+              event.key === "Home"
+                ? "executive"
+                : event.key === "End"
+                  ? "technical"
+                  : view === "technical"
+                    ? "executive"
+                    : "technical";
+            changeView(next);
+            event.currentTarget
+              .querySelectorAll<HTMLButtonElement>('[role="tab"]')
+              [next === "executive" ? 0 : 1]?.focus();
+          }}
           className="glass inline-flex rounded-full p-1"
         >
           {(
@@ -488,11 +508,16 @@ export function ProductDetailView({ slug }: { slug: string }) {
               role="tab"
               aria-selected={view === mode}
               onClick={() => changeView(mode)}
+              /* HOVER was a step DOWN in contrast (mute → gray) with no
+                 surface, and SELECTED was a neutral white wash — so which
+                 view was live read as "one of these is slightly brighter".
+                 Selected now carries the cyan hairline, hover carries a
+                 surface, and the two can no longer be confused. */
               className={cn(
-                "rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-all",
+                "touch:min-h-11 rounded-full border px-5 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-all active:translate-y-px",
                 view === mode
-                  ? "bg-white/[0.08] text-soft-white shadow-[0_0_20px_-6px_rgba(79,209,255,0.45)]"
-                  : "text-soft-mute hover:text-soft-gray"
+                  ? "border-cyan-300/50 bg-cyan-300/[0.10] text-soft-white shadow-[0_0_20px_-6px_rgba(79,209,255,0.45)]"
+                  : "border-transparent text-soft-gray hover:border-white/15 hover:bg-white/[0.06] hover:text-soft-white"
               )}
             >
               {label}

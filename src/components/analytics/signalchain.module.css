@@ -56,15 +56,29 @@
     background-color 0.3s ease;
 }
 .input:hover {
-  border-color: rgb(148 163 184 / 0.3);
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+.input:active {
+  transform: translateY(0.5px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .input:active {
+    transition: none;
+    transform: none;
+  }
 }
 .input:focus-visible {
   outline: 2px solid var(--sc-accent);
   outline-offset: 2px;
 }
-.inputOn {
-  border-color: color-mix(in srgb, var(--sc-accent) 55%, transparent);
-  background: color-mix(in srgb, var(--sc-accent) 7%, transparent);
+/* SELECTED at full accent strength and held through hover, so pointing at a
+   neighbouring source cannot look like choosing it. */
+.inputOn,
+.inputOn:hover {
+  border-color: var(--sc-accent);
+  background: color-mix(in srgb, var(--sc-accent) 9%, transparent);
 }
 
 .inputLabel {

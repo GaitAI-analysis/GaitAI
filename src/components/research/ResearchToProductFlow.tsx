@@ -479,7 +479,7 @@ export function ResearchToProductFlow() {
       <ol className={styles.flowStages}>
         {chain.map((stage, i) => (
           <li key={stage.label} className={styles.fStage}>
-            <span className={styles.fStageIndex}>
+            <span aria-hidden="true" className={styles.fStageIndex}>
               {String(i + 1).padStart(2, "0")}
             </span>
             <h3

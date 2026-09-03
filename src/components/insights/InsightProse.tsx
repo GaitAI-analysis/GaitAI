@@ -182,7 +182,7 @@ function Block({ block }: { block: InsightBlock }) {
                   }
                 >
                   {block.layout !== "row" && (
-                    <span className="font-mono text-[11px] tabular-nums text-cyan-300/70">
+                    <span aria-hidden="true" className="font-mono text-[11px] tabular-nums text-cyan-300/70">
                       {String(i + 1).padStart(2, "0")}
                     </span>
                   )}

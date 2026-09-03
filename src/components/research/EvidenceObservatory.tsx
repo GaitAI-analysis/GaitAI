@@ -155,7 +155,7 @@ export function EvidenceObservatory({ areas }: { areas: ObservatoryArea[] }) {
               i === selected ? ` ${styles.emapTabActive}` : ""
             }`}
           >
-            <span className={styles.emapTabIndex}>
+            <span aria-hidden="true" className={styles.emapTabIndex}>
               {String(i + 1).padStart(2, "0")}
             </span>
             <PillarVisual kind={item.kind} className={styles.pvTab} />

@@ -42,7 +42,7 @@ export function PublicationLedger({
                 isPatent ? ` ${styles.ledgerPatent}` : ""
               }`}
             >
-              <span className={styles.ledgerIndex}>
+              <span aria-hidden="true" className={styles.ledgerIndex}>
                 {String(i + 1).padStart(2, "0")}
               </span>
 

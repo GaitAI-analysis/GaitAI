@@ -46,6 +46,16 @@ export const metadata: Metadata = {
     "privacy-aware video analytics",
   ],
   authors: [{ name: "GaitAI" }],
+  /*
+   * GitHub Pages serves no custom response headers, so the usual
+   * Referrer-Policy header is unavailable. Next emits this as
+   * <meta name="referrer">, which every current browser honours — outbound
+   * clicks to publishers and DOIs now carry the origin, not the full path.
+   * The remaining headers (CSP, HSTS, X-Content-Type-Options,
+   * Permissions-Policy, frame-ancestors) cannot be set on this host; see
+   * docs/security-headers.md for the config to apply if the site moves.
+   */
+  referrer: "strict-origin-when-cross-origin",
   applicationName: "GaitAI",
   icons: {
     icon: [

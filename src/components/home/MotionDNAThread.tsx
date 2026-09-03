@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import styles from "./thread.module.css";
 
 /**
@@ -25,11 +25,34 @@ import styles from "./thread.module.css";
  * detects a condition, identifies a person or predicts an event, and no
  * number appears at all.
  *
- * MOTION. Idle state is completely still: the branches simply exist at
- * different weights. Only a pointer or focus changes anything, and each
- * change is one 400ms opacity/stroke transition. Under
- * prefers-reduced-motion the transition is dropped and the highlight is
- * instant — the interaction still works, because it is state, not animation.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * PREVIEW AND LOCK — the part that was missing
+ *
+ * The four readings were always the control, but nothing said so: they moved
+ * the branches on hover and again on click, both to the same state, so a
+ * visitor who pointed at one and moved away saw a flicker and learned
+ * nothing. There are now two distinct states and they mean different things:
+ *
+ *   HOVER / FOCUS → preview. Trace the signal into that branch, and let go
+ *                   of it again when the pointer leaves.
+ *   CLICK / ENTER → lock. The branch stays, the label keeps a filled marker,
+ *                   a hairline underline and a 4% ground, and the preview of
+ *                   any other reading is layered on top of it temporarily.
+ *
+ * `shown = preview ?? locked` is the whole rule, and it makes the difference
+ * legible: leaving a hover returns to whatever is locked rather than to
+ * nothing, which is what teaches a visitor that the click did something the
+ * hover did not.
+ *
+ * A one-shot trace runs from the hub out along the shown branch whenever the
+ * shown branch changes, so switching readings reads as the signal travelling
+ * somewhere new rather than as two opacities swapping. It is one 620ms draw,
+ * it never loops, and it is off under prefers-reduced-motion — the highlight
+ * alone still carries the state, because the state is state, not animation.
+ *
+ * KEYBOARD. A labelled group of four toggles: Tab reaches the group, arrows
+ * (and Home/End) move within it, Enter/Space locks, Escape releases. Focus
+ * previews without committing, which is the same bargain the pointer gets.
  */
 
 const READINGS = [
@@ -39,13 +62,29 @@ const READINGS = [
   { id: "safety", label: "Safety", note: "what is happening in a space" },
 ] as const;
 
+type ReadingId = (typeof READINGS)[number]["id"];
+
 const W = 760;
 const H = 96;
 /** Where the shared signal ends and the branches begin. */
 const SPLIT = 300;
 
+/** One branch's path, so the base line and its trace overlay cannot drift. */
+function branchPath(index: number) {
+  const y = 16 + index * 21.5;
+  return `M ${SPLIT} ${H / 2} C ${SPLIT + 90} ${H / 2} ${W - 150} ${y} ${
+    W - 60
+  } ${y}`;
+}
+
 export function MotionDNAThread() {
-  const [active, setActive] = useState<string | null>(null);
+  /** Committed by a click. Survives the pointer leaving. */
+  const [locked, setLocked] = useState<ReadingId | null>(null);
+  /** Held by a hover or a focus. Released when it ends. */
+  const [preview, setPreview] = useState<ReadingId | null>(null);
+  const shown = preview ?? locked;
+
+  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
 
   /* The shared signal: one gait-like trace, drawn once. */
   const signal = Array.from({ length: 70 }, (_, i) => {
@@ -58,6 +97,38 @@ export function MotionDNAThread() {
     return `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`;
   }).join(" ");
 
+  const onKeyDown = useCallback(
+    (event: React.KeyboardEvent, index: number) => {
+      const step =
+        event.key === "ArrowRight" || event.key === "ArrowDown"
+          ? 1
+          : event.key === "ArrowLeft" || event.key === "ArrowUp"
+            ? -1
+            : 0;
+
+      if (step) {
+        event.preventDefault();
+        const next = (index + step + READINGS.length) % READINGS.length;
+        buttons.current[next]?.focus();
+        return;
+      }
+      if (event.key === "Home" || event.key === "End") {
+        event.preventDefault();
+        buttons.current[event.key === "Home" ? 0 : READINGS.length - 1]?.focus();
+        return;
+      }
+      if (event.key === "Escape" && locked) {
+        /* Release the lock without leaving the group — the way out of a
+           committed state for someone who never touched a mouse. */
+        event.preventDefault();
+        setLocked(null);
+      }
+    },
+    [locked],
+  );
+
+  const shownIndex = READINGS.findIndex((r) => r.id === shown);
+
   return (
     <div className={styles.wrap}>
       <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg} aria-hidden="true">
@@ -67,41 +138,70 @@ export function MotionDNAThread() {
 
         {/* four branches out of it */}
         {READINGS.map((reading, i) => {
-          const y = 16 + i * 21.5;
-          const on = active === reading.id;
+          const on = shown === reading.id;
           return (
             <path
               key={reading.id}
               className={`${styles.branch} ${on ? styles.branchOn : ""} ${
-                active && !on ? styles.branchOff : ""
-              }`}
-              d={`M ${SPLIT} ${H / 2} C ${SPLIT + 90} ${H / 2} ${
-                W - 150
-              } ${y} ${W - 60} ${y}`}
+                shown && !on ? styles.branchOff : ""
+              } ${locked === reading.id ? styles.branchLocked : ""}`}
+              d={branchPath(i)}
             />
           );
         })}
+
+        {/* The trace: one draw along whichever branch is shown, replayed on
+            every change because the key remounts it. Purely additive — the
+            branch underneath already carries the state. */}
+        {shownIndex >= 0 && (
+          <path
+            key={shown}
+            className={styles.trace}
+            pathLength={1}
+            d={branchPath(shownIndex)}
+          />
+        )}
       </svg>
 
+      {/* The microcopy is the group's label, so the instruction and the
+          accessible name are the same words. */}
+      <p id="motion-dna-hint" className={styles.hint}>
+        Select a lens to trace the signal.
+      </p>
+
       {/* The labels are the control. Buttons, so a keyboard reaches them and
-          a touch device can tap them; the SVG above is decorative. */}
-      <ul className={styles.readings}>
-        {READINGS.map((reading) => {
-          const on = active === reading.id;
+          a touch device can tap them; the SVG above is decorative. The whole
+          row — marker, name and purpose — is one target. */}
+      <ul
+        className={styles.readings}
+        role="group"
+        aria-labelledby="motion-dna-hint"
+      >
+        {READINGS.map((reading, i) => {
+          const isLocked = locked === reading.id;
+          const isShown = shown === reading.id;
           return (
-            <li key={reading.id}>
+            <li key={reading.id} className={styles.readingItem}>
               <button
+                ref={(node) => {
+                  buttons.current[i] = node;
+                }}
                 type="button"
-                onPointerEnter={() => setActive(reading.id)}
-                onPointerLeave={() => setActive(null)}
-                onFocus={() => setActive(reading.id)}
-                onBlur={() => setActive(null)}
-                onClick={() => setActive(on ? null : reading.id)}
-                aria-pressed={on}
-                className={`${styles.reading} ${on ? styles.readingOn : ""}`}
+                onPointerEnter={() => setPreview(reading.id)}
+                onPointerLeave={() => setPreview(null)}
+                onFocus={() => setPreview(reading.id)}
+                onBlur={() => setPreview(null)}
+                /* A tap fires enter → click → leave, so the lock is what
+                   survives on a phone. Nothing here depends on hover. */
+                onClick={() => setLocked(isLocked ? null : reading.id)}
+                onKeyDown={(event) => onKeyDown(event, i)}
+                aria-pressed={isLocked}
+                className={`${styles.reading} ${
+                  isShown ? styles.readingShown : ""
+                } ${isLocked ? styles.readingLocked : ""}`}
               >
                 <span className={styles.dot} aria-hidden="true" />
-                {reading.label}
+                <span className={styles.label}>{reading.label}</span>
                 <span className={styles.note}>{reading.note}</span>
               </button>
             </li>

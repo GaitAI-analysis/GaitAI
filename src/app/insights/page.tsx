@@ -17,6 +17,7 @@ import {
   PrivacyLayersVisual,
   TrajectoryVisual,
 } from "@/components/insights/StoryVisuals";
+import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 import { insightArticles, insightHref } from "@/data/insights";
 import styles from "@/components/insights/signal.module.css";
 
@@ -310,6 +311,17 @@ export default function InsightsPage() {
       <section className="relative z-[1] pb-4">
         <div className="container-wide">
           <LivePostsMount hideWhenEmpty />
+        </div>
+      </section>
+
+      {/* ═════════ SUBSCRIBE ═════════
+          The end of the page is where a reader who has followed the signal
+          all the way down is most likely to want the next one. It sits after
+          the close and the live posts, in the page flow — this site has no
+          newsletter modal and is not getting one. */}
+      <section className="relative z-[1] pb-20 sm:pb-24">
+        <div className="container-wide">
+          <SubscribeForm variant="blog" />
         </div>
       </section>
     </div>

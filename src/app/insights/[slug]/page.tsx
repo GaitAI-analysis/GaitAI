@@ -21,6 +21,7 @@ import { TwoMinute } from "@/components/insights/TwoMinute";
 import { NextStory } from "@/components/insights/NextStory";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
 import { ArticleMeta } from "@/components/insights/ArticleMeta";
+import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 import { assetPath } from "@/lib/paths";
 import styles from "@/components/insights/journal.module.css";
 
@@ -347,6 +348,19 @@ export default function InsightArticlePage({
               contentType="blog"
               subscriberOnly={false}
             />
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────── SUBSCRIBE ───────────
+          Between the thread and the next story: the reader has finished the
+          article and is deciding what to do next, which is the only honest
+          moment to ask. Same component and same collection as the blog and
+          the footer — one validation path, one duplicate rule. */}
+      <section className="border-t border-white/[0.07] py-14 sm:py-16">
+        <div className="container-wide">
+          <div className="mx-auto w-full max-w-[46rem] lg:mx-0">
+            <SubscribeForm variant="article" />
           </div>
         </div>
       </section>

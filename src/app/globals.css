@@ -2138,8 +2138,8 @@ body {
    to stay a dark hero in BOTH themes, exactly like .mobilitycare-hero below.
    Without this, `text-soft-white` / `text-soft-gray` / `text-soft-mute` flip to
    their light-theme near-black values and the headline, body copy and the
-   synthetic-data label become unreadable over the dark footage. Only the
-   navbar and the sections beneath the hero follow the global light theme. */
+   capability chips become unreadable over the dark footage. Only the navbar
+   and the sections beneath the hero follow the global light theme. */
 .light .securevision-hero {
   color-scheme: dark;
   --c-obsidian: 7 11 20;

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { assetPath } from "@/lib/paths";
 import { ctas } from "@/data/content";
 
@@ -99,13 +98,18 @@ export function MobilityCareHero() {
             </Link>
           </div>
 
-          {/* The hero footage renders a clinical mobility dashboard. Its
-              numbers are invented for the composition, so it is labelled. */}
-          <SyntheticDataBadge
-            variant="overlay"
-            label="Illustrative demo · Synthetic data"
-            className="mt-8 lg:mt-7"
-          />
+          {/* The synthetic-data pill that used to sit here — between the CTAs
+              and the capability chips, on top of the hero footage — is gone.
+              It was the same badge repeated over every product visual on the
+              site, and in the hero it read as a fifth control in the button
+              stack rather than as a caption on the footage behind it. Nothing
+              takes its place: the capability grid carries its own 3rem top
+              margin, so the column closes up instead of leaving a gap.
+
+              The claim it guarded is still made, in prose rather than as
+              chrome: the hero's dashboard numbers are decorative, and every
+              module page states what is and is not measured in its evidence
+              panel. */}
 
           {/* Capability pills — same component style as the SecureVision hero
               chips so both product pages read as one family */}

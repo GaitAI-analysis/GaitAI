@@ -15,7 +15,8 @@
     "deploy:rules": "firebase deploy --only firestore:rules",
     "verify": "npm run typecheck && npm run lint && npm run validate:gaitai",
     "check:links": "node scripts/check-links.mjs",
-    "build:knowledge": "tsx scripts/build-knowledge.mjs"
+    "build:knowledge": "tsx scripts/build-knowledge.mjs",
+    "ask:doctor": "node scripts/ask-doctor.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",

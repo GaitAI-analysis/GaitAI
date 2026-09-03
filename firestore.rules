@@ -18,6 +18,9 @@ rules_version = '2';
 //   articleStats        → anyone may READ, and may raise ONE counter by ONE
 //                         step per write (views +1, or likes +/-1, never both);
 //                         only the admin may delete.
+//   assistantStats      → Ask GaitAI usage, keyed by PAGE TYPE. Four integers,
+//                         one +1 per write, no text and no identifier the
+//                         schema could hold. ADMIN-ONLY read.
 // =============================================================================
 
 service cloud.firestore {
@@ -130,6 +133,76 @@ service cloud.firestore {
         && (request.resource.data.views + request.resource.data.likes) <= 1;
 
       allow update: if statsShapeValid() && statsStepValid();
+      allow delete: if isAdmin();
+    }
+
+    // ---- Ask GaitAI usage counters ----------------------------------------
+    // assistantStats/{pageType} → { opens, questions, prompts, links, updatedAt }
+    //
+    // Four integers describing WHERE the assistant is used and HOW — never
+    // WHAT was asked. There is no message field, no thread field and no
+    // identifier, and the shape check below is what makes that structural
+    // rather than a promise: a write carrying anything else is refused.
+    //
+    // The document id is the page type, from a closed list that mirrors
+    // PageType in components/assistant/page-context.ts. Constraining it here
+    // means a client cannot invent documents — no per-visitor bucket, no URL
+    // as a key, nothing that could carry an identifier in its name.
+    //
+    // Reads are ADMIN ONLY. Unlike the journal's view count, which is printed
+    // on the article, these numbers are internal; the brief asks that
+    // assistant usage not be exposed publicly.
+    function assistantPageType(id) {
+      return id in [
+        'home', 'product', 'family', 'products',
+        'use-case', 'use-cases', 'publication', 'publications',
+        'insight', 'insights', 'research', 'gaitscape',
+        'movement-lab', 'trust', 'legal', 'other'
+      ];
+    }
+
+    function assistantShapeValid() {
+      return request.resource.data.keys().hasOnly(
+               ['opens', 'questions', 'prompts', 'links', 'updatedAt'])
+        && request.resource.data.opens is int
+        && request.resource.data.questions is int
+        && request.resource.data.prompts is int
+        && request.resource.data.links is int
+        && request.resource.data.opens >= 0
+        && request.resource.data.questions >= 0
+        && request.resource.data.prompts >= 0
+        && request.resource.data.links >= 0;
+    }
+
+    // Exactly one counter may take exactly one step forward, computed against
+    // the stored document so the client's arithmetic is never trusted. None
+    // may ever go down: these are usage counts, not a score to be corrected.
+    function assistantStepValid() {
+      return (request.resource.data.opens - resource.data.opens)
+             + (request.resource.data.questions - resource.data.questions)
+             + (request.resource.data.prompts - resource.data.prompts)
+             + (request.resource.data.links - resource.data.links) == 1
+        && (request.resource.data.opens - resource.data.opens) >= 0
+        && (request.resource.data.questions - resource.data.questions) >= 0
+        && (request.resource.data.prompts - resource.data.prompts) >= 0
+        && (request.resource.data.links - resource.data.links) >= 0;
+    }
+
+    match /assistantStats/{pageType} {
+      allow read: if isAdmin();
+
+      // First write for a page type: one counter starts at 1, the rest at 0.
+      allow create: if assistantPageType(pageType)
+        && assistantShapeValid()
+        && (request.resource.data.opens
+            + request.resource.data.questions
+            + request.resource.data.prompts
+            + request.resource.data.links) == 1;
+
+      allow update: if assistantPageType(pageType)
+        && assistantShapeValid()
+        && assistantStepValid();
+
       allow delete: if isAdmin();
     }
 

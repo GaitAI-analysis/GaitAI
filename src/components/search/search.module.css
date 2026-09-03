@@ -77,6 +77,89 @@
   padding: 0.9rem 1rem;
 }
 
+/* ── The two capabilities, named ───────────────────────────────────────────
+   A strip between the field and the results: what this box does on the left,
+   what the assistant does on the right. It is a hand-off, not a mode switch —
+   pressing it closes the palette and opens the assistant with whatever was
+   typed, and the palette keeps doing exactly what it did before. */
+.handoff {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 1rem 0.55rem;
+  border-bottom: 1px solid var(--gs-line);
+}
+
+.handoffLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gs-mute);
+}
+
+.handoffAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--gs-line-mid);
+  border-radius: 999px;
+  background: none;
+  padding: 0.3rem 0.7rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gs-body);
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.handoffAction:hover {
+  border-color: var(--gs-accent);
+  background: var(--gs-raise);
+  color: var(--gs-ink);
+}
+
+.handoffAction:focus-visible {
+  outline: 2px solid var(--gs-accent);
+  outline-offset: 2px;
+}
+
+.handoffMark {
+  color: var(--gs-accent);
+  font-size: 10px;
+  letter-spacing: 0;
+}
+
+.handoffArrow {
+  letter-spacing: 0;
+  transition: transform 0.25s ease;
+}
+
+.handoffAction:hover .handoffArrow {
+  transform: translateX(2px);
+}
+
+@media (pointer: coarse) {
+  .handoffAction {
+    min-height: 38px;
+    padding-inline: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handoffAction,
+  .handoffArrow {
+    transition: none;
+    transform: none;
+  }
+}
+
 .input {
   min-width: 0;
   flex: 1;

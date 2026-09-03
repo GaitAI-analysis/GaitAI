@@ -10,6 +10,36 @@ figures, no clinical validation claims, no diagnosis, no certification status.
 
 ---
 
+## 0. Not appearing on the site? Run the preflight
+
+```bash
+npm run ask:doctor
+# or check a deployed URL directly:
+npm run ask:doctor -- https://asia-south1-gaitai-intelligence.cloudfunctions.net/askGaitai
+```
+
+The assistant **self-disables when it has no backend** — `ASSISTANT_ENABLED` is
+false, `<AskGaitAI />` returns null, and the site renders exactly as it did
+before. That is the right default for a fresh clone, and it is also a silent
+failure mode: a deploy can be entirely green with no launcher on the page and
+nothing anywhere saying why.
+
+Two things have to be true, and neither is a code change:
+
+1. **The function is deployed.** `firebase deploy --only functions` — needs the
+   Blaze plan and `LLM_API_KEY` in Secret Manager (§6). Until then the URL
+   404s.
+2. **The build knows the URL.** `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` as a GitHub
+   Actions **variable** (§5). Until then the bundle ships the component with
+   no endpoint and it renders nothing.
+
+`ask:doctor` checks the corpus, the endpoint, whether the backend answers, and
+whether the Firestore rules are in place; it names the blocker and prints the
+command that clears it. It exits non-zero when something is missing, so it can
+gate a release if you want it to.
+
+---
+
 ## 1. Why the backend is a Cloud Function
 
 The site is a **static export** (`output: "export"` in `next.config.mjs`)
@@ -248,7 +278,72 @@ The levers, in the order worth reaching for: `MAX_DOCS` and `PER_DOC_CHARS` in
 
 ---
 
-## 10. Files
+## 10. Usage counters
+
+`assistantStats/{pageType}` — four integers, and nothing that could identify
+anyone:
+
+| Field | Raised when |
+|---|---|
+| `opens` | the launcher was pressed (once per page type per session) |
+| `questions` | a question was submitted |
+| `prompts` | a suggested prompt was chosen rather than typed |
+| `links` | a source, inline link or CTA in an answer was followed |
+
+The document id is the **page type** — a closed list of sixteen values from
+`page-context.ts` — so the counters answer "where do people reach for this,
+and do they type or pick?" and cannot answer anything about a person.
+
+**No question text is ever stored.** Not truncated, not hashed, not sampled.
+`firestore.rules` enforces the shape rather than trusting the client: a write
+carrying any field other than those four and `updatedAt` is refused, exactly
+one counter may move, and it may only move by +1. Reads are admin-only,
+because unlike the journal's view count these numbers are not published.
+
+It reuses the counter pattern `articleStats` already established, so there is
+no second analytics stack, no third-party script and nothing to consent to.
+Every call swallows its own failure — unconfigured, blocked or offline all
+resolve to nothing happening.
+
+---
+
+## 11. Search and the assistant, side by side
+
+The palette finds a page; the assistant answers a question. Those are
+different acts, and a visitor who typed a *question* into a find-a-page box
+had no way to discover the second one — so the palette carries a hand-off row:
+
+```
+SEARCH SITE                          ✦ ASK GAITAI THIS INSTEAD →
+```
+
+Pressing it closes the palette and opens the assistant with whatever was
+typed, verbatim. Nothing is removed from search, and the two surfaces stay
+independent: the palette dispatches `ASK_EVENT` on `window` and the assistant
+listens, the same shape `SEARCH_EVENT` already used, so neither imports the
+other and no state is lifted into a provider. The row renders only when an
+endpoint is configured — with no backend there is nothing to hand off to.
+
+---
+
+## 12. Weight
+
+The launcher is the only thing on the critical path. `ChatPanel` is a
+`next/dynamic` import, so the transcript, the composer, the answer renderer
+and the conversation hook are fetched by the click that needs them:
+
+| | Root layout chunk | Panel chunk |
+|---|---|---|
+| static import | 48.8 KB | — |
+| dynamic import | **37.1 KB** | 12.4 KB, on first open |
+
+11.7 KB off every page load on the site, whether or not the visitor ever opens
+the assistant. `ssr: false`, because there is nothing to prerender — the panel
+does not exist until a button is pressed.
+
+---
+
+## 13. Files
 
 **Frontend** — `src/components/assistant/`
 
@@ -286,8 +381,11 @@ The levers, in the order worth reaching for: `MAX_DOCS` and `PER_DOC_CHARS` in
 | File | Change |
 |---|---|
 | `scripts/build-knowledge.mjs` | The corpus builder |
+| `scripts/ask-doctor.mjs` | The preflight — why the launcher is missing |
+| `src/lib/assistant-stats.ts` | The four usage counters |
+| `src/components/search/IntelligenceSearch.tsx` | The hand-off row |
 | `src/app/layout.tsx` | Mounts `<AskGaitAI />` after the footer |
 | `firebase.json` | The functions codebase and its predeploy chain |
-| `firestore.rules` | Denies all client access to `askGaitaiRateLimits` |
+| `firestore.rules` | Denies client access to `askGaitaiRateLimits`; bounds `assistantStats` |
 | `.github/workflows/deploy.yml` | Retrieval suite in CI; endpoint variable at build |
 | `.env.example` | Documents the endpoint variable |

@@ -6,6 +6,7 @@ import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
 import { openingFor, type PageContext } from "./page-context";
 import { useAssistant } from "./use-assistant";
+import { recordAssistantEvent } from "@/lib/assistant-stats";
 import styles from "./assistant.module.css";
 
 /**
@@ -36,10 +37,13 @@ export function ChatPanel({
   page,
   onClose,
   onNavigate,
+  initialQuestion = "",
 }: {
   page: PageContext;
   onClose: () => void;
   onNavigate: (url: string) => void;
+  /** Asked once on mount — a question handed over from the search palette. */
+  initialQuestion?: string;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -51,6 +55,17 @@ export function ChatPanel({
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  /* A handed-over question is asked once, on mount. The ref guard matters
+     because `ask` is recreated as the thread grows, and an effect keyed on it
+     would re-send the same question on every turn. */
+  const handedOff = useRef(false);
+  useEffect(() => {
+    if (handedOff.current || !initialQuestion) return;
+    handedOff.current = true;
+    submit(initialQuestion);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuestion]);
 
   /* Scroll-lock only where the sheet actually covers the page. */
   useEffect(() => {
@@ -88,12 +103,25 @@ export function ChatPanel({
     [onClose],
   );
 
+  /* Every question goes through here, so the counter cannot drift from what
+     was actually sent — typed, picked from a suggestion, or handed over. */
+  const submit = useCallback(
+    (question: string) => {
+      recordAssistantEvent("questions", page.pageType);
+      ask(question);
+    },
+    [ask, page.pageType],
+  );
+
   const pick = useCallback(
     (prompt: string) => {
-      ask(prompt);
+      /* Counted as well as `questions`: which of the two a visitor reaches for
+         is the thing worth knowing about the starters. */
+      recordAssistantEvent("prompts", page.pageType);
+      submit(prompt);
       inputRef.current?.focus();
     },
-    [ask],
+    [submit, page.pageType],
   );
 
   return (
@@ -122,7 +150,7 @@ export function ChatPanel({
         onNavigate={onNavigate}
       />
 
-      <ChatInput disabled={pending} onSend={ask} ref={inputRef} />
+      <ChatInput disabled={pending} onSend={submit} ref={inputRef} />
     </div>
   );
 }

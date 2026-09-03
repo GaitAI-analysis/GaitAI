@@ -9,6 +9,11 @@ import {
   searchStarters,
   type SearchEntry,
 } from "@/data/search-index";
+import {
+  ASK_EVENT,
+  ASSISTANT_ENABLED,
+  type AskEventDetail,
+} from "@/components/assistant/config";
 import styles from "./search.module.css";
 
 /**
@@ -204,6 +209,43 @@ export function IntelligenceSearch() {
           />
           <kbd className={styles.esc}>Esc</kbd>
         </div>
+
+        {/* TWO CAPABILITIES, NAMED.
+            The palette finds a page; the assistant answers a question. Those
+            are different acts and a visitor who typed a QUESTION into a
+            find-a-page box has, until now, had no way to discover the second
+            one. So the typed text is offered to the assistant verbatim rather
+            than being re-run as a different kind of search — nothing is
+            removed, and the palette stays the navigation tool it is.
+
+            Rendered only when the assistant is configured; with no endpoint
+            there is nothing to hand off to. */}
+        {ASSISTANT_ENABLED && (
+          <div className={styles.handoff}>
+            <span className={styles.handoffLabel}>Search site</span>
+            <button
+              type="button"
+              className={styles.handoffAction}
+              onClick={() => {
+                const question = query.trim();
+                close();
+                window.dispatchEvent(
+                  new CustomEvent<AskEventDetail>(ASK_EVENT, {
+                    detail: question ? { question } : {},
+                  }),
+                );
+              }}
+            >
+              <span aria-hidden="true" className={styles.handoffMark}>
+                ✦
+              </span>
+              {query.trim() ? "Ask GaitAI this instead" : "Ask GaitAI"}
+              <span aria-hidden="true" className={styles.handoffArrow}>
+                →
+              </span>
+            </button>
+          </div>
+        )}
 
         <div
           id="gs-results"

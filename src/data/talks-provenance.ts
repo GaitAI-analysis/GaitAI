@@ -4,7 +4,7 @@
  * The slides and certificates behind the records in `talks.ts`. They are
  * kept so a claim on the Talks page can still be checked against its
  * artefact, and they are in a SEPARATE MODULE for one specific reason:
- * `TalkRecordList` is a client component that imports the records, so
+ * `TalksTimeline` is a client component that imports the records, so
  * anything left on a record is serialised into the page HTML. Thirty
  * certificate URLs shipped that way before this split.
  *

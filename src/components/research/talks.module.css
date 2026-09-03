@@ -1,270 +1,687 @@
-/*
- * TALKS & PRESENTATIONS — an editorial research log.
- *
- * THE YEAR IS THE SPINE. The only thing 23 records genuinely share is a date,
- * so the year is set large in the left margin, printed once per group, with a
- * hairline running down through the records beneath it. That is the shape of a
- * dated log rather than a card grid, and it is what keeps an academic record
- * from reading as a CV.
- *
- * NO ICON PER ENTRY. The brief's instruction was no microphones everywhere,
- * and the reason holds generally: 23 identical glyphs carry no information.
- * The kind is a word, the date is a date, and the only marks on the page are
- * the node on the spine and the arrow on a link that leaves the site.
- *
- * It uses the site's existing palette tokens rather than any colour of its
- * own, so it stays inside the approved system in both themes.
- */
+/* ==========================================================================
+   TALKS & PRESENTATIONS — RESEARCH MOVING THROUGH TIME
+   --------------------------------------------------------------------------
+   The Journal draws one signal through ideas as a reader scrolls. This is the
+   same grammar applied to a dated record: one continuous line down the page,
+   a node for every talk, illuminating from the top as the visitor moves
+   through the years. Deliberately not the Journal's layout — that one weaves
+   across a page of essays; this one is a rail, because the subject is a
+   sequence.
 
-/* ── Filters ──────────────────────────────────────────────────────────── */
+   THREE RULES THIS SHEET KEEPS
+   1. No icons. Four kinds, four CSS shapes on the line, and the kind is also
+      always written out in words. Nothing depends on reading a shape.
+   2. Nothing opens by default. A row shows type, date, title and venue; the
+      description, the research relation and the evidence arrive on request.
+   3. One accent, used to mean one thing: cyan is "the reader has been here",
+      violet is "this is the record you opened".
+
+   Both themes branch from `.stage`, since the component mounts inside the
+   page's own dark section but must also read on paper.
+   ========================================================================== */
+
+.stage {
+  --tk-cyan: #4fd1ff;
+  --tk-blue: #5587ff;
+  --tk-violet: #a78bfa;
+  --tk-ink: rgb(var(--c-soft-white));
+  --tk-body: rgb(var(--c-soft-gray));
+  --tk-mute: rgb(var(--c-soft-mute));
+  --tk-line: rgb(148 163 184 / 0.18);
+  --tk-line-soft: rgb(148 163 184 / 0.1);
+  --tk-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Where the rail sits, and therefore how much room the copy gets. Narrow on
+     a phone so the text is not squeezed into a column beside a year gutter. */
+  --tk-rail: 0.5rem;
+  --tk-gap: 1.5rem;
+
+  /* Scroll progress, written by TalksTimeline. 1 before hydration and under
+     reduced motion, so the line renders finished rather than blank. */
+  --tl: 1;
+}
+
+@media (min-width: 768px) {
+  .stage {
+    --tk-rail: 5.5rem;
+    --tk-gap: 2.5rem;
+  }
+}
+
+:global(.light) .stage {
+  --tk-cyan: #0e7490;
+  --tk-blue: #2563ff;
+  --tk-violet: #6d28d9;
+  --tk-line: rgb(15 23 42 / 0.14);
+  --tk-line-soft: rgb(15 23 42 / 0.08);
+}
+
+/* ==========================================================================
+   1 · THE CONSTELLATION (hero)
+   ========================================================================== */
+
+.constellation {
+  /* Its own copy of the palette. The constellation sits in the hero, outside
+     `.stage`, so it inherits none of the tokens above — the gradient stops
+     resolved to nothing and the line rendered invisible. */
+  --tk-cyan: #4fd1ff;
+  --tk-blue: #5587ff;
+  --tk-violet: #a78bfa;
+  --tk-mute: rgb(var(--c-soft-mute));
+
+  display: block;
+  height: 4rem;
+  width: 100%;
+  overflow: visible;
+}
+
+:global(.light) .constellation {
+  --tk-cyan: #0e7490;
+  --tk-blue: #2563ff;
+  --tk-violet: #6d28d9;
+}
+
+/* The gradient stops. Set here rather than as `stop-color="var(…)"` on the
+   element: a custom property in an SVG presentation attribute does not
+   resolve, which left every line in the constellation invisible. */
+.stopViolet {
+  stop-color: var(--tk-violet);
+  stop-opacity: 0.3;
+}
+.stopBlue {
+  stop-color: var(--tk-blue);
+  stop-opacity: 0.6;
+}
+.stopCyan {
+  stop-color: var(--tk-cyan);
+  stop-opacity: 0.95;
+}
+
+.constellationNode {
+  fill: var(--tk-cyan);
+  opacity: 0.6;
+}
+
+.constellationYear {
+  fill: var(--tk-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+
+/* ==========================================================================
+   2 · CONTROLS — text tabs, not a pill wall
+   ========================================================================== */
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  border-bottom: 1px solid var(--tk-line-soft);
+  padding-bottom: 0.9rem;
+}
+
+@media (min-width: 900px) {
+  .controls {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+}
+
+.views,
 .filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  align-items: baseline;
+  gap: 0.35rem 1.35rem;
 }
 
-.chip {
+.viewTab,
+.filterTab {
+  position: relative;
   display: inline-flex;
-  min-height: 2.25rem;
-  align-items: center;
-  gap: 0.45rem;
-  border-radius: 999px;
-  border: 1px solid rgb(148 163 184 / 0.2);
-  padding: 0.4rem 0.85rem;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: rgb(var(--c-soft-gray));
-  transition:
-    border-color 0.3s ease,
-    background-color 0.3s ease,
-    color 0.3s ease;
-}
-.chip:hover {
-  border-color: rgb(148 163 184 / 0.4);
-  color: rgb(var(--c-soft-white));
-}
-.chip:focus-visible {
-  outline: 2px solid #4fd1ff;
-  outline-offset: 2px;
-}
-.chipOn {
-  border-color: rgb(79 209 255 / 0.45);
-  background: rgb(79 209 255 / 0.08);
-  color: rgb(var(--c-soft-white));
-  font-weight: 600;
+  align-items: baseline;
+  gap: 0.4rem;
+  border: 0;
+  background: none;
+  padding: 0.35rem 0;
+  color: var(--tk-mute);
+  cursor: pointer;
+  transition: color 0.3s var(--tk-ease);
 }
 
-.chipCount {
+.viewTab {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 10px;
-  color: rgb(var(--c-soft-mute));
-}
-.chipOn .chipCount {
-  color: #9fe4ff;
-}
-:global(.light) .chipOn .chipCount {
-  color: #0b5f80;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
-/* ── The timeline ─────────────────────────────────────────────────────── */
-.timeline {
-  margin-top: 2.5rem;
-  list-style: none;
-  padding: 0;
+.filterTab {
+  font-size: 12.5px;
+  font-weight: 500;
 }
 
-.yearGroup {
-  display: grid;
-  gap: 0.5rem 2rem;
-  padding-bottom: 2.75rem;
-}
-
-@media (min-width: 860px) {
-  .yearGroup {
-    /* The year sits in its own margin column, so the records align on one
-       edge all the way down the page. */
-    grid-template-columns: 5.5rem minmax(0, 1fr);
-  }
-}
-
-/*
- * NOT STICKY, DELIBERATELY. A sticky year read well until a group scrolled
- * out: the label detaches, rides up the page and passes under the floating
- * navbar pill, where it is half-occluded and looks like a rendering fault.
- * In its own margin column the year is already unambiguous without it.
- */
-.yearSpine {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-@media (min-width: 860px) {
-  .yearSpine {
-    display: block;
-  }
-}
-
-.year {
-  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: clamp(1.35rem, 3vw, 1.75rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  color: rgb(var(--c-soft-white));
-}
-
-/* On narrow screens the year needs a horizontal rule to read as a heading;
-   in the margin column it does not. */
-.yearRule {
-  display: block;
-  height: 1px;
-  flex: 1;
-  background: linear-gradient(
-    90deg,
-    rgb(79 209 255 / 0.35),
-    rgb(148 163 184 / 0.08)
-  );
-}
-@media (min-width: 860px) {
-  .yearRule {
-    display: none;
-  }
-}
-
-.records {
-  list-style: none;
-  padding: 0;
-}
-
-/* Each record hangs off a single continuous hairline with a node on it. */
-.record {
-  position: relative;
-  padding: 0 0 1.75rem 1.5rem;
-  border-left: 1px solid rgb(148 163 184 / 0.16);
-}
-.record:last-child {
-  border-left-color: transparent;
-}
-.record::before {
+/* The underline is the whole selected state — it grows from the left rather
+   than fading in, which is the same motion the line itself uses. */
+.viewTab::after,
+.filterTab::after {
   content: "";
   position: absolute;
-  left: -3.5px;
-  top: 0.5rem;
-  height: 6px;
-  width: 6px;
-  border-radius: 999px;
-  background: rgb(79 209 255 / 0.55);
+  bottom: -0.9rem;
+  left: 0;
+  height: 1px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: var(--tk-cyan);
+  transition: transform 0.35s var(--tk-ease);
 }
 
-.body {
-  min-width: 0;
+.viewTab:hover,
+.filterTab:hover {
+  color: var(--tk-body);
 }
 
-/* ── One record ───────────────────────────────────────────────────────── */
-.meta {
+.tabOn {
+  color: var(--tk-ink);
+}
+
+.tabOn::after {
+  transform: scaleX(1);
+}
+
+.viewTab:focus-visible,
+.filterTab:focus-visible {
+  outline: 2px solid var(--tk-cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.tabCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  color: var(--tk-mute);
+}
+
+@media (pointer: coarse) {
+  .viewTab,
+  .filterTab {
+    min-height: 40px;
+    align-items: center;
+  }
+}
+
+/* ==========================================================================
+   3 · THE RAIL
+   --------------------------------------------------------------------------
+   Two stacked hairlines: the full track in muted slate, and the illuminated
+   overlay clipped to the scroll progress. One element each, no path
+   measurement, and a filter that reflows the whole list needs no
+   recalculation — the overlay is a percentage of whatever height results.
+   ========================================================================== */
+
+.rail {
+  position: relative;
+  margin-top: 2.5rem;
+  padding-left: calc(var(--tk-rail) + var(--tk-gap));
+}
+
+.railTrack,
+.railLit {
+  position: absolute;
+  left: var(--tk-rail);
+  width: 1px;
+}
+
+.railTrack {
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--tk-line) 3%,
+    var(--tk-line) 97%,
+    transparent 100%
+  );
+}
+
+.railLit {
+  top: 0;
+  height: calc(var(--tl) * 100%);
+  /* Cyan where the reader has already been, warming through blue to violet at
+     the front of the illumination — so the colour states where they are, not
+     merely that the line is drawn. */
+  background: linear-gradient(
+    180deg,
+    var(--tk-cyan) 0%,
+    var(--tk-blue) 62%,
+    var(--tk-violet) 100%
+  );
+  /* Feathered tip, so the illuminated end reads as a moving front rather than
+     as a bar with a cut edge. */
+  mask-image: linear-gradient(180deg, #000 0%, #000 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 92%, transparent 100%);
+}
+
+/* ==========================================================================
+   4 · YEARS AND THREADS
+   ========================================================================== */
+
+.years,
+.threads {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.yearGroup,
+.threadGroup {
+  position: relative;
+}
+
+/* The year sits ON the line, not in a column away from it. */
+.year {
+  position: relative;
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.yearMark {
+  position: absolute;
+  left: calc((var(--tk-rail) + var(--tk-gap)) * -1 + var(--tk-rail));
+  top: 50%;
+  height: 7px;
+  width: 7px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: var(--tk-cyan);
+  box-shadow: 0 0 0 4px rgb(var(--c-obsidian-400) / 0.9);
+}
+
+:global(.light) .yearMark {
+  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.9);
+}
+
+.yearLabel {
+  font-family: var(--font-display), var(--font-space-grotesk), system-ui, sans-serif;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--tk-ink);
+}
+
+/* ── Threads view ── */
+
+.threadHead {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.threadHeadText {
+  max-width: 46rem;
+}
+
+.threadTitle {
+  font-family: var(--font-display), var(--font-space-grotesk), system-ui, sans-serif;
+  font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--tk-ink);
+}
+
+.threadSummary {
+  margin-top: 0.5rem;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--tk-mute);
+}
+
+.threadSpan {
+  margin-top: 0.6rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 10px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgb(var(--c-soft-mute));
+  color: var(--tk-mute);
+}
+
+/* ==========================================================================
+   5 · A RECORD
+   ========================================================================== */
+
+.records {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.record {
+  position: relative;
+}
+
+/* ── The mark on the line ──
+   Four kinds, four shapes, all drawn here. `currentColor` on the record lets
+   the open state recolour every mark with one property. */
+
+.mark {
+  position: absolute;
+  left: calc((var(--tk-rail) + var(--tk-gap)) * -1 + var(--tk-rail));
+  top: 0.62rem;
+  height: 8px;
+  width: 8px;
+  transform: translate(-50%, -50%);
+  color: var(--tk-line);
+  transition:
+    color 0.35s var(--tk-ease),
+    transform 0.35s var(--tk-ease);
+}
+
+/* A ring of page colour behind each mark, so the rail does not run visibly
+   through it. */
+.mark::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  border-radius: 999px;
+  background: rgb(var(--c-obsidian-400));
+}
+
+:global(.light) .mark::after {
+  background: rgb(255 255 255);
+}
+
+.markDisc {
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.markRing {
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+
+.markSquare {
+  background: currentColor;
+}
+
+.markDiamond {
+  background: currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* ── The branch from the line to the copy ──
+   Zero-width at rest. It extends on hover and on open, which is what makes
+   the line feel like it is reaching for the record rather than decorating it. */
+
+.branch {
+  position: absolute;
+  left: calc((var(--tk-rail) + var(--tk-gap)) * -1 + var(--tk-rail));
+  top: 0.62rem;
+  height: 1px;
+  width: 0;
+  background: var(--tk-cyan);
+  transform-origin: left;
+  transition: width 0.4s var(--tk-ease);
+}
+
+/* ── The always-visible half ── */
+
+.head {
+  display: grid;
+  width: 100%;
+  gap: 0.35rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.head:focus-visible {
+  outline: 2px solid var(--tk-cyan);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .kind {
-  color: #9fe4ff;
+  color: var(--tk-cyan);
 }
-:global(.light) .kind {
-  color: #0b5f80;
+
+.metaDot,
+.date {
+  color: var(--tk-mute);
 }
 
 .title {
-  margin-top: 0.5rem;
   max-width: 46rem;
-  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: clamp(0.98rem, 2.2vw, 1.0625rem);
+  font-family: var(--font-display), var(--font-space-grotesk), system-ui, sans-serif;
+  font-size: clamp(1rem, 1.9vw, 1.2rem);
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.32;
   letter-spacing: -0.015em;
-  color: rgb(var(--c-soft-white));
+  color: var(--tk-ink);
+  transition: transform 0.35s var(--tk-ease);
 }
 
 .where {
-  margin-top: 0.4rem;
-  max-width: 44rem;
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgb(var(--c-soft-gray));
-}
-
-.desc {
-  margin-top: 0.5rem;
   max-width: 42rem;
-  font-size: 13px;
-  line-height: 1.7;
-  color: rgb(var(--c-soft-mute));
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--tk-mute);
 }
 
-/* ── Evidence ─────────────────────────────────────────────────────────── */
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.1rem;
-  margin-top: 0.75rem;
-}
-
-.evidence,
-.related {
+.disclose {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  min-height: 1.75rem;
-  font-size: 12px;
-  font-weight: 500;
-  transition: color 0.3s ease;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tk-mute);
+  transition: color 0.3s var(--tk-ease);
 }
 
-.evidence {
-  color: rgb(var(--c-soft-gray));
-}
-.evidence:hover {
-  color: #4fd1ff;
+.discloseMark {
+  transition: transform 0.3s var(--tk-ease);
 }
 
-.related {
-  color: rgb(148 163 184 / 0.85);
-}
-/* On paper that grey falls to roughly 2.9:1 against the page. */
-:global(.light) .related {
-  color: rgb(71 85 105 / 0.95);
-}
-.related:hover {
-  color: #a78bfa;
-}
-:global(.light) .related:hover {
-  color: #6d34c9;
-}
+/* ── Hover: a small, deliberate response ── */
 
-.evidence:focus-visible,
-.related:focus-visible {
-  outline: 2px solid #4fd1ff;
-  outline-offset: 3px;
-  border-radius: 3px;
-}
-
-/* Touch has no hover, so the links are painted at full strength there. */
-@media (hover: none) {
-  .evidence {
-    color: #7fd4ff;
+@media (hover: hover) {
+  .record:hover .mark {
+    color: var(--tk-cyan);
+  }
+  .record:hover .branch {
+    width: var(--tk-gap);
+  }
+  .record:hover .title {
+    transform: translateX(2px);
+  }
+  .record:hover .disclose {
+    color: var(--tk-body);
+  }
+  .record:hover .discloseMark {
+    transform: translateX(2px);
   }
 }
 
+/* ── Open: the line answers ──
+   The node goes violet, the branch stays extended, and the record's own
+   marker is the only violet thing on the page. */
+
+.record[data-open="true"] .mark {
+  color: var(--tk-violet);
+}
+
+.record[data-open="true"] .branch {
+  width: var(--tk-gap);
+  background: var(--tk-violet);
+}
+
+.record[data-open="true"] .kind {
+  color: var(--tk-violet);
+}
+
+.record[data-open="true"] .disclose {
+  color: var(--tk-body);
+}
+
+/* ==========================================================================
+   6 · THE EXPANDED PANEL
+   --------------------------------------------------------------------------
+   `grid-template-rows: 0fr → 1fr` animates to intrinsic height without
+   measuring anything and without a max-height that would clip a long
+   description. Inline, never a modal.
+   ========================================================================== */
+
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.4s var(--tk-ease);
+}
+
+.panel[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
+  /* Not `display: none`, so the content stays in the document for find-in-page
+     and for a reader with JS off; `visibility` is what takes it out of the tab
+     order, alongside the tabIndex the component sets. */
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    opacity 0.35s var(--tk-ease),
+    visibility 0s linear 0.4s;
+}
+
+.panel[data-open="true"] .panelInner {
+  visibility: visible;
+  opacity: 1;
+  transition:
+    opacity 0.45s var(--tk-ease) 0.08s,
+    visibility 0s;
+}
+
+.desc {
+  max-width: 44rem;
+  padding-top: 0.9rem;
+  font-size: 13.5px;
+  line-height: 1.68;
+  color: var(--tk-body);
+}
+
+.relations {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  border-left: 1px solid var(--tk-line);
+  padding-left: 0.9rem;
+}
+
+.relation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.9rem;
+}
+
+.relationLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--tk-mute);
+}
+
+.relationLink {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tk-cyan);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--tk-cyan) 35%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.3s var(--tk-ease);
+}
+
+.relationLink:hover {
+  text-decoration-color: var(--tk-cyan);
+}
+
+.relationLink:focus-visible {
+  outline: 2px solid var(--tk-cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.permalink {
+  margin-top: 0.9rem;
+}
+
+.permalinkLink {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tk-mute);
+  transition: color 0.3s var(--tk-ease);
+}
+
+.permalinkLink:hover {
+  color: var(--tk-body);
+}
+
+.permalinkLink:focus-visible {
+  outline: 2px solid var(--tk-cyan);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ==========================================================================
+   7 · REDUCED MOTION
+   The line is already drawn in full (the component writes --tl: 1), so what
+   remains is to stop everything else moving. The states still change; they
+   just arrive instead of travelling.
+   ========================================================================== */
+
 @media (prefers-reduced-motion: reduce) {
-  .chip,
-  .evidence,
-  .related {
+  .viewTab::after,
+  .filterTab::after,
+  .mark,
+  .branch,
+  .title,
+  .disclose,
+  .discloseMark,
+  .panel,
+  .panelInner,
+  .relationLink,
+  .permalinkLink {
     transition: none;
+  }
+
+  .panelInner {
+    transition: visibility 0s;
   }
 }

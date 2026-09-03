@@ -304,7 +304,18 @@ html,
 body {
   background: var(--bg);
   color: var(--text);
-  overflow-x: hidden;
+  /*
+   * `clip`, NOT `hidden`. Both stop sideways scrolling, but `overflow: hidden`
+   * makes the element a SCROLL CONTAINER — and a scroll container becomes the
+   * anchor for every `position: sticky` descendant. With it on html/body, the
+   * page scrolled on the viewport while sticky elements measured themselves
+   * against a box that never moved, so they travelled with the content and
+   * looked like they were never sticky at all. That is why the article's
+   * section rail scrolled away despite `.site-sticky-below-header` having
+   * been correct all along. `overflow-x: clip` clips identically and creates
+   * no scroll container.
+   */
+  overflow-x: clip;
 }
 
 body {

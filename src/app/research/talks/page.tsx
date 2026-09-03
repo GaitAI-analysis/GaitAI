@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
 import { DiagramField } from "@/components/visuals/DiagramField";
-import { TalkRecordList } from "@/components/research/TalkRecordList";
+import { TalksConstellation } from "@/components/research/TalksConstellation";
+import { TalksTimeline } from "@/components/research/TalksTimeline";
 import {
-  EVIDENCE_LABEL,
   TALKS_SOURCES,
-  TALKS_SPEAKER,
-  featuredTalk,
   talkCounts,
-  talksOfKind,
+  talkFormatCount,
+  talkRecords,
+  talkSpan,
+  talkThreads,
 } from "@/data/talks";
 import { FOUNDER_PORTFOLIO_URL } from "@/data/publications";
 import { ctas } from "@/data/content";
@@ -18,248 +19,225 @@ import { ctas } from "@/data/content";
 /**
  * TALKS & PRESENTATIONS — /research/talks
  *
- * A FOUNDER RECORD ON A COMPANY SITE, SAID OUT LOUD. Everything here was
- * delivered by Anubha Parashar in an academic and personal research capacity.
- * GaitAI has delivered no talks of its own, so the page never says it has:
- * the eyebrow is "Founder research record", the standfirst names the speaker,
- * and the note under the counts states the distinction in one sentence. This
- * is the same framing /publications already uses for the same reason, which is
- * why this route sits beside it under Research rather than becoming a
- * company-news surface.
+ * RESEARCH MOVING THROUGH TIME, NOT A CV ON A WEB PAGE. The record is
+ * unchanged — twenty-two entries, every date, title, venue and evidence link
+ * exactly as the source has them. What changed is that the page no longer
+ * asserts all of it at once: the timeline is the storytelling device, each
+ * record opens on request, and the same continuous-line language the Journal
+ * uses for ideas is used here for a sequence.
  *
- * THE COUNTS ARE NEVER SUMMED. 10 invited talks, 3 conference presentations
- * and 1 poster are three different kinds of activity. Adding them into "15
- * talks" would misdescribe all three, and adding the 16 conference papers
- * would be plainly false — most were not talks at all.
+ * NO PERSONAL NAME IN THE COPY. The page previously named the speaker three
+ * times — in the eyebrow, the standfirst and the metadata — which made a
+ * research record read as a personal profile. The distinction it was making is
+ * real and is kept, but it is made once, in its own place, as a property of
+ * the RECORDS rather than of a person: these are individually held academic
+ * activities, not GaitAI company appearances. `TALKS_SPEAKER` still exists in
+ * the data as provenance and still feeds the search index; it is simply not
+ * rendered here.
  *
- * WHAT THIS PAGE DOES NOT HAVE, ON PURPOSE:
+ * THE COUNTS ARE NEVER SUMMED INTO "TALKS". 10 invited talks, 3 conference
+ * presentations, 8 paper presentations and 1 poster are four different kinds
+ * of activity. They are summed into one figure only as "documented
+ * appearances", which is true of all four and claims nothing about any of them.
  *
- *   - No recordings section. Neither source carries a video for any record,
- *     so there is no "Watch recording" control and no empty section promising
- *     one later.
- *   - No technical-demos section, for the same reason: nothing is evidenced
- *     as a demo, and relabelling a lecture as a demo to fill a category is
- *     the kind of small invention that costs a research page its credibility.
- *   - No attendance, reach or impact figures. None exist.
+ * WHAT THIS PAGE STILL DOES NOT HAVE, ON PURPOSE: no recordings (no source
+ * carries a video), no technical demos (nothing is evidenced as one), and no
+ * attendance, reach or impact figures (none exist).
  */
 
 export const metadata: Metadata = {
-  title: "Talks & Presentations — the founder research record",
+  title: "Talks & Presentations — research in conversation",
   description:
-    `Invited talks, conference presentations and a research poster delivered by ` +
-    `GaitAI founder ${TALKS_SPEAKER}, with the papers, posters and records each ` +
-    `is evidenced by. Academic records held individually, not company appearances.`,
+    "Selected invited talks, conference presentations, posters and technical " +
+    "sessions spanning AI, gait analysis, biometrics and related research. " +
+    "Individually held academic records, not GaitAI company appearances.",
   alternates: { canonical: "/research/talks" },
   openGraph: {
     type: "website",
     url: "/research/talks",
-    title: "Talks & Presentations — the founder research record",
+    title: "Talks & Presentations — research in conversation",
     description:
-      `Invited talks, conference presentations and a research poster from ${TALKS_SPEAKER}'s research record.`,
+      "An interactive record of invited talks, conference presentations, " +
+      "posters and technical sessions across AI, gait analysis and biometrics.",
   },
 };
 
-const poster = talksOfKind("poster")[0];
-
-/* Counted from the records, reported separately, never added together. */
-const counts = [
-  { value: talkCounts.invitedTalks, label: "Invited talks" },
-  { value: talkCounts.presentations, label: "Conference presentations" },
-  { value: talkCounts.posters, label: "Research poster" },
-  { value: talkCounts.paperPresentations, label: "Paper presentations" },
+/**
+ * The counts strip, in the record's own terms.
+ *
+ * Zero-padded because they are read as a set, and the padding keeps the column
+ * of figures aligned without a table.
+ */
+const breakdown = [
+  { value: talkCounts.invitedTalks, label: "invited talks" },
+  { value: talkCounts.presentations, label: "conference presentations" },
+  { value: talkCounts.paperPresentations, label: "paper presentations" },
+  { value: talkCounts.posters, label: "research poster" },
 ];
+
+const pad = (n: number) => String(n).padStart(2, "0");
 
 export default function TalksPage() {
   return (
     <>
       {/* ─────────── HERO ─────────── */}
-      <section className="site-page-intro relative overflow-hidden pb-12">
+      <section className="site-page-intro relative overflow-hidden pb-10">
         <DiagramField variant="archive" gridMask="maskRight" className="-z-10" />
 
         <div className="container-wide">
           <div className="max-w-3xl">
             <span className="eyebrow">
               <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-              Founder research record
+              Research exchange
             </span>
 
             <h1 className="mt-6 font-display text-display-lg text-balance text-soft-white">
-              Research shared{" "}
-              <span className="text-gradient">beyond the page.</span>
+              Research in{" "}
+              <span className="text-gradient">conversation.</span>
             </h1>
 
-            <p className="mt-6 text-base leading-relaxed text-soft-gray">
+            <p className="mt-6 max-w-2xl text-base leading-relaxed text-soft-gray">
               Selected invited talks, conference presentations, posters and
-              technical sessions from GaitAI founder {TALKS_SPEAKER}&apos;s
-              research and academic record.
+              technical sessions spanning AI, gait analysis, biometrics and
+              related research.
             </p>
 
-            {/* The provenance sentence. This is the load-bearing line on the
-                page and it is deliberately not a footnote. */}
-            <p className="mt-3.5 max-w-2xl text-[12.5px] leading-relaxed text-soft-mute">
-              These are academic and individually held records rather than
-              GaitAI company appearances — the company has delivered no talks
-              of its own. Every entry is reproduced from the founder&apos;s{" "}
+            <p className="mt-5 font-mono text-[11px] uppercase tracking-[0.16em] text-soft-mute">
+              {talkRecords.length} documented appearances
+              <span aria-hidden="true"> · </span>
+              {talkSpan.from}—{talkSpan.to}
+            </p>
+
+            <a
+              href="#record"
+              className="row-link mt-6 inline-flex items-center gap-2 text-sm font-medium text-soft-white"
+            >
+              Explore the timeline
+              <span aria-hidden="true" className="row-link-arrow">
+                ↓
+              </span>
+            </a>
+          </div>
+
+          {/* ── AT A GLANCE ──
+              The line is the record: one tick per year that has entries,
+              taller where more landed in it. Nothing is drawn that is not a
+              record, so the shape cannot flatter the data. */}
+          <div className="mt-14 max-w-4xl">
+            <TalksConstellation />
+
+            <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-2 border-t border-white/10 pt-4">
+              {breakdown.map((item) => (
+                <div key={item.label} className="flex items-baseline gap-2">
+                  <dt className="sr-only">{item.label}</dt>
+                  <dd className="flex items-baseline gap-2">
+                    <span className="font-mono text-[13px] font-semibold text-soft-white">
+                      {pad(item.value)}
+                    </span>
+                    <span className="text-[12px] text-soft-mute">
+                      {item.label}
+                    </span>
+                  </dd>
+                </div>
+              ))}
+              <div className="flex items-baseline gap-2">
+                <dt className="sr-only">presentation formats</dt>
+                <dd className="flex items-baseline gap-2">
+                  <span className="font-mono text-[13px] font-semibold text-soft-white">
+                    {pad(talkFormatCount)}
+                  </span>
+                  <span className="text-[12px] text-soft-mute">
+                    presentation formats
+                  </span>
+                </dd>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <dt className="sr-only">research threads</dt>
+                <dd className="flex items-baseline gap-2">
+                  <span className="font-mono text-[13px] font-semibold text-soft-white">
+                    {pad(talkThreads.length)}
+                  </span>
+                  <span className="text-[12px] text-soft-mute">
+                    research threads
+                  </span>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      {/* ─────────── THE RECORD ───────────
+          One surface, two arrangements. The "most recent talk" and "research
+          poster" cards this page used to open with are gone as CARDS, not as
+          records: both are nodes on the line — the most recent is simply the
+          first, and the poster carries its own mark and its poster link. Two
+          feature boxes above a list of the same entries was the CV shape the
+          redesign exists to leave behind. */}
+      <section id="record" className="section scroll-mt-28 !pt-6">
+        <div className="container-wide">
+          <Reveal>
+            <TalksTimeline />
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ─────────── PROVENANCE ───────────
+          The distinction the old hero repeated three times, made once, here,
+          where a reader who has just been through the record will actually
+          weigh it. */}
+      <section className="section !pt-0">
+        <div className="container-wide">
+          <div className="max-w-2xl border-t border-white/10 pt-8">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
+              Academic record
+            </p>
+            <p className="mt-3 text-[13px] leading-relaxed text-soft-gray">
+              These entries document individual academic and research
+              activities and should not be interpreted as GaitAI company
+              appearances — the company has delivered no talks of its own.
+              Every entry is reproduced from the underlying{" "}
               <a
                 href={FOUNDER_PORTFOLIO_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-soft-gray underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-white"
+                className="text-soft-white underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:decoration-soft-white"
               >
                 research record
               </a>
-              , with the evidence each one links.
+              , with the evidence each one links. A record maps to a GaitAI
+              research area only where the work itself is that research; the
+              IoT, teaching and access-control sessions are part of the
+              academic record and map to nothing here.
+            </p>
+
+            <p className="mt-4 text-[11.5px] leading-relaxed text-soft-mute">
+              Sources:{" "}
+              <a
+                href={TALKS_SOURCES.talks}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-gray"
+              >
+                talks delivered
+              </a>{" "}
+              and{" "}
+              <a
+                href={TALKS_SOURCES.conferences}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-gray"
+              >
+                conference record
+              </a>
+              .
             </p>
           </div>
-
-          <dl className="mt-10 grid max-w-3xl grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
-            {counts.map((c) => (
-              <div key={c.label}>
-                <dt className="sr-only">{c.label}</dt>
-                <dd>
-                  <span className="block font-display text-2xl font-semibold text-soft-white">
-                    {c.value}
-                  </span>
-                  <span className="mt-1 block text-[11.5px] leading-snug text-soft-mute">
-                    {c.label}
-                  </span>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </section>
-
-      {/* ─────────── MOST RECENT TALK ───────────
-          "Featured" by date, not by judgement: there is no attendance,
-          rating or reach data behind any of these, so recency is the only
-          ordering the record can actually support. */}
-      {featuredTalk && (
-        <section className="section !pt-0">
-          <div className="container-wide">
-            <Reveal>
-              <div className="max-w-3xl rounded-2xl border border-white/10 bg-white/[0.02] p-6 sm:p-8">
-                <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-soft-mute">
-                  Most recent
-                </p>
-                <h2 className="mt-3 font-display text-xl font-semibold leading-snug text-soft-white">
-                  {featuredTalk.title}
-                </h2>
-                <p className="mt-2.5 text-sm text-soft-gray">
-                  {featuredTalk.date}
-                  {featuredTalk.venue && (
-                    <>
-                      <span aria-hidden="true"> · </span>
-                      {featuredTalk.venue}
-                    </>
-                  )}
-                </p>
-                {featuredTalk.description && (
-                  <p className="mt-3 max-w-xl text-[13px] leading-relaxed text-soft-mute">
-                    {featuredTalk.description}
-                  </p>
-                )}
-                {/* No CTA unless the source links something. This record
-                    links nothing, so nothing is offered. */}
-                {featuredTalk.evidence.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-                    {featuredTalk.evidence.map((e) => (
-                      <a
-                        key={e.href}
-                        href={e.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-medium text-soft-gray transition-colors hover:text-cyan-300"
-                      >
-                        {EVIDENCE_LABEL[e.kind]}
-                        <ArrowUpRight aria-hidden="true" className="h-3 w-3" />
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </Reveal>
-          </div>
-        </section>
-      )}
-
-      {/* ─────────── THE RESEARCH POSTER ───────────
-          Its own block because it is the one artefact on this page that is
-          the output itself rather than a record of an event — the poster PDF
-          is the thing that was presented, and it is the most directly
-          gait-relevant item here. */}
-      {poster && (
-        <section className="section !pt-0">
-          <div className="container-wide">
-            <Reveal>
-              <div className="grid max-w-4xl gap-6 rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-transparent p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-                <div className="min-w-0">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-cyan-300">
-                    Research poster
-                  </p>
-                  <h2 className="mt-3 font-display text-xl font-semibold leading-snug text-soft-white">
-                    {poster.title}
-                  </h2>
-                  <p className="mt-2.5 text-sm leading-relaxed text-soft-gray">
-                    {poster.year}
-                    {poster.event && (
-                      <>
-                        <span aria-hidden="true"> · </span>
-                        {poster.event}
-                      </>
-                    )}
-                    {poster.venue && (
-                      <>
-                        <span aria-hidden="true"> · </span>
-                        {poster.venue}
-                      </>
-                    )}
-                  </p>
-                </div>
-
-                {poster.evidence[0] && (
-                  <a
-                    href={poster.evidence[0].href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-primary inline-flex items-center gap-2 self-start whitespace-nowrap lg:self-center"
-                  >
-                    View poster
-                    <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-                  </a>
-                )}
-              </div>
-            </Reveal>
-          </div>
-        </section>
-      )}
-
-      {/* ─────────── THE FULL RECORD ─────────── */}
-      <section className="section">
-        <div className="container-wide">
-          <Reveal>
-            <h2 className="font-display text-display-md text-soft-white">
-              The record
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-soft-gray">
-              Every entry below is reproduced from the founder&apos;s research
-              site, newest first, with the artefact it is evidenced by. A
-              record links to a GaitAI research area only where the work itself
-              is that research — the IoT, teaching and access-control sessions
-              are part of the academic record and map to nothing here.
-            </p>
-          </Reveal>
-
-          <Reveal delay={0.06}>
-            <div className="mt-8">
-              <TalkRecordList />
-            </div>
-          </Reveal>
         </div>
       </section>
 
       {/* ─────────── WHERE TO GO NEXT ─────────── */}
-      <section className="section pb-20 sm:pb-24">
+      <section className="section pb-20 !pt-0 sm:pb-24">
         <div className="container-wide">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/10 pt-8">
             <Link
@@ -293,28 +271,6 @@ export default function TalksPage() {
               />
             </Link>
           </div>
-
-          <p className="mt-6 text-[11.5px] leading-relaxed text-soft-mute">
-            Sources:{" "}
-            <a
-              href={TALKS_SOURCES.talks}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-gray"
-            >
-              talks delivered
-            </a>{" "}
-            and{" "}
-            <a
-              href={TALKS_SOURCES.conferences}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-gray"
-            >
-              conference record
-            </a>
-            .
-          </p>
         </div>
       </section>
     </>

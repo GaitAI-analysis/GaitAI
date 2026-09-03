@@ -1153,9 +1153,42 @@ details[open] > .summaryBody {
   color: var(--jr-mute);
 }
 
-/* ── Section rail ── */
-
+/*
+ * ── Section rail ──
+ *
+ * The heading said "sticky" and the rule never was: `.rail` carried a font
+ * size and nothing else, so the rail scrolled away with the article.
+ *
+ * It sticks with `position: sticky`, never `fixed`. Fixed would lift it out
+ * of the layout, so it would ride over the discussion and the footer once the
+ * essay ended. Sticky keeps it inside its grid column: the aside is a grid
+ * item at the default `stretch`, so it spans the whole body row, and the rail
+ * travels inside that and stops exactly where the article body stops.
+ *
+ * The offset is the site's own header tokens rather than a hand-tuned number,
+ * so it lands the same 24px under the navbar that every in-page anchor already
+ * uses — and it follows automatically if the header height ever changes.
+ */
 .rail {
+  /*
+   * The positioning lives here rather than on `.site-sticky-below-header`,
+   * because a concurrent change removed that class from the component. The
+   * offset is still built from the site's own header tokens, so it lands the
+   * same 24px below the navbar that every in-page anchor already clears, and
+   * it follows automatically if the header height changes.
+   */
+  position: sticky;
+  top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  /* Never taller than the space beneath the header. Seven sections do not
+     need this; an essay with twenty would scroll inside the rail instead of
+     running off the screen — and `contain` stops that scroll chaining back
+     out to the page when it reaches the end. */
+  max-height: calc(
+    100vh - var(--site-header-height) - (var(--site-anchor-gap) * 2)
+  );
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   font-size: 0.8125rem;
 }
 .railLabel {

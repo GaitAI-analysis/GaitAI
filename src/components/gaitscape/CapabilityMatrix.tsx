@@ -238,7 +238,7 @@ export function CapabilityMatrix() {
                             onClick={() =>
                               setOpenCell({ productId: p.id, capabilityId: cap.id })
                             }
-                            aria-label={`How ${cap.title} is used in ${p.short}`}
+                            aria-label={`${cap.title} is used by ${p.short} — open details`}
                             className={cn(
                               "capmatrix-check",
                               p.vertical === "securevision"
@@ -249,10 +249,21 @@ export function CapabilityMatrix() {
                             <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
                           </button>
                         ) : (
-                          <span
-                            aria-hidden="true"
-                            className="capmatrix-dash mx-auto block"
-                          />
+                          <>
+                            {/* The dash is decorative, but the CELL still has
+                                to say something: with the dash aria-hidden and
+                                nothing else in the td, a screen reader
+                                announced an empty cell and the absence of the
+                                relationship was carried only by a visual
+                                mark. */}
+                            <span
+                              aria-hidden="true"
+                              className="capmatrix-dash mx-auto block"
+                            />
+                            <span className="sr-only">
+                              {`${cap.title} is not used by ${p.short}`}
+                            </span>
+                          </>
                         )}
                       </td>
                     );

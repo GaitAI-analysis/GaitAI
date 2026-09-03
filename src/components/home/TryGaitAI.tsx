@@ -223,10 +223,15 @@ export function TryGaitAI() {
                 {/* A marker, not a badge: the brief asked for this to be quiet,
                     and a large outlined pill was reading as a warning label. */}
                 <div className={styles.headMeta}>
+                  {/* One phrase for this everywhere on the site:
+                      "Illustrative demo" — see IllustrativeBadge. The second
+                      word this marker used to carry said nothing the first
+                      does not, and invited the reader to wonder what had been
+                      generated. The values in here are examples. */}
                   <p className={styles.status}>
                     <span aria-hidden="true" className={styles.statusDot} />
                     Illustrative
-                    <span className={styles.statusThin}> / synthetic</span>
+                    <span className={styles.statusThin}> demo</span>
                   </p>
                   <button
                     type="button"

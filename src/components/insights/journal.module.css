@@ -568,15 +568,6 @@
   overflow: hidden;
   aspect-ratio: 16 / 9;
 }
-.cardMedia img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  transition: transform 1.1s var(--jr-ease);
-}
-.card:hover .cardMedia img {
-  transform: scale(1.015);
-}
 .cardMediaScrim {
   position: absolute;
   inset: 0;
@@ -586,6 +577,13 @@
     rgb(var(--c-obsidian-500) / 0.75),
     transparent 62%
   );
+}
+/* The scrim fades the media into the card's own ground, which in the light
+   theme means a white wash — it bleached the bottom third of a cover and took
+   its labels with it. The covers keep their dark ground in both themes, so on
+   a white card the plate needs no blending at all. */
+:global(.light) .cardMediaScrim {
+  background: none;
 }
 
 .cardBody {
@@ -1036,20 +1034,12 @@
 .articleMedia {
   position: relative;
   overflow: hidden;
+  /* The band the raster hero used to make with its own 16/9 ratio. Stated
+     here now that the hero is a drawn cover, which fits itself inside. */
+  aspect-ratio: 16 / 9;
   border-radius: 1.5rem;
   border: 1px solid var(--jr-line);
   background-color: rgb(var(--c-obsidian-300));
-}
-.articleMedia img {
-  display: block;
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-/* A very slow ambient drift, so the hero is not a dead rectangle. */
-.articleMediaDrift img {
-  animation: jrDrift 42s ease-in-out infinite alternate;
-  will-change: transform;
 }
 .articleMediaVignette {
   position: absolute;
@@ -1507,25 +1497,7 @@ details[open] > .summaryToggle .summaryChevron {
   background: linear-gradient(90deg, transparent, var(--jr-cyan), transparent);
 }
 
-@keyframes jrDrift {
-  from {
-    transform: scale(1.02) translate3d(0, 0, 0);
-  }
-  to {
-    transform: scale(1.06) translate3d(-1.2%, -1%, 0);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .articleMediaDrift img,
-  .featureMedia img,
-  .cardMedia img {
-    animation: none;
-    transition: none;
-    transform: none;
-  }
-  .feature:hover .featureMedia img,
-  .card:hover .cardMedia img,
   .card:hover {
     transform: none;
   }

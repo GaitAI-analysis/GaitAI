@@ -561,9 +561,25 @@ const ART: Record<CoverConcept, () => React.ReactElement> = {
 };
 
 /**
- * The shared frame: the family resemblance. A measured ground, a corner tick
- * at each side and one hairline — identical on all five, so the set reads as
- * one publication however different the compositions are.
+ * The shared frame: the family resemblance. A measured ground, a survey grid,
+ * a corner tick at each side and one set of hairline weights — identical on
+ * all five, so the set reads as one publication however different the
+ * compositions are.
+ *
+ * Three layers, not one SVG, because the slots these sit in are not one
+ * shape: the archive's compact card is 16/9, the tall card is 4/3, the
+ * featured card and the article hero are whatever their row is, and a single
+ * `slice` viewport cropped the labels off the sides of the narrow ones.
+ * Nesting cannot fix that — a nested viewport inherits its parent's
+ * non-uniform scale — so each layer is its own element with its own fit:
+ *
+ *   ground   stretches (a flat fill cannot be distorted)
+ *   grid     `slice`, so its cells stay square while it covers the slot
+ *   plate    `meet`, so the whole composition is always visible, centred,
+ *            and never cropped or stretched at any card width
+ *
+ * The plate letterboxing against the grid is the intended look: a drawn
+ * plate on measured ground, the way a figure sits on a page.
  */
 export function JournalCover({
   concept,
@@ -574,35 +590,54 @@ export function JournalCover({
 }) {
   const Art = ART[concept];
   return (
-    <svg
+    <div
       aria-hidden="true"
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="xMidYMid slice"
       className={`${styles.cover} ${styles[concept]} ${className ?? ""}`}
     >
-      <rect className={styles.cGround} x="0" y="0" width={W} height={H} />
-      <g className={styles.cGrid}>
-        {Array.from({ length: 16 }, (_, i) => (
-          <line key={`v${i}`} x1={i * 40} y1={0} x2={i * 40} y2={H} />
+      <svg
+        className={styles.layer}
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+      >
+        <rect className={styles.cGround} x="0" y="0" width={W} height={H} />
+      </svg>
+
+      <svg
+        className={styles.layer}
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="xMidYMid slice"
+      >
+        <g className={styles.cGrid}>
+          {Array.from({ length: 16 }, (_, i) => (
+            <line key={`v${i}`} x1={i * 40} y1={0} x2={i * 40} y2={H} />
+          ))}
+          {Array.from({ length: 10 }, (_, i) => (
+            <line key={`h${i}`} x1={0} y1={i * 40} x2={W} y2={i * 40} />
+          ))}
+        </g>
+      </svg>
+
+      <svg
+        className={styles.layer}
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        <Art />
+        {/* corner ticks — on the plate, not the grid, so they always frame
+            the composition instead of being cropped away with the edges */}
+        {[
+          [14, 14, 1, 1],
+          [W - 14, 14, -1, 1],
+          [14, H - 14, 1, -1],
+          [W - 14, H - 14, -1, -1],
+        ].map(([x, y, sx, sy], i) => (
+          <path
+            key={i}
+            className={styles.cTick}
+            d={`M ${x} ${y + sy * 11} L ${x} ${y} L ${x + sx * 11} ${y}`}
+          />
         ))}
-        {Array.from({ length: 10 }, (_, i) => (
-          <line key={`h${i}`} x1={0} y1={i * 40} x2={W} y2={i * 40} />
-        ))}
-      </g>
-      <Art />
-      {/* corner ticks */}
-      {[
-        [14, 14, 1, 1],
-        [W - 14, 14, -1, 1],
-        [14, H - 14, 1, -1],
-        [W - 14, H - 14, -1, -1],
-      ].map(([x, y, sx, sy], i) => (
-        <path
-          key={i}
-          className={styles.cTick}
-          d={`M ${x} ${y + sy * 11} L ${x} ${y} L ${x + sx * 11} ${y}`}
-        />
-      ))}
-    </svg>
+      </svg>
+    </div>
   );
 }

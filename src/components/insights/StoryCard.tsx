@@ -115,7 +115,12 @@ export function StoryCard({
               <span>{subject}</span>
             </>
           )}
-          {typeof views === "number" && views > 0 && (
+          {/* A genuine zero is shown as "0 views", not hidden: on a card the
+              reader is not the subject, so nought is a true and useful
+              number. The field is absent only when the count is unknown —
+              which is what `undefined` means here, Firestore being
+              unreachable or not yet answered. */}
+          {typeof views === "number" && (
             <>
               <span aria-hidden="true">·</span>
               <span>{formatCount(views, "view")}</span>

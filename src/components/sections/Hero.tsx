@@ -5,6 +5,8 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { productCount } from "@/data/products";
+import { TryGaitAI } from "@/components/home/TryGaitAI";
+import { MotionDNAThread } from "@/components/home/MotionDNAThread";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
   ssr: false,
@@ -86,8 +88,14 @@ export function Hero() {
           <motion.div
             variants={fadeUp}
             custom={3}
-            className="mt-10 flex w-full max-w-xl flex-col items-stretch justify-center gap-3 sm:mt-12 sm:flex-row sm:items-center"
+            className="mt-10 flex w-full max-w-3xl flex-col items-stretch justify-center gap-3 sm:mt-12 sm:flex-row sm:items-center sm:flex-wrap"
           >
+            {/* The demo comes first: it is the one thing above the fold that
+                lets a visitor SEE what the platform does rather than read
+                about it. The two family links keep their copy and their
+                order behind it. Nothing loads until it is pressed. */}
+            <TryGaitAI />
+
             <Link
               href="/mobilitycare"
               className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/35 bg-teal-300/[0.1] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/50 hover:bg-teal-300/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
@@ -122,6 +130,17 @@ export function Hero() {
               Clinical mobility and privacy-aware public safety, on one
               platform.
             </span>
+          </motion.div>
+
+          {/* The hero's one interaction: the same signal, four readings. Kept
+              to a strip so the headline, the actions and the 3D scene above it
+              all keep their weight. */}
+          <motion.div
+            variants={fadeUp}
+            custom={5}
+            className="mt-8 flex w-full justify-center sm:mt-10"
+          >
+            <MotionDNAThread />
           </motion.div>
         </motion.div>
       </div>

@@ -1,0 +1,126 @@
+/*
+ * MOTION DNA THREAD — the hero's one interaction.
+ *
+ * Completely still at rest. The branches exist at different weights, and only
+ * a pointer or a focus changes anything; each change is one 400ms transition.
+ * Nothing here loops, pulses or drifts, because it sits under a headline.
+ */
+
+.wrap {
+  width: 100%;
+  max-width: 46rem;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The shared signal — the brightest line, because it is the thing everything
+   else is derived from. */
+.signal {
+  fill: none;
+  stroke: #7fd4ff;
+  stroke-opacity: 0.62;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.hub {
+  fill: #bfe9ff;
+  fill-opacity: 0.85;
+}
+
+.branch {
+  fill: none;
+  stroke: #8ab4ff;
+  stroke-opacity: 0.26;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: stroke-opacity 0.4s ease, stroke-width 0.4s ease;
+}
+
+.branchOn {
+  stroke: #bfe9ff;
+  stroke-opacity: 0.9;
+  stroke-width: 1.7;
+}
+
+.branchOff {
+  stroke-opacity: 0.1;
+}
+
+/* ── The labels, which are the control ───────────────────────────────────── */
+.readings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  margin-top: 0.25rem;
+}
+
+.reading {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.25rem 0;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgb(var(--c-soft-mute));
+  transition: color 0.4s ease;
+}
+.reading:hover,
+.readingOn {
+  color: rgb(var(--c-soft-white));
+}
+.reading:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.dot {
+  height: 5px;
+  width: 5px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  transform: translateY(-1px);
+  transition: background-color 0.4s ease;
+}
+.readingOn .dot {
+  background: #7fd4ff;
+  border-color: #7fd4ff;
+}
+
+/* The note is the second half of the point: it names the PURPOSE, which is
+   what actually differs between the four. Hidden on a phone, where four notes
+   would be four extra lines under a headline. */
+.note {
+  display: none;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgb(var(--c-soft-mute));
+}
+@media (min-width: 900px) {
+  .note {
+    display: inline;
+  }
+}
+
+.caption {
+  margin-top: 0.75rem;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-mute));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .branch,
+  .reading,
+  .dot {
+    transition: none;
+  }
+}

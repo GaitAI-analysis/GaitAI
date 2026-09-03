@@ -38,7 +38,12 @@ import { parseOne, useQueryState } from "./useQueryState";
 import styles from "./analytics.module.css";
 
 /**
- * MOVEMENT SIGNAL LAB — /movement-lab
+ * MOVEMENT STUDIO — /movement-lab
+ *
+ * The component file and the route both keep their `lab` names: the URL is in
+ * the sitemap and linked from five places, a static export cannot redirect,
+ * and renaming a file for cosmetic symmetry buys a reader nothing. Only the
+ * visible name changed.
  *
  * An interactive technology demonstration, not an instrument. It answers the
  * question the rest of the site can only assert: *what actually happens

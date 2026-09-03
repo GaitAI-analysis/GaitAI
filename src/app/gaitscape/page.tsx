@@ -84,7 +84,7 @@ export default function GaitscapePage() {
               and the configurator turns it into a recommendation. */}
           <div className="mt-14 flex flex-wrap items-center gap-3 border-t border-white/[0.07] pt-8">
             <Link href="/movement-lab" className="btn-ghost">
-              Open the Movement Studio →
+              Open Movement Studio →
             </Link>
             <Link href="/products#stack" className="btn-ghost">
               Find your GaitAI stack →

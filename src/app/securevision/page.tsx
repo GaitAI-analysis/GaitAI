@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Lock } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SecureCapabilityGroups } from "@/components/products/SecureCapabilityGroups";
 import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
@@ -93,14 +92,14 @@ export default function SecureVisionPage() {
                 </Link>
               </div>
 
-              {/* The hero footage renders a tracking/analytics console. Nothing
-                  in it is a real camera feed or a real deployment, and the
-                  overlay reads convincingly, so it is labelled. */}
-              <SyntheticDataBadge
-                variant="overlay"
-                label="Illustrative demo · Synthetic data"
-                className="mt-8 lg:mt-6"
-              />
+              {/* The synthetic-data pill that used to sit here — between the
+                  CTAs and the capability chips, on top of the hero footage —
+                  is gone, along with its twin on the MobilityCare hero and the
+                  two on the home page's console visuals. One badge repeated on
+                  every product visual reads as chrome, not as disclosure.
+                  Nothing replaces it: the capability grid carries its own 3rem
+                  top margin, so the column closes up rather than leaving a gap
+                  where the badge was. */}
 
               {/* Capability chips — text-only, two rows, each chip snug around
                   its own label so they stay readable over the moving video */}

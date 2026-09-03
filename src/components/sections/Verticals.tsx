@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
-import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { capabilityIconById } from "@/components/icons/CapabilityIcons";
 import {
   mobilityProducts,
@@ -232,12 +231,15 @@ function FlagshipPanel({
           </div>
           {/* Animated console footage — reduced-motion users get the still
               poster frame instead. The asset is a fixed dark cinematic
-              render, identical in light and dark mode. */}
-          <SyntheticDataBadge
-            variant="overlay"
-            label="Illustrative demo · Synthetic data"
-            className="absolute bottom-4 left-5 z-10 sm:left-7"
-          />
+              render, identical in light and dark mode.
+
+              The synthetic-data pill that used to sit at bottom-left is gone.
+              It was the same badge repeated on top of every product visual on
+              the site, and stacked on footage that already carries a "· Demo"
+              tag in the opposite corner it read as chrome rather than as
+              disclosure. The disclosure itself is unchanged: the console tag
+              above still says "Demo", and the sr-only line below states in
+              full that this is illustrative footage on synthetic data. */}
           {reduceMotion ? (
             <Image
               src={assetPath(videoPoster)}

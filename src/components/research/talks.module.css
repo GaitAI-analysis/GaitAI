@@ -1,0 +1,270 @@
+/*
+ * TALKS & PRESENTATIONS — an editorial research log.
+ *
+ * THE YEAR IS THE SPINE. The only thing 23 records genuinely share is a date,
+ * so the year is set large in the left margin, printed once per group, with a
+ * hairline running down through the records beneath it. That is the shape of a
+ * dated log rather than a card grid, and it is what keeps an academic record
+ * from reading as a CV.
+ *
+ * NO ICON PER ENTRY. The brief's instruction was no microphones everywhere,
+ * and the reason holds generally: 23 identical glyphs carry no information.
+ * The kind is a word, the date is a date, and the only marks on the page are
+ * the node on the spine and the arrow on a link that leaves the site.
+ *
+ * It uses the site's existing palette tokens rather than any colour of its
+ * own, so it stays inside the approved system in both themes.
+ */
+
+/* ── Filters ──────────────────────────────────────────────────────────── */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  min-height: 2.25rem;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgb(148 163 184 / 0.2);
+  padding: 0.4rem 0.85rem;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgb(var(--c-soft-gray));
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+.chip:hover {
+  border-color: rgb(148 163 184 / 0.4);
+  color: rgb(var(--c-soft-white));
+}
+.chip:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 2px;
+}
+.chipOn {
+  border-color: rgb(79 209 255 / 0.45);
+  background: rgb(79 209 255 / 0.08);
+  color: rgb(var(--c-soft-white));
+  font-weight: 600;
+}
+
+.chipCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  color: rgb(var(--c-soft-mute));
+}
+.chipOn .chipCount {
+  color: #9fe4ff;
+}
+:global(.light) .chipOn .chipCount {
+  color: #0b5f80;
+}
+
+/* ── The timeline ─────────────────────────────────────────────────────── */
+.timeline {
+  margin-top: 2.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.yearGroup {
+  display: grid;
+  gap: 0.5rem 2rem;
+  padding-bottom: 2.75rem;
+}
+
+@media (min-width: 860px) {
+  .yearGroup {
+    /* The year sits in its own margin column, so the records align on one
+       edge all the way down the page. */
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+}
+
+/*
+ * NOT STICKY, DELIBERATELY. A sticky year read well until a group scrolled
+ * out: the label detaches, rides up the page and passes under the floating
+ * navbar pill, where it is half-occluded and looks like a rendering fault.
+ * In its own margin column the year is already unambiguous without it.
+ */
+.yearSpine {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+@media (min-width: 860px) {
+  .yearSpine {
+    display: block;
+  }
+}
+
+.year {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: rgb(var(--c-soft-white));
+}
+
+/* On narrow screens the year needs a horizontal rule to read as a heading;
+   in the margin column it does not. */
+.yearRule {
+  display: block;
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(
+    90deg,
+    rgb(79 209 255 / 0.35),
+    rgb(148 163 184 / 0.08)
+  );
+}
+@media (min-width: 860px) {
+  .yearRule {
+    display: none;
+  }
+}
+
+.records {
+  list-style: none;
+  padding: 0;
+}
+
+/* Each record hangs off a single continuous hairline with a node on it. */
+.record {
+  position: relative;
+  padding: 0 0 1.75rem 1.5rem;
+  border-left: 1px solid rgb(148 163 184 / 0.16);
+}
+.record:last-child {
+  border-left-color: transparent;
+}
+.record::before {
+  content: "";
+  position: absolute;
+  left: -3.5px;
+  top: 0.5rem;
+  height: 6px;
+  width: 6px;
+  border-radius: 999px;
+  background: rgb(79 209 255 / 0.55);
+}
+
+.body {
+  min-width: 0;
+}
+
+/* ── One record ───────────────────────────────────────────────────────── */
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+.kind {
+  color: #9fe4ff;
+}
+:global(.light) .kind {
+  color: #0b5f80;
+}
+
+.title {
+  margin-top: 0.5rem;
+  max-width: 46rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(0.98rem, 2.2vw, 1.0625rem);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+  color: rgb(var(--c-soft-white));
+}
+
+.where {
+  margin-top: 0.4rem;
+  max-width: 44rem;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-gray));
+}
+
+.desc {
+  margin-top: 0.5rem;
+  max-width: 42rem;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* ── Evidence ─────────────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin-top: 0.75rem;
+}
+
+.evidence,
+.related {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 1.75rem;
+  font-size: 12px;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.evidence {
+  color: rgb(var(--c-soft-gray));
+}
+.evidence:hover {
+  color: #4fd1ff;
+}
+
+.related {
+  color: rgb(148 163 184 / 0.85);
+}
+/* On paper that grey falls to roughly 2.9:1 against the page. */
+:global(.light) .related {
+  color: rgb(71 85 105 / 0.95);
+}
+.related:hover {
+  color: #a78bfa;
+}
+:global(.light) .related:hover {
+  color: #6d34c9;
+}
+
+.evidence:focus-visible,
+.related:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Touch has no hover, so the links are painted at full strength there. */
+@media (hover: none) {
+  .evidence {
+    color: #7fd4ff;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip,
+  .evidence,
+  .related {
+    transition: none;
+  }
+}

@@ -24,6 +24,11 @@
 // ============================================================================
 
 import { allProducts, industryUseCases } from "@/data/products";
+import {
+  TALKS_SPEAKER,
+  TALK_KIND_LABEL,
+  talkRecords,
+} from "@/data/talks";
 import { gaitscapeNodes } from "@/data/gaitscape/graph";
 import { allPublications } from "@/data/publications";
 import { researchAreas } from "@/data/evidence";
@@ -37,6 +42,7 @@ export type SearchGroup =
   | "environment"
   | "research"
   | "publication"
+  | "talk"
   | "insight";
 
 /** Group order in the palette — most-used first. */
@@ -47,6 +53,7 @@ export const SEARCH_GROUPS: SearchGroup[] = [
   "environment",
   "research",
   "publication",
+  "talk",
   "insight",
 ];
 
@@ -57,6 +64,7 @@ export const SEARCH_GROUP_LABEL: Record<SearchGroup, string> = {
   environment: "Environments",
   research: "Research",
   publication: "Publications",
+  talk: "Talks",
   insight: "Journal",
 };
 
@@ -228,6 +236,33 @@ const insightEntries: SearchEntry[] = insightArticles.map((a) => ({
   ]),
 }));
 
+// ── Talks, presentations and the poster ─────────────────────────────────────
+// Every field comes from the record, so a search for "ICA3C", "poster" or
+// "Windhoek" finds the entry it belongs to. They all resolve to one route,
+// which is why the id carries the record id and the detail carries the venue:
+// the palette has to distinguish 23 rows that share an href.
+const talkEntries: SearchEntry[] = talkRecords.map((talk) => ({
+  id: `talk-${talk.id}`,
+  group: "talk",
+  title: talk.title,
+  detail: [TALK_KIND_LABEL[talk.kind], talk.event, talk.venue]
+    .filter(Boolean)
+    .join(" · "),
+  meta: String(talk.year),
+  href: "/research/talks",
+  haystack: norm([
+    talk.title,
+    TALK_KIND_LABEL[talk.kind],
+    talk.event,
+    talk.venue,
+    talk.description,
+    talk.date,
+    String(talk.year),
+    TALKS_SPEAKER,
+    "talk presentation poster speaking record founder",
+  ]),
+}));
+
 export const searchIndex: SearchEntry[] = [
   ...destinationEntries,
   ...productEntries,
@@ -235,6 +270,7 @@ export const searchIndex: SearchEntry[] = [
   ...environmentEntries,
   ...researchEntries,
   ...publicationEntries,
+  ...talkEntries,
   ...insightEntries,
 ];
 

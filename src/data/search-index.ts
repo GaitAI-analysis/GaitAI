@@ -65,7 +65,7 @@ export const SEARCH_GROUP_LABEL: Record<SearchGroup, string> = {
   research: "Research",
   publication: "Publications",
   talk: "Talks",
-  insight: "Journal",
+  insight: "Blog",
 };
 
 export interface SearchEntry {
@@ -114,6 +114,26 @@ const destinationEntries: SearchEntry[] = [
       /* Retired names: findable, never shown. */
       "movement intelligence lab",
       "movement lab",
+    ]),
+  },
+  {
+    /* The page a visitor is most likely to search by a word that is not its
+       route: "blog" reaches nothing under /insights unless it is spelled out
+       somewhere, and the retired name has to keep working for anyone who
+       learned it. */
+    id: "destination:blog",
+    group: "destination",
+    title: "Blog & Updates",
+    detail:
+      "Technical explainers, research translation, engineering notes and product updates",
+    meta: "Editorial",
+    href: "/insights/",
+    haystack: norm([
+      "blog updates gaitai blog",
+      "articles posts stories essays research notes engineering notes",
+      "product updates company news what we are building",
+      /* Retired name: findable, never shown. */
+      "journal gaitai journal insights",
     ]),
   },
   {

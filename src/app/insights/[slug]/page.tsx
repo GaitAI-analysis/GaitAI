@@ -190,7 +190,7 @@ export default function InsightArticlePage({
               href="/insights"
               className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-soft-mute transition-colors hover:text-soft-white"
             >
-              ← The GaitAI Journal
+              ← Back to Blog
             </Link>
 
             <div className="mt-8 max-w-[54rem]">

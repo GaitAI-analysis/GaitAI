@@ -243,7 +243,7 @@ export function openingFor(context: PageContext): Opening {
 
     case "insights":
       return {
-        lead: "The GaitAI Journal.",
+        lead: "The GaitAI blog.",
         detail: "Five long-form essays. I can tell you which one to start with.",
         prompts: [
           "Recommend an article",

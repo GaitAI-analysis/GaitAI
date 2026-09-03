@@ -98,7 +98,7 @@ export default function PrivacyPage() {
         </div>
         <div className="border-b border-white/[0.08] py-5">
           <dt className="text-sm font-semibold text-soft-white">
-            Journal article views and likes
+            Blog article views and likes
           </dt>
           <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
             Each journal article keeps a running count of views and likes in

@@ -24,7 +24,7 @@ export function JournalOpening({ children }: { children: React.ReactNode }) {
           <div className={styles.openingCopy}>
             <p className={styles.masthead}>
               <span aria-hidden="true" className={styles.mastheadRule} />
-              GaitAI Journal
+              GaitAI Blog
               <span className={styles.mastheadSub}>Intelligence in motion</span>
             </p>
 
@@ -112,14 +112,12 @@ export function JournalClose({
     <section className={styles.close} aria-labelledby="journal-close">
       <div className="container-wide">
         <h2 id="journal-close" className={styles.closeTitle}>
-          The signal <span className={styles.spectrum}>continues.</span>
+          Stay close to the <span className={styles.spectrum}>signal.</span>
         </h2>
 
         <p className={styles.closeLede}>
-          The GaitAI Journal follows the signals: how movement becomes
-          evidence, where AI should be trusted, and where it should be
-          questioned. Research notes, engineering stories, product notes and
-          updates from the team building GaitAI.
+          Research notes, product updates, engineering stories and the latest
+          from GaitAI.
         </p>
 
         <div className={styles.closeActions}>

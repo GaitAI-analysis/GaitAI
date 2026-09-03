@@ -21,9 +21,9 @@ import { insightArticles, insightHref } from "@/data/insights";
 import styles from "@/components/insights/signal.module.css";
 
 export const metadata: Metadata = {
-  title: "GaitAI Journal — Research, Product & Movement Intelligence Stories",
+  title: "GaitAI Blog & Updates — Research, Product & Movement Intelligence",
   description:
-    "The GaitAI Journal: technical essays, research explainers, product notes, engineering stories and company updates from the team building GaitAI — movement intelligence, multimodal AI, privacy and the evidence behind what we build.",
+    "The GaitAI blog: technical explainers, research translation, engineering notes, product updates and what we are building — movement intelligence, multimodal AI, privacy and the evidence behind it.",
   alternates: { canonical: "/insights" },
 };
 

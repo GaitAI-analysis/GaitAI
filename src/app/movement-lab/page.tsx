@@ -10,15 +10,39 @@ import { StatRow } from "@/components/analytics/primitives";
 import { LabHeroInstrument } from "@/components/analytics/LabHeroInstrument";
 import styles from "@/components/analytics/analytics.module.css";
 
+/**
+ * The description is one sentence in three places — the page metadata, the
+ * share card and the structured data — so a rename can never leave two of
+ * them disagreeing.
+ */
+const STUDIO_TITLE = "Movement Studio";
+const STUDIO_STRAP = "Analyze & explore movement";
+const STUDIO_DESCRIPTION =
+  "An interactive demonstration of the GaitAI pipeline: video, pose, gait cycle, movement features, analytics and output — in a MobilityCare mode and an identity-free SecureVision mode. Illustrative demo running on synthetic data.";
+
 export const metadata: Metadata = {
-  title: "Movement Studio — See movement become intelligence",
-  description:
-    "An interactive demonstration of the GaitAI pipeline: video, pose, gait cycle, movement features, analytics and output — in a MobilityCare mode and an identity-free SecureVision mode. Illustrative demo running on synthetic data.",
+  title: `${STUDIO_TITLE} — See movement become intelligence`,
+  description: STUDIO_DESCRIPTION,
   alternates: { canonical: "/movement-lab" },
+  /* Without these the route inherited the site-wide card, so a shared link
+     announced "GaitAI — Intelligence in Motion" and never the name of the
+     thing being shared. The canonical URL is unchanged by the rename. */
+  openGraph: {
+    type: "website",
+    url: "/movement-lab",
+    siteName: "GaitAI",
+    title: `${STUDIO_TITLE} — ${STUDIO_STRAP}`,
+    description: STUDIO_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${STUDIO_TITLE} — ${STUDIO_STRAP}`,
+    description: STUDIO_DESCRIPTION,
+  },
 };
 
 /**
- * /movement-lab — the Movement Studio.
+ * /movement-lab — Movement Studio.
  *
  * A deliberate exception to the site's usual rule that every page states
  * facts: this page states a *demonstration*, and says so four times — in the
@@ -34,6 +58,28 @@ export const metadata: Metadata = {
 export default function MovementLabPage() {
   return (
     <div className={styles.lab}>
+      {/* One WebPage node, so the rename reaches structured data too. The
+          `url` is the existing route: the name changed, the address did not.
+          No SoftwareApplication node — this page demonstrates a pipeline on
+          synthetic data and offers no application to download or run. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            name: STUDIO_TITLE,
+            alternateName: STUDIO_STRAP,
+            url: "https://gaitai.in/movement-lab/",
+            description: STUDIO_DESCRIPTION,
+            isPartOf: {
+              "@type": "WebSite",
+              name: "GaitAI",
+              url: "https://gaitai.in",
+            },
+          }),
+        }}
+      />
       {/* ── HERO ── */}
       <section className="site-page-intro relative overflow-hidden pb-10">
         <div className="pointer-events-none absolute inset-0 -z-10">

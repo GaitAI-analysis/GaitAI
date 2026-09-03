@@ -1,5 +1,5 @@
 // ============================================================================
-// MOVEMENT LAB — SYNTHETIC DEMONSTRATION DATA
+// MOVEMENT STUDIO — SYNTHETIC DEMONSTRATION DATA
 // ----------------------------------------------------------------------------
 // EVERY NUMBER, SERIES, TRAJECTORY AND INDICATOR IN THIS FILE IS INVENTED FOR
 // ILLUSTRATION. Nothing here comes from a real capture, a real person, a real

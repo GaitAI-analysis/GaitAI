@@ -31,6 +31,7 @@ import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
 
 export type SearchGroup =
+  | "destination"
   | "product"
   | "capability"
   | "environment"
@@ -40,6 +41,7 @@ export type SearchGroup =
 
 /** Group order in the palette — most-used first. */
 export const SEARCH_GROUPS: SearchGroup[] = [
+  "destination",
   "product",
   "capability",
   "environment",
@@ -49,6 +51,7 @@ export const SEARCH_GROUPS: SearchGroup[] = [
 ];
 
 export const SEARCH_GROUP_LABEL: Record<SearchGroup, string> = {
+  destination: "Experiences",
   product: "Products",
   capability: "Capabilities",
   environment: "Environments",
@@ -72,6 +75,53 @@ export interface SearchEntry {
 
 const norm = (parts: (string | undefined)[]) =>
   parts.filter(Boolean).join(" ").toLowerCase();
+
+// ── Destinations ────────────────────────────────────────────────────────────
+// The two interactive experiences. Everything else in this index is derived
+// from a data record; these are routes, so this is the one place the index
+// names something by hand — and the only place it carries a RETIRED name.
+//
+// The palette indexed every module, capability, environment, paper and essay,
+// and neither of the two experiences a reader is most likely to look for by
+// name. Searching "Movement Studio" returned nothing at all.
+//
+// ALIASES. `haystack` is search text and is never rendered, which makes it
+// the right place for a name the site no longer shows. "Movement Intelligence
+// Lab" and "Movement Lab" were both used for this route before the rename;
+// someone who types either would otherwise get nothing, for a page that has
+// not moved. The visible title is the current name only.
+const destinationEntries: SearchEntry[] = [
+  {
+    id: "destination:movement-studio",
+    group: "destination",
+    title: "Movement Studio",
+    detail: "Analyze and explore movement, stage by stage, on synthetic data",
+    meta: "Interactive",
+    href: "/movement-lab/",
+    haystack: norm([
+      "movement studio",
+      "analyze explore movement pose gait cycle features analytics report",
+      "trajectories density flow candidate events operator view",
+      "explainability illustrative demo synthetic data footage",
+      /* Retired names: findable, never shown. */
+      "movement intelligence lab",
+      "movement lab",
+    ]),
+  },
+  {
+    id: "destination:gaitscape",
+    group: "destination",
+    title: "GaitScape",
+    detail: "The interactive human movement intelligence landscape",
+    meta: "Interactive",
+    href: "/gaitscape/",
+    haystack: norm([
+      "gaitscape",
+      "ecosystem map landscape graph relationships",
+      "capability matrix compare systems signals outcomes",
+    ]),
+  },
+];
 
 // ── Products ────────────────────────────────────────────────────────────────
 const productEntries: SearchEntry[] = allProducts.map((p) => ({
@@ -179,6 +229,7 @@ const insightEntries: SearchEntry[] = insightArticles.map((a) => ({
 }));
 
 export const searchIndex: SearchEntry[] = [
+  ...destinationEntries,
   ...productEntries,
   ...capabilityEntries,
   ...environmentEntries,
@@ -245,5 +296,7 @@ export const searchStarters: SearchEntry[] = (() => {
   const flagships = productEntries.filter((e) =>
     allProducts.some((p) => p.flagship && `product:${p.id}` === e.id),
   );
-  return flagships.slice(0, 6);
+  /* The two experiences lead: they are the hardest things on the site to
+     reach by guessing a name, and the most useful things to be offered. */
+  return [...destinationEntries, ...flagships.slice(0, 4)];
 })();

@@ -36,6 +36,15 @@ export default function SecurityPage() {
         decision.
       </p>
 
+      <p className="mt-8 text-[13.5px] leading-relaxed text-soft-mute">
+        Evidence, privacy, security and responsible deployment are collected
+        together in the{" "}
+        <a className="text-cyan-300 transition-colors hover:text-cyan-200" href="/trust">
+          Trust Center
+        </a>
+        .
+      </p>
+
       <h2 className="mt-12 font-display text-xl text-soft-white">
         Control areas
       </h2>

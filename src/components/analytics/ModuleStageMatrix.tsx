@@ -131,7 +131,7 @@ export function ModuleStageMatrix({
                       <ul className={styles.list}>
                         {processing.map((capability, i) => (
                           <li key={capability} className={styles.item}>
-                            <span className={styles.stageIndex}>
+                            <span aria-hidden="true" className={styles.stageIndex}>
                               {String(i + 1).padStart(2, "0")}
                             </span>
                             <span>{capability}</span>

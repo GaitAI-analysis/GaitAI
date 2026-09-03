@@ -39,7 +39,7 @@ export default function SecurityPage() {
       <p className="mt-8 text-[13.5px] leading-relaxed text-soft-mute">
         Evidence, privacy, security and responsible deployment are collected
         together in the{" "}
-        <a className="text-cyan-300 transition-colors hover:text-cyan-200" href="/trust">
+        <a className="text-cyan-300 transition-colors hover:text-cyan-200" href="/trust/">
           Trust Center
         </a>
         .

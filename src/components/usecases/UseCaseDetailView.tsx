@@ -369,7 +369,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
                           : "text-soft-mute hover:text-soft-gray"
                       )}
                     >
-                      <span className="tabular-nums text-[10px] opacity-70">
+                      <span aria-hidden="true" className="tabular-nums text-[10px] opacity-70">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       {item.label}

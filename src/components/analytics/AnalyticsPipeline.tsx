@@ -60,7 +60,7 @@ export function AnalyticsPipeline({
               i < activeIndex ? styles.stagePast : ""
             }`}
           >
-            <span className={styles.stageIndex}>
+            <span aria-hidden="true" className={styles.stageIndex}>
               {String(i + 1).padStart(2, "0")}
             </span>
             <span className={styles.stageName}>{stage.name}</span>

@@ -109,7 +109,7 @@ export function EvidencePanel({ area }: { area: ObservatoryArea }) {
                 title={publication.title}
                 className={styles.recordRow}
               >
-                <span className={styles.recordIndex}>
+                <span aria-hidden="true" className={styles.recordIndex}>
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="min-w-0">

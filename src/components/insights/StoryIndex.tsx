@@ -49,7 +49,7 @@ export function StoryIndex({ entries }: { entries: IndexEntry[] }) {
   }, [entries]);
 
   return (
-    <nav className={styles.rail} aria-label="Stories in this issue">
+    <nav className={styles.rail} aria-label="Stories in this series">
       <ol className={styles.railList}>
         {entries.map((entry) => {
           const on = entry.id === active;

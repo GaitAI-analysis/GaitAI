@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import {
   INSIGHTS_AUTHOR,
   INSIGHTS_PUBLISHER,
+  POST_TYPE_LABEL,
   formatInsightDate,
   getInsightBySlug,
   insightArticles,
@@ -19,7 +20,7 @@ import { ReadingProgress } from "@/components/insights/ReadingProgress";
 import { TwoMinute } from "@/components/insights/TwoMinute";
 import { NextStory } from "@/components/insights/NextStory";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
-import { ArticleEngagementMeta } from "@/components/insights/ArticleEngagementMeta";
+import { ArticleMeta } from "@/components/insights/ArticleMeta";
 import { assetPath } from "@/lib/paths";
 import styles from "@/components/insights/journal.module.css";
 
@@ -193,44 +194,37 @@ export default function InsightArticlePage({
               ← Back to Blog
             </Link>
 
+            {/* The kicker, the headline block and the counters below it are
+                one component (see ArticleMeta), because the two metadata rows
+                sit either side of the headline and read the same Firestore
+                document — two components here would mean two reads, two
+                subscriptions and two view-write timers for one article.
+
+                What the kicker no longer says is "Issue 01". GaitAI does not
+                publish numbered issues, and a reader arriving from search had
+                no way to read "Issue 03" as "third of a five-part series"
+                rather than "March's edition". `seriesStep` still orders the
+                reading path and picks the next article; it is simply no
+                longer printed as though it were an edition number. */}
             <div className="mt-8 max-w-[54rem]">
-              <p className={styles.articleKicker}>
-                {/* The essays are issues of a collection, not posts. The number
-                    is the article's own position in the Foundations path, so
-                    the index and the article can never disagree about it. */}
-{/* The type label and the read time are gone from every reader-facing
-                    surface. What is left is what a journal actually credits: the
-                    issue, the author and the date. `postType`, `category` and
-                    `readMinutes` all remain in the record — they still drive
-                    filtering, the series rail and structured data. */}
-                <span className={styles.articleKickerCategory}>
-                  Issue {String(article.seriesStep).padStart(2, "0")}
-                </span>
-                <span aria-hidden="true">·</span>
-                <span>{INSIGHTS_AUTHOR}</span>
-                <span aria-hidden="true">·</span>
-                <time dateTime={article.date}>
-                  {formatInsightDate(article.date)}
-                </time>
-                <span aria-hidden="true" className={styles.articleKickerRule} />
-              </p>
+              <ArticleMeta
+                slug={article.slug}
+                typeLabel={POST_TYPE_LABEL[article.postType]}
+                author={INSIGHTS_AUTHOR}
+                date={article.date}
+                dateLabel={formatInsightDate(article.date)}
+                readMinutes={article.readMinutes}
+              >
+                <h1 className={styles.articleTitle}>
+                  <Headline article={article} />
+                </h1>
 
-              <h1 className={styles.articleTitle}>
-                <Headline article={article} />
-              </h1>
-
-              {article.subtitle && (
-                <p className={styles.articleSub}>{article.subtitle}</p>
-              )}
-              <p className={styles.articleDeck}>{article.deck}</p>
-              <p className={styles.hook}>{article.openingHook}</p>
-
-              {/* Real views, likes and approved comments — the last line of
-                  the header, above the fold and above the 2-minute panel,
-                  where a journal puts what it credits. One component for
-                  every article (see ArticleEngagementMeta): views are always
-                  shown once known, and no counter is shown before it is. */}
-              <ArticleEngagementMeta slug={article.slug} className="mt-7" />
+                {article.subtitle && (
+                  <p className={styles.articleSub}>{article.subtitle}</p>
+                )}
+                <p className={styles.articleDeck}>{article.deck}</p>
+                <p className={styles.hook}>{article.openingHook}</p>
+              </ArticleMeta>
             </div>
           </div>
         </header>

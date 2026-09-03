@@ -37,6 +37,15 @@ import styles from "./engagement.module.css";
  * If the counters cannot be read at all — Firestore unreachable, or its rules
  * not deployed — the row renders nothing rather than a zero, a dash or a
  * spinner. The difference between "no data" and "none" matters here.
+ *
+ * "NOTHING" HAS TO MEAN NO ELEMENT, NOT AN EMPTY ONE. On the live site with
+ * the articleStats rules undeployed, this resolved to status "unavailable"
+ * with a real comment count of 0 — which cleared the old early return, and
+ * then rendered no view, no like and no comment. What reached the page was
+ * `<div class="engagement_row mt-7"></div>`: an empty box still carrying its
+ * 28px top margin, so the header held a gap where the counters should be and
+ * gave no hint that a fetch had failed. The three flags below decide what
+ * will render BEFORE the wrapper is committed to.
  */
 export function ArticleEngagementMeta({
   slug,
@@ -48,7 +57,13 @@ export function ArticleEngagementMeta({
   const { status, views, likes, liked, comments, likeBusy, onLike } =
     useArticleEngagement(slug);
 
-  if (status === "unavailable" && typeof comments !== "number") return null;
+  /* Explicit, and never a truthiness test on a number: `views` of 0 is a real
+     answer and must show as "0 views", so the test is `!== null`. */
+  const showViews = status === "loading" || views !== null;
+  const showLikes = likes !== null;
+  const showComments = typeof comments === "number" && comments > 0;
+
+  if (!showViews && !showLikes && !showComments) return null;
 
   return (
     <div className={`${styles.row} ${className ?? ""}`}>
@@ -72,7 +87,7 @@ export function ArticleEngagementMeta({
       )}
 
       {/* ── Likes ── the row's only control. */}
-      {likes !== null && (
+      {showLikes && (
         <button
           type="button"
           onClick={onLike}
@@ -90,7 +105,7 @@ export function ArticleEngagementMeta({
       )}
 
       {/* ── Approved comments ── */}
-      {typeof comments === "number" && comments > 0 && (
+      {showComments && (
         <a
           href="#discussion"
           title={formatExact(comments, "comment")}

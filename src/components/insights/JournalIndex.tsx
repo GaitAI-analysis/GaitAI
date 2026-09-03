@@ -15,6 +15,8 @@ import {
   type PostType,
 } from "@/data/insights";
 import { StoryCard } from "./StoryCard";
+import { useCommentCounts } from "./useCommentCounts";
+import { JournalBackdrop } from "./JournalBackdrop";
 import styles from "./archive.module.css";
 
 /**
@@ -111,6 +113,11 @@ export function JournalIndex() {
     setQuery("");
   };
 
+  /* Real approved-comment counts for every article on screen, in one query.
+     Empty until it resolves, and empty if Firestore is unreachable — the
+     cards then simply show no comment metadata rather than a fabricated one. */
+  const commentCounts = useCommentCounts(insightArticles.map((a) => a.slug));
+
   /* The cover story is the newest piece, and it is only the cover when the
      reader has not started filtering — a "featured" card inside a filtered
      result set is just the first result wearing a bigger frame. */
@@ -123,6 +130,14 @@ export function JournalIndex() {
 
   return (
     <section id="archive" className={styles.archive}>
+      {/* The publication's own atmosphere: a drawn page — column rules, a
+          baseline grid, two blocks of set type — crossed by movement
+          trajectories. The masthead used to sit on flat dark ground, which
+          read as a listing rather than as a journal. Nothing in it exceeds
+          0.16 alpha and it is masked out of the left third, so the headline's
+          contrast is unchanged. */}
+      <JournalBackdrop />
+
       <div className="container-wide">
         {/* ── Masthead ── */}
         <header className={styles.masthead}>
@@ -258,7 +273,12 @@ export function JournalIndex() {
         {featured && (
           <div className={styles.featured}>
             <p className={styles.featuredLabel}>Cover story</p>
-            <StoryCard article={featured} variant="full" priority />
+            <StoryCard
+              article={featured}
+              variant="full"
+              priority
+              commentCount={commentCounts[featured.slug]}
+            />
           </div>
         )}
 
@@ -274,7 +294,12 @@ export function JournalIndex() {
             </h2>
             <div className={styles.archiveGrid}>
               {rest.map((article) => (
-                <StoryCard key={article.slug} article={article} variant="tall" />
+                <StoryCard
+                  key={article.slug}
+                  article={article}
+                  variant="tall"
+                  commentCount={commentCounts[article.slug]}
+                />
               ))}
             </div>
           </>

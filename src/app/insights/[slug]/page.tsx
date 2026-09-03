@@ -17,6 +17,7 @@ import { SectionRail } from "@/components/insights/SectionRail";
 import { ReadingProgress } from "@/components/insights/ReadingProgress";
 import { TwoMinute } from "@/components/insights/TwoMinute";
 import { NextStory } from "@/components/insights/NextStory";
+import { DiscussionMount } from "@/components/comments/DiscussionMount";
 import { assetPath } from "@/lib/paths";
 import styles from "@/components/insights/journal.module.css";
 
@@ -321,6 +322,29 @@ export default function InsightArticlePage({
           </div>
         </div>
       </article>
+
+      {/* ─────────── DISCUSSION ───────────
+          The site's comment system already existed — Firestore-backed,
+          moderated, rate-limited, captcha-gated — and was mounted on
+          publications and live posts but never on the journal, which is the
+          one place readers would actually want to reply. Same component, same
+          collection, so the counts on the archive cards and the thread here
+          are the same records.
+
+          contentType "blog" is one of ALLOWED_CONTENT_TYPES; the mount is
+          client-only and viewport-gated, so Firebase stays off the critical
+          path until a reader scrolls this far. */}
+      <section className="border-t border-white/[0.07] py-14 sm:py-16">
+        <div className="container-wide">
+          <div className="mx-auto w-full max-w-[46rem] lg:mx-0">
+            <DiscussionMount
+              postSlug={article.slug}
+              contentType="blog"
+              subscriberOnly={false}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* ─────────── NEXT ─────────── */}
       <section className="border-t border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20">

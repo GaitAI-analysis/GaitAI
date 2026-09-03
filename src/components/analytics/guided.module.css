@@ -175,6 +175,20 @@
   transform: translateY(-1px);
 }
 
+/* LIGHT BRANCH. On navy a transparent tile with a hairline IS a tile — the
+   ground is dark enough to hold the edge. On paper, seventeen transparent
+   tiles on a near-white band read as a field of floating labels, so the light
+   branch gives each one the white card ground the rest of the light theme
+   uses and lets elevation come from the surface stack, not from a shadow. */
+:global(.light) .env {
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+}
+
+:global(.light) .env:hover {
+  box-shadow: 0 4px 10px -4px rgb(15 23 42 / 0.12);
+}
+
 .envGlyph {
   display: grid;
   height: 1.6rem;

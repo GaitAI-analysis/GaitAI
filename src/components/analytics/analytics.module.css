@@ -34,17 +34,40 @@
   --an-surface-2: rgb(var(--c-obsidian-300) / 0.6);
   --an-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
+/* LIGHT BRANCH.
+   A hairline that reads on navy at 14% alpha does not read on paper at the
+   same value: dark hides a weak line in its own ground, paper shows every
+   one of them and then shows none of them. So the lines step up, the muted
+   ink steps down toward slate-600, and the panel ground stays white with a
+   cool second surface behind the heads — this instrument has ~40 tiles and
+   ~60 chips on /products/ and every one of them was outlined in a 10%
+   hairline that vanished. */
 :global(.light) .lab {
   --an-cyan: #0e7490;
   --an-royal: #2563ff;
   --an-violet: #6d28d9;
   --an-teal: #0f766e;
   --an-amber: #a16207;
-  --an-line: rgb(15 23 42 / 0.1);
-  --an-line-mid: rgb(15 23 42 / 0.2);
+  --an-line: rgb(15 23 42 / 0.16);
+  --an-line-mid: rgb(15 23 42 / 0.3);
   --an-grid: rgb(15 23 42 / 0.06);
   --an-surface: #ffffff;
-  --an-surface-2: rgb(241 245 249 / 0.8);
+  --an-surface-2: rgb(241 245 249 / 0.9);
+  /* slate-600 rather than slate-500: the labels are 9–10px mono at 0.2em
+     tracking, and small wide-tracked type needs the extra contrast that a
+     paragraph does not. */
+  --an-mute: rgb(71 85 105);
+}
+
+/* A disabled chip at 35% opacity over already-muted ink is a smudge on
+   paper. It has to stay clearly disabled and stay READABLE, because "no
+   objective applies to this environment yet" is itself the answer — so the
+   light branch dims less and leans on the flatter surface instead. */
+:global(.light) .chipDisabled {
+  opacity: 1;
+  color: rgb(100 116 139);
+  border-color: rgb(15 23 42 / 0.1);
+  background: rgb(15 23 42 / 0.02);
 }
 
 /* Family accents. Applied to a subtree, read by everything inside it. */

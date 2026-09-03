@@ -1,0 +1,253 @@
+/* ==========================================================================
+   JOURNAL COVERS
+   --------------------------------------------------------------------------
+   One palette, five compositions. The family resemblance lives here — the
+   ground, the survey grid, the hairline weights, the mono labels and the
+   corner ticks are identical on every cover — while the geometry that makes
+   each one recognisable lives in JournalCover.tsx.
+
+   Each concept sets its own accent, so a reader scanning the archive gets a
+   colour cue as well as a shape cue: cyan for the pipeline, blue for the
+   readings, violet for the privacy reduction, teal for the trajectory,
+   champagne for the evidence audit. All five sit inside the site's existing
+   palette; none is a new colour.
+
+   The covers keep their own dark ground in the light theme. A cover is a
+   cover, the way a book jacket keeps its colour on a white shelf, and
+   inverting them would cost the set the whole point of the deep-navy look.
+   ========================================================================== */
+
+.cover {
+  display: block;
+  height: 100%;
+  width: 100%;
+  --c-a: #4fd1ff;
+  --c-b: #5587ff;
+  --c-warm: #e4c48a;
+  --c-line: rgb(148 163 184 / 0.2);
+  --c-hair: rgb(148 163 184 / 0.32);
+  --c-mute: rgb(148 163 184 / 0.72);
+  --c-ink: #dbeafe;
+}
+
+/* Per-concept accents. */
+.pipeline {
+  --c-a: #4fd1ff;
+  --c-b: #2563ff;
+}
+.divergence {
+  --c-a: #5587ff;
+  --c-b: #a78bfa;
+}
+.reduction {
+  --c-a: #a78bfa;
+  --c-b: #6d28d9;
+}
+.trajectory {
+  --c-a: #2dd4bf;
+  --c-b: #0e7490;
+}
+.fusion {
+  --c-a: #60a5fa;
+  --c-b: #e4c48a;
+}
+
+/* ── The shared frame ── */
+
+.cGround {
+  fill: #070b14;
+}
+.cGrid line {
+  stroke: rgb(148 163 184 / 0.055);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.cTick {
+  fill: none;
+  stroke: var(--c-a);
+  stroke-width: 1;
+  opacity: 0.42;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Shared primitives ── */
+
+.cAxis {
+  stroke: var(--c-hair);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.cHair {
+  stroke: var(--c-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.cDash {
+  fill: none;
+  stroke: var(--c-hair);
+  stroke-width: 1;
+  stroke-dasharray: 3 5;
+  vector-effect: non-scaling-stroke;
+}
+.cTrace {
+  fill: none;
+  stroke: var(--c-a);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.cStem {
+  stroke: var(--c-line);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  vector-effect: non-scaling-stroke;
+}
+.cNode {
+  fill: rgb(148 163 184 / 0.75);
+}
+.cNodeLit {
+  fill: var(--c-a);
+}
+.cRing {
+  fill: none;
+  stroke: var(--c-a);
+  stroke-width: 1;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Figures, where a cover has them. */
+.cBone {
+  fill: none;
+  stroke: var(--c-a);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.cBoneFar {
+  opacity: 0.4;
+  stroke-width: 1.1;
+}
+.cJoint {
+  fill: var(--c-a);
+  opacity: 0.9;
+}
+.cHead {
+  fill: #070b14;
+  stroke: var(--c-a);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.cMass path,
+.cMass ellipse {
+  fill: rgb(167 139 250 / 0.34);
+}
+
+/* Type. Two sizes only, both mono — these are instrument labels. */
+.cLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  fill: var(--c-ink);
+}
+.cTiny {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  fill: var(--c-mute);
+}
+.cTinyWarm {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  fill: var(--c-warm);
+  opacity: 0.85;
+}
+
+/* ── 01 · pipeline ── */
+.cFrame {
+  fill: rgb(148 163 184 / 0.04);
+  stroke: var(--c-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 02 · divergence ── */
+.cBranch,
+.cBranchLit {
+  fill: none;
+  stroke: rgb(148 163 184 / 0.42);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.cBranchLit {
+  stroke: var(--c-a);
+  stroke-width: 1.8;
+}
+
+/* ── 03 · reduction ── */
+.cBand {
+  fill: rgb(148 163 184 / 0.035);
+  stroke: var(--c-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.cPixel {
+  fill: rgb(148 163 184 / 0.14);
+}
+.cPixelLit {
+  fill: rgb(167 139 250 / 0.4);
+}
+.cBarTrack {
+  fill: rgb(148 163 184 / 0.12);
+}
+.cBarLit {
+  fill: var(--c-a);
+  opacity: 0.85;
+}
+.cBarWarm {
+  fill: rgb(148 163 184 / 0.5);
+}
+
+/* ── 04 · trajectory ── */
+.cCone {
+  fill: var(--c-a);
+  opacity: 0.09;
+  stroke: none;
+}
+
+/* ── 05 · fusion ── */
+.cRail,
+.cRailWarm,
+.cRailGone {
+  fill: none;
+  stroke: var(--c-a);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.cRailWarm {
+  stroke: var(--c-warm);
+  stroke-width: 1.3;
+}
+.cRailGone {
+  stroke: rgb(148 163 184 / 0.34);
+  stroke-dasharray: 2 7;
+}
+.cBand2 {
+  fill: var(--c-warm);
+  opacity: 0.15;
+  stroke: none;
+}
+.cBand2Edge {
+  fill: none;
+  stroke: var(--c-warm);
+  stroke-width: 1;
+  opacity: 0.34;
+  vector-effect: non-scaling-stroke;
+}

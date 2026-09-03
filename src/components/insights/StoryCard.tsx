@@ -9,7 +9,7 @@ import {
   formatInsightDate,
   insightHref,
 } from "@/data/insights";
-import { assetPath } from "@/lib/paths";
+import { JournalCover } from "./JournalCover";
 import styles from "./journal.module.css";
 
 /**
@@ -89,16 +89,13 @@ export function StoryCard({
     <article className={`${styles.card} ${VARIANT_CLASS[variant]} ${topic}`}>
       <span aria-hidden="true" className={styles.cardAccent} />
 
+      {/* The essay's own drawn cover. It was the raster hero, and four of the
+          five rasters were the same glowing walker — side by side in this grid
+          the archive read as a template. These are five different
+          compositions, and being vector they cost no image request and cannot
+          arrive blurry or badly cropped at any card width. */}
       <div className={styles.cardMedia}>
-        <img
-          src={assetPath(article.hero.src)}
-          alt=""
-          width={article.hero.width}
-          height={article.hero.height}
-          loading={priority ? "eager" : "lazy"}
-          decoding="async"
-          sizes="(min-width: 1024px) 45vw, (min-width: 640px) 50vw, 100vw"
-        />
+        <JournalCover concept={article.cover.concept} />
         <span aria-hidden="true" className={styles.cardMediaScrim} />
       </div>
 

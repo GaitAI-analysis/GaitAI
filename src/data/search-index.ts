@@ -240,7 +240,7 @@ const insightEntries: SearchEntry[] = insightArticles.map((a) => ({
 // Every field comes from the record, so a search for "ICA3C", "poster" or
 // "Windhoek" finds the entry it belongs to. They all resolve to one route,
 // which is why the id carries the record id and the detail carries the venue:
-// the palette has to distinguish 23 rows that share an href.
+// the palette has to distinguish 22 rows that share an href.
 const talkEntries: SearchEntry[] = talkRecords.map((talk) => ({
   id: `talk-${talk.id}`,
   group: "talk",

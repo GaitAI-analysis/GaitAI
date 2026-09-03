@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MovementLab } from "@/components/analytics/MovementLab";
 import { SignalIntelligenceExplorer } from "@/components/analytics/SignalIntelligenceExplorer";
+import { FootageMatch } from "@/components/analytics/FootageMatch";
 import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { SYNTHETIC_LABEL } from "@/data/lab-demo";
 import { CAPABILITY_COUNT, MODULE_COUNT, SIGNAL_COUNT } from "@/data/analytics";
@@ -125,6 +126,34 @@ export default function MovementLabPage() {
 
           <div className="mt-10">
             <SignalIntelligenceExplorer />
+          </div>
+        </div>
+      </section>
+
+      {/* ── YOUR FOOTAGE ──
+          The chain above answers "what does this input become"; this answers
+          the question a reader actually arrives with — "would it work on
+          mine?". Describe the scene, and every module is rated against what
+          its own record says it needs. Nothing is uploaded and nothing is
+          analysed: a real detector here would be claiming a production
+          capability on a marketing page. */}
+      <section className="border-t border-white/[0.07] py-14 sm:py-16">
+        <div className="container-wide">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+            Your footage
+          </span>
+          <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
+            What could GaitAI read{" "}
+            <span className="text-gradient">from your footage?</span>
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
+            Describe what your footage contains. Every module is rated against
+            what its own record says it needs — and the reasons are listed
+            underneath.
+          </p>
+
+          <div className="mt-10">
+            <FootageMatch />
           </div>
         </div>
       </section>

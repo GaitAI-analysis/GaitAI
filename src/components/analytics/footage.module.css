@@ -1,0 +1,283 @@
+/*
+ * WHAT COULD GAITAI READ FROM YOUR FOOTAGE — the scene → module matcher.
+ *
+ * Two families side by side, each module carrying a suitability level, and a
+ * WHY panel under them. No idle motion: the only thing that moves is the level
+ * chip's colour when a condition changes, which is the point of the surface.
+ */
+
+.match {
+  --fm-care: #4fd1ff;
+  --fm-secure: #a78bfa;
+  --fm-line: rgb(148 163 184 / 0.16);
+  --fm-mute: rgb(var(--c-soft-mute));
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────── */
+.controls {
+  display: grid;
+  gap: 1.25rem;
+}
+@media (min-width: 860px) {
+  .controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+.control {
+  min-width: 0;
+}
+
+.controlLabel {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fm-mute);
+}
+
+.segment {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--fm-line);
+  border-radius: 999px;
+}
+
+.segOption {
+  padding: 0.34rem 0.8rem;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--fm-mute);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+.segOption:hover {
+  color: rgb(var(--c-soft-white));
+}
+.segOption:focus-visible {
+  outline: 2px solid var(--fm-care);
+  outline-offset: 2px;
+}
+.segOn {
+  background: rgb(255 255 255 / 0.07);
+  color: rgb(var(--c-soft-white));
+  font-weight: 600;
+}
+
+/* The three yes/no scene facts, as one column of toggles. */
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-content: start;
+}
+@media (min-width: 860px) {
+  .toggles {
+    grid-column: span 3;
+  }
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.36rem 0.8rem;
+  border: 1px solid var(--fm-line);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--fm-mute);
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+.toggle:focus-visible {
+  outline: 2px solid var(--fm-care);
+  outline-offset: 2px;
+}
+.toggleOn {
+  border-color: color-mix(in srgb, var(--fm-care) 45%, transparent);
+  color: rgb(var(--c-soft-white));
+}
+
+.toggleDot {
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  opacity: 0.5;
+  transition:
+    background-color 0.3s ease,
+    opacity 0.3s ease;
+}
+.toggleOn .toggleDot {
+  background: var(--fm-care);
+  border-color: var(--fm-care);
+  opacity: 1;
+}
+
+/* ── The reading ──────────────────────────────────────────────────────── */
+.reading {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--fm-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fm-mute);
+}
+
+/* ── The two families ─────────────────────────────────────────────────── */
+.families {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+@media (min-width: 780px) {
+  .families {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem;
+  }
+}
+
+.famCare {
+  --fm-accent: var(--fm-care);
+}
+.famSecure {
+  --fm-accent: var(--fm-secure);
+}
+
+.familyName {
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--fm-line);
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fm-accent);
+}
+
+.rows {
+  margin-top: 0.25rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgb(148 163 184 / 0.08);
+}
+
+.rowName {
+  font-size: 13.5px;
+  color: rgb(var(--c-soft-white));
+  transition: color 0.3s ease;
+}
+.rowName:hover {
+  color: var(--fm-accent);
+}
+.rowName:focus-visible {
+  outline: 2px solid var(--fm-accent);
+  outline-offset: 2px;
+}
+
+/* Level is never colour alone — the word is the label, the tint reinforces. */
+.level {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: color 0.35s ease;
+}
+.lvHigh {
+  color: var(--fm-accent);
+}
+.lvMed {
+  color: rgb(var(--c-soft-mute));
+}
+.lvLow {
+  color: rgb(148 163 184 / 0.45);
+}
+
+/* ── Why ──────────────────────────────────────────────────────────────── */
+.why {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--fm-line);
+}
+
+.whyTitle {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fm-mute);
+}
+
+.whyList {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.9rem;
+}
+@media (min-width: 780px) {
+  .whyList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2.5rem;
+  }
+}
+
+.whyItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-gray));
+}
+.whyOff {
+  color: rgb(148 163 184 / 0.5);
+}
+
+.whyDot {
+  flex-shrink: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--fm-care);
+  transform: translateY(-2px);
+}
+.whyOff .whyDot {
+  background: transparent;
+  border: 1px solid currentColor;
+}
+
+.whyNo {
+  color: inherit;
+  font-style: italic;
+}
+
+.note {
+  margin-top: 1.25rem;
+  max-width: 46rem;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--fm-mute);
+}
+
+:global(.light) .segment,
+:global(.light) .toggle {
+  border-color: rgb(15 23 42 / 0.14);
+}
+:global(.light) .segOn {
+  background: rgb(15 23 42 / 0.06);
+}
+:global(.light) .lvLow {
+  color: rgb(15 23 42 / 0.4);
+}

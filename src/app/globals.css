@@ -420,6 +420,170 @@ body {
   --interactive-selected-border: rgba(109, 40, 217, 0.5);
   --interactive-selected-ink: #2b1065;
 }
+/* =========================================================================
+   PRODUCT ACCENTS — SIX MEANINGS, TWO BRANCHES
+   -------------------------------------------------------------------------
+   A product card carries its family's colour in three places: the
+   "GAITAI · WALKSCAN" eyebrow, the output pills, and the hover glow. Those
+   were written as Tailwind shades — `text-teal-300`, `bg-amber-300/8`,
+   `text-violet-200` — and the 200/300 shades of every palette are lights
+   FOR A DARK GROUND. On paper they are pastels: the FallRisk pills rendered
+   as pale yellow text on near-white, which is a legibility failure and not
+   a styling preference.
+
+   So each accent branches. Three values per accent per branch:
+
+     --pa-rgb        the accent as an RGB triple, for tinted fills and lines
+     --pa-ink        the eyebrow / cue colour
+     --pa-pill-ink   the pill label, one step further from the ground
+
+   THE DARK BRANCH IS A TRANSCRIPTION, NOT A REDESIGN. Every value below is
+   the exact colour the Tailwind class it replaces already computed to:
+
+     teal    → teal-300    #5eead4   pill teal-200    #99f6e4
+     blue    → royal-300   #5587ff   pill royal-200   #8fafff
+     cyan    → cyan-300    #4fd1ff   pill cyan-200    #92deff
+     violet  → violet-300  #9c64f1   pill violet-200  #bd96f6
+     gold    → amber-300   #fcd34d   pill amber-200   #fde68a
+     emerald → emerald-300 #6ee7b7   pill emerald-200 #a7f3d0
+
+   with the same 30% border the classes carried, and — see the note on
+   --pa-pill-bg-alpha — the same absence of a fill, because the six `/8`
+   fill classes were dead and never painted anything. Dark renders
+   pixel-for-pixel what it rendered before; the light branch is designed for
+   paper on its own terms, at ~4.5:1 or better against white.
+   ========================================================================= */
+
+/* ── SUITE ACCENTS ──
+   The two product-family accents on /products/'s ecosystem band. They are
+   applied through inline `style` (borderLeftColor on a tile, colour on an
+   eyebrow and a link), and an inline hex is the one thing a stylesheet cannot
+   reach — so the component hands the DOM a variable and the branch happens
+   here. Dark is the exact literal the component used before. */
+:root {
+  --suite-care-accent: #4fd1ff;
+  --suite-secure-accent: #a78bfa;
+}
+:root.light {
+  /* Both drop to the value the rest of the light branch already uses for the
+     same two meanings (--trajectory / --an-cyan, and --an-violet), so the
+     ecosystem band, the coverage matrix and the finder agree on paper. */
+  --suite-care-accent: #0e7490;
+  --suite-secure-accent: #6d28d9;
+}
+
+:root {
+  /* Pill fill and hairline, dark branch.
+   *
+   * THE FILL IS ZERO ON PURPOSE, AND THAT IS A TRANSCRIPTION.
+   * The classes these tokens replace were `bg-teal-300/8`, `bg-amber-300/8`
+   * and four more like them — and Tailwind never generated a single one of
+   * them. `8` is not on the default opacity scale and the values were not
+   * bracketed (`/[0.08]`), so all six were dead classes: the approved dark
+   * pill is a 30% accent hairline around transparent card, with no fill
+   * behind its label. Setting 0.08 here "fixes" the dead class and changes
+   * the frozen dark appearance, which is not this file's job. If the fill is
+   * ever wanted in dark, that is a design decision to take deliberately —
+   * not a tidy-up to slip in while refactoring tokens. */
+  --pa-pill-bg-alpha: 0;
+  --pa-pill-line-alpha: 0.3;
+}
+
+:root.light {
+  /* Light does take the fill. On paper a hairline pill with nothing behind
+     it competes with the card's own edge, and a 9% wash of the accent is
+     what separates the label from the ground — the same trick the light
+     branch uses everywhere else, where depth comes from the surface stack
+     rather than from shadow. The hairline steps up too: 30% of a deep colour
+     reads lighter than 30% of a bright one. */
+  --pa-pill-bg-alpha: 0.09;
+  --pa-pill-line-alpha: 0.34;
+}
+
+/* ── The six accents ─────────────────────────────────────────────────────── */
+
+.pa-teal {
+  --pa-rgb: 94 234 212;
+  --pa-ink: #5eead4;
+  --pa-pill-ink: #99f6e4;
+}
+.pa-blue {
+  --pa-rgb: 85 135 255;
+  --pa-ink: #5587ff;
+  --pa-pill-ink: #8fafff;
+}
+.pa-cyan {
+  --pa-rgb: 79 209 255;
+  --pa-ink: #4fd1ff;
+  --pa-pill-ink: #92deff;
+}
+.pa-violet {
+  --pa-rgb: 156 100 241;
+  --pa-ink: #9c64f1;
+  --pa-pill-ink: #bd96f6;
+}
+.pa-gold {
+  --pa-rgb: 252 211 77;
+  --pa-ink: #fcd34d;
+  --pa-pill-ink: #fde68a;
+}
+.pa-emerald {
+  --pa-rgb: 110 231 183;
+  --pa-ink: #6ee7b7;
+  --pa-pill-ink: #a7f3d0;
+}
+
+/* Light: each accent's own deepened value, chosen against #ffffff card
+   ground rather than derived by darkening the dark one. The pill label goes
+   one step further than the eyebrow, because it sits on a tint of itself and
+   needs the extra separation. */
+:root.light .pa-teal {
+  --pa-rgb: 13 148 136;
+  --pa-ink: #0f766e;
+  --pa-pill-ink: #115e59;
+}
+:root.light .pa-blue {
+  --pa-rgb: 37 99 255;
+  --pa-ink: #1b4ed9;
+  --pa-pill-ink: #1438a8;
+}
+:root.light .pa-cyan {
+  --pa-rgb: 14 116 144;
+  --pa-ink: #0e7490;
+  --pa-pill-ink: #0b5c73;
+}
+:root.light .pa-violet {
+  --pa-rgb: 95 37 191;
+  --pa-ink: #5f25bf;
+  --pa-pill-ink: #481b92;
+}
+/* Yellow is the hardest of the six on paper: amber-300 is a highlighter.
+   FallRisk, WatchCare and SeniorCare keep their amber IDENTITY and lose the
+   highlighter value — this is amber-700's neighbourhood, still unmistakably
+   the warm one beside five cool ones. */
+:root.light .pa-gold {
+  --pa-rgb: 161 98 7;
+  --pa-ink: #a16207;
+  --pa-pill-ink: #854d0e;
+}
+:root.light .pa-emerald {
+  --pa-rgb: 4 120 87;
+  --pa-ink: #047857;
+  --pa-pill-ink: #065f46;
+}
+
+/* ── What reads them ─────────────────────────────────────────────────────── */
+
+.pa-ink {
+  color: var(--pa-ink);
+}
+
+.pa-pill {
+  border-color: rgb(var(--pa-rgb) / var(--pa-pill-line-alpha));
+  background-color: rgb(var(--pa-rgb) / var(--pa-pill-bg-alpha));
+  color: var(--pa-pill-ink);
+}
+
 
 /* -------------------------------------------------------------------------
    1 · CURSOR — the oldest affordance there is, and it was missing.
@@ -2952,10 +3116,10 @@ body {
 .light .hover\:bg-white\/\[0\.04\]:hover { background-color: rgb(15 23 42 / 0.05); }
 
 .light .border-white\/5 { border-color: rgb(15 23 42 / 0.07); }
-.light .border-white\/8 { border-color: rgb(15 23 42 / 0.09); }
+.light .border-white\/8 { border-color: rgb(15 23 42 / 0.12); }
 .light .border-white\/10 { border-color: rgb(15 23 42 / 0.11); }
 .light .border-white\/20 { border-color: rgb(15 23 42 / 0.18); }
-.light .border-white\/\[0\.06\] { border-color: rgb(15 23 42 / 0.09); }
+.light .border-white\/\[0\.06\] { border-color: rgb(15 23 42 / 0.12); }
 .light .border-white\/\[0\.08\] { border-color: rgb(15 23 42 / 0.11); }
 .light .hover\:border-white\/20:hover { border-color: rgb(15 23 42 / 0.22); }
 
@@ -2970,8 +3134,13 @@ body {
 .light .bg-obsidian-200\/70 { background-color: rgb(255 255 255 / 0.95); }
 .light .bg-obsidian-300\/40 { background-color: rgb(241 245 249 / 1); }
 
-/* Brand accent text — boost contrast on white */
-.light .text-cyan-300 { color: #108fc0; }
+/* Brand accent text — boost contrast on white.
+   #0e7490 rather than #108fc0: the eyebrows and step indices this hits
+   are 10-11px mono at wide tracking, and small wide-tracked type needs
+   ~4.5:1 where a paragraph gets by on less. It is also the value the
+   light branch already uses for --trajectory and --an-cyan, so the
+   accent is one colour on paper instead of two. */
+.light .text-cyan-300 { color: #0e7490; }
 .light .text-violet-300 { color: #5f25bf; }
 .light .text-violet-400 { color: #481b92; }
 .light .text-amber-400 { color: #b45309; }
@@ -2991,6 +3160,80 @@ body {
 .light .ring-violet-300\/20 { --tw-ring-color: rgb(95 37 191 / 0.3); }
 .light .focus\:ring-cyan-300\/15:focus { --tw-ring-color: rgb(16 143 192 / 0.25); }
 .light .focus\:border-cyan-300\/50:focus { border-color: rgb(16 143 192 / 0.6); }
+
+/* ── Light branch: the remaining hard-coded accent shades ──────────────────
+   Everything below is `.light`-scoped, so the dark branch cannot be reached
+   by any of it. The rules exist because these values are written as Tailwind
+   shades inside components rather than read from a token: the 200/300 steps
+   of every palette are lights FOR A DARK GROUND, and on paper they are
+   pastels. Where a component could be moved onto a branching token it was
+   (see ProductCard and PRODUCT ACCENTS above); these are the one-off sites
+   across /products/, /mobilitycare/, /publications/ and /legal/ where a
+   local override is the honest fix rather than a refactor of nine files.
+
+   The 300-step becomes the accent's ~4.5:1 value on white; the 200-step —
+   always a label sitting on a tint of itself — goes one step further. */
+
+.light .text-teal-300 { color: #0f766e; }
+.light .text-teal-200 { color: #115e59; }
+.light .hover\:text-teal-200:hover { color: #115e59; }
+
+.light .text-emerald-300 { color: #047857; }
+.light .text-emerald-200 { color: #065f46; }
+
+.light .text-royal-300 { color: #1b4ed9; }
+.light .text-royal-200 { color: #1438a8; }
+
+.light .text-cyan-200 { color: #0b5c73; }
+.light .hover\:text-cyan-200:hover { color: #0b5c73; }
+
+.light .text-violet-200 { color: #481b92; }
+
+/* Amber is the hardest of the accents on paper — amber-300 is a highlighter.
+   The warm IDENTITY survives; the highlighter value does not. */
+.light .text-amber-300 { color: #a16207; }
+.light .text-amber-200 { color: #854d0e; }
+.light .text-amber-300\/80 { color: rgb(161 98 7 / 0.85); }
+.light .hover\:text-amber-200:hover { color: #854d0e; }
+.light .decoration-amber-300\/40 { text-decoration-color: rgb(161 98 7 / 0.45); }
+.light .decoration-cyan-300\/40 { text-decoration-color: rgb(14 116 144 / 0.45); }
+
+/* Accent pills: an 8% tint of a bright colour is invisible on white, and a
+   30% hairline of it is lighter still. Both step up, over the deepened base. */
+.light .bg-teal-300\/8 { background-color: rgb(13 148 136 / 0.09); }
+.light .border-teal-300\/30 { border-color: rgb(13 148 136 / 0.34); }
+.light .bg-amber-300\/8 { background-color: rgb(161 98 7 / 0.09); }
+.light .bg-amber-300\/10 { background-color: rgb(161 98 7 / 0.11); }
+.light .border-amber-300\/30 { border-color: rgb(161 98 7 / 0.34); }
+.light .border-amber-300\/40 { border-color: rgb(161 98 7 / 0.42); }
+.light .ring-amber-300\/40 { --tw-ring-color: rgb(161 98 7 / 0.42); }
+.light .bg-emerald-400\/8 { background-color: rgb(4 120 87 / 0.09); }
+.light .border-emerald-400\/30 { border-color: rgb(4 120 87 / 0.34); }
+.light .bg-cyan-300\/12 { background-color: rgb(14 116 144 / 0.11); }
+.light .border-cyan-300\/60 { border-color: rgb(14 116 144 / 0.6); }
+
+/* The filter row's selected pill: cyan-200 on a cyan tint is the one place a
+   SELECTED state was less legible than the unselected ones beside it. */
+.light .text-cyan-200.font-semibold { color: #0b5c73; }
+
+/* ── Light branch: surfaces that were white-alpha or obsidian-alpha ────────
+   A section band written as `bg-obsidian-300/25` is a 25% slate over navy in
+   dark and a 25% slate-100 over paper in light — which is nothing. The bands
+   carry the page's rhythm, so on paper they become a real, if quiet, tone
+   change, and the hairlines that separate them become ink. */
+.light .bg-obsidian-300\/25 { background-color: rgb(238 242 248 / 1); }
+.light .bg-obsidian-300\/30 { background-color: rgb(238 242 248 / 1); }
+.light .border-white\/\[0\.07\] { border-color: rgb(15 23 42 / 0.09); }
+/* Cards and panels are written as `from-white/[0.03] to-transparent`: on navy
+   that is a sheen catching light from above. Tinted with slate for paper it
+   makes an elevated card DARKER than the ground it sits on, which inverts
+   the one rule the light branch is built on — paper ground, white surfaces,
+   elevation from the stack rather than from shadow. So in light the stop
+   lifts to white instead, and a card reads as a white sheet on cool paper. */
+.light .from-white\/\[0\.04\] { --tw-gradient-from: rgb(255 255 255 / 0.92) var(--tw-gradient-from-position); }
+.light .from-white\/\[0\.03\] { --tw-gradient-from: rgb(255 255 255 / 0.9) var(--tw-gradient-from-position); }
+.light .from-soft-white\/\[0\.03\] { --tw-gradient-from: rgb(255 255 255 / 0.9) var(--tw-gradient-from-position); }
+.light .border-soft-white\/\[0\.08\] { border-color: rgb(15 23 42 / 0.13); }
 
 /* Pill dot dimmer in light mode */
 .light .pill-dot {

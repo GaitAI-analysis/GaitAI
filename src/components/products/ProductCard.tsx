@@ -5,44 +5,30 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { GaitProduct } from "@/data/products";
 
-const accentMap: Record<
-  GaitProduct["accent"],
-  {
-    text: string;
-    glow: string;
-    pill: string;
-  }
-> = {
-  teal: {
-    text: "text-teal-300",
-    glow: "from-teal-400/15 to-cyan-300/10",
-    pill: "bg-teal-300/8 border-teal-300/30 text-teal-200",
-  },
-  blue: {
-    text: "text-royal-300",
-    glow: "from-royal-400/15 to-cyan-300/10",
-    pill: "bg-royal-300/8 border-royal-300/30 text-royal-200",
-  },
-  cyan: {
-    text: "text-cyan-300",
-    glow: "from-cyan-300/15 to-royal-400/10",
-    pill: "bg-cyan-300/8 border-cyan-300/30 text-cyan-200",
-  },
-  violet: {
-    text: "text-violet-300",
-    glow: "from-violet-400/15 to-cyan-300/10",
-    pill: "bg-violet-300/8 border-violet-300/30 text-violet-200",
-  },
-  gold: {
-    text: "text-amber-300",
-    glow: "from-amber-400/15 to-cyan-300/10",
-    pill: "bg-amber-300/8 border-amber-300/30 text-amber-200",
-  },
-  emerald: {
-    text: "text-emerald-300",
-    glow: "from-emerald-400/15 to-cyan-300/10",
-    pill: "bg-emerald-300/8 border-emerald-300/30 text-emerald-200",
-  },
+/**
+ * One class per product family, and the colour comes from tokens behind it.
+ *
+ * This used to be six sets of Tailwind shades — `text-teal-300`,
+ * `bg-amber-300/8`, `text-violet-200`. Those shades are lights for a dark
+ * ground: on paper the amber pills rendered as pale yellow on near-white,
+ * which is a legibility failure rather than a preference. The theme cannot
+ * fix that from a token if the component hard-codes the shade, so the
+ * component now names the MEANING and `globals.css` branches the value —
+ * see PRODUCT ACCENTS — SIX MEANINGS, TWO BRANCHES.
+ *
+ * The dark branch is a transcription of exactly what these classes computed
+ * to, so dark renders unchanged; light is designed for paper on its own
+ * terms. The glow stays a literal because it is a fixed cyan radial that
+ * never read as the family colour anyway (see the inline `style` below,
+ * which has always overridden this gradient).
+ */
+const accentClass: Record<GaitProduct["accent"], string> = {
+  teal: "pa-teal",
+  blue: "pa-blue",
+  cyan: "pa-cyan",
+  violet: "pa-violet",
+  gold: "pa-gold",
+  emerald: "pa-emerald",
 };
 
 export function ProductCard({
@@ -54,7 +40,9 @@ export function ProductCard({
   index?: number;
   compact?: boolean;
 }) {
-  const a = accentMap[product.accent];
+  // The accent class carries --pa-rgb / --pa-ink / --pa-pill-ink to the whole
+  // subtree, so the eyebrow and the pills read one branching source.
+  const accent = accentClass[product.accent];
   // Every product has a dedicated detail page under its vertical.
   const href = `/${product.vertical}/${product.id}/`;
 
@@ -73,7 +61,7 @@ export function ProductCard({
          `whileHover` on this one component, so a focused card looks exactly
          like a hovered one and every card on the site moves by the same 2px.
          See interactions.css. */
-      className={`card-surface group overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent`}
+      className={`card-surface group overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent ${accent}`}
     >
       {/* Whole-card link (stretched). Enter activates natively; Space is
           handled explicitly so keyboard users can open a focused card. */}
@@ -93,7 +81,7 @@ export function ProductCard({
 
       {/* Glow on hover */}
       <div
-        className={`pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-gradient-radial opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${a.glow}`}
+        className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         style={{
           background: `radial-gradient(circle at center, rgb(79 209 255 / 0.18), transparent 60%)`,
         }}
@@ -103,7 +91,7 @@ export function ProductCard({
         {/* Header */}
         <div className="flex items-center justify-between gap-3">
           <div
-            className={`text-[10px] font-semibold uppercase tracking-[0.18em] ${a.text}`}
+            className="pa-ink text-[10px] font-semibold uppercase tracking-[0.18em]"
           >
             GaitAI · {product.short}
           </div>
@@ -128,7 +116,7 @@ export function ProductCard({
             {product.outputs.slice(0, 3).map((o) => (
               <span
                 key={o}
-                className={`rounded-full border px-2.5 py-1 text-[10.5px] font-medium ${a.pill}`}
+                className="pa-pill rounded-full border px-2.5 py-1 text-[10.5px] font-medium"
               >
                 {o}
               </span>

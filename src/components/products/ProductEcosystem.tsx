@@ -166,7 +166,11 @@ export function ProductEcosystem({
         "Gait assessment, fall-risk screening, rehabilitation monitoring, neurological and orthopedic movement tracking, sports movement and wearable mobility.",
       href: "/mobilitycare",
       hrefLabel: "View all MobilityCare",
-      accent: "#4FD1FF",
+      /* The accent travels as a CSS variable, not a hex, because it is
+         applied through inline `style` — and an inline hex is the one thing
+         a theme cannot reach. Dark keeps #4fd1ff exactly; the light branch
+         deepens it. See SUITE ACCENTS in globals.css. */
+      accent: "var(--suite-care-accent)",
       products: careProducts,
       total: careTotal,
     },
@@ -178,7 +182,7 @@ export function ProductEcosystem({
         "Anomaly detection, crowd flow, worker safety and campus monitoring — plus a separate, governed group for identity and investigation.",
       href: "/securevision",
       hrefLabel: "View all SecureVision",
-      accent: "#A78BFA",
+      accent: "var(--suite-secure-accent)",
       products: secureProducts,
       total: secureTotal,
     },

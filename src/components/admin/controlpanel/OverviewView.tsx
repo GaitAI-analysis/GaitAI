@@ -49,7 +49,7 @@ export function OverviewView({
           icon={<FileText className="h-4 w-4" />}
           label="Published posts"
           value={posts.length}
-          hint="Across the Journal & publications"
+          hint="Across the Blog & publications"
           tone="cyan"
         />
         <StatCard

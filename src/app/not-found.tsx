@@ -56,7 +56,7 @@ export default function NotFound() {
             Go home
           </Link>
           <Link href="/insights" className="btn-ghost">
-            Browse the Journal
+            Browse the Blog
           </Link>
         </div>
       </div>

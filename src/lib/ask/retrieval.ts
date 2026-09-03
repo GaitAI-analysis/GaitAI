@@ -474,7 +474,7 @@ const TYPE_LABEL: Record<string, string> = {
   "use-case": "Deployment environment",
   publication: "Publication record",
   research: "Research area",
-  insight: "Journal article",
+  insight: "Blog article",
   capability: "AI capability",
   signal: "Movement signal",
   deployment: "Deployment information",

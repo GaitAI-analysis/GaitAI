@@ -84,7 +84,7 @@ export function ContentView({
             Content Studio
           </h2>
           <p className="mt-1 text-sm text-soft-mute">
-            Everything published to the Journal &amp; Publications pages.
+            Everything published to the Blog &amp; Publications pages.
           </p>
         </div>
         <button

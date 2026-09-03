@@ -47,7 +47,7 @@ const NAV: { id: PanelTab; label: string; icon: React.ReactNode; sub: string }[]
       id: "content",
       label: "Content Studio",
       icon: <FileText className="h-4 w-4" />,
-      sub: "Journal & publications",
+      sub: "Blog & publications",
     },
     {
       id: "comments",

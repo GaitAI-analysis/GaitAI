@@ -76,8 +76,11 @@ export const navLinks: readonly NavItem[] = [
       },
     ],
   },
-  // The route stays /insights; only the visible name is the Journal.
-  { label: "Journal", href: "/insights" },
+  /* The route stays /insights. The navbar says "Blog" because it has to fit
+     between six other tabs and because it is the word a first-time visitor
+     scans for; the page itself carries the fuller "GaitAI · Blog & Updates",
+     and the footer, which has the room, says "Blog & Updates" too. */
+  { label: "Blog", href: "/insights" },
   {
     label: "Research & IP",
     href: "/research",

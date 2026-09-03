@@ -180,7 +180,7 @@ const SOURCE_KIND: Record<KnowledgeDoc["type"], string> = {
   "use-case": "Environment",
   publication: "Publication",
   research: "Research",
-  insight: "Journal",
+  insight: "Blog",
   capability: "Capability",
   signal: "Signal",
   deployment: "Deployment",

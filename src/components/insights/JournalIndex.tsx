@@ -156,14 +156,16 @@ export function JournalIndex() {
       <div className="container-wide">
         {/* ── Masthead ── */}
         <header className={styles.masthead}>
-          <p className={styles.mastheadKicker}>The GaitAI Journal</p>
+          {/* The full positioning lives here, where there is room for it —
+              the navbar tab is just "Blog". */}
+          <p className={styles.mastheadKicker}>GaitAI · Blog &amp; Updates</p>
           <h1 className={styles.mastheadTitle}>
-            Ideas, research, product notes and updates from{" "}
+            Ideas, research, product stories and the latest from{" "}
             <span className={styles.mastheadAccent}>GaitAI.</span>
           </h1>
           <p className={styles.mastheadDeck}>
-            Research translation, engineering stories, product notes and
-            updates from the team building GaitAI.
+            Technical explainers, research translation, engineering notes,
+            product updates and what we&apos;re building.
           </p>
           {/* Both lines are counted and dated from the records themselves: the
               coverage line names only the kinds of writing that exist, and the

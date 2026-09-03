@@ -33,6 +33,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Gate the deploy on the checks that used to run only on a developer's
+      # machine, if at all: types, lint, and GaitAI data integrity (duplicate
+      # ids, broken product/capability/publication references, unroutable
+      # links). A data error now fails CI instead of rendering a wrong count
+      # in production.
+      - name: Verify (typecheck, lint, data integrity)
+        run: npm run verify
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 

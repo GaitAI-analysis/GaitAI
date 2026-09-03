@@ -4,6 +4,7 @@ import { SignalThread } from "@/components/insights/SignalThread";
 import { OpeningWalker } from "@/components/insights/OpeningWalker";
 import { StoryMoment } from "@/components/insights/StoryMoment";
 import { StoryIndex } from "@/components/insights/StoryIndex";
+import { JournalIndex } from "@/components/insights/JournalIndex";
 import { SignalStage } from "@/components/insights/SignalStage";
 import {
   EditorialPause,
@@ -213,6 +214,18 @@ export default function InsightsPage() {
           label: RAIL_LABEL[article.seriesStep] ?? article.category,
         }))}
       />
+
+      {/* ═════════ THE ARCHIVE ═════════
+          The masthead, the cover story, every essay as a dated card, and the
+          reading path — above the narrative, not instead of it.
+
+          The narrative below is the strongest idea on this route and it keeps
+          its job: showing what the essays are ABOUT. It cannot show what they
+          ARE. It carries no date, no author, no read time, no excerpt and no
+          way to filter, so a reader arriving to find something to read had to
+          infer the archive from a scroll-driven illustration. This section is
+          that archive; the signal thread still runs behind both. */}
+      <JournalIndex />
 
       {/* ═════════ THE OPENING ═════════ */}
       <JournalOpening>

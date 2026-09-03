@@ -1539,3 +1539,13 @@ details[open] > .summaryToggle .summaryChevron {
     transition: none;
   }
 }
+
+/* Byline under the story title. Separate from .cardMeta so the kicker row
+   stays category · date · read time and the attribution reads as attribution
+   rather than as a fourth piece of metadata. */
+.cardByline {
+  margin-top: 0.5rem;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: var(--jr-mute);
+}

@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import type { InsightArticle } from "@/data/insights";
-import { insightHref } from "@/data/insights";
+import {
+  INSIGHTS_AUTHOR,
+  formatInsightDate,
+  insightHref,
+} from "@/data/insights";
 import { assetPath } from "@/lib/paths";
 import styles from "./journal.module.css";
 
@@ -80,7 +84,9 @@ export function StoryCard({
         <div className={styles.cardMeta}>
           <span className={styles.cardCategory}>{article.category}</span>
           <span aria-hidden="true">·</span>
-          <span>{article.readMinutes} min</span>
+          <time dateTime={article.date}>{formatInsightDate(article.date)}</time>
+          <span aria-hidden="true">·</span>
+          <span>{article.readMinutes} min read</span>
         </div>
 
         <h3 className={styles.cardTitle}>
@@ -88,6 +94,8 @@ export function StoryCard({
             {article.title}
           </Link>
         </h3>
+
+        <p className={styles.cardByline}>{INSIGHTS_AUTHOR}</p>
 
         {variant !== "standard" && (
           <p className={styles.cardExcerpt}>{article.excerpt}</p>

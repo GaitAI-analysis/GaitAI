@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/legal/responsible-ai" },
   title: "Responsible AI",
   description:
     "How GaitAI governs movement intelligence: identity-free capabilities by default, lawful authority for biometric and watchlist use, explainable outputs and no overclaiming.",

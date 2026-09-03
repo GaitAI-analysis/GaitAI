@@ -73,7 +73,15 @@ export const metadata: Metadata = {
     ],
   },
   manifest: assetPath("/manifest.webmanifest"),
-  alternates: { canonical: "/" },
+  /*
+   * NO canonical here. Next INHERITS metadata into every route, so a
+   * root-level `alternates.canonical` silently became the canonical URL
+   * of every page that did not override it — /mobilitycare/,
+   * /securevision/, /gaitscape/, the legal pages and all nine
+   * publication records each declared themselves a duplicate of the home
+   * page. Each route now states its own; the home page states "/" in
+   * app/page.tsx.
+   */
   openGraph: {
     type: "website",
     url: "/",

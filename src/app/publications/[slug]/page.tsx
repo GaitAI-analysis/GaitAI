@@ -46,6 +46,9 @@ export async function generateMetadata({
     return {
       title: `${publication.title} — GaitAI Research`,
       description: `${publication.venue} · ${publication.publisher} · ${publication.year}. Authors: ${publication.authors.join(", ")}.`,
+      // Without this the record inherited the root canonical and every one of
+      // the nine publication pages declared itself a duplicate of the home page.
+      alternates: { canonical: `/publications/${publication.id}` },
     };
   }
   const post = await getPublishedPostBySlug(params.slug);

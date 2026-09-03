@@ -12,6 +12,7 @@ import { assetPath } from "@/lib/paths";
 import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/securevision" },
   title: "SecureVision — Privacy-aware movement intelligence",
   description:
     "GaitAI SecureVision — Privacy-aware movement intelligence for safer campuses, transport hubs, factories, events and public spaces.",

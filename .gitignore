@@ -3,6 +3,11 @@ node_modules
 # A build directory that got renamed out of the way of `.next` once, escaped
 # the rule above, and was committed with 323 MB of webpack cache in it.
 .next-acl-blocked
+# Compiled output of the Cloud Function this project no longer has. The
+# TypeScript source is gone (see firebase.json: Ask GaitAI's retrieval and
+# generation both run in the browser), but `functions/lib/*.js` survived the
+# deletion and reappears as untracked noise in every `git status`.
+functions/lib
 out
 build
 dist

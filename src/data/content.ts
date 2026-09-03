@@ -61,6 +61,15 @@ export const navLinks: readonly NavItem[] = [
         href: "/gaitscape",
         description: "Interactive intelligence landscape",
       },
+      {
+        label: "Movement Intelligence Lab",
+        href: "/movement-lab",
+        // 40 chars, so it sits on one line in the w-72 panel like the two
+        // items above it. The requested wording ran to 61 and wrapped,
+        // making this the only two-line row in the menu; "Interactive"
+        // also repeated GaitScape's subtitle directly above.
+        description: "Movement becoming reportable intelligence",
+      },
     ],
   },
   { label: "Insights", href: "/insights" },

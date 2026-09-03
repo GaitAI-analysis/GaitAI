@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { contact, mailto, CONTACT_FORM_HREF } from "@/data/contact";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/legal/responsible-ai" },
@@ -29,12 +30,15 @@ export default function ResponsibleAIPage() {
       </p>
 
       <p className="mt-4 text-soft-gray">
-        PrivacyGuard, the privacy-preserving analytics layer, is enabled by
-        default across SecureVision deployments: skeleton-only analytics,
-        optional face blur applied before analytics, role-based access,
-        configurable retention and exportable audit logs. It is privacy-aware
-        architecture — it minimises identifiable data and governs access — and
-        not a guarantee of anonymity.
+        PrivacyGuard, the privacy-preserving analytics layer, is designed to
+        support skeleton-only analytics, optional face blur applied before
+        analytics, role-based access, configurable retention and exportable
+        audit logs, and GaitAI&apos;s intended configuration is to have it on
+        from the start of a SecureVision engagement. Which of those controls a
+        given site actually enables is agreed with that site — this page
+        describes architecture and intent, not the state of any running
+        system. It is privacy-aware architecture — it minimises identifiable
+        data and governs access — and not a guarantee of anonymity.
       </p>
 
       <h2 className="mt-12 font-display text-xl text-soft-white">
@@ -94,11 +98,18 @@ export default function ResponsibleAIPage() {
         . For anything else, contact{" "}
         <a
           className="text-cyan-300 transition-colors hover:text-cyan-200"
-          href="mailto:responsible-ai@gaitai.com"
+          href={mailto(contact.responsibleAi)}
         >
-          responsible-ai@gaitai.com
+          {contact.responsibleAi}
         </a>
-        .
+        . If a message bounces, the{" "}
+        <Link
+          className="text-cyan-300 transition-colors hover:text-cyan-200"
+          href={CONTACT_FORM_HREF}
+        >
+          contact form
+        </Link>{" "}
+        reaches the same people.
       </p>
     </>
   );

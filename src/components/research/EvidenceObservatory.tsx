@@ -181,11 +181,11 @@ export function EvidenceObservatory({ areas }: { areas: ObservatoryArea[] }) {
       </div>
 
       {/* ── Evidence flow ── */}
-      <div className={styles.emapStage}>
+      <div className={`${styles.emapStage} ${styles.diagramScroll}`}>
         <svg
           aria-hidden="true"
           viewBox={`0 0 ${W} ${H}`}
-          className={`${styles.emapGraph} hidden lg:block`}
+          className={styles.emapGraph}
         >
           <text className={styles.gColumnLabel} x={20} y={18}>
             Research
@@ -344,25 +344,6 @@ export function EvidenceObservatory({ areas }: { areas: ObservatoryArea[] }) {
           )}
         </svg>
 
-        {/* Below lg: the same chain, stacked. */}
-        <ol className={`${styles.chain} lg:hidden`} aria-hidden="true">
-          <li className={styles.chainStep}>
-            <span className={styles.chainLabel}>Research</span>
-            <span className={styles.chainBody}>{area.title}</span>
-          </li>
-          <li className={styles.chainStep}>
-            <span className={styles.chainLabel}>Capability</span>
-            <span className={styles.chainBody}>
-              {area.capabilities.map((c) => c.title).join(" · ")}
-            </span>
-          </li>
-          <li className={styles.chainStep}>
-            <span className={styles.chainLabel}>Product modules</span>
-            <span className={styles.chainBody}>
-              {area.products.map((p) => p.short).join(" · ")}
-            </span>
-          </li>
-        </ol>
       </div>
 
       {/* ── Detail panel ── */}

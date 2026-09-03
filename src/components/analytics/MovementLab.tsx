@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
+import {
+  DEMO_LABEL,
+  IllustrativeBadge,
+} from "@/components/ui/IllustrativeBadge";
 import { assetPath } from "@/lib/paths";
 import {
   MOBILITY_EXPLAIN,
@@ -18,7 +21,6 @@ import {
   SECURE_REPORT,
   SECURE_STAGES,
   SECURE_ZONES,
-  SYNTHETIC_LABEL,
   type MobilityLayer,
   type SecureLayer,
 } from "@/data/lab-demo";
@@ -58,7 +60,7 @@ import styles from "./analytics.module.css";
  * WHAT MAKES THIS HONEST
  *   · every reading comes from `data/lab-demo.ts`, whose header states that
  *     all of it is invented for illustration
- *   · every panel that shows a number carries the synthetic-data label, and
+ *   · every panel that shows a number carries the illustrative label, and
  *     the badge is repeated per stage rather than once at the top
  *   · the SecureVision mode is identity-free by construction: there is no
  *     identification layer, no face, no name, no watchlist — the toggles are
@@ -204,7 +206,7 @@ export function MovementLab() {
             { id: "securevision", label: "SecureVision" },
           ]}
         />
-        <SyntheticDataBadge label={SYNTHETIC_LABEL} />
+        <IllustrativeBadge />
       </div>
 
       {/* ── PIPELINE RAIL ── */}
@@ -274,7 +276,7 @@ export function MovementLab() {
               <span className={styles.label}>What this demonstration is</span>
               <p className={`${styles.note} mt-2`}>
                 An interactive illustration of the documented pipeline, running
-                on synthetic data. It is not a diagnostic tool, not a live
+                with example values. It is not a diagnostic tool, not a live
                 system, and none of its readings are product-performance
                 figures.
               </p>
@@ -319,8 +321,7 @@ function StageVideo({ src, poster }: { src: string; poster?: string }) {
         autoPlay
         preload="none"
       />
-      <SyntheticDataBadge
-        label={SYNTHETIC_LABEL}
+      <IllustrativeBadge
         variant="overlay"
         className="absolute bottom-3 left-3"
       />
@@ -424,7 +425,7 @@ function MobilityStage({
             tone="mute"
             items={[
               `${MOBILITY_METRICS.timing.value}${MOBILITY_METRICS.timing.unit} — ${MOBILITY_METRICS.timing.note}`,
-              SYNTHETIC_LABEL,
+              DEMO_LABEL,
             ]}
           />
         </ResultColumns>
@@ -442,7 +443,7 @@ function MobilityStage({
               value={MOBILITY_METRICS.cadence.value}
               unit={MOBILITY_METRICS.cadence.unit}
               note={MOBILITY_METRICS.cadence.note}
-              synthetic
+              illustrative
             >
               <MiniTrendChart
                 series={[...MOBILITY_METRICS.cadence.series]}
@@ -456,7 +457,7 @@ function MobilityStage({
               value={MOBILITY_METRICS.symmetry.value}
               unit={MOBILITY_METRICS.symmetry.unit}
               note={MOBILITY_METRICS.symmetry.note}
-              synthetic
+              illustrative
             >
               <div className="mt-2.5">
                 <FeatureDistribution
@@ -472,7 +473,7 @@ function MobilityStage({
               label={MOBILITY_METRICS.variability.label}
               value={MOBILITY_METRICS.variability.value}
               note={MOBILITY_METRICS.variability.note}
-              synthetic
+              illustrative
             >
               <MiniTrendChart
                 series={[...MOBILITY_METRICS.variability.series]}
@@ -487,7 +488,7 @@ function MobilityStage({
               value={MOBILITY_METRICS.posture.value}
               unit={MOBILITY_METRICS.posture.unit}
               note={MOBILITY_METRICS.posture.note}
-              synthetic
+              illustrative
             />
           )}
           <SignalMetric
@@ -495,7 +496,7 @@ function MobilityStage({
             value={MOBILITY_METRICS.speed.value}
             unit={MOBILITY_METRICS.speed.unit}
             note={MOBILITY_METRICS.speed.note}
-            synthetic
+            illustrative
           >
             <MiniTrendChart
               series={[...MOBILITY_METRICS.speed.series]}
@@ -521,7 +522,7 @@ function MobilityStage({
         </span>
         {on("trend") ? (
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            <SignalMetric label="Walking speed" value="↓ from baseline" synthetic>
+            <SignalMetric label="Walking speed" value="↓ from baseline" illustrative>
               <MiniTrendChart
                 series={MOBILITY_TREND.speed}
                 baseline
@@ -529,14 +530,14 @@ function MobilityStage({
                 summary="Walking speed across four assessments, below the baseline at the fourth."
               />
             </SignalMetric>
-            <SignalMetric label="Step symmetry" value="↓ from baseline" synthetic>
+            <SignalMetric label="Step symmetry" value="↓ from baseline" illustrative>
               <MiniTrendChart
                 series={MOBILITY_TREND.symmetry}
                 baseline
                 summary="Step symmetry across four assessments, slightly below baseline."
               />
             </SignalMetric>
-            <SignalMetric label="Stride variability" value="↑ from baseline" synthetic>
+            <SignalMetric label="Stride variability" value="↑ from baseline" illustrative>
               <MiniTrendChart
                 series={MOBILITY_TREND.variability}
                 tone="amber"
@@ -546,7 +547,7 @@ function MobilityStage({
           </div>
         ) : (
           <p className={`${styles.note} mt-3`}>
-            Switch on the temporal-trend layer to compare the four synthetic
+            Switch on the temporal-trend layer to compare the four example
             assessments.
           </p>
         )}
@@ -662,12 +663,12 @@ function SecureStage({
           layers={layers}
           summary={`Plan view of an illustrative space showing ${
             summary || "no layers"
-          }. Seven synthetic movement paths; no identities.`}
+          }. Seven example movement paths; no identities.`}
         />
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <SyntheticDataBadge label={SYNTHETIC_LABEL} />
+        <IllustrativeBadge />
         {layers.privacy && (
           <span className={styles.reason}>Identity-free view</span>
         )}
@@ -702,20 +703,20 @@ function SecureStage({
             value={SECURE_METRICS.occupancy.value}
             unit={SECURE_METRICS.occupancy.unit}
             note={SECURE_METRICS.occupancy.note}
-            synthetic
+            illustrative
           />
           <SignalMetric
             label={SECURE_METRICS.dwell.label}
             value={SECURE_METRICS.dwell.value}
             unit={SECURE_METRICS.dwell.unit}
             note={SECURE_METRICS.dwell.note}
-            synthetic
+            illustrative
           />
           <SignalMetric
             label="Zones"
             value={String(SECURE_ZONES.length)}
             note={SECURE_ZONES.map((zone) => zone.label).join(" · ")}
-            synthetic
+            illustrative
           />
         </div>
       )}
@@ -726,7 +727,7 @@ function SecureStage({
             label={SECURE_METRICS.density.label}
             value={SECURE_METRICS.density.value}
             note={SECURE_METRICS.density.note}
-            synthetic
+            illustrative
           >
             <MiniTrendChart
               series={[...SECURE_METRICS.density.series]}
@@ -751,7 +752,7 @@ function SecureStage({
             label={SECURE_METRICS.candidates.label}
             value={SECURE_METRICS.candidates.value}
             note={SECURE_METRICS.candidates.note}
-            synthetic
+            illustrative
           />
           <div className={styles.metric}>
             <span className={styles.metricLabel}>Why &ldquo;candidate&rdquo;</span>

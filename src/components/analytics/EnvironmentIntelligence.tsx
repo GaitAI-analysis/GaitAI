@@ -351,7 +351,7 @@ export function EnvironmentIntelligence() {
       />
 
       <ResultHeader
-        kicker="Deployment scenario"
+        kicker="Application environment"
         title={environment.name}
         forLabel={
           summaryTerms.length > 1

@@ -8,7 +8,7 @@ import { papers } from "@/data/publications";
 import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
-  title: "Investors & collaboration — GaitAI",
+  title: "Investors & collaboration",
   description:
     "GaitAI's origin, the collaborations we're looking for, and the stage we're raising for. Human Movement Intelligence built on a peer-reviewed gait research record and a granted Indian patent.",
   alternates: { canonical: "/investors" },

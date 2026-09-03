@@ -71,12 +71,16 @@ export function UseCaseCard({
   const family =
     base.vertical === "mobilitycare" ? "MobilityCare" : "SecureVision";
 
+  /* The problem statement is NOT repeated here. It is the paragraph directly
+     under the card's title, always visible; restating it as a numbered section
+     put the same sentence in the markup twice for every one of the seventeen
+     cards, and the reader saw it twice the moment a card was opened. The
+     panel picks up where the summary leaves off. */
   const sections = detail
     ? [
-        { n: "01", title: "The problem", body: base.problem },
-        { n: "02", title: "Why current workflows fall short", body: detail.shortfall },
-        { n: "03", title: "The GaitAI approach", body: detail.together },
-        { n: "05", title: "Why this matters", body: detail.outcome },
+        { n: "01", title: "Why current workflows fall short", body: detail.shortfall },
+        { n: "02", title: "The GaitAI approach", body: detail.together },
+        { n: "04", title: "Why this matters", body: detail.outcome },
       ]
     : [];
 
@@ -157,7 +161,7 @@ export function UseCaseCard({
 
           {detail && (
             <li className={styles.panelItem}>
-              <span className={styles.panelNum}>04</span>
+              <span className={styles.panelNum}>03</span>
               <div className="min-w-0">
                 <h4 className={styles.panelTitle}>What it produces</h4>
                 <ul className={styles.signalList}>

@@ -38,7 +38,7 @@ export function ProductAnalytics() {
         <Link href="/movement-lab" className="text-cyan-300 underline decoration-cyan-300/35 underline-offset-4">
           Open Movement Studio
         </Link>
-        {" "}— an interactive demonstration on synthetic data.
+        {" "}— an interactive demonstration with example values.
       </p>
 
       <div id="compare" className="mt-16 scroll-mt-28 sm:mt-20">

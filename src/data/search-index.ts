@@ -95,14 +95,14 @@ const destinationEntries: SearchEntry[] = [
     id: "destination:movement-studio",
     group: "destination",
     title: "Movement Studio",
-    detail: "Analyze and explore movement, stage by stage, on synthetic data",
+    detail: "Analyze and explore movement, stage by stage, with example values",
     meta: "Interactive",
     href: "/movement-lab/",
     haystack: norm([
       "movement studio",
       "analyze explore movement pose gait cycle features analytics report",
       "trajectories density flow candidate events operator view",
-      "explainability illustrative demo synthetic data footage",
+      "explainability illustrative demo example values footage",
       /* Retired names: findable, never shown. */
       "movement intelligence lab",
       "movement lab",

@@ -360,7 +360,7 @@ function LiveAnalyticsHud() {
         <span>GAIT SIGNATURE MATCH</span>
         <strong>G-7A21</strong>
         <b>DEMO</b>
-        <small>ILLUSTRATIVE · SYNTHETIC DATA</small>
+        <small>ILLUSTRATIVE DEMO</small>
       </section>
 
       <section className={`${styles.hudStage} ${styles.resultStage}`}>

@@ -650,7 +650,7 @@ export function MovementAnalyzer() {
             </span>
             <span>
               <strong>Illustrative demo</strong> — the pipeline walkthroughs
-              elsewhere on this page, which run on synthetic data.
+              elsewhere on this page, which use example values.
             </span>
             <span>
               <strong>GaitAI analysis</strong> — the product pipeline, which is

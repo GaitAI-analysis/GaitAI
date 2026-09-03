@@ -1,5 +1,5 @@
 // ============================================================================
-// MOVEMENT STUDIO — SYNTHETIC DEMONSTRATION DATA
+// MOVEMENT STUDIO — ILLUSTRATIVE DEMONSTRATION VALUES
 // ----------------------------------------------------------------------------
 // EVERY NUMBER, SERIES, TRAJECTORY AND INDICATOR IN THIS FILE IS INVENTED FOR
 // ILLUSTRATION. Nothing here comes from a real capture, a real person, a real
@@ -11,8 +11,9 @@
 // stage does, what comes out, and why an indicator was surfaced. Concrete
 // values make that legible in a way empty placeholders do not, so the values
 // are concrete and every surface that renders one also renders the
-// "Illustrative demo · synthetic data" label. The components enforce this: the
-// metric component takes a `synthetic` flag and the lab sets it everywhere.
+// "Illustrative demo" label from `IllustrativeBadge`. The components enforce
+// this: the metric component takes an `illustrative` flag and the lab sets it
+// everywhere.
 //
 // The series are hand-written rather than generated, so the lab renders
 // identically on the server, on the client and in a screenshot.
@@ -27,8 +28,6 @@ import type {
   TrajectoryPath,
   TrajectoryZone,
 } from "@/components/analytics/graphics";
-
-export const SYNTHETIC_LABEL = "Illustrative demo · synthetic data";
 
 // ============================================================================
 // MOBILITYCARE — one walking assessment, staged
@@ -58,7 +57,7 @@ export const MOBILITY_LAYERS = [
 export type MobilityLayer = (typeof MOBILITY_LAYERS)[number]["id"];
 
 /**
- * The synthetic readings. Units are the units the product records use
+ * The illustrative readings. Units are the units the product records use
  * (steps/min, per cent, degrees, seconds); the values are illustrative.
  */
 export const MOBILITY_METRICS = {
@@ -105,7 +104,7 @@ export const MOBILITY_METRICS = {
   },
 } as const;
 
-/** Four assessments of the same synthetic subject, for the trend stage. */
+/** Four assessments of the same example subject, for the trend stage. */
 export const MOBILITY_TREND = {
   points: ["Baseline", "Review 02", "Review 03", "Review 04"],
   speed: [1.18, 1.12, 1.09, 1.06],
@@ -170,7 +169,7 @@ export const SECURE_LAYERS = [
 export type SecureLayer = (typeof SECURE_LAYERS)[number]["id"];
 
 /**
- * Synthetic plan-view paths in a 0–100 × 0–100 space. One path is marked as
+ * Illustrative plan-view paths in a 0–100 × 0–100 space. One path is marked as
  * the one a candidate event was surfaced from — the dwell-and-return shape the
  * explainability panel describes.
  */

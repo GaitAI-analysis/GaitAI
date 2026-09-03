@@ -19,6 +19,7 @@ import {
 } from "@/data/products";
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { ctas } from "@/data/content";
+import { productOverview } from "@/data/product-details";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/mobilitycare" },
@@ -100,8 +101,12 @@ export default function MobilityCarePage() {
                     clinician-ready movement report.
                   </span>
                 </h2>
+                {/* The value proposition, not the catalogue description:
+                    the product grid above this section already prints
+                    `walkscan.description`, so repeating it here put the same
+                    sentence on the page twice. */}
                 <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
-                  {walkscan.description}
+                  {productOverview(walkscan.id)}
                 </p>
                 <ul className="mt-6 grid gap-2">
                   {walkscan.outputs.map((o) => (
@@ -152,7 +157,7 @@ export default function MobilityCarePage() {
                   </span>
                 </h2>
                 <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
-                  {watchcare.description}
+                  {productOverview(watchcare.id)}
                 </p>
                 {/* Full WatchCare capability set — moved here from the home
                     page, where it was a second flagship block competing with
@@ -212,7 +217,7 @@ export default function MobilityCarePage() {
                   </span>
                 </h2>
                 <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
-                  {fallrisk.description}
+                  {productOverview(fallrisk.id)}
                 </p>
                 {/* The three screening categories FallRisk assigns. The
                     previous version showed a 62 / 28 / 10 % cohort split —

@@ -31,7 +31,7 @@ export function TrustPillar({
         <span aria-hidden="true" className={styles.pillarIndex}>
           {index}
         </span>
-        <h3 className={styles.pillarTitle}>{title}</h3>
+        <h2 className={styles.pillarTitle}>{title}</h2>
       </header>
 
       <p className={styles.pillarLead}>{lead}</p>

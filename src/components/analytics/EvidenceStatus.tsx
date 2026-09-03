@@ -11,7 +11,7 @@ import styles from "./evidence-status.module.css";
  *
  * Every row's state is derived in evidence-status.ts from something already in
  * the repository — a resolved publication join, a documented specification, a
- * synthetic sample — and the last two rows are repository-wide constants that
+ * sample output — and the last two rows are repository-wide constants that
  * cannot be flipped by adding a page. Nothing here is asserted at the call
  * site: the component receives a product id and reads.
  *

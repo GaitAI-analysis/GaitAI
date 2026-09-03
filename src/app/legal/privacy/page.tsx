@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { contact, mailto, CONTACT_FORM_HREF } from "@/data/contact";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/legal/privacy" },
@@ -19,7 +20,15 @@ export const metadata: Metadata = {
  *   - comment submission is gated by Cloudflare Turnstile
  *   - theme choice is kept in browser localStorage by next-themes
  *   - embedded post media can come from youtube-nocookie.com / Vimeo
- *   - there is NO analytics, tag manager or advertising script anywhere
+ *   - journal articles keep a view and like counter in Firestore
+ *     (src/lib/article-stats.ts); the dedup key is sessionStorage-only
+ *   - the Movement Lab analyser runs MediaPipe in the tab and uploads
+ *     nothing (src/components/analytics/usePoseAnalysis.ts)
+ *   - there is NO analytics suite, tag manager or advertising script anywhere
+ *
+ * The "no analytics of any kind" line this page used to carry became untrue
+ * the moment article counters landed. A counter is a measurement, even a
+ * crude anonymous one, so it is disclosed as one rather than argued around.
  *
  * TODO (needs the company's own legal input, not a guess):
  *   - registered entity name, address and jurisdiction
@@ -48,8 +57,9 @@ export default function PrivacyPage() {
       </h2>
       <p className="mt-4 text-soft-gray">
         The site is a static site. There is no account system, no advertising,
-        and no analytics, tag manager or tracking script of any kind — we do not
-        measure your visit.
+        no tag manager and no third-party analytics or tracking script. Two
+        things are counted, and both are listed below: journal article views,
+        and likes if you press the button.
       </p>
 
       <dl className="mt-6 border-t border-white/[0.08]">
@@ -84,6 +94,39 @@ export default function PrivacyPage() {
             Your light or dark choice is saved in your browser&apos;s local
             storage so the site remembers it. It never leaves your device and is
             not a tracking cookie.
+          </dd>
+        </div>
+        <div className="border-b border-white/[0.08] py-5">
+          <dt className="text-sm font-semibold text-soft-white">
+            Journal article views and likes
+          </dt>
+          <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
+            Each journal article keeps a running count of views and likes in
+            Google Firebase (Firestore). The stored record is two whole numbers
+            and a timestamp — no IP address, no device or browser fingerprint,
+            and no identifier of any kind, so a count cannot be traced back to
+            a reader. To avoid counting the same visit repeatedly, your browser
+            keeps a marker in its own session storage saying it has already
+            counted that article; the marker never leaves your device and is
+            cleared when you close the tab. If a like is registered, the same
+            kind of marker is kept in local storage so the button reflects your
+            own choice.
+          </dd>
+        </div>
+        <div className="border-b border-white/[0.08] py-5">
+          <dt className="text-sm font-semibold text-soft-white">
+            Movement Lab video
+          </dt>
+          <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
+            The Movement Lab analyser reads a clip you choose entirely inside
+            your browser. The file is opened through a local object URL and
+            handed frame by frame to a pose model that runs in the tab; neither
+            the video nor anything derived from it is uploaded, stored or sent
+            to us, and the site has no server that could receive it. The model
+            weights are downloaded to your browser to make that possible. If
+            you record a short clip with your camera instead, that recording is
+            held in the tab&apos;s memory for the analysis and discarded when
+            you leave the page.
           </dd>
         </div>
         <div className="border-b border-white/[0.08] py-5">
@@ -161,11 +204,18 @@ export default function PrivacyPage() {
         Questions about this page, or a request relating to your data:{" "}
         <a
           className="text-cyan-300 transition-colors hover:text-cyan-200"
-          href="mailto:privacy@gaitai.com"
+          href={mailto(contact.privacy)}
         >
-          privacy@gaitai.com
+          {contact.privacy}
         </a>
-        .
+        . If a message bounces, the{" "}
+        <Link
+          className="text-cyan-300 transition-colors hover:text-cyan-200"
+          href={CONTACT_FORM_HREF}
+        >
+          contact form
+        </Link>{" "}
+        reaches the same people.
       </p>
     </>
   );

@@ -645,5 +645,20 @@ export const useCaseDetails: UseCaseDetail[] = [
   },
 ];
 
+/**
+ * The route for an industry use-case id.
+ *
+ * Canonical, because several surfaces need it: the GaitScape graph, the
+ * footer, the environment map. Each of them previously built its own
+ * `/use-cases#<id>` fragment, and /use-cases carries no such anchors — so a
+ * named environment landed the reader at the top of the index instead of on
+ * its own page. Where a detail page exists, this returns it; where one does
+ * not, it returns the index rather than a link to nowhere.
+ */
+export const useCaseHrefById = (caseId: string): string => {
+  const detail = useCaseDetails.find((d) => d.caseId === caseId);
+  return detail ? `/use-cases/${detail.slug}` : "/use-cases";
+};
+
 export const getUseCaseDetail = (slug: string) =>
   useCaseDetails.find((d) => d.slug === slug);

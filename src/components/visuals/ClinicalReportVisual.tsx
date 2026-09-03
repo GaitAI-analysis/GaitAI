@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
+import { IllustrativeBadge } from "@/components/ui/IllustrativeBadge";
 
 /**
  * A premium "AI-generated clinical report" preview card — styled to look like
@@ -29,7 +29,7 @@ export function ClinicalReportVisual() {
             WalkScan · Sample #1042
           </div>
         </div>
-        <SyntheticDataBadge label="Illustrative" className="shrink-0" />
+        <IllustrativeBadge label="Illustrative" className="shrink-0" />
       </div>
 
       {/* Mobility score */}
@@ -103,7 +103,7 @@ export function ClinicalReportVisual() {
           nothing — a dead control, and a promise of a file that does not
           exist. Same footprint, now a static caption. */}
       <div className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] py-2.5 text-[11px] font-medium uppercase tracking-[0.14em] text-soft-mute">
-        Sample report layout · Synthetic values
+        Sample report layout · Example values
       </div>
     </div>
   );

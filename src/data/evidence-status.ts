@@ -12,7 +12,7 @@
 //                         That join already exists; this only reads it.
 //   product module        DERIVED. True when the module has a detail record,
 //                         i.e. a documented page describing what it does.
-//   interactive demo      DERIVED. True when a synthetic sample output exists
+//   interactive demo      DERIVED. True when a sample output exists
 //                         for the module in sample-outputs.ts.
 //   product validation    ALWAYS "not-published". No study in this repository
 //                         evaluates any module's output for an intended use.
@@ -113,8 +113,8 @@ export function evidenceStatusFor(productId: string): ModuleEvidence {
       label: "Interactive demo",
       state: hasDemo ? "available" : "not-published",
       detail: hasDemo
-        ? "A synthetic sample output is available to explore. Illustrative demo — not a measured result."
-        : "No synthetic sample output has been built for this module yet.",
+        ? "A sample output is available to explore. Illustrative demo — example values, not a measured result."
+        : "No sample output has been built for this module yet.",
     },
     { ...PRODUCT_VALIDATION, state: "not-published" },
     { ...CASE_STUDY, state: "not-published" },

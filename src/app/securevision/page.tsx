@@ -9,6 +9,7 @@ import { industryUseCases, productById, secureProducts } from "@/data/products";
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { assetPath } from "@/lib/paths";
 import { ctas } from "@/data/content";
+import { productOverview } from "@/data/product-details";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/securevision" },
@@ -92,7 +93,7 @@ export default function SecureVisionPage() {
                 </Link>
               </div>
 
-              {/* The synthetic-data pill that used to sit here — between the
+              {/* The illustrative-values pill that used to sit here — between the
                   CTAs and the capability chips, on top of the hero footage —
                   is gone, along with its twin on the MobilityCare hero and the
                   two on the home page's console visuals. One badge repeated on
@@ -195,7 +196,7 @@ export default function SecureVisionPage() {
                   </span>
                 </h2>
                 <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">
-                  {privacy.description}
+                  {productOverview(privacy.id)}
                 </p>
                 <ul className="mt-6 grid gap-2">
                   {privacy.outputs.map((o) => (
@@ -269,7 +270,7 @@ export default function SecureVisionPage() {
       <section className="section bg-obsidian-300/40">
         <div className="container-wide">
           <SectionHeading
-            eyebrow="Deployment environments"
+            eyebrow="Application environments"
             title={
               <>
                 From transport hubs to{" "}

@@ -112,7 +112,7 @@ export function RunningTrailVisual() {
           CADENCE · 178
         </text>
         <text x="20" y="188" fontSize="8" fill="#64748B" letterSpacing="1.8">
-          ILLUSTRATIVE DEMO · SYNTHETIC DATA
+          ILLUSTRATIVE DEMO
         </text>
       </g>
     </svg>

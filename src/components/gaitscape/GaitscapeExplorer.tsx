@@ -1785,9 +1785,12 @@ export function GaitscapeExplorer() {
               <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
                 Challenge
               </div>
-              <h3 className="mt-1.5 font-display text-lg text-soft-white">
+              {/* h2, not h3: this panel sits directly under the
+                  explorer's h1, so an h3 here skipped a level. Tailwind's
+                  preflight makes the two render identically. */}
+              <h2 className="mt-1.5 font-display text-lg text-soft-white">
                 {challenge.question}
-              </h3>
+              </h2>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-soft-gray">
                 {challenge.summary}
               </p>
@@ -1872,7 +1875,7 @@ function DetailPanel({
             />
             {NODE_TYPE_LABEL[node.type]}
           </span>
-          <h3 className="mt-2 font-display text-xl text-soft-white">{node.title}</h3>
+          <h2 className="mt-2 font-display text-xl text-soft-white">{node.title}</h2>
         </div>
         <button
           onClick={onClose}
@@ -1957,7 +1960,7 @@ function AccessibleList({
             className="rounded-2xl border border-white/[0.08] bg-obsidian-200/50 p-5"
             aria-label={ch.question}
           >
-            <h3 className="font-display text-lg text-soft-white">{ch.question}</h3>
+            <h2 className="font-display text-lg text-soft-white">{ch.question}</h2>
             <p className="mt-1.5 text-sm text-soft-gray">{ch.summary}</p>
             <ul className="mt-3 space-y-2">
               {ch.productIds.map((pid) => {
@@ -2000,7 +2003,7 @@ function AccessibleList({
               className="rounded-2xl border border-white/[0.08] bg-obsidian-200/50 p-5"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h3 className="font-display text-lg text-soft-white">{hub.title}</h3>
+                <h2 className="font-display text-lg text-soft-white">{hub.title}</h2>
                 <span className="text-xs text-soft-mute">
                   {members.length} connected
                 </span>
@@ -2024,7 +2027,7 @@ function AccessibleList({
           aria-label="Intelligence core"
           className="rounded-2xl border border-white/[0.08] bg-obsidian-200/50 p-5"
         >
-          <h3 className="font-display text-lg text-soft-white">Intelligence core</h3>
+          <h2 className="font-display text-lg text-soft-white">Intelligence core</h2>
           <ul className="mt-3 space-y-2">
             {unassigned.map((m) => (
               <li key={m.id}>

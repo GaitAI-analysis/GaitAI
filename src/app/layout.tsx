@@ -1,6 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+/* The site's clickable-card language, loaded after globals so it settles
+   ties with the Tailwind hover utilities it replaces. Its own file because
+   it is one system read by every card, tile, row and menu item — see
+   interactions.css. */
+import "./interactions.css";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { IntelligenceSearch } from "@/components/search/IntelligenceSearch";

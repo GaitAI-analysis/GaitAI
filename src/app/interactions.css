@@ -1,0 +1,495 @@
+/* =========================================================================
+   CLICKABLE SURFACES — one interaction language for the whole site
+   -------------------------------------------------------------------------
+   Every card, tile, panel and row that opens a page reads from this file, so
+   a reader learns the affordance once on the home page and it holds on
+   /products, /use-cases, /research, /publications, /insights and inside the
+   navigation menus.
+
+   The vocabulary is deliberately small. Six classes:
+
+     .card-link     an anchor that IS the card
+     .card-surface  a container whose link is stretched over it (+ .card-hit,
+                    and .card-raise for anything that must stay above it)
+     .card-cue      the "View product →" line, with .card-cue-arrow
+     .card-corner   the top-right glyph, a secondary cue and never the only one
+     .row-link      a compact clickable row, with .row-link-arrow
+     .menu-card     a navigation dropdown item
+
+   The signals are the same in all six: pointer cursor, a 2px lift, a slightly
+   brighter border, a faint internal tint, the cue brightening, the arrow
+   nudging 3px, and a visible focus ring. Nothing bounces, nothing scales,
+   nothing changes colour dramatically. A reader should register "this opens"
+   without being able to say what moved.
+
+   Three rules this file exists to enforce:
+
+     1. HOVER AND FOCUS ARE THE SAME STATE. Every hover treatment is also
+        written against :focus-visible / :focus-within, so a keyboard reader
+        sees exactly what a mouse reader sees.
+     2. TOUCH GETS NO HOVER. Under `(hover: none)` the cue and the arrow are
+        painted at full strength permanently, because on a phone the hover
+        reveal never fires and a cue that only exists on hover does not exist.
+     3. NON-CLICKABLE CARDS GET NOTHING FROM THIS FILE. A card that opens
+        nothing must not lift, must not glow and must not show an arrow —
+        the affordance is a promise, and a static card that makes it is worse
+        than one that says nothing.
+
+   Loaded from `layout.tsx` after `globals.css`, so it settles ties with the
+   Tailwind utilities that used to carry these treatments one component at a
+   time.
+   ========================================================================= */
+
+:root {
+  /* The lift. Small enough to read as "live" rather than "animated". */
+  --hit-lift: -2px;
+  --hit-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --hit-speed: 0.32s;
+
+  --hit-line: rgb(79 209 255 / 0.34);
+  --hit-line-soft: rgb(148 163 184 / 0.22);
+  --hit-tint: rgb(79 209 255 / 0.05);
+  --hit-shadow: 0 16px 36px -22px rgb(37 99 255 / 0.5);
+  --hit-ring: rgb(79 209 255 / 0.7);
+
+  /* The cue's two states. Idle is legible, not hidden: on a phone this is
+     the only state there is. */
+  --hit-cue: rgb(79 209 255 / 0.66);
+  --hit-cue-on: #4fd1ff;
+
+  --hit-row: rgb(255 255 255 / 0.035);
+  --hit-row-strong: rgb(255 255 255 / 0.055);
+}
+
+:root.light {
+  /* Light is not dark at higher opacity: on paper a cyan hairline disappears
+     and a blue shadow does the lifting. */
+  --hit-line: rgb(27 78 217 / 0.34);
+  --hit-line-soft: rgb(15 23 42 / 0.16);
+  --hit-tint: rgb(27 78 217 / 0.045);
+  --hit-shadow: 0 16px 32px -20px rgb(15 23 42 / 0.22);
+  --hit-ring: rgb(27 78 217 / 0.6);
+
+  --hit-cue: rgb(21 94 173 / 0.85);
+  --hit-cue-on: #0f5ea8;
+
+  --hit-row: rgb(15 23 42 / 0.035);
+  --hit-row-strong: rgb(15 23 42 / 0.055);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1 · THE CARD ITSELF IS THE LINK
+   The simplest case and the preferred one: one anchor, the whole surface, no
+   overlay to keep in sync and nothing to get the z-order wrong.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.card-link {
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform var(--hit-speed) var(--hit-ease),
+    border-color var(--hit-speed) var(--hit-ease),
+    box-shadow var(--hit-speed) var(--hit-ease);
+}
+
+/* The internal tint. A pseudo-element rather than a background change, so a
+   card keeps whatever gradient it already had. */
+.card-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: var(--hit-tint);
+  opacity: 0;
+  transition: opacity var(--hit-speed) var(--hit-ease);
+  pointer-events: none;
+}
+
+.card-link:hover,
+.card-link:focus-visible {
+  transform: translateY(var(--hit-lift));
+  border-color: var(--hit-line);
+  box-shadow: var(--hit-shadow);
+}
+
+.card-link:hover::before,
+.card-link:focus-visible::before {
+  opacity: 1;
+}
+
+.card-link:focus-visible {
+  outline: 2px solid var(--hit-ring);
+  outline-offset: 3px;
+}
+
+/* The press. A card that returns to the ground under the finger reads as
+   having been struck, which is the whole of a pressed state. */
+.card-link:active {
+  transform: translateY(0);
+  transition-duration: 0.08s;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2 · A CONTAINER WITH A STRETCHED LINK
+   For cards that cannot be an anchor: ones holding a second destination, a
+   disclosure button, or markup an anchor may not contain. The link covers the
+   surface, so the hit area is still the whole card, and the container answers
+   for the visual state via :hover / :focus-within.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.card-surface {
+  position: relative;
+  transition:
+    transform var(--hit-speed) var(--hit-ease),
+    border-color var(--hit-speed) var(--hit-ease),
+    box-shadow var(--hit-speed) var(--hit-ease);
+}
+
+.card-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: var(--hit-tint);
+  opacity: 0;
+  transition: opacity var(--hit-speed) var(--hit-ease);
+  pointer-events: none;
+}
+
+.card-surface:hover,
+.card-surface:focus-within {
+  transform: translateY(var(--hit-lift));
+  border-color: var(--hit-line);
+  box-shadow: var(--hit-shadow);
+}
+
+.card-surface:hover::before,
+.card-surface:focus-within::before {
+  opacity: 1;
+}
+
+.card-surface:active {
+  transform: translateY(0);
+  transition-duration: 0.08s;
+}
+
+/* The stretched link. Its accessible name is the card's destination; the
+   sighted reader never sees it. */
+.card-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  cursor: pointer;
+}
+
+.card-hit:focus-visible {
+  outline: 2px solid var(--hit-ring);
+  outline-offset: 3px;
+}
+
+/* Anything that must stay clickable in its own right — a second link, a
+   disclosure toggle — sits above the stretched link rather than under it. */
+.card-raise {
+  position: relative;
+  z-index: 2;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3 · THE CUE
+   The words that say what happens. Small, mono, one line, at the foot of the
+   card: "View product", "Read article", "View publication". It brightens on
+   hover instead of appearing, because a cue that appears on hover is invisible
+   to the reader who most needs it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.card-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hit-cue);
+  transition: color var(--hit-speed) var(--hit-ease);
+}
+
+.card-cue-arrow {
+  display: inline-block;
+  transition: transform var(--hit-speed) var(--hit-ease);
+}
+
+:is(.card-link, .card-surface, .row-link):hover .card-cue,
+:is(.card-link, .card-surface, .row-link):focus-within .card-cue,
+.card-link:focus-visible .card-cue,
+.row-link:focus-visible .card-cue {
+  color: var(--hit-cue-on);
+}
+
+:is(.card-link, .card-surface, .row-link):hover .card-cue-arrow,
+:is(.card-link, .card-surface, .row-link):focus-within .card-cue-arrow,
+.card-link:focus-visible .card-cue-arrow,
+.row-link:focus-visible .card-cue-arrow {
+  transform: translateX(3px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4 · THE CORNER GLYPH
+   The ↗ in the top-right. A secondary cue: it says "this leaves for
+   somewhere" once a reader already knows the card is live. Idle it is a
+   translucent ring; on hover the ring resolves and the arrow steps out along
+   its own diagonal.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.card-corner {
+  display: grid;
+  place-items: center;
+  height: 2rem;
+  width: 2rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--hit-line-soft);
+  background: rgb(255 255 255 / 0.02);
+  color: var(--hit-cue);
+  opacity: 0.75;
+  transition:
+    opacity var(--hit-speed) var(--hit-ease),
+    border-color var(--hit-speed) var(--hit-ease),
+    background-color var(--hit-speed) var(--hit-ease),
+    color var(--hit-speed) var(--hit-ease),
+    transform var(--hit-speed) var(--hit-ease);
+}
+
+:root.light .card-corner {
+  background: rgb(15 23 42 / 0.03);
+}
+
+:is(.card-link, .card-surface, .row-link):hover .card-corner,
+:is(.card-link, .card-surface, .row-link):focus-within .card-corner,
+.card-link:focus-visible .card-corner {
+  opacity: 1;
+  border-color: var(--hit-line);
+  background: var(--hit-tint);
+  color: var(--hit-cue-on);
+  transform: translate(2px, -2px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5 · COMPACT ROWS
+   Reference lists, record lists, module lists, environment lists. A row does
+   not lift — a list that lifts row by row ripples — so the hover signal is a
+   background wash, the title brightening and the trailing arrow sliding.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.row-link {
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color var(--hit-speed) var(--hit-ease),
+    border-color var(--hit-speed) var(--hit-ease),
+    color var(--hit-speed) var(--hit-ease);
+}
+
+.row-link:hover,
+.row-link:focus-visible {
+  background-color: var(--hit-row);
+}
+
+.row-link:focus-visible {
+  outline: 2px solid var(--hit-ring);
+  outline-offset: -2px;
+}
+
+.row-link:active {
+  background-color: var(--hit-row-strong);
+}
+
+/* The same row, when it cannot be an anchor itself — a row carrying external
+   actions of its own, for instance. The stretched link goes inside on
+   `.card-hit`, the actions above it on `.card-raise`, and the row answers for
+   the state. No lift here either. */
+.row-surface {
+  position: relative;
+  transition: background-color var(--hit-speed) var(--hit-ease);
+}
+
+.row-surface:hover,
+.row-surface:focus-within {
+  background-color: var(--hit-row);
+}
+
+.row-surface:active {
+  background-color: var(--hit-row-strong);
+}
+
+:is(.row-surface):hover .card-cue,
+:is(.row-surface):focus-within .card-cue {
+  color: var(--hit-cue-on);
+}
+
+:is(.row-surface):hover .card-cue-arrow,
+:is(.row-surface):focus-within .card-cue-arrow {
+  transform: translateX(3px);
+}
+
+.row-link-arrow {
+  display: inline-block;
+  color: var(--hit-cue);
+  opacity: 0.6;
+  transition:
+    opacity var(--hit-speed) var(--hit-ease),
+    color var(--hit-speed) var(--hit-ease),
+    transform var(--hit-speed) var(--hit-ease);
+}
+
+.row-link:hover .row-link-arrow,
+.row-link:focus-visible .row-link-arrow,
+.row-link:focus-within .row-link-arrow,
+.row-surface:hover .row-link-arrow,
+.row-surface:focus-within .row-link-arrow {
+  opacity: 1;
+  color: var(--hit-cue-on);
+  transform: translateX(3px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6 · NAVIGATION MENU CARDS
+   A dropdown item is a card too, and the smallest one on the site: two lines
+   of type in a 288px panel. It got the weakest treatment of anything that
+   navigates — a 4% background wash — so it read as a label. Now it takes a
+   real border, a real wash, both lines brightening and a chevron that arrives
+   from the left, which is the only motion in the panel.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.menu-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  transition:
+    background-color 0.22s var(--hit-ease),
+    border-color 0.22s var(--hit-ease),
+    color 0.22s var(--hit-ease);
+}
+
+.menu-card:hover,
+.menu-card:focus-visible {
+  background-color: var(--hit-row-strong);
+  border-color: var(--hit-line-soft);
+}
+
+.menu-card:focus-visible {
+  outline: 2px solid var(--hit-ring);
+  outline-offset: -1px;
+}
+
+.menu-card:active {
+  background-color: var(--hit-row);
+}
+
+/* The subtitle is what makes a menu item legible on a first visit, so it
+   brightens with the title rather than staying muted behind it. */
+.menu-card-sub {
+  transition: color 0.22s var(--hit-ease);
+}
+
+.menu-card-arrow {
+  justify-self: end;
+  color: var(--hit-cue);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.22s var(--hit-ease),
+    transform 0.22s var(--hit-ease);
+}
+
+.menu-card:hover .menu-card-arrow,
+.menu-card:focus-visible .menu-card-arrow,
+.menu-card-on .menu-card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* The current route. Held state, not a hover state — it does not move. */
+.menu-card-on {
+  background-color: var(--hit-row-strong);
+  border-color: var(--hit-line);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TOUCH
+   No pointer, no hover, no reveal. Everything a hover would have shown is
+   already on, and the only state left to express is the press.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (hover: none) {
+  .card-cue,
+  .row-link-arrow {
+    color: var(--hit-cue-on);
+    opacity: 1;
+  }
+
+  .card-corner,
+  .menu-card-arrow {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* A tap is the whole interaction, so it gets a state a finger can feel. */
+  .card-link:active,
+  .card-surface:active,
+  .card-hit:active {
+    background-color: var(--hit-row);
+    border-color: var(--hit-line);
+  }
+
+  .row-link:active,
+  .menu-card:active {
+    background-color: var(--hit-row-strong);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION
+   The affordance survives without the movement: colour, border and
+   background still carry every state. Only the travel goes.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .card-link,
+  .card-surface,
+  .card-cue-arrow,
+  .card-corner,
+  .row-link-arrow,
+  .menu-card-arrow {
+    transition-duration: 0.01ms;
+  }
+
+  .card-link:hover,
+  .card-link:focus-visible,
+  .card-surface:hover,
+  .card-surface:focus-within {
+    transform: none;
+  }
+
+  .card-cue-arrow,
+  .row-link-arrow,
+  .menu-card-arrow {
+    transform: none !important;
+  }
+
+  :is(.card-link, .card-surface, .row-link):hover .card-corner,
+  :is(.card-link, .card-surface, .row-link):focus-within .card-corner {
+    transform: none;
+  }
+}

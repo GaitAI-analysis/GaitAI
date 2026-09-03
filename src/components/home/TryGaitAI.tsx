@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Play, X } from "lucide-react";
 import { GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
 import { PoseFrame } from "@/components/research/PoseFrame";
-import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
+import { IllustrativeBadge } from "@/components/ui/IllustrativeBadge";
 import styles from "./try.module.css";
 
 /**

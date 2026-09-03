@@ -72,99 +72,233 @@ function smooth(points: Pt[]): string {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    01 · PIPELINE — "From Walking Video to Movement Intelligence"
-   A filmstrip of captured frames on the left, each figure smaller than the
-   last, resolving into one signal that owns the right two thirds. The essay's
-   argument is that what survives the pipeline is not a picture of a person,
-   so the person shrinks across the frame and the signal is the focal element.
+
+   Movement being progressively decoded, left to right, in five stages that the
+   essay itself walks through:
+
+     source frames → temporal gait phases → joint trajectories
+                   → derived feature bands → Motion DNA
+
+   WHAT REPLACED WHAT. This was four boxed thumbnails and one sine wave: a
+   filmstrip icon next to a chart, which said "video in, signal out" and
+   nothing about the decoding in between. It now shows the decoding itself —
+   six real gait phases overlapping in one continuous stride, the ankle and
+   wrist paths ACCUMULATING across those phases as curves through space, the
+   heel-strike events marked on the floor beneath them, four derived channels
+   banded on the right, and the dense signature they collapse into.
+
+   THE GAIT IS REAL. The six poses are GAIT_PHASES walked in order and then
+   re-entered, so heel strike, loading, mid-stance, terminal stance, toe-off
+   and swing appear in sequence with genuine knee flexion, opposite arm/leg
+   swing and pelvic rise and fall. The trajectory curves are traced through
+   those poses' OWN ankle and wrist coordinates — they are where the joints
+   actually are, not decorative arcs.
+
+   NOTHING HERE IS A MEASUREMENT: the only text is stage names, channel names
+   and gait-cycle percentages, which are positions in a stride, not results.
    ═══════════════════════════════════════════════════════════════════════════ */
 
+/** Where the six drawn poses sit in one stride, as a percentage of the cycle. */
+const CYCLE_MARKS = [0, 12, 30, 50, 62, 82];
+
+/** The four derived channels, each with its own character. Names only. */
+const CHANNELS: { label: string; freq: number; amp: number; phase: number }[] = [
+  { label: "Cadence", freq: 5.0, amp: 7.5, phase: 0 },
+  { label: "Step symmetry", freq: 2.4, amp: 5.5, phase: 1.1 },
+  { label: "Stride variability", freq: 8.5, amp: 4.0, phase: 0.4 },
+  { label: "Walking speed", freq: 1.3, amp: 6.5, phase: 2.2 },
+];
+
 function Pipeline() {
-  const frames = [0, 1, 2, 3];
-  const trace = (() => {
-    const pts: Pt[] = [];
-    for (let i = 0; i <= 72; i += 1) {
-      const t = i / 72;
-      pts.push([
-        282 + t * 322,
-        212 -
-          Math.sin(t * Math.PI * 4) * 46 * (0.5 + t * 0.6) -
-          Math.sin(t * Math.PI * 9 + 0.7) * 12,
-      ]);
-    }
-    return smooth(pts);
-  })();
+  /* Six poses across one stride, large enough to read as bodies. Each is a
+     real phase; the walk translates right and the figures brighten, so the
+     cluster reads as one person moving through time rather than six people
+     standing in a row. */
+  const S = 0.8;
+  const baseY = 250;
+  const groundY = baseY + 48 * S;
+
+  const poses = CYCLE_MARKS.map((pct, i) => ({
+    phase: GAIT_PHASES[i % GAIT_PHASES.length],
+    x: 96 + i * 46,
+    /* Ghosting, but never to the point of vanishing: the oldest frame is a
+       trace, the newest is the figure. */
+    opacity: 0.3 + (i / (CYCLE_MARKS.length - 1)) * 0.7,
+    pct,
+  }));
+
+  /** A joint's path through the six poses, in cover coordinates. */
+  const jointPath = (pick: (phase: (typeof GAIT_PHASES)[number]) => Pt) =>
+    smooth(
+      poses.map((pose) => {
+        const [jx, jy] = pick(pose.phase);
+        return [pose.x + jx * S, baseY - pose.phase.lift * S + jy * S] as Pt;
+      }),
+    );
+
+  const anklePath = jointPath((phase) => phase.nearLeg[2]);
+  const wristPath = jointPath((phase) => phase.nearArm[2]);
+  const hipPath = jointPath((phase) => phase.nearLeg[0]);
+
+  /* The signature the channels collapse into: one tick per sample around the
+     stride, the trailing half shorter, so the strip reads as gait and not as a
+     barcode. 62 ticks over 184 units — dense, but every tick still separate. */
+  const dna = Array.from({ length: 62 }, (_, i) => {
+    const t = (i % 31) / 31;
+    const swing = Math.abs(Math.sin(t * Math.PI * 2));
+    const side = i % 31 < 16 ? 1 : 0.56;
+    return 3 + swing * 24 * side;
+  });
 
   return (
     <>
-      {/* the filmstrip */}
-      {frames.map((i) => {
-        const y = 62 + i * 74;
-        /* PoseFrame's local box is ~90 units tall, so the scale has to keep
-           the figure inside a 62-unit frame: at 0.86 the head sat above the
-           frame's top edge and the feet below its bottom. */
-        const s = 0.56 - i * 0.085;
-        return (
-          <g key={i}>
-            <rect
-              className={styles.cFrame}
-              x={44}
-              y={y}
-              width={132}
-              height={62}
-              rx={3}
+      {/* ── depth: two translucent analytical planes under everything ── */}
+      <path className={styles.cPlane} d="M 68 78 L 372 62 L 372 336 L 68 320 Z" />
+      <path className={styles.cPlane} d="M 392 74 L 616 62 L 616 348 L 392 336 Z" />
+
+      {/* ── 01 · source frames, stacked and nearly gone ── */}
+      {[0, 1, 2].map((i) => (
+        <rect
+          key={i}
+          className={styles.cFrameGhost}
+          x={22 + i * 6}
+          y={126 + i * 5}
+          width={70}
+          height={52}
+          rx={2}
+        />
+      ))}
+      <rect className={styles.cFrame} x={40} y={136} width={70} height={52} rx={2} />
+      {[0, 1, 2, 3].map((k) => (
+        <line
+          key={k}
+          className={styles.cHair}
+          x1={46 + k * 17}
+          y1={136}
+          x2={46 + k * 17}
+          y2={140}
+        />
+      ))}
+      <text className={styles.cTiny} x={22} y={118}>
+        Source frames
+      </text>
+
+      {/* ── the floor the stride happens on, with heel-strike events ── */}
+      <line className={styles.cGround} x1={72} y1={groundY} x2={356} y2={groundY} />
+      {poses
+        .filter((_, i) => i % 2 === 0)
+        .map((pose) => (
+          <g key={`ev${pose.x}`}>
+            <line
+              className={styles.cTick}
+              x1={pose.x + 6}
+              y1={groundY}
+              x2={pose.x + 6}
+              y2={groundY + 11}
             />
-            {/* sprocket ticks, so it reads as film rather than as a box */}
-            {[0, 1, 2, 3].map((k) => (
-              <line
-                key={k}
-                className={styles.cHair}
-                x1={50 + k * 32}
-                y1={y}
-                x2={50 + k * 32}
-                y2={y + 5}
-              />
-            ))}
-            <g transform={`translate(${104} ${y + 50})`}>
-              <PoseFrame
-                phase={GAIT_PHASES[i % GAIT_PHASES.length]}
-                s={s}
-                classes={{
-                  bone: styles.cBone,
-                  boneFar: styles.cBoneFar,
-                  joint: styles.cJoint,
-                  head: styles.cHead,
-                }}
-                showFar={false}
-              />
-            </g>
-            <text className={styles.cTiny} x={182} y={y + 40}>
-              {String(i + 1).padStart(2, "0")}
+            <text className={styles.cTiny} x={pose.x - 2} y={groundY + 25}>
+              {pose.pct}%
             </text>
           </g>
+        ))}
+
+      {/* ── 03 · joint trajectories, accumulating through the stride ──
+            Under the figures, so the poses are the foreground and the paths
+            are the history they leave behind. The ankle carries the read. */}
+      <path className={styles.cPathFaint} d={hipPath} />
+      <path className={styles.cPathFaint} d={anklePath} />
+      <path className={styles.cPathFaint} d={wristPath} />
+      {/* One sample per pose on the ankle path: the trajectory accumulating,
+          as the discrete samples it is actually built from. */}
+      {poses.map((pose) => {
+        const [jx, jy] = pose.phase.nearLeg[2];
+        return (
+          <circle
+            key={`ank${pose.pct}`}
+            className={styles.cNode}
+            cx={r1(pose.x + jx * S)}
+            cy={r1(baseY - pose.phase.lift * S + jy * S)}
+            r={1.8}
+          />
         );
       })}
 
-      {/* the transition into signal */}
-      <path className={styles.cDash} d="M 214 200 C 246 200 254 206 278 210" />
+      {/* ── 02 · the six overlapping phases ── */}
+      {poses.map((pose) => (
+        <g
+          key={pose.pct}
+          transform={`translate(${pose.x} ${baseY - pose.phase.lift * S})`}
+          opacity={pose.opacity}
+        >
+          <PoseFrame
+            phase={pose.phase}
+            s={S}
+            classes={{
+              bone: styles.cBone,
+              boneFar: styles.cBoneFar,
+              joint: styles.cJoint,
+              head: styles.cHead,
+            }}
+            /* Far side on every pose: without it the opposite arm/leg
+               coordination is invisible and six distinct phases read as six
+               copies of one thin figure. */
+            showFar
 
-      {/* the signal: the focal element */}
-      <path className={styles.cTrace} d={trace} />
-      <line className={styles.cAxis} x1={282} y1={286} x2={604} y2={286} />
-      {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+          />
+        </g>
+      ))}
+
+      <text className={styles.cLabel} x={96} y={92}>
+        One stride, six phases
+      </text>
+      <text className={styles.cTiny} x={96} y={108}>
+        Joint paths accumulating
+      </text>
+
+      {/* ── 04 · derived feature bands. Label above its own trace. ── */}
+      {CHANNELS.map((channel, i) => {
+        const top = 104 + i * 44;
+        const mid = top + 16;
+        const pts: Pt[] = Array.from({ length: 44 }, (_, k) => {
+          const t = k / 43;
+          return [
+            402 + t * 184,
+            mid -
+              Math.sin(t * Math.PI * channel.freq + channel.phase) * channel.amp -
+              Math.sin(t * Math.PI * channel.freq * 2.7) * channel.amp * 0.28,
+          ];
+        });
+        return (
+          <g key={channel.label}>
+            <text className={styles.cTiny} x={402} y={top}>
+              {channel.label}
+            </text>
+            <path className={styles.cBandTrace} d={smooth(pts)} />
+            <line className={styles.cAxis} x1={402} y1={top + 28} x2={586} y2={top + 28} />
+          </g>
+        );
+      })}
+      <text className={styles.cTiny} x={402} y={86}>
+        Derived channels
+      </text>
+
+      {/* ── 05 · Motion DNA: the strip the channels collapse into ── */}
+      {dna.map((h, i) => (
         <line
           key={i}
-          className={styles.cHair}
-          x1={282 + i * 46}
-          y1={286}
-          x2={282 + i * 46}
-          y2={i % 2 ? 292 : 296}
+          className={i % 8 === 0 ? styles.cDnaStrong : styles.cDna}
+          x1={402 + i * 3}
+          y1={306 - h / 2}
+          x2={402 + i * 3}
+          y2={306 + h / 2}
         />
       ))}
-      <text className={styles.cLabel} x={282} y={330}>
-        Movement signal
+      <line className={styles.cAxis} x1={402} y1={326} x2={586} y2={326} />
+      <text className={styles.cLabel} x={402} y={350}>
+        Motion DNA
       </text>
-      <text className={styles.cTiny} x={44} y={44}>
-        Captured frames
+      <text className={styles.cTiny} x={512} y={350}>
+        one signature
       </text>
     </>
   );
@@ -172,278 +306,487 @@ function Pipeline() {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    02 · DIVERGENCE — "Your Walk Is More Than a Biometric"
-   One trace enters from the left and splits into five, each ending at a named
-   reading. No figure at all: the essay's point is that the walk is not the
-   subject — what can be read off it is. Identity is one of five, and it is
-   drawn at the same weight as the rest.
+
+   One signature, read five different ways — and each reading gets its OWN
+   analytical language rather than a label on the end of a line.
+
+   WHAT REPLACED WHAT. This was one sine wave fanning into five thin curves
+   that ended in five dots with five words beside them. The fan said "one
+   thing becomes five things" and then asked the text to do all the work. Now
+   the signature is a dense signal column on the left, and each of the five
+   branches terminates in the instrument that reading actually uses:
+
+     Identity  → a latent cluster with its own boundary contour
+     Mobility  → a cyclic gait profile with phase ticks
+     Recovery  → a session-over-session change field
+     Risk      → a deviation envelope around a centre line
+     Safety    → a plan-view path with spatial events
+
+   So the five are distinguishable at a glance without reading a word, which
+   is the essay's whole point: the same movement carries different meanings.
+
+   NO VALUES ANYWHERE. Every mini-instrument is a shape, not a plot of
+   numbers: no axis is labelled, no magnitude is stated, nothing is measured.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const READINGS = ["Identity", "Mobility", "Recovery", "Risk", "Safety"];
 
 function Divergence() {
-  const originX = 62;
-  const originY = 200;
-  const splitX = 250;
+  const hubX = 214;
+  const hubY = 200;
+  /* Five rows, evenly spread, each holding one reading's instrument. */
+  const rows = READINGS.map((label, i) => ({
+    label,
+    y: 62 + i * 69,
+    x: 392,
+  }));
+
+  /* The signature every reading is taken from: a dense column of samples,
+     tallest at mid-stride, deterministic. */
+  const column = Array.from({ length: 34 }, (_, i) => {
+    const t = i / 33;
+    return 6 + Math.abs(Math.sin(t * Math.PI * 2)) * 34 * (i % 2 ? 0.72 : 1);
+  });
 
   return (
     <>
-      {/* the single incoming trace */}
-      <path
-        className={styles.cTrace}
-        d={smooth(
-          Array.from({ length: 40 }, (_, i) => {
-            const t = i / 39;
-            return [
-              originX + t * (splitX - originX),
-              originY - Math.sin(t * Math.PI * 3) * 15,
-            ] as Pt;
-          }),
-        )}
-      />
-      <text className={styles.cTiny} x={44} y={168}>
-        One gait signal
+      <path className={styles.cPlane} d="M 44 66 L 268 54 L 268 348 L 44 336 Z" />
+
+      {/* ── the one signature, as a signal column ── */}
+      {column.map((w, i) => (
+        <line
+          key={i}
+          className={i % 6 === 0 ? styles.cDnaStrong : styles.cDna}
+          x1={hubX - 60 - w / 2}
+          y1={92 + i * 6.4}
+          x2={hubX - 60 + w / 2}
+          y2={92 + i * 6.4}
+        />
+      ))}
+      <text className={styles.cLabel} x={72} y={78}>
+        One signature
+      </text>
+      <text className={styles.cTiny} x={72} y={330}>
+        Same walk, five readings
       </text>
 
-      {/* the split node */}
-      <circle className={styles.cNodeLit} cx={splitX} cy={originY} r={4.4} />
-      <circle className={styles.cRing} cx={splitX} cy={originY} r={11} />
+      {/* ── the hub, then five branches to five instruments ── */}
+      <circle className={styles.cRing} cx={hubX} cy={hubY} r={21} />
+      <circle className={styles.cNodeLit} cx={hubX} cy={hubY} r={4} />
 
-      {/* five readings, fanned */}
-      {READINGS.map((label, i) => {
-        const y = 74 + i * 63;
-        const end = 486;
-        return (
-          <g key={label}>
-            <path
-              className={i === 0 ? styles.cBranchLit : styles.cBranch}
-              d={`M ${splitX + 12} ${originY} C ${splitX + 96} ${originY} ${
-                end - 96
-              } ${y} ${end} ${y}`}
-            />
-            <circle
-              className={i === 0 ? styles.cNodeLit : styles.cNode}
-              cx={end}
-              cy={y}
-              r={3.4}
-            />
-            <text className={styles.cLabel} x={end + 16} y={y + 4}>
-              {label}
-            </text>
-          </g>
-        );
-      })}
+      {rows.map((row, i) => (
+        <path
+          key={row.label}
+          className={i === 0 ? styles.cBranchLit : styles.cBranch}
+          d={`M ${hubX + 22} ${hubY} C ${hubX + 92} ${hubY} ${row.x - 78} ${
+            row.y + 18
+          } ${row.x - 8} ${row.y + 18}`}
+        />
+      ))}
+
+      {rows.map((row, i) => (
+        <g key={row.label} transform={`translate(${row.x} ${row.y})`}>
+          <text className={styles.cTiny} x={0} y={0}>
+            {row.label}
+          </text>
+          {i === 0 && <IdentityCluster />}
+          {i === 1 && <MobilityProfile />}
+          {i === 2 && <RecoveryField />}
+          {i === 3 && <RiskEnvelope />}
+          {i === 4 && <SafetyPath />}
+        </g>
+      ))}
+    </>
+  );
+}
+
+/* Identity — a latent cluster: points with a boundary contour around them.
+   Deterministic positions from `rnd`, so the scatter is fixed. */
+function IdentityCluster() {
+  const pts = Array.from({ length: 16 }, (_, i) => {
+    const a = rnd(i * 3 + 1) * Math.PI * 2;
+    const r = 4 + rnd(i * 7 + 2) * 15;
+    return [66 + Math.cos(a) * r * 1.5, 18 + Math.sin(a) * r * 0.85] as Pt;
+  });
+  const hull = Array.from({ length: 22 }, (_, i) => {
+    const a = (i / 22) * Math.PI * 2;
+    const k = 1 + 0.16 * Math.sin(3 * a + 0.6);
+    return [66 + Math.cos(a) * 27 * k, 18 + Math.sin(a) * 15 * k] as Pt;
+  });
+  return (
+    <>
+      <path className={styles.cContour} d={`${smooth([...hull, hull[0], hull[1]])} Z`} />
+      {pts.map(([x, y], i) => (
+        <circle
+          key={i}
+          className={i === 3 ? styles.cNodeLit : styles.cNode}
+          cx={r1(x)}
+          cy={r1(y)}
+          r={1.7}
+        />
+      ))}
+    </>
+  );
+}
+
+/* Mobility — one gait cycle with its phase ticks. */
+function MobilityProfile() {
+  const pts = Array.from({ length: 34 }, (_, i) => {
+    const t = i / 33;
+    return [
+      20 + t * 92,
+      20 - Math.sin(t * Math.PI * 2) * 13 - Math.sin(t * Math.PI * 4 + 0.4) * 4,
+    ] as Pt;
+  });
+  return (
+    <>
+      <line className={styles.cAxis} x1={20} y1={34} x2={112} y2={34} />
+      {[0, 1, 2, 3, 4].map((i) => (
+        <line
+          key={i}
+          className={styles.cHair}
+          x1={20 + i * 23}
+          y1={34}
+          x2={20 + i * 23}
+          y2={i % 2 ? 38 : 41}
+        />
+      ))}
+      <path className={styles.cTrace} d={smooth(pts)} />
+    </>
+  );
+}
+
+/* Recovery — the same reading across sessions, as a change field. */
+function RecoveryField() {
+  const bars = [11, 15, 19, 24, 28];
+  return (
+    <>
+      <line className={styles.cAxis} x1={20} y1={36} x2={112} y2={36} />
+      {/* Rects, not lines: cBarTrack / cBarLit are fill-based classes, and a
+          <line> carrying only a fill is invisible. */}
+      {bars.map((h, i) => (
+        <rect
+          key={i}
+          className={i === bars.length - 1 ? styles.cBarLit : styles.cBarTrack}
+          x={24 + i * 21}
+          y={36 - h}
+          width={5}
+          height={h}
+          rx={1}
+        />
+      ))}
+      <path
+        className={styles.cPathFaint}
+        d={smooth(bars.map((h, i) => [26 + i * 21, 36 - h - 5] as Pt))}
+      />
+    </>
+  );
+}
+
+/* Risk — a deviation envelope: a band around a centre line, widening. */
+function RiskEnvelope() {
+  const mid = Array.from({ length: 26 }, (_, i) => {
+    const t = i / 25;
+    return [20 + t * 92, 20 + Math.sin(t * Math.PI * 3) * 4] as Pt;
+  });
+  const up = mid.map(([x, y], i) => [x, y - 3 - (i / 25) * 12] as Pt);
+  const dn = [...mid].reverse().map(([x, y], i) => {
+    const k = (25 - i) / 25;
+    return [x, y + 3 + k * 12] as Pt;
+  });
+  return (
+    <>
+      <path className={styles.cEnvelope} d={`${smooth([...up, ...dn])} Z`} />
+      <path className={styles.cTrace} d={smooth(mid)} />
+    </>
+  );
+}
+
+/* Safety — a plan-view route with spatial events and a zone corner. */
+function SafetyPath() {
+  const route = smooth([
+    [18, 30],
+    [46, 18],
+    [76, 28],
+    [110, 16],
+  ]);
+  return (
+    <>
+      <path
+        className={styles.cZoneEdge}
+        d="M 84 34 L 116 30 L 118 44 L 86 48 Z"
+      />
+      <path className={styles.cTrace} d={route} />
+      {[[46, 18], [110, 16]].map(([x, y], i) => (
+        <circle key={i} className={styles.cNode} cx={x} cy={y} r={2.2} />
+      ))}
+      <circle className={styles.cNodeLit} cx={100} cy={22} r={2.6} />
     </>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   03 · REDUCTION — "Can AI Understand Movement Without Identifying?"
-   Four bands, left to right: pixels, a blurred silhouette, a pose skeleton, a
-   bare trajectory. Under them, two bars: what identity information is left,
-   and what movement information is left. The figures abstract away as the
-   eye travels; the movement bar does not move.
+   03 · REDUCTION — "Movement Intelligence Without Identification"
+
+   A feature space losing its identity-bearing dimensions while its
+   movement-bearing structure survives:
+
+     intertwined representation → attenuation → protected representation
+
+   WHAT REPLACED WHAT. This was a pixel grid, a filled human blob, a skeleton
+   and a waveform in four boxes — a before/after explainer whose middle step
+   was a picture of a person, on the one essay whose argument is that no
+   picture of a person is needed. There is no figure here now, and no lock and
+   no shield either: the transformation is shown in the representation itself.
+
+   Left, the two channel families are interleaved column by column, violet for
+   identity-bearing and cyan for movement-bearing, so they read as genuinely
+   entangled rather than as two tidy halves. Middle, the violet columns
+   attenuate to empty slots — the dimensions are masked, not merely dimmed —
+   while the cyan ones carry through. Right, what is left: a movement-only
+   latent field with its temporal trajectories still intact.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function Reduction() {
-  /* 4 × 138 + 3 × 16 + 40 = 640, exactly the viewBox width, so the fourth
-     band's own content was clipped at the edge. */
-  const bandW = 120;
-  const gap = 13;
-  const x0 = 44;
-  const top = 56;
-  const bandH = 186;
-  const ground = top + bandH - 18;
+  const ROWS = 9;
+  const COLS = 11;
+  const cell = 13;
+  /* Which columns carry identity. Fixed, interleaved, not a tidy block. */
+  const identityCols = new Set([1, 2, 5, 7, 8, 10]);
+
+  const lattice = (x0: number, mode: "raw" | "masked") =>
+    Array.from({ length: COLS }, (_, c) =>
+      Array.from({ length: ROWS }, (_, r) => {
+        const ident = identityCols.has(c);
+        const on = rnd(c * 13 + r * 7) > (ident ? 0.34 : 0.42);
+        if (!on) return null;
+        const x = x0 + c * cell;
+        const y = 128 + r * cell;
+        if (ident && mode === "masked") {
+          /* An emptied slot: the dimension is gone, and its absence is drawn. */
+          return (
+            <rect
+              key={`${c}-${r}`}
+              className={styles.cSlot}
+              x={x}
+              y={y}
+              width={7}
+              height={7}
+              rx={1}
+            />
+          );
+        }
+        return (
+          <rect
+            key={`${c}-${r}`}
+            className={ident ? styles.cCellIdent : styles.cCellMove}
+            x={x}
+            y={y}
+            width={7}
+            height={7}
+            rx={1}
+          />
+        );
+      }),
+    );
+
+  /* The temporal trajectories that survive the transformation. */
+  const traj = (x0: number, w: number, seed: number) =>
+    smooth(
+      Array.from({ length: 26 }, (_, i) => {
+        const t = i / 25;
+        return [
+          x0 + t * w,
+          214 + Math.sin(t * Math.PI * 2 + seed) * 16 + Math.sin(t * Math.PI * 5) * 5,
+        ] as Pt;
+      }),
+    );
 
   return (
     <>
-      {[0, 1, 2, 3].map((i) => {
-        const x = x0 + i * (bandW + gap);
-        return (
-          <g key={i}>
-            <rect
-              className={styles.cBand}
-              x={x}
-              y={top}
-              width={bandW}
-              height={bandH}
-              rx={4}
-            />
+      <path className={styles.cPlane} d="M 30 104 L 208 96 L 208 300 L 30 292 Z" />
+      <path className={styles.cPlane} d="M 396 100 L 612 92 L 612 306 L 396 298 Z" />
 
-            {/* 1 · pixels */}
-            {i === 0 &&
-              Array.from({ length: 6 * 9 }, (_, k) => {
-                const cx = x + 12 + (k % 6) * 16;
-                const cy = top + 28 + Math.floor(k / 6) * 16;
-                const lit = rnd(k * 3 + 1);
-                return (
-                  <rect
-                    key={k}
-                    className={lit > 0.62 ? styles.cPixelLit : styles.cPixel}
-                    x={cx}
-                    y={cy}
-                    width={12}
-                    height={12}
-                    rx={1}
-                  />
-                );
-              })}
-
-            {/* 2 · silhouette, no features */}
-            {i === 1 && (
-              <g
-                className={styles.cMass}
-                transform={`translate(${x + bandW / 2} ${ground}) scale(1.5)`}
-              >
-                <ellipse cx={0} cy={-46} rx={16} ry={28} />
-                <ellipse cx={1} cy={-80} rx={8} ry={9} />
-                <path d="M -9 -20 L -13 0 L -4 0 L -1 -16 L 3 0 L 12 0 L 7 -20 Z" />
-              </g>
-            )}
-
-            {/* 3 · pose only */}
-            {i === 2 && (
-              <g transform={`translate(${x + bandW / 2 - 4} ${ground - 58})`}>
-                <PoseFrame
-                  phase={GAIT_PHASES[0]}
-                  s={1.18}
-                  classes={{
-                    bone: styles.cBone,
-                    boneFar: styles.cBoneFar,
-                    joint: styles.cJoint,
-                    head: styles.cHead,
-                  }}
-                />
-              </g>
-            )}
-
-            {/* 4 · movement only */}
-            {i === 3 && (
-              <>
-                <path
-                  className={styles.cTrace}
-                  d={smooth(
-                    Array.from({ length: 30 }, (_, k) => {
-                      const t = k / 29;
-                      return [
-                        x + 16 + t * (bandW - 32),
-                        top + 108 - Math.sin(t * Math.PI * 3.2) * 34,
-                      ] as Pt;
-                    }),
-                  )}
-                />
-                {[0.15, 0.45, 0.75].map((t) => (
-                  <circle
-                    key={t}
-                    className={styles.cNode}
-                    cx={x + 16 + t * (bandW - 32)}
-                    cy={top + 108 - Math.sin(t * Math.PI * 3.2) * 34}
-                    r={2.6}
-                  />
-                ))}
-              </>
-            )}
-
-            <line
-              className={styles.cHair}
-              x1={x + 12}
-              y1={ground + 8}
-              x2={x + bandW - 12}
-              y2={ground + 8}
-            />
-            {i < 3 && (
-              <path
-                className={styles.cDash}
-                d={`M ${x + bandW + 2} ${top + bandH / 2} L ${
-                  x + bandW + gap - 2
-                } ${top + bandH / 2}`}
-              />
-            )}
-          </g>
-        );
-      })}
-
-      {/* the two bars: one falls, one does not */}
-      <text className={styles.cTiny} x={40} y={296}>
-        Identity information
+      {/* ── raw: the two families interleaved ── */}
+      {lattice(40, "raw")}
+      <text className={styles.cTiny} x={40} y={116}>
+        Interleaved dimensions
       </text>
-      <rect className={styles.cBarTrack} x={40} y={306} width={560} height={5} rx={2.5} />
-      <rect className={styles.cBarWarm} x={40} y={306} width={126} height={5} rx={2.5} />
-
-      <text className={styles.cTiny} x={40} y={340}>
-        Movement information
+      <text className={styles.cLabel} x={40} y={98}>
+        Raw representation
       </text>
-      <rect className={styles.cBarTrack} x={40} y={350} width={560} height={5} rx={2.5} />
-      <rect className={styles.cBarLit} x={40} y={350} width={540} height={5} rx={2.5} />
+      <g>
+        <rect className={styles.cCellIdent} x={40} y={258} width={7} height={7} rx={1} />
+        <text className={styles.cTinyWarm} x={54} y={265}>
+          identity-bearing
+        </text>
+        <rect className={styles.cCellMove} x={40} y={274} width={7} height={7} rx={1} />
+        <text className={styles.cTiny} x={54} y={281}>
+          movement-bearing
+        </text>
+      </g>
+
+      {/* ── the transformation ── */}
+      <path className={styles.cDash} d="M 212 200 C 236 200 240 200 258 200" />
+      <text className={styles.cTiny} x={214} y={186}>
+        attenuate
+      </text>
+
+      {/* ── masked: identity slots emptied, movement carried through ── */}
+      {lattice(266, "masked")}
+      <text className={styles.cTiny} x={266} y={116}>
+        Identity attenuated
+      </text>
+
+      <path className={styles.cDash} d="M 420 200 C 438 200 442 200 458 200" />
+
+      {/* ── protected: movement structure only, trajectories intact ── */}
+      <path className={styles.cContour} d={`${smooth(
+        Array.from({ length: 24 }, (_, i) => {
+          const a = (i / 24) * Math.PI * 2;
+          const k = 1 + 0.14 * Math.sin(3 * a + 1.1) + 0.08 * Math.cos(2 * a);
+          return [504 + Math.cos(a) * 84 * k, 214 + Math.sin(a) * 52 * k] as Pt;
+        }),
+      )} Z`} />
+      <path className={styles.cTrace} d={traj(432, 148, 0)} />
+      <path className={styles.cPathFaint} d={traj(432, 148, 1.9)} />
+      <path className={styles.cPathFaint} d={traj(432, 148, 3.4)} />
+      <text className={styles.cLabel} x={432} y={98}>
+        Protected representation
+      </text>
+      <text className={styles.cTiny} x={432} y={116}>
+        Movement structure retained
+      </text>
+      <text className={styles.cTiny} x={432} y={296}>
+        No identity channel remains
+      </text>
     </>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    04 · TRAJECTORY — "A Fall-Risk Score Is Not Enough"
-   Five sessions on a baseline, a descending trace, and a cone of possible
-   futures opening from the last reading. No figure and no numbers: a single
-   dot is a score, a line is a direction, and the cone is the thing a score
-   cannot tell you.
+
+   Five sessions of the same walk, each with its own signature, and what only
+   becomes visible across them.
+
+   WHAT REPLACED WHAT. This was a line sloping down across five ticks with a
+   cone on the end: business analytics, and precisely the reading the essay
+   argues against — that a number going down is the finding. The sessions are
+   now the dominant form. Each is a small Motion DNA signature of its own, and
+   they differ from one another; underneath, the baseline, the drift between
+   them, the widening variance band and the direction the change is heading
+   are drawn as separate marks, so "the movement changed" is what the cover
+   says, not "the metric fell".
+
+   THE SIGNATURES ARE SHAPES, NOT SCORES. Each session's ticks come from one
+   deterministic function with a per-session phase and spread; no session is
+   labelled with a value, and there is no y-axis.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function Trajectory() {
-  const x0 = 66;
-  const step = 96;
-  const base = 300;
-  const ys = [116, 140, 152, 176, 198];
-  const pts: Pt[] = ys.map((y, i) => [x0 + i * step, y]);
-  const last = pts[pts.length - 1];
+  const sessions = [0, 1, 2, 3, 4];
+  const colW = 104;
+  const x0 = 52;
+  /* Signatures sit at ONE height across all five columns. The drift is drawn
+     separately, below them: tying the signatures to the drift line made them
+     ride a diagonal and merge into a single wedge, which is the chart this
+     cover exists to replace. */
+  const sigY = 168;
+  const driftY = 268;
+
+  /** One session's signature — 12 ticks, each session a different character. */
+  const signature = (i: number) =>
+    Array.from({ length: 12 }, (_, k) => {
+      const t = k / 11;
+      const spread = 1 + i * 0.2;
+      const h =
+        6 +
+        Math.abs(Math.sin(t * Math.PI * 2 + i * 0.8)) * 20 * (k % 2 ? 0.68 : 1) * spread;
+      return { x: x0 + i * colW + 14 + k * 6.4, h: Math.min(h, 40) };
+    });
+
+  /** Where each session's centre sits on the drift track. */
+  const centres = sessions.map(
+    (i) => [x0 + i * colW + 40, driftY + i * 12] as Pt,
+  );
+
+  const bandTop = smooth(centres.map(([x, y], i) => [x, y - 7 - i * 4] as Pt));
+  const bandBottom = [...centres]
+    .reverse()
+    .map(([x, y], i) => {
+      const k = sessions.length - 1 - i;
+      return [x, y + 7 + k * 4] as Pt;
+    });
 
   return (
     <>
-      {/* the sessions */}
-      {pts.map(([x], i) => (
+      {/* five sessions, five signatures, all at one height */}
+      {sessions.map((i) => (
         <g key={i}>
-          <line className={styles.cHair} x1={x} y1={base} x2={x} y2={base + 8} />
-          <text className={styles.cTiny} x={x} y={base + 26} textAnchor="middle">
-            {String(i + 1).padStart(2, "0")}
+          <rect
+            className={styles.cPanel}
+            x={x0 + i * colW}
+            y={104}
+            width={92}
+            height={128}
+            rx={3}
+          />
+          {signature(i).map((tick, k) => (
+            <line
+              key={k}
+              className={i === sessions.length - 1 ? styles.cDnaStrong : styles.cDna}
+              x1={tick.x}
+              y1={sigY - tick.h / 2}
+              x2={tick.x}
+              y2={sigY + tick.h / 2}
+            />
+          ))}
+          <text className={styles.cTiny} x={x0 + i * colW + 8} y={124}>
+            {`Session 0${i + 1}`}
           </text>
         </g>
       ))}
-      <line className={styles.cAxis} x1={40} y1={base} x2={600} y2={base} />
-      <text className={styles.cTiny} x={40} y={base + 52}>
-        Sessions over time
+
+      <text className={styles.cLabel} x={52} y={84}>
+        Five sessions, one walk
       </text>
 
-      {/* stems, so each session reads as a reading rather than a point on a
-          line — a score, taken five times */}
-      {pts.map(([x, y], i) => (
-        <line key={i} className={styles.cStem} x1={x} y1={y} x2={x} y2={base} />
-      ))}
-
-      {/* the trend */}
-      <path className={styles.cTrace} d={smooth(pts)} />
-      {pts.map(([x, y], i) => (
+      {/* the drift the sessions reveal — one mark, under the evidence */}
+      <line className={styles.cBaseline} x1={52} y1={driftY} x2={588} y2={driftY} />
+      <text className={styles.cTiny} x={52} y={driftY - 8}>
+        Session 01 baseline
+      </text>
+      <path
+        className={styles.cEnvelope}
+        d={`${bandTop} L ${r1(bandBottom[0][0])} ${r1(bandBottom[0][1])} ${bandBottom
+          .slice(1)
+          .map(([x, y]) => `L ${r1(x)} ${r1(y)}`)
+          .join(" ")} Z`}
+      />
+      <path className={styles.cPath} d={smooth(centres)} />
+      {centres.map(([x, y], i) => (
         <circle
           key={i}
-          className={i === pts.length - 1 ? styles.cNodeLit : styles.cNode}
-          cx={x}
-          cy={y}
-          r={i === pts.length - 1 ? 4.6 : 3.4}
+          className={i === centres.length - 1 ? styles.cNodeLit : styles.cNode}
+          cx={r1(x)}
+          cy={r1(y)}
+          r={2.4}
         />
       ))}
 
-      {/* the cone of what a single score cannot say */}
+      {/* where it is heading */}
       <path
         className={styles.cCone}
-        d={`M ${last[0]} ${last[1]} L 606 ${last[1] - 52} L 606 ${
-          last[1] + 62
-        } Z`}
+        d={`M ${r1(centres[4][0])} ${r1(centres[4][1])} L 580 ${r1(
+          centres[4][1] - 24,
+        )} L 580 ${r1(centres[4][1] + 30)} Z`}
       />
-      <path
-        className={styles.cDash}
-        d={`M ${last[0]} ${last[1]} L 606 ${last[1] + 34}`}
-      />
-      <text className={styles.cLabel} x={498} y={92}>
-        Direction
+      <text className={styles.cTiny} x={432} y={driftY + 74}>
+        Direction of change
       </text>
-      <text className={styles.cTiny} x={40} y={72}>
-        One score, five times
+      <text className={styles.cTiny} x={52} y={driftY + 74}>
+        Variance widens across sessions
       </text>
     </>
   );

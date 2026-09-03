@@ -287,7 +287,8 @@ async function main() {
   ran.push("route targets");
   const staticRoutes = new Set([
     "/", "/products", "/mobilitycare", "/securevision", "/use-cases",
-    "/gaitscape", "/research", "/research/evidence", "/publications",
+    "/gaitscape", "/research", "/research/evidence", "/research/talks",
+    "/publications",
     "/insights", "/investors", "/movement-lab", "/trust",
     "/legal/privacy", "/legal/security", "/legal/terms",
     "/legal/responsible-ai",

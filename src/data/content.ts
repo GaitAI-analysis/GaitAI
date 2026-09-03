@@ -92,6 +92,11 @@ export const navLinks: readonly NavItem[] = [
         href: "/publications",
         description: "Papers and the granted patent",
       },
+      {
+        label: "Talks & Presentations",
+        href: "/research/talks",
+        description: "The founder speaking record",
+      },
     ],
   },
 ];

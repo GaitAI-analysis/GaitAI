@@ -4,10 +4,8 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  ChevronRight,
 } from "lucide-react";
 import { industryUseCases, productById } from "@/data/products";
 import { useCaseDetails, getUseCaseDetail } from "@/data/usecase-details";
@@ -139,22 +137,9 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
         <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-obsidian/30 via-obsidian/60 to-obsidian" />
         <div className="container-wide relative">
-          <nav
-            aria-label="Breadcrumb"
-            className="flex items-center gap-1.5 text-xs uppercase tracking-[0.18em] text-soft-mute"
-          >
-            <Link
-              href="/use-cases/"
-              className="inline-flex items-center gap-1.5 transition-colors hover:text-soft-white"
-            >
-              <ArrowLeft className="h-3 w-3" />
-              Use Cases
-            </Link>
-            <ChevronRight aria-hidden className="h-3 w-3 opacity-60" />
-            <span className="text-soft-gray">{base.industry}</span>
-          </nav>
-
-          <div className={cn("eyebrow mt-8", a.text)}>
+          {/* No breadcrumb here either — see ProductDetailView. The trail
+              above carries GaitAI > Explore > Use Cases > Hospitals. */}
+          <div className={cn("eyebrow", a.text)}>
             <span className="h-1 w-6 rounded-full bg-gradient-brand" />
             {family.eyebrow}
           </div>

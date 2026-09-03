@@ -1,0 +1,699 @@
+/* ==========================================================================
+   GAITAI ATLAS — the site's own map
+   --------------------------------------------------------------------------
+   Two surfaces, one visual language:
+     · the LOCATION TRAIL, a 26px strip under the header
+     · the ATLAS overlay, the whole site as an expandable tree
+   Nodes and hairlines rather than slashes, because this is a path through a
+   system and not a filesystem. Four family accents, no more.
+   ========================================================================== */
+
+.scope {
+  /* One accent per family, resolved per node by a data attribute. Dark
+     values first; the light branch is at the foot of this file. */
+  --at-root: #8ab4ff;
+  --at-mobility: #2dd4bf;
+  --at-secure: #a78bfa;
+  --at-research: #7fd4ff;
+  --at-editorial: #cbd5e1;
+  --at-neutral: rgb(148 163 184 / 0.9);
+
+  --at-line: rgb(148 163 184 / 0.28);
+  --at-line-on: rgb(127 212 255 / 0.55);
+  --at-ink: rgb(var(--c-soft-white));
+  --at-mute: rgb(var(--c-soft-mute));
+  --at-surface: rgb(var(--c-obsidian-200) / 0.96);
+  --at-panel: rgb(148 163 184 / 0.05);
+  --at-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   1 · THE LOCATION TRAIL
+   26px, in flow, directly under the fixed header. It is the smallest thing
+   on the site that can answer "where am I", and it is also the button that
+   opens the map — so the answer and the way to see more are one control.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.trail {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 26px;
+  padding-block: 0.15rem;
+}
+
+.path {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+/* The connector. A hairline, cyan only on the segment leading to where the
+   reader actually is. */
+.link {
+  display: block;
+  height: 1px;
+  width: 1.1rem;
+  flex-shrink: 0;
+  background: var(--at-line);
+}
+.linkOn {
+  background: linear-gradient(90deg, var(--at-line), var(--at-line-on));
+}
+
+.node {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--at-mute);
+  white-space: nowrap;
+  transition: color 0.3s var(--at-ease);
+}
+a.node:hover,
+a.node:focus-visible {
+  color: var(--at-ink);
+}
+a.node:focus-visible {
+  outline: 2px solid var(--interactive-focus-ring, #4fd1ff);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* A ring for a place you can go, a filled disc for the place you are. */
+.mark {
+  height: 5px;
+  width: 5px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  opacity: 0.7;
+}
+
+.current {
+  color: var(--at-ink);
+}
+.current .mark {
+  border-color: var(--at-accent, var(--at-root));
+  background: var(--at-accent, var(--at-root));
+  opacity: 1;
+  box-shadow: 0 0 0 2px rgb(79 209 255 / 0.16);
+}
+
+/* The current page's own label may be a 90-character article title. */
+.currentLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: min(42vw, 26rem);
+}
+
+/* "YOU ARE HERE", once on the page and only next to the current node. */
+.here {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--at-accent, var(--at-root));
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+/* The map button. Quiet at rest, and the trail's only interactive chrome. */
+.open {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--at-mute);
+  cursor: pointer;
+  transition:
+    color 0.3s var(--at-ease),
+    border-color 0.3s var(--at-ease),
+    background-color 0.3s var(--at-ease);
+}
+.open:hover,
+.open:focus-visible {
+  color: var(--at-ink);
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+.open:focus-visible {
+  outline: 2px solid var(--interactive-focus-ring, #4fd1ff);
+  outline-offset: 2px;
+}
+.openGlyph {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+.openLabel {
+  display: none;
+}
+@media (min-width: 640px) {
+  .openLabel {
+    display: inline;
+  }
+}
+
+/* On a phone the ancestors go and the current place stays: three nodes do not
+   fit beside a map button at 360px, and the one that matters is the last. */
+@media (max-width: 639px) {
+  .stepHideMobile {
+    display: none;
+  }
+  .here {
+    display: none;
+  }
+  .currentLabel {
+    max-width: 56vw;
+  }
+}
+
+/* The navbar glyph. Sized and weighted like the theme toggle beside it, so
+   the header gains a control and not a new visual idea. */
+.navTrigger {
+  display: grid;
+  place-items: center;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  color: var(--at-mute);
+  cursor: pointer;
+  transition:
+    color 0.3s var(--at-ease),
+    border-color 0.3s var(--at-ease),
+    background-color 0.3s var(--at-ease);
+}
+.navTrigger:hover,
+.navTrigger:focus-visible {
+  color: var(--at-ink);
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+.navTrigger:focus-visible {
+  outline: 2px solid var(--interactive-focus-ring, #4fd1ff);
+  outline-offset: 2px;
+}
+.navGlyph {
+  height: 15px;
+  width: 15px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   2 · THE OVERLAY
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: rgb(3 6 12 / 0.72);
+  backdrop-filter: blur(6px);
+  animation: atFade 0.2s var(--at-ease) both;
+}
+@media (min-width: 768px) {
+  .scrim {
+    align-items: center;
+    padding: 2.5rem 1.5rem;
+  }
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 88vh;
+  max-height: 88svh;
+  overflow: hidden;
+  border: 1px solid rgb(148 163 184 / 0.16);
+  border-radius: 1rem 1rem 0 0;
+  background: var(--at-surface);
+  box-shadow: 0 -30px 80px -30px rgb(0 0 0 / 0.7);
+  animation: atRise 0.32s var(--at-ease) both;
+}
+@media (min-width: 768px) {
+  .sheet {
+    max-width: 62rem;
+    max-height: 82vh;
+    border-radius: 1rem;
+    box-shadow: 0 40px 90px -40px rgb(0 0 0 / 0.75);
+  }
+}
+
+@keyframes atFade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes atRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 1.25rem 0.9rem;
+  border-bottom: 1px solid rgb(148 163 184 / 0.12);
+}
+.title {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--at-ink);
+}
+.subtitle {
+  margin-top: 0.2rem;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--at-mute);
+}
+.close {
+  margin-left: auto;
+  display: grid;
+  place-items: center;
+  height: 2rem;
+  width: 2rem;
+  flex-shrink: 0;
+  border: 1px solid rgb(148 163 184 / 0.2);
+  border-radius: 999px;
+  color: var(--at-mute);
+  cursor: pointer;
+  transition: color 0.3s var(--at-ease), border-color 0.3s var(--at-ease);
+}
+.close:hover,
+.close:focus-visible {
+  color: var(--at-ink);
+  border-color: rgb(148 163 184 / 0.45);
+}
+
+/* ── Search: location, not content ── */
+.find {
+  padding: 0.8rem 1.25rem;
+  border-bottom: 1px solid rgb(148 163 184 / 0.12);
+}
+.findInput {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid rgb(148 163 184 / 0.18);
+  border-radius: 0.5rem;
+  background: rgb(148 163 184 / 0.06);
+  font-size: 13px;
+  color: var(--at-ink);
+}
+.findInput::placeholder {
+  color: var(--at-mute);
+}
+.findInput:focus-visible {
+  outline: 2px solid var(--interactive-focus-ring, #4fd1ff);
+  outline-offset: 1px;
+}
+.findNote {
+  margin-top: 0.5rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--at-mute);
+}
+
+/* ── The two panes ── */
+.body {
+  display: grid;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+@media (min-width: 900px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) 16rem;
+  }
+}
+
+.treeWrap {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.9rem 1.25rem 1.5rem;
+}
+
+/* ── The tree ──
+   An indented tree, not a free-form graph: the same shape on a phone and a
+   desktop, one semantic <ul> underneath, and no layout that moves while a
+   reader is reading it. The map feeling comes from the nodes and the
+   connectors, which is where it belongs. */
+.item {
+  position: relative;
+}
+
+.tree,
+.branch {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.branch {
+  margin-left: 0.75rem;
+  padding-left: 0.85rem;
+  border-left: 1px solid var(--at-line);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.28rem 0;
+}
+
+/* The connector stub from the branch line to the node. */
+.row::before {
+  content: "";
+  position: absolute;
+  left: -0.85rem;
+  top: 50%;
+  width: 0.6rem;
+  height: 1px;
+  background: var(--at-line);
+}
+.tree > .item > .row::before {
+  display: none;
+}
+
+.toggle {
+  display: grid;
+  place-items: center;
+  height: 1.15rem;
+  width: 1.15rem;
+  flex-shrink: 0;
+  border: 1px solid rgb(148 163 184 / 0.24);
+  border-radius: 0.3rem;
+  background: transparent;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--at-mute);
+  cursor: pointer;
+  transition: color 0.25s var(--at-ease), border-color 0.25s var(--at-ease);
+}
+.toggle:hover,
+.toggle:focus-visible {
+  color: var(--at-ink);
+  border-color: rgb(148 163 184 / 0.5);
+}
+.togglePlaceholder {
+  height: 1.15rem;
+  width: 1.15rem;
+  flex-shrink: 0;
+}
+
+.dot {
+  height: 6px;
+  width: 6px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--at-accent, var(--at-neutral));
+  opacity: 0.8;
+}
+
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--at-mute);
+  text-align: left;
+  transition: color 0.25s var(--at-ease);
+}
+a.label:hover,
+button.label:hover,
+a.label:focus-visible,
+button.label:focus-visible {
+  color: var(--at-ink);
+}
+a.label:focus-visible,
+button.label:focus-visible {
+  outline: 2px solid var(--interactive-focus-ring, #4fd1ff);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+/* A group with no page of its own: a label, never a link to nowhere. */
+.groupLabel {
+  cursor: default;
+}
+
+.count {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--at-mute);
+  opacity: 0.7;
+}
+
+/* On the current path: brighter, and the branch line lights with it. */
+.onPath > .row > .label {
+  color: var(--at-ink);
+}
+.onPath > .branch {
+  border-left-color: var(--at-line-on);
+}
+.onPath > .row > .dot {
+  opacity: 1;
+}
+
+/* The current page. One node, slightly larger, filled, with a single pulse
+   when the map opens — not a beacon. */
+.isCurrent > .row > .label {
+  color: var(--at-ink);
+  font-weight: 600;
+}
+.isCurrent > .row > .dot {
+  height: 9px;
+  width: 9px;
+  background: var(--at-accent, var(--at-root));
+  border-color: var(--at-accent, var(--at-root));
+  opacity: 1;
+  animation: atPulse 0.9s var(--at-ease) 1;
+}
+@keyframes atPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(79 209 255 / 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 9px rgb(79 209 255 / 0);
+  }
+}
+.hereTag {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--at-accent, var(--at-root));
+}
+
+/* Everything off the current path recedes, so the hierarchy reads at a
+   glance. Not hidden: still legible, still clickable. */
+.offPath > .row > .label,
+.offPath > .row > .count {
+  opacity: 0.62;
+}
+
+/* A search hit. */
+.hit > .row > .label {
+  color: var(--at-ink);
+}
+.hit > .row > .dot {
+  background: var(--at-accent, var(--at-root));
+  opacity: 1;
+}
+
+/* ── The detail panel ── */
+.panel {
+  display: none;
+  border-left: 1px solid rgb(148 163 184 / 0.12);
+  padding: 1.1rem 1.25rem;
+  background: var(--at-panel);
+}
+@media (min-width: 900px) {
+  .panel {
+    display: block;
+  }
+}
+.panelKind {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--at-accent, var(--at-root));
+}
+.panelTitle {
+  margin-top: 0.5rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--at-ink);
+}
+.panelDesc {
+  margin-top: 0.5rem;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--at-mute);
+}
+.panelMeta {
+  margin-top: 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--at-mute);
+}
+.panelOpen {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--at-accent, var(--at-root));
+}
+.panelOpen:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ── The foot: where the other map lives ── */
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1rem;
+  padding: 0.8rem 1.25rem;
+  border-top: 1px solid rgb(148 163 184 / 0.12);
+  font-size: 11.5px;
+  color: var(--at-mute);
+}
+.footLink {
+  color: var(--at-research);
+  text-decoration: underline;
+  text-decoration-color: rgb(127 212 255 / 0.35);
+  text-underline-offset: 3px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FAMILY ACCENTS — one variable, set per node
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Scoped under `.scope` because a CSS module will not accept a bare
+   attribute selector — and it should not: an unscoped [data-family] rule
+   would reach every component on the site. */
+.scope [data-family="root"] {
+  --at-accent: var(--at-root);
+}
+.scope [data-family="mobilitycare"] {
+  --at-accent: var(--at-mobility);
+}
+.scope [data-family="securevision"] {
+  --at-accent: var(--at-secure);
+}
+.scope [data-family="research"] {
+  --at-accent: var(--at-research);
+}
+.scope [data-family="editorial"] {
+  --at-accent: var(--at-editorial);
+}
+.scope [data-family="neutral"] {
+  --at-accent: var(--at-neutral);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME — the same hierarchy, deepened accents
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:global(.light) .scope {
+  --at-root: #1b4ed9;
+  --at-mobility: #0f766e;
+  --at-secure: #6d28d9;
+  --at-research: #0f5ea8;
+  --at-editorial: #334155;
+  --at-neutral: rgb(71 85 105 / 0.9);
+
+  --at-line: rgb(15 23 42 / 0.16);
+  --at-line-on: rgb(27 78 217 / 0.4);
+  --at-ink: rgb(15 23 42);
+  --at-mute: rgb(71 85 105);
+  --at-surface: #ffffff;
+  --at-panel: rgb(15 23 42 / 0.025);
+}
+:global(.light) .scrim {
+  background: rgb(15 23 42 / 0.34);
+}
+:global(.light) .sheet {
+  border-color: rgb(15 23 42 / 0.12);
+  box-shadow: 0 40px 90px -40px rgb(15 23 42 / 0.35);
+}
+:global(.light) .isCurrent > .row > .dot {
+  animation-name: atPulseLight;
+}
+@keyframes atPulseLight {
+  0% {
+    box-shadow: 0 0 0 0 rgb(27 78 217 / 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 9px rgb(27 78 217 / 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrim,
+  .sheet {
+    animation: none;
+  }
+  .isCurrent > .row > .dot {
+    animation: none;
+  }
+  .node,
+  .label,
+  .toggle,
+  .open {
+    transition: none;
+  }
+}

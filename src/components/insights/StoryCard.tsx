@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { InsightArticle } from "@/data/insights";
 import {
   INSIGHTS_AUTHOR,
+  POST_TYPE_LABEL,
   formatInsightDate,
   insightHref,
 } from "@/data/insights";
@@ -63,6 +64,13 @@ export function StoryCard({
   const topic = TOPIC_CLASS[article.topics[0]] ?? styles.tMovement;
   const hookCount = HOOKS[variant];
 
+  /* The card leads with what the piece IS — the taxonomy a reader of a
+     publication scans for. The subject label follows only where it says
+     something the type does not; on "Technical Essay" pieces filed under
+     "Technical Essay" it would just be the same words twice. */
+  const typeLabel = POST_TYPE_LABEL[article.postType];
+  const subject = article.category === typeLabel ? null : article.category;
+
   return (
     <article className={`${styles.card} ${VARIANT_CLASS[variant]} ${topic}`}>
       <span aria-hidden="true" className={styles.cardAccent} />
@@ -82,7 +90,13 @@ export function StoryCard({
 
       <div className={styles.cardBody}>
         <div className={styles.cardMeta}>
-          <span className={styles.cardCategory}>{article.category}</span>
+          <span className={styles.cardCategory}>{typeLabel}</span>
+          {subject && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{subject}</span>
+            </>
+          )}
           <span aria-hidden="true">·</span>
           <time dateTime={article.date}>{formatInsightDate(article.date)}</time>
           <span aria-hidden="true">·</span>

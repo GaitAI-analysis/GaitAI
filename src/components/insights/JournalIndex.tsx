@@ -5,11 +5,14 @@ import Link from "next/link";
 import { Search, X } from "lucide-react";
 import {
   INSIGHTS_AUTHOR,
+  POST_TYPE_PLURAL,
   TOPIC_FILTERS,
+  activePostTypes,
   formatInsightDate,
   insightArticles,
   insightHref,
   type InsightTopic,
+  type PostType,
 } from "@/data/insights";
 import { StoryCard } from "./StoryCard";
 import styles from "./archive.module.css";
@@ -47,7 +50,18 @@ const ACTIVE_TOPICS = TOPIC_FILTERS.filter(
     ),
 );
 
+/* The journal's remit is wider than its archive: product, engineering and
+   company writing all belong here, and none of it is published yet. So the
+   type row is derived from what exists rather than declared — an empty
+   "Product updates" chip would be a promise the archive cannot keep. */
+const ACTIVE_TYPES = activePostTypes();
+
+/** Small counts read better spelled out in a display heading. */
+const COUNT_WORD = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+const spell = (n: number) => COUNT_WORD[n] ?? String(n);
+
 export function JournalIndex() {
+  const [type, setType] = useState<PostType | "all">("all");
   const [topic, setTopic] = useState<InsightTopic | "all">("all");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("newest");
@@ -78,6 +92,7 @@ export function JournalIndex() {
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = insightArticles.filter((article) => {
+      if (type !== "all" && article.postType !== type) return false;
       if (topic !== "all" && !article.topics.includes(topic)) return false;
       if (q && !(haystacks.get(article.slug) ?? "").includes(q)) return false;
       return true;
@@ -87,10 +102,11 @@ export function JournalIndex() {
         ? b.date.localeCompare(a.date)
         : a.seriesStep - b.seriesStep,
     );
-  }, [topic, query, sort, haystacks]);
+  }, [type, topic, query, sort, haystacks]);
 
-  const dirty = topic !== "all" || query !== "";
+  const dirty = type !== "all" || topic !== "all" || query !== "";
   const reset = () => {
+    setType("all");
     setTopic("all");
     setQuery("");
   };
@@ -112,17 +128,22 @@ export function JournalIndex() {
         <header className={styles.masthead}>
           <p className={styles.mastheadKicker}>The GaitAI Journal</p>
           <h1 className={styles.mastheadTitle}>
-            Ideas, explainers and research notes on{" "}
-            <span className={styles.mastheadAccent}>movement intelligence.</span>
+            Ideas, research, product notes and updates from{" "}
+            <span className={styles.mastheadAccent}>GaitAI.</span>
           </h1>
           <p className={styles.mastheadDeck}>
-            Technical essays, research translation and responsible-AI
-            perspectives from the systems behind GaitAI — written by the team
-            that builds them.
+            Technical essays, research translation, engineering stories and
+            updates from the team building GaitAI.
+          </p>
+          {/* Both lines are counted and dated from the records themselves: the
+              coverage line names only the kinds of writing that exist, and the
+              date is the newest article's own. */}
+          <p className={styles.mastheadMeta}>
+            {insightArticles.length} stories ·{" "}
+            {ACTIVE_TYPES.map((key) => POST_TYPE_PLURAL[key]).join(" · ")}
           </p>
           <p className={styles.mastheadMeta}>
-            {insightArticles.length} essays · {INSIGHTS_AUTHOR} · Latest{" "}
-            {formatInsightDate(newest.date)}
+            Latest · {formatInsightDate(newest.date)} · {INSIGHTS_AUTHOR}
           </p>
         </header>
 
@@ -134,27 +155,10 @@ export function JournalIndex() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search insights…"
-              aria-label="Search insights"
+              placeholder="Search the journal…"
+              aria-label="Search the journal"
               className={styles.search}
             />
-          </div>
-
-          <div className={styles.topics} role="group" aria-label="Filter by topic">
-            {ACTIVE_TOPICS.map((option) => {
-              const on = topic === option.key;
-              return (
-                <button
-                  key={option.key}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => setTopic(option.key as InsightTopic | "all")}
-                  className={`${styles.topicChip} ${on ? styles.topicChipOn : ""}`}
-                >
-                  {option.label}
-                </button>
-              );
-            })}
           </div>
 
           <div className={styles.sortWrap}>
@@ -173,11 +177,74 @@ export function JournalIndex() {
           </div>
         </div>
 
+        {/* ── Filters: what kind of piece, then what it is about ── */}
+        <div className={styles.filters}>
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel} id="journal-type-label">
+              Type
+            </span>
+            <div
+              className={styles.topics}
+              role="group"
+              aria-labelledby="journal-type-label"
+            >
+              <button
+                type="button"
+                aria-pressed={type === "all"}
+                onClick={() => setType("all")}
+                className={`${styles.topicChip} ${type === "all" ? styles.topicChipOn : ""}`}
+              >
+                All
+              </button>
+              {ACTIVE_TYPES.map((key) => {
+                const on = type === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setType(key)}
+                    className={`${styles.topicChip} ${on ? styles.topicChipOn : ""}`}
+                  >
+                    {POST_TYPE_PLURAL[key]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel} id="journal-topic-label">
+              Topic
+            </span>
+            <div
+              className={styles.topics}
+              role="group"
+              aria-labelledby="journal-topic-label"
+            >
+              {ACTIVE_TOPICS.map((option) => {
+                const on = topic === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setTopic(option.key as InsightTopic | "all")}
+                    className={`${styles.topicChip} ${on ? styles.topicChipOn : ""}`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         <div className={styles.resultRow} aria-live="polite">
           <span>
             {matches.length === insightArticles.length
-              ? `${insightArticles.length} essays`
-              : `${matches.length} of ${insightArticles.length} essays`}
+              ? `${insightArticles.length} stories`
+              : `${matches.length} of ${insightArticles.length} stories`}
           </span>
           {dirty && (
             <button type="button" onClick={reset} className={styles.clear}>
@@ -199,7 +266,11 @@ export function JournalIndex() {
         {rest.length > 0 && (
           <>
             <h2 className={styles.gridHeading}>
-              {featured ? "More from the journal" : "Results"}
+              {featured
+                ? "Latest stories"
+                : type !== "all"
+                  ? POST_TYPE_PLURAL[type]
+                  : "Results"}
             </h2>
             <div className={styles.archiveGrid}>
               {rest.map((article) => (
@@ -211,9 +282,9 @@ export function JournalIndex() {
 
         {matches.length === 0 && (
           <div className={styles.empty}>
-            <p className={styles.emptyTitle}>No essay matches that.</p>
+            <p className={styles.emptyTitle}>No story matches that.</p>
             <p className={styles.emptyBody}>
-              Try a different topic, or clear the filters to see all{" "}
+              Try a different type or topic, or clear the filters to see all{" "}
               {insightArticles.length}.
             </p>
             <button type="button" onClick={reset} className="btn-ghost mt-6">
@@ -228,7 +299,7 @@ export function JournalIndex() {
             <div className={styles.seriesHead}>
               <p className={styles.seriesKicker}>Reading path</p>
               <h2 className={styles.seriesTitle}>
-                GaitAI Foundations — five essays, in order
+                GaitAI Foundations — {spell(insightArticles.length)} stories, in order
               </h2>
               <p className={styles.seriesDeck}>
                 Each one builds on the last, from a walking video to an audited

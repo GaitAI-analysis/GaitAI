@@ -116,10 +116,10 @@ export function JournalClose({
         </h2>
 
         <p className={styles.closeLede}>
-          GaitAI Insights explores how movement becomes evidence, where AI
-          should be trusted, and where it should be questioned. Research notes,
-          technical essays and responsible-AI perspectives from the systems
-          behind GaitAI.
+          The GaitAI Journal follows the signals: how movement becomes
+          evidence, where AI should be trusted, and where it should be
+          questioned. Technical essays, research notes, engineering stories and
+          updates from the team building GaitAI.
         </p>
 
         <div className={styles.closeActions}>

@@ -57,7 +57,7 @@ export const SEARCH_GROUP_LABEL: Record<SearchGroup, string> = {
   environment: "Environments",
   research: "Research",
   publication: "Publications",
-  insight: "Insights",
+  insight: "Journal",
 };
 
 export interface SearchEntry {
@@ -210,7 +210,7 @@ const publicationEntries: SearchEntry[] = allPublications.map((p) => ({
   ]),
 }));
 
-// ── Insights ────────────────────────────────────────────────────────────────
+// ── Journal ────────────────────────────────────────────────────────────────
 const insightEntries: SearchEntry[] = insightArticles.map((a) => ({
   id: `insight:${a.slug}`,
   group: "insight",

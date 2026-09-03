@@ -79,7 +79,7 @@ export function PostsList({ posts }: { posts: Post[] }) {
 
       {list.length === 0 ? (
         <div className="mt-16 grid place-items-center rounded-2xl border border-dashed border-white/10 py-16 text-center">
-          <p className="font-display text-xl text-soft-white">No verified insights published yet</p>
+          <p className="font-display text-xl text-soft-white">No verified stories published yet</p>
           <p className="mt-1 text-sm text-soft-mute">
             Explore the peer-reviewed publication and patent record in the meantime.
           </p>

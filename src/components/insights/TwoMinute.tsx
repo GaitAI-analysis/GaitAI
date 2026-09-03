@@ -32,7 +32,7 @@ export function TwoMinute({ points }: { points: string[] }) {
           ))}
         </ol>
         <p className={styles.summaryNote}>
-          The full essay follows, with the diagrams and the caveats.
+          The full article follows, with the diagrams and the caveats.
         </p>
       </div>
     </details>

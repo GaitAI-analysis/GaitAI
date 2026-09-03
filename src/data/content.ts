@@ -76,7 +76,8 @@ export const navLinks: readonly NavItem[] = [
       },
     ],
   },
-  { label: "Insights", href: "/insights" },
+  // The route stays /insights; only the visible name is the Journal.
+  { label: "Journal", href: "/insights" },
   {
     label: "Research & IP",
     href: "/research",

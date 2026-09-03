@@ -133,7 +133,7 @@ function isSpecialLine(lines: string[], index: number): boolean {
   );
 }
 
-/** A deliberately small, HTML-free Markdown renderer for Insights posts. */
+/** A deliberately small, HTML-free Markdown renderer for Journal posts. */
 export function renderMarkdown(body: string): ReactNode {
   if (!body) return null;
   const lines = body.replace(/\r\n/g, "\n").split("\n");

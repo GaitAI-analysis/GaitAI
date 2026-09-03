@@ -41,35 +41,31 @@ const journey: Milestone[] = [
 
 const accentClasses: Record<
   Milestone["accent"],
-  { dot: string; halo: string; text: string; chip: string; cardHover: string }
+  { dot: string; halo: string; text: string; chip: string }
 > = {
   cyan: {
     dot: "bg-cyan-300 text-cyan-300",
     halo: "bg-cyan-300/25",
     text: "text-cyan-300",
     chip: "border-cyan-300/30 bg-cyan-300/8 text-cyan-200",
-    cardHover: "hover:border-cyan-300/30",
   },
   blue: {
     dot: "bg-royal-400 text-royal-400",
     halo: "bg-royal-400/25",
     text: "text-royal-300",
     chip: "border-royal-300/30 bg-royal-300/8 text-royal-200",
-    cardHover: "hover:border-royal-300/30",
   },
   violet: {
     dot: "bg-violet-400 text-violet-400",
     halo: "bg-violet-400/25",
     text: "text-violet-300",
     chip: "border-violet-300/30 bg-violet-300/8 text-violet-200",
-    cardHover: "hover:border-violet-300/30",
   },
   gold: {
     dot: "bg-amber-300 text-amber-300",
     halo: "bg-amber-300/25",
     text: "text-amber-300",
     chip: "border-amber-300/30 bg-amber-300/8 text-amber-200",
-    cardHover: "hover:border-amber-300/30",
   },
 };
 
@@ -224,12 +220,15 @@ function Card({
   alignment = "left",
 }: {
   milestone: Milestone;
-  accent: { chip: string; text: string; cardHover: string };
+  accent: { chip: string; text: string };
   alignment?: "left" | "right";
 }) {
   return (
+    /* A milestone opens nothing, so it no longer lifts, glows or brightens
+       under the pointer: on a site where those three mean "this navigates",
+       a static card doing them is a promise it cannot keep. */
     <div
-      className={`rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-5 transition-all duration-300 hover:-translate-y-1 hover:bg-white/[0.045] hover:shadow-[0_20px_50px_-24px_rgba(79,209,255,0.35)] sm:p-6 ${accent.cardHover} ${
+      className={`rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent p-5 sm:p-6 ${
         alignment === "right" ? "lg:ml-auto" : ""
       } lg:max-w-md`}
     >

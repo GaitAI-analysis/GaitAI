@@ -92,6 +92,21 @@ const STAGE_VIDEOS = [
   "/assets/videos/workflow/stage-04-output.mp4",
 ];
 
+/**
+ * First frame of each stage video, extracted from the video itself, so the
+ * card shows its own opening frame rather than nothing.
+ *
+ * These four videos had no poster at all: the comment below claimed "the
+ * poster frame stays" when a play() was rejected, but with no poster there was
+ * nothing to stay. Together they are ~140 KB against 5.0 MB of video.
+ */
+const STAGE_POSTERS = [
+  "/assets/videos/workflow/stage-01-capture-poster.jpg",
+  "/assets/videos/workflow/stage-02-analyze-poster.jpg",
+  "/assets/videos/workflow/stage-03-report-poster.jpg",
+  "/assets/videos/workflow/stage-04-output-poster.jpg",
+];
+
 function StageVisual({ index }: { index: number }) {
   const reduceMotion = Boolean(useReducedMotion());
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -138,8 +153,10 @@ function StageVisual({ index }: { index: number }) {
       ref={wrapRef}
       className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72"
     >
-      {/* Reduced-motion users get the paused first frame instead of the
-          loop; the assets are fixed dark renders in both themes. */}
+      {/* Reduced-motion users get the poster and never fetch the video:
+          `preload="auto"` here used to download the full clip — 5.0 MB across
+          the four cards — purely to display a still frame the poster now
+          provides for ~35 KB. */}
       <video
         key={reduceMotion ? "still" : "loop"}
         ref={videoRef}
@@ -147,10 +164,13 @@ function StageVisual({ index }: { index: number }) {
         muted
         loop
         playsInline
-        preload={reduceMotion ? "auto" : "metadata"}
+        poster={assetPath(STAGE_POSTERS[index])}
+        preload={reduceMotion ? "none" : "metadata"}
         aria-hidden="true"
       >
-        <source src={assetPath(STAGE_VIDEOS[index])} type="video/mp4" />
+        {!reduceMotion && (
+          <source src={assetPath(STAGE_VIDEOS[index])} type="video/mp4" />
+        )}
       </video>
       {/* The dot used to sit next to "active", which reads as a running
           system. These are looping renders illustrating the stage. */}

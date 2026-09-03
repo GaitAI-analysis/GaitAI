@@ -1,10 +1,7 @@
 import type { MetadataRoute } from "next";
 import { readPublishedPosts } from "@/lib/posts-store";
-import { productDetails } from "@/data/product-details";
-import { secureProductDetails } from "@/data/product-details-secure";
-import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
-import { allPublications } from "@/data/publications";
+import { siteRoutes } from "@/data/site-map";
 
 const siteUrl = "https://gaitai.in";
 
@@ -15,62 +12,48 @@ const siteUrl = "https://gaitai.in";
  */
 const loc = (route: string) => `${siteUrl}${route}/`.replace(/\/{2,}$/, "/");
 
+/**
+ * ONE SOURCE FOR THE SITE'S SHAPE. Every static route here comes from
+ * `siteRoutes()` in `data/site-map.ts` — the same tree the Atlas and the
+ * location trail read — so a page cannot appear in the map and be missing
+ * from the sitemap, or the reverse. This file used to keep its own hand-typed
+ * list of seventeen routes beside four `.map()` calls over content data; that
+ * list is what went stale (the nine research records were absent from it for
+ * a while, and /research/talks was added to the nav without being added here).
+ *
+ * Priorities are assigned by shape rather than listed: the root, then
+ * sections, then leaves, with legal lowest.
+ *
+ * Firestore-published posts stay separate. They are dynamic and only this
+ * file can await them, so the static tree does not pretend to know them.
+ */
+function priorityFor(route: string): number {
+  if (route === "/") return 1;
+  if (route.startsWith("/legal/")) return 0.3;
+  /* A leaf has three or more segments: /mobilitycare/walkscan/ */
+  const depth = route.split("/").filter(Boolean).length;
+  return depth > 1 ? 0.6 : 0.7;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await readPublishedPosts();
-  const routes = [
-    "",
-    "/mobilitycare",
-    "/securevision",
-    "/products",
-    "/use-cases",
-    "/gaitscape",
-    "/movement-lab",
-    "/research",
-    "/research/evidence",
-    "/publications",
-    "/insights",
-    "/investors",
-    "/trust",
-    "/legal/privacy",
-    "/legal/security",
-    "/legal/terms",
-    "/legal/responsible-ai",
-  ];
+
+  /* Article dates are the one piece of freshness the tree does not carry. */
+  const lastModified = new Map(
+    insightArticles.map((article) => [
+      `/insights/${article.slug}/`,
+      new Date(article.date),
+    ]),
+  );
 
   return [
-    ...routes.map((route) => ({
+    ...siteRoutes().map((route) => ({
       url: loc(route),
-      changeFrequency: route === "" ? ("monthly" as const) : ("yearly" as const),
-      priority: route === "" ? 1 : route.startsWith("/legal/") ? 0.3 : 0.7,
-    })),
-    ...productDetails.map((d) => ({
-      url: loc(`/mobilitycare/${d.slug}`),
-      changeFrequency: "yearly" as const,
-      priority: 0.6,
-    })),
-    ...secureProductDetails.map((d) => ({
-      url: loc(`/securevision/${d.slug}`),
-      changeFrequency: "yearly" as const,
-      priority: 0.6,
-    })),
-    ...useCaseDetails.map((d) => ({
-      url: loc(`/use-cases/${d.slug}`),
-      changeFrequency: "yearly" as const,
-      priority: 0.6,
-    })),
-    ...insightArticles.map((article) => ({
-      url: loc(`/insights/${article.slug}`),
-      lastModified: new Date(article.date),
-      changeFrequency: "yearly" as const,
-      priority: 0.7,
-    })),
-    /* The nine research records. Previously absent: the only /publications
-       entry mapped Firestore posts, of which there are currently none, so
-       every paper and the patent were missing from the sitemap. */
-    ...allPublications.map((record) => ({
-      url: loc(`/publications/${record.id}`),
-      changeFrequency: "yearly" as const,
-      priority: 0.6,
+      lastModified: lastModified.get(route),
+      changeFrequency: route === "" || route === "/"
+        ? ("monthly" as const)
+        : ("yearly" as const),
+      priority: priorityFor(route),
     })),
     ...posts.map((post) => ({
       url: loc(`/publications/${post.slug}`),

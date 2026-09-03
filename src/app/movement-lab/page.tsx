@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MovementLab } from "@/components/analytics/MovementLab";
+import { SignalIntelligenceExplorer } from "@/components/analytics/SignalIntelligenceExplorer";
 import { SyntheticDataBadge } from "@/components/ui/SyntheticDataBadge";
 import { SYNTHETIC_LABEL } from "@/data/lab-demo";
 import { CAPABILITY_COUNT, MODULE_COUNT, SIGNAL_COUNT } from "@/data/analytics";
@@ -97,6 +98,33 @@ export default function MovementLabPage() {
             <div className="relative min-w-0 lg:pt-6">
               <LabHeroInstrument />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── SIGNAL → INTELLIGENCE ──
+          The platform-level answer to "how does movement become
+          intelligence?": pick a capture source and the whole chain it feeds
+          redraws. The lab below then answers the same question at one stage's
+          depth. This surface is relationship data only — no measurements, so
+          no synthetic-data badge; there are no invented numbers on it. */}
+      <section className="border-t border-white/[0.07] py-14 sm:py-16">
+        <div className="container-wide">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+            Signal → intelligence
+          </span>
+          <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
+            What one capture source{" "}
+            <span className="text-gradient">actually becomes.</span>
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
+            Change the input and the chain below recomputes: the signals read
+            from it, the capabilities that process them, the modules built on
+            those capabilities and what they produce.
+          </p>
+
+          <div className="mt-10">
+            <SignalIntelligenceExplorer />
           </div>
         </div>
       </section>

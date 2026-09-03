@@ -269,3 +269,179 @@
   opacity: 0.34;
   vector-effect: non-scaling-stroke;
 }
+
+/* ── Added for the redrawn covers ──────────────────────────────────────────
+   Depth planes, ghosted source frames, accumulating joint paths, channel
+   traces and the dense signature. All hairlines, all inside the palette the
+   set already uses; nothing here is above 0.5 opacity except the signature's
+   accent ticks, which are the focal element of cover 01. */
+
+/* Translucent analytical planes — the depth the flat covers lacked. */
+.cPlane {
+  fill: rgb(79 209 255 / 0.028);
+  stroke: rgb(148 163 184 / 0.09);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Stacked source frames behind the live one. */
+.cFrameGhost {
+  fill: none;
+  stroke: rgb(148 163 184 / 0.13);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A joint's path accumulating across the stride. The ankle carries the read;
+   the hip and wrist sit under it. */
+.cPath {
+  fill: none;
+  stroke: #7fd4ff;
+  stroke-opacity: 0.5;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.cPathFaint {
+  fill: none;
+  stroke: #7fd4ff;
+  stroke-opacity: 0.22;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* One derived channel. */
+.cBandTrace {
+  fill: none;
+  stroke: #9fe4ff;
+  stroke-opacity: 0.42;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The signature the channels collapse into. */
+.cDna {
+  stroke: #78beff;
+  stroke-opacity: 0.5;
+  stroke-width: 1;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.cDnaStrong {
+  stroke: #bfe9ff;
+  stroke-opacity: 0.85;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+:global(.light) .cPlane {
+  fill: rgb(35 88 200 / 0.03);
+  stroke: rgb(15 23 42 / 0.1);
+}
+:global(.light) .cPath {
+  stroke: #0e6f95;
+}
+:global(.light) .cPathFaint {
+  stroke: #0e6f95;
+}
+:global(.light) .cBandTrace {
+  stroke: #0e6f95;
+}
+:global(.light) .cDna,
+:global(.light) .cDnaStrong {
+  stroke: #1d4ed8;
+}
+
+/* ── Instruments for the redrawn 02 / 03 / 04 ────────────────────────────── */
+
+/* A boundary contour around a latent cluster, and the protected field. */
+.cContour {
+  fill: rgb(148 163 184 / 0.03);
+  stroke: var(--c-a);
+  stroke-opacity: 0.3;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* A deviation / variance band. */
+.cEnvelope {
+  fill: var(--c-a);
+  fill-opacity: 0.07;
+  stroke: var(--c-a);
+  stroke-opacity: 0.22;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Restricted-zone geometry in the spatial reading. */
+.cZoneEdge {
+  fill: var(--c-a);
+  fill-opacity: 0.04;
+  stroke: var(--c-a);
+  stroke-opacity: 0.28;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The two channel families in the privacy lattice, and the emptied slot the
+   attenuated ones leave behind. The slot is an outline on purpose: the
+   dimension is gone, and its absence is part of the argument. */
+.cCellIdent {
+  fill: #a78bfa;
+  fill-opacity: 0.5;
+}
+
+.cCellMove {
+  fill: #67e8f9;
+  fill-opacity: 0.42;
+}
+
+.cSlot {
+  fill: none;
+  stroke: rgb(148 163 184 / 0.22);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The session-01 reference, carried across the longitudinal cover. */
+.cBaseline {
+  stroke: rgb(148 163 184 / 0.28);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  vector-effect: non-scaling-stroke;
+}
+
+:global(.light) .cCellIdent {
+  fill: #6d28d9;
+  fill-opacity: 0.55;
+}
+:global(.light) .cCellMove {
+  fill: #0e7490;
+  fill-opacity: 0.5;
+}
+:global(.light) .cSlot {
+  stroke: rgb(15 23 42 / 0.24);
+}
+:global(.light) .cBaseline {
+  stroke: rgb(15 23 42 / 0.3);
+}
+
+/* A session panel on the longitudinal cover — enough edge to separate five
+   columns, not enough to read as five cards. */
+.cPanel {
+  fill: rgb(148 163 184 / 0.022);
+  stroke: rgb(148 163 184 / 0.1);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .cPanel {
+  fill: rgb(15 23 42 / 0.02);
+  stroke: rgb(15 23 42 / 0.1);
+}

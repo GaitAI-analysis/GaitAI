@@ -27,7 +27,7 @@ import { ctas } from "@/data/content";
  * why this route sits beside it under Research rather than becoming a
  * company-news surface.
  *
- * THE COUNTS ARE NEVER SUMMED. 11 invited talks, 3 conference presentations
+ * THE COUNTS ARE NEVER SUMMED. 10 invited talks, 3 conference presentations
  * and 1 poster are three different kinds of activity. Adding them into "15
  * talks" would misdescribe all three, and adding the 16 conference papers
  * would be plainly false — most were not talks at all.
@@ -47,8 +47,8 @@ export const metadata: Metadata = {
   title: "Talks & Presentations — the founder research record",
   description:
     `Invited talks, conference presentations and a research poster delivered by ` +
-    `GaitAI founder ${TALKS_SPEAKER}, with the slides, certificates and papers ` +
-    `each is evidenced by. Academic records held individually, not company appearances.`,
+    `GaitAI founder ${TALKS_SPEAKER}, with the papers, posters and records each ` +
+    `is evidenced by. Academic records held individually, not company appearances.`,
   alternates: { canonical: "/research/talks" },
   openGraph: {
     type: "website",

@@ -63,13 +63,48 @@ export function Navbar() {
     if (el instanceof HTMLElement && el.closest("header")) el.blur();
   }, [pathname]);
 
-  const isActive = (href: string) => {
+  /**
+   * Does this route sit under `href`?
+   *
+   * Prefix matching, which is what a TOP-LEVEL item wants: "Research & IP"
+   * should stay lit on /research/talks/ because Talks belongs to that family.
+   */
+  const isUnder = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname === href || pathname?.startsWith(`${href}/`);
   };
 
+  /**
+   * The one submenu entry that owns this route — MOST SPECIFIC WINS.
+   *
+   * Prefix matching alone lit two entries at once: on /research/talks/ both
+   * "Research" (/research) and "Talks & Presentations" (/research/talks)
+   * matched, so the dropdown showed two active destinations and neither
+   * looked like the answer.
+   *
+   * Exact matching is the obvious fix and the wrong one: it would drop the
+   * highlight on every detail route, so /publications/<paper>/ would stop
+   * lighting "Publications". Instead a child is active when it matches AND no
+   * sibling with a longer href also matches — the deepest match wins, which
+   * is correct for all three cases at once:
+   *
+   *   /research/              Research
+   *   /research/talks/        Talks & Presentations   (not Research)
+   *   /publications/<paper>/  Publications
+   */
+  const childIsActive = (
+    child: { href: string },
+    siblings: readonly { href: string }[],
+  ) => {
+    if (!isUnder(child.href)) return false;
+    return !siblings.some(
+      (other) =>
+        other.href.length > child.href.length && isUnder(other.href),
+    );
+  };
+
   const itemIsActive = (item: (typeof navLinks)[number]) =>
-    isActive(item.href) || item.children?.some((child) => isActive(child.href));
+    isUnder(item.href) || item.children?.some((child) => isUnder(child.href));
 
   return (
     <>
@@ -121,7 +156,7 @@ export function Navbar() {
                         href={link.href}
                         aria-haspopup="true"
                         aria-expanded={menuOpen}
-                        aria-current={isActive(link.href) ? "page" : undefined}
+                        aria-current={isUnder(link.href) ? "page" : undefined}
                         className={cn(
                           "group/link relative flex items-center gap-1 rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
                           active || menuOpen
@@ -168,7 +203,7 @@ export function Navbar() {
                           >
                             <div className="overflow-hidden rounded-2xl border border-[var(--dropdown-border)] bg-[var(--dropdown-bg)] p-2 shadow-[var(--shadow-dropdown)] backdrop-blur-2xl">
                               {link.children.map((child) => {
-                                const childActive = isActive(child.href);
+                                const childActive = childIsActive(child, link.children ?? []);
                                 return (
                                   <Link
                                     key={child.href}
@@ -340,7 +375,7 @@ export function Navbar() {
                       onClick={() => setOpen(false)}
                       aria-label={link.href === "/" ? "Home" : undefined}
                       title={link.href === "/" ? "Home" : undefined}
-                      aria-current={isActive(link.href) ? "page" : undefined}
+                      aria-current={isUnder(link.href) ? "page" : undefined}
                       className={cn(
                         "block py-5 font-display text-3xl",
                         !link.children && "border-b border-white/5",
@@ -357,7 +392,7 @@ export function Navbar() {
                     {link.children && (
                       <div className="border-b border-white/5 pb-4 pl-4">
                         {link.children.map((child) => {
-                          const childActive = isActive(child.href);
+                          const childActive = childIsActive(child, link.children ?? []);
                           return (
                             <Link
                               key={child.href}

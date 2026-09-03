@@ -2000,10 +2000,12 @@ body {
    the video itself.
    ========================================================================= */
 
+/* As with the MobilityCare hero: no `overflow` on the element that holds the
+   foreground. The video is framed by `object-fit`, which never paints outside
+   its own box, so nothing here needed clipping in the first place. */
 .securevision-hero {
   position: relative;
   width: 100%;
-  overflow: hidden;
 }
 
 .securevision-hero-video {
@@ -2110,11 +2112,14 @@ body {
    footage instead of zooming/cropping the composition. Mobile keeps the
    flowing cover layout above. */
 @media (min-width: 1024px) {
+  /* This hero had the same fixed-`height` clipping as `.mobilitycare-hero`
+     below — at 1920x760 its own last capability row was cut off entirely.
+     The replacement `min-height` is set as a utility on the section itself
+     (see `app/securevision/page.tsx`): Tailwind's `utilities` layer wins over
+     the `components` layer this rule sits in, so a `min-height` written here
+     would be ignored no matter how specific the selector. Only the height
+     declarations moved; nothing else about the hero changed. */
   .securevision-hero {
-    height: calc(100vh - var(--site-header-height));
-    height: calc(100svh - var(--site-header-height));
-    min-height: 600px;
-    padding: 0;
     background: #030812;
   }
 
@@ -2991,9 +2996,12 @@ body {
    same near-black as the footage.
    ========================================================================= */
 
+/* No `overflow` here on purpose. This element holds the foreground copy,
+   CTAs and capability chips, so clipping it clips them — which is exactly
+   what used to happen. Cropping belongs to the background layer, and
+   `.mobilitycare-hero__media` owns it. */
 .mobilitycare-hero {
   position: relative;
-  overflow: hidden;
   display: flex;
   align-items: center;
   min-height: clamp(620px, 82vh, 860px);
@@ -3001,10 +3009,14 @@ body {
   background: #020617;
 }
 
+/* The background visual is the one layer that may be cropped: the footage is
+   framed by `object-fit: cover` and this bounds anything else the layer ever
+   holds. Nothing in the foreground passes through here. */
 .mobilitycare-hero__media {
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
 }
 
 .mobilitycare-hero__video {
@@ -3055,12 +3067,35 @@ body {
    Content is TOP-aligned (not vertically centered) so the badge/headline
    start near the top of the video, matching the SecureVision hero. */
 @media (min-width: 1024px) {
+  /*
+   * WHY `min-height` AND NOT `height`.
+   *
+   * This rule used to read `height: calc(100svh - var(--site-header-height))`
+   * with `min-height: 620px`, `padding: 0`, and `overflow: hidden` inherited
+   * from the base rule. That fixes the hero to the viewport, so any content
+   * taller than the viewport overflowed and was clipped rather than making
+   * the hero grow — and the hero's content gets TALLER as the viewport gets
+   * WIDER, because the headline is sized in `vw`. The two moved in opposite
+   * directions, so a wide-but-short window was the worst case: measured at
+   * 1920x760, the headline took five lines, the content stood at 789px, the
+   * hero sat on its 620px floor, and the whole "Rehabilitation / Elderly
+   * mobility" row — 44px of it — was invisible. At 1600x720 three pixels of
+   * it showed. It looked fine at 1440x900, which is why it read as
+   * intermittent.
+   *
+   * `min-height` keeps the original intent — the hero still fills the screen
+   * below the navbar whenever the content fits — while letting the content
+   * decide the height when it does not. `max()` preserves the 620px floor
+   * that the old `min-height` provided, so a short viewport cannot squash the
+   * composition either.
+   */
   .mobilitycare-hero {
-    height: calc(100vh - var(--site-header-height));
-    height: calc(100svh - var(--site-header-height));
-    min-height: 620px;
-    max-height: none;
-    padding: 0;
+    min-height: max(620px, calc(100vh - var(--site-header-height)));
+    min-height: max(620px, calc(100svh - var(--site-header-height)));
+    /* The content layer owns the top offset (see its `padding-top`); this is
+       the breathing room after the last chip row, which `padding: 0` had
+       removed entirely. */
+    padding: 0 0 clamp(3rem, 5vh, 4.5rem);
     align-items: flex-start;
   }
 

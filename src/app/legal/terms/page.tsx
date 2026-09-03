@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/legal/terms" },
   title: "Terms of use",
   description:
     "Terms covering use of the GaitAI website: informational content, demo requests, intellectual property, acceptable use, and the basis on which product information and demo visuals are published.",

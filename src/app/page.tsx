@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
 import { MissionVision } from "@/components/sections/about/MissionVision";
 import { Verticals } from "@/components/sections/Verticals";
@@ -8,6 +9,13 @@ import { ResearchCredibility } from "@/components/sections/ResearchCredibility";
 import { EnvironmentStrip } from "@/components/sections/EnvironmentStrip";
 import { Vision } from "@/components/sections/Vision";
 import { CTA } from "@/components/sections/CTA";
+
+/* Title, description and social cards are inherited from the root layout;
+   only the canonical is stated here, because the root must not declare one
+   (it would become every other route's canonical too). */
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 /**
  * Home — "what is GaitAI and why should I care?", and nothing else.

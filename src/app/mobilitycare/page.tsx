@@ -21,6 +21,7 @@ import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/mobilitycare" },
   title: "MobilityCare — Clinical movement intelligence",
   description:
     "GaitAI MobilityCare — AI-powered clinical gait, sports movement, rehabilitation, elderly mobility and WatchCare wearable intelligence.",

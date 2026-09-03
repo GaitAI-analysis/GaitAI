@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/legal/privacy" },
   title: "Privacy",
   description:
     "What this website collects and who processes it, and how GaitAI's products handle movement data — written from what the site actually does.",

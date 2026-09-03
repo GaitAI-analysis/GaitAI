@@ -29,6 +29,11 @@
   --tk-mute: rgb(var(--c-soft-mute));
   --tk-line: rgb(148 163 184 / 0.18);
   --tk-line-soft: rgb(148 163 184 / 0.1);
+  /* A node the reader has not reached yet: muted slate, but actually legible.
+     At --tk-line's 18% an 8px mark is invisible on the page ground. */
+  --tk-node: rgb(148 163 184 / 0.55);
+  /* The page colour a mark punches out of the rail with. */
+  --tk-halo: rgb(var(--c-obsidian-400));
   --tk-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   /* Where the rail sits, and therefore how much room the copy gets. Narrow on
@@ -54,6 +59,8 @@
   --tk-violet: #6d28d9;
   --tk-line: rgb(15 23 42 / 0.14);
   --tk-line-soft: rgb(15 23 42 / 0.08);
+  --tk-node: rgb(71 85 105 / 0.5);
+  --tk-halo: rgb(var(--c-obsidian-400));
 }
 
 /* ==========================================================================
@@ -135,7 +142,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 0.35rem 1.35rem;
+  gap: 0.15rem 1.35rem;
 }
 
 .viewTab,
@@ -146,7 +153,11 @@
   gap: 0.4rem;
   border: 0;
   background: none;
-  padding: 0.35rem 0;
+  /* The underline lives INSIDE the tab's own box (see ::after). Hanging it
+     below on a negative offset put it on the container hairline at desktop
+     width and straight through the second row of tabs as soon as they
+     wrapped, which is every width below about 900px. */
+  padding: 0.3rem 0 0.45rem;
   color: var(--tk-mute);
   cursor: pointer;
   transition: color 0.3s var(--tk-ease);
@@ -170,7 +181,7 @@
 .filterTab::after {
   content: "";
   position: absolute;
-  bottom: -0.9rem;
+  bottom: 0;
   left: 0;
   height: 1px;
   width: 100%;
@@ -300,11 +311,7 @@
   transform: translate(-50%, -50%);
   border-radius: 999px;
   background: var(--tk-cyan);
-  box-shadow: 0 0 0 4px rgb(var(--c-obsidian-400) / 0.9);
-}
-
-:global(.light) .yearMark {
-  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.9);
+  box-shadow: 0 0 0 4px var(--tk-halo);
 }
 
 .yearLabel {
@@ -376,25 +383,16 @@
   height: 8px;
   width: 8px;
   transform: translate(-50%, -50%);
-  color: var(--tk-line);
+  color: var(--tk-node);
+  /* The halo is a ring on the mark itself, not a pseudo-element behind it.
+     `transform` makes the mark its own stacking context, and inside one a
+     negative-z-index child paints AFTER the element's background — so a
+     page-coloured disc there covered every node, leaving branches running to
+     nothing. Same technique as .yearMark, which is why that one always worked. */
+  box-shadow: 0 0 0 4px var(--tk-halo);
   transition:
     color 0.35s var(--tk-ease),
-    transform 0.35s var(--tk-ease);
-}
-
-/* A ring of page colour behind each mark, so the rail does not run visibly
-   through it. */
-.mark::after {
-  content: "";
-  position: absolute;
-  inset: -4px;
-  z-index: -1;
-  border-radius: 999px;
-  background: rgb(var(--c-obsidian-400));
-}
-
-:global(.light) .mark::after {
-  background: rgb(255 255 255);
+    box-shadow 0.35s var(--tk-ease);
 }
 
 .markDisc {
@@ -404,7 +402,9 @@
 
 .markRing {
   border-radius: 999px;
-  box-shadow: inset 0 0 0 1.5px currentColor;
+  box-shadow:
+    inset 0 0 0 1.5px currentColor,
+    0 0 0 4px var(--tk-halo);
 }
 
 .markSquare {

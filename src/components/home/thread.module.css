@@ -2,8 +2,18 @@
  * MOTION DNA THREAD — the hero's one interaction.
  *
  * Completely still at rest. The branches exist at different weights, and only
- * a pointer or a focus changes anything; each change is one 400ms transition.
- * Nothing here loops, pulses or drifts, because it sits under a headline.
+ * a pointer, a focus or a click changes anything. Nothing here loops, pulses
+ * or drifts, because it sits under a headline.
+ *
+ * TWO STATES, TWO WEIGHTS. A hover previews a branch; a click locks it. The
+ * locked reading keeps a filled marker, a hairline underline and a 4% ground
+ * so it is still obviously the selection while another is being previewed on
+ * top of it — that difference is what teaches a visitor the rows are a
+ * control rather than a caption.
+ *
+ * The horizontal signal stays the hero: everything added here is a weight, an
+ * opacity or a hairline. No glow beyond the branch itself, no boxes around
+ * the readings, no arrows and no icons.
  */
 
 .wrap {
@@ -33,13 +43,19 @@
   fill-opacity: 0.85;
 }
 
+/* ── The four branches ────────────────────────────────────────────────────
+   One easing for every weight change, slow enough to read as the signal
+   moving and short enough not to lag the pointer. */
 .branch {
   fill: none;
   stroke: #8ab4ff;
   stroke-opacity: 0.26;
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
-  transition: stroke-opacity 0.4s ease, stroke-width 0.4s ease;
+  transition:
+    stroke-opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    stroke-width 0.52s cubic-bezier(0.16, 1, 0.3, 1),
+    stroke 0.52s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .branchOn {
@@ -48,39 +64,174 @@
   stroke-width: 1.7;
 }
 
+/* Faded, not gone: the other three readings still exist, which is the point
+   of the visual. */
 .branchOff {
   stroke-opacity: 0.1;
 }
 
-/* ── The labels, which are the control ───────────────────────────────────── */
-.readings {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.4rem;
-  margin-top: 0.25rem;
+/* A locked branch that is not currently the previewed one holds a weight of
+   its own, so the selection is never invisible behind a preview. */
+.branchLocked:not(.branchOn) {
+  stroke: #9fd8ff;
+  stroke-opacity: 0.42;
+  stroke-width: 1.2;
 }
 
+/* ── The trace ──
+   One draw from the hub outward, replayed whenever the shown branch changes
+   (the element is remounted by its key). Additive only — the branch beneath
+   already carries the state, so losing this to reduced motion costs nothing
+   but the flourish. */
+.trace {
+  fill: none;
+  stroke: #dff3ff;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  animation: threadTrace 0.62s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes threadTrace {
+  from {
+    stroke-dashoffset: 1;
+    opacity: 0.9;
+  }
+  60% {
+    stroke-dashoffset: 0;
+    opacity: 0.75;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+/* ── LIGHT THEME ──────────────────────────────────────────────────────────
+   Every line above is a light on black: #7fd4ff at 0.62 and branches at 0.1
+   to 0.26 are a pale wash on #f6f8fc, so in the light theme the hero's own
+   visual all but disappeared. The geometry, the weights and the state model
+   are identical; only the values change, deepened to the light branch's
+   accents so they carry on paper. The dark theme above is untouched. */
+:global(.light) .signal {
+  stroke: #1b4ed9;
+  stroke-opacity: 0.7;
+}
+
+:global(.light) .hub {
+  fill: #0f3fa8;
+  fill-opacity: 0.9;
+}
+
+:global(.light) .branch {
+  stroke: #475569;
+  stroke-opacity: 0.34;
+}
+
+:global(.light) .branchOn {
+  stroke: #0f5ea8;
+  stroke-opacity: 0.95;
+}
+
+:global(.light) .branchOff {
+  stroke-opacity: 0.16;
+}
+
+:global(.light) .branchLocked:not(.branchOn) {
+  stroke: #1b4ed9;
+  stroke-opacity: 0.5;
+}
+
+:global(.light) .trace {
+  stroke: #0b4a86;
+}
+
+/* ── The microcopy ──
+   Six words, at note weight, immediately above the row it describes. It is
+   also the group's accessible name, so the instruction is not duplicated in
+   an aria-label that says something slightly different. */
+.hint {
+  margin-top: 0.5rem;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: rgb(var(--c-soft-mute) / 0.85);
+}
+
+/* ── The readings, which are the control ─────────────────────────────────── */
+.readings {
+  /* Two aligned columns rather than a wrapping row. Four rows of name +
+     purpose do not fit across 736px, so the flex version wrapped into an
+     uneven 2×2 whose second line started at a different x than the first —
+     which read as an accident. A grid puts the four markers on two axes. */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.1rem 0.75rem;
+  justify-items: start;
+  margin-top: 0.35rem;
+  /* Give back the padding the rows now carry, so the first marker still
+     lines up with the type above it. */
+  margin-inline: -0.5rem;
+}
+
+.readingItem {
+  display: flex;
+}
+
+/* The whole row is the target: marker, name and purpose. It was already one
+   button; what it lacked was any resting sign of being one, and room for a
+   selected ground to sit in.
+
+   It hugs its own text rather than filling the grid cell, so the hover ground
+   and the selected ground are the width of the reading and not the width of
+   the column — a 380px filled rectangle would read as a conventional button,
+   which this must not become. */
 .reading {
   display: inline-flex;
   align-items: baseline;
   gap: 0.45rem;
-  padding: 0.25rem 0;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.4rem;
+  border-bottom: 1px solid transparent;
+  background: transparent;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: rgb(var(--c-soft-mute));
-  transition: color 0.4s ease;
-}
-.reading:hover,
-.readingOn {
-  color: rgb(var(--c-soft-white));
-}
-.reading:focus-visible {
-  outline: 2px solid #4fd1ff;
-  outline-offset: 3px;
-  border-radius: 3px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    color 0.4s ease,
+    background-color 0.4s ease,
+    border-color 0.4s ease;
 }
 
+/* Hover and focus are the same state: a preview. */
+.reading:hover,
+.readingShown {
+  color: rgb(var(--c-soft-white));
+}
+
+.reading:hover {
+  background: var(--interactive-hover-bg);
+}
+
+/* Locked: the ground and the hairline stay after the pointer has gone. */
+.readingLocked {
+  color: rgb(var(--c-soft-white));
+  background: var(--interactive-selected-bg);
+  border-bottom-color: var(--interactive-selected-border);
+}
+
+.reading:focus-visible {
+  outline: 2px solid var(--interactive-focus-ring, #4fd1ff);
+  outline-offset: var(--interactive-focus-offset, 2px);
+}
+
+/* ── The marker ──
+   An open ring at rest, filled while previewed, filled and ringed while
+   locked. Three states in 5px, and no glow. */
 .dot {
   height: 5px;
   width: 5px;
@@ -88,22 +239,59 @@
   border-radius: 999px;
   border: 1px solid currentColor;
   transform: translateY(-1px);
-  transition: background-color 0.4s ease;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
 }
-.readingOn .dot {
+
+.reading:hover .dot,
+.readingShown .dot {
   background: #7fd4ff;
   border-color: #7fd4ff;
 }
 
+.readingLocked .dot {
+  background: #bfe9ff;
+  border-color: #bfe9ff;
+  /* One hairline halo on the one selected marker — the whole of the "glow"
+     this section is allowed. */
+  box-shadow: 0 0 0 2px rgb(79 209 255 / 0.22);
+}
+
+:global(.light) .reading:hover .dot,
+:global(.light) .readingShown .dot {
+  background: #0f5ea8;
+  border-color: #0f5ea8;
+}
+
+:global(.light) .readingLocked .dot {
+  background: #0b4a86;
+  border-color: #0b4a86;
+  box-shadow: 0 0 0 2px rgb(27 78 217 / 0.2);
+}
+
+.label {
+  white-space: nowrap;
+}
+
 /* The note is the second half of the point: it names the PURPOSE, which is
    what actually differs between the four. Hidden on a phone, where four notes
-   would be four extra lines under a headline. */
+   would be four extra lines under a headline. It brightens with its row,
+   a step behind the name so the two do not flatten into one weight. */
 .note {
   display: none;
   font-size: 11px;
   font-weight: 400;
   color: rgb(var(--c-soft-mute));
+  transition: color 0.4s ease;
 }
+
+.reading:hover .note,
+.readingShown .note {
+  color: rgb(var(--c-soft-gray));
+}
+
 @media (min-width: 900px) {
   .note {
     display: inline;
@@ -117,10 +305,24 @@
   color: rgb(var(--c-soft-mute));
 }
 
+/* TOUCH — no hover to rely on, so the tap target reaches the site's floor and
+   the resting state already shows everything a pointer would have revealed. */
+@media (pointer: coarse) {
+  .reading {
+    min-height: var(--interactive-touch-target, 44px);
+    align-items: center;
+    padding-inline: 0.6rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .branch,
   .reading,
-  .dot {
+  .dot,
+  .note {
     transition: none;
+  }
+  .trace {
+    display: none;
   }
 }

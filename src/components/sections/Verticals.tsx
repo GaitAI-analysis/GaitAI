@@ -1,17 +1,20 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
+import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { ThemeImage, ThemeVideo } from "@/components/ui/ThemeMedia";
+import { MobilityDashboardVisual } from "@/components/visuals/MobilityDashboardVisual";
+import { SecureOperationsVisual } from "@/components/visuals/SecureOperationsVisual";
+import type { ThemeMediaKey } from "@/lib/theme-media";
 import { capabilityIconById } from "@/components/icons/CapabilityIcons";
 import {
   mobilityProducts,
   secureProducts,
   type GaitProduct,
 } from "@/data/products";
-import { assetPath } from "@/lib/paths";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 36 },
@@ -45,10 +48,12 @@ interface FlagshipPanelProps {
   headlineAccent: string;
   description: string;
   href: string;
-  brandDark: string;
-  brandLight: string;
-  videoSrc: string;
-  videoPoster: string;
+  /** Key into `lib/theme-media.ts` for the product wordmark. */
+  brandKey: ThemeMediaKey;
+  /** Key into `lib/theme-media.ts` for the console footage. */
+  consoleKey: ThemeMediaKey;
+  /** What light mode draws in place of the dark film. */
+  lightConsole: ReactNode;
   visualLabel: string;
   /** Corner tag on the console surface. These are rendered demo footage,
    *  not a live feed, so the tag must not say "Live". */
@@ -147,10 +152,9 @@ function FlagshipPanel({
   headlineAccent,
   description,
   href,
-  brandDark,
-  brandLight,
-  videoSrc,
-  videoPoster,
+  brandKey,
+  consoleKey,
+  lightConsole,
   visualLabel,
   consoleTag,
   products,
@@ -185,20 +189,16 @@ function FlagshipPanel({
             {name}
           </h2>
           <p className="sr-only">{descriptor}</p>
+          {/* One image, resolved to the active theme. This used to be two
+              `<Image>` elements with `dark:hidden` on one of them, which
+              downloaded both PNGs for every visitor and showed one. */}
           <div className="relative h-20 w-full max-w-[17rem] sm:h-24 sm:max-w-[19rem]">
-            <Image
-              src={assetPath(brandLight)}
+            <ThemeImage
+              mediaKey={brandKey}
               alt={name}
               fill
               sizes="(max-width: 640px) calc(100vw - 5rem), 304px"
-              className="object-contain object-left dark:hidden"
-            />
-            <Image
-              src={assetPath(brandDark)}
-              alt={name}
-              fill
-              sizes="(max-width: 640px) calc(100vw - 5rem), 304px"
-              className="hidden object-contain object-left dark:block"
+              className="object-contain object-left"
             />
           </div>
         </header>
@@ -229,38 +229,33 @@ function FlagshipPanel({
           <div className="absolute right-5 top-4 z-10 rounded-md border border-white/10 bg-obsidian/70 px-2.5 py-1 font-mono text-[9px] text-soft-gray shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:right-7 sm:top-5 sm:text-[10px]">
             {consoleTag}
           </div>
-          {/* Animated console footage — reduced-motion users get the still
-              poster frame instead. The asset is a fixed dark cinematic
-              render, identical in light and dark mode.
+          {/* The console surface, per theme.
 
-              The illustrative-values pill that used to sit at bottom-left is gone.
-              It was the same badge repeated on top of every product visual on
-              the site, and stacked on footage that already carries a "· Demo"
-              tag in the opposite corner it read as chrome rather than as
-              disclosure. The disclosure itself is unchanged: the console tag
-              above still says "Demo", and the sr-only line below states in
-              full that this is illustrative footage with example values. */}
-          {reduceMotion ? (
-            <Image
-              src={assetPath(videoPoster)}
-              alt=""
-              fill
-              sizes="(max-width: 1024px) 100vw, 640px"
-              className="platform-console-video"
-            />
-          ) : (
-            <video
-              className="platform-console-video"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster={assetPath(videoPoster)}
-            >
-              <source src={assetPath(videoSrc)} type="video/mp4" />
-            </video>
-          )}
+              DARK plays the cinematic render, unchanged and frozen — the same
+              file, the same poster, the same framing that shipped.
+
+              LIGHT draws the vector console for this product instead. The film
+              is lit for a night laboratory: on a white page it read as a hole
+              punched through the panel, and dimming or brightening a
+              photographic asset would only have made it a grey hole. The
+              vector version carries the same subject — walking figure, pose
+              tracking, movement analytics, the product's own console — in the
+              light palette, at the same aspect in the same frame, and it costs
+              no download at all.
+
+              Reduced motion still gets a still frame of whichever source the
+              theme is actually showing, never the other theme's poster.
+
+              The disclosure is unchanged: the tag above says "Demo", and the
+              sr-only line below states in full that this is illustrative
+              footage with example values. */}
+          <ThemeVideo
+            mediaKey={consoleKey}
+            className="platform-console-video"
+            lightVisual={lightConsole}
+            reduceMotion={reduceMotion}
+            sizes="(max-width: 1024px) 100vw, 640px"
+          />
         </div>
         <p className="sr-only">
           The console above is illustrative demo footage with example values,
@@ -362,10 +357,9 @@ export function Verticals() {
             // is the design constraint: clinician-reviewable outputs.
             description="Camera-based gait assessment, rehabilitation tracking, fall-risk screening, sports movement analytics and smartwatch monitoring — every output structured for a clinician to review, not a black-box score."
             href="/mobilitycare"
-            brandDark="/assets/brand/mobilitycare/mobilitycare-dark.png"
-            brandLight="/assets/brand/mobilitycare/mobilitycare-light.png"
-            videoSrc="/assets/videos/platform/mobilitycare-intelligence.mp4"
-            videoPoster="/assets/videos/platform/mobilitycare-intelligence-poster.jpg"
+            brandKey="mobilityCareWordmark"
+            consoleKey="mobilityCareHome"
+            lightConsole={<MobilityDashboardVisual />}
             visualLabel="Clinical mobility console"
             consoleTag="WalkScan · Demo"
             products={mobilityHighlights}
@@ -383,10 +377,9 @@ export function Verticals() {
             headlineAccent="movement intelligence."
             description="Movement anomaly detection, crowd flow analytics, worker safety and post-event investigation — designed around privacy-first architecture, lawful deployment and auditability."
             href="/securevision"
-            brandDark="/assets/brand/securevision/securevision-dark.png"
-            brandLight="/assets/brand/securevision/securevision-light.png"
-            videoSrc="/assets/videos/platform/securevision-intelligence.mp4"
-            videoPoster="/assets/videos/platform/securevision-intelligence-poster.jpg"
+            brandKey="secureVisionWordmark"
+            consoleKey="secureVisionHome"
+            lightConsole={<SecureOperationsVisual />}
             visualLabel="Privacy-aware ops console"
             consoleTag="SecureVision · Demo"
             products={secureHighlights}

@@ -3366,6 +3366,106 @@ body {
 .light .hover\:shadow-glow:hover { box-shadow: 0 0 30px rgba(37, 99, 255, 0.22), 0 0 60px rgba(37, 99, 255, 0.1); }
 .light .hover\:shadow-glow-cyan:hover { box-shadow: 0 0 30px rgba(79, 209, 255, 0.28), 0 0 60px rgba(79, 209, 255, 0.12); }
 
+/* =========================================================================
+   VECTOR CONSOLES — the light-mode face of the two homepage family panels
+   -------------------------------------------------------------------------
+   Dark mode plays cinematic footage in these panels. Light mode draws
+   `MobilityDashboardVisual` / `SecureOperationsVisual` instead, because the
+   films are lit for a night laboratory and no amount of brightening turns
+   night footage into a daylight instrument.
+
+   Both components were written in dark-mode terms — neon strokes, white-alpha
+   surfaces — so rather than fork them, their accents are tokens and this is
+   where light re-points them. The defaults are exactly the values that were
+   hard-coded in the components, so dark renders as it always did.
+   ========================================================================= */
+
+.vector-console {
+  --vc-cyan: #4fd1ff;
+  --vc-teal: #0fa3b1;
+  --vc-deep: #0a6890;
+  --vc-paper: #ffffff;
+  --vc-blue: #5b8cff;
+  --vc-blue-deep: #2d6cdf;
+  --vc-amber: #fbbf24;
+  --vc-navy: #0b1f3a;
+}
+
+.light .vector-console {
+  /* Deeper cyan, teal and indigo: the neon values are invisible on paper.
+     These are the accents the light theme already uses elsewhere — #0e7490 is
+     its `text-cyan-300`, #0f766e its `text-teal-300` — so the consoles belong
+     to the same light palette as the page around them rather than being a
+     third colour scheme. */
+  --vc-cyan: #0e7490;
+  --vc-teal: #0f766e;
+  --vc-deep: #075985;
+  --vc-paper: #ffffff;
+  --vc-blue: #2d5bd7;
+  --vc-blue-deep: #1b3fa8;
+  --vc-amber: #b45309;
+  --vc-navy: #0f172a;
+}
+
+/* Surfaces the global light overrides do not already cover. Scoped to the
+   consoles so nothing else on the site changes. */
+.light .vector-console .bg-black\/55 {
+  background-color: rgb(255 255 255 / 0.88);
+}
+.light .vector-console .border-white\/12 {
+  border-color: rgb(15 23 42 / 0.13);
+}
+.light .vector-console .border-teal-300\/40 {
+  border-color: rgb(15 118 110 / 0.4);
+}
+.light .vector-console .border-amber-400\/40 {
+  border-color: rgb(180 83 9 / 0.38);
+}
+.light .vector-console .border-emerald-400\/30 {
+  border-color: rgb(4 120 87 / 0.32);
+}
+.light .vector-console .bg-amber-400\/10 {
+  background-color: rgb(180 83 9 / 0.1);
+}
+.light .vector-console .bg-emerald-400\/10 {
+  background-color: rgb(4 120 87 / 0.1);
+}
+.light .vector-console .bg-amber-400 {
+  background-color: #b45309;
+}
+.light .vector-console .bg-emerald-400 {
+  background-color: #047857;
+}
+.light .vector-console .text-amber-300,
+.light .vector-console .text-amber-300\/80 {
+  color: #92400e;
+}
+.light .vector-console .text-royal-300\/90 {
+  color: #1e40af;
+}
+
+/* ── Dark media islands (light mode) ────────────────────────────────────────
+   Some footage on this site is a fixed dark cinematic render with no light
+   counterpart — the Movement Studio's stage films, for instance. Rather than
+   let one sit on a pale panel as an unexplained dark rectangle, light mode
+   frames it: a pale mat inside the panel, a defined edge, and a soft shadow
+   so it reads as a screen being shown rather than a hole in the page. Dark
+   mode does not enter this block; there the footage meets a dark surface and
+   needs no mat at all. */
+.light .dark-media-island {
+  padding: 0.5rem;
+  border-color: rgb(15 23 42 / 0.12);
+  background: linear-gradient(180deg, rgb(241 245 250 / 1), rgb(232 238 246 / 1));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 14px 30px -22px rgb(15 23 42 / 0.4);
+}
+
+.light .dark-media-island > video,
+.light .dark-media-island > img {
+  border-radius: 0.55rem;
+}
+
 /* Mobile drawer backdrop in light mode */
 .light .bg-obsidian\/90 { background-color: rgb(246 248 252 / 0.96); }
 

@@ -310,7 +310,12 @@ export function MovementLab() {
 
 function StageVideo({ src, poster }: { src: string; poster?: string }) {
   return (
-    <figure className="relative overflow-hidden rounded-xl border border-white/[0.07]">
+    /* `dark-media-island`: this footage is a fixed dark cinematic render with
+       no light-mode counterpart, so in light mode it is framed as a
+       deliberate visualization panel — a pale mat, a defined edge and a soft
+       shadow — rather than left as a dark rectangle with a hairline round it.
+       See globals.css. */
+    <figure className="dark-media-island relative overflow-hidden rounded-xl border border-white/[0.07]">
       <video
         className="block h-auto w-full"
         src={assetPath(src)}

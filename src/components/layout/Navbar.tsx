@@ -16,6 +16,7 @@ import {
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
+import { AtlasTrigger } from "@/components/atlas/AtlasTrigger";
 import { SEARCH_EVENT } from "@/components/search/IntelligenceSearch";
 import { navLinks } from "@/data/content";
 import { cn } from "@/lib/utils";
@@ -295,6 +296,9 @@ export function Navbar() {
               {/* Opens the Cmd/Ctrl + K palette. md and up only — the
                   shortcut has no meaning on a phone. */}
               <SearchTrigger />
+              {/* The Atlas, one glyph wide. See AtlasTrigger for why this is
+                  not a seventh nav tab. */}
+              <AtlasTrigger />
               <ThemeToggle />
               <Link
                 href="/#contact"

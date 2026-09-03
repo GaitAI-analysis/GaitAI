@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AtlasLink } from "@/components/atlas/AtlasTrigger";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { GaitscapeExplorer } from "@/components/gaitscape/GaitscapeExplorer";
 import { CapabilityMatrix } from "@/components/gaitscape/CapabilityMatrix";
@@ -96,6 +97,10 @@ export default function GaitscapePage() {
             <Link href="/use-cases#explore" className="btn-ghost">
               Explore by environment →
             </Link>
+            {/* The other map. This one shows how the intelligence connects;
+                the Atlas shows where the pages are. Each is the obvious next
+                question from the other, so they link both ways. */}
+            <AtlasLink>View website structure → Atlas</AtlasLink>
           </div>
         </div>
       </section>

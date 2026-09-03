@@ -175,6 +175,15 @@ export async function toggleLike(slug: string, next: boolean): Promise<-1 | 0 | 
 }
 
 /**
+ * The exact count with thousands separators — "1,248 views" — for the article's
+ * own metadata row, where there is room for the real number and rounding a
+ * figure the reader is part of would be a small lie.
+ */
+export function formatExact(n: number, singular: string, plural = `${singular}s`) {
+  return `${n.toLocaleString("en-US")} ${n === 1 ? singular : plural}`;
+}
+
+/**
  * Editorial count formatting: "1 view", "24 views", "1.2K views".
  * Thousands are shown to one decimal, and a trailing ".0" is dropped so 12000
  * reads "12K" rather than "12.0K".

@@ -11,6 +11,7 @@ import { CATEGORY_META } from "@/lib/posts";
 import type { CommentDoc, Post, ReportDoc } from "@/lib/admin/panel-store";
 import { CategoryBadge } from "@/components/posts/CategoryBadge";
 import type { PanelTab } from "./ControlPanel";
+import { JournalViewsPanel } from "./JournalViewsPanel";
 import { StatCard, formatDate, timeAgo } from "./ui";
 
 export function OverviewView({
@@ -38,6 +39,10 @@ export function OverviewView({
 
   return (
     <div className="space-y-6">
+      {/* Journal view counters — read live from articleStats, so this and the
+          public counts come from one place. */}
+      <JournalViewsPanel />
+
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

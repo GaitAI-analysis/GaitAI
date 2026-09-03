@@ -19,6 +19,7 @@ import { TwoMinute } from "@/components/insights/TwoMinute";
 import { NextStory } from "@/components/insights/NextStory";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
 import { ArticleEngagement } from "@/components/insights/ArticleEngagement";
+import { ArticleViews } from "@/components/insights/ArticleViews";
 import { assetPath } from "@/lib/paths";
 import styles from "@/components/insights/journal.module.css";
 
@@ -211,6 +212,10 @@ export default function InsightArticlePage({
                 <time dateTime={article.date}>
                   {formatInsightDate(article.date)}
                 </time>
+                {/* Real view count, inline in this row. Client-only, so it
+                    appears once the counter is known and is simply absent
+                    before then — the row reads correctly either way. */}
+                <ArticleViews slug={article.slug} />
                 <span aria-hidden="true" className={styles.articleKickerRule} />
               </p>
 

@@ -74,6 +74,9 @@
   animation: tgFade 0.24s ease both;
 }
 
+/* The panel is the scroll area. Its children are chrome and content at their
+   natural height — see the note on `.rail` for what happened when they were
+   allowed to shrink. */
 .panel {
   position: relative;
   display: flex;
@@ -103,10 +106,21 @@
     border-radius: 1.25rem 1.25rem 0 0;
     border-bottom: 0;
   }
+  /* Thumbs, not cursors. The row still scrolls, so all five stages stay
+     reachable at 375px without the labels being compressed. */
+  .rail {
+    min-height: 3.75rem;
+    padding-inline: 1.1rem;
+    scroll-padding-inline: 1.1rem;
+  }
+  .step {
+    min-height: 2.5rem;
+  }
 }
 
 .head {
   display: flex;
+  flex: none;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
@@ -158,13 +172,43 @@
 }
 
 /* ── Stage rail ───────────────────────────────────────────────────────── */
+/*
+ * WHY `flex: none` AND `min-height` ARE BOTH HERE, AND WHY IT WAS BROKEN.
+ *
+ * This row is a flex item of `.panel`, which is a column flex container with
+ * `max-height: min(92vh, 46rem)`. The row also scrolls horizontally, and that
+ * is what made it collapse: setting `overflow-x` makes an element a scroll
+ * container, a scroll container's automatic minimum size resolves to zero
+ * rather than to its content, and a flex item defaults to `flex-shrink: 1`.
+ * So on any viewport short enough for the panel to reach its max height — a
+ * 1440x700 laptop window was enough — the rail was the item that gave way. It
+ * went from 62px to 30px against 42px of content: the pills dropped from 32px
+ * to 13px, clearance under them from 15.4px to 2.2px, the labels were cropped
+ * top and bottom against the header rule and this row's own bottom border, and
+ * the cyan outline on the selected stage was clipped on all five.
+ *
+ * `flex: none` is the actual fix — the row's height comes from its content,
+ * never from what is left over. The `min-height` is not a workaround for that;
+ * it guarantees the row a clean band of its own so the divider never runs
+ * close to type, and it is what keeps the focus ring (2px, offset 2px) inside
+ * the padding box now that the padding cannot be squeezed away.
+ *
+ * `overflow-x` stays: five stages do not fit a 375px sheet, and scrolling
+ * them is better than shrinking the labels until they clip.
+ */
 .rail {
   display: flex;
+  flex: none;
+  align-items: center;
   gap: 0.4rem;
+  min-height: 3.5rem;
   overflow-x: auto;
-  padding: 0.9rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   border-bottom: 1px solid rgb(148 163 184 / 0.12);
   scrollbar-width: none;
+  /* Keyboard focus moves along the rail; this keeps a pill from stopping
+     half under the padding edge when it is scrolled into view. */
+  scroll-padding-inline: 1.5rem;
 }
 .rail::-webkit-scrollbar {
   display: none;
@@ -173,8 +217,11 @@
 .step {
   display: flex;
   flex-shrink: 0;
-  align-items: baseline;
+  /* Centred rather than stretched: with `align-items: normal` on the rail
+     these pills took the rail's height, so they shrank with it. */
+  align-items: center;
   gap: 0.45rem;
+  min-height: 2rem;
   border-radius: 999px;
   border: 1px solid transparent;
   padding: 0.35rem 0.8rem;
@@ -218,6 +265,7 @@
 
 /* ── The stage ────────────────────────────────────────────────────────── */
 .stage {
+  flex: none;
   padding: 1.25rem 1.5rem 0;
 }
 
@@ -252,6 +300,7 @@
 
 /* ── Footer ───────────────────────────────────────────────────────────── */
 .foot {
+  flex: none;
   padding: 1.25rem 1.5rem 1.4rem;
 }
 

@@ -52,6 +52,7 @@ export function TryGaitAI() {
   const [open, setOpen] = useState(false);
   const [stage, setStage] = useState(0);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const railRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const close = useCallback(() => {
@@ -75,9 +76,30 @@ export function TryGaitAI() {
     };
   }, [open, close]);
 
+  /**
+   * Arrow keys along the rail, with focus following selection.
+   *
+   * The tabs use a roving tabIndex — only the selected one is tabbable — so
+   * changing the selection without moving focus left it on a tab that had
+   * just become `tabIndex={-1}`: the focus ring stayed behind on a stage that
+   * was no longer the current one, and the next Tab left the rail entirely.
+   * Home and End are here because a five-tab rail is exactly where they are
+   * expected.
+   */
   const onRailKey = (event: React.KeyboardEvent) => {
-    if (event.key === "ArrowRight") setStage((s) => Math.min(s + 1, STAGES.length - 1));
-    if (event.key === "ArrowLeft") setStage((s) => Math.max(s - 1, 0));
+    const last = STAGES.length - 1;
+    let next: number | null = null;
+    if (event.key === "ArrowRight") next = Math.min(stage + 1, last);
+    else if (event.key === "ArrowLeft") next = Math.max(stage - 1, 0);
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = last;
+    if (next === null) return;
+
+    event.preventDefault();
+    setStage(next);
+    railRef.current
+      ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+      [next]?.focus();
   };
 
   return (
@@ -130,6 +152,7 @@ export function TryGaitAI() {
 
             {/* ── the stage rail ── */}
             <div
+              ref={railRef}
               role="tablist"
               aria-label="Demo stages"
               onKeyDown={onRailKey}
@@ -138,6 +161,7 @@ export function TryGaitAI() {
               {STAGES.map((item, i) => (
                 <button
                   key={item.id}
+                  type="button"
                   role="tab"
                   aria-selected={i === stage}
                   aria-controls="try-gaitai-stage"

@@ -40,7 +40,10 @@ import styles from "./labHero.module.css";
  */
 
 const W = 620;
-const H = 560;
+/* 490, not 560: the pipeline rail used to occupy 508–530 below the frame and
+   is now HTML underneath the drawing. The frame's corner ticks close at 470,
+   so this is the composition plus its own breathing room and nothing else. */
+const H = 490;
 
 /* ── The walking sequence ── */
 const SEQ_Y = 236;
@@ -154,12 +157,73 @@ function kneeFlexion(t: number) {
   return 0.06 + 0.26 * bump(0.14, 0.09) + 0.92 * bump(0.73, 0.12);
 }
 
-const PIPELINE = [
-  { label: "Pose", x: 96 },
-  { label: "Signals", x: 226 },
-  { label: "Features", x: 356 },
-  { label: "Intelligence", x: 496 },
-];
+/**
+ * THE PIPELINE RAIL — four stages, and no coordinates.
+ *
+ * These used to carry an `x` each (96, 226, 356, 496) and be drawn as SVG
+ * `<text>` on the same baseline as a right-anchored caption at x=568. The
+ * caption — "PIPELINE · 23 MODULES" — is about 114 units wide at that font
+ * size and tracking, so right-anchored it ran back to x≈454 and straight
+ * over the fourth label, which is centred at 496 and spans 462→530. The two
+ * strings were superimposed for their whole length: read together they
+ * produced the "PIPELINEINTELLIGENCE MODULES" in the bug report.
+ *
+ * So the rail is no longer drawn in the SVG at all. It is a CSS grid below
+ * it, one column per stage, and each label is centred in its OWN column —
+ * which is what makes a collision structurally impossible rather than
+ * arithmetically avoided. The last column is given extra width because its
+ * label is the longest, and the label is allowed to wrap onto two lines
+ * rather than being shrunk to fit one.
+ *
+ * It also fixes the thing that made this worse at narrower widths: SVG text
+ * scales with the viewBox, so a 7.5px label in a 620-unit drawing rendered at
+ * 350px was on screen at about 4px. HTML type does not scale with the
+ * drawing; it is 9.5px everywhere.
+ */
+const PIPELINE = ["Pose", "Signals", "Features", "Intelligence modules"];
+
+/**
+ * The rail, as layout rather than as drawing.
+ *
+ * DESKTOP — a grid, one column per stage, each label centred in its own
+ * column with `text-align: center`. The track and the nodes are drawn from
+ * the same grid, so a node and its label cannot drift apart: they are the
+ * same column. The final column is wider (see `.rail` in the stylesheet),
+ * because its label is the longest, and it wraps to two lines.
+ *
+ * MOBILE — the same markup, re-laid-out vertically. Four labels of this
+ * length cannot share 350px of width legibly, and shrinking the type until
+ * they fit is what produced 4px text before. So below 640px the grid becomes
+ * one column, the track runs down the left, and each label sits beside its
+ * own node. No labels ever share a line, at any width.
+ */
+function PipelineRail() {
+  return (
+    <div className={styles.rail}>
+      <ol className={styles.railStages}>
+        {PIPELINE.map((label, i) => {
+          const last = i === PIPELINE.length - 1;
+          return (
+            <li key={label} className={styles.railStage}>
+              {/* The connecting track is drawn by ::before/::after on this
+                  item — each stage owns the line across its own column and
+                  nothing else, so the segments meet on the column boundary
+                  whatever the columns are worth. See .railStage::before. */}
+              <span
+                aria-hidden="true"
+                className={last ? styles.railNodeOut : styles.railNode}
+              />
+              <span className={styles.railLabel}>{label}</span>
+            </li>
+          );
+        })}
+      </ol>
+      <p className={styles.railCaption}>
+        Pipeline · {MODULE_COUNT} modules
+      </p>
+    </div>
+  );
+}
 
 export function LabHeroInstrument({ className }: { className?: string }) {
   const hip = trajectory((p) => p.nearLeg[0]);
@@ -175,11 +239,12 @@ export function LabHeroInstrument({ className }: { className?: string }) {
   }).join(" ");
 
   return (
+    <div className={`${styles.instrumentWrap} ${className ?? ""}`}>
     <svg
       role="img"
       aria-label="An illustrative walking sequence in five gait phases, with hip, knee, ankle and centre-of-mass trajectories, an extracted knee-flexion signal, stride markers and a cadence readout, feeding a pose to signals to features to intelligence pipeline."
       viewBox={`0 0 ${W} ${H}`}
-      className={`${styles.instrument} ${className ?? ""}`}
+      className={styles.instrument}
     >
       {/* ── Measurement ground ── */}
       <g className={styles.grid}>
@@ -284,24 +349,6 @@ export function LabHeroInstrument({ className }: { className?: string }) {
         })}
       </g>
 
-      {/* ── Stage 4 · the pipeline ── */}
-      <line className={styles.pipeRail} x1={96} y1={508} x2={496} y2={508} />
-      {PIPELINE.map((stage, i) => (
-        <g key={stage.label}>
-          <circle
-            className={i === PIPELINE.length - 1 ? styles.pipeNodeOut : styles.pipeNode}
-            cx={stage.x}
-            cy={508}
-            r={i === PIPELINE.length - 1 ? 5 : 3.6}
-          />
-          <text className={styles.pipeLabel} x={stage.x} y={530}>
-            {stage.label}
-          </text>
-        </g>
-      ))}
-      {/* One pulse, travelling the rail once per cycle. */}
-      <circle className={styles.pulse} cx={96} cy={508} r={3.4} />
-
       {/* ── Instrumentation annotations. Real constants only. ── */}
       <g className={styles.meta}>
         <text x={568} y={58} textAnchor="end">
@@ -310,10 +357,10 @@ export function LabHeroInstrument({ className }: { className?: string }) {
         <text x={568} y={318} textAnchor="end">
           CAPABILITY LAYER · {CAPABILITY_COUNT}
         </text>
-        <text x={568} y={530} textAnchor="end">
-          PIPELINE · {MODULE_COUNT} MODULES
-        </text>
       </g>
     </svg>
+
+      <PipelineRail />
+    </div>
   );
 }

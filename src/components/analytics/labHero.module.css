@@ -11,10 +11,11 @@
    between 20% and 45%, and the grid at 6%. That hierarchy is what makes five
    figures read as one person over time instead of a row of five people.
 
-   ANIMATION IS OPTIONAL, NOT LOAD-BEARING. One pulse crosses the pipeline
-   rail, the knee-flexion trace draws once, and the lead pose's joints breathe
-   very slightly. Everything is fully legible with all of it switched off,
-   which is the state prefers-reduced-motion gets.
+   ANIMATION IS OPTIONAL, NOT LOAD-BEARING. The knee-flexion trace draws once
+   and the lead pose's joints breathe very slightly. Everything is fully
+   legible with all of it switched off, which is the state
+   prefers-reduced-motion gets. (The pulse that used to travel the pipeline
+   rail went with the rail, which is HTML now — see THE PIPELINE RAIL below.)
    ========================================================================== */
 
 .instrument {
@@ -22,7 +23,14 @@
   width: 100%;
   height: auto;
   overflow: visible;
+}
 
+/* The palette lives on the WRAPPER, not on the svg: the pipeline rail is an
+   HTML sibling of the drawing now, and it has to read the same accents. When
+   these were declared on `.instrument` the rail resolved every one of them to
+   an invalid value — the nodes lost their cyan and the labels fell back to
+   whatever the page happened to be inheriting. */
+.instrumentWrap {
   --lh-cyan: #4fd1ff;
   --lh-teal: #2dd4bf;
   --lh-blue: #5587ff;
@@ -32,7 +40,7 @@
   --lh-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-:global(.light) .instrument {
+:global(.light) .instrumentWrap {
   --lh-cyan: #0e7490;
   --lh-teal: #0f766e;
   --lh-blue: #2563ff;
@@ -203,67 +211,155 @@
 }
 
 /* ── Pipeline ── */
-.pipeRail {
-  stroke: var(--lh-mute);
-  stroke-width: 1;
+/* ==========================================================================
+   THE PIPELINE RAIL — layout, not drawing
+   --------------------------------------------------------------------------
+   This was four SVG <text> nodes at hand-typed x coordinates (96, 226, 356,
+   496) on the same baseline as a right-anchored caption at x=568. The caption
+   was wide enough to run back over the fourth label and the two were drawn on
+   top of each other — the reported "PIPELINEINTELLIGENCE MODULES".
+
+   Now: a grid, one column per stage. A label is centred in its own column, so
+   it cannot reach a neighbour's, and a node and its label cannot drift apart
+   because they are the same column. The last column is wider because its
+   label is the longest, and the label wraps rather than shrinking.
+
+   The type is also no longer inside a scaling viewBox. SVG text scales with
+   the drawing, which put these labels on screen at ~4px in the 640–1024px
+   band; 9.5px HTML is 9.5px at every width.
+   ========================================================================== */
+
+/* Layout only — the palette is declared with the tokens above. */
+.instrumentWrap {
+  display: grid;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.rail {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.railStages {
+  display: grid;
+  /* Four intentional columns, not four equal ones: the last label is
+     "Intelligence modules" against "Pose", so it is given 1.5 shares. That is
+     what buys the final stage its own horizontal space, per the brief, without
+     widening the whole instrument to suit one word. */
+  grid-template-columns: 1fr 1fr 1fr 1.5fr;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.railStage {
+  position: relative;
+  display: grid;
+  /* node row, then label row — so every label starts at the same baseline
+     regardless of how many lines the one beside it takes. */
+  grid-template-rows: auto auto;
+  justify-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding-top: 0.45rem;
+}
+
+/* THE CONNECTING TRACK, DRAWN IN HALVES.
+   Each stage draws the line across its OWN column only — one half from the
+   column's left edge to its centre, one from the centre to its right edge.
+   Adjacent halves meet exactly on the shared column boundary, whatever the
+   columns are worth, so the track is continuous without any rule knowing a
+   neighbour's width. A single `left: -50%` span cannot do that: -50% of a
+   1.5fr column is not half of the 1fr column beside it, which left a gap in
+   one segment and an overshoot in another.
+
+   The first stage has no half to its left and the last none to its right. */
+.railStage::before,
+.railStage::after {
+  content: "";
+  position: absolute;
+  top: 0.45rem;
+  height: 1px;
+  transform: translateY(3.5px);
+  background: var(--lh-mute);
   opacity: 0.28;
 }
 
-.pipeNode {
-  fill: none;
-  stroke: var(--lh-cyan);
-  stroke-width: 1.4;
+.railStage::before {
+  left: 0;
+  right: 50%;
+}
+
+.railStage::after {
+  left: 50%;
+  right: 0;
+}
+
+.railStage:first-child::before,
+.railStage:last-child::after {
+  content: none;
+}
+
+.railNode {
+  display: block;
+  height: 8px;
+  width: 8px;
+  border-radius: 999px;
+  border: 1.4px solid var(--lh-cyan);
+  background: transparent;
   opacity: 0.85;
 }
 
 /* The output end is the one violet mark in the drawing. */
-.pipeNodeOut {
-  fill: var(--lh-violet);
+.railNodeOut {
+  display: block;
+  height: 10px;
+  width: 10px;
+  border-radius: 999px;
+  background: var(--lh-violet);
   opacity: 0.9;
 }
 
-.pipeLabel {
-  fill: var(--lh-mute);
+.railLabel {
+  /* The site's technical label style, unchanged in family, weight and case. */
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--lh-mute);
+  opacity: 0.8;
+  /* Wrapping is the point: two lines is the designed outcome for the last
+     label, not a failure mode to be avoided by shrinking the type. */
+  text-wrap: balance;
+  min-width: 0;
+}
+
+/* The longest label gets slightly tighter tracking so its two lines sit
+   closer to the width of its column. Same font size as every other label. */
+.railStage:last-child .railLabel {
+  letter-spacing: 0.1em;
+}
+
+.railCaption {
+  margin: 0;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 7.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  text-anchor: middle;
-  opacity: 0.8;
-}
-
-.pulse {
-  fill: var(--lh-gold);
-  opacity: 0;
-  animation: lhPulse 6.5s var(--lh-ease) infinite;
+  text-align: right;
+  color: var(--lh-mute);
+  opacity: 0.7;
 }
 
 /* ── Motion ── */
 @keyframes lhDraw {
   to {
     stroke-dashoffset: 0;
-  }
-}
-
-@keyframes lhPulse {
-  0% {
-    transform: translateX(0);
-    opacity: 0;
-  }
-  8% {
-    opacity: 0.95;
-  }
-  55% {
-    transform: translateX(400px);
-    opacity: 0.95;
-  }
-  66% {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateX(400px);
-    opacity: 0;
   }
 }
 
@@ -288,11 +384,6 @@
     animation: none;
     opacity: 1;
   }
-  .pulse {
-    animation: none;
-    opacity: 0.9;
-    transform: translateX(400px);
-  }
 }
 
 /* ── Small screens ───────────────────────────────────────────────────────
@@ -301,8 +392,8 @@
    drawing is SIMPLIFIED rather than shrunk: the two outer poses, the
    trajectory end-labels, the cadence row and the instrumentation annotations
    drop out, and what remains is the three-pose sequence, the trajectories, one
-   waveform, the stride marks and the pose to intelligence pipeline — with its
-   remaining type set larger so it is still readable at that scale. */
+   waveform and the stride marks — with its remaining type set larger so it is
+   still readable at that scale. */
 @media (max-width: 639px) {
   .poseOuter,
   .trailLabels,
@@ -316,13 +407,76 @@
     letter-spacing: 0.18em;
   }
 
-  .signalName,
-  .pipeLabel {
+  .signalName {
     font-size: 11px;
     letter-spacing: 0.12em;
   }
 
   .ticks path {
     opacity: 0.5;
+  }
+
+  /* ── The rail goes vertical ──
+     Four labels of this length cannot share 350px legibly, and shrinking the
+     type until they do is what produced 4px text before. Same markup, one
+     column: the track runs down the left, each node sits on it, and each
+     label sits beside its own node with room to be read. */
+  .railStages {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+
+  .railStage {
+    grid-template-rows: auto;
+    grid-template-columns: 12px 1fr;
+    align-items: center;
+    justify-items: start;
+    gap: 0.7rem;
+    padding-top: 0;
+    min-height: 2rem;
+  }
+
+  /* Vertical: the halves run up and down the node column instead of left and
+     right, and meet on the shared row boundary the same way. */
+  .railStage::before,
+  .railStage::after {
+    left: 5px;
+    right: auto;
+    width: 1px;
+    height: auto;
+    transform: none;
+  }
+
+  .railStage::before {
+    top: 0;
+    bottom: 50%;
+  }
+
+  .railStage::after {
+    top: 50%;
+    bottom: 0;
+  }
+
+  .railNode,
+  .railNodeOut {
+    justify-self: center;
+  }
+
+  .railLabel {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-align: left;
+    text-wrap: initial;
+  }
+
+  /* On one line each, tracking has nothing to buy back. */
+  .railStage:last-child .railLabel {
+    letter-spacing: 0.12em;
+  }
+
+  .railCaption {
+    text-align: left;
+    font-size: 9px;
+    padding-left: calc(12px + 0.7rem);
   }
 }

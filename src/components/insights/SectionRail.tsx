@@ -87,7 +87,7 @@ export function SectionRail({
         aria-label="Sections"
         className={`${styles.rail} site-sticky-below-header`}
       >
-        <p className={styles.railLabel}>In this essay</p>
+        <p className={styles.railLabel}>In this article</p>
         <ol className={styles.railList}>
           {sections.map((section, i) => (
             <li key={section.id}>

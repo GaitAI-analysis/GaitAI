@@ -1,5 +1,5 @@
 /**
- * GaitAI Insights — the editorial layer.
+ * The GaitAI Journal — the editorial layer. (Route stays /insights.)
  *
  * Long-form essays and research notes are authored here as structured content
  * rather than free-form markdown, so every article renders through one shared
@@ -27,6 +27,63 @@ export const TOPIC_FILTERS: Array<{ key: InsightTopic | "all"; label: string }> 
   { key: "mobility", label: "Mobility" },
   { key: "research", label: "Research" },
 ];
+
+/**
+ * POST TYPE — what a piece IS, as against what it is about.
+ *
+ * `topics` answer "what subject", and they stay: they are the journal's
+ * secondary tags. This answers "what kind of writing", which is the question a
+ * reader of a publication asks first — an essay, a research note and a product
+ * update are read differently even when they share a subject.
+ *
+ * The full set is declared here because the journal's remit covers product,
+ * engineering and company writing; only the types that actually have a
+ * published piece are ever offered as a filter or a section heading. Nothing
+ * on this page invents a category the archive cannot fill.
+ */
+export type PostType =
+  | "essay"
+  | "research"
+  | "product"
+  | "engineering"
+  | "update"
+  | "announcement";
+
+/** Singular — the label a card and an article carry. */
+export const POST_TYPE_LABEL: Record<PostType, string> = {
+  essay: "Technical Essay",
+  research: "Research Note",
+  product: "Product Update",
+  engineering: "Engineering Note",
+  update: "From GaitAI",
+  announcement: "Announcement",
+};
+
+/** Plural — the label a filter chip and a section heading carry. */
+export const POST_TYPE_PLURAL: Record<PostType, string> = {
+  essay: "Essays",
+  research: "Research notes",
+  product: "Product updates",
+  engineering: "Engineering",
+  update: "Updates",
+  announcement: "Announcements",
+};
+
+/** Display order for filters and headings. */
+export const POST_TYPE_ORDER: PostType[] = [
+  "essay",
+  "research",
+  "product",
+  "engineering",
+  "update",
+  "announcement",
+];
+
+/** The types with at least one published piece — the only ones ever shown. */
+export const activePostTypes = (): PostType[] =>
+  POST_TYPE_ORDER.filter((type) =>
+    insightArticles.some((article) => article.postType === type),
+  );
 
 /** Inline text supports **bold** and [label](/href). */
 export type InsightBlock =
@@ -99,7 +156,12 @@ export interface InsightArticle {
   subtitle?: string;
   /** Standfirst under the headline. */
   deck: string;
-  /** Editorial category label. */
+  /**
+   * What kind of piece this is — the journal's primary taxonomy. Drives the
+   * card label, the type filter and the section headings.
+   */
+  postType: PostType;
+  /** Editorial category label — the subject, shown beside the post type. */
   category: string;
   /** Filter buckets this article belongs to. */
   topics: InsightTopic[];
@@ -156,6 +218,7 @@ export const insightArticles: InsightArticle[] = [
     subtitle: "What actually happens inside GaitAI",
     deck:
       "Capture, pose estimation, gait features, sensor fusion, quality control and output — the sequence of transformations that turns an ordinary walking sequence into something a clinician, researcher or operator can act on.",
+    postType: "essay",
     category: "Technical Essay",
     topics: ["movement-intelligence", "research"],
     date: "2026-08-26",
@@ -519,6 +582,7 @@ export const insightArticles: InsightArticle[] = [
     titleAccent: "More Than a Biometric",
     deck:
       "Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find.",
+    postType: "research",
     category: "Research Note",
     topics: ["movement-intelligence", "mobility", "research"],
     date: "2026-08-19",
@@ -769,6 +833,7 @@ export const insightArticles: InsightArticle[] = [
     titleAccent: "Without Identifying the Person?",
     deck:
       "Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs — and then declines to retain the rest.",
+    postType: "essay",
     category: "Responsible AI",
     topics: ["responsible-ai", "movement-intelligence"],
     date: "2026-08-12",
@@ -1018,6 +1083,7 @@ export const insightArticles: InsightArticle[] = [
     subtitle: "Why mobility must be measured over time",
     deck:
       "A single assessment describes how someone moves today. Longitudinal movement analysis asks the more useful question — how is that movement changing, relative to this person's own history?",
+    postType: "essay",
     category: "Clinical Movement Intelligence",
     topics: ["mobility", "movement-intelligence"],
     date: "2026-08-05",
@@ -1264,6 +1330,7 @@ export const insightArticles: InsightArticle[] = [
     subtitle: "Five questions to ask before trusting a multimodal AI model",
     deck:
       "More modalities and more elaborate fusion do not automatically mean better evidence. Five questions that separate a genuinely convincing multimodal result from a well-decorated benchmark number.",
+    postType: "research",
     category: "Research Note",
     topics: ["research", "responsible-ai"],
     date: "2026-07-29",

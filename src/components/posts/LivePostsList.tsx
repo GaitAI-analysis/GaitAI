@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * The Insights list — reads posts straight from Firestore.
+ * The Journal list — reads posts straight from Firestore.
  *
  * Firestore is the single source of truth. Only posts explicitly marked as
  * verified are requested by this public surface.
@@ -16,7 +16,7 @@ import type { Post } from "@/lib/posts";
  * `hideWhenEmpty` lets a page mount the live list alongside other content: the
  * component renders nothing while loading, on failure, or when there are no
  * verified posts, instead of occupying the page with a skeleton or an empty
- * state. Used by the Insights landing, which leads with its editorial library.
+ * state. Used by the Journal landing, which leads with its editorial library.
  */
 export function LivePostsList({
   hideWhenEmpty = false,

@@ -194,7 +194,7 @@ export function LivePostView({ slug }: { slug: string }) {
             href="/insights"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-cyan-300 transition-colors hover:text-soft-white"
           >
-            Browse all insights
+            Browse the Journal
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -241,7 +241,7 @@ function NotFoundBlock() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/insights" className="btn-primary">
-            Browse all insights
+            Browse the Journal
           </Link>
           <Link href="/" className="btn-ghost">
             Go home

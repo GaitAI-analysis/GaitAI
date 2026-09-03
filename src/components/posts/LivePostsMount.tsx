@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Client-only, lazily-mounted host for the live Insights list.
+ * Client-only, lazily-mounted host for the live Journal list.
  *
  * `LivePostsList` reads Firestore, so importing it directly puts the whole
  * Firebase client SDK on the critical path of /insights — the route was

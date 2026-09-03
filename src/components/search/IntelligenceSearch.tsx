@@ -199,7 +199,7 @@ export function IntelligenceSearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products, capabilities, environments, research…"
-            aria-label="Search products, capabilities, environments, research, publications and insights"
+            aria-label="Search products, capabilities, environments, research, publications and journal stories"
             className={styles.input}
           />
           <kbd className={styles.esc}>Esc</kbd>

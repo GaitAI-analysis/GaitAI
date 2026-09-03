@@ -3,7 +3,7 @@
 /**
  * GaitAI Admin Control Panel — /admin-controlpanel
  *
- * Single place to manage everything shown on the public Insights and
+ * Single place to manage everything shown on the public Journal and
  * Publications pages: content (posts / blogs) and community moderation
  * (comments: hide / delete, plus reader reports).
  *
@@ -47,7 +47,7 @@ const NAV: { id: PanelTab; label: string; icon: React.ReactNode; sub: string }[]
       id: "content",
       label: "Content Studio",
       icon: <FileText className="h-4 w-4" />,
-      sub: "Insights & publications",
+      sub: "Journal & publications",
     },
     {
       id: "comments",

@@ -71,7 +71,7 @@ export function NextStory({
           href="/insights"
           className="text-cyan-300 underline decoration-cyan-300/35 underline-offset-4"
         >
-          GaitAI Insights
+          The GaitAI Journal
         </Link>
         .
       </p>

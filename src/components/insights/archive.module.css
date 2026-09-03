@@ -107,6 +107,11 @@
   color: var(--jr-mute);
 }
 
+/* The coverage line and the dated line sit together as one block. */
+.mastheadMeta + .mastheadMeta {
+  margin-top: 0.4rem;
+}
+
 /* ── Controls ── */
 .controls {
   display: flex;
@@ -152,6 +157,31 @@
 .search:focus {
   outline: none;
   border-color: var(--jr-cyan);
+}
+
+/* ── Filters ── */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 1.1rem;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.7rem;
+}
+
+/* Fixed width so the two chip rows start on the same vertical line. */
+.filterLabel {
+  flex: 0 0 2.9rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
 }
 
 .topics {

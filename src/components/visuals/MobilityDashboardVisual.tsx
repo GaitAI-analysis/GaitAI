@@ -27,7 +27,7 @@ export function MobilityDashboardVisual() {
   return (
     <div
       ref={visualRef}
-      className="absolute inset-0 flex items-center justify-center overflow-hidden px-4 pb-4 pt-[4.25rem] sm:px-5"
+      className="vector-console absolute inset-0 flex items-center justify-center overflow-hidden px-4 pb-4 pt-[4.25rem] sm:px-5"
     >
       <div className="grid w-[calc(100%+2rem)] min-w-[320px] max-w-[510px] grid-cols-[1.58fr_1fr] gap-3">
         {/* ─────────── LEFT: Walking figure dashboard card ─────────── */}
@@ -171,12 +171,12 @@ function WalkingFigure({
     <svg viewBox="0 0 220 180" className="h-full w-full">
       <defs>
         <linearGradient id="bone-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#0FA3B1" />
-          <stop offset="100%" stopColor="#4FD1FF" />
+          <stop offset="0%" stopColor="var(--vc-teal)" />
+          <stop offset="100%" stopColor="var(--vc-cyan)" />
         </linearGradient>
         <radialGradient id="figure-glow" cx="50%" cy="60%" r="60%">
-          <stop offset="0%" stopColor="#0FA3B1" stopOpacity="0.18" />
-          <stop offset="100%" stopColor="#0FA3B1" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--vc-teal)" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="var(--vc-teal)" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -185,12 +185,12 @@ function WalkingFigure({
       {/* Motion trail (faint duplicates trailing behind) */}
       <g opacity="0.18">
         {joints.map(([x, y], i) => (
-          <circle key={`trail-${i}`} cx={x - 14} cy={y} r="2" fill="#4FD1FF" />
+          <circle key={`trail-${i}`} cx={x - 14} cy={y} r="2" fill="var(--vc-cyan)" />
         ))}
       </g>
       <g opacity="0.32">
         {joints.map(([x, y], i) => (
-          <circle key={`trail2-${i}`} cx={x - 7} cy={y} r="2" fill="#4FD1FF" />
+          <circle key={`trail2-${i}`} cx={x - 7} cy={y} r="2" fill="var(--vc-cyan)" />
         ))}
       </g>
 
@@ -243,8 +243,8 @@ function WalkingFigure({
           cx={x}
           cy={y}
           r="2.4"
-          fill="#fff"
-          stroke="#0FA3B1"
+          fill="var(--vc-paper)"
+          stroke="var(--vc-teal)"
           strokeWidth="1"
           initial={false}
           animate={
@@ -254,7 +254,7 @@ function WalkingFigure({
             delay: reduceMotion ? 0 : 0.35 + i * 0.03,
             duration: reduceMotion ? 0 : 0.3,
           }}
-          style={{ filter: "drop-shadow(0 0 2px #0FA3B1)" }}
+          style={{ filter: "drop-shadow(0 0 2px var(--vc-teal))" }}
         />
       ))}
 
@@ -264,10 +264,10 @@ function WalkingFigure({
         animate={show ? { opacity: 1 } : { opacity: 0 }}
         transition={{ delay: reduceMotion ? 0 : 1.0, duration: reduceMotion ? 0 : 0.3 }}
       >
-        <line x1="170" y1="100" x2="200" y2="100" stroke="#4FD1FF" strokeWidth="1" opacity="0.6" />
+        <line x1="170" y1="100" x2="200" y2="100" stroke="var(--vc-cyan)" strokeWidth="1" opacity="0.6" />
         <polygon
           points="200,100 196,97 196,103"
-          fill="#4FD1FF"
+          fill="var(--vc-cyan)"
           opacity="0.8"
         />
       </motion.g>
@@ -293,9 +293,9 @@ function ScoreRing({
       <svg width="72" height="72" viewBox="0 0 72 72">
         <defs>
           <linearGradient id="mob-ring" x1="0" y1="0" x2="72" y2="72">
-            <stop offset="0%" stopColor="#4FD1FF" />
-            <stop offset="60%" stopColor="#0FA3B1" />
-            <stop offset="100%" stopColor="#0A6890" />
+            <stop offset="0%" stopColor="var(--vc-cyan)" />
+            <stop offset="60%" stopColor="var(--vc-teal)" />
+            <stop offset="100%" stopColor="var(--vc-deep)" />
           </linearGradient>
         </defs>
         <circle
@@ -379,9 +379,9 @@ function GaitWaveform({
     <svg viewBox="0 0 180 28" className="mt-1 h-7 w-full">
       <defs>
         <linearGradient id="gait-wave" x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0%" stopColor="#0FA3B1" stopOpacity="0" />
-          <stop offset="50%" stopColor="#4FD1FF" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#0FA3B1" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--vc-teal)" stopOpacity="0" />
+          <stop offset="50%" stopColor="var(--vc-cyan)" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="var(--vc-teal)" stopOpacity="0" />
         </linearGradient>
       </defs>
       <motion.path

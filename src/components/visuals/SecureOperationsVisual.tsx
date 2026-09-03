@@ -27,7 +27,7 @@ export function SecureOperationsVisual() {
   return (
     <div
       ref={visualRef}
-      className="absolute inset-0 flex items-center justify-center overflow-hidden px-4 pb-4 pt-[4.25rem] sm:px-5"
+      className="vector-console absolute inset-0 flex items-center justify-center overflow-hidden px-4 pb-4 pt-[4.25rem] sm:px-5"
     >
       <div className="grid w-[calc(100%+2rem)] min-w-[330px] max-w-[525px] grid-cols-[1.58fr_1fr] gap-3">
         {/* ─────────── LEFT: Floor plan ─────────── */}
@@ -131,22 +131,22 @@ function FloorPlan({
 }) {
   // Walking-person waypoints — each "person" animates between two points.
   const people: Array<{ from: [number, number]; to: [number, number]; delay: number; color: string }> = [
-    { from: [20, 60], to: [180, 50], delay: 0.4, color: "#5B8CFF" },
-    { from: [220, 90], to: [60, 100], delay: 0.8, color: "#5B8CFF" },
-    { from: [120, 20], to: [120, 120], delay: 1.0, color: "#FBBF24" },
-    { from: [180, 110], to: [40, 30], delay: 0.6, color: "#5B8CFF" },
+    { from: [20, 60], to: [180, 50], delay: 0.4, color: "var(--vc-blue)" },
+    { from: [220, 90], to: [60, 100], delay: 0.8, color: "var(--vc-blue)" },
+    { from: [120, 20], to: [120, 120], delay: 1.0, color: "var(--vc-amber)" },
+    { from: [180, 110], to: [40, 30], delay: 0.6, color: "var(--vc-blue)" },
   ];
 
   return (
     <svg viewBox="0 0 260 140" className="h-full w-full">
       <defs>
         <radialGradient id="floor-bg" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stopColor="#2D6CDF" stopOpacity="0.24" />
-          <stop offset="100%" stopColor="#0B1F3A" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--vc-blue-deep)" stopOpacity="0.24" />
+          <stop offset="100%" stopColor="var(--vc-navy)" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="zone-warm" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stopColor="#FBBF24" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#FBBF24" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--vc-amber)" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="var(--vc-amber)" stopOpacity="0" />
         </linearGradient>
       </defs>
 
@@ -204,8 +204,8 @@ function FloorPlan({
             duration: reduceMotion ? 0 : 0.4,
           }}
         >
-          <circle cx={cx} cy={cy} r="3" fill="#5B8CFF" />
-          <circle cx={cx} cy={cy} r="6" stroke="#5B8CFF" strokeOpacity="0.45" fill="none" />
+          <circle cx={cx} cy={cy} r="3" fill="var(--vc-blue)" />
+          <circle cx={cx} cy={cy} r="6" stroke="var(--vc-blue)" strokeOpacity="0.45" fill="none" />
         </motion.g>
       ))}
 
@@ -275,7 +275,7 @@ function FloorPlan({
           cx="178"
           cy="55"
           r="2.5"
-          fill="#FBBF24"
+          fill="var(--vc-amber)"
           initial={false}
           animate={
             show && !reduceMotion
@@ -288,7 +288,7 @@ function FloorPlan({
             times: [0, 0.45, 1],
           }}
         />
-        <text x="184" y="58" fontSize="8" fill="#FBBF24" fontFamily="ui-monospace, monospace" letterSpacing="1">
+        <text x="184" y="58" fontSize="8" fill="var(--vc-amber)" fontFamily="ui-monospace, monospace" letterSpacing="1">
           DWELL · 4:12
         </text>
       </motion.g>
@@ -353,22 +353,37 @@ function CameraFeed({
         </span>
       </div>
       <div className="mt-1.5">
-        <CameraMiniSilhouette accent={status === "alert" ? "#FBBF24" : "#5B8CFF"} />
+        <CameraMiniSilhouette
+          accent={status === "alert" ? "var(--vc-amber)" : "var(--vc-blue)"}
+          idKey={status === "alert" ? "alert" : "normal"}
+        />
       </div>
     </motion.div>
   );
 }
 
-function CameraMiniSilhouette({ accent }: { accent: string }) {
+/**
+ * `idKey` names the gradient, `accent` colours it. They are separate because
+ * the id used to be built from the colour, which worked only while the colour
+ * was a hex literal — once it became `var(--vc-amber)` the id contained
+ * brackets and `url(#…)` could not resolve it, so the tile lost its wash.
+ */
+function CameraMiniSilhouette({
+  accent,
+  idKey,
+}: {
+  accent: string;
+  idKey: string;
+}) {
   return (
     <svg viewBox="0 0 110 50" className="h-9 w-full">
       <defs>
-        <radialGradient id={`cam-bg-${accent}`} cx="50%" cy="50%" r="70%">
+        <radialGradient id={`cam-bg-${idKey}`} cx="50%" cy="50%" r="70%">
           <stop offset="0%" stopColor={accent} stopOpacity="0.12" />
           <stop offset="100%" stopColor={accent} stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width="110" height="50" fill={`url(#cam-bg-${accent})`} />
+      <rect width="110" height="50" fill={`url(#cam-bg-${idKey})`} />
       {/* Skeleton figure — privacy-aware */}
       <g stroke={accent} strokeWidth="1.2" fill="none" opacity="0.9">
         <circle cx="55" cy="14" r="3" fill={accent} />
@@ -388,7 +403,7 @@ function CameraMiniSilhouette({ accent }: { accent: string }) {
         [48, 42],
         [62, 42],
       ].map(([x, y], i) => (
-        <circle key={i} cx={x} cy={y} r="1.2" fill="#fff" />
+        <circle key={i} cx={x} cy={y} r="1.2" fill="var(--vc-paper)" />
       ))}
       {/* Privacy face blur indicator */}
       <rect x="49" y="9" width="12" height="6" rx="2" fill={accent} opacity="0.3" />
@@ -430,7 +445,7 @@ function DensityMeter({
           }}
           className="h-full rounded-full"
           style={{
-            background: "linear-gradient(90deg, #5B8CFF 0%, #FBBF24 100%)",
+            background: "linear-gradient(90deg, var(--vc-blue) 0%, var(--vc-amber) 100%)",
             boxShadow: "0 0 8px rgba(251,191,36,0.5)",
           }}
         />

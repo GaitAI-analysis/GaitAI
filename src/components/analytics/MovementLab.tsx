@@ -310,10 +310,10 @@ export function MovementLab() {
 
 function StageVideo({ src, poster }: { src: string; poster?: string }) {
   return (
-    /* `dark-media-island`: this footage is a fixed dark cinematic render with
-       no light-mode counterpart, so in light mode it is framed as a
-       deliberate visualization panel — a pale mat, a defined edge and a soft
-       shadow — rather than left as a dark rectangle with a hairline round it.
+    /* `dark-media-island`: the footage is the product's own screen, shown
+       as-is in both themes — same file, same poster, same contrast, no
+       filter. The class re-pins the dark tokens inside the panel in light
+       mode so the hairline and anything drawn over the film stay light.
        See globals.css. */
     <figure className="dark-media-island relative overflow-hidden rounded-xl border border-white/[0.07]">
       <video

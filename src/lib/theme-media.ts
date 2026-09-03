@@ -12,17 +12,11 @@
  * "identical in light and dark mode". Nothing recorded which of those was a
  * decision and which was an omission. This does.
  *
- * ── ON THE THREE KINDS OF ENTRY ────────────────────────────────────────────
+ * ── ON THE TWO KINDS OF ENTRY ─────────────────────────────────────────────
  *
  *   { dark, light }        Two assets. `ThemeMedia` resolves ONE and only
  *                          that one is fetched — see the note on double
  *                          downloads below.
- *
- *   { dark, lightVisual }  Dark mode plays the cinematic asset; light mode
- *                          renders a vector composition of the same subject
- *                          instead. Used where a light version of the footage
- *                          does not exist and a vector console says the same
- *                          thing better than a dimmed film would.
  *
  *   { dark, island: … }    One dark asset, shown in both themes on purpose.
  *                          `island` is the reason, and it is required: a dark
@@ -44,44 +38,30 @@
 
 export type ThemeMediaEntry =
   | { kind: "pair"; dark: string; light: string; poster?: { dark: string; light: string } }
-  | { kind: "vector-light"; dark: string; darkPoster?: string; note: string }
   | { kind: "island"; dark: string; darkPoster?: string; island: string };
-
-/**
- * WHAT STILL NEEDS ART.
- *
- * These are the assets a designer or a generation pass has to produce before
- * the entry below can become a `pair`. They are listed here rather than in a
- * ticket so the gap is visible in the code that renders them:
- *
- *   videos/platform/mobilitycare-intelligence-light.mp4  + -light-poster.jpg
- *   videos/platform/securevision-intelligence-light.mp4  + -light-poster.jpg
- *   videos/mobilitycare/mobilitycare-hero-v2-light.mp4   + -light-poster.jpg
- *   videos/securevision/securevision-hero-light.mp4      + -light-poster.jpg
- *   videos/workflow/stage-0{1..4}-*-light.mp4            + -light-poster.jpg
- *
- * Naming is `<existing-name>-light.<ext>`, so adding one is a two-line change
- * here and nothing else.
- */
 
 export const themeMedia = {
   /**
-   * The two homepage family consoles. Dark plays the cinematic render; light
-   * draws the vector console for the same product, because a night-lit film
-   * on a white page reads as a hole in the page and dimming it would only
-   * make it a grey hole. Same subject, same frame, same aspect.
+   * The two homepage family consoles. One film each, in both themes. Light
+   * mode briefly drew a vector console in their place; the decision is that
+   * the footage IS the product — its palette, its contrast and its overlays
+   * are the thing being shown — so the theme changes the page around the
+   * console and never the console. The shell keeps its dark tokens in light
+   * mode, the same way the two product heroes do.
    */
   mobilityCareHome: {
-    kind: "vector-light",
+    kind: "island",
     dark: "/assets/videos/platform/mobilitycare-intelligence.mp4",
     darkPoster: "/assets/videos/platform/mobilitycare-intelligence-poster.jpg",
-    note: "Light renders MobilityDashboardVisual: walking figure, pose dots, cadence trace, score ring, mobility panel.",
+    island:
+      "The console is a cinematic render shown as-is in both themes; the shell around it keeps dark tokens in light mode.",
   },
   secureVisionHome: {
-    kind: "vector-light",
+    kind: "island",
     dark: "/assets/videos/platform/securevision-intelligence.mp4",
     darkPoster: "/assets/videos/platform/securevision-intelligence-poster.jpg",
-    note: "Light renders SecureOperationsVisual: plan view, anonymous tracks, density zones, camera tiles.",
+    island:
+      "The console is a cinematic render shown as-is in both themes; the shell around it keeps dark tokens in light mode.",
   },
 
   /**

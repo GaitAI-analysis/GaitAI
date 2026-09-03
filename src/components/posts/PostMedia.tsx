@@ -56,14 +56,14 @@ export function PostResources({ post }: { post: Post }) {
             href={post.externalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="group grid min-w-0 gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-5 transition hover:border-violet-300/30 hover:bg-violet-300/[0.035] sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
+            className="card-link group grid min-w-0 gap-4 rounded-2xl border border-white/10 bg-white/[0.025] p-5 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
           >
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-violet-400/[0.08] text-violet-200 ring-1 ring-violet-300/20"><ExternalLink className="h-4 w-4" /></span>
             <span className="min-w-0">
               <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-violet-200">External reference</span>
               <span className="mt-1 block truncate text-sm text-soft-white">{post.externalUrl}</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-violet-200">Open <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
+            <span className="card-cue">Open reference <ArrowUpRight className="card-cue-arrow h-3.5 w-3.5" /></span>
           </a>
         )}
       </div>

@@ -782,8 +782,13 @@
   padding: 1.1rem 1rem 1.25rem;
   transition: background-color 0.35s var(--jr-ease);
 }
-.indexLink:hover {
+.indexLink:hover,
+.indexLink:focus-visible {
   background: rgb(148 163 184 / 0.05);
+}
+.indexLink:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: -2px;
 }
 .indexNo {
   display: block;

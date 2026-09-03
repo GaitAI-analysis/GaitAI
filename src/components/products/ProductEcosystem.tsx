@@ -95,7 +95,11 @@ function SuiteBlock({
           <li key={product.id}>
             <Link
               href={`/${product.vertical}/${product.id}/`}
-              className="group flex h-full flex-col rounded-2xl border border-white/[0.09] bg-white/[0.02] p-5 transition-all duration-400 hover:-translate-y-[3px] hover:border-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/50"
+              aria-label={`View product: ${product.short}`}
+              /* One anchor, the whole tile, and the shared card treatment —
+                 these tiles used to lift 3px on hover with no cue at all, so
+                 nothing on them said where they went. */
+              className="card-link group flex h-full flex-col rounded-2xl border border-white/[0.09] bg-white/[0.02] p-5"
               style={{ borderLeftColor: suite.accent, borderLeftWidth: 2 }}
             >
               <span
@@ -119,6 +123,11 @@ function SuiteBlock({
                     {output}
                   </span>
                 ))}
+              </span>
+
+              <span aria-hidden="true" className="card-cue mt-4">
+                View product
+                <span className="card-cue-arrow">&rarr;</span>
               </span>
             </Link>
           </li>

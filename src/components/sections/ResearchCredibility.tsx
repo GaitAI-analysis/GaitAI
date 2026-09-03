@@ -189,15 +189,21 @@ export function ResearchCredibility() {
             <ul className="mt-2">
               {featuredPapers.map((paper) => (
                 <li key={paper.id}>
+                  {/* A reference row is a row, not a card: it washes and its
+                      arrow slides, and it does not lift. See `.row-link`. */}
                   <Link
                     href={`/publications/${paper.id}/`}
-                    className="group flex flex-col gap-1 border-b border-white/[0.06] py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6"
+                    aria-label={`View publication: ${paper.title}`}
+                    className="row-link group flex flex-col gap-1 border-b border-white/[0.06] py-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6 sm:px-2"
                   >
                     <span className="min-w-0 text-[13.5px] leading-snug text-soft-gray transition-colors group-hover:text-soft-white">
                       {paper.title}
                     </span>
-                    <span className="shrink-0 text-[11px] uppercase tracking-[0.14em] text-soft-mute">
+                    <span className="flex shrink-0 items-baseline gap-2 text-[11px] uppercase tracking-[0.14em] text-soft-mute">
                       {paper.venue} · {paper.year}
+                      <span aria-hidden="true" className="row-link-arrow">
+                        &rarr;
+                      </span>
                     </span>
                   </Link>
                 </li>

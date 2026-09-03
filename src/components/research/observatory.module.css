@@ -772,8 +772,17 @@
   border-bottom: 1px solid var(--obs-line);
   transition: padding-left 0.35s var(--obs-ease);
 }
-.recordRow:hover {
+/* A wash and a focus ring, so the row matches every other clickable row on
+   the site and a keyboard reader can see where they are. The indent stays:
+   it is this panel's own signature. */
+.recordRow:hover,
+.recordRow:focus-visible {
   padding-left: 0.3rem;
+  background-color: rgb(148 163 184 / 0.05);
+}
+.recordRow:focus-visible {
+  outline: 2px solid var(--obs-accent, #4fd1ff);
+  outline-offset: -2px;
 }
 .recordIndex {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
@@ -796,7 +805,8 @@
   color: var(--obs-body);
   transition: color 0.35s var(--obs-ease);
 }
-.recordRow:hover .recordTitle {
+.recordRow:hover .recordTitle,
+.recordRow:focus-visible .recordTitle {
   color: var(--obs-ink);
 }
 .recordFoot {
@@ -808,11 +818,13 @@
   text-transform: uppercase;
   color: var(--obs-mute);
 }
+/* Visible at rest, not revealed on hover: on a phone the hover state never
+   arrives, and an arrow nobody can see is not a cue. */
 .recordArrow {
   font-size: 10px;
   line-height: 1.6;
   color: var(--obs-mute);
-  opacity: 0;
+  opacity: 0.5;
   transition: opacity 0.35s var(--obs-ease), color 0.35s var(--obs-ease);
 }
 .recordRow:hover .recordArrow,
@@ -1178,6 +1190,22 @@
   background: linear-gradient(90deg, var(--obs-cyan), transparent);
   transition: width 0.55s var(--obs-ease);
 }
+/* The whole row opens the record. Only the title was a link, which left a
+   1.4rem-padded row where four fifths of the click area did nothing; this
+   stretches that same anchor — keeping the title as its accessible name —
+   over the row, which is the nearest positioned ancestor. */
+.ledgerHit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.ledgerRow:focus-within {
+  background-color: rgb(148 163 184 / 0.05);
+}
+.ledgerHit:focus-visible {
+  outline: none;
+}
+.ledgerRow:focus-within::after,
 .ledgerRow:hover::after,
 .ledgerRow:focus-within::after {
   width: 100%;
@@ -1205,6 +1233,7 @@
     font-size: 1rem;
   }
 }
+.ledgerRow:focus-within .ledgerTitle,
 .ledgerRow:hover .ledgerTitle {
   color: var(--obs-cyan);
 }
@@ -1239,6 +1268,7 @@
   transition: transform 0.45s var(--obs-ease);
   color: var(--obs-mute);
 }
+.ledgerRow:focus-within .ledgerArrow,
 .ledgerRow:hover .ledgerArrow {
   transform: translate(2px, -2px);
   color: var(--obs-cyan);

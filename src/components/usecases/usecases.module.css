@@ -125,8 +125,11 @@
     background-color 0.3s ease;
 }
 
+/* The border answers the pointer in the environment's own accent; the lift
+   comes from the shared `card-surface` treatment, which the card carries only
+   while it is collapsed. An OPEN card is several paragraphs of reading with no
+   stretched link over it, so it holds still. */
 .card:hover {
-  transform: translateY(-3px);
   border-color: rgb(var(--uc) / 0.36);
 }
 
@@ -379,6 +382,22 @@
 
 .explore {
   color: rgb(var(--uc));
+}
+.exploreArrow {
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.explore:hover .exploreArrow,
+.explore:focus-visible .exploreArrow {
+  transform: translateX(3px);
+}
+.explore:hover,
+.toggle:hover {
+  color: rgb(var(--c-soft-white));
+}
+.explore:focus-visible,
+.toggle:focus-visible {
+  outline: 2px solid rgb(var(--uc));
+  outline-offset: 3px;
 }
 
 .explore svg {
@@ -636,8 +655,8 @@
     transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Static card: an audience is described here, not opened. Border only. */
 .audienceCard:hover {
-  transform: translateY(-2px);
   border-color: rgb(79 209 255 / 0.3);
 }
 
@@ -989,7 +1008,7 @@
 
 .mapRow:hover {
   border-color: var(--map-accent-soft);
-  transform: translateY(-1px);
+  background-color: rgb(var(--c-soft-white) / 0.035);
 }
 
 .mapRow:focus-visible {

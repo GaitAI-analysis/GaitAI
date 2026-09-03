@@ -46,7 +46,7 @@ export function PostCard({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="card-glow group relative overflow-hidden p-0"
+        className="card card-surface group overflow-hidden p-0"
       >
         <Link
           href={`/publications/${post.slug}`}
@@ -95,8 +95,9 @@ export function PostCard({
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-soft-mute">{post.author}</span>
-              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-cyan-300 transition-transform group-hover:translate-x-1">
-                Read publication <ArrowUpRight className="h-4 w-4" />
+              <span className="card-cue text-[11px]">
+                Read publication
+                <ArrowUpRight className="card-cue-arrow h-4 w-4" />
               </span>
             </div>
           </div>
@@ -115,7 +116,7 @@ export function PostCard({
         delay: index * 0.05,
         ease: [0.16, 1, 0.3, 1],
       }}
-      className="card-glow group relative flex h-full flex-col overflow-hidden p-0"
+      className="card card-surface group flex h-full flex-col overflow-hidden p-0"
     >
       <Link href={`/publications/${post.slug}`} className="flex h-full flex-col">
         <div
@@ -153,8 +154,9 @@ export function PostCard({
               <Calendar className="h-3 w-3" />
               {formatDate(post.publishedAt)}
             </span>
-            <span className="inline-flex items-center gap-1 text-cyan-300 transition-transform group-hover:translate-x-1">
-              Read <ArrowUpRight className="h-3 w-3" />
+            <span className="card-cue">
+              Read publication
+              <ArrowUpRight className="card-cue-arrow h-3 w-3" />
             </span>
           </div>
         </div>

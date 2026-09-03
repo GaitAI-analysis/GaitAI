@@ -46,7 +46,12 @@ export function PublicationLedger({
                 {String(i + 1).padStart(2, "0")}
               </span>
 
-              <Link href={`/publications/${record.id}/`} className="min-w-0">
+              {/* Stretched over the row — see `.ledgerHit`. The link stays
+                  unpositioned so its ::after resolves against the row. */}
+              <Link
+                href={`/publications/${record.id}/`}
+                className={`${styles.ledgerHit} min-w-0`}
+              >
                 <span className={styles.ledgerTitle}>{record.title}</span>
               </Link>
 

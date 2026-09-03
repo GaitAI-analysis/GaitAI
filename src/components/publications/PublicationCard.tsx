@@ -56,7 +56,7 @@ export function PublicationCard({
       href={`/publications/${publication.id}/`}
       title={publication.title}
       aria-label={`${publication.title} — ${publication.venue}, ${publication.year}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-soft-white/[0.08] bg-gradient-to-b from-soft-white/[0.03] to-transparent transition-all duration-300 hover:-translate-y-[3px] hover:border-cyan-300/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70"
+      className="card-link group flex h-full flex-col overflow-hidden rounded-2xl border border-soft-white/[0.08] bg-gradient-to-b from-soft-white/[0.03] to-transparent"
     >
       {/* The plate: the record's own art, framed as a technical plate —
           recessed well, shared survey grid, registration marks, a topic-keyed
@@ -75,13 +75,9 @@ export function PublicationCard({
       <div className="relative flex flex-1 flex-col p-5">
         <span
           aria-hidden="true"
-          className={`absolute right-4 top-4 transition-colors ${
-            isPatent
-              ? "text-amber-300/60 group-hover:text-amber-200"
-              : "text-soft-mute/50 group-hover:text-cyan-300"
-          }`}
+          className="card-corner absolute right-4 top-4"
         >
-          <ArrowUpRight className="h-4 w-4" />
+          <ArrowUpRight className="h-3.5 w-3.5" />
         </span>
 
         <div
@@ -124,6 +120,15 @@ export function PublicationCard({
             ))}
           </div>
         )}
+
+        {/* The cue came back, in the record's own language. The corner glyph
+            alone left it to the reader to guess whether a card in a research
+            library opens a page or is a citation; a patent says what it
+            opens, because a patent record is not a paper. */}
+        <span aria-hidden="true" className="card-cue mt-4">
+          {isPatent ? "View patent record" : "View publication"}
+          <span className="card-cue-arrow">&rarr;</span>
+        </span>
       </div>
     </Link>
   );

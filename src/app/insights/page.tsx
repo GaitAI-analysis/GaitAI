@@ -21,10 +21,33 @@ import { insightArticles, insightHref } from "@/data/insights";
 import styles from "@/components/insights/signal.module.css";
 
 export const metadata: Metadata = {
-  title: "GaitAI Blog & Updates — Research, Product & Movement Intelligence",
+  /* Absolute, so the root layout's " | GaitAI" template is not appended. The
+     title already opens with the brand, and the rendered result was "GaitAI
+     Blog & Updates — Research, Product & Movement Intelligence | GaitAI",
+     which says GaitAI twice in one line of a search result. */
+  title: {
+    absolute: "GaitAI Blog & Updates — Research, Product & Movement Intelligence",
+  },
   description:
     "The GaitAI blog: technical explainers, research translation, engineering notes, product updates and what we are building — movement intelligence, multimodal AI, privacy and the evidence behind it.",
   alternates: { canonical: "/insights" },
+  /* Without these the page inherited the site-wide card, so a shared link to
+     the blog announced "GaitAI — Intelligence in Motion" and never the blog.
+     The canonical URL is untouched: the route is still /insights. */
+  openGraph: {
+    type: "website",
+    url: "/insights",
+    siteName: "GaitAI",
+    title: "GaitAI Blog & Updates",
+    description:
+      "Technical explainers, research translation, engineering notes, product updates and what we're building.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GaitAI Blog & Updates",
+    description:
+      "Technical explainers, research translation, engineering notes, product updates and what we're building.",
+  },
 };
 
 /**

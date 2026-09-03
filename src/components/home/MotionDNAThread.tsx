@@ -53,6 +53,25 @@ import styles from "./thread.module.css";
  * KEYBOARD. A labelled group of four toggles: Tab reaches the group, arrows
  * (and Home/End) move within it, Enter/Space locks, Escape releases. Focus
  * previews without committing, which is the same bargain the pointer gets.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
+ * THE BRANCHES ARE CONTROLS TOO
+ *
+ * The four lines out of the hub now preview and lock the same state the rows
+ * do, so the drawing and the labels are one interaction rather than a picture
+ * with a legend under it. Each branch gets a second, transparent copy of its
+ * own path at an 18px stroke (28px on touch), pinned with
+ * `non-scaling-stroke` so the target is 18 CSS px at 390px as well as at
+ * 1920px — nobody is asked to hit a 1px curve.
+ *
+ * The hit paths carry no semantics: the SVG stays `aria-hidden` and the four
+ * buttons remain the only accessible control, because a screen-reader user
+ * gains nothing from four unlabelled paths that duplicate the rows below.
+ *
+ * The preview on a hit path is guarded to a mouse. A touch fires
+ * pointerenter → click, and if pointerleave never arrives the branch stays
+ * lit with nothing under the finger to explain why; the tap still locks,
+ * which is what a phone actually needs.
  */
 
 const READINGS = [
@@ -78,8 +97,12 @@ function branchPath(index: number) {
 }
 
 export function MotionDNAThread() {
+  /* Mobility is the lens the movement signal reads as by default, and it
+     means the section arrives showing what it does rather than waiting to be
+     discovered — which matters more now that the "select a lens" microcopy is
+     gone. Every other reading is one pointer or one arrow key away. */
   /** Committed by a click. Survives the pointer leaving. */
-  const [locked, setLocked] = useState<ReadingId | null>(null);
+  const [locked, setLocked] = useState<ReadingId | null>("mobility");
   /** Held by a hover or a focus. Released when it ends. */
   const [preview, setPreview] = useState<ReadingId | null>(null);
   const shown = preview ?? locked;
@@ -134,7 +157,12 @@ export function MotionDNAThread() {
       <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg} aria-hidden="true">
         {/* the one signal */}
         <path className={styles.signal} d={signal} />
-        <circle className={styles.hub} cx={SPLIT} cy={H / 2} r={3.4} />
+        <circle
+          className={`${styles.hub} ${shown ? styles.hubOn : ""}`}
+          cx={SPLIT}
+          cy={H / 2}
+          r={3.4}
+        />
 
         {/* four branches out of it */}
         {READINGS.map((reading, i) => {
@@ -161,21 +189,41 @@ export function MotionDNAThread() {
             d={branchPath(shownIndex)}
           />
         )}
+
+        {/* The targets, last so they sit above everything and nothing above
+            them steals the pointer. Same `d` as the visible branch, so the
+            drawing's geometry is untouched and the two can never drift. */}
+        {READINGS.map((reading, i) => (
+          <path
+            key={`hit-${reading.id}`}
+            className={styles.hit}
+            d={branchPath(i)}
+            onPointerEnter={(event) => {
+              if (event.pointerType === "mouse") setPreview(reading.id);
+            }}
+            onPointerLeave={() => setPreview(null)}
+            onClick={() =>
+              setLocked((current) =>
+                current === reading.id ? null : reading.id,
+              )
+            }
+          />
+        ))}
       </svg>
 
-      {/* The microcopy is the group's label, so the instruction and the
-          accessible name are the same words. */}
-      <p id="motion-dna-hint" className={styles.hint}>
-        Select a lens to trace the signal.
-      </p>
-
       {/* The labels are the control. Buttons, so a keyboard reaches them and
-          a touch device can tap them; the SVG above is decorative. The whole
-          row — marker, name and purpose — is one target. */}
+          a touch device can tap them; the SVG above is a pointer affordance
+          for the same state. The whole row — marker, name and purpose — is
+          one target.
+
+          The instruction that used to sit here is gone from the page but kept
+          as the group's accessible name: the branches now demonstrate what it
+          said, and a screen-reader user still needs to be told what the four
+          toggles are for. */}
       <ul
         className={styles.readings}
         role="group"
-        aria-labelledby="motion-dna-hint"
+        aria-label="Select a lens to trace the signal"
       >
         {READINGS.map((reading, i) => {
           const isLocked = locked === reading.id;

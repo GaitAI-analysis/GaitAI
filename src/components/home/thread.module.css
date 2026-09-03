@@ -41,21 +41,55 @@
 .hub {
   fill: #bfe9ff;
   fill-opacity: 0.85;
+  transition: fill-opacity 0.2s ease;
+}
+
+/* The junction lifts when a branch is live, so the signal reads as arriving
+   somewhere rather than as one line changing weight on its own. One step of
+   opacity — no ring, no glow, no second element. */
+.hubOn {
+  fill-opacity: 1;
 }
 
 /* ── The four branches ────────────────────────────────────────────────────
-   One easing for every weight change, slow enough to read as the signal
-   moving and short enough not to lag the pointer. */
+   One easing for every weight change. 220ms: now that the branch itself is
+   the thing under the pointer, a half-second ramp reads as lag rather than as
+   the signal moving — the highlight has to arrive with the cursor. */
 .branch {
   fill: none;
   stroke: #8ab4ff;
   stroke-opacity: 0.26;
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
+  pointer-events: none;
   transition:
-    stroke-opacity 0.52s cubic-bezier(0.16, 1, 0.3, 1),
-    stroke-width 0.52s cubic-bezier(0.16, 1, 0.3, 1),
-    stroke 0.52s cubic-bezier(0.16, 1, 0.3, 1);
+    stroke-opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    stroke-width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    stroke 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── The targets ──
+   A transparent copy of each branch at a weight a pointer can actually find.
+   `non-scaling-stroke` pins it to 18 CSS px, so the target is the same size
+   at 390px as at 1920px even though the viewBox is being scaled to fit; the
+   visible line stays 1–1.7px. `pointer-events: stroke` means only the band
+   around the curve is live, not the bounding box, so the four do not fight
+   each other over the empty space between them. */
+.hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 18;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  pointer-events: stroke;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+@media (pointer: coarse) {
+  .hit {
+    stroke-width: 28;
+  }
 }
 
 .branchOn {
@@ -65,9 +99,12 @@
 }
 
 /* Faded, not gone: the other three readings still exist, which is the point
-   of the visual. */
+   of the visual. 0.16 rather than the 0.1 this used to carry, because a
+   reading is now selected at rest — so "faded" is the resting state of three
+   of the four lines, not a half-second condition during a hover, and it has
+   to stay legible as a line the pointer can go to. */
 .branchOff {
-  stroke-opacity: 0.1;
+  stroke-opacity: 0.16;
 }
 
 /* A locked branch that is not currently the previewed one holds a weight of
@@ -136,7 +173,7 @@
 }
 
 :global(.light) .branchOff {
-  stroke-opacity: 0.16;
+  stroke-opacity: 0.24;
 }
 
 :global(.light) .branchLocked:not(.branchOn) {
@@ -146,17 +183,6 @@
 
 :global(.light) .trace {
   stroke: #0b4a86;
-}
-
-/* ── The microcopy ──
-   Six words, at note weight, immediately above the row it describes. It is
-   also the group's accessible name, so the instruction is not duplicated in
-   an aria-label that says something slightly different. */
-.hint {
-  margin-top: 0.5rem;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  color: rgb(var(--c-soft-mute) / 0.85);
 }
 
 /* ── The readings, which are the control ─────────────────────────────────── */
@@ -169,7 +195,11 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.1rem 0.75rem;
   justify-items: start;
-  margin-top: 0.35rem;
+  /* Closed up against the branches now that the instruction line between them
+     is gone: the four rows have to read as the ends of the four lines, not as
+     a caption that happens to sit below a drawing. The row's own 0.3rem of
+     padding supplies the rest of the gap. */
+  margin-top: 0.1rem;
   /* Give back the padding the rows now carry, so the first marker still
      lines up with the type above it. */
   margin-inline: -0.5rem;
@@ -202,9 +232,9 @@
   cursor: pointer;
   text-align: left;
   transition:
-    color 0.4s ease,
-    background-color 0.4s ease,
-    border-color 0.4s ease;
+    color 0.22s ease,
+    background-color 0.22s ease,
+    border-color 0.22s ease;
 }
 
 /* Hover and focus are the same state: a preview. */
@@ -240,9 +270,9 @@
   border: 1px solid currentColor;
   transform: translateY(-1px);
   transition:
-    background-color 0.4s ease,
-    border-color 0.4s ease,
-    box-shadow 0.4s ease;
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .reading:hover .dot,
@@ -284,7 +314,7 @@
   font-size: 11px;
   font-weight: 400;
   color: rgb(var(--c-soft-mute));
-  transition: color 0.4s ease;
+  transition: color 0.22s ease;
 }
 
 .reading:hover .note,
@@ -317,6 +347,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .branch,
+  .hub,
   .reading,
   .dot,
   .note {

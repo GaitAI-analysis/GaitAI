@@ -24,9 +24,16 @@ import styles from "./usecases.module.css";
  * someone clicked, on the page whose whole job is being found.
  *
  * The expanded panel is a real region with aria-controls/aria-expanded on the
- * toggle. The card is NOT a link: it holds two different destinations (the
- * detail route and the product pages), and nesting those inside a card-wide
- * anchor is what makes a card impossible to use from the keyboard.
+ * toggle.
+ *
+ * CLICKING THE CARD. While collapsed the whole surface opens the use case: a
+ * stretched link covers it, and the two things that have their own
+ * destinations — the product chips and the disclosure toggle — sit above that
+ * link rather than inside it, so nothing is nested and the keyboard order is
+ * unchanged. While EXPANDED the stretched link is removed: an open card is
+ * several paragraphs of reading, and a surface that navigates on any stray
+ * click is hostile to read. Open or closed, "Explore use case" is always
+ * there.
  */
 
 type Accent = "teal" | "blue" | "cyan" | "violet" | "gold" | "emerald";
@@ -76,8 +83,18 @@ export function UseCaseCard({
   return (
     <article
       id={base.id}
-      className={`${styles.card} ${accentClass} ${open ? styles.cardOpen : ""} site-anchor-offset`}
+      className={`${styles.card} ${accentClass} ${
+        open ? styles.cardOpen : "card-surface"
+      } site-anchor-offset`}
     >
+      {/* Collapsed only — see the note above. */}
+      {!open && (
+        <Link
+          href={href}
+          aria-label={`Explore use case: ${base.industry}`}
+          className="card-hit"
+        />
+      )}
       {/* ── Collapsed head ──
           No glyph. The card used to open with a 44px drawn environment glyph
           in an accent tile; the family label carries that accent as type, and
@@ -91,7 +108,7 @@ export function UseCaseCard({
 
       <p className={styles.problem}>{base.problem}</p>
 
-      <div className={styles.meta}>
+      <div className={`${styles.meta} card-raise`}>
         <span className={styles.metaLabel}>Products</span>
         <div className={styles.chipRow}>
           {products.map((p) => (
@@ -168,7 +185,7 @@ export function UseCaseCard({
       </div>
 
       {/* ── Actions ── */}
-      <div className={styles.actions}>
+      <div className={`${styles.actions} card-raise`}>
         <button
           type="button"
           onClick={onToggle}
@@ -185,9 +202,15 @@ export function UseCaseCard({
         <Link href={href} className={styles.explore}>
           Explore use case
           {detail ? (
-            <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
+            <ArrowRight
+              aria-hidden="true"
+              className={`${styles.exploreArrow} h-3.5 w-3.5`}
+            />
           ) : (
-            <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+            <ArrowUpRight
+              aria-hidden="true"
+              className={`${styles.exploreArrow} h-3.5 w-3.5`}
+            />
           )}
         </Link>
       </div>

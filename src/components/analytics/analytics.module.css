@@ -397,9 +397,20 @@
   text-decoration: none;
   transition: border-color 0.35s var(--an-ease), transform 0.35s var(--an-ease);
 }
-.module:hover {
+/* The site's card lift is 2px and its focus state is its hover state — see
+   interactions.css. A module tile is a card that opens a module page, so it
+   moves by the same amount as one and answers the keyboard the same way. */
+.module:hover,
+.module:focus-visible {
   border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+.module:focus-visible {
+  outline: 2px solid var(--an-accent, var(--an-cyan));
+  outline-offset: 3px;
+}
+.module:active {
+  transform: translateY(0);
 }
 .modulePrimary {
   border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
@@ -459,7 +470,20 @@
 .moduleGoArrow {
   transition: transform 0.35s var(--an-ease);
 }
-.module:hover .moduleGoArrow {
+/* The same cue also appears on its own — the coverage matrix and the stage
+   matrix link straight to a module from inside a cell — so it answers the
+   pointer itself and not only through a card around it. */
+.moduleGo:hover .moduleGoArrow,
+.moduleGo:focus-visible .moduleGoArrow {
+  transform: translateX(3px);
+}
+.moduleGo:focus-visible {
+  outline: 2px solid var(--an-accent, var(--an-cyan));
+  outline-offset: 3px;
+  border-radius: 0.2rem;
+}
+.module:hover .moduleGoArrow,
+.module:focus-visible .moduleGoArrow {
   transform: translateX(3px);
 }
 

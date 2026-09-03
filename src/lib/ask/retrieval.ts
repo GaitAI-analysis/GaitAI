@@ -17,9 +17,16 @@
  * Everything this file returns is a real record with a real route. Nothing is
  * synthesised. If nothing scores, the caller is told so, and the assistant says
  * it has no documented answer rather than inventing one.
+ *
+ * PORTED FROM THE CLOUD FUNCTION, UNCHANGED WHERE IT COUNTS. The scoring — the
+ * field weights, K1, B, the idf, the page bonus, whole-title coverage and
+ * relation expansion — is the same code that passes the 25-question suite. The
+ * only structural change is that the index is built on FIRST USE rather than
+ * at module load, because in a browser the corpus arrives over the network and
+ * a module-scope `knowledge.docs.map(...)` would run before it exists.
  */
 
-import { docById, knowledge, type KnowledgeDoc } from "./knowledge";
+import { docById, knowledge, type KnowledgeDoc } from "./corpus";
 
 // ── Tokenisation ────────────────────────────────────────────────────────────
 
@@ -91,33 +98,12 @@ function addTerms(target: Map<string, number>, text: string, weight: number) {
   }
 }
 
-const indexed: IndexedDoc[] = knowledge.docs.map((doc) => {
-  const terms = new Map<string, number>();
-  addTerms(terms, doc.title, FIELD_WEIGHT.title);
-  addTerms(terms, doc.keywords.join(" "), FIELD_WEIGHT.keywords);
-  addTerms(terms, doc.summary, FIELD_WEIGHT.summary);
-  addTerms(terms, doc.category, FIELD_WEIGHT.category);
-  addTerms(terms, doc.content, FIELD_WEIGHT.content);
-
-  let mass = 0;
-  for (const value of terms.values()) mass += value;
-
-  return {
-    doc,
-    terms,
-    length: Math.max(mass, 1),
-    titleLower: doc.title.toLowerCase(),
-    titleTerms: tokenize(doc.title),
-    haystack: `${doc.title} ${doc.keywords.join(" ")} ${doc.summary}`.toLowerCase(),
-  };
-});
-
 /**
  * BM25 parameters.
  *
  * The first version normalised by √length, which is far too aggressive for a
  * corpus this uneven: the home-page record is a few hundred words and a product
- * record is several thousand, so /​ ranked first for every question asked. `b`
+ * record is several thousand, so / ranked first for every question asked. `b`
  * at 0.6 is partial length normalisation — a short record still gets credit for
  * being about one thing, without out-ranking the module record that actually
  * answers the question.
@@ -125,24 +111,73 @@ const indexed: IndexedDoc[] = knowledge.docs.map((doc) => {
 const K1 = 1.4;
 const B = 0.6;
 
-const AVERAGE_LENGTH =
-  indexed.reduce((sum, entry) => sum + entry.length, 0) / Math.max(indexed.length, 1);
+interface Index {
+  docs: IndexedDoc[];
+  averageLength: number;
+  documentFrequency: Map<string, number>;
+  total: number;
+}
 
-/** term → number of documents containing it. */
-const documentFrequency = (() => {
-  const df = new Map<string, number>();
-  for (const entry of indexed) {
+/**
+ * Built once, on the first question, and reused for the rest of the session.
+ *
+ * 113 records is a few milliseconds of work, so there is nothing to gain from
+ * precomputing it into the corpus file — and a great deal to lose: the index
+ * holds Maps keyed by stemmed term, and serialising those would freeze the
+ * tokeniser's behaviour into a generated artefact that no longer changes when
+ * this file does.
+ */
+let cached: Index | null = null;
+
+function index(): Index {
+  if (cached) return cached;
+
+  const docs: IndexedDoc[] = knowledge().docs.map((doc) => {
+    const terms = new Map<string, number>();
+    addTerms(terms, doc.title, FIELD_WEIGHT.title);
+    addTerms(terms, doc.keywords.join(" "), FIELD_WEIGHT.keywords);
+    addTerms(terms, doc.summary, FIELD_WEIGHT.summary);
+    addTerms(terms, doc.category, FIELD_WEIGHT.category);
+    addTerms(terms, doc.content, FIELD_WEIGHT.content);
+
+    let mass = 0;
+    for (const value of terms.values()) mass += value;
+
+    return {
+      doc,
+      terms,
+      length: Math.max(mass, 1),
+      titleLower: doc.title.toLowerCase(),
+      titleTerms: tokenize(doc.title),
+      haystack: `${doc.title} ${doc.keywords.join(" ")} ${doc.summary}`.toLowerCase(),
+    };
+  });
+
+  const documentFrequency = new Map<string, number>();
+  for (const entry of docs) {
     for (const term of entry.terms.keys()) {
-      df.set(term, (df.get(term) ?? 0) + 1);
+      documentFrequency.set(term, (documentFrequency.get(term) ?? 0) + 1);
     }
   }
-  return df;
-})();
 
-const TOTAL_DOCS = indexed.length;
+  cached = {
+    docs,
+    averageLength:
+      docs.reduce((sum, entry) => sum + entry.length, 0) / Math.max(docs.length, 1),
+    documentFrequency,
+    total: docs.length,
+  };
+  return cached;
+}
 
-const idf = (term: string) =>
-  Math.log(1 + TOTAL_DOCS / (1 + (documentFrequency.get(term) ?? 0)));
+/** Drop the index — used by the test harness between corpora. */
+export function resetIndex() {
+  cached = null;
+}
+
+const idf = (term: string, ix: Index) =>
+  Math.log(1 + ix.total / (1 + (ix.documentFrequency.get(term) ?? 0)));
+
 
 // ── Page context ────────────────────────────────────────────────────────────
 
@@ -271,25 +306,27 @@ export function retrieveGaitAIContext(
   const wantsReading = READING_HINTS.test(query);
   const wantsNavigation = NAVIGATION_HINTS.test(query);
 
+  const ix = index();
+
   const pageDoc =
-    knowledge.docs.find((doc) => doc.url === page.pathname) ??
+    ix.docs.find((entry) => entry.doc.url === page.pathname)?.doc ??
     (page.slug
-      ? knowledge.docs.find((doc) => doc.slug === page.slug) ?? null
+      ? ix.docs.find((entry) => entry.doc.slug === page.slug)?.doc ?? null
       : null);
 
   const scored: RetrievedDoc[] = [];
 
-  for (const entry of indexed) {
+  for (const entry of ix.docs) {
     let score = 0;
     const lengthPenalty =
-      K1 * (1 - B + (B * entry.length) / AVERAGE_LENGTH);
+      K1 * (1 - B + (B * entry.length) / ix.averageLength);
 
     for (const [term, queryWeight] of weighted) {
       const tf = entry.terms.get(term);
       if (!tf) continue;
       /* BM25's saturating term frequency: the twentieth mention of "gait" in a
          long product record adds nothing the first three did not. */
-      score += queryWeight * idf(term) * ((tf * (K1 + 1)) / (tf + lengthPenalty));
+      score += queryWeight * idf(term, ix) * ((tf * (K1 + 1)) / (tf + lengthPenalty));
     }
     if (score <= 0) continue;
 
@@ -393,7 +430,7 @@ export function retrieveGaitAIContext(
     if (item.doc.type !== "use-case" && item.doc.type !== "research") continue;
     if (item.score < EXPANSION_FLOOR) continue;
     for (const productId of item.doc.relatedProducts) {
-      const related = docById.get(`product:${productId}`);
+      const related = docById().get(`product:${productId}`);
       if (related) {
         take({ doc: related, score: item.score * 0.8, reason: "expanded" });
       }

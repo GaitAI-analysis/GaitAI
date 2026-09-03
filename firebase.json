@@ -1,25 +1,6 @@
 {
-  "//": "Rules and functions. Hosting is deliberately NOT configured here: the site is a static export published to GitHub Pages, and adding a hosting target would invite `firebase deploy` to publish it from a developer machine.",
+  "//": "Firestore rules only. There are no Cloud Functions: Ask GaitAI's retrieval and generation both run in the visitor's browser, so the one function this project had is gone. Hosting is deliberately not configured either — the site is a static export published to GitHub Pages, and a hosting target would invite `firebase deploy` to publish it from a developer machine.",
   "firestore": {
     "rules": "firestore.rules"
-  },
-  "functions": [
-    {
-      "//": "Ask GaitAI. `npm run build:knowledge` runs at the repository root first, so the corpus deployed with the function is always regenerated from the current site data rather than from whatever was last committed.",
-      "source": "functions",
-      "codebase": "default",
-      "runtime": "nodejs20",
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR/..\" run build:knowledge",
-        "npm --prefix \"$RESOURCE_DIR\" ci",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
-      ],
-      "ignore": [
-        "node_modules",
-        ".git",
-        "*.log",
-        "src/test-questions.ts"
-      ]
-    }
-  ]
+  }
 }

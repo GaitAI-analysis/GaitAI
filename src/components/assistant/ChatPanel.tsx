@@ -4,8 +4,10 @@ import { useCallback, useEffect, useId, useMemo, useRef } from "react";
 import { ChatHeader } from "./ChatHeader";
 import { ChatInput } from "./ChatInput";
 import { ChatMessages } from "./ChatMessages";
+import { ModelStrip } from "./ModelStrip";
 import { openingFor, type PageContext } from "./page-context";
 import { useAssistant } from "./use-assistant";
+import { warmCorpus } from "@/lib/ask/engine";
 import { recordAssistantEvent } from "@/lib/assistant-stats";
 import styles from "./assistant.module.css";
 
@@ -49,11 +51,29 @@ export function ChatPanel({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const titleId = useId();
 
-  const { turns, pending, streaming, ask, retry, reset } = useAssistant(page);
+  const {
+    turns,
+    pending,
+    streaming,
+    ask,
+    retry,
+    reset,
+    model,
+    modelBytes,
+    enableModel,
+  } = useAssistant(page);
   const opening = useMemo(() => openingFor(page), [page]);
 
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  /* Fetch the 293 KB corpus as soon as the panel opens, not when the first
+     question is asked — retrieval is the assistant's floor and it should be
+     ready by the time anyone finishes typing. Failure is silent here; the
+     engine retries and reports through the turn. */
+  useEffect(() => {
+    void warmCorpus().catch(() => {});
   }, []);
 
   /* A handed-over question is asked once, on mount. The ref guard matters
@@ -149,6 +169,8 @@ export function ChatPanel({
         onRetry={retry}
         onNavigate={onNavigate}
       />
+
+      <ModelStrip status={model} bytes={modelBytes} onEnable={enableModel} />
 
       <ChatInput disabled={pending} onSend={submit} ref={inputRef} />
     </div>

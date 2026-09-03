@@ -3,7 +3,7 @@
  * ASK GAITAI — KNOWLEDGE INDEX BUILDER
  * =============================================================================
  * Turns the site's own typed data modules into one flat, retrievable corpus for
- * the Ask GaitAI backend, and writes it to `functions/knowledge.json`.
+ * the Ask GaitAI assistant, and writes it to `public/ask/knowledge.json`.
  *
  * THE RULE THIS SCRIPT EXISTS TO ENFORCE
  * The assistant answers from the SAME records the pages render. Nothing here
@@ -38,7 +38,21 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const OUT = path.join(ROOT, "functions", "knowledge.json");
+/**
+ * The corpus ships to the BROWSER, because that is where retrieval now runs.
+ *
+ * `public/ask/knowledge.json` becomes a static asset in the export: one
+ * cacheable file with its own lifetime, fetched when the assistant is first
+ * opened and served from cache afterwards. It is deliberately NOT imported as
+ * a module — 293 KB inlined into a JS chunk is 293 KB parsed as source and
+ * re-downloaded whenever the bundle hash changes.
+ *
+ * Two copies, from one payload in one run:
+ *   public/ask/knowledge.json   minified — what the browser fetches
+ *   data/ask-knowledge.json     pretty   — what a human diffs in review
+ */
+const OUT = path.join(ROOT, "data", "ask-knowledge.json");
+const WEB_OUT = path.join(ROOT, "public", "ask", "knowledge.json");
 
 const load = async (rel) => {
   const abs = path.join(ROOT, "src", rel);
@@ -902,6 +916,11 @@ async function main() {
 
   mkdirSync(path.dirname(OUT), { recursive: true });
   writeFileSync(OUT, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
+
+  /* The browser copy: minified, because nobody reads it, and served as a
+     static asset so it caches independently of any JS bundle hash. */
+  mkdirSync(path.dirname(WEB_OUT), { recursive: true });
+  writeFileSync(WEB_OUT, JSON.stringify(payload), "utf8");
 
   const bytes = Buffer.byteLength(JSON.stringify(payload));
   console.log(

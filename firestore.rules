@@ -21,6 +21,7 @@ rules_version = '2';
 //   assistantStats      → Ask GaitAI usage, keyed by PAGE TYPE. Four integers,
 //                         one +1 per write, no text and no identifier the
 //                         schema could hold. ADMIN-ONLY read.
+//   (askGaitaiRateLimits is GONE — the assistant has no server to meter.)
 // =============================================================================
 
 service cloud.firestore {
@@ -261,22 +262,17 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // ---- ASK GAITAI RATE LIMITS (server-only) -----------------------------
-    // The Ask GaitAI Cloud Function counts questions per caller here. Nothing
-    // in a browser may read or write it: reading would expose the salted
-    // caller digests, and writing would let anyone reset their own quota and
-    // spend the model budget without limit.
+    // ---- ASK GAITAI ------------------------------------------------------
+    // There is no rate-limit collection any more.
     //
-    // The function reaches this collection through the Admin SDK, which
-    // bypasses these rules entirely — so denying every client here costs the
-    // assistant nothing and closes the endpoint's only stateful surface.
+    // `askGaitaiRateLimits` existed to meter a Cloud Function that spent money
+    // per question on a hosted model. Retrieval and generation both run in the
+    // visitor's own browser now, so the only resource a question consumes is
+    // that browser's own CPU or GPU — which is its own rate limit, needs no
+    // salted caller digest to enforce, and needs no TTL policy in the console.
     //
-    // Documents carry an `expireAt` timestamp. Add a Firestore TTL policy on
-    // that field (Console → Firestore → TTL) so the collection self-empties;
-    // see docs/ask-gaitai.md.
-    match /askGaitaiRateLimits/{callerKey} {
-      allow read, write: if false;
-    }
+    // `assistantStats` above is unrelated and stays: four integers of usage,
+    // keyed by page type, with no text and no identifier.
 
     // ---- Everything else: deny --------------------------------------------
     // (No catch-all allow. Existing collections used by the rest of the site

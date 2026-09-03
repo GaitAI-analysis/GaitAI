@@ -43,15 +43,15 @@ jobs:
 
       # The assistant answers only from the generated corpus, so a data change
       # that breaks retrieval is a content bug the same as a broken product
-      # reference. Regenerate the corpus from the current data modules and
-      # assert that every acceptance question still reaches its records. No API
-      # key and no network call: this is the retrieval half only.
-      - name: Verify Ask GaitAI retrieval
+      # reference. This regenerates the corpus and runs the 25-question
+      # acceptance suite against the SAME modules the browser runs — retrieval,
+      # the link allowlist and the extractive answer. No API key, no network
+      # call and no model download: the assistant's floor is deterministic, so
+      # what a visitor reads with no model loaded is fully assertable here.
+      - name: Verify Ask GaitAI
         run: |
           npm run build:knowledge
-          npm --prefix functions ci
-          npm --prefix functions run typecheck
-          npm --prefix functions run test:retrieval
+          npm run ask:test
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
@@ -69,11 +69,6 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-          # Ask GaitAI's backend URL. A repository VARIABLE, not a secret — it
-          # is a public endpoint address, and the model credential never leaves
-          # Secret Manager. Unset it and the assistant simply does not mount.
-          # Repo → Settings → Secrets and variables → Actions → Variables.
-          NEXT_PUBLIC_ASK_GAITAI_ENDPOINT: ${{ vars.NEXT_PUBLIC_ASK_GAITAI_ENDPOINT }}
 
       # Next.js emits assets under out/_next. GitHub Pages runs Jekyll by
       # default, which ignores any path beginning with "_". The .nojekyll file

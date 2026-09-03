@@ -5,7 +5,7 @@
  * what a browser may send in, and what a model may send out.
  */
 
-import { allowedRoutes, knowledge, type KnowledgeDoc } from "./knowledge";
+import { allowedRoutes, knowledge, type KnowledgeDoc } from "./corpus";
 
 export const LIMITS = {
   /** One question. Long enough to describe an environment, short enough that
@@ -106,7 +106,7 @@ export function isAllowedHref(href: string): boolean {
   const [pathPart] = href.split(/[?#]/);
   /* "/#contact" is a real destination — the contact form on the home page. */
   const normalized = pathPart === "" ? "/" : pathPart.endsWith("/") ? pathPart : `${pathPart}/`;
-  return allowedRoutes.has(normalized) || allowedRoutes.has(pathPart);
+  return allowedRoutes().has(normalized) || allowedRoutes().has(pathPart);
 }
 
 /**
@@ -268,5 +268,7 @@ export function shouldOfferDemo(
 }
 
 /** The contact route, read from the corpus rather than written here. */
-export const DEMO_HREF =
-  knowledge.docs.find((doc) => doc.id === "page:/#contact")?.url ?? "/#contact";
+/* A function, not a const: the corpus is not in memory when this module is
+   first evaluated in a browser. */
+export const demoHref = () =>
+  knowledge().docs.find((doc) => doc.id === "page:/#contact")?.url ?? "/#contact";

@@ -8,12 +8,27 @@
  * MEMORY IS DELIBERATELY SHORT. The last few turns live in `sessionStorage`, so
  * a follow-up ("which one works with just video?") resolves against what was
  * being discussed and a page navigation does not wipe the thread — and so that
- * closing the tab ends it. Nothing is written to a server, nothing is kept
- * across sessions, and the window sent back is capped at four exchanges.
+ * closing the tab ends it. Nothing is kept across sessions, and the window fed
+ * back into retrieval is capped at four exchanges.
+ *
+ * NOTHING IS WRITTEN TO A SERVER, AND NOW NOTHING IS SENT TO ONE EITHER.
+ * This used to POST the question to a Cloud Function which called a hosted
+ * model. Retrieval and generation both run in this tab now — see
+ * `lib/ask/engine.ts` — so a question never leaves the browser. That is why
+ * the panel is allowed to say so.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ASK_ENDPOINT, MAX_MESSAGE_LENGTH } from "./config";
+import { MAX_MESSAGE_LENGTH } from "./config";
+import { ask as askEngine, warmCorpus } from "@/lib/ask/engine";
+import {
+  DEFAULT_MODEL,
+  MODELS,
+  detectWebGPU,
+  loadModel,
+  modelReady,
+  type ModelStatus,
+} from "@/lib/ask/model";
 import type { PageContext } from "./page-context";
 
 export interface SourceLink {
@@ -29,7 +44,9 @@ export interface Turn {
   sources?: SourceLink[];
   suggestions?: string[];
   cta?: { label: string; href: string };
-  /** Set when the backend could not answer — the panel renders a recovery. */
+  /** Which layer wrote the prose: the local model, or the records themselves. */
+  mode?: "model" | "retrieval";
+  /** Set when nothing could answer — the panel renders a recovery. */
   failed?: "upstream" | "rate_limited" | "network" | "declined" | "timeout";
   retryAfter?: number;
 }
@@ -72,6 +89,12 @@ export interface AssistantState {
   ask: (question: string) => void;
   retry: () => void;
   reset: () => void;
+  /** The local model's state, for the panel's preparation strip. */
+  model: ModelStatus;
+  /** The model's download size in bytes, so the offer can state it. */
+  modelBytes: number;
+  /** Begin the download. Nothing happens until the visitor asks for it. */
+  enableModel: () => void;
 }
 
 export function useAssistant(page: PageContext): AssistantState {
@@ -84,6 +107,48 @@ export function useAssistant(page: PageContext): AssistantState {
      asked after navigating carries the route the visitor is actually on. */
   const pageRef = useRef(page);
   pageRef.current = page;
+
+  /* ── The local model ──────────────────────────────────────────────────────
+     Not downloaded on open. The weights are ~1.1 GiB (measured: see
+     lib/ask/model.ts), which is a decision a visitor makes, not a side effect
+     of pressing a launcher. Until they make it, retrieval answers on its own
+     and `modelExpected` tells the composer not to promise a better answer
+     that is not coming. */
+  const [model, setModel] = useState<ModelStatus>({
+    stage: "idle",
+    progress: null,
+    detail: "",
+    device: null,
+  });
+  const modelExpectedRef = useRef(false);
+
+  /* Probe WebGPU once. A browser without it can still run the model on the
+     WASM backend, so this only changes what the offer says — never whether
+     the offer exists. */
+  useEffect(() => {
+    let alive = true;
+    void detectWebGPU().then((supported) => {
+      if (!alive || modelReady()) return;
+      setModel((current) =>
+        current.stage === "idle"
+          ? { ...current, device: supported ? "webgpu" : "wasm" }
+          : current,
+      );
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const enableModel = useCallback(() => {
+    if (modelReady() || modelExpectedRef.current) return;
+    modelExpectedRef.current = true;
+    void loadModel(DEFAULT_MODEL, setModel).catch(() => {
+      /* loadModel has already reported "failed" through setModel, and the
+         engine answers from records regardless. Nothing else to do. */
+      modelExpectedRef.current = false;
+    });
+  }, []);
 
   useEffect(() => {
     setTurns(readStored());
@@ -101,7 +166,7 @@ export function useAssistant(page: PageContext): AssistantState {
   const ask = useCallback(
     (rawQuestion: string) => {
       const question = rawQuestion.trim().slice(0, MAX_MESSAGE_LENGTH);
-      if (!question || pending || !ASK_ENDPOINT) return;
+      if (!question || pending) return;
 
       lastQuestion.current = question;
       abortRef.current?.abort();
@@ -140,99 +205,39 @@ export function useAssistant(page: PageContext): AssistantState {
 
       void (async () => {
         try {
-          const response = await fetch(ASK_ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          /* The corpus is normally already warm — the panel fetches it on
+             open — but a question can beat that, so this is awaited rather
+             than assumed. */
+          await warmCorpus();
+
+          const answer = await askEngine({
+            question,
+            pathname: pageRef.current.pathname,
+            pageTitle: pageRef.current.title,
+            turnIndex: turns.filter((t) => t.role === "user").length,
+            history: history.map((h) => h.content),
+            modelExpected: modelExpectedRef.current,
             signal: controller.signal,
-            body: JSON.stringify({
-              message: question,
-              pathname: pageRef.current.pathname,
-              pageTitle: pageRef.current.title,
-              history,
-            }),
           });
 
-          if (!response.ok || !response.body) {
-            const retryAfter = Number(response.headers.get("Retry-After")) || 0;
-            patch({
-              failed: response.status === 429 ? "rate_limited" : "upstream",
-              retryAfter,
-            });
-            return;
-          }
+          if (controller.signal.aborted) return;
 
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = "";
-
-          /* Minimal SSE reader. `event:` then `data:` then a blank line; the
-             buffer holds whatever a chunk boundary split in half. */
-          for (;;) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-
-            let boundary = buffer.indexOf("\n\n");
-            while (boundary !== -1) {
-              const frame = buffer.slice(0, boundary);
-              buffer = buffer.slice(boundary + 2);
-              boundary = buffer.indexOf("\n\n");
-
-              const eventLine = frame.match(/^event:\s*(.+)$/m)?.[1]?.trim();
-              const dataLine = frame.match(/^data:\s*([\s\S]+)$/m)?.[1];
-              if (!eventLine || !dataLine) continue;
-
-              let payload: unknown;
-              try {
-                payload = JSON.parse(dataLine);
-              } catch {
-                continue;
-              }
-
-              switch (eventLine) {
-                case "delta":
-                  setStreaming(true);
-                  append((payload as { text: string }).text);
-                  break;
-                case "replace":
-                  /* The server found and removed a link that was not a real
-                     GaitAI route; take its corrected text over what streamed. */
-                  patch({ text: (payload as { text: string }).text });
-                  break;
-                case "sources":
-                  patch({ sources: payload as SourceLink[] });
-                  break;
-                case "suggestions":
-                  patch({ suggestions: payload as string[] });
-                  break;
-                case "cta":
-                  patch({ cta: payload as { label: string; href: string } });
-                  break;
-                case "error":
-                  patch({
-                    failed: ((payload as { code?: string }).code ??
-                      "upstream") as Turn["failed"],
-                  });
-                  break;
-                default:
-                  break;
-              }
-            }
-          }
-
-          /* A stream that closed without producing anything is a failure, not
-             an empty answer. */
-          setTurns((previous) => {
-            const next = previous.map((turn) =>
-              turn.id === answerId && !turn.text && !turn.failed
-                ? { ...turn, failed: "upstream" as const }
-                : turn,
-            );
-            persist(next);
-            return next;
+          /* One patch, not a stream of deltas.
+             Generation is local: there is no network latency to mask, and a
+             fake typewriter over an already-complete string would be a
+             decoration pretending to be a stream. The pending indicator does
+             the waiting, and on the model path that wait is real. */
+          patch({
+            text: answer.text,
+            sources: answer.sources,
+            suggestions: answer.suggestions,
+            cta: answer.cta,
+            mode: answer.mode,
           });
         } catch (error) {
           if ((error as Error)?.name === "AbortError") return;
+          /* The engine falls back to records internally, so reaching here
+             means retrieval itself failed — the corpus did not load. */
           patch({ failed: "network" });
         } finally {
           setPending(false);
@@ -265,5 +270,15 @@ export function useAssistant(page: PageContext): AssistantState {
     }
   }, []);
 
-  return { turns, pending, streaming, ask, retry, reset };
+  return {
+    turns,
+    pending,
+    streaming,
+    ask,
+    retry,
+    reset,
+    model,
+    modelBytes: MODELS[DEFAULT_MODEL].bytes,
+    enableModel,
+  };
 }

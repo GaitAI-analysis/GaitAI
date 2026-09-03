@@ -8,69 +8,106 @@ the same typed data modules the pages render, it can only link to routes that
 exist, and it inherits the site's evidence discipline: no invented accuracy
 figures, no clinical validation claims, no diagnosis, no certification status.
 
----
-
-## 0. Not appearing on the site? Run the preflight
-
-```bash
-npm run ask:doctor
-# or check a deployed URL directly:
-npm run ask:doctor -- https://asia-south1-gaitai-intelligence.cloudfunctions.net/askGaitai
-```
-
-The assistant **self-disables when it has no backend** — `ASSISTANT_ENABLED` is
-false, `<AskGaitAI />` returns null, and the site renders exactly as it did
-before. That is the right default for a fresh clone, and it is also a silent
-failure mode: a deploy can be entirely green with no launcher on the page and
-nothing anywhere saying why.
-
-Two things have to be true, and neither is a code change:
-
-1. **The function is deployed.** `firebase deploy --only functions` — needs the
-   Blaze plan and `LLM_API_KEY` in Secret Manager (§6). Until then the URL
-   404s.
-2. **The build knows the URL.** `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` as a GitHub
-   Actions **variable** (§5). Until then the bundle ships the component with
-   no endpoint and it renders nothing.
-
-`ask:doctor` checks the corpus, the endpoint, whether the backend answers, and
-whether the Firestore rules are in place; it names the blocker and prints the
-command that clears it. It exits non-zero when something is missing, so it can
-gate a release if you want it to.
+**It costs nothing to operate and needs no account.** Retrieval and generation
+both run in the visitor's own browser. There is no API key, no inference
+provider, no Cloud Function, no endpoint URL and no environment variable — a
+clone of this repository has a working assistant.
 
 ---
 
-## 1. Why the backend is a Cloud Function
-
-The site is a **static export** (`output: "export"` in `next.config.mjs`)
-published to GitHub Pages. GitHub Pages serves files. It runs no server, so:
-
-- a Next `/api` route handler would work in `next dev` and **not exist** in
-  production — the assistant would silently break on deploy;
-- an API key in any `NEXT_PUBLIC_*` variable is in the JavaScript bundle, which
-  is to say it is public.
-
-So the model call lives in a **Firebase Cloud Function (2nd gen)** in the
-project this repository already owns, `gaitai-intelligence` — the same project
-behind comments and article stats. No new vendor, no new account, no new
-billing relationship.
-
-The browser is told exactly one thing: the endpoint URL. That is not a secret.
+## 1. The architecture
 
 ```
-Browser ──POST──▶ askGaitai (Cloud Run, asia-south1)
-                    │  1. origin allowlist + request validation
-                    │  2. Firestore rate limit (salted IP digest)
-                    │  3. retrieve 7 records from knowledge.json
-                    │  4. Anthropic Messages API  ← LLM_API_KEY (Secret Manager)
-                    ◀── SSE: delta… sources, suggestions, cta, done
+GitHub Pages (static)
+      |
+      v
+Ask GaitAI panel                     ~34 KB, fetched on first open
+      |
+      +--> /ask/knowledge.json       293 KB, 113 records, cached
+      |         |
+      |         v
+      |    BM25 retrieval            in the tab - the source of truth
+      |         |
+      |         v
+      |    top 7 records
+      |         |
+      +---------+--> EXTRACTIVE ANSWER          <- default, 0 bytes, instant
+      |                quotes the records verbatim
+      |
+      +--> optional: open-weight model          <- opt-in, 1.14 GB, cached
+               Transformers.js + WebGPU
+               writes prose from those same records
+      |
+      v
+answer -> link allowlist -> Sources row
 ```
+
+Two answering modes, one pipeline. **Retrieval decides what is true; the model
+only decides how it reads.** If the model is absent — never loaded, declined,
+no WebGPU, or failed — the extract answers instead and the assistant is still
+useful. That is not a fallback bolted on for safety; it is the default path.
+
+### What replaced what
+
+| Before | Now |
+|---|---|
+| Firebase Cloud Function (2nd gen) | nothing — deleted |
+| Anthropic Messages API + `LLM_API_KEY` | open-weight model in the browser |
+| `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` | nothing — deleted |
+| Firestore IP-digest rate limiter | nothing — the tab pays for its own question |
+| CORS origin allowlist | nothing — there is no origin to check |
+| per-question cost | zero |
+
+Firebase itself stays exactly where it was for **comments, journal view/like
+counters, authentication and the admin panel**. Only the assistant's function
+is gone, and `firebase.json` no longer declares a functions codebase at all.
+
+### The model
+
+| | |
+|---|---|
+| Default | `onnx-community/Qwen2.5-1.5B-Instruct` |
+| Licence | Apache-2.0 |
+| Quantization | `q4f16` on WebGPU, `q4` on the WASM/CPU fallback |
+| Weights | **1 221 878 940 B, about 1.14 GiB** (measured from the CDN) |
+| Alternative | `HuggingFaceTB/SmolLM2-1.7B-Instruct`, Apache-2.0, 1.03 GiB |
+| Runtime | `@huggingface/transformers` 4.2.0, from jsDelivr, version-pinned |
+| Settings | `temperature 0.1`, `top_p 0.9`, `max_new_tokens 300` |
+
+**The gigabyte is why the model is opt-in.** A launcher press is not consent to
+a 1.14 GB download; on a phone it may be someone's month. So the panel states
+the size on the button, the extract answers meanwhile, and nothing is blocked
+on the choice. This is the one place the implementation deliberately differs
+from the brief, which asked for the download to begin when the panel opens.
+
+### Why the runtime comes from a CDN
+
+1. **It cannot be bundled here.** `onnxruntime-web`'s WebGPU bundle uses
+   `import.meta`, and Next 14's Terser pass over the emitted asset rejects it:
+   `'import.meta' cannot be used outside of module code`.
+2. **It should not be.** ~9 MB of runtime in a webpack chunk, re-downloaded on
+   every unrelated deploy, for code only an opting-in visitor executes.
+3. **The weights already come from a CDN.** 1.14 GB cannot live in a GitHub
+   Pages repository, so the model path already fetches from `huggingface.co`.
+
+### What the privacy claim does and does not say
+
+The panel says, once the model is running:
+
+> Answers are generated locally in your browser on WebGPU. Your question is
+> not sent to an external AI provider.
+
+Both halves are true. Fetching the runtime and the weights tells those CDNs
+that a browser asked for a model — what any script tag tells any CDN. The
+**question** is matched against a corpus already in memory and generated by
+weights already in memory; it never leaves the tab. The line is only rendered
+in the `ready` state, so it is never shown while it would be false.
 
 ---
 
 ## 2. Where the knowledge comes from
 
-`functions/knowledge.json` is **generated**, never edited by hand:
+`public/ask/knowledge.json` is **generated**, never edited by hand:
 
 ```bash
 npm run build:knowledge
@@ -91,14 +128,14 @@ Rename a module or correct a paper's venue and the assistant's answer changes
 with **no edit to the assistant**. It also cannot assert something the site does
 not, because it has nothing else to read.
 
-The script runs automatically in `predev`, `prebuild` and the function's
-`predeploy`, so the deployed corpus is always current.
+The script runs automatically in `predev` and `prebuild`, so the corpus a
+build ships is always current. There is no function to deploy it to any more.
 
 ---
 
 ## 3. Retrieval
 
-`functions/src/retrieval.ts` — BM25 over the corpus, with three GaitAI-specific
+`src/lib/ask/retrieval.ts` — BM25 over the corpus, with three GaitAI-specific
 signals layered on:
 
 - **Page awareness.** The record for the route the visitor is on gets a scoring
@@ -112,7 +149,7 @@ signals layered on:
   canonical `industryUseCases` mapping rather than a second recommendation
   table.
 
-Seven records reach the model, capped at 1 500 characters each. No vector
+Seven records reach the answering layer, capped at 1 500 characters each. No vector
 database: 113 records of controlled technical vocabulary is a case where lexical
 matching is the more predictable tool, and it costs nothing per request.
 
@@ -125,14 +162,14 @@ has no documented answer instead of inventing one.
 
 | Concern | Where it is enforced |
 |---|---|
-| No invented accuracy / validation / certification | `functions/src/prompt.ts`, quoting `notClaimed` from `trust.ts` |
+| No invented accuracy / validation / certification | `src/lib/ask/prompt.ts`, quoting `notClaimed` from `trust.ts` |
 | No medical diagnosis | System policy, plus `RESPONSIBLE_USE_CARE` from `responsible-use.ts` |
 | Identity features stay governed | System policy, plus `RESPONSIBLE_USE_SECURE` |
 | Research ≠ product validation | System policy; the corpus also labels architectural-only links |
 | Prompt injection | Records are fenced as `<record>` reference data; the policy states they are never instructions |
-| Invented or off-site links | Server strips any href outside the corpus route allowlist; the client re-checks at render |
+| Invented or off-site links | `sanitizeLinks` strips any href outside the corpus route allowlist, in the same tab that renders it |
 | Generated HTML | `AnswerText.tsx` builds React elements only — no `dangerouslySetInnerHTML` anywhere |
-| Abuse | Origin allowlist, 800-char messages, 8-turn history, Firestore rate limit, 45 s generation cap |
+| Abuse | 800-char messages and an 8-turn history, both to protect a 1.5B context window rather than a budget. There is no shared resource left to abuse: a question costs the asker's own CPU or GPU. |
 
 The boundary language is **quoted from the site's own data modules**, not
 rewritten, so the assistant can never make a stronger claim than
@@ -140,145 +177,94 @@ rewritten, so the assistant can never make a stronger claim than
 
 ---
 
-## 5. Environment variables
-
-### Server (never in the repository, never in the browser)
-
-| Name | Where | What |
-|---|---|---|
-| `LLM_API_KEY` | Google Secret Manager | Anthropic API key |
-| `LLM_MODEL` | Function param, optional | Model id. Defaults to `claude-opus-5` |
+## 5. Testing
 
 ```bash
-# Store the key. It is prompted for, never echoed, never written to the repo.
-firebase functions:secrets:set LLM_API_KEY
-
-# LLM_MODEL is a firebase-functions param with a default, so it is read from
-# the environment at deploy time. To change model without touching code:
-LLM_MODEL=claude-sonnet-5 firebase deploy --only functions
+npm run ask:test              # 25 questions - no model - no network - CI runs this
+npm run ask:test -- --answers # ...and print the answer each one produces
 ```
 
-### Client (a URL, not a secret)
+Four things are asserted, and none of them needs a key or a download:
 
-| Name | Where | What |
-|---|---|---|
-| `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` | `.env.local` locally; a GitHub Actions **variable** in CI | The deployed function URL |
+1. **Retrieval.** Every case's required record ids reach the answering layer —
+   the assertion that catches a data rename before a visitor does.
+2. **Grounding.** Every link in every answer resolves to a real route in the
+   corpus allowlist.
+3. **Refusal.** A low-confidence question produces the "no documented answer"
+   wording, not a composed one.
+4. **No fabricated numbers.** No answer introduces a percentage that no record
+   states.
 
-Leave it blank and the assistant does not mount at all — the site renders
-exactly as it did before. That is the intended behaviour for a fresh clone.
+This is strictly more than the old suite could check. `functions/src/test-questions.ts`
+needed an Anthropic key to see what a visitor would actually read; the
+extractive answer is deterministic, so what a visitor reads with no model
+loaded is fully assertable in CI.
+
+```
+25/25 retrieval expectations met
+0 grounding failure(s) - 0 fabricated-number failure(s)
+route allowlist: 71 routes
+```
 
 ---
 
-## 6. Deploying
-
-**Prerequisite:** Cloud Functions require the Firebase **Blaze** (pay-as-you-go)
-plan. The free tier covers a marketing site's traffic comfortably; the model
-calls are the real cost.
+## 6. Benchmarking a model
 
 ```bash
-# 1. One-time: enable Blaze, then store the key
-firebase functions:secrets:set LLM_API_KEY
-
-# 2. Deploy the function (regenerates the corpus, installs, builds, uploads)
-firebase deploy --only functions
-
-# 3. Note the URL it prints, e.g.
-#    https://asia-south1-gaitai-intelligence.cloudfunctions.net/askGaitai
-
-# 4. Publish the rate-limit rules
-npm run deploy:rules
+npm run ask:bench                     # the default (Qwen2.5-1.5B)
+npm run ask:bench -- --model smollm   # SmolLM2-1.7B
+npm run ask:bench -- --model <hf-id>  # anything Transformers.js loads
+npm run ask:bench -- --limit 5        # a quick pass
+npm run ask:bench -- --json out.json  # machine-readable, for diffing
 ```
 
-Then add the URL to the site build:
+It runs the **site's own 25 questions** through the real retrieval and the real
+system policy, and scores the ten criteria the brief names:
 
-> Repo → Settings → Secrets and variables → Actions → **Variables** →
-> `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT`
+| # | Criterion | How it is scored |
+|---|---|---|
+| 1 | grounded correctness | expected record titles present in the answer |
+| 2 | hallucination | figures not present in the retrieved context |
+| 3 | evidence boundaries | forbidden claim shapes (diagnosis, FDA, certified, customer names, threat determinations) |
+| 4 | product-name accuracy | module-shaped names absent from the corpus |
+| 5 | source consistency | `selectSources()` finds at least one real source |
+| 6 | refusal | low-confidence cases must decline |
+| 7 | conciseness | word count against a 220-word target |
+| 8 | latency | per answer, wall clock |
+| 9 | memory | peak RSS |
+| 10 | download size | the weights, from the loader |
 
-Push to `v1/feature/insights` and the Pages workflow rebuilds with the
-assistant enabled.
+It runs on the **CPU** backend in Node, so its latency is an upper bound
+against the WebGPU path a visitor gets; the two candidates' numbers are
+comparable to each other rather than to the browser. Everything else is
+identical to what the browser produces, because it is the same code.
 
-### One manual console step
-
-Add a **TTL policy** so the rate-limit collection self-empties:
-
-> Firebase Console → Firestore → TTL → Create policy
-> Collection group `askGaitaiRateLimits`, timestamp field `expireAt`
-
-Without it the documents are still correct — the sliding windows are computed
-from the timestamps inside them — they just accumulate.
-
-### If the origin changes
-
-`ALLOWED_ORIGINS` in `functions/src/index.ts` is an explicit allowlist:
-`https://gaitai.in`, `https://www.gaitai.in`, and localhost for development. A
-request with no `Origin` header is refused, because a browser always sends one
-here and a script does not.
+**Reputation does not choose the model. This does.** Run it on real hardware
+before changing `DEFAULT_MODEL`.
 
 ---
 
 ## 7. Local development
 
 ```bash
-# terminal 1 — the function, against the emulator
-cd functions
-npm install
-npm run serve
-# prints http://127.0.0.1:5001/gaitai-intelligence/asia-south1/askGaitai
-
-# terminal 2 — the site
-echo 'NEXT_PUBLIC_ASK_GAITAI_ENDPOINT=http://127.0.0.1:5001/gaitai-intelligence/asia-south1/askGaitai' >> .env.local
-npm run dev
+npm run dev      # build:knowledge runs in predev; nothing else to configure
 ```
 
-The emulator needs the key in its environment:
-
-```bash
-cd functions && LLM_API_KEY=sk-ant-… npm run serve
-```
-
-Never put the key in `.env.local` at the repository root — anything there is a
-candidate for the client bundle, and `.env.*` is gitignored precisely because a
-key must not reach it by accident.
+There is no emulator to start, no key to export and no second terminal. The
+assistant works on first run.
 
 ---
 
-## 8. Testing
+## 8. Cost
 
-```bash
-# Retrieval only — no key, no network, no cost. Runs in CI.
-cd functions && npm run test:retrieval
-
-# Full path, including the model. Needs a key; costs a few cents.
-ANTHROPIC_API_KEY=sk-ant-… npm run test:answers
-```
-
-`functions/src/test-questions.ts` holds the acceptance set: 25 questions, each
-declaring the record ids it must surface. A data change that breaks retrieval
-fails CI rather than a visitor's question.
-
-Answer mode additionally prints each answer with its sources and token usage,
-for the judgements a fixture cannot make — whether the medical boundary held,
-whether an accuracy figure was invented, whether a prompt injection was refused.
+Zero, per question and per month. The corpus is a static file on Pages; the
+runtime and the weights come from public CDNs; inference happens on the
+visitor's own hardware. There is no Blaze plan requirement any more — the
+Firestore usage that remains (comments, counters) is what it always was.
 
 ---
 
-## 9. Cost
-
-Per question, roughly:
-
-- **System policy** ≈ 1 400 tokens, cached — ~10% of list price after the first
-  call in a five-minute window.
-- **Retrieved records** ≈ 2 500–3 000 tokens.
-- **History** ≤ 8 turns, each ≤ 1 600 characters.
-- **Output** capped at 1 400 tokens, `effort: "low"`.
-
-The levers, in the order worth reaching for: `MAX_DOCS` and `PER_DOC_CHARS` in
-`retrieval.ts`, `MEMORY_TURNS` in `use-assistant.ts`, `MAX_OUTPUT_TOKENS` in
-`index.ts`, and only then the model itself via `LLM_MODEL`.
-
----
-
-## 10. Usage counters
+## 9. Usage counters
 
 `assistantStats/{pageType}` — four integers, and nothing that could identify
 anyone:
@@ -307,7 +293,7 @@ resolve to nothing happening.
 
 ---
 
-## 11. Search and the assistant, side by side
+## 10. Search and the assistant, side by side
 
 The palette finds a page; the assistant answers a question. Those are
 different acts, and a visitor who typed a *question* into a find-a-page box
@@ -326,66 +312,44 @@ endpoint is configured — with no backend there is nothing to hand off to.
 
 ---
 
-## 12. Weight
+## 11. Files
 
-The launcher is the only thing on the critical path. `ChatPanel` is a
-`next/dynamic` import, so the transcript, the composer, the answer renderer
-and the conversation hook are fetched by the click that needs them:
-
-| | Root layout chunk | Panel chunk |
-|---|---|---|
-| static import | 48.8 KB | — |
-| dynamic import | **37.1 KB** | 12.4 KB, on first open |
-
-11.7 KB off every page load on the site, whether or not the visitor ever opens
-the assistant. `ssr: false`, because there is nothing to prerender — the panel
-does not exist until a button is pressed.
-
----
-
-## 13. Files
-
-**Frontend** — `src/components/assistant/`
+**Grounding layer** — `src/lib/ask/`, ported from the deleted function
 
 | File | Role |
 |---|---|
-| `AskGaitAI.tsx` | Mount point; renders nothing until opened |
-| `ChatLauncher.tsx` | The collapsed pill, and the one-time first-visit reveal |
-| `ChatPanel.tsx` | Dialog shell, focus trap, Escape, scroll lock on mobile |
-| `ChatHeader.tsx` | Identity, new conversation, close |
-| `ChatMessages.tsx` | Transcript, opening state, failure recovery |
-| `ChatInput.tsx` | Composer and the privacy note |
-| `QuickPrompts.tsx` | Starters and "Ask next" |
-| `SourceLinks.tsx` | The Sources row |
-| `AnswerText.tsx` | Safe markdown subset — React elements only |
-| `use-assistant.ts` | State, SSE streaming, session memory |
-| `page-context.ts` | Route → page type and page-aware openings |
-| `config.ts` | The endpoint, and the enabled flag |
-| `assistant.module.css` | Both theme branches, desktop panel and mobile sheet |
+| `corpus.ts` | Types, the fetch, and the lazy derived indexes |
+| `retrieval.ts` | BM25 + page awareness + relation expansion (index built on first use) |
+| `prompt.ts` | The system policy, memoised on first use |
+| `answer.ts` | Link allowlist, source selection, follow-ups, demo CTA |
+| `extractive.ts` | The retrieval-only answer |
+| `model.ts` | WebGPU detection, the CDN runtime, the loader, generation |
+| `engine.ts` | The pipeline: retrieval -> model or extract -> sources |
 
-**Backend** — `functions/`
-
-| File | Role |
-|---|---|
-| `src/index.ts` | The HTTPS function: CORS, validation, limits, streaming |
-| `src/retrieval.ts` | BM25 + page awareness + relation expansion |
-| `src/prompt.ts` | The system policy |
-| `src/validate.ts` | Request validation, link stripping, sources, follow-ups |
-| `src/rate-limit.ts` | Firestore sliding windows |
-| `src/knowledge.ts` | Corpus loader and route allowlist |
-| `src/test-questions.ts` | The acceptance suite |
-| `knowledge.json` | **Generated.** `npm run build:knowledge` |
-
-**Elsewhere**
+**Panel** — `src/components/assistant/`
 
 | File | Change |
 |---|---|
-| `scripts/build-knowledge.mjs` | The corpus builder |
-| `scripts/ask-doctor.mjs` | The preflight — why the launcher is missing |
-| `src/lib/assistant-stats.ts` | The four usage counters |
-| `src/components/search/IntelligenceSearch.tsx` | The hand-off row |
-| `src/app/layout.tsx` | Mounts `<AskGaitAI />` after the footer |
-| `firebase.json` | The functions codebase and its predeploy chain |
-| `firestore.rules` | Denies client access to `askGaitaiRateLimits`; bounds `assistantStats` |
-| `.github/workflows/deploy.yml` | Retrieval suite in CI; endpoint variable at build |
-| `.env.example` | Documents the endpoint variable |
+| `use-assistant.ts` | Calls the engine instead of POSTing SSE; owns model state |
+| `ChatPanel.tsx` | Warms the corpus on open; renders the model strip |
+| `ModelStrip.tsx` | **New.** The offer, the progress bar, the privacy line |
+| `config.ts` | The endpoint and its enabled flag are gone |
+
+**Harnesses** — `scripts/`
+
+| File | Role |
+|---|---|
+| `ask/cases.ts` | **The 25 questions**, moved unchanged, imported by both harnesses |
+| `ask/corpus-node.ts` | Loads the generated corpus for Node |
+| `ask-test.ts` | The acceptance suite |
+| `ask-bench.ts` | The model benchmark |
+| `build-knowledge.mjs` | Now writes `public/ask/` and `data/` |
+
+**Deleted**
+
+`functions/` entirely — `index.ts`, `retrieval.ts`, `prompt.ts`, `validate.ts`,
+`knowledge.ts`, `rate-limit.ts`, `test-questions.ts`, `package.json`,
+`tsconfig.json`, `knowledge.json`; the `functions` block in `firebase.json`;
+the `askGaitaiRateLimits` rules; the endpoint variable in `deploy.yml` and
+`.env.example`; `scripts/ask-doctor.mjs` (it existed to diagnose a missing
+endpoint).

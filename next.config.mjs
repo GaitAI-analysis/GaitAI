@@ -1,3 +1,4 @@
+
 // The site is served from the custom-domain ROOT (https://gaitai.in/), so there
 // is no URL path prefix. Keep basePath empty in every environment. If the site
 // is ever moved back under a subpath (e.g. /GaitAI), set it here once and every
@@ -36,6 +37,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
   },
+
 };
 
 export default nextConfig;

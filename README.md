@@ -280,28 +280,44 @@ A grounded assistant in the bottom-right corner of every route. It answers from
 GaitAI's **own records** — the same typed data modules the pages render — and
 links to the pages those records came from.
 
+**It runs entirely in the visitor's browser.** No API key, no inference
+provider, no Cloud Function, no endpoint URL, no environment variable and no
+per-question cost. A clone of this repository has a working assistant.
+
 **Not a general chatbot.** `npm run build:knowledge` flattens `products.ts`,
 `product-details*.ts`, `usecase-details.ts`, `publications.ts`, `evidence.ts`,
 `insights.ts`, `gaitscape/graph.ts`, `trust.ts` and the `/legal` prose into
-`functions/knowledge.json` — 113 records. Retrieval (BM25 + page awareness +
-the canonical environment→module mapping) picks seven, and only those reach the
-model. Rename a module and the assistant's answer changes with no edit to the
-assistant; it cannot assert something the site does not, because it has nothing
-else to read.
+`public/ask/knowledge.json` — 113 records. BM25 retrieval in the tab (plus page
+awareness and the canonical environment→module mapping) picks seven, and only
+those reach the answering layer. Rename a module and the assistant's answer
+changes with no edit to the assistant; it cannot assert something the site does
+not, because it has nothing else to read.
 
-**The key is never in the browser.** The site is a static export on GitHub
-Pages, so the model call lives in a Firebase Cloud Function in the existing
-`gaitai-intelligence` project, with the credential in Secret Manager. The
-browser is told one thing — the endpoint URL, which is not a secret. Set
-`NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` to enable it; leave it blank and the
-assistant does not mount at all.
+**Two answering modes, and the free one is the default.** Retrieval decides
+what is true; the language layer only decides how it reads.
+
+| | Bytes | Speed | What it writes |
+|---|---|---|---|
+| Extractive | 0 (corpus only) | instant | the records' own summaries, quoted and attributed |
+| Local model | 1.14 GB, once, cached | WebGPU | prose composed from those same records |
+
+The model is `onnx-community/Qwen2.5-1.5B-Instruct` (Apache-2.0, `q4f16`) via
+Transformers.js on WebGPU, and it is **opt-in behind its stated size** — a
+launcher press is not consent to a gigabyte. If it is never loaded, declined,
+unsupported or fails, the extract answers and the assistant is still useful.
 
 **Guardrails are quoted, not rewritten.** The system policy embeds
 `notClaimed` from `trust.ts` and the `RESPONSIBLE_USE_*` statements from
 `responsible-use.ts` verbatim, so the assistant cannot make a stronger claim
 than `/legal/security/` or any module page does. No diagnosis, no invented
 accuracy figures, no certification status, and research foundation is kept
-distinct from product-specific validation.
+distinct from product-specific validation. Every link is checked against the
+corpus's own route allowlist before it is rendered.
+
+```bash
+npm run ask:test     # 25 questions, no model, no network — CI runs this
+npm run ask:bench    # score a candidate model on those same 25 questions
+```
 
 Full architecture, deployment and testing: **`docs/ask-gaitai.md`**.
 
@@ -321,8 +337,6 @@ Full architecture, deployment and testing: **`docs/ask-gaitai.md`**.
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | ✅ | Firebase web app config |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | — | Enables the CAPTCHA gate when set |
 | `ADMIN_PASSWORD` | — | Legacy admin password (unused in prod) |
-| `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` | — | Ask GaitAI backend URL. A URL, not a secret — the model key lives in Secret Manager. Blank ⇒ the assistant does not mount. A GitHub Actions **variable**, not a secret |
-| `LLM_API_KEY` | — | **Server only.** Anthropic key, in Google Secret Manager. Never in `.env*`, never in the bundle |
 | `LLM_MODEL` | — | **Server only.** Model id for the assistant. Defaults to `claude-opus-5` |
 
 - **Local:** `cp .env.example .env.local` and fill in the values. `.env.local` is gitignored (as is every `.env*` except the template).
@@ -360,9 +374,9 @@ To verify the Firebase connection, open any publication page with DevTools open 
 | `npm run build` | Static production export to `out/` (runs `prebuild` first) |
 | `npm run start` | Serve a production build locally |
 | `npm run lint` | ESLint (Next.js config) |
-| `npm run build:knowledge` | Regenerates `functions/knowledge.json` — the Ask GaitAI corpus — from the site's data modules |
-| `npm --prefix functions run test:retrieval` | Ask GaitAI acceptance suite. No API key, no network, no cost. Runs in CI |
-| `npm --prefix functions run test:answers` | The same questions through the model. Needs a key |
+| `npm run build:knowledge` | Regenerates `public/ask/knowledge.json` — the Ask GaitAI corpus — from the site's data modules |
+| `npm run ask:test` | Ask GaitAI's 25-question acceptance suite — retrieval, grounding, refusal, no fabricated numbers. No model, no network |
+| `npm run ask:bench` | Scores a candidate open-weight model on those same 25 questions |
 | `predev` / `prebuild` | `scripts/generate-firebase-config.mjs` — validates the Firebase env vars (fail-fast) and emits the gitignored `public/firebase-config.js`; then rebuilds the Ask GaitAI corpus |
 
 ---

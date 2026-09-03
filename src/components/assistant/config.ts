@@ -1,25 +1,31 @@
 /**
  * CLIENT CONFIGURATION
  * =============================================================================
- * The ONLY thing the browser is told about the assistant's backend is where it
- * lives. An endpoint URL is not a secret; the model credential never leaves
- * Secret Manager and is read only inside the Cloud Function.
+ * There is nothing to configure any more, and that is the point.
  *
- * If `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` is unset the assistant does not mount at
- * all. A launcher that opens onto a dead endpoint is worse than no launcher, and
- * a fresh clone with no backend configured should render the site unchanged.
+ * This file used to hold `ASK_ENDPOINT` and `ASSISTANT_ENABLED`: the assistant
+ * needed a Cloud Function URL, the function needed an Anthropic key in Secret
+ * Manager, and with either missing the whole feature silently rendered
+ * nothing. Retrieval and generation both run in the visitor's own browser now
+ * — see `lib/ask/engine.ts` — so there is no endpoint, no key, no billing
+ * account and no environment variable standing between a clone of this
+ * repository and a working assistant.
  *
- * Set it in `.env.local` for development and as a GitHub Actions repository
- * variable for the deploy — see docs/ask-gaitai.md.
+ * `ASSISTANT_ENABLED` is kept, and is `true`. It exists so a build can still
+ * switch the launcher off deliberately, which is a different thing from
+ * switching off by accident because a variable was never set.
  */
 
-export const ASK_ENDPOINT = (
-  process.env.NEXT_PUBLIC_ASK_GAITAI_ENDPOINT ?? ""
-).trim();
+export const ASSISTANT_ENABLED = true;
 
-export const ASSISTANT_ENABLED = ASK_ENDPOINT.length > 0;
-
-/** Mirrors LIMITS.message in functions/src/validate.ts. */
+/**
+ * The longest question accepted.
+ *
+ * It used to mirror a server-side limit that refused oversized requests. The
+ * limit stays because the reason survives the server: a very long question
+ * crowds out the retrieved records in a 1.5B model's context window, which
+ * makes the answer worse, not longer.
+ */
 export const MAX_MESSAGE_LENGTH = 800;
 
 export const ASSISTANT_NAME = "Ask GaitAI";

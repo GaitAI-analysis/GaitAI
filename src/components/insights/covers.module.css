@@ -18,9 +18,16 @@
    ========================================================================== */
 
 .cover {
+  position: relative;
   display: block;
   height: 100%;
   width: 100%;
+  /* The ratio the compositions are drawn at, so a cover still has a size in a
+     slot whose own height is automatic — the article hero used to take its
+     height from the raster's intrinsic ratio, and a <div> has none. Where the
+     slot does set a height (every card variant) both dimensions are definite
+     and this is ignored. */
+  aspect-ratio: 16 / 10;
   --c-a: #4fd1ff;
   --c-b: #5587ff;
   --c-warm: #e4c48a;
@@ -28,6 +35,17 @@
   --c-hair: rgb(148 163 184 / 0.32);
   --c-mute: rgb(148 163 184 / 0.72);
   --c-ink: #dbeafe;
+}
+
+/* The three fits, stacked. Sizing lives here rather than on the elements so
+   a cover fills whatever slot it is dropped into — a 16/9 compact card, a 4/3
+   tall card, a flex column in the featured card or the article hero band. */
+.layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  height: 100%;
+  width: 100%;
 }
 
 /* Per-concept accents. */

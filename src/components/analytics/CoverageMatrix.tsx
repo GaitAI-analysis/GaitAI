@@ -101,7 +101,14 @@ export function CoverageMatrix() {
         </p>
       </div>
 
-      <div className={`${styles.panel} mt-5`}>
+      {/* The <caption> already says every cell is a button, but it is sr-only:
+          a sighted reader saw a grid of 9px marks and no reason to think it
+          answered to them. One visible line, matching the caption. */}
+      <p className="ix-hint mt-4">
+        Select a cell to see the modules and signals behind it
+      </p>
+
+      <div className={`${styles.panel} mt-3`}>
         <div className={styles.matrixScroll}>
           <table className={styles.matrix}>
             <caption className="sr-only">

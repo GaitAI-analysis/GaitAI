@@ -6,6 +6,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
 } from "react";
 import Link from "next/link";
 import {
@@ -44,20 +45,32 @@ import type {
 // VISUAL CONSTANTS — one stable color per node CATEGORY (never per node)
 // ============================================================================
 
+/**
+ * One stable colour per node CATEGORY, named rather than spelled.
+ *
+ * These are custom properties, not hexes, because the graph has a light
+ * branch: the canvas, the hairlines and the labels all flip in
+ * `globals.css` (`--graph-*`), and a hex here would be the one value that
+ * could not follow them — champagne on paper is invisible. Every consumer
+ * passes these straight to `fill`, `stroke`, `color` or `background`, all of
+ * which resolve `var()`, so nothing downstream needs to know the theme.
+ */
 const TYPE_COLOR: Record<GaitscapeNodeType, string> = {
-  core: "#e7d3a0", // champagne / gold
-  vertical: "#5eead4", // overridden per vertical below
-  product: "#5b9df5", // blue
-  signal: "#4fd1ff", // cyan
-  capability: "#6d7ef0", // indigo
-  domain: "#6fc3c3", // muted aqua
-  research: "#d9c08c", // champagne
-  outcome: "#b9a7f2", // soft violet
+  core: "var(--graph-node-core)", // champagne / gold
+  vertical: "var(--graph-node-mobility)", // overridden per vertical below
+  product: "var(--graph-node-product)", // blue
+  signal: "var(--graph-node-signal)", // cyan
+  capability: "var(--graph-node-capability)", // indigo
+  domain: "var(--graph-node-domain)", // muted aqua
+  research: "var(--graph-node-research)", // champagne
+  outcome: "var(--graph-node-outcome)", // soft violet
 };
 
 function nodeColor(node: GaitscapeNode): string {
   if (node.type === "vertical") {
-    return node.id === "securevision" ? "#8b9cf6" : "#5eead4";
+    return node.id === "securevision"
+      ? "var(--graph-node-secure)"
+      : "var(--graph-node-mobility)";
   }
   return TYPE_COLOR[node.type];
 }
@@ -1329,7 +1342,7 @@ export function GaitscapeExplorer() {
           {mode === "graph" ? (
             <div
               className={cn(
-                "gaitscape-stage relative overflow-hidden rounded-3xl border border-white/[0.08]",
+                "gaitscape-stage relative overflow-hidden rounded-3xl border border-[var(--graph-frame)]",
                 isFullscreen && "min-h-0 flex-1"
               )}
             >
@@ -1524,19 +1537,26 @@ export function GaitscapeExplorer() {
                               style={{ stroke: color }}
                             />
                           )}
+                          {/* The resting fill weight travels as a custom
+                              property, not as an inline `fillOpacity`: an
+                              inline value outranks the stylesheet, which
+                              silently killed the hover state these nodes
+                              were supposed to have. See .gaitscape-node-dot. */}
                           <circle
                             className="gaitscape-node-dot"
                             r={r}
-                            style={{
-                              fill: color,
-                              fillOpacity:
-                                node.type === "core" || node.type === "vertical"
-                                  ? 0.27
-                                  : isHub
-                                    ? 0.22
-                                    : 0.15,
-                              stroke: color,
-                            }}
+                            style={
+                              {
+                                fill: color,
+                                stroke: color,
+                                "--gs-node-fill":
+                                  node.type === "core" || node.type === "vertical"
+                                    ? 0.27
+                                    : isHub
+                                      ? 0.22
+                                      : 0.15,
+                              } as CSSProperties
+                            }
                           />
                           <circle r={Math.max(2.4, r * 0.3)} fill={color} />
                           {showLabel && (
@@ -1738,8 +1758,8 @@ export function GaitscapeExplorer() {
               active hubs carry labels until you engage or zoom in. */}
           {mode === "graph" && !hasEngaged && (
             <p className="gaitscape-hint mt-3.5 w-full max-w-[520px] shrink-0 rounded-xl border border-white/[0.08] bg-obsidian-200/80 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-soft-mute backdrop-blur">
-              Start anywhere — select a node to see how it connects.
-              Everything branches from{" "}
+              Start anywhere — select a node to see how it connects, and drag
+              the canvas to move around it. Everything branches from{" "}
               <span className="text-soft-gray">
                 Human Movement Intelligence
               </span>{" "}

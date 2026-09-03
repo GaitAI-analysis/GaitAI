@@ -1080,6 +1080,15 @@
 .summaryToggle::-webkit-details-marker {
   display: none;
 }
+/* The whole header row is the toggle, so the whole row has to answer to the
+   pointer — a chevron that reacts and a row that does not reads as two
+   different controls. */
+.summaryToggle:hover {
+  background-color: var(--interactive-hover-bg);
+}
+.summaryToggle:hover .summaryChevron {
+  transform: translateY(1px);
+}
 .summaryToggle:focus-visible {
   outline: 2px solid var(--jr-cyan);
   outline-offset: 2px;
@@ -1087,11 +1096,36 @@
 .summaryChevron {
   transition: transform 0.35s var(--jr-ease);
 }
-details[open] > .summaryToggle .summaryChevron {
+details[open] > .summaryToggle .summaryChevron,
+details[open] > .summaryToggle:hover .summaryChevron {
   transform: rotate(180deg);
 }
 .summaryBody {
   padding: 0 1.25rem 1.35rem;
+}
+/* A subtle reveal, so opening the panel is an event rather than a reflow.
+   Height is left alone on purpose: <details> cannot animate its own box
+   without script in the browsers this has to support, and a janky height
+   transition is worse than an honest one. */
+@keyframes jrSummaryReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+details[open] > .summaryBody {
+  animation: jrSummaryReveal 0.3s var(--jr-ease) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  details[open] > .summaryBody,
+  .summaryChevron {
+    animation: none;
+    transition: none;
+  }
 }
 .summaryList {
   display: grid;

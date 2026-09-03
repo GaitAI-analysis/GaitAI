@@ -10,11 +10,13 @@ import {
   ChevronRight,
   Home,
   Menu,
+  Search,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
+import { SEARCH_EVENT } from "@/components/search/IntelligenceSearch";
 import { navLinks } from "@/data/content";
 import { cn } from "@/lib/utils";
 import { assetPath } from "@/lib/paths";
@@ -122,24 +124,30 @@ export function Navbar() {
                         aria-current={isActive(link.href) ? "page" : undefined}
                         className={cn(
                           "group/link relative flex items-center gap-1 rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
-                          active
+                          active || menuOpen
                             ? "text-soft-white"
                             : "text-soft-gray hover:text-soft-white"
                         )}
                       >
                         {link.label}
+                        {/* The chevron is the dropdown's whole resting
+                            affordance, so it also has to say when the menu is
+                            OPEN — it flips, and takes the accent with it. */}
                         <ChevronDown
                           aria-hidden="true"
                           className={cn(
-                            "h-3.5 w-3.5 transition-transform duration-300",
-                            menuOpen && "rotate-180"
+                            "h-3.5 w-3.5 transition-[transform,color] duration-300",
+                            menuOpen && "rotate-180 text-cyan-300"
                           )}
                         />
+                        {/* Open is a state, not just a hover: the underline
+                            stays put while the panel is down, so the trigger
+                            the panel belongs to is never ambiguous. */}
                         <span
                           aria-hidden
                           className={cn(
                             "pointer-events-none absolute inset-x-2.5 -bottom-0.5 h-px origin-center rounded-full bg-gradient-to-r from-cyan-300/80 via-royal-400/80 to-violet-400/80 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] 2xl:inset-x-3.5",
-                            active
+                            active || menuOpen
                               ? "scale-x-100 opacity-100"
                               : "scale-x-0 opacity-0 group-hover/link:scale-x-100 group-hover/link:opacity-100"
                           )}
@@ -158,7 +166,7 @@ export function Navbar() {
                             transition={{ duration: 0.18 }}
                             className="absolute left-1/2 top-full z-20 w-72 -translate-x-1/2 pt-2"
                           >
-                            <div className="overflow-hidden rounded-2xl border border-white/10 bg-obsidian-200/95 p-2 shadow-[0_24px_70px_-20px_rgba(0,0,0,0.8)] backdrop-blur-2xl">
+                            <div className="overflow-hidden rounded-2xl border border-[var(--dropdown-border)] bg-[var(--dropdown-bg)] p-2 shadow-[var(--shadow-dropdown)] backdrop-blur-2xl">
                               {link.children.map((child) => {
                                 const childActive = isActive(child.href);
                                 return (
@@ -260,10 +268,14 @@ export function Navbar() {
                 Request demo
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
+              {/* The one control that has to be reachable one-handed: 36px on
+                  a mouse, 44px where there is a thumb. */}
               <button
+                type="button"
                 onClick={() => setOpen(true)}
                 aria-label="Open menu"
-                className="grid h-9 w-9 place-items-center rounded-full glass xl:hidden"
+                aria-expanded={open}
+                className="ix-hit-box grid h-9 w-9 place-items-center rounded-full glass transition-colors hover:border-white/20 active:scale-95 xl:hidden"
               >
                 <Menu className="h-4 w-4" />
               </button>
@@ -288,14 +300,32 @@ export function Navbar() {
             <div className="container-wide flex items-center justify-between py-5">
               <Logo variant="wordmark" size="md" />
               <button
+                type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="grid h-9 w-9 place-items-center rounded-full glass"
+                className="ix-hit-box grid h-9 w-9 place-items-center rounded-full glass transition-colors hover:border-white/20 active:scale-95"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
             <nav className="container-wide mt-10 flex flex-col gap-1 pb-16">
+              {/* The palette was desktop-only: the navbar trigger is hidden
+                  below md because a ⌘K key cap means nothing on a phone, and
+                  the drawer offered no other way in — so search simply did not
+                  exist on mobile. Here it is a real row, worded as an action,
+                  with no shortcut to misrepresent. */}
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  window.dispatchEvent(new CustomEvent(SEARCH_EVENT));
+                }}
+                className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-left text-[15px] text-soft-gray transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-soft-white active:scale-[0.99]"
+              >
+                <Search aria-hidden="true" className="h-4 w-4 shrink-0" />
+                Search products, research and stories
+              </button>
+
               {navLinks.map((link, i) => {
                 const active = itemIsActive(link);
                 return (

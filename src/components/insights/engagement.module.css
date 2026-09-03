@@ -11,19 +11,33 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.25rem;
+  /* The stats carry their own padding now (see .stat), so the gap gives back
+     what the padding adds and the whole row pulls left by that padding —
+     the first item's text stays flush with the type above it. */
+  gap: 0.35rem;
+  margin-inline: -0.5rem;
 }
 
+/* The line is set at metadata weight on purpose, which left the like reading
+   as a *reported number* rather than as something the reader could do. It
+   keeps the type and gains the two things that make it a control: a hairline
+   frame that appears the moment it is pointed at or focused, and a finger-
+   sized target. The resting state stays quiet — a boxed social bar under a
+   journal headline would be the wrong kind of loud. */
 .stat {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  padding: 0.32rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
   font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
   font-size: 10.5px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgb(var(--c-soft-mute));
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .mark {
@@ -36,6 +50,49 @@
 .link:hover,
 .like:hover {
   color: rgb(var(--c-soft-white));
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+
+.like:active {
+  transform: scale(0.97);
+}
+
+/* The like is a toggle, so its ON state is persistent and not just a colour
+   shift: the mark fills and the frame stays. */
+.liked,
+.liked:hover {
+  border-color: rgb(240 162 192 / 0.4);
+}
+:global(.light) .liked,
+:global(.light) .liked:hover {
+  border-color: rgb(180 50 106 / 0.35);
+}
+
+/* TOUCH — the box stays at metadata size; the target reaches 44px. */
+@media (pointer: coarse) {
+  .stat {
+    position: relative;
+  }
+  .stat::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    min-width: var(--interactive-touch-target);
+    min-height: var(--interactive-touch-target);
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat,
+  .like:active {
+    transition: none;
+    transform: none;
+  }
 }
 
 .like:focus-visible,

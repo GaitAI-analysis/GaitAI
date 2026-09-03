@@ -44,7 +44,7 @@ export function FeaturedProducts() {
           <div
             role="group"
             aria-label="Choose a product system"
-            className="inline-flex h-10 max-w-full shrink-0 items-center rounded-full border border-[rgba(110,150,255,0.18)] bg-[rgba(10,18,40,0.55)] p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[10px]"
+            className="inline-flex h-10 max-w-full shrink-0 items-center rounded-full touch:h-12 border border-[rgba(110,150,255,0.18)] bg-[rgba(10,18,40,0.55)] p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[10px]"
           >
             {productViews.map((view) => {
               const isActive = selectedView === view.id;
@@ -54,8 +54,12 @@ export function FeaturedProducts() {
                   key={view.id}
                   type="button"
                   aria-pressed={isActive}
+                  /* The panel id already existed and nothing pointed at it,
+                     so a screen-reader user was never told what these
+                     switches govern. */
+                  aria-controls="featured-products-panel"
                   onClick={() => setSelectedView(view.id)}
-                  className={`h-8 whitespace-nowrap rounded-full border px-4 text-sm leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian-300 sm:px-5 ${
+                  className={`h-8 touch:h-10 whitespace-nowrap rounded-full border px-4 text-sm leading-none transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/60 focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian-300 sm:px-5 ${
                     isActive
                       ? "border-[rgba(120,190,255,0.30)] bg-[linear-gradient(135deg,rgba(53,130,255,0.22),rgba(98,76,255,0.18))] font-semibold text-[#F5F8FF] shadow-[0_8px_24px_rgba(35,90,220,0.18)]"
                       : "border-transparent font-medium text-[rgba(220,232,255,0.78)] hover:bg-white/[0.04] hover:text-[#F5F8FF]"

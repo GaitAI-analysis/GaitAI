@@ -134,13 +134,20 @@ export function EvidenceObservatory({ areas }: { areas: ObservatoryArea[] }) {
   return (
     <div className={styles.emap}>
       {/* ── Pillar index ── */}
-      <div
-        role="tablist"
-        aria-label="Research pillars"
-        aria-orientation="vertical"
-        className={styles.emapIndex}
-        onKeyDown={onKeyDown}
-      >
+      <div>
+        {/* A vertical rule-separated list of pillar names does not look like a
+            control, and the thing it drives — the evidence flow — is two
+            columns away. One line says what the connection is. */}
+        <p className="ix-hint mb-3">
+          Select a research area to trace its evidence path
+        </p>
+        <div
+          role="tablist"
+          aria-label="Research pillars"
+          aria-orientation="vertical"
+          className={styles.emapIndex}
+          onKeyDown={onKeyDown}
+        >
         {areas.map((item, i) => (
           <button
             key={item.id}
@@ -170,6 +177,7 @@ export function EvidenceObservatory({ areas }: { areas: ObservatoryArea[] }) {
             </span>
           </button>
         ))}
+        </div>
       </div>
 
       {/* ── Evidence flow ── */}

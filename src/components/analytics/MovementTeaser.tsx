@@ -74,8 +74,16 @@ export function MovementTeaser() {
               applied and the modules that use them.
             </p>
           </div>
+          {/* The selector is the single most important interaction on the
+              home page and it used to read as a row of captions above a
+              diagram. It now carries the interaction system's segmented
+              treatment, one line of helper copy — because nothing about four
+              capitalised words says "these change what is below" — and a
+              first-visit ring around the already-chosen input. */}
           <SegmentTabs
-            label="Input"
+            label="Capture input"
+            hint="Choose an input to explore"
+            cueKey="home-input-selector"
             value={source}
             onChange={(id) => setSource(id as CaptureSource)}
             options={TABS.map((id) => ({
@@ -95,7 +103,14 @@ export function MovementTeaser() {
             </span>
           </div>
 
-          <div className="grid gap-px sm:grid-cols-2 lg:grid-cols-4">
+          {/* Keyed on the source, so choosing an input re-mounts the chain and
+              it fades up through `.enter`. That transition is the answer to
+              "did my click do anything?" — without it the rows swap contents
+              in a single frame and the change is easy to miss entirely. */}
+          <div
+            key={source}
+            className={`${styles.enter} grid gap-px sm:grid-cols-2 lg:grid-cols-4`}
+          >
             {rows.map((row) => (
               <div key={row.label} className={styles.column}>
                 <div className={styles.columnHead}>

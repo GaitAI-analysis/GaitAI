@@ -212,7 +212,7 @@ export function ProductCompare({
                 ].map((row) => (
                   <tr key={row.label}>
                     <th scope="row" className={styles.rowHeadCell}>
-                      <span className={`${styles.rowHead} !cursor-default`}>
+                      <span className={styles.rowHead}>
                         {row.label}
                       </span>
                     </th>
@@ -230,7 +230,7 @@ export function ProductCompare({
                 {capabilityRows.map((capability) => (
                   <tr key={capability.id}>
                     <th scope="row" className={styles.rowHeadCell}>
-                      <span className={`${styles.rowHead} !cursor-default`}>
+                      <span className={styles.rowHead}>
                         {capability.title}
                       </span>
                     </th>
@@ -274,7 +274,7 @@ export function ProductCompare({
                 ].map((row) => (
                   <tr key={row.label}>
                     <th scope="row" className={styles.rowHeadCell}>
-                      <span className={`${styles.rowHead} !cursor-default`}>
+                      <span className={styles.rowHead}>
                         {row.label}
                       </span>
                     </th>
@@ -307,7 +307,7 @@ export function ProductCompare({
 
                 <tr>
                   <th scope="row" className={styles.rowHeadCell}>
-                    <span className={`${styles.rowHead} !cursor-default`}>
+                    <span className={styles.rowHead}>
                       Research basis
                     </span>
                   </th>
@@ -334,7 +334,7 @@ export function ProductCompare({
 
                 <tr>
                   <th scope="row" className={styles.rowHeadCell}>
-                    <span className={`${styles.rowHead} !cursor-default`}>
+                    <span className={styles.rowHead}>
                       Responsible-use notes
                     </span>
                   </th>

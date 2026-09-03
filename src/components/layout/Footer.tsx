@@ -46,6 +46,7 @@ const footerLinks = [
     items: [
       { label: ctas.pilot.label, href: ctas.pilot.href },
       { label: "How deployment works", href: "/products#deploy" },
+      { label: "Trust Center", href: "/trust" },
       { label: "Security & privacy controls", href: "/legal/security" },
       { label: "Investors & collaboration", href: "/investors" },
       { label: "Contact", href: "/#contact" },

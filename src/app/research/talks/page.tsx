@@ -6,14 +6,12 @@ import { DiagramField } from "@/components/visuals/DiagramField";
 import { TalksConstellation } from "@/components/research/TalksConstellation";
 import { TalksTimeline } from "@/components/research/TalksTimeline";
 import {
-  TALKS_SOURCES,
   talkCounts,
   talkFormatCount,
   talkRecords,
   talkSpan,
   talkThreads,
 } from "@/data/talks";
-import { FOUNDER_PORTFOLIO_URL } from "@/data/publications";
 import { ctas } from "@/data/content";
 
 /**
@@ -26,14 +24,12 @@ import { ctas } from "@/data/content";
  * record opens on request, and the same continuous-line language the Journal
  * uses for ideas is used here for a sequence.
  *
- * NO PERSONAL NAME IN THE COPY. The page previously named the speaker three
- * times — in the eyebrow, the standfirst and the metadata — which made a
- * research record read as a personal profile. The distinction it was making is
- * real and is kept, but it is made once, in its own place, as a property of
- * the RECORDS rather than of a person: these are individually held academic
- * activities, not GaitAI company appearances. `TALKS_SPEAKER` still exists in
- * the data as provenance and still feeds the search index; it is simply not
- * rendered here.
+ * NO PERSONAL NAME AND NO PROVENANCE DISCLAIMER IN THE COPY. The page shows
+ * the talks themselves and nothing about how to interpret them: no note on
+ * whose record it is, whether an entry is a company appearance, or which
+ * entries reach a GaitAI research area. `TALKS_SPEAKER` still exists in the
+ * data as provenance and still feeds the search index; it is simply not
+ * rendered here. Do not reintroduce a provenance block on this page.
  *
  * THE COUNTS ARE NEVER SUMMED INTO "TALKS". 10 invited talks, 3 conference
  * presentations, 8 paper presentations and 1 poster are four different kinds
@@ -49,8 +45,7 @@ export const metadata: Metadata = {
   title: "Talks & Presentations — research in conversation",
   description:
     "Selected invited talks, conference presentations, posters and technical " +
-    "sessions spanning AI, gait analysis, biometrics and related research. " +
-    "Individually held academic records, not GaitAI company appearances.",
+    "sessions spanning AI, gait analysis, biometrics and related research.",
   alternates: { canonical: "/research/talks" },
   openGraph: {
     type: "website",
@@ -179,60 +174,6 @@ export default function TalksPage() {
           <Reveal>
             <TalksTimeline />
           </Reveal>
-        </div>
-      </section>
-
-      {/* ─────────── PROVENANCE ───────────
-          The distinction the old hero repeated three times, made once, here,
-          where a reader who has just been through the record will actually
-          weigh it. */}
-      <section className="section !pt-0">
-        <div className="container-wide">
-          <div className="max-w-2xl border-t border-white/10 pt-8">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
-              Academic record
-            </p>
-            <p className="mt-3 text-[13px] leading-relaxed text-soft-gray">
-              These entries document individual academic and research
-              activities and should not be interpreted as GaitAI company
-              appearances — the company has delivered no talks of its own.
-              Every entry is reproduced from the underlying{" "}
-              <a
-                href={FOUNDER_PORTFOLIO_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-soft-white underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:decoration-soft-white"
-              >
-                research record
-              </a>
-              , with the evidence each one links. A record maps to a GaitAI
-              research area only where the work itself is that research; the
-              IoT, teaching and access-control sessions are part of the
-              academic record and map to nothing here.
-            </p>
-
-            <p className="mt-4 text-[11.5px] leading-relaxed text-soft-mute">
-              Sources:{" "}
-              <a
-                href={TALKS_SOURCES.talks}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-gray"
-              >
-                talks delivered
-              </a>{" "}
-              and{" "}
-              <a
-                href={TALKS_SOURCES.conferences}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-gray"
-              >
-                conference record
-              </a>
-              .
-            </p>
-          </div>
         </div>
       </section>
 

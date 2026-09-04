@@ -43,12 +43,6 @@ import { researchAreas } from "@/data/evidence";
 
 export const TALKS_SPEAKER = "Anubha Parashar";
 
-/** The two pages every record below came from. */
-export const TALKS_SOURCES = {
-  conferences: "https://anubhaparashar.github.io/publication.html#conferences",
-  talks: "https://anubhaparashar.github.io/event.html#talks",
-} as const;
-
 /**
  * Why 8 of 16 conference papers appear here and 8 do not.
  *
@@ -526,11 +520,10 @@ export const talkThreads: TalkThread[] = (() => {
   if (unmapped.length) {
     threads.push({
       id: "outside-lineage",
-      title: "Wider academic record",
+      title: "Teaching, IoT and wider AI",
       summary:
-        "Sessions and papers that map to no GaitAI research area — teaching " +
-        "and faculty-development talks, IoT and AI sessions, and conference " +
-        "papers outside movement research.",
+        "Faculty-development and teaching sessions, IoT and AI workshops, and " +
+        "conference papers outside movement research.",
       talks: unmapped,
     });
   }

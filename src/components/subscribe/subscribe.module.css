@@ -196,12 +196,33 @@
 /* ── Verdict ──
    The line is always in the DOM so a result arriving does not move the
    page; it is simply empty until there is something to say. */
+/*
+ * The status line. It is an `aria-live` region, so it has to stay in the DOM
+ * at all times — a live region inserted at the same moment as its text is not
+ * reliably announced.
+ *
+ * `min-height` reserves one line so the block does not jump when a message
+ * arrives. That reservation was being paid CONSTANTLY: empty, this element
+ * still contributed 11.2px of margin plus 18.4px of reserved line, which with
+ * the legal text's own 8px put 38px between the field row and the small
+ * print. The subscribe unit read as two separate things.
+ *
+ * `:empty` is the fix rather than unmounting the element — React renders no
+ * text node for an empty string, so an empty status line collapses to nothing
+ * while the live region itself stays put. The reservation still applies the
+ * moment there is something to say.
+ */
 .note {
   min-height: 1.15rem;
   margin-top: 0.7rem;
   font-size: 0.8125rem;
   line-height: 1.4;
   color: rgb(var(--c-soft-mute));
+}
+
+.note:empty {
+  min-height: 0;
+  margin-top: 0;
 }
 
 .ok {
@@ -220,12 +241,21 @@
   color: #b91c1c;
 }
 
+/* 14px from the field row when there is no status message, which is what
+   makes the field, the button and the small print read as one unit. With a
+   message present it is 14px below that instead. */
 .legal {
-  margin-top: 0.5rem;
+  margin-top: 0.875rem;
   max-width: 34rem;
   font-size: 0.75rem;
   line-height: 1.6;
   color: rgb(var(--c-soft-mute));
+}
+
+@media (max-width: 640px) {
+  .legal {
+    margin-top: 0.75rem;
+  }
 }
 
 .legalLink {

@@ -110,7 +110,7 @@ export function Navbar() {
   return (
     <>
       <motion.header
-        initial={{ y: -24, opacity: 0 }}
+        initial={false}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
         className={cn(

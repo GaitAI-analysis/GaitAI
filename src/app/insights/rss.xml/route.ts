@@ -8,7 +8,6 @@ function xml(value: string): string {
     "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;",
   })[character] ?? character);
 }
-
 export async function GET() {
   const stories = (await readPublicationStories()).slice(0, 50);
   const items = stories.map((story) => {
@@ -19,4 +18,3 @@ export async function GET() {
   const body = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/"><channel><title>GaitAI Blog &amp; Updates</title><link>${SITE_URL}/insights/</link><description>Ideas, research, product stories and the latest from GaitAI.</description><language>en</language><lastBuildDate>${latest}</lastBuildDate><atom:link xmlns:atom="http://www.w3.org/2005/Atom" href="${SITE_URL}/insights/rss.xml" rel="self" type="application/rss+xml"/>${items}</channel></rss>`;
   return new Response(body, { headers: { "Content-Type": "application/rss+xml; charset=utf-8", "Cache-Control": "public, max-age=3600" } });
 }
-

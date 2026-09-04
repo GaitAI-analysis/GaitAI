@@ -1,5 +1,6 @@
 node_modules
 .next
+.next-*
 # A build directory that got renamed out of the way of `.next` once, escaped
 # the rule above, and was committed with 323 MB of webpack cache in it.
 .next-acl-blocked
@@ -33,6 +34,10 @@ build_check.log
 devlog*.txt
 fbtest.mjs
 graphify-out/
+# Screenshot output and the `--user-data-dir` profiles the headless-Edge
+# verification workflow leaves behind: 31 MB of browser state in 1078 files
+# the first time it went unignored.
+tmp/
 
 # Generated at dev/build time from .env.local — never commit
 public/firebase-config.js

@@ -44,4 +44,3 @@ export const INSIGHT_TOPIC_CONFIG: Record<
     priority: 30,
   },
 };
-

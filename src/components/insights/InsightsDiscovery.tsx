@@ -40,4 +40,3 @@ export function InsightsDiscovery({ stories }: { stories: PublicationStory[] }) 
     </>
   );
 }
-

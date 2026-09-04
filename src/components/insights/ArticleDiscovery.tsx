@@ -50,4 +50,3 @@ export function ArticleDiscovery({ current, stories }: { current: PublicationSto
     </section>
   );
 }
-

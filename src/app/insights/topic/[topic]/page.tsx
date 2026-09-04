@@ -10,7 +10,6 @@ export const dynamicParams = false;
 export async function generateStaticParams() {
   return publicationTopics(await readPublicationStories()).map((topic) => ({ topic: topic.slug }));
 }
-
 export async function generateMetadata({ params }: { params: { topic: string } }): Promise<Metadata> {
   const stories = await readPublicationStories();
   if (!publicationTopics(stories).some((topic) => topic.slug === params.topic)) return { title: "Topic not found" };
@@ -42,4 +41,3 @@ export default async function TopicPage({ params }: { params: { topic: string } 
     </div>
   );
 }
-

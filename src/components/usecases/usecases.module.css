@@ -440,27 +440,123 @@
   outline-offset: 3px;
 }
 
-/* ── Discovery bar ── */
+/* ── Discovery bar ───────────────────────────────────────────────────────────
+ *
+ * A FILTER TOOLBAR, NOT A SECTION THAT TRAVELS. Plain `position: sticky` at
+ * the bottom edge of the fixed header — no transform, no offset animation,
+ * nothing that could trail the scroll by a frame. It parks; it does not move.
+ *
+ * WHAT ACTUALLY MADE IT FEEL DRAGGED WAS HEIGHT. Measured, this bar was 131px
+ * at 1440, 161px at 768 where the facet chips took a second line, and 389px on
+ * a 390px phone — half the viewport, because the family tabs wrapped to two
+ * rows and the touch-sized chips to five. A slab that deep parked under the
+ * navbar reads as the whole filter section coming along for the ride.
+ *
+ * Two changes fix it, and both are about the box rather than the motion:
+ *
+ *   · NEITHER CONTROL ROW WRAPS. Each is a single line that scrolls sideways
+ *     when it runs out of room, so the bar is the same three lines at every
+ *     width — ~105px on a desktop, ~175px on a phone, instead of growing a row
+ *     every time the viewport narrows.
+ *   · THE PADDING IS THE STUCK PADDING, ALWAYS. It is tempting to let the bar
+ *     relax when it is not parked, but a sticky element still holds its place
+ *     in flow: shrinking one at the moment it sticks lifts every card below it,
+ *     and if the shrink lifts the sentinel back into view the two states
+ *     flicker against each other. One height, no jolt.
+ *
+ * The stuck state therefore changes colour and nothing else — see below.
+ */
 .stickyBar {
   position: sticky;
   top: var(--site-header-height, 5.625rem);
   z-index: 20;
   border-block: 1px solid rgb(var(--c-soft-white) / 0.07);
-  background: rgb(var(--c-obsidian) / 0.82);
-  backdrop-filter: blur(14px);
-  padding-block: 0.85rem;
+  padding-block: 0.5rem;
+}
+
+/* Zero-height marker, immediately above the bar. It has no appearance and no
+   space; the explorer watches it to know when the bar has parked. */
+.stickySentinel {
+  height: 0;
+}
+
+/*
+ * PARKED. The only difference between resting and stuck, and it is deliberately
+ * the smallest one that does the job: cards passing underneath have to stop
+ * ghosting through the controls.
+ *
+ * The ground does that, not a shadow and not a heavy blur — 0.94 is opaque
+ * enough that a card edge cannot be read through it, which is what a 0.82 wash
+ * behind 14px of blur was failing to manage. The blur that remains is there for
+ * the few pixels of colour that do come through at the edges; the bottom rule
+ * gains a little weight so the bar has a defined lower edge against the grid
+ * rather than fading into it. No box-shadow at all.
+ *
+ * `--c-obsidian` is the page ground token, so this follows the theme: near-black
+ * in the dark theme, near-white in the light one.
+ */
+.stickyBar[data-stuck="true"] {
+  background: rgb(var(--c-obsidian) / 0.94);
+  backdrop-filter: blur(10px);
+  border-bottom-color: rgb(var(--c-soft-white) / 0.12);
 }
 
 .filterBar {
   display: grid;
-  gap: 0.75rem;
+  gap: 0.4rem;
 }
 
 .filterTop {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.5rem;
+  /* The same automatic-minimum trap as the scrollers below, one level up: this
+     is a grid item, so it is floored at its min-content width, and a
+     non-wrapping row of family tabs inside it makes that min-content the sum
+     of all three. Left alone it measured 391px inside a 350px column and hung
+     the last tab off the side of the phone. */
+  min-width: 0;
+}
+
+/*
+ * ONE LINE, SCROLLED SIDEWAYS — the family tabs and the facet chips both.
+ *
+ * The scrollbar is hidden because a 15px Windows scrollbar under a 24px row of
+ * chips is taller than the affordance is worth, and the row is swipeable on
+ * touch and shift-scrollable on a desktop. What replaces it is the mask: the
+ * last few pixels of the visible area fade out, which reads as "there is more"
+ * when the row overflows and is invisible when it does not, because the right
+ * edge of a row that fits is empty ground.
+ */
+.familyTabs,
+.chipsRow {
+  display: flex;
+  flex-wrap: nowrap;
+  /* Without this the row never scrolls: a flex item and a grid item both take
+     `min-width: auto`, which refuses to shrink below the content, so a row of
+     eleven chips simply grew past the container's right padding and the last
+     ones were clipped off the side of the phone. `overflow-x` cannot engage on
+     a box that was never made narrower than its contents. */
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-inline-end: 0.5rem;
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
+}
+
+.familyTabs::-webkit-scrollbar,
+.chipsRow::-webkit-scrollbar {
+  display: none;
+}
+
+/* A flex item in a nowrap scroller shrinks to fit by default; these must keep
+   their own width and let the row overflow instead. */
+.familyTabs > *,
+.chipsRow > * {
+  flex: 0 0 auto;
 }
 
 .searchWrap {
@@ -506,8 +602,6 @@
 }
 
 .familyTabs {
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.3rem;
 }
 
@@ -550,8 +644,6 @@
 }
 
 .chipsRow {
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.3rem;
 }
 

@@ -59,6 +59,8 @@ async function main() {
   const searchIdx = await load("data/search-index.ts");
   const comparisons = await load("data/comparisons.ts");
   const labsMod = await load("data/labs.ts");
+  const fusion = await load("data/fusion-sandbox.ts");
+  const privacyLens = await load("data/privacy-lens.ts");
 
   const { allProducts, industryUseCases } = products;
   const { gaitscapeNodes, gaitscapeRelationships } = graph;
@@ -71,6 +73,8 @@ async function main() {
   const { searchIndex } = searchIdx;
   const { productComparisons } = comparisons;
   const { labs } = labsMod;
+  const { unknownFusionChannels } = fusion;
+  const { privacyStages } = privacyLens;
 
   const productIds = new Set(allProducts.map((p) => p.id));
   const nodeIds = new Set(gaitscapeNodes.map((n) => n.id));
@@ -368,7 +372,40 @@ async function main() {
     }
   }
 
-  // ── 9. Naming consistency (Phase 25) ─────────────────────────────────────
+  // ── 9. Lab instruments ───────────────────────────────────────────────────
+  // The two data-driven labs make claims their own data has to support.
+  ran.push("lab instruments");
+
+  // Fusion channels are graph signal ids. A renamed signal would otherwise
+  // render its own id as a channel label.
+  for (const id of unknownFusionChannels) {
+    err("lab instruments", `fusion sandbox references unknown signal "${id}"`);
+  }
+
+  // The privacy lens asserts exactly one thing numerically: that each stage
+  // retains strictly less than the one before. If that ever stops being true
+  // the indicator becomes a lie, so it is checked rather than trusted.
+  for (let i = 1; i < privacyStages.length; i += 1) {
+    if (privacyStages[i].retained >= privacyStages[i - 1].retained) {
+      err(
+        "lab instruments",
+        `privacy lens stage "${privacyStages[i].id}" retains ` +
+          `${privacyStages[i].retained}, which is not less than ` +
+          `"${privacyStages[i - 1].id}" at ${privacyStages[i - 1].retained}`,
+      );
+    }
+  }
+  // The last stage is the terminal one and must drop nothing further.
+  const lastStage = privacyStages[privacyStages.length - 1];
+  if (lastStage.drops.length > 0) {
+    err(
+      "lab instruments",
+      `privacy lens final stage "${lastStage.id}" lists dropped information, ` +
+        "but there is no step after it for the drop to happen at",
+    );
+  }
+
+  // ── 10. Naming consistency (Phase 25) ────────────────────────────────────
   // One entity must not become two through capitalisation drift.
   ran.push("naming consistency");
   const CANON = ["MobilityCare", "SecureVision", "GaitScape", "WalkScan", "FallRisk"];

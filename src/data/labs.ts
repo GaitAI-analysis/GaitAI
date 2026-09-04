@@ -9,8 +9,8 @@
 // does not get a record, because the page renders this list verbatim and a
 // placeholder on it would be exactly the fake demo the Labs page exists to
 // avoid. Experiments named in the Labs brief arrive here on the day they run
-// and not before — the privacy lens and the fusion sandbox are still absent
-// for exactly that reason.
+// and not before, which is why this list grew rather than being written all
+// at once — every entry below was added by the commit that made it work.
 //
 // Some of these live at their own route and some are instruments INSIDE a
 // longer page, reached by anchor. That distinction is carried in `home` and
@@ -116,8 +116,30 @@ export const labs: LabRecord[] = [
     basis: "illustrative",
   },
   {
-    id: "time-machine",
+    id: "privacy-lens",
     index: 6,
+    name: "Privacy Lens",
+    strap: "Sensing → privacy transformed → movement intelligence",
+    body:
+      "Step through the three processing stages of the identity-free path and see what each one carries forward and what stops being available — one figure, losing information, with the scope of the claim stated on screen.",
+    href: "/securevision#privacy-lens",
+    home: "Inside SecureVision",
+    basis: "illustrative",
+  },
+  {
+    id: "fusion-sandbox",
+    index: 7,
+    name: "Fusion Sandbox",
+    strap: "A missing input is a known unknown. A corrupted one is not.",
+    body:
+      "Set video, pose, wearable and trajectory to available, missing or corrupted. A missing input makes the read-out shorter; a corrupted one leaves it exactly the same size, which is why it is the more dangerous failure.",
+    href: "/movement-lab#fusion",
+    home: "Inside the Movement Intelligence Lab",
+    basis: "real-relationships",
+  },
+  {
+    id: "time-machine",
+    index: 8,
     name: "Mobility Time Machine",
     strap: "One walk is a snapshot. Five is a trajectory.",
     body:

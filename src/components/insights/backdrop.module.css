@@ -1,0 +1,126 @@
+/* ═══════════ SIGNAL PACKETS ON THE JOURNAL BACKDROP ═══════════
+ *
+ * Small luminous dots travelling along the trajectories already drawn in
+ * `JournalBackdrop.tsx`, so the masthead reads as a network carrying signal
+ * rather than as a still diagram. Nothing else about that backdrop changes:
+ * same curves, same positions, same grid, same scrim.
+ *
+ * THE DOTS ARE STROKE CAPS, NOT ELEMENTS ON A MOTION PATH.
+ *
+ * Each dot is one extra `<path>` reusing the EXACT `d` of the trace it rides,
+ * carrying `pathLength="1"`, stroked with a dash pattern that is almost all
+ * gap — `stroke-dasharray: 0.002 0.998` — and `stroke-linecap: round`. What
+ * renders is a single round cap, and animating `stroke-dashoffset` from 0 to
+ * -1 walks that cap along the curve from one end to the other.
+ *
+ * Why this and not the two obvious alternatives:
+ *
+ *   · `offset-path: path(...)` would duplicate the curve into CSS, so the
+ *     geometry would exist in two places and could drift. It is also applied
+ *     in the element's own coordinate space, and this SVG is scaled with
+ *     `preserveAspectRatio="slice"` — the dots would slide off the lines at
+ *     any viewport the author did not check.
+ *   · SMIL `<animateMotion><mpath href>` follows the real path correctly, but
+ *     SMIL cannot be gated by a media query, so honouring
+ *     `prefers-reduced-motion` would mean making the backdrop a client
+ *     component and hydrating it to decide whether to emit an element.
+ *
+ * `pathLength="1"` is what makes this geometry-independent: the dash pattern
+ * and the offset are expressed as fractions of each curve's own length, so
+ * one keyframe drives all five dots regardless of how long their paths are,
+ * and editing a curve in the TSX needs no change here.
+ *
+ * COST. Ten thin stroked paths, animating one property that the browser's
+ * animation engine handles natively. No JS, no library, no rAF loop, no
+ * canvas, no filters — a blur filter on a moving element is the one thing
+ * that would have made this expensive, so the glow is a second, fatter,
+ * fainter cap instead of a `filter`.
+ *
+ * THE GLOW CAP IS ALSO THE LINE RESPONSE. It is wide enough to overlap the
+ * 1.2-unit trace beneath it, so the curve is fractionally brighter exactly
+ * where the dot is and nowhere else. That is the whole of the "line responds"
+ * behaviour: no travelling highlight segment, no trail, no lit-up line.
+ *
+ * AMBIENT IS NOT THE SIGNAL BAND. These run 7-14s, well past the 1600ms
+ * ceiling that `globals.css` puts on `--motion-signal`. That ceiling governs
+ * motion a reader is waiting on or watching — a signature interaction. This
+ * is idle atmosphere, which is a different tier and is deliberately slower
+ * than anything in the four bands: the moment a background loop is quick
+ * enough to time, it is competing with the headline in front of it.
+ */
+
+.packet {
+  fill: none;
+  /* The round cap IS the dot. Without this the near-zero dash renders as
+     nothing at all. */
+  stroke-linecap: round;
+  /* Sums to exactly 1 against `pathLength="1"`, so precisely one dot is on
+     each curve at a time — no second dot entering as the first leaves. */
+  stroke-dasharray: 0.002 0.998;
+  animation: jbPacket var(--jb-dur) linear var(--jb-delay) infinite;
+}
+
+/* Negative delays on every dot, which is the point: each one is already
+   mid-flight on the first painted frame, so the backdrop is never caught
+   starting up and no two dots share a phase. */
+@keyframes jbPacket {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+/* The core: small and legible. 2.4 user units against this viewBox's scale is
+   ~3.5px at 1440 and ~4px at 390 — inside the 3-5px the brief asks for. */
+.core {
+  stroke-width: 2.4;
+}
+
+/* The glow: one fatter, much fainter cap under the core. Tiny — 7 units is
+   ~10px of very low alpha, which reads as a soft edge on the dot rather than
+   a halo around it. */
+.glow {
+  stroke-width: 7;
+  stroke-opacity: 0.16;
+}
+
+/* Light theme: the backdrop becomes pale, and a low-alpha cyan cap on it is
+   invisible. Same three accents taken down to where they read as ink on
+   paper, and the glow needs slightly more presence to survive the light
+   ground without becoming a smudge. */
+:global(.light) .glow {
+  stroke-opacity: 0.2;
+}
+
+/*
+ * MOBILE: THREE DOTS INSTEAD OF FIVE.
+ *
+ * `display: none` rather than `visibility` or opacity — a hidden SVG element
+ * is not animated, so the two dots dropped here cost nothing at all on a
+ * phone instead of costing a compositor update no one can see.
+ */
+@media (max-width: 640px) {
+  .mobileOff {
+    display: none;
+  }
+}
+
+/*
+ * REDUCED MOTION: the dots stop, the drawing stays.
+ *
+ * `animation: none` alone would leave every dot at `stroke-dashoffset: 0`,
+ * which is the start of its curve — five dots stacked at the left edge,
+ * mostly under the headline mask. So each keeps its own resting position
+ * instead, set from the same custom property that would have been its phase.
+ * The result is a still diagram with sample points on it, which is what this
+ * backdrop was before the dots arrived and is a legitimate composition in its
+ * own right — not a broken version of the animated one.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .packet {
+    animation: none;
+    stroke-dashoffset: var(--jb-rest);
+  }
+}

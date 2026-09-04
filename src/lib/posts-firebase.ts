@@ -123,6 +123,22 @@ function mapPost(data: DocumentData): Post {
 
   // Only attach optional fields when present, so we never emit `undefined`.
   if (data.subscriberOnly != null) post.subscriberOnly = Boolean(data.subscriberOnly);
+  if (typeof data.updatedAt === "string") post.updatedAt = data.updatedAt;
+  else if (data.updatedAt?.toDate instanceof Function) {
+    post.updatedAt = data.updatedAt.toDate().toISOString();
+  }
+  if (data.type) post.type = String(data.type);
+  if (Array.isArray(data.topics)) post.topics = data.topics.map(String);
+  if (Array.isArray(data.relatedProducts)) {
+    post.relatedProducts = data.relatedProducts.map(String);
+  }
+  if (Array.isArray(data.relatedResearch)) {
+    post.relatedResearch = data.relatedResearch.map(String);
+  }
+  if (data.series) post.series = String(data.series);
+  if (Number.isFinite(Number(data.seriesOrder))) {
+    post.seriesOrder = Number(data.seriesOrder);
+  }
   if (data.publicationStatus === "draft" || data.publicationStatus === "verified") {
     post.publicationStatus = data.publicationStatus;
   }
@@ -180,6 +196,12 @@ function toWritePayload(
   if (post.externalUrl) payload.externalUrl = post.externalUrl;
   if (post.attachmentUrl) payload.attachmentUrl = post.attachmentUrl;
   if (post.attachmentName) payload.attachmentName = post.attachmentName;
+  if (post.type) payload.type = post.type;
+  if (post.topics) payload.topics = post.topics;
+  if (post.relatedProducts) payload.relatedProducts = post.relatedProducts;
+  if (post.relatedResearch) payload.relatedResearch = post.relatedResearch;
+  if (post.series) payload.series = post.series;
+  if (typeof post.seriesOrder === "number") payload.seriesOrder = post.seriesOrder;
   const coverFields = {
     coverImageUrl: post.coverImageUrl,
     coverImagePath: post.coverImagePath,

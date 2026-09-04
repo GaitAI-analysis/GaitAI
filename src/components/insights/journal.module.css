@@ -632,14 +632,14 @@
   filter: blur(24px) brightness(1);
   mix-blend-mode: screen;
   opacity: 0;
-  animation: jrCardSignalSweep 24s ease-in-out var(--jr-card-light-delay)
-    infinite;
+  animation: none;
   transition: filter 0.55s var(--jr-ease);
   will-change: transform, opacity;
 }
 .card:hover::before,
 .card:focus-within::before {
   filter: blur(24px) brightness(1.28);
+  animation: jrCardSignalSweep 1.8s ease-out 1 both;
 }
 
 /* Registration marks catch slightly more light than the card edge. */

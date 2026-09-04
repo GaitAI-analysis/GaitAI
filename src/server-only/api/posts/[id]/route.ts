@@ -44,6 +44,7 @@ export async function PUT(
       ? body.tags.map((t: string) => String(t).trim()).filter(Boolean)
       : current.tags,
     publishedAt: body.publishedAt || current.publishedAt,
+    updatedAt: new Date().toISOString(),
     featured: typeof body.featured === "boolean" ? body.featured : current.featured,
     publicationStatus:
       body.publicationStatus === "verified" ? "verified" : "draft",

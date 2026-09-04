@@ -29,6 +29,7 @@ import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
 import { allPublications } from "@/data/publications";
 import { talkRecords } from "@/data/talks";
+import { topicLabel } from "@/lib/publication";
 
 /** Which accent a branch inherits. Four families, not a rainbow. */
 export type AtlasFamily =
@@ -97,6 +98,16 @@ const articleLeaves: AtlasNode[] = insightArticles.map((article) => ({
   meta: article.category,
   family: "editorial",
 }));
+
+const topicLeaves: AtlasNode[] = [...new Set(insightArticles.flatMap((article) => article.topics))]
+  .sort((a, b) => topicLabel(a).localeCompare(topicLabel(b)))
+  .map((topic) => ({
+    id: `insights-topic:${topic}`,
+    label: topicLabel(topic),
+    route: slash(`/insights/topic/${topic}`),
+    description: `Stories filed under ${topicLabel(topic)}`,
+    family: "editorial" as const,
+  }));
 
 const publicationLeaves: AtlasNode[] = allPublications.map((record) => ({
   id: `publication:${record.id}`,
@@ -179,7 +190,24 @@ export const siteMap: AtlasNode = {
       route: "/insights/",
       description: "Research translation, engineering notes and product updates",
       family: "editorial",
-      children: articleLeaves,
+      children: [
+        {
+          id: "insights-start-here",
+          label: "GaitAI Foundations",
+          route: "/insights/start-here/",
+          description: "A curated introduction to GaitAI",
+          family: "editorial",
+        },
+        {
+          id: "insights-archive",
+          label: "Archive",
+          route: "/insights/archive/",
+          description: "The complete publication by year and month",
+          family: "editorial",
+        },
+        ...topicLeaves,
+        ...articleLeaves,
+      ],
     },
     {
       id: "research-ip",

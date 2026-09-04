@@ -14,11 +14,8 @@
  * never diagnoses.
  */
 
-export type InsightTopic =
-  | "movement-intelligence"
-  | "responsible-ai"
-  | "mobility"
-  | "research";
+/** Open topic vocabulary. Presentation is generated from metadata/config. */
+export type InsightTopic = string;
 
 export const TOPIC_FILTERS: Array<{ key: InsightTopic | "all"; label: string }> = [
   { key: "all", label: "All" },
@@ -184,6 +181,12 @@ export interface InsightArticle {
   topics: InsightTopic[];
   /** ISO date. */
   date: string;
+  /** ISO date for a meaningful revision; `date` is the safe legacy default. */
+  updated?: string;
+  /** Optional by schema; the publication adapter falls back to GaitAI Research. */
+  author?: string;
+  /** Exactly one published story should normally carry this editorial flag. */
+  featured?: boolean;
   readMinutes: number;
   excerpt: string;
   /**
@@ -208,6 +211,10 @@ export interface InsightArticle {
   twoMinute: string[];
   /** Position in the GaitAI Foundations reading path (1-based). */
   seriesStep: number;
+  /** Named reading path. Existing records safely default to GaitAI Foundations. */
+  series?: string;
+  /** Generic series position; existing records safely default to `seriesStep`. */
+  seriesOrder?: number;
   /** How this article is named inside the reading path. */
   seriesTitle: string;
   /**
@@ -228,6 +235,9 @@ export interface InsightArticle {
    */
   cover: { concept: CoverConcept; alt: string };
   tags: string[];
+  /** Optional relationship keys used by deterministic related-story scoring. */
+  relatedProducts?: string[];
+  relatedResearch?: string[];
   seo: { title: string; description: string };
   intro: InsightBlock[];
   sections: InsightSection[];
@@ -255,6 +265,7 @@ export const insightArticles: InsightArticle[] = [
     category: "Technical Essay",
     topics: ["movement-intelligence", "research"],
     date: "2026-08-26",
+    featured: true,
     readMinutes: 8,
     excerpt:
       "A walking video looks simple. Turning it into reliable movement intelligence is not. Inside the pipeline from capture and pose estimation to gait features, sensor fusion and actionable outputs.",

@@ -18,11 +18,12 @@ import { JournalCover } from "@/components/insights/JournalCover";
 import { SectionRail } from "@/components/insights/SectionRail";
 import { ReadingProgress } from "@/components/insights/ReadingProgress";
 import { TwoMinute } from "@/components/insights/TwoMinute";
-import { NextStory } from "@/components/insights/NextStory";
+import { ArticleDiscovery } from "@/components/insights/ArticleDiscovery";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
 import { ArticleMeta } from "@/components/insights/ArticleMeta";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 import { assetPath } from "@/lib/paths";
+import { insightToPublicationStory, readPublicationStories } from "@/lib/publication-store";
 import styles from "@/components/insights/journal.module.css";
 
 const SITE_URL = "https://gaitai.in";
@@ -111,7 +112,7 @@ function Headline({ article }: { article: InsightArticle }) {
   );
 }
 
-export default function InsightArticlePage({
+export default async function InsightArticlePage({
   params,
 }: {
   params: { slug: string };
@@ -119,20 +120,8 @@ export default function InsightArticlePage({
   const article = getInsightBySlug(params.slug);
   if (!article) notFound();
 
-  /**
-   * The next essay is the next step on the reading path, wrapping at the end;
-   * the alternate is whichever of the record's own related pieces is not it.
-   */
-  const total = insightArticles.length;
-  const nextStep = (article.seriesStep % total) + 1;
-  const next =
-    insightArticles.find((item) => item.seriesStep === nextStep) ?? insightArticles[0];
-  const alternate = article.related
-    .map((slug) => getInsightBySlug(slug))
-    .find(
-      (item): item is InsightArticle =>
-        Boolean(item) && item!.slug !== next.slug && item!.slug !== article.slug,
-    );
+  const allStories = await readPublicationStories();
+  const currentStory = insightToPublicationStory(article);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -141,7 +130,7 @@ export default function InsightArticlePage({
     description: article.seo.description,
     image: [`${SITE_URL}${assetPath(article.hero.src)}`],
     datePublished: article.date,
-    dateModified: article.date,
+    dateModified: article.updated ?? article.date,
     author: {
       "@type": "Organization",
       name: INSIGHTS_AUTHOR,
@@ -163,6 +152,15 @@ export default function InsightArticlePage({
     articleSection: article.category,
     keywords: article.tags.join(", "),
     isAccessibleForFree: true,
+    ...(article.series || article.seriesStep
+      ? {
+          isPartOf: {
+            "@type": "CreativeWorkSeries",
+            name: article.series ?? "GaitAI Foundations",
+          },
+          position: article.seriesOrder ?? article.seriesStep,
+        }
+      : {}),
   };
 
   return (
@@ -413,16 +411,7 @@ export default function InsightArticlePage({
       </section>
 
       {/* ─────────── NEXT ─────────── */}
-      <section className="border-t border-white/[0.07] bg-obsidian-300/25 py-16 sm:py-20">
-        <div className="container-wide">
-          <NextStory
-            current={article}
-            next={next}
-            alternate={alternate}
-            total={total}
-          />
-        </div>
-      </section>
+      <ArticleDiscovery current={currentStory} stories={allStories} />
     </div>
   );
 }

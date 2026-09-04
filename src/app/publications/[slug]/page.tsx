@@ -11,11 +11,13 @@ import { getPublishedPostBySlug, readPublishedPosts } from "@/lib/posts-store";
 import { allPublications } from "@/data/publications";
 import { PublicationDetail } from "@/components/publications/PublicationDetail";
 import { CategoryBadge, categoryGradient } from "@/components/posts/CategoryBadge";
-import { PostCard } from "@/components/posts/PostCard";
+import { ArticleDiscovery } from "@/components/insights/ArticleDiscovery";
 import { PostCoverImage, PostResources } from "@/components/posts/PostMedia";
 import { renderMarkdown } from "@/lib/markdown";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
 import { ctas } from "@/data/content";
+import { postToPublicationStory, readPublicationStories } from "@/lib/publication-store";
+import { assetPath } from "@/lib/paths";
 
 export const dynamicParams = false;
 
@@ -61,6 +63,11 @@ export async function generateMetadata({
       title: post.title,
       description: post.summary,
       type: "article",
+      url: `/publications/${post.slug}`,
+      publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt ?? post.publishedAt,
+      authors: [post.author],
+      tags: post.tags,
       images: post.coverImageUrl
         ? [{ url: post.coverImageUrl, alt: post.coverImageAlt || post.title }]
         : undefined,
@@ -101,13 +108,36 @@ export default async function PublicationPage({
   const post = await getPublishedPostBySlug(params.slug);
   if (!post) notFound();
 
-  const all = await readPublishedPosts();
-  const related = all
-    .filter((p) => p.id !== post.id && p.category === post.category)
-    .slice(0, 3);
+  const stories = await readPublicationStories();
+  const currentStory = postToPublicationStory(post);
+  const image = post.coverImageUrl
+    ? (post.coverImageUrl.startsWith("http") ? post.coverImageUrl : `https://gaitai.in${assetPath(post.coverImageUrl)}`)
+    : `https://gaitai.in${assetPath("/brand/logo-main.png")}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.summary,
+    image: [image],
+    datePublished: post.publishedAt,
+    dateModified: post.updatedAt ?? post.publishedAt,
+    author: { "@type": "Organization", name: post.author },
+    publisher: {
+      "@type": "Organization",
+      name: "GaitAI",
+      url: "https://gaitai.in/",
+      logo: { "@type": "ImageObject", url: "https://gaitai.in/brand/logo-main.png" },
+    },
+    mainEntityOfPage: { "@type": "WebPage", "@id": `https://gaitai.in/publications/${post.slug}/` },
+    articleSection: post.topics?.[0] ?? post.category,
+    keywords: post.tags.join(", "),
+    isAccessibleForFree: true,
+    ...(post.series ? { isPartOf: { "@type": "CreativeWorkSeries", name: post.series }, position: post.seriesOrder } : {}),
+  };
 
   return (
     <article className="relative w-full overflow-hidden pb-24">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Hero cover */}
       <header
         className="site-page-intro-compact relative isolate overflow-hidden pb-16 sm:pb-24"
@@ -225,23 +255,8 @@ export default async function PublicationPage({
           </aside>
         </div>
 
-        {/* Related */}
-        {related.length > 0 && (
-          <div className="mt-24 border-t border-white/5 pt-16">
-            <h3 className="font-display text-2xl text-soft-white sm:text-3xl">
-              More from{" "}
-              <span className="text-gradient">
-                {post.category}
-              </span>
-            </h3>
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((p, i) => (
-                <PostCard key={p.id} post={p} index={i} />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+      <ArticleDiscovery current={currentStory} stories={stories} />
     </article>
   );
 }

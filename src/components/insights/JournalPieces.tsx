@@ -24,7 +24,7 @@ export function JournalOpening({ children }: { children: React.ReactNode }) {
           <div className={styles.openingCopy}>
             <p className={styles.masthead}>
               <span aria-hidden="true" className={styles.mastheadRule} />
-              GaitAI Blog
+              GaitAI Foundations
               <span className={styles.mastheadSub}>Intelligence in motion</span>
             </p>
 
@@ -121,8 +121,8 @@ export function JournalClose({
         </h2>
 
         <p className={styles.closeLede}>
-          Research notes, product updates, engineering stories and the latest
-          from GaitAI.
+          Five foundational stories, intentionally ordered. The wider
+          publication continues separately.
         </p>
 
         <div className={styles.closeActions}>
@@ -137,7 +137,7 @@ export function JournalClose({
             className={`${styles.closeAction} ${styles.closeActionQuiet}`}
             title={latestTitle}
           >
-            Enter the latest story
+            Browse all stories
             <span aria-hidden="true" className={styles.closeActionArrow}>
               →
             </span>
@@ -145,8 +145,8 @@ export function JournalClose({
         </div>
 
         {/* The index. A horizontal list of five, not five more cards. */}
-        <nav className={styles.index} aria-label="The blog">
-          <p className={styles.indexLabel}>The blog</p>
+        <nav className={styles.index} aria-label="GaitAI Foundations">
+          <p className={styles.indexLabel}>GaitAI Foundations</p>
           <ol className={styles.indexList}>
             {entries.map((entry) => (
               <li key={entry.step} className={styles.indexItem}>

@@ -1,0 +1,48 @@
+.coverImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coverFallback {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 68% 35%, rgb(79 209 255 / 0.2), transparent 22%),
+    linear-gradient(145deg, rgb(14 26 48), rgb(17 13 39));
+}
+
+.coverFallback::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(148 163 184 / 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(148 163 184 / 0.08) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(90deg, transparent, black 28%, black 72%, transparent);
+}
+
+.signalLine {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 52%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #4fd1ff 25%, #9c64f1 72%, transparent);
+  transform: rotate(-7deg);
+}
+
+.signalDot {
+  position: absolute;
+  left: 67%;
+  top: 38%;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid #4fd1ff;
+  background: rgb(79 209 255 / 0.2);
+}
+

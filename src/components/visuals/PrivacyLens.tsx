@@ -10,7 +10,6 @@ import {
   PRIVACY_LENS_BOUNDARY,
   privacyStages,
 } from "@/data/privacy-lens";
-import { ProvenanceMark } from "@/components/proof/ProvenanceMark";
 import styles from "./privacyLens.module.css";
 
 /**
@@ -260,10 +259,6 @@ export function PrivacyLens() {
           <p className="mt-4 text-[12.5px] leading-relaxed text-soft-mute">
             {PRIVACY_LENS_BOUNDARY}
           </p>
-
-          <ProvenanceMark
-            kinds={["illustrative-demo", "validation-not-published"]}
-          />
         </div>
       </div>
     </div>

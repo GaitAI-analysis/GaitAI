@@ -16,28 +16,52 @@ import styles from "./signal.module.css";
    lives at the foot of the page, where a reader who wants it will look.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export function JournalOpening({ children }: { children: React.ReactNode }) {
+export function JournalOpening({
+  /** One line of context under the question — never a second headline. */
+  framing,
+  /** Where the back link goes, and what it says. */
+  back,
+  children,
+}: {
+  framing?: React.ReactNode;
+  back?: { href: string; label: string };
+  children: React.ReactNode;
+}) {
   return (
     <section className={styles.opening} aria-labelledby="journal-question">
       <div className="container-wide">
         <div className={styles.openingGrid}>
           <div className={styles.openingCopy}>
+            {/* The only chrome allowed on this screen. It sits inside the copy
+                column rather than in a page header above it, because a header
+                above it is a header between the reader and the question — and
+                the page had one, which said "GaitAI Foundations" and then let
+                this masthead say it again eight lines later. */}
+            {back && (
+              <Link href={back.href} className={styles.openingBack}>
+                {back.label}
+              </Link>
+            )}
             <p className={styles.masthead}>
               <span aria-hidden="true" className={styles.mastheadRule} />
               GaitAI Foundations
               <span className={styles.mastheadSub}>Intelligence in motion</span>
             </p>
 
-            {/* h2, not h1: the archive masthead above now opens the page
-                and owns its single h1. This is the narrative section's
-                heading, and the section is aria-labelledby it either way. */}
-            <h2 id="journal-question" className={styles.openingQuestion}>
+            {/* h1 again. It was demoted to h2 when this opening sat below an
+                archive masthead that owned the page's heading; that masthead
+                is gone from this route, and the question is now the first and
+                only thing the page leads with. A page with no h1 is a page a
+                screen reader cannot summarise. */}
+            <h1 id="journal-question" className={styles.openingQuestion}>
               <span className={styles.openingLine}>What does AI</span>
               <span className={styles.openingLine}>see when</span>
               <span className={`${styles.openingLine} ${styles.spectrum}`}>
                 you walk?
               </span>
-            </h2>
+            </h1>
+
+            {framing && <p className={styles.openingFraming}>{framing}</p>}
 
             <Link href="#story-01" className={styles.openingScroll}>
               Scroll to follow the signal

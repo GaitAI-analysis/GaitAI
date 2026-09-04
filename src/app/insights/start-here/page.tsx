@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { SignalThread } from "@/components/insights/SignalThread";
 import { OpeningWalker } from "@/components/insights/OpeningWalker";
 import { StoryMoment } from "@/components/insights/StoryMoment";
@@ -11,10 +10,10 @@ import { insightArticles, insightHref } from "@/data/insights";
 import styles from "@/components/insights/signal.module.css";
 
 export const metadata: Metadata = {
-  title: "Explore the GaitAI Foundations",
+  title: "GaitAI Foundations — What Does AI See When You Walk?",
   description: "A five-part curated introduction to movement intelligence, identity, responsible AI, mobility and evidence at GaitAI.",
   alternates: { canonical: "/insights/start-here" },
-  openGraph: { type: "website", url: "/insights/start-here", title: "Explore the GaitAI Foundations", description: "A curated five-part reading path for people who are new to GaitAI." },
+  openGraph: { type: "website", url: "/insights/start-here", title: "GaitAI Foundations", description: "A curated five-part reading path for people who are new to GaitAI." },
 };
 
 const THEME: Record<string, string> = {
@@ -67,15 +66,18 @@ export default function StartHerePage() {
     <div className={styles.journal}>
       <SignalThread />
       <StoryIndex entries={foundations.map((article) => ({ id: `story-0${article.seriesOrder ?? article.seriesStep}`, step: article.seriesOrder ?? article.seriesStep, label: RAIL_LABEL[article.seriesOrder ?? article.seriesStep] ?? article.category }))} />
-      <header className="relative z-[2] border-b border-white/[0.07] pb-10 pt-10 sm:pb-14 sm:pt-14">
-        <div className="container-wide">
-          <Link href="/insights" className="text-[11px] uppercase tracking-[0.18em] text-soft-mute transition-colors hover:text-soft-white">← Blog &amp; updates</Link>
-          <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.24em] text-cyan-300">Start here · Curated reading path</p>
-          <h1 className="mt-4 max-w-4xl font-display text-display-xl text-balance text-soft-white">Explore the GaitAI Foundations</h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray sm:text-lg">Five evergreen stories for understanding what GaitAI measures, why movement means more than identity, and how evidence and responsibility shape the work.</p>
-        </div>
-      </header>
-      <JournalOpening><OpeningWalker /></JournalOpening>
+      {/* No page header above this. There used to be one — a kicker, an h1
+          reading "Explore the GaitAI Foundations" and a lede — and it put a
+          conventional page top in front of an opening that already says
+          "GaitAI Foundations" and then asks the question the whole story is
+          built on. The first screen is the question now; the back link and
+          the framing line have moved inside it. */}
+      <JournalOpening
+        back={{ href: "/insights", label: "← Blog" }}
+        framing="Five stories on what GaitAI measures, why movement means more than identity, and how evidence and responsibility shape the work."
+      >
+        <OpeningWalker />
+      </JournalOpening>
       <StoryMoment {...moment(1)} side="right">{VISUAL[1]}</StoryMoment>
       <StoryMoment {...moment(2)} side="left">{VISUAL[2]}</StoryMoment>
       <StoryMoment {...moment(3)} side="right">{VISUAL[3]}</StoryMoment>

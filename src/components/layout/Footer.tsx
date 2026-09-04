@@ -4,6 +4,7 @@ import { Github, Linkedin, Mail } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ctas } from "@/data/content";
 import { contact, mailto, socialProfiles } from "@/data/contact";
+import { FooterSubscribe } from "@/components/subscribe/FooterSubscribe";
 
 /**
  * The single footer link source.
@@ -172,12 +173,14 @@ export function Footer() {
           </div>
         </div>
 
-        {/* The signup used to sit here, between the link columns and the
-            bottom bar — which meant it appeared on all seventy pages, in the
-            least considered place on any of them. It now lives under the
-            deployment card in the contact section, where a visitor who is not
-            ready to ask for a demo is already thinking about GaitAI. One
-            instance, not two: see CTA.tsx. */}
+        {/* The signup used to sit here on every page, which meant it appeared
+            in the least considered place on all seventy of them. It still does
+            not: the contact section carries it on the home page, and this one
+            renders on the blog family only, where a growing feed keeps pushing
+            the in-page block further from the reader. Everywhere else this is
+            null. See FooterSubscribe. */}
+        <FooterSubscribe />
+
         <div className="divider mt-16" />
 
         <div className="mt-8 flex flex-col items-start justify-between gap-4 text-xs text-soft-mute sm:flex-row sm:items-center">

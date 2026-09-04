@@ -59,15 +59,36 @@ export function IntelligenceSearch() {
     [query],
   );
 
-  /** Results in group order, so rendering and ↑/↓ share one flat sequence. */
+  /**
+   * Results in group order, so rendering and ↑/↓ share one flat sequence.
+   *
+   * THE GROUPS FOLLOW RELEVANCE WHEN THERE IS A QUERY. `SEARCH_GROUPS` is a
+   * fixed most-used-first order, which is right for the resting state — those
+   * are starters, and there is nothing to be more or less relevant than. It is
+   * wrong the moment someone types: `results` is already ranked, and rendering
+   * groups in a fixed order can put the best match below a worse one.
+   *
+   * It did. Typing "privacy lens" ranked the Privacy Lens first and then drew
+   * it under Pages → GaitAI Labs, because `destination` sorts before `lab`. So
+   * the top row was the index that merely mentions the lens, the initial
+   * highlight sat on it, and pressing Enter went to the wrong page — the exact
+   * failure that giving each lab its own row was meant to fix.
+   *
+   * Groups are therefore ordered by their best-scoring member while a query is
+   * active, and by the canonical order otherwise. `results` arrives sorted, so
+   * a group's best member is simply the first one that belongs to it.
+   */
   const grouped = useMemo(() => {
     const out: { group: SearchEntry["group"]; entries: SearchEntry[] }[] = [];
     for (const group of SEARCH_GROUPS) {
       const entries = results.filter((r) => r.group === group);
       if (entries.length) out.push({ group, entries });
     }
-    return out;
-  }, [results]);
+    if (query.trim().length < 2) return out;
+    const rank = (group: SearchEntry["group"]) =>
+      results.findIndex((entry) => entry.group === group);
+    return out.sort((a, b) => rank(a.group) - rank(b.group));
+  }, [results, query]);
 
   const flat = useMemo(() => grouped.flatMap((g) => g.entries), [grouped]);
 

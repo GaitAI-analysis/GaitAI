@@ -47,7 +47,18 @@ export function CommentForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const remaining = MAX_COMMENT_LENGTH - message.length;
+  /*
+   * Used-of-limit, not remaining.
+   *
+   * The old counter was `MAX - length`, so an empty box showed a bare "2000"
+   * sitting beside the moderation note. Nothing on screen said what it
+   * counted or which direction it moved, and next to a sentence about
+   * moderation it read like part of that sentence. "0 / 2000" states the
+   * limit and the position in it at once, and it belongs to the textarea.
+   */
+  const used = message.length;
+  const nearLimit = used >= MAX_COMMENT_LENGTH * 0.9;
+  const atLimit = used >= MAX_COMMENT_LENGTH;
   const isReply = Boolean(parentCommentId);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -156,6 +167,24 @@ export function CommentForm({
           onChange={(e) => setMessage(e.target.value)}
           required
         />
+
+        {/* Attached to the field it measures, right-aligned under it, so the
+            number is read as a property of the box rather than as a loose
+            figure in the footer. `aria-live="polite"` announces it as the
+            limit approaches without narrating every keystroke. */}
+        <p
+          className={cn(
+            "mt-2 text-right text-[11px] tabular-nums transition-colors",
+            atLimit
+              ? "text-amber-300"
+              : nearLimit
+                ? "text-soft-gray"
+                : "text-soft-mute",
+          )}
+          aria-live="polite"
+        >
+          {used.toLocaleString()} / {MAX_COMMENT_LENGTH.toLocaleString()}
+        </p>
       </div>
 
       <Turnstile onToken={setCaptchaToken} />
@@ -166,21 +195,19 @@ export function CommentForm({
         </p>
       )}
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3 text-[11px] text-soft-mute">
-          <span className="inline-flex items-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5 text-cyan-300/80" />
-            Reviewed before publishing
-          </span>
-          <span
-            className={cn(
-              "tabular-nums",
-              remaining < 80 ? "text-amber-300" : "text-soft-mute"
-            )}
-          >
-            {remaining}
-          </span>
-        </div>
+      {/* Moderation note on the left, actions on the right. `flex-wrap` with
+          a full-width note below `sm` is what stops the sentence and the
+          button being squeezed onto one narrow row on a phone. */}
+      <div className="mt-3.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+        {/* Supporting text, not an alert: no panel, no amber, no border, and
+            the icon at the muted weight of the sentence it sits with. */}
+        <p className="inline-flex w-full items-center gap-1.5 text-[11px] leading-relaxed text-soft-mute sm:w-auto">
+          <ShieldCheck
+            aria-hidden="true"
+            className="h-3.5 w-3.5 shrink-0 text-cyan-300/70"
+          />
+          Comments are moderated before appearing publicly.
+        </p>
 
         <div className="flex items-center gap-2">
           {onCancel && (

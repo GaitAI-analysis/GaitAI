@@ -150,7 +150,10 @@ export function TalksTimeline() {
 
   // ── Deep links ────────────────────────────────────────────────────────────
   /*
-   * /research/talks/#electronic-commerce-2010 opens that record.
+   * /research/talks/#<anchor> opens that record, where the anchor is the
+   * one `talkAnchor()` derives — a slug of the title plus the year. Named
+   * generically on purpose: the example used to be a specific record, and
+   * it went stale the day that record was removed.
    *
    * Runs on mount and on hashchange. The scroll is deferred a frame so the
    * expansion has laid out before the browser is asked to bring it into view —

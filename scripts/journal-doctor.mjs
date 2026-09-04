@@ -122,6 +122,29 @@ if (!apiKey || !projectId) {
 }
 line(PASS, "NEXT_PUBLIC_FIREBASE_API_KEY / _PROJECT_ID present");
 
+/* The project the SITE talks to and the project `deploy:rules` publishes to
+   have to be the same one, or a correct ruleset lands somewhere the visitor
+   never reads from. They are named in two different files, so they are
+   compared rather than assumed. */
+const EXPECTED_PROJECT = "gaitai-intelligence";
+line(
+  projectId === EXPECTED_PROJECT ? PASS : FAIL,
+  "the site points at the production project",
+  projectId === EXPECTED_PROJECT ? projectId : `${projectId} — expected ${EXPECTED_PROJECT}`,
+);
+if (projectId !== EXPECTED_PROJECT) failures += 1;
+
+const firebaserc = existsSync(join(root, ".firebaserc"))
+  ? JSON.parse(readFileSync(join(root, ".firebaserc"), "utf8"))
+  : {};
+const rcProject = firebaserc?.projects?.default ?? "(unset)";
+line(
+  rcProject === projectId ? PASS : FAIL,
+  "deploy:rules targets that same project",
+  rcProject === projectId ? `.firebaserc → ${rcProject}` : `.firebaserc says ${rcProject}, the site says ${projectId}`,
+);
+if (rcProject !== projectId) failures += 1;
+
 /* ── 2 · Is the rules deployment current? ──────────────────────────────── */
 console.log("\n" + C.b("  2 · Deployed Firestore rules (the usual culprit)"));
 
@@ -245,52 +268,274 @@ line(
 );
 if (!rulesLive) failures += 1;
 
-/* ── 5 · Stale reader-facing metadata ──────────────────────────────────── */
-console.log("\n" + C.b("  5 · Stale metadata in the article template"));
-const tplRaw = readFileSync(join(root, "src/app/insights/[slug]/page.tsx"), "utf8");
-/* Strip comments first. The template DOCUMENTS that `readMinutes` still
-   exists as a record field, and matching that sentence reported a render that
-   does not happen — a doctor that cries wolf is worse than none. */
-const tpl = tplRaw
-  .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
-  .replace(/\/\*[\s\S]*?\*\//g, "")
-  .replace(/^\s*\/\/.*$/gm, "");
-for (const [label, re] of [
-  ['"min read" rendered', /min read/],
-  ["readMinutes rendered", /\{\s*[^}]*\breadMinutes\b/],
-  ["postType label rendered", /\{\s*(article\.)?postTypeLabel/],
-]) {
-  const hit = re.test(tpl);
-  line(hit ? FAIL : PASS, label.replace(" rendered", " absent from the template"), hit ? "still present" : "");
-  if (hit) failures += 1;
-}
-line(
-  /articleSection: article\.category/.test(tpl) ? WARN : PASS,
-  "category appears only as JSON-LD articleSection",
-  "structured data for search engines — invisible to readers",
-);
+/* ── 5 · How the counter is wired ──────────────────────────────────────────
+   Source-level, because this is where the wiring lives. The three questions
+   are: does the article template mount the component that counts, does the
+   card mount the component that displays, and does the listing read once for
+   the whole page rather than once per card. */
+console.log("\n" + C.b("  5 · Component wiring"));
 
-/* ── 6 · Optional: what the deployed page actually renders ─────────────── */
+const src = (rel) => {
+  const abs = join(root, rel);
+  return existsSync(abs) ? readFileSync(abs, "utf8") : "";
+};
+/* Comments describe intent, including intent that was abandoned. Strip them
+   so a sentence about a component can never be mistaken for mounting one. */
+const code = (rel) =>
+  src(rel)
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+
+const articleTpl = code("src/app/insights/[slug]/page.tsx");
+const storyCard = code("src/components/insights/StoryCard.tsx");
+const articleMeta = code("src/components/insights/ArticleMeta.tsx");
+const cardStats = code("src/components/insights/CardStats.tsx");
+const statsLib = code("src/lib/article-stats.ts");
+const listHook = code("src/components/insights/useArticleStats.ts");
+const engHook = code("src/components/insights/useArticleEngagement.ts");
+
+const wiring = [
+  [
+    "article template mounts ArticleMeta",
+    /import\s*\{[^}]*\bArticleMeta\b/.test(articleTpl) && /<ArticleMeta\b/.test(articleTpl),
+    "src/app/insights/[slug]/page.tsx",
+  ],
+  [
+    "ArticleMeta is what reads and counts",
+    /useArticleEngagement\s*\(/.test(articleMeta),
+    "mounts the hook that registers a view",
+  ],
+  [
+    "blog card mounts CardStats",
+    /import\s*\{[^}]*\bCardStats\b/.test(storyCard) && /<CardStats\b/.test(storyCard),
+    "src/components/insights/StoryCard.tsx",
+  ],
+  [
+    "cards share ONE Firestore read",
+    /fetchAllArticleStatsCached\s*\(/.test(cardStats) &&
+      /allStatsPromise\s*\?\?=/.test(statsLib),
+    "memoised promise — N cards, one query",
+  ],
+  [
+    "listing hook uses the collection read",
+    /fetchAllArticleStats\w*\s*\(/.test(listHook),
+    "not one query per article",
+  ],
+  [
+    "no per-card single-document read",
+    !/fetchArticleStats\s*\(/.test(cardStats),
+    "a card must not fetch its own document",
+  ],
+];
+for (const [label, ok, detail] of wiring) {
+  line(ok ? PASS : FAIL, label, detail);
+  if (!ok) failures += 1;
+}
+
+/* ── 6 · The client contract ───────────────────────────────────────────────
+   Behaviour a reader depends on: the formatter's grammar, the dedup key, and
+   the two ways a count can be absent — unknown (hide) versus zero (show). The
+   formatter is EXECUTED here rather than pattern-matched, so this fails if its
+   output changes and not merely if its source is reworded. */
+console.log("\n" + C.b("  6 · The client contract"));
+
+const { formatCount, formatExact } = await import("../src/lib/article-stats.ts");
+
+const grammar = [
+  ["1 view is singular", formatCount(1, "view") === "1 view", formatCount(1, "view")],
+  ["0 views is plural", formatCount(0, "view") === "0 views", formatCount(0, "view")],
+  ["24 views is plural", formatCount(24, "view") === "24 views", formatCount(24, "view")],
+  [
+    "thousands are compact",
+    /^\d+(\.\d)?K views$/.test(formatCount(12400, "view")),
+    formatCount(12400, "view"),
+  ],
+  [
+    "the exact label stays unrounded",
+    /^12,400 views$/.test(formatExact(12400, "view")),
+    formatExact(12400, "view"),
+  ],
+];
+for (const [label, ok, shown] of grammar) {
+  line(ok ? PASS : FAIL, label, C.dim(`renders "${shown}"`));
+  if (!ok) failures += 1;
+}
+
+const contract = [
+  [
+    "one view per session, keyed per slug",
+    /sessionStorage/.test(statsLib) && /gaitai:viewed:\$\{slug\}/.test(statsLib),
+    "sessionStorage gaitai:viewed:<slug>",
+  ],
+  [
+    "a failed read returns null, not a zero",
+    /catch[\s\S]{0,200}?return null;/.test(statsLib),
+    "unknown must not render as 0 views",
+  ],
+  [
+    "a missing document reads as zero",
+    /!snap\.exists\(\)[\s\S]{0,80}?views:\s*0/.test(statsLib),
+    "nobody has read it yet — a real answer",
+  ],
+  [
+    "a card with no document still renders zero",
+    /\?\?\s*\{\s*views:\s*0/.test(cardStats),
+    "missing slug in the shared map",
+  ],
+  [
+    "a card renders nothing until the read resolves",
+    /if\s*\(!stats\)\s*return null;/.test(cardStats),
+    "no flash of 0 before the number",
+  ],
+  [
+    "the article hides its counters when they cannot be read",
+    /status\s*===?\s*"unavailable"|setStatus\("unavailable"\)/.test(engHook) &&
+      /status\s*===?\s*"unavailable"|views\s*!==\s*null/.test(articleMeta),
+    "an essay never depends on the counter",
+  ],
+];
+for (const [label, ok, detail] of contract) {
+  line(ok ? PASS : FAIL, label, detail);
+  if (!ok) failures += 1;
+}
+
+/* ── 7 · What production actually allows ───────────────────────────────────
+   Rules are only real once deployed, so this asks the live database — as an
+   anonymous visitor, over REST — whether it accepts the one write the client
+   makes and refuses the writes it must never accept.
+
+   It writes to `articleStats/zz-doctor-probe`, which is not the slug of any
+   article: no reader-facing count moves, and nothing maps that id onto a card
+   or a page. (Not `__doctor__`: Firestore reserves ids matching `__…__` and
+   rejects them with INVALID_ARGUMENT before the rules are consulted, which is
+   how the first version of this check managed to report a refusal that had
+   never reached the rules at all.)
+
+   A refusal must be PERMISSION_DENIED. Anything else — a malformed body, a
+   reserved id, a network error — is a broken test, not a working guard, and
+   is reported as a failure rather than quietly counted as success. */
 if (wantLive) {
-  console.log("\n" + C.b("  6 · The deployed page's own markup"));
-  for (const article of chosen) {
-    const url = `https://gaitai.in/insights/${article.slug}/`;
-    try {
-      const html = await (await fetch(url)).text();
-      const hasRow = /engagement_row__/.test(html);
-      const minRead = /min read/.test(html);
-      line(hasRow ? PASS : FAIL, `${article.slug} · engagement row is in the markup`, hasRow ? "" : "component not mounted on this template");
-      if (!hasRow) failures += 1;
-      line(minRead ? FAIL : PASS, `${article.slug} · no "min read"`, minRead ? "still deployed" : "");
-      if (minRead) failures += 1;
-    } catch (e) {
-      fail(`${article.slug} · fetch ${url}`, e.message);
+  console.log("\n" + C.b("  7 · Write contract, against the live database"));
+  const PROBE = "zz-doctor-probe";
+  const docPath = `${DOCS}/${COLLECTION}/${PROBE}`.replace(
+    "https://firestore.googleapis.com/v1/",
+    "",
+  );
+
+  const commit = (writes) => rest(":commit", { writes });
+  /* `rest` returns { status, json, code, message }. Accepted means the commit
+     came back with write results; denied means the RULES said no, which is
+     `code === "PERMISSION_DENIED"` and nothing else. */
+  const okOf = (res) => res.status === 200 && Array.isArray(res.json?.writeResults);
+  const denied = (res) => res.code === "PERMISSION_DENIED";
+
+  /* Exactly what `registerView` sends: one counter up by one, the other
+     touched by zero so the field exists, and a server timestamp. */
+  const accepted = await commit([
+    {
+      update: { name: docPath, fields: {} },
+      updateMask: { fieldPaths: [] },
+      updateTransforms: [
+        { fieldPath: "views", increment: { integerValue: "1" } },
+        { fieldPath: "likes", increment: { integerValue: "0" } },
+        { fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" },
+      ],
+    },
+  ]);
+  line(
+    okOf(accepted) ? PASS : FAIL,
+    "the client's own +1 is accepted",
+    okOf(accepted)
+      ? `${COLLECTION}/${PROBE}`
+      : `${accepted.code ?? accepted.status} — ${accepted.message ?? "the counter cannot be written"}`,
+  );
+  if (!okOf(accepted)) failures += 1;
+
+  const arbitrary = await commit([
+    {
+      update: {
+        name: docPath,
+        fields: { views: { integerValue: "999999" }, likes: { integerValue: "0" } },
+      },
+      updateMask: { fieldPaths: ["views", "likes"] },
+    },
+  ]);
+  line(
+    denied(arbitrary) ? PASS : FAIL,
+    "an arbitrary count is refused",
+    denied(arbitrary)
+      ? "PERMISSION_DENIED — a client cannot set 999999"
+      : okOf(arbitrary)
+        ? "ACCEPTED — the rules are too permissive"
+        : `${arbitrary.status} — refused, but NOT by the rules`,
+  );
+  if (!denied(arbitrary)) failures += 1;
+
+  const foreign = await commit([
+    {
+      update: {
+        name: docPath,
+        fields: { views: { integerValue: "1" }, hacked: { stringValue: "yes" } },
+      },
+      updateMask: { fieldPaths: ["views", "hacked"] },
+    },
+  ]);
+  line(
+    denied(foreign) ? PASS : FAIL,
+    "an unexpected field is refused",
+    denied(foreign)
+      ? "PERMISSION_DENIED — the shape is fixed"
+      : okOf(foreign)
+        ? "ACCEPTED — the shape guard is not live"
+        : `${foreign.status} — refused, but NOT by the rules`,
+  );
+  if (!denied(foreign)) failures += 1;
+
+  console.log(
+    C.dim(
+      `\n  ${COLLECTION}/${PROBE} is this check's own document. It is not an\n` +
+        "  article slug, so it never appears on a card or a page; its counter\n" +
+        "  is the number of times this step has run.",
+    ),
+  );
+}
+
+/* ── 8 · What the deployed bundle contains ─────────────────────────────────
+   NOT the number: the counter is client-rendered, so it is never in the served
+   HTML and looking for it there is how three previous checks cried wolf. What
+   IS provable is that the code which fetches it shipped — the collection name
+   appears in the page's own JavaScript. */
+if (wantLive) {
+  console.log("\n" + C.b("  8 · The deployed bundle"));
+  const article = chosen[0];
+  const url = `https://gaitai.in/insights/${article.slug}/`;
+  try {
+    const html = await (await fetch(url)).text();
+    line(PASS, `${article.slug} · page is served`, `${html.length.toLocaleString()} bytes`);
+
+    const chunks = [...html.matchAll(/src="(\/_next\/static\/chunks\/[^"]+\.js)"/g)]
+      .map((m) => m[1])
+      .slice(0, 14);
+    let shipped = false;
+    for (const chunk of chunks) {
+      const js = await (await fetch(`https://gaitai.in${chunk}`)).text();
+      if (js.includes(COLLECTION)) {
+        shipped = true;
+        line(PASS, "counter code is in the deployed JavaScript", chunk.split("/").pop());
+        break;
+      }
     }
+    if (!shipped) {
+      fail("counter code is in the deployed JavaScript", `"${COLLECTION}" not found in ${chunks.length} chunks`);
+    }
+  } catch (e) {
+    fail(`fetch ${url}`, e.message);
   }
   console.log(
     C.dim(
       "\n  The number itself is fetched by the browser, so it is never in this\n" +
-        "  HTML. Steps 2–3 are what prove a visitor can read it.",
+        "  HTML. Steps 2, 3 and 7 are what prove a visitor can read and add to it.",
     ),
   );
 }

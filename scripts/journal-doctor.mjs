@@ -28,6 +28,8 @@
  * previous attempt guessed.
  */
 import { readFileSync, existsSync } from "node:fs";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -424,81 +426,132 @@ if (wantLive) {
   );
 
   const commit = (writes) => rest(":commit", { writes });
-  /* `rest` returns { status, json, code, message }. Accepted means the commit
-     came back with write results; denied means the RULES said no, which is
-     `code === "PERMISSION_DENIED"` and nothing else. */
-  const okOf = (res) => res.status === 200 && Array.isArray(res.json?.writeResults);
-  const denied = (res) => res.code === "PERMISSION_DENIED";
+  const execAsync = promisify(exec);
 
-  /* Exactly what `registerView` sends: one counter up by one, the other
-     touched by zero so the field exists, and a server timestamp. */
-  const accepted = await commit([
-    {
-      update: { name: docPath, fields: {} },
-      updateMask: { fieldPaths: [] },
-      updateTransforms: [
-        { fieldPath: "views", increment: { integerValue: "1" } },
-        { fieldPath: "likes", increment: { integerValue: "0" } },
-        { fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" },
-      ],
-    },
-  ]);
-  line(
-    okOf(accepted) ? PASS : FAIL,
-    "the client's own +1 is accepted",
-    okOf(accepted)
-      ? `${COLLECTION}/${PROBE}`
-      : `${accepted.code ?? accepted.status} — ${accepted.message ?? "the counter cannot be written"}`,
-  );
-  if (!okOf(accepted)) failures += 1;
+  /* The probe document is created by the write test below and removed here.
+     A doctor that leaves diagnostic state in a production database is a
+     doctor people stop running. */
+  const removeProbe = async () => {
+    let cliError = "";
+    try {
+      /* Through a shell: on Windows `npx` is `npx.cmd`, and since Node 18
+         execFile refuses to spawn a .cmd directly (EINVAL). The command is
+         fixed text with no interpolated user input. */
+      await execAsync(
+        `npx -y firebase-tools@13 firestore:delete ${COLLECTION}/${PROBE} --force`,
+        { cwd: root, timeout: 180000 },
+      );
+    } catch (e) {
+      /* Not fatal on its own: the document might never have been created,
+         and the re-read below is what actually decides. */
+      cliError = (e.stderr || e.stdout || e.message || "").toString().trim().split("\n").pop() ?? "";
+    }
 
-  const arbitrary = await commit([
-    {
-      update: {
-        name: docPath,
-        fields: { views: { integerValue: "999999" }, likes: { integerValue: "0" } },
+    /* Trust the database, not the exit code. */
+    const after = await rest(`/${COLLECTION}/${PROBE}`);
+    const gone = after.status === 404 || after.code === "NOT_FOUND";
+    if (gone) {
+      line(PASS, "the probe document is removed", `${COLLECTION}/${PROBE} no longer exists`);
+      return;
+    }
+
+    /* Still there. Say why, and say it loudly — never silently leave it. */
+    const environmental = /login|credential|permission|not found|ENOENT|command/i.test(cliError);
+    const how = `delete it with: npx firebase-tools@13 firestore:delete ${COLLECTION}/${PROBE} --force`;
+    if (environmental) {
+      line(
+        WARN,
+        "the probe document could not be removed",
+        `${cliError.slice(0, 90)} — ${how}`,
+      );
+    } else {
+      fail(
+        "the probe document could not be removed",
+        `${COLLECTION}/${PROBE} still exists${cliError ? ` — ${cliError.slice(0, 80)}` : ""}. ${how}`,
+      );
+    }
+  };
+
+  try {
+
+    /* `rest` returns { status, json, code, message }. Accepted means the commit
+       came back with write results; denied means the RULES said no, which is
+       `code === "PERMISSION_DENIED"` and nothing else. */
+    const okOf = (res) => res.status === 200 && Array.isArray(res.json?.writeResults);
+    const denied = (res) => res.code === "PERMISSION_DENIED";
+
+    /* Exactly what `registerView` sends: one counter up by one, the other
+       touched by zero so the field exists, and a server timestamp. */
+    const accepted = await commit([
+      {
+        update: { name: docPath, fields: {} },
+        updateMask: { fieldPaths: [] },
+        updateTransforms: [
+          { fieldPath: "views", increment: { integerValue: "1" } },
+          { fieldPath: "likes", increment: { integerValue: "0" } },
+          { fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" },
+        ],
       },
-      updateMask: { fieldPaths: ["views", "likes"] },
-    },
-  ]);
-  line(
-    denied(arbitrary) ? PASS : FAIL,
-    "an arbitrary count is refused",
-    denied(arbitrary)
-      ? "PERMISSION_DENIED — a client cannot set 999999"
-      : okOf(arbitrary)
-        ? "ACCEPTED — the rules are too permissive"
-        : `${arbitrary.status} — refused, but NOT by the rules`,
-  );
-  if (!denied(arbitrary)) failures += 1;
+    ]);
+    line(
+      okOf(accepted) ? PASS : FAIL,
+      "the client's own +1 is accepted",
+      okOf(accepted)
+        ? `${COLLECTION}/${PROBE}`
+        : `${accepted.code ?? accepted.status} — ${accepted.message ?? "the counter cannot be written"}`,
+    );
+    if (!okOf(accepted)) failures += 1;
 
-  const foreign = await commit([
-    {
-      update: {
-        name: docPath,
-        fields: { views: { integerValue: "1" }, hacked: { stringValue: "yes" } },
+    const arbitrary = await commit([
+      {
+        update: {
+          name: docPath,
+          fields: { views: { integerValue: "999999" }, likes: { integerValue: "0" } },
+        },
+        updateMask: { fieldPaths: ["views", "likes"] },
       },
-      updateMask: { fieldPaths: ["views", "hacked"] },
-    },
-  ]);
-  line(
-    denied(foreign) ? PASS : FAIL,
-    "an unexpected field is refused",
-    denied(foreign)
-      ? "PERMISSION_DENIED — the shape is fixed"
-      : okOf(foreign)
-        ? "ACCEPTED — the shape guard is not live"
-        : `${foreign.status} — refused, but NOT by the rules`,
-  );
-  if (!denied(foreign)) failures += 1;
+    ]);
+    line(
+      denied(arbitrary) ? PASS : FAIL,
+      "an arbitrary count is refused",
+      denied(arbitrary)
+        ? "PERMISSION_DENIED — a client cannot set 999999"
+        : okOf(arbitrary)
+          ? "ACCEPTED — the rules are too permissive"
+          : `${arbitrary.status} — refused, but NOT by the rules`,
+    );
+    if (!denied(arbitrary)) failures += 1;
 
-  console.log(
-    C.dim(
-      `\n  ${COLLECTION}/${PROBE} is this check's own document. It is not an\n` +
-        "  article slug, so it never appears on a card or a page; its counter\n" +
-        "  is the number of times this step has run.",
-    ),
-  );
+    const foreign = await commit([
+      {
+        update: {
+          name: docPath,
+          fields: { views: { integerValue: "1" }, hacked: { stringValue: "yes" } },
+        },
+        updateMask: { fieldPaths: ["views", "hacked"] },
+      },
+    ]);
+    line(
+      denied(foreign) ? PASS : FAIL,
+      "an unexpected field is refused",
+      denied(foreign)
+        ? "PERMISSION_DENIED — the shape is fixed"
+        : okOf(foreign)
+          ? "ACCEPTED — the shape guard is not live"
+          : `${foreign.status} — refused, but NOT by the rules`,
+    );
+    if (!denied(foreign)) failures += 1;
+
+    console.log(
+      C.dim(
+        `\n  ${COLLECTION}/${PROBE} is this check's own document — never an\n` +
+          "  article slug, so no reader-facing count is touched — and it is\n" +
+          "  deleted again below, whether these assertions passed or failed.",
+      ),
+    );
+  } finally {
+    await removeProbe();
+  }
 }
 
 /* ── 8 · What the deployed bundle contains ─────────────────────────────────

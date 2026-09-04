@@ -5,6 +5,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { SecureCapabilityGroups } from "@/components/products/SecureCapabilityGroups";
 import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
+import { MovementXRay } from "@/components/visuals/MovementXRay";
 import { industryUseCases, productById, secureProducts } from "@/data/products";
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { assetPath } from "@/lib/paths";
@@ -153,6 +154,68 @@ export default function SecureVisionPage() {
             </Link>{" "}
             are a separate, smaller group, intended only for lawful, authorized
             deployments with access controls, governance and auditability.
+          </div>
+        </div>
+      </section>
+
+      {/* MOVEMENT X-RAY
+          Placed immediately after the governance note, which has just used
+          the phrase "identity-free safety intelligence". That phrase is the
+          whole SecureVision proposition and, as text, it is unfalsifiable —
+          a reader has no way to check it. This shows it: the human view has a
+          person in it, the AI view has a skeleton, two trajectories and two
+          temporal channels, and nothing that distinguishes one walker from
+          another.
+
+          It is separated from the PrivacyGuard block further down the page on
+          purpose. This answers "what does the model read?"; the privacy lens
+          there answers "what is discarded, and at which step?" — different
+          questions, and adjacent they would read as one repeated visual. */}
+      <section id="x-ray" className="section site-anchor-offset">
+        <div className="container-wide">
+          <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,22rem)_1fr] lg:items-start">
+            <div>
+              <SectionHeading
+                eyebrow="Movement X-Ray"
+                title={
+                  <>
+                    What the camera sees, and{" "}
+                    <span className="text-gradient-secure">
+                      what the model reads.
+                    </span>
+                  </>
+                }
+                description="Identity-free is a claim about what reaches the model. Switch the view and see what that leaves: geometry and timing, with no appearance in it."
+                align="left"
+              />
+            </div>
+            <MovementXRay
+              family="securevision"
+              humanCaption="Five moments in one walk. Everything that identifies a person — face, clothing, build, colour — is in this view, and none of it is what SecureVision's identity-free modules are looking for."
+              aiCaption="The same walk as geometry and timing: a pose skeleton, ground contacts, the paths two landmarks trace, and those paths as temporal channels. An anomaly, a crowd flow or a safety event is read from this, which is why it can be read without knowing who is walking."
+              reads={[
+                {
+                  label: "Pose geometry",
+                  detail:
+                    "Body keypoints and the skeleton between them. No appearance is carried forward from the frame.",
+                },
+                {
+                  label: "Trajectory",
+                  detail:
+                    "Where movement goes. Direction, dwell and path shape are what crowd-flow and anomaly modules work from.",
+                },
+                {
+                  label: "Timing channels",
+                  detail:
+                    "Landmark positions over time — the signal a movement anomaly appears in, before any judgement is made about it.",
+                },
+                {
+                  label: "What is not here",
+                  detail:
+                    "No face, no clothing, no identity. SecureVision's identity capabilities are a separate, governed group and are not part of this path.",
+                },
+              ]}
+            />
           </div>
         </div>
       </section>

@@ -8,14 +8,14 @@
 // is BUILT AND WORKING TODAY. A lab that is planned, sketched or half-wired
 // does not get a record, because the page renders this list verbatim and a
 // placeholder on it would be exactly the fake demo the Labs page exists to
-// avoid. Three experiments named in the Labs brief — a privacy lens, a fusion
-// sandbox and a longitudinal time machine — are deliberately absent for that
-// reason; they arrive here on the day they run.
+// avoid. Experiments named in the Labs brief arrive here on the day they run
+// and not before — the privacy lens and the fusion sandbox are still absent
+// for exactly that reason.
 //
-// Two of these live at their own route and two are instruments INSIDE the
-// Movement Intelligence Lab, reached by anchor. That distinction is carried in
-// `home` and shown on the page, so a reader knows whether a link is a
-// destination or a place on a longer page.
+// Some of these live at their own route and some are instruments INSIDE a
+// longer page, reached by anchor. That distinction is carried in `home` and
+// shown on the page, so a reader knows whether a link is a destination or a
+// place on a page they may already have read.
 // ============================================================================
 
 export type LabBasis =
@@ -103,6 +103,28 @@ export const labs: LabRecord[] = [
     href: "/movement-lab#footage",
     home: "Inside the Movement Intelligence Lab",
     basis: "real-relationships",
+  },
+  {
+    id: "movement-xray",
+    index: 5,
+    name: "Movement X-Ray",
+    strap: "Human view / AI view of the same walk",
+    body:
+      "Switch between the body a person sees and the channels a model reads off it — landmarks, ground contact, joint trajectories and temporal traces. Both views draw the same stride data, so it is provably one walk read two ways.",
+    href: "/mobilitycare#x-ray",
+    home: "Inside MobilityCare and SecureVision",
+    basis: "illustrative",
+  },
+  {
+    id: "time-machine",
+    index: 6,
+    name: "Mobility Time Machine",
+    strap: "One walk is a snapshot. Five is a trajectory.",
+    body:
+      "Scrub five illustrative sessions and watch symmetry, cadence and movement variability change — including the interval where one signal stalls while another keeps moving, which is the whole reason a repeated record is read signal by signal.",
+    href: "/mobilitycare#time-machine",
+    home: "Inside MobilityCare",
+    basis: "illustrative",
   },
 ];
 

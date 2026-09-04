@@ -1,4 +1,5 @@
 import { GAIT_PHASES, GAIT_HEAD, type Pt } from "@/components/visuals/gait-phases";
+import { PoseSilhouette } from "@/components/visuals/PoseSilhouette";
 import { PoseFrame, smoothPath } from "./PoseFrame";
 import styles from "./labs.module.css";
 
@@ -11,12 +12,14 @@ import styles from "./labs.module.css";
  * picture is subtractive — a paragraph saying "identity is not required" is not
  * the same argument as watching identity leave the frame.
  *
- * The body is built as a real silhouette — head, tapered torso, thick limbs —
- * rather than as fat strokes over the skeleton, which read as a blob rather
- * than as a person and so lost the whole contrast the sequence depends on.
- * Its limbs are still the shared keyframe coordinates, so the four stages are
- * unmistakably one person: nothing changes across the sequence except how much
- * of them is kept.
+ * The body is a real silhouette — head, tapered torso, thick limbs — rather
+ * than fat strokes over the skeleton, which read as a blob rather than as a
+ * person and so lost the whole contrast the sequence depends on. It comes from
+ * `PoseSilhouette`, which the Movement X-Ray and the SecureVision privacy lens
+ * also draw through, so the human view on all three is provably the same
+ * anatomy as the skeleton beside it. Only the colour is local, via the classes
+ * passed in below. Nothing changes across this sequence except how much of the
+ * person is kept.
  *
  * The retained-information bar is the honest part: it falls because each stage
  * carries strictly less than the one before. It is a relative shape with no
@@ -47,39 +50,20 @@ const STAGES = [
   { key: "signal", label: "MOVEMENT SIGNAL", note: "NO PERSON", bar: 6 },
 ] as const;
 
-const p2 = (list: readonly Pt[]) =>
-  list.map(([x, y]) => `${(x * S).toFixed(1)},${(y * S).toFixed(1)}`).join(" ");
-
-/**
- * A human silhouette over the pose. The torso is a tapered polygon and the
- * limbs are thick round-capped strokes on the keyframe coordinates, so the
- * shape is a body rather than a smear.
- */
+/** This section's palette for the shared silhouette geometry. */
 function Body({ variant }: { variant: "solid" | "outline" }) {
-  const solid = variant === "solid";
-  const shoulder = -34 * S;
-  const hip = -14 * S;
-  const torso = [
-    `${(-7.5 * S).toFixed(1)},${shoulder.toFixed(1)}`,
-    `${(9 * S).toFixed(1)},${shoulder.toFixed(1)}`,
-    `${(6 * S).toFixed(1)},${hip.toFixed(1)}`,
-    `${(-5 * S).toFixed(1)},${hip.toFixed(1)}`,
-  ].join(" ");
-
   return (
-    <g className={solid ? styles.pBody : styles.pBodyOutline}>
-      <polyline className={styles.pLimb} points={p2(PHASE.farArm)} />
-      <polyline className={styles.pLimbLeg} points={p2(PHASE.farLeg)} />
-      <polygon className={styles.pTorso} points={torso} />
-      <polyline className={styles.pLimbLeg} points={p2(PHASE.nearLeg)} />
-      <polyline className={styles.pLimb} points={p2(PHASE.nearArm)} />
-      <circle
-        className={styles.pHeadMass}
-        cx={GAIT_HEAD[0] * S}
-        cy={GAIT_HEAD[1] * S}
-        r={6.4 * S}
-      />
-    </g>
+    <PoseSilhouette
+      phase={PHASE}
+      s={S}
+      classes={{
+        group: variant === "solid" ? styles.pBody : styles.pBodyOutline,
+        torso: styles.pTorso,
+        limb: styles.pLimb,
+        limbLeg: styles.pLimbLeg,
+        head: styles.pHeadMass,
+      }}
+    />
   );
 }
 

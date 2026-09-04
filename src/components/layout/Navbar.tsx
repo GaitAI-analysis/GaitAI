@@ -18,7 +18,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
 import { AtlasTrigger } from "@/components/atlas/AtlasTrigger";
 import { SEARCH_EVENT } from "@/components/search/IntelligenceSearch";
-import { navLinks } from "@/data/content";
+import { navLinks, type NavItem } from "@/data/content";
 import { cn } from "@/lib/utils";
 import { assetPath } from "@/lib/paths";
 
@@ -76,32 +76,51 @@ export function Navbar() {
   };
 
   /**
-   * The one submenu entry that owns this route — MOST SPECIFIC WINS.
+   * How strongly this submenu entry claims the current route, or -1 for not
+   * at all. The winner is simply the highest score among its siblings, so
+   * EXACTLY ONE row can ever be lit.
    *
-   * Prefix matching alone lit two entries at once: on /research/talks/ both
-   * "Research" (/research) and "Talks & Presentations" (/research/talks)
-   * matched, so the dropdown showed two active destinations and neither
-   * looked like the answer.
+   * The score is the length of the longest route prefix the entry owns that
+   * the current path sits under. Length is the tie-breaker because a longer
+   * prefix is a more specific claim — on /research/talks/ both "Research"
+   * (/research) and "Talks & Presentations" (/research/talks) match, and the
+   * second is the answer. Before this was length-ranked the dropdown lit both
+   * and neither looked like where you were.
    *
-   * Exact matching is the obvious fix and the wrong one: it would drop the
-   * highlight on every detail route, so /publications/<paper>/ would stop
-   * lighting "Publications". Instead a child is active when it matches AND no
-   * sibling with a longer href also matches — the deepest match wins, which
-   * is correct for all three cases at once:
+   * Two things the plain prefix rule could not express, both from the blog:
+   *
+   *   `exact`  · "Latest Stories" lives at /insights, which prefixes every
+   *              article in the publication. Only an exact match counts for
+   *              it, so reading an article lights the Blog tab and no row
+   *              rather than claiming you are on the feed.
+   *   `owns`   · topic pages are at /insights/topic/<slug>/, which is not
+   *              under the /insights/topics/ directory that lists them. The
+   *              row names the prefix it owns instead.
+   *
+   * The three older menus declare neither and behave exactly as before:
    *
    *   /research/              Research
    *   /research/talks/        Talks & Presentations   (not Research)
    *   /publications/<paper>/  Publications
    */
-  const childIsActive = (
-    child: { href: string },
-    siblings: readonly { href: string }[],
-  ) => {
-    if (!isUnder(child.href)) return false;
-    return !siblings.some(
-      (other) =>
-        other.href.length > child.href.length && isUnder(other.href),
-    );
+  const claimScore = (item: NavItem) => {
+    const scores = [
+      item.exact
+        ? pathname === item.href
+          ? item.href.length
+          : -1
+        : isUnder(item.href)
+          ? item.href.length
+          : -1,
+      ...(item.owns ?? []).map((prefix) => (isUnder(prefix) ? prefix.length : -1)),
+    ];
+    return Math.max(...scores);
+  };
+
+  const childIsActive = (child: NavItem, siblings: readonly NavItem[]) => {
+    const score = claimScore(child);
+    if (score < 0) return false;
+    return !siblings.some((other) => other !== child && claimScore(other) > score);
   };
 
   const itemIsActive = (item: (typeof navLinks)[number]) =>

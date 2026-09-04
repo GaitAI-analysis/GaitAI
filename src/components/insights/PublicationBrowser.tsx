@@ -48,7 +48,11 @@ export function PublicationBrowser({
   fixedTopic,
   kicker = "Blog & updates",
   title = "Ideas, research, product stories and the latest from GaitAI.",
-  description = "Exploring movement intelligence, responsible AI and applied research.",
+  /* Says what kinds of writing are here, which is the question a first-time
+     reader actually has in front of a feed. The previous line named three
+     subjects — and subjects are what the topic filters directly below it are
+     for, so it was answering a question the page answers twice more. */
+  description = "Technical explainers, research translation, engineering notes, product updates and what we're building.",
   showCover = true,
 }: {
   stories: PublicationStory[];

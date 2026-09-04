@@ -206,6 +206,13 @@ export const siteMap: AtlasNode = {
           family: "editorial",
         },
         {
+          id: "insights-topics",
+          label: "Topics",
+          route: "/insights/topics/",
+          description: "Browse the writing by subject",
+          family: "editorial",
+        },
+        {
           id: "insights-archive",
           label: "Archive",
           route: "/insights/archive/",

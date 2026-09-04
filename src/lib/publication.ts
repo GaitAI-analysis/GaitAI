@@ -182,6 +182,11 @@ export function publicationSearchText(story: PublicationStory): string {
     story.topics.map(topicLabel).join(" "),
     story.tags.join(" "),
     story.author,
+    /* Series last, and included at all because the navbar now offers a
+       reading path by name: someone who has heard of "GaitAI Foundations"
+       should find its five stories by typing it into the blog's own search,
+       not only by finding the menu row. */
+    story.series ?? "",
   ].join(" ").toLocaleLowerCase();
 }
 

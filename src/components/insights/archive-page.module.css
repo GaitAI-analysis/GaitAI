@@ -32,3 +32,78 @@
 @media (max-width: 800px) { .month { grid-template-columns: 1fr; gap: .5rem; } .month h2 { justify-content: flex-start; } .storyRow { grid-template-columns: 5.5rem minmax(0,1fr) auto; } .storyMeta { display: none; } }
 @media (max-width: 480px) { .storyRow { grid-template-columns: 1fr auto; gap: .35rem .75rem; } .storyRow time { grid-column: 1; grid-row: 1; } .storyTitle { grid-column: 1; grid-row: 2; } .arrow { grid-column: 2; grid-row: 1 / 3; } }
 @media (prefers-reduced-motion: reduce) { .storyRow,.arrow { transition: none; } .storyRow:hover .arrow { transform: none; } }
+
+/* ── The topic directory (/insights/topics/) ────────────────────────────────
+   Same ground as the archive above — this stylesheet serves both of the
+   publication's directory pages, because they are the same page furniture
+   (back link, kicker, title, deck) around a different list.
+
+   A CARD PER SUBJECT, NOT A CHIP. The archive's topic strip is already a row
+   of chips and does that job; a reader who has navigated to a page called
+   "Topics" wants to know what a subject contains before spending a click, so
+   each row carries its blurb, its volume and its most recent story. Rows, not
+   a grid of illustrated cards: this is a directory, and the same restraint
+   the archive holds to applies. */
+.topicCards { display: grid; gap: 0; border-top: 1px solid rgb(148 163 184 / .2); }
+.topicCards li + li { border-top: 1px solid rgb(148 163 184 / .1); }
+
+.topicCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "head arrow" "blurb arrow" "latest arrow";
+  align-items: start;
+  gap: .45rem 1.25rem;
+  padding: 1.5rem .25rem;
+  transition: transform .25s ease;
+}
+.topicCard:hover { transform: translateX(2px); }
+.topicCardHead { grid-area: head; display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap; }
+.topicCardName {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  color: rgb(var(--c-soft-white));
+  transition: color .25s ease;
+}
+.topicCard:hover .topicCardName { color: #4fd1ff; }
+:global(.light) .topicCard:hover .topicCardName { color: #108fc0; }
+.topicCardCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px; letter-spacing: .16em; text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+.topicCardBlurb { grid-area: blurb; max-width: 44rem; font-size: 13.5px; line-height: 1.65; color: rgb(var(--c-soft-gray)); }
+
+/* The latest story is metadata about the topic, not a second link — the whole
+   row already goes to the topic, and a link inside a link is not a thing. */
+.topicCardLatest {
+  grid-area: latest;
+  margin-top: .35rem;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .5rem .75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+.topicCardLatestTitle {
+  font-family: inherit;
+  letter-spacing: .04em;
+  text-transform: none;
+  font-size: 11px;
+  color: rgb(var(--c-soft-gray));
+}
+.topicCard .arrow { grid-area: arrow; align-self: center; }
+.topicCard:hover .arrow { transform: translateX(3px); }
+
+.topicsFoot { margin-top: 2.5rem; font-size: 13px; color: rgb(var(--c-soft-mute)); }
+.topicsFoot a { color: rgb(var(--c-soft-gray)); text-decoration: underline; text-underline-offset: 3px; }
+.topicsFoot a:hover { color: #4fd1ff; }
+:global(.light) .topicsFoot a:hover { color: #108fc0; }
+
+/* One column on a phone: the arrow column costs width the title needs, and a
+   14-character topic name wrapping to three lines is worse than no arrow. */
+@media (max-width: 640px) {
+  .topicCard { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "blurb" "latest"; }
+  .topicCard .arrow { display: none; }
+}

@@ -83,8 +83,18 @@
 }
 
 .input {
-  flex: 1 1 15rem;
+  /* Basis 11rem, not 15rem. The field and the button are meant to sit on one
+     line, and in the article row the signup column floors at 360px — at which
+     a 240px basis plus a ~148px button no longer fits, so the button dropped
+     to a second row at exactly the width where the two-column layout begins.
+     It still grows to fill whatever the column gives it; it just no longer
+     demands more than the narrowest column has. */
+  flex: 1 1 11rem;
   min-width: 0;
+  /* Field and button are one control visually, so the height is declared here
+     and matched on .button rather than left to whichever of the two happens to
+     have the taller line box. */
+  min-height: 2.75rem;
   border: 1px solid var(--sub-line);
   border-radius: 0.6rem;
   background: var(--input-bg);
@@ -114,13 +124,25 @@
   opacity: 0.6;
 }
 
+/*
+ * The secondary action, and it has to keep reading as one.
+ *
+ * "Post comment" beside it is the site's gradient primary. This carried a
+ * tinted fill AND a fairly solid cyan border, which at a glance gave it close
+ * to the same weight — two equally loud asks at the end of an article when
+ * only one of them is what the reader came to do. The fill is gone and the
+ * border does the work; hover brings the tint back, so the affordance lives in
+ * the response rather than in the resting state.
+ */
 .button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  border: 1px solid var(--sub-accent-soft);
+  min-height: 2.75rem;
+  border: 1px solid var(--sub-line);
   border-radius: 0.6rem;
-  background: rgb(79 209 255 / 0.08);
+  background: transparent;
   padding: 0.7rem 1.05rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 11px;
@@ -136,12 +158,12 @@
 }
 
 :global(.light) .button {
-  background: rgb(14 116 144 / 0.08);
+  background: transparent;
 }
 
 .button:hover:not(:disabled) {
-  background: rgb(79 209 255 / 0.14);
-  border-color: var(--sub-accent);
+  background: rgb(79 209 255 / 0.1);
+  border-color: var(--sub-accent-soft);
 }
 
 :global(.light) .button:hover:not(:disabled) {
@@ -304,8 +326,22 @@
   margin-top: 0;
 }
 
+/*
+ * The two headings in the article row have to land on one line.
+ *
+ * "Discussion" is an h2 at text-2xl (24px on a 32px line box) sitting in a row
+ * whose height is set by the 36px icon beside it, so its line box is centred in
+ * 36px and its text centre lands 18px below the top of the column. Giving this
+ * title the same 36px line box puts its text centre at 18px too, so the two
+ * agree by construction rather than by a nudge — and they keep agreeing if the
+ * icon size or the type scale ever moves, because both are the same band.
+ *
+ * No icon here on purpose. One icon in the row marks the thread as the live
+ * surface; a second would make the signup read as an equal offer.
+ */
 .article .title {
   font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+  line-height: 2.25rem;
 }
 
 .article .blurb {

@@ -74,6 +74,11 @@ async function main() {
   const { productComparisons } = comparisons;
   const { labs } = labsMod;
   const { unknownFusionChannels } = fusion;
+  const {
+    documentedInputSources,
+    sourcesForProduct,
+    supportingSourcesForProduct,
+  } = graph;
   const { privacyStages } = privacyLens;
 
   const productIds = new Set(allProducts.map((p) => p.id));
@@ -321,6 +326,22 @@ async function main() {
       );
     }
   }
+  /* TRAILING SLASHES. next.config.mjs sets trailingSlash, so a route without
+     one 404s on a hard load or a copied URL even though client-side
+     navigation quietly normalises it — which is why 22 talk entries shipped
+     with a broken href and nobody noticed. Anchored and query hrefs are
+     checked on the path portion only. */
+  for (const entry of searchIndex) {
+    const [pathOnly] = entry.href.split(/[?#]/);
+    if (pathOnly !== "/" && pathOnly.length > 0 && !pathOnly.endsWith("/")) {
+      err(
+        "route targets",
+        `search entry "${entry.id}" href "${entry.href}" has no trailing ` +
+          "slash; a hard load of it 404s on the static host",
+      );
+    }
+  }
+
   // Labs entries are the one place on the site where a broken link would
   // publish a demo that does not exist, which is precisely what the Labs
   // rule forbids. An anchor is not checked here (a static export cannot
@@ -405,7 +426,34 @@ async function main() {
     );
   }
 
-  // ── 10. Naming consistency (Phase 25) ────────────────────────────────────
+  // ── 10. Capture-source coverage ──────────────────────────────────────────
+  // Each module states its inputs twice: once as a one-line summary
+  // (systemFactsFor) and once as a list (product-details tech.inputs). The
+  // derivation reads the summary for PRIMARY sources and the hedged entries of
+  // the list for SUPPORTING ones. If a source is named in the list and comes
+  // out as neither, the site is quietly denying something a product page
+  // claims — which is exactly the contradiction this split was built to end,
+  // and it would come back the moment an input line is reworded.
+  ran.push("capture sources");
+  for (const detail of allProductDetails) {
+    const primary = sourcesForProduct(detail.slug);
+    const supporting = supportingSourcesForProduct(detail.slug);
+    const named = new Set(
+      documentedInputSources(detail.slug).map((entry) => entry.source),
+    );
+    for (const source of named) {
+      if (!primary.includes(source) && !supporting.includes(source)) {
+        err(
+          "capture sources",
+          `module "${detail.slug}" documents "${source}" in tech.inputs but ` +
+            "the derivation reports it as neither a primary nor a supporting " +
+            "source — reword the input line or widen the match",
+        );
+      }
+    }
+  }
+
+  // ── 11. Naming consistency (Phase 25) ────────────────────────────────────
   // One entity must not become two through capitalisation drift.
   ran.push("naming consistency");
   const CANON = ["MobilityCare", "SecureVision", "GaitScape", "WalkScan", "FallRisk"];

@@ -33,8 +33,19 @@ export const CASES: Case[] = [
     expect: ["use-case:elderly"],
   },
   {
+    /* TIGHTENED, not relaxed. This asked for `page:/securevision` — a proxy
+       for "the answer should be about SecureVision", and the only strong
+       match available when a module's capture sources existed nowhere in the
+       corpus. They do now, so five CCTV-primary modules outrank the family
+       landing page, which is the better answer to a question that asks for
+       products. Naming one of those modules is a stricter assertion than the
+       landing page ever was, and it would fail if the capture-source data
+       stopped reaching the index. One and not two: the retrieved set is
+       capped, and asserting a specific ORDER among equally-valid CCTV modules
+       would make the fixture brittle against a scoring tweak that changed
+       nothing a reader would notice. */
     q: "Which products work with CCTV?",
-    expect: ["page:/securevision"],
+    expect: ["product:suspiciousmotion"],
   },
   { q: "What is WalkScan?", expect: ["product:walkscan"] },
   { q: "What is PrivacyGuard?", expect: ["product:privacyguard"] },

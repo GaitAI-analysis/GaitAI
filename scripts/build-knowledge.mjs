@@ -141,6 +141,8 @@ async function main() {
   const content = await load("data/content.ts");
   const facets = await load("data/usecase-facets.ts");
   const samples = await load("data/sample-outputs.ts");
+  const labsMod = await load("data/labs.ts");
+  const talks = await load("data/talks.ts");
 
   const docs = [];
 
@@ -192,6 +194,25 @@ async function main() {
         detail && para("What the user receives", detail.receives),
         para("Outputs", product.outputs),
         detail && para("Inputs accepted", detail.tech.inputs),
+        /* The same primary/supporting split the configurator and the footage
+           matcher use. Without it the assistant answered capture-source
+           questions from the prose in tech.inputs while those surfaces
+           answered from the derivation, so "can FallRisk use a wearable?"
+           got yes here and a dropped module there. One table now. */
+        para(
+          "Primary capture sources",
+          graph
+            .sourcesForProduct(product.id)
+            .map((id) => graph.CAPTURE_SOURCE_LABEL[id]),
+        ),
+        para(
+          "Also documented as usable, where available",
+          graph.supportingSourcesForProduct(product.id).length
+            ? graph
+                .supportingSourcesForProduct(product.id)
+                .map((id) => graph.CAPTURE_SOURCE_LABEL[id])
+            : "Nothing beyond the primary capture sources above.",
+        ),
         detail && para("Processing pipeline", detail.tech.pipeline),
         detail && para("Movement features used", detail.tech.features),
         detail && para("Models", detail.tech.models),
@@ -237,6 +258,16 @@ async function main() {
         ...product.outputs,
         ...(detail ? detail.environments : []),
         ...(detail ? detail.tech.inputs : []),
+        /* PRIMARY sources only. Keywords are weighted 5x against content's
+           1x, and a hedged secondary input is not what a module is ABOUT —
+           adding WalkScan's "compatible CCTV where appropriate" here ranked
+           it above every module whose primary input actually is a fixed
+           camera, for the question "which products work with CCTV?".
+           Supporting sources stay in the content, where they are findable
+           without outranking the modules built for the job. */
+        ...graph
+          .sourcesForProduct(product.id)
+          .map((id) => graph.CAPTURE_SOURCE_LABEL[id]),
         ...(detail ? [detail.glance.input, detail.glance.output] : []),
         ...chain.signals.map((s) => s.title),
         ...chain.capabilities.map((c) => c.title),
@@ -788,23 +819,124 @@ async function main() {
     },
     {
       url: "/movement-lab",
-      title: "Movement Studio",
+      title: "Movement Intelligence Lab",
       category: "Experience",
       summary:
-        "Analyze and explore movement stage by stage, with example values. Also known as the Movement Intelligence Lab.",
-      content:
-        "The Movement Studio (previously named the Movement Intelligence Lab) walks through the stages from movement capture to reportable intelligence: pose estimation, gait cycle segmentation, feature extraction, analytics and report generation for MobilityCare; trajectories, density and flow, candidate events and the operator view for SecureVision. Everything shown is an illustrative demo with example values, not a measured result.",
+        "See movement become intelligence, stage by stage, with example values. Previously named the Movement Studio.",
+      content: block(
+        "The Movement Intelligence Lab walks through the stages from movement capture to reportable intelligence: pose estimation, gait cycle segmentation, feature extraction, analytics and report generation for MobilityCare; trajectories, density and flow, candidate events and the operator view for SecureVision. Everything shown is an illustrative demo with example values, not a measured result.",
+        para(
+          "Instruments on this page",
+          labsMod.labs
+            .filter((lab) => lab.href.startsWith("/movement-lab"))
+            .map((lab) => `${lab.name} — ${lab.strap}. ${lab.body}`),
+        ),
+      ),
       keywords: [
-        "movement studio",
-        "movement lab",
         "movement intelligence lab",
+        "movement lab",
+        "movement studio",
         "demo",
         "try",
         "pipeline",
         "pose estimation",
         "stages",
         "how does it work",
+        "fusion sandbox",
+        "signal inspector",
+        "footage check",
       ],
+    },
+    {
+      /* GAITAI LABS.
+         This route, and every experiment on it, was invisible to the
+         assistant while the command palette had indexed it since the day it
+         shipped — because this `nav` array is the one hand-maintained list in
+         an otherwise derived script, so adding a page to src/app did not add
+         it here. The entries are derived from data/labs.ts, which is the same
+         record /labs renders, so a new experiment enters the corpus with the
+         commit that makes it work rather than whenever someone remembers.
+
+         Section anchors (#time-machine, #x-ray, #privacy-lens, #fusion) are
+         not routes in this corpus: the route allowlist strips fragments, so
+         an anchor cannot be linked. The lab NAMES are indexed here instead,
+         which means asking about the Mobility Time Machine reaches the page
+         that lists it rather than reaching nothing. */
+      url: "/labs",
+      title: "GaitAI Labs",
+      category: "Experience",
+      summary:
+        "The interactive experiments: what each one is for, and which of them run on real records rather than example values.",
+      content: block(
+        labsMod.LABS_BLURB,
+        labsMod.LABS_BOUNDARY,
+        para(
+          "The experiments",
+          labsMod.labs.map(
+            (lab) =>
+              `${lab.name} — ${lab.strap}. ${lab.body} Basis: ${
+                labsMod.LAB_BASIS_LABEL[lab.basis]
+              }.${lab.home ? ` ${lab.home}.` : ""}`,
+          ),
+        ),
+      ),
+      keywords: [
+        "labs",
+        "gaitai labs",
+        "experiments",
+        "experimental",
+        "interactive",
+        ...labsMod.labs.flatMap((lab) => [lab.name, lab.strap]),
+      ],
+    },
+    {
+      url: "/research/talks",
+      title: "Talks and presentations",
+      category: "Research",
+      summary:
+        "The speaking record: conference talks, presentations and posters.",
+      content: block(
+        `The talks route carries GaitAI's speaking record — ${talks.talksNewestFirst.length} presentations, posters and conference talks, each with its venue and year.`,
+        para(
+          "Most recent",
+          talks.talksNewestFirst
+            .slice(0, 8)
+            .map((talk) => `${talk.title} — ${talk.venue}, ${talk.year}`),
+        ),
+      ),
+      keywords: [
+        "talks",
+        "presentations",
+        "conference",
+        "poster",
+        "speaking",
+        "keynote",
+      ],
+    },
+    {
+      url: "/insights/start-here",
+      title: "Start here — the blog reading path",
+      category: "Editorial",
+      summary:
+        "An ordered path through the GaitAI blog for a reader arriving for the first time.",
+      content:
+        "The start-here route orders the GaitAI blog into a reading path, so a first-time reader is not left to pick between articles written months apart. It is a route into the editorial record, not a separate set of claims.",
+      keywords: [
+        "start here",
+        "where to start",
+        "reading path",
+        "first time",
+        "introduction",
+      ],
+    },
+    {
+      url: "/insights/archive",
+      title: "Blog archive",
+      category: "Editorial",
+      summary: "Every published GaitAI article, by date.",
+      content:
+        "The archive route lists every published GaitAI article in date order, including those no longer surfaced on the blog index.",
+      keywords: ["archive", "all articles", "every post", "back issues"],
     },
     {
       url: "/investors",
@@ -924,7 +1056,15 @@ async function main() {
 
   const bytes = Buffer.byteLength(JSON.stringify(payload));
   console.log(
-    `Ask GaitAI knowledge index → functions/knowledge.json\n` +
+    /* It has not written to functions/ since the cloud function was deleted;
+       the log said otherwise, which sent anyone debugging the corpus to a
+       gitignored stale artefact. */
+    `Ask GaitAI knowledge index` +
+      `
+  -> ${WEB_OUT} (browser)` +
+      `
+  -> ${OUT} (review copy)
+` +
       `  ${docs.length} documents, ${(bytes / 1024).toFixed(0)} KB\n` +
       Object.entries(payload.counts)
         .sort()

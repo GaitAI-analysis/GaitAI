@@ -1,8 +1,14 @@
 /**
  * THE ASK GAITAI SYSTEM POLICY
  * =============================================================================
- * Server-side only. It is never sent to the browser, never echoed back, and no
- * retrieved record or visitor message can amend it.
+ * WHERE THIS RUNS, ACCURATELY. It used to be server-side only, and this note
+ * used to say so. Inference now happens in the visitor's own browser, so the
+ * policy ships to the client and is readable by anyone who looks — which is
+ * fine, because it contains no secret; it is a statement of the same
+ * boundaries the pages already publish. What still holds is that no retrieved
+ * record and no visitor message may amend it: see the injection clause at the
+ * end of the policy, and `engine.ts`, which decides refusals from retrieval
+ * confidence rather than asking the model to police itself.
  *
  * The guardrails below are not invented for the assistant — they are the
  * boundaries the site already states, quoted from the same modules the pages

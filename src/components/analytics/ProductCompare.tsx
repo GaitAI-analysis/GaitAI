@@ -253,6 +253,20 @@ export function ProductCompare({
                       p.sources.map((s) => CAPTURE_SOURCE_LABEL[s]).join(" · "),
                   },
                   {
+                    /* Separate row, not appended to the one above. A module
+                       whose wearable support is optional is not the same as
+                       one that reads a wearable directly, and merging them
+                       would offer the first to somebody who has only a
+                       watch — see supportingSourcesForProduct. */
+                    label: "Also uses, where available",
+                    value: (p: (typeof chosen)[number]) =>
+                      p.supportingSources.length === 0
+                        ? "Nothing beyond the sources above."
+                        : p.supportingSources
+                            .map((s) => CAPTURE_SOURCE_LABEL[s])
+                            .join(" · "),
+                  },
+                  {
                     label: "Environment context",
                     value: (p: (typeof chosen)[number]) => p.environmentContext,
                   },

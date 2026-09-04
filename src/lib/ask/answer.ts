@@ -1,77 +1,20 @@
 /**
- * REQUEST VALIDATION AND RESPONSE POST-PROCESSING
+ * RESPONSE POST-PROCESSING
  * =============================================================================
- * Everything crossing the trust boundary in either direction is checked here:
- * what a browser may send in, and what a model may send out.
+ * What a model may put on screen. Inference runs in the visitor's own browser
+ * (see ask/model.ts), so there is no request to validate and no trust boundary
+ * to cross — the model output is still checked, because a local model can
+ * hallucinate a route exactly as well as a hosted one.
+ *
+ * REMOVED WITH THE CLOUD FUNCTION: `LIMITS`, `AskRequest`, `ValidationResult`
+ * and `validateRequest`, which checked what a browser was permitted to POST.
+ * They had no callers left in `src/` and their doc comment still described a
+ * server-side trust boundary — which is the kind of comment that gets believed
+ * during a security review. The compiled copies under `functions/lib/` are
+ * gitignored build output from the deleted function, not live code.
  */
 
 import { allowedRoutes, knowledge, type KnowledgeDoc } from "./corpus";
-
-export const LIMITS = {
-  /** One question. Long enough to describe an environment, short enough that
-   *  the endpoint cannot be used as a general-purpose LLM proxy. */
-  message: 800,
-  /** Turns of history the browser may send back. Four exchanges is enough for
-   *  "which one works with just video?" to resolve, and caps the token bill. */
-  historyTurns: 8,
-  historyChars: 1600,
-  pathname: 256,
-  pageTitle: 200,
-} as const;
-
-export interface AskRequest {
-  message: string;
-  pathname: string;
-  pageTitle: string;
-  history: { role: "user" | "assistant"; content: string }[];
-}
-
-export type ValidationResult =
-  | { ok: true; value: AskRequest }
-  | { ok: false; error: string };
-
-const asString = (value: unknown, max: number): string =>
-  typeof value === "string" ? value.slice(0, max).trim() : "";
-
-export function validateRequest(body: unknown): ValidationResult {
-  if (!body || typeof body !== "object") {
-    return { ok: false, error: "Malformed request." };
-  }
-  const raw = body as Record<string, unknown>;
-
-  const message = asString(raw.message, LIMITS.message);
-  if (!message) return { ok: false, error: "A question is required." };
-  if (message.length < 2) return { ok: false, error: "That question is too short." };
-
-  /* Control characters are never legitimate here and are the cheap way to try
-     to break out of the prompt's own framing. */
-  const clean = message.replace(/[\u0000-\u001f\u007f-\u009f]/g, " ");
-
-  const history: AskRequest["history"] = [];
-  if (Array.isArray(raw.history)) {
-    for (const item of raw.history.slice(-LIMITS.historyTurns)) {
-      if (!item || typeof item !== "object") continue;
-      const entry = item as Record<string, unknown>;
-      const role = entry.role === "assistant" ? "assistant" : "user";
-      const content = asString(entry.content, LIMITS.historyChars);
-      if (content) history.push({ role, content });
-    }
-  }
-
-  /* The API requires the first turn to be a user turn; a trimmed window can
-     easily start on an assistant reply. */
-  while (history.length && history[0].role === "assistant") history.shift();
-
-  return {
-    ok: true,
-    value: {
-      message: clean,
-      pathname: asString(raw.pathname, LIMITS.pathname) || "/",
-      pageTitle: asString(raw.pageTitle, LIMITS.pageTitle),
-      history,
-    },
-  };
-}
 
 // ── Outbound ────────────────────────────────────────────────────────────────
 

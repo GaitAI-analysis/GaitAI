@@ -26,6 +26,13 @@ export type LabBasis =
   /** Example values, labelled as such wherever a reading appears. */
   | "illustrative";
 
+/**
+ * A NOTE ON THE HREFS BELOW. Every one carries a trailing slash before its
+ * anchor — `/mobilitycare/#time-machine`, not `/mobilitycare#time-machine`.
+ * `next.config.mjs` sets `trailingSlash`, so the slashless form works under
+ * client-side navigation and 404s on a hard load or a copied link. The
+ * validator now checks this, which is how the three anchored labs were caught.
+ */
 export interface LabRecord {
   id: string;
   /** Display index — the page shows these as 01, 02, … in order. */
@@ -69,7 +76,7 @@ export const labs: LabRecord[] = [
     strap: "Capture → pose → signal → intelligence",
     body:
       "The whole pipeline as one walkthrough: a clip becomes body landmarks, landmarks become temporal channels, and channels become the features a module reads.",
-    href: "/movement-lab",
+    href: "/movement-lab/",
     basis: "illustrative",
   },
   {
@@ -79,7 +86,7 @@ export const labs: LabRecord[] = [
     strap: "Explore the GaitAI ecosystem visually",
     body:
       "Inputs, capabilities, product families, modules and the research behind them as one navigable landscape — select any node and the parts of the system it touches light up.",
-    href: "/gaitscape",
+    href: "/gaitscape/",
     basis: "real-relationships",
   },
   {
@@ -89,7 +96,7 @@ export const labs: LabRecord[] = [
     strap: "Explore how different inputs become movement features",
     body:
       "Change the capture source and the chain redraws: the signals read from it, the capabilities that process them, the modules built on those capabilities, and what each one produces.",
-    href: "/movement-lab#signal-chain",
+    href: "/movement-lab/#signal-chain",
     home: "Inside the Movement Intelligence Lab",
     basis: "real-relationships",
   },
@@ -100,7 +107,7 @@ export const labs: LabRecord[] = [
     strap: "See what GaitAI could read from what you already have",
     body:
       "Describe the footage you have — camera height, distance, crowding, duration — and every module is rated against what its own record says it needs, with the reasons listed.",
-    href: "/movement-lab#footage",
+    href: "/movement-lab/#footage",
     home: "Inside the Movement Intelligence Lab",
     basis: "real-relationships",
   },
@@ -111,7 +118,7 @@ export const labs: LabRecord[] = [
     strap: "Human view / AI view of the same walk",
     body:
       "Switch between the body a person sees and the channels a model reads off it — landmarks, ground contact, joint trajectories and temporal traces. Both views draw the same stride data, so it is provably one walk read two ways.",
-    href: "/mobilitycare#x-ray",
+    href: "/mobilitycare/#x-ray",
     home: "Inside MobilityCare and SecureVision",
     basis: "illustrative",
   },
@@ -122,7 +129,7 @@ export const labs: LabRecord[] = [
     strap: "Sensing → privacy transformed → movement intelligence",
     body:
       "Step through the three processing stages of the identity-free path and see what each one carries forward and what stops being available — one figure, losing information, with the scope of the claim stated on screen.",
-    href: "/securevision#privacy-lens",
+    href: "/securevision/#privacy-lens",
     home: "Inside SecureVision",
     basis: "illustrative",
   },
@@ -133,7 +140,7 @@ export const labs: LabRecord[] = [
     strap: "A missing input is a known unknown. A corrupted one is not.",
     body:
       "Set video, pose, wearable and trajectory to available, missing or corrupted. A missing input makes the read-out shorter; a corrupted one leaves it exactly the same size, which is why it is the more dangerous failure.",
-    href: "/movement-lab#fusion",
+    href: "/movement-lab/#fusion",
     home: "Inside the Movement Intelligence Lab",
     basis: "real-relationships",
   },
@@ -144,11 +151,11 @@ export const labs: LabRecord[] = [
     strap: "One walk is a snapshot. Five is a trajectory.",
     body:
       "Scrub five illustrative sessions and watch symmetry, cadence and movement variability change — including the interval where one signal stalls while another keeps moving, which is the whole reason a repeated record is read signal by signal.",
-    href: "/mobilitycare#time-machine",
+    href: "/mobilitycare/#time-machine",
     home: "Inside MobilityCare",
     basis: "illustrative",
   },
 ];
 
 /** The analyzer that takes a clip apart, linked from the Labs hero. */
-export const LABS_PRIMARY_HREF = "/movement-lab#analyze";
+export const LABS_PRIMARY_HREF = "/movement-lab/#analyze";

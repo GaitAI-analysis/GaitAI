@@ -18,7 +18,7 @@
   --x-ink: 226 232 240;
   --x-line: 255 255 255;
   --x-line-a: 0.1;
-  --x-mass-a: 0.3;
+  --x-mass-a: 0.42;
   --x-dim-a: 0.34;
 }
 
@@ -31,7 +31,7 @@
   --x-ink: 15 23 42;
   --x-line: 15 23 42;
   --x-line-a: 0.14;
-  --x-mass-a: 0.22;
+  --x-mass-a: 0.3;
   --x-dim-a: 0.4;
 }
 
@@ -77,14 +77,23 @@
 
 /* ── HUMAN VIEW: the body mass ───────────────────────────────────────────── */
 
+/* THE TRANSPARENCY IS ON THE GROUP, NOT ON EACH SHAPE.
+   A silhouette is a torso polygon, four thick limb strokes and a head disc
+   that all overlap. Giving each of them the same alpha made every overlap
+   darker than its neighbours, so the figure read as a grey blob with a
+   rectangle stuck on it rather than as a person — and the human view has to
+   look human or the comparison it anchors means nothing. Painting the group
+   opaque and fading it ONCE flattens the overlaps first, so the shape is
+   uniform and the torso disappears into the body it belongs to. */
 .mass {
-  fill: rgb(var(--x-ink) / var(--x-mass-a));
-  stroke: rgb(var(--x-ink) / var(--x-mass-a));
+  fill: rgb(var(--x-ink));
+  stroke: rgb(var(--x-ink));
+  opacity: var(--x-mass-a);
 }
 
 .massTorso {
-  fill: rgb(var(--x-ink) / var(--x-mass-a));
-  stroke: rgb(var(--x-ink) / var(--x-mass-a));
+  fill: rgb(var(--x-ink));
+  stroke: rgb(var(--x-ink));
   stroke-width: 1.2;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
@@ -107,7 +116,7 @@
 }
 
 .massHead {
-  fill: rgb(var(--x-ink) / calc(var(--x-mass-a) + 0.06));
+  fill: rgb(var(--x-ink));
   stroke: none;
 }
 

@@ -10,6 +10,7 @@ import { papers, patent } from "@/data/publications";
 import { productCount } from "@/data/products";
 import { RESPONSIBLE_USE_CONTROLS } from "@/data/responsible-use";
 import { ctas } from "@/data/content";
+import { contact, mailto } from "@/data/contact";
 import styles from "@/components/trust/trust.module.css";
 
 export const metadata: Metadata = {
@@ -276,6 +277,23 @@ export default function TrustPage() {
                 Security &amp; privacy controls
               </Link>
             </div>
+
+            {/* A DIRECT ROUTE, ON THE ONE PAGE THAT NEEDS IT.
+                Someone reviewing GaitAI for procurement or compliance is the
+                most likely reader to want a person rather than a form, and
+                until now this page offered neither. A line rather than a
+                third button, and the only place outside the four legal pages
+                that prints the address — repeating it on every surface would
+                make it furniture rather than a contact. */}
+            <p className="mt-6 text-[0.875rem] leading-relaxed text-soft-mute">
+              Or write directly:{" "}
+              <a
+                className="text-cyan-300 transition-colors hover:text-cyan-200"
+                href={mailto(contact.security)}
+              >
+                {contact.security}
+              </a>
+            </p>
           </div>
         </div>
       </section>

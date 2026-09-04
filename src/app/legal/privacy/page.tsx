@@ -269,14 +269,19 @@ export default function PrivacyPage() {
         >
           {contact.privacy}
         </a>
-        . If a message bounces, the{" "}
+        {/* Was "If a message bounces" — a hedge written when this address
+            was an unverified role mailbox on a domain with no MX. It is a
+            verified inbox now, so raising the possibility of a bounce next to
+            it would be worse than saying nothing. The form stays offered as a
+            second route. */}
+        . The{" "}
         <Link
           className="text-cyan-300 transition-colors hover:text-cyan-200"
           href={CONTACT_FORM_HREF}
         >
           contact form
         </Link>{" "}
-        reaches the same people.
+        is the other way through.
       </p>
     </>
   );

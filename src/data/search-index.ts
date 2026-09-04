@@ -137,7 +137,11 @@ const destinationEntries: SearchEntry[] = [
     haystack: norm([
       "gaitai labs experiments experimental",
       "explore movement before deploying it",
+      /* Every lab's name and strap, so "movement x-ray", "time machine" and
+         "footage check" all arrive at the index that lists them. */
       labs.map((lab) => `${lab.name} ${lab.strap}`).join(" "),
+      "human view ai view x-ray xray skeleton landmarks trajectory",
+      "longitudinal sessions baseline scrub trend",
     ]),
   },
   {

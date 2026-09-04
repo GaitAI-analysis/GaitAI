@@ -58,6 +58,7 @@ async function main() {
   const samples = await load("data/sample-outputs.ts");
   const searchIdx = await load("data/search-index.ts");
   const comparisons = await load("data/comparisons.ts");
+  const labsMod = await load("data/labs.ts");
 
   const { allProducts, industryUseCases } = products;
   const { gaitscapeNodes, gaitscapeRelationships } = graph;
@@ -69,6 +70,7 @@ async function main() {
   const { sampleOutputs } = samples;
   const { searchIndex } = searchIdx;
   const { productComparisons } = comparisons;
+  const { labs } = labsMod;
 
   const productIds = new Set(allProducts.map((p) => p.id));
   const nodeIds = new Set(gaitscapeNodes.map((n) => n.id));
@@ -301,14 +303,27 @@ async function main() {
     /^\/publications\/[a-z0-9-]+\/$/.test(p) ||
     /^\/insights\/[a-z0-9-]+\/$/.test(p);
 
-  for (const entry of searchIndex) {
-    const [pathOnly] = entry.href.split(/[?#]/);
+  const routable = (href) => {
+    const [pathOnly] = href.split(/[?#]/);
     const bare = pathOnly.replace(/\/$/, "") || "/";
-    if (!staticRoutes.has(bare) && !dynamicOk(pathOnly)) {
+    return staticRoutes.has(bare) || dynamicOk(pathOnly);
+  };
+
+  for (const entry of searchIndex) {
+    if (!routable(entry.href)) {
       err(
         "route targets",
         `search entry "${entry.id}" points at unroutable "${entry.href}"`,
       );
+    }
+  }
+  // Labs entries are the one place on the site where a broken link would
+  // publish a demo that does not exist, which is precisely what the Labs
+  // rule forbids. An anchor is not checked here (a static export cannot
+  // verify one), but the PAGE it hangs off is.
+  for (const lab of labs) {
+    if (!routable(lab.href)) {
+      err("route targets", `lab "${lab.id}" points at unroutable "${lab.href}"`);
     }
   }
 

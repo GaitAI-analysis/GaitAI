@@ -13,7 +13,7 @@ import {
 } from "@/data/labs";
 
 const DESCRIPTION =
-  "Interactive experiments that make GaitAI's movement-intelligence pipeline easier to understand: the capture-to-intelligence walkthrough, the ecosystem landscape, the signal chain and a check against footage you already have.";
+  "Interactive experiments that make GaitAI's movement-intelligence pipeline easier to understand: the capture-to-intelligence walkthrough, the ecosystem landscape, the signal chain, a check against footage you already have, and five illustrative sessions to scrub through.";
 
 export const metadata: Metadata = {
   title: "GaitAI Labs — Explore movement before deploying it",
@@ -50,8 +50,8 @@ export const metadata: Metadata = {
  * lift one by one down the page.
  *
  * The records live in `data/labs.ts` and the rule there is that a lab exists
- * on this page only once it works. Three experiments from the brief are
- * therefore not here yet.
+ * on this page only once it works. Experiments from the brief that do not run
+ * yet are therefore absent, not greyed out.
  */
 export default function LabsPage() {
   return (

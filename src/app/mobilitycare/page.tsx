@@ -11,6 +11,8 @@ import { ClinicalReportVisual } from "@/components/visuals/ClinicalReportVisual"
 import { SmartwatchVisual } from "@/components/visuals/SmartwatchVisual";
 import { MobilityCareHero } from "@/components/sections/MobilityCareHero";
 import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
+import { MobilityTimeMachine } from "@/components/analytics/MobilityTimeMachine";
+import { MovementXRay } from "@/components/visuals/MovementXRay";
 import {
   industryUseCases,
   mobilityProducts,
@@ -132,6 +134,64 @@ export default function MobilityCarePage() {
           </div>
         </section>
       )}
+
+      {/* MOVEMENT X-RAY
+          Sits under WalkScan because that section shows the OUTPUT — a
+          report — and says nothing about where the numbers on it come from.
+          This is the missing middle: the same walk as a body and as the
+          channels a model reads off it. It was also the largest visual gap on
+          this page, which had no pose figure anywhere despite every module on
+          it being built on pose.
+
+          Full width and on its own, rather than squeezed beside the report
+          card: the whole instrument is a comparison, and a comparison in a
+          half-column is a thumbnail. */}
+      <section id="x-ray" className="section site-anchor-offset">
+        <div className="container-wide">
+          <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,22rem)_1fr] lg:items-start">
+            <div>
+              <SectionHeading
+                eyebrow="Movement X-Ray"
+                title={
+                  <>
+                    What a person sees, and{" "}
+                    <span className="text-gradient">what the model reads.</span>
+                  </>
+                }
+                description="One stride, sampled at five gait events. Switch the view and the body becomes the channels a MobilityCare module actually works from."
+                align="left"
+              />
+            </div>
+            <MovementXRay
+              family="mobilitycare"
+              humanCaption="Five moments in one stride. A clinician watching this sees a person walking, and reads it with an experienced eye — which is exactly the assessment GaitAI is built to make repeatable."
+              aiCaption="The same five moments as the pipeline holds them: a pose skeleton with its landmarks, ground contacts where the data says the foot is loaded, the paths the ankle and wrist trace across the stride, and two of the temporal channels those paths become."
+              reads={[
+                {
+                  label: "Pose landmarks",
+                  detail:
+                    "Body keypoints per frame. Every downstream measure is computed from these rather than from the image.",
+                },
+                {
+                  label: "Ground contact",
+                  detail:
+                    "Where the foot loads and leaves. This is what divides a stride into stance and swing.",
+                },
+                {
+                  label: "Joint trajectories",
+                  detail:
+                    "The path a landmark travels across the stride — the shape that step length and clearance are read from.",
+                },
+                {
+                  label: "Temporal channels",
+                  detail:
+                    "Landmark positions over time. Cadence, symmetry and variability are derived from these channels, never from appearance.",
+                },
+              ]}
+            />
+          </div>
+        </div>
+      </section>
 
       {/* WATCHCARE FLAGSHIP (mini-version) */}
       {watchcare && (
@@ -260,6 +320,33 @@ export default function MobilityCarePage() {
           </div>
         </section>
       )}
+
+      {/* MOBILITY TIME MACHINE
+          Placed here on purpose. The three sections above it each describe
+          ONE capture — a report, a watch feed, a screening category — and the
+          thing they have in common is that MobilityCare reads them again next
+          month. This is where that becomes visible, before the page moves on
+          to environments. It is one rail and three readings, not a fourth
+          deep product section: the instrument's job is to land a single idea
+          and hand off to the modules that actually do it. */}
+      <section id="time-machine" className="section site-anchor-offset">
+        <div className="container-wide">
+          <SectionHeading
+            eyebrow="Mobility Time Machine"
+            title={
+              <>
+                One walk is a snapshot.{" "}
+                <span className="text-gradient">Five is a trajectory.</span>
+              </>
+            }
+            description="Scrub five illustrative sessions and watch the readings change. Nothing here is measured — the point is the shape a repeated record has, and what a single assessment cannot show."
+            align="left"
+          />
+          <div className="mt-12">
+            <MobilityTimeMachine />
+          </div>
+        </div>
+      </section>
 
       {/* CLINICAL USE CASES */}
       <section className="section">

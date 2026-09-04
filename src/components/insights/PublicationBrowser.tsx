@@ -97,18 +97,6 @@ export function PublicationBrowser({
     ? progressivePage(feed, page, showCover ? HOME_LATEST_SIZE : PUBLICATION_PAGE_SIZE)
     : paginate(feed, page, PUBLICATION_PAGE_SIZE);
 
-  const ranked = useMemo(
-    () =>
-      stories
-        .map((story) => ({ slug: story.slug, views: stats[story.slug]?.views ?? 0 }))
-        .sort((a, b) => b.views - a.views || a.slug.localeCompare(b.slug)),
-    [stats, stories],
-  );
-  const mostViewedSlug =
-    statsLoaded && ranked[0]?.views > 0 && ranked[0]?.views !== ranked[1]?.views
-      ? ranked[0].slug
-      : undefined;
-
   const visibleTopics = allTopics.slice(0, VISIBLE_TOPIC_COUNT);
   const moreTopics = allTopics.slice(VISIBLE_TOPIC_COUNT);
 

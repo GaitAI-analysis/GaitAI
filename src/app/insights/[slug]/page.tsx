@@ -336,38 +336,60 @@ export default function InsightArticlePage({
         </div>
       </article>
 
-      {/* ─────────── DISCUSSION ───────────
-          The site's comment system already existed — Firestore-backed,
-          moderated, rate-limited, captcha-gated — and was mounted on
-          publications and live posts but never on the journal, which is the
-          one place readers would actually want to reply. Same component, same
-          collection, so the counts on the archive cards and the thread here
-          are the same records.
+      {/* ─────────── ENGAGEMENT ───────────
+          The thread and the signup share one row.
 
-          contentType "blog" is one of ALLOWED_CONTENT_TYPES; the mount is
-          client-only and viewport-gated, so Firebase stays off the critical
-          path until a reader scrolls this far. */}
-      <section id="discussion" className="border-t border-white/[0.07] py-14 sm:py-16">
-        <div className="container-wide">
-          <div className="mx-auto w-full max-w-[46rem] lg:mx-0">
-            <DiscussionMount
-              postSlug={article.slug}
-              contentType="blog"
-              subscriberOnly={false}
-            />
-          </div>
-        </div>
-      </section>
+          They were two full-width sections stacked, each holding a ~46rem
+          column, so on a desktop the page ran two thin panels down the middle
+          with the rest of the width empty and two dividers between them. They
+          are the same moment in the read — the reader has finished and is
+          deciding what to do next — so they belong side by side under one
+          divider.
 
-      {/* ─────────── SUBSCRIBE ───────────
-          Between the thread and the next story: the reader has finished the
-          article and is deciding what to do next, which is the only honest
-          moment to ask. Same component and same collection as the blog and
-          the footer — one validation path, one duplicate rule. */}
-      <section className="border-t border-white/[0.07] py-14 sm:py-16">
+          Proportions rather than fixed widths: the thread takes the larger
+          share because it holds a form with two fields on one line, and the
+          signup floors at 300px so its field and button never wrap into a
+          column too narrow to use. The row collapses below 850px rather than
+          768px, and that is measured: the comment form puts its name and
+          email fields on one line from 640px up, so in a 356px column at 768
+          the email placeholder was cut off mid-word. 850 is the width at
+          which both columns hold their contents. Below it the thread is full
+          width again and the stacked order is the one a phone had before.
+
+          The comment system itself is untouched — Firestore-backed, moderated,
+          rate-limited, captcha-gated, mounted client-only and viewport-gated
+          so Firebase stays off the critical path until a reader scrolls here.
+          contentType "blog" is one of ALLOWED_CONTENT_TYPES. The signup is the
+          same component and collection as the blog index and the footer: one
+          validation path, one duplicate rule. */}
+      <section
+        id="discussion"
+        className="border-t border-white/[0.07] py-12 sm:py-14"
+      >
         <div className="container-wide">
-          <div className="mx-auto w-full max-w-[46rem] lg:mx-0">
-            <SubscribeForm variant="article" />
+          <div className="grid items-start gap-[clamp(32px,4vw,48px)] min-[850px]:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)]">
+            {/* `DiscussionSection` carries its own `mt-16 border-t pt-12`,
+                which is right where it is the last thing on a publication or
+                a live post. In this row it put "Discussion" 112px below
+                "Enjoyed this story?" and drew a second rule across half the
+                width. Neutralised on this page only — the component is shared,
+                and publications and live posts still want their own spacing.
+                The placeholder shown before hydration has the same chrome, so
+                the selector matches the element rather than the component. */}
+            <div className="min-w-0 [&>div>section]:mt-0 [&>div>section]:border-t-0 [&>div>section]:pt-0">
+              <DiscussionMount
+                postSlug={article.slug}
+                contentType="blog"
+                subscriberOnly={false}
+              />
+            </div>
+
+            {/* Deliberately no card. The brief for this row was to use the
+                width, not to build a second panel to match the first — the
+                signup stays a light block of type and one field. */}
+            <div className="min-w-0">
+              <SubscribeForm variant="article" />
+            </div>
           </div>
         </div>
       </section>

@@ -22,10 +22,22 @@
  * masthead's own contrast is therefore unchanged — checked by reading the
  * headline over it at 1440 and 390.
  *
- * It is static. A background that animates behind a headline is a background
- * competing with a headline, so there is no motion here at all and nothing to
- * gate on prefers-reduced-motion.
+ * ALMOST STILL. A background that animates behind a headline is a background
+ * competing with a headline, so the page, the grid, the type blocks and the
+ * curves themselves never move. The one exception is five small dots that
+ * travel along the trajectories, because a network drawn as a still diagram
+ * says "diagram" and the same drawing with signal moving through it says what
+ * this platform actually does.
+ *
+ * The dots ride the EXACT `d` of the curves below — same array, no second
+ * copy of the geometry — as stroke caps walked along each path by
+ * `stroke-dashoffset`. The whole mechanism, why it is not `offset-path` or
+ * SMIL, and its cost are documented in `backdrop.module.css`. No JS runs:
+ * this stays a server component, and `prefers-reduced-motion` is honoured in
+ * that stylesheet rather than by hydrating to make the decision.
  */
+import styles from "./backdrop.module.css";
+
 export function JournalBackdrop() {
   /* Four trajectories over the page, as the platform draws movement: a smooth
      path with sampled points on it. Deterministic — these are fixed curves,
@@ -35,6 +47,39 @@ export function JournalBackdrop() {
     { d: "M-40 196 C210 240 360 168 560 206 C740 240 900 196 1060 218", o: 0.17 },
     { d: "M-40 268 C160 300 340 246 540 282 C720 314 880 268 1060 292", o: 0.12 },
     { d: "M-40 344 C220 320 380 372 580 340 C760 312 900 350 1060 330", o: 0.085 },
+  ];
+
+  /*
+   * The travelling dots. Five on a desktop, three on a phone.
+   *
+   * `trace` indexes the array above, so a dot cannot be given a curve that
+   * does not exist and editing a curve moves its dot with it. Spread across
+   * the two upper lines, the central curve and the lowest one, which leaves
+   * the baseline grid, the column rules and both type blocks — the large
+   * majority of the drawing — completely still.
+   *
+   * DURATIONS ARE ROUGHLY PROPORTIONAL TO HOW FAR THE DOT TRAVELS, not
+   * uniform, so every dot moves at a similar speed rather than the short
+   * curves looking hurried. Every delay is NEGATIVE and no two share a
+   * factor: each dot is already in flight on the first frame, at a different
+   * point, so the backdrop has no visible start and never resynchronises.
+   *
+   * `rest` is where the dot parks under prefers-reduced-motion — a fraction
+   * along its own curve, chosen to sit clear of the headline mask and to keep
+   * the five reading as scattered sample points rather than a row.
+   */
+  const packets = [
+    /* upper thin line — cyan */
+    { trace: 0, hue: "#9fe4ff", dur: "9s", delay: "-2.5s", rest: "-0.34", mobile: true },
+    /* second upper line — blue, the slowest of the pair */
+    { trace: 1, hue: "#8ab4ff", dur: "12.5s", delay: "-7s", rest: "-0.62", mobile: true },
+    /* central curve — violet, the long one */
+    { trace: 2, hue: "#c4b5fd", dur: "14s", delay: "-11s", rest: "-0.45", mobile: true },
+    /* second dot on the upper pair, so one line carries two packets at
+       different phases — the detail that makes it read as traffic */
+    { trace: 1, hue: "#9fe4ff", dur: "7s", delay: "-4s", rest: "-0.2", mobile: false },
+    /* lower curve — blue, faintest trace so the dot carries it */
+    { trace: 3, hue: "#8ab4ff", dur: "11s", delay: "-9s", rest: "-0.75", mobile: false },
   ];
 
   /* Sample marks along the brightest two, at fixed fractions. */
@@ -134,6 +179,41 @@ export function JournalBackdrop() {
           {marks.map(([cx, cy]) => (
             <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.6" fill="#9fe4ff" fillOpacity="0.3" />
           ))}
+
+          {/* The packets. Inside this masked group deliberately: the mask is
+              what keeps the drawing out of the left third, and a bright
+              moving dot is the last thing that should cross the headline.
+
+              Two caps each — a faint wide one that also brightens the trace
+              directly under it, then the small bright core on top. */}
+          {packets.map((packet, index) => {
+            const style = {
+              "--jb-dur": packet.dur,
+              "--jb-delay": packet.delay,
+              "--jb-rest": packet.rest,
+            } as React.CSSProperties;
+            const off = packet.mobile ? "" : ` ${styles.mobileOff}`;
+            return (
+              <g key={index}>
+                <path
+                  d={traces[packet.trace].d}
+                  pathLength="1"
+                  fill="none"
+                  stroke={packet.hue}
+                  className={`${styles.packet} ${styles.glow}${off}`}
+                  style={style}
+                />
+                <path
+                  d={traces[packet.trace].d}
+                  pathLength="1"
+                  fill="none"
+                  stroke={packet.hue}
+                  className={`${styles.packet} ${styles.core}${off}`}
+                  style={style}
+                />
+              </g>
+            );
+          })}
         </g>
       </svg>
 

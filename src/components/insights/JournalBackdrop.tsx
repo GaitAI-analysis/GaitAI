@@ -78,9 +78,16 @@ export function JournalBackdrop() {
     /* second dot on the upper pair, so one line carries two packets at
        different phases — the detail that makes it read as traffic */
     { trace: 1, hue: "#9fe4ff", dur: "7s", delay: "-4s", rest: "-0.2", mobile: false },
-    /* lower curve — blue, faintest trace so the dot carries it */
-    { trace: 3, hue: "#8ab4ff", dur: "11s", delay: "-9s", rest: "-0.75", mobile: false },
+    /* second dot on the central curve, trailing far behind the first */
+    { trace: 2, hue: "#8ab4ff", dur: "11s", delay: "-9s", rest: "-0.75", mobile: false },
   ];
+
+  /* TRACE 3 CARRIES NOTHING, deliberately. It is the faintest curve and
+     leaving it entirely still is what keeps this from being "every line
+     moves": three of the four trajectories carry signal, the fourth is
+     drawing, and the baseline grid, the column rules and both type blocks —
+     some thirty-four more lines, the bulk of the composition — never move at
+     all. */
 
   /* Sample marks along the brightest two, at fixed fractions. */
   const marks = [

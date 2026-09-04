@@ -5,6 +5,7 @@ import { GAIT_PHASES, type Pt } from "./gait-phases";
 import { PoseSilhouette } from "./PoseSilhouette";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
 import { SegmentTabs } from "@/components/analytics/controls";
+import { ProvenanceMark } from "@/components/proof/ProvenanceMark";
 import styles from "./xray.module.css";
 
 /**
@@ -251,6 +252,11 @@ export function MovementXRay({
 
         <figcaption className="mt-4 text-[13.5px] leading-relaxed text-soft-gray">
           {ai ? aiCaption : humanCaption}
+          {/* No synthetic-data mark. There are no readings on this figure at
+              all, and the two traces are computed from the keyframe
+              coordinates themselves — so the shapes ARE the data this
+              repository holds, rather than numbers invented for the picture. */}
+          <ProvenanceMark kind="illustrative-demo" />
         </figcaption>
       </figure>
 

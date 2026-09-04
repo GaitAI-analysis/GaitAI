@@ -322,7 +322,7 @@ export function UseCaseDetailView({ slug }: { slug: string }) {
                     <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
                   </Link>
                   <Link
-                    href="/research#areas"
+                    href="/research/#evidence-map"
                     className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"
                   >
                     Research basis

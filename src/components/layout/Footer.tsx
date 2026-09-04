@@ -4,6 +4,7 @@ import { Github, Linkedin, Mail } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ctas } from "@/data/content";
 import { contact, mailto, socialProfiles } from "@/data/contact";
+import { ProofModeSwitch } from "@/components/proof/ProofModeSwitch";
 
 /**
  * The single footer link source.
@@ -179,6 +180,18 @@ export function Footer() {
             ready to ask for a demo is already thinking about GaitAI. One
             instance, not two: see CTA.tsx. */}
         <div className="divider mt-16" />
+
+        {/* EXPLORE | EVIDENCE.
+            The mode is site-wide, so its control has to be reachable from
+            wherever a reader happens to be when the marks appear — including
+            a page they arrived at on an ?evidence=1 link and now want to read
+            plainly. The footer is the one placement that is available on
+            every page without taking space in the header, and it is where
+            site-wide preferences belong. Product pages mount a second copy
+            inline, because that is where the question is asked most. */}
+        <div className="mt-8">
+          <ProofModeSwitch quiet />
+        </div>
 
         <div className="mt-8 flex flex-col items-start justify-between gap-4 text-xs text-soft-mute sm:flex-row sm:items-center">
           <p>

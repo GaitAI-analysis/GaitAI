@@ -102,7 +102,11 @@ export function evidenceStatusFor(productId: string): ModuleEvidence {
     },
     {
       id: "product-module",
-      label: "Product module",
+      /* Was "Product module", which named the thing rather than the evidence
+         and so read as a fifth row about existence rather than about basis.
+         The row's own detail always described a specification; the label now
+         says so, and matches the provenance vocabulary in provenance.ts. */
+      label: "Product specification",
       state: hasDetail ? "available" : "in-development",
       detail: hasDetail
         ? "The module has a documented specification: inputs, pipeline, outputs and stated limitations."

@@ -91,7 +91,7 @@ export function ProductEvidence({
       </div>
 
       <Link
-        href="/research#areas"
+        href="/research/#evidence-map"
         className={cn(
           "mt-6 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition-colors hover:text-soft-white",
           accentText

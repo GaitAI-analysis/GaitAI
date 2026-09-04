@@ -79,7 +79,7 @@ export default function PublicationsPage() {
                 record maps onto the platform&apos;s capabilities is set out on
                 the{" "}
                 <Link
-                  href="/research#areas"
+                  href="/research/#evidence-map"
                   className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
                 >
                   research evidence map

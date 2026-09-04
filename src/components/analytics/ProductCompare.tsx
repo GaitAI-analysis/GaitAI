@@ -374,7 +374,7 @@ export function ProductCompare({
                           <>
                             {product.researchAreaIds.map(areaTitle).join("; ")}
                             <Link
-                              href="/research#evidence-explorer"
+                              href="/research/evidence/"
                               className="mt-1.5 block text-cyan-300"
                             >
                               Trace the evidence →

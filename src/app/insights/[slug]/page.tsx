@@ -222,7 +222,6 @@ export default function InsightArticlePage({
                 author={INSIGHTS_AUTHOR}
                 date={article.date}
                 dateLabel={formatInsightDate(article.date)}
-                readMinutes={article.readMinutes}
               >
                 <h1 className={styles.articleTitle}>
                   <Headline article={article} />

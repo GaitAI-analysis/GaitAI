@@ -335,6 +335,34 @@ for (const [label, ok, detail] of wiring) {
   if (!ok) failures += 1;
 }
 
+/* ── 5b · Reading time is not shown ────────────────────────────────────────
+   `readMinutes` stays in the records — it is useful data — but no reader-facing
+   blog surface prints it. This reads the components that do the rendering, not
+   the served HTML: searching the HTML is the assumption that made the previous
+   generation of these checks cry wolf. */
+console.log("\n" + C.b("  5b · Reading time is not rendered"));
+
+const READ_TIME = /min read|minutes? read|readingTime|\breadMinutes\b/i;
+for (const [label, rel] of [
+  ["article metadata row", "src/components/insights/ArticleMeta.tsx"],
+  ["article template", "src/app/insights/[slug]/page.tsx"],
+  ["blog listing", "src/components/insights/JournalIndex.tsx"],
+  ["story card", "src/components/insights/StoryCard.tsx"],
+  ["card stats", "src/components/insights/CardStats.tsx"],
+  ["next-story rail", "src/components/insights/NextStory.tsx"],
+  ["journal pieces", "src/components/insights/JournalPieces.tsx"],
+  ["story index", "src/components/insights/StoryIndex.tsx"],
+]) {
+  const body = code(rel);
+  if (!body) {
+    line(WARN, label + " · file not found", rel);
+    continue;
+  }
+  const hit = READ_TIME.test(body);
+  line(hit ? FAIL : PASS, label + " renders no reading time", hit ? rel + " still prints it" : "");
+  if (hit) failures += 1;
+}
+
 /* ── 6 · The client contract ───────────────────────────────────────────────
    Behaviour a reader depends on: the formatter's grammar, the dedup key, and
    the two ways a count can be absent — unknown (hide) versus zero (show). The

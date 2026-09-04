@@ -149,13 +149,9 @@ export async function registerView(slug: string): Promise<0 | 1> {
   if (alreadyViewed(slug)) return 0;
 
   /* Claim it before awaiting anything: two mounts in one tick must not both
-     get past this line. */
+     get past this line. This is per page load only — the durable marker is
+     written below, and only if the write actually lands. */
   countedThisLoad.add(slug);
-  try {
-    sessionStorage.setItem(viewedKey(slug), "1");
-  } catch {
-    /* Not fatal — countedThisLoad still holds for this page load. */
-  }
 
   try {
     const { fs, db } = await firestore();
@@ -170,8 +166,29 @@ export async function registerView(slug: string): Promise<0 | 1> {
       },
       { merge: true },
     );
+
+    /* AFTER the write, never before.
+       `gaitai:viewed:<slug>` means "this browser has a view recorded for this
+       article", and it used to be set before the request went out — so any
+       failed write left the session permanently marked and the article stuck
+       on whatever it first read. That is not hypothetical: when the counter
+       documents were deleted after testing, browsers that had already been
+       marked could never write again and sat on "0 views" for the life of the
+       session. Setting it here keeps one view per session per article while
+       making a failure retryable on the next page load. */
+    try {
+      sessionStorage.setItem(viewedKey(slug), "1");
+    } catch {
+      /* Storage blocked. `countedThisLoad` still holds for this page load, so
+         the write is not repeated here; the next load may count again, which
+         is the honest outcome when a browser refuses to remember anything. */
+    }
     return 1;
   } catch (err) {
+    /* Nothing was recorded, so nothing should look as though it was. Release
+       the per-load claim: a later attempt in this same load can still
+       succeed, and it cannot double-count because the write did not happen. */
+    countedThisLoad.delete(slug);
     reportOnce("count a view", err);
     return 0;
   }

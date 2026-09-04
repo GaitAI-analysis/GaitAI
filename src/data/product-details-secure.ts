@@ -24,7 +24,6 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "suspiciousmotion",
     overview:
       "SuspiciousMotion surfaces candidate movement events — loitering, running, restricted-zone entry and tailgating-like patterns — from camera streams for operator review, using movement-first processing that does not require identity recognition.",
-    environments: ["Campus", "Transport hub", "Enterprise", "Public space"],
     glance: {
       input: "Camera stream",
       analysis: "Behaviour analysis",
@@ -140,7 +139,6 @@ export const secureProductDetails: ProductDetail[] = [
     valueProp: "See crowd flow, bottlenecks and movement risk live.",
     overview:
       "CrowdSense converts movement trajectories into aggregate flow, density, queue and bottleneck intelligence for operators of busy public and commercial spaces.",
-    environments: ["Smart city", "Stadium", "Airport", "Metro", "Mall"],
     glance: {
       input: "Camera streams",
       analysis: "Flow analytics",
@@ -255,7 +253,6 @@ export const secureProductDetails: ProductDetail[] = [
     valueProp: "Worker safety — measured, monitored, alerted.",
     overview:
       "IndustrialSafety applies movement analysis to worker-safety events and operational zones — falls, slips, restricted-zone entry, fatigue-like movement and evacuation status across industrial facilities.",
-    environments: ["Factory", "Warehouse", "Construction", "Energy"],
     glance: {
       input: "Site cameras",
       analysis: "Safety-event AI",
@@ -369,7 +366,6 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "privacyguard",
     overview:
       "PrivacyGuard is the architectural privacy-control layer for SecureVision, designed to support skeleton-only analytics, face blur, privacy-aware aggregated heatmaps, role-based access, audit logs, retention controls and consent/policy logging. What a given site enables is a deployment decision.",
-    environments: ["All SecureVision sites", "Public sector", "Enterprise"],
     glance: {
       input: "Raw streams",
       analysis: "Privacy controls",
@@ -480,7 +476,6 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "campusshield",
     overview:
       "CampusShield combines movement-event monitoring across campus spaces — visitor movement timelines, after-hours alerts, fall detection, restricted-zone monitoring and tailgating indicators.",
-    environments: ["University", "Corporate campus", "Hospital", "R&D campus"],
     glance: {
       input: "Campus cameras",
       analysis: "Movement events",
@@ -591,7 +586,6 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "forensicsearch",
     overview:
       "ForensicSearch indexes movement and event evidence in recorded footage so authorized investigators can narrow hours of multi-camera video by time, path, movement pattern or tracked subject.",
-    environments: ["Enterprise security", "Campus", "Transport", "Retail"],
     glance: {
       input: "Recorded footage",
       analysis: "Movement indexing",
@@ -703,7 +697,6 @@ export const secureProductDetails: ProductDetail[] = [
     valueProp: "Track the same person across cameras — by gait.",
     overview:
       "ReID estimates cross-camera correspondence using body- and movement-level signatures — for authorized investigation and operational continuity when appearance changes, faces are unavailable or cameras capture people from a distance.",
-    environments: ["Airport", "Rail", "Campus", "Investigation"],
     glance: {
       input: "Multi-camera views",
       analysis: "Movement signatures",
@@ -814,7 +807,6 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "accessmotion",
     overview:
       "AccessMotion uses gait and movement consistency as an additional authentication signal alongside authorized primary methods — a passive second factor for high-security spaces.",
-    environments: ["Data centre", "R&D lab", "Defence campus", "High-security office"],
     glance: {
       input: "Approach + entry video",
       analysis: "Consistency check",
@@ -924,7 +916,6 @@ export const secureProductDetails: ProductDetail[] = [
     valueProp: "Stadium, concert, conference — crowd-movement indicators for the operations room.",
     overview:
       "EventShield aggregates crowd movement into operational safety indicators for high-density venues — entry/exit flow, density-risk indicators, bottlenecks, abnormal crowd-motion indicators and evacuation summaries.",
-    environments: ["Stadium", "Concert", "Conference", "Public gathering"],
     glance: {
       input: "Venue cameras",
       analysis: "Crowd-risk analytics",
@@ -1035,7 +1026,6 @@ export const secureProductDetails: ProductDetail[] = [
     slug: "retailguard",
     overview:
       "RetailGuard provides movement-aware operational analytics across retail zones — loitering alerts, queue analytics, emergency flow, staff-safety events and crowd heatmaps.",
-    environments: ["Retail chain", "Mall", "Big-box store"],
     glance: {
       input: "Store cameras",
       analysis: "Retail movement analytics",
@@ -1147,7 +1137,6 @@ export const secureProductDetails: ProductDetail[] = [
     valueProp: "Lawful, audited, and intended only for authorized deployments.",
     overview:
       "Watchlist provides policy-governed candidate matching against an authorized watchlist, with confidence scoring, consent/policy logs and auditability. It is restricted to deployments with lawful authority — it is not offered for general-public surveillance.",
-    environments: ["Authorized law enforcement", "Defence", "Critical infrastructure (where lawful)"],
     glance: {
       input: "Authorized streams",
       analysis: "Candidate matching",

@@ -30,7 +30,8 @@ export type DocType =
   | "signal"
   | "deployment"
   | "policy"
-  | "page";
+  | "page"
+  | "person";
 
 export interface KnowledgeDoc {
   id: string;
@@ -45,6 +46,22 @@ export interface KnowledgeDoc {
   keywords: string[];
   relatedProducts: string[];
   relatedResearch: string[];
+  /**
+   * ENTITY METADATA — optional, present on records that ARE a named thing.
+   *
+   * A person, the company, a module. `entityId` is the canonical handle other
+   * records point at through `relatedEntityIds`, so a publication can say
+   * "authored by anubha-parashar" without carrying a second copy of the
+   * biography, and the person record can be found from any of its `aliases`
+   * ("anubha", "the founder") rather than only from its exact title.
+   * See entities.ts for how they are matched, and build-knowledge.mjs for
+   * where they come from — every alias is derived from a site data module,
+   * none is typed into the assistant.
+   */
+  entityId?: string;
+  aliases?: string[];
+  relatedEntityIds?: string[];
+  tags?: string[];
 }
 
 export interface EnvironmentMapping {

@@ -146,6 +146,25 @@ async function main() {
 
   const docs = [];
 
+  // ── ENTITIES ─────────────────────────────────────────────────────────────
+  // The named things a visitor asks about BY NAME: the founder, the company,
+  // each module. A record that is one of them carries `entityId` and
+  // `aliases`; a record ABOUT one of them carries `relatedEntityIds`. The
+  // person record is assembled below from publications.ts and talks.ts —
+  // nothing biographical is written here, and the aliases are the name's own
+  // parts plus the one role word the site uses for her ("founder").
+  const slugify = (value) =>
+    String(value)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  const FOUNDER = publications.FOUNDER_NAME;
+  const FOUNDER_ID = slugify(FOUNDER);
+  const COMPANY_ID = "gaitai";
+  const authoredByFounder = (record) => record.authors.includes(FOUNDER);
+  const founderRelated = (records) =>
+    records.some(authoredByFounder) ? [FOUNDER_ID] : [];
+
   const detailBySlug = new Map(
     [...details.productDetails, ...secureDetails.secureProductDetails].map((d) => [
       d.slug,
@@ -297,6 +316,10 @@ async function main() {
       ],
       relatedProducts: detail ? [...detail.related] : [],
       relatedResearch: papersFor.map((p) => p.id),
+      /* A module is an entity: "what is fallrisk" names it exactly. */
+      entityId: product.id,
+      aliases: [product.short, product.name],
+      tags: [product.vertical],
     });
   }
 
@@ -405,6 +428,8 @@ async function main() {
       ],
       relatedProducts: areas.flatMap((a) => a.directProducts.map((p) => p.id)),
       relatedResearch: areas.map((a) => a.id),
+      /* person → publications, without a second copy of the biography. */
+      relatedEntityIds: founderRelated([record]),
     });
   }
 
@@ -453,6 +478,115 @@ async function main() {
       ],
       relatedProducts: area.directProducts.map((p) => p.id),
       relatedResearch: area.publications.map((p) => p.id),
+      relatedEntityIds: founderRelated(area.publications),
+    });
+  }
+
+  // ── PEOPLE ───────────────────────────────────────────────────────────────
+  // One canonical record per person the site names. Today that is the
+  // founder, and every sentence below is lifted from a page a visitor can
+  // read: the Publications page (authorship, publishers, the founder-vs-
+  // company distinction), the Research page, the home page's "10+ years of
+  // founder research" line, and talks.ts (the speaking record and whose it
+  // is). Anything the site does not say — degrees, employers, dates, awards —
+  // is stated as NOT documented, so the assistant has that in its context too.
+  {
+    const authored = publications.allPublications.filter(authoredByFounder);
+    const authoredPapers = authored.filter((p) => p.kind !== "patent");
+    const authoredPatents = authored.filter((p) => p.kind === "patent");
+    const publishers = [...new Set(authoredPapers.map((p) => p.publisher))];
+    const areasGrounded = evidence.researchAreas.filter((a) =>
+      a.publications.some(authoredByFounder),
+    );
+    const publicationsPage = prosePage("app/publications/page.tsx");
+    const speaker = talks.TALKS_SPEAKER === FOUNDER;
+    const [firstName, ...restName] = FOUNDER.split(/\s+/);
+    const lastName = restName[restName.length - 1] ?? "";
+    const patentLine = authoredPatents
+      .map(
+        (p) =>
+          `a granted Indian patent${p.patentNumber ? ` (Patent ${p.patentNumber})` : ""}`,
+      )
+      .join(" and ");
+
+    docs.push({
+      id: `person:${FOUNDER_ID}`,
+      type: "person",
+      title: FOUNDER,
+      slug: FOUNDER_ID,
+      url: route("/publications"),
+      family: "research",
+      category: "Founder",
+      summary: clean(
+        `${FOUNDER} is the founder of GaitAI. The research record the platform is built on — ${authoredPapers.length} peer-reviewed papers${patentLine ? ` and ${patentLine}` : ""} — was authored by ${FOUNDER} with academic co-authors, across gait recognition, computer vision, biometrics, pose estimation, machine learning and privacy-preserving movement analysis.`,
+      ),
+      content: block(
+        para("Name", FOUNDER),
+        para(
+          "Role in the GaitAI record",
+          `Founder of GaitAI. The site describes GaitAI as founder-led research that became a platform, built on 10+ years of founder research experience in gait and human movement.`,
+        ),
+        para(
+          "Research record",
+          `${authoredPapers.length} peer-reviewed papers${patentLine ? ` and ${patentLine}` : ""}, authored with academic co-authors and published with ${publishers.join(", ")}.`,
+        ),
+        publicationsPage.description &&
+          para("How the Publications page describes it", publicationsPage.description),
+        para(
+          "Provenance",
+          "These are academic and individually held records rather than company-produced output. GaitAI does not currently hold company-assigned publications or patents of its own; the product modules are subsequent platform implementations.",
+        ),
+        para(
+          "Publications authored",
+          authored.map((p) => `${p.title} (${p.venue}, ${p.year})`),
+        ),
+        para(
+          "Research areas this work grounds",
+          areasGrounded.map((a) => a.title),
+        ),
+        speaker &&
+          para(
+            "Speaking record",
+            `${talks.talkRecords.length} documented appearances listed at ${route("/research/talks")} — ${talks.talkCounts.invitedTalks} invited talks, ${talks.talkCounts.presentations} conference presentations, ${talks.talkCounts.paperPresentations} paper presentations and ${talks.talkCounts.posters} poster${talks.talkCounts.posters === 1 ? "" : "s"} — delivered in an academic and personal research capacity. They are not GaitAI company appearances.`,
+          ),
+        para(
+          "Not documented in the GaitAI record",
+          "Academic degrees, job history, institutional affiliations, awards, dates of employment, and any role other than founder and author. None of these may be stated or implied.",
+        ),
+      ),
+      keywords: [
+        FOUNDER,
+        firstName,
+        lastName,
+        "founder",
+        "gaitai founder",
+        "who founded gaitai",
+        "author",
+        "research record",
+        "publications",
+        "patent",
+        ...(speaker ? ["talks", "speaker", "speaking record"] : []),
+      ],
+      relatedProducts: [],
+      relatedResearch: [
+        ...areasGrounded.map((a) => a.id),
+        ...authored.map((p) => p.id),
+      ],
+      entityId: FOUNDER_ID,
+      aliases: [
+        FOUNDER,
+        firstName,
+        lastName,
+        `dr ${FOUNDER}`,
+        `dr. ${FOUNDER}`,
+        "founder",
+        "the founder",
+        "gaitai founder",
+        "founder of gaitai",
+        "gaitai's founder",
+      ],
+      relatedEntityIds: [COMPANY_ID],
+      tags: ["founder", "author", ...(speaker ? ["speaker"] : [])],
     });
   }
 
@@ -710,6 +844,11 @@ async function main() {
         para("Request a demo, a pilot or a research collaboration", "/#contact"),
       ),
       keywords: ["gaitai", "what is gaitai", "platform", "movement intelligence", "overview", "about"],
+      /* The company is an entity too, and it points at its founder — so "who
+         founded gaitai" resolves both and ranks the person. */
+      entityId: COMPANY_ID,
+      aliases: ["gaitai", "gait ai", "gait.ai", "gaitai.in", "the platform", "the company"],
+      relatedEntityIds: [FOUNDER_ID],
     },
     {
       url: "/products",
@@ -808,6 +947,7 @@ async function main() {
         ),
       ),
       keywords: ["research", "evidence", "science", "papers", "foundation"],
+      relatedEntityIds: [FOUNDER_ID],
     },
     {
       url: "/publications",
@@ -819,6 +959,7 @@ async function main() {
         publications.allPublications.map((p) => `${p.title} (${p.venue}, ${p.year})`),
       ),
       keywords: ["publications", "papers", "patent", "journal", "citations", "where are your papers"],
+      relatedEntityIds: founderRelated(publications.allPublications),
     },
     {
       url: "/insights",
@@ -935,6 +1076,7 @@ async function main() {
         "speaking",
         "keynote",
       ],
+      relatedEntityIds: talks.TALKS_SPEAKER === FOUNDER ? [FOUNDER_ID] : [],
     },
     {
       url: "/insights/start-here",
@@ -999,23 +1141,44 @@ async function main() {
       keywords: page.keywords,
       relatedProducts: [],
       relatedResearch: [],
+      ...(page.entityId ? { entityId: page.entityId } : {}),
+      ...(page.aliases ? { aliases: page.aliases } : {}),
+      ...(page.relatedEntityIds?.length ? { relatedEntityIds: page.relatedEntityIds } : {}),
     });
   }
 
   // ── NORMALISE ────────────────────────────────────────────────────────────
-  for (const doc of docs) {
-    doc.content = clean(doc.content.replace(/\n/g, "\n")).length
-      ? doc.content.split("\n").map(clean).filter(Boolean).join("\n")
-      : "";
-    doc.summary = clean(doc.summary);
-    doc.keywords = Array.from(
+  const dedupe = (values) =>
+    Array.from(
       new Set(
-        doc.keywords
+        values
           .filter(Boolean)
           .map((k) => clean(k).toLowerCase())
           .filter((k) => k.length > 1),
       ),
     );
+  for (const doc of docs) {
+    doc.content = clean(doc.content.replace(/\n/g, "\n")).length
+      ? doc.content.split("\n").map(clean).filter(Boolean).join("\n")
+      : "";
+    doc.summary = clean(doc.summary);
+    doc.keywords = dedupe(doc.keywords);
+    /* Entity fields are optional and only serialised where they carry
+       something, so the 100-odd records without them do not grow. */
+    if (doc.aliases) doc.aliases = dedupe(doc.aliases);
+    if (doc.tags) doc.tags = dedupe(doc.tags);
+    if (doc.relatedEntityIds && doc.relatedEntityIds.length === 0) {
+      delete doc.relatedEntityIds;
+    }
+  }
+
+  const entityIds = new Set(docs.filter((d) => d.entityId).map((d) => d.entityId));
+  for (const doc of docs) {
+    for (const ref of doc.relatedEntityIds ?? []) {
+      if (!entityIds.has(ref)) {
+        throw new Error(`${doc.id} points at unknown entity "${ref}"`);
+      }
+    }
   }
 
   const ids = new Set();

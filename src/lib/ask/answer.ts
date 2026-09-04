@@ -129,6 +129,7 @@ const SOURCE_KIND: Record<KnowledgeDoc["type"], string> = {
   deployment: "Deployment",
   policy: "Governance",
   page: "Page",
+  person: "Person",
 };
 
 /**
@@ -178,6 +179,9 @@ export function suggestFollowUps(
         break;
       case "policy":
         push(`What does GaitAI explicitly not claim?`);
+        break;
+      case "person":
+        push(`Which publications did ${doc.title} author?`);
         break;
       default:
         break;

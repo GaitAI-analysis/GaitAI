@@ -43,8 +43,19 @@
 :root {
   /* The lift. Small enough to read as "live" rather than "animated". */
   --hit-lift: -2px;
-  --hit-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --hit-speed: 0.32s;
+  /* Both of these now DEFER to the motion system in globals.css ("THE MOTION
+     SYSTEM") rather than holding their own values. A card lifting is
+     functional motion — the reader is waiting on it — so it belongs in the UI
+     band with every chip, filter and disclosure on the site; it used to run
+     at 0.32s, which is why a card and the tab above it never quite felt like
+     one surface. The names stay because ~40 rules in this file already read
+     them, and keeping them makes this a two-line change instead of forty.
+
+     Deferring also means reduced motion is handled: the tokens collapse
+     under the preference, so every rule below inherits that without the
+     media query at the end of this file having to grow. */
+  --hit-ease: var(--ease-out);
+  --hit-speed: var(--motion-ui);
 
   --hit-line: rgb(79 209 255 / 0.34);
   --hit-line-soft: rgb(148 163 184 / 0.22);
@@ -128,7 +139,8 @@
    having been struck, which is the whole of a pressed state. */
 .card-link:active {
   transform: translateY(0);
-  transition-duration: 0.08s;
+  /* A press must feel like contact, not like an animation. */
+  transition-duration: var(--motion-fast);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -173,7 +185,8 @@
 
 .card-surface:active {
   transform: translateY(0);
-  transition-duration: 0.08s;
+  /* A press must feel like contact, not like an animation. */
+  transition-duration: var(--motion-fast);
 }
 
 /* The stretched link. Its accessible name is the card's destination; the
@@ -400,7 +413,7 @@
 /* The subtitle is what makes a menu item legible on a first visit, so it
    brightens with the title rather than staying muted behind it. */
 .menu-card-sub {
-  transition: color 0.22s var(--hit-ease);
+  transition: color var(--motion-ui) var(--hit-ease);
 }
 
 .menu-card-arrow {

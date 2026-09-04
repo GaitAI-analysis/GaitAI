@@ -344,6 +344,86 @@ body {
   background: linear-gradient(180deg, #4fd1ff 0%, #7c3aed 100%);
 }
 /* =========================================================================
+   THE MOTION SYSTEM
+   -------------------------------------------------------------------------
+   Four durations for the whole site, because motion here carries MEANING and
+   meaning needs to be consistent to be read.
+
+   Before this block there were no timing tokens at all: a survey of the
+   stylesheets found 77 rules at `.3s`, 57 at `.25s`, 53 at `.35s`, 36 at
+   `.4s` and 32 at `.28s` — five different answers to one question ("how long
+   does a hover take?"), none of them wrong on its own and no two agreeing.
+   The cost is not tidiness. When a card lifts in 280ms and the chip beside it
+   lifts in 400ms, the pair reads as two unrelated widgets rather than one
+   surface responding, and nothing in the interface feels engineered.
+
+   The bands, and what each one is FOR:
+
+     FAST       ~120ms   State that must feel instantaneous — a press settle,
+                         a focus ring, a colour swap. Long enough to not
+                         strobe, short enough to read as "immediate".
+     UI         ~220ms   The default. Hover, chips, filters, disclosure,
+                         anything the pointer is waiting on. If a duration is
+                         unspecified, it belongs here.
+     EDITORIAL  ~380ms   Content arriving — a section fading in, a drawer
+                         opening, a route transition. Slow enough to feel
+                         composed, still under the ~400ms where a reader
+                         starts waiting for it.
+     SIGNAL     800ms+   Signature motion only: the movement signal travelling
+                         a waveform, a pipeline stage illuminating, a
+                         GaitScape path lighting up. This band is the product
+                         speaking, so it is the ONLY one allowed to be slow,
+                         and `--motion-signal-slow` is its ceiling.
+
+   Easing is two curves, not a per-component invention:
+
+     --ease-out    decelerating, for anything entering or responding to input.
+                   This is the site's existing curve (0.16, 1, 0.3, 1) —
+                   already used by hand in the theme toggle and a dozen
+                   framer-motion transitions — promoted to a token rather
+                   than replaced, so nothing shifts character.
+     --ease-inout  symmetric, for a loop that travels and returns: a signal
+                   sweep, a pulse.
+
+   HOW TO USE. Reach for the token whose NAME matches the job, not the number
+   that looks closest to what you had. A hover is `--motion-ui` even if 300ms
+   felt fine, because the point is that every hover on the site agrees.
+
+   REDUCED MOTION. The `prefers-reduced-motion` block below collapses the two
+   long bands to near-zero at the token level, so a component that animates
+   through these variables honours the preference WITHOUT writing its own
+   media query. Existing components keep their own queries; this is a floor
+   for everything written from here on.
+   ========================================================================= */
+
+:root {
+  --motion-fast: 120ms;
+  --motion-ui: 220ms;
+  --motion-editorial: 380ms;
+  --motion-signal: 800ms;
+  --motion-signal-slow: 1600ms;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Collapsing the bands rather than the properties. A component that reads
+   `--motion-editorial` becomes effectively instant here, while its layout,
+   its final colours and its focus states are untouched — which is the
+   distinction the preference actually asks for: no journey, same
+   destination. The FAST band survives at 1ms rather than 0 so that
+   `transitionend` still fires for anything sequencing on it. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 1ms;
+    --motion-ui: 1ms;
+    --motion-editorial: 1ms;
+    --motion-signal: 1ms;
+    --motion-signal-slow: 1ms;
+  }
+}
+
+/* =========================================================================
    THE INTERACTION SYSTEM
    -------------------------------------------------------------------------
    One vocabulary for "you can act on this", used by every control on the

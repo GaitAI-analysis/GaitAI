@@ -525,6 +525,15 @@
    4 · STORY CARDS — deliberately different proportions
    ========================================================================= */
 
+/* THE WHOLE CARD IS THE LINK, so the whole card takes the pointer — the hit
+   area was already the full surface (see .cardLink::after) but the cursor only
+   changed over the headline, which is how a reader learns that a card is a
+   picture with a link in it rather than a story they can open.
+
+   The hover response is one gesture in five parts, all of them small: 2px of
+   lift, a brighter border, a brighter headline, the topic accent to full
+   strength, the cover a shade brighter and 1.5% larger, and the arrow 3px
+   right. No scale on the card, no shadow bloom, no glow. */
 .card {
   position: relative;
   display: flex;
@@ -533,18 +542,32 @@
   border-radius: 1.15rem;
   border: 1px solid var(--jr-line);
   background-color: rgb(var(--c-obsidian-400) / 0.5);
+  cursor: pointer;
   transition: border-color 0.5s var(--jr-ease), transform 0.5s var(--jr-ease);
 }
 :global(.light) .card {
   background-color: #ffffff;
 }
-.card:hover {
+.card:hover,
+.card:focus-within {
   border-color: var(--jr-accent-soft, rgb(79 209 255 / 0.4));
   transform: translateY(-2px);
 }
+/* Keyboard parity: the same response the mouse gets, plus the ring. The card
+   is the focus target as far as a reader is concerned, so the ring belongs on
+   the card and not on the two words of headline that hold the anchor. */
 .card:focus-within {
   outline: 2px solid var(--jr-accent, #4fd1ff);
   outline-offset: 3px;
+}
+/* A reader who has asked for less motion keeps every colour change and loses
+   the movement — the lift and the arrow are the only parts that move. */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover,
+  .card:focus-within {
+    transform: none;
+  }
 }
 /* The accent line that names the topic without a label. */
 .cardAccent {
@@ -559,7 +582,8 @@
   opacity: 0.55;
   transition: opacity 0.5s var(--jr-ease);
 }
-.card:hover .cardAccent {
+.card:hover .cardAccent,
+.card:focus-within .cardAccent {
   opacity: 1;
 }
 
@@ -567,6 +591,37 @@
   position: relative;
   overflow: hidden;
   aspect-ratio: 16 / 9;
+}
+/* The cover's response to hover. These are drawn SVG research plates, not
+   photographs, and the brief keeps them: so instead of a photographic zoom the
+   plate lifts its own contrast a little and grows 1.5% — enough that the card
+   feels live under the cursor, not enough to crop anything out of a
+   composition that was drawn to fit the frame. Targets the cover element
+   whatever it is, so this holds if a plate is ever a canvas or an image. */
+.cardMedia > :first-child {
+  transition:
+    transform 0.6s var(--jr-ease),
+    filter 0.6s var(--jr-ease);
+}
+.card:hover .cardMedia > :first-child,
+.card:focus-within .cardMedia > :first-child {
+  transform: scale(1.015);
+  filter: brightness(1.06) saturate(1.04);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card:hover .cardMedia > :first-child,
+  .card:focus-within .cardMedia > :first-child {
+    transform: none;
+  }
+}
+/* The scrim thins as the plate brightens, so the bottom of the artwork opens
+   up rather than the whole tile simply going lighter. */
+.cardMediaScrim {
+  transition: opacity 0.6s var(--jr-ease);
+}
+.card:hover .cardMediaScrim,
+.card:focus-within .cardMediaScrim {
+  opacity: 0.65;
 }
 .cardMediaScrim {
   position: absolute;
@@ -606,6 +661,32 @@
 .cardCategory {
   color: var(--jr-accent, #4fd1ff);
 }
+/* ACTIVITY FLAGS — hairline, mono, the size of the row they sit in.
+   Deliberately not a badge: no fill, no brand colour block, no icon, no
+   second type size. They are set in the same 9px mono as the date beside
+   them and outlined at the card's own line weight, so a card carrying one
+   reads as "this is recent" rather than as an advertisement. Neither is ever
+   rendered without a fact behind it — see CardFlags and JournalIndex. */
+.cardFlag {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  padding: 0.1rem 0.4rem 0.08rem;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+.cardFlagNew {
+  color: var(--jr-accent, #4fd1ff);
+}
+/* Champagne, the journal's editorial colour — the same one the cover-story
+   label uses — so "most viewed" reads as a note from the publication rather
+   than as another topic accent. */
+.cardFlagRead {
+  color: var(--jr-gold, #e4c48a);
+}
 .cardTitle {
   margin-top: 0.7rem;
   font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
@@ -616,8 +697,17 @@
   color: var(--jr-ink);
   text-wrap: balance;
 }
+/* Three lines, and then it stops. The excerpts in the record are written for
+   the article page and run to five or six lines at card width; clamping here
+   is what lets one field serve both surfaces instead of a second, shorter
+   field that would drift out of sync with it. The feature card below lifts the
+   clamp, being the one place with the height for the full passage. */
 .cardExcerpt {
   margin-top: 0.6rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
   font-size: 0.8125rem;
   line-height: 1.7;
   color: var(--jr-mute);
@@ -649,8 +739,15 @@
 .cardCtaArrow {
   transition: transform 0.45s var(--jr-ease);
 }
-.card:hover .cardCtaArrow {
+.card:hover .cardCtaArrow,
+.card:focus-within .cardCtaArrow {
   transform: translateX(3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card:hover .cardCtaArrow,
+  .card:focus-within .cardCtaArrow {
+    transform: none;
+  }
 }
 
 /* The heading's link is the card's only link. A pseudo-element stretches it
@@ -668,7 +765,8 @@
   inset: 0;
   z-index: 1;
 }
-.card:hover .cardLink {
+.card:hover .cardLink,
+.card:focus-within .cardLink {
   color: var(--jr-accent, #4fd1ff);
 }
 .cardLink:focus-visible {
@@ -693,6 +791,19 @@
   .cardWide .cardBody {
     padding: 1.75rem 1.9rem;
     justify-content: center;
+  }
+  /* THE CALL TO ACTION RIDES WITH THE COPY IN A ROW CARD.
+     `.cardCta` has `margin-top: auto`, which pins it to the floor of a column
+     card so a grid of cards has its arrows on one line — correct there, since
+     the cards are the same height. In a row card the body is vertically centred
+     instead, and the two instructions fight: the copy sits in the middle and the
+     arrow drops to the bottom edge, leaving a hand's width of dead space between
+     a three-line excerpt and the only thing on the card that says where it goes.
+     So in every row layout the auto margin is released and the arrow sits under
+     the passage it belongs to. */
+  .cardWide .cardCta {
+    margin-top: 0;
+    padding-top: 1.4rem;
   }
   .cardWide .cardTitle {
     font-size: 1.375rem;
@@ -725,6 +836,11 @@
     padding: 2rem 2.25rem;
     justify-content: center;
   }
+  /* Released for the same reason as the wide card above. */
+  .cardFull .cardCta {
+    margin-top: 0;
+    padding-top: 1.5rem;
+  }
   .cardFull .cardTitle {
     font-size: 1.6rem;
     line-height: 1.16;
@@ -732,6 +848,149 @@
   .cardFull .cardExcerpt {
     font-size: 0.875rem;
     max-width: 28rem;
+  }
+}
+.cardFull .cardExcerpt {
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
+}
+
+/* =========================================================================
+   4b · THE ARCHIVE GRID — a last row that was chosen rather than left over
+   -------------------------------------------------------------------------
+   THE PROBLEM. A three-column grid holding four stories put three across the
+   top and left the fourth alone in the first column with two empty columns
+   beside it. Nothing was broken; it simply looked like the page had run out.
+   The reader's eye reads that gap as "the end of the internet", and it made a
+   publication with five pieces look like one with a bug.
+
+   THE FIX, AND WHY IT IS CSS RATHER THAN JAVASCRIPT. How many cards sit in a
+   row is a function of the viewport, so a component cannot know the remainder
+   without measuring the window and re-rendering on resize. The grid itself
+   knows. Six tracks with each card spanning two gives three per row AND the
+   two divisors a short final row needs — six for one card, three for two —
+   and `:nth-last-child` states the remainder as a selector:
+
+     .card:last-child:nth-child(3n + 1)      the count leaves one over
+     .card:nth-last-child(2):nth-child(3n+1) the count leaves two over
+
+   A single leftover story takes the whole row and turns horizontal, cover
+   beside copy, which reads as a deliberate closing piece. Two leftovers take
+   half the row each. Everything else is untouched, and at two columns the
+   same idea runs on `:nth-child(odd)`.
+
+   The grid lives in this stylesheet rather than in archive.module.css so it
+   can name `.card`, `.cardMedia` and `.cardBody` directly — a CSS module can
+   only see its own class names, and re-proportioning a card means restyling
+   the inside of it, not only its footprint.
+   ========================================================================= */
+
+.indexGrid {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* ── Two columns ──
+   Scoped to the two-column range and no wider: at three columns "the last
+   card is in an odd position" says nothing about whether it is stranded, and
+   an unscoped rule turned the fifth of five stories horizontal in the middle
+   of a half-row pair. */
+@media (min-width: 680px) {
+  .indexGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 680px) and (max-width: 1119px) {
+  /* An odd count leaves the last card alone beside an empty column, so it
+     takes the full width instead. */
+  .indexGrid > .card:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+}
+
+/* ── Three columns ── */
+@media (min-width: 1120px) {
+  .indexGrid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .indexGrid > .card {
+    grid-column: span 2;
+  }
+  /* One over: the whole final row. */
+  .indexGrid > .card:last-child:nth-child(3n + 1) {
+    grid-column: span 6;
+  }
+  /* Two over: half the final row each. */
+  .indexGrid > .card:nth-last-child(2):nth-child(3n + 1),
+  .indexGrid > .card:nth-last-child(2):nth-child(3n + 1) ~ .card {
+    grid-column: span 3;
+  }
+  /* A half-row card is half again as wide as a third-row one, so its cover
+     flattens to a 16/9 band rather than towering at 4/3. */
+  .indexGrid > .card:nth-last-child(2):nth-child(3n + 1) .cardMedia,
+  .indexGrid > .card:nth-last-child(2):nth-child(3n + 1) ~ .card .cardMedia {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* ── The full-width closing story ──
+   Cover beside copy, at the proportions the `wide` variant already uses, so
+   the horizontal card closing the grid and the horizontal card at the foot of
+   an article are the same object.
+
+   It waits for 768px — the width `.cardWide` itself waits for — because
+   between 680 and 767 there are two columns but not the room to put a 44%
+   cover beside readable copy. The stranded card there takes the full width
+   and stays vertical, which already fixes the gap. */
+@media (min-width: 768px) and (max-width: 1119px) {
+  .indexGrid > .card:last-child:nth-child(odd) {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .indexGrid > .card:last-child:nth-child(odd) .cardMedia {
+    aspect-ratio: auto;
+    flex: 0 0 44%;
+  }
+  .indexGrid > .card:last-child:nth-child(odd) .cardBody {
+    padding: 1.6rem 1.8rem;
+    justify-content: center;
+  }
+  .indexGrid > .card:last-child:nth-child(odd) .cardCta {
+    margin-top: 0;
+    padding-top: 1.4rem;
+  }
+  .indexGrid > .card:last-child:nth-child(odd) .cardTitle {
+    font-size: 1.3125rem;
+  }
+}
+
+@media (min-width: 1120px) {
+  .indexGrid > .card:last-child:nth-child(3n + 1) {
+    flex-direction: row;
+    align-items: stretch;
+  }
+  .indexGrid > .card:last-child:nth-child(3n + 1) .cardMedia {
+    aspect-ratio: auto;
+    flex: 0 0 44%;
+  }
+  .indexGrid > .card:last-child:nth-child(3n + 1) .cardBody {
+    padding: 1.75rem 1.9rem;
+    justify-content: center;
+  }
+  .indexGrid > .card:last-child:nth-child(3n + 1) .cardCta {
+    margin-top: 0;
+    padding-top: 1.4rem;
+  }
+  .indexGrid > .card:last-child:nth-child(3n + 1) .cardTitle {
+    font-size: 1.375rem;
+  }
+  /* A three-line paragraph measured across 900px is a line length nobody
+     reads, so the copy in the wide card stops well short of its own edge. */
+  .indexGrid > .card:last-child:nth-child(3n + 1) .cardExcerpt {
+    max-width: 34rem;
   }
 }
 

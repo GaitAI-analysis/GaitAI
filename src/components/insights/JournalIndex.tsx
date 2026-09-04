@@ -19,6 +19,10 @@ import { useCommentCounts } from "./useCommentCounts";
 import { useArticleStats } from "./useArticleStats";
 import { JournalBackdrop } from "./JournalBackdrop";
 import styles from "./archive.module.css";
+/* The grid's own stylesheet is the card's, not the archive's: making the last
+   row intentional means re-proportioning the cards in it, and a CSS module can
+   only address its own class names. See the ARCHIVE GRID note there. */
+import journal from "./journal.module.css";
 
 /**
  * THE ARCHIVE — the part of the journal that says "these are articles".
@@ -43,6 +47,22 @@ import styles from "./archive.module.css";
  * — never a zero, never a placeholder. "Most viewed" is offered only once
  * those counters have loaded, because that ordering over an empty stats map is
  * just "newest" under another name.
+ *
+ * NOTHING HERE SIMULATES A BUSY PUBLICATION. Two flags say a journal is alive,
+ * and both are refusable. "New" is decided in the reader's own browser against
+ * the record's date, so a build that has sat for two months cannot keep
+ * announcing two-month-old writing (see CardFlags). "Most viewed" needs loaded
+ * counters, a leader above zero and no tie at the top — three conditions,
+ * because a tie is the normal state of a young archive and is exactly when a
+ * popularity badge is most tempting and least true. On a cold cache the
+ * listing shows neither, which is the correct answer.
+ *
+ * THE LAST ROW IS CHOSEN, NOT LEFT OVER. Four stories in a three-column grid
+ * used to strand the fourth alone in column one with two empty columns beside
+ * it. The grid now re-proportions a short final row — one leftover runs the
+ * full width as a horizontal story, two split the row in half — in CSS, since
+ * the remainder depends on how many columns the viewport is showing. See the
+ * ARCHIVE GRID note in journal.module.css.
  */
 
 type Sort = "newest" | "series" | "views";
@@ -132,6 +152,30 @@ export function JournalIndex() {
      cards then simply show no comment metadata rather than a fabricated one. */
   const commentCounts = useCommentCounts(insightArticles.map((a) => a.slug));
 
+
+  /* MOST VIEWED — the one story that genuinely leads, or nothing at all.
+
+     Three conditions, and all three have to hold. The counters must have
+     actually loaded (`statsLoaded` only goes true on a resolved read with at
+     least one document behind it, so an unreachable Firestore claims nothing).
+     The leader must have real views, not zero. And it must be a clear leader:
+     if two articles are tied at the top, no card carries the flag, because
+     "most viewed" of a tie is a claim the data does not support. Ties are the
+     normal state of a young journal, which is exactly when a popularity badge
+     is most tempting and least true. */
+  const mostViewedSlug = useMemo(() => {
+    if (!statsLoaded) return undefined;
+    const ranked = insightArticles
+      .map((article) => ({
+        slug: article.slug,
+        views: stats[article.slug]?.views ?? 0,
+      }))
+      .sort((a, b) => b.views - a.views);
+    const [first, second] = ranked;
+    if (!first || first.views <= 0) return undefined;
+    if (second && second.views === first.views) return undefined;
+    return first.slug;
+  }, [stats, statsLoaded]);
 
   /* The cover story is the newest piece, and it is only the cover when the
      reader has not started filtering — a "featured" card inside a filtered
@@ -305,6 +349,7 @@ export function JournalIndex() {
               commentCount={commentCounts[featured.slug]}
               views={stats[featured.slug]?.views}
               likes={stats[featured.slug]?.likes}
+              mostViewed={mostViewedSlug === featured.slug}
             />
           </div>
         )}
@@ -312,14 +357,19 @@ export function JournalIndex() {
         {/* ── The rest ── */}
         {rest.length > 0 && (
           <>
+            {/* "Latest from GaitAI" rather than "Latest stories": the row
+                below the cover story is the publication speaking, and the
+                phrase that says so costs nothing in the same 10.5px mono the
+                heading was already set in. The filtered headings still name
+                what the reader asked for. */}
             <h2 className={styles.gridHeading}>
               {featured
-                ? "Latest stories"
+                ? "Latest from GaitAI"
                 : type !== "all"
                   ? POST_TYPE_PLURAL[type]
                   : "Results"}
             </h2>
-            <div className={styles.archiveGrid}>
+            <div className={journal.indexGrid}>
               {rest.map((article) => (
                 <StoryCard
                   key={article.slug}
@@ -328,6 +378,7 @@ export function JournalIndex() {
                   commentCount={commentCounts[article.slug]}
                   views={stats[article.slug]?.views}
                   likes={stats[article.slug]?.likes}
+                  mostViewed={mostViewedSlug === article.slug}
                 />
               ))}
             </div>

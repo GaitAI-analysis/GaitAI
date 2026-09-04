@@ -62,17 +62,19 @@ export const navLinks: readonly NavItem[] = [
         description: "Interactive intelligence landscape",
       },
       {
-        label: "Movement Studio",
+        // Named "Movement Studio" for a while. Back to the lab wording, which
+        // is what the rest of the site, the Labs index and this menu's fourth
+        // item all call it — one public name for one destination. The earlier
+        // note about the subtitle still stands and is why it does not say
+        // "upload": nothing on that route accepts a file.
+        label: "Movement Intelligence Lab",
         href: "/movement-lab",
-        // The requested subtitle was "Upload, analyze & explore movement".
-        // "Upload" is dropped: nothing on that route accepts a file, and the
-        // footage matcher on it says in as many words that nothing is
-        // uploaded or analysed. A nav item promising an upload would be a
-        // false capability claim in the most prominent place on the site,
-        // and would contradict the page it opens. Restore the word the day
-        // an upload path ships. 26 chars, so it holds one line in the w-72
-        // panel like the two items above it.
-        description: "Analyze & explore movement",
+        description: "See movement become intelligence",
+      },
+      {
+        label: "GaitAI Labs",
+        href: "/labs",
+        description: "Experimental movement-intelligence experiences",
       },
     ],
   },

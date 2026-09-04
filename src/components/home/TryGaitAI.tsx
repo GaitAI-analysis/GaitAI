@@ -22,7 +22,8 @@ import styles from "./try.module.css";
  *   04 Interpret the same walk against its own earlier baseline
  *   05 Act       the structured output somebody reviews
  *
- * IT IS A TEASER, NOT THE LAB. The Movement Studio at /movement-lab is the
+ * IT IS A TEASER, NOT THE LAB. The Movement Intelligence Lab at
+ * /movement-lab is the
  * full instrument — two families, layer toggles, per-stage explainability. This
  * shows one path through one family and then hands over, which is why the last
  * stage's only action is the link there.
@@ -320,7 +321,7 @@ export function TryGaitAI() {
                   </button>
                 ) : (
                   <Link href="/movement-lab/" className={styles.nextBtn}>
-                    Continue in Movement Studio
+                    Continue in the Movement Intelligence Lab
                     <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
                   </Link>
                 )}

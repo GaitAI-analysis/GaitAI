@@ -34,6 +34,7 @@ import { allPublications } from "@/data/publications";
 import { researchAreas } from "@/data/evidence";
 import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
+import { labs } from "@/data/labs";
 
 export type SearchGroup =
   | "destination"
@@ -94,26 +95,44 @@ const norm = (parts: (string | undefined)[]) =>
 // name. Searching "Movement Studio" returned nothing at all.
 //
 // ALIASES. `haystack` is search text and is never rendered, which makes it
-// the right place for a name the site no longer shows. "Movement Intelligence
-// Lab" and "Movement Lab" were both used for this route before the rename;
-// someone who types either would otherwise get nothing, for a page that has
-// not moved. The visible title is the current name only.
+// the right place for a name the site no longer shows. This route has been
+// called the Movement Lab, the Movement Intelligence Lab and the Movement
+// Studio; whichever one a reader learned has to keep finding it, for a page
+// that never moved. The visible title is the current name only, and the
+// current name is the Movement Intelligence Lab again.
 const destinationEntries: SearchEntry[] = [
   {
-    id: "destination:movement-studio",
+    id: "destination:movement-lab",
     group: "destination",
-    title: "Movement Studio",
-    detail: "Analyze and explore movement, stage by stage, with example values",
+    title: "Movement Intelligence Lab",
+    detail: "See movement become intelligence, stage by stage, with example values",
     meta: "Interactive",
     href: "/movement-lab/",
     haystack: norm([
-      "movement studio",
+      "movement intelligence lab",
       "analyze explore movement pose gait cycle features analytics report",
       "trajectories density flow candidate events operator view",
       "explainability illustrative demo example values footage",
       /* Retired names: findable, never shown. */
-      "movement intelligence lab",
+      "movement studio",
       "movement lab",
+    ]),
+  },
+  {
+    /* The experiments index. Its own entries deep-link into the two routes
+       above, so they are not indexed separately — that would list one page
+       twice under one heading. Their names live in the haystack instead, so
+       "signal inspector" and "footage check" both arrive here. */
+    id: "destination:labs",
+    group: "destination",
+    title: "GaitAI Labs",
+    detail: "Experimental movement-intelligence experiences, in one place",
+    meta: "Interactive",
+    href: "/labs/",
+    haystack: norm([
+      "gaitai labs experiments experimental",
+      "explore movement before deploying it",
+      labs.map((lab) => `${lab.name} ${lab.strap}`).join(" "),
     ]),
   },
   {

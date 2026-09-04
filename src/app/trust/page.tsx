@@ -213,7 +213,7 @@ export default function TrustPage() {
                   { href: "/legal/responsible-ai", label: "Responsible AI" },
                   {
                     href: "/movement-lab",
-                    label: "Explainability in Movement Studio",
+                    label: "Explainability in the Movement Intelligence Lab",
                   },
                 ]}
               />

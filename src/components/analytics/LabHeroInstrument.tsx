@@ -10,7 +10,7 @@ import { CAPABILITY_COUNT, MODULE_COUNT, SIGNAL_COUNT } from "@/data/analytics";
 import styles from "./labHero.module.css";
 
 /**
- * The instrument in the Movement Studio hero (/movement-lab).
+ * The instrument in the Movement Intelligence Lab hero (/movement-lab).
  *
  * The hero was a single left column, so the right half of the page was empty
  * at desktop width and the lab read as a text landing page. This fills it with

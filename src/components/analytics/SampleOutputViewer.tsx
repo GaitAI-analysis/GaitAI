@@ -27,7 +27,8 @@ import viewer from "./sample-output.module.css";
  *
  * It composes the existing primitives (SegmentTabs, SignalMetric,
  * MiniTrendChart, Panel) rather than introducing another chart vocabulary, so
- * a reader who has used Movement Studio already knows how to read this.
+ * a reader who has used the Movement Intelligence Lab already knows how to
+ * read this.
  *
  * Collapsed by default: the viewer is an offer, not an interruption on a page
  * someone came to read. Opening it mounts the tab content only then.

@@ -36,7 +36,7 @@ export function ProductAnalytics() {
         Want to see what the pipeline actually does with a signal before
         choosing modules?{" "}
         <Link href="/movement-lab" className="text-cyan-300 underline decoration-cyan-300/35 underline-offset-4">
-          Open Movement Studio
+          Open the Movement Intelligence Lab
         </Link>
         {" "}— an interactive demonstration with example values.
       </p>

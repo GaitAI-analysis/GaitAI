@@ -289,7 +289,7 @@ async function main() {
     "/", "/products", "/mobilitycare", "/securevision", "/use-cases",
     "/gaitscape", "/research", "/research/evidence", "/research/talks",
     "/publications",
-    "/insights", "/investors", "/movement-lab", "/trust",
+    "/insights", "/investors", "/movement-lab", "/labs", "/trust",
     "/legal/privacy", "/legal/security", "/legal/terms",
     "/legal/responsible-ai",
   ]);

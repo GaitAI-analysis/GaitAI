@@ -15,8 +15,8 @@ import styles from "@/components/analytics/analytics.module.css";
  * share card and the structured data — so a rename can never leave two of
  * them disagreeing.
  */
-const STUDIO_TITLE = "Movement Studio";
-const STUDIO_STRAP = "Analyze & explore movement";
+const STUDIO_TITLE = "Movement Intelligence Lab";
+const STUDIO_STRAP = "See movement become intelligence";
 const STUDIO_DESCRIPTION =
   "An interactive demonstration of the GaitAI pipeline: video, pose, gait cycle, movement features, analytics and output — in a MobilityCare mode and an identity-free SecureVision mode. An illustrative demonstration with example values.";
 
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
 };
 
 /**
- * /movement-lab — Movement Studio.
+ * /movement-lab — the Movement Intelligence Lab.
  *
  * A deliberate exception to the site's usual rule that every page states
  * facts: this page states a *demonstration*, and says so four times — in the
@@ -53,7 +53,8 @@ export const metadata: Metadata = {
  * GaitScape and the relevant CTAs. The URL stays /movement-lab: it is in the
  * sitemap and linked from five places, and a static export cannot redirect,
  * so renaming the route would break every one of them to no reader's
- * benefit. Only the visible name changed, to "Movement Studio".
+ * benefit. The visible name is the Movement Intelligence Lab, which is what
+ * the Explore menu, the Labs index and the search palette all call it.
  */
 export default function MovementLabPage() {
   return (
@@ -96,7 +97,7 @@ export default function MovementLabPage() {
           <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-              Movement Studio
+              {STUDIO_TITLE}
             </span>
             <IllustrativeBadge />
           </div>
@@ -192,12 +193,17 @@ This is an interactive technology demonstration. The stage,
       </section>
 
       {/* ── SIGNAL → INTELLIGENCE ──
+          `id="signal-chain"` is the Signal Inspector's address in GaitAI
+          Labs, which links straight to this instrument.
           The platform-level answer to "how does movement become
           intelligence?": pick a capture source and the whole chain it feeds
           redraws. The lab below then answers the same question at one stage's
           depth. This surface is relationship data only — no measurements, so
           no illustrative badge; there are no invented numbers on it. */}
-      <section className="border-t border-white/[0.07] py-14 sm:py-16">
+      <section
+        id="signal-chain"
+        className="border-t border-white/[0.07] py-14 sm:py-16"
+      >
         <div className="container-wide">
           <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
             Signal → intelligence
@@ -225,7 +231,10 @@ This is an interactive technology demonstration. The stage,
           its own record says it needs. Nothing is uploaded and nothing is
           analysed: a real detector here would be claiming a production
           capability on a marketing page. */}
-      <section className="border-t border-white/[0.07] py-14 sm:py-16">
+      <section
+        id="footage"
+        className="border-t border-white/[0.07] py-14 sm:py-16"
+      >
         <div className="container-wide">
           <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
             Your footage

@@ -35,7 +35,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={pathname}
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "linear" }}
@@ -56,12 +56,7 @@ export function PageTransition({ children }: { children: ReactNode }) {
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={pathname}
-          initial={{
-            x: "-100%",
-            opacity: 0.4,
-            filter: "blur(14px)",
-            scale: 0.985,
-          }}
+          initial={false}
           animate={{
             x: "0%",
             opacity: 1,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { atlasTrail } from "@/data/site-map";
@@ -24,9 +25,29 @@ import styles from "./atlas.module.css";
  * reader sees and the path a crawler reads come from one source and cannot
  * disagree.
  *
- * "YOU ARE HERE" APPEARS ONCE. On the current node, on desktop only. The
- * filled disc already says it; the words are for the reader who has not yet
- * learned that.
+ * "YOU ARE HERE" IS A GREETING, NOT A LABEL. It fades in a fifth of a second
+ * after a new route lands, holds for about a second, and then hands its place
+ * to the Atlas button — which is what stays. Permanent words would be a
+ * caption on a strip that is already only 26px tall, and by the second page a
+ * reader has learned what a filled disc means; the transient version teaches
+ * the same thing once and then gets out of the way.
+ *
+ * ONE SLOT, TWO OCCUPANTS. The words and the button are stacked in a single
+ * fixed-width box, both absolutely positioned, so the swap is a cross-fade in
+ * place rather than a reflow. Nothing in the strip or the hero below it moves
+ * by a pixel, which is the whole reason the box has a reserved width instead
+ * of letting content size it.
+ *
+ * IT REPLAYS ON ROUTES, NOT ON INTERACTIONS. The effect keys on
+ * `usePathname()`, which in the App Router excludes the query and the hash —
+ * so scrolling, opening a disclosure, switching a filter, changing the theme
+ * and jumping to #section all leave it alone. A genuine navigation, forward
+ * or back, plays it once.
+ *
+ * THE BUTTON NEVER LEAVES THE ACCESSIBILITY TREE. It is in the DOM and
+ * focusable for the whole 1.2s, only transparent — and `:focus-visible`
+ * overrides the phase, so a keyboard user who tabs there during the greeting
+ * sees the control they just landed on rather than an invisible one.
  *
  * WHY CLIENT-SIDE. `usePathname` is the only way one component in the layout
  * can serve every route, including the ~50 generated ones, without each page
@@ -34,8 +55,45 @@ import styles from "./atlas.module.css";
  * feature exists to prevent. The tree itself is static data, so this costs a
  * hook and no fetch.
  */
+/**
+ * 180ms in, ~0.9s hold, the words out, then the icon.
+ *
+ * The handover is FOUR states rather than three with a `transition-delay` on
+ * the icon, because a delayed transition is a promise the browser keeps only
+ * while it is still animating the page: once everything else settles, a
+ * transition that has not started yet can simply never run, and the control
+ * stays invisible with no way to recover it. Every visual change here is
+ * therefore driven by a state flip with no delay attached — the same
+ * mechanism as the greeting's own entrance, which is the one already proven
+ * to work. It also puts the sequence in one readable place instead of
+ * splitting it between a timer and a stylesheet.
+ */
+const GREET_IN_MS = 180;
+const GREET_OUT_MS = 1050;
+const ATLAS_IN_MS = 1220;
+
 export function LocationTrail() {
   const pathname = usePathname() || "/";
+
+  /* idle → here → leaving → atlas. Separate states rather than a boolean:
+     the entrance, the hold, the exit and the arrival are four different
+     moments, and driving them from one flag means fighting the browser over
+     whether a freshly-mounted element should animate at all. */
+  const [phase, setPhase] = useState<"idle" | "here" | "leaving" | "atlas">(
+    "idle",
+  );
+
+  useEffect(() => {
+    setPhase("idle");
+    const enter = setTimeout(() => setPhase("here"), GREET_IN_MS);
+    const leave = setTimeout(() => setPhase("leaving"), GREET_OUT_MS);
+    const arrive = setTimeout(() => setPhase("atlas"), ATLAS_IN_MS);
+    return () => {
+      clearTimeout(enter);
+      clearTimeout(leave);
+      clearTimeout(arrive);
+    };
+  }, [pathname]);
 
   /* The two places the strip would be noise rather than orientation: the
      admin console, which is not part of the public site, and a 404, which has
@@ -88,21 +146,29 @@ export function LocationTrail() {
           })}
         </ol>
 
-        {/* Said once, beside the node it describes. */}
-        <span aria-hidden="true" data-family={current.family} className={styles.here}>
-          You are here
-        </span>
-
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new CustomEvent(ATLAS_EVENT))}
-          aria-label="Open the GaitAI Atlas — the whole site as a map"
-          title="GaitAI Atlas"
-          className={styles.open}
+        {/* One reserved box holding both, so the handover cannot move the
+            strip. The greeting is decorative — `aria-current` on the node
+            above is what actually states the location — and the button is the
+            real control that outlives it. */}
+        <span
+          className={styles.slot}
+          data-phase={phase}
+          data-family={current.family}
         >
-          <MapGlyph />
-          <span className={styles.openLabel}>Atlas</span>
-        </button>
+          <span aria-hidden="true" className={styles.here}>
+            You are here
+          </span>
+
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent(ATLAS_EVENT))}
+            aria-label="Open GaitAI Atlas"
+            title="Explore GaitAI Atlas"
+            className={styles.open}
+          >
+            <MapGlyph />
+          </button>
+        </span>
       </nav>
 
       {/* The same path, for machines. Anchors are dropped: a BreadcrumbList

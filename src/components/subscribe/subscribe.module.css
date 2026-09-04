@@ -416,6 +416,315 @@
   font-size: 0.6875rem;
 }
 
+/* ═══════════ THE SIGNAL SWEEP ═══════════
+ *
+ * A single soft light band crossing the whole contact block — the label, the
+ * field, the button and the small print — every 6.4 seconds, and nothing in
+ * between. It exists because this signup sits in the left column of the CTA
+ * card beside a demo form, where a static block of 11px mono simply is not
+ * seen; the sweep gives the eye a reason to come back to it without a glowing
+ * card, a permanent border, or anything that reads as an advertisement.
+ *
+ * IT IS THE SITE'S OWN DEVICE, NOT A BUTTON SHINE. The block already draws a
+ * hairline signal into the field terminating at a node; this is the same idea
+ * at the scale of the whole block — a movement signal passing through it,
+ * entering bottom-left and leaving top-right, cyan into blue into violet.
+ *
+ * ONE MOVING LIGHT ON THE PAGE. Scoped to `.contact` throughout, so the blog
+ * and article variants of this same component are untouched.
+ *
+ * TRANSFORM AND OPACITY ONLY, on one element the compositor can own. The four
+ * accompanying highlights — the label, the field's border, the node and the
+ * arrow — are paint on text-sized boxes, and they are the whole of the extra
+ * cost. No library, no canvas, no JS timer.
+ */
+.contact {
+  position: relative;
+
+  /* Its own stacking context, so the band's `z-index: -1` resolves HERE:
+     behind this block's content and above the CTA card's gradient. Without
+     it the -1 escapes to whichever ancestor is a stacking context at the
+     time, and the card's is framer-motion's, which disappears the moment the
+     entrance animation finishes — the band would vanish under the card. */
+  isolation: isolate;
+
+  /* 6.4s: the sweep is the first 25% of it (1.6s), the remaining 4.8s is
+     stillness. Both numbers live in the keyframes as percentages, so the
+     whole rhythm moves from this one line. */
+  --sub-cycle: 6.4s;
+
+  --sub-sweep: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgb(45 190 255 / 0.04) 40%,
+    rgb(84 110 255 / 0.1) 50%,
+    rgb(126 72 255 / 0.06) 58%,
+    transparent 72%
+  );
+  /* What is left when the animation is not allowed to run. */
+  --sub-sweep-rest: linear-gradient(
+    110deg,
+    transparent 28%,
+    rgb(84 110 255 / 0.05) 50%,
+    transparent 72%
+  );
+  --sub-glow-soft: rgb(79 209 255 / 0.2);
+  --sub-glow-strong: rgb(79 209 255 / 0.32);
+}
+
+:global(.light) .contact {
+  /* Ink on paper: the same three hues, taken down to where they read as a
+     tint crossing a white card rather than a stain on it. */
+  --sub-sweep: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgb(14 116 144 / 0.06) 40%,
+    rgb(59 79 214 / 0.1) 50%,
+    rgb(99 52 214 / 0.07) 58%,
+    transparent 72%
+  );
+  --sub-sweep-rest: linear-gradient(
+    110deg,
+    transparent 28%,
+    rgb(59 79 214 / 0.05) 50%,
+    transparent 72%
+  );
+  --sub-glow-soft: rgb(14 116 144 / 0.18);
+  --sub-glow-strong: rgb(14 116 144 / 0.3);
+}
+
+.contact .sweep {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* The band is clipped to the block. This is why the clip lives on a span
+     and not on `.contact` itself: the hairline `.signal` starts 1.75rem LEFT
+     of the block, and `overflow: hidden` up there would cut it off. */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The band. Far taller than the block so the diagonal drift never walks an
+   edge into view. */
+.contact .sweep::before {
+  content: "";
+  position: absolute;
+  top: -45%;
+  left: 0;
+  height: 190%;
+  width: 100%;
+
+  /* THE RESTING STATE IS THE REDUCED-MOTION STATE. Nothing below this point
+     runs unless the reader's system says motion is welcome, so a very faint
+     static accent is what this declaration block is for — not a fallback
+     bolted onto the end of the file. */
+  background: var(--sub-sweep-rest);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contact .sweep::before {
+    background: var(--sub-sweep);
+    opacity: 0;
+    animation: sweep-band var(--sub-cycle) linear infinite;
+  }
+
+  /* The four things the light touches on its way through. Each peaks at the
+     moment the band is actually over it — the label first, low and left, then
+     the field, then the control on the right as the light leaves. Every one
+     returns to exactly its resting value; none is left brighter than it
+     started. */
+  .contact .title {
+    animation: sweep-label var(--sub-cycle) linear infinite;
+  }
+
+  .contact .input {
+    animation: sweep-field var(--sub-cycle) linear infinite;
+  }
+
+  .contact .node {
+    animation: sweep-node var(--sub-cycle) linear infinite;
+  }
+
+  .contact .arrow {
+    animation: sweep-arrow var(--sub-cycle) linear infinite;
+  }
+
+  /* THE MOMENT SOMEONE IS ACTUALLY USING THE FORM, THE LIGHT STANDS DOWN. A
+     keyframe is a higher-priority origin than any normal declaration, so a
+     running `sweep-field` would paint straight over `.input:focus`'s border
+     and ring and the field would lose its focus state mid-sweep. Stopping the
+     animations hands those styles back — and a reader whose cursor is already
+     in the box has found this block. */
+  .contact:focus-within .sweep::before,
+  .contact:focus-within .title,
+  .contact:focus-within .input,
+  .contact:focus-within .node,
+  .contact:focus-within .arrow {
+    animation: none;
+  }
+
+  /* Once the address is stored the node is filled for good — the sweep does
+     not get to blink it back off every six seconds. */
+  .contact .buttonDone .node {
+    animation: none;
+  }
+}
+
+/* HOVER RUNS THE SWEEP NOW, rather than waiting out the rest of the cycle.
+ *
+ * The rule ADDS a second, single-shot instance of the same animation rather
+ * than swapping the name. Animations are matched to the name list by position,
+ * so the infinite one at position 1 carries on undisturbed while the new one
+ * at position 2 starts from zero and, being later in the list, wins every
+ * property it touches for as long as it runs. Leaving simply drops position 2
+ * — no restart of the cycle, and none of the second sweep that swapping the
+ * name fires on mouse-out.
+ *
+ * `hover: hover` keeps it off touch, where :hover latches after a tap. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .contact:hover .sweep::before {
+    animation:
+      sweep-band var(--sub-cycle) linear infinite,
+      sweep-band var(--sub-cycle) linear 1;
+  }
+
+  .contact:hover .title {
+    animation:
+      sweep-label var(--sub-cycle) linear infinite,
+      sweep-label var(--sub-cycle) linear 1;
+  }
+
+  .contact:hover .input {
+    animation:
+      sweep-field var(--sub-cycle) linear infinite,
+      sweep-field var(--sub-cycle) linear 1;
+  }
+
+  .contact:hover .node {
+    animation:
+      sweep-node var(--sub-cycle) linear infinite,
+      sweep-node var(--sub-cycle) linear 1;
+  }
+
+  .contact:hover .arrow {
+    animation:
+      sweep-arrow var(--sub-cycle) linear infinite,
+      sweep-arrow var(--sub-cycle) linear 1;
+  }
+
+  /* Focus still outranks hover, so the stand-down above is restated at a
+     weight that beats `:hover`. */
+  .contact:focus-within:hover .sweep::before,
+  .contact:focus-within:hover .title,
+  .contact:focus-within:hover .input,
+  .contact:focus-within:hover .node,
+  .contact:focus-within:hover .arrow {
+    animation: none;
+  }
+}
+
+/* Enters bottom-left, crosses, leaves top-right, and is GONE — not faded to
+   something still faintly there — for the remaining three quarters of the
+   cycle. The travel is one interpolation between 0% and 25%, eased on the 0%
+   keyframe; the intermediate stops carry opacity only, so they shape the fade
+   without chopping the movement into segments. */
+@keyframes sweep-band {
+  0% {
+    opacity: 0;
+    transform: translate3d(-120%, 24%, 0);
+    animation-timing-function: cubic-bezier(0.36, 0.06, 0.28, 1);
+  }
+  6% {
+    opacity: 0.5;
+  }
+  12% {
+    opacity: 1;
+  }
+  19% {
+    opacity: 0.72;
+  }
+  25% {
+    opacity: 0;
+    transform: translate3d(120%, -24%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(120%, -24%, 0);
+  }
+}
+
+/* BLOG & UPDATES, lifted a shade as the light reaches it. A zero-alpha shadow
+   rather than `none` at both ends, so the two ends interpolate. */
+@keyframes sweep-label {
+  0%,
+  5% {
+    text-shadow: 0 0 0 rgb(79 209 255 / 0);
+  }
+  11% {
+    text-shadow: 0 0 14px var(--sub-glow-strong);
+  }
+  20%,
+  100% {
+    text-shadow: 0 0 0 rgb(79 209 255 / 0);
+  }
+}
+
+/* The field's border catching the edge of the band. */
+@keyframes sweep-field {
+  0%,
+  6% {
+    border-color: var(--sub-line);
+    box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
+  }
+  14% {
+    border-color: var(--sub-accent-soft);
+    box-shadow: 0 0 12px -2px var(--sub-glow-soft);
+  }
+  22%,
+  100% {
+    border-color: var(--sub-line);
+    box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
+  }
+}
+
+/* The node on the submit control, the last thing the light passes on its way
+   out. It fills, but never as far as the filled state that means "stored". */
+@keyframes sweep-node {
+  0%,
+  8% {
+    background-color: rgb(79 209 255 / 0);
+    border-color: var(--sub-accent-soft);
+    box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
+  }
+  17% {
+    background-color: var(--sub-glow-strong);
+    border-color: var(--sub-accent);
+    box-shadow: 0 0 9px 0 var(--sub-glow-soft);
+  }
+  25%,
+  100% {
+    background-color: rgb(79 209 255 / 0);
+    border-color: var(--sub-accent-soft);
+    box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
+  }
+}
+
+/* The arrow, brightened only. No transform here — `.button:hover .arrow` owns
+   that, and the two must not fight over one property. */
+@keyframes sweep-arrow {
+  0%,
+  8% {
+    text-shadow: 0 0 0 rgb(79 209 255 / 0);
+  }
+  17% {
+    text-shadow: 0 0 10px var(--sub-glow-strong);
+  }
+  25%,
+  100% {
+    text-shadow: 0 0 0 rgb(79 209 255 / 0);
+  }
+}
+
 /* ── Touch ── the field row and the button both reach the site's target. */
 @media (pointer: coarse) {
   .input,

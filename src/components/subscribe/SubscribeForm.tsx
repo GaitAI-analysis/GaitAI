@@ -29,6 +29,12 @@ import styles from "./subscribe.module.css";
  * the signal arriving somewhere. It is CSS on a pseudo-element, not an
  * illustration, and there is no envelope, no megaphone and no paper plane.
  *
+ * THE SWEEP, on the contact variant only. That block sits in the left column
+ * of the CTA card next to a demo form, where 11px of mono goes unread, so a
+ * soft light crosses it every 6.4 seconds and is then gone. The whole effect
+ * is in subscribe.module.css — the component's only part in it is the
+ * `styles.sweep` span below, which is the layer that clips the band.
+ *
  * SUCCESS IS NEVER OPTIMISTIC. The state moves to `success` only when
  * `subscribe()` reports that Firestore accepted the write. A refused write,
  * an unpublished rule or an offline browser all land in `error`, which offers
@@ -153,6 +159,16 @@ export function SubscribeForm({
       className={`${styles.block} ${styles[variant]} ${className ?? ""}`}
       aria-labelledby={`${fieldId}-title`}
     >
+      {/* THE SWEEP, and only on the contact block. A clipping layer whose
+          ::before is the travelling light; it sits at z-index -1 behind the
+          label, the field and the small print, and takes no pointer events so
+          the field and the button remain the only things you can hit. The
+          other two variants close a page the reader already chose to be at
+          the end of and need no help being noticed. */}
+      {variant === "contact" && (
+        <span aria-hidden="true" className={styles.sweep} />
+      )}
+
       <div className={styles.copy}>
         <h2 id={`${fieldId}-title`} className={styles.title}>
           {copy.title}

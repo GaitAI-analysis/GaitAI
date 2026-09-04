@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { useAutoDemonstrate } from "@/lib/useAutoDemonstrate";
 import styles from "./thread.module.css";
 
 /**
@@ -105,7 +106,39 @@ export function MotionDNAThread() {
   const [locked, setLocked] = useState<ReadingId | null>("mobility");
   /** Held by a hover or a focus. Released when it ends. */
   const [preview, setPreview] = useState<ReadingId | null>(null);
-  const shown = preview ?? locked;
+
+  /**
+   * THE DEMONSTRATION — the third tier, and the lowest.
+   *
+   * Everything above already worked; nothing said it did. The strip rested on
+   * Mobility and stayed there, so a visitor who never happened to point at it
+   * never discovered that the same signal reads four ways — which is the one
+   * claim this component exists to make.
+   *
+   * So on its first appearance it traces each reading in turn, twice, and then
+   * stops for good. Two passes rather than one because a single sweep reads as
+   * a loading animation; the second is what makes it legible as a set of
+   * states being shown. It never runs again, it pauses off screen, and the
+   * first hover, focus, tap or key press ends it permanently — see `release`.
+   *
+   * Precedence is `preview ?? demo ?? locked`, which keeps the meaning of each
+   * tier intact: a hover still beats everything, a lock still survives the
+   * pointer leaving, and the demonstration only ever fills the silence before
+   * the visitor has done anything at all.
+   */
+  const demo = useAutoDemonstrate<HTMLDivElement>({
+    steps: READINGS.length,
+    intervalMs: 1200,
+    cycles: 2,
+  });
+  const demoReading = demo.index === null ? null : READINGS[demo.index].id;
+
+  const shown = preview ?? demoReading ?? locked;
+
+  /* Any deliberate act ends the demonstration. Called from every handler
+     below rather than inferred, so there is no path that leaves it running
+     underneath a visitor who has taken control. */
+  const release = demo.stop;
 
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -122,6 +155,7 @@ export function MotionDNAThread() {
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent, index: number) => {
+      release();
       const step =
         event.key === "ArrowRight" || event.key === "ArrowDown"
           ? 1
@@ -147,13 +181,13 @@ export function MotionDNAThread() {
         setLocked(null);
       }
     },
-    [locked],
+    [locked, release],
   );
 
   const shownIndex = READINGS.findIndex((r) => r.id === shown);
 
   return (
-    <div className={styles.wrap}>
+    <div ref={demo.ref} className={styles.wrap} data-demo={demo.running}>
       <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg} aria-hidden="true">
         {/* the one signal */}
         <path className={styles.signal} d={signal} />
@@ -199,14 +233,16 @@ export function MotionDNAThread() {
             className={styles.hit}
             d={branchPath(i)}
             onPointerEnter={(event) => {
+              release();
               if (event.pointerType === "mouse") setPreview(reading.id);
             }}
             onPointerLeave={() => setPreview(null)}
-            onClick={() =>
+            onClick={() => {
+              release();
               setLocked((current) =>
                 current === reading.id ? null : reading.id,
-              )
-            }
+              );
+            }}
           />
         ))}
       </svg>
@@ -235,13 +271,22 @@ export function MotionDNAThread() {
                   buttons.current[i] = node;
                 }}
                 type="button"
-                onPointerEnter={() => setPreview(reading.id)}
+                onPointerEnter={() => {
+                  release();
+                  setPreview(reading.id);
+                }}
                 onPointerLeave={() => setPreview(null)}
-                onFocus={() => setPreview(reading.id)}
+                onFocus={() => {
+                  release();
+                  setPreview(reading.id);
+                }}
                 onBlur={() => setPreview(null)}
                 /* A tap fires enter → click → leave, so the lock is what
                    survives on a phone. Nothing here depends on hover. */
-                onClick={() => setLocked(isLocked ? null : reading.id)}
+                onClick={() => {
+                  release();
+                  setLocked(isLocked ? null : reading.id);
+                }}
                 onKeyDown={(event) => onKeyDown(event, i)}
                 aria-pressed={isLocked}
                 className={`${styles.reading} ${

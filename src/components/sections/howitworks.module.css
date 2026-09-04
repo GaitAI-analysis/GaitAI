@@ -1,0 +1,235 @@
+/* ==========================================================================
+   THE WORKFLOW PIPELINE — selectable, and synchronised with the scroll
+   --------------------------------------------------------------------------
+   The four stages were a scroll-driven zigzag: the rail filled as you passed
+   it and nothing else ever responded. It communicated progression and nothing
+   more — you could not ask it about a stage, only scroll past one.
+
+   It is now a pipeline you can address. The rail above is the control, the
+   stages below are the content, and one active index drives both. The
+   interaction vocabulary is the site's shared one:
+
+     HOVER / FOCUS  preview  — look at a stage without leaving where you are
+     CLICK / TAP    lock     — hold it, and stop the scroll from moving it
+     SCROLL         progress — the narrative default, whenever nothing is held
+     ACTIVE         brighter content, filled node
+     AVAILABLE      quieter content, hollow node
+
+   Unrelated stages are dimmed, never hidden: the shape of the whole pipeline
+   has to stay visible or "stage 3 of 4" stops meaning anything.
+   ========================================================================== */
+
+.rail {
+  --wf-cyan: #4fd1ff;
+  --wf-violet: #a78bfa;
+  --wf-line: rgb(148 163 184 / 0.2);
+  --wf-mute: rgb(var(--c-soft-mute));
+  --wf-ink: rgb(var(--c-soft-white));
+  --wf-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+}
+
+:global(.light) .rail {
+  --wf-cyan: #0e7490;
+  --wf-violet: #6d28d9;
+  --wf-line: rgb(15 23 42 / 0.14);
+}
+
+@media (min-width: 768px) {
+  .rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+}
+
+/* ── One stage button ── */
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  border: 0;
+  background: none;
+  padding: 0.75rem 0.9rem 0.75rem 0;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.35s var(--wf-ease),
+    opacity 0.35s var(--wf-ease);
+}
+
+@media (min-width: 768px) {
+  .stage {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem 0.9rem 0;
+  }
+}
+
+/* The connector: each stage carries the segment of line to its right, so the
+   rail is drawn by the stages themselves and cannot fall out of step with
+   them. It fills only up to the active stage — the line IS the progress. */
+.stage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--wf-line);
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--wf-cyan), var(--wf-violet));
+  transition: transform 0.5s var(--wf-ease);
+}
+
+/* Every stage up to and including the active one is filled. */
+.stage[data-passed="true"]::after {
+  transform: scaleX(1);
+}
+
+.stageIndex {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--wf-mute);
+  transition: color 0.35s var(--wf-ease);
+}
+
+.stageName {
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--wf-mute);
+  transition: color 0.35s var(--wf-ease);
+}
+
+/* The node. Hollow when the stage is merely available, filled when it is the
+   one being read — the site's shared available/active grammar. */
+.node {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 9px;
+  width: 9px;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--wf-line);
+  border-radius: 999px;
+  background: rgb(var(--c-obsidian-400));
+  transition:
+    background-color 0.35s var(--wf-ease),
+    border-color 0.35s var(--wf-ease);
+}
+
+/* HOLLOW = available, FILLED = active. The site's shared grammar, and the
+   reason the node is a border rather than an inset shadow: at 9px an inset
+   ring leaves a hole small enough to read as a square. */
+.stage[data-passed="true"] .node {
+  border-color: var(--wf-cyan);
+}
+
+.stage[data-active="true"] .node {
+  border-color: var(--wf-cyan);
+  background: var(--wf-cyan);
+}
+
+/* A locked stage is the one place violet appears — "you are holding this". */
+.stage[data-locked="true"] .node {
+  border-color: var(--wf-violet);
+  background: var(--wf-violet);
+}
+
+@media (hover: hover) {
+  .stage:hover .node {
+    border-color: var(--wf-cyan);
+  }
+}
+
+.stage[data-active="true"] .stageIndex {
+  color: var(--wf-cyan);
+}
+
+.stage[data-active="true"] .stageName {
+  color: var(--wf-ink);
+}
+
+.stage[data-locked="true"] .stageIndex {
+  color: var(--wf-violet);
+}
+
+@media (hover: hover) {
+  .stage:hover .stageName {
+    color: var(--wf-ink);
+  }
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--wf-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (pointer: coarse) {
+  .stage {
+    min-height: 48px;
+  }
+}
+
+/* ── The stage rows below ──
+   Dimmed, never removed. The whole pipeline stays legible while one part of
+   it is being read. */
+
+.row {
+  transition: opacity 0.45s var(--wf-ease);
+}
+
+.row[data-dim="true"] {
+  opacity: 0.38;
+}
+
+/* The centre node on the rail between rows. Static — the pulsing halo that
+   used to sit here ran forever, on the home page, communicating nothing. */
+.rowNode {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 999px;
+  background: var(--wf-line, rgb(148 163 184 / 0.35));
+  box-shadow: inset 0 0 0 1.5px rgb(148 163 184 / 0.5);
+  transition:
+    background-color 0.4s var(--wf-ease),
+    box-shadow 0.4s var(--wf-ease);
+}
+
+.row[data-active="true"] .rowNode {
+  background: #4fd1ff;
+  box-shadow: 0 0 14px rgb(79 209 255 / 0.55);
+}
+
+/* ── Reduced motion ──
+   Every state above still changes; none of it travels. */
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .stage::after,
+  .stageIndex,
+  .stageName,
+  .node,
+  .row,
+  .rowNode {
+    transition: none;
+  }
+}

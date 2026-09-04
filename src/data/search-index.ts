@@ -34,7 +34,7 @@ import { allPublications } from "@/data/publications";
 import { researchAreas } from "@/data/evidence";
 import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
-import { labs } from "@/data/labs";
+import { LAB_BASIS_LABEL, labs } from "@/data/labs";
 import {
   comparisonHref,
   comparisonLabel,
@@ -49,12 +49,14 @@ export type SearchGroup =
   | "research"
   | "publication"
   | "talk"
+  | "lab"
   | "insight";
 
 /** Group order in the palette — most-used first. */
 export const SEARCH_GROUPS: SearchGroup[] = [
   "destination",
   "product",
+  "lab",
   "capability",
   "environment",
   "research",
@@ -64,8 +66,9 @@ export const SEARCH_GROUPS: SearchGroup[] = [
 ];
 
 export const SEARCH_GROUP_LABEL: Record<SearchGroup, string> = {
-  destination: "Experiences",
+  destination: "Pages",
   product: "Products",
+  lab: "Labs",
   capability: "Capabilities",
   environment: "Environments",
   research: "Research",
@@ -178,6 +181,35 @@ const destinationEntries: SearchEntry[] = [
     ]),
   },
 ];
+
+// ── Labs ───────────────────────────────────────────────────────────────────
+// One entry per experiment, linked to its own address rather than to the index
+// that lists it. Before this, "privacy lens" and "movement x-ray" matched only
+// the /labs haystack, so a reader who knew what they wanted landed on a page
+// listing eight things and had to find it again. Four of the eight live inside
+// a longer page, so their href carries an anchor — which is exactly why they
+// need their own row: nothing else on the site can take a reader straight to
+// the Fusion Sandbox.
+const labEntries: SearchEntry[] = labs.map((lab) => ({
+  id: `lab:${lab.id}`,
+  group: "lab" as const,
+  title: lab.name,
+  detail: lab.strap,
+  /* Where it lives, when that is not simply its own page — the same
+     distinction /labs draws, so the palette and the index agree. */
+  meta: lab.home ?? "Interactive",
+  /* labs.ts already carries trailing slashes before its anchors — the
+     validator enforces it — so this passes the href straight through. */
+  href: lab.href,
+  haystack: norm([
+    lab.name,
+    lab.strap,
+    lab.body,
+    LAB_BASIS_LABEL[lab.basis],
+    lab.home,
+    "lab labs experiment experimental interactive try explore",
+  ]),
+}));
 
 // ── Named comparisons ──────────────────────────────────────────────────────
 // "WalkScan vs RehabTrack" is a real query, and before this it matched only
@@ -343,7 +375,10 @@ const talkEntries: SearchEntry[] = talkRecords.map((talk) => ({
     .filter(Boolean)
     .join(" · "),
   meta: String(talk.year),
-  href: "/research/talks",
+  /* Trailing slash required: next.config.mjs sets trailingSlash, so a hard
+     load of "/research/talks" 404s on GitHub Pages even though client-side
+     navigation normalised it. All 22 talk entries shared this href. */
+  href: "/research/talks/",
   haystack: norm([
     talk.title,
     TALK_KIND_LABEL[talk.kind],
@@ -361,6 +396,7 @@ export const searchIndex: SearchEntry[] = [
   ...destinationEntries,
   ...productEntries,
   ...comparisonEntries,
+  ...labEntries,
   ...capabilityEntries,
   ...environmentEntries,
   ...researchEntries,

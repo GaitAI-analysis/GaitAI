@@ -106,9 +106,24 @@ function needsFor(product: AnalyticsProduct, scene: Scene): Need[] {
 
   const needs: Need[] = [];
 
+  /* The primary source question, and — where the module's own record hedges
+     the same source rather than naming it outright — the hedge, in the label.
+     WalkScan documents "compatible CCTV / fixed-camera footage where
+     appropriate", so rating it simply unmet for a fixed camera contradicted
+     its own page; saying so in the reason is accurate in both directions:
+     the module is not designed around that feed, and it is documented to
+     work with it when the footage suits. */
+  const sourceLabel =
+    scene.source === "cctv" ? "a fixed camera feed" : "a walking video";
+  const primarySource = product.sources.includes(scene.source);
+  const supportedSource = product.supportingSources.includes(scene.source);
   needs.push({
-    label: `Works from ${scene.source === "cctv" ? "a fixed camera feed" : "a walking video"}`,
-    met: product.sources.includes(scene.source),
+    label: primarySource
+      ? `Works from ${sourceLabel}`
+      : supportedSource
+        ? `Documented as compatible with ${sourceLabel} where the footage suits — not its primary input`
+        : `Works from ${sourceLabel}`,
+    met: primarySource,
     primary: true,
   });
 

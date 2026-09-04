@@ -58,6 +58,7 @@ import {
   gaitscapeRelationships,
   nodeById,
   sourcesForProduct,
+  supportingSourcesForProduct,
   systemFactsFor,
   type CaptureSource,
   type CaptureSourceDef,
@@ -159,7 +160,12 @@ export const FAMILY_LABEL: Record<Vertical, string> = {
 // ============================================================================
 
 export type { CaptureSource, CaptureSourceDef };
-export { CAPTURE_SOURCES, CAPTURE_SOURCE_LABEL, sourcesForProduct };
+export {
+  CAPTURE_SOURCES,
+  CAPTURE_SOURCE_LABEL,
+  sourcesForProduct,
+  supportingSourcesForProduct,
+};
 
 // ============================================================================
 // 3 · OBJECTIVES — "what do you want to understand?"
@@ -372,7 +378,15 @@ export interface AnalyticsProduct {
   input: string;
   environmentContext: string;
   delivery: string;
+  /** Primary inputs — what the module's one-line input statement names. */
   sources: CaptureSource[];
+  /**
+   * Sources its detail record names IN ADDITION, and hedges — "optional
+   * wearable data", "compatible CCTV where appropriate". Kept apart from
+   * `sources` so a surface asking "what do you have?" cannot offer a module
+   * that needs video to somebody holding only a watch.
+   */
+  supportingSources: CaptureSource[];
   /** Graph ids, for joins. */
   capabilityIds: string[];
   signalIds: string[];
@@ -453,6 +467,7 @@ function toAnalyticsProduct(product: GaitProduct): AnalyticsProduct {
     environmentContext: facts.environment,
     delivery: facts.deployment,
     sources: sourcesForProduct(product.id),
+    supportingSources: supportingSourcesForProduct(product.id),
     capabilityIds,
     signalIds,
     outcomeIds,

@@ -98,8 +98,21 @@ export function IntelligenceSearch() {
 
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        restoreRef.current = document.activeElement as HTMLElement;
-        setOpen((v) => !v);
+        /* TWO BUGS LIVED IN THREE LINES HERE.
+           `setOpen(v => !v)` closed the palette without going through
+           `close()`, so the query and the highlighted row survived — reopening
+           showed a stale search and a stale selection. And capturing
+           `activeElement` unconditionally overwrote the element to return
+           focus to with the palette's OWN input, which is about to unmount;
+           a keyboard user pressing ⌘K twice was dropped at the top of the
+           document. Closing now takes the same path as Escape, and the
+           restore target is only captured on the way in. */
+        if (open) {
+          close();
+        } else {
+          restoreRef.current = document.activeElement as HTMLElement;
+          setOpen(true);
+        }
         return;
       }
       // "/" is a convention worth having, but never while someone is typing
@@ -124,7 +137,7 @@ export function IntelligenceSearch() {
       window.removeEventListener("keydown", onKey);
       window.removeEventListener(SEARCH_EVENT, onRequest);
     };
-  }, [open]);
+  }, [open, close]);
 
   // Focus the input on open; lock the page behind the dialog.
   useEffect(() => {
@@ -246,6 +259,24 @@ export function IntelligenceSearch() {
             </button>
           </div>
         )}
+
+        {/* THE RESULT COUNT, ANNOUNCED.
+            `aria-activedescendant` already announces the row under the arrow
+            keys, but nothing announced the LIST changing shape: typing a
+            letter that narrowed twenty-four rows to two, or to none, was
+            silent. A sighted user sees the list collapse; a screen-reader user
+            had to arrow through it to discover what had happened. The
+            listbox itself cannot carry `aria-live` — every option would be
+            re-announced on each keystroke — so the count lives in its own
+            visually-hidden region. Two sibling surfaces on this site already
+            do exactly this (FootageMatch, SignalIntelligenceExplorer). */}
+        <p aria-live="polite" className="sr-only">
+          {query.trim().length < 2
+            ? ""
+            : flat.length === 0
+              ? `No results for ${query}`
+              : `${flat.length} result${flat.length === 1 ? "" : "s"} for ${query}`}
+        </p>
 
         <div
           id="gs-results"

@@ -12,9 +12,14 @@
  * the document title on every route, so it is read from there: correct by
  * construction, free, and it cannot drift from the page.
  *
- * Only safe, structural context is ever sent to the server: the pathname, the
- * page title and the page type. No DOM contents, no selection, no referrer, no
- * form values.
+ * Only safe, structural context is ever read: the pathname, the page title and
+ * the page type. No DOM contents, no selection, no referrer, no form values.
+ *
+ * It goes nowhere. This note used to say "sent to the server", which stopped
+ * being true when the cloud function was deleted — inference runs in this tab,
+ * so the context is handed to a model in the same browser and never leaves it.
+ * The restraint is still worth keeping: it is what makes the assistant's page
+ * awareness auditable in one short function.
  */
 
 export type PageType =

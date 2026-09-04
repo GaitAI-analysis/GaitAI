@@ -9,11 +9,15 @@
  * element, so a model that emits `<img onerror=…>` produces the literal text
  * `<img onerror=…>` and not an element.
  *
- * LINKS ARE VALIDATED TWICE. The server strips any href that is not a real
- * GaitAI route before the answer is stored; this does it again at render time,
- * because the rule that matters is the one applied closest to the DOM. A link
- * that fails degrades to its own label rather than disappearing, so the reader
- * still gets the sentence.
+ * LINKS ARE VALIDATED TWICE, AND THE FIRST CHECK IS THE STRICT ONE.
+ * `answer.ts` sanitizes every href against the corpus's exact route list as
+ * the answer is assembled — there is no server any more, inference runs in
+ * this tab, so that is where the authoritative check lives. The pattern below
+ * runs again at render time, because the rule that matters most is the one
+ * applied closest to the DOM. It is deliberately a PREFIX pattern and so
+ * strictly looser than the exact list: it is a net under the first check, not
+ * a replacement for it. A link that fails degrades to its own label rather
+ * than disappearing, so the reader still gets the sentence.
  *
  * The site's own `renderMarkdown` is not reused here on purpose: it supports
  * images and video embeds, which a model's output must never be able to reach.
@@ -23,10 +27,17 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import styles from "./assistant.module.css";
 
-/** Route shapes the assistant is allowed to link to. Mirrors the server's
- *  allowlist, expressed as prefixes because the client has no corpus. */
+/**
+ * Route shapes the assistant may link to, as a last-resort net.
+ *
+ * Every top-level route segment the corpus can contain has to appear here or a
+ * legitimate link is silently downgraded to plain text. `labs` was missing,
+ * which meant the assistant could not link to /labs/ from the moment that
+ * route entered the corpus — so keep this list in step with the `nav` array in
+ * scripts/build-knowledge.mjs when a new destination is added.
+ */
 const ROUTE_PATTERN =
-  /^\/(?:$|#contact$|(?:mobilitycare|securevision|products|use-cases|publications|insights|research|gaitscape|movement-lab|trust|investors|legal)(?:\/[a-z0-9-]+)*\/?(?:[?#][\w=&#-]*)?$)/i;
+  /^\/(?:$|#contact$|(?:mobilitycare|securevision|products|use-cases|publications|insights|research|gaitscape|movement-lab|labs|trust|investors|legal)(?:\/[a-z0-9-]+)*\/?(?:[?#][\w=&#-]*)?$)/i;
 
 function safeHref(href: string): string | null {
   const value = href.trim();

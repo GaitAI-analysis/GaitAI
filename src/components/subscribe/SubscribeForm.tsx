@@ -31,7 +31,7 @@ import styles from "./subscribe.module.css";
  *
  * THE SWEEP, on the contact variant only. That block sits in the left column
  * of the CTA card next to a demo form, where 11px of mono goes unread, so a
- * soft light crosses it every 6.4 seconds and is then gone. The whole effect
+ * soft light crosses it once every second and is then gone. The whole effect
  * is in subscribe.module.css — the component's only part in it is the
  * `styles.sweep` span below, which is the layer that clips the band.
  *

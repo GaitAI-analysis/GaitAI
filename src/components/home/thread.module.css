@@ -41,7 +41,7 @@
 .hub {
   fill: #bfe9ff;
   fill-opacity: 0.85;
-  transition: fill-opacity 0.2s ease;
+  transition: fill-opacity 0.28s ease;
 }
 
 /* The junction lifts when a branch is live, so the signal reads as arriving
@@ -63,9 +63,9 @@
   vector-effect: non-scaling-stroke;
   pointer-events: none;
   transition:
-    stroke-opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-    stroke-width 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-    stroke 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    stroke-opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    stroke-width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    stroke 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── The targets ──
@@ -232,26 +232,38 @@
   cursor: pointer;
   text-align: left;
   transition:
-    color 0.22s ease,
-    background-color 0.22s ease,
-    border-color 0.22s ease;
+    color 0.28s ease,
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
 }
 
-/* Hover and focus are the same state: a preview. */
+/* ── SHOWN ──
+   The active treatment, and it is one treatment whatever put the reading in
+   that state — the cycle, a hover, a focus or a click. It used to be only a
+   brighter label, with the bordered ground reserved for a click; now that the
+   strip demonstrates itself, the reading the cycle is on has to look as
+   selected as one a visitor chose, or the demonstration reads as four quiet
+   labels with one slightly less quiet.
+
+   Subtle bordered surface, restrained cyan hairline, brighter heading. No
+   scale, no glow, no shadow. */
 .reading:hover,
 .readingShown {
   color: rgb(var(--c-soft-white));
-}
-
-.reading:hover {
-  background: var(--interactive-hover-bg);
-}
-
-/* Locked: the ground and the hairline stay after the pointer has gone. */
-.readingLocked {
-  color: rgb(var(--c-soft-white));
   background: var(--interactive-selected-bg);
   border-bottom-color: var(--interactive-selected-border);
+}
+
+/* ── LOCKED ──
+   A committed choice still has to be distinguishable from one the cycle is
+   passing through, or a click would appear to do nothing. The difference is
+   carried by the marker (see .readingLocked .dot) and one step more border,
+   not by a second surface — two competing grounds in a 12px row is noise. */
+.readingLocked {
+  border-bottom-color: var(--interactive-selected-border);
+  border-bottom-width: 1px;
+  box-shadow: inset 2px 0 0 var(--interactive-selected-border);
 }
 
 .reading:focus-visible {
@@ -270,9 +282,9 @@
   border: 1px solid currentColor;
   transform: translateY(-1px);
   transition:
-    background-color 0.22s ease,
-    border-color 0.22s ease,
-    box-shadow 0.22s ease;
+    background-color 0.28s ease,
+    border-color 0.28s ease,
+    box-shadow 0.28s ease;
 }
 
 .reading:hover .dot,
@@ -314,7 +326,7 @@
   font-size: 11px;
   font-weight: 400;
   color: rgb(var(--c-soft-mute));
-  transition: color 0.22s ease;
+  transition: color 0.28s ease;
 }
 
 .reading:hover .note,
@@ -356,4 +368,7 @@
   .trace {
     display: none;
   }
+  /* The auto-cycle itself is switched off in the component, not here — a
+     reading is simply shown at rest and every interaction still works. This
+     block only removes the tweening between states. */
 }

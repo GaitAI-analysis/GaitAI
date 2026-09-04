@@ -221,20 +221,43 @@ const productEntries: SearchEntry[] = allProducts.map((p) => ({
   ]),
 }));
 
-// ── Capabilities and movement signals, from the graph ───────────────────────
+// ── Capabilities, movement signals and capture sources, from the graph ──────
+// Three node families, one palette group, three metas. They are all "things
+// the platform knows about" from a searcher's point of view, and splitting
+// them into three headings for four rows each would make the palette longer
+// without making anything easier to find. The meta keeps them distinct: a
+// capture source is what a reader HAS, a movement signal is what is read off
+// it, and a capability is what does the reading.
+//
+// Capture sources are the reason "CCTV" now finds something. It used to match
+// only whatever product descriptions happened to contain the word.
 const capabilityEntries: SearchEntry[] = gaitscapeNodes
-  .filter((n) => n.type === "capability" || n.type === "signal")
+  .filter(
+    (n) =>
+      n.type === "capability" || n.type === "signal" || n.type === "input",
+  )
   .map((n) => ({
     id: `capability:${n.id}`,
     group: "capability" as const,
     title: n.title,
     detail: n.shortDescription ?? "",
-    /* Signals and capabilities share a group in the palette but are labelled
-       apart, because "Crowd movement" is an input and "Trajectory analysis"
-       is what reads it. */
-    meta: n.type === "signal" ? "Movement signal" : "AI capability",
+    meta:
+      n.type === "signal"
+        ? "Movement signal"
+        : n.type === "input"
+          ? "Capture source"
+          : "AI capability",
     href: `/gaitscape/?focus=${n.id}`,
-    haystack: norm([n.title, n.shortDescription, n.type]),
+    haystack: norm([
+      n.title,
+      n.shortDescription,
+      n.type,
+      /* The words a reader would actually type for a camera or a device,
+         which are not all in the node titles. */
+      n.type === "input"
+        ? "input capture source camera footage feed device sensor what i have"
+        : undefined,
+    ]),
   }));
 
 // ── Environments ────────────────────────────────────────────────────────────

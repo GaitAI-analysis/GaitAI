@@ -52,10 +52,15 @@ import {
   type Vertical,
 } from "@/data/products";
 import {
+  CAPTURE_SOURCES,
+  CAPTURE_SOURCE_LABEL,
   gaitscapeNodes,
   gaitscapeRelationships,
   nodeById,
+  sourcesForProduct,
   systemFactsFor,
+  type CaptureSource,
+  type CaptureSourceDef,
 } from "@/data/gaitscape/graph";
 import { evidenceForProduct, researchAreas } from "@/data/evidence";
 import { outputChipsFor } from "@/data/usecase-facets";
@@ -138,77 +143,23 @@ export const FAMILY_LABEL: Record<Vertical, string> = {
 // ============================================================================
 // 2 · CAPTURE SOURCES — "what signals are available?"
 // ----------------------------------------------------------------------------
-// The vocabulary a buyer answers in, matched against each module's own
-// documented input string from systemFactsFor(). `pose` is a derived stream
-// rather than a device, so it is matched on the pose-estimation capability;
-// `multi` is matched on multimodal sensor fusion — the capability whose whole
-// definition is combining sources — or on a module documented with two or
-// more distinct devices.
+// MOVED TO gaitscape/graph.ts, AND RE-EXPORTED HERE.
 //
-// The mobile row is grounded in the pipeline record: aiPipeline's fusion stage
-// reads "Smartwatch and mobile IMU signals fused with video features", and a
-// module that takes a standard-camera walking video takes one from a phone.
+// GaitScape needed the capture-source vocabulary too — "click CCTV, show me
+// which modules can work from it" was the one question the map could not
+// answer, because inputs were not nodes in the graph at all. The derivation
+// depends on `systemFactsFor` and the product→capability map, both of which
+// live in graph.ts, and this module already imports graph.ts; so putting the
+// nodes there and the regexes here would have meant either an import cycle or
+// a second copy of the same four patterns.
+//
+// It moved rather than being duplicated. These re-exports mean every existing
+// caller — the footage matcher, the comparison table, the stack configurator,
+// the signal chain — is untouched and still reads exactly one definition.
 // ============================================================================
 
-export type CaptureSource =
-  | "video"
-  | "cctv"
-  | "wearable"
-  | "mobile"
-  | "pose"
-  | "multi";
-
-export interface CaptureSourceDef {
-  id: CaptureSource;
-  label: string;
-  /** What the reader actually has to hand. */
-  note: string;
-}
-
-export const CAPTURE_SOURCES: CaptureSourceDef[] = [
-  { id: "video", label: "Walking video", note: "A short clip from any standard camera" },
-  { id: "cctv", label: "CCTV / fixed camera", note: "An existing camera feed in the space" },
-  { id: "wearable", label: "Wearable", note: "Smartwatch or IMU signals" },
-  { id: "mobile", label: "Mobile", note: "Capture on a phone, review on mobile" },
-  { id: "pose", label: "Pose stream", note: "Skeleton landmarks rather than pixels" },
-  { id: "multi", label: "Multiple sources", note: "More than one of the above, together" },
-];
-
-export const CAPTURE_SOURCE_LABEL: Record<CaptureSource, string> =
-  Object.fromEntries(
-    CAPTURE_SOURCES.map((source) => [source.id, source.label]),
-  ) as Record<CaptureSource, string>;
-
-const VIDEO_INPUT = /\bvideo\b|walking video/i;
-const CCTV_INPUT = /cctv|camera feed|cameras|camera analytics/i;
-const WEARABLE_INPUT = /smartwatch|wearable|imu|sensor signals/i;
-const MOBILE_DEPLOY = /mobile/i;
-
-/**
- * Which capture sources a module can work from. Read off the module's own
- * documented input (and, for the mobile row, its documented delivery), not
- * assigned by hand.
- */
-export function sourcesForProduct(productId: string): CaptureSource[] {
-  const facts = systemFactsFor(productId);
-  const capabilities = productCapabilities.get(productId) ?? [];
-  const found = new Set<CaptureSource>();
-
-  if (VIDEO_INPUT.test(facts.input)) found.add("video");
-  if (CCTV_INPUT.test(facts.input)) found.add("cctv");
-  if (WEARABLE_INPUT.test(facts.input)) found.add("wearable");
-  // A standard-camera walking video can be captured on a phone; a module
-  // delivered on mobile is reachable that way too.
-  if (found.has("video") || MOBILE_DEPLOY.test(facts.deployment)) {
-    found.add("mobile");
-  }
-  if (capabilities.includes("cap-pose")) found.add("pose");
-  if (capabilities.includes("cap-fusion") || found.size >= 3) found.add("multi");
-
-  return CAPTURE_SOURCES.map((source) => source.id).filter((id) =>
-    found.has(id),
-  );
-}
+export type { CaptureSource, CaptureSourceDef };
+export { CAPTURE_SOURCES, CAPTURE_SOURCE_LABEL, sourcesForProduct };
 
 // ============================================================================
 // 3 · OBJECTIVES — "what do you want to understand?"

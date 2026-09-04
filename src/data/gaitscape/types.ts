@@ -10,6 +10,8 @@
 export type GaitscapeNodeType =
   | "core"
   | "vertical"
+  /** A capture source a reader might already have: CCTV, a wearable, video. */
+  | "input"
   | "signal"
   | "capability"
   | "product"
@@ -33,6 +35,7 @@ export interface GaitscapeNode {
 
 export type GaitscapeRelationType =
   | "belongs-to" // product → vertical, vertical → core
+  | "captured-by" // product → input
   | "senses" // product → signal
   | "powered-by" // product → capability
   | "serves" // product → domain

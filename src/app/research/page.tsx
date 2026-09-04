@@ -68,9 +68,7 @@ export const metadata: Metadata = {
  *     same words, because it is a claim-safety statement and not decoration
  *   · the evidence-status panel     — removed at the owner's request, twice
  *
- * There is no `#attribution` anchor and nothing links to one: the home page's
- * "How we draw that line" link pointed at an id this page never carried, and
- * that paragraph has since been removed along with it.
+ * The `#attribution` anchor is preserved: the home page links straight to it.
  */
 
 /** Which scientific visual belongs to which research pillar. */

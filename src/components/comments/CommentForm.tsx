@@ -206,7 +206,7 @@ export function CommentForm({
             aria-hidden="true"
             className="h-3.5 w-3.5 shrink-0 text-cyan-300/70"
           />
-          Comments are moderated before appearing publicly.
+          Keep it thoughtful. Keep it constructive.
         </p>
 
         <div className="flex items-center gap-2">

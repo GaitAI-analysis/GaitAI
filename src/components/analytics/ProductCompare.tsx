@@ -12,6 +12,11 @@ import {
   responsibleUseFor,
 } from "@/data/analytics";
 import { researchAreas } from "@/data/evidence";
+import {
+  comparisonHref,
+  comparisonLabel,
+  productComparisons,
+} from "@/data/comparisons";
 import { familyClass } from "./primitives";
 import { parseList, useQueryState } from "./useQueryState";
 import styles from "./analytics.module.css";
@@ -23,6 +28,12 @@ import styles from "./analytics.module.css";
  * behaviour to the product catalogue, wired to the analytics model and to the
  * URL, so `?compare=walkscan,fallrisk,rehabtrack` is a shareable link and the
  * stack configurator can hand its recommendation straight into a comparison.
+ *
+ * IT OPENS ON A QUESTION, NOT AN EMPTY TABLE. An unpopulated comparison asks
+ * the reader to already know which two modules are the confusable ones, so the
+ * named pairs from `data/comparisons.ts` sit above the picker as one-click
+ * starting points — the four real "which of these two?" decisions, each with
+ * the question it answers. The picker is still there for anything else.
  *
  * Every row is canonical data, and no row is prose written for this table:
  * purpose is the module's own one-line label, input and delivery come from
@@ -107,6 +118,43 @@ export function ProductCompare({
 
   return (
     <div className={styles.lab}>
+      {/* ── THE NAMED PAIRS ──
+          The four decisions people actually arrive with. Buttons, not links:
+          they populate the table in place, so a reader can move between
+          questions without a page load, and the `?compare=` URL still updates
+          so the state they land on stays shareable. */}
+      <div className="mb-4">
+        <span className={styles.label}>Comparisons worth making</span>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          {productComparisons.map((comparison) => {
+            const on =
+              ids.length === comparison.pair.length &&
+              comparison.pair.every((id) => ids.includes(id));
+            return (
+              <li key={comparison.id}>
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => setIds([...comparison.pair])}
+                  className={`w-full rounded-xl border px-3.5 py-3 text-left transition-colors ${
+                    on
+                      ? "border-cyan-300/40 bg-cyan-300/[0.07]"
+                      : "border-white/10 bg-white/[0.02] hover:border-white/20"
+                  }`}
+                >
+                  <span className="block text-[13.5px] font-medium text-soft-white">
+                    {comparisonLabel(comparison)}
+                  </span>
+                  <span className="mt-1 block text-[12.5px] leading-snug text-soft-mute">
+                    {comparison.question}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
       {/* ── PICKER ── */}
       <div className={styles.panel}>
         <div className={styles.panelHead}>
@@ -162,8 +210,8 @@ export function ProductCompare({
       {/* ── TABLE ── */}
       {chosen.length === 0 ? (
         <p className={`${styles.note} mt-4`}>
-          Select up to {MAX} modules to compare their inputs, capabilities,
-          outputs and documented environments side by side.
+          Pick a comparison above, or choose up to {MAX} modules yourself.
+          Either way the rows are the same records the module pages use.
         </p>
       ) : (
         <div className={`${styles.panel} ${styles.enter} mt-4`}>
@@ -258,6 +306,12 @@ export function ProductCompare({
                   {
                     label: "Main outputs",
                     items: (p: (typeof chosen)[number]) => p.outputs,
+                  },
+                  {
+                    /* "Best fit" is the module's own documented primary user
+                       types — not a judgement written for this table. */
+                    label: "Best fit",
+                    items: (p: (typeof chosen)[number]) => p.users,
                   },
                   {
                     label: "Movement signals",

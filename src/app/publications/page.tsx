@@ -72,6 +72,21 @@ export default function PublicationsPage() {
                 and published with Springer, Elsevier and Wiley · IET.
               </p>
 
+              <p className="mt-3.5 max-w-xl text-[12.5px] leading-relaxed text-soft-mute">
+                These are academic and individually held records rather than
+                company-produced output. GaitAI does not currently hold
+                company-assigned publications or patents of its own; how each
+                record maps onto the platform&apos;s capabilities is set out on
+                the{" "}
+                <Link
+                  href="/research#areas"
+                  className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
+                >
+                  research evidence map
+                </Link>
+                .
+              </p>
+
               {/* Counts, derived from the records themselves. */}
               <dl className="mt-7 grid max-w-xl grid-cols-2 gap-x-5 gap-y-4 border-t border-white/[0.08] pt-5 sm:grid-cols-4">
                 {summary.map((s) => (

@@ -116,8 +116,6 @@ export function CTA() {
                       <p> — that would overflow the card. Below `lg` the span
                       wraps normally, which is what a phone needs. */}
                   <span className="lg:whitespace-nowrap">
-                    A pilot is scoped around one environment and the modules it
-                    needs.
                   </span>{" "}
                   {PILOT_SCOPE}{" "}
                   <Link

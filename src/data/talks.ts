@@ -538,13 +538,10 @@ export const talkThreads: TalkThread[] = (() => {
     threads.push({
       id: "outside-lineage",
       title: "Wider academic record",
-      /* Says what the group CONTAINS. It read "Sessions and papers that map
-         to no GaitAI research area — …", which is the negative framing the
-         rest of the site has stopped using: a group of thirteen real talks
-         does not need to open by disclaiming itself. */
       summary:
-        "Teaching and faculty-development talks, IoT and AI sessions, and " +
-        "conference papers outside movement research.",
+        "Sessions and papers that map to no GaitAI research area — teaching " +
+        "and faculty-development talks, IoT and AI sessions, and conference " +
+        "papers outside movement research.",
       talks: unmapped,
     });
   }

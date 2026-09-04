@@ -26,12 +26,11 @@ export interface NavItem {
    *
    * The navbar decides which submenu row is lit by prefix match, deepest
    * match wins, which is right wherever the URL tree mirrors the menu —
-   * /research/talks/ sits under /research/. The blog does not: its topic
-   * pages live at /insights/topic/<slug>/ and its later feed pages at
-   * /insights/page/2/, neither of which is under the menu row that owns it.
-   * Listing the prefix here is how "Topics" stays lit on a topic page without
-   * inventing a /insights/topics/<slug>/ route that would compete with the
-   * real one for the same content.
+   * /research/talks/ sits under /research/. The blog does not: its later feed
+   * pages are at /insights/page/2/ and its reading path at
+   * /insights/series/<slug>/, neither of which sits under the row that owns
+   * it. Listing the prefix here is how "Latest Stories" stays lit on page two
+   * without a route being invented to make the URL tree agree with the menu.
    */
   owns?: readonly string[];
   /**
@@ -108,16 +107,24 @@ export const navLinks: readonly NavItem[] = [
      scans for; the page itself carries the fuller "GaitAI · Blog & Updates",
      and the footer, which has the room, says "Blog & Updates" too.
 
-     THE FOUR ROWS ARE THE PUBLICATION'S FOUR QUESTIONS, in the order a reader
-     asks them: what should I read today, where do I begin, what do you write
-     about, and what have you published. Each is a different job — that is why
-     they are four destinations and not one page with tabs — and putting them
-     in the navbar is what removes the need for a second horizontal strip
-     inside the blog itself.
+     THE THREE ROWS ARE THE PUBLICATION'S THREE QUESTIONS, in the order a
+     reader asks them: what should I read today, where do I begin, and what
+     have you published. Each is a different job — that is why they are three
+     destinations and not one page with tabs — and putting them in the navbar
+     is what removes the need for a second horizontal strip inside the blog
+     itself.
 
-     Series has no row deliberately. The one series that exists canonicalises
-     to /insights/start-here/, so a "Series" entry would be a fifth row
-     pointing at the second one. */
+     TWO ROWS THAT DO NOT APPEAR, both for the same reason: the menu is for
+     destinations a reader chooses between, not an index of every route.
+
+       Topics · /insights/topics/ still exists and is still in the sitemap and
+                the command palette, but browsing by subject is what the feed's
+                own topic filters are for, one screen below this menu. A fourth
+                row for it made the menu longer without making the choice
+                easier.
+       Series · the one series that exists canonicalises to
+                /insights/start-here/, so a row for it would point at the row
+                above it. */
   {
     label: "Blog",
     href: "/insights",
@@ -134,12 +141,6 @@ export const navLinks: readonly NavItem[] = [
         href: "/insights/start-here",
         description: "The five ideas behind movement-intelligence thinking",
         owns: ["/insights/series"],
-      },
-      {
-        label: "Topics",
-        href: "/insights/topics",
-        description: "Browse the writing by subject",
-        owns: ["/insights/topic"],
       },
       {
         label: "Archive",

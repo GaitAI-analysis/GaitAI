@@ -14,6 +14,7 @@ import {
   type ChannelState,
   type InputState,
 } from "@/data/fusion-sandbox";
+import { ProvenanceMark } from "@/components/proof/ProvenanceMark";
 import { ChipScroller } from "./controls";
 import styles from "./analytics.module.css";
 import fusion from "./fusion.module.css";
@@ -291,6 +292,11 @@ export function FusionSandbox() {
       </dl>
 
       <p className={`${styles.note} mt-8 max-w-3xl`}>{FUSION_BOUNDARY}</p>
+
+      {/* No synthetic-data mark: there is no data here to be synthetic. The
+          channel names are graph records and there are no readings at all,
+          which is the honest distinction between this and the Time Machine. */}
+      <ProvenanceMark kind="illustrative-demo" />
     </div>
   );
 }

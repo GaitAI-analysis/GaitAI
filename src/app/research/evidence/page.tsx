@@ -5,6 +5,7 @@ import {
   EvidenceExplorer,
   type ExplorerArea,
 } from "@/components/analytics/EvidenceExplorer";
+import { EvidenceBoundary } from "@/components/research/EvidenceBoundary";
 import { researchAreas, type AreaProduct } from "@/data/evidence";
 import { papers, patent } from "@/data/publications";
 import styles from "@/components/research/observatory.module.css";
@@ -89,6 +90,28 @@ export default function ResearchEvidencePage() {
       <section className="border-t border-white/[0.07] py-14 sm:py-16">
         <div className="container-wide">
           <EvidenceExplorer areas={explorerAreas} />
+        </div>
+      </section>
+
+      {/* ── RESEARCH FOUNDATION ≠ PRODUCT VALIDATION ──
+          `EvidenceBoundary` was written for this and then never mounted: the
+          explorer above links to `#evidence-boundary` under every pillar, and
+          that id existed nowhere in the repository — so the page's clearest
+          statement about the limits of its own evidence was a link to
+          nothing. It is mounted here, at the id the explorer already
+          expects. */}
+      <section
+        id="evidence-boundary"
+        className="site-anchor-offset border-t border-white/[0.07] py-14 sm:py-16"
+      >
+        <div className="container-wide">
+          <h2 className="max-w-2xl font-display text-display-md text-balance text-soft-white">
+            What the record establishes,{" "}
+            <span className="text-gradient">and what it does not.</span>
+          </h2>
+          <div className="mt-10">
+            <EvidenceBoundary />
+          </div>
         </div>
       </section>
     </div>

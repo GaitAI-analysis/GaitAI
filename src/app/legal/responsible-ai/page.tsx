@@ -71,7 +71,7 @@ export default function ResponsibleAIPage() {
           does not cover is stated on the{" "}
           <Link
             className="text-cyan-300 transition-colors hover:text-cyan-200"
-            href="/research#areas"
+            href="/research/#evidence-map"
           >
             research page
           </Link>

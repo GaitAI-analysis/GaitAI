@@ -326,7 +326,7 @@ This is an interactive technology demonstration. The stage,
                 <Link href="/gaitscape" className="btn-ghost">
                   Open GaitScape
                 </Link>
-                <Link href="/research#evidence-explorer" className="btn-ghost">
+                <Link href="/research/evidence/" className="btn-ghost">
                   Evidence explorer
                 </Link>
               </div>

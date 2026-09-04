@@ -458,26 +458,54 @@
  *     when it runs out of room, so the bar is the same three lines at every
  *     width — ~105px on a desktop, ~175px on a phone, instead of growing a row
  *     every time the viewport narrows.
- *   · THE PADDING IS THE STUCK PADDING, ALWAYS. It is tempting to let the bar
- *     relax when it is not parked, but a sticky element still holds its place
- *     in flow: shrinking one at the moment it sticks lifts every card below it,
- *     and if the shrink lifts the sentinel back into view the two states
- *     flicker against each other. One height, no jolt.
+ *   · IT TIGHTENS WHEN IT PARKS. 131px at rest, 109px stuck: the padding and
+ *     the row gaps each give up 0.35rem, and no type size changes.
  *
- * The stuck state therefore changes colour and nothing else — see below.
+ * THE ONE TRAP IN THAT SECOND CHANGE. A sticky element still holds its place in
+ * flow, so a bar that shrinks as it sticks shortens the document and yanks
+ * every card below it upward — a 22px jump at the exact moment the reader is
+ * scrolling past it, and the same jump back on the way up. The fix is not to
+ * give up the idea but to give the space back: a spacer immediately after the
+ * bar grows by precisely what the bar gave up, in the same flow, so the total
+ * never changes and the grid never moves. Both heights come from the same two
+ * custom properties, so they cannot drift out of step.
+ *
+ * The sentinel sits ABOVE the bar, so shrinking the bar cannot move it and the
+ * two states cannot oscillate against each other.
  */
+.explorer {
+  --uc-bar-pad-rest: 0.85rem;
+  --uc-bar-gap-rest: 0.75rem;
+  --uc-bar-pad: var(--uc-bar-pad-rest);
+  --uc-bar-gap: var(--uc-bar-gap-rest);
+}
+
+.explorer[data-stuck="true"] {
+  --uc-bar-pad: 0.5rem;
+  --uc-bar-gap: 0.4rem;
+}
+
 .stickyBar {
   position: sticky;
   top: var(--site-header-height, 5.625rem);
   z-index: 20;
   border-block: 1px solid rgb(var(--c-soft-white) / 0.07);
-  padding-block: 0.5rem;
+  padding-block: var(--uc-bar-pad);
 }
 
 /* Zero-height marker, immediately above the bar. It has no appearance and no
    space; the explorer watches it to know when the bar has parked. */
 .stickySentinel {
   height: 0;
+}
+
+/* Exactly what the bar gives up: two paddings and the two gaps between the
+   three rows. Zero at rest, 1.4rem parked. Derived, never restated. */
+.stickySpacer {
+  height: calc(
+    2 * (var(--uc-bar-pad-rest) - var(--uc-bar-pad)) +
+    2 * (var(--uc-bar-gap-rest) - var(--uc-bar-gap))
+  );
 }
 
 /*
@@ -495,7 +523,7 @@
  * `--c-obsidian` is the page ground token, so this follows the theme: near-black
  * in the dark theme, near-white in the light one.
  */
-.stickyBar[data-stuck="true"] {
+.explorer[data-stuck="true"] .stickyBar {
   background: rgb(var(--c-obsidian) / 0.94);
   backdrop-filter: blur(10px);
   border-bottom-color: rgb(var(--c-soft-white) / 0.12);
@@ -503,7 +531,7 @@
 
 .filterBar {
   display: grid;
-  gap: 0.4rem;
+  gap: var(--uc-bar-gap);
 }
 
 .filterTop {

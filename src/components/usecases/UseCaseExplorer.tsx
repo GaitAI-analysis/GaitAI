@@ -135,7 +135,10 @@ export function UseCaseExplorer() {
   };
 
   return (
-    <div>
+    /* `data-stuck` lives on the wrapper, not on the bar, because two elements
+       need to read it: the bar, which loses padding, and the spacer below it,
+       which takes exactly that much height back. */
+    <div className={styles.explorer} data-stuck={stuck ? "true" : undefined}>
       {/*
        * The sentinel that tells the toolbar it has parked under the navbar.
        *
@@ -156,7 +159,7 @@ export function UseCaseExplorer() {
        */}
       <div ref={sentinel} aria-hidden="true" className={styles.stickySentinel} />
 
-      <div className={styles.stickyBar} data-stuck={stuck ? "true" : undefined}>
+      <div className={styles.stickyBar}>
         <div className="container-wide">
           <UseCaseFilterBar
             query={query}
@@ -172,6 +175,17 @@ export function UseCaseExplorer() {
           />
         </div>
       </div>
+
+      {/*
+       * THE COMPENSATOR. The bar loses 1.4rem of padding the moment it parks,
+       * and a sticky element still holds its place in flow — so without this,
+       * losing it would shorten the document and pull every card below the bar
+       * upward, a visible jump at the exact moment the reader is scrolling
+       * past. This grows by precisely what the bar gave up, in the same flow,
+       * so the grid does not move at all. Its height is derived from the two
+       * padding values rather than restated, so the two cannot drift apart.
+       */}
+      <div aria-hidden="true" className={styles.stickySpacer} />
 
       {matches.length === 0 && (
         <div className="container-wide">

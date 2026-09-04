@@ -383,12 +383,15 @@ export function ProductDetailView({ slug }: { slug: string }) {
     ? productById(comparisonCounterpart(comparison, product.id) ?? "")
     : undefined;
   // Deployment environments that recommend this product in their mix.
-  const environments = useCaseDetails
-    .filter((uc) => {
-      const base = industryUseCases.find((c) => c.id === uc.caseId);
-      return base?.productIds.includes(product.id) ?? false;
-    })
-    .slice(0, 3);
+  /* Environments whose own documented product mix names this module. Not
+     sliced: this is now the hero's pill row and the complete documented set
+     is the point — a truncated list of "documented environments" would be a
+     different and worse claim than the field it replaced. */
+  const environments = useCaseDetails.flatMap((uc) => {
+    const base = industryUseCases.find((c) => c.id === uc.caseId);
+    if (!base?.productIds.includes(product.id)) return [];
+    return [{ slug: uc.slug, industry: base.industry }];
+  });
 
   return (
     <article className="relative w-full pb-24">
@@ -425,20 +428,35 @@ export function ProductDetailView({ slug }: { slug: string }) {
             {detail.overview}
           </p>
 
-          {/* Environment tags */}
-          <div className="mt-6 flex flex-wrap gap-1.5">
-            {detail.environments.map((env) => (
-              <span
-                key={env}
-                className={cn(
-                  "rounded-full border px-2.5 py-1 text-[10.5px] font-medium",
-                  a.pill
-                )}
-              >
-                {env}
-              </span>
-            ))}
-          </div>
+          {/* ── DOCUMENTED ENVIRONMENTS ──
+              Canonical, and linked. These were hand-written tags that
+              contradicted the environment records for eleven of the
+              twenty-three modules — see the note where the field used to be
+              declared in product-details.ts. They are now the environments
+              whose own documented product mix names this module, which means
+              the hero cannot disagree with /use-cases or with the stack
+              configurator, and each pill goes somewhere.
+
+              A module in no documented environment renders none. That is
+              Watchlist, and showing nothing is the honest rendering of a
+              module scoped to authorised deployments that no environment
+              record lists. */}
+          {environments.length > 0 && (
+            <div className="mt-6 flex flex-wrap gap-1.5">
+              {environments.map((env) => (
+                <Link
+                  key={env.slug}
+                  href={`/use-cases/${env.slug}/`}
+                  className={cn(
+                    "rounded-full border px-2.5 py-1 text-[10.5px] font-medium transition-colors hover:text-soft-white",
+                    a.pill
+                  )}
+                >
+                  {env.industry}
+                </Link>
+              ))}
+            </div>
+          )}
 
           <div className="mt-9 flex flex-wrap gap-3">
             <Link href="/#contact" className="btn-primary">
@@ -931,33 +949,12 @@ export function ProductDetailView({ slug }: { slug: string }) {
               </p>
             )}
 
-            {environments.length > 0 && (
-              <div className="mt-10">
-                <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-soft-mute">
-                  Related deployment environments
-                </h3>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {environments.map((uc) => {
-                    const base = industryUseCases.find(
-                      (c) => c.id === uc.caseId
-                    );
-                    return (
-                      <Link
-                        key={uc.slug}
-                        href={`/use-cases/${uc.slug}/`}
-                        className={cn(
-                          "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors hover:text-soft-white",
-                          a.pill
-                        )}
-                      >
-                        {base?.industry ?? uc.slug}
-                        <ArrowUpRight className="h-3 w-3" />
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            {/* "Related deployment environments" used to repeat here, as the
+                same links from the same records, three of them. It was not a
+                duplicate before this change — the hero showed hand-written
+                tags and this showed the canonical set — but now that the hero
+                carries the complete documented list, printing three of them
+                again at the bottom of the page says nothing new. */}
           </section>
         </Reveal>
 

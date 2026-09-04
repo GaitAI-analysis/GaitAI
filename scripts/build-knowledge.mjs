@@ -161,6 +161,20 @@ async function main() {
   // The 23 modules. Each doc carries the whole answerable surface of the
   // module page: what it takes in, what it emits, how it is deployed, what it
   // explicitly does not establish, and which research reaches it.
+  /* Inverted from the canonical environment→product mix, once, so every
+     product doc reads the same table the /use-cases pages and the stack
+     configurator read. */
+  const environmentsByProduct = new Map();
+  for (const environment of products.industryUseCases) {
+    for (const productId of environment.productIds) {
+      const list = environmentsByProduct.get(productId) ?? [];
+      list.push(environment.industry);
+      environmentsByProduct.set(productId, list);
+    }
+  }
+  const environmentsFor = (productId) =>
+    environmentsByProduct.get(productId) ?? [];
+
   for (const product of products.allProducts) {
     const detail = detailBySlug.get(product.id);
     const chain = taxonomy.taxonomyChainFor(product.id);
@@ -218,7 +232,16 @@ async function main() {
         detail && para("Models", detail.tech.models),
         detail && para("Workflow", detail.workflow),
         detail && para("Deployment", detail.deployment),
-        detail && para("Environments", detail.environments),
+        /* Canonical, from the environment records whose own product mix names
+           this module — the hand-written `detail.environments` tags this used
+           to read contradicted them for eleven of twenty-three modules and
+           have been removed. See the note in product-details.ts. */
+        para(
+          "Documented deployment environments",
+          environmentsFor(product.id).length
+            ? environmentsFor(product.id)
+            : "No environment record in the GaitAI catalogue lists this module in its documented product mix.",
+        ),
         detail && para("Integration", detail.tech.integration),
         detail && para("Quality requirements", detail.tech.quality),
         detail && para("Documented limitations", detail.tech.limitations),
@@ -256,7 +279,7 @@ async function main() {
         product.label,
         ...product.users,
         ...product.outputs,
-        ...(detail ? detail.environments : []),
+        ...environmentsFor(product.id),
         ...(detail ? detail.tech.inputs : []),
         /* PRIMARY sources only. Keywords are weighted 5x against content's
            1x, and a hedged secondary input is not what a module is ABOUT —

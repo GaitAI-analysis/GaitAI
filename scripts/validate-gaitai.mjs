@@ -453,7 +453,29 @@ async function main() {
     }
   }
 
-  // ── 11. Naming consistency (Phase 25) ────────────────────────────────────
+  // ── 11. No second environment mapping ────────────────────────────────────
+  // `product-details*.ts` used to carry an `environments: string[]` of
+  // hand-written hero tags, which was a second product-to-environment mapping
+  // and disagreed with the canonical one for eleven of twenty-three modules.
+  // It was removed. This check exists so it cannot come back by accident: any
+  // field on a detail record that looks like a list of environment names is
+  // an error, because there is exactly one such list and it lives in
+  // products.ts.
+  ran.push("single environment mapping");
+  for (const detail of allProductDetails) {
+    for (const key of ["environments", "settings", "deployments"]) {
+      if (Array.isArray(detail[key])) {
+        err(
+          "single environment mapping",
+          `product detail "${detail.slug}" declares "${key}" — the canonical ` +
+            "product-to-environment mapping is industryUseCases[].productIds " +
+            "in products.ts, and a second one drifts out of step with it",
+        );
+      }
+    }
+  }
+
+  // ── 12. Naming consistency (Phase 25) ────────────────────────────────────
   // One entity must not become two through capitalisation drift.
   ran.push("naming consistency");
   const CANON = ["MobilityCare", "SecureVision", "GaitScape", "WalkScan", "FallRisk"];

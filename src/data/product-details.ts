@@ -29,8 +29,22 @@ export interface ProductDetail {
   valueProp?: string;
   /** Short overview paragraph */
   overview: string;
-  /** Environment tags shown in the hero */
-  environments: string[];
+  /* `environments: string[]` USED TO BE HERE, AND IT CONTRADICTED THE SITE.
+     It was hand-written editorial shorthand shown as hero pills — and it was
+     a SECOND product-to-environment mapping alongside the canonical one in
+     products.ts `industryUseCases[].productIds`. The two disagreed for eleven
+     of twenty-three modules. PrivacyGuard's hero said "All SecureVision
+     sites" while the canonical mix grants it one environment of eight;
+     ForensicSearch claimed three it is not in; CampusShield claimed
+     "Hospital", which is a MobilityCare environment its own family page would
+     never offer it for. A reader could see one answer in the hero and the
+     opposite in the stack configurator two clicks away.
+
+     The hero now renders the canonical environments, as links to the
+     environment pages that actually name the module — so it cannot drift, and
+     the pills go somewhere instead of being decorative text. A module in no
+     documented environment (Watchlist) shows none, which is the honest
+     rendering of that fact rather than a tag inventing one. */
   /** At-a-glance row: Input → Analysis → Output → User */
   glance: { input: string; analysis: string; output: string; user: string };
 
@@ -83,7 +97,6 @@ export const productDetails: ProductDetail[] = [
     slug: "walkscan",
     overview:
       "WalkScan converts a short walking video into structured gait and mobility measurements. It is designed to give clinicians and movement professionals a measured layer of evidence alongside visual observation.",
-    environments: ["Clinic", "Rehab", "Sports", "Research"],
     glance: {
       input: "Walking video",
       analysis: "Gait AI",
@@ -209,7 +222,6 @@ export const productDetails: ProductDetail[] = [
       "Surface mobility deterioration and fall-risk indicators for earlier review.",
     overview:
       "FallRisk combines gait, balance, movement variability, posture and longitudinal change into an interpretable mobility-risk profile.",
-    environments: ["Hospital", "Elderly care", "Home care", "Preventive health"],
     glance: {
       input: "Assessments + history",
       analysis: "Risk model",
@@ -331,7 +343,6 @@ export const productDetails: ProductDetail[] = [
     valueProp: "Make recovery visible from session to session.",
     overview:
       "RehabTrack compares movement across rehabilitation sessions to quantify how gait, symmetry, mobility and functional movement change during recovery.",
-    environments: ["Physiotherapy", "Post-surgical", "Sports rehab", "Neuro rehab"],
     glance: {
       input: "Session assessments",
       analysis: "Longitudinal comparison",
@@ -450,7 +461,6 @@ export const productDetails: ProductDetail[] = [
     valueProp: "Athlete movement measured, compared and tracked.",
     overview:
       "SportsMotion analyzes walking and running mechanics to surface asymmetry, imbalance, fatigue-related change and recovery trends.",
-    environments: ["Academy", "Performance centre", "Sports rehab", "S&C"],
     glance: {
       input: "Running video",
       analysis: "Motion AI",
@@ -571,7 +581,6 @@ export const productDetails: ProductDetail[] = [
     valueProp: "Continuous mobility intelligence from everyday wearables.",
     overview:
       "WatchCare uses smartwatch, phone and compatible wearable signals to track everyday movement between formal assessments.",
-    environments: ["Home", "Elderly care", "Rehab adherence", "Wellness"],
     glance: {
       input: "Wearable signals",
       analysis: "Trend AI",
@@ -691,7 +700,6 @@ export const productDetails: ProductDetail[] = [
     valueProp: "Quantify neurological movement patterns over time.",
     overview:
       "NeuroMotion supports objective monitoring of gait patterns associated with neurological movement difficulties — including Parkinsonian gait monitoring, stroke rehabilitation, ataxic gait, multiple-sclerosis-related mobility change and neuropathy-related gait change.",
-    environments: ["Neurology", "Neuro rehab", "Hospital", "Research"],
     glance: {
       input: "Walk + turn video",
       analysis: "Neuro-gait AI",
@@ -811,7 +819,6 @@ export const productDetails: ProductDetail[] = [
     valueProp: "Measure how joints, limbs and posture affect walking.",
     overview:
       "OrthoMotion evaluates movement changes associated with orthopedic, musculoskeletal and post-surgical mobility — knee and hip recovery, foot and ankle mobility, spine and posture, limp assessment and post-surgical gait monitoring.",
-    environments: ["Orthopedics", "Post-surgical", "Physiotherapy", "Rehab"],
     glance: {
       input: "Walking video",
       analysis: "Ortho-gait AI",
@@ -929,7 +936,6 @@ export const productDetails: ProductDetail[] = [
       "Surface longitudinal mobility changes and decline indicators for review.",
     overview:
       "SeniorCare provides periodic movement assessments and longitudinal mobility summaries for older adults.",
-    environments: ["Senior living", "Elderly care", "Home care", "Families"],
     glance: {
       input: "Periodic assessments",
       analysis: "Baseline comparison",
@@ -1046,7 +1052,6 @@ export const productDetails: ProductDetail[] = [
     valueProp: "Longitudinal movement screening for growing children.",
     overview:
       "PediatricMotion supports observation and tracking of children's gait development and movement changes — including toe-walking, gait asymmetry, developmental movement monitoring, orthopedic follow-up, cerebral-palsy rehabilitation monitoring and sports movement screening.",
-    environments: ["Pediatric clinic", "Rehab", "Schools", "Sports screening"],
     glance: {
       input: "Child's walking video",
       analysis: "Screening AI",
@@ -1161,7 +1166,6 @@ export const productDetails: ProductDetail[] = [
     valueProp: "Measure how an assistive device changes the walk.",
     overview:
       "ProstheticFit compares walking mechanics with different device configurations or across fitting and rehabilitation sessions.",
-    environments: ["Prosthetics", "Orthotics", "Rehab", "Device research"],
     glance: {
       input: "Before / after walks",
       analysis: "Movement comparison",
@@ -1275,7 +1279,6 @@ export const productDetails: ProductDetail[] = [
     valueProp: "Walk at home. Let your care team review progress remotely.",
     overview:
       "RemoteCare enables guided movement assessments outside the clinic and delivers structured reports to the clinician.",
-    environments: ["Telehealth", "Home care", "Physiotherapy", "Hospitals"],
     glance: {
       input: "Home walking video",
       analysis: "Gait AI + QC",
@@ -1392,7 +1395,6 @@ export const productDetails: ProductDetail[] = [
       "Structured, repeatable movement-analysis outputs for research, clinical-study and device-evaluation workflows.",
     overview:
       "ClinicalTrials provides structured gait and movement measurements that can be collected repeatedly across participants and study visits.",
-    environments: ["CROs", "Academia", "Pharma", "Device studies"],
     glance: {
       input: "Protocol captures",
       analysis: "Gait-measure pipeline",

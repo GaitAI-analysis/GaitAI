@@ -6,14 +6,12 @@ import { DiagramField } from "@/components/visuals/DiagramField";
 import { TalksConstellation } from "@/components/research/TalksConstellation";
 import { TalksTimeline } from "@/components/research/TalksTimeline";
 import {
-  TALKS_SOURCES,
   talkCounts,
   talkFormatCount,
   talkRecords,
   talkSpan,
   talkThreads,
 } from "@/data/talks";
-import { FOUNDER_PORTFOLIO_URL } from "@/data/publications";
 import { ctas } from "@/data/content";
 
 /**
@@ -182,62 +180,12 @@ export default function TalksPage() {
         </div>
       </section>
 
-      {/* ─────────── PROVENANCE ───────────
-          The distinction the old hero repeated three times, made once, here,
-          where a reader who has just been through the record will actually
-          weigh it. */}
-      <section className="section !pt-0">
-        <div className="container-wide">
-          <div className="max-w-2xl border-t border-white/10 pt-8">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
-              Academic record
-            </p>
-            <p className="mt-3 text-[13px] leading-relaxed text-soft-gray">
-              These entries document individual academic and research
-              activities and should not be interpreted as GaitAI company
-              appearances — the company has delivered no talks of its own.
-              Every entry is reproduced from the underlying{" "}
-              <a
-                href={FOUNDER_PORTFOLIO_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-soft-white underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:decoration-soft-white"
-              >
-                research record
-              </a>
-              , with the evidence each one links. A record maps to a GaitAI
-              research area only where the work itself is that research; the
-              IoT, teaching and access-control sessions are part of the
-              academic record and map to nothing here.
-            </p>
-
-            <p className="mt-4 text-[11.5px] leading-relaxed text-soft-mute">
-              Sources:{" "}
-              <a
-                href={TALKS_SOURCES.talks}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-gray"
-              >
-                talks delivered
-              </a>{" "}
-              and{" "}
-              <a
-                href={TALKS_SOURCES.conferences}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline decoration-soft-mute/40 underline-offset-2 transition-colors hover:text-soft-gray"
-              >
-                conference record
-              </a>
-              .
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ─────────── WHERE TO GO NEXT ─────────── */}
-      <section className="section pb-20 !pt-0 sm:pb-24">
+      {/* ─────────── WHERE TO GO NEXT ───────────
+          `!pt-4` rather than the `!pt-0` this carried: the removed provenance
+          block used to sit between this and the record and supply the gap.
+          The row draws its own hairline, so it needs breathing room above it
+          and nothing else. */}
+      <section className="section pb-20 !pt-4 sm:pb-24">
         <div className="container-wide">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-white/10 pt-8">
             <Link

@@ -149,20 +149,6 @@ export function ResearchCredibility() {
                 patent, authored by founder {FOUNDER_NAME} with academic
                 co-authors — the research this platform is built on.
               </p>
-              {/* The full attribution — publishers, years, patent scope and
-                  the founder-vs-company distinction — is set out on /research;
-                  Home states the fact and links there. */}
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-soft-mute">
-                Academic and individually held records rather than
-                company-produced output.{" "}
-                <Link
-                  href="/research#attribution"
-                  className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
-                >
-                  How we draw that line
-                </Link>
-                .
-              </p>
             </div>
 
             <RecordInstrumentPanel

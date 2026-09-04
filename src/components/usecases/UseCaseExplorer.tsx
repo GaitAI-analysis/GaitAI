@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { industryUseCases, productById } from "@/data/products";
@@ -97,6 +97,26 @@ export function UseCaseExplorer() {
 
   const matchIds = useMemo(() => new Set(matches.map((c) => c.id)), [matches]);
 
+  /* See the sentinel below for why this exists and what it may change. */
+  const sentinel = useRef<HTMLDivElement>(null);
+  const [stuck, setStuck] = useState(false);
+
+  useEffect(() => {
+    const mark = sentinel.current;
+    if (!mark || typeof IntersectionObserver === "undefined") return;
+    /* Measured, not assumed: --site-header-height is authored in rem and a
+       reader at 125% browser zoom has a taller header than the token's 90px
+       reads as. */
+    const header = document.querySelector("header.site-header");
+    const offset = header?.getBoundingClientRect().height ?? 90;
+    const observer = new IntersectionObserver(
+      ([entry]) => setStuck(!entry.isIntersecting),
+      { rootMargin: `-${Math.round(offset)}px 0px 0px 0px`, threshold: 0 },
+    );
+    observer.observe(mark);
+    return () => observer.disconnect();
+  }, []);
+
   const counts = useMemo(
     () => ({
       all: industryUseCases.length,
@@ -116,7 +136,27 @@ export function UseCaseExplorer() {
 
   return (
     <div>
-      <div className={styles.stickyBar}>
+      {/*
+       * The sentinel that tells the toolbar it has parked under the navbar.
+       *
+       * `position: sticky` gives you the behaviour and none of the state:
+       * there is no `:stuck` selector, so the only cheap way to know is to
+       * watch a zero-height marker sitting immediately above the bar and see
+       * when it passes behind the header. `rootMargin` pulls the observer's
+       * top edge down by the header's real measured height, so the flip
+       * happens on the exact pixel the bar stops moving — no scroll handler,
+       * no rAF, two callbacks for a whole page of scrolling.
+       *
+       * The class it toggles changes COLOUR ONLY, never a dimension. A sticky
+       * element still occupies its place in flow, so shrinking one at the
+       * moment it sticks pulls every card below it upwards — a visible jolt,
+       * and, if the shrink is enough to lift the sentinel back into view, a
+       * flicker between the two states. The bar is therefore the same compact
+       * height at rest as it is stuck.
+       */}
+      <div ref={sentinel} aria-hidden="true" className={styles.stickySentinel} />
+
+      <div className={styles.stickyBar} data-stuck={stuck ? "true" : undefined}>
         <div className="container-wide">
           <UseCaseFilterBar
             query={query}

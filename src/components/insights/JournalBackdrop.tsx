@@ -16,11 +16,14 @@
  * no image request: a hero image heavy enough to carry this would cost more
  * than the whole route currently does.
  *
- * CONTRAST DISCIPLINE. Nothing here exceeds 0.3 alpha, the trajectories are
- * masked away from the left column where the headline sits, and the whole
- * thing sits under a vertical scrim that takes the top to near-black. The
- * masthead's own contrast is therefore unchanged — checked by reading the
- * headline over it at 1440 and 390.
+ * CONTRAST DISCIPLINE. The real ceiling is CONTRAST, not alpha: the loudest
+ * thing in the drawing is a curve at 1.60:1 against its own ground, and the
+ * measured figure is what each theme is tuned to — the light theme reaches it
+ * at a higher alpha only because its ink is darker to begin with. The
+ * trajectories are also masked away from the left column where the headline
+ * sits, and the whole thing sits under a vertical scrim that takes the top to
+ * the page ground. The masthead's own contrast is therefore unchanged —
+ * checked by reading the headline over it at 1440 and 390.
  *
  * ALMOST STILL. A background that animates behind a headline is a background
  * competing with a headline, so the page, the grid, the type blocks and the
@@ -35,6 +38,11 @@
  * SMIL, and its cost are documented in `backdrop.module.css`. No JS runs:
  * this stays a server component, and `prefers-reduced-motion` is honoured in
  * that stylesheet rather than by hydrating to make the decision.
+ *
+ * BOTH THEMES. The curves, the sample marks and the dots carry a dark ink and
+ * a light ink, matched so each element lands at the same contrast against its
+ * own ground — the alphas differ because the inks do. Geometry, widths,
+ * timings and positions are identical in both.
  */
 import styles from "./backdrop.module.css";
 
@@ -42,11 +50,20 @@ export function JournalBackdrop() {
   /* Four trajectories over the page, as the platform draws movement: a smooth
      path with sampled points on it. Deterministic — these are fixed curves,
      not generated, so the composition is the same for every reader. */
+  /* `o` is the dark-theme alpha, `lo` the light-theme one. They differ because
+     the INK differs: a pale cyan on near-black and a saturated cyan on
+     near-white need different alphas to land at the same contrast against
+     their own ground. The pairs are matched, not guessed — 0.22/0.40 both
+     read at 1.60:1, 0.17/0.27 at ~1.38:1, 0.12/0.18 at ~1.23:1, 0.085/0.12
+     at ~1.14:1 — so the composition carries identical weight in both themes.
+     Alpha is not the thing being held constant here and cannot be: the same
+     number against a darker ink would make the light theme the louder of the
+     two. The contrast figures are what match. */
   const traces = [
-    { d: "M-40 132 C180 96 330 168 520 138 C700 110 860 158 1060 128", o: 0.22 },
-    { d: "M-40 196 C210 240 360 168 560 206 C740 240 900 196 1060 218", o: 0.17 },
-    { d: "M-40 268 C160 300 340 246 540 282 C720 314 880 268 1060 292", o: 0.12 },
-    { d: "M-40 344 C220 320 380 372 580 340 C760 312 900 350 1060 330", o: 0.085 },
+    { d: "M-40 132 C180 96 330 168 520 138 C700 110 860 158 1060 128", o: 0.22, lo: 0.4 },
+    { d: "M-40 196 C210 240 360 168 560 206 C740 240 900 196 1060 218", o: 0.17, lo: 0.27 },
+    { d: "M-40 268 C160 300 340 246 540 282 C720 314 880 268 1060 292", o: 0.12, lo: 0.18 },
+    { d: "M-40 344 C220 320 380 372 580 340 C760 312 900 350 1060 330", o: 0.085, lo: 0.12 },
   ];
 
   /*
@@ -60,26 +77,37 @@ export function JournalBackdrop() {
    *
    * DURATIONS ARE ROUGHLY PROPORTIONAL TO HOW FAR THE DOT TRAVELS, not
    * uniform, so every dot moves at a similar speed rather than the short
-   * curves looking hurried. Every delay is NEGATIVE and no two share a
-   * factor: each dot is already in flight on the first frame, at a different
-   * point, so the backdrop has no visible start and never resynchronises.
+   * curves looking hurried.
+   *
+   * EVERY DELAY IS NEGATIVE, so each dot is already in flight on the first
+   * painted frame and the backdrop has no visible start. The values are not
+   * arbitrary: `-delay / dur` is where a dot sits at load, and those five
+   * fractions are 0.13, 0.28, 0.42, 0.56 and 0.79 — spread right across the
+   * band. This matters most for the two curves that carry two dots each,
+   * where a careless pair lands the second dot on top of the first and the
+   * first impression is three dots, not five. Durations then share no common
+   * factor, so the arrangement drifts apart again and never resynchronises.
    *
    * `rest` is where the dot parks under prefers-reduced-motion — a fraction
    * along its own curve, chosen to sit clear of the headline mask and to keep
    * the five reading as scattered sample points rather than a row.
    */
+  const CYAN = { dark: "#9fe4ff", light: "#0e7ea8" };
+  const BLUE = { dark: "#8ab4ff", light: "#2563eb" };
+  const VIOLET = { dark: "#c4b5fd", light: "#7c3aed" };
+
   const packets = [
     /* upper thin line — cyan */
-    { trace: 0, hue: "#9fe4ff", dur: "9s", delay: "-2.5s", rest: "-0.34", mobile: true },
+    { trace: 0, hue: CYAN, dur: "9s", delay: "-2.5s", rest: "-0.34", mobile: true },
     /* second upper line — blue, the slowest of the pair */
-    { trace: 1, hue: "#8ab4ff", dur: "12.5s", delay: "-7s", rest: "-0.62", mobile: true },
+    { trace: 1, hue: BLUE, dur: "12.5s", delay: "-7s", rest: "-0.62", mobile: true },
     /* central curve — violet, the long one */
-    { trace: 2, hue: "#c4b5fd", dur: "14s", delay: "-11s", rest: "-0.45", mobile: true },
+    { trace: 2, hue: VIOLET, dur: "14s", delay: "-11s", rest: "-0.45", mobile: true },
     /* second dot on the upper pair, so one line carries two packets at
        different phases — the detail that makes it read as traffic */
-    { trace: 1, hue: "#9fe4ff", dur: "7s", delay: "-4s", rest: "-0.2", mobile: false },
+    { trace: 1, hue: CYAN, dur: "7s", delay: "-0.9s", rest: "-0.2", mobile: false },
     /* second dot on the central curve, trailing far behind the first */
-    { trace: 2, hue: "#8ab4ff", dur: "11s", delay: "-9s", rest: "-0.75", mobile: false },
+    { trace: 2, hue: BLUE, dur: "11s", delay: "-4.6s", rest: "-0.75", mobile: false },
   ];
 
   /* TRACE 3 CARRIES NOTHING, deliberately. It is the faintest curve and
@@ -101,7 +129,7 @@ export function JournalBackdrop() {
       /* Bounded to the masthead band rather than inset-0: the archive section
          runs the full length of the card grid, and a slice-scaled drawing
          stretched over all of it would put trajectories behind every row. */
-      className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(620px,78vw)] overflow-hidden"
+      className={`pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(620px,78vw)] overflow-hidden ${styles.band}`}
     >
       <svg
         viewBox="0 0 1020 420"
@@ -177,14 +205,14 @@ export function JournalBackdrop() {
             <path
               key={trace.d}
               d={trace.d}
+              className={styles.trace}
+              style={{ "--jb-o": trace.o, "--jb-o-light": trace.lo } as React.CSSProperties}
               fill="none"
-              stroke="#7fd4ff"
-              strokeOpacity={trace.o}
               strokeWidth="1.2"
             />
           ))}
           {marks.map(([cx, cy]) => (
-            <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="1.6" fill="#9fe4ff" fillOpacity="0.3" />
+            <circle key={`${cx}-${cy}`} className={styles.mark} cx={cx} cy={cy} r="1.6" />
           ))}
 
           {/* The packets. Inside this masked group deliberately: the mask is
@@ -194,10 +222,17 @@ export function JournalBackdrop() {
               Two caps each — a faint wide one that also brightens the trace
               directly under it, then the small bright core on top. */}
           {packets.map((packet, index) => {
+            /* The hue travels as a custom property rather than a `stroke`
+               attribute, because the stylesheet has to be able to swap it for
+               the light theme and a presentation attribute is what CSS would
+               be overriding — one variable is cheaper to read than a
+               `:global(.light)` rule per accent. */
             const style = {
               "--jb-dur": packet.dur,
               "--jb-delay": packet.delay,
               "--jb-rest": packet.rest,
+              "--jb-hue": packet.hue.dark,
+              "--jb-hue-light": packet.hue.light,
             } as React.CSSProperties;
             const off = packet.mobile ? "" : ` ${styles.mobileOff}`;
             return (
@@ -206,7 +241,6 @@ export function JournalBackdrop() {
                   d={traces[packet.trace].d}
                   pathLength="1"
                   fill="none"
-                  stroke={packet.hue}
                   className={`${styles.packet} ${styles.glow}${off}`}
                   style={style}
                 />
@@ -214,7 +248,6 @@ export function JournalBackdrop() {
                   d={traces[packet.trace].d}
                   pathLength="1"
                   fill="none"
-                  stroke={packet.hue}
                   className={`${styles.packet} ${styles.core}${off}`}
                   style={style}
                 />

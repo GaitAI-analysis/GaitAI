@@ -3,7 +3,10 @@
  * Small luminous dots travelling along the trajectories already drawn in
  * `JournalBackdrop.tsx`, so the masthead reads as a network carrying signal
  * rather than as a still diagram. Nothing else about that backdrop changes:
- * same curves, same positions, same grid, same scrim.
+ * same curves, same positions, same grid, same scrim. The only other thing
+ * this stylesheet touches is the INK the curves and dots are drawn in, which
+ * had no light-theme definition and left the whole trajectory layer at
+ * ~1.1:1 on the pale ground — see the two theme blocks below.
  *
  * THE DOTS ARE STROKE CAPS, NOT ELEMENTS ON A MOTION PATH.
  *
@@ -49,8 +52,52 @@
  * enough to time, it is competing with the headline in front of it.
  */
 
+/*
+ * THE BAND ITSELF. `content-visibility: auto` lets the browser skip rendering
+ * this subtree entirely once the masthead has scrolled out of view, which is
+ * the cheap half of "pause when off-screen": no paint, no compositor update
+ * for five moving caps while the reader is down in the card grid. The
+ * animations keep their own timelines, so nothing resynchronises on the way
+ * back up. Safe to contain here because the box is sized by its absolute
+ * positioning — `inset-x-0` and an explicit height — and not by its contents,
+ * so size containment cannot collapse it and the scrim never shifts.
+ */
+.band {
+  content-visibility: auto;
+}
+
+/*
+ * THE TRACES AND THEIR SAMPLE MARKS.
+ *
+ * Colour lives here rather than on the elements because it is the one thing
+ * about this drawing that is genuinely per-theme. The pale cyan the curves are
+ * drawn in reads at 1.60:1 on the dark ground and 1.10:1 on the light one —
+ * which is to say the entire trajectory layer, and every dot riding it, was
+ * invisible in the light theme. The ink changes; the geometry, the widths and
+ * the positions do not. Alphas arrive per-trace from the TSX, matched pair by
+ * pair so each curve lands at the same contrast in both themes.
+ */
+.trace {
+  stroke: #7fd4ff;
+  stroke-opacity: var(--jb-o);
+}
+.mark {
+  fill: #9fe4ff;
+  fill-opacity: 0.3;
+}
+
+:global(.light) .trace {
+  stroke: #108fc0;
+  stroke-opacity: var(--jb-o-light);
+}
+:global(.light) .mark {
+  fill: #108fc0;
+  fill-opacity: 0.6;
+}
+
 .packet {
   fill: none;
+  stroke: var(--jb-hue);
   /* The round cap IS the dot. Without this the near-zero dash renders as
      nothing at all. */
   stroke-linecap: round;
@@ -86,12 +133,24 @@
   stroke-opacity: 0.16;
 }
 
-/* Light theme: the backdrop becomes pale, and a low-alpha cyan cap on it is
-   invisible. Same three accents taken down to where they read as ink on
-   paper, and the glow needs slightly more presence to survive the light
-   ground without becoming a smudge. */
+/*
+ * LIGHT THEME: THE SAME DOTS, IN INK.
+ *
+ * The three dark-theme accents are pale — #9fe4ff, #8ab4ff, #c4b5fd — chosen
+ * to glow on near-black. On the light ground they measure 1.32:1, 1.96:1 and
+ * 1.74:1, which is not a dim dot, it is no dot. The light hues that replace
+ * them (#0e7ea8, #2563eb, #7c3aed) land at 4.32:1, 4.86:1 and 5.36:1 — read
+ * clearly as small ink marks, still nowhere near loud enough to pull against
+ * the masthead. Same size, same paths, same timings; only the ink differs.
+ *
+ * The glow cap takes 0.26 rather than 0.16 for the same reason: it has to
+ * hold the same 1.4:1 edge against a ground that is 34× brighter.
+ */
+:global(.light) .packet {
+  stroke: var(--jb-hue-light);
+}
 :global(.light) .glow {
-  stroke-opacity: 0.2;
+  stroke-opacity: 0.26;
 }
 
 /*

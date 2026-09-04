@@ -57,6 +57,7 @@ async function main() {
   const insights = await load("data/insights.ts");
   const samples = await load("data/sample-outputs.ts");
   const searchIdx = await load("data/search-index.ts");
+  const comparisons = await load("data/comparisons.ts");
 
   const { allProducts, industryUseCases } = products;
   const { gaitscapeNodes, gaitscapeRelationships } = graph;
@@ -67,6 +68,7 @@ async function main() {
   const { insightArticles } = insights;
   const { sampleOutputs } = samples;
   const { searchIndex } = searchIdx;
+  const { productComparisons } = comparisons;
 
   const productIds = new Set(allProducts.map((p) => p.id));
   const nodeIds = new Set(gaitscapeNodes.map((n) => n.id));
@@ -310,7 +312,48 @@ async function main() {
     }
   }
 
-  // ── 8. Naming consistency (Phase 25) ─────────────────────────────────────
+  // ── 8. Named comparisons ─────────────────────────────────────────────────
+  // A pair must reference two real modules of the same family, and must not
+  // pit a module against itself. A typo here would render a table with an
+  // empty column instead of failing, so it fails here.
+  ran.push("comparisons");
+  dupes("comparison", productComparisons.map((c) => c.id));
+  const productFamily = new Map(allProducts.map((p) => [p.id, p.vertical]));
+  for (const comparison of productComparisons) {
+    if (comparison.pair.length !== 2) {
+      err(
+        "comparisons",
+        `comparison "${comparison.id}" has ${comparison.pair.length} members, expected 2`,
+      );
+      continue;
+    }
+    const [left, right] = comparison.pair;
+    for (const id of comparison.pair) {
+      if (!productIds.has(id)) {
+        err(
+          "comparisons",
+          `comparison "${comparison.id}" references unknown product "${id}"`,
+        );
+      }
+    }
+    if (left === right) {
+      err("comparisons", `comparison "${comparison.id}" compares "${left}" with itself`);
+    }
+    const familyLeft = productFamily.get(left);
+    const familyRight = productFamily.get(right);
+    if (familyLeft && familyRight && familyLeft !== familyRight) {
+      err(
+        "comparisons",
+        `comparison "${comparison.id}" crosses families ` +
+          `(${left}=${familyLeft}, ${right}=${familyRight}) — the two are not alternatives`,
+      );
+    }
+    if (!comparison.question?.trim()) {
+      err("comparisons", `comparison "${comparison.id}" has no question`);
+    }
+  }
+
+  // ── 9. Naming consistency (Phase 25) ─────────────────────────────────────
   // One entity must not become two through capitalisation drift.
   ran.push("naming consistency");
   const CANON = ["MobilityCare", "SecureVision", "GaitScape", "WalkScan", "FallRisk"];

@@ -11,6 +11,11 @@ import { industryUseCases, productById } from "@/data/products";
 import { productDetailBySlug, productValueProp } from "@/data/product-details";
 import { useCaseDetails } from "@/data/usecase-details";
 import { evidenceForProduct } from "@/data/evidence";
+import {
+  comparisonCounterpart,
+  comparisonForProduct,
+  comparisonHref,
+} from "@/data/comparisons";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductEvidence } from "@/components/products/ProductEvidence";
@@ -346,6 +351,13 @@ export function ProductDetailView({ slug }: { slug: string }) {
   const related = detail.related
     .map((id) => productById(id))
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  // The named pair this module belongs to, if it belongs to one. A module in
+  // no pair gets no compare link rather than a link to an arbitrary
+  // neighbour — see data/comparisons.ts for why the list is short.
+  const comparison = comparisonForProduct(product.id);
+  const counterpart = comparison
+    ? productById(comparisonCounterpart(comparison, product.id) ?? "")
+    : undefined;
   // Deployment environments that recommend this product in their mix.
   const environments = useCaseDetails
     .filter((uc) => {
@@ -845,6 +857,26 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <ProductCard key={p.id} product={p} index={i} compact />
               ))}
             </div>
+
+            {/* THE COMPARE DOOR. One sentence, under the related cards, only
+                on the modules that belong to a named pair. It asks the
+                reader's own question back at them and links into the
+                comparison with both modules already selected — a card grid
+                cannot answer "which of these two?", and a comparison table on
+                every product page would be the same table twenty-three
+                times. */}
+            {comparison && counterpart && (
+              <p className="mt-8 max-w-2xl text-[14.5px] leading-relaxed text-soft-gray">
+                {comparison.question}{" "}
+                <Link
+                  href={comparisonHref(comparison)}
+                  className="font-medium text-cyan-300 underline decoration-cyan-300/35 underline-offset-4 transition-colors hover:text-cyan-200"
+                >
+                  Compare {product.short} and {counterpart.short}
+                  <span aria-hidden="true"> &rarr;</span>
+                </Link>
+              </p>
+            )}
 
             {environments.length > 0 && (
               <div className="mt-10">

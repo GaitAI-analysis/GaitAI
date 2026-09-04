@@ -48,9 +48,9 @@ export function ProductAnalytics() {
           <span className="text-gradient">side by side.</span>
         </h2>
         <p className={`${styles.note} mt-4 max-w-2xl !text-[0.8125rem]`}>
-          Inputs, capture sources, capabilities, outputs, documented
-          environments and the research basis — from the same records the
-          module pages use.
+          Inputs, capture sources, capabilities, outputs, best fit,
+          documented environments and the research basis — from the same
+          records the module pages use.
         </p>
         <div className="mt-8">
           <ProductCompare

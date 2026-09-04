@@ -35,6 +35,11 @@ import { researchAreas } from "@/data/evidence";
 import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
 import { labs } from "@/data/labs";
+import {
+  comparisonHref,
+  comparisonLabel,
+  productComparisons,
+} from "@/data/comparisons";
 
 export type SearchGroup =
   | "destination"
@@ -169,6 +174,29 @@ const destinationEntries: SearchEntry[] = [
     ]),
   },
 ];
+
+// ── Named comparisons ──────────────────────────────────────────────────────
+// "WalkScan vs RehabTrack" is a real query, and before this it matched only
+// the two module pages separately — which is precisely the answer a reader
+// asking it has already failed to get. Grouped with products, because that is
+// what they are about, and the meta says "Comparison" so the row is not
+// mistaken for a module.
+const comparisonEntries: SearchEntry[] = productComparisons.map(
+  (comparison) => ({
+    id: `product:compare-${comparison.id}`,
+    group: "product" as const,
+    title: comparisonLabel(comparison),
+    detail: comparison.question,
+    meta: "Comparison",
+    href: comparisonHref(comparison),
+    haystack: norm([
+      comparisonLabel(comparison),
+      comparison.pair.join(" "),
+      comparison.question,
+      "compare comparison versus vs side by side difference which",
+    ]),
+  }),
+);
 
 // ── Products ────────────────────────────────────────────────────────────────
 const productEntries: SearchEntry[] = allProducts.map((p) => ({
@@ -305,6 +333,7 @@ const talkEntries: SearchEntry[] = talkRecords.map((talk) => ({
 export const searchIndex: SearchEntry[] = [
   ...destinationEntries,
   ...productEntries,
+  ...comparisonEntries,
   ...capabilityEntries,
   ...environmentEntries,
   ...researchEntries,

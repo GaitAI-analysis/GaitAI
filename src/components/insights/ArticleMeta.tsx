@@ -31,11 +31,15 @@ import styles from "./engagement.module.css";
  * orders the reading path and picks the next article — it is simply no longer
  * printed as though it were an edition number.
  *
- * EVERY VALUE IS REAL. The type comes from the article's own `postType`, the
- * read time from `readMinutes`, and the view count from the same Firestore
- * document the archive cards read. Nothing here is a placeholder or a
- * plausible-looking number, which is why views can be absent: if the counter
- * cannot be read, that segment does not render rather than showing a zero.
+ * EVERY VALUE IS REAL. The type comes from the article's own `postType` and
+ * the view count from the same Firestore document the archive cards read.
+ * Nothing here is a placeholder or a plausible-looking number, which is why
+ * views can be absent: if the counter cannot be read, that segment does not
+ * render rather than showing a zero.
+ *
+ * NO READING TIME. It used to sit in this row, estimated from `readMinutes`.
+ * The field stays in the record; nothing renders it, on this row or anywhere
+ * else a reader can see, and `journal:doctor` fails if that changes.
  *
  * VIEWS MOVED UP, AND ARE NOT DUPLICATED. They used to sit in the row below
  * the headline with the likes and comments. They now close the kicker, where

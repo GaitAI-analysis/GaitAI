@@ -269,9 +269,18 @@
   font-size: 0.875rem;
 }
 
-/* The footer line. No rule of its own — the footer supplies one — and the
-   type drops to the footer's own scale so it cannot dominate the column. */
-.footer .title {
+/* The contact page's left column, under the deployment card. It was the
+   footer's line, and it keeps the footer's compact scale — 11px mono eyebrow,
+   one field, the icon button — because the point of moving it was to put it
+   where a reader is already deciding about GaitAI, not to make it bigger.
+   A hairline of its own now, since there is no footer rule above it, and it
+   is a lighter section under the card rather than a second card. */
+.contact {
+  border-top: 1px solid var(--sub-line);
+  padding-top: 1.5rem;
+}
+
+.contact .title {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 11px;
   font-weight: 600;
@@ -280,30 +289,30 @@
   color: rgb(var(--c-soft-white));
 }
 
-.footer .blurb {
+.contact .blurb {
   margin-top: 0.5rem;
   font-size: 0.8125rem;
 }
 
-.footer .form {
+.contact .form {
   margin-top: 0.9rem;
   max-width: 24rem;
 }
 
-.footer .input {
+.contact .input {
   flex: 1 1 11rem;
   padding: 0.55rem 0.75rem;
   font-size: 0.8125rem;
 }
 
-.footer .button {
+.contact .button {
   padding: 0.55rem 0.8rem;
   font-size: 10px;
 }
 
-/* The footer's button is the compact "[ → ]" the brief asks for: the node and
-   the arrow, with the word available to a screen reader only. */
-.footer .buttonLabel {
+/* The compact "[ → ]": the node and the arrow, with the word available to a
+   screen reader only. */
+.contact .buttonLabel {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -315,12 +324,12 @@
   border: 0;
 }
 
-.footer .note,
-.footer .legal {
+.contact .note,
+.contact .legal {
   max-width: 24rem;
 }
 
-.footer .legal {
+.contact .legal {
   font-size: 0.6875rem;
 }
 
@@ -337,6 +346,17 @@
   .form {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  /* The field's `flex: 1 1 11rem` is a WIDTH basis in a row. Once the form
+     turns into a column, flex-basis becomes a HEIGHT — so the email input was
+     176px tall on every phone. Unnoticed while this lived in the footer;
+     obvious the moment it moved up beside the demo form. */
+  .form .input {
+    /* Two classes, to out-specify `.contact .input`'s `flex: 1 1 11rem` —
+       which is a width basis in a row and became a 176px HEIGHT the moment
+       the form turned into a column. */
+    flex: 0 0 auto;
   }
 
   .button {

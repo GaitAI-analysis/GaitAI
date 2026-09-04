@@ -6,6 +6,7 @@ import { type FormEvent, useState } from "react";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { PILOT_SCOPE } from "@/data/trust";
 import { ctas } from "@/data/content";
+import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 
 const interestGroups = [
   {
@@ -120,6 +121,14 @@ export function CTA() {
                   .
                 </p>
               </div>
+
+              {/* The other thing a visitor can say yes to. Directly under the
+                  deployment card, at the same column width, as a lighter
+                  section rather than a second card — the reader who is not
+                  ready to ask for a pilot is exactly the reader worth
+                  offering the writing to, and this is the only place on the
+                  site the signup now appears. */}
+              <SubscribeForm variant="contact" className="mt-10" />
             </div>
 
             <form

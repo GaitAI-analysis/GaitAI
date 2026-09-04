@@ -257,7 +257,9 @@ This is an interactive technology demonstration. The stage,
             the point.
           </p>
 
-          <div className="mt-10">
+          {/* Tighter than the other instruments: the sandbox opens with its
+              own one-line instruction, so the usual gap read as a hole. */}
+          <div className="mt-6">
             <FusionSandbox />
           </div>
         </div>

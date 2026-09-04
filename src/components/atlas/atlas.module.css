@@ -124,20 +124,65 @@ a.node:focus-visible {
   max-width: min(42vw, 26rem);
 }
 
-/* "YOU ARE HERE", once on the page and only next to the current node. */
+/* ── THE SLOT ──
+   The greeting and the map button live here, stacked, both taken out of flow.
+   The width is RESERVED rather than derived: "You are here" is ~5rem of
+   letter-spaced mono and the button is ~1.5rem, so sizing to content would
+   contract the strip by 3.5rem the moment the words left — the one thing this
+   interaction must not do. Left-aligned, so the icon lands where the words
+   began, next to the node they described. */
+.slot {
+  position: relative;
+  flex: 0 0 auto;
+  width: 5.6rem;
+  height: 22px;
+}
+
+/* "YOU ARE HERE" — a greeting on arrival, gone in about a second. */
 .here {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  /* `translate`, not `transform`: the centring and the 3px drift are two
+     different concerns, and composing them in one property means every rule
+     that touches one has to restate the other. */
+  translate: 0 calc(-50% + 3px);
+  opacity: 0;
+  pointer-events: none;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 8.5px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--at-accent, var(--at-root));
-  opacity: 0.75;
   white-space: nowrap;
+  transition:
+    opacity 0.3s var(--at-ease),
+    translate 0.3s var(--at-ease);
+}
+
+.slot[data-phase="here"] .here {
+  opacity: 0.78;
+  translate: 0 -50%;
+}
+
+/* Leaving: up 2px as it goes, which is what makes it read as handing over
+   rather than simply switching off. Both later phases hold it gone, so the
+   words can never reappear behind the icon. */
+.slot[data-phase="leaving"] .here,
+.slot[data-phase="atlas"] .here {
+  opacity: 0;
+  translate: 0 calc(-50% - 2px);
 }
 
 /* The map button. Quiet at rest, and the trail's only interactive chrome. */
 .open {
-  margin-left: auto;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  translate: 0 -50%;
+  scale: 0.92;
+  opacity: 0;
+  pointer-events: none;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -152,10 +197,30 @@ a.node:focus-visible {
   color: var(--at-mute);
   cursor: pointer;
   transition:
+    opacity 0.26s var(--at-ease),
+    scale 0.26s var(--at-ease),
     color 0.3s var(--at-ease),
     border-color 0.3s var(--at-ease),
     background-color 0.3s var(--at-ease);
 }
+
+/* Arrives once the words have cleared — the gap is the `leaving` phase in
+   LocationTrail, not a transition-delay here, so the icon's appearance never
+   depends on a transition the browser might not get around to starting. */
+.slot[data-phase="atlas"] .open {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+}
+
+/* A keyboard user who tabs here during the greeting gets the control, not a
+   transparent one. */
+.open:focus-visible {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+}
+
 .open:hover,
 .open:focus-visible {
   color: var(--at-ink);
@@ -172,14 +237,9 @@ a.node:focus-visible {
   flex-shrink: 0;
   opacity: 0.85;
 }
-.openLabel {
-  display: none;
-}
-@media (min-width: 640px) {
-  .openLabel {
-    display: inline;
-  }
-}
+/* `.openLabel` is gone with the word it held: a permanent "Atlas" beside the
+   glyph is the caption this redesign exists to remove. The name now lives in
+   the tooltip and the aria-label. */
 
 /* On a phone the ancestors go and the current place stays: three nodes do not
    fit beside a map button at 360px, and the one that matters is the last. */
@@ -187,11 +247,12 @@ a.node:focus-visible {
   .stepHideMobile {
     display: none;
   }
-  .here {
-    display: none;
-  }
+  /* The greeting plays on a phone as well. It cannot wrap the strip onto a
+     second line, because the slot is a fixed box the flex row will not grow
+     for and the label beside it ellipsises instead — 46vw rather than 56vw,
+     which is the slot's width given back. */
   .currentLabel {
-    max-width: 56vw;
+    max-width: 46vw;
   }
 }
 
@@ -695,5 +756,24 @@ button.label:focus-visible {
   .toggle,
   .open {
     transition: none;
+  }
+
+  /* THE HANDOVER, WITHOUT MOVEMENT. The greeting still plays — it is
+     orientation, not decoration, and a reader who asked for less motion still
+     benefits from being told where they landed — but nothing travels. Both
+     occupants stay pinned at their centred position and change only in
+     opacity, quickly. */
+  .here,
+  .slot[data-phase="here"] .here,
+  .slot[data-phase="atlas"] .here {
+    translate: 0 -50%;
+    transition: opacity 0.12s linear;
+  }
+
+  .open,
+  .slot[data-phase="atlas"] .open,
+  .open:focus-visible {
+    scale: 1;
+    transition: opacity 0.12s linear;
   }
 }

@@ -353,23 +353,11 @@
   color: var(--jr-mute);
 }
 
-.archiveGrid {
-  margin-top: 1.25rem;
-  display: grid;
-  gap: 1.1rem;
-}
-
-@media (min-width: 680px) {
-  .archiveGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1120px) {
-  .archiveGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
+/* The grid itself is `.indexGrid` in journal.module.css, not here. It has to
+   restyle the inside of the card that closes a short final row — a lone
+   fourth story stranded in column one was the gap this fixes — and a CSS
+   module can only address class names it declares, so the grid lives in the
+   stylesheet that owns `.card`. */
 
 /* ── Empty ── */
 .empty {

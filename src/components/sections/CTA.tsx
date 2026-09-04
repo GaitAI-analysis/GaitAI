@@ -100,12 +100,26 @@ export function CTA() {
                 there, and we&apos;ll map the right product mix.
               </p>
 
+              {/* THE ORDER: signup first, pilot card second.
+
+                  Asking for an email is a smaller yes than asking for a
+                  deployment conversation, and the reader who is not ready for
+                  a pilot is exactly the one worth offering the writing to — so
+                  the smaller ask opens the column and the pilot card closes
+                  it. Neither block changed; only their order and the gap
+                  between them. */}
+              <SubscribeForm variant="contact" className="mt-8" />
+
               {/* Previously "Trusted by pioneers in healthcare, security and
                   smart-infrastructure", next to three avatar circles. There is
                   no named customer or deployment to support that, so it now
                   states what the platform is built for and what a pilot
-                  actually looks like. */}
-              <div className="mt-8 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5">
+                  actually looks like.
+
+                  mt-6, not mt-8: this now follows the signup's own small print
+                  rather than a paragraph of body copy, and the wider gap read
+                  as a hole between two blocks that are meant to stack. */}
+              <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5">
                 <div className="text-sm font-semibold text-soft-white">
                   Built for healthcare, mobility and public-safety environments
                 </div>
@@ -127,14 +141,6 @@ export function CTA() {
                   .
                 </p>
               </div>
-
-              {/* The other thing a visitor can say yes to. Directly under the
-                  deployment card, at the same column width, as a lighter
-                  section rather than a second card — the reader who is not
-                  ready to ask for a pilot is exactly the reader worth
-                  offering the writing to, and this is the only place on the
-                  site the signup now appears. */}
-              <SubscribeForm variant="contact" className="mt-10" />
             </div>
 
             <form

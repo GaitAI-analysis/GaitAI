@@ -419,7 +419,7 @@
 /* ═══════════ THE SIGNAL SWEEP ═══════════
  *
  * A single soft light band crossing the whole contact block — the label, the
- * field, the button and the small print — every 6.4 seconds, and nothing in
+ * field, the button and the small print — once every second, and nothing in
  * between. It exists because this signup sits in the left column of the CTA
  * card beside a demo form, where a static block of 11px mono simply is not
  * seen; the sweep gives the eye a reason to come back to it without a glowing
@@ -448,10 +448,22 @@
      entrance animation finishes — the band would vanish under the card. */
   isolation: isolate;
 
-  /* 6.4s: the sweep is the first 25% of it (1.6s), the remaining 4.8s is
-     stillness. Both numbers live in the keyframes as percentages, so the
-     whole rhythm moves from this one line. */
-  --sub-cycle: 6.4s;
+  /* 1s — ONE SIGNAL PER SECOND. The band crosses in the first 70% of it
+     (700ms); the remaining 300ms is the block sitting at exactly its resting
+     values again before the next one enters.
+
+     The PROPORTION is what keeps a sweep every second smooth rather than
+     frantic. Taking the cycle from 6.4s to 1s without moving the keyframes
+     would have left the crossing at 25% of it — a 250ms flick, nearly seven
+     times the speed of the light that was there before. At 70% the crossing
+     itself is 700ms, so it still reads as one band travelling through the
+     block; what changed is that the wait afterwards is a beat rather than
+     nearly five seconds.
+
+     Every number below is a percentage of this, so the whole rhythm — the
+     band, the label, the field, the node and the arrow — moves from this one
+     line. */
+  --sub-cycle: 1s;
 
   --sub-sweep: linear-gradient(
     110deg,
@@ -564,86 +576,86 @@
   }
 
   /* Once the address is stored the node is filled for good — the sweep does
-     not get to blink it back off every six seconds. */
+     not get to blink it back off once a second. */
   .contact .buttonDone .node {
     animation: none;
   }
 }
 
-/* HOVER RUNS THE SWEEP NOW, rather than waiting out the rest of the cycle.
+/* HOVER LIFTS THE SWEEP THAT IS ALREADY RUNNING. IT NEVER STARTS A SECOND ONE.
  *
- * The rule ADDS a second, single-shot instance of the same animation rather
- * than swapping the name. Animations are matched to the name list by position,
- * so the infinite one at position 1 carries on undisturbed while the new one
- * at position 2 starts from zero and, being later in the list, wins every
- * property it touches for as long as it runs. Leaving simply drops position 2
- * — no restart of the cycle, and none of the second sweep that swapping the
- * name fires on mouse-out.
+ * On the 6.4s cycle, hover ADDED a single-shot instance of the same animation,
+ * because a reader arriving just after a band had left was nearly five seconds
+ * from the next one and hover had to fetch it. At one per second there is
+ * nothing to fetch — the next signal is at most a beat away — and a second
+ * instance would now mean two bands crossing the block at once, which is
+ * exactly the overlap this block must not have.
+ *
+ * So hover touches no animation at all. It raises the INTENSITY the running
+ * sweep is drawn at: opacity on the clipping span, which nothing animates, so
+ * it transitions on its own and multiplies whatever the band's keyframes are
+ * doing at that instant. No restart, no phase jump, and nothing left to fire
+ * on the way out. The glow tokens rise with it, so the label, the field, the
+ * node and the arrow are lifted by the same hand and stay in step with the
+ * band.
+ *
+ * Nothing here needs the focus stand-down restated either: hover no longer
+ * declares an `animation`, so there is none for it to win back from
+ * `:focus-within`.
  *
  * `hover: hover` keeps it off touch, where :hover latches after a tap. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .contact:hover .sweep::before {
-    animation:
-      sweep-band var(--sub-cycle) linear infinite,
-      sweep-band var(--sub-cycle) linear 1;
+  .contact .sweep {
+    /* Held just under full at rest, so there is somewhere for hover to go. */
+    opacity: 0.92;
+    transition: opacity 0.25s var(--sub-ease);
   }
 
-  .contact:hover .title {
-    animation:
-      sweep-label var(--sub-cycle) linear infinite,
-      sweep-label var(--sub-cycle) linear 1;
+  .contact:hover .sweep {
+    opacity: 1;
   }
 
-  .contact:hover .input {
-    animation:
-      sweep-field var(--sub-cycle) linear infinite,
-      sweep-field var(--sub-cycle) linear 1;
+  /* These are read from INSIDE the keyframes, so changing them here re-draws
+     the four highlights at the new strength on the very next frame — mid-sweep
+     included — without any keyframe being re-run. */
+  .contact:hover {
+    --sub-glow-soft: rgb(79 209 255 / 0.26);
+    --sub-glow-strong: rgb(79 209 255 / 0.42);
   }
 
-  .contact:hover .node {
-    animation:
-      sweep-node var(--sub-cycle) linear infinite,
-      sweep-node var(--sub-cycle) linear 1;
-  }
-
-  .contact:hover .arrow {
-    animation:
-      sweep-arrow var(--sub-cycle) linear infinite,
-      sweep-arrow var(--sub-cycle) linear 1;
-  }
-
-  /* Focus still outranks hover, so the stand-down above is restated at a
-     weight that beats `:hover`. */
-  .contact:focus-within:hover .sweep::before,
-  .contact:focus-within:hover .title,
-  .contact:focus-within:hover .input,
-  .contact:focus-within:hover .node,
-  .contact:focus-within:hover .arrow {
-    animation: none;
+  /* Same specificity as `:global(.light) .contact` above, and later in the
+     file, so the light branch has to restate its own hues here or a hover on
+     a white card would pull in the dark theme's cyan. */
+  :global(.light) .contact:hover {
+    --sub-glow-soft: rgb(14 116 144 / 0.24);
+    --sub-glow-strong: rgb(14 116 144 / 0.38);
   }
 }
 
 /* Enters bottom-left, crosses, leaves top-right, and is GONE — not faded to
-   something still faintly there — for the remaining three quarters of the
-   cycle. The travel is one interpolation between 0% and 25%, eased on the 0%
-   keyframe; the intermediate stops carry opacity only, so they shape the fade
-   without chopping the movement into segments. */
+   something still faintly there — for the last 300ms of the second. The travel
+   is one interpolation between 0% and 70% (700ms), eased on the 0% keyframe;
+   the intermediate stops carry opacity only, so they shape the rise and the
+   fade without chopping the movement into segments. Full brightness lands at
+   34% (340ms), a little before the middle of the crossing, and the fade out is
+   the longer half of it — which is what makes the repeat read as SIGNAL → fade
+   rather than as a blink. */
 @keyframes sweep-band {
   0% {
     opacity: 0;
     transform: translate3d(-120%, 24%, 0);
     animation-timing-function: cubic-bezier(0.36, 0.06, 0.28, 1);
   }
-  6% {
+  17% {
     opacity: 0.5;
   }
-  12% {
+  34% {
     opacity: 1;
   }
-  19% {
+  53% {
     opacity: 0.72;
   }
-  25% {
+  70% {
     opacity: 0;
     transform: translate3d(120%, -24%, 0);
   }
@@ -657,13 +669,13 @@
    rather than `none` at both ends, so the two ends interpolate. */
 @keyframes sweep-label {
   0%,
-  5% {
+  14% {
     text-shadow: 0 0 0 rgb(79 209 255 / 0);
   }
-  11% {
+  31% {
     text-shadow: 0 0 14px var(--sub-glow-strong);
   }
-  20%,
+  56%,
   100% {
     text-shadow: 0 0 0 rgb(79 209 255 / 0);
   }
@@ -672,15 +684,15 @@
 /* The field's border catching the edge of the band. */
 @keyframes sweep-field {
   0%,
-  6% {
+  17% {
     border-color: var(--sub-line);
     box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
   }
-  14% {
+  39% {
     border-color: var(--sub-accent-soft);
     box-shadow: 0 0 12px -2px var(--sub-glow-soft);
   }
-  22%,
+  62%,
   100% {
     border-color: var(--sub-line);
     box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
@@ -691,17 +703,17 @@
    out. It fills, but never as far as the filled state that means "stored". */
 @keyframes sweep-node {
   0%,
-  8% {
+  22% {
     background-color: rgb(79 209 255 / 0);
     border-color: var(--sub-accent-soft);
     box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
   }
-  17% {
+  48% {
     background-color: var(--sub-glow-strong);
     border-color: var(--sub-accent);
     box-shadow: 0 0 9px 0 var(--sub-glow-soft);
   }
-  25%,
+  70%,
   100% {
     background-color: rgb(79 209 255 / 0);
     border-color: var(--sub-accent-soft);
@@ -713,13 +725,13 @@
    that, and the two must not fight over one property. */
 @keyframes sweep-arrow {
   0%,
-  8% {
+  22% {
     text-shadow: 0 0 0 rgb(79 209 255 / 0);
   }
-  17% {
+  48% {
     text-shadow: 0 0 10px var(--sub-glow-strong);
   }
-  25%,
+  70%,
   100% {
     text-shadow: 0 0 0 rgb(79 209 255 / 0);
   }

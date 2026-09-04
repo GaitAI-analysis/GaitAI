@@ -445,3 +445,222 @@
   fill: rgb(15 23 42 / 0.02);
   stroke: rgb(15 23 42 / 0.1);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOVER: THE COVER PREVIEWS THE STORY
+   --------------------------------------------------------------------------
+   Each cover animates the elements IT ALREADY DRAWS. Nothing is added to the
+   composition, nothing floats over it, and no cover borrows another's motion:
+   the pipeline moves samples along its own pipe, the divergence traces its
+   own strong branch, the reduction lights its own cells, the trajectory draws
+   its own path, and the fusion runs its own two signals into one. A card that
+   showed a generic shimmer would be telling the reader nothing about the
+   piece behind it.
+
+   All of it is `opacity`, `fill-opacity` and `stroke-dashoffset` — compositor
+   work with no layout consequence, so hovering a grid of five covers cannot
+   shift the page or cost a reflow. No library, no script, no requestAnimationFrame.
+
+   TRIGGERED BY THE CARD, NOT THE DRAWING. `.journal-card` is a plain global
+   class on the article element (see StoryCard) because this stylesheet cannot
+   see the card's hashed class. It MUST be written `:global(.journal-card)`:
+   a bare class inside a CSS module is scoped and hashed, so the first version
+   of these rules compiled to `.covers_journal-card__od1hQ` and matched nothing. `:focus-within` is on every rule beside
+   `:hover`, so a keyboard reader tabbing to a card gets exactly what a mouse
+   reader gets.
+
+   ONE PASS, THEN STILL. Every animation has `1` iteration and lands on its
+   finished state, between 0.9s and 1.8s. Nothing loops, so an idle page is
+   completely static — a grid of five looping diagrams is a fairground, and it
+   would also never let the GPU sleep.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Samples travelling along a path the cover already dashes. */
+@keyframes cvTravel {
+  from {
+    stroke-dashoffset: 28;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* A stroke drawing itself. The dasharray is set large enough to cover any
+   path in a 640x400 composition, which is what lets one rule self-draw paths
+   of different lengths without JavaScript measuring each one. */
+@keyframes cvDraw {
+  from {
+    stroke-dashoffset: 1400;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* A node or cell coming up once and staying up. */
+@keyframes cvLight {
+  from {
+    opacity: 0.25;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cvFill {
+  from {
+    fill-opacity: 0.12;
+  }
+  60% {
+    fill-opacity: 0.85;
+  }
+  to {
+    fill-opacity: 0.85;
+  }
+}
+
+/* A stroke brightening once, for the branch that is the point of the piece. */
+@keyframes cvBrighten {
+  from {
+    stroke-opacity: 0.35;
+  }
+  to {
+    stroke-opacity: 1;
+  }
+}
+
+.cover :is(.cPathFaint, .cPath, .cTrace, .cDnaStrong, .cBandTrace, .cBranchLit) {
+  /* Declared up front so the animation has something to animate FROM and the
+     first hover is not a jump. */
+  will-change: stroke-dashoffset;
+}
+
+/* ── 01 · pipeline — capture to output, one sample at a time ────────────── */
+:global(.journal-card):hover .pipeline .cPathFaint,
+:global(.journal-card):focus-within .pipeline .cPathFaint {
+  animation: cvTravel 1.4s linear 1 both;
+}
+:global(.journal-card):hover .pipeline .cNode,
+:global(.journal-card):focus-within .pipeline .cNode {
+  animation: cvLight 1.2s var(--jr-ease, ease) 1 both;
+}
+
+/* ── 02 · divergence — the branch the essay argues for ─────────────────── */
+:global(.journal-card):hover .divergence .cDnaStrong,
+:global(.journal-card):focus-within .divergence .cDnaStrong {
+  stroke-dasharray: 1400;
+  animation: cvDraw 1.6s ease-out 1 both;
+}
+:global(.journal-card):hover .divergence .cDna,
+:global(.journal-card):focus-within .divergence .cDna {
+  animation: cvBrighten 1.2s ease-out 1 both;
+}
+:global(.journal-card):hover .divergence .cNodeLit,
+:global(.journal-card):focus-within .divergence .cNodeLit {
+  animation: cvLight 1.1s ease-out 1 both;
+}
+
+/* ── 03 · reduction — identity dropped, movement kept ─────────────────────
+   The two cell kinds are the whole argument of that piece, so they light in
+   sequence rather than together: movement first, identity after, which is the
+   order the drawing reads in. */
+:global(.journal-card):hover .reduction .cCellMove,
+:global(.journal-card):focus-within .reduction .cCellMove {
+  animation: cvFill 1.1s ease-out 1 both;
+}
+:global(.journal-card):hover .reduction .cCellIdent,
+:global(.journal-card):focus-within .reduction .cCellIdent {
+  animation: cvFill 1.1s ease-out 0.25s 1 both;
+}
+:global(.journal-card):hover .reduction .cPathFaint,
+:global(.journal-card):focus-within .reduction .cPathFaint {
+  animation: cvTravel 1.4s linear 1 both;
+}
+
+/* ── 04 · trajectory — the gait path draws itself ─────────────────────── */
+:global(.journal-card):hover .trajectory .cPath,
+:global(.journal-card):focus-within .trajectory .cPath {
+  stroke-dasharray: 1400;
+  animation: cvDraw 1.8s ease-out 1 both;
+}
+:global(.journal-card):hover .trajectory .cNodeLit,
+:global(.journal-card):focus-within .trajectory .cNodeLit {
+  animation: cvLight 1.2s ease-out 0.35s 1 both;
+}
+
+/* ── 05 · fusion — two signals arriving at one reading ────────────────── */
+:global(.journal-card):hover .fusion .cTrace,
+:global(.journal-card):focus-within .fusion .cTrace {
+  stroke-dasharray: 1400;
+  animation: cvDraw 1.6s ease-out 1 both;
+}
+:global(.journal-card):hover .fusion .cNodeLit,
+:global(.journal-card):focus-within .fusion .cNodeLit {
+  animation: cvLight 1.1s ease-out 0.3s 1 both;
+}
+
+/*
+ * TOUCH: THE COVER ANIMATES AS IT ARRIVES, NOT ON TAP.
+ *
+ * A phone has no hover, and running the animation on tap would compete with
+ * the navigation the tap is for — the card is one big link. A view-progress
+ * timeline ties the drawing to the scroll instead, so a cover resolves as the
+ * reader brings it up the screen and needs no handler, no observer and no
+ * state. Behind `@supports`, so where it is unavailable the covers are simply
+ * static and nothing is lost but the flourish.
+ */
+@supports (animation-timeline: view()) {
+  @media (hover: none) {
+    .pipeline .cPathFaint,
+    .reduction .cPathFaint {
+      animation: cvTravel 1s linear both;
+      animation-timeline: view();
+      animation-range: entry 15% entry 85%;
+    }
+
+    .divergence .cDnaStrong,
+    .trajectory .cPath,
+    .fusion .cTrace {
+      stroke-dasharray: 1400;
+      animation: cvDraw 1s ease-out both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 90%;
+    }
+  }
+}
+
+/*
+ * REDUCED MOTION: NOTHING MOVES, NOTHING IS LOST.
+ *
+ * Every rule above is decoration over a drawing that is already complete, so
+ * switching them off costs no information. The dasharrays are cleared too —
+ * leaving one behind would freeze a path mid-draw and actually REMOVE part of
+ * the picture, which is the one outcome worse than animating.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .cover :is(
+      .cPathFaint,
+      .cPath,
+      .cTrace,
+      .cDna,
+      .cDnaStrong,
+      .cBandTrace,
+      .cBranchLit,
+      .cNode,
+      .cNodeLit,
+      .cCellMove,
+      .cCellIdent
+    ) {
+    animation: none !important;
+    will-change: auto;
+  }
+
+  .divergence .cDnaStrong,
+  .trajectory .cPath,
+  .fusion .cTrace {
+    stroke-dasharray: none !important;
+  }
+}

@@ -369,7 +369,13 @@ export function JournalIndex() {
                   ? POST_TYPE_PLURAL[type]
                   : "Results"}
             </h2>
-            <div className={journal.indexGrid}>
+            {/* The key is the FILTER signature, not the query: changing type,
+                topic or sort replays the settle; typing narrows the same grid
+                in place without a flash. */}
+            <div
+              key={`${type}|${topic}|${sort}`}
+              className={`${journal.indexGrid} ${journal.gridEnter}`}
+            >
               {rest.map((article) => (
                 <StoryCard
                   key={article.slug}
@@ -387,7 +393,9 @@ export function JournalIndex() {
 
         {matches.length === 0 && (
           <div className={styles.empty}>
-            <p className={styles.emptyTitle}>No story matches that.</p>
+            <p className={styles.emptyTitle}>
+              No stories match this signal yet.
+            </p>
             <p className={styles.emptyBody}>
               Try a different type or topic, or clear the filters to see all{" "}
               {insightArticles.length}.

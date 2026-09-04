@@ -155,9 +155,11 @@ a.node:focus-visible {
   text-transform: uppercase;
   color: var(--at-accent, var(--at-root));
   white-space: nowrap;
+  /* Arriving. The exit is far slower and overrides this from the phase it is
+     leaving for — see below. */
   transition:
-    opacity 0.3s var(--at-ease),
-    translate 0.3s var(--at-ease);
+    opacity 0.42s var(--at-ease),
+    translate 0.42s var(--at-ease);
 }
 
 .slot[data-phase="here"] .here {
@@ -165,13 +167,18 @@ a.node:focus-visible {
   translate: 0 -50%;
 }
 
-/* Leaving: up 2px as it goes, which is what makes it read as handing over
-   rather than simply switching off. Both later phases hold it gone, so the
-   words can never reappear behind the icon. */
+/* Leaving: two full seconds, up 2px as it goes, which is what makes it read
+   as handing over rather than switching off. The duration lives on the
+   DESTINATION state, which is the one a transition reads — so the words
+   arrive in 0.42s and leave in 2s without either needing to know about the
+   other. Both later phases hold it gone, so the words can never reappear
+   behind the icon. */
 .slot[data-phase="leaving"] .here,
 .slot[data-phase="atlas"] .here {
   opacity: 0;
   translate: 0 calc(-50% - 2px);
+  transition-duration: 2s;
+  transition-timing-function: ease;
 }
 
 /* The map button. Quiet at rest, and the trail's only interactive chrome. */
@@ -763,11 +770,15 @@ button.label:focus-visible {
      benefits from being told where they landed — but nothing travels. Both
      occupants stay pinned at their centred position and change only in
      opacity, quickly. */
+  /* The greeting still appears and still holds for its two seconds — a hold
+     is not motion — but nothing travels and neither fade is drawn out. */
   .here,
   .slot[data-phase="here"] .here,
+  .slot[data-phase="leaving"] .here,
   .slot[data-phase="atlas"] .here {
     translate: 0 -50%;
     transition: opacity 0.12s linear;
+    transition-duration: 0.12s;
   }
 
   .open,

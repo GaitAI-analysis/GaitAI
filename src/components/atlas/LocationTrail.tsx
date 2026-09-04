@@ -56,21 +56,35 @@ import styles from "./atlas.module.css";
  * hook and no fetch.
  */
 /**
- * 180ms in, ~0.9s hold, the words out, then the icon.
+ * THE TIMELINE. Read it here; the stylesheet only holds the durations.
  *
- * The handover is FOUR states rather than three with a `transition-delay` on
- * the icon, because a delayed transition is a promise the browser keeps only
- * while it is still animating the page: once everything else settles, a
- * transition that has not started yet can simply never run, and the control
- * stays invisible with no way to recover it. Every visual change here is
- * therefore driven by a state flip with no delay attached — the same
- * mechanism as the greeting's own entrance, which is the one already proven
- * to work. It also puts the sequence in one readable place instead of
- * splitting it between a timer and a stylesheet.
+ *   0.06s  the words begin to arrive (0.42s fade)
+ *   0.48s  fully visible
+ *   2.00s  the words begin to leave (2s fade)
+ *   4.00s  gone
+ *   4.00s  the map icon arrives (0.3s fade, 0.92 -> 1)
+ *
+ * IT WAS TOO FAST TO READ. The first version held for about half a second
+ * between a 0.3s fade in and a 0.3s fade out, which is enough to notice
+ * something happened and not enough to read three words — it flashed. The
+ * hold is the whole point of the greeting, so it is now measured in seconds,
+ * and the exit is slow enough to read as a handover rather than a disappear.
+ *
+ * NOTHING IS EVER UNMOUNTED. Both occupants stay in the DOM for the life of
+ * the page and only their opacity moves, so there is no timer that can remove
+ * the element mid-fade and no state in which a fade is cut short. That is why
+ * the numbers below are the whole story: there is no second, shorter clock
+ * hiding in a `display: none`.
+ *
+ * FOUR STATES, NOT A transition-delay. A delayed transition is a promise the
+ * browser keeps only while it is still animating the page: once everything
+ * settles, a transition that has not started yet can simply never run, and
+ * the control stays invisible with no way to recover it. Every visual change
+ * is a state flip with no delay attached.
  */
-const GREET_IN_MS = 180;
-const GREET_OUT_MS = 1050;
-const ATLAS_IN_MS = 1220;
+const GREET_IN_MS = 60;
+const GREET_OUT_MS = 2000;
+const ATLAS_IN_MS = 4000;
 
 export function LocationTrail() {
   const pathname = usePathname() || "/";

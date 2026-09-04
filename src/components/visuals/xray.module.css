@@ -177,9 +177,15 @@
   vector-effect: non-scaling-stroke;
 }
 
+/* The mono stack every other SVG label on the site uses (see
+   analytics.module.css .gText). This was `var(--font-sans, ui-sans-serif)`,
+   and there is no --font-sans on this site — the fonts are --font-inter,
+   --font-jetbrains and --font-space — so it fell through to a system fallback
+   and rendered with visibly different letterforms from every neighbouring
+   diagram. */
 .traceLabel {
   fill: rgb(var(--x-ink) / var(--x-dim-a));
-  font-family: var(--font-sans, ui-sans-serif), sans-serif;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 8px;
   font-weight: 600;
   letter-spacing: 0.14em;

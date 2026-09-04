@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAutoDemonstrate } from "@/lib/useAutoDemonstrate";
 import styles from "./thread.module.css";
 
@@ -84,6 +84,13 @@ const READINGS = [
 
 type ReadingId = (typeof READINGS)[number]["id"];
 
+/**
+ * How long a previewed reading stays lit after the pointer leaves, before the
+ * cycle takes it back. Short enough not to feel stuck; long enough that
+ * crossing the strip on the way somewhere else does not flicker.
+ */
+const HOLD_MS = 650;
+
 const W = 760;
 const H = 96;
 /** Where the shared signal ends and the branches begin. */
@@ -102,43 +109,94 @@ export function MotionDNAThread() {
      means the section arrives showing what it does rather than waiting to be
      discovered — which matters more now that the "select a lens" microcopy is
      gone. Every other reading is one pointer or one arrow key away. */
-  /** Committed by a click. Survives the pointer leaving. */
-  const [locked, setLocked] = useState<ReadingId | null>("mobility");
+  /** Committed by a click. Survives the pointer leaving, and holds the cycle. */
+  const [locked, setLocked] = useState<ReadingId | null>(null);
   /** Held by a hover or a focus. Released when it ends. */
   const [preview, setPreview] = useState<ReadingId | null>(null);
 
   /**
-   * THE DEMONSTRATION — the third tier, and the lowest.
+   * THE DEMONSTRATION — the tier underneath, and it does not stop.
    *
    * Everything above already worked; nothing said it did. The strip rested on
-   * Mobility and stayed there, so a visitor who never happened to point at it
-   * never discovered that the same signal reads four ways — which is the one
-   * claim this component exists to make.
+   * one reading and stayed there, so a visitor who never happened to point at
+   * it never discovered that the same signal reads four ways — which is the
+   * one claim this component exists to make.
    *
-   * So on its first appearance it traces each reading in turn, twice, and then
-   * stops for good. Two passes rather than one because a single sweep reads as
-   * a loading animation; the second is what makes it legible as a set of
-   * states being shown. It never runs again, it pauses off screen, and the
-   * first hover, focus, tap or key press ends it permanently — see `release`.
+   * `cycles: "infinite"` rather than the hook's default two passes, because
+   * here the stepping IS the content: somebody who arrives after two passes
+   * should still be told there are four readings. This is the one place on the
+   * site that opts out of "demonstrate once, then be still" — the workflow
+   * rail, which uses the same hook to hint that it is interactive, keeps the
+   * default.
    *
-   * Precedence is `preview ?? demo ?? locked`, which keeps the meaning of each
-   * tier intact: a hover still beats everything, a lock still survives the
-   * pointer leaving, and the demonstration only ever fills the silence before
-   * the visitor has done anything at all.
+   * PRECEDENCE IS `preview ?? locked ?? demo`. A hover beats a lock beats the
+   * cycle, and the cycle is PAUSED — not stopped — whenever either of the
+   * other two is holding, so it cannot advance invisibly underneath them and
+   * jump when they let go.
    */
   const demo = useAutoDemonstrate<HTMLDivElement>({
     steps: READINGS.length,
-    intervalMs: 1200,
-    cycles: 2,
+    intervalMs: 1000,
+    cycles: "infinite",
   });
   const demoReading = demo.index === null ? null : READINGS[demo.index].id;
 
-  const shown = preview ?? demoReading ?? locked;
+  const shown = preview ?? locked ?? demoReading ?? READINGS[0].id;
 
-  /* Any deliberate act ends the demonstration. Called from every handler
-     below rather than inferred, so there is no path that leaves it running
-     underneath a visitor who has taken control. */
-  const release = demo.stop;
+  /* The reading the pointer or the keyboard was last on, so the cycle can be
+     resumed FROM it rather than from wherever it had got to. */
+  const lastPreview = useRef<ReadingId | null>(null);
+  const holdTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => () => window.clearTimeout(holdTimer.current), []);
+
+  const beginPreview = useCallback(
+    (id: ReadingId) => {
+      window.clearTimeout(holdTimer.current);
+      lastPreview.current = id;
+      demo.pause();
+      setPreview(id);
+    },
+    [demo],
+  );
+
+  /**
+   * Leaving a hover does not hand over immediately.
+   *
+   * The reading stays lit for HOLD_MS and only then does the cycle take it
+   * back — from that reading, so there is no jump at any point. Clearing
+   * `preview` here instead would snap the strip to wherever the cycle had
+   * wandered, which is the flicker the whole hold exists to prevent.
+   */
+  const endPreview = useCallback(() => {
+    window.clearTimeout(holdTimer.current);
+    holdTimer.current = window.setTimeout(() => {
+      const from = lastPreview.current;
+      setPreview(null);
+      if (!locked) {
+        demo.resume(
+          from ? READINGS.findIndex((reading) => reading.id === from) : undefined,
+        );
+      }
+    }, HOLD_MS);
+  }, [demo, locked]);
+
+  /* Clicking another reading moves the lock; clicking the locked one releases
+     it and hands the strip back to the cycle, starting where it is. */
+  const toggleLock = useCallback(
+    (id: ReadingId) => {
+      window.clearTimeout(holdTimer.current);
+      setLocked((current) => {
+        const next = current === id ? null : id;
+        if (next) demo.pause();
+        else {
+          demo.resume(READINGS.findIndex((reading) => reading.id === id));
+        }
+        return next;
+      });
+    },
+    [demo],
+  );
 
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -155,7 +213,6 @@ export function MotionDNAThread() {
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent, index: number) => {
-      release();
       const step =
         event.key === "ArrowRight" || event.key === "ArrowDown"
           ? 1
@@ -176,12 +233,14 @@ export function MotionDNAThread() {
       }
       if (event.key === "Escape" && locked) {
         /* Release the lock without leaving the group — the way out of a
-           committed state for someone who never touched a mouse. */
+           committed state for someone who never touched a mouse. The cycle
+           stays paused because the focus that got here is still a preview;
+           blurring is what hands it back. */
         event.preventDefault();
         setLocked(null);
       }
     },
-    [locked, release],
+    [locked],
   );
 
   const shownIndex = READINGS.findIndex((r) => r.id === shown);
@@ -233,16 +292,10 @@ export function MotionDNAThread() {
             className={styles.hit}
             d={branchPath(i)}
             onPointerEnter={(event) => {
-              release();
-              if (event.pointerType === "mouse") setPreview(reading.id);
+              if (event.pointerType === "mouse") beginPreview(reading.id);
             }}
-            onPointerLeave={() => setPreview(null)}
-            onClick={() => {
-              release();
-              setLocked((current) =>
-                current === reading.id ? null : reading.id,
-              );
-            }}
+            onPointerLeave={endPreview}
+            onClick={() => toggleLock(reading.id)}
           />
         ))}
       </svg>
@@ -271,22 +324,13 @@ export function MotionDNAThread() {
                   buttons.current[i] = node;
                 }}
                 type="button"
-                onPointerEnter={() => {
-                  release();
-                  setPreview(reading.id);
-                }}
-                onPointerLeave={() => setPreview(null)}
-                onFocus={() => {
-                  release();
-                  setPreview(reading.id);
-                }}
-                onBlur={() => setPreview(null)}
+                onPointerEnter={() => beginPreview(reading.id)}
+                onPointerLeave={endPreview}
+                onFocus={() => beginPreview(reading.id)}
+                onBlur={endPreview}
                 /* A tap fires enter → click → leave, so the lock is what
                    survives on a phone. Nothing here depends on hover. */
-                onClick={() => {
-                  release();
-                  setLocked(isLocked ? null : reading.id);
-                }}
+                onClick={() => toggleLock(reading.id)}
                 onKeyDown={(event) => onKeyDown(event, i)}
                 aria-pressed={isLocked}
                 className={`${styles.reading} ${

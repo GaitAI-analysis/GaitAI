@@ -161,10 +161,4 @@ export const withheldTalkEvidence: WithheldEvidence[] = [
     kind: "certificate",
     href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/15/certi.png",
   },
-  {
-    id: "presentation-01-electronic-commerce",
-    title: "Electronic Commerce",
-    kind: "certificate",
-    href: "https://anubhaparashar.github.io/files/4.%20Publication/6.%20presentation/1/certi.jpeg",
-  },
 ];

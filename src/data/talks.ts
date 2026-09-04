@@ -367,17 +367,6 @@ export const talkRecords: TalkRecord[] = [
     researchAreaId: "res-gait-biometrics",
     sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
-  {
-    id: "presentation-01-electronic-commerce",
-    kind: "presentation",
-    title: "Electronic Commerce",
-    date: "September 25, 2010",
-    year: 2010,
-    event: "Indian Society for Technical Education (ISTE) Annual Students' Convention (ASC-2010)",
-    venue: "BVICAM, New Delhi",
-    evidence: [],
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#presentations",
-  },
 ];
 
 /** Records of one kind, newest first. */

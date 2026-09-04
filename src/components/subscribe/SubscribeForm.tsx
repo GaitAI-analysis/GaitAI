@@ -14,7 +14,11 @@ import styles from "./subscribe.module.css";
  *
  *   blog     · the block that closes /insights
  *   article  · the block that closes every article
- *   footer   · a compact line in the global footer
+ *   contact  · a compact line under the deployment card on the contact
+ *              section, where somebody who is not ready to ask for a demo is
+ *              already thinking about GaitAI. It used to sit in the global
+ *              footer, on every page, which is the least considered place a
+ *              signup can be.
  *
  * They differ in size and copy, never in behaviour, so a fix to validation,
  * duplicate handling or the failure path lands on all three at once.
@@ -44,7 +48,7 @@ type State =
   | "already"
   | "error";
 
-export type SubscribeVariant = "blog" | "article" | "footer";
+export type SubscribeVariant = "blog" | "article" | "contact";
 
 const COPY: Record<
   SubscribeVariant,
@@ -63,10 +67,17 @@ const COPY: Record<
     cta: "Subscribe",
     source: "article",
   },
-  footer: {
+  contact: {
     title: "Blog & updates",
     blurb: "Research · Product · Engineering · GaitAI updates",
     cta: "Subscribe",
+    /* The STORED value stays "footer". `source` is an enum bounded by the
+       deployed security rules — `d.source in ['blog','article','footer',
+       'unsubscribe-page']` — so writing "contact" would be refused by
+       Firestore until those rules are published again, and every signup from
+       here would fail silently. Add 'contact' to the enum, deploy, then flip
+       this line; the variant name is already honest about where the block
+       lives. */
     source: "footer",
   },
 };

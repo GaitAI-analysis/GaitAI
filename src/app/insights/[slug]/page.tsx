@@ -346,15 +346,24 @@ export default function InsightArticlePage({
           deciding what to do next — so they belong side by side under one
           divider.
 
-          Proportions rather than fixed widths: the thread takes the larger
-          share because it holds a form with two fields on one line, and the
-          signup floors at 300px so its field and button never wrap into a
-          column too narrow to use. The row collapses below 850px rather than
-          768px, and that is measured: the comment form puts its name and
-          email fields on one line from 640px up, so in a 356px column at 768
-          the email placeholder was cut off mid-word. 850 is the width at
-          which both columns hold their contents. Below it the thread is full
-          width again and the stacked order is the one a phone had before.
+          Proportions rather than fixed widths: 1.3fr to 0.9fr, because the
+          thread holds a form with two fields on one line and the signup holds
+          one. The signup floors at 360px so its field and button never wrap
+          into a column too narrow to use, and the gap is wide enough
+          (42-72px) that the two read as two separate offers rather than as
+          one crowded row.
+
+          The signup stays deliberately lighter than the thread. It is not
+          padded out to match its height and nothing is invented to fill the
+          space under it — the whitespace beside a finished article is the
+          editorial point, not a gap to plug.
+
+          The row collapses below 900px, and that is measured: the comment
+          form puts its name and email fields on one line from 640px up, and
+          the signup floors 60px wider than it used to, so 900 is now the
+          width at which both columns still hold their contents. Below it the
+          thread is full width again and the stacked order is the one a phone
+          had before.
 
           The comment system itself is untouched — Firestore-backed, moderated,
           rate-limited, captcha-gated, mounted client-only and viewport-gated
@@ -364,10 +373,14 @@ export default function InsightArticlePage({
           validation path, one duplicate rule. */}
       <section
         id="discussion"
-        className="border-t border-white/[0.07] py-12 sm:py-14"
+        /* Asymmetric on purpose. The rule above wants clear air beneath it,
+           but the tail of this section was landing well below the last thing
+           a reader can act on, because the composer card carries its own
+           padding inside the column. Trimmed at the bottom only. */
+        className="border-t border-white/[0.07] pb-10 pt-12 sm:pb-12 sm:pt-14"
       >
         <div className="container-wide">
-          <div className="grid items-start gap-[clamp(32px,4vw,48px)] min-[850px]:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)]">
+          <div className="grid items-start gap-[clamp(42px,5vw,72px)] min-[900px]:grid-cols-[minmax(0,1.3fr)_minmax(360px,0.9fr)]">
             {/* `DiscussionSection` carries its own `mt-16 border-t pt-12`,
                 which is right where it is the last thing on a publication or
                 a live post. In this row it put "Discussion" 112px below

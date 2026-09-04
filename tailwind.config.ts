@@ -188,8 +188,29 @@ const config: Config = {
           "100%": { transform: "translateY(100%)", opacity: "0" },
         },
       },
+      /**
+       * The motion system, reachable from Tailwind.
+       *
+       * These are the four bands defined and documented in `globals.css`
+       * ("THE MOTION SYSTEM"), surfaced as utilities so a component written
+       * in Tailwind can say `duration-ui` instead of picking a number.
+       * Every value is `var(--motion-*)`, not a literal, for one reason
+       * that matters: the `prefers-reduced-motion` block collapses those
+       * variables, so `duration-editorial` honours the preference on its
+       * own and no component has to remember to.
+       */
+      transitionDuration: {
+        fast: "var(--motion-fast)",
+        ui: "var(--motion-ui)",
+        editorial: "var(--motion-editorial)",
+        signal: "var(--motion-signal)",
+      },
       transitionTimingFunction: {
         smooth: "cubic-bezier(0.16, 1, 0.3, 1)",
+        /* `smooth` above is this same curve, kept because ~40 components
+           already name it. New work should use these two. */
+        out: "var(--ease-out)",
+        inout: "var(--ease-inout)",
       },
     },
   },

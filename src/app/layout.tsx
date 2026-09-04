@@ -15,6 +15,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { AskGaitAI } from "@/components/assistant/AskGaitAI";
 import { assetPath } from "@/lib/paths";
+import { socialProfileUrls } from "@/data/contact";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -136,9 +137,16 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {/*
          * Organization node only. Every field here is already stated
-         * elsewhere on the site — name, site URL, logo. No founder, address,
-         * rating, employee count or sameAs profile is asserted, because none
-         * of those is documented in this repository.
+         * elsewhere on the site — name, site URL, logo, and now the public
+         * profiles. No founder, address, rating or employee count is
+         * asserted, because none of those is documented in this repository.
+         *
+         * `sameAs` was previously omitted on the same grounds, but the
+         * profiles ARE documented: they are the four routes the footer has
+         * always published. They now come from `socialProfiles` in
+         * `data/contact.ts`, so the structured data and the visible footer
+         * cannot drift apart — which is exactly how the footer came to link
+         * a GitHub account that was not the company's.
          */}
         <script
           type="application/ld+json"
@@ -151,6 +159,7 @@ export default function RootLayout({
               logo: "https://gaitai.in/brand/logo-main.png",
               description:
                 "Research-led AI platform for movement intelligence.",
+              sameAs: socialProfileUrls,
             }),
           }}
         />

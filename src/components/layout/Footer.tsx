@@ -3,7 +3,7 @@ import type { ComponentType, SVGProps } from "react";
 import { Github, Linkedin, Mail } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ctas } from "@/data/content";
-import { contact, mailto } from "@/data/contact";
+import { contact, mailto, socialProfiles } from "@/data/contact";
 
 /**
  * The single footer link source.
@@ -91,12 +91,14 @@ const socials: Array<{
 }> = [
   {
     icon: Linkedin,
-    href: "https://www.linkedin.com/company/gaitai-analysis/",
+    href: socialProfiles.linkedin,
     label: "GaitAI on LinkedIn",
   },
   { icon: Mail, href: mailto(contact.social), label: "Email GaitAI" },
-  { icon: XMark, href: "https://x.com/GaitAI4all", label: "GaitAI on X" },
-  { icon: Github, href: "https://github.com/gaitai", label: "GaitAI on GitHub" },
+  { icon: XMark, href: socialProfiles.x, label: "GaitAI on X" },
+  /* Was `github.com/gaitai` — a stranger's account. See the note on
+     `socialProfiles` for what it is now and why. */
+  { icon: Github, href: socialProfiles.github, label: "GaitAI on GitHub" },
 ];
 
 const legal = [

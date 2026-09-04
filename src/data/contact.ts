@@ -47,6 +47,41 @@ export const contact = {
   social: "gait.ai.founder@gmail.com",
 } as const;
 
+/**
+ * The public profiles, in the order they are presented everywhere.
+ *
+ * WHY THIS LIVES HERE. The footer held these four URLs inline and was the
+ * only place in the repository that knew them, so the Organization JSON-LD in
+ * `layout.tsx` asserted no `sameAs` at all — the profiles existed on the page
+ * but not in the structured data, which is the half search engines read. One
+ * exported list, two consumers.
+ *
+ * THE GITHUB URL WAS WRONG, and this is the note explaining why it changed.
+ * The footer pointed at `github.com/gaitai`, which is a real account — a
+ * stranger's, with no bio, no affiliation and one public repository called
+ * "Movie". The company's actual organisation is `GaitAI-analysis`, which is
+ * where this very repository is hosted (`git remote -v`) and which publicly
+ * describes itself as "a research-led AI platform for gait biometrics...".
+ * Every visitor who clicked the footer's GitHub glyph was sent to an
+ * unrelated person's profile. Verified against both URLs on 2026-09-04 before
+ * changing it.
+ *
+ * ORDER IS DELIBERATE and matches the footer's rationale: the company page
+ * first, then the way to reach a person, then the feed, then the code.
+ */
+export const socialProfiles = {
+  linkedin: "https://www.linkedin.com/company/gaitai-analysis/",
+  x: "https://x.com/GaitAI4all",
+  github: "https://github.com/GaitAI-analysis",
+} as const;
+
+/**
+ * The same profiles as a flat list, for the `sameAs` array in structured
+ * data. The mailbox is not included: `sameAs` takes URLs that identify the
+ * organisation, and a `mailto:` is a contact route, not an identity.
+ */
+export const socialProfileUrls = Object.values(socialProfiles);
+
 /** The on-site form, which is always available as a fallback route. */
 export const CONTACT_FORM_HREF = "/#contact";
 

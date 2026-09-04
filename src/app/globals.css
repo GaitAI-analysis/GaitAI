@@ -94,6 +94,12 @@
   --graph-node-mobility: #5eead4;
   --graph-node-secure: #8b9cf6;
   --graph-node-product: #5b9df5;
+  /* Capture source. Distinct from --graph-node-signal, which sits next to it
+     in the tree: an input is what you HAVE, a signal is what is read off it,
+     and the two must not be one colour on a map whose whole job is that
+     distinction. Warm-shifted green, so it also separates from the mobility
+     teal used for the vertical. */
+  --graph-node-input: #7ddba8;
   --graph-node-signal: #4fd1ff;
   --graph-node-capability: #6d7ef0;
   --graph-node-domain: #6fc3c3;
@@ -234,6 +240,7 @@
   --graph-node-mobility: #0d9488;
   --graph-node-secure: #4a41c4;
   --graph-node-product: #1d5fd0;
+  --graph-node-input: #157347;
   --graph-node-signal: #0e7490;
   --graph-node-capability: #4340cb;
   --graph-node-domain: #0f766e;

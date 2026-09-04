@@ -36,6 +36,7 @@ import {
   nodeById,
 } from "@/data/gaitscape/graph";
 import { gaitscapeChallenges } from "@/data/gaitscape/challenges";
+import { researchAreas } from "@/data/evidence";
 import type {
   GaitscapeNode,
   GaitscapeNodeType,
@@ -59,6 +60,7 @@ const TYPE_COLOR: Record<GaitscapeNodeType, string> = {
   core: "var(--graph-node-core)", // champagne / gold
   vertical: "var(--graph-node-mobility)", // overridden per vertical below
   product: "var(--graph-node-product)", // blue
+  input: "var(--graph-node-input)", // teal — what the reader already has
   signal: "var(--graph-node-signal)", // cyan
   capability: "var(--graph-node-capability)", // indigo
   domain: "var(--graph-node-domain)", // muted aqua
@@ -83,6 +85,7 @@ const TYPE_RADIUS: Record<GaitscapeNodeType, number> = {
   domain: 9.5,
   capability: 8.5,
   signal: 8,
+  input: 8,
   research: 7.5,
   outcome: 7.5,
 };
@@ -97,6 +100,7 @@ const VERTICAL_LABEL: Record<string, string> = {
 const GROUP_OPTIONS: { id: GaitscapeNodeType; label: string }[] = [
   { id: "domain", label: "Application Domain" },
   { id: "product", label: "Product" },
+  { id: "input", label: "Capture Source" },
   { id: "signal", label: "Movement Signal" },
   { id: "capability", label: "AI Capability" },
   { id: "vertical", label: "Vertical" },
@@ -108,6 +112,7 @@ const FILTER_FAMILIES: { type: GaitscapeNodeType; label: string }[] = [
   { type: "vertical", label: "Vertical" },
   { type: "domain", label: "Application Domain" },
   { type: "product", label: "Product" },
+  { type: "input", label: "Capture Source" },
   { type: "signal", label: "Movement Signal" },
   { type: "capability", label: "AI Capability" },
   { type: "research", label: "Research Area" },
@@ -117,6 +122,7 @@ const LEGEND_ITEMS: { type: GaitscapeNodeType; label: string }[] = [
   { type: "core", label: "Core intelligence" },
   { type: "vertical", label: "Vertical" },
   { type: "product", label: "Product" },
+  { type: "input", label: "Capture source" },
   { type: "signal", label: "Movement signal" },
   { type: "capability", label: "AI capability" },
   { type: "domain", label: "Application domain" },
@@ -337,9 +343,13 @@ function clusterLayout(
   return roundPositions(pos);
 }
 
+/* Reading order for the tree view: what you HAVE, what is read from it, what
+   reads that, what it is built on, what runs it, where, and to what end. The
+   capture sources lead because that is the question a reader arrives with. */
 const TREE_ORDER: GaitscapeNodeType[] = [
   "core",
   "vertical",
+  "input",
   "signal",
   "capability",
   "research",
@@ -1852,10 +1862,17 @@ function DetailPanel({
   onNavigate: (id: string) => void;
 }) {
   const grouped = neighborsByType(node.id);
+  /* Only meaningful for a research node; empty for every other type. */
+  const directModules =
+    node.type === "research"
+      ? (researchAreas.find((area) => area.id === node.id)?.directProducts ??
+        [])
+      : [];
   const order: GaitscapeNodeType[] = [
     "vertical",
     "product",
     "domain",
+    "input",
     "signal",
     "capability",
     "research",
@@ -1889,6 +1906,39 @@ function DetailPanel({
       <p className="mt-2 text-[13px] leading-relaxed text-soft-gray">
         {node.shortDescription}
       </p>
+
+      {/* ── RESEARCH → MODULES, THE SECOND HOP ──
+          Research joins the graph through capabilities, so a research node's
+          direct neighbours are capabilities and nothing else. Selecting
+          Patent 402202 therefore answered "which capabilities?" and left the
+          reader to work out the modules themselves, which is the question
+          they actually had.
+
+          The join is NOT done by walking the graph two hops — that would list
+          every module touching a broad platform capability and so overstate
+          what the patent covers. It reads `researchAreas.directProducts`,
+          which is the set /research and /research/evidence already show, and
+          which applies the direct-subject qualifiers that stop an area from
+          claiming modules it is only architecturally related to. */}
+      {node.type === "research" && directModules.length > 0 && (
+        <div className="mt-4">
+          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
+            Modules directly informed
+          </div>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {directModules.map((product) => (
+              <button
+                key={product.id}
+                onClick={() => onNavigate(product.id)}
+                className="gaitscape-chip"
+                style={{ color: TYPE_COLOR.product }}
+              >
+                {product.short}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {order.map((type) => {
         const list = grouped.get(type);

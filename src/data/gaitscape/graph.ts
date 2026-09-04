@@ -166,9 +166,108 @@ const domainNodes: GaitscapeNode[] = industryUseCases.map((u) => ({
   href: useCaseHrefById(u.id),
 }));
 
+// ============================================================================
+// CAPTURE SOURCES — WHAT THE READER ALREADY HAS
+// ----------------------------------------------------------------------------
+// The vocabulary a buyer answers in, matched against each module's own
+// documented input string from systemFactsFor(). `pose` is a derived stream
+// rather than a device, so it is matched on the pose-estimation capability;
+// `multi` is matched on multimodal sensor fusion — the capability whose whole
+// definition is combining sources — or on a module documented with two or
+// more distinct devices.
+//
+// The mobile row is grounded in the pipeline record: aiPipeline's fusion stage
+// reads "Smartwatch and mobile IMU signals fused with video features", and a
+// module that takes a standard-camera walking video takes one from a phone.
+//
+// THIS USED TO LIVE IN analytics.ts. It moved here because the map needed it
+// too — "click CCTV, see which modules can work from it" was the one question
+// GaitScape could not answer, since inputs were not in the graph at all — and
+// analytics.ts already imports this module, so the alternative was a second
+// copy of these regexes and an import cycle. analytics.ts now re-exports these
+// four names, so every existing caller is untouched.
+// ============================================================================
+
+export type CaptureSource =
+  | "video"
+  | "cctv"
+  | "wearable"
+  | "mobile"
+  | "pose"
+  | "multi";
+
+export interface CaptureSourceDef {
+  id: CaptureSource;
+  label: string;
+  /** What the reader actually has to hand. */
+  note: string;
+}
+
+export const CAPTURE_SOURCES: CaptureSourceDef[] = [
+  { id: "video", label: "Walking video", note: "A short clip from any standard camera" },
+  { id: "cctv", label: "CCTV / fixed camera", note: "An existing camera feed in the space" },
+  { id: "wearable", label: "Wearable", note: "Smartwatch or IMU signals" },
+  { id: "mobile", label: "Mobile", note: "Capture on a phone, review on mobile" },
+  { id: "pose", label: "Pose stream", note: "Skeleton landmarks rather than pixels" },
+  { id: "multi", label: "Multiple sources", note: "More than one of the above, together" },
+];
+
+export const CAPTURE_SOURCE_LABEL: Record<CaptureSource, string> =
+  Object.fromEntries(
+    CAPTURE_SOURCES.map((source) => [source.id, source.label]),
+  ) as Record<CaptureSource, string>;
+
+const VIDEO_INPUT = /\bvideo\b|walking video/i;
+const CCTV_INPUT = /cctv|camera feed|cameras|camera analytics/i;
+const WEARABLE_INPUT = /smartwatch|wearable|imu|sensor signals/i;
+const MOBILE_DEPLOY = /mobile/i;
+
+/**
+ * Which capture sources a module can work from. Read off the module's own
+ * documented input (and, for the mobile row, its documented delivery), not
+ * assigned by hand.
+ */
+export function sourcesForProduct(productId: string): CaptureSource[] {
+  const facts = systemFactsFor(productId);
+  const capabilities = PRODUCT_MAP[productId]?.capabilities ?? [];
+  const found = new Set<CaptureSource>();
+
+  if (VIDEO_INPUT.test(facts.input)) found.add("video");
+  if (CCTV_INPUT.test(facts.input)) found.add("cctv");
+  if (WEARABLE_INPUT.test(facts.input)) found.add("wearable");
+  // A standard-camera walking video can be captured on a phone; a module
+  // delivered on mobile is reachable that way too.
+  if (found.has("video") || MOBILE_DEPLOY.test(facts.deployment)) {
+    found.add("mobile");
+  }
+  if (capabilities.includes("cap-pose")) found.add("pose");
+  if (capabilities.includes("cap-fusion") || found.size >= 3) found.add("multi");
+
+  return CAPTURE_SOURCES.map((source) => source.id).filter((id) =>
+    found.has(id),
+  );
+}
+
+/** Graph node id for a capture source. */
+export const inputNodeId = (source: CaptureSource) => `in-${source}`;
+
+/**
+ * The capture sources, as nodes. Derived from the same vocabulary above, so
+ * the map, the footage matcher, the signal chain and the comparison table all
+ * name the same six things.
+ */
+const inputNodes: GaitscapeNode[] = CAPTURE_SOURCES.map((source) => ({
+  id: inputNodeId(source.id),
+  type: "input",
+  title: source.label,
+  shortDescription: source.note,
+  href: "/movement-lab#footage",
+}));
+
 export const gaitscapeNodes: GaitscapeNode[] = [
   coreNode,
   ...verticalNodes,
+  ...inputNodes,
   ...signalNodes,
   ...capabilityNodes,
   ...productNodes,
@@ -325,6 +424,75 @@ export const RESEARCH_MAP: Record<string, string[]> = {
 };
 
 // ============================================================================
+// COMPARISON FACTS — curated from product descriptions & the privacy layer
+// ----------------------------------------------------------------------------
+// ORDER MATTERS HERE. `buildRelationships()` below runs at module evaluation
+// and now calls `sourcesForProduct`, which calls `systemFactsFor`, which reads
+// these three consts. They used to sit after the relationship build, which was
+// harmless while nothing at eval time touched them — and became a
+// "Cannot access 'MOBILITY_FACTS' before initialization" the moment capture
+// sources joined the graph. TypeScript cannot see that: a `const` read from
+// inside a hoisted function body typechecks fine and throws at run time. So
+// they are placed above the build, and this note is why they must stay there.
+// ============================================================================
+
+const MOBILITY_FACTS: SystemFacts = {
+  input: "Short walking video (standard camera)",
+  environment: "Clinics, hospitals, care settings",
+  deployment: "Web dashboard, PDF reports",
+  privacy: "Consent-based clinical capture",
+};
+
+const SECURE_FACTS: SystemFacts = {
+  input: "CCTV / camera feeds",
+  environment: "Campuses, cities, industry, events",
+  deployment: "Real-time video analytics, operator alerts",
+  privacy: "PrivacyGuard: skeleton-only analytics, face blur, audit logs",
+};
+
+const FACT_OVERRIDES: Record<string, Partial<SystemFacts>> = {
+  watchcare: {
+    input: "Smartwatch & wearable sensor signals",
+    environment: "Everyday life — home, outdoors, work",
+    deployment: "Mobile + web caregiver dashboard",
+  },
+  remotecare: {
+    input: "Guided walking video captured at home",
+    environment: "Home care & telehealth",
+    deployment: "Clinician dashboard with patient timelines",
+  },
+  clinicaltrials: {
+    environment: "Research studies & clinical trials",
+    deployment: "Study dashboards, gait-measure export",
+  },
+  forensicsearch: {
+    input: "Uploaded CCTV footage (post-event)",
+    deployment: "Post-event investigation workspace",
+  },
+  accessmotion: {
+    input: "Access-point cameras alongside existing credentials",
+    environment: "Data centers, labs, high-security offices",
+  },
+  privacyguard: {
+    input: "Applies to all connected camera analytics",
+    environment: "Every SecureVision deployment",
+    deployment: "Policy layer: retention, roles, audit logs",
+  },
+  watchlist: {
+    environment: "Lawfully authorized deployments only",
+    privacy: "Policy + consent logs, auditability, legal governance",
+  },
+};
+
+export function systemFactsFor(productId: string): SystemFacts {
+  const product = allProducts.find((p) => p.id === productId);
+  const base =
+    product?.vertical === "securevision" ? SECURE_FACTS : MOBILITY_FACTS;
+  return { ...base, ...FACT_OVERRIDES[productId] };
+}
+
+
+// ============================================================================
 // RELATIONSHIPS
 // ============================================================================
 
@@ -342,6 +510,17 @@ function buildRelationships(): GaitscapeRelationship[] {
       type: "belongs-to",
       evidence: p.name,
     });
+    /* Which capture sources this module can work from — the answer to
+       "click CCTV, show me what could use it". Derived, so a module whose
+       documented input changes moves on the map without anyone editing it. */
+    for (const source of sourcesForProduct(p.id)) {
+      rels.push({
+        source: p.id,
+        target: inputNodeId(source),
+        type: "captured-by",
+        evidence: `${p.short} input: ${systemFactsFor(p.id).input}`,
+      });
+    }
     const map = PRODUCT_MAP[p.id];
     if (!map) continue;
     for (const s of map.signals) {
@@ -403,71 +582,13 @@ export const gaitscapeRelationships: GaitscapeRelationship[] =
   buildRelationships();
 
 // ============================================================================
-// COMPARISON FACTS — curated from product descriptions & the privacy layer
-// ============================================================================
-
-const MOBILITY_FACTS: SystemFacts = {
-  input: "Short walking video (standard camera)",
-  environment: "Clinics, hospitals, care settings",
-  deployment: "Web dashboard, PDF reports",
-  privacy: "Consent-based clinical capture",
-};
-
-const SECURE_FACTS: SystemFacts = {
-  input: "CCTV / camera feeds",
-  environment: "Campuses, cities, industry, events",
-  deployment: "Real-time video analytics, operator alerts",
-  privacy: "PrivacyGuard: skeleton-only analytics, face blur, audit logs",
-};
-
-const FACT_OVERRIDES: Record<string, Partial<SystemFacts>> = {
-  watchcare: {
-    input: "Smartwatch & wearable sensor signals",
-    environment: "Everyday life — home, outdoors, work",
-    deployment: "Mobile + web caregiver dashboard",
-  },
-  remotecare: {
-    input: "Guided walking video captured at home",
-    environment: "Home care & telehealth",
-    deployment: "Clinician dashboard with patient timelines",
-  },
-  clinicaltrials: {
-    environment: "Research studies & clinical trials",
-    deployment: "Study dashboards, gait-measure export",
-  },
-  forensicsearch: {
-    input: "Uploaded CCTV footage (post-event)",
-    deployment: "Post-event investigation workspace",
-  },
-  accessmotion: {
-    input: "Access-point cameras alongside existing credentials",
-    environment: "Data centers, labs, high-security offices",
-  },
-  privacyguard: {
-    input: "Applies to all connected camera analytics",
-    environment: "Every SecureVision deployment",
-    deployment: "Policy layer: retention, roles, audit logs",
-  },
-  watchlist: {
-    environment: "Lawfully authorized deployments only",
-    privacy: "Policy + consent logs, auditability, legal governance",
-  },
-};
-
-export function systemFactsFor(productId: string): SystemFacts {
-  const product = allProducts.find((p) => p.id === productId);
-  const base =
-    product?.vertical === "securevision" ? SECURE_FACTS : MOBILITY_FACTS;
-  return { ...base, ...FACT_OVERRIDES[productId] };
-}
-
-// ============================================================================
 // SHARED HELPERS
 // ============================================================================
 
 export const NODE_TYPE_LABEL: Record<GaitscapeNode["type"], string> = {
   core: "Core",
   vertical: "Vertical",
+  input: "Capture source",
   signal: "Movement signal",
   capability: "AI capability",
   product: "Product",
@@ -478,6 +599,7 @@ export const NODE_TYPE_LABEL: Record<GaitscapeNode["type"], string> = {
 
 export const REL_TYPE_LABEL: Record<GaitscapeRelationship["type"], string> = {
   "belongs-to": "belongs to",
+  "captured-by": "captured by",
   senses: "reads signal",
   "powered-by": "powered by",
   serves: "serves",

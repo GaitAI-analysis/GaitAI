@@ -4,6 +4,7 @@ import { MovementLab } from "@/components/analytics/MovementLab";
 import { MovementAnalyzer } from "@/components/analytics/MovementAnalyzer";
 import { SignalIntelligenceExplorer } from "@/components/analytics/SignalIntelligenceExplorer";
 import { FootageMatch } from "@/components/analytics/FootageMatch";
+import { FusionSandbox } from "@/components/analytics/FusionSandbox";
 import { IllustrativeBadge } from "@/components/ui/IllustrativeBadge";
 import { CAPABILITY_COUNT, MODULE_COUNT, SIGNAL_COUNT } from "@/data/analytics";
 import { StatRow } from "@/components/analytics/primitives";
@@ -220,6 +221,44 @@ This is an interactive technology demonstration. The stage,
 
           <div className="mt-10">
             <SignalIntelligenceExplorer />
+          </div>
+        </div>
+      </section>
+
+      {/* ── FUSION SANDBOX ──
+          `id="fusion"` is its address in GaitAI Labs.
+
+          It follows the signal chain deliberately. That instrument answers
+          "what does this input become?" with every input healthy, which is
+          the state every fusion diagram in every deck shows. This answers the
+          two questions that follow — what happens when an input is missing,
+          and what happens when one is quietly wrong — and the answers are not
+          symmetric, which is the whole reason it is here.
+
+          Relationship and architecture data only. No reading, no benchmark
+          and no score, so no illustrative badge: there are no invented
+          numbers on it, because there are no numbers on it. */}
+      <section
+        id="fusion"
+        className="border-t border-white/[0.07] py-14 sm:py-16"
+      >
+        <div className="container-wide">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+            Fusion sandbox
+          </span>
+          <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
+            A missing input is a known unknown.{" "}
+            <span className="text-gradient">A corrupted one is not.</span>
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
+            Set each input to available, missing or corrupted, and watch what
+            happens to the channels. Break one and the read-out gets shorter.
+            Corrupt one instead and it stays exactly the same size — which is
+            the point.
+          </p>
+
+          <div className="mt-10">
+            <FusionSandbox />
           </div>
         </div>
       </section>

@@ -6,6 +6,8 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SecureCapabilityGroups } from "@/components/products/SecureCapabilityGroups";
 import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
 import { MovementXRay } from "@/components/visuals/MovementXRay";
+import { PrivacyLens } from "@/components/visuals/PrivacyLens";
+import { privacyGovernance } from "@/data/privacy-lens";
 import { industryUseCases, productById, secureProducts } from "@/data/products";
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { assetPath } from "@/lib/paths";
@@ -304,32 +306,66 @@ export default function SecureVisionPage() {
                 </div>
               </div>
 
-              {/* Privacy stack diagram */}
+              {/* GOVERNANCE, ON ITS OWN.
+                  These three used to sit in the same indented stack as the
+                  three processing steps, which read as though role-based
+                  access were another transformation of the video. It is not:
+                  it is a control over who may see what step three produced.
+                  Separating them is the honest arrangement, and it is what
+                  frees the processing steps to become the instrument below. */}
               <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6">
                 <div className="ring-grid pointer-events-none absolute inset-0 opacity-30" />
-                <div className="relative space-y-2.5">
-                  {[
-                    "Raw video feed",
-                    "Face blur · skeleton extraction",
-                    "Movement features only",
-                    "Role-based access · audit logs",
-                    "Retention policies · consent logs",
-                    "Privacy-aware aggregated dashboards & reports",
-                  ].map((layer, i) => (
-                    <div
-                      key={layer}
-                      className="flex items-center gap-3 rounded-xl border border-emerald-300/20 bg-emerald-400/8 px-4 py-3"
-                      style={{ marginLeft: `${i * 6}px` }}
-                    >
-                      <span className="grid h-6 w-6 place-items-center rounded-md bg-emerald-300/15 text-emerald-300 ring-1 ring-emerald-300/30">
-                        <Lock className="h-3 w-3" />
-                      </span>
-                      <span className="text-xs font-medium text-soft-white">
-                        {layer}
-                      </span>
-                    </div>
-                  ))}
+                <div className="relative">
+                  <h3 className="text-[10.5px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+                    Governing the output
+                  </h3>
+                  <p className="mt-3 text-[12.5px] leading-relaxed text-soft-mute">
+                    Separate from the processing path below — these are
+                    controls over who may see what the last step produces.
+                  </p>
+                  <ul className="mt-5 space-y-2.5">
+                    {privacyGovernance.map((control) => (
+                      <li
+                        key={control}
+                        className="flex items-center gap-3 rounded-xl border border-emerald-300/20 bg-emerald-400/8 px-4 py-3"
+                      >
+                        <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-emerald-300/15 text-emerald-300 ring-1 ring-emerald-300/30">
+                          <Lock aria-hidden="true" className="h-3 w-3" />
+                        </span>
+                        <span className="text-xs font-medium text-soft-white">
+                          {control}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              </div>
+            </div>
+
+            {/* ── PRIVACY LENS ──
+                The three processing steps, as something a reader can actually
+                step through, rather than three rows of text. Full width under
+                the two columns: it is the argument this whole block is making,
+                so it is not a thumbnail beside the copy. */}
+            <div
+              id="privacy-lens"
+              className="site-anchor-offset mt-16 border-t border-white/[0.07] pt-12"
+            >
+              <div className="max-w-2xl">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-300">
+                  Privacy Lens
+                </span>
+                <h3 className="mt-4 font-display text-display-md text-balance text-soft-white">
+                  Watch identity{" "}
+                  <span className="text-gradient-secure">leave the frame.</span>
+                </h3>
+                <p className="mt-4 text-[14.5px] leading-relaxed text-soft-gray">
+                  Three steps, one figure. Step through them and see what each
+                  one carries forward — and what stops being available.
+                </p>
+              </div>
+              <div className="mt-10">
+                <PrivacyLens />
               </div>
             </div>
           </div>

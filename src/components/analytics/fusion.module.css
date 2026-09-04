@@ -1,0 +1,226 @@
+/* ===========================================================================
+   FUSION SANDBOX
+   ---------------------------------------------------------------------------
+   Three states, three treatments, and the treatments are not interchangeable:
+
+     AVAILABLE   solid, accent — the rail is carrying something
+     MISSING     faint, no dash — an absence, and absences are quiet
+     CORRUPTED   amber, dashed — present, and wrong
+
+   Corrupted has to look PRESENT rather than absent. If a corrupted rail read
+   as faint or broken, the reader would learn that corruption is visible, which
+   is the exact opposite of what this instrument is for. So it keeps full
+   weight and takes a warning colour and a dash: something is flowing, and it
+   should not be trusted.
+
+   Light-theme values sit beside their dark counterparts, never only inside a
+   media query.
+   =========================================================================== */
+
+/* This component always renders inside `analytics.module.css`'s `.lab`, so
+   --an-ink / --an-mute / --an-line and their light-branch overrides are
+   already in scope and are used directly rather than re-declared. Only the
+   two colours this instrument needs and that block does not define — the
+   accent as an rgb triple, and a warning hue — are declared here, each with
+   its light counterpart beside it. */
+.frame {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+
+  --f-accent: 34 211 238; /* cyan-400 */
+  --f-warn: 251 191 36; /* amber-400 */
+}
+
+:global(.light) .frame {
+  --f-accent: 14 116 144; /* cyan-700 */
+  --f-warn: 180 83 9; /* amber-700 — readable on white */
+}
+
+/* ── Rails ───────────────────────────────────────────────────────────────── */
+
+.rail {
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  transition:
+    stroke var(--motion-ui, 220ms) var(--ease-out, ease-out),
+    stroke-opacity var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.railDot {
+  transition: fill var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.railOn .rail,
+.railOn {
+  stroke: rgb(var(--f-accent) / 0.8);
+}
+
+.railOn .railDot {
+  fill: rgb(var(--f-accent) / 0.9);
+}
+
+.railOff .rail,
+.railOff {
+  stroke: var(--an-line-mid);
+}
+
+.railOff .railDot {
+  fill: var(--an-line-mid);
+}
+
+/* Full weight, warning colour, dashed. Present and not to be trusted. */
+.railBad .rail,
+.railBad {
+  stroke: rgb(var(--f-warn) / 0.9);
+  stroke-dasharray: 4 3;
+}
+
+.railBad .railDot {
+  fill: rgb(var(--f-warn));
+}
+
+.railLabel {
+  fill: var(--an-mute);
+  font-family: var(--font-sans, ui-sans-serif), sans-serif;
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+.railOn .railLabel {
+  fill: var(--an-ink);
+}
+
+.railBad .railLabel {
+  fill: rgb(var(--f-warn));
+}
+
+/* ── Hub ─────────────────────────────────────────────────────────────────── */
+
+.hubRing {
+  fill: none;
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  transition: stroke var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.hubLabel {
+  font-family: var(--font-sans, ui-sans-serif), sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-anchor: middle;
+}
+
+.hubOn .hubRing {
+  stroke: rgb(var(--f-accent) / 0.7);
+}
+
+.hubOn .hubLabel {
+  fill: var(--an-ink);
+}
+
+.hubBad .hubRing {
+  stroke: rgb(var(--f-warn) / 0.85);
+}
+
+.hubBad .hubLabel {
+  fill: rgb(var(--f-warn));
+}
+
+.hubOff .hubRing {
+  stroke: var(--an-line-mid);
+}
+
+.hubOff .hubLabel {
+  fill: var(--an-mute);
+}
+
+/* ── Channel read-out ────────────────────────────────────────────────────── */
+
+.channel {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--an-line);
+  border-radius: 0.625rem;
+  background: var(--an-surface-2);
+}
+
+.channelName {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--an-ink);
+}
+
+.channelState {
+  flex-shrink: 0;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+
+.chOn .channelState {
+  color: var(--an-cyan);
+}
+
+.chBad {
+  border-color: rgb(251 191 36 / 0.28);
+  background: rgb(251 191 36 / 0.05);
+}
+
+.chBad .channelState {
+  color: rgb(252 211 77); /* amber-300 */
+}
+
+:global(.light) .chBad {
+  border-color: rgb(180 83 9 / 0.28);
+  background: rgb(180 83 9 / 0.05);
+}
+
+:global(.light) .chBad .channelState {
+  color: rgb(180 83 9);
+}
+
+/* Not derivable: the row stays, so the reader can see the list did not get
+   shorter — only this row went quiet. Hiding it would make the missing case
+   look like the corrupted case, which is the one comparison that matters. */
+.chOff {
+  opacity: 0.45;
+}
+
+.chOff .channelName {
+  text-decoration: line-through;
+  text-decoration-color: var(--an-line-mid);
+}
+
+/* ── Verdict panel ───────────────────────────────────────────────────────── */
+
+.verdict {
+  transition: border-color var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.verdictBad {
+  border-color: rgb(251 191 36 / 0.3);
+}
+
+:global(.light) .verdictBad {
+  border-color: rgb(180 83 9 / 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail,
+  .railDot,
+  .hubRing,
+  .verdict {
+    transition: none;
+  }
+}

@@ -13,7 +13,7 @@ import {
 } from "@/data/labs";
 
 const DESCRIPTION =
-  "Interactive experiments that make GaitAI's movement-intelligence pipeline easier to understand: the capture-to-intelligence walkthrough, the ecosystem landscape, the signal chain, a check against footage you already have, and five illustrative sessions to scrub through.";
+  "Interactive experiments that make GaitAI's movement-intelligence pipeline easier to understand: the capture-to-intelligence walkthrough, the ecosystem landscape, the signal chain, a footage check, a human/AI reading of one walk, the privacy path, a fusion sandbox and five illustrative sessions to scrub through.";
 
 export const metadata: Metadata = {
   title: "GaitAI Labs — Explore movement before deploying it",
@@ -42,12 +42,12 @@ export const metadata: Metadata = {
  * pipeline is not left guessing which of Explore's items is the interactive
  * one. Nothing here is duplicated: each entry links to the live surface.
  *
- * WHY IT IS A LIST AND NOT A GRID OF CARDS. Four experiments do not need four
- * boxes; a numbered editorial column reads faster, states the numbering the
- * brief asked for as typography rather than chrome, and keeps this page from
- * becoming the fifth card grid on the site. The rows wash and their arrow
- * slides — `.row-link`, the shared compact-row behaviour — so they do not
- * lift one by one down the page.
+ * WHY IT IS A LIST AND NOT A GRID OF CARDS. A numbered editorial column reads
+ * faster than a grid of boxes, states the numbering the brief asked for as
+ * typography rather than chrome, and keeps this page from becoming the fifth
+ * card grid on the site — which matters more as the list grows. The rows wash
+ * and their arrow slides — `.row-link`, the shared compact-row behaviour — so
+ * they do not lift one by one down the page.
  *
  * The records live in `data/labs.ts` and the rule there is that a lab exists
  * on this page only once it works. Experiments from the brief that do not run

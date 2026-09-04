@@ -1,0 +1,164 @@
+/* ===========================================================================
+   PRIVACY LENS
+   ---------------------------------------------------------------------------
+   One figure, three states, and an indicator that only ever falls. Emerald is
+   the PrivacyGuard accent everywhere else on /securevision, so the lens uses
+   it rather than introducing a fourth colour to the page.
+
+   Light-theme values sit beside each dark one, never only inside a media
+   query — a colour defined once inside a query is a colour that goes missing
+   in one theme.
+   =========================================================================== */
+
+.lens {
+  --p-accent: 52 211 153; /* emerald-400 */
+  --p-ink: 226 232 240;
+  --p-line: 255 255 255;
+  --p-line-a: 0.1;
+  --p-mass-a: 0.3;
+}
+
+:global(.light) .lens {
+  --p-accent: 4 120 87; /* emerald-700 */
+  --p-ink: 15 23 42;
+  --p-line: 15 23 42;
+  --p-line-a: 0.14;
+  --p-mass-a: 0.2;
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ground {
+  stroke: rgb(var(--p-line) / var(--p-line-a));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 01 SENSING: the body ────────────────────────────────────────────────── */
+
+.mass {
+  fill: rgb(var(--p-ink) / var(--p-mass-a));
+  stroke: rgb(var(--p-ink) / var(--p-mass-a));
+}
+
+.massTorso {
+  fill: rgb(var(--p-ink) / var(--p-mass-a));
+  stroke: rgb(var(--p-ink) / var(--p-mass-a));
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.massLimb,
+.massLimbLeg {
+  fill: none;
+  stroke: inherit;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.massLimb {
+  stroke-width: 7;
+}
+
+.massLimbLeg {
+  stroke-width: 9;
+}
+
+.massHead {
+  fill: rgb(var(--p-ink) / calc(var(--p-mass-a) + 0.08));
+  stroke: none;
+}
+
+/* ── 02 PRIVACY TRANSFORMED: the skeleton ────────────────────────────────── */
+
+.bone {
+  fill: none;
+  stroke: rgb(var(--p-accent) / 0.85);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.boneFar {
+  stroke: rgb(var(--p-accent) / 0.3);
+}
+
+.joint {
+  fill: rgb(var(--p-accent) / 0.95);
+  stroke: none;
+}
+
+/* The head as an empty ring, never a filled disc: at this step the head is a
+   coordinate, and a solid head reads as a face still being held. */
+.head {
+  fill: none;
+  stroke: rgb(var(--p-accent) / 0.6);
+  stroke-width: 1.4;
+  stroke-dasharray: 2.5 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 03 MOVEMENT INTELLIGENCE: the signal ────────────────────────────────── */
+
+.signalDot {
+  fill: rgb(var(--p-accent) / 0.4);
+  stroke: none;
+}
+
+.trail {
+  fill: none;
+  stroke: rgb(var(--p-accent) / 0.9);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.trailNode {
+  fill: rgb(var(--p-accent));
+  stroke: none;
+}
+
+/* ── The retained-information indicator ──────────────────────────────────
+   A relative shape with no scale, because the only honest statement is that
+   each step carries strictly less than the one before. */
+
+.retainedTrack {
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(var(--p-line) / var(--p-line-a));
+  overflow: hidden;
+}
+
+.retainedFill {
+  height: 100%;
+  border-radius: 999px;
+  background: rgb(var(--p-accent) / 0.75);
+  transition: width var(--motion-editorial, 380ms) var(--ease-out, ease-out);
+}
+
+/* ── The one transition ───────────────────────────────────────────────────
+   All three renderings stay mounted and cross-fade, so the figure does not
+   jump between steps. Watching information leave the SAME body is the
+   argument; a reflow between steps would break it. */
+
+.layer {
+  transition: opacity var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.layerOff {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .retainedFill {
+    transition: none;
+  }
+}

@@ -23,7 +23,7 @@ GitHub Pages (static)
       v
 Ask GaitAI panel                     ~34 KB, fetched on first open
       |
-      +--> /ask/knowledge.json       293 KB, 113 records, cached
+      +--> /ask/knowledge.json       315 KB, 118 records, cached
       |         |
       |         v
       |    BM25 retrieval            in the tab - the source of truth
@@ -120,7 +120,7 @@ It reads the site's canonical modules through `tsx` — `products.ts`,
 `responsible-use.ts`, `sample-outputs.ts`, `content.ts` — plus the prose of the
 four `/legal` routes and the Trust Center, read out of the pages themselves.
 
-113 records: 23 modules, 17 environments, 9 publications, 4 research areas,
+118 records: 23 modules, 17 environments, 9 publications, 4 research areas, 1 person record,
 5 journal articles, 27 capabilities and signals, 10 deployment answers,
 2 policy records, 17 site pages.
 
@@ -156,6 +156,50 @@ matching is the more predictable tool, and it costs nothing per request.
 If nothing scores above the confidence floor, the model is told so and says it
 has no documented answer instead of inventing one.
 
+### Entity-aware retrieval
+
+"Who is Anubha" used to be answered by whichever records happened to share a
+word with the question — a privacy policy, the Trust Center, a deployment
+note — because nothing in the ranking knew that a name is decisive. Three
+things fixed that, all deterministic and all local:
+
+1. **Entities in the corpus.** Records that *are* a named thing carry
+   `entityId` and `aliases`; records *about* one carry `relatedEntityIds`.
+   The founder has one canonical `person` record, assembled by
+   `build-knowledge.mjs` from `publications.ts` (authorship, publishers, the
+   founder-vs-company distinction quoted from the Publications page) and
+   `talks.ts` (the speaking record). Its aliases are the name's own parts plus
+   the role word the site uses — "founder" — so "who founded gaitai" and
+   "who is the founder" resolve to it. Every publication she authored, the
+   research areas those papers ground, and the Publications, Research and
+   Talks pages point back at her through `relatedEntityIds`, so
+   person → publications and person → research work without a second copy of
+   the biography. The company (`page:/`) and every module are entities too.
+   What the site does not say — degrees, employers, dates, awards — the record
+   states as *not documented*, so the model has that in its context as well.
+
+2. **Intent classification** (`intent.ts`). A rule-based classifier labels the
+   question PERSON, PRODUCT, CAPABILITY, RESEARCH, PUBLICATION, USE_CASE,
+   PRIVACY, SECURITY, NAVIGATION or GENERAL before anything is scored. The
+   label tilts whole record types: a PERSON question lifts person records and
+   penalises policy, deployment and governance pages; a PRIVACY question does
+   the reverse. Order is the model — a named person beats everything, a
+   research question about privacy is still a research question.
+
+3. **Entity resolution** (`entities.ts`). Aliases are matched after folding
+   case, punctuation, honorifics and possessives, with one edit of tolerance
+   on a long name token ("anubah"). A hit on the record that *is* the entity
+   is worth more than any lexical score a single word can earn; records that
+   point at it get a smaller boost. On a person question the result is then
+   *assembled* rather than sorted: the person first, then the research areas
+   and papers that point at them, then site context.
+
+The answer layer follows suit. A person question is answered person-first —
+name, the record's own summary, then up to four related records of different
+kinds — and a person the corpus has no record for gets a named empty state
+("I couldn't find a GaitAI record for 'Priya Sharma'. Try a full name, or
+search Research and Publications.") instead of the nearest neighbour.
+
 ---
 
 ## 4. Guardrails
@@ -182,7 +226,17 @@ rewritten, so the assistant can never make a stronger claim than
 ```bash
 npm run ask:test              # 25 questions - no model - no network - CI runs this
 npm run ask:test -- --answers # ...and print the answer each one produces
+npm run ask:rank              # 34 ranking cases: what comes FIRST, and which intent
+npm run ask:rank -- --answers # ...with the retrieval-only answer for each
 ```
+
+`ask:rank` is the regression suite for entity-aware retrieval. It asserts the
+top record (or its type), the record types that must *not* come first, the
+intent label, the named empty state for an unknown person, and substrings the
+answer must and must not contain — starting with the case that motivated it:
+"who is anubha" must rank the person record first and never a policy,
+deployment or page record, and "what is privacyguard" must rank PrivacyGuard
+first. Both suites run in `npm run verify`, which CI runs before every deploy.
 
 Four things are asserted, and none of them needs a key or a download:
 
@@ -318,8 +372,10 @@ endpoint is configured — with no backend there is nothing to hand off to.
 
 | File | Role |
 |---|---|
-| `corpus.ts` | Types, the fetch, and the lazy derived indexes |
-| `retrieval.ts` | BM25 + page awareness + relation expansion (index built on first use) |
+| `corpus.ts` | Types, the fetch, and the lazy derived indexes — including the optional entity fields |
+| `retrieval.ts` | BM25 + entity boosts + intent tilt + page awareness + relation expansion (index built on first use) |
+| `intent.ts` | The rule-based query-intent classifier and the "who is X" subject parser |
+| `entities.ts` | Alias normalisation and entity resolution over records carrying `entityId` |
 | `prompt.ts` | The system policy, memoised on first use |
 | `answer.ts` | Link allowlist, source selection, follow-ups, demo CTA |
 | `extractive.ts` | The retrieval-only answer |
@@ -340,6 +396,8 @@ endpoint is configured — with no backend there is nothing to hand off to.
 | File | Role |
 |---|---|
 | `ask/cases.ts` | **The 25 questions**, moved unchanged, imported by both harnesses |
+| `ask/ranking-cases.ts` | The 34 rank-order and intent cases behind `ask:rank` |
+| `ask-ranking-test.ts` | The ranking regression suite |
 | `ask/corpus-node.ts` | Loads the generated corpus for Node |
 | `ask-test.ts` | The acceptance suite |
 | `ask-bench.ts` | The model benchmark |

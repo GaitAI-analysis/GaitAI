@@ -5,6 +5,7 @@
     "use-case": 17,
     "publication": 9,
     "research": 4,
+    "person": 1,
     "insight": 5,
     "signal": 14,
     "capability": 13,
@@ -326,6 +327,14 @@
         "ivc-2023",
         "iet-pose-2022",
         "neurocomputing-2022"
+      ],
+      "entityId": "walkscan",
+      "aliases": [
+        "walkscan",
+        "gaitai walkscan"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -376,6 +385,14 @@
         "ivc-2023",
         "neurocomputing-2022",
         "iet-pose-2022"
+      ],
+      "entityId": "fallrisk",
+      "aliases": [
+        "fallrisk",
+        "gaitai fallrisk"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -425,6 +442,14 @@
         "ivc-2023",
         "neurocomputing-2022",
         "iet-pose-2022"
+      ],
+      "entityId": "rehabtrack",
+      "aliases": [
+        "rehabtrack",
+        "gaitai rehabtrack"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -480,6 +505,14 @@
         "ivc-2023",
         "iet-pose-2022",
         "neurocomputing-2022"
+      ],
+      "entityId": "sportsmotion",
+      "aliases": [
+        "sportsmotion",
+        "gaitai sportsmotion"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -532,6 +565,14 @@
       ],
       "relatedResearch": [
         "patent-covariate-gait-edge"
+      ],
+      "entityId": "watchcare",
+      "aliases": [
+        "watchcare",
+        "gaitai watchcare"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -580,6 +621,14 @@
         "ivc-2023",
         "neurocomputing-2022",
         "iet-pose-2022"
+      ],
+      "entityId": "neuromotion",
+      "aliases": [
+        "neuromotion",
+        "gaitai neuromotion"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -627,6 +676,14 @@
         "ivc-2023",
         "iet-pose-2022",
         "neurocomputing-2022"
+      ],
+      "entityId": "orthomotion",
+      "aliases": [
+        "orthomotion",
+        "gaitai orthomotion"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -675,6 +732,14 @@
         "ivc-2023",
         "neurocomputing-2022",
         "iet-pose-2022"
+      ],
+      "entityId": "seniorcare",
+      "aliases": [
+        "seniorcare",
+        "gaitai seniorcare"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -723,6 +788,14 @@
         "ivc-2023",
         "iet-pose-2022",
         "neurocomputing-2022"
+      ],
+      "entityId": "pediatricmotion",
+      "aliases": [
+        "pediatricmotion",
+        "gaitai pediatricmotion"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -768,6 +841,14 @@
         "ivc-2023",
         "neurocomputing-2022",
         "iet-pose-2022"
+      ],
+      "entityId": "prostheticfit",
+      "aliases": [
+        "prostheticfit",
+        "gaitai prostheticfit"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -814,6 +895,14 @@
         "ivc-2023",
         "neurocomputing-2022",
         "iet-pose-2022"
+      ],
+      "entityId": "remotecare",
+      "aliases": [
+        "remotecare",
+        "gaitai remotecare"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -862,6 +951,14 @@
         "ivc-2023",
         "neurocomputing-2022",
         "iet-pose-2022"
+      ],
+      "entityId": "clinicaltrials",
+      "aliases": [
+        "clinicaltrials",
+        "gaitai clinicaltrials"
+      ],
+      "tags": [
+        "mobilitycare"
       ]
     },
     {
@@ -909,6 +1006,14 @@
       "relatedResearch": [
         "iet-privacy-2022",
         "patent-covariate-gait-edge"
+      ],
+      "entityId": "suspiciousmotion",
+      "aliases": [
+        "suspiciousmotion",
+        "gaitai suspiciousmotion"
+      ],
+      "tags": [
+        "securevision"
       ]
     },
     {
@@ -952,7 +1057,15 @@
         "retailguard",
         "suspiciousmotion"
       ],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "entityId": "crowdsense",
+      "aliases": [
+        "crowdsense",
+        "gaitai crowdsense"
+      ],
+      "tags": [
+        "securevision"
+      ]
     },
     {
       "id": "product:industrialsafety",
@@ -994,6 +1107,14 @@
       ],
       "relatedResearch": [
         "patent-covariate-gait-edge"
+      ],
+      "entityId": "industrialsafety",
+      "aliases": [
+        "industrialsafety",
+        "gaitai industrialsafety"
+      ],
+      "tags": [
+        "securevision"
       ]
     },
     {
@@ -1032,6 +1153,14 @@
       ],
       "relatedResearch": [
         "iet-privacy-2022"
+      ],
+      "entityId": "privacyguard",
+      "aliases": [
+        "privacyguard",
+        "gaitai privacyguard"
+      ],
+      "tags": [
+        "securevision"
       ]
     },
     {
@@ -1072,6 +1201,14 @@
       ],
       "relatedResearch": [
         "iet-privacy-2022"
+      ],
+      "entityId": "campusshield",
+      "aliases": [
+        "campusshield",
+        "gaitai campusshield"
+      ],
+      "tags": [
+        "securevision"
       ]
     },
     {
@@ -1117,6 +1254,14 @@
         "prl-2023",
         "ivc-2023",
         "neurocomputing-2022"
+      ],
+      "entityId": "forensicsearch",
+      "aliases": [
+        "forensicsearch",
+        "gaitai forensicsearch"
+      ],
+      "tags": [
+        "securevision"
       ]
     },
     {
@@ -1162,6 +1307,14 @@
         "prl-2023",
         "ivc-2023",
         "neurocomputing-2022"
+      ],
+      "entityId": "reid",
+      "aliases": [
+        "reid",
+        "gaitai reid"
+      ],
+      "tags": [
+        "securevision"
       ]
     },
     {
@@ -1207,6 +1360,14 @@
         "neurocomputing-2022",
         "patent-covariate-gait-edge",
         "iet-privacy-2022"
+      ],
+      "entityId": "accessmotion",
+      "aliases": [
+        "accessmotion",
+        "gaitai accessmotion"
+      ],
+      "tags": [
+        "securevision"
       ]
     },
     {
@@ -1246,7 +1407,15 @@
         "suspiciousmotion",
         "privacyguard"
       ],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "entityId": "eventshield",
+      "aliases": [
+        "eventshield",
+        "gaitai eventshield"
+      ],
+      "tags": [
+        "securevision"
+      ]
     },
     {
       "id": "product:retailguard",
@@ -1283,7 +1452,15 @@
         "suspiciousmotion",
         "privacyguard"
       ],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "entityId": "retailguard",
+      "aliases": [
+        "retailguard",
+        "gaitai retailguard"
+      ],
+      "tags": [
+        "securevision"
+      ]
     },
     {
       "id": "product:watchlist",
@@ -1326,6 +1503,14 @@
         "ivc-2023",
         "neurocomputing-2022",
         "iet-privacy-2022"
+      ],
+      "entityId": "watchlist",
+      "aliases": [
+        "watchlist",
+        "gaitai watchlist"
+      ],
+      "tags": [
+        "securevision"
       ]
     },
     {
@@ -2091,6 +2276,9 @@
       ],
       "relatedResearch": [
         "res-edge"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2128,6 +2316,9 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2165,6 +2356,9 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2202,6 +2396,9 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2237,6 +2434,9 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2274,6 +2474,9 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2309,6 +2512,9 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2344,6 +2550,9 @@
       ],
       "relatedResearch": [
         "res-pose-gait"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2379,6 +2588,9 @@
       ],
       "relatedResearch": [
         "res-privacy"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2420,6 +2632,9 @@
         "dsp-2024",
         "prl-2023",
         "ivc-2023"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2450,6 +2665,9 @@
       ],
       "relatedResearch": [
         "iet-pose-2022"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2481,6 +2699,9 @@
       ],
       "relatedResearch": [
         "iet-privacy-2022"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
       ]
     },
     {
@@ -2504,6 +2725,72 @@
       ],
       "relatedResearch": [
         "patent-covariate-gait-edge"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
+      ]
+    },
+    {
+      "id": "person:anubha-parashar",
+      "type": "person",
+      "title": "Anubha Parashar",
+      "slug": "anubha-parashar",
+      "url": "/publications/",
+      "family": "research",
+      "category": "Founder",
+      "summary": "Anubha Parashar is the founder of GaitAI. The research record the platform is built on — 8 peer-reviewed papers and a granted Indian patent (Patent 402202) — was authored by Anubha Parashar with academic co-authors, across gait recognition, computer vision, biometrics, pose estimation, machine learning and privacy-preserving movement analysis.",
+      "content": "Name: Anubha Parashar\nRole in the GaitAI record: Founder of GaitAI. The site describes GaitAI as founder-led research that became a platform, built on 10+ years of founder research experience in gait and human movement.\nResearch record: 8 peer-reviewed papers and a granted Indian patent (Patent 402202), authored with academic co-authors and published with Springer, Elsevier, Wiley · IET.\nHow the Publications page describes it: The research record GaitAI is built on: peer-reviewed papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.\nProvenance: These are academic and individually held records rather than company-produced output. GaitAI does not currently hold company-assigned publications or patents of its own; the product modules are subsequent platform implementations.\nPublications authored: A Covariate-Based Gait Recognition System and Method for Edge Analytics Using Optimized Deep Learning Pipeline (Patent — Government of India, 2022) · Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024) · Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition (Digital Signal Processing, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023) · Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification (Image and Vision Computing, 2023) · A robust covariate-invariant gait recognition based on pose features (IET Biometrics, 2022) · Protection of gait data set for preserving its privacy in deep learning pipeline (IET Biometrics, 2022)\nResearch areas this work grounds: Gait recognition & biometrics · Pose-based gait analysis · Privacy-preserving gait data · Edge gait analytics (Patent 402202)\nSpeaking record: 21 documented appearances listed at /research/talks/ — 10 invited talks, 2 conference presentations, 8 paper presentations and 1 poster — delivered in an academic and personal research capacity. They are not GaitAI company appearances.\nNot documented in the GaitAI record: Academic degrees, job history, institutional affiliations, awards, dates of employment, and any role other than founder and author. None of these may be stated or implied.",
+      "keywords": [
+        "anubha parashar",
+        "anubha",
+        "parashar",
+        "founder",
+        "gaitai founder",
+        "who founded gaitai",
+        "author",
+        "research record",
+        "publications",
+        "patent",
+        "talks",
+        "speaker",
+        "speaking record"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [
+        "res-gait-biometrics",
+        "res-pose-gait",
+        "res-privacy",
+        "res-edge",
+        "patent-covariate-gait-edge",
+        "ai-review-2023",
+        "neurocomputing-2022",
+        "eaai-2024",
+        "dsp-2024",
+        "prl-2023",
+        "ivc-2023",
+        "iet-pose-2022",
+        "iet-privacy-2022"
+      ],
+      "entityId": "anubha-parashar",
+      "aliases": [
+        "anubha parashar",
+        "anubha",
+        "parashar",
+        "dr anubha parashar",
+        "dr. anubha parashar",
+        "founder",
+        "the founder",
+        "gaitai founder",
+        "founder of gaitai",
+        "gaitai's founder"
+      ],
+      "relatedEntityIds": [
+        "gaitai"
+      ],
+      "tags": [
+        "founder",
+        "author",
+        "speaker"
       ]
     },
     {
@@ -3611,7 +3898,19 @@
         "about"
       ],
       "relatedProducts": [],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "entityId": "gaitai",
+      "aliases": [
+        "gaitai",
+        "gait ai",
+        "gait.ai",
+        "gaitai.in",
+        "the platform",
+        "the company"
+      ],
+      "relatedEntityIds": [
+        "anubha-parashar"
+      ]
     },
     {
       "id": "page:/products",
@@ -3753,7 +4052,10 @@
         "foundation"
       ],
       "relatedProducts": [],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "relatedEntityIds": [
+        "anubha-parashar"
+      ]
     },
     {
       "id": "page:/publications",
@@ -3774,7 +4076,10 @@
         "where are your papers"
       ],
       "relatedProducts": [],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "relatedEntityIds": [
+        "anubha-parashar"
+      ]
     },
     {
       "id": "page:/insights",
@@ -3901,7 +4206,10 @@
         "keynote"
       ],
       "relatedProducts": [],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "relatedEntityIds": [
+        "anubha-parashar"
+      ]
     },
     {
       "id": "page:/insights/start-here",

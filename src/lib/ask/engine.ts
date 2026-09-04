@@ -108,7 +108,9 @@ function finish(
 
   return {
     text: clean,
-    sources: selectSources(clean, retrieved),
+    /* A person the site has no record for has no source to cite: the nearest
+       record is not evidence about them. */
+    sources: result.entityMiss ? [] : selectSources(clean, retrieved),
     suggestions: suggestFollowUps(retrieved, question),
     cta: shouldOfferDemo(retrieved, turnIndex)
       ? { label: "Request a demo", href: demoHref() }

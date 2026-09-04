@@ -27,11 +27,79 @@
  * upgrade the visitor opts into rather than a dependency.
  */
 
-import type { RetrievalResult } from "./retrieval";
-import type { KnowledgeDoc } from "./corpus";
+import type { RetrievalResult, RetrievedDoc } from "./retrieval";
+import type { DocType, KnowledgeDoc } from "./corpus";
 
 /** How many supporting records a composed answer will name. */
 const SUPPORTING = 3;
+
+/** How many related records a person answer will name. */
+const PERSON_RELATED = 4;
+
+/**
+ * The wording for a person the corpus has no record for. Named from the
+ * question — "Anubha", "Dr. Smith" — so the visitor can see what was looked
+ * up, and pointed at the two routes where people appear on this site.
+ */
+export function composeEntityMiss(subject: string): string {
+  const shown = subject.replace(/["“”]/g, "").trim();
+  return `I couldn't find a GaitAI record for “${shown}”. Try a full name, or search [Research](/research/) and [Publications](/publications/).`;
+}
+
+/**
+ * A PERSON answer: the entity first, then the records that point at it.
+ *
+ * Shape, deliberately plain:
+ *
+ *   Person
+ *   **Name** — the record's own summary
+ *
+ *   Related:
+ *   - a research area, a paper, a page — up to four, one of each kind first
+ *
+ * Every sentence is the person record's own `summary`, which build-knowledge
+ * assembles from the site's Publications, Research and Talks data. Nothing
+ * about the person is written here.
+ */
+function composePersonAnswer(result: RetrievalResult, lead: RetrievedDoc): string {
+  const entityId = lead.doc.entityId ?? result.entity?.entityId;
+  const lines: string[] = ["## Person"];
+
+  const summary = brief(lead.doc, 420);
+  lines.push(summary ? `**${lead.doc.title}** — ${summary}` : `**${lead.doc.title}**`);
+
+  /* Related records: those that point back at the person, one of each kind
+     before a second of any kind, so four slots show four different things. */
+  const pool = result.docs.filter(
+    (item) =>
+      item.doc.id !== lead.doc.id &&
+      (!entityId || item.doc.relatedEntityIds?.includes(entityId)),
+  );
+  const order: DocType[] = ["research", "publication", "page"];
+  const chosen: RetrievedDoc[] = [];
+  for (const type of order) {
+    const first = pool.find(
+      (item) => item.doc.type === type && !chosen.includes(item),
+    );
+    if (first) chosen.push(first);
+  }
+  for (const item of pool) {
+    if (chosen.length >= PERSON_RELATED) break;
+    if (!chosen.includes(item)) chosen.push(item);
+  }
+
+  if (chosen.length) {
+    lines.push("");
+    lines.push("Related:");
+    for (const item of chosen) {
+      const noun = TYPE_NOUN[item.doc.type] ?? item.doc.type;
+      const line = brief(item.doc, 140);
+      lines.push(`- **${item.doc.title}** (${noun})${line ? ` — ${line}` : ""}`);
+    }
+  }
+
+  return lines.join("\n");
+}
 
 /** A record's own words, trimmed to one or two sentences. */
 function brief(doc: KnowledgeDoc, maxChars = 260): string {
@@ -59,6 +127,7 @@ const TYPE_NOUN: Record<string, string> = {
   deployment: "deployment note",
   policy: "policy",
   page: "page",
+  person: "person",
 };
 
 /**
@@ -69,6 +138,10 @@ const TYPE_NOUN: Record<string, string> = {
  * marketing site that has to be quotable.
  */
 export function composeExtractiveAnswer(result: RetrievalResult): string {
+  /* Asked about a person the site has no record for: say which one, and
+     where people do appear — not the nearest policy page. */
+  if (result.entityMiss) return composeEntityMiss(result.entityMiss);
+
   if (result.lowConfidence || result.docs.length === 0) {
     return [
       "I have no documented answer to that on the GaitAI platform.",
@@ -79,6 +152,17 @@ export function composeExtractiveAnswer(result: RetrievalResult): string {
 
   const [lead, ...rest] = result.docs;
   const lines: string[] = [];
+
+  /* Answer first, sources second: a question about a person is answered by
+     the person record, with the papers and research listed under it. */
+  if (lead.doc.type === "person") {
+    lines.push(composePersonAnswer(result, lead));
+    lines.push("");
+    lines.push(
+      "Quoted from the records below rather than written — ask again once the local model is ready for a composed answer.",
+    );
+    return lines.join("\n");
+  }
 
   const leadBrief = brief(lead.doc, 320);
   if (leadBrief) {

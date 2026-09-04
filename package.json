@@ -17,10 +17,11 @@
     "deploy:rules": "npx -y firebase-tools@13 deploy --only firestore:rules",
     "journal:doctor": "tsx scripts/journal-doctor.mjs",
     "site:doctor": "node scripts/site-doctor.mjs",
-    "verify": "npm run typecheck && npm run lint && npm run validate:gaitai && npm run ask:test",
+    "verify": "npm run typecheck && npm run lint && npm run validate:gaitai && npm run ask:test && npm run ask:rank",
     "check:links": "node scripts/check-links.mjs",
     "build:knowledge": "tsx scripts/build-knowledge.mjs",
     "ask:test": "tsx scripts/ask-test.ts",
+    "ask:rank": "tsx scripts/ask-ranking-test.ts",
     "ask:bench": "tsx scripts/ask-bench.ts",
     "test:insights": "tsx scripts/test-insights-scaling.ts"
   },

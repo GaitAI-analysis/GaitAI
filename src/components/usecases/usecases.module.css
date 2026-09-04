@@ -456,28 +456,41 @@
  *
  *   · NEITHER CONTROL ROW WRAPS. Each is a single line that scrolls sideways
  *     when it runs out of room, so the bar is the same three lines at every
- *     width — ~105px on a desktop, ~175px on a phone, instead of growing a row
+ *     width — ~109px on a desktop, ~150px on a phone, instead of growing a row
  *     every time the viewport narrows.
  *   · IT TIGHTENS WHEN IT PARKS. 131px at rest, 109px stuck: the padding and
  *     the row gaps each give up 0.35rem, and no type size changes.
  *
- * THE ONE TRAP IN THAT SECOND CHANGE. A sticky element still holds its place in
- * flow, so a bar that shrinks as it sticks shortens the document and yanks
- * every card below it upward — a 22px jump at the exact moment the reader is
- * scrolling past it, and the same jump back on the way up. The fix is not to
- * give up the idea but to give the space back: a spacer immediately after the
- * bar grows by precisely what the bar gave up, in the same flow, so the total
- * never changes and the grid never moves. Both heights come from the same two
- * custom properties, so they cannot drift out of step.
+ * THE SHELL AND THE PANEL. A sticky element still holds its place in flow, so a
+ * bar that simply shrank as it stuck would shorten the document and yank every
+ * card below it upward — a 22px jump at the exact moment the reader is
+ * scrolling past, and the same jump back on the way up. So the sticky element
+ * is a SHELL whose footprint is always the resting height: at rest it is
+ * exactly the panel; parked, the panel tightens and the shell keeps the 22px
+ * underneath it as padding. The document never changes length.
  *
- * The sentinel sits ABOVE the bar, so shrinking the bar cannot move it and the
- * two states cannot oscillate against each other.
+ * THAT PADDING IS PAINTED. Content scrolling under a sticky bar has to come
+ * out from under it somewhere, and before this it came out flush against the
+ * panel's bottom border: a card's last line and its CTA sat hard against the
+ * filter chips, and read as the toolbar lying on top of the grid. The shell
+ * now paints its bottom band in opaque page ground, so what emerges from under
+ * the toolbar always does so ~22px below its border, across a strip of clean
+ * ground. Nothing that is not the toolbar is drawn inside the shell.
+ *
+ * The heights are derived from two custom properties, never restated, so the
+ * panel and the band cannot drift out of step.
  */
 .explorer {
   --uc-bar-pad-rest: 0.85rem;
   --uc-bar-gap-rest: 0.75rem;
   --uc-bar-pad: var(--uc-bar-pad-rest);
   --uc-bar-gap: var(--uc-bar-gap-rest);
+  /* What the panel gives up when parked: two paddings and the two gaps
+     between its three rows. 0 at rest, 1.4rem parked. */
+  --uc-bar-band: calc(
+    2 * (var(--uc-bar-pad-rest) - var(--uc-bar-pad)) +
+      2 * (var(--uc-bar-gap-rest) - var(--uc-bar-gap))
+  );
 }
 
 .explorer[data-stuck="true"] {
@@ -485,47 +498,51 @@
   --uc-bar-gap: 0.4rem;
 }
 
-.stickyBar {
-  position: sticky;
-  top: var(--site-header-height, 5.625rem);
-  z-index: 20;
-  border-block: 1px solid rgb(var(--c-soft-white) / 0.07);
-  padding-block: var(--uc-bar-pad);
-}
-
-/* Zero-height marker, immediately above the bar. It has no appearance and no
-   space; the explorer watches it to know when the bar has parked. */
+/* Zero-height marker, immediately above the toolbar. It has no appearance and
+   no space; the explorer watches it to know when the toolbar has parked. */
 .stickySentinel {
   height: 0;
 }
 
-/* Exactly what the bar gives up: two paddings and the two gaps between the
-   three rows. Zero at rest, 1.4rem parked. Derived, never restated. */
-.stickySpacer {
-  height: calc(
-    2 * (var(--uc-bar-pad-rest) - var(--uc-bar-pad)) +
-    2 * (var(--uc-bar-gap-rest) - var(--uc-bar-gap))
-  );
+/*
+ * The sticky element. Its box is the resting footprint at all times: the panel
+ * plus, when parked, the band the panel gave up. The band is painted — and only
+ * the band, so the panel above it keeps its own translucent ground — by a
+ * bottom-anchored gradient sized to exactly that height.
+ *
+ * Header, toolbar, cards: 50, 20, none.
+ */
+.toolbarShell {
+  position: sticky;
+  top: var(--site-header-height, 5.625rem);
+  z-index: 20;
+  padding-bottom: var(--uc-bar-band);
+  background-image: linear-gradient(var(--bg), var(--bg));
+  background-repeat: no-repeat;
+  background-position: bottom;
+  background-size: 100% var(--uc-bar-band);
+}
+
+.toolbarPanel {
+  border-block: 1px solid rgb(var(--c-soft-white) / 0.07);
+  padding-block: var(--uc-bar-pad);
 }
 
 /*
- * PARKED. The only difference between resting and stuck, and it is deliberately
- * the smallest one that does the job: cards passing underneath have to stop
- * ghosting through the controls.
- *
- * The ground does that, not a shadow and not a heavy blur — 0.94 is opaque
- * enough that a card edge cannot be read through it, which is what a 0.82 wash
- * behind 14px of blur was failing to manage. The blur that remains is there for
- * the few pixels of colour that do come through at the edges; the bottom rule
- * gains a little weight so the bar has a defined lower edge against the grid
- * rather than fading into it. No box-shadow at all.
+ * PARKED. The panel takes a ground: cards passing underneath must not ghost
+ * through the controls. 0.97 of the page ground is opaque enough that a card
+ * edge cannot be read through it; the blur that remains is for the last few
+ * percent of colour at the edges, and it is kept small. No box-shadow — the
+ * bottom rule gains a little weight instead, so the toolbar has a defined lower
+ * edge against the band of ground beneath it.
  *
  * `--c-obsidian` is the page ground token, so this follows the theme: near-black
  * in the dark theme, near-white in the light one.
  */
-.explorer[data-stuck="true"] .stickyBar {
-  background: rgb(var(--c-obsidian) / 0.94);
-  backdrop-filter: blur(10px);
+.explorer[data-stuck="true"] .toolbarPanel {
+  background: rgb(var(--c-obsidian) / 0.97);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-bottom-color: rgb(var(--c-soft-white) / 0.12);
 }
 

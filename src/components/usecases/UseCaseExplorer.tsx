@@ -110,7 +110,15 @@ export function UseCaseExplorer() {
     const header = document.querySelector("header.site-header");
     const offset = header?.getBoundingClientRect().height ?? 90;
     const observer = new IntersectionObserver(
-      ([entry]) => setStuck(!entry.isIntersecting),
+      ([entry]) =>
+        /* "Not intersecting" is true on BOTH sides of the viewport: a sentinel
+           that has gone up behind the header, and one that is still below the
+           fold on a freshly loaded page. Only the first is parked. Without the
+           second test the bar rendered compact and opaque before the reader
+           had ever reached it, then un-parked as it scrolled into view. */
+        setStuck(
+          !entry.isIntersecting && entry.boundingClientRect.top < offset,
+        ),
       { rootMargin: `-${Math.round(offset)}px 0px 0px 0px`, threshold: 0 },
     );
     observer.observe(mark);
@@ -135,57 +143,61 @@ export function UseCaseExplorer() {
   };
 
   return (
-    /* `data-stuck` lives on the wrapper, not on the bar, because two elements
-       need to read it: the bar, which loses padding, and the spacer below it,
-       which takes exactly that much height back. */
+    /* `data-stuck` lives on the wrapper, not on the toolbar, because the shell
+       and the panel inside it both read it: the panel loses padding, the
+       shell keeps the footprint. */
     <div className={styles.explorer} data-stuck={stuck ? "true" : undefined}>
       {/*
        * The sentinel that tells the toolbar it has parked under the navbar.
        *
        * `position: sticky` gives you the behaviour and none of the state:
        * there is no `:stuck` selector, so the only cheap way to know is to
-       * watch a zero-height marker sitting immediately above the bar and see
-       * when it passes behind the header. `rootMargin` pulls the observer's
-       * top edge down by the header's real measured height, so the flip
-       * happens on the exact pixel the bar stops moving — no scroll handler,
-       * no rAF, two callbacks for a whole page of scrolling.
+       * watch a zero-height marker sitting immediately above the toolbar and
+       * see when it passes behind the header. `rootMargin` pulls the
+       * observer's top edge down by the header's real measured height, so the
+       * flip happens on the exact pixel the toolbar stops moving — no scroll
+       * handler, no rAF, two callbacks for a whole page of scrolling.
        *
-       * The class it toggles changes COLOUR ONLY, never a dimension. A sticky
-       * element still occupies its place in flow, so shrinking one at the
-       * moment it sticks pulls every card below it upwards — a visible jolt,
-       * and, if the shrink is enough to lift the sentinel back into view, a
-       * flicker between the two states. The bar is therefore the same compact
-       * height at rest as it is stuck.
+       * It sits ABOVE the toolbar, so nothing the toolbar does to its own
+       * height can move it, and the two states cannot oscillate.
        */}
       <div ref={sentinel} aria-hidden="true" className={styles.stickySentinel} />
 
-      <div className={styles.stickyBar}>
-        <div className="container-wide">
-          <UseCaseFilterBar
-            query={query}
-            onQuery={setQuery}
-            family={family}
-            onFamily={setFamily}
-            facet={facet}
-            onFacet={setFacet}
-            counts={counts}
-            shown={matches.length}
-            total={industryUseCases.length}
-            onReset={reset}
-          />
+      {/*
+       * THE TOOLBAR: a shell and a panel.
+       *
+       * The SHELL is the sticky element and the only thing that holds a place
+       * in flow. Its footprint is the toolbar's resting height and never
+       * changes — parked or not, at every width — so the document never gets
+       * shorter or longer as the reader scrolls past, and the grid below it
+       * never moves.
+       *
+       * The PANEL is the visible bar: the border, the controls, the ground.
+       * It is what tightens when it parks (131px → 109px on a desktop), and
+       * the room it gives up stays inside the shell, underneath it, as a band
+       * of opaque page ground. That band is the point of the split: content
+       * scrolling up under a sticky bar has to come out somewhere, and here it
+       * comes out below a strip of clean ground rather than flush against
+       * the toolbar's border. No card pixel can appear inside the shell.
+       */}
+      <div className={styles.toolbarShell}>
+        <div className={styles.toolbarPanel}>
+          <div className="container-wide">
+            <UseCaseFilterBar
+              query={query}
+              onQuery={setQuery}
+              family={family}
+              onFamily={setFamily}
+              facet={facet}
+              onFacet={setFacet}
+              counts={counts}
+              shown={matches.length}
+              total={industryUseCases.length}
+              onReset={reset}
+            />
+          </div>
         </div>
       </div>
-
-      {/*
-       * THE COMPENSATOR. The bar loses 1.4rem of padding the moment it parks,
-       * and a sticky element still holds its place in flow — so without this,
-       * losing it would shorten the document and pull every card below the bar
-       * upward, a visible jump at the exact moment the reader is scrolling
-       * past. This grows by precisely what the bar gave up, in the same flow,
-       * so the grid does not move at all. Its height is derived from the two
-       * padding values rather than restated, so the two cannot drift apart.
-       */}
-      <div aria-hidden="true" className={styles.stickySpacer} />
 
       {matches.length === 0 && (
         <div className="container-wide">

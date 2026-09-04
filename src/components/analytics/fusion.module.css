@@ -3,15 +3,23 @@
    ---------------------------------------------------------------------------
    Three states, three treatments, and the treatments are not interchangeable:
 
-     AVAILABLE   solid, accent — the rail is carrying something
-     MISSING     faint, no dash — an absence, and absences are quiet
-     CORRUPTED   amber, dashed — present, and wrong
+     AVAILABLE   solid, accent — the rail is carrying something, all the way
+     MISSING     faint, dashed, and it STOPS short of the hub — an absence
+     CORRUPTED   solid, amber, full length, with a small disturbance on it —
+                 present, and wrong
 
    Corrupted has to look PRESENT rather than absent. If a corrupted rail read
    as faint or broken, the reader would learn that corruption is visible, which
    is the exact opposite of what this instrument is for. So it keeps full
-   weight and takes a warning colour and a dash: something is flowing, and it
-   should not be trusted.
+   weight and full length, and only takes a warning colour and a noise mark:
+   something is flowing, and it should not be trusted. Missing is the one that
+   gets shorter — which is the whole comparison.
+
+   Layout: a five-column grid — inputs · rails · hub · out-line · read-out —
+   on tablets and up, stacked vertically below 768px. The rails are the only
+   SVG; rows, hub and read-out are HTML, so nothing can be clipped by a
+   viewBox. The row pitch is `--f-row`, set from the component so the SVG's
+   pixel geometry and the buttons agree.
 
    Light-theme values sit beside their dark counterparts, never only inside a
    media query.
@@ -23,41 +31,198 @@
    two colours this instrument needs and that block does not define — the
    accent as an rgb triple, and a warning hue — are declared here, each with
    its light counterpart beside it. */
-/* Same reasoning as the Movement X-Ray: four labelled rails converging on a
-   labelled hub does not survive being scaled to 390px, so it scrolls in its
-   own container rather than shrinking. */
-.scroller {
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-}
-
-.frame {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-
+.diagram {
   --f-accent: 34 211 238; /* cyan-400 */
-  --f-warn: 251 191 36; /* amber-400 */
+  --f-warn: 252 211 77; /* amber-300 — restrained, never red */
+  --f-row: 44px;
+  --f-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  display: grid;
+  grid-template-columns:
+    minmax(200px, 1.15fr)
+    minmax(110px, 1fr)
+    auto
+    56px
+    minmax(180px, 1.1fr);
+  align-items: center;
+  max-width: 960px;
 }
 
-@media (max-width: 640px) {
-  .frame {
-    min-width: 480px;
-  }
-}
-
-:global(.light) .frame {
+:global(.light) .diagram {
   --f-accent: 14 116 144; /* cyan-700 */
   --f-warn: 180 83 9; /* amber-700 — readable on white */
 }
 
+/* Row 1: the instruction, one line, over everything. */
+.hint {
+  grid-column: 1 / -1;
+  margin: 0 0 0.75rem;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--an-mute);
+}
+
+.hint::before {
+  content: "";
+  display: inline-block;
+  width: 0.35rem;
+  height: 0.35rem;
+  margin-right: 0.5rem;
+  border-radius: 999px;
+  background: rgb(var(--f-accent) / 0.8);
+  vertical-align: middle;
+}
+
+/* ── Input rows ──────────────────────────────────────────────────────────── */
+
+.inputs {
+  min-width: 0;
+  border: 1px solid var(--an-line);
+  border-radius: 0.7rem;
+  background: var(--an-surface-2);
+  overflow: hidden;
+}
+
+/* Each row is a real <button>: the whole row is the control, and the state
+   word beside the name is its content. Fixed height so its centre line is
+   exactly where the rail leaves. */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.75rem;
+  width: 100%;
+  height: var(--f-row);
+  padding: 0 0.8rem 0 0.85rem;
+  border: 0;
+  border-bottom: 1px solid var(--an-line);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+  transition:
+    background var(--motion-ui, 220ms) var(--ease-out, ease-out),
+    color var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row:hover {
+  background: var(--interactive-hover-bg, rgb(148 163 184 / 0.06));
+}
+
+.row:active {
+  transform: translateY(0.5px);
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--an-cyan);
+  outline-offset: -2px;
+  z-index: 1;
+  border-radius: 0.4rem;
+}
+
+.rowName {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--an-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+/* The state, visually secondary: smaller, lighter, and it takes the state
+   colour rather than the name doing so. */
+.rowState {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  color: var(--an-mute);
+  transition: color var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+/* Three ticks: which of the three states this is. Not a control — the row
+   is — but it tells the reader there ARE three, and where they are in the
+   cycle. */
+.ticks {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.ticks i {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--an-line-mid);
+  transition: background var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.rowOn .rowState {
+  color: rgb(var(--f-accent) / 0.95);
+}
+
+.rowOn .tickOn {
+  background: rgb(var(--f-accent));
+}
+
+.rowOff .rowName {
+  color: var(--an-mute);
+}
+
+.rowOff .rowState {
+  color: var(--an-mute);
+}
+
+.rowOff .tickOn {
+  background: var(--an-mute);
+}
+
+.rowBad .rowState {
+  color: rgb(var(--f-warn));
+}
+
+.rowBad .tickOn {
+  background: rgb(var(--f-warn));
+}
+
+/* The row's own short rail — narrow screens only, where there is no rail
+   column to carry the state shape. */
+.miniRail {
+  display: none;
+  width: 48px;
+  height: 10px;
+  overflow: visible;
+}
+
 /* ── Rails ───────────────────────────────────────────────────────────────── */
+
+.railCol {
+  min-width: 0;
+  height: calc(var(--f-row) * 4);
+}
+
+.rails {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
 
 .rail {
   stroke-width: 1.6;
   stroke-linecap: round;
+  stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
   transition:
     stroke var(--motion-ui, 220ms) var(--ease-out, ease-out),
@@ -71,87 +236,348 @@
 .railOn .rail,
 .railOn {
   stroke: rgb(var(--f-accent) / 0.8);
+  color: rgb(var(--f-accent) / 0.8);
 }
 
 .railOn .railDot {
   fill: rgb(var(--f-accent) / 0.9);
 }
 
+/* Missing: faint and dashed, and drawn short. The open terminal marks the
+   point where the absence begins. */
 .railOff .rail,
 .railOff {
   stroke: var(--an-line-mid);
+  color: var(--an-line-mid);
+  stroke-dasharray: 3 4;
 }
 
 .railOff .railDot {
   fill: var(--an-line-mid);
 }
 
-/* Full weight, warning colour, dashed. Present and not to be trusted. */
+.railEnd {
+  fill: none;
+  stroke: var(--an-line-mid);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Corrupted: full weight, full length, warning colour, solid. Present and not
+   to be trusted. */
 .railBad .rail,
 .railBad {
-  stroke: rgb(var(--f-warn) / 0.9);
-  stroke-dasharray: 4 3;
+  stroke: rgb(var(--f-warn) / 0.85);
+  color: rgb(var(--f-warn) / 0.85);
 }
 
 .railBad .railDot {
   fill: rgb(var(--f-warn));
 }
 
-.railLabel {
-  fill: var(--an-mute);
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+/* The disturbance: a short jag riding on the rail. */
+.noise {
+  stroke: rgb(var(--f-warn));
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
-.railOn .railLabel {
-  fill: var(--an-ink);
+/* ── Signal motion ───────────────────────────────────────────────────────── */
+/* One small dot per live rail, travelling to the hub. Slow, and never on a
+   missing rail — there is nothing after the break. */
+.signal {
+  fill: rgb(var(--f-accent));
+  opacity: 0.9;
 }
 
-.railBad .railLabel {
-  fill: rgb(var(--f-warn));
+/* A corrupted rail's dot is mostly the accent — the signal LOOKS normal — and
+   shifts amber for a beat on each pass. */
+.signalBad {
+  animation: flick 1.3s steps(1, end) infinite;
+}
+
+@keyframes flick {
+  0%,
+  58% {
+    fill: rgb(var(--f-accent));
+  }
+  59%,
+  74% {
+    fill: rgb(var(--f-warn));
+  }
+  75%,
+  84% {
+    fill: rgb(var(--f-accent));
+  }
+  85%,
+  92% {
+    fill: rgb(var(--f-warn));
+  }
+  93%,
+  100% {
+    fill: rgb(var(--f-accent));
+  }
 }
 
 /* ── Hub ─────────────────────────────────────────────────────────────────── */
 
+.hub {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
 .hubRing {
-  fill: none;
-  stroke-width: 1.4;
-  vector-effect: non-scaling-stroke;
-  transition: stroke var(--motion-ui, 220ms) var(--ease-out, ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 66px;
+  height: 66px;
+  border-radius: 999px;
+  border: 1.4px solid var(--an-line-mid);
+  transition:
+    border-color var(--motion-ui, 220ms) var(--ease-out, ease-out),
+    box-shadow var(--motion-ui, 220ms) var(--ease-out, ease-out);
 }
 
 .hubLabel {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.16em;
-  text-anchor: middle;
+  color: var(--an-ink);
+  transition: color var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+/* The secondary status, under the ring and out of its flow, so the ring
+   stays on the bus line whether or not there is anything to say. */
+.hubStatus {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  color: var(--an-mute);
 }
 
 .hubOn .hubRing {
-  stroke: rgb(var(--f-accent) / 0.7);
-}
-
-.hubOn .hubLabel {
-  fill: var(--an-ink);
+  border-color: rgb(var(--f-accent) / 0.7);
+  box-shadow: 0 0 0 4px rgb(var(--f-accent) / 0.06);
 }
 
 .hubBad .hubRing {
-  stroke: rgb(var(--f-warn) / 0.85);
+  border-color: rgb(var(--f-warn) / 0.85);
+  box-shadow: 0 0 0 4px rgb(var(--f-warn) / 0.07);
 }
 
 .hubBad .hubLabel {
-  fill: rgb(var(--f-warn));
+  color: rgb(var(--f-warn));
+}
+
+.hubBad .hubStatus {
+  color: rgb(var(--f-warn));
 }
 
 .hubOff .hubRing {
-  stroke: var(--an-line-mid);
+  border-color: var(--an-line-mid);
 }
 
 .hubOff .hubLabel {
-  fill: var(--an-mute);
+  color: var(--an-mute);
+}
+
+/* ── Output line ─────────────────────────────────────────────────────────── */
+
+.outLine {
+  display: block;
+  width: 100%;
+  height: 12px;
+  overflow: visible;
+}
+
+/* ── Read-out ────────────────────────────────────────────────────────────── */
+/* A block reserved in the grid, immediately after the out-line. Never a label
+   past the end of a viewBox, so it cannot be clipped, at any width. */
+.output {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-left: 0.85rem;
+}
+
+.outputEyebrow {
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+
+.outputCount {
+  margin-top: 0.3rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--an-ink);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.outputLabel {
+  margin-top: 0.4rem;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: rgb(var(--f-accent) / 0.95);
+  transition: color var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.outputFlag {
+  margin-top: 0.25rem;
+  font-family: var(--f-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: rgb(var(--f-warn));
+}
+
+.outputNote {
+  margin: 0.6rem 0 0;
+  max-width: 26ch;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--an-mute);
+}
+
+.outputBad .outputLabel {
+  color: var(--an-ink);
+}
+
+.outputOff .outputCount,
+.outputOff .outputLabel {
+  color: var(--an-mute);
+}
+
+/* The vertical connectors of the stacked layout. Hidden until needed. */
+.drop {
+  display: none;
+}
+
+/* ── Tablet: same diagram, shorter rails ────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .diagram {
+    grid-template-columns:
+      minmax(180px, 1fr)
+      minmax(80px, 0.7fr)
+      auto
+      40px
+      minmax(160px, 1fr);
+  }
+
+  .row {
+    padding: 0 0.65rem 0 0.7rem;
+  }
+
+  .rowName {
+    font-size: 10px;
+  }
+
+  .output {
+    padding-left: 0.65rem;
+  }
+
+  .outputNote {
+    max-width: 22ch;
+  }
+}
+
+/* ── Narrow: stack ──────────────────────────────────────────────────────── */
+/* Inputs, then a drop to the hub, then a drop to the read-out. The rail
+   column and out-line are dropped; each row carries its own short rail. */
+@media (max-width: 767px) {
+  .diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 100%;
+  }
+
+  .hint {
+    margin-bottom: 0.6rem;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+  }
+
+  .miniRail {
+    display: block;
+  }
+
+  .railCol,
+  .outLine {
+    display: none;
+  }
+
+  .drop {
+    display: block;
+    width: 0;
+    height: 26px;
+    margin: 2px auto;
+    border-left: 1.6px solid currentColor;
+  }
+
+  .railOff.drop {
+    border-left-style: dashed;
+  }
+
+  .hub {
+    align-self: center;
+    margin-bottom: 1.85rem;
+  }
+
+  .output {
+    align-items: center;
+    text-align: center;
+    padding: 0.85rem 0.9rem 1rem;
+    border: 1px solid var(--an-line);
+    border-radius: 0.7rem;
+    background: var(--an-surface-2);
+  }
+
+  .outputNote {
+    max-width: 34ch;
+  }
+}
+
+@media (max-width: 400px) {
+  .rowName {
+    letter-spacing: 0.1em;
+  }
+
+  .rowState {
+    gap: 0.4rem;
+    letter-spacing: 0.1em;
+  }
+
+  .miniRail {
+    width: 32px;
+  }
 }
 
 /* ── Channel read-out ────────────────────────────────────────────────────── */
@@ -231,10 +657,24 @@
   border-color: rgb(180 83 9 / 0.3);
 }
 
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+/* No travelling dots and no colour transitions. Every state stays legible
+   without them: line length, dash, colour and the words beside each row. */
 @media (prefers-reduced-motion: reduce) {
+  .signal {
+    display: none;
+  }
+
   .rail,
   .railDot,
+  .row,
+  .rowName,
+  .rowState,
+  .ticks i,
   .hubRing,
+  .hubLabel,
+  .outputCount,
+  .outputLabel,
   .verdict {
     transition: none;
   }

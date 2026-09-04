@@ -359,8 +359,7 @@
   padding-top: 1.5rem;
 }
 
-.contact .title,
-.footer .title {
+.contact .title {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 11px;
   font-weight: 600;
@@ -378,29 +377,25 @@
    Gone with the topic line: the whole `min-width: 1280px` block, which existed
    only to join the label and the topics onto one line, and the `::before`
    middot that separated them. */
-.contact .form,
-.footer .form {
+.contact .form {
   margin-top: 0.7rem;
   max-width: 24rem;
 }
 
-.contact .input,
-.footer .input {
+.contact .input {
   flex: 1 1 11rem;
   padding: 0.55rem 0.75rem;
   font-size: 0.8125rem;
 }
 
-.contact .button,
-.footer .button {
+.contact .button {
   padding: 0.55rem 0.8rem;
   font-size: 10px;
 }
 
 /* The compact "[ → ]": the node and the arrow, with the word available to a
    screen reader only. */
-.contact .buttonLabel,
-.footer .buttonLabel {
+.contact .buttonLabel {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -413,14 +408,11 @@
 }
 
 .contact .note,
-.contact .legal,
-.footer .note,
-.footer .legal {
+.contact .legal {
   max-width: 24rem;
 }
 
-.contact .legal,
-.footer .legal {
+.contact .legal {
   font-size: 0.6875rem;
 }
 
@@ -647,30 +639,4 @@
   .arrow {
     transition: none;
   }
-}
-
-/* ═══════════ THE FOOTER BLOCK ═══════════
- *
- * The compact `contact` shape, in the site footer, on the blog family only.
- * It carries a topic line where `contact` does not, and no sweep: the sweep
- * exists to win attention beside a demo form in a CTA card, and nothing in a
- * footer should be competing for a reader's eye on its way out.
- *
- * No top rule of its own — the footer column it sits in already has one. */
-.footer {
-  padding-top: 0;
-}
-
-.footer .blurb {
-  margin-top: 0.45rem;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  line-height: 1.6;
-  color: rgb(var(--c-soft-mute));
-}
-
-/* The form follows a two-line label here, not a one-line one. */
-.footer .form {
-  margin-top: 0.85rem;
 }

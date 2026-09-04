@@ -609,7 +609,7 @@ async function main() {
         para("Category", article.category),
         para("Topics", article.topics),
         para("Published", article.date),
-        para("Reading time", `${article.readMinutes} minutes`),
+        para("Reading time", `${insights.readingMinutes(article)} minutes`),
         para("The question it answers", article.question),
         para("Excerpt", article.excerpt),
         para("What the reader takes away", article.hooks),

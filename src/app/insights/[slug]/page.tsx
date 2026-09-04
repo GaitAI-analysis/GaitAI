@@ -10,6 +10,7 @@ import {
   formatInsightDate,
   getInsightBySlug,
   insightArticles,
+  readingMinutes,
   insightHref,
   type InsightArticle,
 } from "@/data/insights";
@@ -220,6 +221,7 @@ export default async function InsightArticlePage({
                 author={INSIGHTS_AUTHOR}
                 date={article.date}
                 dateLabel={formatInsightDate(article.date)}
+                readMinutes={readingMinutes(article)}
               >
                 <h1 className={styles.articleTitle}>
                   <Headline article={article} />

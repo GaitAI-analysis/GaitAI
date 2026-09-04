@@ -37,9 +37,14 @@ import styles from "./engagement.module.css";
  * views can be absent: if the counter cannot be read, that segment does not
  * render rather than showing a zero.
  *
- * NO READING TIME. It used to sit in this row, estimated from `readMinutes`.
- * The field stays in the record; nothing renders it, on this row or anywhere
- * else a reader can see, and `journal:doctor` fails if that changes.
+ * READING TIME IS BACK, AND IS NOW DERIVED. It sat in this row once, printed
+ * from a hand-set `readMinutes` on each record — a number no rewrite ever
+ * moved, and which measured close to double the prose it described. It was
+ * removed rather than corrected. What renders now is `readingMinutes()`,
+ * counted from the same blocks this page renders, so it cannot drift from the
+ * article and cannot be edited into a flattering figure. It stays off the
+ * cards: on a grid it is one more thing between a reader and a headline, and
+ * `journal:doctor` still fails if a card starts printing it.
  *
  * VIEWS MOVED UP, AND ARE NOT DUPLICATED. They used to sit in the row below
  * the headline with the likes and comments. They now close the kicker, where
@@ -52,6 +57,7 @@ export function ArticleMeta({
   author,
   date,
   dateLabel,
+  readMinutes,
   children,
 }: {
   slug: string;
@@ -62,6 +68,8 @@ export function ArticleMeta({
   date: string;
   /** The same date, spelled for a reader. */
   dateLabel: string;
+  /** Counted from the article's own blocks — see `readingMinutes`. */
+  readMinutes: number;
   /** Headline, subtitle, deck and hook — server-rendered, passed through. */
   children: ReactNode;
 }) {
@@ -83,6 +91,11 @@ export function ArticleMeta({
         <span>{author}</span>
         <span aria-hidden="true">·</span>
         <time dateTime={date}>{dateLabel}</time>
+        <span aria-hidden="true">·</span>
+        {/* Server-rendered, unlike the count beside it: this is a property of
+            the article rather than of Firestore, so it is on the page in the
+            first frame and never lengthens the row after paint. */}
+        <span>{readMinutes} min read</span>
 
         {/* Arrives after the read resolves. The hairline below flexes, so a
             count landing late lengthens the line without moving the article. */}

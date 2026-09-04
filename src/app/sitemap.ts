@@ -52,7 +52,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const cover = selectCoverStory(stories);
   const mainPageTotal = progressivePageCount(stories.length - (cover ? 1 : 0), HOME_LATEST_SIZE);
   const topics = publicationTopics(stories);
-  const discoveryRoutes = ["/insights/start-here", "/insights/archive"];
+  /* The blog's three standing destinations beside the feed itself. They are
+     the same three the navbar's Blog dropdown points at, which is the point:
+     a crawler and a reader should be offered the same map. */
+  const discoveryRoutes = ["/insights/start-here", "/insights/topics", "/insights/archive"];
   const paginationRoutes = Array.from({ length: Math.max(0, mainPageTotal - 1) }, (_, index) => `/insights/page/${index + 2}`);
   const topicRoutes = topics.flatMap((topic) => {
     const total = pageCount(stories.filter((story) => story.topics.includes(topic.slug)).length, PUBLICATION_PAGE_SIZE);
@@ -84,7 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((route) => !staticRouteSet.has(route.replace(/\/$/, "") || "/"))
       .map((route) => ({
       url: loc(route),
-      changeFrequency: route === "/insights/archive" ? ("weekly" as const) : ("monthly" as const),
+      changeFrequency: route === "/insights/archive" || route === "/insights/topics" ? ("weekly" as const) : ("monthly" as const),
       priority: route.includes("/page/") ? 0.4 : 0.5,
     })),
   ];

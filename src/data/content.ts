@@ -20,6 +20,31 @@ export interface NavItem {
   href: string;
   /** Short purpose line shown in the desktop dropdown and mobile submenu. */
   description?: string;
+  /**
+   * Extra route prefixes this entry owns, for families whose sections do not
+   * nest under one another.
+   *
+   * The navbar decides which submenu row is lit by prefix match, deepest
+   * match wins, which is right wherever the URL tree mirrors the menu —
+   * /research/talks/ sits under /research/. The blog does not: its topic
+   * pages live at /insights/topic/<slug>/ and its later feed pages at
+   * /insights/page/2/, neither of which is under the menu row that owns it.
+   * Listing the prefix here is how "Topics" stays lit on a topic page without
+   * inventing a /insights/topics/<slug>/ route that would compete with the
+   * real one for the same content.
+   */
+  owns?: readonly string[];
+  /**
+   * Match this entry's own href exactly, never as a prefix.
+   *
+   * Only "Latest Stories" needs it, and it needs it badly: its href is
+   * /insights, which prefixes every article, topic page and archive route in
+   * the publication. Without this, opening any article lights "Latest
+   * Stories" in the dropdown — telling the reader they are on the feed while
+   * they are reading a story. An article lights the Blog tab and no child,
+   * which is the honest answer.
+   */
+  exact?: boolean;
   children?: readonly NavItem[];
 }
 
@@ -81,8 +106,48 @@ export const navLinks: readonly NavItem[] = [
   /* The route stays /insights. The navbar says "Blog" because it has to fit
      between six other tabs and because it is the word a first-time visitor
      scans for; the page itself carries the fuller "GaitAI · Blog & Updates",
-     and the footer, which has the room, says "Blog & Updates" too. */
-  { label: "Blog", href: "/insights" },
+     and the footer, which has the room, says "Blog & Updates" too.
+
+     THE FOUR ROWS ARE THE PUBLICATION'S FOUR QUESTIONS, in the order a reader
+     asks them: what should I read today, where do I begin, what do you write
+     about, and what have you published. Each is a different job — that is why
+     they are four destinations and not one page with tabs — and putting them
+     in the navbar is what removes the need for a second horizontal strip
+     inside the blog itself.
+
+     Series has no row deliberately. The one series that exists canonicalises
+     to /insights/start-here/, so a "Series" entry would be a fifth row
+     pointing at the second one. */
+  {
+    label: "Blog",
+    href: "/insights",
+    children: [
+      {
+        label: "Latest Stories",
+        href: "/insights",
+        description: "Recent articles, research notes and GaitAI updates",
+        exact: true,
+        owns: ["/insights/page"],
+      },
+      {
+        label: "GaitAI Foundations",
+        href: "/insights/start-here",
+        description: "The five ideas behind movement-intelligence thinking",
+        owns: ["/insights/series"],
+      },
+      {
+        label: "Topics",
+        href: "/insights/topics",
+        description: "Browse the writing by subject",
+        owns: ["/insights/topic"],
+      },
+      {
+        label: "Archive",
+        href: "/insights/archive",
+        description: "Everything GaitAI has published",
+      },
+    ],
+  },
   {
     label: "Research & IP",
     href: "/research",

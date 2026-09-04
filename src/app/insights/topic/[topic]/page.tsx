@@ -16,10 +16,10 @@ export async function generateMetadata({ params }: { params: { topic: string } }
   const title = topicLabel(params.topic);
   const description = topicDescription(params.topic);
   return {
-    title: `${title} — GaitAI Insights`,
+    title: `${title} — GaitAI Blog`,
     description,
     alternates: { canonical: `/insights/topic/${params.topic}` },
-    openGraph: { type: "website", url: `/insights/topic/${params.topic}`, title: `${title} — GaitAI Insights`, description },
+    openGraph: { type: "website", url: `/insights/topic/${params.topic}`, title: `${title} — GaitAI Blog`, description },
   };
 }
 
@@ -33,7 +33,7 @@ export default async function TopicPage({ params }: { params: { topic: string } 
         stories={stories}
         fixedTopic={params.topic}
         basePath={`/insights/topic/${params.topic}`}
-        kicker="Insights topic"
+        kicker="Blog topic"
         title={topicLabel(params.topic)}
         description={topicDescription(params.topic)}
         showCover={false}

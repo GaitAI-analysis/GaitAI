@@ -168,6 +168,48 @@ const destinationEntries: SearchEntry[] = [
     ]),
   },
   {
+    /* The blog's three standing destinations beside the feed. They are in the
+       navbar's Blog dropdown, the sitemap and the atlas; leaving them out of
+       the palette was the one place a reader could ask for "foundations" or
+       "archive" and be told the site has neither. */
+    id: "destination:blog-foundations",
+    group: "destination",
+    title: "GaitAI Foundations",
+    detail: "The five ideas behind GaitAI's movement-intelligence thinking",
+    meta: "Editorial",
+    href: "/insights/start-here/",
+    haystack: norm([
+      "gaitai foundations start here new to gaitai where do i begin",
+      "curated reading path five stories introduction primer",
+      "movement intelligence identity responsible ai mobility evidence",
+    ]),
+  },
+  {
+    id: "destination:blog-topics",
+    group: "destination",
+    title: "Blog Topics",
+    detail: "Browse the writing by subject",
+    meta: "Editorial",
+    href: "/insights/topics/",
+    haystack: norm([
+      "topics subjects categories browse by subject",
+      "movement intelligence responsible ai mobility research engineering",
+      "what has gaitai written about",
+    ]),
+  },
+  {
+    id: "destination:blog-archive",
+    group: "destination",
+    title: "Blog Archive",
+    detail: "Everything GaitAI has published, by year and month",
+    meta: "Editorial",
+    href: "/insights/archive/",
+    haystack: norm([
+      "archive back issues everything published complete index",
+      "by year by month older posts past stories",
+    ]),
+  },
+  {
     id: "destination:gaitscape",
     group: "destination",
     title: "GaitScape",

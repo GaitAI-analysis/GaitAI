@@ -5,10 +5,10 @@ import { buildArchiveGroups, formatPublicationDate, publicationTopics, publicati
 import styles from "@/components/insights/archive-page.module.css";
 
 export const metadata: Metadata = {
-  title: "Insights Archive",
+  title: "Blog Archive — Everything GaitAI Has Published",
   description: "The complete GaitAI publication archive, organised by year and month.",
   alternates: { canonical: "/insights/archive" },
-  openGraph: { type: "website", url: "/insights/archive", title: "GaitAI Insights Archive", description: "Every story, research note and update from GaitAI." },
+  openGraph: { type: "website", url: "/insights/archive", title: "GaitAI Blog Archive", description: "Every story, research note and update from GaitAI." },
 };
 
 export default async function InsightsArchivePage() {

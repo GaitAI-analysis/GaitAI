@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: { series: string } 
     };
   }
   return {
-    title: `${name} — GaitAI Insights`,
+    title: `${name} — GaitAI Blog`,
     description: `${stories.length} stories in the ${name} reading sequence.`,
     alternates: { canonical: `/insights/series/${params.series}` },
   };

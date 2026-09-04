@@ -20,12 +20,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
  *   VISIBLE ONLY   Nothing runs until the section is actually in view, and it
  *                  pauses the moment it leaves. A demonstration nobody can see
  *                  is a timer burning battery.
- *   BRIEF          A fixed number of passes, then it is over for good. It never
- *                  restarts on re-entry, because a section that keeps
- *                  performing every time you scroll past reads as decoration.
- *   YIELDS         `stop()` ends it permanently. The caller wires that to every
- *                  hover, focus, tap and key press, so the instant a visitor
- *                  does anything the section belongs to them.
+ *   BRIEF          A fixed number of passes, then it is over for good — the
+ *                  default, because a section that performs every time you
+ *                  scroll past reads as decoration. `cycles: "infinite"` opts
+ *                  out for the one case where the cycling IS the content: the
+ *                  home page's four movement lenses exist to say "the same
+ *                  signal reads four ways", and a visitor who arrives after
+ *                  two passes should still be told that.
+ *   YIELDS         `stop()` ends it permanently. `pause()` and `resume()` are
+ *                  the reversible pair, for a caller that hands control back —
+ *                  a hover that ends, a lock that is released. A caller that
+ *                  only ever wants "the visitor took over" wires `stop`.
  *   REDUCED MOTION It simply never runs. `index` stays null and the caller
  *                  falls through to its own resting state, which is a complete,
  *                  readable picture — not a blank one waiting for animation.
@@ -49,9 +54,13 @@ export interface AutoDemonstrateOptions {
   intervalMs?: number;
   /**
    * Complete passes before it stops for good. One pass is a demonstration;
-   * anything much beyond two is a carousel, which the brief rules out.
+   * anything much beyond two is a carousel.
+   *
+   * `"infinite"` keeps going while the section is visible and nothing has
+   * paused or stopped it. Reserve it for a section where the stepping is the
+   * message rather than a hint that interaction exists.
    */
-  cycles?: number;
+  cycles?: number | "infinite";
   /** Fraction of the section that must be visible before it begins. */
   threshold?: number;
   /** Escape hatch for a caller that already knows it should not run. */
@@ -67,6 +76,19 @@ export interface AutoDemonstrate<T extends HTMLElement> {
   running: boolean;
   /** End it permanently. Wire to every user interaction the section accepts. */
   stop: () => void;
+  /**
+   * Suspend it, reversibly, and hand `index` back to the caller's own resting
+   * state. For a hover or a lock — something that will end.
+   */
+  pause: () => void;
+  /**
+   * Undo `pause`. Does nothing once `stop` has been called.
+   *
+   * `from` sets where it picks up, so a caller can resume at whatever the
+   * visitor was last looking at rather than at wherever the cycle had wandered
+   * to — which is what stops a hover ending in a jump.
+   */
+  resume: (from?: number) => void;
 }
 
 export function useAutoDemonstrate<T extends HTMLElement = HTMLDivElement>({
@@ -84,10 +106,29 @@ export function useAutoDemonstrate<T extends HTMLElement = HTMLDivElement>({
   const doneRef = useRef(false);
   const shownRef = useRef(0);
 
+  /* State, not a ref: pausing has to tear the timer down, and only a
+     dependency change can do that from outside the effect. */
+  const [paused, setPaused] = useState(false);
+
   const stop = useCallback(() => {
     doneRef.current = true;
     setRunning(false);
     setIndex(null);
+  }, []);
+
+  const pause = useCallback(() => {
+    setPaused(true);
+    setRunning(false);
+    /* Hand `index` back so the caller's own resting state shows through — a
+       paused demonstration must not keep asserting a state it is not
+       driving. */
+    setIndex(null);
+  }, []);
+
+  const resume = useCallback((from?: number) => {
+    if (doneRef.current) return;
+    if (from !== undefined) shownRef.current = from;
+    setPaused(false);
   }, []);
 
   useEffect(() => {
@@ -98,6 +139,11 @@ export function useAutoDemonstrate<T extends HTMLElement = HTMLDivElement>({
        own, and the section is still fully operable by hand. */
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (reduced.matches) return;
+
+    /* Paused by the caller. Nothing is observed and nothing ticks until
+       `resume` flips this back, at which point the observer is rebuilt and
+       reports the current visibility for free. */
+    if (paused) return;
 
     let timer: number | undefined;
 
@@ -116,8 +162,12 @@ export function useAutoDemonstrate<T extends HTMLElement = HTMLDivElement>({
       setIndex(shownRef.current % steps);
       shownRef.current += 1;
 
+      /* "infinite" is the one case where the stepping is the content rather
+         than a hint that interaction exists. */
+      const limit = cycles === "infinite" ? Infinity : steps * cycles;
+
       timer = window.setInterval(() => {
-        if (shownRef.current >= steps * cycles) {
+        if (shownRef.current >= limit) {
           clear();
           doneRef.current = true;
           setRunning(false);
@@ -131,7 +181,9 @@ export function useAutoDemonstrate<T extends HTMLElement = HTMLDivElement>({
       }, intervalMs);
     };
 
-    const pause = () => {
+    /* The off-screen pause. Separate from the caller's `pause` because this
+       one must not latch: coming back into view should start it again. */
+    const suspend = () => {
       clear();
       setRunning(false);
       setIndex(null);
@@ -143,7 +195,7 @@ export function useAutoDemonstrate<T extends HTMLElement = HTMLDivElement>({
       (entries) => {
         const visible = entries.some((e) => e.isIntersecting);
         if (visible && !doneRef.current) begin();
-        else if (!visible) pause();
+        else if (!visible) suspend();
       },
       { threshold },
     );
@@ -153,7 +205,7 @@ export function useAutoDemonstrate<T extends HTMLElement = HTMLDivElement>({
     const onPreferenceChange = (event: MediaQueryListEvent) => {
       if (event.matches) {
         doneRef.current = true;
-        pause();
+        suspend();
       }
     };
     reduced.addEventListener("change", onPreferenceChange);
@@ -163,7 +215,7 @@ export function useAutoDemonstrate<T extends HTMLElement = HTMLDivElement>({
       observer.disconnect();
       reduced.removeEventListener("change", onPreferenceChange);
     };
-  }, [steps, intervalMs, cycles, threshold, enabled]);
+  }, [steps, intervalMs, cycles, threshold, enabled, paused]);
 
-  return { ref, index, running, stop };
+  return { ref, index, running, stop, pause, resume };
 }

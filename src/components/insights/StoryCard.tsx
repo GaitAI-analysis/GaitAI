@@ -138,7 +138,15 @@ export function StoryCard({
   const subject = article.category === typeLabel ? null : article.category;
 
   return (
-    <article className={`${styles.card} ${VARIANT_CLASS[variant]} ${topic}`}>
+    /* `journal-card` is a plain global class, and the only reason it exists:
+       the cover artwork is styled by covers.module.css, which cannot see this
+       card's hashed module class, and the artwork animation has to be
+       triggered by hovering the CARD rather than the drawing. Kept off the
+       hashed set deliberately so the two stylesheets have one stable contract
+       between them. */
+    <article
+      className={`${styles.card} journal-card ${VARIANT_CLASS[variant]} ${topic}`}
+    >
       <span aria-hidden="true" className={styles.cardAccent} />
 
       {/* The essay's own drawn cover. It was the raster hero, and four of the

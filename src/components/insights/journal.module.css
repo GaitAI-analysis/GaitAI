@@ -741,7 +741,7 @@
 }
 .card:hover .cardCtaArrow,
 .card:focus-within .cardCtaArrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 @media (prefers-reduced-motion: reduce) {
   .card:hover .cardCtaArrow,
@@ -885,6 +885,38 @@
    only see its own class names, and re-proportioning a card means restyling
    the inside of it, not only its footprint.
    ========================================================================= */
+
+/*
+ * A short settle when the result set changes.
+ *
+ * Keyed on type/topic/sort in JournalIndex and NOT on the search text: a
+ * remount per keystroke would flash the grid while a reader was still typing,
+ * which is the "full-page flash" this exists to avoid. Discrete filter
+ * changes get the transition; search narrows in place.
+ *
+ * `opacity` and `transform` only, and the grid keeps its tracks throughout,
+ * so nothing reflows and the page cannot jump.
+ */
+@keyframes jrGridIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.gridEnter {
+  animation: jrGridIn 0.3s var(--jr-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gridEnter {
+    animation: none;
+  }
+}
 
 .indexGrid {
   margin-top: 1.25rem;

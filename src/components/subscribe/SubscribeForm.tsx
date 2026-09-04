@@ -54,7 +54,7 @@ type State =
   | "already"
   | "error";
 
-export type SubscribeVariant = "blog" | "article" | "contact";
+export type SubscribeVariant = "blog" | "article" | "contact" | "footer";
 
 const COPY: Record<
   SubscribeVariant,
@@ -72,6 +72,17 @@ const COPY: Record<
     blurb: "Get the next signal from GaitAI.",
     cta: "Subscribe",
     source: "article",
+  },
+  /* The footer of the blog family — see FooterSubscribe for why it appears
+     there and nowhere else. Same compact shape as `contact`, but it keeps the
+     topic line: `contact` dropped that line because it named four things the
+     reader had just scrolled past on the home page, and a reader at the foot
+     of an article has scrolled past stories instead. */
+  footer: {
+    title: "Blog & updates",
+    blurb: "Research · Product · Engineering · GaitAI updates",
+    cta: "Subscribe",
+    source: "footer",
   },
   contact: {
     /* No blurb. "Research · Product · Engineering · GaitAI updates" named the

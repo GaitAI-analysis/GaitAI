@@ -149,6 +149,22 @@
   min-width: 0;
 }
 
+/* The back link. Deliberately the quietest thing on the screen — it is the
+   way out, not the way in, and this screen has exactly one thing to say. */
+.openingBack {
+  display: inline-block;
+  margin-bottom: 1.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+  transition: color 0.3s var(--jr-ease);
+}
+.openingBack:hover {
+  color: var(--jr-ink);
+}
+
 .masthead {
   display: flex;
   flex-wrap: wrap;
@@ -184,6 +200,17 @@
 }
 .openingLine {
   display: block;
+}
+
+/* One line under the question. Body size, one measure, and it answers "what
+   is this?" rather than restating the question in prose — the moment this
+   grows into a paragraph the first screen is a hero again. */
+.openingFraming {
+  margin-top: 1.75rem;
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--jr-body);
 }
 
 .openingScroll {

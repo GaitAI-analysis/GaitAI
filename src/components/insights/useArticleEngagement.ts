@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchArticleStats,
   hasLiked,
@@ -72,6 +72,11 @@ export interface ArticleEngagement {
 export function useArticleEngagement(slug: string): ArticleEngagement {
   const [status, setStatus] = useState<EngagementStatus>("loading");
   const [views, setViews] = useState<number | null>(null);
+  /* What `views` currently is, readable from inside an async callback without
+     making it a dependency. The write path needs to know whether a number has
+     arrived yet, and a stale closure would answer for the first render
+     forever. */
+  const viewsRef = useRef<number | null>(null);
   const [likes, setLikes] = useState<number | null>(null);
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState<number | undefined>();
@@ -89,6 +94,7 @@ export function useArticleEngagement(slug: string): ArticleEngagement {
         setStatus("unavailable");
         return;
       }
+      viewsRef.current = stats.views;
       setViews(stats.views);
       setLikes(stats.likes);
       setLiked(hasLiked(slug));
@@ -109,10 +115,30 @@ export function useArticleEngagement(slug: string): ArticleEngagement {
     const count = async () => {
       const applied = await registerView(slug);
       if (!alive || applied === 0) return;
-      /* Show the reader the number they are part of, without a second read.
-         If the first read has not landed yet it will, and it will already
-         include this write. */
-      setViews((current) => (current === null ? current : current + applied));
+
+      /* Show the reader the number they are part of, without a second read —
+         when there is a number to add to.
+
+         WHEN THERE IS NOT. The read and the write race, and the write can land
+         first. `current` is then still null, the +1 has nowhere to go, and the
+         read that follows returns the value from BEFORE this write — so the
+         page settled on a count one short and stayed there until a refresh.
+         The old comment claimed the read "will already include this write",
+         which is only true when the read is issued after it. In that one case
+         a single extra read is the cheap, correct answer; the common path
+         still costs one read and one write. */
+      if (viewsRef.current !== null) {
+        viewsRef.current += applied;
+        setViews(viewsRef.current);
+        return;
+      }
+
+      const fresh = await fetchArticleStats(slug);
+      if (!alive || !fresh) return;
+      viewsRef.current = fresh.views;
+      setViews(fresh.views);
+      setLikes(fresh.likes);
+      setStatus("ready");
     };
 
     const startWhenVisible = () => {

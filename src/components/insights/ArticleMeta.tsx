@@ -48,7 +48,6 @@ export function ArticleMeta({
   author,
   date,
   dateLabel,
-  readMinutes,
   children,
 }: {
   slug: string;
@@ -59,7 +58,6 @@ export function ArticleMeta({
   date: string;
   /** The same date, spelled for a reader. */
   dateLabel: string;
-  readMinutes: number;
   /** Headline, subtitle, deck and hook — server-rendered, passed through. */
   children: ReactNode;
 }) {
@@ -81,8 +79,6 @@ export function ArticleMeta({
         <span>{author}</span>
         <span aria-hidden="true">·</span>
         <time dateTime={date}>{dateLabel}</time>
-        <span aria-hidden="true">·</span>
-        <span>{readMinutes} min read</span>
 
         {/* Arrives after the read resolves. The hairline below flexes, so a
             count landing late lengthens the line without moving the article. */}

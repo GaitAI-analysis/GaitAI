@@ -110,8 +110,16 @@ export function CTA() {
                   Built for healthcare, mobility and public-safety environments
                 </div>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-soft-mute">
-                  A pilot is scoped around one environment and the modules it
-                  needs. {PILOT_SCOPE}{" "}
+                  {/* The opening sentence is one unbreakable unit from `lg` up,
+                      so it never splits after "modules it". The paragraph
+                      continues past it, so this is not `nowrap` on the whole
+                      <p> — that would overflow the card. Below `lg` the span
+                      wraps normally, which is what a phone needs. */}
+                  <span className="lg:whitespace-nowrap">
+                    A pilot is scoped around one environment and the modules it
+                    needs.
+                  </span>{" "}
+                  {PILOT_SCOPE}{" "}
                   <Link
                     href="/products#deploy"
                     className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"

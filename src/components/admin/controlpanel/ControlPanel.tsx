@@ -28,7 +28,11 @@ import {
   type ReportDoc,
 } from "@/lib/admin/panel-store";
 import { ToastProvider, useToast } from "./ui";
-import { AdminAuthGate } from "./AdminAuthGate";
+import {
+  AdminAccountControl,
+  AdminAuthGate,
+  type AdminSession,
+} from "./AdminAuthGate";
 import { OverviewView } from "./OverviewView";
 import { ContentView } from "./ContentView";
 import { CommentsView } from "./CommentsView";
@@ -61,13 +65,13 @@ export function ControlPanel() {
   return (
     <ToastProvider>
       <AdminAuthGate>
-        {() => <PanelInner />}
+        {(session) => <PanelInner session={session} />}
       </AdminAuthGate>
     </ToastProvider>
   );
 }
 
-function PanelInner() {
+function PanelInner({ session }: { session: AdminSession }) {
   const toast = useToast();
   const adapter = useMemo(() => getAdapter(), []);
 
@@ -178,14 +182,25 @@ function PanelInner() {
               Live · Firestore
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          {/* The header's right-hand actions, in one row and in normal flow:
+              View site, then the account. The account control used to be a
+              `fixed` chip pinned to the viewport corner, so it reserved no
+              space and covered both this link and the navbar above it. Laying
+              the two out here is the whole fix — `min-w-0` lets the row give
+              way inside the wrapping header, and both items are `shrink-0` so
+              neither is ever compressed into the other. */}
+          <div className="flex min-w-0 items-center justify-end gap-3">
             <Link
               href="/insights"
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-xs text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/[0.08]"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/[0.04] px-3 py-1.5 text-xs text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/[0.08]"
             >
               View site
               <ArrowUpRight className="h-3 w-3" />
             </Link>
+            <AdminAccountControl
+              email={session.email}
+              onSignOut={session.signOut}
+            />
           </div>
         </header>
 

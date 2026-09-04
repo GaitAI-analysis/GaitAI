@@ -52,7 +52,7 @@ export type SubscribeVariant = "blog" | "article" | "contact";
 
 const COPY: Record<
   SubscribeVariant,
-  { title: string; blurb: string; cta: string; source: SubscribeSource }
+  { title: string; blurb?: string; cta: string; source: SubscribeSource }
 > = {
   blog: {
     title: "Stay close to the signal",
@@ -68,8 +68,11 @@ const COPY: Record<
     source: "article",
   },
   contact: {
+    /* No blurb. "Research · Product · Engineering · GaitAI updates" named the
+       same four things the reader has just scrolled past on this page, and it
+       was the only line between the label and the field. The label says what
+       the block is; the field says what to do. */
     title: "Blog & updates",
-    blurb: "Research · Product · Engineering · GaitAI updates",
     cta: "Subscribe",
     /* The STORED value stays "footer". `source` is an enum bounded by the
        deployed security rules — `d.source in ['blog','article','footer',
@@ -154,7 +157,7 @@ export function SubscribeForm({
         <h2 id={`${fieldId}-title`} className={styles.title}>
           {copy.title}
         </h2>
-        <p className={styles.blurb}>{copy.blurb}</p>
+        {copy.blurb && <p className={styles.blurb}>{copy.blurb}</p>}
       </div>
 
       <form className={styles.form} onSubmit={onSubmit} noValidate>

@@ -319,52 +319,17 @@
   color: rgb(var(--c-soft-white));
 }
 
-.contact .blurb {
-  margin-top: 0.5rem;
-  font-size: 0.8125rem;
-}
+/* There is no blurb in this variant, so the field follows the label
+   directly. 0.9rem was measured against a two-line copy block above it and
+   left a visible hole once the second line went; 0.7rem sits the field under
+   an 11px tracked eyebrow the way the eyebrow sits under the rule above it,
+   and keeps label and field reading as one unit.
 
-/*
- * From `lg` up the label and its topics are ONE line:
- *
- *   BLOG & UPDATES · Research · Product · Engineering · GaitAI updates
- *
- * Two stacked rows made this column taller than it needed to be for eight
- * words. They keep their own weights — the label stays mono, uppercase and
- * tracked; the topics stay softer — and `align-items: baseline` is what puts
- * them on the same one rather than merely on the same row.
- *
- * THE BREAKPOINT IS 1280, NOT 1024, AND THAT IS MEASURED. At 1024 the joined
- * string does not fit this column, so it wrapped — and a wrapped flex item
- * carries its `::before` with it, leaving a middot orphaned at the start of
- * the second line. Below 1280 the rule simply does not apply and the label and
- * topics stay stacked, which is the right shape there anyway. `flex-wrap`
- * stays as a floor: if the column is ever narrowed, the topics drop to their
- * own line rather than pushing the layout sideways.
- */
-@media (min-width: 1280px) {
-  .contact .copy {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    column-gap: 0.45rem;
-  }
-
-  .contact .blurb {
-    margin-top: 0;
-  }
-
-  /* The separator belongs to the join, not to either string, so it lives in
-     CSS and neither piece of copy has to carry a dangling middot. */
-  .contact .blurb::before {
-    content: "·";
-    margin-right: 0.45rem;
-    color: rgb(var(--c-soft-mute));
-  }
-}
-
+   Gone with the topic line: the whole `min-width: 1280px` block, which existed
+   only to join the label and the topics onto one line, and the `::before`
+   middot that separated them. */
 .contact .form {
-  margin-top: 0.9rem;
+  margin-top: 0.7rem;
   max-width: 24rem;
 }
 

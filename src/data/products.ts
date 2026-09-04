@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { CaptureSource } from "./capture-sources";
 import {
   Activity,
   AlertTriangle,
@@ -81,6 +82,25 @@ export interface GaitProduct {
   accent: "teal" | "blue" | "violet" | "cyan" | "gold" | "emerald";
   /** Maturity — see ProductStatus. Unset until evidence exists. */
   status?: ProductStatus;
+  /**
+   * Capture sources this module can ALSO work from, beyond the primary one
+   * derived from its documented input statement.
+   *
+   * Every entry here restates something the module's own detail record already
+   * says in prose — "optional wearable data", "compatible CCTV footage where
+   * appropriate" — and `validate:gaitai` fails the build if the two disagree
+   * in either direction. It is declared rather than inferred at runtime for
+   * two reasons: a regex over English is the wrong thing to ship to a browser,
+   * and reading the prose in the data layer dragged 1,500 lines of product
+   * copy into seven client bundles.
+   *
+   * KEPT SEPARATE FROM THE PRIMARY SOURCES ON PURPOSE. FallRisk's wearable
+   * support is an addition to video, not a substitute for it, so merging the
+   * two lists would offer FallRisk to somebody holding only a watch. Surfaces
+   * that ask "what do you have?" use the primary sources; surfaces that
+   * describe a module state both.
+   */
+  supportingSources?: CaptureSource[];
 }
 
 // ----------------------------------------------------------------------------
@@ -117,6 +137,7 @@ export const mobilityProducts: GaitProduct[] = [
     featured: true,
     flagship: true,
     accent: "teal",
+    supportingSources: ["cctv"],
   },
   {
     id: "fallrisk",
@@ -145,6 +166,7 @@ export const mobilityProducts: GaitProduct[] = [
     featured: true,
     flagship: true,
     accent: "gold",
+    supportingSources: ["wearable"],
   },
   {
     id: "rehabtrack",
@@ -172,6 +194,7 @@ export const mobilityProducts: GaitProduct[] = [
     featured: true,
     flagship: false,
     accent: "teal",
+    supportingSources: ["wearable"],
   },
   {
     id: "sportsmotion",
@@ -202,6 +225,7 @@ export const mobilityProducts: GaitProduct[] = [
     featured: true,
     flagship: true,
     accent: "cyan",
+    supportingSources: ["wearable"],
   },
   {
     id: "watchcare",
@@ -255,6 +279,7 @@ export const mobilityProducts: GaitProduct[] = [
     featured: false,
     flagship: false,
     accent: "violet",
+    supportingSources: ["wearable"],
   },
   {
     id: "orthomotion",
@@ -309,6 +334,7 @@ export const mobilityProducts: GaitProduct[] = [
     featured: false,
     flagship: false,
     accent: "gold",
+    supportingSources: ["wearable"],
   },
   {
     id: "pediatricmotion",
@@ -407,6 +433,7 @@ export const mobilityProducts: GaitProduct[] = [
     featured: false,
     flagship: false,
     accent: "violet",
+    supportingSources: ["wearable"],
   },
 ];
 

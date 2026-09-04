@@ -138,6 +138,7 @@ export function MovementXRay({
       />
 
       <figure className="mt-6">
+        <div className={styles.scroller}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className={styles.frame}
@@ -249,6 +250,7 @@ export function MovementXRay({
             })}
           </g>
         </svg>
+        </div>
 
         <figcaption className="mt-4 text-[13.5px] leading-relaxed text-soft-gray">
           {ai ? aiCaption : humanCaption}

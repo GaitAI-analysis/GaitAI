@@ -68,9 +68,22 @@ const PLANNED = [
 /*
  * Wording that must not appear on any public page.
  *
- * "synthetic data" is the one with a carve-out: it is a legitimate phrase
- * inside a cited paper title, so a hit is reported with its surrounding text
- * and judged rather than assumed wrong.
+ * "synthetic data" is the one with a carve-out, and there are now TWO
+ * legitimate uses to judge a hit against rather than one:
+ *
+ *   1. Inside a cited paper title. A title must not be falsified to satisfy
+ *      this check.
+ *   2. As an evidence-mode provenance label. `data/provenance.ts` defines
+ *      "Synthetic data" as one of seven bases a reader can ask about, and it
+ *      means "every number shown here is invented for illustration" — which is
+ *      a DISCLOSURE, and the opposite of the claim this rule exists to catch.
+ *      It renders only when a reader turns evidence mode on, so it does not
+ *      appear in the prerendered HTML this check scans; if a future change
+ *      makes it appear, that is not a regression. Do not delete the label to
+ *      make this line green.
+ *
+ * The rule is about claiming a RESULT rests on synthetic data. Saying plainly
+ * that a demo's figures are invented is the thing the site is supposed to do.
  */
 const FORBIDDEN = [
   ["synthetic data", /synthetic[ _\-]?(?:data|values|dataset)/gi],

@@ -23,6 +23,15 @@
    two colours this instrument needs and that block does not define — the
    accent as an rgb triple, and a warning hue — are declared here, each with
    its light counterpart beside it. */
+/* Same reasoning as the Movement X-Ray: four labelled rails converging on a
+   labelled hub does not survive being scaled to 390px, so it scrolls in its
+   own container rather than shrinking. */
+.scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
 .frame {
   display: block;
   width: 100%;
@@ -31,6 +40,12 @@
 
   --f-accent: 34 211 238; /* cyan-400 */
   --f-warn: 251 191 36; /* amber-400 */
+}
+
+@media (max-width: 640px) {
+  .frame {
+    min-width: 480px;
+  }
 }
 
 :global(.light) .frame {

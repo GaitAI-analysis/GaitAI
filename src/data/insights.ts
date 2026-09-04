@@ -187,7 +187,6 @@ export interface InsightArticle {
   author?: string;
   /** Exactly one published story should normally carry this editorial flag. */
   featured?: boolean;
-  readMinutes: number;
   excerpt: string;
   /**
    * An editorial question the article answers, used as a hook beside its card
@@ -266,7 +265,6 @@ export const insightArticles: InsightArticle[] = [
     topics: ["movement-intelligence", "research"],
     date: "2026-08-26",
     featured: true,
-    readMinutes: 8,
     excerpt:
       "A walking video looks simple. Turning it into reliable movement intelligence is not. Inside the pipeline from capture and pose estimation to gait features, sensor fusion and actionable outputs.",
     question: "What does an AI system actually see when you walk?",
@@ -634,7 +632,6 @@ export const insightArticles: InsightArticle[] = [
     category: "Research Note",
     topics: ["movement-intelligence", "mobility", "research"],
     date: "2026-08-19",
-    readMinutes: 6,
     excerpt:
       "Gait has often been studied as a biometric signature. But human movement can carry information about mobility, recovery, functional change, risk and safety context as well.",
     question: "What can a walk tell us, beyond who is walking?",
@@ -889,7 +886,6 @@ export const insightArticles: InsightArticle[] = [
     category: "Responsible AI",
     topics: ["responsible-ai", "movement-intelligence"],
     date: "2026-08-12",
-    readMinutes: 7,
     excerpt:
       "Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs.",
     question: "Does a system need to know who you are to understand how you move?",
@@ -1143,7 +1139,6 @@ export const insightArticles: InsightArticle[] = [
     category: "Clinical Movement Intelligence",
     topics: ["mobility", "movement-intelligence"],
     date: "2026-08-05",
-    readMinutes: 6,
     excerpt:
       "A single assessment tells us how someone moves today. Longitudinal movement analysis asks the more useful question: how is that movement changing?",
     question: "What matters more: today's mobility score, or how it changed?",
@@ -1394,7 +1389,6 @@ export const insightArticles: InsightArticle[] = [
     category: "Research Note",
     topics: ["research", "responsible-ai"],
     date: "2026-07-29",
-    readMinutes: 9,
     excerpt:
       "More modalities and more complex fusion do not automatically mean better evidence. Five questions that expose whether a multimodal result is genuinely convincing.",
     question: "When does another sensor improve the AI — and when does it only improve the benchmark?",
@@ -1678,6 +1672,90 @@ export const insightArticles: InsightArticle[] = [
 export const insightsByDate = [...insightArticles].sort(
   (a, b) => Date.parse(b.date) - Date.parse(a.date),
 );
+
+/**
+ * How long this article takes to read, DERIVED FROM THE ARTICLE.
+ *
+ * There used to be a hand-set `readMinutes` on every record. It was wrong:
+ * against a word count the five stated values ran roughly double what the
+ * prose supports, and — worse than being wrong once — nothing moved them when
+ * a section was rewritten. A number a reader uses to decide whether to start
+ * cannot be a number an editor last thought about in a different draft.
+ *
+ * This walks the same blocks `InsightProse` renders, so anything a reader sees
+ * is counted and anything they do not is not. Every arm of `InsightBlock` is
+ * handled explicitly rather than by stringifying the object: a `tone` of
+ * "cyan" and an `ok` of `false` are not words on the page, and a catch-all
+ * would have counted them.
+ *
+ * 200 words a minute, rounded up, never below one. That is the slow end of
+ * the usual 200-250 range, chosen because this is technical writing with
+ * diagrams in it — the figures cost time the word count cannot see, and a
+ * stated time a reader beats is a better failure than one they miss.
+ */
+const WORDS_PER_MINUTE = 200;
+
+function words(...parts: Array<string | string[] | undefined>): number {
+  let total = 0;
+  for (const part of parts) {
+    if (!part) continue;
+    for (const text of Array.isArray(part) ? part : [part]) {
+      total += text.trim().split(/\s+/).filter(Boolean).length;
+    }
+  }
+  return total;
+}
+
+function blockWords(block: InsightBlock): number {
+  switch (block.type) {
+    case "lead":
+    case "p":
+    case "h3":
+    case "quote":
+    case "note":
+    case "matters":
+      return words(block.text);
+    case "list":
+      return words(block.items);
+    case "callout":
+      return words(block.title, block.text);
+    case "flow":
+      return words(block.steps, block.caption);
+    case "compare":
+      return words(
+        block.caption,
+        block.columns.flatMap((column) => [column.label, column.title, ...column.points]),
+      );
+    case "gaitcycle":
+      return words(block.caption);
+    case "states":
+      return words(
+        block.caption,
+        block.items.flatMap((item) => [item.label, item.name, item.note]),
+      );
+    case "trend":
+      return words(block.caption, block.points);
+  }
+}
+
+export function articleWordCount(article: InsightArticle): number {
+  return (
+    words(article.deck, article.openingHook) +
+    article.intro.reduce((sum, block) => sum + blockWords(block), 0) +
+    article.sections.reduce(
+      (sum, section) =>
+        sum +
+        words(section.kicker, section.title) +
+        section.blocks.reduce((inner, block) => inner + blockWords(block), 0),
+      0,
+    ) +
+    article.closing.reduce((sum, block) => sum + blockWords(block), 0)
+  );
+}
+
+export function readingMinutes(article: InsightArticle): number {
+  return Math.max(1, Math.ceil(articleWordCount(article) / WORDS_PER_MINUTE));
+}
 
 export function getInsightBySlug(slug: string): InsightArticle | undefined {
   return insightArticles.find((article) => article.slug === slug);

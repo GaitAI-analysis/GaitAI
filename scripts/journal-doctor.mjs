@@ -336,20 +336,56 @@ for (const [label, ok, detail] of wiring) {
 }
 
 /* ── 5b · Reading time is not shown ────────────────────────────────────────
-   `readMinutes` stays in the records — it is useful data — but no reader-facing
-   blog surface prints it. This reads the components that do the rendering, not
-   the served HTML: searching the HTML is the assumption that made the previous
-   generation of these checks cry wolf. */
-console.log("\n" + C.b("  5b · Reading time is not rendered"));
+   Reading time belongs where a reader is deciding whether to start an article
+   they have already opened — the metadata row — and nowhere else. On a card
+   grid it is one more number between a reader and a headline.
+
+   The second half of this matters more than the first. There is no stored
+   `readMinutes` any more: the number is counted from the article's own blocks
+   by `readingMinutes`, so it cannot be hand-set and cannot drift away from a
+   rewrite. A record growing that field back is the regression to catch, so
+   this fails on the FIELD as well as on the surfaces.
+
+   This reads the components that do the rendering, not the served HTML:
+   searching the HTML is the assumption that made the previous generation of
+   these checks cry wolf. */
+console.log("\n" + C.b("  5b · Reading time is derived, and article-only"));
 
 const READ_TIME = /min read|minutes? read|readingTime|\breadMinutes\b/i;
+
+/* Where it is REQUIRED. */
+const metaRow = code("src/components/insights/ArticleMeta.tsx");
+if (!metaRow) {
+  line(WARN, "article metadata row · file not found", "src/components/insights/ArticleMeta.tsx");
+} else {
+  const shown = /\{readMinutes\} min read/.test(metaRow);
+  line(shown ? PASS : FAIL, "article metadata row prints the reading time", shown ? "" : "the row lost it");
+  if (!shown) failures += 1;
+}
+
+/* Where it must be DERIVED, never stored. */
+const records = code("src/data/insights.ts");
+if (!records) {
+  line(WARN, "article records · file not found", "src/data/insights.ts");
+} else {
+  const stored = /^\s*readMinutes:\s*(\d+,|number;)/m.test(records);
+  const derived = /export function readingMinutes\(/.test(records);
+  line(stored ? FAIL : PASS, "no hand-set readMinutes on any record", stored ? "a record states its own reading time" : "");
+  if (stored) failures += 1;
+  line(derived ? PASS : FAIL, "reading time is derived from the blocks", derived ? "" : "readingMinutes() is gone");
+  if (!derived) failures += 1;
+}
+
+/* Where it is BANNED — every surface that LISTS articles rather than being
+   one. The article template is not in this list: it passes the derived number
+   down, which is exactly what it should do. */
 for (const [label, rel] of [
-  ["article metadata row", "src/components/insights/ArticleMeta.tsx"],
-  ["article template", "src/app/insights/[slug]/page.tsx"],
-  ["blog listing", "src/components/insights/JournalIndex.tsx"],
+  ["blog listing", "src/components/insights/PublicationBrowser.tsx"],
+  ["publication card", "src/components/insights/PublicationCard.tsx"],
   ["story card", "src/components/insights/StoryCard.tsx"],
   ["card stats", "src/components/insights/CardStats.tsx"],
-  ["next-story rail", "src/components/insights/NextStory.tsx"],
+  ["archive listing", "src/app/insights/archive/page.tsx"],
+  ["topic directory", "src/app/insights/topics/page.tsx"],
   ["journal pieces", "src/components/insights/JournalPieces.tsx"],
   ["story index", "src/components/insights/StoryIndex.tsx"],
 ]) {
@@ -359,7 +395,7 @@ for (const [label, rel] of [
     continue;
   }
   const hit = READ_TIME.test(body);
-  line(hit ? FAIL : PASS, label + " renders no reading time", hit ? rel + " still prints it" : "");
+  line(hit ? FAIL : PASS, label + " renders no reading time", hit ? rel + " prints it" : "");
   if (hit) failures += 1;
 }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessageCircle, MessagesSquare, WifiOff } from "lucide-react";
+import { MessagesSquare, WifiOff } from "lucide-react";
 import {
   buildThread,
   subscribeApprovedComments,
@@ -72,13 +72,17 @@ export function DiscussionSection({
             <h2 className="font-display text-xl text-soft-white sm:text-2xl">
               Discussion
             </h2>
-            <p className="text-xs text-soft-mute">
-              {gated
-                ? "Subscriber-only conversation"
-                : count === 0
-                ? "Be the first to comment"
-                : `${count} ${count === 1 ? "comment" : "comments"}`}
-            </p>
+            {/* No subtitle at zero. "Be the first to comment" is the same
+                invitation the removed empty-state card made, one line higher
+                up — and on a journal this young it appeared under every
+                article. The count returns as soon as there is one. */}
+            {(gated || count > 0) && (
+              <p className="text-xs text-soft-mute">
+                {gated
+                  ? "Subscriber-only conversation"
+                  : `${count} ${count === 1 ? "comment" : "comments"}`}
+              </p>
+            )}
           </div>
         </div>
       </header>
@@ -97,22 +101,27 @@ export function DiscussionSection({
               notify={notify}
             />
 
-            <div className="mt-8">
-              {loading ? (
-                <DiscussionSkeleton rows={2} />
-              ) : error ? (
-                <EmptyOrError
-                  icon={<WifiOff className="h-5 w-5" />}
-                  title="Couldn't load the discussion"
-                  body="Please check your connection and refresh the page."
-                />
-              ) : count === 0 ? (
-                <EmptyOrError
-                  icon={<MessageCircle className="h-5 w-5" />}
-                  title="No comments yet"
-                  body="Share your perspective — comments appear here instantly."
-                />
-              ) : (
+            {/* NOTHING IS RENDERED WHEN THERE ARE NO COMMENTS — not a card,
+                not an icon, not a margin. The empty state used to be a
+                bordered panel saying "No comments yet", which on a young
+                journal appeared under every article and made each one look
+                unread. The composer above is invitation enough.
+
+                The wrapper's top margin is conditional for the same reason:
+                an empty `mt-8` div would leave 32px of blank page under the
+                form and reintroduce the hole the card was filling. The error
+                state stays — a failed load is information, not emptiness. */}
+            {(loading || error || count > 0) && (
+              <div className="mt-8">
+                {loading ? (
+                  <DiscussionSkeleton rows={2} />
+                ) : error ? (
+                  <EmptyOrError
+                    icon={<WifiOff className="h-5 w-5" />}
+                    title="Couldn't load the discussion"
+                    body="Please check your connection and refresh the page."
+                  />
+                ) : (
                 <AnimatePresence initial={false}>
                   <div className="space-y-6">
                     {threaded.map((c) => (
@@ -126,9 +135,10 @@ export function DiscussionSection({
                       />
                     ))}
                   </div>
-                </AnimatePresence>
-              )}
-            </div>
+                  </AnimatePresence>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>

@@ -21,7 +21,8 @@
     "check:links": "node scripts/check-links.mjs",
     "build:knowledge": "tsx scripts/build-knowledge.mjs",
     "ask:test": "tsx scripts/ask-test.ts",
-    "ask:bench": "tsx scripts/ask-bench.ts"
+    "ask:bench": "tsx scripts/ask-bench.ts",
+    "test:insights": "tsx scripts/test-insights-scaling.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.2.0",

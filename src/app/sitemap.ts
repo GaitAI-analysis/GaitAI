@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { readPublishedPosts } from "@/lib/posts-store";
-import { insightArticles } from "@/data/insights";
+import { readPublicationStories } from "@/lib/publication-store";
+import { HOME_LATEST_SIZE, PUBLICATION_PAGE_SIZE, normalizeTopicSlug, pageCount, progressivePageCount, publicationTopics, selectCoverStory } from "@/lib/publication";
 import { siteRoutes } from "@/data/site-map";
 
 const siteUrl = "https://gaitai.in";
@@ -36,18 +37,36 @@ function priorityFor(route: string): number {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await readPublishedPosts();
+  const [posts, stories] = await Promise.all([readPublishedPosts(), readPublicationStories()]);
+  const staticRoutes = siteRoutes();
+  const staticRouteSet = new Set(staticRoutes.map((route) => route.replace(/\/$/, "") || "/"));
 
   /* Article dates are the one piece of freshness the tree does not carry. */
   const lastModified = new Map(
-    insightArticles.map((article) => [
-      `/insights/${article.slug}/`,
-      new Date(article.date),
+    stories.map((story) => [
+      `${story.href.replace(/\/$/, "")}/`,
+      new Date(story.updated),
     ]),
   );
 
+  const cover = selectCoverStory(stories);
+  const mainPageTotal = progressivePageCount(stories.length - (cover ? 1 : 0), HOME_LATEST_SIZE);
+  const topics = publicationTopics(stories);
+  const discoveryRoutes = ["/insights/start-here", "/insights/archive"];
+  const paginationRoutes = Array.from({ length: Math.max(0, mainPageTotal - 1) }, (_, index) => `/insights/page/${index + 2}`);
+  const topicRoutes = topics.flatMap((topic) => {
+    const total = pageCount(stories.filter((story) => story.topics.includes(topic.slug)).length, PUBLICATION_PAGE_SIZE);
+    return [
+      `/insights/topic/${topic.slug}`,
+      ...Array.from({ length: Math.max(0, total - 1) }, (_, index) => `/insights/topic/${topic.slug}/page/${index + 2}`),
+    ];
+  });
+  const seriesRoutes = [...new Set(stories.map((story) => story.series).filter((series): series is string => Boolean(series)))]
+    .filter((series) => series !== "GaitAI Foundations")
+    .map((series) => `/insights/series/${normalizeTopicSlug(series)}`);
+
   return [
-    ...siteRoutes().map((route) => ({
+    ...staticRoutes.map((route) => ({
       url: loc(route),
       lastModified: lastModified.get(route),
       changeFrequency: route === "" || route === "/"
@@ -57,8 +76,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...posts.map((post) => ({
       url: loc(`/publications/${post.slug}`),
+      lastModified: new Date(post.updatedAt ?? post.publishedAt),
       changeFrequency: "yearly" as const,
       priority: 0.6,
+    })),
+    ...[...discoveryRoutes, ...paginationRoutes, ...topicRoutes, ...seriesRoutes]
+      .filter((route) => !staticRouteSet.has(route.replace(/\/$/, "") || "/"))
+      .map((route) => ({
+      url: loc(route),
+      changeFrequency: route === "/insights/archive" ? ("weekly" as const) : ("monthly" as const),
+      priority: route.includes("/page/") ? 0.4 : 0.5,
     })),
   ];
 }

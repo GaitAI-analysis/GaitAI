@@ -23,12 +23,36 @@ const CATEGORIES: Category[] = [
   "demo",
 ];
 
+const PUBLICATION_TYPES = [
+  ["essay", "Article"],
+  ["research", "Research note"],
+  ["product", "Product update"],
+  ["engineering", "Engineering note"],
+  ["update", "GaitAI update"],
+  ["announcement", "Announcement"],
+] as const;
+
+const TYPE_FOR_CATEGORY: Record<Category, string> = {
+  announcement: "announcement",
+  research: "research",
+  documentation: "engineering",
+  approval: "announcement",
+  blog: "essay",
+  demo: "product",
+};
+
 export interface DraftPost {
   title: string;
   category: Category;
   summary: string;
   body: string;
   tags: string[];
+  type: string;
+  topics: string[];
+  relatedProducts: string[];
+  relatedResearch: string[];
+  series?: string;
+  seriesOrder?: number;
   externalUrl?: string;
   attachmentUrl?: string;
   attachmentName?: string;
@@ -53,6 +77,12 @@ export function PostEditor({
     summary: initial?.summary || "",
     body: initial?.body || "",
     tags: initial?.tags || [],
+    type: initial?.type || TYPE_FOR_CATEGORY[initial?.category || "announcement"],
+    topics: initial?.topics || [],
+    relatedProducts: initial?.relatedProducts || [],
+    relatedResearch: initial?.relatedResearch || [],
+    series: initial?.series || "",
+    seriesOrder: initial?.seriesOrder,
     externalUrl: initial?.externalUrl || "",
     attachmentUrl: initial?.attachmentUrl || "",
     attachmentName: initial?.attachmentName || "",
@@ -269,6 +299,32 @@ Your paragraph here.
             />
           </Field>
 
+          <Field label="Publication type">
+            <select
+              value={draft.type}
+              onChange={(e) => update("type", e.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-obsidian px-4 py-2.5 text-sm text-soft-white focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
+            >
+              {PUBLICATION_TYPES.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </Field>
+
+          <Field label="Topics" hint="Comma-separated subject slugs">
+            <input
+              value={draft.topics.join(", ")}
+              onChange={(e) =>
+                update(
+                  "topics",
+                  e.target.value.split(",").map((value) => value.trim()).filter(Boolean),
+                )
+              }
+              placeholder="movement-intelligence, responsible-ai"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
+            />
+          </Field>
+
           <Field label="Tags">
             <div className="flex flex-wrap gap-1.5">
               {draft.tags.map((t) => (
@@ -370,6 +426,41 @@ Your paragraph here.
               value={draft.externalUrl || ""}
               onChange={(e) => update("externalUrl", e.target.value)}
               placeholder="https://"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
+            />
+          </Field>
+
+          <Field label="Series" hint="Leave blank for normal daily posts">
+            <input
+              value={draft.series || ""}
+              onChange={(e) => update("series", e.target.value)}
+              placeholder="GaitAI Foundations"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
+            />
+            <input
+              type="number"
+              min="1"
+              value={draft.seriesOrder ?? ""}
+              onChange={(e) => update("seriesOrder", e.target.value ? Number(e.target.value) : undefined)}
+              placeholder="Position in series"
+              className="mt-2 w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
+            />
+          </Field>
+
+          <Field label="Related products" hint="Comma-separated product IDs">
+            <input
+              value={draft.relatedProducts.join(", ")}
+              onChange={(e) => update("relatedProducts", e.target.value.split(",").map((v) => v.trim()).filter(Boolean))}
+              placeholder="walkscan, mobilitycare"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
+            />
+          </Field>
+
+          <Field label="Related research" hint="Comma-separated publication IDs">
+            <input
+              value={draft.relatedResearch.join(", ")}
+              onChange={(e) => update("relatedResearch", e.target.value.split(",").map((v) => v.trim()).filter(Boolean))}
+              placeholder="paper-or-record-id"
               className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-2.5 text-sm text-soft-white placeholder:text-soft-mute focus:border-cyan-300/50 focus:outline-none focus:ring-2 focus:ring-cyan-300/15"
             />
           </Field>

@@ -221,6 +221,7 @@ service cloud.firestore {
       return d.keys().hasOnly([
                'id','slug','title','category','summary','body','tags',
                'publishedAt','author','featured','subscriberOnly',
+               'type','topics','relatedProducts','relatedResearch','series','seriesOrder',
                'publicationStatus',
                'coverImageUrl','coverImagePath','coverImageAlt','coverImageName',
                'coverImageSize','coverImageWidth','coverImageHeight','attachments',
@@ -238,6 +239,12 @@ service cloud.firestore {
         && d.author is string && d.author.size() <= 200
         && d.publicationStatus in ['draft','verified']
         && (!('featured' in d.keys()) || d.featured is bool)
+        && (!('type' in d.keys()) || d.type is string)
+        && (!('topics' in d.keys()) || (d.topics is list && d.topics.size() <= 20))
+        && (!('relatedProducts' in d.keys()) || (d.relatedProducts is list && d.relatedProducts.size() <= 20))
+        && (!('relatedResearch' in d.keys()) || (d.relatedResearch is list && d.relatedResearch.size() <= 20))
+        && (!('series' in d.keys()) || d.series == null || d.series is string)
+        && (!('seriesOrder' in d.keys()) || d.seriesOrder == null || d.seriesOrder is number)
         && (!('subscriberOnly' in d.keys()) || d.subscriberOnly == null || d.subscriberOnly is bool)
         && (!('externalUrl' in d.keys()) || d.externalUrl == null || d.externalUrl is string)
         && (!('attachmentUrl' in d.keys()) || d.attachmentUrl == null || d.attachmentUrl is string)

@@ -76,7 +76,14 @@ function toPost(doc) {
     body: String(f.body ?? ""),
     tags: Array.isArray(f.tags) ? f.tags.map(String) : [],
     publishedAt: String(f.publishedAt ?? new Date().toISOString()),
+    ...(f.updatedAt ? { updatedAt: String(f.updatedAt) } : {}),
     author: String(f.author ?? "GaitAI"),
+    ...(f.type ? { type: String(f.type) } : {}),
+    ...(Array.isArray(f.topics) ? { topics: f.topics.map(String) } : {}),
+    ...(Array.isArray(f.relatedProducts) ? { relatedProducts: f.relatedProducts.map(String) } : {}),
+    ...(Array.isArray(f.relatedResearch) ? { relatedResearch: f.relatedResearch.map(String) } : {}),
+    ...(f.series ? { series: String(f.series) } : {}),
+    ...(Number.isFinite(Number(f.seriesOrder)) ? { seriesOrder: Number(f.seriesOrder) } : {}),
     ...(f.featured != null ? { featured: Boolean(f.featured) } : {}),
     ...(f.publicationStatus === "draft" || f.publicationStatus === "verified"
       ? { publicationStatus: f.publicationStatus }

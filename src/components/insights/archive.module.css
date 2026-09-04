@@ -191,6 +191,59 @@
   gap: 0.3rem;
 }
 
+.moreTopics {
+  position: relative;
+}
+
+.moreTopics > summary {
+  list-style: none;
+}
+
+.moreTopics > summary::-webkit-details-marker {
+  display: none;
+}
+
+.moreMenu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(19rem, calc(100vw - 2rem));
+  overflow: hidden;
+  border: 1px solid var(--jr-line-mid);
+  border-radius: 0.8rem;
+  background: rgb(var(--c-obsidian-500) / 0.98);
+  box-shadow: 0 18px 60px rgb(0 0 0 / 0.28);
+  backdrop-filter: blur(18px);
+}
+
+:global(.light) .moreMenu {
+  background: rgb(255 255 255 / 0.98);
+}
+
+.moreOption {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--jr-line);
+  text-align: left;
+  font-size: 12px;
+  color: var(--jr-body);
+}
+
+.moreOption:last-child {
+  border-bottom: 0;
+}
+
+.moreOption:hover,
+.moreOption[aria-pressed="true"] {
+  background: var(--interactive-hover-bg);
+  color: var(--jr-ink);
+}
+
 .topicChip {
   border: 1px solid var(--jr-line);
   border-radius: 999px;
@@ -351,6 +404,86 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--jr-mute);
+}
+
+.latestSection {
+  scroll-margin-top: 7rem;
+}
+
+/* Compact, bounded page navigation. Only the current slice is rendered as
+   cards; these crawlable links expose every older slice to search engines. */
+.pagination {
+  margin-top: clamp(2rem, 5vw, 3.25rem);
+  display: grid;
+  grid-template-columns: minmax(5rem, 1fr) auto minmax(5rem, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--jr-line);
+}
+
+.pageNumbers {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.pageNumber,
+.pageDirection {
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--jr-line);
+  border-radius: 999px;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--jr-mute);
+  transition: border-color 0.25s var(--jr-ease), color 0.25s var(--jr-ease);
+}
+
+.pageDirection {
+  min-width: 0;
+  border: 0;
+  justify-self: start;
+  text-transform: uppercase;
+}
+
+.pageDirection:last-child {
+  justify-self: end;
+}
+
+.pageNumber:hover,
+.pageDirection:hover,
+.pageNumberOn {
+  border-color: var(--jr-cyan);
+  color: var(--jr-ink);
+}
+
+.pageNumberOn {
+  background: rgb(79 209 255 / 0.1);
+}
+
+.pageEllipsis {
+  color: var(--jr-mute);
+}
+
+@media (max-width: 560px) {
+  .pagination {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pageNumbers {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .pageDirection {
+    grid-row: 2;
+  }
 }
 
 /* The grid itself is `.indexGrid` in journal.module.css, not here. It has to

@@ -42,7 +42,18 @@ export async function POST(req: NextRequest) {
       ? body.tags.map((t: string) => String(t).trim()).filter(Boolean)
       : [],
     publishedAt: body.publishedAt || new Date().toISOString(),
+    updatedAt: body.publishedAt || new Date().toISOString(),
     author: body.author || "GaitAI",
+    type: body.type ? String(body.type).trim() : undefined,
+    topics: Array.isArray(body.topics)
+      ? body.topics.map((topic: string) => String(topic).trim()).filter(Boolean)
+      : undefined,
+    relatedProducts: Array.isArray(body.relatedProducts) ? body.relatedProducts : undefined,
+    relatedResearch: Array.isArray(body.relatedResearch) ? body.relatedResearch : undefined,
+    series: body.series ? String(body.series).trim() : undefined,
+    seriesOrder: Number.isFinite(Number(body.seriesOrder))
+      ? Number(body.seriesOrder)
+      : undefined,
     featured: Boolean(body.featured),
     publicationStatus: body.publicationStatus === "verified" ? "verified" : "draft",
   };

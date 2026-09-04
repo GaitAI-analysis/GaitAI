@@ -31,8 +31,20 @@ export interface Post {
   externalUrl?: string;
   tags: string[];
   publishedAt: string;
+  /** ISO timestamp for meaningful editorial changes. Falls back to publishedAt. */
+  updatedAt?: string;
   author: string;
   featured?: boolean;
+  /** Publication taxonomy. Optional so every existing Firestore record remains valid. */
+  type?: string;
+  /** Subject slugs such as `movement-intelligence` or `responsible-ai`. */
+  topics?: string[];
+  /** Optional relationships used by deterministic recommendations. */
+  relatedProducts?: string[];
+  relatedResearch?: string[];
+  /** Named reading path. Daily posts stay outside a series unless curated into one. */
+  series?: string;
+  seriesOrder?: number;
   /**
    * Public routes are safe-by-default: only records explicitly marked
    * `verified` are rendered. The bundled seed content remains available in

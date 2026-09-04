@@ -6,7 +6,16 @@
  * Renders its children ONLY for a signed-in, verified Google account on the
  * moderator allowlist (src/lib/comments/config.ts → ADMIN_EMAILS, mirrored in
  * firestore.rules). Everyone else sees a sign-in / not-authorized screen.
- * The verified admin email is passed to children so writes can be attributed.
+ * The verified session is passed to children so writes can be attributed and
+ * so the panel can put the account control in its own header.
+ *
+ * THE ACCOUNT CONTROL IS A FLEX ITEM, NOT A FLOATING CHIP. It used to render
+ * here as its own `fixed right-4 top-4 z-50` bar, which reserved no space for
+ * itself and therefore sat on top of whatever was in the top-right corner:
+ * permanently over the navbar's theme toggle and Request demo button, and
+ * over the panel header's "View site" link as soon as the page was scrolled
+ * 57px. It is now `AdminAccountControl`, rendered by the panel inside the
+ * header's own action row. Do not give it a position again.
  */
 
 import { useEffect, useState } from "react";
@@ -18,10 +27,16 @@ import { Logo } from "@/components/ui/Logo";
 
 type Phase = "loading" | "signed-out" | "denied" | "authorized";
 
+export type AdminSession = {
+  /** The verified, allowlisted address. Writes are attributed to it. */
+  email: string;
+  signOut: () => void;
+};
+
 export function AdminAuthGate({
   children,
 }: {
-  children: (adminEmail: string) => React.ReactNode;
+  children: (session: AdminSession) => React.ReactNode;
 }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [user, setUser] = useState<User | null>(null);
@@ -61,12 +76,7 @@ export function AdminAuthGate({
   }
 
   if (phase === "authorized" && user?.email) {
-    return (
-      <>
-        <SignedInBar email={user.email} onSignOut={handleSignOut} />
-        {children(user.email)}
-      </>
-    );
+    return <>{children({ email: user.email, signOut: handleSignOut })}</>;
   }
 
   return (
@@ -141,7 +151,20 @@ export function AdminAuthGate({
   );
 }
 
-function SignedInBar({
+/**
+ * The signed-in account, grouped as one control: the live dot, the address,
+ * and Sign out. Same styling it has always had, minus the positioning — the
+ * panel header places it in a flex row beside "View site".
+ *
+ * `shrink-0` keeps Sign out at full size, and the address is the one part
+ * allowed to give way: `min-w-0` plus `truncate` under a max width, so an
+ * address longer than this one ellipsises inside the control instead of
+ * widening the row. Below `sm` the address drops out entirely and the control
+ * is just Sign out, which is Option A of the two sensible narrow layouts —
+ * the header itself is `flex-wrap`, so the row moves to its own line before
+ * anything is ever squeezed.
+ */
+export function AdminAccountControl({
   email,
   onSignOut,
 }: {
@@ -149,15 +172,15 @@ function SignedInBar({
   onSignOut: () => void;
 }) {
   return (
-    <div className="fixed right-4 top-4 z-50 flex items-center gap-2 rounded-full border border-white/10 bg-obsidian/70 px-2.5 py-1.5 text-[11px] text-soft-gray shadow-lg backdrop-blur-md">
-      <span className="hidden items-center gap-1.5 sm:inline-flex">
-        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-        <span className="text-soft-white">{email}</span>
+    <div className="flex shrink-0 items-center gap-2.5 rounded-full border border-white/10 bg-obsidian/70 px-2.5 py-1.5 text-[11px] text-soft-gray shadow-lg backdrop-blur-md">
+      <span className="hidden min-w-0 items-center gap-1.5 sm:inline-flex">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+        <span className="max-w-[15rem] truncate text-soft-white">{email}</span>
       </span>
       <button
         onClick={onSignOut}
         title="Sign out"
-        className="inline-flex items-center gap-1 rounded-full bg-white/[0.05] px-2 py-1 text-soft-mute transition-colors hover:bg-white/[0.1] hover:text-soft-white"
+        className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/[0.05] px-2 py-1 text-soft-mute transition-colors hover:bg-white/[0.1] hover:text-soft-white"
       >
         <LogOut className="h-3 w-3" />
         Sign out

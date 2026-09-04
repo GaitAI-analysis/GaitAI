@@ -34,6 +34,17 @@ export const contact = {
   security: `security@${DOMAIN}`,
   /** Responsible-use and governance questions. */
   responsibleAi: `responsible-ai@${DOMAIN}`,
+  /**
+   * The public route the footer's mail icon opens, alongside the social
+   * profiles.
+   *
+   * Deliberately not on the site domain: it is the founder mailbox the
+   * company publishes next to its LinkedIn and X accounts, and it is the
+   * one address here confirmed rather than inferred from the domain. The
+   * purpose-specific boxes above stay as they are — a privacy request should
+   * still reach `privacy@`, not a personal inbox.
+   */
+  social: "gait.ai.founder@gmail.com",
 } as const;
 
 /** The on-site form, which is always available as a fallback route. */

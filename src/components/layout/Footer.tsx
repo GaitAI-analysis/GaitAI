@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Github, Linkedin, Mail, Twitter } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
+import { Github, Linkedin, Mail } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ctas } from "@/data/content";
 import { contact, mailto } from "@/data/contact";
@@ -62,11 +63,40 @@ const footerLinks = [
   },
 ];
 
-const socials = [
-  { icon: Twitter, href: "https://twitter.com/gaitai", label: "Twitter" },
-  { icon: Linkedin, href: "https://www.linkedin.com/company/gaitai", label: "LinkedIn" },
-  { icon: Github, href: "https://github.com/gaitai", label: "GitHub" },
-  { icon: Mail, href: mailto(contact.general), label: "Email" },
+/**
+ * X's own mark, drawn rather than imported: lucide ships a `Twitter` bird and
+ * a `X` that is a close cross, and neither is the brand. One path, sized and
+ * coloured by the same classes as the lucide glyphs beside it, so the row
+ * stays visually uniform.
+ */
+function XMark(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+/**
+ * The order is the order of usefulness to a visitor: the company page first,
+ * then the way to reach a person, then the feed, then the code. Labels name
+ * the destination rather than the platform ("GaitAI on LinkedIn", not
+ * "LinkedIn"), so a screen reader announces whose account it is, and each one
+ * doubles as the tooltip.
+ */
+const socials: Array<{
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  href: string;
+  label: string;
+}> = [
+  {
+    icon: Linkedin,
+    href: "https://www.linkedin.com/company/gaitai-analysis/",
+    label: "GaitAI on LinkedIn",
+  },
+  { icon: Mail, href: mailto(contact.social), label: "Email GaitAI" },
+  { icon: XMark, href: "https://x.com/GaitAI4all", label: "GaitAI on X" },
+  { icon: Github, href: "https://github.com/gaitai", label: "GaitAI on GitHub" },
 ];
 
 const legal = [
@@ -97,6 +127,13 @@ export function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
+                  /* Same words as the accessible name, so a pointer and a
+                     screen reader are told the same thing. */
+                  title={label}
+                  /* `mailto:` is deliberately excluded from both: a new tab
+                     for a mail client is a blank tab left behind, and `rel`
+                     has nothing to protect against on a scheme that opens no
+                     document. */
                   target={href.startsWith("http") ? "_blank" : undefined}
                   rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
                   className="grid h-9 w-9 place-items-center rounded-full glass transition-all hover:border-cyan-300/40 hover:text-cyan-300 hover:shadow-glow-cyan active:scale-95 touch:h-11 touch:w-11"

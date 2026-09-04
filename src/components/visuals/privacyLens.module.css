@@ -15,7 +15,7 @@
   --p-ink: 226 232 240;
   --p-line: 255 255 255;
   --p-line-a: 0.1;
-  --p-mass-a: 0.3;
+  --p-mass-a: 0.45;
 }
 
 :global(.light) .lens {
@@ -23,7 +23,7 @@
   --p-ink: 15 23 42;
   --p-line: 15 23 42;
   --p-line-a: 0.14;
-  --p-mass-a: 0.2;
+  --p-mass-a: 0.32;
 }
 
 .frame {
@@ -41,14 +41,20 @@
 
 /* ── 01 SENSING: the body ────────────────────────────────────────────────── */
 
+/* Group opacity, not per-shape — see the note in xray.module.css. The torso,
+   the four limbs and the head all overlap, and fading them individually made
+   every overlap darker, which is how a silhouette stops looking like a
+   person. Here it matters twice over: stage 01 has to read as somebody
+   before stage 02 can take them away. */
 .mass {
-  fill: rgb(var(--p-ink) / var(--p-mass-a));
-  stroke: rgb(var(--p-ink) / var(--p-mass-a));
+  fill: rgb(var(--p-ink));
+  stroke: rgb(var(--p-ink));
+  opacity: var(--p-mass-a);
 }
 
 .massTorso {
-  fill: rgb(var(--p-ink) / var(--p-mass-a));
-  stroke: rgb(var(--p-ink) / var(--p-mass-a));
+  fill: rgb(var(--p-ink));
+  stroke: rgb(var(--p-ink));
   stroke-width: 1.2;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
@@ -71,7 +77,7 @@
 }
 
 .massHead {
-  fill: rgb(var(--p-ink) / calc(var(--p-mass-a) + 0.08));
+  fill: rgb(var(--p-ink));
   stroke: none;
 }
 

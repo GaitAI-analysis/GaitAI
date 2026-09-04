@@ -97,6 +97,7 @@ export function FusionSandbox() {
   return (
     <div className={styles.lab}>
       {/* ── THE DIAGRAM ── */}
+      <div className={fusion.scroller}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className={fusion.frame}
@@ -164,6 +165,7 @@ export function FusionSandbox() {
           CHANNELS
         </text>
       </svg>
+      </div>
 
       {/* ── THE CONTROLS ──
           One radiogroup per input rather than one control with twelve

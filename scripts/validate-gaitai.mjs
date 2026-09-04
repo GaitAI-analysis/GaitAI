@@ -74,11 +74,7 @@ async function main() {
   const { productComparisons } = comparisons;
   const { labs } = labsMod;
   const { unknownFusionChannels } = fusion;
-  const {
-    documentedInputSources,
-    sourcesForProduct,
-    supportingSourcesForProduct,
-  } = graph;
+  const { sourcesForProduct, supportingSourcesForProduct } = graph;
   const { privacyStages } = privacyLens;
 
   const productIds = new Set(allProducts.map((p) => p.id));
@@ -427,29 +423,64 @@ async function main() {
   }
 
   // ── 10. Capture-source coverage ──────────────────────────────────────────
-  // Each module states its inputs twice: once as a one-line summary
-  // (systemFactsFor) and once as a list (product-details tech.inputs). The
-  // derivation reads the summary for PRIMARY sources and the hedged entries of
-  // the list for SUPPORTING ones. If a source is named in the list and comes
-  // out as neither, the site is quietly denying something a product page
-  // claims — which is exactly the contradiction this split was built to end,
-  // and it would come back the moment an input line is reworded.
+  // Each module states its inputs twice: a one-line summary (systemFactsFor,
+  // which the PRIMARY derivation reads) and a prose list in its detail record.
+  // Where the prose hedges a source the summary does not name — "optional
+  // wearable data", "compatible CCTV where appropriate" — that source is
+  // declared on the product record as `supportingSources`.
+  //
+  // THIS CHECK IS WHERE THE PROSE IS ACTUALLY READ. It used to be read in
+  // gaitscape/graph.ts, which put 1,500 lines of product copy into seven
+  // client bundles for data none of them render. A regex over English belongs
+  // in a build-time check, not in a browser — so the matching lives here, and
+  // it runs in both directions:
+  //
+  //   PROSE → DECLARATION  a hedged source in tech.inputs that is neither
+  //                        primary nor declared is a capability the site is
+  //                        quietly denying while a product page claims it
+  //   DECLARATION → PROSE  a declared supporting source with nothing in
+  //                        tech.inputs behind it is a claim with no source
+  //
+  // Either direction fails the build, so the two can never drift apart again.
   ran.push("capture sources");
+  const HEDGED =
+    /optional|where available|when available|where included|where appropriate|if available/i;
+  const SOURCE_PATTERNS = [
+    ["video", /video|walking video/i],
+    ["cctv", /cctv|camera feed|cameras|camera analytics|fixed.camera/i],
+    ["wearable", /smartwatch|wearable|imu|sensor signals/i],
+  ];
+
   for (const detail of allProductDetails) {
     const primary = sourcesForProduct(detail.slug);
-    const supporting = supportingSourcesForProduct(detail.slug);
-    const named = new Set(
-      documentedInputSources(detail.slug).map((entry) => entry.source),
-    );
-    for (const source of named) {
-      if (!primary.includes(source) && !supporting.includes(source)) {
-        err(
-          "capture sources",
-          `module "${detail.slug}" documents "${source}" in tech.inputs but ` +
-            "the derivation reports it as neither a primary nor a supporting " +
-            "source — reword the input line or widen the match",
-        );
+    const declared = supportingSourcesForProduct(detail.slug);
+    /* Sources the prose hedges, i.e. names as an addition rather than as the
+       thing the module is built around. */
+    const hedgedInProse = new Set();
+    for (const line of detail.tech?.inputs ?? []) {
+      if (!HEDGED.test(line)) continue;
+      for (const [source, pattern] of SOURCE_PATTERNS) {
+        if (pattern.test(line)) hedgedInProse.add(source);
       }
+    }
+
+    for (const source of hedgedInProse) {
+      if (primary.includes(source) || declared.includes(source)) continue;
+      err(
+        "capture sources",
+        `module "${detail.slug}" documents "${source}" in tech.inputs but ` +
+          "does not declare it in supportingSources — the site denies a " +
+          "capability this module's own page claims",
+      );
+    }
+    for (const source of declared) {
+      if (hedgedInProse.has(source)) continue;
+      err(
+        "capture sources",
+        `module "${detail.slug}" declares supporting source "${source}" but ` +
+          "no line in its tech.inputs names it — remove the declaration or " +
+          "document the input",
+      );
     }
   }
 

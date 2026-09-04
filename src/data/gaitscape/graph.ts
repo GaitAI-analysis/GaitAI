@@ -1,9 +1,16 @@
 import { allProducts, industryUseCases } from "@/data/products";
 import { allPublications } from "@/data/publications";
 import { useCaseHrefById } from "@/data/usecase-details";
-/* Safe: product-details imports only products.ts and responsible-use.ts, so
-   this does not close a cycle back to the graph. */
-import { allProductDetails } from "@/data/product-details";
+/* The vocabulary only, and that module imports nothing — see the note in
+   capture-sources.ts for why this must not become an import of
+   product-details.ts again. */
+import {
+  CAPTURE_SOURCES,
+  CAPTURE_SOURCE_LABEL,
+  sortCaptureSources,
+  type CaptureSource,
+  type CaptureSourceDef,
+} from "@/data/capture-sources";
 import type {
   GaitscapeNode,
   GaitscapeRelationship,
@@ -191,34 +198,8 @@ const domainNodes: GaitscapeNode[] = industryUseCases.map((u) => ({
 // four names, so every existing caller is untouched.
 // ============================================================================
 
-export type CaptureSource =
-  | "video"
-  | "cctv"
-  | "wearable"
-  | "mobile"
-  | "pose"
-  | "multi";
-
-export interface CaptureSourceDef {
-  id: CaptureSource;
-  label: string;
-  /** What the reader actually has to hand. */
-  note: string;
-}
-
-export const CAPTURE_SOURCES: CaptureSourceDef[] = [
-  { id: "video", label: "Walking video", note: "A short clip from any standard camera" },
-  { id: "cctv", label: "CCTV / fixed camera", note: "An existing camera feed in the space" },
-  { id: "wearable", label: "Wearable", note: "Smartwatch or IMU signals" },
-  { id: "mobile", label: "Mobile", note: "Capture on a phone, review on mobile" },
-  { id: "pose", label: "Pose stream", note: "Skeleton landmarks rather than pixels" },
-  { id: "multi", label: "Multiple sources", note: "More than one of the above, together" },
-];
-
-export const CAPTURE_SOURCE_LABEL: Record<CaptureSource, string> =
-  Object.fromEntries(
-    CAPTURE_SOURCES.map((source) => [source.id, source.label]),
-  ) as Record<CaptureSource, string>;
+export type { CaptureSource, CaptureSourceDef };
+export { CAPTURE_SOURCES, CAPTURE_SOURCE_LABEL };
 
 const VIDEO_INPUT = /\bvideo\b|walking video/i;
 const CCTV_INPUT = /cctv|camera feed|cameras|camera analytics/i;
@@ -252,76 +233,43 @@ export function sourcesForProduct(productId: string): CaptureSource[] {
 }
 
 /**
- * SUPPORTING sources — documented, hedged, and previously invisible.
+ * SUPPORTING sources — documented, and no longer invisible.
  *
- * `sourcesForProduct` reads `systemFactsFor().input`, which is the module's
- * PRIMARY input in one sentence. But each module's detail record carries a
- * longer `tech.inputs` list, and seven of them name a source that sentence
- * does not: FallRisk's "Wearable mobility signals when available",
- * RehabTrack's "Optional wearable data", WalkScan's "Compatible CCTV /
- * fixed-camera footage where appropriate", and so on.
+ * `sourcesForProduct` reads `systemFactsFor().input`, which is a module's
+ * PRIMARY input in one sentence. Seven modules' detail records name a source
+ * that sentence does not: FallRisk's "wearable mobility signals when
+ * available", WalkScan's "compatible CCTV / fixed-camera footage where
+ * appropriate", and so on.
  *
- * That produced a real contradiction a reader could hit in two clicks. The
- * footage matcher rated WalkScan LOW for a fixed camera while WalkScan's own
- * page said CCTV footage works; the stack configurator dropped FallRisk
- * entirely when "Wearable" was ticked, while FallRisk's page listed wearable
- * signals among its inputs. Three files, three answers.
+ * That was a contradiction a reader could hit in two clicks. The footage
+ * matcher rated WalkScan LOW for a fixed camera while WalkScan's own page said
+ * CCTV footage works; the stack configurator dropped FallRisk the moment
+ * "Wearable" was ticked, while FallRisk's page listed wearable signals.
  *
- * THE FIX IS NOT TO MERGE THE TWO LISTS. Flattening them would create a new
- * wrong answer in the other direction — FallRisk would be offered to someone
- * who has only a wearable, and it cannot work from one; its wearable support
- * is an addition to video, not a substitute for it. So the hedge is kept as
- * data: every `tech.inputs` entry that names a source is classified by whether
- * the sentence hedges it, and a hedged source becomes SUPPORTING rather than
- * primary. Surfaces that ask "what do you have?" keep using primary; surfaces
- * that describe a module state both.
+ * THE FIX IS NOT TO MERGE THE TWO LISTS. Flattening them creates the opposite
+ * wrong answer — FallRisk offered to someone holding only a watch, which it
+ * cannot work from, because its wearable support is an addition to video
+ * rather than a substitute. So the hedge is kept: the hedged sources are
+ * declared on the product record as `supportingSources`, and surfaces that ask
+ * "what do you have?" keep using the primary list while surfaces that describe
+ * a module state both.
  *
- * `validate:gaitai` then asserts that every source named anywhere in
- * `tech.inputs` comes out as primary or supporting, so a reworded input line
- * cannot silently drop a documented capability again.
- */
-const HEDGED = /optional|where available|when available|where included|where appropriate|if available/i;
-
-const productDetailById = new Map(
-  allProductDetails.map((detail) => [detail.slug, detail]),
-);
-
-/** Which sources one sentence names. */
-function sourcesInText(text: string): CaptureSource[] {
-  const found: CaptureSource[] = [];
-  if (VIDEO_INPUT.test(text)) found.push("video");
-  if (CCTV_INPUT.test(text)) found.push("cctv");
-  if (WEARABLE_INPUT.test(text)) found.push("wearable");
-  return found;
-}
-
-/** Every source named in a module's documented input list, with its hedge. */
-export function documentedInputSources(
-  productId: string,
-): { source: CaptureSource; hedged: boolean }[] {
-  const detail = productDetailById.get(productId);
-  const out: { source: CaptureSource; hedged: boolean }[] = [];
-  for (const line of detail?.tech?.inputs ?? []) {
-    const hedged = HEDGED.test(line);
-    for (const source of sourcesInText(line)) out.push({ source, hedged });
-  }
-  return out;
-}
-
-/**
- * Sources a module is documented to work with IN ADDITION to its primary
- * ones — named in its own input list, and hedged there.
+ * WHY IT IS DECLARED AND NOT INFERRED HERE. It was inferred, by matching the
+ * same regexes below against each module's `tech.inputs` prose — which meant
+ * this file imported product-details.ts, and this file is reachable from the
+ * client bundle of seven routes. /use-cases, /research/talks and /gaitscape
+ * each carried about 25 kB of product copy they never render. The prose is
+ * still the source of truth; `validate:gaitai` now does the matching, at build
+ * time, and fails if a declared list and the prose disagree in either
+ * direction.
  */
 export function supportingSourcesForProduct(
   productId: string,
 ): CaptureSource[] {
+  const product = allProducts.find((entry) => entry.id === productId);
   const primary = new Set(sourcesForProduct(productId));
-  const supporting = new Set<CaptureSource>();
-  for (const entry of documentedInputSources(productId)) {
-    if (entry.hedged && !primary.has(entry.source)) supporting.add(entry.source);
-  }
-  return CAPTURE_SOURCES.map((source) => source.id).filter((id) =>
-    supporting.has(id),
+  return sortCaptureSources(
+    (product?.supportingSources ?? []).filter((id) => !primary.has(id)),
   );
 }
 

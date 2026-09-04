@@ -285,10 +285,23 @@
 
 /* The end of an article. Quieter than the blog block: the reader has just
    finished something and the next thing on the page is the next story. */
+/*
+ * The article variant now sits BESIDE the discussion thread rather than under
+ * it, so it no longer carries its own rule and top margin: it had a
+ * `border-top`, 2rem of padding and 2.5rem of margin, which in a two-column
+ * row pushed it 40px below the thread's heading and drew a second divider
+ * across half the page. The row's own divider is the one divider, and both
+ * columns now start on the same line — the thread carries matching chrome of
+ * its own, neutralised in the article template because that component is
+ * shared with publications and live posts.
+ *
+ * It stays a light block — type, one field, the small print — and not a card.
+ * Matching the thread's panel would have doubled the visual weight of a
+ * signup that asks for one email address.
+ */
 .article {
-  border-top: 1px solid var(--sub-line);
-  padding-top: 2rem;
-  margin-top: 2.5rem;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .article .title {

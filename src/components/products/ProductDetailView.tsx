@@ -16,9 +16,6 @@ import {
   comparisonForProduct,
   comparisonHref,
 } from "@/data/comparisons";
-import { provenanceForProduct, type ProvenanceKind } from "@/data/provenance";
-import { ProvenanceMark } from "@/components/proof/ProvenanceMark";
-import { ProofModeSwitch } from "@/components/proof/ProofModeSwitch";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductEvidence } from "@/components/products/ProductEvidence";
@@ -100,18 +97,11 @@ export function SectionBlock({
   id,
   index,
   title,
-  provenance,
   children,
 }: {
   id: string;
   index: string;
   title: string;
-  /**
-   * What this section is based on. Rendered only in evidence mode, under the
-   * heading — the one place a reader is already looking when they wonder.
-   * Omit it where the section makes no claim of its own.
-   */
-  provenance?: readonly ProvenanceKind[];
   children: React.ReactNode;
 }) {
   return (
@@ -128,9 +118,6 @@ export function SectionBlock({
             {title}
           </h2>
         </div>
-        {provenance && provenance.length > 0 && (
-          <ProvenanceMark kinds={provenance} compact />
-        )}
         <div className="mt-5">{children}</div>
       </section>
     </Reveal>
@@ -367,17 +354,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
   // The named pair this module belongs to, if it belongs to one. A module in
   // no pair gets no compare link rather than a link to an arbitrary
   // neighbour — see data/comparisons.ts for why the list is short.
-  /* The research kinds this module can honestly show, filtered out of the
-     full provenance set. Derived from evidenceStatusFor via
-     provenanceForProduct, so it cannot contradict the evidence panel further
-     down the same page. */
-  const pageProvenance = provenanceForProduct(product.id);
-  const researchProvenance = pageProvenance.filter(
-    (kind): kind is ProvenanceKind =>
-      kind === "published-research" ||
-      kind === "granted-patent" ||
-      kind === "capability-informed",
-  );
   const comparison = comparisonForProduct(product.id);
   const counterpart = comparison
     ? productById(comparisonCounterpart(comparison, product.id) ?? "")
@@ -513,12 +489,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
       <div className="container-wide">
         {/* View toggle */}
         {/* Arrow keys move between the two views, which is what a tablist
-            promises a keyboard user the moment it declares itself one.
-            The Explore / Evidence switch sits beside it, not inside it: they
-            are two independent axes — WHAT you are reading, and ON WHAT BASIS
-            — and folding four options into one control would suggest a
-            technical view and an evidence view were alternatives. */}
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+            promises a keyboard user the moment it declares itself one. */}
         <div
           role="tablist"
           aria-label="Detail view"
@@ -571,18 +542,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
           ))}
         </div>
 
-          <ProofModeSwitch />
-        </div>
-
-        {/* Everything this page rests on, once, at the top — so a reader in
-            evidence mode is not left to assemble it from marks scattered down
-            twenty sections. Derived per module: a module with no mapped
-            record shows no research mark here. */}
-        <ProvenanceMark
-          kinds={pageProvenance}
-          className="mt-6 block"
-        />
-
         <div className="mt-8 grid gap-12 lg:grid-cols-[minmax(0,1fr)_220px]">
           {/* ------------------------------ Sections */}
           <div className="min-w-0 max-w-3xl">
@@ -612,10 +571,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
                   id="outputs"
                   index={sectionIndex("outputs")}
                   title="What they receive"
-                  /* Two bases in one section: the list of deliverables is
-                     documented, the metric figures under it are invented. The
-                     section already says so in prose; this types it. */
-                  provenance={["product-specification", "synthetic-data"]}
                 >
                   <div className="flex flex-wrap gap-1.5">
                     {detail.receives.map((o) => (
@@ -799,9 +754,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 id="evidence"
                 index={sectionIndex("evidence")}
                 title="Research basis"
-                /* Derived per module, so a module with no mapped record
-                   cannot show a research mark here. */
-                provenance={researchProvenance}
               >
                 <ProductEvidence productId={slug} accentText={a.text} />
               </SectionBlock>
@@ -826,7 +778,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 id="sample"
                 index={sectionIndex("sample")}
                 title="Sample output"
-                provenance={["illustrative-demo", "synthetic-data"]}
               >
                 <SampleOutputViewer productId={slug} family={product.vertical} />
               </SectionBlock>
@@ -859,10 +810,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
                   id="limitations"
                   index={sectionIndex("limitations")}
                   title="Technical limitations"
-                  provenance={[
-                    "product-specification",
-                    "validation-not-published",
-                  ]}
                 >
                   <BulletList items={detail.tech.limitations} dot={a.dot} />
                 </SectionBlock>

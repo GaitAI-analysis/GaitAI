@@ -12,7 +12,6 @@ import {
   timeMachineSignals,
 } from "@/data/time-machine";
 import { IllustrativeBadge } from "@/components/ui/IllustrativeBadge";
-import { ProvenanceMark } from "@/components/proof/ProvenanceMark";
 import { AnalyticsPipeline } from "./AnalyticsPipeline";
 import { MiniTrendChart, SignalMetric } from "./graphics";
 import styles from "./analytics.module.css";
@@ -177,10 +176,6 @@ export function MobilityTimeMachine() {
       <p className={`${styles.note} mt-8 max-w-3xl`}>
         {TIME_MACHINE_BOUNDARY}
       </p>
-
-      {/* The badge above says "example values" wherever a reading appears;
-          this says which KIND of example, and only in evidence mode. */}
-      <ProvenanceMark kinds={["illustrative-demo", "synthetic-data"]} />
     </div>
   );
 }

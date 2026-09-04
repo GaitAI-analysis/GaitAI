@@ -45,7 +45,12 @@ const S = 1.15;
 const FIG_Y = 128;
 const GROUND_Y = FIG_Y + 48 * S;
 const W = 712;
-const H = 236;
+/* Tall enough for BOTH channel strips. It was 236, which put the second one
+   (wrist swing) 35 units below the viewBox — drawn, and invisible. The frame
+   has `overflow: visible`, so nothing clipped it and nothing complained; it
+   simply painted into the caption's space and read as one channel. Derived
+   below rather than typed, so moving the figures or the strips cannot
+   reintroduce it. */
 
 /* Temporal channel strips, under the ground line. */
 const TRACE_TOP = GROUND_Y + 22;
@@ -53,6 +58,10 @@ const TRACE_H = 26;
 const TRACE_GAP = 14;
 const TRACE_X = 96;
 const TRACE_W = 520;
+/** How many channel strips the render below draws. Keep in step with it. */
+const TRACE_COUNT = 2;
+const H =
+  TRACE_TOP + TRACE_COUNT * TRACE_H + (TRACE_COUNT - 1) * TRACE_GAP + 10;
 
 export type XRayFamily = "mobilitycare" | "securevision";
 
@@ -224,10 +233,16 @@ export function MovementXRay({
             ))}
 
             {/* Two temporal channels. No axis, no units — see traceD. */}
-            {[
-              { label: "Ankle height", values: ankleHeight },
-              { label: "Wrist swing", values: wristSwing },
-            ].map((channel, i) => {
+            {(
+              [
+                { label: "Ankle height", values: ankleHeight },
+                { label: "Wrist swing", values: wristSwing },
+                /* TRACE_COUNT sizes the viewBox from this list's length, so a
+                   third channel cannot be added without the frame growing to
+                   hold it — which is exactly how the second one came to be
+                   drawn below the visible area. */
+              ] satisfies { label: string; values: number[] }[]
+            ).map((channel, i) => {
               const top = TRACE_TOP + i * (TRACE_H + TRACE_GAP);
               return (
                 <g key={channel.label}>

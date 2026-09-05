@@ -461,21 +461,24 @@
  *   · IT TIGHTENS WHEN IT PARKS. 131px at rest, 109px stuck: the padding and
  *     the row gaps each give up 0.35rem, and no type size changes.
  *
- * THE SHELL AND THE PANEL. A sticky element still holds its place in flow, so a
- * bar that simply shrank as it stuck would shorten the document and yank every
- * card below it upward — a 22px jump at the exact moment the reader is
- * scrolling past, and the same jump back on the way up. So the sticky element
- * is a SHELL whose footprint is always the resting height: at rest it is
- * exactly the panel; parked, the panel tightens and the shell keeps the 22px
- * underneath it as padding. The document never changes length.
+ * THE SHELL, THE FRAME AND THE PANEL. A sticky element still holds its place
+ * in flow, so a bar that simply shrank as it stuck would shorten the document
+ * and yank every card below it upward — a 22px jump at the exact moment the
+ * reader is scrolling past, and the same jump back on the way up. So the
+ * sticky element is a SHELL that paints nothing, and inside it a FRAME — the
+ * grid's own `container-wide`, so the toolbar is exactly as wide as the cards
+ * — whose footprint is always the resting height: at rest it is exactly the
+ * panel; parked, the panel tightens and the frame keeps the 22px underneath
+ * it as padding. The document never changes length.
  *
  * THAT PADDING IS PAINTED. Content scrolling under a sticky bar has to come
  * out from under it somewhere, and before this it came out flush against the
  * panel's bottom border: a card's last line and its CTA sat hard against the
- * filter chips, and read as the toolbar lying on top of the grid. The shell
+ * filter chips, and read as the toolbar lying on top of the grid. The frame
  * now paints its bottom band in opaque page ground, so what emerges from under
  * the toolbar always does so ~22px below its border, across a strip of clean
- * ground. Nothing that is not the toolbar is drawn inside the shell.
+ * ground — a strip the width of the toolbar, never the page. Nothing that is
+ * not the toolbar is drawn inside the frame.
  *
  * The heights are derived from two custom properties, never restated, so the
  * panel and the band cannot drift out of step.
@@ -505,10 +508,9 @@
 }
 
 /*
- * The sticky element. Its box is the resting footprint at all times: the panel
- * plus, when parked, the band the panel gave up. The band is painted — and only
- * the band, so the panel above it keeps its own translucent ground — by a
- * bottom-anchored gradient sized to exactly that height.
+ * The sticky element. It positions and paints nothing: the page-wide box is
+ * only there so `sticky` has something to park. Everything visible sits in
+ * the frame inside it, which is the grid's own container.
  *
  * Header, toolbar, cards: 50, 20, none.
  */
@@ -516,16 +518,32 @@
   position: sticky;
   top: var(--site-header-height, 5.625rem);
   z-index: 20;
-  padding-bottom: var(--uc-bar-band);
-  background-image: linear-gradient(var(--bg), var(--bg));
-  background-repeat: no-repeat;
-  background-position: bottom;
-  background-size: 100% var(--uc-bar-band);
 }
 
+/*
+ * The frame: as wide as the card grid, because it is the content box of the
+ * same `container-wide`. Its box is the resting footprint at all times: the
+ * panel plus, when parked, the band the panel gave up. At rest the band is
+ * 0 and the frame paints nothing; parked, it takes the page ground (below),
+ * and that ground is exactly the toolbar's width, never the page's.
+ */
+.toolbarFrame {
+  padding-bottom: var(--uc-bar-band);
+}
+
+/*
+ * The panel is a bordered box now that it no longer runs edge to edge: a rule
+ * top and bottom only, stopping short of the browser edges, read as two
+ * stray lines. The radius is restrained — the cards below sit on 1rem — and it
+ * is the same at rest and parked, so the box never changes shape, only
+ * height. The inline padding stands in for the gutter the container used to
+ * give the controls; it is constant in both states.
+ */
 .toolbarPanel {
-  border-block: 1px solid rgb(var(--c-soft-white) / 0.07);
+  border: 1px solid rgb(var(--c-soft-white) / 0.07);
+  border-radius: 1.125rem;
   padding-block: var(--uc-bar-pad);
+  padding-inline: 1rem;
 }
 
 /*
@@ -533,17 +551,27 @@
  * through the controls. 0.97 of the page ground is opaque enough that a card
  * edge cannot be read through it; the blur that remains is for the last few
  * percent of colour at the edges, and it is kept small. No box-shadow — the
- * bottom rule gains a little weight instead, so the toolbar has a defined lower
- * edge against the band of ground beneath it.
+ * border gains a little weight instead, so the toolbar has a defined edge
+ * against the band of ground beneath it.
+ *
+ * The FRAME takes the page ground while parked: that paints the band beneath
+ * the panel, and it also closes the four corners the radius leaves open, so a
+ * card edge cannot show there either. It is the same colour as the page and
+ * the same width as the toolbar, so it is invisible against the ground and is
+ * never a page-wide strip.
  *
  * `--c-obsidian` is the page ground token, so this follows the theme: near-black
  * in the dark theme, near-white in the light one.
  */
+.explorer[data-stuck="true"] .toolbarFrame {
+  background-color: var(--bg);
+}
+
 .explorer[data-stuck="true"] .toolbarPanel {
-  background: rgb(var(--c-obsidian) / 0.97);
+  background-color: rgb(var(--c-obsidian) / 0.97);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border-bottom-color: rgb(var(--c-soft-white) / 0.12);
+  border-color: rgb(var(--c-soft-white) / 0.12);
 }
 
 .filterBar {

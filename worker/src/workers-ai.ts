@@ -210,19 +210,57 @@ export type ReasoningEffort = "low" | "medium" | "high";
 const REASONING_EFFORTS = new Set<string>(["low", "medium", "high"]);
 
 /**
- * The input every Free-plan candidate documents. `reasoning_effort` is added
- * ONLY when a valid level is configured; an empty or unknown value sends
- * nothing and leaves the model's own default in place.
+ * How much the model may think before it writes — the one knob the empty
+ * answers turned out to hinge on. Real diagnostics (Nemotron, effort=low,
+ * 600 tokens): finish_reason=length, content_chars=0, reasoning_chars≈3000,
+ * completion_tokens=600 — the whole allowance spent reasoning.
+ *
+ *   "default"  send nothing: the model's own behaviour
+ *   "low"      reasoning_effort: "low" — the documented minimum effort
+ *   "off"      chat_template_kwargs: { enable_thinking: false } — the
+ *              non-reasoning mode NVIDIA documents for Nemotron 3; sent
+ *              INSTEAD of reasoning_effort, never together with it
+ *
+ * NEVER `force_nonempty_content`: NVIDIA documents that it can move unfinished
+ * reasoning into the visible content, which is exactly what must not reach a
+ * visitor. Nothing in this module sets it, and a test asserts it is absent.
+ */
+export type ThinkingMode = "default" | "low" | "off";
+const THINKING_MODES = new Set<string>(["default", "low", "off"]);
+
+export function readThinkingMode(value: unknown): ThinkingMode | undefined {
+  const mode = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return THINKING_MODES.has(mode) ? (mode as ThinkingMode) : undefined;
+}
+
+/**
+ * The input every Free-plan candidate documents.
+ *
+ * Two ways to steer reasoning, precedence explicit: an explicit `thinking`
+ * mode wins; otherwise the configured `reasoningEffort` is sent when it is a
+ * documented level ("low" | "medium" | "high"). An empty or unknown value
+ * sends nothing and leaves the model's own default in place.
  */
 export function toWorkersAiInput(
   messages: ChatMessage[],
-  options: { maxOutputTokens: number; reasoningEffort?: string },
+  options: { maxOutputTokens: number; reasoningEffort?: string; thinking?: ThinkingMode },
 ): Record<string, unknown> {
   const input: Record<string, unknown> = {
     messages: messages.map((m) => ({ role: m.role, content: m.content })),
     max_completion_tokens: options.maxOutputTokens,
     ...SAMPLING,
   };
+
+  if (options.thinking === "off") {
+    input.chat_template_kwargs = { enable_thinking: false };
+    return input;
+  }
+  if (options.thinking === "low") {
+    input.reasoning_effort = "low";
+    return input;
+  }
+  if (options.thinking === "default") return input;
+
   const effort = (options.reasoningEffort ?? "").trim().toLowerCase();
   if (REASONING_EFFORTS.has(effort)) input.reasoning_effort = effort as ReasoningEffort;
   return input;
@@ -320,8 +358,10 @@ export async function generate(options: {
   timeoutMs: number;
   /** "low" | "medium" | "high"; omitted or unknown → the model's default. */
   reasoningEffort?: string;
+  /** Explicit thinking mode; when set it takes precedence over reasoningEffort. */
+  thinking?: ThinkingMode;
 }): Promise<Completion> {
-  const { ai, model, messages, maxOutputTokens, timeoutMs, reasoningEffort } = options;
+  const { ai, model, messages, maxOutputTokens, timeoutMs, reasoningEffort, thinking } = options;
   const started = Date.now();
 
   /* The binding takes no AbortSignal, so the deadline is a race: when the
@@ -335,7 +375,7 @@ export async function generate(options: {
   let result: unknown;
   try {
     result = await Promise.race([
-      ai.run(model, toWorkersAiInput(messages, { maxOutputTokens, reasoningEffort })),
+      ai.run(model, toWorkersAiInput(messages, { maxOutputTokens, reasoningEffort, thinking })),
       deadline,
     ]);
   } catch (error) {

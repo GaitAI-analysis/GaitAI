@@ -32,7 +32,9 @@
  *   npm run ask:bench -- --all                              # brief + the 25 acceptance cases
  *   npm run ask:bench -- --models @cf/zai-org/glm-4.7-flash # one model
  *   npm run ask:bench -- --json tmp/bench.json              # machine-readable
- *   npm run ask:bench -- --reasoning low                    # reasoning_effort (default low; "" = model default)
+ *   npm run ask:bench -- --thinking off                     # chat_template_kwargs.enable_thinking=false (no reasoning_effort)
+ *   npm run ask:bench -- --thinking low|default             # reasoning_effort=low | nothing sent (default: low)
+ *   npm run ask:bench -- --reasoning low|medium|high        # older knob; not together with --thinking
  *   npm run ask:bench -- --max-tokens 600                   # output ceiling for the run (production stays 450)
  *   npm run ask:bench -- --match "protect privacy"          # only the cases whose question contains this
  *   npm run ask:bench -- --endpoint http://127.0.0.1:8788   # a different bench Worker port
@@ -62,6 +64,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { BENCH_CASES, BRIEF_CASES, matchCases, type BenchCase } from "./ask/bench-cases";
+import { BenchOptionError, resolveThinking } from "./ask/bench-options";
 import type { ResultDiagnostics } from "../worker/src/workers-ai";
 import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { buildContextBlock, retrieveGaitAIContext } from "../src/lib/ask/retrieval";
@@ -98,13 +101,24 @@ const limit = Number(arg("limit") ?? cases.length);
 const jsonOut = arg("json");
 const maxOutputTokens = Number(arg("max-tokens") ?? 450);
 /**
- * Reasoning effort, passed through the production adapter. Default "low": the
- * candidates are reasoning models and at their default effort they spent the
- * whole completion budget thinking (empty answers at 450 tokens). "" sends
- * nothing and leaves the model's default; anything else is ignored by the
- * adapter.
+ * How much the model may think, passed through the production adapter.
+ * --thinking off sends chat_template_kwargs.enable_thinking=false and no
+ * reasoning_effort; --thinking low sends reasoning_effort=low; default sends
+ * nothing. The older --reasoning knob still works, but not together with
+ * --thinking: both at once is an error, not a guess.
  */
-const reasoningEffort = arg("reasoning") ?? "low";
+function chooseThinking() {
+  try {
+    return resolveThinking({ thinking: arg("thinking"), reasoning: arg("reasoning") });
+  } catch (error) {
+    if (error instanceof BenchOptionError) {
+      console.error(`\n${error.message}\n`);
+      process.exit(2);
+    }
+    throw error;
+  }
+}
+const thinkingChoice = chooseThinking();
 /** One call at a time, spaced out: this is a shared daily allocation. */
 const PAUSE_MS = Number(arg("pause-ms") ?? 4_000);
 const TIMEOUT_MS = 40_000;
@@ -207,7 +221,14 @@ async function complete(
   const response = await fetch(`${endpoint}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, messages, maxOutputTokens, timeoutMs: TIMEOUT_MS, reasoningEffort }),
+    body: JSON.stringify({
+      model,
+      messages,
+      maxOutputTokens,
+      timeoutMs: TIMEOUT_MS,
+      thinking: thinkingChoice.thinking,
+      reasoningEffort: thinkingChoice.reasoningEffort,
+    }),
   });
   const payload = (await response.json()) as Partial<BenchCompletion> & {
     error?: string;
@@ -255,7 +276,7 @@ async function main() {
   }
   console.log(`  models    ${models.join(", ")}`);
   console.log(`  ceiling   ${maxOutputTokens} output tokens`);
-  console.log(`  reasoning ${reasoningEffort ? `reasoning_effort=${reasoningEffort}` : "model default (reasoning_effort not sent)"}`);
+  console.log(`  thinking  ${thinkingChoice.label}`);
   console.log(`  pacing    ${PAUSE_MS} ms between calls · via ${endpoint}\n`);
 
   const rows: Row[] = [];

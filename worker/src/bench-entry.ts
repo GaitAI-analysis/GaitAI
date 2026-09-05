@@ -25,7 +25,7 @@
  *   npm run ask:bench                         # at the repo root, in another shell
  */
 
-import { generate, WorkersAiError, type ChatMessage } from "./workers-ai";
+import { generate, readThinkingMode, WorkersAiError, type ChatMessage } from "./workers-ai";
 
 interface BenchEnv {
   AI?: Ai;
@@ -38,6 +38,8 @@ interface BenchRequest {
   timeoutMs?: number;
   /** "low" | "medium" | "high"; validated by the adapter, omitted otherwise. */
   reasoningEffort?: string;
+  /** "default" | "low" | "off"; takes precedence over reasoningEffort when valid. */
+  thinking?: string;
 }
 
 const LOOPBACK = new Set(["127.0.0.1", "localhost", "[::1]"]);
@@ -69,6 +71,7 @@ export default {
         maxOutputTokens: Math.min(body.maxOutputTokens ?? 450, 1200),
         timeoutMs: Math.min(body.timeoutMs ?? 40_000, 60_000),
         reasoningEffort: typeof body.reasoningEffort === "string" ? body.reasoningEffort : undefined,
+        thinking: readThinkingMode(body.thinking),
       });
       return Response.json(completion);
     } catch (error) {

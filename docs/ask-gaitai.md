@@ -540,8 +540,39 @@ names, 0 instruction faults and a source under every answer; mean latency
 4.2 s at 450 and 3.7 s at 600. The two empty answers were different questions
 in the two runs (FallRisk and gait-recognition publications at 450;
 gait-recognition publications and privacy protection at 600), so the token
-ceiling alone does not explain them — hence these diagnostics. Generation
-settings are unchanged while that is investigated.
+ceiling alone does not explain them — hence these diagnostics.
+
+**Diagnosis, confirmed by the diagnostics (Nemotron, `reasoning_effort=low`,
+600 tokens).** Both empty answers were `finish_reason=length`,
+`content_chars=0`, `reasoning_chars` ≈ 2 900–3 100, `completion_tokens=600`,
+`prompt_tokens` ≈ 3 700–3 950: the model spent the entire completion allowance
+reasoning and never reached visible text, even at low effort. The next
+experiment is the model's documented non-reasoning mode, before any prompt
+shortening or ceiling increase.
+
+**Thinking modes** (`ThinkingMode` in `workers-ai.ts`; benchmark `--thinking`):
+
+| Mode | What the adapter sends | Header label |
+|---|---|---|
+| `default` | neither `reasoning_effort` nor `chat_template_kwargs` | `default (model default; nothing sent)` |
+| `low` | `reasoning_effort: "low"` only | `low (reasoning_effort=low)` |
+| `off` | `chat_template_kwargs: { enable_thinking: false }` only — never together with `reasoning_effort` | `off (chat_template_kwargs.enable_thinking=false)` |
+
+The older `--reasoning <low|medium|high>` knob still works; passing it together
+with `--thinking` is an error, not a guess. Neither route ever sends
+`force_nonempty_content`: NVIDIA documents that it can move unfinished
+reasoning into the visible content, which is exactly what must never reach a
+visitor, and a test asserts it is absent in every mode. Production is
+unchanged (`MODEL_REASONING_EFFORT=low`, ceiling 450, `WORKERS_AI_MODEL`
+empty) until the experiment proves `off`:
+
+```bash
+npm run ask:bench -- --all --match "publications cover gait recognition" \
+  --max-tokens 450 --thinking off --models "@cf/nvidia/nemotron-3-120b-a12b"
+```
+
+If it succeeds, the diagnostics should show `content_chars > 0`,
+`reasoning_chars` 0 or unreported, and `finish_reason=stop`.
 
 Candidates, the models Cloudflare's documentation identifies as remaining
 available on Workers Free (2026-09-05):

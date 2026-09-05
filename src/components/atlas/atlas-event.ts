@@ -10,7 +10,8 @@ export const ATLAS_EVENT = "gaitai:open-atlas";
 
 /**
  * Ask for the map. Every way in — the navbar glyph, the location strip's
- * button, GaitScape's text link and the Atlas row on /labs — calls this one
+ * button, GaitScape's text link and the Atlas row in the Movement Intelligence
+ * Lab's experiments list — calls this one
  * function, so there is exactly one place that knows how the overlay is
  * opened and no copy of the dispatch to drift.
  */

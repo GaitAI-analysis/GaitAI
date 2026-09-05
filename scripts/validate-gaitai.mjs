@@ -58,6 +58,7 @@ async function main() {
   const samples = await load("data/sample-outputs.ts");
   const searchIdx = await load("data/search-index.ts");
   const comparisons = await load("data/comparisons.ts");
+  const experimentsMod = await load("data/experiments.ts");
   const labsMod = await load("data/labs.ts");
   const fusion = await load("data/fusion-sandbox.ts");
   const privacyLens = await load("data/privacy-lens.ts");
@@ -72,7 +73,8 @@ async function main() {
   const { sampleOutputs } = samples;
   const { searchIndex } = searchIdx;
   const { productComparisons } = comparisons;
-  const { labs, LAB_ACTIONS } = labsMod;
+  const { experiments, LAB_ACTIONS } = experimentsMod;
+  const { gaitLabs } = labsMod;
   const { unknownFusionChannels } = fusion;
   const { sourcesForProduct, supportingSourcesForProduct } = graph;
   const { privacyStages } = privacyLens;
@@ -298,7 +300,8 @@ async function main() {
     "/", "/products", "/mobilitycare", "/securevision", "/use-cases",
     "/gaitscape", "/research", "/research/evidence", "/research/talks",
     "/publications",
-    "/insights", "/investors", "/movement-lab", "/labs", "/trust",
+    "/insights", "/investors", "/movement-lab", "/labs", "/labs/dataset",
+    "/labs/biometrics", "/trust",
     "/legal/privacy", "/legal/security", "/legal/terms",
     "/legal/responsible-ai",
   ]);
@@ -359,24 +362,51 @@ async function main() {
     }
   }
 
-  // Labs entries are the one place on the site where a broken link would
-  // publish a demo that does not exist, which is precisely what the Labs
-  // rule forbids. An anchor is not checked here (a static export cannot
-  // verify one), but the PAGE it hangs off is. An action lab has no page to
+  // Experiment entries (the Movement Intelligence Lab's "Explore the lab"
+  // list) are the one place on the site where a broken link would publish a
+  // demo that does not exist, which is precisely what the experiments rule
+  // forbids. An anchor is not checked here (a static export cannot verify
+  // one), but the PAGE it hangs off is. An action experiment has no page to
   // check; it is checked for naming an action the site actually has, and for
   // not carrying an href as well — a record that is both would be a link to
   // nowhere dressed as a button.
-  for (const lab of labs) {
+  for (const lab of experiments) {
     if (lab.kind === "action") {
-      isAction(lab, `lab "${lab.id}"`);
+      isAction(lab, `experiment "${lab.id}"`);
       continue;
     }
     if (lab.kind !== "route") {
-      err("route targets", `lab "${lab.id}" has unknown kind "${lab.kind}"`);
+      err("route targets", `experiment "${lab.id}" has unknown kind "${lab.kind}"`);
       continue;
     }
     if (!routable(lab.href)) {
-      err("route targets", `lab "${lab.id}" points at unroutable "${lab.href}"`);
+      err("route targets", `experiment "${lab.id}" points at unroutable "${lab.href}"`);
+    }
+  }
+
+  // GaitAI Labs — the gait research assets. Each must be a real route with
+  // the trailing slash the static host needs, and may cite only publications
+  // that exist: the "N published papers behind it" line on /labs is the
+  // length of this list, so a typo here would print a paper count the record
+  // cannot back. An asset that cites nothing is refused too — the hub's whole
+  // claim is that the assets rest on the published record.
+  for (const lab of gaitLabs) {
+    if (!routable(lab.href)) {
+      err("route targets", `gait lab "${lab.id}" points at unroutable "${lab.href}"`);
+    }
+    if (!lab.href.endsWith("/")) {
+      err(
+        "route targets",
+        `gait lab "${lab.id}" href "${lab.href}" has no trailing slash`,
+      );
+    }
+    for (const id of lab.publicationIds) {
+      if (!publicationIds.has(id)) {
+        err("route targets", `gait lab "${lab.id}" cites unknown publication "${id}"`);
+      }
+    }
+    if (lab.publicationIds.length === 0) {
+      err("route targets", `gait lab "${lab.id}" cites no publication`);
     }
   }
 

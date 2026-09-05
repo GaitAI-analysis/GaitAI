@@ -37,6 +37,7 @@ export type PageType =
   | "research"
   | "gaitscape"
   | "movement-lab"
+  | "labs"
   | "trust"
   | "legal"
   | "other";
@@ -91,6 +92,7 @@ export function readPageContext(pathname: string): PageContext {
   if (first === "research") return { ...base, pageType: "research", slug: second ?? "" };
   if (first === "gaitscape") return { ...base, pageType: "gaitscape" };
   if (first === "movement-lab") return { ...base, pageType: "movement-lab" };
+  if (first === "labs") return { ...base, pageType: "labs", slug: second ?? "" };
   if (first === "trust") return { ...base, pageType: "trust" };
   if (first === "legal") return { ...base, pageType: "legal", slug: second ?? "" };
 
@@ -281,6 +283,19 @@ export function openingFor(context: PageContext): Opening {
           "What happens after pose estimation?",
           "How does a report get generated?",
           "Is this real data?",
+        ],
+      };
+
+    case "labs":
+      return {
+        lead: "Exploring the gait research assets.",
+        detail:
+          "Ask about the Gait Dataset, the Gait Biometrics Lab and the published work behind them.",
+        prompts: [
+          "What is the Gait Dataset?",
+          "What does the Gait Biometrics Lab contain?",
+          "Which publications support gait biometrics?",
+          "Where are the interactive experiments?",
         ],
       };
 

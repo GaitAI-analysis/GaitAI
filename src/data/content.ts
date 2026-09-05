@@ -87,18 +87,23 @@ export const navLinks: readonly NavItem[] = [
       },
       {
         // Named "Movement Studio" for a while. Back to the lab wording, which
-        // is what the rest of the site, the Labs index and this menu's fourth
-        // item all call it — one public name for one destination. The earlier
-        // note about the subtitle still stands and is why it does not say
-        // "upload": nothing on that route accepts a file.
+        // is what the rest of the site and the search palette call it — one
+        // public name for one destination. The subtitle names what the page
+        // IS — the interactive experiments, including the analyzer and the
+        // instruments listed at its foot — so it cannot be confused with the
+        // research hub below it.
         label: "Movement Intelligence Lab",
         href: "/movement-lab",
-        description: "See movement become intelligence",
+        description: "Interactive movement-analysis experiments",
       },
       {
+        // LAST, deliberately: the most specialised item. GaitAI Labs is the
+        // gait RESEARCH hub — the gait dataset and the gait biometrics lab —
+        // not the experiments, which belong to the Movement Intelligence Lab
+        // above. The two subtitles are written to keep that apart.
         label: "GaitAI Labs",
         href: "/labs",
-        description: "Experimental movement-intelligence experiences",
+        description: "Gait datasets & biometrics research",
       },
     ],
   },

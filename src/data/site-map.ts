@@ -29,6 +29,7 @@ import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
 import { allPublications } from "@/data/publications";
 import { talkRecords } from "@/data/talks";
+import { gaitLabs } from "@/data/labs";
 import { topicLabel } from "@/lib/publication";
 
 /** Which accent a branch inherits. Four families, not a rainbow. */
@@ -179,15 +180,25 @@ export const siteMap: AtlasNode = {
           id: "movement-lab",
           label: "Movement Intelligence Lab",
           route: "/movement-lab/",
-          description: "See movement become intelligence",
+          description: "Interactive movement-analysis experiments",
           family: "neutral",
         },
         {
+          /* The gait research hub. Its two assets are leaves derived from
+             `gaitLabs`, so a third asset appears here — and in the Atlas and
+             the XML sitemap — with the record that adds it. */
           id: "labs",
           label: "GaitAI Labs",
           route: "/labs/",
-          description: "Experimental movement-intelligence experiences",
-          family: "neutral",
+          description: "Gait datasets & biometrics research",
+          family: "research",
+          children: gaitLabs.map((lab) => ({
+            id: `labs-${lab.id}`,
+            label: lab.name,
+            route: lab.href,
+            description: lab.strap,
+            family: "research" as const,
+          })),
         },
       ],
     },

@@ -141,6 +141,7 @@ async function main() {
   const content = await load("data/content.ts");
   const facets = await load("data/usecase-facets.ts");
   const samples = await load("data/sample-outputs.ts");
+  const experimentsMod = await load("data/experiments.ts");
   const labsMod = await load("data/labs.ts");
   const talks = await load("data/talks.ts");
 
@@ -986,73 +987,113 @@ async function main() {
       title: "Movement Intelligence Lab",
       category: "Experience",
       summary:
-        "See movement become intelligence, stage by stage, with example values. Previously named the Movement Studio.",
+        "Interactive movement-analysis experiments: analyze a clip in your browser, watch the pipeline run stage by stage, and explore the experiments listed at the foot of the page. Previously named the Movement Studio.",
       content: block(
-        "The Movement Intelligence Lab walks through the stages from movement capture to reportable intelligence: pose estimation, gait cycle segmentation, feature extraction, analytics and report generation for MobilityCare; trajectories, density and flow, candidate events and the operator view for SecureVision. Everything shown is an illustrative demo with example values, not a measured result.",
+        "The Movement Intelligence Lab is the interactive lab for understanding and experimenting with GaitAI movement analysis. A real pose model runs in the browser on a clip the reader chooses or records; the staged walkthrough then shows movement capture becoming reportable intelligence: pose estimation, gait cycle segmentation, feature extraction, analytics and report generation for MobilityCare; trajectories, density and flow, candidate events and the operator view for SecureVision. The walkthrough is an illustrative demo with example values, not a measured result.",
+        /* The experiments are listed at the foot of the page under "Explore
+           the Movement Intelligence Lab". They used to be listed on /labs;
+           they are derived from data/experiments.ts, the record that section
+           renders, so a new experiment enters the corpus with the commit that
+           makes it work. */
+        experimentsMod.EXPERIMENTS_BLURB,
+        experimentsMod.EXPERIMENTS_BOUNDARY,
         para(
-          "Instruments on this page",
-          labsMod.labs
-            .filter((lab) => lab.kind === "route" && lab.href.startsWith("/movement-lab"))
-            .map((lab) => `${lab.name} — ${lab.strap}. ${lab.body}`),
+          "Experiments listed on this page (Explore the Movement Intelligence Lab)",
+          experimentsMod.experiments.map(
+            (lab) =>
+              `${lab.name} — ${lab.strap}. ${lab.body} Basis: ${
+                experimentsMod.LAB_BASIS_LABEL[lab.basis]
+              }.${lab.home ? ` ${lab.home}.` : ""}`,
+          ),
         ),
+        "The interactive experiments are not GaitAI Labs. GaitAI Labs (/labs) is the gait research hub: the Gait Dataset and the Gait Biometrics Lab.",
       ),
       keywords: [
         "movement intelligence lab",
         "movement lab",
         "movement studio",
+        "movement intelligence",
         "demo",
         "try",
         "pipeline",
         "pose estimation",
         "stages",
         "how does it work",
-        "fusion sandbox",
-        "signal inspector",
-        "footage check",
+        "experiments",
+        "experimental",
+        "explore the lab",
+        ...experimentsMod.experiments.flatMap((lab) => [lab.name, lab.strap]),
       ],
     },
     {
-      /* GAITAI LABS.
-         This route, and every experiment on it, was invisible to the
-         assistant while the command palette had indexed it since the day it
-         shipped — because this `nav` array is the one hand-maintained list in
-         an otherwise derived script, so adding a page to src/app did not add
-         it here. The entries are derived from data/labs.ts, which is the same
-         record /labs renders, so a new experiment enters the corpus with the
-         commit that makes it work rather than whenever someone remembers.
-
-         Section anchors (#time-machine, #x-ray, #privacy-lens, #fusion) are
-         not routes in this corpus: the route allowlist strips fragments, so
-         an anchor cannot be linked. The lab NAMES are indexed here instead,
-         which means asking about the Mobility Time Machine reaches the page
-         that lists it rather than reaching nothing. */
+      /* GAITAI LABS — the gait research hub.
+         This route used to list the interactive experiments; those now live
+         at the foot of /movement-lab and are indexed there. /labs is the home
+         of the gait RESEARCH assets — the Gait Dataset and the Gait
+         Biometrics Lab — derived from data/labs.ts, the record the page
+         renders. The record states no dataset figure and no recognition
+         result, so neither does the corpus: an assistant asked for the
+         dataset's size must answer that it is not yet published. */
       url: "/labs",
       title: "GaitAI Labs",
-      category: "Experience",
+      category: "Research",
       summary:
-        "The interactive experiments: what each one is for, and which of them run on real records rather than example values.",
+        "GaitAI's gait research assets: the Gait Dataset and the Gait Biometrics Lab. Research infrastructure for gait intelligence.",
       content: block(
-        labsMod.LABS_BLURB,
-        labsMod.LABS_BOUNDARY,
+        labsMod.GAIT_LABS_BLURB,
+        labsMod.GAIT_LABS_BOUNDARY,
         para(
-          "The experiments",
-          labsMod.labs.map(
+          "The research assets",
+          labsMod.gaitLabs.map(
             (lab) =>
-              `${lab.name} — ${lab.strap}. ${lab.body} Basis: ${
-                labsMod.LAB_BASIS_LABEL[lab.basis]
-              }.${lab.home ? ` ${lab.home}.` : ""}`,
+              `${lab.name} (${lab.href}) — ${lab.strap}. ${lab.body} Status: ${
+                labsMod.GAIT_LAB_STATUS_LABEL[lab.status]
+              }.`,
           ),
         ),
+        "GaitAI Labs is not the Movement Intelligence Lab. The interactive experiments — Signal Inspector, Footage Check, Movement X-Ray, Privacy Lens, Fusion Sandbox, Mobility Time Machine and the GaitAI Atlas — are in the Movement Intelligence Lab at /movement-lab, listed after the analyzer.",
       ),
       keywords: [
         "labs",
         "gaitai labs",
-        "experiments",
-        "experimental",
-        "interactive",
-        ...labsMod.labs.flatMap((lab) => [lab.name, lab.strap]),
+        "gait research",
+        "research infrastructure",
+        "gait dataset",
+        "dataset",
+        "gait biometrics",
+        "biometrics lab",
+        "biometrics",
+        ...labsMod.gaitLabs.flatMap((lab) => [lab.name, lab.strap]),
       ],
     },
+    /* Each research asset at its own address, from the same record. */
+    ...labsMod.gaitLabs.map((lab) => ({
+      url: lab.href.replace(/\/$/, ""),
+      title: lab.name,
+      category: "Research",
+      summary: `${lab.strap}. ${labsMod.GAIT_LAB_STATUS_LABEL[lab.status]}.`,
+      content: block(
+        lab.body,
+        para(
+          lab.id === "dataset"
+            ? "Fields the dataset card documents, each published only with a citable value"
+            : "Modules, in pipeline order",
+          lab.facets,
+        ),
+        labsMod.GAIT_LABS_BOUNDARY,
+        lab.id === "dataset"
+          ? "No dataset statistic — subjects, sessions, views, sensors, conditions, availability — has been published yet, so none can be stated."
+          : "No recognition runs on this page and no accuracy is stated. The analyzer in the Movement Intelligence Lab derives Motion DNA channels from a clip today; signature, covariate and matching modules follow.",
+        `Part of GaitAI Labs (/labs), grounded in ${lab.publicationIds.length} published papers.`,
+      ),
+      keywords: [
+        "gaitai labs",
+        "gait research",
+        lab.name,
+        lab.strap,
+        ...lab.facets,
+      ],
+    })),
     {
       url: "/research/talks",
       title: "Talks and presentations",

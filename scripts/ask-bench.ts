@@ -1,22 +1,28 @@
 /**
- * ASK GAITAI — HOSTED MODEL BENCHMARK
+ * ASK GAITAI — HOSTED MODEL BENCHMARK (Google Gemini Developer API)
  * =============================================================================
- * Scores candidate models on Hugging Face Inference Providers against the
- * site's OWN questions — the twelve the migration brief names plus the 25
- * acceptance cases — through the real retrieval, the real system policy and
- * the real post-processing. Reputation and parameter count do not enter into
- * it; the only question is which model answers GaitAI's questions better, and
- * at what latency and cost.
+ * Scores candidate Gemini models against the site's OWN questions — the twelve
+ * the migration brief names plus the 25 acceptance cases — through the real
+ * retrieval, the real system policy and the real post-processing. Reputation
+ * does not enter into it; the only question is which model answers GaitAI's
+ * questions better, and how fast.
  *
- *   HF_TOKEN=… npm run ask:bench                                  # the default candidates
- *   HF_TOKEN=… npm run ask:bench -- --models Qwen/Qwen3-8B,google/gemma-3-12b-it
- *   HF_TOKEN=… npm run ask:bench -- --brief                        # the 12 brief questions only
- *   HF_TOKEN=… npm run ask:bench -- --json tmp/bench.json          # machine-readable
+ *   GEMINI_API_KEY=… npm run ask:bench                                   # the default candidates
+ *   GEMINI_API_KEY=… npm run ask:bench -- --models gemini-3.8-flash,gemini-2.5-flash
+ *   GEMINI_API_KEY=… npm run ask:bench -- --brief                         # the 12 brief questions only
+ *   GEMINI_API_KEY=… npm run ask:bench -- --json tmp/bench.json           # machine-readable
+ *   GEMINI_API_KEY=… npm run ask:bench -- --thinking low                  # a thinkingLevel, if the model has one
  *
- * THE PROVIDER CALL IS THE WORKER'S. `chatCompletion` is imported from
- * worker/src/hf.ts — the same function, the same headers, the same sampling,
- * the same thinking switch — so the benchmark measures the deployed call path
- * and no provider or auth code exists anywhere but the Worker.
+ * THE PROVIDER CALL IS THE WORKER'S. `generate` is imported from
+ * worker/src/gemini.ts — the same request shape, the same header, the same
+ * sampling, the same deadline — so the benchmark measures the deployed call
+ * path and no provider code exists anywhere but the Worker.
+ *
+ * FREE TIER. The candidates below are models the Gemini API pricing page lists
+ * with a Free Tier (checked 2026-09-05). The Free Tier is rate-limited per
+ * minute and per day, so a full run is paced: one call at a time, with a pause
+ * between calls, and a 429 is reported rather than retried. Cost is reported
+ * as "Free Tier" rather than as an invented dollar figure.
  *
  * WHAT IS SCORED, per model
  *   grounding      the answer names the record(s) retrieval surfaced for it
@@ -26,8 +32,9 @@
  *   invented names module-shaped names the corpus does not have
  *   instruction    no bare URL, no self-authored Sources block, no reasoning
  *                  trace survives; length inside the policy's ceiling
- *   latency        wall clock per answer, median and p90
- *   cost           tokens × the provider's published price, from the router
+ *   source support `selectSources()` finds at least one canonical source
+ *   latency        wall clock per answer, mean, median and p90
+ *   failures       provider errors by class, never retried silently
  *
  * Questions retrieval refuses locally (low confidence, an unknown person, the
  * injection attempt) never reach a model in production, so they are skipped
@@ -45,7 +52,7 @@ import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { buildContextBlock, retrieveGaitAIContext } from "../src/lib/ask/retrieval";
 import { buildMessages } from "../src/lib/ask/prompt";
 import { cleanModelAnswer, selectSources } from "../src/lib/ask/answer";
-import { chatCompletion, HF_MODELS_URL } from "../worker/src/hf";
+import { generate, GeminiError } from "../worker/src/gemini";
 
 // ── Arguments ────────────────────────────────────────────────────────────────
 
@@ -55,18 +62,23 @@ function arg(name: string): string | undefined {
 }
 const flag = (name: string) => process.argv.includes(`--${name}`);
 
-const DEFAULT_MODELS = [
-  "Qwen/Qwen3-8B",
-  "meta-llama/Llama-3.1-8B-Instruct",
-  "google/gemma-3-12b-it",
-];
+/**
+ * The comparison set — deliberately four, not every model the Free Tier lists,
+ * so a full run does not burn the daily quota (per the pricing page, all four
+ * have Free Tier input/output; refreshed 2026-09-05):
+ *   gemini-3.8-flash       quality candidate
+ *   gemini-3.7-flash       speed/quality candidate
+ *   gemini-3.5-flash-lite  lightweight candidate
+ *   gemini-2.5-flash       older stable baseline
+ */
+const DEFAULT_MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"];
 
-const token = process.env.HF_TOKEN ?? "";
-if (!token) {
+const apiKey = process.env.GEMINI_API_KEY ?? "";
+if (!apiKey) {
   console.error(
-    "\nHF_TOKEN is not set. The benchmark calls Hugging Face Inference Providers and needs a\n" +
-      "read token with Inference Providers enabled. It is a shell variable here and a Cloudflare\n" +
-      "Worker secret in production — never a NEXT_PUBLIC_ variable and never committed.\n",
+    "\nGEMINI_API_KEY is not set. The benchmark calls the Google Gemini Developer API and\n" +
+      "needs an API key. It is a shell variable here and a Cloudflare Worker secret in\n" +
+      "production — never a NEXT_PUBLIC_ variable and never committed.\n",
   );
   process.exit(2);
 }
@@ -75,7 +87,10 @@ const models = (arg("models") ?? DEFAULT_MODELS.join(",")).split(",").map((m) =>
 const cases: BenchCase[] = flag("brief") ? BRIEF_CASES : BENCH_CASES;
 const limit = Number(arg("limit") ?? cases.length);
 const jsonOut = arg("json");
-const maxTokens = Number(arg("max-tokens") ?? 450);
+const maxOutputTokens = Number(arg("max-tokens") ?? 450);
+const thinkingLevel = arg("thinking");
+/** Free Tier is metered per minute; space the calls out rather than trip it. */
+const PAUSE_MS = Number(arg("pause-ms") ?? 4_000);
 const TIMEOUT_MS = 40_000;
 
 // ── Scoring vocabulary, built from the corpus ────────────────────────────────
@@ -108,10 +123,9 @@ interface Row {
   answer: string;
   words: number;
   latencyMs: number;
-  provider: string;
+  finishReason: string;
   promptTokens: number;
   completionTokens: number;
-  costUsd: number;
   sources: string[];
   mentionsExpected: boolean;
   shouldMentionMissing: string[];
@@ -119,59 +133,11 @@ interface Row {
   boundaryBreaches: string[];
   inventedNames: string[];
   instructionFaults: string[];
-  error?: string;
+  /** Provider failure class, when the call did not produce an answer. */
+  failure?: string;
 }
 
-// ── Provider pricing, from the router's own model list ───────────────────────
-
-interface ProviderInfo {
-  provider: string;
-  status: string;
-  pricing?: { input: number; output: number };
-  first_token_latency_ms?: number;
-}
-
-async function pricing(): Promise<Map<string, ProviderInfo[]>> {
-  const map = new Map<string, ProviderInfo[]>();
-  try {
-    const response = await fetch(HF_MODELS_URL);
-    const payload = (await response.json()) as { data?: { id: string; providers?: ProviderInfo[] }[] };
-    for (const entry of payload.data ?? []) map.set(entry.id, entry.providers ?? []);
-  } catch {
-    /* Cost column stays at zero; everything else still runs. */
-  }
-  return map;
-}
-
-/** USD for one call, given the provider the router actually used. */
-function costFor(
-  providers: ProviderInfo[] | undefined,
-  provider: string,
-  promptTokens: number,
-  completionTokens: number,
-): number {
-  const match =
-    providers?.find((p) => p.provider === provider && p.pricing) ??
-    providers?.find((p) => p.pricing);
-  if (!match?.pricing) return 0;
-  /* Router prices are USD per million tokens. */
-  return (promptTokens * match.pricing.input + completionTokens * match.pricing.output) / 1_000_000;
-}
-
-// ── One call — the Worker's own ─────────────────────────────────────────────
-
-async function complete(model: string, messages: { role: "system" | "user" | "assistant"; content: string }[]) {
-  const result = await chatCompletion({ token, model, messages, maxTokens, timeoutMs: TIMEOUT_MS });
-  return {
-    raw: result.text,
-    latencyMs: result.latencyMs,
-    provider: result.provider,
-    promptTokens: result.usage.promptTokens,
-    completionTokens: result.usage.completionTokens,
-  };
-}
-
-// ── Run ──────────────────────────────────────────────────────────────────────
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const percentile = (values: number[], p: number) => {
   if (!values.length) return 0;
@@ -179,13 +145,15 @@ const percentile = (values: number[], p: number) => {
   return sorted[Math.min(sorted.length - 1, Math.floor((p / 100) * sorted.length))];
 };
 
+// ── Run ──────────────────────────────────────────────────────────────────────
+
 async function main() {
-  const prices = await pricing();
-  console.log(`\nAsk GaitAI hosted-model benchmark`);
-  console.log(`  corpus   ${corpus.docs.length} records, built ${corpus.generatedAt}`);
-  console.log(`  cases    ${Math.min(limit, cases.length)} (${flag("brief") ? "brief" : "brief + acceptance"})`);
-  console.log(`  models   ${models.join(", ")}`);
-  console.log(`  ceiling  ${maxTokens} output tokens\n`);
+  console.log(`\nAsk GaitAI hosted-model benchmark — Google Gemini Developer API (Free Tier)`);
+  console.log(`  corpus    ${corpus.docs.length} records, built ${corpus.generatedAt}`);
+  console.log(`  cases     ${Math.min(limit, cases.length)} (${flag("brief") ? "brief" : "brief + acceptance"})`);
+  console.log(`  models    ${models.join(", ")}`);
+  console.log(`  ceiling   ${maxOutputTokens} output tokens${thinkingLevel ? ` · thinkingLevel ${thinkingLevel}` : ""}`);
+  console.log(`  pacing    ${PAUSE_MS} ms between calls\n`);
 
   const rows: Row[] = [];
   const summaries: Record<string, unknown>[] = [];
@@ -213,10 +181,9 @@ async function main() {
         answer: "",
         words: 0,
         latencyMs: 0,
-        provider: "",
+        finishReason: "",
         promptTokens: 0,
         completionTokens: 0,
-        costUsd: 0,
         sources: [],
         mentionsExpected: false,
         shouldMentionMissing: [],
@@ -232,22 +199,22 @@ async function main() {
         continue;
       }
 
-      const messages = buildMessages({
-        question: testCase.q,
-        result,
-        pathname,
-        pageTitle: "",
-        history: [],
-      });
+      const messages = buildMessages({ question: testCase.q, result, pathname, pageTitle: "", history: [] });
 
       let raw = "";
-      let call: Awaited<ReturnType<typeof complete>> | null = null;
+      let call: Awaited<ReturnType<typeof generate>> | null = null;
       try {
-        call = await complete(model, messages);
-        raw = call.raw;
+        call = await generate({ apiKey, model, messages, maxOutputTokens, timeoutMs: TIMEOUT_MS, thinkingLevel });
+        raw = call.text;
       } catch (error) {
-        modelRows.push({ ...base, error: (error as Error).message });
-        console.log(`ERR   ${testCase.q}  ${(error as Error).message}`);
+        const failure = error instanceof GeminiError ? `${error.kind}${error.status ? `:${error.status}` : ""}` : "unknown";
+        modelRows.push({ ...base, failure });
+        console.log(`ERR   ${testCase.q}  ${failure}`);
+        if (error instanceof GeminiError && error.kind === "quota") {
+          console.log("      Free Tier quota reached — stopping this model's run rather than retrying.");
+          break;
+        }
+        await sleep(PAUSE_MS);
         continue;
       }
 
@@ -267,7 +234,7 @@ async function main() {
 
       const inventedNames = [...new Set(answer.match(NAME_SHAPE) ?? [])].filter((name) => {
         const key = name.toLowerCase();
-        if (["gaitai", "mobilitycare", "securevision", "webgpu"].includes(key)) return false;
+        if (["gaitai", "mobilitycare", "securevision"].includes(key)) return false;
         if (REAL_NAMES.has(key)) return false;
         return !contextText.includes(key);
       });
@@ -277,6 +244,7 @@ async function main() {
       if (/^\s*(?:#{1,6}\s*)?\**\s*sources?\s*:?\s*\**\s*$/im.test(raw)) instructionFaults.push("own Sources block");
       if (/<think>/i.test(raw)) instructionFaults.push("reasoning trace");
       if (/^\s*great question/i.test(raw)) instructionFaults.push("preamble");
+      if (call.finishReason === "MAX_TOKENS") instructionFaults.push("hit the output ceiling");
       const words = answer.split(/\s+/).filter(Boolean).length;
       if (words > CONCISE_TARGET_WORDS) instructionFaults.push(`long (${words} words)`);
       if (!answer) instructionFaults.push("empty after cleaning");
@@ -290,10 +258,9 @@ async function main() {
         answer,
         words,
         latencyMs: call.latencyMs,
-        provider: call.provider,
-        promptTokens: call.promptTokens,
-        completionTokens: call.completionTokens,
-        costUsd: costFor(prices.get(model.split(":")[0]), call.provider, call.promptTokens, call.completionTokens),
+        finishReason: call.finishReason,
+        promptTokens: call.usage.promptTokens,
+        completionTokens: call.usage.completionTokens,
         sources: selectSources(answer, result.docs).map((s) => s.url),
         mentionsExpected:
           expectedTitles.length === 0 || expectedTitles.some((t) => lower.includes(t.toLowerCase())),
@@ -314,21 +281,25 @@ async function main() {
         ...instructionFaults.map((f) => `INSTRUCTION:${f}`),
       ];
       console.log(
-        `${flags.length ? "FLAG" : "ok  "}  ${testCase.q}  (${call.latencyMs} ms · ${words} words · ${call.provider || "?"} · $${row.costUsd.toFixed(5)})`,
+        `${flags.length ? "FLAG" : "ok  "}  ${testCase.q}  (${call.latencyMs} ms · ${words} words · ${call.usage.promptTokens}+${call.usage.completionTokens} tok)`,
       );
       if (flags.length) console.log(`      ${flags.join(", ")}`);
       if (testCase.check) console.log(`      check: ${testCase.check}`);
+      await sleep(PAUSE_MS);
     }
 
-    const answered = modelRows.filter((r) => !r.skipped && !r.error);
+    const answered = modelRows.filter((r) => !r.skipped && !r.failure);
     const latencies = answered.map((r) => r.latencyMs);
     const n = answered.length;
+    const failures = modelRows.filter((r) => r.failure).map((r) => r.failure as string);
     const summary = {
       model,
+      cost: "Free Tier",
       cases: modelRows.length,
       answered: n,
       skippedLocalRefusals: modelRows.filter((r) => r.skipped).length,
-      errors: modelRows.filter((r) => r.error).length,
+      failures: failures.length,
+      failureClasses: [...new Set(failures)],
       groundedAnswers: answered.filter((r) => r.mentionsExpected && r.shouldMentionMissing.length === 0).length,
       hallucinationAnswers: answered.filter((r) => r.hallucinations.length).length,
       boundaryBreachAnswers: answered.filter((r) => r.boundaryBreaches.length).length,
@@ -341,15 +312,13 @@ async function main() {
       p90LatencyMs: percentile(latencies, 90),
       meanPromptTokens: n ? Math.round(answered.reduce((a, r) => a + r.promptTokens, 0) / n) : 0,
       meanCompletionTokens: n ? Math.round(answered.reduce((a, r) => a + r.completionTokens, 0) / n) : 0,
-      meanCostUsd: n ? answered.reduce((a, r) => a + r.costUsd, 0) / n : 0,
-      providers: [...new Set(answered.map((r) => r.provider).filter(Boolean))],
     };
     summaries.push(summary);
     rows.push(...modelRows);
 
     console.log(`\n${"─".repeat(72)}`);
-    console.log(`model                 ${summary.model}`);
-    console.log(`answered              ${summary.answered}/${summary.cases} (${summary.skippedLocalRefusals} local refusals, ${summary.errors} errors)`);
+    console.log(`model                 ${summary.model}  (${summary.cost})`);
+    console.log(`answered              ${summary.answered}/${summary.cases} (${summary.skippedLocalRefusals} local refusals, ${summary.failures} failures${summary.failureClasses.length ? `: ${summary.failureClasses.join(", ")}` : ""})`);
     console.log(`grounded              ${summary.groundedAnswers}/${n}`);
     console.log(`hallucinated figures  ${summary.hallucinationAnswers}/${n}`);
     console.log(`boundary breaches     ${summary.boundaryBreachAnswers}/${n}`);
@@ -359,7 +328,6 @@ async function main() {
     console.log(`words (mean)          ${summary.meanWords} (target ≤ ${CONCISE_TARGET_WORDS})`);
     console.log(`latency               mean ${summary.meanLatencyMs} ms · median ${summary.medianLatencyMs} ms · p90 ${summary.p90LatencyMs} ms`);
     console.log(`tokens (mean)         ${summary.meanPromptTokens} in · ${summary.meanCompletionTokens} out`);
-    console.log(`cost (mean per call)  $${summary.meanCostUsd.toFixed(5)}  via ${summary.providers.join(", ") || "n/a"}`);
     console.log(`${"─".repeat(72)}\n`);
   }
 

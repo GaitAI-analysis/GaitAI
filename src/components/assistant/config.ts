@@ -6,9 +6,9 @@
  * `ASK_ENDPOINT` is the PUBLIC URL of the Ask GaitAI Worker — a Cloudflare
  * Worker (see worker/) that validates the records the browser selected against
  * the canonical corpus, builds the grounding prompt, and calls a hosted model
- * through Hugging Face Inference Providers. The Hugging Face token is a secret
+ * through the Google Gemini Developer API. The Gemini API key is a secret
  * binding on the Worker's side of that call; nothing in this bundle can reach a
- * model directly, and nothing in this bundle knows the token exists.
+ * model directly, and nothing in this bundle knows the key exists.
  *
  * The URL is public by nature — a browser has to know where to POST — so it
  * comes from NEXT_PUBLIC_ASK_GAITAI_ENDPOINT at build time. When it is unset

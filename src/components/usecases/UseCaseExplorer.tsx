@@ -164,37 +164,46 @@ export function UseCaseExplorer() {
       <div ref={sentinel} aria-hidden="true" className={styles.stickySentinel} />
 
       {/*
-       * THE TOOLBAR: a shell and a panel.
+       * THE TOOLBAR: a shell, a frame and a panel.
        *
        * The SHELL is the sticky element and the only thing that holds a place
-       * in flow. Its footprint is the toolbar's resting height and never
-       * changes — parked or not, at every width — so the document never gets
-       * shorter or longer as the reader scrolls past, and the grid below it
-       * never moves.
+       * in flow. It paints nothing and spans the page only so that `sticky`
+       * has a full-width box to park; the visible toolbar is not that box.
+       *
+       * The FRAME is the same `container-wide` the card grids below use, so
+       * the toolbar's edges are the grid's edges by construction — one width
+       * token for both, at every breakpoint, rather than a second number that
+       * has to be kept in step. Its footprint is the toolbar's resting height
+       * and never changes — parked or not, at every width — so the document
+       * never gets shorter or longer as the reader scrolls past, and the grid
+       * below it never moves.
        *
        * The PANEL is the visible bar: the border, the controls, the ground.
        * It is what tightens when it parks (131px → 109px on a desktop), and
-       * the room it gives up stays inside the shell, underneath it, as a band
-       * of opaque page ground. That band is the point of the split: content
-       * scrolling up under a sticky bar has to come out somewhere, and here it
-       * comes out below a strip of clean ground rather than flush against
-       * the toolbar's border. No card pixel can appear inside the shell.
+       * the room it gives up stays inside the frame, underneath it, as a band
+       * of opaque page ground exactly as wide as the toolbar. That band is the
+       * point of the split: content scrolling up under a sticky bar has to
+       * come out somewhere, and here it comes out below a strip of clean
+       * ground rather than flush against the toolbar's border. No card pixel
+       * can appear inside the frame.
        */}
       <div className={styles.toolbarShell}>
-        <div className={styles.toolbarPanel}>
-          <div className="container-wide">
-            <UseCaseFilterBar
-              query={query}
-              onQuery={setQuery}
-              family={family}
-              onFamily={setFamily}
-              facet={facet}
-              onFacet={setFacet}
-              counts={counts}
-              shown={matches.length}
-              total={industryUseCases.length}
-              onReset={reset}
-            />
+        <div className="container-wide">
+          <div className={styles.toolbarFrame}>
+            <div className={styles.toolbarPanel}>
+              <UseCaseFilterBar
+                query={query}
+                onQuery={setQuery}
+                family={family}
+                onFamily={setFamily}
+                facet={facet}
+                onFacet={setFacet}
+                counts={counts}
+                shown={matches.length}
+                total={industryUseCases.length}
+                onReset={reset}
+              />
+            </div>
           </div>
         </div>
       </div>

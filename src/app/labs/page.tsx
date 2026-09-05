@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DiagramField } from "@/components/visuals/DiagramField";
 import { GaitLabAreas } from "@/components/labs/GaitLabAreas";
+import { LabCover, LAB_COVER_IMAGE } from "@/components/labs/LabCover";
 import { LabDistinction } from "@/components/labs/LabDistinction";
+import { LabExperience } from "@/components/labs/LabExperience";
 import { EXPERIMENTS_ANCHOR, experiments } from "@/data/experiments";
 import {
-  GAIT_LABS_BLURB,
-  GAIT_LABS_BOUNDARY,
   GAIT_LABS_EYEBROW,
   GAIT_LABS_TITLE_ACCENT,
   GAIT_LABS_TITLE_LEAD,
@@ -28,11 +27,13 @@ export const metadata: Metadata = {
     siteName: "GaitAI",
     title: TITLE,
     description: DESCRIPTION,
+    images: [{ url: LAB_COVER_IMAGE, width: 1672, height: 941, alt: "The GaitAI biometrics lab" }],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
+    images: [LAB_COVER_IMAGE],
   },
 };
 
@@ -53,10 +54,14 @@ export const metadata: Metadata = {
  * results, so this page shows the two assets, their status in words, and the
  * papers behind them — and no figure. That boundary is stated once, in the
  * hero, and the asset pages repeat it.
+ *
+ * THE COVER AND THE ROOM. The page opens on the lab itself — the founder at
+ * the centre of the capture ring — and "Enter the Lab" opens an interactive
+ * three-dimensional reconstruction of that room over the page (see
+ * `components/labs/LabExperience.tsx`). The viewer is mounted once, here,
+ * and renders nothing until asked.
  */
 export default function LabsPage() {
-  const primary = gaitLabs[0];
-  const secondary = gaitLabs[1];
 
   /* Every paper either asset rests on, once, in the record's own order. */
   const cited = new Set(gaitLabs.flatMap((lab) => lab.publicationIds));
@@ -64,39 +69,8 @@ export default function LabsPage() {
 
   return (
     <>
-      {/* ── HERO ── The research field, not the ecosystem field: this page is
-          about the data and the science, and its ground says so. */}
-      <section className="site-page-intro relative overflow-hidden pb-14">
-        <DiagramField variant="research" gridMask="maskRight" className="-z-10" />
-
-        <div className="container-wide">
-          <div className="max-w-2xl">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-              {GAIT_LABS_EYEBROW}
-            </span>
-            <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
-              {GAIT_LABS_TITLE_LEAD}{" "}
-              <span className="text-gradient">{GAIT_LABS_TITLE_ACCENT}</span>
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
-              {GAIT_LABS_BLURB}
-            </p>
-            <p className="mt-5 max-w-xl text-[13px] leading-relaxed text-soft-mute">
-              {GAIT_LABS_BOUNDARY}
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link href={primary.href} className="btn-primary">
-                {primary.cta}
-                <span aria-hidden="true"> &rarr;</span>
-              </Link>
-              <Link href={secondary.href} className="btn-ghost">
-                {secondary.cta}
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* ── COVER ── The lab, with its founder at the centre of the ring. */}
+      <LabCover />
 
       {/* ── THE TWO ASSETS ── */}
       <section className="border-t border-white/[0.06] py-10 sm:py-12">
@@ -188,6 +162,9 @@ export default function LabsPage() {
           </p>
         </div>
       </section>
+
+      {/* The interactive room. Renders nothing until "Enter the Lab" asks. */}
+      <LabExperience />
     </>
   );
 }

@@ -1,0 +1,350 @@
+/*
+ * THE INTERACTIVE LAB — the shell around the three-dimensional room.
+ *
+ * Dark chrome by design in both themes: a viewer over a lit room, with two
+ * thin glass bars carrying the type and the controls. The room itself is the
+ * picture; the shell stays out of its way.
+ */
+
+.shell {
+  --lx-ink: #f4f6fb;
+  --lx-mute: rgb(148 163 184 / 0.9);
+  --lx-line: rgb(255 255 255 / 0.12);
+  --lx-glass: rgb(7 11 20 / 0.62);
+  --lx-signal: #4fd1ff;
+  --lx-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: #070b14;
+  color: var(--lx-ink);
+  animation: lab-enter 0.42s var(--lx-ease) both;
+}
+
+@keyframes lab-enter {
+  from {
+    opacity: 0;
+    transform: scale(1.012);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.shellStill {
+  animation: none;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+}
+
+.stage canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ── The veil, while the room is being drawn ── */
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-content: center;
+  gap: 0.9rem;
+  background: #070b14;
+  transition: opacity 0.6s var(--lx-ease), visibility 0.6s;
+  pointer-events: none;
+}
+
+.veilHidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.veilLine {
+  display: block;
+  width: 9rem;
+  height: 1px;
+  margin: 0 auto;
+  background: linear-gradient(90deg, transparent, var(--lx-signal), #5587ff, #9c64f1, transparent);
+  animation: lab-veil 1.4s ease-in-out infinite;
+}
+
+@keyframes lab-veil {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scaleX(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.veilText {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--lx-mute);
+}
+
+/* ── Bars ── */
+.top,
+.bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.25rem;
+  pointer-events: none;
+}
+
+.top {
+  top: 0;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgb(7 11 20 / 0.7), rgb(7 11 20 / 0));
+}
+
+.bottom {
+  bottom: 0;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background: linear-gradient(0deg, rgb(7 11 20 / 0.78), rgb(7 11 20 / 0));
+}
+
+.top > *,
+.bottom > * {
+  pointer-events: auto;
+}
+
+.titleBlock {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.eyebrow {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--lx-signal);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--lx-ink);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--lx-line);
+  background: var(--lx-glass);
+  color: var(--lx-ink);
+  font-size: 0.95rem;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.2s var(--lx-ease), background-color 0.2s var(--lx-ease);
+}
+
+.close:hover {
+  border-color: rgb(255 255 255 / 0.3);
+  background: rgb(255 255 255 / 0.08);
+}
+
+.close:focus-visible,
+.chip:focus-visible,
+.stepBtn:focus-visible {
+  outline: 2px solid var(--lx-signal);
+  outline-offset: 2px;
+}
+
+/* ── Controls ── */
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--lx-line);
+  background: var(--lx-glass);
+  backdrop-filter: blur(12px);
+}
+
+.chip,
+.stepBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.1rem;
+  padding: 0 0.85rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--lx-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s var(--lx-ease), background-color 0.2s var(--lx-ease), border-color 0.2s var(--lx-ease);
+}
+
+.chip:hover,
+.stepBtn:hover {
+  color: var(--lx-ink);
+  background: rgb(255 255 255 / 0.06);
+}
+
+.chipOn {
+  color: var(--lx-ink);
+  border-color: rgb(79 209 255 / 0.35);
+  background: rgb(79 209 255 / 0.1);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  border: 1px solid rgb(79 209 255 / 0.6);
+  transition: background-color 0.2s var(--lx-ease);
+}
+
+.chipOn .dot {
+  background: var(--lx-signal);
+}
+
+.cameraStep {
+  display: inline-flex;
+  align-items: center;
+}
+
+.stepBtn {
+  padding: 0 0.6rem;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.hint {
+  margin: 0;
+  flex-basis: 100%;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--lx-mute);
+  opacity: 0.85;
+}
+
+@media (min-width: 1024px) {
+  .hint {
+    flex-basis: auto;
+    order: -1;
+    margin-right: auto;
+  }
+  .bottom {
+    padding: 1.1rem 1.5rem;
+  }
+  .top {
+    padding: 1.1rem 1.5rem;
+  }
+}
+
+/* ── The photograph inset ── */
+.photo {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 5.4rem;
+  z-index: 4;
+  width: min(320px, 46vw);
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0.8rem;
+  border: 1px solid var(--lx-line);
+  background: var(--lx-glass);
+  backdrop-filter: blur(12px);
+  animation: lab-enter 0.3s var(--lx-ease) both;
+}
+
+.photoImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.photoCaption {
+  padding: 0.55rem 0.8rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lx-mute);
+}
+
+@media (min-width: 1024px) {
+  .photo {
+    right: 1.5rem;
+    bottom: 5.6rem;
+  }
+}
+
+/* ── Touch: the controls reach the site's target size ── */
+@media (pointer: coarse) {
+  .chip,
+  .stepBtn,
+  .close {
+    min-height: 2.6rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .top,
+  .bottom {
+    padding: 0.75rem 0.85rem;
+  }
+  .title {
+    font-size: 0.95rem;
+  }
+  .hint {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell,
+  .photo {
+    animation: none;
+  }
+  .veilLine {
+    animation: none;
+    opacity: 0.8;
+  }
+  .veil,
+  .close,
+  .chip,
+  .stepBtn,
+  .dot {
+    transition: none;
+  }
+}

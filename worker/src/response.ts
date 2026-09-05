@@ -55,7 +55,9 @@ export type ErrorCode =
   | "rate_limited"
   | "budget"
   | "provider_quota"
-  | "provider_auth"
+  | "provider_capacity"
+  | "paid_model_unavailable"
+  | "provider_unavailable"
   | "provider_rejected"
   | "timeout"
   | "upstream";

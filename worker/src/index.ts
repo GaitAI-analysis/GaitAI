@@ -5,7 +5,7 @@
  *                             →  selected canonical record IDS
  *                             →  THIS WORKER: validate · resolve ids against the
  *                                canonical corpus · meter · grounded prompt
- *                             →  Google Gemini Developer API (Free Tier)
+ *                             →  Cloudflare Workers AI (the `AI` binding)
  *                             →  sanitised answer + sources chosen from the records
  *                             →  browser (which sanitises again)
  *
@@ -13,9 +13,10 @@
  *
  * WHY A WORKER AND NOT A NEXT ROUTE HANDLER OR A FIREBASE FUNCTION
  * The site is a static export on GitHub Pages, which serves files and nothing
- * else; a key anywhere the browser can read it is not a secret. Firebase still
- * backs comments, counters, auth and the admin panel — and none of this: Ask
- * GaitAI's hosted inference has no Firebase dependency at all.
+ * else. Firebase still backs comments, counters, auth and the admin panel —
+ * and none of this: Ask GaitAI's hosted inference has no Firebase dependency.
+ * With Workers AI there is no external model API either: the binding is part
+ * of the Worker's own environment, so there is no key to keep anywhere.
  *
  * ONE ENDPOINT
  *   POST    /api/ask   the question
@@ -26,25 +27,27 @@
  *            400 malformed JSON or an invalid field · 403 origin · 405 method
  *            413 body too large · 422 none of the ids resolve to a record
  *            429 per-caller limit (Retry-After set)
- *            503 daily budget spent, or the Worker is not configured yet
- *                (GEMINI_API_KEY or GEMINI_MODEL missing), or Gemini quota
- *            502 Gemini rejected the key or the request, blocked or failed
- *            504 Gemini timed out
+ *            503 the Worker's daily budget spent · WORKERS_AI_MODEL not set ·
+ *                Workers AI free allocation used up · out of capacity ·
+ *                the configured model requires Workers Paid
+ *            502 the model id is invalid, the account may not use it, the
+ *                request was rejected, or the model failed / answered nothing
+ *            504 the model did not answer within the deadline
  * The browser treats every non-200 the same way: it renders the extractive
  * answer from the retrieval it already ran.
  *
  * WHAT IS LOGGED. Structured metadata only — status, record count, timings,
- * token counts, finish reason, failure class — never the question, never the
- * answer, never the key.
+ * token counts, failure class and Cloudflare's numeric error code — never the
+ * question, never the answer, never the provider's message text.
  */
 
 import { allowedOrigin, corsHeaders } from "./cors";
 import { readConfig, type AskEnv } from "./env";
-import { generate, GeminiError } from "./gemini";
 import { buildPrompt, resolveRecords } from "./grounding";
 import { callerKey, consume } from "./guard";
 import { buildAnswer, failure, json } from "./response";
 import { LIMITS, validateRequest } from "./validate";
+import { generate, WorkersAiError } from "./workers-ai";
 
 export { AskGuard } from "./guard";
 
@@ -89,7 +92,7 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
   if (grounding.docs.length === 0) return failure(422, "no_records", cors);
 
   // ── Configuration: fail clearly, before spending anything ───────────────
-  if (!config.apiKey) return failure(503, "unconfigured", cors);
+  if (!env.AI) return failure(503, "unconfigured", cors);
   if (!config.model) return failure(503, "model_unconfigured", cors);
 
   // ── Abuse control ───────────────────────────────────────────────────────
@@ -119,12 +122,11 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
 
   try {
     const completion = await generate({
-      apiKey: config.apiKey,
+      ai: env.AI,
       model: config.model,
       messages,
       maxOutputTokens: config.maxOutputTokens,
       timeoutMs: config.timeoutMs,
-      thinkingLevel: config.thinkingLevel || undefined,
     });
 
     const answer = buildAnswer({
@@ -139,7 +141,6 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
       JSON.stringify({
         event: answer ? "ask.answered" : "ask.empty_after_cleaning",
         records: grounding.docs.length,
-        finishReason: completion.finishReason,
         promptTokens: completion.usage.promptTokens,
         completionTokens: completion.usage.completionTokens,
         modelLatencyMs: completion.latencyMs,
@@ -149,20 +150,32 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
     if (!answer) return failure(502, "upstream", cors);
     return json(200, answer, cors);
   } catch (error) {
-    /* Never surface a provider error to a visitor: it can carry model names,
-       quota state, safety internals and request ids. The browser renders its
-       own fallback. The class is logged so the right thing gets fixed — a key,
-       a quota, a model name — without a visitor ever seeing it. */
-    const kind = error instanceof GeminiError ? error.kind : "upstream";
-    const status = error instanceof GeminiError ? error.status : undefined;
-    console.log(JSON.stringify({ event: "ask.model_failed", kind, status }));
+    /* Never surface a provider error to a visitor: Cloudflare's messages carry
+       account state, model names and quota detail. The browser renders its
+       own fallback; the class and numeric code are logged so the right thing
+       gets fixed — a plan, a model id, an allocation — without a visitor ever
+       seeing it. */
+    const failed = error instanceof WorkersAiError ? error : new WorkersAiError("upstream");
+    console.log(JSON.stringify({ event: "ask.model_failed", kind: failed.kind, code: failed.code }));
 
-    if (kind === "timeout") return failure(504, "timeout", cors);
-    if (kind === "quota") return failure(503, "provider_quota", cors);
-    if (kind === "auth") return failure(502, "provider_auth", cors);
-    if (kind === "invalid_request") return failure(502, "provider_rejected", cors);
-    /* blocked · empty · malformed · upstream */
-    return failure(502, "upstream", cors);
+    switch (failed.kind) {
+      case "timeout":
+        return failure(504, "timeout", cors);
+      case "free_quota":
+        return failure(503, "provider_quota", cors);
+      case "capacity":
+        return failure(503, "provider_capacity", cors);
+      case "paid_model":
+        return failure(503, "paid_model_unavailable", cors);
+      case "permission":
+        return failure(502, "provider_unavailable", cors);
+      case "invalid_model":
+      case "invalid_request":
+        return failure(502, "provider_rejected", cors);
+      default:
+        /* malformed · empty · upstream */
+        return failure(502, "upstream", cors);
+    }
   }
 }
 

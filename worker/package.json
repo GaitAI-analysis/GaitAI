@@ -1,11 +1,12 @@
 {
   "name": "gaitai-ask-worker",
-  "description": "Ask GaitAI — the hosted half of the movement-intelligence guide, as a Cloudflare Worker: canonical-record validation, the grounding prompt, one call to the Google Gemini Developer API, and sanitisation.",
+  "description": "Ask GaitAI — the hosted half of the movement-intelligence guide, as a Cloudflare Worker: canonical-record validation, the grounding prompt, one call to Cloudflare Workers AI through the AI binding, and sanitisation.",
   "private": true,
   "type": "module",
   "scripts": {
     "corpus": "node scripts/build-corpus.mjs",
     "dev": "npm run corpus && wrangler dev",
+    "bench:serve": "npm run corpus && wrangler dev -c wrangler.bench.jsonc --port 8788 --ip 127.0.0.1",
     "typecheck": "npm run corpus && tsc --noEmit",
     "test": "npm run corpus && vitest run",
     "check": "npm run corpus && wrangler deploy --dry-run --outdir dist",

@@ -1,0 +1,210 @@
+/**
+ * THE HOSTED MODEL — one `env.AI.run()` call to Cloudflare Workers AI.
+ * =============================================================================
+ * Contract, verified against developers.cloudflare.com on 2026-09-05:
+ *
+ *   wrangler.jsonc   { "ai": { "binding": "AI" } }
+ *   runtime          await env.AI.run(model, { messages, max_completion_tokens,
+ *                                             temperature, top_p })
+ *   messages         [{ role: "system" | "user" | "assistant", content }]
+ *   output           OpenAI-compatible for the Free-plan candidates:
+ *                    { choices: [{ message: { content } }], usage: {...} }
+ *                    (older text-generation models answer { response: string };
+ *                    both are read, defensively)
+ *
+ * WHAT THE MODEL RECEIVES is decided upstream by the shared prompt module —
+ * the system policy, a bounded history, the canonical records and, last, the
+ * visitor's question. This module only hands that conversation to the binding
+ * with conservative sampling and a deadline, and reads the text back.
+ *
+ * NO SECRET, NO TOKEN, NO EXTERNAL API. The binding is the Worker's own
+ * environment; there is nothing to leak. That also means, per Cloudflare's
+ * docs, that every call — including one from `wrangler dev` — runs against the
+ * account and spends its daily Neuron allocation. The tests mock `env.AI`.
+ *
+ * WHAT IS DELIBERATELY NOT SENT. No `tools`, no images, no files: `messages`
+ * carry text only, and the Worker's validator has already dropped anything
+ * else. Reasoning effort is not requested; if a model returns a reasoning
+ * field anyway it is ignored, and `cleanModelAnswer` strips any trace that
+ * leaks into the text.
+ */
+
+/**
+ * What went wrong at the provider, by class — the browser treats every one
+ * the same way (it falls back), but the Worker's status code and log line
+ * differ. Mapped from the documented Workers AI error codes:
+ *   free_quota       3036 / 429 — the account's daily 10,000-Neuron free
+ *                    allocation is used up (resets 00:00 UTC)
+ *   capacity         3040 / 429 — "No more data centers to forward the request to"
+ *   paid_model       5035 / 403 — the model requires the Workers Paid plan
+ *   permission       3023 / 403 account blocked · 5016 / 403 model agreement
+ *                    not accepted · 5018, 3041 / 403 account not allowed
+ *   invalid_model    5007 / 400 no such model or task · 3042 / 404 invalid id
+ *   invalid_request  any other 4xx the binding reports
+ *   timeout          3007 / 408 from the provider, or our own deadline
+ *   malformed        a result that is not the documented shape
+ *   empty            a result with no answer text
+ *   upstream         anything else — a 5xx, an unclassified exception
+ */
+export type WorkersAiFailure =
+  | "free_quota"
+  | "capacity"
+  | "paid_model"
+  | "permission"
+  | "invalid_model"
+  | "invalid_request"
+  | "timeout"
+  | "malformed"
+  | "empty"
+  | "upstream";
+
+export class WorkersAiError extends Error {
+  kind: WorkersAiFailure;
+  /** Cloudflare's numeric error code, when one was present. For logs only. */
+  code?: number;
+  constructor(kind: WorkersAiFailure, code?: number) {
+    super(`workers-ai:${kind}${code ? `:${code}` : ""}`);
+    this.name = "WorkersAiError";
+    this.kind = kind;
+    this.code = code;
+  }
+}
+
+export interface ChatMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+export interface Completion {
+  text: string;
+  latencyMs: number;
+  /** Token counts when the model reports them; zeros otherwise. Neurons are
+   *  not reported by the inference API and are never estimated here. */
+  usage: { promptTokens: number; completionTokens: number };
+}
+
+/** As close to deterministic as a sampler gets: the answer must not drift. */
+export const SAMPLING = { temperature: 0.2, top_p: 0.9 } as const;
+
+/** The smallest surface of the binding this module needs; the real `Ai` type
+ *  from worker-configuration.d.ts satisfies it, and so does a test mock. */
+export interface AiRunner {
+  run(model: string, inputs: Record<string, unknown>, options?: Record<string, unknown>): Promise<unknown>;
+}
+
+/** The input every Free-plan candidate documents. */
+export function toWorkersAiInput(
+  messages: ChatMessage[],
+  options: { maxOutputTokens: number },
+): Record<string, unknown> {
+  return {
+    messages: messages.map((m) => ({ role: m.role, content: m.content })),
+    max_completion_tokens: options.maxOutputTokens,
+    ...SAMPLING,
+  };
+}
+
+/**
+ * Cloudflare surfaces inference errors from the binding as thrown errors whose
+ * message carries the numeric code, e.g. "3036: You have used up your daily
+ * free allocation of 10,000 neurons…" (the exact prefix varies by runtime
+ * version: "AiError: 3036: …", "InferenceUpstreamError: …"). The number is the
+ * stable part, so it is what is matched; the text is never forwarded.
+ */
+const CODE_CLASS: Record<number, WorkersAiFailure> = {
+  3036: "free_quota",
+  3040: "capacity",
+  5035: "paid_model",
+  3023: "permission",
+  5016: "permission",
+  5018: "permission",
+  3041: "permission",
+  5007: "invalid_model",
+  3042: "invalid_model",
+  3007: "timeout",
+};
+
+export function classifyError(error: unknown): WorkersAiError {
+  if (error instanceof WorkersAiError) return error;
+  const message = error instanceof Error ? error.message : String(error ?? "");
+  const name = error instanceof Error ? error.name : "";
+  if (name === "AbortError") return new WorkersAiError("timeout");
+
+  const code = Number(/\b(\d{4})\b/.exec(message)?.[1]);
+  if (Number.isFinite(code) && CODE_CLASS[code]) return new WorkersAiError(CODE_CLASS[code], code);
+
+  /* An HTTP status without a Cloudflare code — keep the class honest. */
+  const status = Number(/\b(4\d\d|5\d\d)\b/.exec(message)?.[1]);
+  if (status === 429) return new WorkersAiError("capacity");
+  if (status === 408) return new WorkersAiError("timeout");
+  if (status === 403) return new WorkersAiError("permission");
+  if (status === 400 || status === 404) return new WorkersAiError("invalid_request");
+  return new WorkersAiError("upstream", Number.isFinite(code) ? code : undefined);
+}
+
+interface OpenAiShape {
+  choices?: { message?: { content?: unknown } }[];
+  usage?: { prompt_tokens?: number; completion_tokens?: number; input_tokens?: number; output_tokens?: number };
+}
+interface LegacyShape {
+  response?: unknown;
+  usage?: { prompt_tokens?: number; completion_tokens?: number };
+}
+
+/** Read the answer text out of either documented result shape. */
+export function extractText(result: unknown): { text: string; usage: Completion["usage"] } {
+  if (!result || typeof result !== "object") throw new WorkersAiError("malformed");
+  const openai = result as OpenAiShape;
+  const legacy = result as LegacyShape;
+
+  let text: unknown;
+  if (Array.isArray(openai.choices)) {
+    text = openai.choices[0]?.message?.content;
+  } else if ("response" in legacy) {
+    text = legacy.response;
+  } else {
+    throw new WorkersAiError("malformed");
+  }
+  if (text !== undefined && text !== null && typeof text !== "string") throw new WorkersAiError("malformed");
+  if (typeof text !== "string" || !text.trim()) throw new WorkersAiError("empty");
+
+  const usage = openai.usage ?? legacy.usage ?? {};
+  return {
+    text,
+    usage: {
+      promptTokens: usage.prompt_tokens ?? (usage as { input_tokens?: number }).input_tokens ?? 0,
+      completionTokens: usage.completion_tokens ?? (usage as { output_tokens?: number }).output_tokens ?? 0,
+    },
+  };
+}
+
+export async function generate(options: {
+  ai: AiRunner;
+  model: string;
+  messages: ChatMessage[];
+  maxOutputTokens: number;
+  timeoutMs: number;
+}): Promise<Completion> {
+  const { ai, model, messages, maxOutputTokens, timeoutMs } = options;
+  const started = Date.now();
+
+  /* The binding takes no AbortSignal, so the deadline is a race: when the
+     timer wins, the caller gets `timeout` and whatever the binding eventually
+     returns is discarded. */
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new WorkersAiError("timeout")), timeoutMs);
+  });
+
+  let result: unknown;
+  try {
+    result = await Promise.race([ai.run(model, toWorkersAiInput(messages, { maxOutputTokens })), deadline]);
+  } catch (error) {
+    throw classifyError(error);
+  } finally {
+    clearTimeout(timer ?? null);
+  }
+
+  const { text, usage } = extractText(result);
+  return { text, usage, latencyMs: Date.now() - started };
+}

@@ -430,6 +430,24 @@ describe("the model", () => {
     expect(text).not.toContain("neurons");
   });
 
+  it("maps the observed runtime alias 4006 to the same free-quota path — 503 provider_quota, code never exposed", async () => {
+    mockAiRun({ throws: aiError(4006, "Daily free allocation exhausted") });
+    const response = await ask(post());
+    expect(response.status).toBe(503);
+    const text = await response.text();
+    expect(JSON.parse(text)).toEqual({ error: "provider_quota" });
+    expect(text).not.toContain("4006");
+    expect(text).not.toContain("allocation");
+    expect(text).not.toContain("upstream");
+  });
+
+  it("does not turn other 4xxx codes into quota — they stay unclassified upstream", async () => {
+    mockAiRun({ throws: aiError(4001, "some other runtime condition") });
+    const response = await ask(post());
+    expect(response.status).toBe(502);
+    expect(await response.json()).toEqual({ error: "upstream" });
+  });
+
   it("maps out-of-capacity (3040 / 429) to 503 provider_capacity", async () => {
     mockAiRun({ throws: aiError(3040, "No more data centers to forward the request to") });
     const response = await ask(post());
@@ -723,6 +741,12 @@ describe("workers-ai.ts on its own", () => {
   it("classifies the documented Cloudflare codes and never depends on the message text", () => {
     const kinds = (code: number) => classifyError(new Error(`AiError: ${code}: whatever`)).kind;
     expect(kinds(3036)).toBe("free_quota");
+    /* Observed 2026-09-06 once the daily allocation was spent: same class. */
+    expect(kinds(4006)).toBe("free_quota");
+    expect(classifyError(new Error("InferenceUpstreamError: 4006")).kind).toBe("free_quota");
+    /* Only that alias — neighbouring 4xxx codes are not quota. */
+    expect(kinds(4001)).toBe("upstream");
+    expect(kinds(4007)).toBe("upstream");
     expect(kinds(3040)).toBe("capacity");
     expect(kinds(5035)).toBe("paid_model");
     expect(kinds(5007)).toBe("invalid_model");

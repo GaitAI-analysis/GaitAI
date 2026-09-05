@@ -165,7 +165,7 @@ Errors, all `{ "error": "<code>" }` and all handled identically by the browser
 | 429 | `rate_limited` | per-caller burst or hourly limit; `Retry-After` set |
 | 503 | `unconfigured` / `model_unconfigured` | the AI binding is absent / `WORKERS_AI_MODEL` not set |
 | 503 | `budget` | the Worker's own daily hosted-call budget is spent |
-| 503 | `provider_quota` | Workers AI 3036 (HTTP 429): the account's daily free allocation of 10,000 Neurons is used up |
+| 503 | `provider_quota` | Workers AI 3036 (HTTP 429), or its observed runtime alias 4006: the account's daily free allocation of 10,000 Neurons is used up. Only these two codes; other 4xxx codes are not quota |
 | 503 | `provider_capacity` | Workers AI 3040 (HTTP 429): out of capacity |
 | 503 | `paid_model_unavailable` | Workers AI 5035 (HTTP 403): the configured model requires Workers Paid |
 | 502 | `provider_unavailable` | Workers AI 3023 account blocked · 5016 model agreement not accepted · 5018 / 3041 account not allowed (HTTP 403) |
@@ -588,6 +588,35 @@ npm run ask:bench -- --all --match "publications cover gait recognition" \
 
 If it succeeds, the diagnostics should show `content_chars > 0`,
 `reasoning_chars` 0 or unreported, and `finish_reason=stop`.
+
+**Nemotron, `thinking=off`, 450 tokens — the 12-case run (2026-09-06).**
+`@cf/nvidia/nemotron-3-120b-a12b` answered 12/12, grounded 11/12, with 0
+hallucinated figures, 0 boundary breaches, 0 invented names, 0 instruction
+faults, a source under all 12, mean latency 2.7 s and ~120 output tokens. Both
+previously empty questions (gait-recognition publications, privacy
+protection) passed. The one flag — "Where can I try GaitAI?" not naming
+Movement Lab — is what the Destination line (§2) addresses. This is the current
+validated candidate. `WORKERS_AI_MODEL` is still unset and production is still
+`MODEL_REASONING_EFFORT=low`; switching production to `off` is a separate,
+deliberate step.
+
+**The 32-case attempt (2026-09-06) is NOT a model-quality result.** It was
+interrupted by the account-level Workers Free daily Neuron allocation:
+`env.AI.run()` began returning Cloudflare code **4006** and every remaining
+call failed the same way. 4006 is therefore classified as `free_quota`
+alongside the documented 3036, and the benchmark now stops on the first
+free-quota result — printing `STOP  Cloudflare Workers AI daily free
+allocation exhausted.` — instead of sending the rest of the suite. The 4006
+responses from that attempt are not Nemotron failures and are not recorded as
+such; the run must be repeated after the 00:00 UTC reset.
+
+**How an interrupted run is reported.** Each model's summary distinguishes
+`cases` (with local refusals, which are never sent), `executed` (calls actually
+made), `successful`, `failures` (provider errors for a case), `provider quota
+stop` (the one call that revealed the exhausted allocation — not a model
+failure) and `unexecuted` (never called; no scores exist for them). Models the
+run never reached are listed as NOT STARTED. Nothing is fabricated for a case
+that was not called.
 
 Candidates, the models Cloudflare's documentation identifies as remaining
 available on Workers Free (2026-09-05):

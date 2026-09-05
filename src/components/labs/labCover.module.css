@@ -25,9 +25,9 @@
 
 .image {
   object-fit: cover;
-  /* She stands at the centre of the frame; keep the eye line in the
-     upper-middle so the ring of cameras reads around her. */
-  object-position: 50% 36%;
+  /* She sits right of centre with the laptop before her; keep her and the
+     room's far wall in frame, the eye line in the upper-middle. */
+  object-position: 50% 40%;
   /* Kept, not recoloured: a touch less saturation and a little less light so
      the daylight room sits inside the dark page instead of in front of it. */
   filter: saturate(0.9) contrast(1.03) brightness(0.92);
@@ -55,7 +55,7 @@
     padding-bottom: 3.5rem;
   }
   .image {
-    object-position: 50% 40%;
+    object-position: 50% 45%;
   }
 }
 

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { assetPath } from "@/lib/paths";
 import { LAB_EXPERIENCE_EVENT, LAB_PROGRESS_EVENT, type LabProgress } from "./lab-experience-event";
 import { LabPhotoStage, type PhotoLayers } from "./photo/LabPhotoStage";
-import { LAB_PHOTO, PHOTO_CAMERAS } from "./photo/lab-photo-layout";
+import { LAB_SITTING_PHOTO, PHOTO_CAMERAS } from "./photo/lab-photo-layout";
 import { CAPTURE_CAMERA_COUNT } from "./scene/lab-layout";
 import type { LabQuality, LabView } from "./scene/LabScene";
 import styles from "./labExperience.module.css";
@@ -20,10 +20,10 @@ type Mode = "twin" | "photo";
 /**
  * STAGE TWO OF GAITAI LABS — the interactive room.
  *
- * The cover shows the founder standing at the centre of the lab. "Enter the
- * Lab" opens this: the same room in three dimensions, from the same side,
- * with her standing at the centre of the capture ring, every camera aimed at
- * her. The visitor drags to
+ * The cover shows the founder SITTING at work in the lab (the approved cover,
+ * never changed with the 3D work). "Enter the Lab" opens this: the same room
+ * in three dimensions, with her STANDING at the centre of the capture ring,
+ * every camera aimed at her. The visitor drags to
  * orbit, zooms, stands at any capture camera, switches on the pose overlay
  * and the sightlines, and can hold the reconstruction against the real
  * photograph (REAL ROOM), which carries its own camera hotspots and layers.
@@ -211,7 +211,7 @@ export function LabExperience() {
       {entering && (
         <div className={styles.enter} aria-hidden="true">
           {/* eslint-disable-next-line @next/next/no-img-element -- a transient full-screen dissolve */}
-          <img src={assetPath(LAB_PHOTO.src)} alt="" className={styles.enterImage} />
+          <img src={assetPath(LAB_SITTING_PHOTO.src)} alt="" className={styles.enterImage} />
         </div>
       )}
 

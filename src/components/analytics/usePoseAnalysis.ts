@@ -171,16 +171,28 @@ export type Phase = "idle" | "running" | "ready" | "error";
 const RUNTIME_CDN = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1";
 const MODEL_PATH = "/assets/models/pose_landmarker_lite.task";
 
-const MAX_SAMPLES = 64;
+/**
+ * How the clip is sampled: at most MAX_SAMPLES instants, no closer together
+ * than SAMPLE_GAP seconds. The gap WIDENS for a long clip so that the samples
+ * always span the whole of it — 64 samples at a fixed 0.09 s covered only the
+ * first 5.8 s, which left the skeleton, the timeline and the Motion DNA frozen
+ * on the last sampled instant while the video ran on to its end. At 128 the
+ * fixed gap spans 11.5 s, which is every clip this lab suggests (5–20 s) at
+ * about 11 instants a second, and a longer clip is sampled end to end more
+ * coarsely rather than cut short.
+ */
+const MAX_SAMPLES = 128;
 const SAMPLE_GAP = 0.09;
 const CANVAS_W = 192;
 /**
  * Below this mean luminance change the clip is treated as having no usable
- * movement. Measured, not guessed: the walking sample clip in this repository
- * reads a mean of 0.00397 with a per-pixel threshold of 12/255, so a floor of
- * 0.002 clears real movement while a static shot stays under it. An earlier
- * floor of 0.004 sat just above that clip and reported "no movement" on
- * footage that plainly contains a walking figure.
+ * movement. Measured, not guessed: an earlier walking sample clip in this
+ * repository (a single figure translated across a still frame) read a mean of
+ * 0.00397 with a per-pixel threshold of 12/255, so a floor of 0.002 clears
+ * real movement while a static shot stays under it; the current rendered
+ * walker changes about 2% of pixels per instant and clears it comfortably. An
+ * earlier floor of 0.004 sat just above that first clip and reported "no
+ * movement" on footage that plainly contains a walking figure.
  */
 const NOISE_FLOOR = 0.002;
 const PIXEL_THRESHOLD = 12;
@@ -329,6 +341,8 @@ export function usePoseAnalysis() {
       const vw = video.videoWidth;
       const vh = video.videoHeight;
       if (!vw || !vh) throw new Error("no-frames");
+      /* The gap that makes MAX_SAMPLES span the clip — see the constants. */
+      const sampleGap = Math.max(SAMPLE_GAP, duration / MAX_SAMPLES);
 
       const cw = CANVAS_W;
       const ch = Math.max(2, Math.round((vh / vw) * CANVAS_W));
@@ -389,7 +403,7 @@ export function usePoseAnalysis() {
             return reject(new Error("stalled"));
           }
 
-          if (t - lastAt >= SAMPLE_GAP && samples.length < MAX_SAMPLES) {
+          if (t - lastAt >= sampleGap && samples.length < MAX_SAMPLES) {
             lastAt = t;
 
             /* Pose first, from the element itself at full resolution. */

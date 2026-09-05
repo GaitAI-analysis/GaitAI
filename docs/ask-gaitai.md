@@ -208,8 +208,23 @@ system     the Ask GaitAI policy (byte-stable)
 history    ≤6 prior turns, text only, roles alternating
 user       <record> blocks for the canonical records (≤1 500 chars each)
            the page line ("The visitor is currently reading: …")
+           a Destination line, only for a where-to-go question (below)
            the question, labelled, LAST
 ```
+
+**Destinations.** For a where-to-go / try / find question whose lead selected
+record is a site page, `canonicalDestination()` in `prompt.ts` derives the
+destination deterministically from that record alone — the short name from
+the record's slug when every slug word appears in its title
+(`movement-lab` → "Movement Lab" for "Movement Intelligence Lab"), otherwise
+the title — and `destinationLine()` tells the model to name it explicitly and
+name nothing else. The home page never counts, modules and papers never
+count, and nothing outside the selected records is consulted, so the model
+can never be told to name a destination retrieval did not choose. This came
+from the Nemotron `thinking=off` run: 11/12 grounded, the one flag being
+"Where can I try GaitAI?" answered with "the lab" instead of "Movement Lab".
+The ranking suite asserts the contract ("Movement Lab" for /movement-lab/,
+"Publications" for /publications/, none for "what is walkscan").
 
 `workers-ai.ts` hands that `messages` array to `env.AI.run(model, …)` as the
 chat input every Workers-Free candidate documents — `messages[]` with

@@ -326,6 +326,59 @@ describe("the model", () => {
     for (const m of input.messages) expect(typeof m.content).toBe("string");
   });
 
+  it("requires the canonical destination name for a where-to-go question — 'Movement Lab' for /movement-lab/", async () => {
+    mockAiRun({ result: completion("You can try GaitAI in the Movement Lab.") });
+    const response = await ask(
+      post({
+        body: {
+          question: "Where can I try GaitAI?",
+          pathname: "/",
+          pageTitle: "GaitAI",
+          history: [],
+          selectedRecordIds: ["page:/movement-lab", "page:/", "product:walkscan"],
+        },
+      }),
+    );
+    expect(response.status).toBe(200);
+    const input = seen[0].input as { messages: { role: string; content: string }[] };
+    const last = input.messages[input.messages.length - 1].content;
+    expect(last).toContain('Destination: this question asks where to go. The canonical destination among the records is "Movement Lab"');
+    expect(last).toContain("(full title: Movement Intelligence Lab)");
+    expect(last).toContain("at /movement-lab/");
+    expect(last).toContain('Name "Movement Lab" explicitly in your answer');
+    expect(last).toContain("do not name any other destination");
+    /* The destination line sits between the page line and the question, and the
+       question is still last. */
+    expect(last.indexOf("Destination:")).toBeLessThan(last.indexOf("Visitor's question:"));
+    /* The system policy carries the general rule. */
+    expect(input.messages[0].content).toContain('a "Destination" line is supplied');
+  });
+
+  it("adds no destination line for a product question, or when the lead record is not a page", async () => {
+    mockAiRun({ result: completion("ok") }, { result: completion("ok") });
+    await ask(post());
+    expect((seen[0].input as { messages: { content: string }[] }).messages.at(-1)!.content).not.toContain("Destination:");
+    /* A where-question whose lead record is a module, not a page: nothing is invented. */
+    await ask(post({ body: { ...goodBody(), question: "Where can I try WalkScan?", selectedRecordIds: ["product:walkscan", "page:/movement-lab"] } }));
+    expect((seen[1].input as { messages: { content: string }[] }).messages.at(-1)!.content).not.toContain("Destination:");
+  });
+
+  it("derives the destination deterministically from the selected records only", async () => {
+    const { canonicalDestination } = await import("../../src/lib/ask/prompt");
+    const lab = { doc: { id: "page:/movement-lab", type: "page" as const, title: "Movement Intelligence Lab", slug: "movement-lab", url: "/movement-lab/" } };
+    const home = { doc: { id: "page:/", type: "page" as const, title: "GaitAI", slug: "home", url: "/" } };
+    const pubs = { doc: { id: "page:/publications", type: "page" as const, title: "Publications", slug: "publications", url: "/publications/" } };
+    const talks = { doc: { id: "page:/research/talks", type: "page" as const, title: "Talks and presentations", slug: "research-talks", url: "/research/talks/" } };
+    expect(canonicalDestination("Where can I try GaitAI?", [lab, home])).toEqual({ name: "Movement Lab", title: "Movement Intelligence Lab", url: "/movement-lab/" });
+    expect(canonicalDestination("Where are your publications?", [pubs])).toEqual({ name: "Publications", title: "Publications", url: "/publications/" });
+    /* Slug words not all in the title: the canonical title stands. */
+    expect(canonicalDestination("Where can I find your talks?", [talks])?.name).toBe("Talks and presentations");
+    /* The home page is never a destination; a non-where question has none. */
+    expect(canonicalDestination("Where can I try GaitAI?", [home, lab])).toBeNull();
+    expect(canonicalDestination("What is the Movement Lab?", [lab])).toBeNull();
+    expect(canonicalDestination("Where can I try GaitAI?", [])).toBeNull();
+  });
+
   it("maps the conversation history to alternating turns ending on the user", async () => {
     mockAiRun({ result: completion("ok") });
     const response = await ask(

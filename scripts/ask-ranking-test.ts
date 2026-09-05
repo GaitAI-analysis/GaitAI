@@ -16,6 +16,7 @@ import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { retrieveGaitAIContext } from "../src/lib/ask/retrieval";
 import { composeExtractiveAnswer } from "../src/lib/ask/extractive";
 import { sanitizeLinks } from "../src/lib/ask/answer";
+import { canonicalDestination, destinationLine } from "../src/lib/ask/prompt";
 
 const showAnswers = process.argv.includes("--answers");
 
@@ -64,6 +65,25 @@ for (const testCase of RANKING_CASES) {
   }
   for (const needle of testCase.answerLacks ?? []) {
     if (answer.includes(needle)) problems.push(`answer contains "${needle}"`);
+  }
+  /* The model-facing answer contract for a where-to-go question: the canonical
+     destination derived from the selected records, and the instruction that
+     requires its literal name in the visible answer. */
+  if (testCase.destination !== undefined) {
+    const destination = canonicalDestination(testCase.q, result.docs);
+    if (testCase.destination === null) {
+      if (destination) problems.push(`unexpected destination "${destination.name}" (${destination.url})`);
+    } else if (!destination) {
+      problems.push(`no destination derived, expected "${testCase.destination}"`);
+    } else {
+      if (destination.name !== testCase.destination) {
+        problems.push(`destination is "${destination.name}", expected "${testCase.destination}"`);
+      }
+      const line = destinationLine(destination);
+      if (!line.includes(`"${testCase.destination}"`) || !line.includes(destination.url)) {
+        problems.push(`destination line does not require "${testCase.destination}" at ${destination.url}`);
+      }
+    }
   }
 
   if (problems.length) failures += 1;

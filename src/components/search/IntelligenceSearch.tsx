@@ -14,6 +14,7 @@ import {
   ASSISTANT_ENABLED,
   type AskEventDetail,
 } from "@/components/assistant/config";
+import { runLabAction } from "@/components/labs/lab-actions";
 import styles from "./search.module.css";
 
 /**
@@ -102,6 +103,15 @@ export function IntelligenceSearch() {
   const go = useCallback(
     (entry: SearchEntry) => {
       close();
+      /* A result is a place or an action. The Atlas is the action: it opens
+         over the current page through the same `openAtlas()` the navbar
+         uses, so the palette never pushes a URL that does not exist. Focus
+         has already been handed back to the opener by `close()`, which is
+         where the Atlas will return it when it, in turn, closes. */
+      if (entry.action) {
+        runLabAction(entry.action);
+        return;
+      }
       router.push(entry.href);
     },
     [close, router],

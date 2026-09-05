@@ -992,7 +992,7 @@ async function main() {
         para(
           "Instruments on this page",
           labsMod.labs
-            .filter((lab) => lab.href.startsWith("/movement-lab"))
+            .filter((lab) => lab.kind === "route" && lab.href.startsWith("/movement-lab"))
             .map((lab) => `${lab.name} — ${lab.strap}. ${lab.body}`),
         ),
       ),

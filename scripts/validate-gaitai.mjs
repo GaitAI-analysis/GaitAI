@@ -72,7 +72,7 @@ async function main() {
   const { sampleOutputs } = samples;
   const { searchIndex } = searchIdx;
   const { productComparisons } = comparisons;
-  const { labs } = labsMod;
+  const { labs, LAB_ACTIONS } = labsMod;
   const { unknownFusionChannels } = fusion;
   const { sourcesForProduct, supportingSourcesForProduct } = graph;
   const { privacyStages } = privacyLens;
@@ -314,20 +314,41 @@ async function main() {
     return staticRoutes.has(bare) || dynamicOk(pathOnly);
   };
 
+  /* A search entry is a place (`href`) or an action (`action`) — the Atlas
+     opens in place and has no URL — and never both or neither. Only the
+     places are checked as routes below. Returns true when the entry is an
+     action (or malformed) and the route checks should be skipped. */
+  const knownActions = new Set(LAB_ACTIONS);
+  const isAction = (entry, label) => {
+    const hasHref = entry.href !== undefined;
+    const hasAction = entry.action !== undefined;
+    if (hasHref === hasAction) {
+      err(
+        "route targets",
+        `${label} must carry exactly one of href / action, has ` +
+          (hasHref ? "both" : "neither"),
+      );
+      return true;
+    }
+    if (hasAction && !knownActions.has(entry.action)) {
+      err("route targets", `${label} names unknown action "${entry.action}"`);
+    }
+    return hasAction;
+  };
+
   for (const entry of searchIndex) {
+    if (isAction(entry, `search entry "${entry.id}"`)) continue;
     if (!routable(entry.href)) {
       err(
         "route targets",
         `search entry "${entry.id}" points at unroutable "${entry.href}"`,
       );
     }
-  }
-  /* TRAILING SLASHES. next.config.mjs sets trailingSlash, so a route without
-     one 404s on a hard load or a copied URL even though client-side
-     navigation quietly normalises it — which is why 22 talk entries shipped
-     with a broken href and nobody noticed. Anchored and query hrefs are
-     checked on the path portion only. */
-  for (const entry of searchIndex) {
+    /* TRAILING SLASHES. next.config.mjs sets trailingSlash, so a route without
+       one 404s on a hard load or a copied URL even though client-side
+       navigation quietly normalises it — which is why 22 talk entries shipped
+       with a broken href and nobody noticed. Anchored and query hrefs are
+       checked on the path portion only. */
     const [pathOnly] = entry.href.split(/[?#]/);
     if (pathOnly !== "/" && pathOnly.length > 0 && !pathOnly.endsWith("/")) {
       err(
@@ -341,8 +362,19 @@ async function main() {
   // Labs entries are the one place on the site where a broken link would
   // publish a demo that does not exist, which is precisely what the Labs
   // rule forbids. An anchor is not checked here (a static export cannot
-  // verify one), but the PAGE it hangs off is.
+  // verify one), but the PAGE it hangs off is. An action lab has no page to
+  // check; it is checked for naming an action the site actually has, and for
+  // not carrying an href as well — a record that is both would be a link to
+  // nowhere dressed as a button.
   for (const lab of labs) {
+    if (lab.kind === "action") {
+      isAction(lab, `lab "${lab.id}"`);
+      continue;
+    }
+    if (lab.kind !== "route") {
+      err("route targets", `lab "${lab.id}" has unknown kind "${lab.kind}"`);
+      continue;
+    }
     if (!routable(lab.href)) {
       err("route targets", `lab "${lab.id}" points at unroutable "${lab.href}"`);
     }

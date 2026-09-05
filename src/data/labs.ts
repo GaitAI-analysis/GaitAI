@@ -16,6 +16,17 @@
 // longer page, reached by anchor. That distinction is carried in `home` and
 // shown on the page, so a reader knows whether a link is a destination or a
 // place on a page they may already have read.
+//
+// ONE OF THEM IS NOT A PLACE AT ALL. The Atlas is a site-wide overlay with no
+// route of its own; it opens over whatever page you are on. A record can
+// therefore be one of two `kind`s — a `route`, which navigates to `href`, or
+// an `action`, which runs a named thing the site already knows how to do.
+// Consumers switch on `kind`; nobody reaches for `href` on an action record
+// and nobody invents a fake URL to make one look like a page.
+//
+// ORDER IS THE ARRAY. The numbers a reader sees on /labs are 01, 02, … in the
+// order the records appear below, derived at render time. There is no `index`
+// field to keep in step with a reorder.
 // ============================================================================
 
 export type LabBasis =
@@ -33,20 +44,42 @@ export type LabBasis =
  * client-side navigation and 404s on a hard load or a copied link. The
  * validator now checks this, which is how the three anchored labs were caught.
  */
-export interface LabRecord {
+/**
+ * The things an `action` record can do. Every name here maps to ONE existing
+ * mechanism on the site — `open-atlas` fires the same `ATLAS_EVENT` the
+ * navbar glyph and the location strip fire — so an action lab is never a
+ * second implementation of anything. The runner lives with the components
+ * (`components/labs/lab-actions.ts`); this file only names the actions so the
+ * validator can refuse a record that points at one that does not exist.
+ */
+export const LAB_ACTIONS = ["open-atlas"] as const;
+export type LabAction = (typeof LAB_ACTIONS)[number];
+
+interface LabBase {
   id: string;
-  /** Display index — the page shows these as 01, 02, … in order. */
-  index: number;
   name: string;
   /** One line, under the name. */
   strap: string;
   /** What a reader can actually do, in one sentence. */
   body: string;
-  href: string;
   /** Where it lives, when that is not simply "its own page". */
   home?: string;
   basis: LabBasis;
 }
+
+/** A lab that is a place: its own route, or an anchor inside a longer page. */
+export interface RouteLab extends LabBase {
+  kind: "route";
+  href: string;
+}
+
+/** A lab that is a thing the site does: an overlay opened in place. */
+export interface ActionLab extends LabBase {
+  kind: "action";
+  action: LabAction;
+}
+
+export type LabRecord = RouteLab | ActionLab;
 
 export const LABS_EYEBROW = "GaitAI Labs";
 export const LABS_TITLE_LEAD = "Explore movement";
@@ -70,8 +103,27 @@ export const LAB_BASIS_LABEL: Record<LabBasis, string> = {
 
 export const labs: LabRecord[] = [
   {
+    /* THE ATLAS IS FIRST because it is the one experiment that applies to
+       every other: the whole website as a tree you can walk, with the page
+       you are on lit. It is not a page — it opens over this one — so it is
+       an `action` record and the row that renders it is a button, not a
+       link. Copy below is the overlay's own: its title and subtitle, what
+       the tree holds (`data/site-map.ts`), the find-a-page filter and the
+       GaitScape hand-off in its footer. Nothing here claims a thing the
+       Atlas does not do. */
+    id: "gaitai-atlas",
+    kind: "action",
+    action: "open-atlas",
+    name: "GaitAI Atlas",
+    strap: "The whole website, and where you are in it",
+    body:
+      "Open the site map over the page you are on: every section, module, environment, article and paper as one tree with your current location lit, a find-a-page filter that reveals matches in place, and a step across to GaitScape for how the intelligence connects.",
+    home: "An overlay on every page, also from the navbar",
+    basis: "real-relationships",
+  },
+  {
     id: "movement-lab",
-    index: 1,
+    kind: "route",
     name: "Movement Intelligence Lab",
     strap: "Capture → pose → signal → intelligence",
     body:
@@ -81,7 +133,7 @@ export const labs: LabRecord[] = [
   },
   {
     id: "gaitscape",
-    index: 2,
+    kind: "route",
     name: "GaitScape",
     strap: "Explore the GaitAI ecosystem visually",
     body:
@@ -91,7 +143,7 @@ export const labs: LabRecord[] = [
   },
   {
     id: "signal-inspector",
-    index: 3,
+    kind: "route",
     name: "Signal Inspector",
     strap: "Explore how different inputs become movement features",
     body:
@@ -102,7 +154,7 @@ export const labs: LabRecord[] = [
   },
   {
     id: "footage-check",
-    index: 4,
+    kind: "route",
     name: "Footage Check",
     strap: "See what GaitAI could read from what you already have",
     body:
@@ -113,7 +165,7 @@ export const labs: LabRecord[] = [
   },
   {
     id: "movement-xray",
-    index: 5,
+    kind: "route",
     name: "Movement X-Ray",
     strap: "Human view / AI view of the same walk",
     body:
@@ -124,7 +176,7 @@ export const labs: LabRecord[] = [
   },
   {
     id: "privacy-lens",
-    index: 6,
+    kind: "route",
     name: "Privacy Lens",
     strap: "Sensing → privacy transformed → movement intelligence",
     body:
@@ -135,7 +187,7 @@ export const labs: LabRecord[] = [
   },
   {
     id: "fusion-sandbox",
-    index: 7,
+    kind: "route",
     name: "Fusion Sandbox",
     strap: "A missing input is a known unknown. A corrupted one is not.",
     body:
@@ -146,7 +198,7 @@ export const labs: LabRecord[] = [
   },
   {
     id: "time-machine",
-    index: 8,
+    kind: "route",
     name: "Mobility Time Machine",
     strap: "One walk is a snapshot. Five is a trajectory.",
     body:

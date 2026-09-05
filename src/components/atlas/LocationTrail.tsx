@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { atlasTrail } from "@/data/site-map";
-import { ATLAS_EVENT } from "./atlas-event";
+import { openAtlas } from "./atlas-event";
 import styles from "./atlas.module.css";
 
 /**
@@ -175,7 +175,7 @@ export function LocationTrail() {
 
           <button
             type="button"
-            onClick={() => window.dispatchEvent(new CustomEvent(ATLAS_EVENT))}
+            onClick={() => openAtlas()}
             aria-label="Open GaitAI Atlas"
             title="Explore GaitAI Atlas"
             className={styles.open}

@@ -155,6 +155,12 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
 
     if (kind === "timeout") return failure(504, "timeout", cors);
     if (kind === "rate_limited") return failure(503, "provider_rate_limited", cors);
+    /* 402 Payment Required from the provider — an account state, not a token
+       problem. A 503 like the daily budget: the service is paused, not broken,
+       and the browser falls back the same way. The log line above carries the
+       class so the account's Billing / Inference Providers state is checked
+       rather than the token rotated. */
+    if (kind === "payment_required") return failure(503, "payment_required", cors);
     return failure(502, "upstream", cors);
   }
 }

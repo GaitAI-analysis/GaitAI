@@ -162,8 +162,8 @@ Errors, all `{ "error": "<code>" }` and all handled identically by the browser
 | 422 | `no_records` | none of the ids resolve to a canonical record |
 | 429 | `rate_limited` | per-caller burst or hourly limit; `Retry-After` set |
 | 503 | `unconfigured` / `model_unconfigured` | HF_TOKEN or HF_MODEL not set |
-| 503 | `budget` / `provider_rate_limited` | daily budget spent; provider answered 429 |
-| 502 | `upstream` | provider error, malformed provider output, empty answer after cleaning |
+| 503 | `budget` / `provider_rate_limited` / `payment_required` | daily budget spent; provider answered 429; provider answered 402 Payment Required (the token is still valid; check the account's Billing / Inference Providers state) |
+| 502 | `upstream` | provider 401/403 (token invalid or not allowed), any other provider error, malformed provider output, empty answer after cleaning |
 | 504 | `timeout` | provider did not answer within `HF_TIMEOUT_MS` |
 
 Never in a response: the token, the raw provider reply, the system prompt,
@@ -443,3 +443,13 @@ Candidates on the router in the 7B–12B class at the time of writing:
 `Qwen/Qwen3-8B`, `Qwen/Qwen3.5-9B`, `meta-llama/Llama-3.1-8B-Instruct`,
 `google/gemma-3-12b-it` (`Qwen/Qwen2.5-7B-Instruct` is not served). Record the
 winner and its numbers here, then set `HF_MODEL`.
+
+**Provisional leader (2026-09-05): `Qwen/Qwen3-8B`.** Hugging Face returned
+HTTP 402 Payment Required after nine successful calls. This may indicate that
+available inference credit is unavailable or exhausted; confirm the account's
+Billing / Inference Providers state before deployment. The token itself was
+accepted on every call, which is why 402 is its own failure class
+(`payment_required`, answered as 503) rather than an auth failure. The
+benchmark is therefore incomplete: `HF_MODEL` stays empty and nothing is
+deployed until the account state is confirmed and the remaining candidates have
+been scored.

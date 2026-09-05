@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { GaitLabAreas } from "@/components/labs/GaitLabAreas";
 import { LabCover, LAB_COVER_IMAGE } from "@/components/labs/LabCover";
-import { LabDistinction } from "@/components/labs/LabDistinction";
 import { LabExperience } from "@/components/labs/LabExperience";
-import { EXPERIMENTS_ANCHOR, experiments } from "@/data/experiments";
 import {
   GAIT_LABS_EYEBROW,
   GAIT_LABS_TITLE_ACCENT,
   GAIT_LABS_TITLE_LEAD,
-  gaitLabs,
 } from "@/data/labs";
-import { allPublications } from "@/data/publications";
 
 const TITLE = `${GAIT_LABS_EYEBROW} — ${GAIT_LABS_TITLE_LEAD} ${GAIT_LABS_TITLE_ACCENT}`;
 const DESCRIPTION =
@@ -38,128 +33,38 @@ export const metadata: Metadata = {
 };
 
 /**
- * /labs — GaitAI Labs, the gait research hub.
+ * /labs — GaitAI Labs, the gait research hub, as a landing page.
  *
- * This route used to be an index of the interactive movement experiments. It
- * is now the home of GaitAI's dedicated gait RESEARCH assets — the gait
- * dataset and the gait biometrics lab — and the experiments moved to the foot
- * of the Movement Intelligence Lab, which is what they are about. The route
- * stayed: it is in the sitemap, in the Explore menu and in the assistant's
- * corpus, and a static export cannot redirect. A reader who arrives here
- * looking for an experiment finds the pointer under the two assets.
+ * Two things and nothing else: the cover — the founder at the centre of the
+ * biometrics capture room, with "Enter the Lab" opening the interactive
+ * three-dimensional reconstruction of that room over the page — and the Gait
+ * Dataset row beneath it. The page used to carry a title, blurb and boundary
+ * line over the photograph, a second row for the Gait Biometrics Lab, the
+ * list of papers behind both assets and a strip contrasting this hub with
+ * the Movement Intelligence Lab; all of that explained the page instead of
+ * being it, and duplicated what the asset pages already say. The biometrics
+ * lab keeps its own route (/labs/biometrics), reached from the site map, the
+ * Atlas, the search palette and the dataset page; the publications keep
+ * theirs.
  *
- * WHAT THE PAGE MAY SAY. The published record covers gait recognition with
- * covariates, pose-based gait recognition and protecting gait datasets inside
- * deep-learning pipelines. It holds no dataset statistics and no recognition
- * results, so this page shows the two assets, their status in words, and the
- * papers behind them — and no figure. That boundary is stated once, in the
- * hero, and the asset pages repeat it.
- *
- * THE COVER AND THE ROOM. The page opens on the lab itself — the founder at
- * the centre of the capture ring — and "Enter the Lab" opens an interactive
- * three-dimensional reconstruction of that room over the page (see
- * `components/labs/LabExperience.tsx`). The viewer is mounted once, here,
- * and renders nothing until asked.
+ * The route stayed /labs: it is in the sitemap, in the Explore menu and in
+ * the assistant's corpus, and a static export cannot redirect.
  */
 export default function LabsPage() {
-
-  /* Every paper either asset rests on, once, in the record's own order. */
-  const cited = new Set(gaitLabs.flatMap((lab) => lab.publicationIds));
-  const papers = allPublications.filter((p) => cited.has(p.id));
-
   return (
     <>
-      {/* ── COVER ── The lab, with its founder at the centre of the ring. */}
+      {/* ── COVER ── The lab, with its founder at the centre of the ring,
+          and the one action. */}
       <LabCover />
 
-      {/* ── THE TWO ASSETS ── */}
-      <section className="border-t border-white/[0.06] py-10 sm:py-12">
+      {/* ── THE DATASET ── The single row below the cover. No border above
+          it: the cover's grade already settles into the page ground, and a
+          hairline there read as a seam. The row carries its own vertical
+          room, so the section adds only a little, and the page ends on the
+          dataset's call to action rather than running out. */}
+      <section className="py-8 sm:py-12">
         <div className="container-wide">
-          <h2 className="sr-only">The research assets</h2>
-          <GaitLabAreas />
-        </div>
-      </section>
-
-      {/* ── THE RECORD BEHIND THEM ── Derived from the assets' publication
-          ids, so the list is exactly the papers the assets cite. */}
-      <section className="border-t border-white/[0.06] py-14 sm:py-16">
-        <div className="container-wide">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-            The published record
-          </span>
-          <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
-            What the assets{" "}
-            <span className="text-gradient">rest on.</span>
-          </h2>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
-            Peer-reviewed work on gait recognition with covariates, pose-based
-            gait recognition and the protection of gait datasets inside
-            deep-learning pipelines. Each asset page lists the papers behind
-            it; together they are these.
-          </p>
-
-          <ol className="mt-8 border-t border-white/[0.06]">
-            {papers.map((paper) => (
-              <li key={paper.id}>
-                <Link
-                  href={`/publications/${paper.id}/`}
-                  className="row-link group grid gap-x-6 gap-y-2 border-b border-white/[0.06] py-5 sm:grid-cols-[5rem_1fr_auto] sm:items-baseline sm:px-2"
-                >
-                  <span className="font-mono text-[11px] tracking-[0.14em] text-soft-mute">
-                    {paper.year}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-[15px] leading-snug text-soft-white">
-                      {paper.title}
-                    </span>
-                    <span className="mt-1 block text-[12px] text-soft-mute">
-                      {paper.venue}
-                    </span>
-                  </span>
-                  <span
-                    aria-hidden="true"
-                    className="row-link-arrow text-soft-mute sm:self-center"
-                  >
-                    &rarr;
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* ── WHICH LAB ── The distinction, stated where it is most likely to
-          be blurred, and the pointer for anyone who came here for an
-          experiment that used to be listed on this route. */}
-      <section className="border-t border-white/[0.06] py-14 sm:py-16">
-        <div className="container-wide">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
-            Two labs, two questions
-          </span>
-          <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
-            Research assets here.{" "}
-            <span className="text-gradient">Experiments in the Movement Intelligence Lab.</span>
-          </h2>
-          <div className="mt-10">
-            <LabDistinction current="labs" />
-          </div>
-
-          <p className="mt-8 max-w-2xl text-[14.5px] leading-relaxed text-soft-gray">
-            Looking for{" "}
-            {experiments
-              .filter((experiment) => experiment.id !== "movement-lab")
-              .map((experiment) => experiment.name)
-              .join(", ")}
-            ? They used to be listed here and now live in the{" "}
-            <Link
-              href={EXPERIMENTS_ANCHOR}
-              className="text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200"
-            >
-              Movement Intelligence Lab
-            </Link>
-            , after the analyzer.
-          </p>
+          <GaitLabAreas ids={["dataset"]} />
         </div>
       </section>
 

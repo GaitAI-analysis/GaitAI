@@ -1,9 +1,9 @@
 /*
- * THE LABS COVER — a photograph read through the site's ground.
+ * THE LABS COVER — a photograph, and one action.
  *
- * Dark in both themes by design: this is white type over a graded image, and
- * the colours are written here rather than taken from the theme tokens so the
- * light theme cannot turn the copy to ink over a dark grade.
+ * Dark in both themes by design: the colours are written here rather than
+ * taken from the theme tokens so the light theme cannot lift the grade the
+ * button stands on.
  */
 
 .cover {
@@ -11,13 +11,13 @@
   overflow: hidden;
   display: flex;
   align-items: flex-end;
-  min-height: min(78vh, 720px);
+  min-height: min(82vh, 820px);
   padding-bottom: 3rem;
   background: #070b14;
   color: #f4f6fb;
 }
 
-/* ── The photograph ── */
+/* ── The photograph, full width at every size ── */
 .media {
   position: absolute;
   inset: 0;
@@ -25,156 +25,51 @@
 
 .image {
   object-fit: cover;
-  object-position: 52% 32%;
+  /* The founder stands at the centre of the frame; keep the eye line in the
+     upper-middle of the section so the ring of cameras reads around her. */
+  object-position: 50% 36%;
   /* Kept, not recoloured: a touch less saturation and a little less light so
      the daylight room sits inside the dark page instead of in front of it. */
-  filter: saturate(0.84) contrast(1.04) brightness(0.86);
+  filter: saturate(0.88) contrast(1.04) brightness(0.9);
 }
 
-/* Two grades. Horizontal: holds the left third for type. Vertical: settles the
-   image into the page below and keeps the header band quiet above. */
+/* One vertical grade: quiet under the header band, clear through the middle
+   where the room is, and settling into the page ground at the foot where
+   the button stands. No horizontal grade — there is no type to hold room
+   for, and the image is the point. */
 .grade {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(
-      90deg,
-      rgb(7 11 20 / 0.94) 0%,
-      rgb(7 11 20 / 0.82) 30%,
-      rgb(7 11 20 / 0.42) 55%,
-      rgb(7 11 20 / 0.14) 100%
-    ),
-    linear-gradient(
-      180deg,
-      rgb(7 11 20 / 0.5) 0%,
-      rgb(7 11 20 / 0) 28%,
-      rgb(7 11 20 / 0.28) 70%,
-      rgb(7 11 20 / 0.94) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    rgb(7 11 20 / 0.46) 0%,
+    rgb(7 11 20 / 0) 22%,
+    rgb(7 11 20 / 0.12) 58%,
+    rgb(7 11 20 / 0.62) 84%,
+    rgb(7 11 20 / 0.96) 100%
+  );
 }
 
 @media (min-width: 1024px) {
   .cover {
-    min-height: min(84vh, 780px);
+    min-height: min(88vh, 860px);
     padding-bottom: 3.5rem;
   }
-  /* The media begins part-way across, so the figure — who stands at the
-     centre of the photograph — lands in the right half, clear of the copy.
-     The horizontal grade hides the seam. */
-  .media {
-    left: 26%;
-  }
   .image {
-    object-position: 56% 38%;
-  }
-  .grade {
-    background:
-      linear-gradient(
-        90deg,
-        rgb(7 11 20 / 1) 0%,
-        rgb(7 11 20 / 0.9) 12%,
-        rgb(7 11 20 / 0.34) 42%,
-        rgb(7 11 20 / 0.08) 100%
-      ),
-      linear-gradient(
-        180deg,
-        rgb(7 11 20 / 0.42) 0%,
-        rgb(7 11 20 / 0) 26%,
-        rgb(7 11 20 / 0.22) 68%,
-        rgb(7 11 20 / 0.92) 100%
-      );
+    object-position: 50% 40%;
   }
 }
 
-/* ── The copy ── */
+/* ── The action, centred under the figure ── */
 .inner {
   position: relative;
-}
-
-.copy {
-  max-width: 40rem;
-}
-
-.eyebrow {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #4fd1ff;
-}
-
-.title {
-  margin-top: 1.25rem;
-  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.035em;
-  font-weight: 600;
-  text-wrap: balance;
-  color: #f4f6fb;
-}
-
-.blurb {
-  margin-top: 1.5rem;
-  max-width: 36rem;
-  font-size: 1rem;
-  line-height: 1.65;
-  color: rgb(203 213 225 / 0.92);
-}
-
-@media (min-width: 640px) {
-  .blurb {
-    font-size: 1.125rem;
-  }
-}
-
-.boundary {
-  margin-top: 1.25rem;
-  max-width: 36rem;
-  font-size: 13px;
-  line-height: 1.6;
-  color: rgb(148 163 184 / 0.9);
-}
-
-.actions {
-  margin-top: 2rem;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
 }
 
-/* The ghost button, held to the cover's own palette in both themes. */
-.ghost {
-  color: #f4f6fb;
-  border-color: rgb(255 255 255 / 0.18);
-}
-.ghost:hover {
-  color: #ffffff;
-  border-color: rgb(255 255 255 / 0.34);
-  background: rgb(255 255 255 / 0.05);
-}
-
-/* One line that names what the photograph is, with the site's hairline. */
-.caption {
-  margin-top: 2.25rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  max-width: 34rem;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 10.5px;
-  line-height: 1.6;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: rgb(148 163 184 / 0.85);
-}
-
-.captionMark {
-  flex: 0 0 auto;
-  width: 1.75rem;
-  height: 1px;
-  margin-top: 0.5rem;
-  background: linear-gradient(90deg, #4fd1ff, transparent);
+.enter {
+  /* A little more presence than the default primary, because it is alone on
+     a photograph rather than beside a heading. */
+  padding-inline: 1.75rem;
+  box-shadow: 0 18px 50px -18px rgb(0 0 0 / 0.75);
 }

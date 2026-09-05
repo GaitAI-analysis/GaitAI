@@ -1,12 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
-import {
-  GAIT_LABS_BLURB,
-  GAIT_LABS_BOUNDARY,
-  GAIT_LABS_EYEBROW,
-  GAIT_LABS_TITLE_ACCENT,
-  GAIT_LABS_TITLE_LEAD,
-} from "@/data/labs";
+import { GAIT_LABS_EYEBROW } from "@/data/labs";
 import { assetPath } from "@/lib/paths";
 import { EnterLabButton } from "./EnterLabButton";
 import styles from "./labCover.module.css";
@@ -17,27 +10,28 @@ export const LAB_COVER_IMAGE = "/assets/images/labs/lab-cover.jpg";
  * The cover of GaitAI Labs: the founder standing at the centre of the
  * biometrics capture room, ringed by the cameras that read a walk.
  *
- * It replaces the text-only hero and keeps every word of it — the eyebrow,
- * the title, the blurb and the boundary line all come from `data/labs.ts` as
- * before — so the page's canon is unchanged; what is added is the room
- * itself, and one action: "Enter the Lab", which opens the interactive
- * three-dimensional reconstruction of this same room over the page.
+ * THE PHOTOGRAPH IS THE HERO, AND THE ONLY COPY IS ONE ACTION. There is no
+ * title, blurb or caption over the image any more — the room says what the
+ * page is — so the media runs the full width in every viewport, the figure at
+ * the centre of the frame is the centre of the section, and "Enter the Lab"
+ * sits beneath it on a vertical grade that settles the image into the page.
+ * The page keeps an `h1` for assistive technology and the document outline;
+ * it is not drawn.
  *
- * THE PHOTOGRAPH IS THE HERO, GRADED INTO THE SITE. The lab is a bright
- * yellow room in daylight and the site is dark; the image is kept, not
- * recoloured, and read through the site's own ground: a horizontal grade
- * that holds the left third for type and a vertical one that settles it
- * into the page below. The figure stays clear in the right half at every
- * width, which is why the media starts part-way across on a desktop rather
- * than filling the section — filling it put the copy over the subject.
+ * The image is kept, not recoloured: a touch less saturation and light so the
+ * daylight room sits inside the dark page instead of in front of it. The
+ * cover is dark in both themes by design, which is why its colours are set
+ * here rather than through the theme tokens.
  *
- * The cover is deliberately dark in both themes. Its colours are set here
- * rather than through the theme tokens, because white type over a graded
- * photograph is the design in light mode too.
+ * "Enter the Lab" is a button, not a link: it opens the interactive
+ * three-dimensional reconstruction of this same room over the page (see
+ * `LabExperience`), and focus returns to it when the room closes.
  */
 export function LabCover() {
   return (
-    <section className={`site-page-intro ${styles.cover}`}>
+    <section className={styles.cover}>
+      <h1 className="sr-only">{GAIT_LABS_EYEBROW}</h1>
+
       <div className={styles.media}>
         <Image
           src={assetPath(LAB_COVER_IMAGE)}
@@ -51,31 +45,10 @@ export function LabCover() {
       </div>
 
       <div className={`container-wide ${styles.inner}`}>
-        <div className={styles.copy}>
-          <span className={styles.eyebrow}>{GAIT_LABS_EYEBROW}</span>
-          <h1 className={styles.title}>
-            {GAIT_LABS_TITLE_LEAD}{" "}
-            <span className="text-gradient">{GAIT_LABS_TITLE_ACCENT}</span>
-          </h1>
-          <p className={styles.blurb}>{GAIT_LABS_BLURB}</p>
-          <p className={styles.boundary}>{GAIT_LABS_BOUNDARY}</p>
-
-          <div className={styles.actions}>
-            <EnterLabButton className="btn-primary">
-              Enter the Lab
-              <span aria-hidden="true"> &rarr;</span>
-            </EnterLabButton>
-            <Link href="#dataset" className={`btn-ghost ${styles.ghost}`}>
-              Explore the research assets
-            </Link>
-          </div>
-
-          <p className={styles.caption}>
-            <span className={styles.captionMark} aria-hidden="true" />
-            The GaitAI biometrics capture room, with its founder at the centre
-            of the camera ring. The interactive lab is built from this room.
-          </p>
-        </div>
+        <EnterLabButton className={`btn-primary ${styles.enter}`}>
+          Enter the Lab
+          <span aria-hidden="true"> &rarr;</span>
+        </EnterLabButton>
       </div>
     </section>
   );

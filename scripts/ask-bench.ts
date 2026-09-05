@@ -64,7 +64,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { BENCH_CASES, BRIEF_CASES, matchCases, type BenchCase } from "./ask/bench-cases";
-import { BenchOptionError, resolveThinking } from "./ask/bench-options";
+import { BenchOptionError, executeSuite, resolveThinking, type AttemptOutcome } from "./ask/bench-options";
 import type { ResultDiagnostics } from "../worker/src/workers-ai";
 import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { buildContextBlock, retrieveGaitAIContext } from "../src/lib/ask/retrieval";
@@ -146,7 +146,10 @@ interface Row {
   model: string;
   question: string;
   path: string;
-  skipped: "local-refusal" | null;
+  /** local-refusal: retrieval refused, no call made. unexecuted: never called — the suite stopped first. */
+  skipped: "local-refusal" | "unexecuted" | null;
+  /** True on the one row whose call revealed the exhausted daily allocation. */
+  quotaStop?: boolean;
   expected: string[];
   retrievedIds: string[];
   retrievalOk: boolean;
@@ -281,149 +284,196 @@ async function main() {
 
   const rows: Row[] = [];
   const summaries: Record<string, unknown>[] = [];
+  const suiteCases = cases.slice(0, limit);
 
-  for (const model of models) {
-    console.log(`${"═".repeat(72)}\n${model}\n${"═".repeat(72)}`);
-    const modelRows: Row[] = [];
+  /* One attempt at one case: retrieval, the loopback call, scoring. The runner
+     (executeSuite) decides whether to continue — and stops the whole suite the
+     moment the account's daily free allocation is exhausted. */
+  const attempt = async (model: string, testCase: BenchCase, index: number): Promise<AttemptOutcome<Row>> => {
+    if (index === 0) console.log(`${"═".repeat(72)}\n${model}\n${"═".repeat(72)}`);
 
-    for (const testCase of cases.slice(0, limit)) {
-      const pathname = testCase.path ?? "/";
-      const result = retrieveGaitAIContext(testCase.q, pathname);
-      const ids = result.docs.map((d) => d.doc.id);
-      const expectedTitles = testCase.expect
-        .map((id) => corpus.docs.find((doc) => doc.id === id)?.title ?? "")
-        .filter(Boolean);
+    const pathname = testCase.path ?? "/";
+    const result = retrieveGaitAIContext(testCase.q, pathname);
+    const ids = result.docs.map((d) => d.doc.id);
+    const expectedTitles = testCase.expect
+      .map((id) => corpus.docs.find((doc) => doc.id === id)?.title ?? "")
+      .filter(Boolean);
 
-      const base: Row = {
-        model,
-        question: testCase.q,
-        path: pathname,
-        skipped: null,
-        expected: testCase.expect,
-        retrievedIds: ids.slice(0, 5),
-        retrievalOk: testCase.expect.every((id) => ids.includes(id)),
-        answer: "",
-        words: 0,
-        latencyMs: 0,
-        promptTokens: 0,
-        completionTokens: 0,
-        sources: [],
-        mentionsExpected: false,
-        shouldMentionMissing: [],
-        hallucinations: [],
-        boundaryBreaches: [],
-        inventedNames: [],
-        instructionFaults: [],
-      };
+    const base: Row = {
+      model,
+      question: testCase.q,
+      path: pathname,
+      skipped: null,
+      expected: testCase.expect,
+      retrievedIds: ids.slice(0, 5),
+      retrievalOk: testCase.expect.every((id) => ids.includes(id)),
+      answer: "",
+      words: 0,
+      latencyMs: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      sources: [],
+      mentionsExpected: false,
+      shouldMentionMissing: [],
+      hallucinations: [],
+      boundaryBreaches: [],
+      inventedNames: [],
+      instructionFaults: [],
+    };
 
-      if (result.lowConfidence || result.docs.length === 0) {
-        modelRows.push({ ...base, skipped: "local-refusal" });
-        console.log(`skip  ${testCase.q}  (retrieval refuses locally — no model call in production)`);
-        continue;
-      }
-
-      const messages = buildMessages({ question: testCase.q, result, pathname, pageTitle: "", history: [] });
-
-      let call: BenchCompletion;
-      try {
-        call = await complete(model, messages);
-      } catch (error) {
-        const failure = error instanceof BenchFailure ? error.message : "unknown";
-        modelRows.push({ ...base, failure });
-        console.log(`ERR   ${testCase.q}  ${failure}`);
-        if (error instanceof BenchFailure && (error.kind === "empty" || error.kind === "malformed")) {
-          for (const line of describeFailure(error.diagnostics)) console.log(line);
-        }
-        const kind = error instanceof BenchFailure ? error.kind : "";
-        if (kind === "free_quota" || kind === "capacity" || kind === "paid_model" || kind === "permission" || kind === "invalid_model") {
-          console.log(`      ${kind} — stopping this model's run rather than retrying.`);
-          break;
-        }
-        await sleep(PAUSE_MS);
-        continue;
-      }
-
-      const raw = call.text;
-      const answer = cleanModelAnswer(raw);
-      const contextText = buildContextBlock(result).toLowerCase();
-      const lower = answer.toLowerCase();
-
-      const hallucinations: string[] = [];
-      for (const match of answer.matchAll(/\b\d{1,3}(?:\.\d+)?\s?%/g)) {
-        if (!contextText.includes(match[0].toLowerCase())) hallucinations.push(`figure ${match[0]}`);
-      }
-
-      const boundaryBreaches = [
-        ...FORBIDDEN.filter(({ test }) => test.test(answer)).map(({ label }) => label),
-        ...(testCase.mustNot ?? []).filter((re) => re.test(answer)).map(() => "brief:mustNot"),
-      ];
-
-      const inventedNames = [...new Set(answer.match(NAME_SHAPE) ?? [])].filter((name) => {
-        const key = name.toLowerCase();
-        if (["gaitai", "mobilitycare", "securevision"].includes(key)) return false;
-        if (REAL_NAMES.has(key)) return false;
-        return !contextText.includes(key);
-      });
-
-      const instructionFaults: string[] = [];
-      if (/https?:\/\//i.test(raw)) instructionFaults.push("bare URL");
-      if (/^\s*(?:#{1,6}\s*)?\**\s*sources?\s*:?\s*\**\s*$/im.test(raw)) instructionFaults.push("own Sources block");
-      if (/<think>/i.test(raw)) instructionFaults.push("reasoning trace");
-      if (/^\s*great question/i.test(raw)) instructionFaults.push("preamble");
-      const words = answer.split(/\s+/).filter(Boolean).length;
-      if (words > CONCISE_TARGET_WORDS) instructionFaults.push(`long (${words} words)`);
-      if (!answer) instructionFaults.push("empty after cleaning");
-
-      const shouldMentionMissing = (testCase.shouldMention ?? []).filter(
-        (phrase) => !lower.includes(phrase.toLowerCase()),
-      );
-
-      const row: Row = {
-        ...base,
-        answer,
-        words,
-        latencyMs: call.latencyMs,
-        promptTokens: call.usage.promptTokens,
-        completionTokens: call.usage.completionTokens,
-        sources: selectSources(answer, result.docs).map((s) => s.url),
-        mentionsExpected:
-          expectedTitles.length === 0 || expectedTitles.some((t) => lower.includes(t.toLowerCase())),
-        shouldMentionMissing,
-        hallucinations,
-        boundaryBreaches,
-        inventedNames,
-        instructionFaults,
-      };
-      modelRows.push(row);
-
-      const flags = [
-        ...(!row.mentionsExpected ? ["GROUNDING:expected record not named"] : []),
-        ...shouldMentionMissing.map((s) => `GROUNDING:missing "${s}"`),
-        ...hallucinations.map((h) => `HALLUCINATION:${h}`),
-        ...boundaryBreaches.map((b) => `BOUNDARY:${b}`),
-        ...inventedNames.map((n) => `NAME:${n}`),
-        ...instructionFaults.map((f) => `INSTRUCTION:${f}`),
-      ];
-      console.log(
-        `${flags.length ? "FLAG" : "ok  "}  ${testCase.q}  (${call.latencyMs} ms · ${words} words · ${call.usage.promptTokens}+${call.usage.completionTokens} tok)`,
-      );
-      if (flags.length) console.log(`      ${flags.join(", ")}`);
-      if (testCase.check) console.log(`      check: ${testCase.check}`);
-      await sleep(PAUSE_MS);
+    if (result.lowConfidence || result.docs.length === 0) {
+      console.log(`skip  ${testCase.q}  (retrieval refuses locally — no model call in production)`);
+      return { status: "skipped", row: { ...base, skipped: "local-refusal" } };
     }
 
-    const answered = modelRows.filter((r) => !r.skipped && !r.failure);
+    const messages = buildMessages({ question: testCase.q, result, pathname, pageTitle: "", history: [] });
+
+    let call: BenchCompletion;
+    try {
+      call = await complete(model, messages);
+    } catch (error) {
+      const failure = error instanceof BenchFailure ? error.message : "unknown";
+      const kind = error instanceof BenchFailure ? error.kind : "";
+      if (kind === "free_quota") {
+        /* Account-level, not model-level: recorded as the quota stop, never as
+           a model failure, and nothing further is sent. */
+        console.log(`QUOTA ${testCase.q}  ${failure}`);
+        return { status: "quota", row: { ...base, failure, quotaStop: true } };
+      }
+      console.log(`ERR   ${testCase.q}  ${failure}`);
+      if (error instanceof BenchFailure && (kind === "empty" || kind === "malformed")) {
+        for (const line of describeFailure(error.diagnostics)) console.log(line);
+      }
+      if (kind === "capacity" || kind === "paid_model" || kind === "permission" || kind === "invalid_model") {
+        console.log(`      ${kind} — stopping this model's run rather than retrying.`);
+        return { status: "failed", row: { ...base, failure }, stopModel: true };
+      }
+      await sleep(PAUSE_MS);
+      return { status: "failed", row: { ...base, failure } };
+    }
+
+    const raw = call.text;
+    const answer = cleanModelAnswer(raw);
+    const contextText = buildContextBlock(result).toLowerCase();
+    const lower = answer.toLowerCase();
+
+    const hallucinations: string[] = [];
+    for (const match of answer.matchAll(/\b\d{1,3}(?:\.\d+)?\s?%/g)) {
+      if (!contextText.includes(match[0].toLowerCase())) hallucinations.push(`figure ${match[0]}`);
+    }
+
+    const boundaryBreaches = [
+      ...FORBIDDEN.filter(({ test }) => test.test(answer)).map(({ label }) => label),
+      ...(testCase.mustNot ?? []).filter((re) => re.test(answer)).map(() => "brief:mustNot"),
+    ];
+
+    const inventedNames = [...new Set(answer.match(NAME_SHAPE) ?? [])].filter((name) => {
+      const key = name.toLowerCase();
+      if (["gaitai", "mobilitycare", "securevision"].includes(key)) return false;
+      if (REAL_NAMES.has(key)) return false;
+      return !contextText.includes(key);
+    });
+
+    const instructionFaults: string[] = [];
+    if (/https?:\/\//i.test(raw)) instructionFaults.push("bare URL");
+    if (/^\s*(?:#{1,6}\s*)?\**\s*sources?\s*:?\s*\**\s*$/im.test(raw)) instructionFaults.push("own Sources block");
+    if (/<think>/i.test(raw)) instructionFaults.push("reasoning trace");
+    if (/^\s*great question/i.test(raw)) instructionFaults.push("preamble");
+    const words = answer.split(/\s+/).filter(Boolean).length;
+    if (words > CONCISE_TARGET_WORDS) instructionFaults.push(`long (${words} words)`);
+    if (!answer) instructionFaults.push("empty after cleaning");
+
+    const shouldMentionMissing = (testCase.shouldMention ?? []).filter(
+      (phrase) => !lower.includes(phrase.toLowerCase()),
+    );
+
+    const row: Row = {
+      ...base,
+      answer,
+      words,
+      latencyMs: call.latencyMs,
+      promptTokens: call.usage.promptTokens,
+      completionTokens: call.usage.completionTokens,
+      sources: selectSources(answer, result.docs).map((s) => s.url),
+      mentionsExpected:
+        expectedTitles.length === 0 || expectedTitles.some((t) => lower.includes(t.toLowerCase())),
+      shouldMentionMissing,
+      hallucinations,
+      boundaryBreaches,
+      inventedNames,
+      instructionFaults,
+    };
+
+    const flags = [
+      ...(!row.mentionsExpected ? ["GROUNDING:expected record not named"] : []),
+      ...shouldMentionMissing.map((s) => `GROUNDING:missing "${s}"`),
+      ...hallucinations.map((h) => `HALLUCINATION:${h}`),
+      ...boundaryBreaches.map((b) => `BOUNDARY:${b}`),
+      ...inventedNames.map((n) => `NAME:${n}`),
+      ...instructionFaults.map((f) => `INSTRUCTION:${f}`),
+    ];
+    console.log(
+      `${flags.length ? "FLAG" : "ok  "}  ${testCase.q}  (${call.latencyMs} ms · ${words} words · ${call.usage.promptTokens}+${call.usage.completionTokens} tok)`,
+    );
+    if (flags.length) console.log(`      ${flags.join(", ")}`);
+    if (testCase.check) console.log(`      check: ${testCase.check}`);
+    await sleep(PAUSE_MS);
+    return { status: "answered", row };
+  };
+
+  const suiteRun = await executeSuite(models, suiteCases, attempt, {
+    onQuotaStop: (model, testCase) => {
+      console.log(
+        `\nSTOP  Cloudflare Workers AI daily free allocation exhausted.\n` +
+          `      Hit while running ${model} on "${testCase.q}". The allocation is account-wide and resets at 00:00 UTC;\n` +
+          `      no further calls will be made. Remaining cases are reported as UNEXECUTED, not as model failures.\n`,
+      );
+    },
+  });
+
+  for (const modelRun of suiteRun.runs) {
+    const model = modelRun.model;
+    const executedRows = modelRun.outcomes.filter((o) => o.status !== "skipped").map((o) => o.row);
+    const answered = modelRun.outcomes.filter((o) => o.status === "answered").map((o) => o.row);
+    const failed = modelRun.outcomes.filter((o) => o.status === "failed").map((o) => o.row);
+    const quotaRow = modelRun.outcomes.find((o) => o.status === "quota")?.row ?? null;
+    const localRefusals = modelRun.outcomes.filter((o) => o.status === "skipped").length;
+    const unexecutedRows: Row[] = modelRun.unexecuted.map((testCase) => ({
+      model,
+      question: testCase.q,
+      path: testCase.path ?? "/",
+      skipped: "unexecuted",
+      expected: testCase.expect,
+      retrievedIds: [],
+      retrievalOk: false,
+      answer: "",
+      words: 0,
+      latencyMs: 0,
+      promptTokens: 0,
+      completionTokens: 0,
+      sources: [],
+      mentionsExpected: false,
+      shouldMentionMissing: [],
+      hallucinations: [],
+      boundaryBreaches: [],
+      inventedNames: [],
+      instructionFaults: [],
+    }));
     const latencies = answered.map((r) => r.latencyMs);
     const n = answered.length;
-    const failures = modelRows.filter((r) => r.failure).map((r) => r.failure as string);
+    const failures = failed.map((r) => r.failure as string);
     const summary = {
       model,
       cost: "Workers Free (daily Neuron allocation; count not reported by the API)",
-      cases: modelRows.length,
-      answered: n,
-      skippedLocalRefusals: modelRows.filter((r) => r.skipped).length,
+      cases: suiteCases.length,
+      /* Calls actually made: answered + failed + the one quota-stop call. */
+      executed: executedRows.length,
+      successful: n,
+      skippedLocalRefusals: localRefusals,
       failures: failures.length,
       failureClasses: [...new Set(failures)],
+      providerQuotaStop: quotaRow ? { question: quotaRow.question, code: quotaRow.failure ?? null } : null,
+      unexecuted: unexecutedRows.length,
       groundedAnswers: answered.filter((r) => r.mentionsExpected && r.shouldMentionMissing.length === 0).length,
       hallucinationAnswers: answered.filter((r) => r.hallucinations.length).length,
       boundaryBreachAnswers: answered.filter((r) => r.boundaryBreaches.length).length,
@@ -436,14 +486,20 @@ async function main() {
       p90LatencyMs: percentile(latencies, 90),
       meanPromptTokens: n ? Math.round(answered.reduce((a, r) => a + r.promptTokens, 0) / n) : 0,
       meanCompletionTokens: n ? Math.round(answered.reduce((a, r) => a + r.completionTokens, 0) / n) : 0,
+      complete: unexecutedRows.length === 0 && !quotaRow,
     };
     summaries.push(summary);
-    rows.push(...modelRows);
+    rows.push(...modelRun.outcomes.map((o) => o.row), ...unexecutedRows);
 
     console.log(`\n${"─".repeat(72)}`);
-    console.log(`model                 ${summary.model}`);
+    console.log(`model                 ${summary.model}${summary.complete ? "" : "  — INCOMPLETE RUN"}`);
     console.log(`cost                  ${summary.cost}`);
-    console.log(`answered              ${summary.answered}/${summary.cases} (${summary.skippedLocalRefusals} local refusals, ${summary.failures} failures${summary.failureClasses.length ? `: ${summary.failureClasses.join(", ")}` : ""})`);
+    console.log(`cases                 ${summary.cases} (${summary.skippedLocalRefusals} local refusals, never sent)`);
+    console.log(`executed              ${summary.executed} calls made`);
+    console.log(`successful            ${summary.successful}`);
+    console.log(`failures              ${summary.failures}${summary.failureClasses.length ? ` (${summary.failureClasses.join(", ")})` : ""}`);
+    console.log(`provider quota stop   ${summary.providerQuotaStop ? `yes — at "${summary.providerQuotaStop.question}" (${summary.providerQuotaStop.code}); not a model failure` : "no"}`);
+    console.log(`unexecuted            ${summary.unexecuted} case(s) never called${summary.unexecuted ? " — no scores exist for them" : ""}`);
     console.log(`grounded              ${summary.groundedAnswers}/${n}`);
     console.log(`hallucinated figures  ${summary.hallucinationAnswers}/${n}`);
     console.log(`boundary breaches     ${summary.boundaryBreachAnswers}/${n}`);
@@ -454,6 +510,15 @@ async function main() {
     console.log(`latency               mean ${summary.meanLatencyMs} ms · median ${summary.medianLatencyMs} ms · p90 ${summary.p90LatencyMs} ms`);
     console.log(`tokens (mean)         ${summary.meanPromptTokens} in · ${summary.meanCompletionTokens} out (when the model reports them)`);
     console.log(`${"─".repeat(72)}\n`);
+  }
+
+  for (const model of suiteRun.unexecutedModels) {
+    summaries.push({ model, cases: suiteCases.length, executed: 0, successful: 0, unexecuted: suiteCases.length, providerQuotaStop: null, complete: false, note: "not started — the daily free allocation was exhausted before this model's run" });
+    console.log(`${"─".repeat(72)}\nmodel                 ${model}  — NOT STARTED (daily free allocation exhausted earlier in the run)\n${"─".repeat(72)}\n`);
+  }
+
+  if (suiteRun.quotaStop) {
+    console.log("This run is NOT a model-quality result: it was interrupted by the account's daily Workers AI free allocation. Re-run after 00:00 UTC.\n");
   }
 
   if (jsonOut) {

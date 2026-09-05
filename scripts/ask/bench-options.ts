@@ -59,3 +59,85 @@ export function resolveThinking(options: {
 
   return { thinking: "low", label: "low (reasoning_effort=low)" };
 }
+
+// ── Running the suite: when to stop ─────────────────────────────────────────
+
+/**
+ * What one attempt at one case produced. The benchmark script does the work
+ * (retrieval, the loopback call, scoring) and reports the outcome; the runner
+ * below only decides whether to continue — so that decision is testable
+ * without a network, a Worker or a model.
+ *
+ *   answered   a scored answer
+ *   skipped    retrieval refused locally; no call was made
+ *   failed     the call was made and the provider failed for this case
+ *   quota      the account's daily free allocation is exhausted (3036 / 4006)
+ *
+ * `stopModel` on a `failed` outcome ends that model's run (capacity, a paid or
+ * invalid model, a permission error — nothing further would succeed for it)
+ * and moves on to the next model. A `quota` outcome ends EVERYTHING: the
+ * allocation is account-wide, so every remaining case for every remaining
+ * model would fail the same way, and those cases are recorded as unexecuted,
+ * never as model failures.
+ */
+export type AttemptOutcome<R> =
+  | { status: "answered"; row: R }
+  | { status: "skipped"; row: R }
+  | { status: "failed"; row: R; stopModel?: boolean }
+  | { status: "quota"; row: R };
+
+export interface ModelRun<R, C> {
+  model: string;
+  outcomes: AttemptOutcome<R>[];
+  /** Cases never attempted for this model, in order. */
+  unexecuted: C[];
+}
+
+export interface SuiteRun<R, C> {
+  runs: ModelRun<R, C>[];
+  /** Set when the daily free allocation stopped the suite. */
+  quotaStop: { model: string; caseIndex: number } | null;
+  /** Models never started because the suite had already stopped. */
+  unexecutedModels: string[];
+}
+
+export async function executeSuite<R, C>(
+  models: string[],
+  cases: C[],
+  attempt: (model: string, testCase: C, index: number) => Promise<AttemptOutcome<R>>,
+  hooks: { onQuotaStop?: (model: string, testCase: C) => void } = {},
+): Promise<SuiteRun<R, C>> {
+  const runs: ModelRun<R, C>[] = [];
+  let quotaStop: SuiteRun<R, C>["quotaStop"] = null;
+  const unexecutedModels: string[] = [];
+
+  for (const model of models) {
+    if (quotaStop) {
+      unexecutedModels.push(model);
+      continue;
+    }
+    const run: ModelRun<R, C> = { model, outcomes: [], unexecuted: [] };
+    runs.push(run);
+
+    for (let index = 0; index < cases.length; index++) {
+      const testCase = cases[index];
+      if (quotaStop) {
+        run.unexecuted.push(testCase);
+        continue;
+      }
+      const outcome = await attempt(model, testCase, index);
+      run.outcomes.push(outcome);
+      if (outcome.status === "quota") {
+        quotaStop = { model, caseIndex: index };
+        hooks.onQuotaStop?.(model, testCase);
+        continue;
+      }
+      if (outcome.status === "failed" && outcome.stopModel) {
+        run.unexecuted.push(...cases.slice(index + 1));
+        break;
+      }
+    }
+  }
+
+  return { runs, quotaStop, unexecutedModels };
+}

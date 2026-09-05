@@ -275,6 +275,11 @@ export function toWorkersAiInput(
  */
 const CODE_CLASS: Record<number, WorkersAiFailure> = {
   3036: "free_quota",
+  /* Observed on 2026-09-06 from env.AI.run() once the account's daily free
+     allocation was used up: every call for the rest of the UTC day failed with
+     4006, not the documented 3036. Same condition, same class; not a model
+     failure. Only this code is aliased — other 4xxx codes stay unclassified. */
+  4006: "free_quota",
   3040: "capacity",
   5035: "paid_model",
   3023: "permission",

@@ -24,9 +24,15 @@
  *
  * WHAT IS DELIBERATELY NOT SENT. No `tools`, no images, no files: `messages`
  * carry text only, and the Worker's validator has already dropped anything
- * else. Reasoning effort is not requested; if a model returns a reasoning
- * field anyway it is ignored, and `cleanModelAnswer` strips any trace that
- * leaks into the text.
+ * else. If a model returns a `reasoning_content` field it is ignored, and
+ * `cleanModelAnswer` strips any trace that leaks into the text.
+ *
+ * REASONING EFFORT. The Free-plan candidates are reasoning models and their
+ * schemas document `reasoning_effort: "low" | "medium" | "high"`. Left to
+ * their default they spend the completion budget thinking: the first real
+ * calls returned an EMPTY answer at 450 tokens and, at 1 200, seventeen visible
+ * words after exactly 1 200 completion tokens. So the effort is a config knob
+ * (MODEL_REASONING_EFFORT, production "low") and is sent only when set.
  */
 
 /**
@@ -92,16 +98,26 @@ export interface AiRunner {
   run(model: string, inputs: Record<string, unknown>, options?: Record<string, unknown>): Promise<unknown>;
 }
 
-/** The input every Free-plan candidate documents. */
+export type ReasoningEffort = "low" | "medium" | "high";
+const REASONING_EFFORTS = new Set<string>(["low", "medium", "high"]);
+
+/**
+ * The input every Free-plan candidate documents. `reasoning_effort` is added
+ * ONLY when a valid level is configured; an empty or unknown value sends
+ * nothing and leaves the model's own default in place.
+ */
 export function toWorkersAiInput(
   messages: ChatMessage[],
-  options: { maxOutputTokens: number },
+  options: { maxOutputTokens: number; reasoningEffort?: string },
 ): Record<string, unknown> {
-  return {
+  const input: Record<string, unknown> = {
     messages: messages.map((m) => ({ role: m.role, content: m.content })),
     max_completion_tokens: options.maxOutputTokens,
     ...SAMPLING,
   };
+  const effort = (options.reasoningEffort ?? "").trim().toLowerCase();
+  if (REASONING_EFFORTS.has(effort)) input.reasoning_effort = effort as ReasoningEffort;
+  return input;
 }
 
 /**
@@ -184,8 +200,10 @@ export async function generate(options: {
   messages: ChatMessage[];
   maxOutputTokens: number;
   timeoutMs: number;
+  /** "low" | "medium" | "high"; omitted or unknown → the model's default. */
+  reasoningEffort?: string;
 }): Promise<Completion> {
-  const { ai, model, messages, maxOutputTokens, timeoutMs } = options;
+  const { ai, model, messages, maxOutputTokens, timeoutMs, reasoningEffort } = options;
   const started = Date.now();
 
   /* The binding takes no AbortSignal, so the deadline is a race: when the
@@ -198,7 +216,10 @@ export async function generate(options: {
 
   let result: unknown;
   try {
-    result = await Promise.race([ai.run(model, toWorkersAiInput(messages, { maxOutputTokens })), deadline]);
+    result = await Promise.race([
+      ai.run(model, toWorkersAiInput(messages, { maxOutputTokens, reasoningEffort })),
+      deadline,
+    ]);
   } catch (error) {
     throw classifyError(error);
   } finally {

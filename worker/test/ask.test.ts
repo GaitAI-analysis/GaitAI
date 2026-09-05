@@ -595,6 +595,67 @@ describe("workers-ai.ts on its own", () => {
     expect(toWorkersAiInput(messages, { maxOutputTokens: 10 })).not.toHaveProperty("reasoning_effort");
   });
 
+  it("maps the thinking modes exactly: off → enable_thinking:false only, low → reasoning_effort only, default → neither", () => {
+    const messages = [{ role: "user" as const, content: "q" }];
+    const off = toWorkersAiInput(messages, { maxOutputTokens: 10, thinking: "off", reasoningEffort: "low" });
+    expect(off.chat_template_kwargs).toEqual({ enable_thinking: false });
+    expect(off).not.toHaveProperty("reasoning_effort");
+    expect(Object.keys(off).sort()).toEqual(["chat_template_kwargs", "max_completion_tokens", "messages", "temperature", "top_p"]);
+
+    const low = toWorkersAiInput(messages, { maxOutputTokens: 10, thinking: "low" });
+    expect(low.reasoning_effort).toBe("low");
+    expect(low).not.toHaveProperty("chat_template_kwargs");
+
+    const dflt = toWorkersAiInput(messages, { maxOutputTokens: 10, thinking: "default", reasoningEffort: "high" });
+    expect(dflt).not.toHaveProperty("reasoning_effort");
+    expect(dflt).not.toHaveProperty("chat_template_kwargs");
+
+    /* The production route — no explicit mode — still follows the configured effort. */
+    expect(toWorkersAiInput(messages, { maxOutputTokens: 10, reasoningEffort: "low" })).toMatchObject({ reasoning_effort: "low" });
+  });
+
+  it("never sends force_nonempty_content, in any mode", () => {
+    const messages = [{ role: "user" as const, content: "q" }];
+    for (const thinking of ["off", "low", "default", undefined] as const) {
+      for (const reasoningEffort of ["", "low", "medium", "high", "turbo"]) {
+        const input = toWorkersAiInput(messages, { maxOutputTokens: 10, thinking, reasoningEffort });
+        expect(JSON.stringify(input)).not.toContain("force_nonempty_content");
+        expect(JSON.stringify(input)).not.toContain("nonempty");
+      }
+    }
+  });
+
+  it("passes the thinking mode through generate() to the binding", async () => {
+    const inputs: Record<string, unknown>[] = [];
+    const ai: AiRunner = {
+      async run(_model, input) {
+        inputs.push(input);
+        return completion("ok");
+      },
+    };
+    const base = { ai, model: MODEL, messages: [{ role: "user" as const, content: "hi" }], maxOutputTokens: 10, timeoutMs: 1000 };
+    await generate({ ...base, thinking: "off", reasoningEffort: "low" });
+    await generate({ ...base, thinking: "low" });
+    await generate({ ...base, thinking: "default" });
+    expect(inputs[0].chat_template_kwargs).toEqual({ enable_thinking: false });
+    expect(inputs[0]).not.toHaveProperty("reasoning_effort");
+    expect(inputs[1].reasoning_effort).toBe("low");
+    expect(inputs[1]).not.toHaveProperty("chat_template_kwargs");
+    expect(inputs[2]).not.toHaveProperty("reasoning_effort");
+    expect(inputs[2]).not.toHaveProperty("chat_template_kwargs");
+  });
+
+  it("reads a thinking mode from an untrusted string, or nothing", async () => {
+    const { readThinkingMode } = await import("../src/workers-ai");
+    expect(readThinkingMode("off")).toBe("off");
+    expect(readThinkingMode(" LOW ")).toBe("low");
+    expect(readThinkingMode("default")).toBe("default");
+    expect(readThinkingMode("none")).toBeUndefined();
+    expect(readThinkingMode("")).toBeUndefined();
+    expect(readThinkingMode(undefined)).toBeUndefined();
+    expect(readThinkingMode(42)).toBeUndefined();
+  });
+
   it("validates MODEL_REASONING_EFFORT in the config reader", async () => {
     const { readConfig, readReasoningEffort } = await import("../src/env");
     expect(readReasoningEffort("low")).toBe("low");

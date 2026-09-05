@@ -1,0 +1,180 @@
+/*
+ * THE LABS COVER — a photograph read through the site's ground.
+ *
+ * Dark in both themes by design: this is white type over a graded image, and
+ * the colours are written here rather than taken from the theme tokens so the
+ * light theme cannot turn the copy to ink over a dark grade.
+ */
+
+.cover {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  min-height: min(78vh, 720px);
+  padding-bottom: 3rem;
+  background: #070b14;
+  color: #f4f6fb;
+}
+
+/* ── The photograph ── */
+.media {
+  position: absolute;
+  inset: 0;
+}
+
+.image {
+  object-fit: cover;
+  object-position: 52% 32%;
+  /* Kept, not recoloured: a touch less saturation and a little less light so
+     the daylight room sits inside the dark page instead of in front of it. */
+  filter: saturate(0.84) contrast(1.04) brightness(0.86);
+}
+
+/* Two grades. Horizontal: holds the left third for type. Vertical: settles the
+   image into the page below and keeps the header band quiet above. */
+.grade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(7 11 20 / 0.94) 0%,
+      rgb(7 11 20 / 0.82) 30%,
+      rgb(7 11 20 / 0.42) 55%,
+      rgb(7 11 20 / 0.14) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(7 11 20 / 0.5) 0%,
+      rgb(7 11 20 / 0) 28%,
+      rgb(7 11 20 / 0.28) 70%,
+      rgb(7 11 20 / 0.94) 100%
+    );
+}
+
+@media (min-width: 1024px) {
+  .cover {
+    min-height: min(84vh, 780px);
+    padding-bottom: 3.5rem;
+  }
+  /* The media begins part-way across, so the figure — who stands at the
+     centre of the photograph — lands in the right half, clear of the copy.
+     The horizontal grade hides the seam. */
+  .media {
+    left: 26%;
+  }
+  .image {
+    object-position: 56% 38%;
+  }
+  .grade {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(7 11 20 / 1) 0%,
+        rgb(7 11 20 / 0.9) 12%,
+        rgb(7 11 20 / 0.34) 42%,
+        rgb(7 11 20 / 0.08) 100%
+      ),
+      linear-gradient(
+        180deg,
+        rgb(7 11 20 / 0.42) 0%,
+        rgb(7 11 20 / 0) 26%,
+        rgb(7 11 20 / 0.22) 68%,
+        rgb(7 11 20 / 0.92) 100%
+      );
+  }
+}
+
+/* ── The copy ── */
+.inner {
+  position: relative;
+}
+
+.copy {
+  max-width: 40rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4fd1ff;
+}
+
+.title {
+  margin-top: 1.25rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+  text-wrap: balance;
+  color: #f4f6fb;
+}
+
+.blurb {
+  margin-top: 1.5rem;
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgb(203 213 225 / 0.92);
+}
+
+@media (min-width: 640px) {
+  .blurb {
+    font-size: 1.125rem;
+  }
+}
+
+.boundary {
+  margin-top: 1.25rem;
+  max-width: 36rem;
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgb(148 163 184 / 0.9);
+}
+
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* The ghost button, held to the cover's own palette in both themes. */
+.ghost {
+  color: #f4f6fb;
+  border-color: rgb(255 255 255 / 0.18);
+}
+.ghost:hover {
+  color: #ffffff;
+  border-color: rgb(255 255 255 / 0.34);
+  background: rgb(255 255 255 / 0.05);
+}
+
+/* One line that names what the photograph is, with the site's hairline. */
+.caption {
+  margin-top: 2.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  max-width: 34rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgb(148 163 184 / 0.85);
+}
+
+.captionMark {
+  flex: 0 0 auto;
+  width: 1.75rem;
+  height: 1px;
+  margin-top: 0.5rem;
+  background: linear-gradient(90deg, #4fd1ff, transparent);
+}

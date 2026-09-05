@@ -514,7 +514,34 @@ stops that model's run rather than retrying. Cost is reported as "Workers Free";
 no Neuron count is invented, because the API does not return one.
 
 **Running it spends the account's daily allocation** — Cloudflare's local
-development note applies to `wrangler dev`. It has not been run.
+development note applies to `wrangler dev`.
+
+**Re-running one question.** `--match "protect privacy"` keeps only the cases
+whose question contains the text (case-insensitive) and prints how many
+matched, so a single empty answer can be investigated without re-spending the
+allocation on the whole suite.
+
+**When a model returns nothing visible**, the run prints the adapter's SAFE
+structural diagnostics under the `ERR … empty` line: `finish_reason`,
+`content_chars`, `reasoning_chars` (the length of any `reasoning_content`,
+never its text), `tokens=<prompt>+<completion>`, `choices`, `message_keys`,
+`result_type`, `top_level_keys`, `legacy_response`, `model`, `elapsed_ms`. A
+field the provider did not supply prints as `unknown`; nothing is inferred.
+The same object (`ResultDiagnostics` in `workers-ai.ts`) is what the
+production Worker logs on an `empty` or `malformed` failure. By construction
+it holds only numbers, booleans, `null`, truncated key names and the
+`finish_reason` token — no prompt, record, question, answer or reasoning
+text — and it never appears in a visitor response.
+
+**First real Nemotron runs (2026-09-05, `reasoning_effort=low`).**
+`@cf/nvidia/nemotron-3-120b-a12b` answered 10/12 at both 450 and 600 tokens,
+grounded 7/10, with 0 hallucinated figures, 0 boundary breaches, 0 invented
+names, 0 instruction faults and a source under every answer; mean latency
+4.2 s at 450 and 3.7 s at 600. The two empty answers were different questions
+in the two runs (FallRisk and gait-recognition publications at 450;
+gait-recognition publications and privacy protection at 600), so the token
+ceiling alone does not explain them — hence these diagnostics. Generation
+settings are unchanged while that is investigated.
 
 Candidates, the models Cloudflare's documentation identifies as remaining
 available on Workers Free (2026-09-05):

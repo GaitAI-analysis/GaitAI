@@ -73,9 +73,13 @@ export default {
       return Response.json(completion);
     } catch (error) {
       const failed = error instanceof WorkersAiError ? error : new WorkersAiError("upstream");
-      /* The benchmark is a developer tool on loopback: the class and code are
-         what it needs to report a failure honestly. Still no message text. */
-      return Response.json({ error: failed.kind, code: failed.code ?? null }, { status: 502 });
+      /* The benchmark is a developer tool on loopback: the class, the code and
+         the SAFE structural diagnostics (lengths and counts, never text) are
+         what it needs to report an empty or malformed result honestly. */
+      return Response.json(
+        { error: failed.kind, code: failed.code ?? null, diagnostics: failed.diagnostics ?? null },
+        { status: 502 },
+      );
     }
   },
 } satisfies ExportedHandler<BenchEnv>;

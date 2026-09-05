@@ -34,7 +34,13 @@
  *   npm run ask:bench -- --json tmp/bench.json              # machine-readable
  *   npm run ask:bench -- --reasoning low                    # reasoning_effort (default low; "" = model default)
  *   npm run ask:bench -- --max-tokens 600                   # output ceiling for the run (production stays 450)
+ *   npm run ask:bench -- --match "protect privacy"          # only the cases whose question contains this
  *   npm run ask:bench -- --endpoint http://127.0.0.1:8788   # a different bench Worker port
+ *
+ * WHEN A MODEL COMES BACK EMPTY the run prints SAFE structural diagnostics
+ * from the adapter — finish_reason, visible-content length, reasoning length,
+ * token counts, result keys — never any text. A field the provider did not
+ * supply prints as "unknown"; nothing is inferred.
  *
  * WHAT IS SCORED, per model
  *   grounding      the answer names the record(s) retrieval surfaced for it
@@ -55,7 +61,8 @@
 
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { BENCH_CASES, BRIEF_CASES, type BenchCase } from "./ask/bench-cases";
+import { BENCH_CASES, BRIEF_CASES, matchCases, type BenchCase } from "./ask/bench-cases";
+import type { ResultDiagnostics } from "../worker/src/workers-ai";
 import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { buildContextBlock, retrieveGaitAIContext } from "../src/lib/ask/retrieval";
 import { buildMessages } from "../src/lib/ask/prompt";
@@ -83,7 +90,10 @@ const DEFAULT_MODELS = [
 
 const endpoint = (arg("endpoint") ?? "http://127.0.0.1:8788").replace(/\/+$/, "");
 const models = (arg("models") ?? DEFAULT_MODELS.join(",")).split(",").map((m) => m.trim()).filter(Boolean);
-const cases: BenchCase[] = flag("all") ? BENCH_CASES : BRIEF_CASES;
+const suite: BenchCase[] = flag("all") ? BENCH_CASES : BRIEF_CASES;
+/** Benchmark-only: re-run one question by a case-insensitive substring of it. */
+const match = arg("match");
+const cases: BenchCase[] = matchCases(suite, match);
 const limit = Number(arg("limit") ?? cases.length);
 const jsonOut = arg("json");
 const maxOutputTokens = Number(arg("max-tokens") ?? 450);
@@ -161,11 +171,33 @@ interface BenchCompletion {
 class BenchFailure extends Error {
   kind: string;
   code: number | null;
-  constructor(kind: string, code: number | null) {
+  /** Safe structural metadata from the adapter — lengths and counts, no text. */
+  diagnostics: ResultDiagnostics | null;
+  constructor(kind: string, code: number | null, diagnostics: ResultDiagnostics | null = null) {
     super(`${kind}${code ? `:${code}` : ""}`);
     this.kind = kind;
     this.code = code;
+    this.diagnostics = diagnostics;
   }
+}
+
+/** One line per diagnostic field; a field the provider did not supply is "unknown". */
+function describeFailure(d: ResultDiagnostics | null): string[] {
+  const show = (v: unknown) => (v === null || v === undefined ? "unknown" : Array.isArray(v) ? (v.length ? v.join(",") : "none") : String(v));
+  if (!d) return ["      diagnostics=unknown (the adapter attached none)"];
+  const tokens = d.promptTokens === null && d.completionTokens === null
+    ? "unknown"
+    : `${show(d.promptTokens)}+${show(d.completionTokens)}${d.totalTokens !== null ? ` (total ${d.totalTokens})` : ""}`;
+  return [
+    `      finish_reason=${show(d.finishReason)}`,
+    `      content_chars=${show(d.contentChars)}`,
+    `      reasoning_chars=${show(d.reasoningChars)}`,
+    `      tokens=${tokens}`,
+    `      choices=${show(d.choicesCount)} message_keys=${show(d.messageKeys)}`,
+    `      result_type=${show(d.resultType)} top_level_keys=${show(d.topLevelKeys)}`,
+    `      legacy_response=${d.hasLegacyResponse ? `yes (${show(d.legacyResponseChars)} chars)` : "no"}`,
+    `      model=${show(d.model || null)} elapsed_ms=${show(d.elapsedMs)}`,
+  ];
 }
 
 async function complete(
@@ -177,8 +209,14 @@ async function complete(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ model, messages, maxOutputTokens, timeoutMs: TIMEOUT_MS, reasoningEffort }),
   });
-  const payload = (await response.json()) as Partial<BenchCompletion> & { error?: string; code?: number | null };
-  if (!response.ok || payload.error) throw new BenchFailure(payload.error ?? `http_${response.status}`, payload.code ?? null);
+  const payload = (await response.json()) as Partial<BenchCompletion> & {
+    error?: string;
+    code?: number | null;
+    diagnostics?: ResultDiagnostics | null;
+  };
+  if (!response.ok || payload.error) {
+    throw new BenchFailure(payload.error ?? `http_${response.status}`, payload.code ?? null, payload.diagnostics ?? null);
+  }
   if (typeof payload.text !== "string") throw new BenchFailure("malformed", null);
   return {
     text: payload.text,
@@ -210,7 +248,11 @@ async function main() {
 
   console.log(`\nAsk GaitAI hosted-model benchmark — Cloudflare Workers AI (Workers Free)`);
   console.log(`  corpus    ${corpus.docs.length} records, built ${corpus.generatedAt}`);
-  console.log(`  cases     ${Math.min(limit, cases.length)} (${flag("all") ? "brief + acceptance" : "brief"})`);
+  console.log(`  cases     ${Math.min(limit, cases.length)} (${flag("all") ? "brief + acceptance" : "brief"})${match ? ` — ${cases.length} of ${suite.length} matched "${match}"` : ""}`);
+  if (match && cases.length === 0) {
+    console.error(`No benchmark case matches "${match}".`);
+    process.exit(2);
+  }
   console.log(`  models    ${models.join(", ")}`);
   console.log(`  ceiling   ${maxOutputTokens} output tokens`);
   console.log(`  reasoning ${reasoningEffort ? `reasoning_effort=${reasoningEffort}` : "model default (reasoning_effort not sent)"}`);
@@ -268,6 +310,9 @@ async function main() {
         const failure = error instanceof BenchFailure ? error.message : "unknown";
         modelRows.push({ ...base, failure });
         console.log(`ERR   ${testCase.q}  ${failure}`);
+        if (error instanceof BenchFailure && (error.kind === "empty" || error.kind === "malformed")) {
+          for (const line of describeFailure(error.diagnostics)) console.log(line);
+        }
         const kind = error instanceof BenchFailure ? error.kind : "";
         if (kind === "free_quota" || kind === "capacity" || kind === "paid_model" || kind === "permission" || kind === "invalid_model") {
           console.log(`      ${kind} — stopping this model's run rather than retrying.`);

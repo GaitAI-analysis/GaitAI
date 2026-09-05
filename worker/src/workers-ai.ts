@@ -64,15 +64,121 @@ export type WorkersAiFailure =
   | "empty"
   | "upstream";
 
+/**
+ * SAFE STRUCTURAL METADATA about a model result — shape, lengths and counts,
+ * never text. This is what the benchmark prints when a model comes back with
+ * nothing visible, and what the Worker logs on such a failure. Every field is
+ * either a number, a boolean, a short enum-like string the provider emitted
+ * (`finish_reason`), a key name, or `null` when the provider did not supply
+ * it. By construction there is no way to put prompt text, record text, the
+ * visitor's question, generated prose or reasoning text into this object.
+ */
+export interface ResultDiagnostics {
+  model: string;
+  elapsedMs: number;
+  /** `typeof result`, or "array" / "null". */
+  resultType: string;
+  /** Top-level keys of an object result; empty otherwise. */
+  topLevelKeys: string[];
+  choicesCount: number | null;
+  finishReason: string | null;
+  /** Keys of `choices[0].message`, when present. */
+  messageKeys: string[];
+  /** Length of the visible answer text; 0 when absent. */
+  contentChars: number;
+  /** Length of `reasoning_content` ONLY — its text is never read out. */
+  reasoningChars: number | null;
+  promptTokens: number | null;
+  completionTokens: number | null;
+  totalTokens: number | null;
+  /** Whether an older-style `{ response }` field exists, and its length. */
+  hasLegacyResponse: boolean;
+  legacyResponseChars: number | null;
+}
+
+/** Truncate an opaque key name so a hostile provider cannot smuggle text in. */
+const keyName = (key: string) => key.slice(0, 40);
+const finite = (value: unknown): number | null =>
+  typeof value === "number" && Number.isFinite(value) ? value : null;
+const textLength = (value: unknown): number | null =>
+  typeof value === "string" ? value.length : null;
+
+/**
+ * Describe a result without reading any of its text out. The only string
+ * values copied are `finish_reason` (an enum-like token, truncated) and key
+ * names (truncated); everything else is a length, a count or a boolean.
+ */
+export function describeResult(
+  result: unknown,
+  context: { model: string; elapsedMs: number },
+): ResultDiagnostics {
+  const base: ResultDiagnostics = {
+    model: context.model,
+    elapsedMs: context.elapsedMs,
+    resultType: result === null ? "null" : Array.isArray(result) ? "array" : typeof result,
+    topLevelKeys: [],
+    choicesCount: null,
+    finishReason: null,
+    messageKeys: [],
+    contentChars: 0,
+    reasoningChars: null,
+    promptTokens: null,
+    completionTokens: null,
+    totalTokens: null,
+    hasLegacyResponse: false,
+    legacyResponseChars: null,
+  };
+  if (!result || typeof result !== "object" || Array.isArray(result)) return base;
+
+  const record = result as Record<string, unknown>;
+  base.topLevelKeys = Object.keys(record).slice(0, 20).map(keyName);
+
+  const choices = record.choices;
+  if (Array.isArray(choices)) {
+    base.choicesCount = choices.length;
+    const first = choices[0];
+    if (first && typeof first === "object") {
+      const choice = first as Record<string, unknown>;
+      const finish = choice.finish_reason;
+      base.finishReason = typeof finish === "string" ? finish.slice(0, 32) : null;
+      const message = choice.message;
+      if (message && typeof message === "object") {
+        const m = message as Record<string, unknown>;
+        base.messageKeys = Object.keys(m).slice(0, 20).map(keyName);
+        base.contentChars = textLength(m.content) ?? 0;
+        base.reasoningChars = textLength(m.reasoning_content) ?? textLength(m.reasoning);
+      }
+    }
+  }
+
+  if ("response" in record) {
+    base.hasLegacyResponse = true;
+    base.legacyResponseChars = textLength(record.response);
+    if (base.contentChars === 0) base.contentChars = base.legacyResponseChars ?? 0;
+  }
+
+  const usage = record.usage;
+  if (usage && typeof usage === "object") {
+    const u = usage as Record<string, unknown>;
+    base.promptTokens = finite(u.prompt_tokens) ?? finite(u.input_tokens);
+    base.completionTokens = finite(u.completion_tokens) ?? finite(u.output_tokens);
+    base.totalTokens = finite(u.total_tokens);
+  }
+  return base;
+}
+
 export class WorkersAiError extends Error {
   kind: WorkersAiFailure;
   /** Cloudflare's numeric error code, when one was present. For logs only. */
   code?: number;
-  constructor(kind: WorkersAiFailure, code?: number) {
+  /** Safe structural metadata about the result, for `malformed` and `empty`. */
+  diagnostics?: ResultDiagnostics;
+  constructor(kind: WorkersAiFailure, code?: number, diagnostics?: ResultDiagnostics) {
     super(`workers-ai:${kind}${code ? `:${code}` : ""}`);
     this.name = "WorkersAiError";
     this.kind = kind;
     this.code = code;
+    this.diagnostics = diagnostics;
   }
 }
 
@@ -87,6 +193,8 @@ export interface Completion {
   /** Token counts when the model reports them; zeros otherwise. Neurons are
    *  not reported by the inference API and are never estimated here. */
   usage: { promptTokens: number; completionTokens: number };
+  /** Safe structural metadata about the result — lengths and counts, no text. */
+  diagnostics: ResultDiagnostics;
 }
 
 /** As close to deterministic as a sampler gets: the answer must not drift. */
@@ -167,9 +275,17 @@ interface LegacyShape {
   usage?: { prompt_tokens?: number; completion_tokens?: number };
 }
 
-/** Read the answer text out of either documented result shape. */
-export function extractText(result: unknown): { text: string; usage: Completion["usage"] } {
-  if (!result || typeof result !== "object") throw new WorkersAiError("malformed");
+/**
+ * Read the answer text out of either documented result shape. A `malformed` or
+ * `empty` failure carries the safe diagnostics of the result that caused it,
+ * so the benchmark can say WHY nothing came back without seeing any text.
+ */
+export function extractText(
+  result: unknown,
+  context: { model: string; elapsedMs: number } = { model: "", elapsedMs: 0 },
+): { text: string; usage: Completion["usage"] } {
+  const diagnostics = describeResult(result, context);
+  if (!result || typeof result !== "object") throw new WorkersAiError("malformed", undefined, diagnostics);
   const openai = result as OpenAiShape;
   const legacy = result as LegacyShape;
 
@@ -179,10 +295,12 @@ export function extractText(result: unknown): { text: string; usage: Completion[
   } else if ("response" in legacy) {
     text = legacy.response;
   } else {
-    throw new WorkersAiError("malformed");
+    throw new WorkersAiError("malformed", undefined, diagnostics);
   }
-  if (text !== undefined && text !== null && typeof text !== "string") throw new WorkersAiError("malformed");
-  if (typeof text !== "string" || !text.trim()) throw new WorkersAiError("empty");
+  if (text !== undefined && text !== null && typeof text !== "string") {
+    throw new WorkersAiError("malformed", undefined, diagnostics);
+  }
+  if (typeof text !== "string" || !text.trim()) throw new WorkersAiError("empty", undefined, diagnostics);
 
   const usage = openai.usage ?? legacy.usage ?? {};
   return {
@@ -223,9 +341,12 @@ export async function generate(options: {
   } catch (error) {
     throw classifyError(error);
   } finally {
-    clearTimeout(timer ?? null);
+    /* Typed for both the Workers runtime and Node (the benchmark script imports
+       this module's types), neither of which accepts `null` here. */
+    if (timer !== undefined) clearTimeout(timer);
   }
 
-  const { text, usage } = extractText(result);
-  return { text, usage, latencyMs: Date.now() - started };
+  const latencyMs = Date.now() - started;
+  const { text, usage } = extractText(result, { model, elapsedMs: latencyMs });
+  return { text, usage, latencyMs, diagnostics: describeResult(result, { model, elapsedMs: latencyMs }) };
 }

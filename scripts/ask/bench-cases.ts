@@ -84,6 +84,17 @@ export const BRIEF_CASES: BenchCase[] = [
   },
 ];
 
+/**
+ * Benchmark-only filter: keep the cases whose question contains `needle`,
+ * case-insensitively, so one failing question can be re-run on its own without
+ * spending the daily allocation on the whole suite. An empty needle keeps all.
+ */
+export function matchCases<T extends { q: string }>(cases: T[], needle: string | undefined): T[] {
+  const wanted = (needle ?? "").trim().toLowerCase();
+  if (!wanted) return cases;
+  return cases.filter((c) => c.q.toLowerCase().includes(wanted));
+}
+
 /** Every question, the brief's first, de-duplicated against the 25. */
 export const BENCH_CASES: BenchCase[] = [
   ...BRIEF_CASES,

@@ -35,6 +35,12 @@ export interface RankingCase {
   miss?: boolean;
   answerHas?: string[];
   answerLacks?: string[];
+  /**
+   * The canonical destination NAME the model-facing answer contract must
+   * require for a where-to-go question (see `canonicalDestination` in
+   * prompt.ts), or null to assert that no destination line is produced.
+   */
+  destination?: string | null;
 }
 
 const PERSON = "person:anubha-parashar";
@@ -108,13 +114,17 @@ export const RANKING_CASES: RankingCase[] = [
 
   // ── Exact product queries rank their product first ─────────────────────────
   { q: "what is privacyguard", top: "product:privacyguard", intent: "PRODUCT" },
-  { q: "what is walkscan", top: "product:walkscan", intent: "PRODUCT" },
+  /* Not a where-question: no destination line, even with a page record near the top. */
+  { q: "what is walkscan", top: "product:walkscan", intent: "PRODUCT", destination: null },
   { q: "What is FallRisk?", top: "product:fallrisk", intent: "PRODUCT" },
   { q: "what is gaitscape", top: "page:/gaitscape" },
   { q: "What is GaitAI?", top: "page:/" },
   /* The brand is in most questions. Naming it must not hand the home page the
      answer to a question about something else. */
-  { q: "Where can I try GaitAI?", top: "page:/movement-lab" },
+  /* A where-to-go question whose lead record is a site page: the answer
+     contract must require the literal canonical destination name — here the
+     short name the site uses for /movement-lab/, derived from the record. */
+  { q: "Where can I try GaitAI?", top: "page:/movement-lab", destination: "Movement Lab" },
   { q: "Does GaitAI diagnose Parkinson's?", top: "product:neuromotion" },
   { q: "who is fallrisk", top: "product:fallrisk", intent: "PRODUCT" },
   { q: "Tell me about WalkScan", top: "product:walkscan", intent: "PRODUCT" },
@@ -142,5 +152,5 @@ export const RANKING_CASES: RankingCase[] = [
   { q: "show gait recognition papers", intent: "PUBLICATION", topType: "publication" },
   { q: "papers on gait recognition", intent: "PUBLICATION", topType: "publication" },
   { q: "Show me research on privacy.", intent: "RESEARCH", top: "research:res-privacy" },
-  { q: "Where are your publications?", intent: "NAVIGATION", top: "page:/publications" },
+  { q: "Where are your publications?", intent: "NAVIGATION", top: "page:/publications", destination: "Publications" },
 ];

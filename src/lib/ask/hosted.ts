@@ -13,9 +13,9 @@
  * file knows a URL and a JSON shape, nothing else. Behind the URL the Worker
  * resolves the record ids this browser selected against ITS OWN copy of the
  * canonical corpus, builds the grounding prompt from those canonical records,
- * and calls a hosted model through the Google Gemini Developer API. The
- * Gemini API key is a Worker secret binding and is never in this bundle, in a
- * NEXT_PUBLIC_ variable, in the repository, or in a response.
+ * and calls a hosted model through Cloudflare Workers AI — the Worker's own
+ * `AI` binding, so there is no provider key anywhere: not in this bundle, not
+ * in a NEXT_PUBLIC_ variable, not in the repository, not in a response.
  *
  * WHAT CROSSES THE WIRE — TEXT, AND ONLY THESE FIELDS
  *   out:  question           the visitor's typed text (≤ 800 chars)

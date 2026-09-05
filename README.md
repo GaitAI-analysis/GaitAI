@@ -283,11 +283,12 @@ links to the pages those records came from.
 **Nothing to download, works on any browser.** Retrieval runs in the visitor's
 tab over a 319 KB corpus. When a hosted endpoint is configured, the prose is
 written by a hosted model behind a **Cloudflare Worker** (`worker/`) that calls
-the **Google Gemini Developer API** (Free Tier) with an API key held as a
-Worker secret. No WebGPU, no gigabyte, no key in the browser. A phone on Safari
-gets the same answer as a workstation on Chrome. **Firebase is not used for Ask
-GaitAI's hosted inference** — it stays where it already was: comments, journal
-counters, auth and the admin panel.
+**Cloudflare Workers AI** through the Worker's own `AI` binding — no external
+model API, no provider key anywhere, Workers Free plan. No WebGPU, no gigabyte,
+nothing secret in the browser. A phone on Safari gets the same answer as a
+workstation on Chrome. **Firebase is not used for Ask GaitAI's hosted
+inference** — it stays where it already was: comments, journal counters, auth
+and the admin panel.
 
 **Not a general chatbot.** `npm run build:knowledge` flattens `products.ts`,
 `product-details*.ts`, `usecase-details.ts`, `publications.ts`, `evidence.ts`,
@@ -304,8 +305,8 @@ nothing else to read.
 ```
 GitHub Pages → local GaitAI retrieval → selected canonical record IDs
   → Cloudflare Worker (Free) → server-side canonical validation
-  → Google Gemini API (Free Tier) → sanitised grounded response
-                                   (fallback: local extractive answer)
+  → Cloudflare Workers AI (AI binding) → sanitised grounded response
+                                        (fallback: local extractive answer)
 ```
 
 The browser retrieves first and refuses low-confidence questions itself, with
@@ -355,9 +356,9 @@ Full architecture, deployment and testing: **`docs/ask-gaitai.md`**.
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | — | Enables the CAPTCHA gate when set |
 | `ADMIN_PASSWORD` | — | Legacy admin password (unused in prod) |
 | `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` | — | The PUBLIC Ask GaitAI Worker URL (e.g. `https://ask.gaitai.in/api/ask`). Unset or empty = retrieval-only, no network request. Contains no secret |
-| `GEMINI_API_KEY` | Worker | **Cloudflare secret only** (`wrangler secret put GEMINI_API_KEY` from `worker/`; `worker/.dev.vars` locally). Never in this file, the repo, `wrangler.jsonc`, tests or the browser |
-| `GEMINI_MODEL` | Worker | Non-secret var in `worker/wrangler.jsonc`. Empty until the benchmark has chosen a Free Tier model; the Worker answers 503 and the browser falls back meanwhile |
-| `MODEL_MAX_OUTPUT_TOKENS`, `MODEL_TIMEOUT_MS`, `MODEL_THINKING_LEVEL`, `ASK_BURST_MAX`, `ASK_HOURLY_MAX`, `ASK_DAILY_BUDGET` | Worker | Non-secret vars: output ceiling, provider timeout, optional thinking level, per-caller limits, and the site-wide daily hosted-call budget (default 25) |
+| *(no model secret)* | Worker | Workers AI is reached through the Worker's `AI` binding (`"ai": { "binding": "AI" }` in `worker/wrangler.jsonc`). There is no API key, token or external provider account anywhere in this project |
+| `WORKERS_AI_MODEL` | Worker | Non-secret var in `worker/wrangler.jsonc`. Empty until the benchmark has chosen a Workers-Free model; the Worker answers 503 and the browser falls back meanwhile |
+| `MODEL_MAX_OUTPUT_TOKENS`, `MODEL_TIMEOUT_MS`, `ASK_BURST_MAX`, `ASK_HOURLY_MAX`, `ASK_DAILY_BUDGET` | Worker | Non-secret vars: output ceiling, model timeout, per-caller limits, and the site-wide daily hosted-call budget (default 25, independent of Cloudflare's 10,000 Neurons/day) |
 
 - **Local:** `cp .env.example .env.local` and fill in the values. `.env.local` is gitignored (as is every `.env*` except the template).
 - **CI:** the same six `NEXT_PUBLIC_FIREBASE_*` names must exist as **GitHub Actions repository secrets** (Repo → Settings → Secrets and variables → Actions). Both deploy workflows inject them at build time and **fail fast with a clear error if they're missing** (via the `predev`/`prebuild` guard script).

@@ -1,0 +1,23 @@
+// ASK GAITAI — BENCHMARK WORKER. Local only. Never deployed.
+// =============================================================================
+// Exposes the production provider adapter (src/workers-ai.ts) on a loopback
+// endpoint so the Node benchmark can score Workers AI models through the exact
+// call the production Worker makes. Start it with:
+//
+//   npm run bench:serve      →  wrangler dev -c wrangler.bench.jsonc --port 8788
+//
+// Cloudflare documents that Workers AI "always accesses your Cloudflare account
+// in order to run AI models and will incur usage charges even in local
+// development" — running this spends the account's daily Neuron allocation.
+// No routes, no workers.dev URL, no vars, no Durable Object: nothing here can
+// be reached from outside the machine it runs on.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gaitai-ask-bench",
+  "main": "src/bench-entry.ts",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": false,
+  "ai": {
+    "binding": "AI"
+  }
+}

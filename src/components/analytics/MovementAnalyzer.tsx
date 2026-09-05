@@ -52,29 +52,39 @@ const CLIP_SECONDS = 6;
  * — and most also carry a skeleton overlay burned onto the subject. Feeding
  * one of those to a pose model would put someone else's invented overlay on
  * top of a real analysis, which is the exact confusion this page exists to
- * avoid. This clip is built instead from the one asset in the repository that
- * the pose model provably detects: the wireframe figure from the journal
- * artwork, moving across a still frame.
+ * avoid. The clip is therefore rendered for this lab.
  *
- * WHAT IT THEREFORE DOES AND DOES NOT SHOW. The analysis of it is real —
- * BlazePose finds the body in about three quarters of the sampled instants and
- * every trajectory, drift and range comes from those landmarks. But the figure
- * holds one pose as it travels, so there is no true stride: the lab will
- * report travel and direction, and will say plainly that no repeating vertical
- * rhythm was clear enough to report. That is the honest reading of this clip,
- * and it is why the label calls it a prepared demonstration clip rather than a
- * walking subject.
+ * WHAT IT SHOWS. A side-view walker taking nine real steps across the frame
+ * over 6.6 seconds — heel strike, foot flat, heel rise, toe-off and a
+ * knee-flexed swing on each leg in turn, arms swinging opposite the legs, the
+ * pelvis rising at mid-stance and dropping at double support. The gait is
+ * kinematically consistent by construction: the planted foot is anchored to
+ * the floor and the leg is solved from that contact by inverse kinematics, so
+ * a foot on the ground never slides and the body travels by walking rather
+ * than by being moved. The generator, with its numerical checks, is
+ * `scripts/demo-walker/`.
+ *
+ * WHAT THE ANALYSIS OF IT IS. Real. BlazePose runs on this clip exactly as on
+ * an uploaded file — measured at 52 of 53 sampled instants with a tracked
+ * body — and every landmark, trajectory, rhythm and range on the right comes
+ * from those detections, so the skeleton, the timeline and the Motion DNA
+ * channels are the model's reading of the same frames a reader is watching.
+ * The clip replaced an earlier one in which a wireframe figure held a single
+ * pose while it was translated across a still frame: the model tracked it,
+ * but nothing walked, and the panels showed a sliding figure with a frozen
+ * skeleton. That is the failure the generator's slip and floor checks exist
+ * to rule out.
  *
  * REPLACING IT. Drop a licensed clip of a person walking into
- * `public/assets/videos/samples/`, point `src` and `poster` at it, and the
- * demo becomes a real gait demonstration with no other change.
+ * `public/assets/videos/samples/`, point `src`, `poster` and `seconds` at it,
+ * and the demo becomes footage of a person with no other change.
  *
  * ON A SECUREVISION DEMO. There is none, deliberately. `pose_landmarker_lite`
  * returns one subject per frame, so a crowd clip is undetectable to it — a
- * three-figure version of this clip was measured at 1% detection, which would
- * have told visitors "no bodies found" over footage plainly containing three.
- * The spatial lens still runs on a visitor's own public-space clip; the demo
- * tab says so in that mode rather than shipping a demo that misreports.
+ * three-figure version of an earlier clip was measured at 1% detection, which
+ * would have told visitors "no bodies found" over footage plainly containing
+ * three. The spatial lens still runs on a visitor's own public-space clip; the
+ * demo tab says so in that mode rather than shipping a demo that misreports.
  */
 type Demo = {
   id: string;
@@ -90,9 +100,9 @@ const MOBILITY_DEMO: Demo = {
   label: "Walking analysis demo",
   src: "/assets/videos/samples/mobility-walk-demo.mp4",
   poster: "/assets/videos/samples/mobility-walk-demo-poster.jpg",
-  seconds: 10,
+  seconds: 7,
   description:
-    "A prepared demonstration clip: a rendered movement figure crossing a still frame, built for this lab so the pose model has something to find. Analysed in your browser by the same pipeline as your own footage.",
+    "A rendered walking figure taking nine steps across the frame — heel strike to toe-off on each leg, arms swinging opposite — built for this lab so the pose model has a real gait to read. Analysed in your browser by the same pipeline as your own footage.",
 };
 
 /** Which built-in demo a lens offers, if any. */
@@ -815,7 +825,7 @@ export function MovementAnalyzer() {
                   <figure className={styles.demoPreview}>
                     <img
                       src={assetPath(demo.poster)}
-                      alt="A rendered movement figure mid-stride, crossing a dark frame — the first frame of the prepared demonstration clip."
+                      alt="A rendered figure walking to the right across a dark frame, mid-stride with one foot planted and the other swinging through — a frame from the prepared demonstration clip."
                       loading="lazy"
                       decoding="async"
                       className={styles.demoPoster}
@@ -825,7 +835,7 @@ export function MovementAnalyzer() {
                         Demo walking clip
                       </span>
                       <span className={styles.demoMeta}>
-                        ~{demo.seconds} sec · illustrative sample
+                        ~{demo.seconds} sec · rendered walking figure
                       </span>
                     </figcaption>
                   </figure>

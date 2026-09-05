@@ -14,11 +14,12 @@
  * connective scaffolding — "Three records cover that:" — which asserts
  * nothing about GaitAI.
  *
- * WHERE IT SITS NOW. The hosted model (see `hosted.ts` and functions/src) is
- * the default writer: it reads the same retrieved records and composes prose
- * from them. This module is what answers when that call cannot be made or
- * does not come back — so the assistant is useful either way, and the model
- * only ever changes how an answer READS, never whether there is one.
+ * WHERE IT SITS NOW. The hosted model (see `hosted.ts` and worker/) is the
+ * writer when an endpoint is configured: it reads the same retrieved records
+ * and composes prose from them. This module is what answers when no endpoint
+ * is set, when that call cannot be made, or when it does not come back — so
+ * the assistant is useful either way, and the model only ever changes how an
+ * answer READS, never whether there is one.
  */
 
 import type { RetrievalResult, RetrievedDoc } from "./retrieval";

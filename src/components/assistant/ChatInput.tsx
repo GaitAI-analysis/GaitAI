@@ -2,6 +2,7 @@
 
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { MAX_MESSAGE_LENGTH } from "./config";
+import { hostedEnabled } from "@/lib/ask/hosted";
 import styles from "./assistant.module.css";
 
 /**
@@ -12,8 +13,16 @@ import styles from "./assistant.module.css";
  * write less than they mean to. Enter sends; Shift+Enter breaks the line.
  *
  * The privacy note sits under the field, permanently and quietly. It is the
- * kind of thing that has to be visible before someone types, not after.
+ * kind of thing that has to be visible before someone types, not after — and
+ * it says what is TRUE for this build. With a hosted endpoint configured, the
+ * typed question leaves the browser for GaitAI's own inference service, and
+ * the line says so. Without one, every answer is composed from the site's
+ * knowledge in the tab, and the line says that instead. Neither version claims
+ * more privacy than the build delivers.
  */
+const PRIVACY_NOTE = hostedEnabled()
+  ? "Your text question may be processed by GaitAI’s hosted inference service. Please don’t share sensitive personal or patient information."
+  : "Answers come from GaitAI’s local site knowledge. Please don’t share sensitive personal or patient information.";
 export const ChatInput = forwardRef<
   HTMLTextAreaElement,
   {
@@ -79,9 +88,7 @@ export const ChatInput = forwardRef<
           <span aria-hidden="true">↑</span>
         </button>
       </form>
-      <p className={styles.privacyNote}>
-        Please don&apos;t share sensitive personal or patient information.
-      </p>
+      <p className={styles.privacyNote}>{PRIVACY_NOTE}</p>
     </div>
   );
 });

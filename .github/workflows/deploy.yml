@@ -48,14 +48,15 @@ jobs:
       # Function run — retrieval, the link allowlist and the extractive answer.
       # No token, no network call: the assistant's floor is deterministic, so
       # what a visitor reads when the hosted model is unavailable is fully
-      # assertable here. The Cloud Function itself is typechecked from the same
-      # copied modules; it is deployed separately (`npm run functions:deploy`)
-      # by someone holding the Firebase project, never from this workflow.
+      # assertable here. The Cloudflare Worker (worker/) imports the same
+      # modules; it is typechecked and its tests run against a mocked provider.
+      # It is deployed separately (`wrangler deploy`, from worker/) by someone
+      # holding the Cloudflare account — never from this workflow.
       - name: Verify Ask GaitAI
         run: |
           npm run build:knowledge
           npm run ask:test
-          cd functions && npm ci && npm run typecheck
+          cd worker && npm ci && npm run typecheck && npm test
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

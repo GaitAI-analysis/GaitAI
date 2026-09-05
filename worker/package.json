@@ -1,0 +1,21 @@
+{
+  "name": "gaitai-ask-worker",
+  "description": "Ask GaitAI — the hosted half of the movement-intelligence guide, as a Cloudflare Worker: canonical-record validation, the grounding prompt, one call to Hugging Face Inference Providers, and sanitisation.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "corpus": "node scripts/build-corpus.mjs",
+    "dev": "npm run corpus && wrangler dev",
+    "typecheck": "npm run corpus && tsc --noEmit",
+    "test": "npm run corpus && vitest run",
+    "check": "npm run corpus && wrangler deploy --dry-run --outdir dist",
+    "types": "wrangler types",
+    "deploy": "npm run corpus && vitest run && wrangler deploy"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "~0.15.0",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.0",
+    "wrangler": "~4.86.0"
+  }
+}

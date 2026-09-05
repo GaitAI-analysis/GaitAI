@@ -101,9 +101,14 @@ export const CORPUS_URL = "/ask/knowledge.json";
  * back to a blank version, which is fine: they read the file off disk.
  */
 /* Written exactly as `process.env.NEXT_PUBLIC_…`: that is the member
-   expression Next's compiler replaces with the literal at build time. */
+   expression Next's compiler replaces with the literal at build time. Guarded,
+   because this module is also bundled into the Cloudflare Worker, where there
+   is no `process` at all and the version is irrelevant (the Worker seeds its
+   corpus from a file, never from this fetch). */
 export const CORPUS_VERSION: string =
-  process.env.NEXT_PUBLIC_ASK_CORPUS_VERSION ?? "";
+  typeof process !== "undefined"
+    ? process.env.NEXT_PUBLIC_ASK_CORPUS_VERSION ?? ""
+    : "";
 
 export function corpusUrl(basePath = ""): string {
   const url = `${basePath}${CORPUS_URL}`;

@@ -1,31 +1,44 @@
 "use client";
 
 /**
- * THE HOSTED LANGUAGE LAYER — one POST to the project's own Cloud Function.
+ * THE HOSTED LANGUAGE LAYER — one POST to the Ask GaitAI Worker.
  * =============================================================================
  * Ask GaitAI used to ship a 1.2 GB quantized model to the visitor's browser and
  * run it on WebGPU. That made the assistant a download, excluded every phone
  * and every browser without WebGPU, and capped the writer at 1.5B parameters
  * because that is what a laptop GPU can hold. All of it is gone.
  *
- * Generation now happens behind `askGaitai`, a Firebase Cloud Function in the
- * same project that already backs comments and counters. The function runs the
- * SAME deterministic retrieval this browser runs (its build copies the modules
- * in this directory), builds the grounding prompt server-side, and calls a
- * hosted conversational model through Hugging Face Inference Providers. The
- * Hugging Face token lives in Secret Manager and is never in this bundle, in a
- * NEXT_PUBLIC_ variable, in the repository, or in a response.
+ * Generation now happens behind a Cloudflare Worker (worker/) that this module
+ * talks to over plain HTTPS. The Worker is provider-agnostic from here: this
+ * file knows a URL and a JSON shape, nothing else. Behind the URL the Worker
+ * resolves the record ids this browser selected against ITS OWN copy of the
+ * canonical corpus, builds the grounding prompt from those canonical records,
+ * and calls a hosted conversational model through Hugging Face Inference
+ * Providers. The Hugging Face token is a Worker secret binding and is never in
+ * this bundle, in a NEXT_PUBLIC_ variable, in the repository, or in a response.
  *
- * WHAT CROSSES THE WIRE
- *   out:  the question, the route, the page title, and a short window of prior
- *         turns — nothing else. No DOM, no identifiers, no storage, no cookies.
- *   in:   the answer, the sources retrieval chose, related records, follow-ups
- *         and the CTA — all of it already checked against the corpus route
- *         allowlist on the server, and checked again in `engine.ts`.
+ * WHAT CROSSES THE WIRE — TEXT, AND ONLY THESE FIELDS
+ *   out:  question           the visitor's typed text (≤ 800 chars)
+ *         pathname, pageTitle  the route and document title, for page awareness
+ *         history            ≤ 6 prior turns of this thread, text only
+ *         selectedRecordIds  the ids retrieval chose — ids, never record text.
+ *                            The Worker discards any id it does not know.
+ *   in:   the answer, the sources the Worker chose from the canonical records,
+ *         related records, follow-ups and the CTA — all already checked against
+ *         the corpus route allowlist on the Worker, and checked again by
+ *         `engine.ts`.
  *
- * WHAT THIS MODULE DOES NOT DECIDE. Whether to call the function at all is
- * `engine.ts`'s decision, made from local retrieval confidence. Whether the
- * answer is trustworthy is the server's, made from the same corpus. This file
+ * WHAT NEVER CROSSES IT. This is a textual assistant request and nothing else.
+ * No identifiers, no cookies, no DOM, no storage — and none of Movement Lab's
+ * material: no uploaded video, no camera frames, no pose arrays, no health
+ * files, no biometric media. Movement Lab has its own architecture and never
+ * touches this module; the body below is built from named string fields, so
+ * there is no path by which a blob could be attached to it.
+ *
+ * WHAT THIS MODULE DOES NOT DECIDE. Whether to call the Worker at all is
+ * `engine.ts`'s decision, made from local retrieval confidence — and made
+ * without a network request when no endpoint is configured. Whether the answer
+ * is trustworthy is the Worker's, made from the canonical corpus. This file
  * only speaks HTTP, and it fails loudly with a typed reason so the engine can
  * fall back to the extractive answer without guessing why.
  */
@@ -59,8 +72,8 @@ export interface HostedTurn {
 }
 
 /**
- * The server's JSON shape. Kept in step with functions/src/ask.ts by hand, in
- * the one place a wire format has to be.
+ * The Worker's JSON shape. Kept in step with worker/src/response.ts by hand,
+ * in the one place a wire format has to be.
  */
 interface HostedResponse {
   answer: string;
@@ -77,6 +90,7 @@ interface HostedResponse {
   };
 }
 
+/** True when a public Worker URL was configured at build time. */
 export const hostedEnabled = () => ASK_ENDPOINT.length > 0;
 
 const asSources = (value: unknown): AskSource[] =>
@@ -92,7 +106,7 @@ const asSources = (value: unknown): AskSource[] =>
     : [];
 
 /**
- * Ask the function. Resolves to an `AskResult`, or throws a `HostedError`.
+ * Ask the Worker. Resolves to an `AskResult`, or throws a `HostedError`.
  *
  * The caller's signal (a newer question, panel closed) and the deadline are
  * combined so either aborts the request. A deadline abort surfaces as
@@ -103,6 +117,7 @@ export async function askHosted(options: {
   pathname: string;
   pageTitle: string;
   history: HostedTurn[];
+  selectedRecordIds: string[];
   signal?: AbortSignal;
 }): Promise<AskResult> {
   if (!hostedEnabled()) throw new HostedError("disabled");
@@ -116,17 +131,24 @@ export async function askHosted(options: {
   const onOuterAbort = () => controller.abort();
   options.signal?.addEventListener("abort", onOuterAbort, { once: true });
 
+  /* Named string fields only — see the module note. */
+  const body = JSON.stringify({
+    question: options.question,
+    pathname: options.pathname,
+    pageTitle: options.pageTitle,
+    history: options.history.map((turn) => ({
+      role: turn.role,
+      content: turn.content,
+    })),
+    selectedRecordIds: options.selectedRecordIds,
+  });
+
   let response: Response;
   try {
     response = await fetch(ASK_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        question: options.question,
-        pathname: options.pathname,
-        pageTitle: options.pageTitle,
-        history: options.history,
-      }),
+      body,
       signal: controller.signal,
       /* No cookies, no credentials: the endpoint is anonymous by design. */
       credentials: "omit",
@@ -148,7 +170,7 @@ export async function askHosted(options: {
     );
   }
   if (response.status === 503) throw new HostedError("budget");
-  if (response.status === 400 || response.status === 403) {
+  if (response.status >= 400 && response.status < 500) {
     throw new HostedError("rejected");
   }
   if (!response.ok) throw new HostedError("upstream");

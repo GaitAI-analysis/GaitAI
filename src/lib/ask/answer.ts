@@ -3,17 +3,16 @@
  * =============================================================================
  * What a model may put on screen, and what travels under it.
  *
- * WHERE THIS RUNS. Twice. The `askGaitai` Cloud Function compiles this module
- * in and applies it to the hosted model's completion before anything is
- * returned — that is the authoritative check, on the side of the boundary a
+ * WHERE THIS RUNS. Twice. The Ask GaitAI Cloudflare Worker (worker/) imports
+ * this module and applies it to the hosted model's completion before anything
+ * is returned — that is the authoritative check, on the side of the boundary a
  * visitor cannot edit. The browser then applies `sanitizeLinks` again to
  * whatever it receives, because the rule that matters most is the one applied
- * closest to the DOM. Both copies are this file: the function's build step
- * copies `src/lib/ask/` rather than keeping a second implementation in step by
- * hand.
+ * closest to the DOM. Both are this one file, bundled twice, rather than a
+ * second implementation kept in step by hand.
  *
- * Request validation — what a browser may POST — lives in the function
- * (`functions/src/validate.ts`), not here: it is a server-side concern and a
+ * Request validation — what a browser may POST — lives in the Worker
+ * (`worker/src/validate.ts`), not here: it is a server-side concern and a
  * comment describing it in the client bundle is the kind of comment that gets
  * believed during a security review.
  */

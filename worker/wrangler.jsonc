@@ -1,0 +1,73 @@
+// ASK GAITAI — the Cloudflare Worker behind the assistant's hosted answers.
+// =============================================================================
+// One endpoint: POST /api/ask (and its OPTIONS preflight). Everything else 404s.
+//
+// WHAT IS AND IS NOT IN THIS FILE
+//   · plain configuration: the Worker's name, the entry point, the Durable
+//     Object that meters callers, and NON-secret vars
+//   · never a secret. HF_TOKEN is a Cloudflare secret set out of band:
+//       wrangler secret put HF_TOKEN            (production)
+//       worker/.dev.vars                        (local `wrangler dev`, gitignored)
+//     Wrangler has no schema field that declares a secret as required, so the
+//     Worker checks for it at request time and answers 503 `unconfigured`
+//     until it is set — the browser then falls back to its extractive answer.
+//
+// CUSTOM DOMAIN — prepared, not active.
+//   The intended public URL is https://ask.gaitai.in/api/ask. gaitai.in itself
+//   stays on GitHub Pages. To activate, once the zone is on Cloudflare:
+//     1. uncomment the `routes` block below
+//     2. set NEXT_PUBLIC_ASK_GAITAI_ENDPOINT=https://ask.gaitai.in/api/ask in
+//        the site's GitHub Actions secrets and rebuild the site
+//   Until then the Worker is reachable on its workers.dev URL only if
+//   `workers_dev` is set to true.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gaitai-ask",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+
+  // Off until the custom domain is live, so a stray deploy does not publish
+  // an unreviewed public URL. `wrangler dev` does not need it.
+  "workers_dev": false,
+
+  // "routes": [{ "pattern": "ask.gaitai.in", "custom_domain": true }],
+
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  // NON-SECRET configuration. Every value here is readable by anyone with the
+  // repository, which is fine: none of it grants access to anything.
+  "vars": {
+    // Exact origins allowed to call the endpoint, comma-separated. No
+    // wildcards; the accepted Origin is echoed back verbatim. Development
+    // origins (http://localhost:3000, …) belong in .dev.vars, not here.
+    "ALLOWED_ORIGINS": "https://gaitai.in,https://www.gaitai.in",
+
+    // The hosted model, as a Hugging Face Inference Providers model id
+    // (optionally with a `:provider` suffix). DELIBERATELY EMPTY: the model is
+    // chosen by `npm run ask:bench` on the site's own questions after the
+    // token exists, not inherited from a prototype. While it is empty the
+    // Worker answers 503 `model_unconfigured` and the browser falls back.
+    "HF_MODEL": "",
+
+    // Output ceiling per answer — the single largest lever on cost and latency.
+    "HF_MAX_TOKENS": "450",
+    // How long to wait for the provider before answering 504.
+    "HF_TIMEOUT_MS": "22000",
+
+    // Abuse controls enforced by the AskGuard Durable Object (see src/guard.ts).
+    "ASK_BURST_MAX": "8",        // questions per caller per 2 minutes
+    "ASK_HOURLY_MAX": "40",      // questions per caller per hour
+    "ASK_DAILY_BUDGET": "1500"   // model calls per UTC day, site-wide; 0 = unlimited
+  },
+
+  // One small Durable Object holds every counter: per-caller windows keyed by
+  // a salted, daily-rotating hash of the IP, and the site-wide daily budget.
+  // SQLite-backed, so it is available on the Workers Free plan.
+  "durable_objects": {
+    "bindings": [{ "name": "ASK_GUARD", "class_name": "AskGuard" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AskGuard"] }]
+}

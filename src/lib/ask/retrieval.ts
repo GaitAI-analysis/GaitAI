@@ -740,7 +740,7 @@ const TYPE_LABEL: Record<string, string> = {
  * real link, and the whole block is introduced as DATA. See prompt.ts for the
  * instruction that keeps it that way.
  */
-export function buildContextBlock(result: RetrievalResult): string {
+export function buildContextBlock(result: Pick<RetrievalResult, "docs">): string {
   if (!result.docs.length) return "No GaitAI records matched this question.";
 
   return result.docs

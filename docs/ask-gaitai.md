@@ -9,243 +9,318 @@ exist, and it inherits the site's evidence discipline: no invented accuracy
 figures, no clinical validation claims, no diagnosis, no certification status.
 
 **Nothing to download, nothing to prepare.** A visitor opens the panel and asks.
-Retrieval runs in their browser over a 315 KB corpus; the prose is written by a
-hosted model behind the project's own Cloud Function. It works on a phone, on
-Safari, on a low-end laptop, and on any browser without WebGPU — which is the
-main reason the previous in-browser model is gone.
+Retrieval runs in their browser over a 319 KB corpus; the prose, when a hosted
+endpoint is configured, is written by a hosted model behind a Cloudflare
+Worker. It works on a phone, on Safari, on a low-end laptop, and on any browser
+without WebGPU.
+
+**Firebase is not used for Ask GaitAI's hosted inference.** Firebase remains
+where it already was — comments, journal counters, authentication, the admin
+panel. The assistant's server side is a Cloudflare Worker and nothing else.
 
 ---
 
 ## 1. The architecture
 
 ```
-GitHub Pages (static)                          Firebase (gaitai-intelligence)
-──────────────────────                          ─────────────────────────────
-Ask GaitAI panel
-   |
-   +--> /ask/knowledge.json?v=<digest>          the corpus, versioned per deploy
-   |
-   v
-BM25 + entity + intent retrieval  ─── low confidence? ──> refuse locally, no model call
-   |
-   v  question · route · title · ≤6 prior turns
-POST askGaitai  ─────────────────────────────>  validate · rate-limit · budget
-                                                    |
-                                                    v
-                                                the SAME retrieval, same corpus
-                                                    |
-                                                    v  system policy + records
-                                                Hugging Face Inference Providers
-                                                    (HF_TOKEN from Secret Manager)
-                                                    |
-                                                    v
-                                                clean: no traces, no bare URLs,
-                                                links allowlisted · sources from
-                                                retrieval · related · follow-ups
-   |  <────────────────────────────────────────  JSON
-   v
-sanitize again → render
-   |
-   +-- any failure (network, 429, 503, 502, timeout) → EXTRACTIVE ANSWER
-                                                        from the retrieval that
-                                                        already ran in the tab
+gaitai.in (GitHub Pages)
+    |
+    v
+Ask GaitAI browser UI
+    |
+    v
+/ask/knowledge.json?v=<digest>          the local 319 KB corpus, versioned per deploy
+    |
+    v
+BM25 + entity + intent + page-aware retrieval        ── low confidence? ──> refuse locally,
+    |                                                                        no network request
+    |  question · route · title · ≤6 prior turns · SELECTED CANONICAL RECORD IDS
+    v
+Cloudflare Worker   POST https://ask.gaitai.in/api/ask
+    |  validate the request · resolve ids against the Worker's own canonical corpus,
+    |  discard unknown ids · meter the caller and the daily budget · build the
+    |  grounding prompt from the CANONICAL records
+    v
+Hugging Face Inference Providers  (HF_TOKEN: a Worker secret, never in the browser)
+    |
+    v
+sanitised answer: no reasoning traces, no bare URLs, off-allowlist links degraded,
+sources and related links chosen from the canonical records, not by the model
+    |
+    v
+browser: sanitises again, renders
+
+ANY Worker or provider failure — no endpoint configured, 4xx, 5xx, timeout,
+network error, malformed JSON, invalid provider output
+    |
+    v
+local deterministic extractive answer, from the retrieval that already ran
 ```
 
 **Retrieval decides what is true; the model only decides how it reads.** The
 model never receives the whole site. It receives the system policy, the
-question, a short conversation window, and the seven records retrieval chose —
-and it is told, in the policy, not to reach past them. Sources under an answer
-come from the deterministic retrieval result, never from the model.
+question, a short conversation window, and the canonical text of the records
+retrieval chose — records the Worker looked up itself, by id. Sources under an
+answer come from those records, never from the model.
+
+**Ask GaitAI never becomes unusable because hosted inference failed.** The
+extractive answer is the floor, and it is computed before the Worker is called.
 
 ### What replaced what
 
-| Before (in-browser model) | Now (hosted model) |
+| Before (in-browser model, until 2026-09-05) | Now |
 |---|---|
-| `onnx-community/Qwen2.5-1.5B-Instruct`, q4f16 on WebGPU, q4 on WASM | a 7B-class-or-larger instruct model on Hugging Face Inference Providers |
+| `onnx-community/Qwen2.5-1.5B-Instruct`, q4f16 on WebGPU, q4 on WASM | a hosted model on Hugging Face Inference Providers, chosen by benchmark |
 | ~1.22 GB download, opt-in behind a button | nothing to download |
-| Transformers.js + ONNX Runtime Web loaded from a CDN | no browser ML runtime at all |
+| Transformers.js + ONNX Runtime Web from a CDN | no browser ML runtime |
 | "Load local model" strip, download percentage, "Preparing GaitAI Assistant" | header · conversation · composer · privacy line |
 | WebGPU detection, WASM fallback notices | works on every browser |
-| model capped at 1.5B by laptop GPUs | model chosen by benchmark on the site's own questions |
-| "Answers are generated locally in your browser" | "Please don't share sensitive personal or patient information." |
+| "Answers are generated locally in your browser" | truthful wording per build — see §8 |
 | `cache: "force-cache"` corpus fetch | corpus URL versioned by content digest |
-
-Firebase stays exactly where it was for comments, journal counters,
-authentication and the admin panel. One function is added: `askGaitai`.
+| (interim, never deployed) a Firebase Cloud Function with Firestore rate limits | a Cloudflare Worker with a Durable Object; no Firebase |
 
 ---
 
-## 2. The Cloud Function
+## 2. The Worker
 
-`functions/` — Firebase Cloud Functions (2nd gen), Node 20, region `asia-south1`,
-scale-to-zero, 512 MiB, 60 s timeout, max 10 instances.
-
-| File | Role |
-|---|---|
-| `src/index.ts` | HTTP handler: CORS allowlist, method, validation, per-caller limit, daily budget, the call, the log line |
-| `src/ask.ts` | The core with no HTTP in it: retrieve → prompt → model → clean → sources. Used by the handler and by the local harness unchanged |
-| `src/hf.ts` | One OpenAI-compatible chat completion to `router.huggingface.co/v1/chat/completions` |
-| `src/rate-limit.ts` | Firestore-backed limiter (Admin SDK): burst, hourly, site-wide daily budget |
-| `src/validate.ts` | What a browser may POST: 800-char question, 6 history turns, bounded route and title |
-| `src/knowledge.ts` | Reads `knowledge.json` at cold start and seeds the shared corpus module |
-| `src/test-local.ts` | `npm test` — validation, retrieval and (with a token) the live provider call |
-| `scripts/sync-shared.mjs` | Copies `src/lib/ask/*.ts` and the corpus in before every build |
-| `src/shared/` (generated) | The browser's retrieval, prompt, answer and extractive modules, verbatim |
-
-### One retrieval, two runtimes
-
-The function must run **exactly** the retrieval the browser runs over
-**exactly** the corpus the site shipped. So there is one implementation, in
-`src/lib/ask/`, and `sync-shared.mjs` copies it into `functions/src/shared/`
-before every `tsc`, together with `public/ask/knowledge.json`. Both copies are
-gitignored build output. `engine.ts` and `hosted.ts` — the browser's side of
-the wire — are not copied.
-
-### Request and response
+`worker/` — a Worker-only TypeScript project inside this repository (no second
+Git repository). Wrangler configuration in `wrangler.jsonc`.
 
 ```
-POST https://asia-south1-gaitai-intelligence.cloudfunctions.net/askGaitai
-Origin: https://gaitai.in            (required; allowlisted)
-{ question, pathname, pageTitle, history: [{ role, content }] }
+worker/
+  wrangler.jsonc           name, entry, compatibility date, NON-secret vars, the Durable Object
+  package.json             corpus · dev · typecheck · test · check (dry-run) · types · deploy
+  tsconfig.json
+  vitest.config.ts         the Cloudflare Vitest plugin, provider mocked, fake token/model bindings
+  .dev.vars.example        HF_TOKEN= / HF_MODEL= / ALLOWED_ORIGINS= — names only, no values
+  worker-configuration.d.ts   generated by `wrangler types`
+  scripts/build-corpus.mjs the compact canonical corpus, derived from public/ask/knowledge.json
+  src/
+    index.ts               routing, CORS, body cap, the pipeline, error mapping, logging
+    env.ts                 the bindings contract and `readConfig`
+    cors.ts                allowlist, exact-origin echo, preflight headers
+    validate.ts            limits on every inbound field; unknown fields dropped
+    grounding.ts           id → canonical record; page record from the route; the prompt
+    hf.ts                  one chat completion to router.huggingface.co with a deadline
+    response.ts            the wire shape; sources/related/follow-ups from the records
+    guard.ts               the AskGuard Durable Object: burst, hourly, daily budget
+    shims.d.ts             lets the shared corpus module typecheck without `process`
+    generated/knowledge.json   (gitignored) written by build-corpus.mjs
+  test/ask.test.ts         29 tests, provider mocked
+```
 
-200 {
-  answer,                       markdown, links already allowlisted
-  mode: "model" | "retrieval",
-  sources:      [{ title, url, kind }],   from retrieval, ≤3
-  relatedLinks: [{ title, url, kind }],   retrieved but not cited, ≤3
-  suggestions:  [string],                 derived from the records
-  cta?: { label, href },
-  confidence: "high" | "low",
-  grounding: { records, recordIds, latencyMs }
+The Worker imports the browser's own modules — `src/lib/ask/prompt.ts`,
+`answer.ts`, `corpus.ts`, `retrieval.ts` (for types and the context block),
+`extractive.ts` — directly by relative path. There is one implementation of
+the policy, the link allowlist, the source selection and the post-processing,
+bundled twice.
+
+### Endpoint
+
+```
+POST    /api/ask     the question
+OPTIONS /api/ask     CORS preflight
+anything else        404
+```
+
+Request (every field is text; nothing else is read):
+
+```json
+{
+  "question": "What is WalkScan?",
+  "pathname": "/mobilitycare/walkscan/",
+  "pageTitle": "WalkScan",
+  "history": [{ "role": "user", "content": "…" }],
+  "selectedRecordIds": ["product:walkscan", "use-case:physio"]
 }
-400 malformed · 403 origin · 405 method
-429 per-caller limit (Retry-After)
-503 daily budget spent, or the provider is rate-limiting us
-502 the provider failed — the browser answers from records
 ```
 
-Nothing about the visitor travels: no identifier, no cookie, no DOM. The
-function keeps no transcript and logs no question text — only the route, the
-intent label, the record count, token counts and latency.
+Response, 200:
+
+```json
+{
+  "answer": "…markdown, links already allowlisted…",
+  "mode": "model",
+  "sources":      [{ "title": "WalkScan", "url": "/mobilitycare/walkscan/", "kind": "Module" }],
+  "relatedLinks": [{ "title": "Physiotherapy clinics", "url": "/use-cases/physiotherapy-clinics/", "kind": "Environment" }],
+  "suggestions":  ["How does WalkScan work?", "…"],
+  "cta": { "label": "Request a demo", "href": "/#contact" },
+  "confidence": "high",
+  "grounding": { "records": 2, "recordIds": ["product:walkscan", "use-case:physio"], "latencyMs": 3120 }
+}
+```
+
+Errors, all `{ "error": "<code>" }` and all handled identically by the browser
+(fall back to the extractive answer):
+
+| Status | Code | When |
+|---|---|---|
+| 400 | `malformed`, `invalid_request` | bad JSON; a field outside its limit |
+| 403 | `origin_not_allowed` | Origin missing or not on the allowlist |
+| 405 | `method_not_allowed` | anything but POST / OPTIONS on `/api/ask` |
+| 413 | `payload_too_large` | body over 32 KB |
+| 422 | `no_records` | none of the ids resolve to a canonical record |
+| 429 | `rate_limited` | per-caller burst or hourly limit; `Retry-After` set |
+| 503 | `unconfigured` / `model_unconfigured` | HF_TOKEN or HF_MODEL not set |
+| 503 | `budget` / `provider_rate_limited` | daily budget spent; provider answered 429 |
+| 502 | `upstream` | provider error, malformed provider output, empty answer after cleaning |
+| 504 | `timeout` | provider did not answer within `HF_TIMEOUT_MS` |
+
+Never in a response: the token, the raw provider reply, the system prompt,
+internal reasoning, environment values, a stack trace.
+
+### Canonical-record validation
+
+The browser sends ids. `scripts/build-corpus.mjs` derives a compact copy of
+`public/ask/knowledge.json` (record content cut to the same 1 500-character cap
+the prompt applies; the two policy records kept whole; `environmentMap`
+dropped) into `src/generated/knowledge.json`, and the Worker bundles it. At
+request time `grounding.ts` resolves each id through the shared `docById()`,
+drops anything unknown, caps at seven, and finds the current page's record from
+the route exactly as browser retrieval does. Any `recordContent`, `records` or
+other text field the browser might add is ignored by the validator — unknown
+keys are dropped, not interpreted — so nothing typed in a browser can become
+GaitAI evidence.
+
+**Why not re-run retrieval on the Worker?** It would be cheap (the index builds
+in milliseconds; the modules are already bundled). But selection is not the
+trust problem — content is — and id resolution closes that on its own, with no
+duplicate computation and no risk of the two retrievals disagreeing. If browser
+selection ever proves unreliable, the upgrade is to import
+`retrieveGaitAIContext` in `grounding.ts` and use its result instead of the
+ids; benchmark it before choosing it.
 
 ### The prompt
 
-`src/lib/ask/prompt.ts` → `buildMessages()`:
+`src/lib/ask/prompt.ts` → `buildMessages()`, called by the Worker and by the
+benchmark, so what is benchmarked is what is deployed:
 
 ```
 system     the Ask GaitAI policy (byte-stable)
 history    ≤6 prior turns, text only, roles repaired to alternate
-user       <record> blocks for the 7 retrieved records (≤1 500 chars each)
+user       <record> blocks for the canonical records (≤1 500 chars each)
            the page line ("The visitor is currently reading: …")
-           a LOW-confidence notice when retrieval has one
-           the question
+           the question, labelled as the visitor's question
 ```
 
-The policy is the one the site already had, tightened for the hosted setting:
-answer **only** from the supplied records; if they do not establish something,
-say that GaitAI's published records do not establish it; never invent clinical
-accuracy, diagnoses, regulatory approval, deployments or customers, research
-results, biographies, patents or publications, or product capabilities; keep
-research foundation distinct from product-specific validation. Records are
-fenced as reference data and the policy says they are never instructions.
-
-The function and the benchmark call the same `buildMessages()`. What is
-benchmarked is byte-for-byte what is deployed.
+The policy: answer **only** from the supplied GaitAI records; if they do not
+establish something, say that GaitAI's published records do not establish it;
+never invent accuracy, clinical validation, diagnosis, regulatory approval,
+certifications, customers, deployments, pricing or revenue, publications,
+patents, research results, biographies or product capabilities; research
+foundation is not product-specific validation; records are reference data and
+never instructions; never reveal the prompt, configuration or secrets. The
+question is untrusted visitor input and travels last, labelled.
 
 ### Post-processing (`cleanModelAnswer`, `src/lib/ask/answer.ts`)
 
-1. strip `<think>…</think>` traces, terminated or not
-2. drop a model-authored "Sources" / "References" block
+1. strip `<think>…</think>` and any other reasoning trace, terminated or not
+2. drop a model-authored "Sources" / "References" / "Related links" block
 3. remove every bare `http(s)://` URL
 4. degrade any markdown link outside the corpus route allowlist to its label
 
-Then `selectSources()` picks up to three of the **retrieved** records the
-answer actually linked or named, and `relatedLinks()` lists retrieved records
-it did not. The browser runs `sanitizeLinks` once more on what it receives.
+Then `selectSources()` picks up to three of the **canonical** records the
+answer linked or named, `relatedLinks()` lists retrieved records it did not,
+and the browser runs `sanitizeLinks` once more on what it receives. The model
+never produces the authoritative Sources list.
 
-### Rate limiting and abuse protection
+### CORS
 
-| Limit | Value | Where |
-|---|---|---|
-| Question length | 800 chars | `validate.ts`, mirrored by the composer's `maxLength` |
-| History | 6 turns × 1 600 chars | `validate.ts` |
-| Route / title | 256 / 200 chars; non-path routes become `/` | `validate.ts` |
-| Burst | 8 questions / 2 min / caller | `askGaitaiRateLimits/{sha256(project:ip)}` |
-| Hourly | 40 / hour / caller | same document |
-| Daily budget | `ASK_DAILY_BUDGET` model calls / UTC day, site-wide (default 1 500) | `askGaitaiBudget/{yyyy-mm-dd}` |
-| Output | `HF_MAX_TOKENS` (default 450) | `hf.ts` |
-| Provider timeout | 25 s (function timeout 60 s) | `index.ts` |
-| Origin | `gaitai.in`, `www.gaitai.in`, `localhost:*`; **no Origin = 403** | `index.ts` |
+Production allowlist: `https://gaitai.in`, `https://www.gaitai.in` — the
+`ALLOWED_ORIGINS` var in `wrangler.jsonc`, exact matches only. The accepted
+origin is echoed back verbatim with `Vary: Origin`; never `*`. A request with
+no `Origin` is refused (a browser always sends one cross-origin; a script does
+not). Development origins go in `.dev.vars`, which overrides the var locally.
+`OPTIONS` answers 204 with the allow headers.
 
-The budget is charged only for questions that will actually reach a provider;
-a question retrieval refuses locally costs nothing. When the budget is spent
-the function answers 503 and every browser falls back to the extractive answer
-— the assistant keeps working while the bill stops growing. Both collections
-carry `expireAt`; enable a Firestore TTL policy on it in the console so they
-self-empty. The limiter fails open on a Firestore error: an outage degrades the
-protection, not the site.
+### Rate and abuse controls — what is actually implemented
 
-### Secrets and parameters
+| Control | Implemented | Where | Cloudflare plan |
+|---|---|---|---|
+| Question ≤ 800 chars; history ≤ 6 turns × 1 600 chars; route ≤ 256; title ≤ 200; ≤ 7 record ids; body ≤ 32 KB | yes | `validate.ts`, `index.ts` | Free |
+| Per-caller burst: 8 accepted questions per 2 minutes | yes | `AskGuard` Durable Object | Free (SQLite-backed DOs) |
+| Per-caller hourly: 40 per hour | yes | `AskGuard` | Free |
+| Site-wide daily budget: `ASK_DAILY_BUDGET` model calls per UTC day, then 503 | yes | `AskGuard` | Free |
+| Provider timeout: `HF_TIMEOUT_MS` (22 s) via AbortController, then 504 | yes | `hf.ts` | Free |
+| Runaway output: `HF_MAX_TOKENS` (450), hard cap 1 200 | yes | `env.ts`, `hf.ts` | Free |
+| Origin allowlist, Origin required | yes | `cors.ts` | Free |
+| Fail-open if the Durable Object is unreachable | yes, deliberately | `guard.ts` | — |
+| Request-per-second flood protection before the Worker runs | **not implemented here** | Cloudflare WAF rate-limiting rule on the `ask.gaitai.in` zone | Free includes 1 rule; more need Pro+ |
+| Bot management / challenge | **not implemented** | Cloudflare Bot Fight Mode / Turnstile | Free (Bot Fight Mode) / paid |
+
+The caller identifier is a salted SHA-256 of the connecting IP **and the UTC
+day**, truncated — it rotates daily and cannot be joined across days. Per
+caller the object stores only timestamps; site-wide only one integer per day;
+an alarm prunes idle callers hourly and days older than yesterday. No question
+text, route, user agent or anything else is stored anywhere.
+
+The daily budget bounds the worst case: a distributed attacker can spend at
+most `ASK_DAILY_BUDGET` calls per day, after which every browser falls back to
+the extractive answer and the site keeps working. The provider's own credit
+ceiling is the backstop behind that.
+
+### Secrets and configuration
 
 | Name | Kind | Set with |
 |---|---|---|
-| `HF_TOKEN` | Secret Manager secret | `npx -y firebase-tools@13 functions:secrets:set HF_TOKEN` |
-| `HF_MODEL` | function parameter | `functions/.env.gaitai-intelligence` or the deploy prompt; default in `index.ts` |
-| `HF_MAX_TOKENS` | function parameter | default 450 |
-| `ASK_DAILY_BUDGET` | function parameter | default 1 500 |
+| `HF_TOKEN` | Cloudflare secret | `wrangler secret put HF_TOKEN` (production); `worker/.dev.vars` (local) |
+| `HF_MODEL` | non-secret var | `wrangler.jsonc` — **deliberately empty** until the benchmark has run |
+| `HF_MAX_TOKENS`, `HF_TIMEOUT_MS` | non-secret vars | `wrangler.jsonc` |
+| `ALLOWED_ORIGINS` | non-secret var | `wrangler.jsonc`; overridden by `.dev.vars` locally |
+| `ASK_BURST_MAX`, `ASK_HOURLY_MAX`, `ASK_DAILY_BUDGET` | non-secret vars | `wrangler.jsonc` |
 
-The token is never in the repository, never in a `NEXT_PUBLIC_` variable,
-never in the browser bundle, and never in a response or a log line. The
-browser talks only to the function; the function talks to Hugging Face.
+The token is never in source, Git, README, `.env.example`, `wrangler.jsonc`,
+the browser bundle, or a log line. Wrangler has no schema field to declare a
+secret as required; the Worker checks at request time and answers 503
+`unconfigured` until it exists. The model is likewise unset on purpose: while
+`HF_MODEL` is empty the Worker answers 503 `model_unconfigured` and the browser
+falls back. Model selection happens after the token is configured and
+`npm run ask:bench` has run on the site's own questions.
 
-### Deploying
+### Local development and deployment (not yet done)
 
 ```bash
-npm run functions:test        # offline: validation + retrieval; live with HF_TOKEN=hf_…
-npm run functions:deploy      # build:knowledge → sync → tsc → firebase deploy --only functions
+cd worker
+cp .dev.vars.example .dev.vars      # fill HF_TOKEN and HF_MODEL locally; gitignored
+npm run dev                          # wrangler dev, http://localhost:8787/api/ask
+npm run typecheck && npm test        # 29 tests, provider mocked
+npm run check                        # wrangler deploy --dry-run: bundles, lists bindings
 ```
 
-Requirements on the Firebase project, once: the Blaze plan (Cloud Functions
-need billing), the Cloud Functions / Cloud Build / Artifact Registry / Cloud Run
-/ Secret Manager APIs (the CLI enables them on first deploy), and the `HF_TOKEN`
-secret.
+Wrangler is pinned to the 4.86 line because this machine and CI run Node 20;
+wrangler ≥ 4.88 requires Node 22. Upgrade both together.
+
+To go live, later: `wrangler secret put HF_TOKEN`, set `HF_MODEL`, uncomment
+the `routes` block for `ask.gaitai.in` (a custom domain on the Worker; DNS is
+created by Cloudflare), `wrangler deploy`, then set
+`NEXT_PUBLIC_ASK_GAITAI_ENDPOINT=https://ask.gaitai.in/api/ask` in the site's
+build and redeploy the site. Consider adding one WAF rate-limiting rule on the
+zone. `gaitai.in` itself stays on GitHub Pages.
 
 ---
 
-## 3. The hosted model
+## 3. The browser
 
-Chosen by `npm run ask:bench`, not by reputation or parameter count. The
-benchmark runs the twelve questions the migration brief names plus the 25
-acceptance cases through the real retrieval, the real policy and the real
-post-processing against each candidate on Hugging Face Inference Providers, and
-scores:
+`src/lib/ask/engine.ts` runs retrieval first, always. If the question is low
+confidence or names a person the corpus has no record for, it refuses in the
+site's own wording — no network request. Otherwise, **only if
+`NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` is set**, it POSTs through
+`src/lib/ask/hosted.ts` — a generic HTTP client that knows a URL and a JSON
+shape and nothing about the provider — and sanitises what comes back. On any
+failure, or with no endpoint at all, the extractive answer answers from the
+retrieval that already ran: no timeout, no error, no console noise.
 
-| Criterion | How |
-|---|---|
-| grounding | the answer names the record(s) retrieval surfaced; brief-specified phrases present |
-| hallucination | a figure the retrieved context does not contain |
-| boundaries | diagnosis, certification, customers, invented credentials |
-| invented names | module-shaped names the corpus does not have |
-| instruction following | no bare URL, no self-authored Sources block, no reasoning trace, within length |
-| latency | mean, median, p90 wall clock per answer |
-| cost | tokens × the provider's published price from `router.huggingface.co/v1/models` |
+`NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` contains no secret; it is the public Worker
+URL. Leaving it unset ships a retrieval-only assistant.
 
-```bash
-HF_TOKEN=hf_… npm run ask:bench                                # default candidates
-HF_TOKEN=hf_… npm run ask:bench -- --models Qwen/Qwen3-8B,google/gemma-3-12b-it
-HF_TOKEN=hf_… npm run ask:bench -- --brief --json tmp/bench.json
-```
+### Movement Lab is a separate system
 
-Candidates on the router in the 7B–12B class at the time of writing:
-`Qwen/Qwen3-8B`, `Qwen/Qwen3.5-9B`, `meta-llama/Llama-3.1-8B-Instruct`,
-`google/gemma-3-12b-it`. (`Qwen/Qwen2.5-7B-Instruct` is not served by any
-provider on the router.) Hybrid-thinking Qwen models are called with
-`chat_template_kwargs.enable_thinking = false`; anything that slips through is
-stripped. Questions retrieval refuses locally are skipped in the benchmark and
-counted as local refusals, exactly as production behaves.
-
-Record the chosen model and its numbers here when the benchmark has run, and
-set `HF_MODEL` to match.
+Ask GaitAI's hosted path accepts **textual assistant requests only**: five
+named string fields. Nothing from Movement Lab — uploaded videos, camera
+frames, gait video, pose arrays, health files, media, patient records,
+biometric material — is ever sent to the Worker or to Hugging Face. There is
+no field for it, the validator drops unknown keys, and Movement Lab does not
+import the assistant. Movement Lab keeps its own architecture.
 
 ---
 
@@ -258,43 +333,36 @@ npm run build:knowledge
 ```
 
 It reads the site's canonical modules through `tsx` — `products.ts`,
-`product-details.ts`, `product-details-secure.ts`, `usecase-details.ts`,
-`usecase-facets.ts`, `publications.ts`, `evidence.ts`, `evidence-status.ts`,
-`insights.ts`, `gaitscape/graph.ts`, `taxonomy.ts`, `trust.ts`,
-`responsible-use.ts`, `sample-outputs.ts`, `content.ts`, `talks.ts` — plus the
-prose of the four `/legal` routes and the Trust Center, read out of the pages
-themselves.
-
-118 records: 23 modules, 17 environments, 9 publications, 4 research areas, 1
-person record, 5 journal articles, 27 capabilities and signals, 10 deployment
-answers, 2 policy records, 17 site pages.
-
-The script runs in `predev` and `prebuild`, so the corpus a build ships is
-always current, and `functions/scripts/sync-shared.mjs` copies the same file
-into the function before every deploy.
+`product-details*.ts`, `usecase-details.ts`, `usecase-facets.ts`,
+`publications.ts`, `evidence.ts`, `evidence-status.ts`, `insights.ts`,
+`gaitscape/graph.ts`, `taxonomy.ts`, `trust.ts`, `responsible-use.ts`,
+`sample-outputs.ts`, `content.ts`, `talks.ts` — plus the prose of the `/legal`
+routes and the Trust Center, read out of the pages themselves. 120 records
+including one canonical `person` record for the founder. The script runs in
+`predev` and `prebuild`; the Worker's `build-corpus.mjs` derives its compact
+copy from the same file before every Worker build.
 
 ### Freshness: the corpus URL is versioned
 
 `next.config.mjs` hashes the generated file at build time and inlines the
 digest as `NEXT_PUBLIC_ASK_CORPUS_VERSION`; `corpus.ts` fetches
 `/ask/knowledge.json?v=<digest>`. A deploy that changes the corpus changes the
-URL, so the browser's HTTP cache, any CDN in front of GitHub Pages and any
-service worker miss and fetch the new file. No hard refresh. This replaced
-`cache: "force-cache"`, which told browsers to keep a stale copy indefinitely.
+URL, so browsers, CDNs and service workers miss and fetch the new file. No hard
+refresh. This replaced `cache: "force-cache"`.
 
 ---
 
 ## 5. Retrieval
 
 `src/lib/ask/retrieval.ts` — BM25 over the corpus with GaitAI-specific signals:
-page awareness (a bonus and a reserved slot for the current page's record),
-whole-title coverage, relation expansion from the canonical environment→module
-mapping, entity resolution (`entities.ts`) and intent classification
-(`intent.ts`). Seven records reach the answering layer, capped at 1 500
-characters each. If nothing scores above the confidence floor — or a person is
-asked about whom the corpus has no record — the answer is a refusal in the
-site's own wording, and no model is called. Unchanged by this migration; the
-regression suites below are the proof.
+entity resolution over canonical aliases (`entities.ts`), rule-based intent
+classification (`intent.ts`), exact-title and title-coverage boosts, relation
+expansion from the canonical environment→module mapping, page awareness (a bonus
+and a reserved slot for the current page's record), a confidence floor and a
+named empty state for an unknown person. Seven records reach the answering
+layer. Unchanged by the hosted migration — the suites below are the proof, and
+"who is anubha" ranks the canonical person record first with no policy, Trust
+or deployment record ahead of it.
 
 ---
 
@@ -302,16 +370,16 @@ regression suites below are the proof.
 
 | Concern | Where it is enforced |
 |---|---|
-| No invented accuracy / validation / certification | the system policy (server-side), quoting `notClaimed` from `trust.ts` |
+| No invented accuracy / validation / certification / customers / revenue / patents | the system policy (Worker-side), quoting `notClaimed` from `trust.ts` |
 | No medical diagnosis | policy + `RESPONSIBLE_USE_CARE` from `responsible-use.ts` |
 | Identity features stay governed | policy + `RESPONSIBLE_USE_SECURE` |
-| Research ≠ product validation | policy; the corpus also labels architectural-only links |
-| Prompt injection | records fenced as `<record>` reference data; the policy says they are never instructions; the prompt is built server-side |
-| Invented or off-site links | `cleanModelAnswer` strips bare URLs and off-allowlist links on the server; the browser sanitises again; `AnswerText` validates once more at render |
-| Model-chosen sources | impossible: sources come from `selectSources()` over the retrieval result |
-| Generated HTML | `AnswerText.tsx` builds React elements only — no `dangerouslySetInnerHTML` |
-| Token exposure | Secret Manager → function process only |
-| Abuse and cost | validation limits, per-caller burst/hourly limits, site-wide daily budget, output ceiling, provider timeout, origin allowlist |
+| Research ≠ product validation | policy; the corpus labels architectural-only links |
+| Prompt injection | the question is untrusted input, labelled and last; records are canonical and fenced as reference data; the prompt is built on the Worker; unknown request fields are dropped |
+| Invented or off-site links | `cleanModelAnswer` on the Worker; `sanitizeLinks` again in the browser; `AnswerText` validates once more at render |
+| Model-chosen sources | impossible: sources come from `selectSources()` over the canonical records |
+| Generated HTML | `AnswerText.tsx` builds React elements only |
+| Token exposure | a Worker secret binding, read into one request header |
+| Abuse and cost | §2, "Rate and abuse controls" |
 
 ---
 
@@ -320,61 +388,58 @@ regression suites below are the proof.
 ```bash
 npm run ask:test              # 25 questions — retrieval, grounding, refusal, no fabricated numbers
 npm run ask:rank              # 34 ranking / intent cases
-npm run verify                # typecheck + lint + validate:gaitai + ask:test + ask:rank (CI runs this)
-npm run functions:test        # the function's own harness; offline without HF_TOKEN, live with it
-HF_TOKEN=hf_… npm run ask:bench
+npm run verify                # typecheck + lint + validate:gaitai + ask:test + ask:rank (CI)
+npm run worker:test           # the Worker's 29 tests, provider mocked (CI)
+npm run worker:check          # wrangler deploy --dry-run
+HF_TOKEN=… npm run ask:bench  # score hosted candidates on the brief's questions + the 25
 ```
 
-Both retrieval suites run the same modules the browser and the function run.
-CI also installs and typechecks `functions/` from the copied modules, so a
-change to `src/lib/ask/` that would break the function fails the build.
+The Worker suite covers: OPTIONS; accepted and rejected origins; no Origin;
+GET; unknown paths; invalid JSON; oversized body, question, history and record
+list; unknown record ids dropped; no canonical records; missing token; missing
+model; provider timeout; HF 429; HF 500 without leaking the message; malformed
+provider output; reasoning-trace removal; bare-URL and off-allowlist-link
+sanitisation; a model-authored Sources block; a successful grounded answer with
+sources from the records; the token reaching only the provider; browser-supplied
+"evidence" never reaching the prompt; per-caller burst; the daily budget.
 
 ---
 
 ## 8. Privacy
 
-Questions now leave the browser: they go to the project's own Cloud Function,
-and from there — with the retrieved records — to a hosted model on Hugging Face
-Inference Providers. Accordingly:
+With a hosted endpoint configured, the composer says:
 
-- the panel no longer says answers are generated locally or that questions are
-  not sent to an external AI provider; both lines are gone
-- the composer's footer reads: *Please don't share sensitive personal or
-  patient information.*
-- the function logs no question text and keeps no transcript
-- the browser sends no identifier, no cookie and nothing from the page beyond
-  the route and the document title
-- the `assistantStats` counters are unchanged: four integers per page type, no
-  text, no identifier
-- the rate limiter stores a salted digest of the caller's IP for at most two
-  hours, never the address
+> Your text question may be processed by GaitAI's hosted inference service.
+> Please don't share sensitive personal or patient information.
+
+Without one:
+
+> Answers come from GaitAI's local site knowledge. Please don't share sensitive
+> personal or patient information.
+
+The old lines — "generated locally in your browser", "not sent to an external
+AI provider" — are gone. The Worker logs structured metadata only (status,
+record count, token counts, provider, timings), never the question or the
+answer; stores per-caller timestamps under a daily-rotating salted hash for at
+most an hour of activity; and keeps no transcript. The browser sends no
+identifier, no cookie, and nothing from the page beyond the route and the
+document title. `assistantStats` (Firestore) is unchanged: four integers per
+page type, no text, no identifier.
 
 ---
 
-## 9. Files
+## 9. Benchmarking a model
 
-**Grounding layer** — `src/lib/ask/`, shared with the function
+```bash
+HF_TOKEN=… npm run ask:bench
+HF_TOKEN=… npm run ask:bench -- --models Qwen/Qwen3-8B,google/gemma-3-12b-it
+HF_TOKEN=… npm run ask:bench -- --brief --json tmp/bench.json
+```
 
-| File | Role |
-|---|---|
-| `corpus.ts` | Types, the versioned fetch, `seedCorpus` for Node, lazy indexes |
-| `retrieval.ts` | BM25 + entity boosts + intent tilt + page awareness + relation expansion |
-| `intent.ts`, `entities.ts` | Rule-based intent classifier; alias resolution |
-| `prompt.ts` | The system policy, `pageLine`, `buildMessages` — read only by the function and the benchmark |
-| `answer.ts` | `cleanModelAnswer`, link allowlist, source selection, related links, follow-ups, CTA |
-| `extractive.ts` | The retrieval-only answer — the floor |
-| `engine.ts` | Browser pipeline: retrieval → hosted call → fallback |
-| `hosted.ts` | The POST to `askGaitai`, with typed failures |
-
-**Panel** — `src/components/assistant/`: `ChatPanel` (header, conversation,
-composer), `ChatMessages` ("Tracing GaitAI knowledge…" while waiting),
-`ChatInput` (the privacy line), `use-assistant` (session memory, ≤6 turns),
-`config.ts` (`ASK_ENDPOINT`, `HOSTED_TIMEOUT_MS`, `HISTORY_TURNS`).
-
-**Removed**: `src/lib/ask/model.ts`, `src/components/assistant/ModelStrip.tsx`,
-the model-strip CSS, the `@huggingface/transformers` dependency, the in-browser
-`ask-bench` harness.
-
-**Harnesses** — `scripts/`: `ask/cases.ts` (the 25), `ask/ranking-cases.ts`
-(the 34), `ask/bench-cases.ts` (the brief's 12 + the 25), `ask-test.ts`,
-`ask-ranking-test.ts`, `ask-bench.ts`, `ask/corpus-node.ts`.
+Scores grounding, hallucinated figures, boundary breaches, invented module
+names, instruction following, latency and cost (from the router's published
+prices) for each candidate, through the same `buildMessages()` the Worker uses.
+Candidates on the router in the 7B–12B class at the time of writing:
+`Qwen/Qwen3-8B`, `Qwen/Qwen3.5-9B`, `meta-llama/Llama-3.1-8B-Instruct`,
+`google/gemma-3-12b-it` (`Qwen/Qwen2.5-7B-Instruct` is not served). Record the
+winner and its numbers here, then set `HF_MODEL`.

@@ -36,6 +36,8 @@ interface BenchRequest {
   messages: ChatMessage[];
   maxOutputTokens?: number;
   timeoutMs?: number;
+  /** "low" | "medium" | "high"; validated by the adapter, omitted otherwise. */
+  reasoningEffort?: string;
 }
 
 const LOOPBACK = new Set(["127.0.0.1", "localhost", "[::1]"]);
@@ -66,6 +68,7 @@ export default {
         messages: body.messages,
         maxOutputTokens: Math.min(body.maxOutputTokens ?? 450, 1200),
         timeoutMs: Math.min(body.timeoutMs ?? 40_000, 60_000),
+        reasoningEffort: typeof body.reasoningEffort === "string" ? body.reasoningEffort : undefined,
       });
       return Response.json(completion);
     } catch (error) {

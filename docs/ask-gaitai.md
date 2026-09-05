@@ -214,11 +214,21 @@ user       <record> blocks for the canonical records (≤1 500 chars each)
 `workers-ai.ts` hands that `messages` array to `env.AI.run(model, …)` as the
 chat input every Workers-Free candidate documents — `messages[]` with
 `role`/`content`, `max_completion_tokens` from `MODEL_MAX_OUTPUT_TOKENS` (450,
-hard cap 1 200), `temperature` 0.2, `top_p` 0.9 — and reads the answer from the
-OpenAI-compatible result (`choices[0].message.content`) or the older
-`{ response }` shape, defensively. No `tools`, no images, no files; reasoning
-is not requested, and any `reasoning_content` or `<think>` trace that arrives
-anyway is dropped. The binding takes no abort signal, so the deadline is a
+hard cap 1 200), `temperature` 0.2, `top_p` 0.9, and `reasoning_effort` when
+`MODEL_REASONING_EFFORT` is set (production `low`) — and reads the answer from
+the OpenAI-compatible result (`choices[0].message.content`) or the older
+`{ response }` shape, defensively. No `tools`, no images, no files; any
+`reasoning_content` field or `<think>` trace that arrives is dropped.
+
+**Why the effort is pinned low.** The Free-plan candidates are reasoning
+models, and their schemas document `reasoning_effort: "low" | "medium" |
+"high"`. The first real benchmark calls (2026-09-05, default effort) showed
+what that costs: `@cf/google/gemma-4-26b-a4b-it` returned an empty answer at
+450 completion tokens, and at 1 200 it used exactly 1 200 tokens to produce 17
+visible words (17.5 s, otherwise perfectly grounded); `@cf/zai-org/glm-4.7-flash`
+was also empty at 450. Reasoning was consuming the completion budget. The
+production ceiling stays at 450; the next experiment is `low` at 450, then 600,
+then 800 if needed — not an automatic jump to 1 200. The binding takes no abort signal, so the deadline is a
 race: past `MODEL_TIMEOUT_MS` the caller gets `timeout` and a late result is
 discarded.
 
@@ -285,7 +295,8 @@ text, route, user agent or anything else is stored anywhere.
 |---|---|---|
 | `AI` | Workers AI binding | `"ai": { "binding": "AI" }` in `wrangler.jsonc`. Not a secret: the binding is the Worker's own environment |
 | `WORKERS_AI_MODEL` | non-secret var | `wrangler.jsonc` — **deliberately empty** until the benchmark has run |
-| `MODEL_MAX_OUTPUT_TOKENS`, `MODEL_TIMEOUT_MS` | non-secret vars | `wrangler.jsonc` |
+| `MODEL_REASONING_EFFORT` | non-secret var | `wrangler.jsonc` — `""`, `low`, `medium` or `high`; production `low`. Sent as `reasoning_effort` only when set; anything else falls back to `""` (model default) |
+| `MODEL_MAX_OUTPUT_TOKENS`, `MODEL_TIMEOUT_MS` | non-secret vars | `wrangler.jsonc` — output ceiling stays 450 while `low` is evaluated |
 | `ALLOWED_ORIGINS` | non-secret var | `wrangler.jsonc`; overridden by `.dev.vars` locally |
 | `ASK_BURST_MAX`, `ASK_HOURLY_MAX`, `ASK_DAILY_BUDGET` | non-secret vars | `wrangler.jsonc` |
 

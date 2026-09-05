@@ -242,7 +242,7 @@ describe("configuration", () => {
     const { readConfig } = await import("../src/env");
     const config = readConfig({ WORKERS_AI_MODEL: MODEL });
     expect(Object.keys(config).sort()).toEqual(
-      ["allowedOrigins", "burstMax", "dailyBudget", "hourlyMax", "maxOutputTokens", "model", "timeoutMs"],
+      ["allowedOrigins", "burstMax", "dailyBudget", "hourlyMax", "maxOutputTokens", "model", "reasoningEffort", "timeoutMs"],
     );
     expect(JSON.stringify(config)).not.toMatch(/apikey|api_key|secret|bearer|authorization/i);
   });
@@ -302,10 +302,13 @@ describe("the model", () => {
       messages: { role: string; content: string }[];
       max_completion_tokens: number;
       temperature: number;
+      reasoning_effort: string;
     };
-    expect(Object.keys(input).sort()).toEqual(["max_completion_tokens", "messages", "temperature", "top_p"]);
+    /* wrangler.jsonc ships MODEL_REASONING_EFFORT="low", so production sends it. */
+    expect(Object.keys(input).sort()).toEqual(["max_completion_tokens", "messages", "reasoning_effort", "temperature", "top_p"]);
     expect(input.max_completion_tokens).toBe(450);
     expect(input.temperature).toBe(0.2);
+    expect(input.reasoning_effort).toBe("low");
     expect(input.messages[0].role).toBe("system");
     expect(input.messages[0].content).toContain("Answer using ONLY the GaitAI records");
     const last = input.messages[input.messages.length - 1];
@@ -338,6 +341,24 @@ describe("the model", () => {
     expect(response.status).toBe(200);
     const input = seen[0].input as { messages: { role: string }[] };
     expect(input.messages.map((m) => m.role)).toEqual(["system", "user", "assistant", "user"]);
+  });
+
+  it("omits reasoning_effort when MODEL_REASONING_EFFORT is empty", async () => {
+    mockAiRun({ result: completion("ok") });
+    expect((await ask(post(), { MODEL_REASONING_EFFORT: "" })).status).toBe(200);
+    expect(seen[0].input).not.toHaveProperty("reasoning_effort");
+  });
+
+  it("falls back safely — no reasoning_effort — when MODEL_REASONING_EFFORT is not a documented level", async () => {
+    mockAiRun({ result: completion("ok") });
+    expect((await ask(post(), { MODEL_REASONING_EFFORT: "turbo" })).status).toBe(200);
+    expect(seen[0].input).not.toHaveProperty("reasoning_effort");
+  });
+
+  it("sends reasoning_effort:'medium' when configured so", async () => {
+    mockAiRun({ result: completion("ok") });
+    expect((await ask(post(), { MODEL_REASONING_EFFORT: "MEDIUM " })).status).toBe(200);
+    expect((seen[0].input as { reasoning_effort?: string }).reasoning_effort).toBe("medium");
   });
 
   it("also reads the legacy { response } result shape", async () => {
@@ -561,6 +582,27 @@ describe("workers-ai.ts on its own", () => {
       top_p: 0.9,
     });
     expect(input).not.toHaveProperty("tools");
+    expect(input).not.toHaveProperty("reasoning_effort");
+  });
+
+  it("adds reasoning_effort only for a documented level", () => {
+    const messages = [{ role: "user" as const, content: "q" }];
+    expect(toWorkersAiInput(messages, { maxOutputTokens: 10, reasoningEffort: "low" })).toMatchObject({ reasoning_effort: "low" });
+    expect(toWorkersAiInput(messages, { maxOutputTokens: 10, reasoningEffort: "High" })).toMatchObject({ reasoning_effort: "high" });
+    expect(toWorkersAiInput(messages, { maxOutputTokens: 10, reasoningEffort: "" })).not.toHaveProperty("reasoning_effort");
+    expect(toWorkersAiInput(messages, { maxOutputTokens: 10, reasoningEffort: "turbo" })).not.toHaveProperty("reasoning_effort");
+    expect(toWorkersAiInput(messages, { maxOutputTokens: 10 })).not.toHaveProperty("reasoning_effort");
+  });
+
+  it("validates MODEL_REASONING_EFFORT in the config reader", async () => {
+    const { readConfig, readReasoningEffort } = await import("../src/env");
+    expect(readReasoningEffort("low")).toBe("low");
+    expect(readReasoningEffort(" Medium ")).toBe("medium");
+    expect(readReasoningEffort("high")).toBe("high");
+    expect(readReasoningEffort("")).toBe("");
+    expect(readReasoningEffort(undefined)).toBe("");
+    expect(readReasoningEffort("maximum")).toBe("");
+    expect(readConfig({ MODEL_REASONING_EFFORT: "nonsense" }).reasoningEffort).toBe("");
   });
 
   it("classifies the documented Cloudflare codes and never depends on the message text", () => {

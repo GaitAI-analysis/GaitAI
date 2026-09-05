@@ -127,6 +127,7 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
       messages,
       maxOutputTokens: config.maxOutputTokens,
       timeoutMs: config.timeoutMs,
+      reasoningEffort: config.reasoningEffort || undefined,
     });
 
     const answer = buildAnswer({

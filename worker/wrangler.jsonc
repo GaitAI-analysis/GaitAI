@@ -64,8 +64,15 @@
     // call, and the browser falls back.
     "WORKERS_AI_MODEL": "",
 
+    // Reasoning effort for the reasoning-capable Free-plan candidates: "" |
+    // "low" | "medium" | "high", sent as `reasoning_effort` only when set. At
+    // the models' default effort the first real calls spent the entire
+    // completion budget reasoning and returned an empty answer at 450 tokens
+    // (and 17 visible words after 1 200), so production asks for the minimum.
+    "MODEL_REASONING_EFFORT": "low",
+
     // Output ceiling per answer — the single largest lever on latency and
-    // Neuron spend.
+    // Neuron spend. Kept at 450 while reasoning_effort=low is evaluated.
     "MODEL_MAX_OUTPUT_TOKENS": "450",
     // How long to wait for the model before answering 504.
     "MODEL_TIMEOUT_MS": "22000",

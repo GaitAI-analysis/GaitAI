@@ -18,6 +18,13 @@ export interface AskEnv {
   AI?: Ai;
   /** Non-secret var. Empty until the benchmark has chosen a Free-plan model. */
   WORKERS_AI_MODEL?: string;
+  /**
+   * Non-secret var: "" | "low" | "medium" | "high". Reasoning-capable models
+   * spend the completion budget on reasoning before they write; the first
+   * real calls came back empty at 450 tokens because of it. "low" asks for
+   * the minimum. Empty leaves the model's default. Anything else is ignored.
+   */
+  MODEL_REASONING_EFFORT?: string;
   MODEL_MAX_OUTPUT_TOKENS?: string;
   MODEL_TIMEOUT_MS?: string;
   ALLOWED_ORIGINS?: string;
@@ -27,8 +34,18 @@ export interface AskEnv {
   ASK_GUARD?: DurableObjectNamespace<AskGuard>;
 }
 
+export type ReasoningEffort = "" | "low" | "medium" | "high";
+const REASONING_EFFORTS = new Set<ReasoningEffort>(["", "low", "medium", "high"]);
+
+/** "" | low | medium | high; anything else falls back to "" (model default). */
+export function readReasoningEffort(value: string | undefined): ReasoningEffort {
+  const normalised = (value ?? "").trim().toLowerCase();
+  return REASONING_EFFORTS.has(normalised as ReasoningEffort) ? (normalised as ReasoningEffort) : "";
+}
+
 export interface AskConfig {
   model: string;
+  reasoningEffort: ReasoningEffort;
   maxOutputTokens: number;
   timeoutMs: number;
   allowedOrigins: Set<string>;
@@ -45,6 +62,7 @@ const int = (value: string | undefined, fallback: number): number => {
 export function readConfig(env: AskEnv): AskConfig {
   return {
     model: (env.WORKERS_AI_MODEL ?? "").trim(),
+    reasoningEffort: readReasoningEffort(env.MODEL_REASONING_EFFORT),
     maxOutputTokens: Math.min(int(env.MODEL_MAX_OUTPUT_TOKENS, 450), 1200),
     timeoutMs: Math.min(int(env.MODEL_TIMEOUT_MS, 22_000), 25_000),
     allowedOrigins: new Set(

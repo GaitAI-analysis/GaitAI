@@ -32,6 +32,8 @@
  *   npm run ask:bench -- --all                              # brief + the 25 acceptance cases
  *   npm run ask:bench -- --models @cf/zai-org/glm-4.7-flash # one model
  *   npm run ask:bench -- --json tmp/bench.json              # machine-readable
+ *   npm run ask:bench -- --reasoning low                    # reasoning_effort (default low; "" = model default)
+ *   npm run ask:bench -- --max-tokens 600                   # output ceiling for the run (production stays 450)
  *   npm run ask:bench -- --endpoint http://127.0.0.1:8788   # a different bench Worker port
  *
  * WHAT IS SCORED, per model
@@ -85,6 +87,14 @@ const cases: BenchCase[] = flag("all") ? BENCH_CASES : BRIEF_CASES;
 const limit = Number(arg("limit") ?? cases.length);
 const jsonOut = arg("json");
 const maxOutputTokens = Number(arg("max-tokens") ?? 450);
+/**
+ * Reasoning effort, passed through the production adapter. Default "low": the
+ * candidates are reasoning models and at their default effort they spent the
+ * whole completion budget thinking (empty answers at 450 tokens). "" sends
+ * nothing and leaves the model's default; anything else is ignored by the
+ * adapter.
+ */
+const reasoningEffort = arg("reasoning") ?? "low";
 /** One call at a time, spaced out: this is a shared daily allocation. */
 const PAUSE_MS = Number(arg("pause-ms") ?? 4_000);
 const TIMEOUT_MS = 40_000;
@@ -165,7 +175,7 @@ async function complete(
   const response = await fetch(`${endpoint}/generate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, messages, maxOutputTokens, timeoutMs: TIMEOUT_MS }),
+    body: JSON.stringify({ model, messages, maxOutputTokens, timeoutMs: TIMEOUT_MS, reasoningEffort }),
   });
   const payload = (await response.json()) as Partial<BenchCompletion> & { error?: string; code?: number | null };
   if (!response.ok || payload.error) throw new BenchFailure(payload.error ?? `http_${response.status}`, payload.code ?? null);
@@ -203,6 +213,7 @@ async function main() {
   console.log(`  cases     ${Math.min(limit, cases.length)} (${flag("all") ? "brief + acceptance" : "brief"})`);
   console.log(`  models    ${models.join(", ")}`);
   console.log(`  ceiling   ${maxOutputTokens} output tokens`);
+  console.log(`  reasoning ${reasoningEffort ? `reasoning_effort=${reasoningEffort}` : "model default (reasoning_effort not sent)"}`);
   console.log(`  pacing    ${PAUSE_MS} ms between calls · via ${endpoint}\n`);
 
   const rows: Row[] = [];

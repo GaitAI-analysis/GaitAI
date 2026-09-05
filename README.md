@@ -358,7 +358,8 @@ Full architecture, deployment and testing: **`docs/ask-gaitai.md`**.
 | `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` | — | The PUBLIC Ask GaitAI Worker URL (e.g. `https://ask.gaitai.in/api/ask`). Unset or empty = retrieval-only, no network request. Contains no secret |
 | *(no model secret)* | Worker | Workers AI is reached through the Worker's `AI` binding (`"ai": { "binding": "AI" }` in `worker/wrangler.jsonc`). There is no API key, token or external provider account anywhere in this project |
 | `WORKERS_AI_MODEL` | Worker | Non-secret var in `worker/wrangler.jsonc`. Empty until the benchmark has chosen a Workers-Free model; the Worker answers 503 and the browser falls back meanwhile |
-| `MODEL_MAX_OUTPUT_TOKENS`, `MODEL_TIMEOUT_MS`, `ASK_BURST_MAX`, `ASK_HOURLY_MAX`, `ASK_DAILY_BUDGET` | Worker | Non-secret vars: output ceiling, model timeout, per-caller limits, and the site-wide daily hosted-call budget (default 25, independent of Cloudflare's 10,000 Neurons/day) |
+| `MODEL_REASONING_EFFORT` | Worker | Non-secret var: `""`, `low`, `medium` or `high`, sent as `reasoning_effort` only when set. Production `low`, so reasoning models do not spend the whole completion budget thinking |
+| `MODEL_MAX_OUTPUT_TOKENS`, `MODEL_TIMEOUT_MS`, `ASK_BURST_MAX`, `ASK_HOURLY_MAX`, `ASK_DAILY_BUDGET` | Worker | Non-secret vars: output ceiling (450), model timeout, per-caller limits, and the site-wide daily hosted-call budget (default 25, independent of Cloudflare's 10,000 Neurons/day) |
 
 - **Local:** `cp .env.example .env.local` and fill in the values. `.env.local` is gitignored (as is every `.env*` except the template).
 - **CI:** the same six `NEXT_PUBLIC_FIREBASE_*` names must exist as **GitHub Actions repository secrets** (Repo → Settings → Secrets and variables → Actions). Both deploy workflows inject them at build time and **fail fast with a clear error if they're missing** (via the `predev`/`prebuild` guard script).

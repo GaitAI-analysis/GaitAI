@@ -2,33 +2,37 @@
 
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Line, MeshReflectorMaterial, OrbitControls } from "@react-three/drei";
+import { Environment, Line, MeshReflectorMaterial, OrbitControls, useGLTF, useTexture } from "@react-three/drei";
 import * as THREE from "three";
-import { CAPTURE_CAMERAS, OVERVIEW, ROOM, SUBJECT, cameraPosition, type CaptureCamera } from "./lab-layout";
+import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
+import { CAPTURE_CAMERAS, LAB_URLS, OVERVIEW, ROOM, SUBJECT, cameraPosition, type CaptureCamera } from "./lab-layout";
 
 /**
- * THE GAITAI BIOMETRICS LAB, IN THREE DIMENSIONS.
+ * THE GAITAI BIOMETRICS LAB — a digital twin, in three dimensions.
  *
- * A stylised but spatially faithful reconstruction of the capture room in the
- * two reference photographs: the long yellow hall, the louvered windows over
- * the lower ones with daylight coming through, the polished white tiles, the
- * ceiling fans, the workstations along one side, the whiteboard, the plants —
- * and the ring of fourteen camera tripods, every one aimed at the subject
- * standing on the clear floor in the middle.
+ * A reconstruction of the capture room in the reference photographs, built
+ * to be believable rather than pristine: pale yellow painted plaster with its
+ * marks, pilasters between louvered windows over glazed ones, ceiling beams
+ * carrying tube lights and fans, a polished white vitrified-tile floor with
+ * the darker joint line every fourth tile, workstations with monitors and a
+ * laptop along one side, a whiteboard with gait sketches, electrical boxes
+ * and conduit on the walls, and fourteen tripod-mounted capture cameras with
+ * their cables, every lens aimed at the subject on the clear floor.
  *
- * WHAT IS REAL AND WHAT IS STYLISED. The layout, the count of cameras, the
- * materials and the light are taken from the photographs. The geometry is
- * built from primitives rather than scanned, and the figure at the centre is
- * a representation — her build, hair, glasses, the black vest over the red
- * plaid shirt, the jeans — not a likeness. She breathes, shifts her weight
- * and looks around a little, and a pose overlay reads her joints the way the
- * cameras do, which is the whole point of the room.
+ * MATERIALS AND LIGHT ARE PHYSICAL. Every surface is a MeshStandard or
+ * MeshPhysical material with real maps — CC0 plaster, denim, veneer and
+ * marble from Poly Haven, sized for the web — lit by an interior HDRI for
+ * bounced light, one shadow-casting sun through the left windows, and the
+ * tube fixtures as point lights. ACES tone mapping, sRGB output. Nothing
+ * here is a flat colour on a box.
  *
- * PERFORMANCE. One shadow-casting light. A reflective floor only at "high"
- * quality (desktop). Every tripod is a handful of primitives, and the
- * sightlines are one line object each. Nothing here fetches a model or a
- * texture over the network — the two textures are drawn on canvases at
- * mount.
+ * THE SUBJECT IS A STAND-IN, AND SAYS SO. `LAB_URLS.avatar` is a realistic
+ * rigged human (see public/labs/avatar/README.md) dressed in her clothes —
+ * red-and-black plaid under a black vest, jeans, dark shoes — with her long
+ * hair and glasses added on the head bone. It is posed and given its idle
+ * presence through its bones, and the pose overlay reads those same bones,
+ * so replacing the file with a scanned, personalised avatar that uses the
+ * Mixamo skeleton changes nothing else.
  */
 
 export type LabView = { kind: "orbit" } | { kind: "camera"; index: number };
@@ -43,693 +47,1025 @@ export interface LabSceneProps {
   onReady?: () => void;
 }
 
-const C = {
-  wall: "#e2cb6a",
-  ceiling: "#f2f0e8",
-  trim: "#f7f5ef",
-  floor: "#eceae4",
-  grout: "#cbc8bf",
-  glass: "#fff1c9",
-  metal: "#15171a",
-  cameraBody: "#0e1013",
-  lens: "#3f7dff",
-  desk: "#d9c59d",
-  deskLeg: "#8b8f96",
-  chair: "#1b1e25",
-  screen: "#0b1220",
-  plant: "#3d7a39",
-  plantDark: "#2f5f2c",
-  pot: "#7f858d",
-  door: "#8a6a45",
-  skin: "#b98a62",
-  hair: "#1a120e",
-  vest: "#171a21",
-  plaidRed: "#b1202c",
-  plaidDark: "#1b1b20",
-  jeans: "#4a6ea6",
-  shoe: "#15171a",
-  signal: "#4fd1ff",
-} as const;
-
 const AIM = new THREE.Vector3(SUBJECT.x, SUBJECT.aimHeight, SUBJECT.z);
 const UP = new THREE.Vector3(0, 1, 0);
+const SIGNAL = "#4fd1ff";
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Textures, drawn at mount. Nothing is fetched.
+   Textures
    ───────────────────────────────────────────────────────────────────────────── */
 
-function useCanvasTexture(draw: (ctx: CanvasRenderingContext2D, size: number) => void, size: number, repeat: [number, number]) {
+function prep(texture: THREE.Texture, repeat: [number, number], srgb: boolean) {
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(repeat[0], repeat[1]);
+  texture.anisotropy = 8;
+  texture.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+/** A PBR set from /labs/textures, repeated to a physical size. */
+function usePbr(names: { map: string; roughnessMap?: string; normalMap?: string }, repeat: [number, number]) {
+  const urls = [names.map, names.roughnessMap, names.normalMap].filter(Boolean).map((n) => LAB_URLS.tex(n as string));
+  const textures = useTexture(urls) as THREE.Texture[];
+  return useMemo(() => {
+    const [map, second, third] = textures;
+    prep(map, repeat, true);
+    const out: { map: THREE.Texture; roughnessMap?: THREE.Texture; normalMap?: THREE.Texture } = { map };
+    let i = 1;
+    if (names.roughnessMap) out.roughnessMap = prep(textures[i++], repeat, false);
+    if (names.normalMap) out.normalMap = prep(textures[i++], repeat, false);
+    void second; void third;
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [textures]);
+}
+
+function useCanvasTexture(draw: (ctx: CanvasRenderingContext2D, w: number, h: number) => void, w: number, h: number, repeat: [number, number] = [1, 1]) {
   return useMemo(() => {
     if (typeof document === "undefined") return null;
     const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
+    canvas.width = w;
+    canvas.height = h;
     const ctx = canvas.getContext("2d");
     if (!ctx) return null;
-    draw(ctx, size);
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(repeat[0], repeat[1]);
-    texture.anisotropy = 8;
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
+    draw(ctx, w, h);
+    return prep(new THREE.CanvasTexture(canvas), repeat, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
 
-/** One polished tile, repeated at the room's tile pitch. */
-function drawTile(ctx: CanvasRenderingContext2D, size: number) {
-  ctx.fillStyle = C.floor;
-  ctx.fillRect(0, 0, size, size);
-  for (let i = 0; i < 36; i += 1) {
-    ctx.fillStyle = `rgba(255,255,255,${0.02 + Math.random() * 0.05})`;
-    ctx.beginPath();
-    ctx.ellipse(Math.random() * size, Math.random() * size, 40 + Math.random() * 140, 8 + Math.random() * 26, Math.random() * Math.PI, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.strokeStyle = C.grout;
-  ctx.lineWidth = 4;
-  ctx.strokeRect(2, 2, size - 4, size - 4);
-}
-
-/** Daylight through a window: warm sky at the top, the green of the trees
- *  outside lower down, softened as a louvered pane would soften it. */
-function drawGlass(ctx: CanvasRenderingContext2D, size: number) {
-  const sky = ctx.createLinearGradient(0, 0, 0, size);
-  sky.addColorStop(0, "#fff6dc");
-  sky.addColorStop(0.45, "#f6ecc8");
-  sky.addColorStop(1, "#d9dfc0");
+/** Daylight beyond the glass: bright sky, the trees outside, softened. */
+function drawOutside(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, "#fbf3dc");
+  sky.addColorStop(0.5, "#f1e9cf");
+  sky.addColorStop(1, "#cfd6bf");
   ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, size, size);
-  for (let i = 0; i < 14; i += 1) {
-    const x = Math.random() * size;
-    const y = size * 0.45 + Math.random() * size * 0.5;
-    const r = size * (0.08 + Math.random() * 0.14);
+  ctx.fillRect(0, 0, w, h);
+  const rng = seeded(3);
+  for (let i = 0; i < 26; i += 1) {
+    const x = rng() * w;
+    const y = h * 0.4 + rng() * h * 0.55;
+    const r = w * (0.06 + rng() * 0.12);
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, "rgba(128,150,92,0.42)");
-    g.addColorStop(1, "rgba(128,150,92,0)");
+    g.addColorStop(0, "rgba(112,138,84,0.5)");
+    g.addColorStop(1, "rgba(112,138,84,0)");
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
   }
-  const haze = ctx.createLinearGradient(0, 0, 0, size);
-  haze.addColorStop(0, "rgba(255,255,255,0.25)");
+  const haze = ctx.createLinearGradient(0, 0, 0, h);
+  haze.addColorStop(0, "rgba(255,255,255,0.3)");
   haze.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = haze;
-  ctx.fillRect(0, 0, size, size);
+  ctx.fillRect(0, 0, w, h);
 }
 
-/** Red and black plaid, for the shirt. */
-function drawPlaid(ctx: CanvasRenderingContext2D, size: number) {
-  ctx.fillStyle = C.plaidRed;
-  ctx.fillRect(0, 0, size, size);
-  const band = size / 4;
-  ctx.fillStyle = "rgba(20,20,24,0.78)";
-  for (let i = 0; i < 2; i += 1) {
-    ctx.fillRect(i * band * 2 + band * 0.55, 0, band * 0.9, size);
-    ctx.fillRect(0, i * band * 2 + band * 0.55, size, band * 0.9);
+/** The whiteboard, with the gait stick-figure sketches from the photograph. */
+function drawWhiteboard(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = "#f4f5f3";
+  ctx.fillRect(0, 0, w, h);
+  const rng = seeded(11);
+  for (let i = 0; i < 30; i += 1) {
+    ctx.fillStyle = `rgba(120,125,135,${0.03 + rng() * 0.05})`;
+    ctx.beginPath(); ctx.ellipse(rng() * w, rng() * h, 30 + rng() * 90, 6 + rng() * 20, rng() * Math.PI, 0, Math.PI * 2); ctx.fill();
   }
-  ctx.strokeStyle = "rgba(255,255,255,0.22)";
-  ctx.lineWidth = Math.max(1, size / 128);
-  for (let i = 0; i < 2; i += 1) {
-    const at = i * band * 2 + band * 1.7;
-    ctx.beginPath(); ctx.moveTo(at, 0); ctx.lineTo(at, size); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, at); ctx.lineTo(size, at); ctx.stroke();
-  }
-}
-
-/** The whiteboard, with the stick-figure gait sketches from the photograph. */
-function drawWhiteboard(ctx: CanvasRenderingContext2D, size: number) {
-  ctx.fillStyle = "#f7f8f7";
-  ctx.fillRect(0, 0, size, size);
-  ctx.strokeStyle = "#2b3a7a";
-  ctx.lineWidth = size / 170;
+  ctx.strokeStyle = "#2b3f8f";
+  ctx.lineWidth = Math.max(1.2, w / 190);
   ctx.lineCap = "round";
   const figure = (x: number, y: number, s: number, lean: number) => {
-    ctx.beginPath(); ctx.arc(x, y, s * 0.11, 0, Math.PI * 2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x, y + s * 0.11); ctx.lineTo(x, y + s * 0.5); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x, y + s * 0.5); ctx.lineTo(x - s * 0.18 * lean, y + s * 0.85); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(x, y + s * 0.5); ctx.lineTo(x + s * 0.2, y + s * 0.85); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, s * 0.1, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y + s * 0.1); ctx.lineTo(x, y + s * 0.5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y + s * 0.5); ctx.lineTo(x - s * 0.18 * lean, y + s * 0.86); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y + s * 0.5); ctx.lineTo(x + s * 0.2, y + s * 0.86); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x, y + s * 0.2); ctx.lineTo(x - s * 0.22, y + s * 0.42); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(x, y + s * 0.2); ctx.lineTo(x + s * 0.2 * lean, y + s * 0.38); ctx.stroke();
   };
-  figure(size * 0.22, size * 0.18, size * 0.5, 1);
-  figure(size * 0.5, size * 0.2, size * 0.5, 0.4);
-  figure(size * 0.78, size * 0.18, size * 0.5, -0.8);
-  ctx.strokeStyle = "rgba(43,58,122,0.5)";
-  ctx.beginPath(); ctx.moveTo(size * 0.1, size * 0.82); ctx.lineTo(size * 0.9, size * 0.82); ctx.stroke();
+  figure(w * 0.2, h * 0.16, h * 0.5, 1);
+  figure(w * 0.5, h * 0.18, h * 0.5, 0.4);
+  figure(w * 0.8, h * 0.16, h * 0.5, -0.8);
+  ctx.strokeStyle = "rgba(43,63,143,0.55)";
+  ctx.beginPath(); ctx.moveTo(w * 0.1, h * 0.84); ctx.lineTo(w * 0.9, h * 0.84); ctx.stroke();
+  ctx.strokeStyle = "rgba(200,40,60,0.6)";
+  ctx.beginPath(); ctx.moveTo(w * 0.12, h * 0.76); ctx.lineTo(w * 0.4, h * 0.7); ctx.lineTo(w * 0.62, h * 0.74); ctx.lineTo(w * 0.88, h * 0.66); ctx.stroke();
 }
+
+/** A monitor showing the pose pipeline: a skeleton and a trace on a dark UI. */
+function drawScreen(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = "#0b1119";
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = "#111a26";
+  ctx.fillRect(0, 0, w, h * 0.09);
+  ctx.fillStyle = "#0f1722";
+  ctx.fillRect(w * 0.62, h * 0.09, w * 0.38, h * 0.91);
+  ctx.strokeStyle = "#4fd1ff";
+  ctx.lineWidth = Math.max(1, w / 220);
+  ctx.lineCap = "round";
+  const cx = w * 0.31, top = h * 0.2, s = h * 0.62;
+  const p = (x: number, y: number): [number, number] => [cx + x * s, top + y * s];
+  const joints: [number, number][] = [p(0, 0), p(0, 0.12), p(-0.14, 0.14), p(0.14, 0.14), p(-0.2, 0.36), p(0.2, 0.34), p(-0.23, 0.55), p(0.23, 0.52), p(-0.07, 0.5), p(0.07, 0.5), p(-0.1, 0.76), p(0.09, 0.75), p(-0.1, 1), p(0.1, 1)];
+  const bones: [number, number][] = [[0, 1], [1, 2], [1, 3], [2, 4], [4, 6], [3, 5], [5, 7], [2, 8], [3, 9], [8, 9], [8, 10], [10, 12], [9, 11], [11, 13]];
+  bones.forEach(([a, b]) => { ctx.beginPath(); ctx.moveTo(...joints[a]); ctx.lineTo(...joints[b]); ctx.stroke(); });
+  ctx.fillStyle = "#9be4ff";
+  joints.forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, w / 150, 0, Math.PI * 2); ctx.fill(); });
+  const trace = (y0: number, colour: string, f: number) => {
+    ctx.strokeStyle = colour;
+    ctx.beginPath();
+    for (let i = 0; i <= 40; i += 1) {
+      const x = w * 0.65 + (w * 0.32 * i) / 40;
+      const y = y0 + Math.sin(i * f) * h * 0.035 + Math.sin(i * f * 2.3) * h * 0.012;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  };
+  trace(h * 0.3, "#4fd1ff", 0.45);
+  trace(h * 0.55, "#9c64f1", 0.6);
+  trace(h * 0.8, "#5587ff", 0.35);
+}
+
+function seeded(seed: number) {
+  let s = seed * 9301 + 49297;
+  return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Shared materials
+   ───────────────────────────────────────────────────────────────────────────── */
+
+function useMaterials() {
+  return useMemo(() => {
+    const black = new THREE.MeshStandardMaterial({ color: "#151719", roughness: 0.42, metalness: 0.55 });
+    const rubber = new THREE.MeshStandardMaterial({ color: "#0f1012", roughness: 0.92, metalness: 0 });
+    const anodised = new THREE.MeshStandardMaterial({ color: "#101318", roughness: 0.35, metalness: 0.6 });
+    const lensGlass = new THREE.MeshPhysicalMaterial({ color: "#05070c", roughness: 0.05, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, reflectivity: 1 });
+    const lensRing = new THREE.MeshStandardMaterial({ color: "#3b82f6", emissive: "#3b82f6", emissiveIntensity: 1.6, roughness: 0.4 });
+    const led = new THREE.MeshStandardMaterial({ color: "#6fb7ff", emissive: "#6fb7ff", emissiveIntensity: 2.2 });
+    const cable = new THREE.MeshStandardMaterial({ color: "#111214", roughness: 0.8, metalness: 0.05 });
+    const paintWhite = new THREE.MeshStandardMaterial({ color: "#f3f1ea", roughness: 0.55, metalness: 0.05 });
+    const aluminium = new THREE.MeshStandardMaterial({ color: "#c9ccd1", roughness: 0.35, metalness: 0.8 });
+    const steelGrey = new THREE.MeshStandardMaterial({ color: "#7d838c", roughness: 0.45, metalness: 0.7 });
+    const chrome = new THREE.MeshStandardMaterial({ color: "#d8dbe0", roughness: 0.18, metalness: 0.95 });
+    const plastic = new THREE.MeshStandardMaterial({ color: "#1c1f26", roughness: 0.6, metalness: 0.05 });
+    const mesh = new THREE.MeshStandardMaterial({ color: "#161a22", roughness: 0.85, metalness: 0, transparent: true, opacity: 0.86 });
+    const screenBezel = new THREE.MeshStandardMaterial({ color: "#0d0f13", roughness: 0.35, metalness: 0.3 });
+    const conduit = new THREE.MeshStandardMaterial({ color: "#b9b6ad", roughness: 0.6, metalness: 0.2 });
+    const boxGrey = new THREE.MeshStandardMaterial({ color: "#8e9096", roughness: 0.55, metalness: 0.5 });
+    return { black, rubber, anodised, lensGlass, lensRing, led, cable, paintWhite, aluminium, steelGrey, chrome, plastic, mesh, screenBezel, conduit, boxGrey };
+  }, []);
+}
+type Materials = ReturnType<typeof useMaterials>;
 
 /* ─────────────────────────────────────────────────────────────────────────────
    The room
    ───────────────────────────────────────────────────────────────────────────── */
 
-function Wall({ position, rotation, size }: { position: [number, number, number]; rotation: [number, number, number]; size: [number, number] }) {
+function Wall({ position, rotation, size, pbr }: { position: [number, number, number]; rotation: [number, number, number]; size: [number, number]; pbr: ReturnType<typeof usePbr> }) {
   return (
     <mesh position={position} rotation={rotation} receiveShadow>
       <planeGeometry args={size} />
-      <meshStandardMaterial color={C.wall} roughness={0.92} />
+      <meshStandardMaterial map={pbr.map} roughnessMap={pbr.roughnessMap} normalMap={pbr.normalMap} normalScale={new THREE.Vector2(0.6, 0.6)} roughness={1} metalness={0} />
     </mesh>
   );
 }
 
 /**
- * A window in a wall. The group is placed in the wall's own frame (its +z
- * points into the room), so every window is the same component whichever
- * wall it is on. Louvered ones carry slats instead of glazing bars.
+ * A window in its wall frame: a painted frame with depth and a sill, glazing
+ * bars on the lower windows, white aluminium louvres on the upper ones, and
+ * daylight beyond the glass. The group sits in the wall's own frame with +z
+ * into the room.
  */
-function Window({ position, rotation, width, height, louvered = false, glow, glass }: {
-  position: [number, number, number]; rotation: [number, number, number]; width: number; height: number; louvered?: boolean; glow: number; glass: THREE.Texture | null;
+function Window({ position, rotation, width, height, louvered = false, outside, mats }: {
+  position: [number, number, number]; rotation: [number, number, number]; width: number; height: number; louvered?: boolean; outside: THREE.Texture | null; mats: Materials;
 }) {
-  const frame = 0.07;
-  const slats = louvered ? Math.max(4, Math.round(height / 0.13)) : 0;
+  const f = 0.08;
+  const depth = 0.14;
+  const slats = louvered ? Math.max(4, Math.round(height / 0.15)) : 0;
   return (
     <group position={position} rotation={rotation}>
-      <mesh position={[0, 0, 0.005]}>
-        <planeGeometry args={[width - frame, height - frame]} />
-        <meshStandardMaterial
-          map={glass ?? undefined}
-          color={glass ? "#ffffff" : C.glass}
-          emissive="#ffffff"
-          emissiveMap={glass ?? undefined}
-          emissiveIntensity={glass ? glow * 0.75 : glow}
-          roughness={0.15}
-          metalness={0.05}
-        />
+      {/* the glass, set back into the wall */}
+      <mesh position={[0, 0, -depth + 0.02]}>
+        <planeGeometry args={[width - f, height - f]} />
+        <meshPhysicalMaterial map={outside ?? undefined} emissive="#ffffff" emissiveMap={outside ?? undefined} emissiveIntensity={0.9} roughness={0.08} metalness={0} clearcoat={0.6} />
       </mesh>
-      {/* frame */}
-      {([
-        [0, height / 2, width, frame],
-        [0, -height / 2, width, frame],
-        [-width / 2, 0, frame, height],
-        [width / 2, 0, frame, height],
-      ] as const).map(([x, y, w, h], i) => (
-        <mesh key={i} position={[x, y, 0.03]}>
-          <boxGeometry args={[w + frame, h + frame, 0.06]} />
-          <meshStandardMaterial color={C.trim} roughness={0.7} />
+      {/* the reveal — the wall's thickness around the opening */}
+      {([[0, height / 2, width, f, 0], [0, -height / 2, width, f, 0], [-width / 2, 0, f, height, 0], [width / 2, 0, f, height, 0]] as const).map(([x, y, w, h], i) => (
+        <mesh key={i} position={[x, y, -depth / 2]} castShadow receiveShadow material={mats.paintWhite}>
+          <boxGeometry args={[w + f, h + f, depth]} />
         </mesh>
       ))}
+      {/* sill */}
+      <mesh position={[0, -height / 2 - f * 0.9, 0.04]} castShadow material={mats.paintWhite}>
+        <boxGeometry args={[width + f * 2.4, 0.05, 0.16]} />
+      </mesh>
       {louvered
         ? Array.from({ length: slats }, (_, i) => (
-            <mesh key={i} position={[0, -height / 2 + frame + ((height - frame * 2) / slats) * (i + 0.5), 0.02]} rotation={[0.5, 0, 0]}>
-              <boxGeometry args={[width - frame * 1.6, 0.012, 0.11]} />
-              <meshStandardMaterial color={C.trim} roughness={0.7} />
+            <mesh key={i} position={[0, -height / 2 + f + ((height - f * 2) / slats) * (i + 0.5), -0.04]} rotation={[0.55, 0, 0]} material={mats.paintWhite} castShadow>
+              <boxGeometry args={[width - f * 1.5, 0.03, 0.14]} />
             </mesh>
           ))
         : (
           <>
-            <mesh position={[0, 0, 0.02]}><boxGeometry args={[0.035, height - frame, 0.03]} /><meshStandardMaterial color={C.trim} roughness={0.7} /></mesh>
-            <mesh position={[0, height * 0.12, 0.02]}><boxGeometry args={[width - frame, 0.035, 0.03]} /><meshStandardMaterial color={C.trim} roughness={0.7} /></mesh>
+            {[-width / 4, 0, width / 4].map((x) => (
+              <mesh key={x} position={[x, 0, -depth + 0.045]} material={mats.paintWhite}>
+                <boxGeometry args={[0.04, height - f, 0.05]} />
+              </mesh>
+            ))}
+            <mesh position={[0, height * 0.14, -depth + 0.045]} material={mats.paintWhite}>
+              <boxGeometry args={[width - f, 0.04, 0.05]} />
+            </mesh>
           </>
         )}
     </group>
   );
 }
 
-function CeilingFan({ position, reducedMotion }: { position: [number, number, number]; reducedMotion: boolean }) {
-  const blades = useRef<THREE.Group>(null);
-  useFrame((_, dt) => {
-    if (reducedMotion || !blades.current) return;
-    blades.current.rotation.y += dt * 2.4;
-  });
+function Pilaster({ position, rotation, pbr }: { position: [number, number, number]; rotation: number; pbr: ReturnType<typeof usePbr> }) {
   return (
-    <group position={position}>
-      <mesh position={[0, 0.16, 0]}><cylinderGeometry args={[0.02, 0.02, 0.32, 8]} /><meshStandardMaterial color="#d9dad6" roughness={0.5} metalness={0.4} /></mesh>
-      <mesh><cylinderGeometry args={[0.13, 0.15, 0.1, 16]} /><meshStandardMaterial color="#d9dad6" roughness={0.5} metalness={0.4} /></mesh>
-      <group ref={blades} position={[0, -0.03, 0]}>
-        {[0, 1, 2].map((i) => (
-          <mesh key={i} rotation={[0, (i * Math.PI * 2) / 3, 0]}>
-            <boxGeometry args={[1.25, 0.012, 0.14]} />
-            <meshStandardMaterial color="#cfd1cc" roughness={0.6} metalness={0.3} />
-          </mesh>
-        ))}
-      </group>
+    <mesh position={position} rotation={[0, rotation, 0]} castShadow receiveShadow>
+      <boxGeometry args={[0.55, ROOM.height, 0.3]} />
+      <meshStandardMaterial map={pbr.map} roughnessMap={pbr.roughnessMap} normalMap={pbr.normalMap} normalScale={new THREE.Vector2(0.6, 0.6)} roughness={1} />
+    </mesh>
+  );
+}
+
+/** An electrical box with its conduit running up to the beam line. */
+function Conduit({ position, rotation, mats }: { position: [number, number, number]; rotation: number; mats: Materials }) {
+  const rise = ROOM.height - 0.55 - position[1];
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 0, 0.05]} castShadow material={mats.boxGrey}>
+        <boxGeometry args={[0.26, 0.32, 0.1]} />
+      </mesh>
+      <mesh position={[0, 0.16 + rise / 2, 0.03]} material={mats.conduit}>
+        <cylinderGeometry args={[0.013, 0.013, rise, 8]} />
+      </mesh>
+      <mesh position={[0, -0.16 - 0.4, 0.03]} material={mats.conduit}>
+        <cylinderGeometry args={[0.013, 0.013, 0.8, 8]} />
+      </mesh>
     </group>
   );
 }
 
-function Room({ quality, reducedMotion }: { quality: LabQuality; reducedMotion: boolean }) {
+function Fixture({ url, position, rotation = [0, 0, 0], scale = 1 }: { url: string; position: [number, number, number]; rotation?: [number, number, number]; scale?: number }) {
+  const { scene } = useGLTF(url, LAB_URLS.draco);
+  const object = useMemo(() => {
+    const o = scene.clone(true);
+    o.traverse((n) => {
+      if ((n as THREE.Mesh).isMesh) {
+        n.castShadow = true;
+        n.receiveShadow = true;
+      }
+    });
+    return o;
+  }, [scene]);
+  return <primitive object={object} position={position} rotation={rotation} scale={scale} />;
+}
+
+function Fan({ position, reducedMotion }: { position: [number, number, number]; reducedMotion: boolean }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame((_, dt) => {
+    if (reducedMotion || !ref.current) return;
+    ref.current.rotation.y += dt * 2.1;
+  });
+  return (
+    <group ref={ref} position={position}>
+      <Fixture url={LAB_URLS.fan} position={[0, 0, 0]} />
+    </group>
+  );
+}
+
+function Room({ quality, reducedMotion, mats }: { quality: LabQuality; reducedMotion: boolean; mats: Materials }) {
   const { width: W, depth: D, height: H } = ROOM;
-  const tiles = useCanvasTexture(drawTile, 512, [W / ROOM.tile, D / ROOM.tile]);
-  const board = useCanvasTexture(drawWhiteboard, 512, [1, 1]);
-  const glass = useCanvasTexture(drawGlass, 256, [1, 1]);
-  const glow = quality === "high" ? 1.15 : 0.95;
+  const wall = usePbr({ map: "wall_diff.jpg", roughnessMap: "wall_rough.jpg", normalMap: "wall_nor.jpg" }, [W / 2.2, H / 2.2]);
+  const floor = usePbr({ map: "floor_diff.jpg", roughnessMap: "floor_rough.jpg", normalMap: "floor_nor.jpg" }, [W / (ROOM.tile * ROOM.tilesPerTexture), D / (ROOM.tile * ROOM.tilesPerTexture)]);
+  const veneer = usePbr({ map: "veneer_diff.jpg", roughnessMap: "veneer_rough.jpg" }, [1, 1]);
+  const outside = useCanvasTexture(drawOutside, 256, 256);
+  const board = useCanvasTexture(drawWhiteboard, 640, 400);
 
   return (
     <group>
-      {/* Floor: polished tiles, reflective on a desktop. */}
+      {/* Floor: polished vitrified tiles, reflective on a desktop. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[W, D]} />
         {quality === "high" ? (
           <MeshReflectorMaterial
-            map={tiles ?? undefined}
-            color="#ffffff"
-            blur={[380, 130]}
+            map={floor.map}
+            roughnessMap={floor.roughnessMap}
+            normalMap={floor.normalMap}
+            normalScale={new THREE.Vector2(0.5, 0.5)}
+            blur={[420, 160]}
             resolution={1024}
             mixBlur={1}
-            mixStrength={0.6}
-            mirror={0.38}
-            roughness={0.4}
-            metalness={0.04}
-            depthScale={0.9}
-            minDepthThreshold={0.5}
-            maxDepthThreshold={1.5}
+            mixStrength={0.9}
+            mirror={0.32}
+            roughness={1}
+            metalness={0.02}
+            depthScale={1.1}
+            minDepthThreshold={0.6}
+            maxDepthThreshold={1.6}
+            envMapIntensity={0.7}
           />
         ) : (
-          <meshStandardMaterial map={tiles ?? undefined} roughness={0.3} metalness={0.05} />
+          <meshStandardMaterial map={floor.map} roughnessMap={floor.roughnessMap} normalMap={floor.normalMap} normalScale={new THREE.Vector2(0.5, 0.5)} roughness={1} metalness={0.05} envMapIntensity={0.9} />
         )}
       </mesh>
 
-      {/* Ceiling and its fittings. */}
-      <mesh position={[0, H, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      {/* Ceiling, beams, and the light fixtures on them. */}
+      <mesh position={[0, H, 0]} rotation={[Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[W, D]} />
-        <meshStandardMaterial color={C.ceiling} roughness={0.95} />
+        <meshStandardMaterial color="#f1efe8" roughnessMap={wall.roughnessMap} roughness={1} />
       </mesh>
-      {[[-5.6, -2.2], [-1.4, 2.6], [3.2, -2.4], [6.4, 2.2]].map(([x, z], i) => (
-        <mesh key={i} position={[x, H - 0.03, z]}>
-          <boxGeometry args={[1.25, 0.05, 0.16]} />
-          <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={1.4} />
+      {[-3.9, 0, 3.9].map((z) => (
+        <mesh key={z} position={[0, H - 0.2, z]} castShadow receiveShadow>
+          <boxGeometry args={[W, 0.4, 0.32]} />
+          <meshStandardMaterial color="#ece9e0" roughnessMap={wall.roughnessMap} roughness={1} />
         </mesh>
       ))}
-      <CeilingFan position={[-4.6, H - 0.42, -0.6]} reducedMotion={reducedMotion} />
-      <CeilingFan position={[0.4, H - 0.42, 1.4]} reducedMotion={reducedMotion} />
-      <CeilingFan position={[5.2, H - 0.42, -0.8]} reducedMotion={reducedMotion} />
+      {[[-4.8, -1.95], [0.3, -1.95], [5.2, -1.95], [-4.8, 1.95], [0.3, 1.95], [5.2, 1.95]].map(([x, z], i) => (
+        <Fixture key={i} url={LAB_URLS.tubeLight} position={[x, H - 0.002, z]} scale={1.15} />
+      ))}
+      <Fan position={[-4.6, H - 0.01, -1.4]} reducedMotion={reducedMotion} />
+      <Fan position={[0.4, H - 0.01, 1.9]} reducedMotion={reducedMotion} />
+      <Fan position={[5.1, H - 0.01, -1.2]} reducedMotion={reducedMotion} />
 
       {/* Walls, each facing into the room. */}
-      <Wall position={[0, H / 2, -D / 2]} rotation={[0, 0, 0]} size={[W, H]} />
-      <Wall position={[0, H / 2, D / 2]} rotation={[0, Math.PI, 0]} size={[W, H]} />
-      <Wall position={[-W / 2, H / 2, 0]} rotation={[0, Math.PI / 2, 0]} size={[D, H]} />
-      <Wall position={[W / 2, H / 2, 0]} rotation={[0, -Math.PI / 2, 0]} size={[D, H]} />
+      <Wall position={[0, H / 2, -D / 2]} rotation={[0, 0, 0]} size={[W, H]} pbr={wall} />
+      <Wall position={[0, H / 2, D / 2]} rotation={[0, Math.PI, 0]} size={[W, H]} pbr={wall} />
+      <Wall position={[-W / 2, H / 2, 0]} rotation={[0, Math.PI / 2, 0]} size={[D, H]} pbr={wall} />
+      <Wall position={[W / 2, H / 2, 0]} rotation={[0, -Math.PI / 2, 0]} size={[D, H]} pbr={wall} />
 
-      {/* The white beam line under the ceiling and the skirting at the floor —
-          the two horizontals that make the photograph's walls read as a room. */}
+      {/* Pilasters between the windows, and the plaster band under the ceiling. */}
+      <Pilaster position={[0, H / 2, -D / 2 + 0.15]} rotation={0} pbr={wall} />
+      <Pilaster position={[-W / 2 + 0.15, H / 2, -0.8]} rotation={Math.PI / 2} pbr={wall} />
+      <Pilaster position={[-W / 2 + 0.15, H / 2, 4.6]} rotation={Math.PI / 2} pbr={wall} />
+      <Pilaster position={[W / 2 - 0.15, H / 2, -0.8]} rotation={Math.PI / 2} pbr={wall} />
+      <Pilaster position={[W / 2 - 0.15, H / 2, 4.6]} rotation={Math.PI / 2} pbr={wall} />
       {([
-        [[0, H - 0.5, -D / 2 + 0.03], [W, 0.16, 0.06]],
-        [[0, H - 0.5, D / 2 - 0.03], [W, 0.16, 0.06]],
-        [[-W / 2 + 0.03, H - 0.5, 0], [0.06, 0.16, D]],
-        [[W / 2 - 0.03, H - 0.5, 0], [0.06, 0.16, D]],
-        [[0, 0.06, -D / 2 + 0.02], [W, 0.12, 0.04]],
-        [[0, 0.06, D / 2 - 0.02], [W, 0.12, 0.04]],
-        [[-W / 2 + 0.02, 0.06, 0], [0.04, 0.12, D]],
-        [[W / 2 - 0.02, 0.06, 0], [0.04, 0.12, D]],
+        [[0, H - 0.5, -D / 2 + 0.035], [W, 0.18, 0.07]],
+        [[0, H - 0.5, D / 2 - 0.035], [W, 0.18, 0.07]],
+        [[-W / 2 + 0.035, H - 0.5, 0], [0.07, 0.18, D]],
+        [[W / 2 - 0.035, H - 0.5, 0], [0.07, 0.18, D]],
+      ] as const).map(([p, s], i) => (
+        <mesh key={i} position={[p[0], p[1], p[2]]} material={mats.paintWhite} castShadow>
+          <boxGeometry args={[s[0], s[1], s[2]]} />
+        </mesh>
+      ))}
+      {/* Skirting: the dark tile line at the foot of every wall. */}
+      {([
+        [[0, 0.06, -D / 2 + 0.012], [W, 0.12, 0.024]],
+        [[0, 0.06, D / 2 - 0.012], [W, 0.12, 0.024]],
+        [[-W / 2 + 0.012, 0.06, 0], [0.024, 0.12, D]],
+        [[W / 2 - 0.012, 0.06, 0], [0.024, 0.12, D]],
       ] as const).map(([p, s], i) => (
         <mesh key={i} position={[p[0], p[1], p[2]]}>
           <boxGeometry args={[s[0], s[1], s[2]]} />
-          <meshStandardMaterial color={C.trim} roughness={0.8} />
+          <meshStandardMaterial color="#2a2c2f" roughness={0.3} metalness={0.05} />
         </mesh>
       ))}
 
-      {/* Windows. Back wall: two lower windows under two louvered ones. */}
-      {[-3.6, 3.6].map((x) => (
+      {/* Windows. Back wall: two glazed windows under two louvered ones. */}
+      {[-3.7, 3.7].map((x) => (
         <group key={x}>
-          <Window position={[x, 2.1, -D / 2 + 0.01]} rotation={[0, 0, 0]} width={3.4} height={1.7} glow={glow} glass={glass} />
-          <Window position={[x, 3.55, -D / 2 + 0.01]} rotation={[0, 0, 0]} width={3.4} height={0.95} louvered glow={glow} glass={glass} />
+          <Window position={[x, 2.05, -D / 2]} rotation={[0, 0, 0]} width={3.3} height={1.7} outside={outside} mats={mats} />
+          <Window position={[x, 3.42, -D / 2]} rotation={[0, 0, 0]} width={3.3} height={0.9} louvered outside={outside} mats={mats} />
         </group>
       ))}
-      {/* Left wall (the sunlit side): two pairs. */}
-      {[-3.4, 1.8].map((z) => (
+      {/* Left wall, the sunlit side. */}
+      {[-3.5, 1.9].map((z) => (
         <group key={z}>
-          <Window position={[-W / 2 + 0.01, 2.1, z]} rotation={[0, Math.PI / 2, 0]} width={3.2} height={1.7} glow={glow * 1.1} glass={glass} />
-          <Window position={[-W / 2 + 0.01, 3.55, z]} rotation={[0, Math.PI / 2, 0]} width={3.2} height={0.95} louvered glow={glow * 1.1} glass={glass} />
+          <Window position={[-W / 2, 2.05, z]} rotation={[0, Math.PI / 2, 0]} width={3.1} height={1.7} outside={outside} mats={mats} />
+          <Window position={[-W / 2, 3.42, z]} rotation={[0, Math.PI / 2, 0]} width={3.1} height={0.9} louvered outside={outside} mats={mats} />
         </group>
       ))}
-      {/* Right wall: one pair and the whiteboard. */}
-      <Window position={[W / 2 - 0.01, 2.1, -3.6]} rotation={[0, -Math.PI / 2, 0]} width={3.0} height={1.7} glow={glow * 0.9} glass={glass} />
-      <Window position={[W / 2 - 0.01, 3.55, -3.6]} rotation={[0, -Math.PI / 2, 0]} width={3.0} height={0.95} louvered glow={glow * 0.9} glass={glass} />
-      <group position={[W / 2 - 0.03, 1.95, 2.4]} rotation={[0, -Math.PI / 2, 0]}>
-        <mesh><boxGeometry args={[2.0, 1.25, 0.04]} /><meshStandardMaterial color="#b9bcc2" roughness={0.6} metalness={0.3} /></mesh>
-        <mesh position={[0, 0, 0.025]}><planeGeometry args={[1.9, 1.15]} /><meshStandardMaterial map={board ?? undefined} roughness={0.35} /></mesh>
+      {/* Right wall: one pair, then the whiteboard. */}
+      <Window position={[W / 2, 2.05, -3.6]} rotation={[0, -Math.PI / 2, 0]} width={3.0} height={1.7} outside={outside} mats={mats} />
+      <Window position={[W / 2, 3.42, -3.6]} rotation={[0, -Math.PI / 2, 0]} width={3.0} height={0.9} louvered outside={outside} mats={mats} />
+      <group position={[W / 2 - 0.035, 1.9, 2.2]} rotation={[0, -Math.PI / 2, 0]}>
+        <mesh material={mats.aluminium} castShadow>
+          <boxGeometry args={[2.1, 1.3, 0.035]} />
+        </mesh>
+        <mesh position={[0, 0, 0.02]}>
+          <planeGeometry args={[2.0, 1.2]} />
+          <meshStandardMaterial map={board ?? undefined} roughness={0.25} metalness={0} />
+        </mesh>
       </group>
-      {/* Front wall: a louvered window high up and the door. */}
-      <Window position={[-3.2, 3.55, D / 2 - 0.01]} rotation={[0, Math.PI, 0]} width={3.2} height={0.95} louvered glow={glow * 0.8} glass={glass} />
-      <mesh position={[5.6, 1.08, D / 2 - 0.04]}>
-        <boxGeometry args={[1.0, 2.16, 0.06]} />
-        <meshStandardMaterial color={C.door} roughness={0.7} />
-      </mesh>
+      {/* Front wall: a louvered window high up, and the door. */}
+      <Window position={[-3.4, 3.42, D / 2]} rotation={[0, Math.PI, 0]} width={3.1} height={0.9} louvered outside={outside} mats={mats} />
+      <group position={[5.4, 1.08, D / 2 - 0.05]}>
+        <mesh castShadow>
+          <boxGeometry args={[1.0, 2.16, 0.06]} />
+          <meshStandardMaterial map={veneer.map} roughnessMap={veneer.roughnessMap} color="#9a7a55" roughness={1} />
+        </mesh>
+        <mesh position={[0, 0.02, -0.02]} material={mats.paintWhite}>
+          <boxGeometry args={[1.12, 2.24, 0.05]} />
+        </mesh>
+        <mesh position={[0.38, -0.04, 0.05]} material={mats.chrome}>
+          <boxGeometry args={[0.03, 0.03, 0.12]} />
+        </mesh>
+      </group>
+
+      {/* Electrical boxes and conduit, where the photographs show them. */}
+      <Conduit position={[-1.6, 2.3, -D / 2 + 0.01]} rotation={0} mats={mats} />
+      <Conduit position={[5.8, 2.3, -D / 2 + 0.01]} rotation={0} mats={mats} />
+      <Conduit position={[W / 2 - 0.01, 2.3, 0.4]} rotation={-Math.PI / 2} mats={mats} />
+      <Conduit position={[-W / 2 + 0.01, 2.3, -0.75]} rotation={Math.PI / 2} mats={mats} />
     </group>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Furniture — the workstations along the far side, tables, chairs, plants,
-   speakers. Enough to read as the room, none of it in the capture floor.
+   Furniture — the workstation side of the room
    ───────────────────────────────────────────────────────────────────────────── */
 
-function Chair({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
+function OfficeChair({ position, rotation = 0, mats }: { position: [number, number, number]; rotation?: number; mats: Materials }) {
   return (
     <group position={position} rotation={[0, rotation, 0]}>
-      <mesh position={[0, 0.46, 0]} castShadow><boxGeometry args={[0.46, 0.06, 0.46]} /><meshStandardMaterial color={C.chair} roughness={0.8} /></mesh>
-      <mesh position={[0, 0.75, -0.21]} castShadow><boxGeometry args={[0.44, 0.52, 0.05]} /><meshStandardMaterial color={C.chair} roughness={0.8} /></mesh>
-      <mesh position={[0, 0.25, 0]}><cylinderGeometry args={[0.025, 0.025, 0.4, 8]} /><meshStandardMaterial color="#6b7079" metalness={0.6} roughness={0.4} /></mesh>
-      <mesh position={[0, 0.03, 0]}><cylinderGeometry args={[0.3, 0.3, 0.03, 12]} /><meshStandardMaterial color={C.chair} roughness={0.7} /></mesh>
-    </group>
-  );
-}
-
-function Workstation({ position, rotation = 0 }: { position: [number, number, number]; rotation?: number }) {
-  return (
-    <group position={position} rotation={[0, rotation, 0]}>
-      <mesh position={[0, 0.74, 0]} castShadow receiveShadow><boxGeometry args={[1.6, 0.04, 0.75]} /><meshStandardMaterial color={C.desk} roughness={0.6} /></mesh>
-      {[[-0.74, -0.33], [0.74, -0.33], [-0.74, 0.33], [0.74, 0.33]].map(([x, z], i) => (
-        <mesh key={i} position={[x, 0.36, z]}><boxGeometry args={[0.05, 0.72, 0.05]} /><meshStandardMaterial color={C.deskLeg} metalness={0.5} roughness={0.5} /></mesh>
+      <mesh position={[0, 0.47, 0]} castShadow material={mats.plastic}>
+        <boxGeometry args={[0.48, 0.07, 0.48]} />
+      </mesh>
+      <mesh position={[0, 0.8, -0.22]} rotation={[-0.08, 0, 0]} castShadow material={mats.mesh}>
+        <boxGeometry args={[0.46, 0.58, 0.035]} />
+      </mesh>
+      <mesh position={[0, 0.8, -0.245]} rotation={[-0.08, 0, 0]} material={mats.plastic}>
+        <boxGeometry args={[0.48, 0.6, 0.012]} />
+      </mesh>
+      {[-1, 1].map((s) => (
+        <group key={s}>
+          <mesh position={[s * 0.27, 0.66, -0.02]} material={mats.plastic}>
+            <boxGeometry args={[0.04, 0.03, 0.3]} />
+          </mesh>
+          <mesh position={[s * 0.27, 0.57, 0.05]} material={mats.plastic}>
+            <boxGeometry args={[0.03, 0.18, 0.03]} />
+          </mesh>
+        </group>
       ))}
-      {/* monitor */}
-      <mesh position={[0, 0.83, -0.2]}><cylinderGeometry args={[0.08, 0.1, 0.14, 12]} /><meshStandardMaterial color="#2a2d33" /></mesh>
-      <mesh position={[0, 1.08, -0.2]} castShadow>
-        <boxGeometry args={[0.56, 0.34, 0.03]} />
-        <meshStandardMaterial color="#111318" roughness={0.4} />
+      <mesh position={[0, 0.27, 0]} material={mats.chrome}>
+        <cylinderGeometry args={[0.025, 0.03, 0.36, 12]} />
       </mesh>
-      <mesh position={[0, 1.08, -0.18]}>
-        <planeGeometry args={[0.52, 0.3]} />
-        <meshStandardMaterial color={C.screen} emissive="#1d2f57" emissiveIntensity={0.7} roughness={0.2} />
-      </mesh>
-      {/* keyboard */}
-      <mesh position={[0, 0.77, 0.12]}><boxGeometry args={[0.42, 0.02, 0.14]} /><meshStandardMaterial color="#1e2128" /></mesh>
-      <Chair position={[0, 0, 0.6]} rotation={Math.PI} />
+      {[0, 1, 2, 3, 4].map((i) => (
+        <group key={i} rotation={[0, (i * Math.PI * 2) / 5, 0]}>
+          <mesh position={[0.16, 0.05, 0]} rotation={[0, 0, 0.12]} material={mats.plastic}>
+            <boxGeometry args={[0.32, 0.03, 0.04]} />
+          </mesh>
+          <mesh position={[0.31, 0.03, 0]} rotation={[Math.PI / 2, 0, 0]} material={mats.rubber}>
+            <cylinderGeometry args={[0.03, 0.03, 0.025, 10]} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
 
-function RoundTable({ position }: { position: [number, number, number] }) {
+function Monitor({ position, rotation = 0, screen, mats }: { position: [number, number, number]; rotation?: number; screen: THREE.Texture | null; mats: Materials }) {
   return (
-    <group position={position}>
-      <mesh position={[0, 0.74, 0]} castShadow receiveShadow><cylinderGeometry args={[0.72, 0.72, 0.04, 32]} /><meshStandardMaterial color={C.desk} roughness={0.6} /></mesh>
-      <mesh position={[0, 0.37, 0]}><cylinderGeometry args={[0.04, 0.04, 0.72, 12]} /><meshStandardMaterial color="#9aa0a8" metalness={0.7} roughness={0.35} /></mesh>
-      <mesh position={[0, 0.02, 0]}><cylinderGeometry args={[0.32, 0.36, 0.04, 24]} /><meshStandardMaterial color="#9aa0a8" metalness={0.7} roughness={0.35} /></mesh>
-      <Chair position={[0, 0, 1.0]} rotation={Math.PI} />
-      <Chair position={[-0.95, 0, -0.3]} rotation={Math.PI / 2 + 0.3} />
-      <Chair position={[0.95, 0, -0.35]} rotation={-Math.PI / 2 - 0.3} />
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 0.02, 0]} material={mats.screenBezel}>
+        <cylinderGeometry args={[0.11, 0.13, 0.02, 20]} />
+      </mesh>
+      <mesh position={[0, 0.16, 0]} material={mats.screenBezel}>
+        <boxGeometry args={[0.05, 0.28, 0.04]} />
+      </mesh>
+      <mesh position={[0, 0.42, 0]} rotation={[-0.06, 0, 0]} castShadow material={mats.screenBezel}>
+        <boxGeometry args={[0.6, 0.36, 0.03]} />
+      </mesh>
+      <mesh position={[0, 0.42, 0.017]} rotation={[-0.06, 0, 0]}>
+        <planeGeometry args={[0.57, 0.33]} />
+        <meshPhysicalMaterial map={screen ?? undefined} emissive="#ffffff" emissiveMap={screen ?? undefined} emissiveIntensity={0.55} roughness={0.12} metalness={0} clearcoat={1} clearcoatRoughness={0.1} color="#0b0f16" />
+      </mesh>
     </group>
   );
 }
 
-function Plant({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
+function Laptop({ position, rotation = 0, screen, mats }: { position: [number, number, number]; rotation?: number; screen: THREE.Texture | null; mats: Materials }) {
   return (
-    <group position={position} scale={scale}>
-      <mesh position={[0, 0.17, 0]} castShadow><cylinderGeometry args={[0.17, 0.14, 0.34, 16]} /><meshStandardMaterial color={C.pot} roughness={0.7} /></mesh>
-      <mesh position={[0, 0.5, 0]}><cylinderGeometry args={[0.02, 0.03, 0.4, 6]} /><meshStandardMaterial color="#4a3a24" /></mesh>
-      {[[0, 0.82, 0, 0.3], [0.2, 0.7, 0.1, 0.22], [-0.2, 0.72, -0.05, 0.22], [0.05, 0.62, 0.22, 0.2], [-0.08, 0.66, -0.22, 0.2]].map(([x, y, z, r], i) => (
-        <mesh key={i} position={[x, y, z]} castShadow>
-          <sphereGeometry args={[r, 10, 8]} />
-          <meshStandardMaterial color={i % 2 ? C.plantDark : C.plant} roughness={0.9} />
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 0.008, 0]} castShadow material={mats.aluminium}>
+        <boxGeometry args={[0.33, 0.016, 0.23]} />
+      </mesh>
+      <mesh position={[0, 0.017, 0.02]} material={mats.plastic}>
+        <boxGeometry args={[0.28, 0.003, 0.11]} />
+      </mesh>
+      <group position={[0, 0.016, -0.115]} rotation={[-1.25, 0, 0]}>
+        <mesh position={[0, 0.11, 0]} castShadow material={mats.aluminium}>
+          <boxGeometry args={[0.33, 0.22, 0.008]} />
+        </mesh>
+        <mesh position={[0, 0.11, 0.0045]}>
+          <planeGeometry args={[0.3, 0.19]} />
+          <meshPhysicalMaterial map={screen ?? undefined} emissive="#ffffff" emissiveMap={screen ?? undefined} emissiveIntensity={0.6} roughness={0.1} clearcoat={1} color="#0b0f16" />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+function Desk({ position, rotation = 0, veneer, mats, children }: { position: [number, number, number]; rotation?: number; veneer: ReturnType<typeof usePbr>; mats: Materials; children?: React.ReactNode }) {
+  return (
+    <group position={position} rotation={[0, rotation, 0]}>
+      <mesh position={[0, 0.74, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.6, 0.035, 0.75]} />
+        <meshStandardMaterial map={veneer.map} roughnessMap={veneer.roughnessMap} roughness={1} />
+      </mesh>
+      {[[-0.75, -0.34], [0.75, -0.34], [-0.75, 0.34], [0.75, 0.34]].map(([x, z], i) => (
+        <mesh key={i} position={[x, 0.36, z]} material={mats.steelGrey}>
+          <boxGeometry args={[0.045, 0.72, 0.045]} />
         </mesh>
       ))}
+      <mesh position={[0, 0.12, -0.34]} material={mats.steelGrey}>
+        <boxGeometry args={[1.5, 0.03, 0.03]} />
+      </mesh>
+      <group position={[0, 0.757, 0]}>{children}</group>
     </group>
   );
 }
 
-function Speaker({ position }: { position: [number, number, number] }) {
+function RoundTable({ position, veneer, mats }: { position: [number, number, number]; veneer: ReturnType<typeof usePbr>; mats: Materials }) {
   return (
     <group position={position}>
-      <mesh position={[0, 0.55, 0]}><cylinderGeometry args={[0.014, 0.014, 1.1, 8]} /><meshStandardMaterial color={C.metal} /></mesh>
-      <mesh position={[0, 0.02, 0]}><cylinderGeometry args={[0.16, 0.16, 0.03, 12]} /><meshStandardMaterial color={C.metal} /></mesh>
-      <mesh position={[0, 1.25, 0]} castShadow><boxGeometry args={[0.24, 0.32, 0.22]} /><meshStandardMaterial color="#111318" roughness={0.6} /></mesh>
+      <mesh position={[0, 0.74, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.7, 0.7, 0.035, 40]} />
+        <meshStandardMaterial map={veneer.map} roughnessMap={veneer.roughnessMap} roughness={1} />
+      </mesh>
+      <mesh position={[0, 0.37, 0]} material={mats.chrome}>
+        <cylinderGeometry args={[0.035, 0.035, 0.72, 16]} />
+      </mesh>
+      <mesh position={[0, 0.015, 0]} material={mats.chrome}>
+        <cylinderGeometry args={[0.3, 0.34, 0.03, 32]} />
+      </mesh>
+      <OfficeChair position={[0, 0, 0.98]} rotation={Math.PI} mats={mats} />
+      <OfficeChair position={[-0.92, 0, -0.35]} rotation={Math.PI / 2 + 0.35} mats={mats} />
     </group>
   );
 }
 
-function Furniture() {
+function Furniture({ mats }: { mats: Materials }) {
   const { width: W, depth: D } = ROOM;
+  const veneer = usePbr({ map: "veneer_diff.jpg", roughnessMap: "veneer_rough.jpg" }, [1.2, 0.6]);
+  const screen = useCanvasTexture(drawScreen, 512, 288);
   return (
     <group>
       {/* Workstations along the far side, facing the room. */}
-      <Workstation position={[-W / 2 + 1.1, 0, -3.6]} rotation={Math.PI / 2} />
-      <Workstation position={[-W / 2 + 1.1, 0, -1.8]} rotation={Math.PI / 2} />
-      <Workstation position={[-W / 2 + 1.1, 0, 0.0]} rotation={Math.PI / 2} />
-      {/* Two round tables near the entrance side, where the laptop sits in the photograph. */}
-      <RoundTable position={[-4.6, 0, 4.4]} />
-      <RoundTable position={[-1.2, 0, 5.4]} />
-      {/* Plants in the corners and between the windows. */}
-      <Plant position={[-W / 2 + 0.6, 0, -D / 2 + 0.7]} />
-      <Plant position={[W / 2 - 0.6, 0, -D / 2 + 0.7]} scale={0.9} />
-      <Plant position={[0.2, 0, -D / 2 + 0.55]} scale={0.8} />
-      <Plant position={[W / 2 - 0.6, 0, 4.6]} />
-      <Plant position={[-W / 2 + 0.6, 0, 5.6]} scale={0.85} />
+      {[-3.7, -1.9, -0.1].map((z, i) => (
+        <group key={z}>
+          <Desk position={[-W / 2 + 1.05, 0, z]} rotation={Math.PI / 2} veneer={veneer} mats={mats}>
+            <Monitor position={[i === 1 ? -0.15 : 0, 0, -0.2]} rotation={0.05 * (i - 1)} screen={screen} mats={mats} />
+            {i === 1 && <Laptop position={[0.45, 0, 0.05]} rotation={-0.25} screen={screen} mats={mats} />}
+          </Desk>
+          <OfficeChair position={[-W / 2 + 1.75, 0, z + 0.05]} rotation={-Math.PI / 2 + 0.1 * (i - 1)} mats={mats} />
+        </group>
+      ))}
+      {/* The round tables by the entrance side, one with the laptop from the photograph. */}
+      <RoundTable position={[-4.4, 0, 4.2]} veneer={veneer} mats={mats} />
+      <group position={[-4.4, 0.757, 4.2]}>
+        <Laptop position={[0.1, 0, 0.15]} rotation={0.4} screen={screen} mats={mats} />
+      </group>
+      <RoundTable position={[-1.0, 0, 5.2]} veneer={veneer} mats={mats} />
+      {/* Plants: a real model, placed as in the photographs. */}
+      <Fixture url={LAB_URLS.plant} position={[-W / 2 + 0.7, 0, -D / 2 + 0.8]} scale={1.15} />
+      <Fixture url={LAB_URLS.plant} position={[W / 2 - 0.7, 0, -D / 2 + 0.8]} rotation={[0, 1.2, 0]} scale={1.0} />
+      <Fixture url={LAB_URLS.plant} position={[0.4, 0, -D / 2 + 0.6]} rotation={[0, 2.4, 0]} scale={0.85} />
+      <Fixture url={LAB_URLS.plant} position={[W / 2 - 0.7, 0, 4.4]} rotation={[0, 0.6, 0]} scale={1.1} />
+      <Fixture url={LAB_URLS.plant} position={[-W / 2 + 0.7, 0, 5.6]} rotation={[0, 3.0, 0]} scale={0.95} />
       {/* Speakers on stands along the far wall. */}
-      <Speaker position={[-6.2, 0, -D / 2 + 0.6]} />
-      <Speaker position={[6.6, 0, -D / 2 + 0.6]} />
+      {[-6.0, 6.3].map((x) => (
+        <group key={x} position={[x, 0, -D / 2 + 0.65]}>
+          <mesh position={[0, 0.6, 0]} material={mats.black}>
+            <cylinderGeometry args={[0.014, 0.016, 1.2, 10]} />
+          </mesh>
+          <mesh position={[0, 0.015, 0]} material={mats.black}>
+            <cylinderGeometry args={[0.17, 0.17, 0.03, 16]} />
+          </mesh>
+          <mesh position={[0, 1.36, 0]} castShadow material={mats.plastic}>
+            <boxGeometry args={[0.25, 0.34, 0.24]} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   The capture ring — fourteen tripods, every camera aimed at the subject.
+   The capture ring — fourteen tripod stations, built once and cloned, every
+   camera aimed at the subject with lookAt.
    ───────────────────────────────────────────────────────────────────────────── */
 
-function Tripod({ camera }: { camera: CaptureCamera }) {
-  const [x, h, z] = cameraPosition(camera);
-  const head = useRef<THREE.Group>(null);
+const LEG_SEGMENTS = 3;
 
-  /* Aim the head at the subject's chest. Object3D.lookAt points the object's
-     +z at the target, so the camera body is built with its lens on +z. */
-  useLayoutEffect(() => {
-    head.current?.lookAt(AIM);
-  }, []);
+/** One station: tripod, head, camera. Geometry and materials are shared by every clone. */
+function buildStation(mats: Materials, height: number): THREE.Group {
+  const g = new THREE.Group();
+  const hubY = height - 0.34;
+  // legs: two-section tubes with locks and rubber feet
+  for (let i = 0; i < LEG_SEGMENTS; i += 1) {
+    const a = (i * Math.PI * 2) / 3 + Math.PI / 6;
+    const foot = new THREE.Vector3(Math.sin(a) * 0.5, 0, Math.cos(a) * 0.5);
+    const top = new THREE.Vector3(Math.sin(a) * 0.05, hubY, Math.cos(a) * 0.05);
+    const dir = top.clone().sub(foot);
+    const len = dir.length();
+    const q = new THREE.Quaternion().setFromUnitVectors(UP, dir.clone().normalize());
+    const upper = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.016, len * 0.52, 10), mats.black);
+    upper.position.copy(foot.clone().add(dir.clone().multiplyScalar(0.74)));
+    upper.quaternion.copy(q);
+    upper.castShadow = true;
+    const lower = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.012, len * 0.5, 10), mats.black);
+    lower.position.copy(foot.clone().add(dir.clone().multiplyScalar(0.25)));
+    lower.quaternion.copy(q);
+    lower.castShadow = true;
+    const lock = new THREE.Mesh(new THREE.CylinderGeometry(0.021, 0.021, 0.05, 12), mats.rubber);
+    lock.position.copy(foot.clone().add(dir.clone().multiplyScalar(0.5)));
+    lock.quaternion.copy(q);
+    const rubber = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.026, 0.035, 10), mats.rubber);
+    rubber.position.copy(foot.clone().add(new THREE.Vector3(0, 0.017, 0)));
+    g.add(upper, lower, lock, rubber);
+  }
+  const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.06, 16), mats.black);
+  hub.position.y = hubY;
+  const column = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, height - hubY - 0.02, 12), mats.anodised);
+  column.position.y = hubY + (height - hubY - 0.02) / 2;
+  const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.026, 0.026, 0.04, 14), mats.rubber);
+  collar.position.y = hubY + 0.05;
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.05, 0.075), mats.black);
+  head.position.y = height - 0.045;
+  const knob = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.06, 10), mats.rubber);
+  knob.rotation.z = Math.PI / 2;
+  knob.position.set(0.055, height - 0.045, 0);
+  g.add(hub, column, collar, head, knob);
 
-  const legs = useMemo(() => {
-    const top = new THREE.Vector3(0, h - 0.3, 0);
-    return [0, 1, 2].map((i) => {
-      const a = (i * Math.PI * 2) / 3 + Math.PI / 6;
-      const foot = new THREE.Vector3(Math.sin(a) * 0.46, 0, Math.cos(a) * 0.46);
-      const mid = foot.clone().add(top).multiplyScalar(0.5);
-      const dir = top.clone().sub(foot);
-      const length = dir.length();
-      const quaternion = new THREE.Quaternion().setFromUnitVectors(UP, dir.normalize());
-      return { mid, length, quaternion };
-    });
-  }, [h]);
-
-  return (
-    <group position={[x, 0, z]}>
-      {legs.map((leg, i) => (
-        <mesh key={i} position={leg.mid} quaternion={leg.quaternion} castShadow>
-          <cylinderGeometry args={[0.011, 0.014, leg.length, 8]} />
-          <meshStandardMaterial color={C.metal} metalness={0.6} roughness={0.45} />
-        </mesh>
-      ))}
-      {/* centre column and head */}
-      <mesh position={[0, h - 0.15, 0]}>
-        <cylinderGeometry args={[0.016, 0.016, 0.34, 8]} />
-        <meshStandardMaterial color={C.metal} metalness={0.6} roughness={0.45} />
-      </mesh>
-      <mesh position={[0, h - 0.06, 0]}>
-        <boxGeometry args={[0.09, 0.06, 0.09]} />
-        <meshStandardMaterial color={C.metal} metalness={0.5} roughness={0.5} />
-      </mesh>
-      {/* the camera, lens on +z, aimed at the subject */}
-      <group ref={head} position={[0, h, 0]}>
-        <mesh castShadow>
-          <boxGeometry args={[0.13, 0.09, 0.17]} />
-          <meshStandardMaterial color={C.cameraBody} roughness={0.5} metalness={0.3} />
-        </mesh>
-        <mesh position={[0, 0, 0.11]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.032, 0.036, 0.06, 20]} />
-          <meshStandardMaterial color="#0a0b0e" roughness={0.35} metalness={0.5} />
-        </mesh>
-        <mesh position={[0, 0, 0.141]}>
-          <circleGeometry args={[0.022, 20]} />
-          <meshBasicMaterial color={C.lens} />
-        </mesh>
-        <mesh position={[0, 0, 0.142]}>
-          <ringGeometry args={[0.024, 0.03, 24]} />
-          <meshBasicMaterial color="#9ec2ff" transparent opacity={0.85} />
-        </mesh>
-        {/* a small status light on top, blue like the photograph */}
-        <mesh position={[0.04, 0.052, 0.02]}>
-          <sphereGeometry args={[0.007, 8, 8]} />
-          <meshBasicMaterial color="#5b9bff" />
-        </mesh>
-      </group>
-    </group>
-  );
+  // the camera, on a plate, with its lens on +z so lookAt aims it
+  const cam = new THREE.Group();
+  cam.name = "cameraHead";
+  cam.position.y = height;
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.008, 0.07), mats.anodised);
+  plate.position.y = -0.026;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.058, 0.052), mats.anodised);
+  body.castShadow = true;
+  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.117, 0.03, 0.03), mats.rubber);
+  grip.position.z = -0.014;
+  const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.019, 0.021, 0.026, 24), mats.anodised);
+  barrel.rotation.x = Math.PI / 2;
+  barrel.position.set(-0.025, 0, 0.036);
+  const glass = new THREE.Mesh(new THREE.CircleGeometry(0.015, 24), mats.lensGlass);
+  glass.position.set(-0.025, 0, 0.0495);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.0175, 0.0018, 8, 32), mats.lensRing);
+  ring.position.set(-0.025, 0, 0.0495);
+  const ir = new THREE.Mesh(new THREE.CircleGeometry(0.008, 16), mats.lensGlass);
+  ir.position.set(0.03, 0, 0.0265);
+  const irRim = new THREE.Mesh(new THREE.TorusGeometry(0.009, 0.0012, 6, 20), mats.black);
+  irRim.position.set(0.03, 0, 0.0265);
+  const led = new THREE.Mesh(new THREE.SphereGeometry(0.0035, 8, 8), mats.led);
+  led.position.set(0.045, 0.031, 0.0);
+  cam.add(plate, body, grip, barrel, glass, ring, ir, irRim, led);
+  g.add(cam);
+  return g;
 }
 
-function CaptureRing({ showSightlines }: { showSightlines: boolean }) {
-  const sightlines = useMemo(
+/** A cable from the camera down the column and across the floor toward the nearest wall. */
+function buildCable(station: THREE.Vector3, height: number, mats: Materials): THREE.Mesh {
+  const { width: W, depth: D } = ROOM;
+  const toWall = new THREE.Vector3(
+    Math.abs(station.x) / (W / 2) > Math.abs(station.z) / (D / 2) ? Math.sign(station.x) * (W / 2 - 0.05) : station.x,
+    0.01,
+    Math.abs(station.x) / (W / 2) > Math.abs(station.z) / (D / 2) ? station.z : Math.sign(station.z || 1) * (D / 2 - 0.05),
+  );
+  const pts = [
+    new THREE.Vector3(station.x, height - 0.02, station.z),
+    new THREE.Vector3(station.x + 0.03, height - 0.3, station.z + 0.02),
+    new THREE.Vector3(station.x + 0.02, 0.6, station.z),
+    new THREE.Vector3(station.x + 0.15, 0.012, station.z + 0.1),
+    station.clone().lerp(toWall, 0.5).setY(0.012).add(new THREE.Vector3(0.2, 0, -0.15)),
+    toWall,
+  ];
+  const curve = new THREE.CatmullRomCurve3(pts);
+  const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.005, 6, false), mats.cable);
+  mesh.castShadow = true;
+  return mesh;
+}
+
+function CaptureRing({ showSightlines, mats }: { showSightlines: boolean; mats: Materials }) {
+  const stations = useMemo(
     () =>
-      CAPTURE_CAMERAS.map((camera) => {
-        const lens = new THREE.Vector3(...cameraPosition(camera));
-        const toward = AIM.clone().sub(lens).normalize();
-        return [lens.add(toward.multiplyScalar(0.16)), AIM.clone()] as [THREE.Vector3, THREE.Vector3];
+      CAPTURE_CAMERAS.map((camera: CaptureCamera) => {
+        const [x, h, z] = cameraPosition(camera);
+        const station = buildStation(mats, h);
+        station.position.set(x, 0, z);
+        station.updateMatrixWorld(true);
+        /* Aim the camera head at the subject. Object3D.lookAt points +z at
+           the target, and the lens is built on +z. */
+        const head = station.getObjectByName("cameraHead") as THREE.Group;
+        head.lookAt(AIM);
+        const cable = buildCable(new THREE.Vector3(x, 0, z), h, mats);
+        const lens = new THREE.Vector3(x, h, z).add(AIM.clone().sub(new THREE.Vector3(x, h, z)).normalize().multiplyScalar(0.06));
+        return { station, cable, lens };
       }),
-    [],
+    [mats],
   );
   return (
     <group>
-      {CAPTURE_CAMERAS.map((camera, i) => (
-        <Tripod key={i} camera={camera} />
+      {stations.map(({ station, cable }, i) => (
+        <group key={i}>
+          <primitive object={station} />
+          <primitive object={cable} />
+        </group>
       ))}
       {showSightlines &&
-        sightlines.map((points, i) => (
-          <Line key={i} points={points} color={C.signal} lineWidth={1} transparent opacity={0.1} depthWrite={false} />
+        stations.map(({ lens }, i) => (
+          <Line key={i} points={[lens, AIM]} color={SIGNAL} lineWidth={1} transparent opacity={0.16} depthWrite={false} />
         ))}
-      {/* the capture floor: two hairline rings around the subject */}
+      {/* A hairline on the floor around the capture volume. */}
       <mesh position={[SUBJECT.x, 0.012, SUBJECT.z]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0.92, 0.945, 72]} />
-        <meshBasicMaterial color={C.signal} transparent opacity={0.42} depthWrite={false} />
-      </mesh>
-      <mesh position={[SUBJECT.x, 0.011, SUBJECT.z]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.9, 1.915, 96]} />
-        <meshBasicMaterial color={C.signal} transparent opacity={0.16} depthWrite={false} />
+        <ringGeometry args={[1.0, 1.012, 96]} />
+        <meshBasicMaterial color={SIGNAL} transparent opacity={0.28} depthWrite={false} />
       </mesh>
     </group>
   );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   The subject — a representation, alive at rest, read by a pose overlay.
+   The subject — a realistic rigged stand-in, posed and animated by her bones
    ───────────────────────────────────────────────────────────────────────────── */
 
-/** Landmarks in the figure's own space, and the bones between them. */
-const LANDMARKS: Record<string, [number, number, number]> = {
-  head: [0, 1.7, 0.02],
-  neck: [0, 1.5, 0],
-  lShoulder: [-0.22, 1.42, 0],
-  rShoulder: [0.22, 1.42, 0],
-  lElbow: [-0.26, 1.13, 0.01],
-  rElbow: [0.26, 1.13, 0.01],
-  lWrist: [-0.27, 0.86, 0.04],
-  rWrist: [0.27, 0.86, 0.04],
-  lHip: [-0.1, 0.93, 0],
-  rHip: [0.1, 0.93, 0],
-  lKnee: [-0.1, 0.5, 0.01],
-  rKnee: [0.1, 0.5, 0.01],
-  lAnkle: [-0.1, 0.09, 0],
-  rAnkle: [0.1, 0.09, 0],
-};
-const BONES: [string, string][] = [
-  ["head", "neck"], ["neck", "lShoulder"], ["neck", "rShoulder"],
-  ["lShoulder", "lElbow"], ["lElbow", "lWrist"], ["rShoulder", "rElbow"], ["rElbow", "rWrist"],
-  ["lShoulder", "lHip"], ["rShoulder", "rHip"], ["lHip", "rHip"],
-  ["lHip", "lKnee"], ["lKnee", "lAnkle"], ["rHip", "rKnee"], ["rKnee", "rAnkle"],
+const BONE = {
+  hips: /Hips$/,
+  spine: /Spine$/,
+  spine1: /Spine1$/,
+  spine2: /Spine2$/,
+  neck: /Neck$/,
+  head: /Head$/,
+  lArm: /LeftArm$/,
+  rArm: /RightArm$/,
+  lForeArm: /LeftForeArm$/,
+  rForeArm: /RightForeArm$/,
+  lHand: /LeftHand$/,
+  rHand: /RightHand$/,
+  lUpLeg: /LeftUpLeg$/,
+  rUpLeg: /RightUpLeg$/,
+  lLeg: /LeftLeg$/,
+  rLeg: /RightLeg$/,
+  lFoot: /LeftFoot$/,
+  rFoot: /RightFoot$/,
+} as const;
+type BoneKey = keyof typeof BONE;
+
+/** The overlay's landmarks, in order, and the bones between them. */
+const LANDMARK_KEYS: BoneKey[] = ["head", "neck", "lArm", "rArm", "lForeArm", "rForeArm", "lHand", "rHand", "lUpLeg", "rUpLeg", "lLeg", "rLeg", "lFoot", "rFoot"];
+const LANDMARK_BONES: [BoneKey, BoneKey][] = [
+  ["head", "neck"], ["neck", "lArm"], ["neck", "rArm"],
+  ["lArm", "lForeArm"], ["lForeArm", "lHand"], ["rArm", "rForeArm"], ["rForeArm", "rHand"],
+  ["lArm", "lUpLeg"], ["rArm", "rUpLeg"], ["lUpLeg", "rUpLeg"],
+  ["lUpLeg", "lLeg"], ["lLeg", "lFoot"], ["rUpLeg", "rLeg"], ["rLeg", "rFoot"],
 ];
 
-function PoseOverlay({ reducedMotion }: { reducedMotion: boolean }) {
-  const dots = useRef<THREE.MeshBasicMaterial>(null);
-  const segments = useMemo(() => BONES.flatMap(([a, b]) => [LANDMARKS[a], LANDMARKS[b]]), []);
+/**
+ * Turn a bone so the direction to its child points along `target` (world).
+ * Works for any rig convention, because it reads the child's actual offset.
+ */
+function aimBone(bone: THREE.Object3D, child: THREE.Object3D, target: THREE.Vector3) {
+  bone.updateWorldMatrix(true, false);
+  const wq = new THREE.Quaternion();
+  bone.getWorldQuaternion(wq);
+  const childDir = child.position.clone().normalize();
+  const desiredLocal = target.clone().normalize().applyQuaternion(wq.clone().invert());
+  const q = new THREE.Quaternion().setFromUnitVectors(childDir, desiredLocal);
+  bone.quaternion.multiply(q);
+}
+
+interface Rest { hips: THREE.Quaternion; spine1: THREE.Quaternion; head: THREE.Quaternion; hipsPos: THREE.Vector3 }
+
+const FIT_DIR = new THREE.Vector3();
+/**
+ * Stretch a unit-length cylinder between two world points, extended by `pad`
+ * at each end, and place it in the parent group's frame. The clothes and the
+ * bones share a parent, so world → parent is one inverse transform.
+ */
+function fitSegment(mesh: THREE.Mesh, a: THREE.Vector3, b: THREE.Vector3, pad: number) {
+  const parent = mesh.parent;
+  if (!parent) return;
+  FIT_DIR.copy(b).sub(a);
+  const len = FIT_DIR.length() + pad * 2;
+  FIT_DIR.normalize();
+  const mid = a.clone().add(b).multiplyScalar(0.5);
+  parent.worldToLocal(mid);
+  mesh.position.copy(mid);
+  const q = new THREE.Quaternion().setFromUnitVectors(UP, FIT_DIR);
+  const pq = new THREE.Quaternion();
+  parent.getWorldQuaternion(pq);
+  mesh.quaternion.copy(pq.invert().multiply(q));
+  mesh.scale.set(1, Math.max(0.05, len), 1);
+}
+
+function Avatar({ showPose, reducedMotion, mats }: { showPose: boolean; reducedMotion: boolean; mats: Materials }) {
+  const { scene } = useGLTF(LAB_URLS.avatar, LAB_URLS.draco);
+  const [plaid, plaidNormal] = useTexture([LAB_URLS.tex("plaid_diff.jpg"), LAB_URLS.tex("fabric_nor.jpg")]) as THREE.Texture[];
+  const torsoPlaid = useMemo(() => {
+    prep(plaid, [3, 3], true);
+    prep(plaidNormal, [3, 3], false);
+    const map = plaid.clone();
+    const normalMap = plaidNormal.clone();
+    prep(map, [5, 2], true);
+    prep(normalMap, [5, 2], false);
+    return { map, normalMap };
+  }, [plaid, plaidNormal]);
+
+  const model = useMemo(() => cloneSkeleton(scene) as THREE.Group, [scene]);
+  const bones = useMemo(() => {
+    const found: Partial<Record<BoneKey, THREE.Object3D>> = {};
+    model.traverse((n) => {
+      (Object.keys(BONE) as BoneKey[]).forEach((k) => {
+        if (!found[k] && BONE[k].test(n.name)) found[k] = n;
+      });
+    });
+    return found;
+  }, [model]);
+  const rest = useRef<Rest | null>(null);
+  const group = useRef<THREE.Group>(null);
+  const headAnchor = useRef<THREE.Group>(null);
+  const headYaw = useRef(0);
+  const sleeves = useRef<(THREE.Mesh | null)[]>([null, null, null, null]);
+  const elbows = useRef<(THREE.Mesh | null)[]>([null, null]);
+  const collar = useRef<THREE.Mesh>(null);
+  const vest = useRef<THREE.Mesh>(null);
+  const tmpA = useMemo(() => new THREE.Vector3(), []);
+  const tmpB = useMemo(() => new THREE.Vector3(), []);
+  const landmarks = useRef<THREE.Vector3[]>(LANDMARK_KEYS.map(() => new THREE.Vector3()));
+
+  useLayoutEffect(() => {
+    model.traverse((n) => {
+      const m = n as THREE.Mesh;
+      if (m.isMesh) {
+        m.castShadow = true;
+        m.receiveShadow = true;
+        m.frustumCulled = false;
+        const mat = m.material as THREE.MeshStandardMaterial;
+        if (mat && "roughness" in mat) {
+          mat.roughness = 0.82;
+          mat.metalness = 0;
+          mat.envMapIntensity = 0.6;
+        }
+      }
+    });
+    /* From the rest pose (arms out), stand naturally: upper arms down and a
+       little outward, forearms slightly forward, hands relaxed. */
+    const { lArm, rArm, lForeArm, rForeArm, lHand, rHand, hips, spine1, head } = bones;
+    if (lArm && lForeArm) aimBone(lArm, lForeArm, new THREE.Vector3(0.2, -1, 0.08));
+    if (rArm && rForeArm) aimBone(rArm, rForeArm, new THREE.Vector3(-0.2, -1, 0.08));
+    if (lForeArm && lHand) aimBone(lForeArm, lHand, new THREE.Vector3(0.16, -1, 0.3));
+    if (rForeArm && rHand) aimBone(rForeArm, rHand, new THREE.Vector3(-0.16, -1, 0.3));
+    if (hips && spine1 && head) {
+      rest.current = { hips: hips.quaternion.clone(), spine1: spine1.quaternion.clone(), head: head.quaternion.clone(), hipsPos: hips.position.clone() };
+    }
+  }, [model, bones]);
+
+  /* Idle presence and the overlay's landmarks, from the bones themselves. */
   useFrame(({ clock }) => {
-    if (!dots.current) return;
-    dots.current.opacity = reducedMotion ? 0.85 : 0.6 + 0.3 * (0.5 + 0.5 * Math.sin(clock.getElapsedTime() * 1.6));
+    const t = clock.getElapsedTime();
+    const { hips, spine1, head } = bones;
+    const r = rest.current;
+    if (r && hips && spine1 && head && !reducedMotion) {
+      const breath = Math.sin(t * 1.1);
+      spine1.quaternion.copy(r.spine1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(breath * 0.012, Math.sin(t * 0.27) * 0.02, 0)));
+      headYaw.current = Math.sin(t * 0.37) * 0.16 + Math.sin(t * 0.9) * 0.03;
+      head.quaternion.copy(r.head).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.sin(t * 0.6) * 0.03, headYaw.current, Math.sin(t * 0.45) * 0.015)));
+      hips.quaternion.copy(r.hips).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.sin(t * 0.23) * 0.03, Math.sin(t * 0.29) * 0.012)));
+      hips.position.copy(r.hipsPos).add(new THREE.Vector3(Math.sin(t * 0.29) * 0.012, breath * 0.004, 0));
+    }
+    if (head && headAnchor.current && group.current) {
+      head.getWorldPosition(tmpA);
+      group.current.worldToLocal(tmpA);
+      headAnchor.current.position.copy(tmpA);
+      headAnchor.current.rotation.set(0, headYaw.current, 0);
+    }
+    LANDMARK_KEYS.forEach((k, i) => {
+      const b = bones[k];
+      if (b) b.getWorldPosition(landmarks.current[i]);
+    });
+    /* Her clothes ride on the skeleton: the plaid shirt from hips to neck with
+       the black vest over it, and a plaid sleeve on each arm segment with a
+       rounded elbow. */
+    const { hips: hp, neck: nk, lArm, lForeArm, lHand, rArm, rForeArm, rHand } = bones;
+    if (hp && nk && collar.current && vest.current && group.current) {
+      hp.getWorldPosition(tmpA); nk.getWorldPosition(tmpB);
+      tmpA.y += 0.02;
+      tmpB.y -= 0.075;
+      fitSegment(vest.current, tmpA, tmpB, 0);
+      tmpA.copy(tmpB); tmpB.y += 0.11;
+      fitSegment(collar.current, tmpA, tmpB, 0);
+    }
+    const segs: [THREE.Object3D | undefined, THREE.Object3D | undefined][] = [[lArm, lForeArm], [lForeArm, lHand], [rArm, rForeArm], [rForeArm, rHand]];
+    segs.forEach(([a, b], i) => {
+      const m = sleeves.current[i];
+      if (!a || !b || !m) return;
+      a.getWorldPosition(tmpA); b.getWorldPosition(tmpB);
+      fitSegment(m, tmpA, tmpB, i % 2 === 0 ? 0.018 : 0.012);
+    });
+    [lForeArm, rForeArm].forEach((b, i) => {
+      const m = elbows.current[i];
+      if (!b || !m || !group.current) return;
+      b.getWorldPosition(tmpA);
+      group.current.worldToLocal(tmpA);
+      m.position.copy(tmpA);
+    });
   });
+
   return (
-    <group renderOrder={20}>
-      <Line points={segments} segments color={C.signal} lineWidth={1.3} transparent opacity={0.75} depthTest={false} depthWrite={false} />
-      {Object.values(LANDMARKS).map((p, i) => (
-        <mesh key={i} position={p} renderOrder={21}>
-          <sphereGeometry args={[0.02, 10, 10]} />
-          <meshBasicMaterial ref={i === 0 ? dots : undefined} color={C.signal} transparent opacity={0.85} depthTest={false} depthWrite={false} />
+    <group ref={group} position={[SUBJECT.x, 0, SUBJECT.z]} rotation={[0, Math.PI, 0]}>
+      <primitive object={model} />
+      {/* Her clothes, over the body: fitted to the bones every frame (see useFrame). */}
+      <mesh ref={vest} castShadow>
+        <cylinderGeometry args={[0.128, 0.138, 1, 24, 1, true]} />
+        <meshStandardMaterial color="#15171d" roughness={0.92} metalness={0} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh ref={collar} castShadow>
+        <cylinderGeometry args={[0.07, 0.126, 1, 22, 1, true]} />
+        <meshStandardMaterial map={torsoPlaid.map} normalMap={torsoPlaid.normalMap} roughness={0.9} side={THREE.DoubleSide} />
+      </mesh>
+      {[0, 1, 2, 3].map((i) => (
+        <mesh key={i} ref={(el) => { sleeves.current[i] = el; }} castShadow>
+          <cylinderGeometry args={i % 2 === 0 ? [0.046, 0.052, 1, 16] : [0.038, 0.046, 1, 16]} />
+          <meshStandardMaterial map={plaid} normalMap={plaidNormal} roughness={0.9} />
         </mesh>
       ))}
+      {[0, 1].map((i) => (
+        <mesh key={i} ref={(el) => { elbows.current[i] = el; }} castShadow>
+          <sphereGeometry args={[0.046, 14, 12]} />
+          <meshStandardMaterial map={plaid} normalMap={plaidNormal} roughness={0.9} />
+        </mesh>
+      ))}
+      {/* Long hair and glasses: positioned from the head bone, oriented in her own
+          frame (up is up, +z is her front) plus the head's turn. The head bone
+          origin is at the top of the neck; the skull centre is ~9 cm above it. */}
+      <group ref={headAnchor}>
+        {/* the crown: the very top of the head, matte */}
+        <mesh position={[0, 0.07, -0.012]} castShadow>
+          <sphereGeometry args={[0.098, 28, 18, 0, Math.PI * 2, 0, Math.PI * 0.36]} />
+          <meshStandardMaterial color="#17100d" roughness={0.86} metalness={0} />
+        </mesh>
+        {/* the fall: one flat sheet of hair from the crown down the back to the shoulder blades */}
+        <mesh position={[0, -0.05, -0.072]} rotation={[-0.04, 0, 0]} scale={[1.5, 1, 0.22]} castShadow>
+          <capsuleGeometry args={[0.052, 0.3, 6, 16]} />
+          <meshStandardMaterial color="#17100d" roughness={0.86} metalness={0} />
+        </mesh>
+        {[-1, 1].map((s) => (
+          <mesh key={s} position={[s * 0.031, 0.095, 0.094]} material={mats.black}>
+            <torusGeometry args={[0.024, 0.0022, 8, 24]} />
+          </mesh>
+        ))}
+        <mesh position={[0, 0.097, 0.096]} material={mats.black}>
+          <boxGeometry args={[0.018, 0.003, 0.003]} />
+        </mesh>
+        {[-1, 1].map((s) => (
+          <mesh key={s} position={[s * 0.072, 0.097, 0.04]} material={mats.black}>
+            <boxGeometry args={[0.003, 0.003, 0.11]} />
+          </mesh>
+        ))}
+      </group>
+      {showPose && <PoseOverlay landmarks={landmarks} />}
     </group>
   );
 }
 
-function Subject({ showPose, reducedMotion }: { showPose: boolean; reducedMotion: boolean }) {
-  const root = useRef<THREE.Group>(null);
-  const torso = useRef<THREE.Group>(null);
-  const head = useRef<THREE.Group>(null);
-  const hair = useRef<THREE.Mesh>(null);
-  const lArm = useRef<THREE.Group>(null);
-  const rArm = useRef<THREE.Group>(null);
-  const plaid = useCanvasTexture(drawPlaid, 256, [2, 3]);
-
-  /* Idle presence: breath, a slow weight shift, a glance. Amplitudes are
-     small enough that a viewer registers "alive" without seeing a loop. */
-  useFrame(({ clock }) => {
-    if (reducedMotion || !root.current) return;
-    const t = clock.getElapsedTime();
-    root.current.rotation.y = Math.sin(t * 0.23) * 0.06;
-    root.current.rotation.z = Math.sin(t * 0.29) * 0.008;
-    root.current.position.x = SUBJECT.x + Math.sin(t * 0.29) * 0.012;
-    root.current.position.y = Math.sin(t * 1.15) * 0.004;
-    if (torso.current) {
-      const breath = 1 + 0.012 * Math.sin(t * 1.15);
-      torso.current.scale.set(1, breath, 1 + 0.01 * Math.sin(t * 1.15));
+/**
+ * Research-grade pose overlay: hairline bones, small nodes, restrained cyan,
+ * drawn over the body from the same bone positions the idle animates. The
+ * geometry is in world space (the landmarks are world positions), so it is
+ * rendered outside the avatar's rotated group.
+ */
+function PoseOverlay({ landmarks }: { landmarks: React.MutableRefObject<THREE.Vector3[]> }) {
+  const lines = useRef<THREE.LineSegments>(null);
+  const nodes = useRef<THREE.InstancedMesh>(null);
+  const geometry = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(LANDMARK_BONES.length * 2 * 3), 3));
+    return g;
+  }, []);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  useFrame(() => {
+    const pos = geometry.getAttribute("position") as THREE.BufferAttribute;
+    LANDMARK_BONES.forEach(([a, b], i) => {
+      const pa = landmarks.current[LANDMARK_KEYS.indexOf(a)];
+      const pb = landmarks.current[LANDMARK_KEYS.indexOf(b)];
+      pos.setXYZ(i * 2, pa.x, pa.y, pa.z);
+      pos.setXYZ(i * 2 + 1, pb.x, pb.y, pb.z);
+    });
+    pos.needsUpdate = true;
+    geometry.computeBoundingSphere();
+    if (nodes.current) {
+      landmarks.current.forEach((p, i) => {
+        dummy.position.copy(p);
+        dummy.updateMatrix();
+        nodes.current!.setMatrixAt(i, dummy.matrix);
+      });
+      nodes.current.instanceMatrix.needsUpdate = true;
     }
-    if (head.current) {
-      head.current.rotation.y = Math.sin(t * 0.37) * 0.16 + Math.sin(t * 0.91) * 0.03;
-      head.current.rotation.x = Math.sin(t * 0.61) * 0.025;
-    }
-    if (hair.current) hair.current.rotation.x = Math.sin(t * 1.2) * 0.02;
-    if (lArm.current) lArm.current.rotation.x = Math.sin(t * 0.5) * 0.02;
-    if (rArm.current) rArm.current.rotation.x = Math.sin(t * 0.5 + 1.3) * 0.02;
   });
-
-  const skin = <meshStandardMaterial color={C.skin} roughness={0.75} />;
-  const arm = (side: -1 | 1, ref: React.RefObject<THREE.Group>) => (
-    <group ref={ref} position={[side * 0.23, 1.42, 0]} rotation={[0, 0, side * -0.09]}>
-      <mesh position={[0, -0.3, 0]} castShadow>
-        <capsuleGeometry args={[0.056, 0.5, 4, 12]} />
-        <meshStandardMaterial map={plaid ?? undefined} color={plaid ? "#ffffff" : C.plaidRed} roughness={0.85} />
-      </mesh>
-      <mesh position={[0, -0.63, 0.02]} castShadow>
-        <sphereGeometry args={[0.055, 12, 12]} />
-        {skin}
-      </mesh>
-    </group>
-  );
-
+  /* World space: undo the avatar group's rotation/position by rendering at the root. */
   return (
-    <group ref={root} position={[SUBJECT.x, 0, SUBJECT.z]}>
-      {/* shoes */}
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * 0.1, 0.04, 0.03]} castShadow>
-          <boxGeometry args={[0.11, 0.08, 0.27]} />
-          <meshStandardMaterial color={C.shoe} roughness={0.6} />
-        </mesh>
-      ))}
-      {/* legs — jeans */}
-      {[-1, 1].map((s) => (
-        <mesh key={s} position={[s * 0.1, 0.52, 0]} castShadow>
-          <capsuleGeometry args={[0.085, 0.72, 4, 12]} />
-          <meshStandardMaterial color={C.jeans} roughness={0.9} />
-        </mesh>
-      ))}
-      {/* torso — the black vest, with the plaid shirt showing at the collar */}
-      <group ref={torso} position={[0, 1.17, 0]}>
-        <mesh castShadow>
-          <capsuleGeometry args={[0.17, 0.36, 6, 16]} />
-          <meshStandardMaterial color={C.vest} roughness={0.8} />
-        </mesh>
-        <mesh position={[0, 0.24, 0]}>
-          <cylinderGeometry args={[0.16, 0.175, 0.09, 16]} />
-          <meshStandardMaterial map={plaid ?? undefined} color={plaid ? "#ffffff" : C.plaidRed} roughness={0.85} />
-        </mesh>
-      </group>
-      {arm(-1, lArm)}
-      {arm(1, rArm)}
-      {/* neck and head */}
-      <mesh position={[0, 1.55, 0]}>
-        <cylinderGeometry args={[0.05, 0.055, 0.09, 12]} />
-        {skin}
-      </mesh>
-      <group ref={head} position={[0, 1.7, 0]}>
-        <mesh castShadow>
-          <sphereGeometry args={[0.115, 24, 20]} />
-          {skin}
-        </mesh>
-        {/* hair: a cap, and the long fall down the back */}
-        <mesh position={[0, 0.03, -0.028]}>
-          <sphereGeometry args={[0.126, 24, 20]} />
-          <meshStandardMaterial color={C.hair} roughness={0.55} />
-        </mesh>
-        <mesh ref={hair} position={[0, -0.24, -0.1]} scale={[1.35, 1, 0.55]} castShadow>
-          <capsuleGeometry args={[0.09, 0.36, 4, 12]} />
-          <meshStandardMaterial color={C.hair} roughness={0.55} />
-        </mesh>
-        {/* glasses */}
-        {[-1, 1].map((s) => (
-          <mesh key={s} position={[s * 0.046, 0.018, 0.106]}>
-            <torusGeometry args={[0.032, 0.004, 8, 20]} />
-            <meshStandardMaterial color="#1b1d22" metalness={0.4} roughness={0.4} />
-          </mesh>
-        ))}
-        <mesh position={[0, 0.02, 0.112]}>
-          <boxGeometry args={[0.028, 0.005, 0.005]} />
-          <meshStandardMaterial color="#1b1d22" metalness={0.4} roughness={0.4} />
-        </mesh>
-      </group>
-
-      {showPose && <PoseOverlay reducedMotion={reducedMotion} />}
+    <group rotation={[0, Math.PI, 0]} position={[-SUBJECT.x, 0, -SUBJECT.z]}>
+      <lineSegments ref={lines} geometry={geometry} renderOrder={20} frustumCulled={false}>
+        <lineBasicMaterial color={SIGNAL} transparent opacity={0.55} depthTest={false} depthWrite={false} />
+      </lineSegments>
+      <instancedMesh ref={nodes} args={[undefined, undefined, LANDMARK_KEYS.length]} renderOrder={21} frustumCulled={false}>
+        <sphereGeometry args={[0.011, 10, 10]} />
+        <meshBasicMaterial color="#9fe6ff" transparent opacity={0.8} depthTest={false} depthWrite={false} />
+      </instancedMesh>
     </group>
   );
 }
@@ -742,28 +1078,29 @@ function Lights({ quality }: { quality: LabQuality }) {
   const shadow = quality === "high" ? 2048 : 1024;
   return (
     <>
-      <ambientLight intensity={0.32} />
-      <hemisphereLight args={["#fff6e2", "#9a8746", 0.55]} />
-      {/* Daylight through the left-side windows: the one shadow-casting light. */}
+      {/* Bounced daylight from an interior HDRI — the soft ambient the photographs have. */}
+      <Environment files={LAB_URLS.hdri} environmentIntensity={quality === "high" ? 0.55 : 0.5} />
+      <ambientLight intensity={0.12} color="#fff4e4" />
+      {/* Sun through the left windows: the one shadow-casting light. */}
       <directionalLight
-        position={[-7, 6.5, -3]}
-        intensity={2.6}
-        color="#ffd9a4"
+        position={[-8, 6.2, -2.5]}
+        intensity={2.4}
+        color="#ffd7a1"
         castShadow
         shadow-mapSize={[shadow, shadow]}
         shadow-camera-near={1}
         shadow-camera-far={34}
-        shadow-camera-left={-11}
-        shadow-camera-right={11}
-        shadow-camera-top={9}
-        shadow-camera-bottom={-9}
-        shadow-bias={-0.0004}
-        shadow-normalBias={0.02}
+        shadow-camera-left={-10}
+        shadow-camera-right={10}
+        shadow-camera-top={8}
+        shadow-camera-bottom={-8}
+        shadow-bias={-0.00035}
+        shadow-normalBias={0.025}
+        shadow-radius={quality === "high" ? 3 : 2}
       />
-      <directionalLight position={[7, 5, 6]} intensity={0.45} color="#e3ecff" />
-      {/* The ceiling strips, as light. */}
-      {[[-5.6, -2.2], [-1.4, 2.6], [3.2, -2.4], [6.4, 2.2]].map(([x, z], i) => (
-        <pointLight key={i} position={[x, ROOM.height - 0.25, z]} intensity={14} distance={11} decay={2} color="#fff3df" />
+      {/* The tube fixtures, as light: cool-white, falling off quickly. */}
+      {[[-4.8, -1.95], [0.3, -1.95], [5.2, -1.95], [-4.8, 1.95], [0.3, 1.95], [5.2, 1.95]].map(([x, z], i) => (
+        <pointLight key={i} position={[x, ROOM.height - 0.25, z]} intensity={quality === "high" ? 7 : 5} distance={9} decay={2} color="#f3f6ff" />
       ))}
     </>
   );
@@ -776,14 +1113,16 @@ function Rig({ view, reducedMotion }: { view: LabView; reducedMotion: boolean })
   const { camera } = useThree();
   const [interacted, setInteracted] = useState(false);
   const goal = useRef<THREE.Vector3 | null>(null);
+  const aim = useMemo(() => new THREE.Vector3(...OVERVIEW.target), []);
 
   /* A new view sets a goal; the frame loop glides there and hands control
-     back. From a capture camera the eye sits at the front of its lens — what
-     that camera sees, with its own body behind the eye and out of frame. */
+     back. From a capture camera the eye sits at the front of that lens — what
+     the camera sees, its own body behind the eye and out of frame. Positions
+     come from the same layout that places the visible cameras. */
   useEffect(() => {
     if (view.kind === "camera") {
       const lens = new THREE.Vector3(...cameraPosition(CAPTURE_CAMERAS[view.index]));
-      const forward = AIM.clone().sub(lens).normalize().multiplyScalar(0.17);
+      const forward = AIM.clone().sub(lens).normalize().multiplyScalar(0.12);
       goal.current = lens.add(forward);
     } else {
       goal.current = new THREE.Vector3(...OVERVIEW.position);
@@ -795,7 +1134,7 @@ function Rig({ view, reducedMotion }: { view: LabView; reducedMotion: boolean })
     if (!target) return;
     const k = 1 - Math.exp(-Math.min(dt, 0.05) * 3.4);
     camera.position.lerp(target, k);
-    controls.current?.target.lerp(AIM, k);
+    controls.current?.target.lerp(view.kind === "camera" ? AIM : aim, k);
     controls.current?.update();
     if (camera.position.distanceTo(target) < 0.008) goal.current = null;
   });
@@ -810,12 +1149,12 @@ function Rig({ view, reducedMotion }: { view: LabView; reducedMotion: boolean })
       dampingFactor={0.08}
       rotateSpeed={0.55}
       zoomSpeed={0.65}
-      minDistance={1.5}
-      maxDistance={7.3}
-      minPolarAngle={0.28}
-      maxPolarAngle={1.53}
+      minDistance={1.4}
+      maxDistance={6.2}
+      minPolarAngle={0.25}
+      maxPolarAngle={1.5}
       autoRotate={!interacted && !reducedMotion && view.kind === "orbit"}
-      autoRotateSpeed={0.32}
+      autoRotateSpeed={0.28}
       onStart={() => {
         setInteracted(true);
         goal.current = null;
@@ -824,36 +1163,54 @@ function Rig({ view, reducedMotion }: { view: LabView; reducedMotion: boolean })
   );
 }
 
-/** Reports the first frames drawn, so the shell can lift its veil. */
+/** Reports the first frames drawn after every asset has loaded; in development also
+ *  publishes the renderer's draw-call and triangle counts for inspection. */
 function Ready({ onReady }: { onReady?: () => void }) {
   const frames = useRef(0);
+  const { gl } = useThree();
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "production") gl.info.autoReset = false;
+  }, [gl]);
   useFrame(() => {
-    if (frames.current > 2) return;
     frames.current += 1;
     if (frames.current === 2) onReady?.();
+    if (process.env.NODE_ENV !== "production" && frames.current % 5 === 0) {
+      const r = gl.info.render;
+      (window as Window & { __gaitaiLab?: unknown }).__gaitaiLab = { callsPerFrame: Math.round(r.calls / 5), trianglesPerFrame: Math.round(r.triangles / 5), geometries: gl.info.memory.geometries, textures: gl.info.memory.textures };
+      gl.info.reset();
+    }
   });
   return null;
 }
 
-export default function LabScene({ view, showPose, showSightlines, quality, reducedMotion, onReady }: LabSceneProps) {
+function Scene({ view, showPose, showSightlines, quality, reducedMotion, onReady }: LabSceneProps) {
+  const mats = useMaterials();
+  return (
+    <Suspense fallback={null}>
+      <Lights quality={quality} />
+      <Room quality={quality} reducedMotion={reducedMotion} mats={mats} />
+      <Furniture mats={mats} />
+      <CaptureRing showSightlines={showSightlines} mats={mats} />
+      <Avatar showPose={showPose} reducedMotion={reducedMotion} mats={mats} />
+      <Rig view={view} reducedMotion={reducedMotion} />
+      <Ready onReady={onReady} />
+    </Suspense>
+  );
+}
+
+export default function LabScene(props: LabSceneProps) {
   return (
     <Canvas
-      shadows
-      dpr={quality === "high" ? [1, 1.75] : [1, 1.25]}
-      camera={{ position: OVERVIEW.position, fov: 50, near: 0.05, far: 80 }}
-      gl={{ antialias: true, powerPreference: "high-performance", alpha: false }}
+      shadows="soft"
+      dpr={props.quality === "high" ? [1, 1.6] : [1, 1.2]}
+      camera={{ position: OVERVIEW.position, fov: 50, near: 0.05, far: 60 }}
+      gl={{ antialias: true, powerPreference: "high-performance", alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.0, outputColorSpace: THREE.SRGBColorSpace }}
       style={{ touchAction: "none" }}
     >
       <color attach="background" args={["#0a0e17"]} />
-      <Suspense fallback={null}>
-        <Lights quality={quality} />
-        <Room quality={quality} reducedMotion={reducedMotion} />
-        <Furniture />
-        <CaptureRing showSightlines={showSightlines} />
-        <Subject showPose={showPose} reducedMotion={reducedMotion} />
-        <Rig view={view} reducedMotion={reducedMotion} />
-        <Ready onReady={onReady} />
-      </Suspense>
+      <Scene {...props} />
     </Canvas>
   );
 }
+
+useGLTF.preload(LAB_URLS.avatar, LAB_URLS.draco);

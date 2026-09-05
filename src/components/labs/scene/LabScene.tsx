@@ -2,10 +2,11 @@
 
 import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Line, MeshReflectorMaterial, OrbitControls, useGLTF, useTexture } from "@react-three/drei";
+import { Environment, Line, MeshReflectorMaterial, OrbitControls, useGLTF, useProgress, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { CAPTURE_CAMERAS, LAB_URLS, OVERVIEW, ROOM, SUBJECT, cameraPosition, type CaptureCamera } from "./lab-layout";
+import { LAB_PROGRESS_EVENT, type LabProgress } from "../lab-experience-event";
 
 /**
  * THE GAITAI BIOMETRICS LAB — a digital twin, in three dimensions.
@@ -1163,6 +1164,18 @@ function Rig({ view, reducedMotion }: { view: LabView; reducedMotion: boolean })
   );
 }
 
+/** Publishes what the loaders are fetching, so the shell's veil can say so
+ *  without importing this chunk's library. Rendered outside Suspense, so it
+ *  runs while the assets are still arriving. */
+function ProgressBridge() {
+  const { progress, loaded, total, item } = useProgress();
+  useEffect(() => {
+    const detail: LabProgress = { progress, loaded, total, item };
+    window.dispatchEvent(new CustomEvent<LabProgress>(LAB_PROGRESS_EVENT, { detail }));
+  }, [progress, loaded, total, item]);
+  return null;
+}
+
 /** Reports the first frames drawn after every asset has loaded; in development also
  *  publishes the renderer's draw-call and triangle counts for inspection. */
 function Ready({ onReady }: { onReady?: () => void }) {
@@ -1208,6 +1221,7 @@ export default function LabScene(props: LabSceneProps) {
       style={{ touchAction: "none" }}
     >
       <color attach="background" args={["#0a0e17"]} />
+      <ProgressBridge />
       <Scene {...props} />
     </Canvas>
   );

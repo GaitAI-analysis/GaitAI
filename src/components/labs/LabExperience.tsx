@@ -3,9 +3,8 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useProgress } from "@react-three/drei";
 import { assetPath } from "@/lib/paths";
-import { LAB_EXPERIENCE_EVENT } from "./lab-experience-event";
+import { LAB_EXPERIENCE_EVENT, LAB_PROGRESS_EVENT, type LabProgress } from "./lab-experience-event";
 import { CAPTURE_CAMERA_COUNT, LAB_PHOTOS } from "./scene/lab-layout";
 import type { LabQuality, LabView } from "./scene/LabScene";
 import styles from "./labExperience.module.css";
@@ -54,7 +53,15 @@ export function LabExperience() {
 
   const openerRef = useRef<HTMLElement | null>(null);
   const shellRef = useRef<HTMLDivElement>(null);
-  const progress = useProgress();
+  const [progress, setProgress] = useState<LabProgress>({ progress: 0, loaded: 0, total: 0, item: "" });
+
+  /* Loading progress arrives from the scene chunk by event, so this shell
+     never imports the 3D library into the page bundle. */
+  useEffect(() => {
+    const onProgress = (event: Event) => setProgress((event as CustomEvent<LabProgress>).detail);
+    window.addEventListener(LAB_PROGRESS_EVENT, onProgress);
+    return () => window.removeEventListener(LAB_PROGRESS_EVENT, onProgress);
+  }, []);
 
   useEffect(() => {
     const onRequest = () => {
@@ -77,6 +84,7 @@ export function LabExperience() {
     setReady(false);
     setView({ kind: "orbit" });
     setCompare(null);
+    setProgress({ progress: 0, loaded: 0, total: 0, item: "" });
   }, []);
 
   /* Modal behaviour: Escape closes, Tab stays inside, the page does not

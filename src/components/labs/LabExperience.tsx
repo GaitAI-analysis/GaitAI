@@ -1,89 +1,83 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { assetPath } from "@/lib/paths";
-import { LAB_EXPERIENCE_EVENT, LAB_PROGRESS_EVENT, type LabProgress } from "./lab-experience-event";
-import { CAPTURE_CAMERA_COUNT, LAB_PHOTOS } from "./scene/lab-layout";
+import { LAB_EXPERIENCE_EVENT, LAB_PROGRESS_EVENT, type EnterLabDetail, type LabProgress } from "./lab-experience-event";
+import { LabPhotoStage, type PhotoLayers } from "./photo/LabPhotoStage";
+import { PHOTO_CAMERAS } from "./photo/lab-photo-layout";
+import { CAPTURE_CAMERA_COUNT } from "./scene/lab-layout";
 import type { LabQuality, LabView } from "./scene/LabScene";
 import styles from "./labExperience.module.css";
 
-/* The whole Three.js scene is a separate chunk, fetched on entry (or warmed
-   when the cover's button nears the viewport). */
+/* The three-dimensional twin is a separate chunk, fetched only when a reader
+   chooses DIGITAL TWIN. The real room needs nothing but the photograph. */
 const LabScene = dynamic(() => import("./scene/LabScene"), { ssr: false, loading: () => null });
 
 const FOCUS_SELECTOR = 'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
 
+type Mode = "photo" | "twin";
+
 /**
- * THE INTERACTIVE LAB — a fullscreen viewer over /labs.
+ * THE INTERACTIVE LAB — the real room, explored.
  *
- * Opened by the cover's "Enter the Lab" (through `LAB_EXPERIENCE_EVENT`, the
- * same pattern as the Atlas), it draws the biometrics capture room as a
- * digital twin and lets a reader walk it: drag to look around, wheel or pinch
- * to move closer, stand where any of the fourteen capture cameras stands,
- * switch the pose overlay and the sightlines, and hold the reconstruction
- * against the photographs it was built from. The page underneath keeps its
- * scroll position; Escape or the close control returns to it with focus back
- * on the button that opened the room.
+ * Opened by the cover's "Enter the Lab", the viewer expands the same
+ * photograph to full height and lets a reader explore it: pan the room,
+ * hover or focus a capture camera for its number, select one for where it
+ * stands, what it sees and its line to the subject, and switch on the layers
+ * — the pose a model would read, the sightlines of the whole camera ring,
+ * the movement signal that a walk through the capture zone produces.
  *
- * QUALITY IS DECIDED ONCE, ON OPEN. A desktop with a fine pointer and a few
- * cores gets the reflective floor, 2048px shadows and a higher pixel ratio; a
- * phone gets the same room with a matte floor, 1024px shadows and a lower
- * cap. A device without WebGL is shown the photographs instead. Reduced
- * motion stills the auto-orbit, the fans and the figure's idle presence — the
- * room still turns under the reader's hand.
- *
- * THE LOADER IS REAL. `useProgress` reports the assets actually fetched —
- * textures, the HDRI, the fixtures, the avatar — and the veil lifts only when
- * the first frames have been drawn. Nothing counts to a hundred on a timer.
+ * REALITY IS THE PICTURE; THE TWIN IS SECONDARY. The photograph is the
+ * default and the premium visual. The three-dimensional reconstruction is a
+ * mode a reader may choose, labelled plainly as an approximate interactive
+ * reconstruction; its chunk and its assets load only when chosen, so a phone
+ * never pays for it unasked. Escape or the close control returns to the page
+ * with focus back on the button that opened the room.
  */
 export function LabExperience() {
   const [open, setOpen] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [webgl, setWebgl] = useState(true);
-  const [view, setView] = useState<LabView>({ kind: "orbit" });
-  const [showPose, setShowPose] = useState(false);
-  const [showSightlines, setShowSightlines] = useState(false);
-  const [compare, setCompare] = useState<(typeof LAB_PHOTOS)[number]["id"] | null>(null);
-  const [compareOpacity, setCompareOpacity] = useState(0.55);
+  const [from, setFrom] = useState<DOMRect | null>(null);
+  const [mode, setMode] = useState<Mode>("photo");
+  const [layers, setLayers] = useState<PhotoLayers>({ cameras: false, pose: false, sightlines: false, movement: false });
+  const [selected, setSelected] = useState<string | null>(null);
+  const [twinView, setTwinView] = useState<LabView>({ kind: "orbit" });
+  const [twinReady, setTwinReady] = useState(false);
+  const [progress, setProgress] = useState<LabProgress>({ progress: 0, loaded: 0, total: 0, item: "" });
   const [quality, setQuality] = useState<LabQuality>("high");
   const [reducedMotion, setReducedMotion] = useState(false);
   const [coarse, setCoarse] = useState(false);
+  const [webgl, setWebgl] = useState(true);
 
   const openerRef = useRef<HTMLElement | null>(null);
   const shellRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState<LabProgress>({ progress: 0, loaded: 0, total: 0, item: "" });
-
-  /* Loading progress arrives from the scene chunk by event, so this shell
-     never imports the 3D library into the page bundle. */
-  useEffect(() => {
-    const onProgress = (event: Event) => setProgress((event as CustomEvent<LabProgress>).detail);
-    window.addEventListener(LAB_PROGRESS_EVENT, onProgress);
-    return () => window.removeEventListener(LAB_PROGRESS_EVENT, onProgress);
-  }, []);
 
   useEffect(() => {
-    const onRequest = () => {
+    const onRequest = (event: Event) => {
       openerRef.current = document.activeElement as HTMLElement | null;
       const pointerCoarse = window.matchMedia("(pointer: coarse)").matches;
       const cores = navigator.hardwareConcurrency ?? 4;
-      const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
       setCoarse(pointerCoarse);
-      setQuality(!pointerCoarse && cores >= 4 && memory >= 4 && window.innerWidth >= 900 ? "high" : "low");
+      setQuality(!pointerCoarse && cores >= 4 && window.innerWidth >= 900 ? "high" : "low");
       setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
       setWebgl(supportsWebGL());
+      setFrom((event as CustomEvent<EnterLabDetail>).detail?.from ?? null);
       setOpen(true);
     };
+    const onProgress = (event: Event) => setProgress((event as CustomEvent<LabProgress>).detail);
     window.addEventListener(LAB_EXPERIENCE_EVENT, onRequest);
-    return () => window.removeEventListener(LAB_EXPERIENCE_EVENT, onRequest);
+    window.addEventListener(LAB_PROGRESS_EVENT, onProgress);
+    return () => {
+      window.removeEventListener(LAB_EXPERIENCE_EVENT, onRequest);
+      window.removeEventListener(LAB_PROGRESS_EVENT, onProgress);
+    };
   }, []);
 
   const close = useCallback(() => {
     setOpen(false);
-    setReady(false);
-    setView({ kind: "orbit" });
-    setCompare(null);
+    setMode("photo");
+    setSelected(null);
+    setTwinView({ kind: "orbit" });
+    setTwinReady(false);
     setProgress({ progress: 0, loaded: 0, total: 0, item: "" });
   }, []);
 
@@ -123,17 +117,31 @@ export function LabExperience() {
     };
   }, [open, close]);
 
-  /* Which part of the room is arriving, from the asset actually being fetched. */
+  const toggle = (key: keyof PhotoLayers) => setLayers((l) => ({ ...l, [key]: !l[key] }));
+  const overview = () => {
+    setMode("photo");
+    setSelected(null);
+    setTwinView({ kind: "orbit" });
+  };
+  const chosen = useMemo(() => PHOTO_CAMERAS.find((c) => c.id === selected) ?? null, [selected]);
   const stage = useMemo(() => stageOf(progress.item), [progress.item]);
-  const photo = LAB_PHOTOS.find((p) => p.id === compare) ?? null;
 
   if (!open) return null;
 
-  const cameraIndex = view.kind === "camera" ? view.index : -1;
+  const twin = mode === "twin";
+  const cameraIndex = twinView.kind === "camera" ? twinView.index : -1;
   const stepCamera = (delta: number) => {
     const next = cameraIndex < 0 ? (delta > 0 ? 0 : CAPTURE_CAMERA_COUNT - 1) : (cameraIndex + delta + CAPTURE_CAMERA_COUNT) % CAPTURE_CAMERA_COUNT;
-    setView({ kind: "camera", index: next });
+    setTwinView({ kind: "camera", index: next });
   };
+
+  const caption = twin
+    ? "Approximate interactive reconstruction of the room, built from the photographs"
+    : chosen
+      ? `Camera ${chosen.id} · ${chosen.place} · ${chosen.view}`
+      : coarse
+        ? "Drag to look around · Tap a camera"
+        : "Drag to look around · Hover a camera, select it for its view · Esc to leave";
 
   return (
     <div
@@ -144,33 +152,28 @@ export function LabExperience() {
       aria-describedby="lab-experience-desc"
       className={`${styles.shell} ${reducedMotion ? styles.shellStill : ""}`}
     >
-      {webgl ? (
-        <div className={styles.stage} aria-hidden="true">
-          <LabScene view={view} showPose={showPose} showSightlines={showSightlines} quality={quality} reducedMotion={reducedMotion} onReady={() => setReady(true)} />
+      {/* ── The room ── */}
+      {twin ? (
+        <div className={styles.twinStage} aria-hidden="true">
+          <LabScene view={twinView} showPose={layers.pose} showSightlines={layers.sightlines} quality={quality} reducedMotion={reducedMotion} onReady={() => setTwinReady(true)} />
         </div>
       ) : (
-        <NoWebGL />
+        <LabPhotoStage layers={layers} selected={selected} onSelect={setSelected} reducedMotion={reducedMotion} entering={from} />
       )}
 
       <p id="lab-experience-desc" className="sr-only">
-        A three-dimensional reconstruction of the GaitAI biometrics capture room: a long hall with louvered windows, a
-        polished tiled floor and workstations along one side. The founder stands at the centre of a clear floor, and
-        {" "}{CAPTURE_CAMERA_COUNT} camera tripods around the room all point at her. Drag to look around; the controls below
-        move the view to each camera&apos;s position.
+        A photograph of the GaitAI biometrics capture room: a long bright hall with louvered windows and a polished tiled
+        floor. Anubha Parashar stands at the centre of a clear capture zone, and twelve tripod-mounted cameras around
+        the room all point at her. Each camera is a button that names where it stands and what it sees. Controls switch
+        on the pose overlay, the cameras&apos; sightlines and the movement signal, or open an approximate
+        three-dimensional reconstruction.
       </p>
 
-      {/* The photograph the twin is compared against, over the room, at the chosen strength. */}
-      {webgl && photo && (
-        <div className={styles.compare} aria-hidden="true" style={{ opacity: compareOpacity }}>
-          <Image src={assetPath(photo.src)} alt="" fill sizes="100vw" className={styles.compareImage} priority />
-        </div>
-      )}
-
-      {/* The veil, until the first frames are drawn — with what is actually arriving. */}
-      {webgl && (
-        <div className={`${styles.veil} ${ready ? styles.veilHidden : ""}`} aria-hidden={ready}>
+      {/* The twin's veil, until its first frames are drawn — with what is actually arriving. */}
+      {twin && (
+        <div className={`${styles.veil} ${twinReady ? styles.veilHidden : ""}`} aria-hidden={twinReady}>
           <div className={styles.veilBox}>
-            <span className={styles.veilTitle}>Preparing the biometrics lab</span>
+            <span className={styles.veilTitle}>Preparing the digital twin</span>
             <ol className={styles.veilList}>
               {STAGES.map((s) => (
                 <li key={s.id} className={`${styles.veilItem} ${stage === s.id ? styles.veilItemOn : ""} ${stageDone(s.id, stage, progress.progress) ? styles.veilItemDone : ""}`}>
@@ -183,89 +186,90 @@ export function LabExperience() {
               <span className={styles.veilBar} style={{ transform: `scaleX(${Math.max(0.02, progress.progress / 100)})` }} />
             </span>
             <span className={styles.veilText}>
-              {progress.total > 0 ? `${progress.loaded} of ${progress.total} assets · ${Math.round(progress.progress)}%` : "Fetching the room…"}
+              {progress.total > 0 ? `${progress.loaded} of ${progress.total} assets · ${Math.round(progress.progress)}%` : "Fetching the reconstruction…"}
             </span>
           </div>
         </div>
       )}
 
-      {/* ── Top bar ── */}
+      {/* ── Chrome: one bar, restrained ── */}
       <header className={styles.top}>
         <div className={styles.titleBlock}>
           <span className={styles.eyebrow}>GaitAI Labs · Biometrics capture room</span>
           <h2 id="lab-experience-title" className={styles.title}>
-            The lab, in three dimensions
+            {twin ? "Digital twin" : "The real room"}
           </h2>
+          <p className={`${styles.caption} ${chosen && !twin ? styles.captionOn : ""}`} aria-live="polite">
+            {caption}
+          </p>
         </div>
-        <button type="button" onClick={close} aria-label="Close the lab" className={styles.close} data-autofocus>
-          <span aria-hidden="true">✕</span>
-        </button>
-      </header>
 
-      {/* ── Bottom dock: viewpoint, layers, the real room ── */}
-      {webgl && (
-        <div className={styles.bottom}>
-          <div className={styles.group} role="group" aria-label="Viewpoint">
-            <button type="button" className={`${styles.chip} ${view.kind === "orbit" ? styles.chipOn : ""}`} aria-pressed={view.kind === "orbit"} onClick={() => setView({ kind: "orbit" })}>
-              Overview
-            </button>
+        <div className={styles.controls} role="toolbar" aria-label="Lab controls">
+          <button type="button" className={styles.chip} onClick={overview}>
+            Overview
+          </button>
+          {twin ? (
             <span className={styles.cameraStep}>
               <button type="button" className={styles.stepBtn} aria-label="Previous capture camera" onClick={() => stepCamera(-1)}>
                 <span aria-hidden="true">‹</span>
               </button>
               <button
                 type="button"
-                className={`${styles.chip} ${view.kind === "camera" ? styles.chipOn : ""}`}
-                aria-pressed={view.kind === "camera"}
-                onClick={() => (view.kind === "camera" ? setView({ kind: "orbit" }) : setView({ kind: "camera", index: 0 }))}
+                className={`${styles.chip} ${twinView.kind === "camera" ? styles.chipOn : ""}`}
+                aria-pressed={twinView.kind === "camera"}
+                onClick={() => (twinView.kind === "camera" ? setTwinView({ kind: "orbit" }) : setTwinView({ kind: "camera", index: 0 }))}
               >
-                {view.kind === "camera" ? `Camera ${String(view.index + 1).padStart(2, "0")} / ${CAPTURE_CAMERA_COUNT}` : `From a capture camera · ${CAPTURE_CAMERA_COUNT}`}
+                {twinView.kind === "camera" ? `Camera ${String(twinView.index + 1).padStart(2, "0")} / ${CAPTURE_CAMERA_COUNT}` : "Cameras"}
               </button>
               <button type="button" className={styles.stepBtn} aria-label="Next capture camera" onClick={() => stepCamera(1)}>
                 <span aria-hidden="true">›</span>
               </button>
             </span>
-          </div>
-
-          <div className={styles.group} role="group" aria-label="Layers">
-            <button type="button" className={`${styles.chip} ${showPose ? styles.chipOn : ""}`} aria-pressed={showPose} onClick={() => setShowPose((v) => !v)}>
-              <span aria-hidden="true" className={styles.dot} />
-              Pose overlay
+          ) : (
+            <button type="button" className={`${styles.chip} ${layers.cameras ? styles.chipOn : ""}`} aria-pressed={layers.cameras} onClick={() => toggle("cameras")}>
+              Cameras
             </button>
-            <button type="button" className={`${styles.chip} ${showSightlines ? styles.chipOn : ""}`} aria-pressed={showSightlines} onClick={() => setShowSightlines((v) => !v)}>
-              <span aria-hidden="true" className={styles.dot} />
-              Sightlines
+          )}
+          <button type="button" className={`${styles.chip} ${layers.pose ? styles.chipOn : ""}`} aria-pressed={layers.pose} onClick={() => toggle("pose")}>
+            Pose
+          </button>
+          <button type="button" className={`${styles.chip} ${layers.sightlines ? styles.chipOn : ""}`} aria-pressed={layers.sightlines} onClick={() => toggle("sightlines")}>
+            Sightlines
+          </button>
+          {!twin && (
+            <button type="button" className={`${styles.chip} ${layers.movement ? styles.chipOn : ""}`} aria-pressed={layers.movement} onClick={() => toggle("movement")}>
+              Movement
             </button>
-          </div>
-
-          <div className={styles.group} role="group" aria-label="The real room">
-            <button type="button" className={`${styles.chip} ${compare ? styles.chipOn : ""}`} aria-pressed={Boolean(compare)} onClick={() => setCompare((c) => (c ? null : LAB_PHOTOS[0].id))}>
-              The real room
+          )}
+          <span className={styles.seg} role="group" aria-label="Room mode">
+            <button type="button" className={`${styles.segBtn} ${!twin ? styles.segOn : ""}`} aria-pressed={!twin} onClick={() => setMode("photo")}>
+              Real room
             </button>
-            {compare && (
-              <>
-                {LAB_PHOTOS.map((p) => (
-                  <button key={p.id} type="button" className={`${styles.chip} ${styles.chipSmall} ${compare === p.id ? styles.chipOn : ""}`} aria-pressed={compare === p.id} onClick={() => setCompare(p.id)}>
-                    {p.label}
-                  </button>
-                ))}
-                <label className={styles.slider}>
-                  <span className={styles.sliderLabel}>Twin</span>
-                  <input type="range" min={0} max={100} value={Math.round(compareOpacity * 100)} onChange={(e) => setCompareOpacity(Number(e.target.value) / 100)} aria-label="Blend between the digital twin and the photograph" />
-                  <span className={styles.sliderLabel}>Photo</span>
-                </label>
-              </>
-            )}
-          </div>
-
-          <p className={styles.hint}>
-            {compare
-              ? `Photograph over the twin · ${photo?.caption ?? ""}`
-              : coarse
-                ? "Drag to look around · Pinch to move closer"
-                : "Drag to look around · Scroll to move closer · Esc to leave"}
-          </p>
+            <button
+              type="button"
+              className={`${styles.segBtn} ${twin ? styles.segOn : ""}`}
+              aria-pressed={twin}
+              disabled={!webgl}
+              title={webgl ? "An approximate interactive reconstruction" : "This device cannot draw the reconstruction"}
+              onClick={() => {
+                setSelected(null);
+                setMode("twin");
+              }}
+            >
+              Digital twin
+            </button>
+          </span>
+          <button type="button" onClick={close} aria-label="Close the lab" className={styles.close} data-autofocus>
+            <span aria-hidden="true">✕</span>
+          </button>
         </div>
+      </header>
+
+      {twin && (
+        <p className={styles.twinTag}>
+          <span className={styles.twinTagMark} aria-hidden="true" />
+          Digital twin · approximate interactive reconstruction
+        </p>
       )}
     </div>
   );
@@ -288,7 +292,6 @@ function stageOf(item: string): StageId {
   return "room";
 }
 
-/** A stage reads as done once the loader has moved past it or everything is in. */
 function stageDone(id: StageId, current: StageId, percent: number) {
   if (percent >= 100) return true;
   const order = STAGES.map((s) => s.id);
@@ -302,21 +305,4 @@ function supportsWebGL() {
   } catch {
     return false;
   }
-}
-
-/** For a device that cannot draw the room: the photographs, and a word why. */
-function NoWebGL() {
-  return (
-    <div className={styles.fallback}>
-      <p className={styles.fallbackNote}>This device cannot draw the room in three dimensions. These are the photographs it is built from.</p>
-      <div className={styles.fallbackGrid}>
-        {LAB_PHOTOS.map((p) => (
-          <figure key={p.id} className={styles.fallbackFigure}>
-            <Image src={assetPath(p.src)} alt={p.caption} width={900} height={507} className={styles.photoImage} />
-            <figcaption className={styles.photoCaption}>{p.caption}</figcaption>
-          </figure>
-        ))}
-      </div>
-    </div>
-  );
 }

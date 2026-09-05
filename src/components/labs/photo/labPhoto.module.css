@@ -1,0 +1,257 @@
+/*
+ * THE REAL ROOM — the photograph and the marks drawn on it.
+ *
+ * Everything here is restrained on purpose: one cyan, hairlines, small type,
+ * low opacity. The photograph is the picture; these are the notes on it.
+ */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transform-origin: 0 0;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.frame {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transition: transform 0.08s linear;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ── The capture zone ── */
+.zone {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.5);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+
+.zoneLabel {
+  fill: rgb(200 240 255 / 0.85);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  paint-order: stroke;
+  stroke: rgb(7 11 20 / 0.35);
+  stroke-width: 3px;
+}
+
+/* ── Sightlines ── */
+.sightline {
+  stroke: rgb(79 209 255 / 0.3);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 0.25s ease;
+}
+
+.sightlineOn {
+  stroke: rgb(79 209 255 / 0.85);
+  stroke-width: 1.4;
+}
+
+/* ── Pose ── */
+.bone {
+  stroke: rgb(79 209 255 / 0.62);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.joint {
+  fill: rgb(159 230 255 / 0.85);
+  stroke: rgb(7 11 20 / 0.35);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Movement signal ── */
+.walk {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.55);
+  stroke-width: 1.2;
+  stroke-dasharray: 6 8;
+  vector-effect: non-scaling-stroke;
+  animation: lab-walk 2.2s linear infinite;
+}
+
+@keyframes lab-walk {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+.footstep {
+  fill: rgb(79 209 255 / 0.28);
+  stroke: rgb(79 209 255 / 0.6);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+  animation: lab-step 2s ease-in-out infinite;
+}
+
+@keyframes lab-step {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.leader {
+  stroke: rgb(79 209 255 / 0.35);
+  stroke-width: 0.9;
+  stroke-dasharray: 3 5;
+  vector-effect: non-scaling-stroke;
+}
+
+.signalBox {
+  fill: rgb(7 11 20 / 0.55);
+  stroke: rgb(255 255 255 / 0.14);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.signal {
+  fill: none;
+  stroke: url(#lab-signal);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: lab-trace 3.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes lab-trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.signalLabel {
+  fill: rgb(200 240 255 / 0.85);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+}
+
+.still .walk,
+.still .footstep,
+.still .signal {
+  animation: none;
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+/* ── Camera hotspots ── */
+.hotspot {
+  position: absolute;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -1.375rem 0 0 -1.375rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.ring {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1.5px solid rgb(79 209 255 / 0.85);
+  background: rgb(79 209 255 / 0.12);
+  box-shadow: 0 0 0 4px rgb(79 209 255 / 0.1), 0 0 14px rgb(79 209 255 / 0.35);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hotspot:hover .ring,
+.hotspot:focus-visible .ring {
+  transform: scale(1.25);
+  background: rgb(79 209 255 / 0.3);
+}
+
+.hotspotOn .ring {
+  background: #4fd1ff;
+  box-shadow: 0 0 0 5px rgb(79 209 255 / 0.18), 0 0 22px rgb(79 209 255 / 0.55);
+}
+
+.hotspot:focus-visible {
+  outline: none;
+}
+
+.hotspot:focus-visible .ring {
+  box-shadow: 0 0 0 3px #070b14, 0 0 0 5px #4fd1ff;
+}
+
+.tag {
+  position: absolute;
+  left: calc(50% + 0.85rem);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.3rem;
+  background: rgb(7 11 20 / 0.62);
+  color: #dff5ff;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.tagOn {
+  opacity: 1;
+}
+
+/* The two right-most cameras sit at the photograph's edge; their tags go left. */
+.hotspot:nth-last-child(-n + 2) .tag {
+  left: auto;
+  right: calc(50% + 0.85rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .frame,
+  .ring,
+  .tag,
+  .sightline {
+    transition: none;
+  }
+  .walk,
+  .footstep,
+  .signal {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

@@ -58,12 +58,20 @@ export type SubscribeVariant = "blog" | "article" | "contact";
 
 const COPY: Record<
   SubscribeVariant,
-  { title: string; blurb?: string; cta: string; source: SubscribeSource }
+  {
+    title: string;
+    blurb?: string;
+    /** One quiet line under the field, where the block has room for it. */
+    support?: string;
+    cta: string;
+    source: SubscribeSource;
+  }
 > = {
   blog: {
     title: "Stay close to the signal",
     blurb:
       "Research notes, product updates, engineering stories and the latest from GaitAI.",
+    support: "No noise. Just meaningful updates from GaitAI.",
     cta: "Subscribe",
     source: "blog",
   },
@@ -176,6 +184,15 @@ export function SubscribeForm({
         {copy.blurb && <p className={styles.blurb}>{copy.blurb}</p>}
       </div>
 
+      {/* THE LANE, on the blog block only. On a desktop the copy sits left
+          and the field right, and this is the space between them: a hairline
+          that enters from beside the copy, runs cyan into blue into violet,
+          and meets the field — which hands it on to the node beside the
+          button. It is a grid cell with a gradient, drawn behind nothing and
+          over nothing, so it never crosses a line of type. Hidden below the
+          desktop breakpoint, where the block stacks. */}
+      {variant === "blog" && <span aria-hidden="true" className={styles.lane} />}
+
       <form className={styles.form} onSubmit={onSubmit} noValidate>
         {/* The signal: a hairline into the field, terminating at the node
             beside the button. Decorative — the state is in the text. */}
@@ -219,6 +236,8 @@ export function SubscribeForm({
         </button>
       </form>
 
+      {copy.support && <p className={styles.support}>{copy.support}</p>}
+
       {/* One live region for every verdict, so a screen reader hears the
           result without the focus moving. */}
       <p
@@ -235,11 +254,10 @@ export function SubscribeForm({
         <Link href="/insights/unsubscribe" className={styles.legalLink}>
           unsubscribe
         </Link>{" "}
-        at any time. See our{" "}
+        at any time.{" "}
         <Link href="/legal/privacy" className={styles.legalLink}>
-          Privacy Policy
+          Privacy Policy <span aria-hidden="true">→</span>
         </Link>
-        .
       </p>
     </section>
   );

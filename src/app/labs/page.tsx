@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DiagramField } from "@/components/visuals/DiagramField";
+import { LabActionRow } from "@/components/labs/LabActionRow";
 import {
   LABS_BLURB,
   LABS_BOUNDARY,
@@ -10,10 +11,11 @@ import {
   LABS_TITLE_LEAD,
   LAB_BASIS_LABEL,
   labs,
+  type LabRecord,
 } from "@/data/labs";
 
 const DESCRIPTION =
-  "Interactive experiments that make GaitAI's movement-intelligence pipeline easier to understand: the capture-to-intelligence walkthrough, the ecosystem landscape, the signal chain, a footage check, a human/AI reading of one walk, the privacy path, a fusion sandbox and five illustrative sessions to scrub through.";
+  "Interactive experiments that make GaitAI's movement-intelligence pipeline easier to understand: the whole-site Atlas, the capture-to-intelligence walkthrough, the ecosystem landscape, the signal chain, a footage check, a human/AI reading of one walk, the privacy path, a fusion sandbox and five illustrative sessions to scrub through.";
 
 export const metadata: Metadata = {
   title: "GaitAI Labs — Explore movement before deploying it",
@@ -52,7 +54,67 @@ export const metadata: Metadata = {
  * The records live in `data/labs.ts` and the rule there is that a lab exists
  * on this page only once it works. Experiments from the brief that do not run
  * yet are therefore absent, not greyed out.
+ *
+ * ONE ROW IS A BUTTON. The Atlas (01) is an overlay with no route, so its
+ * record is `kind: "action"` and it renders through `LabActionRow` — the same
+ * class list and the same body as the link rows, in a `<button>` that opens
+ * the existing overlay in place. Every other row is a `Link`. The two share
+ * `LabRowBody` so there is one row design, not two that happen to match.
+ *
+ * THE NUMBER IS THE POSITION. 01, 02, … come from the record's place in the
+ * array, so reordering `labs` reorders the page and nothing else has to be
+ * renumbered.
  */
+
+const ROW_CLASS =
+  "row-link group grid gap-x-6 gap-y-3 border-b border-white/[0.06] py-7 sm:grid-cols-[4rem_1fr_auto] sm:items-baseline sm:px-2";
+
+/** The inside of a row — number, copy, arrow — whichever element wraps it. */
+function LabRowBody({ lab, position }: { lab: LabRecord; position: number }) {
+  return (
+    <>
+      {/* The index as type, which is the whole ornament. */}
+      <span
+        aria-hidden="true"
+        className="font-display text-2xl leading-none text-soft-mute transition-colors group-hover:text-cyan-300"
+      >
+        {String(position + 1).padStart(2, "0")}
+      </span>
+
+      <span className="min-w-0">
+        <span className="block font-display text-xl text-soft-white">
+          {lab.name}
+        </span>
+        {/* Plain `text-cyan-300`, never `/90`: the light theme
+            remaps the bare utility to #0e7490, and an opacity
+            modifier generates a class that remap does not cover —
+            which left this line pale cyan on white. */}
+        <span className="mt-1 block text-sm text-cyan-300">{lab.strap}</span>
+        <span className="mt-3 block max-w-xl text-[14.5px] leading-relaxed text-soft-gray">
+          {lab.body}
+        </span>
+
+        <span className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] uppercase tracking-[0.14em] text-soft-mute">
+          <span>{LAB_BASIS_LABEL[lab.basis]}</span>
+          {lab.home && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{lab.home}</span>
+            </>
+          )}
+        </span>
+      </span>
+
+      <span
+        aria-hidden="true"
+        className="row-link-arrow text-soft-mute sm:self-center"
+      >
+        &rarr;
+      </span>
+    </>
+  );
+}
+
 export default function LabsPage() {
   return (
     <>
@@ -99,54 +161,25 @@ export default function LabsPage() {
           <h2 className="sr-only">The experiments</h2>
 
           <ol className="border-t border-white/[0.06]">
-            {labs.map((lab) => (
+            {labs.map((lab, position) => (
               <li key={lab.id}>
-                <Link
-                  href={lab.href}
-                  aria-label={`${lab.name}: ${lab.strap}`}
-                  className="row-link group grid gap-x-6 gap-y-3 border-b border-white/[0.06] py-7 sm:grid-cols-[4rem_1fr_auto] sm:items-baseline sm:px-2"
-                >
-                  {/* The index as type, which is the whole ornament. */}
-                  <span
-                    aria-hidden="true"
-                    className="font-display text-2xl leading-none text-soft-mute transition-colors group-hover:text-cyan-300"
+                {lab.kind === "action" ? (
+                  <LabActionRow
+                    action={lab.action}
+                    label={`Open ${lab.name}: ${lab.strap}`}
+                    className={ROW_CLASS}
                   >
-                    {String(lab.index).padStart(2, "0")}
-                  </span>
-
-                  <span className="min-w-0">
-                    <span className="block font-display text-xl text-soft-white">
-                      {lab.name}
-                    </span>
-                    {/* Plain `text-cyan-300`, never `/90`: the light theme
-                        remaps the bare utility to #0e7490, and an opacity
-                        modifier generates a class that remap does not cover —
-                        which left this line pale cyan on white. */}
-                    <span className="mt-1 block text-sm text-cyan-300">
-                      {lab.strap}
-                    </span>
-                    <span className="mt-3 block max-w-xl text-[14.5px] leading-relaxed text-soft-gray">
-                      {lab.body}
-                    </span>
-
-                    <span className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] uppercase tracking-[0.14em] text-soft-mute">
-                      <span>{LAB_BASIS_LABEL[lab.basis]}</span>
-                      {lab.home && (
-                        <>
-                          <span aria-hidden="true">·</span>
-                          <span>{lab.home}</span>
-                        </>
-                      )}
-                    </span>
-                  </span>
-
-                  <span
-                    aria-hidden="true"
-                    className="row-link-arrow text-soft-mute sm:self-center"
+                    <LabRowBody lab={lab} position={position} />
+                  </LabActionRow>
+                ) : (
+                  <Link
+                    href={lab.href}
+                    aria-label={`${lab.name}: ${lab.strap}`}
+                    className={ROW_CLASS}
                   >
-                    &rarr;
-                  </span>
-                </Link>
+                    <LabRowBody lab={lab} position={position} />
+                  </Link>
+                )}
               </li>
             ))}
           </ol>

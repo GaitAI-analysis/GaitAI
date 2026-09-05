@@ -34,7 +34,7 @@ import { allPublications } from "@/data/publications";
 import { researchAreas } from "@/data/evidence";
 import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
-import { LAB_BASIS_LABEL, labs } from "@/data/labs";
+import { LAB_BASIS_LABEL, labs, type LabAction } from "@/data/labs";
 import {
   comparisonHref,
   comparisonLabel,
@@ -77,7 +77,7 @@ export const SEARCH_GROUP_LABEL: Record<SearchGroup, string> = {
   insight: "Blog",
 };
 
-export interface SearchEntry {
+interface SearchEntryBase {
   id: string;
   group: SearchGroup;
   title: string;
@@ -85,10 +85,23 @@ export interface SearchEntry {
   detail: string;
   /** Short right-aligned qualifier: family, year, record count. */
   meta?: string;
-  href: string;
   /** Lowercased search text assembled from the entry's real vocabulary. */
   haystack: string;
 }
+
+/**
+ * A result is a place or an action, never both and never neither.
+ *
+ * Almost everything here is a place — `href`, which the palette hands to the
+ * router. The Atlas is the exception: it is an overlay with no route, so its
+ * entry carries an `action` the palette runs in place instead of a URL it
+ * would have to invent. The two shapes are a union so `entry.href` is a
+ * string exactly when there is somewhere to go, and the validator refuses an
+ * entry that tries to be both.
+ */
+export type SearchEntry =
+  | (SearchEntryBase & { href: string; action?: undefined })
+  | (SearchEntryBase & { action: LabAction; href?: undefined });
 
 const norm = (parts: (string | undefined)[]) =>
   parts.filter(Boolean).join(" ").toLowerCase();
@@ -232,26 +245,32 @@ const destinationEntries: SearchEntry[] = [
 // a longer page, so their href carries an anchor — which is exactly why they
 // need their own row: nothing else on the site can take a reader straight to
 // the Fusion Sandbox.
-const labEntries: SearchEntry[] = labs.map((lab) => ({
-  id: `lab:${lab.id}`,
-  group: "lab" as const,
-  title: lab.name,
-  detail: lab.strap,
-  /* Where it lives, when that is not simply its own page — the same
-     distinction /labs draws, so the palette and the index agree. */
-  meta: lab.home ?? "Interactive",
-  /* labs.ts already carries trailing slashes before its anchors — the
-     validator enforces it — so this passes the href straight through. */
-  href: lab.href,
-  haystack: norm([
-    lab.name,
-    lab.strap,
-    lab.body,
-    LAB_BASIS_LABEL[lab.basis],
-    lab.home,
-    "lab labs experiment experimental interactive try explore",
-  ]),
-}));
+const labEntries: SearchEntry[] = labs.map((lab) => {
+  const base = {
+    id: `lab:${lab.id}`,
+    group: "lab" as const,
+    title: lab.name,
+    detail: lab.strap,
+    /* Where it lives, when that is not simply its own page — the same
+       distinction /labs draws, so the palette and the index agree. */
+    meta: lab.home ?? "Interactive",
+    haystack: norm([
+      lab.name,
+      lab.strap,
+      lab.body,
+      LAB_BASIS_LABEL[lab.basis],
+      lab.home,
+      "lab labs experiment experimental interactive try explore",
+    ]),
+  };
+  /* An action lab (the Atlas) opens in place from the palette, exactly as it
+     does from /labs — no URL is invented for it. For the route labs, labs.ts
+     already carries trailing slashes before its anchors — the validator
+     enforces it — so the href passes straight through. */
+  return lab.kind === "action"
+    ? { ...base, action: lab.action }
+    : { ...base, href: lab.href };
+});
 
 // ── Named comparisons ──────────────────────────────────────────────────────
 // "WalkScan vs RehabTrack" is a real query, and before this it matched only

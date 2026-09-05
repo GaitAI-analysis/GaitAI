@@ -1,6 +1,6 @@
 "use client";
 
-import { ATLAS_EVENT } from "./atlas-event";
+import { openAtlas } from "./atlas-event";
 import styles from "./atlas.module.css";
 
 /**
@@ -15,7 +15,7 @@ export function AtlasTrigger() {
   return (
     <button
       type="button"
-      onClick={() => window.dispatchEvent(new CustomEvent(ATLAS_EVENT))}
+      onClick={() => openAtlas()}
       aria-label="Open the GaitAI Atlas — the whole site as a map"
       title="GaitAI Atlas"
       className={`${styles.scope} ${styles.navTrigger}`}
@@ -51,7 +51,7 @@ export function AtlasLink({ children }: { children: React.ReactNode }) {
   return (
     <button
       type="button"
-      onClick={() => window.dispatchEvent(new CustomEvent(ATLAS_EVENT))}
+      onClick={() => openAtlas()}
       className="btn-ghost"
     >
       {children}

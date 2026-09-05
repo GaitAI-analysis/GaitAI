@@ -1,16 +1,17 @@
 /**
  * THE ASK GAITAI SYSTEM POLICY
  * =============================================================================
- * WHERE THIS RUNS. Server-side, inside the `askGaitai` Cloud Function, whose
- * build step copies this module in; it is the only thing that ever hands the
- * policy to a model. No code path in the browser reads `systemPrompt()` or
- * `buildMessages()` — the engine imports nothing from this file — so prompt
- * construction, which is trust-sensitive, happens on the side of the boundary
- * a visitor cannot edit. The policy contains no secret; it is a statement of
- * the same boundaries the pages already publish. What holds is that no
- * retrieved record and no visitor message may amend it: see the injection
- * clause at the end, and the engine, which decides refusals from retrieval
- * confidence rather than asking the model to police itself.
+ * WHERE THIS RUNS. Server-side, inside the Ask GaitAI Cloudflare Worker
+ * (worker/), which imports this module directly; it is the only thing that
+ * ever hands the policy to a model. No code path in the browser reads
+ * `systemPrompt()` or `buildMessages()` — the engine imports nothing from this
+ * file — so prompt construction, which is trust-sensitive, happens on the side
+ * of the boundary a visitor cannot edit, from records the Worker resolved out
+ * of its own canonical corpus. The policy contains no secret; it is a
+ * statement of the same boundaries the pages already publish. What holds is
+ * that no record and no visitor message may amend it: see the injection clause
+ * at the end, and the engine, which decides refusals from retrieval confidence
+ * rather than asking the model to police itself.
  *
  * The guardrails below are not invented for the assistant — they are the
  * boundaries the site already states, quoted from the same modules the pages
@@ -159,8 +160,10 @@ export interface ChatTurn {
 /**
  * THE WHOLE CONVERSATION THE MODEL SEES, in one place.
  *
- * The function and the benchmark both call this, so what is benchmarked is
- * byte-for-byte what is deployed. The shape:
+ * The Worker and the benchmark both call this, so what is benchmarked is
+ * byte-for-byte what is deployed. Only the three retrieval fields it reads are
+ * required, so the Worker — which resolves records by id rather than
+ * re-running retrieval — can call it without a full RetrievalResult. The shape:
  *
  *   system     the policy above — byte-stable, every request
  *   history    a short window of prior turns, as plain conversation
@@ -172,9 +175,11 @@ export interface ChatTurn {
  * and it keeps a prior turn's records from being mistaken for this one's.
  * History turns carry their text only — never the records that produced them.
  */
+export type GroundingResult = Pick<RetrievalResult, "docs" | "pageDoc" | "lowConfidence">;
+
 export function buildMessages(options: {
   question: string;
-  result: RetrievalResult;
+  result: GroundingResult;
   pathname: string;
   pageTitle: string;
   history: ChatTurn[];

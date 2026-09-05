@@ -3,30 +3,32 @@
  * =============================================================================
  * The router at `router.huggingface.co` exposes an OpenAI-compatible
  * `/v1/chat/completions` and forwards the call to whichever inference provider
- * serves the requested model (Together, DeepInfra, Novita, Nscale, …). Nothing
- * here is provider-specific: the model id chooses the model, an optional
- * `:provider` suffix pins a provider, and otherwise the router picks one. A
- * Hugging Face MODEL REPOSITORY does not perform inference; only models with
- * a live provider on the router can be called this way, and there is no GPU
- * endpoint to deploy or pay for while idle.
+ * serves the requested model. Nothing here is provider-specific: the model id
+ * chooses the model, an optional `:provider` suffix pins a provider, and
+ * otherwise the router picks one. A Hugging Face MODEL REPOSITORY does not
+ * perform inference; only models with a live provider on the router can be
+ * called this way, and there is no GPU endpoint to deploy or pay for idle.
  *
- * WHAT THE MODEL RECEIVES is decided upstream, by `shared/prompt.ts`: the
- * system policy, a short history window, and the retrieved records in the last
+ * WHAT THE MODEL RECEIVES is decided upstream, by the shared prompt module: the
+ * system policy, a short history window, and the canonical records in the last
  * user turn. This module adds only sampling settings and a deadline.
  *
- * THE TOKEN is a Secret Manager secret injected into this process. It is read
- * from the caller's argument, never from a literal, and never logged.
+ * THE TOKEN arrives as an argument, read by the caller from the Worker's secret
+ * binding. It is used in one header and appears nowhere else — not in a log,
+ * not in an error, not in a response.
  */
 
 export const HF_CHAT_URL = "https://router.huggingface.co/v1/chat/completions";
+/** The router's model catalogue, with per-provider prices. Used by the benchmark only. */
+export const HF_MODELS_URL = "https://router.huggingface.co/v1/models";
 
 export type HfFailure = "timeout" | "rate_limited" | "auth" | "upstream" | "empty";
 
 export class HfError extends Error {
   kind: HfFailure;
   status?: number;
-  constructor(kind: HfFailure, status?: number, detail?: string) {
-    super(`hf:${kind}${status ? `:${status}` : ""}${detail ? ` ${detail}` : ""}`);
+  constructor(kind: HfFailure, status?: number) {
+    super(`hf:${kind}${status ? `:${status}` : ""}`);
     this.name = "HfError";
     this.kind = kind;
     this.status = status;
@@ -40,23 +42,14 @@ export interface ChatMessage {
 
 export interface Completion {
   text: string;
-  /** The router's own identifiers for this call — for logs, never for readers. */
+  /** The router's identifier for the provider it used — for logs, never readers. */
   provider: string;
   usage: { promptTokens: number; completionTokens: number };
   latencyMs: number;
 }
 
-/**
- * Generation settings: as close to deterministic as a sampler gets.
- *
- * The answer must not drift from the records, so the temperature is low. The
- * length ceiling is a parameter because it is the single largest lever on cost
- * and latency; the default is about four tight paragraphs.
- */
-export const SAMPLING = {
-  temperature: 0.2,
-  top_p: 0.9,
-} as const;
+/** As close to deterministic as a sampler gets: the answer must not drift. */
+export const SAMPLING = { temperature: 0.2, top_p: 0.9 } as const;
 
 /**
  * Hybrid-thinking models (Qwen3 and later) reason at length before answering
@@ -73,8 +66,11 @@ export async function chatCompletion(options: {
   messages: ChatMessage[];
   maxTokens: number;
   timeoutMs: number;
+  /** Injectable for unit tests; defaults to the platform fetch. */
+  fetchImpl?: typeof fetch;
 }): Promise<Completion> {
   const { token, model, messages, maxTokens, timeoutMs } = options;
+  const doFetch = options.fetchImpl ?? fetch;
 
   const body: Record<string, unknown> = {
     model,
@@ -83,9 +79,7 @@ export async function chatCompletion(options: {
     stream: false,
     ...SAMPLING,
   };
-  if (wantsNoThink(model)) {
-    body.chat_template_kwargs = { enable_thinking: false };
-  }
+  if (wantsNoThink(model)) body.chat_template_kwargs = { enable_thinking: false };
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -93,7 +87,7 @@ export async function chatCompletion(options: {
 
   let response: Response;
   try {
-    response = await fetch(HF_CHAT_URL, {
+    response = await doFetch(HF_CHAT_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -104,20 +98,22 @@ export async function chatCompletion(options: {
     });
   } catch (error) {
     clearTimeout(timer);
-    if ((error as Error)?.name === "AbortError") throw new HfError("timeout");
-    throw new HfError("upstream", undefined, (error as Error)?.message);
+    if ((error as Error)?.name === "AbortError" || controller.signal.aborted) {
+      throw new HfError("timeout");
+    }
+    throw new HfError("upstream");
   }
 
   let payload: {
     choices?: { message?: { content?: string | null } }[];
     usage?: { prompt_tokens?: number; completion_tokens?: number };
-    error?: unknown;
   };
   try {
     payload = (await response.json()) as typeof payload;
   } catch {
     clearTimeout(timer);
-    throw new HfError("upstream", response.status, "non-JSON body");
+    if (controller.signal.aborted) throw new HfError("timeout");
+    throw new HfError("upstream", response.status);
   } finally {
     clearTimeout(timer);
   }
@@ -126,16 +122,10 @@ export async function chatCompletion(options: {
   if (response.status === 401 || response.status === 402 || response.status === 403) {
     throw new HfError("auth", response.status);
   }
-  if (!response.ok) {
-    const detail =
-      typeof payload?.error === "string"
-        ? payload.error
-        : (payload?.error as { message?: string } | undefined)?.message;
-    throw new HfError("upstream", response.status, detail?.slice(0, 200));
-  }
+  if (!response.ok) throw new HfError("upstream", response.status);
 
-  const text = payload.choices?.[0]?.message?.content ?? "";
-  if (!text.trim()) throw new HfError("empty", response.status);
+  const text = payload?.choices?.[0]?.message?.content ?? "";
+  if (typeof text !== "string" || !text.trim()) throw new HfError("empty", response.status);
 
   return {
     text,

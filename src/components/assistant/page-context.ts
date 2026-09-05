@@ -15,9 +15,9 @@
  * Only safe, structural context is ever read: the pathname, the page title and
  * the page type. No DOM contents, no selection, no referrer, no form values.
  *
- * WHERE IT GOES. The pathname and the title travel with a question to
- * `askGaitai`, the project's own Cloud Function, so the hosted model can
- * resolve "this" against the page — see lib/ask/hosted.ts for the whole of
+ * WHERE IT GOES. When a hosted endpoint is configured, the pathname and the
+ * title travel with a question to the Ask GaitAI Worker so the hosted model
+ * can resolve "this" against the page — see lib/ask/hosted.ts for the whole of
  * what crosses the wire. That is exactly why the restraint above matters: what
  * the assistant knows about the page is auditable in one short function, and
  * it is never more than a route and a title.

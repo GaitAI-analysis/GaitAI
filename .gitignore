@@ -4,14 +4,16 @@ node_modules
 # A build directory that got renamed out of the way of `.next` once, escaped
 # the rule above, and was committed with 323 MB of webpack cache in it.
 .next-acl-blocked
-# The Ask GaitAI Cloud Function's build output, and the two things its build
-# step copies in from the site so there is exactly one retrieval implementation
-# and exactly one corpus (functions/scripts/sync-shared.mjs):
-#   functions/src/shared/   ← src/lib/ask/*.ts
-#   functions/knowledge.json ← public/ask/knowledge.json
-functions/lib
-functions/src/shared
-functions/knowledge.json
+# The Ask GaitAI Cloudflare Worker (worker/): its build output, the compact
+# corpus its build step derives from public/ask/knowledge.json so there is
+# exactly one canonical record set, and its local-secrets file.
+worker/dist
+worker/.wrangler
+worker/src/generated
+worker/.dev.vars
+worker/.dev.vars.*
+.dev.vars
+.dev.vars.*
 out
 build
 dist

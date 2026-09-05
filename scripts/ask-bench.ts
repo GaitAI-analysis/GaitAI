@@ -8,10 +8,15 @@
  * it; the only question is which model answers GaitAI's questions better, and
  * at what latency and cost.
  *
- *   HF_TOKEN=hf_… npm run ask:bench                                  # the default candidates
- *   HF_TOKEN=hf_… npm run ask:bench -- --models Qwen/Qwen3-8B,google/gemma-3-12b-it
- *   HF_TOKEN=hf_… npm run ask:bench -- --brief                        # the 12 brief questions only
- *   HF_TOKEN=hf_… npm run ask:bench -- --json tmp/bench.json          # machine-readable
+ *   HF_TOKEN=… npm run ask:bench                                  # the default candidates
+ *   HF_TOKEN=… npm run ask:bench -- --models Qwen/Qwen3-8B,google/gemma-3-12b-it
+ *   HF_TOKEN=… npm run ask:bench -- --brief                        # the 12 brief questions only
+ *   HF_TOKEN=… npm run ask:bench -- --json tmp/bench.json          # machine-readable
+ *
+ * THE PROVIDER CALL IS THE WORKER'S. `chatCompletion` is imported from
+ * worker/src/hf.ts — the same function, the same headers, the same sampling,
+ * the same thinking switch — so the benchmark measures the deployed call path
+ * and no provider or auth code exists anywhere but the Worker.
  *
  * WHAT IS SCORED, per model
  *   grounding      the answer names the record(s) retrieval surfaced for it
@@ -29,8 +34,8 @@
  * here and counted as local refusals — exactly as the browser behaves.
  *
  * The prompt the model sees is `buildMessages()` from src/lib/ask/prompt.ts —
- * the same function the Cloud Function compiles in. What is benchmarked is
- * byte-for-byte what is deployed.
+ * the same function the Worker imports. What is benchmarked is byte-for-byte
+ * what is deployed.
  */
 
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -40,6 +45,7 @@ import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { buildContextBlock, retrieveGaitAIContext } from "../src/lib/ask/retrieval";
 import { buildMessages } from "../src/lib/ask/prompt";
 import { cleanModelAnswer, selectSources } from "../src/lib/ask/answer";
+import { chatCompletion, HF_MODELS_URL } from "../worker/src/hf";
 
 // ── Arguments ────────────────────────────────────────────────────────────────
 
@@ -59,8 +65,8 @@ const token = process.env.HF_TOKEN ?? "";
 if (!token) {
   console.error(
     "\nHF_TOKEN is not set. The benchmark calls Hugging Face Inference Providers and needs a\n" +
-      "read token with Inference Providers enabled. It is a shell variable here and a Secret\n" +
-      "Manager secret in production — never a NEXT_PUBLIC_ variable and never committed.\n",
+      "read token with Inference Providers enabled. It is a shell variable here and a Cloudflare\n" +
+      "Worker secret in production — never a NEXT_PUBLIC_ variable and never committed.\n",
   );
   process.exit(2);
 }
@@ -71,7 +77,6 @@ const limit = Number(arg("limit") ?? cases.length);
 const jsonOut = arg("json");
 const maxTokens = Number(arg("max-tokens") ?? 450);
 const TIMEOUT_MS = 40_000;
-const ROUTER = "https://router.huggingface.co/v1";
 
 // ── Scoring vocabulary, built from the corpus ────────────────────────────────
 
@@ -129,7 +134,7 @@ interface ProviderInfo {
 async function pricing(): Promise<Map<string, ProviderInfo[]>> {
   const map = new Map<string, ProviderInfo[]>();
   try {
-    const response = await fetch(`${ROUTER}/models`);
+    const response = await fetch(HF_MODELS_URL);
     const payload = (await response.json()) as { data?: { id: string; providers?: ProviderInfo[] }[] };
     for (const entry of payload.data ?? []) map.set(entry.id, entry.providers ?? []);
   } catch {
@@ -153,52 +158,17 @@ function costFor(
   return (promptTokens * match.pricing.input + completionTokens * match.pricing.output) / 1_000_000;
 }
 
-// ── One call ─────────────────────────────────────────────────────────────────
+// ── One call — the Worker's own ─────────────────────────────────────────────
 
-async function complete(model: string, messages: { role: string; content: string }[]) {
-  const body: Record<string, unknown> = {
-    model,
-    messages,
-    max_tokens: maxTokens,
-    temperature: 0.2,
-    top_p: 0.9,
-    stream: false,
+async function complete(model: string, messages: { role: "system" | "user" | "assistant"; content: string }[]) {
+  const result = await chatCompletion({ token, model, messages, maxTokens, timeoutMs: TIMEOUT_MS });
+  return {
+    raw: result.text,
+    latencyMs: result.latencyMs,
+    provider: result.provider,
+    promptTokens: result.usage.promptTokens,
+    completionTokens: result.usage.completionTokens,
   };
-  if (/\bqwen3/i.test(model)) body.chat_template_kwargs = { enable_thinking: false };
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  const started = Date.now();
-  try {
-    const response = await fetch(`${ROUTER}/chat/completions`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-    const latencyMs = Date.now() - started;
-    const payload = (await response.json()) as {
-      choices?: { message?: { content?: string | null } }[];
-      usage?: { prompt_tokens?: number; completion_tokens?: number };
-      error?: unknown;
-    };
-    if (!response.ok) {
-      const detail =
-        typeof payload.error === "string"
-          ? payload.error
-          : (payload.error as { message?: string } | undefined)?.message ?? "";
-      throw new Error(`HTTP ${response.status} ${detail}`.trim());
-    }
-    return {
-      raw: payload.choices?.[0]?.message?.content ?? "",
-      latencyMs,
-      provider: response.headers.get("x-inference-provider") ?? "",
-      promptTokens: payload.usage?.prompt_tokens ?? 0,
-      completionTokens: payload.usage?.completion_tokens ?? 0,
-    };
-  } finally {
-    clearTimeout(timer);
-  }
 }
 
 // ── Run ──────────────────────────────────────────────────────────────────────

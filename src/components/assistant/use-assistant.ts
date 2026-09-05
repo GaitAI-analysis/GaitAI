@@ -11,12 +11,14 @@
  * closing the tab ends it. Nothing is kept across sessions, and the window sent
  * back as context is capped at HISTORY_TURNS.
  *
- * WHAT IS SENT, AND WHERE. A question, the route, the page title and that
- * short window go to `askGaitai`, the project's own Cloud Function, which
- * calls a hosted model on the visitor's behalf. Nothing about the visitor
- * travels with it — no identifier, no storage, no DOM — and the function keeps
- * no transcript. The panel's footer asks people not to type sensitive personal
- * or patient information for exactly this reason.
+ * WHAT IS SENT, AND WHERE. When a hosted endpoint is configured, a question,
+ * the route, the page title, that short window and the ids of the records
+ * retrieval chose go to the Ask GaitAI Worker (worker/), which calls a hosted
+ * model on the visitor's behalf. Nothing about the visitor travels with it —
+ * no identifier, no storage, no DOM — and the Worker keeps no transcript. The
+ * panel's footer says so, and asks people not to type sensitive personal or
+ * patient information for exactly this reason. With no endpoint configured,
+ * nothing leaves the tab.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";

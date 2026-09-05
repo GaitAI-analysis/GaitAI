@@ -22,12 +22,12 @@
     "build:knowledge": "tsx scripts/build-knowledge.mjs",
     "ask:test": "tsx scripts/ask-test.ts",
     "ask:rank": "tsx scripts/ask-ranking-test.ts",
+    "ask:probe": "tsx scripts/ask/regression-probe.ts",
     "ask:bench": "tsx scripts/ask-bench.ts",
-    "functions:sync": "node functions/scripts/sync-shared.mjs",
-    "functions:typecheck": "npm run build:knowledge && npm --prefix functions run typecheck",
-    "functions:build": "npm run build:knowledge && npm --prefix functions run build",
-    "functions:test": "npm run build:knowledge && npm --prefix functions test",
-    "functions:deploy": "npm run functions:build && npx -y firebase-tools@13 deploy --only functions",
+    "worker:corpus": "node worker/scripts/build-corpus.mjs",
+    "worker:typecheck": "npm run build:knowledge && npm --prefix worker run typecheck",
+    "worker:test": "npm run build:knowledge && npm --prefix worker test",
+    "worker:check": "npm run build:knowledge && npm --prefix worker run check",
     "test:insights": "tsx scripts/test-insights-scaling.ts"
   },
   "dependencies": {

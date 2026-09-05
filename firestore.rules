@@ -21,8 +21,8 @@ rules_version = '2';
 //   assistantStats      → Ask GaitAI usage, keyed by PAGE TYPE. Four integers,
 //                         one +1 per write, no text and no identifier the
 //                         schema could hold. ADMIN-ONLY read.
-//   askGaitaiRateLimits, askGaitaiBudget → written only by the askGaitai
-//                       Cloud Function through the Admin SDK; no client rule.
+//   (Ask GaitAI's hosted inference runs in a Cloudflare Worker, not Firebase;
+//    nothing about it is stored here.)
 // =============================================================================
 
 service cloud.firestore {
@@ -336,16 +336,12 @@ service cloud.firestore {
     }
 
     // ---- ASK GAITAI ------------------------------------------------------
-    // `askGaitaiRateLimits/{callerDigest}` and `askGaitaiBudget/{day}` meter
-    // the `askGaitai` Cloud Function, which spends money per question on a
-    // hosted model. Both are written ONLY by the Admin SDK inside the function,
-    // which bypasses these rules, so there is deliberately no `match` for them:
-    // the catch-all deny below is the rule. No client may read a caller digest
-    // or move the budget counter. Enable a TTL policy on `expireAt` for both
-    // collections in the console so they self-empty.
-    //
-    // `assistantStats` above is unrelated and stays: four integers of usage,
-    // keyed by page type, with no text and no identifier.
+    // Firebase is NOT used for Ask GaitAI's hosted inference. Retrieval runs in
+    // the browser; the model call, its rate limiting and its budget live in a
+    // Cloudflare Worker (worker/) with its own storage. Nothing Ask-related is
+    // written to Firestore except `assistantStats` above, which is unrelated to
+    // inference and stays: four integers of usage, keyed by page type, with no
+    // text and no identifier.
 
     // ---- Everything else: deny --------------------------------------------
     // (No catch-all allow. Existing collections used by the rest of the site

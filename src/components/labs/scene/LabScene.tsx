@@ -128,6 +128,21 @@ function drawOutside(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.fillRect(0, 0, w, h);
 }
 
+/** Hair strands: a tangent-space normal map of fine vertical streaks. */
+function drawStrands(ctx: CanvasRenderingContext2D, w: number, h: number) {
+  ctx.fillStyle = "rgb(128,128,255)";
+  ctx.fillRect(0, 0, w, h);
+  const rng = seeded(21);
+  for (let i = 0; i < 900; i += 1) {
+    const x = rng() * w;
+    const tilt = (rng() - 0.5) * 0.06;
+    const lean = rng() > 0.5 ? 1 : -1;
+    ctx.strokeStyle = `rgb(${128 + lean * (14 + rng() * 26)},128,255)`;
+    ctx.lineWidth = 0.6 + rng() * 1.2;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x + tilt * h, h); ctx.stroke();
+  }
+}
+
 /** The whiteboard, with the gait stick-figure sketches from the photograph. */
 function drawWhiteboard(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.fillStyle = "#f4f5f3";
@@ -797,6 +812,7 @@ function CaptureRing({ showSightlines, mats }: { showSightlines: boolean; mats: 
 const BONE = {
   hips: /Hips$/,
   spine1: /Spine1$/,
+  spine2: /Spine2$/,
   neck: /Neck$/,
   head: /Head$/,
   headTop: /HeadTop_End$/,
@@ -843,6 +859,51 @@ const LANDMARK_LINKS: [Landmark, Landmark][] = [
  */
 const STANDING = { upperArmX: 1.16, forearmZ: 0.22 } as const;
 
+/**
+ * HER HAIR. The source character's hair was styled in puffs; those and its
+ * headphones were removed from the mesh by texture region and skull volume
+ * (see public/labs/avatar/README.md), leaving the scalp. Natural straight hair
+ * is added as three fitted surfaces placed FROM THE BONES after posing — the
+ * skull span from Head to HeadTop_End, the fall from just under the neck to
+ * mid-back — so it sits on this asset's actual head and would sit on a
+ * replacement's too: a cap over the crown to the hairline, a curtain over the
+ * back and sides of the skull, and a shell falling straight down the back.
+ * One hair material, matte with a soft sheen — not glossy plastic. A
+ * personalised asset that carries its own hair sets `ADD_HAIR` to false.
+ */
+const ADD_HAIR = true;
+
+function buildHair(local: (b: THREE.Object3D) => THREE.Vector3, bones: Partial<Record<BoneKey, THREE.Object3D>>, material: THREE.Material): THREE.Group | null {
+  const { head, headTop, neck, spine2, hips } = bones;
+  if (!head || !headTop || !neck || !hips) return null;
+  const h = local(head), t = local(headTop), n = local(neck), s2 = spine2 ? local(spine2) : n, hp = local(hips);
+  const skull = t.y - h.y;
+  const R = skull * 0.5 + 0.004;
+  const centre = new THREE.Vector3(0, h.y + skull * 0.52, h.z - 0.006);
+  const g = new THREE.Group();
+  /* crown to hairline, all round */
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(R, 40, 28, 0, Math.PI * 2, 0, Math.PI * 0.4), material);
+  cap.position.copy(centre);
+  /* back and sides of the skull, over the ears, down to the nape */
+  const curtain = new THREE.Mesh(new THREE.SphereGeometry(R + 0.001, 40, 28, Math.PI * 0.9, Math.PI * 1.2, Math.PI * 0.3, Math.PI * 0.42), material);
+  curtain.position.copy(centre);
+  /* the fall: a back-half shell that starts inside the curtain — so there is
+     no seam at the nape — hugs the back (flattened in depth) and tapers to
+     mid-back, between the shoulder blades */
+  const fallTop = centre.y;
+  const fallBottom = s2.y - (s2.y - hp.y) * 0.4;
+  const rTop = R * 0.95, rBottom = R * 0.55;
+  const fall = new THREE.Mesh(new THREE.CylinderGeometry(rTop, rBottom, fallTop - fallBottom, 36, 1, true, Math.PI * 0.5, Math.PI), material);
+  fall.position.set(0, (fallTop + fallBottom) / 2, centre.z + 0.01);
+  fall.scale.z = 0.7;
+  const hem = new THREE.Mesh(new THREE.RingGeometry(rBottom * 0.5, rBottom, 36, 1, Math.PI, Math.PI), material);
+  hem.position.set(0, fallBottom, centre.z + 0.01);
+  hem.rotation.x = Math.PI / 2;
+  hem.scale.z = 0.7;
+  for (const m of [cap, curtain, fall, hem]) { m.castShadow = true; g.add(m); }
+  return g;
+}
+
 function Avatar({ showPose }: { showPose: boolean }) {
   const { scene } = useGLTF(LAB_URLS.avatar, LAB_URLS.draco);
   /* A skinned hierarchy must be cloned with SkeletonUtils, so the clone's
@@ -858,6 +919,31 @@ function Avatar({ showPose }: { showPose: boolean }) {
     return found;
   }, [model]);
   const landmarks = useRef<Record<Landmark, THREE.Vector3>>(Object.fromEntries(LANDMARKS.map((k) => [k, new THREE.Vector3()])) as Record<Landmark, THREE.Vector3>);
+  const group = useRef<THREE.Group>(null);
+  const strands = useCanvasTexture(drawStrands, 256, 512, [6, 3]);
+  const hairMaterial = useMemo(
+    () =>
+      new THREE.MeshPhysicalMaterial({
+        color: "#1a110c",
+        roughness: 0.58,
+        metalness: 0,
+        sheen: 0.4,
+        sheenRoughness: 0.55,
+        sheenColor: new THREE.Color("#4a3426"),
+        anisotropy: 0.5,
+        normalMap: strands ?? undefined,
+        normalScale: new THREE.Vector2(0.7, 0.7),
+        side: THREE.DoubleSide,
+      }),
+    [strands],
+  );
+  useEffect(() => {
+    /* a normal map is data, not colour */
+    if (strands) {
+      strands.colorSpace = THREE.NoColorSpace;
+      strands.needsUpdate = true;
+    }
+  }, [strands]);
 
   useLayoutEffect(() => {
     model.traverse((n) => {
@@ -882,7 +968,21 @@ function Avatar({ showPose }: { showPose: boolean }) {
     if (lForeArm) lForeArm.rotation.z += STANDING.forearmZ;
     if (rForeArm) rForeArm.rotation.z -= STANDING.forearmZ;
     model.updateMatrixWorld(true);
-  }, [model, bones]);
+
+    /* Hair, placed from the posed bones in the avatar group's own frame. */
+    const g = group.current;
+    if (g && ADD_HAIR) {
+      g.updateMatrixWorld(true);
+      const local = (b: THREE.Object3D) => g.worldToLocal(b.getWorldPosition(new THREE.Vector3()));
+      const previous = g.getObjectByName("hair");
+      if (previous) g.remove(previous);
+      const hair = buildHair(local, bones, hairMaterial);
+      if (hair) {
+        hair.name = "hair";
+        g.add(hair);
+      }
+    }
+  }, [model, bones, hairMaterial]);
 
   /* Landmarks from the bones themselves, every frame. */
   useFrame(() => {
@@ -899,7 +999,7 @@ function Avatar({ showPose }: { showPose: boolean }) {
   });
 
   return (
-    <group position={[SUBJECT.x, 0, SUBJECT.z]} rotation={[0, Math.PI, 0]}>
+    <group ref={group} position={[SUBJECT.x, 0, SUBJECT.z]} rotation={[0, Math.PI, 0]}>
       <primitive object={model} />
       {showPose && <PoseOverlay landmarks={landmarks} />}
     </group>

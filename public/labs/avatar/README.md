@@ -11,20 +11,22 @@ still. The pose overlay reads its bones with `getWorldPosition` every frame.
 **Source and licence.** Derived from the "Michelle" character distributed with
 the three.js examples (an Adobe Mixamo character, permitted for use in
 projects; not for standalone redistribution). Changes to the asset: the two
-animation clips were removed; the base-colour atlas was recoloured (trousers
-to denim blue, red accessories to charcoal, skin lightened toward the
+animation clips were removed; the character's hair puffs, headphones and
+sunglass lenses were removed from the mesh — the accessories by their texture
+region (they live on red atlas pixels, the face does not), the hair volume by
+a skull ellipsoid that never reaches the face — leaving the scalp, the face
+and thin frames that read as glasses; the base-colour atlas was recoloured
+(trousers to denim blue, red to charcoal, skin lightened toward the
 photographs); Draco compression with 512 px WebP textures, no
-simplification. 65 bones, 28,106 triangles, one 512² base colour, one 512²
-normal, one 512² metallic-roughness texture; 228 KB.
+simplification. 65 bones, 19,647 triangles, one 512² base colour, one 512²
+normal, one 512² metallic-roughness texture; 194 KB. The room adds natural
+straight hair as fitted surfaces placed from the bones (`buildHair` in
+`LabScene.tsx`).
 
-**What does not match the founder yet, and is not pretended to:** the
-character's hair is styled in puffs rather than long, she wears sunglasses
-and a grey crop top rather than glasses and a red-and-black checked shirt.
-Earlier attempts to cut the hair and accessories off the mesh and to dress
-the body with extra geometry damaged the face and produced the intersecting,
-floating clothing that was visible in the room; they were removed. A clean,
-intact, stable person is shipped instead, and the likeness comes from the
-personalised asset below.
+**What does not match the founder yet, and is not pretended to:** the body
+and face are the source character's (stylised, long-limbed), and she wears a
+grey crop top rather than the red-and-black checked shirt. The likeness comes
+from the personalised asset below; the pipeline is ready for it.
 
 ## Replacing it with a personalised avatar
 

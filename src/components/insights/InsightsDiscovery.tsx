@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, Archive, Compass, Rss } from "lucide-react";
+import { ArrowUpRight, Archive, Compass } from "lucide-react";
 import { publicationTopics, type PublicationStory } from "@/lib/publication";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 
@@ -28,10 +28,13 @@ export function InsightsDiscovery({ stories }: { stories: PublicationStory[] }) 
                 ))}
               </div>
             </div>
+            {/* No RSS card here on purpose. The feed at /insights/rss.xml is
+                for readers and crawlers and is announced in this page's <head>
+                (rel="alternate", see app/insights/page.tsx); a visible link
+                would send ordinary visitors to raw XML. */}
             <nav aria-label="Publication resources" className="grid content-start gap-3">
               <Link href="/insights/archive" className="card-cue flex items-center justify-between rounded-xl border border-white/10 px-5 py-4 text-sm text-soft-white"><span className="flex items-center gap-3"><Archive className="h-4 w-4 text-cyan-300" />Complete archive</span><ArrowUpRight className="card-cue-arrow h-4 w-4" /></Link>
               <Link href="/insights/start-here" className="card-cue flex items-center justify-between rounded-xl border border-white/10 px-5 py-4 text-sm text-soft-white"><span className="flex items-center gap-3"><Compass className="h-4 w-4 text-violet-300" />Foundations</span><ArrowUpRight className="card-cue-arrow h-4 w-4" /></Link>
-              <Link href="/insights/rss.xml" className="card-cue flex items-center justify-between rounded-xl border border-white/10 px-5 py-4 text-sm text-soft-white"><span className="flex items-center gap-3"><Rss className="h-4 w-4 text-amber-300" />RSS feed</span><ArrowUpRight className="card-cue-arrow h-4 w-4" /></Link>
             </nav>
           </div>
         </div>

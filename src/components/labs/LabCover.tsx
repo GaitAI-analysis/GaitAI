@@ -2,20 +2,18 @@ import Image from "next/image";
 import { GAIT_LABS_EYEBROW } from "@/data/labs";
 import { assetPath } from "@/lib/paths";
 import { EnterLabButton } from "./EnterLabButton";
-import { LAB_SITTING_PHOTO } from "./photo/lab-photo-layout";
+import { LAB_PHOTO } from "./photo/lab-photo-layout";
 import styles from "./labCover.module.css";
 
-/** The cover: the founder at work in the lab. */
-export const LAB_COVER_IMAGE = LAB_SITTING_PHOTO.src;
+/** The cover: the founder standing in the lab, at the centre of the camera ring. */
+export const LAB_COVER_IMAGE = LAB_PHOTO.src;
 
 /**
  * STAGE ONE OF GAITAI LABS — the cover.
  *
- * The founder sitting at the round table in the biometrics lab, working at
- * her laptop, seen from behind with the capture cameras standing around the
- * room. This is the human, founder-at-work story, and it is deliberately not
- * the standing figure of the interactive room: the cover says who works
- * here; "Enter the Lab" opens what the room does.
+ * The founder standing at the centre of the biometrics capture room, seen
+ * from behind, with the capture cameras standing around her. "Enter the Lab"
+ * opens the same room in three dimensions, from the same side.
  *
  * Almost no type over the photograph: the eyebrow, one line, one action.
  * The cover is dark in both themes by design, which is why its colours are
@@ -28,7 +26,7 @@ export function LabCover() {
       <div className={styles.media}>
         <Image
           src={assetPath(LAB_COVER_IMAGE)}
-          alt="Anubha Parashar seen from behind, sitting at a round table in the GaitAI biometrics lab and working at a laptop that shows a pose skeleton, with camera tripods standing around the bright room."
+          alt={LAB_PHOTO.alt}
           fill
           priority
           sizes="100vw"

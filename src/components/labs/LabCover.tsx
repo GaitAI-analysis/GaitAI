@@ -2,40 +2,33 @@ import Image from "next/image";
 import { GAIT_LABS_EYEBROW } from "@/data/labs";
 import { assetPath } from "@/lib/paths";
 import { EnterLabButton } from "./EnterLabButton";
+import { LAB_SITTING_PHOTO } from "./photo/lab-photo-layout";
 import styles from "./labCover.module.css";
 
-export const LAB_COVER_IMAGE = "/assets/images/labs/lab-cover.jpg";
+/** The cover: the founder at work in the lab. */
+export const LAB_COVER_IMAGE = LAB_SITTING_PHOTO.src;
 
 /**
- * The cover of GaitAI Labs: the founder standing at the centre of the
- * biometrics capture room, ringed by the cameras that read a walk.
+ * STAGE ONE OF GAITAI LABS — the cover.
  *
- * THE PHOTOGRAPH IS THE HERO, AND THE ONLY COPY IS ONE ACTION. There is no
- * title, blurb or caption over the image any more — the room says what the
- * page is — so the media runs the full width in every viewport, the figure at
- * the centre of the frame is the centre of the section, and "Enter the Lab"
- * sits beneath it on a vertical grade that settles the image into the page.
- * The page keeps an `h1` for assistive technology and the document outline;
- * it is not drawn.
+ * The founder sitting at the round table in the biometrics lab, working at
+ * her laptop, seen from behind with the capture cameras standing around the
+ * room. This is the human, founder-at-work story, and it is deliberately not
+ * the standing figure of the interactive room: the cover says who works
+ * here; "Enter the Lab" opens what the room does.
  *
- * The image is kept, not recoloured: a touch less saturation and light so the
- * daylight room sits inside the dark page instead of in front of it. The
- * cover is dark in both themes by design, which is why its colours are set
- * here rather than through the theme tokens.
- *
- * "Enter the Lab" is a button, not a link: it opens the interactive
- * three-dimensional reconstruction of this same room over the page (see
- * `LabExperience`), and focus returns to it when the room closes.
+ * Almost no type over the photograph: the eyebrow, one line, one action.
+ * The cover is dark in both themes by design, which is why its colours are
+ * set here rather than through the theme tokens. The page keeps an `h1` for
+ * assistive technology and the document outline.
  */
 export function LabCover() {
   return (
     <section className={styles.cover}>
-      <h1 className="sr-only">{GAIT_LABS_EYEBROW}</h1>
-
       <div className={styles.media}>
         <Image
           src={assetPath(LAB_COVER_IMAGE)}
-          alt="Anubha Parashar standing at the centre of the GaitAI biometrics lab, a bright room with louvered windows and a ring of camera tripods all pointed at her."
+          alt="Anubha Parashar seen from behind, sitting at a round table in the GaitAI biometrics lab and working at a laptop that shows a pose skeleton, with camera tripods standing around the bright room."
           fill
           priority
           sizes="100vw"
@@ -45,10 +38,16 @@ export function LabCover() {
       </div>
 
       <div className={`container-wide ${styles.inner}`}>
-        <EnterLabButton className={`btn-primary ${styles.enter}`}>
-          Enter the Lab
-          <span aria-hidden="true"> &rarr;</span>
-        </EnterLabButton>
+        <div className={styles.copy}>
+          <h1 className={styles.eyebrow}>{GAIT_LABS_EYEBROW}</h1>
+          <p className={styles.line}>A room built to understand movement.</p>
+          <div className={styles.actions}>
+            <EnterLabButton className={`btn-primary ${styles.enter}`}>
+              Enter the Lab
+              <span aria-hidden="true"> &rarr;</span>
+            </EnterLabButton>
+          </div>
+        </div>
       </div>
     </section>
   );

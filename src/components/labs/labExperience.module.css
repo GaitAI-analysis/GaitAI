@@ -153,6 +153,53 @@
   color: var(--lx-mute);
 }
 
+/* ── The entrance: the cover photograph dissolving into the room ── */
+.enter {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+  animation: lab-dissolve 1.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.enterImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 45%;
+  animation: lab-approach 1.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes lab-dissolve {
+  0% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes lab-approach {
+  from {
+    transform: scale(1);
+    filter: blur(0);
+  }
+  to {
+    transform: scale(1.08);
+    filter: blur(6px);
+  }
+}
+
+.shellStill .enter,
+.shellStill .enterImage {
+  animation: none;
+  opacity: 0;
+}
+
 /* ── The one bar ── */
 .top {
   position: absolute;

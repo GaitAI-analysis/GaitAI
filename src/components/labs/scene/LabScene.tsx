@@ -11,6 +11,12 @@ import { LAB_PROGRESS_EVENT, type LabProgress } from "../lab-experience-event";
 /**
  * THE GAITAI BIOMETRICS LAB — a digital twin, in three dimensions.
  *
+ * A SECONDARY MODE. The interactive lab's primary experience is the real
+ * photograph with its overlays (photo/LabPhotoStage.tsx); this reconstruction
+ * is offered as DIGITAL TWIN, labelled approximate, and its chunk and assets
+ * load only when a reader chooses it. It is kept for camera viewpoints and
+ * spatial explanation, not pushed toward photorealism.
+ *
  * A reconstruction of the capture room in the reference photographs, built
  * to be believable rather than pristine: pale yellow painted plaster with its
  * marks, pilasters between louvered windows over glazed ones, ceiling beams
@@ -1168,11 +1174,26 @@ function Rig({ view, reducedMotion }: { view: LabView; reducedMotion: boolean })
  *  without importing this chunk's library. Rendered outside Suspense, so it
  *  runs while the assets are still arriving. */
 function ProgressBridge() {
-  const { progress, loaded, total, item } = useProgress();
   useEffect(() => {
-    const detail: LabProgress = { progress, loaded, total, item };
-    window.dispatchEvent(new CustomEvent<LabProgress>(LAB_PROGRESS_EVENT, { detail }));
-  }, [progress, loaded, total, item]);
+    let frame = 0;
+    const publish = () => {
+      cancelAnimationFrame(frame);
+      /* Deferred to the next frame: the loading manager fires while other
+         components are suspending mid-render, and a state update then would
+         be a React warning. */
+      frame = requestAnimationFrame(() => {
+        const { progress, loaded, total, item } = useProgress.getState();
+        const detail: LabProgress = { progress, loaded, total, item };
+        window.dispatchEvent(new CustomEvent<LabProgress>(LAB_PROGRESS_EVENT, { detail }));
+      });
+    };
+    publish();
+    const unsubscribe = useProgress.subscribe(publish);
+    return () => {
+      unsubscribe();
+      cancelAnimationFrame(frame);
+    };
+  }, []);
   return null;
 }
 
@@ -1215,7 +1236,7 @@ export default function LabScene(props: LabSceneProps) {
   return (
     <Canvas
       shadows="soft"
-      dpr={props.quality === "high" ? [1, 1.6] : [1, 1.2]}
+      dpr={props.quality === "high" ? [1, 1.5] : [1, 1.1]}
       camera={{ position: OVERVIEW.position, fov: 50, near: 0.05, far: 60 }}
       gl={{ antialias: true, powerPreference: "high-performance", alpha: false, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.0, outputColorSpace: THREE.SRGBColorSpace }}
       style={{ touchAction: "none" }}

@@ -84,6 +84,32 @@ export interface Knowledge {
 /** Where `build:knowledge` writes the browser copy. */
 export const CORPUS_URL = "/ask/knowledge.json";
 
+/**
+ * THE CORPUS IS VERSIONED IN ITS URL, SO A DEPLOY REACHES EVERY VISITOR.
+ *
+ * `next.config.mjs` hashes `public/ask/knowledge.json` at build time and inlines
+ * the digest here as NEXT_PUBLIC_ASK_CORPUS_VERSION. The fetch below appends it
+ * as `?v=<digest>`, so a new corpus is a new URL: the browser's HTTP cache, any
+ * CDN in front of GitHub Pages, and a service worker all miss on it and fetch
+ * the fresh file, with no hard refresh and no cache-busting header the static
+ * host would ignore anyway. An unchanged corpus keeps its URL and its cache.
+ *
+ * This replaced `cache: "force-cache"`, which told the browser to serve a
+ * stale copy indefinitely whenever it had one — so a visitor who had opened
+ * the assistant once kept answering from that day's records until they
+ * happened to clear their cache. The Node harnesses see no env var and fall
+ * back to a blank version, which is fine: they read the file off disk.
+ */
+/* Written exactly as `process.env.NEXT_PUBLIC_…`: that is the member
+   expression Next's compiler replaces with the literal at build time. */
+export const CORPUS_VERSION: string =
+  process.env.NEXT_PUBLIC_ASK_CORPUS_VERSION ?? "";
+
+export function corpusUrl(basePath = ""): string {
+  const url = `${basePath}${CORPUS_URL}`;
+  return CORPUS_VERSION ? `${url}?v=${encodeURIComponent(CORPUS_VERSION)}` : url;
+}
+
 let corpus: Knowledge | null = null;
 let inFlight: Promise<Knowledge> | null = null;
 
@@ -91,16 +117,17 @@ let inFlight: Promise<Knowledge> | null = null;
  * Fetch the corpus once per page load.
  *
  * Concurrent callers share one request — the panel asks for it on open and the
- * first question may arrive before that settles.
+ * first question may arrive before that settles. No cache directive: the URL
+ * carries the version, so the browser's ordinary HTTP caching is exactly right
+ * (and Node's fetch, which the function's copy of this module compiles
+ * against, has no `cache` option at all).
  */
 export async function loadCorpus(basePath = ""): Promise<Knowledge> {
   if (corpus) return corpus;
   if (inFlight) return inFlight;
 
   inFlight = (async () => {
-    const response = await fetch(`${basePath}${CORPUS_URL}`, {
-      cache: "force-cache",
-    });
+    const response = await fetch(corpusUrl(basePath));
     if (!response.ok) {
       throw new Error(`corpus ${response.status}`);
     }

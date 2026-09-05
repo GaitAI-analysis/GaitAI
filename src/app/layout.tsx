@@ -180,8 +180,8 @@ export default function RootLayout({
             </main>
             <Footer />
             {/* Ask GaitAI. Mounted last and positioned fixed, so it overlays
-                every route without entering any page's layout — and renders
-                nothing at all when no backend endpoint is configured. */}
+                every route without entering any page's layout. Retrieval runs
+                in the tab; prose comes from the project's own Cloud Function. */}
             <AskGaitAI />
             {/* Atlas, level two. Renders nothing until it is opened, so it
                 costs one event listener and no markup on any route. */}

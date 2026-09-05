@@ -15,11 +15,12 @@
  * Only safe, structural context is ever read: the pathname, the page title and
  * the page type. No DOM contents, no selection, no referrer, no form values.
  *
- * It goes nowhere. This note used to say "sent to the server", which stopped
- * being true when the cloud function was deleted — inference runs in this tab,
- * so the context is handed to a model in the same browser and never leaves it.
- * The restraint is still worth keeping: it is what makes the assistant's page
- * awareness auditable in one short function.
+ * WHERE IT GOES. The pathname and the title travel with a question to
+ * `askGaitai`, the project's own Cloud Function, so the hosted model can
+ * resolve "this" against the page — see lib/ask/hosted.ts for the whole of
+ * what crosses the wire. That is exactly why the restraint above matters: what
+ * the assistant knows about the page is auditable in one short function, and
+ * it is never more than a route and a title.
  */
 
 export type PageType =

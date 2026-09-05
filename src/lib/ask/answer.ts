@@ -1,22 +1,87 @@
 /**
  * RESPONSE POST-PROCESSING
  * =============================================================================
- * What a model may put on screen. Inference runs in the visitor's own browser
- * (see ask/model.ts), so there is no request to validate and no trust boundary
- * to cross — the model output is still checked, because a local model can
- * hallucinate a route exactly as well as a hosted one.
+ * What a model may put on screen, and what travels under it.
  *
- * REMOVED WITH THE CLOUD FUNCTION: `LIMITS`, `AskRequest`, `ValidationResult`
- * and `validateRequest`, which checked what a browser was permitted to POST.
- * They had no callers left in `src/` and their doc comment still described a
- * server-side trust boundary — which is the kind of comment that gets believed
- * during a security review. The compiled copies under `functions/lib/` are
- * gitignored build output from the deleted function, not live code.
+ * WHERE THIS RUNS. Twice. The `askGaitai` Cloud Function compiles this module
+ * in and applies it to the hosted model's completion before anything is
+ * returned — that is the authoritative check, on the side of the boundary a
+ * visitor cannot edit. The browser then applies `sanitizeLinks` again to
+ * whatever it receives, because the rule that matters most is the one applied
+ * closest to the DOM. Both copies are this file: the function's build step
+ * copies `src/lib/ask/` rather than keeping a second implementation in step by
+ * hand.
+ *
+ * Request validation — what a browser may POST — lives in the function
+ * (`functions/src/validate.ts`), not here: it is a server-side concern and a
+ * comment describing it in the client bundle is the kind of comment that gets
+ * believed during a security review.
  */
 
 import { allowedRoutes, knowledge, type KnowledgeDoc } from "./corpus";
 
 // ── Outbound ────────────────────────────────────────────────────────────────
+
+/**
+ * Make a hosted model's raw completion fit to render.
+ *
+ * In order:
+ *   1. Reasoning traces. A hybrid-thinking model may emit `<think>…</think>`
+ *      even when told not to; a reader must never see one, and an unterminated
+ *      trace (the budget ran out mid-thought) is dropped from the start.
+ *   2. A "Sources" section the model wrote itself. The interface renders one
+ *      from the retrieved records, so a model-authored list is at best a
+ *      duplicate and at worst a list of invented pages.
+ *   3. Bare URLs. The policy says never to write one; anything that looks like
+ *      `http://…` is removed outright, because an external destination is not
+ *      something the model may choose. (An allowlisted markdown link survives
+ *      step 4; a bare one never appears in a record and so is never allowed.)
+ *   4. Markdown links outside the corpus route allowlist, degraded to their
+ *      label by `sanitizeLinks`.
+ */
+export function cleanModelAnswer(raw: string): string {
+  let text = raw.replace(/\r\n/g, "\n");
+
+  /* 1 · reasoning traces, terminated or not. */
+  text = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  text = text.replace(/^[\s\S]*?<\/think>/i, "");
+  text = text.replace(/<think>[\s\S]*$/i, "");
+
+  /* 2 · a trailing Sources / References block, as a heading or a bold label. */
+  text = text.replace(
+    /\n+(?:#{1,6}\s*|\*\*)?\s*(?:sources?|references?|related links?)\s*:?\s*(?:\*\*)?\s*\n[\s\S]*$/i,
+    "",
+  );
+
+  /* 3 · bare URLs, including those in angle brackets or trailing punctuation. */
+  text = text.replace(/<?\bhttps?:\/\/[^\s<>()\]]+>?/gi, "");
+
+  /* 4 · off-allowlist markdown links become their own label. */
+  text = sanitizeLinks(text);
+
+  return text.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/**
+ * The records that were retrieved but did not make the Sources row — offered
+ * as "related" so a reader can see the neighbourhood the answer came from.
+ * Deterministic, from the retrieval result only; a model never adds to it.
+ */
+export function relatedLinks(
+  sources: { url: string }[],
+  retrieved: { doc: KnowledgeDoc }[],
+  max = 3,
+): { title: string; url: string; kind: string }[] {
+  const used = new Set(sources.map((source) => source.url));
+  return retrieved
+    .filter(({ doc }) => !used.has(doc.url) && doc.id !== "page:/" && isAllowedHref(doc.url))
+    .slice(0, max)
+    .map(({ doc }) => ({
+      title: doc.title,
+      url: doc.url,
+      kind: SOURCE_KIND[doc.type] ?? "Page",
+    }));
+}
 
 /**
  * Strip every link the model produced that is not a real GaitAI route.

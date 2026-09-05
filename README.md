@@ -280,31 +280,37 @@ A grounded assistant in the bottom-right corner of every route. It answers from
 GaitAI's **own records** — the same typed data modules the pages render — and
 links to the pages those records came from.
 
-**It runs entirely in the visitor's browser.** No API key, no inference
-provider, no Cloud Function, no endpoint URL, no environment variable and no
-per-question cost. A clone of this repository has a working assistant.
+**Nothing to download, works on any browser.** Retrieval runs in the visitor's
+tab over a 315 KB corpus; the prose is written by a hosted model behind the
+project's own Firebase Cloud Function (`askGaitai`, in `functions/`), which
+calls Hugging Face Inference Providers with a token held in Secret Manager. No
+WebGPU, no gigabyte, no token in the browser. A phone on Safari gets the same
+answer as a workstation on Chrome.
 
 **Not a general chatbot.** `npm run build:knowledge` flattens `products.ts`,
 `product-details*.ts`, `usecase-details.ts`, `publications.ts`, `evidence.ts`,
 `insights.ts`, `gaitscape/graph.ts`, `trust.ts` and the `/legal` prose into
-`public/ask/knowledge.json` — 113 records. BM25 retrieval in the tab (plus page
-awareness and the canonical environment→module mapping) picks seven, and only
-those reach the answering layer. Rename a module and the assistant's answer
-changes with no edit to the assistant; it cannot assert something the site does
-not, because it has nothing else to read.
+`public/ask/knowledge.json` — 118 records. BM25 retrieval (plus entity
+resolution, intent classification, page awareness and the canonical
+environment→module mapping) picks seven, and only those reach the model — never
+the whole site. Rename a module and the assistant's answer changes with no edit
+to the assistant; it cannot assert something the site does not, because it has
+nothing else to read.
 
-**Two answering modes, and the free one is the default.** Retrieval decides
-what is true; the language layer only decides how it reads.
+**Retrieval decides what is true; the model only decides how it reads.** The
+browser retrieves first and refuses low-confidence questions itself, without a
+model call. Otherwise the function re-runs the same retrieval from the same
+corpus, builds the grounding prompt server-side, and asks the model to write
+from those records alone. Sources under the answer come from retrieval, never
+from the model.
 
-| | Bytes | Speed | What it writes |
-|---|---|---|---|
-| Extractive | 0 (corpus only) | instant | the records' own summaries, quoted and attributed |
-| Local model | 1.14 GB, once, cached | WebGPU | prose composed from those same records |
+| | When | What the visitor reads |
+|---|---|---|
+| Hosted model | the function answers (typically a few seconds) | prose composed from the retrieved records, links allowlisted |
+| Extractive | the function is unreachable, rate-limited, over budget, timed out or errors | the records' own summaries, quoted and attributed |
 
-The model is `onnx-community/Qwen2.5-1.5B-Instruct` (Apache-2.0, `q4f16`) via
-Transformers.js on WebGPU, and it is **opt-in behind its stated size** — a
-launcher press is not consent to a gigabyte. If it is never loaded, declined,
-unsupported or fails, the extract answers and the assistant is still useful.
+Either way the assistant works. The model changes how an answer reads, never
+whether there is one.
 
 **Guardrails are quoted, not rewritten.** The system policy embeds
 `notClaimed` from `trust.ts` and the `RESPONSIBLE_USE_*` statements from
@@ -337,7 +343,10 @@ Full architecture, deployment and testing: **`docs/ask-gaitai.md`**.
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | ✅ | Firebase web app config |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | — | Enables the CAPTCHA gate when set |
 | `ADMIN_PASSWORD` | — | Legacy admin password (unused in prod) |
-| `LLM_MODEL` | — | **Server only.** Model id for the assistant. Defaults to `claude-opus-5` |
+| `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` | — | Overrides the `askGaitai` function URL (emulator, staging). Empty string = retrieval-only |
+| `HF_TOKEN` | server | **Secret Manager only** (`firebase functions:secrets:set HF_TOKEN`). Never in this file, the repo or the browser |
+| `HF_MODEL` | server | Function parameter. Hosted model id on Hugging Face Inference Providers; benchmarked default in `functions/src/index.ts` |
+| `HF_MAX_TOKENS`, `ASK_DAILY_BUDGET` | server | Function parameters: output ceiling per answer, site-wide model calls per day |
 
 - **Local:** `cp .env.example .env.local` and fill in the values. `.env.local` is gitignored (as is every `.env*` except the template).
 - **CI:** the same six `NEXT_PUBLIC_FIREBASE_*` names must exist as **GitHub Actions repository secrets** (Repo → Settings → Secrets and variables → Actions). Both deploy workflows inject them at build time and **fail fast with a clear error if they're missing** (via the `predev`/`prebuild` guard script).

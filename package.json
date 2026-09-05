@@ -23,10 +23,14 @@
     "ask:test": "tsx scripts/ask-test.ts",
     "ask:rank": "tsx scripts/ask-ranking-test.ts",
     "ask:bench": "tsx scripts/ask-bench.ts",
+    "functions:sync": "node functions/scripts/sync-shared.mjs",
+    "functions:typecheck": "npm run build:knowledge && npm --prefix functions run typecheck",
+    "functions:build": "npm run build:knowledge && npm --prefix functions run build",
+    "functions:test": "npm run build:knowledge && npm --prefix functions test",
+    "functions:deploy": "npm run functions:build && npx -y firebase-tools@13 deploy --only functions",
     "test:insights": "tsx scripts/test-insights-scaling.ts"
   },
   "dependencies": {
-    "@huggingface/transformers": "^4.2.0",
     "@mediapipe/tasks-vision": "^1.0.1",
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.17.10",

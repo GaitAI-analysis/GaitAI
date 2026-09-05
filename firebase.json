@@ -1,6 +1,22 @@
 {
-  "//": "Firestore rules only. There are no Cloud Functions: Ask GaitAI's retrieval and generation both run in the visitor's browser, so the one function this project had is gone. Hosting is deliberately not configured either — the site is a static export published to GitHub Pages, and a hosting target would invite `firebase deploy` to publish it from a developer machine.",
+  "//": "Firestore rules and one Cloud Function. `askGaitai` (functions/) is the server half of Ask GaitAI: it re-runs the site's deterministic retrieval over the generated corpus, builds the grounding prompt, and calls a hosted model through Hugging Face Inference Providers with a token held in Secret Manager (HF_TOKEN). Hosting is deliberately not configured — the site is a static export published to GitHub Pages, and a hosting target would invite `firebase deploy` to publish it from a developer machine.",
   "firestore": {
     "rules": "firestore.rules"
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "ask",
+      "runtime": "nodejs20",
+      "predeploy": ["npm --prefix \"$RESOURCE_DIR\" run build"],
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local",
+        "src"
+      ]
+    }
+  ]
 }

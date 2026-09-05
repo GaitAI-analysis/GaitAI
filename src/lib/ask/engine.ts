@@ -1,44 +1,48 @@
 "use client";
 
 /**
- * THE ENGINE — what the Cloud Function used to be, running in the tab.
+ * THE ENGINE — retrieval in the tab, generation behind the project's function.
  * =============================================================================
  * The pipeline is unchanged in shape and in order:
  *
- *   question + page  →  BM25 retrieval over 113 records   (the source of truth)
+ *   question + page  →  BM25 retrieval over the corpus      (the source of truth)
  *                    →  top 7 records, capped per record
- *                    →  a grounded answer                 (model, or extract)
+ *                    →  a grounded answer                   (hosted model, or extract)
  *                    →  link sanitising against the route allowlist
  *                    →  sources, follow-ups, CTA
  *
- * What moved is only WHERE the third step happens. The retrieval, the system
- * policy, the link allowlist, the source selection and the follow-up
- * derivation are the same modules that passed the 25-question suite; they were
- * ported off `node:fs` and nothing else.
+ * WHERE EACH STEP RUNS
+ *   retrieval   here, first, always. It decides whether the question is even
+ *               answerable from GaitAI's records. A low-confidence question or
+ *               a person the corpus has no record for is refused HERE, in the
+ *               site's own wording, without spending a model call.
+ *   generation  in `askGaitai`, the Cloud Function (functions/src/). It re-runs
+ *               the SAME retrieval from the same corpus — the modules in this
+ *               directory are copied into the function at build time — builds
+ *               the grounding prompt server-side, and calls a hosted model
+ *               through Hugging Face Inference Providers. The model only ever
+ *               sees the retrieved records; it never decides which pages are
+ *               authoritative, and it never sees the whole site.
+ *   fallback    here. If the function is unreachable, rate-limited, over budget,
+ *               timed out or errors, the extractive answer — the records' own
+ *               summaries, quoted — answers from the retrieval that already ran.
+ *               Ask GaitAI is useful either way; the model changes how an answer
+ *               READS, never whether there is one.
  *
- * WHAT WAS DELETED WITH THE FUNCTION
- *   · the Anthropic client and `LLM_API_KEY`
- *   · `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` and the enabled flag it gated
- *   · the IP-digest rate limiter — there is no shared resource left to
- *     protect. The cost of a question is now borne by the tab that asks it,
- *     which is its own rate limit.
- *   · CORS and the origin allowlist — there is no origin to check
+ * WHAT LEFT WITH THE LOCAL MODEL
+ *   · `model.ts` — Transformers.js, ONNX Runtime Web, WebGPU detection, the
+ *     WASM fallback, the 1.2 GB download and its progress reporting
+ *   · `modelReady()` / `modelExpected` — there is no model state in the tab
+ *   · the `ModelStrip` — nothing to offer, nothing to download
  *
- * WHAT SURVIVED, AND WHY IT STILL MATTERS WITHOUT A SERVER
- *   · `sanitizeLinks` — a local model invents routes as readily as a hosted
- *     one, and a 404 is a 404. The allowlist is now enforced in the tab that
- *     renders the answer, which is the only place it was ever really needed.
- *   · the system policy — it is what keeps the model from answering from its
- *     pretraining instead of from the records.
- *   · low-confidence refusal — retrieval decides, the model is only told.
+ * WHAT SURVIVED, AND WHY IT STILL MATTERS
+ *   · `sanitizeLinks` — applied server-side and again here on every answer the
+ *     server returns, so a hallucinated or off-site route can never render.
+ *   · the extractive answer — it was the default; it is now the floor.
+ *   · low-confidence refusal from retrieval — the model is only told.
  */
 
-import {
-  buildContextBlock,
-  retrieveGaitAIContext,
-  type RetrievalResult,
-} from "./retrieval";
-import { systemPrompt, buildUserTurn } from "./prompt";
+import { retrieveGaitAIContext, type RetrievalResult } from "./retrieval";
 import {
   demoHref,
   sanitizeLinks,
@@ -46,12 +50,9 @@ import {
   shouldOfferDemo,
   suggestFollowUps,
 } from "./answer";
-import {
-  composeExtractiveAnswer,
-  composeFinalExtractiveAnswer,
-} from "./extractive";
+import { composeExtractiveAnswer } from "./extractive";
 import { loadCorpus } from "./corpus";
-import { generate, modelReady } from "./model";
+import { askHosted, hostedEnabled, type HostedTurn } from "./hosted";
 
 export interface AskSource {
   title: string;
@@ -62,37 +63,23 @@ export interface AskSource {
 export interface AskResult {
   text: string;
   sources: AskSource[];
+  /** Retrieved records that did not make the Sources row. Same allowlist. */
+  relatedLinks: AskSource[];
   suggestions: string[];
   cta?: { label: string; href: string };
-  /** Which layer wrote the prose. Shown to the reader as a quiet note. */
+  /** Which layer wrote the prose: the hosted model, or the records themselves. */
   mode: "model" | "retrieval";
   lowConfidence: boolean;
 }
 
-/** Ensure the corpus is in memory. Called on panel open, and again defensively. */
+/** Fetch the corpus ahead of the first question. Safe to call repeatedly. */
 export async function warmCorpus(basePath = ""): Promise<void> {
   await loadCorpus(basePath);
 }
 
-/* `retrieveGaitAIContext` reads the page context itself, and takes the prior
-   turns so a follow-up ("which one works with just video?") resolves against
-   what was being discussed. */
-function retrieve(
-  question: string,
-  pathname: string,
-  history: string[],
-): RetrievalResult {
-  return retrieveGaitAIContext(question, pathname, history);
-}
-
-function pageLineFor(result: RetrievalResult, pathname: string, title: string) {
-  if (result.pageDoc) {
-    return `The visitor is currently reading: ${result.pageDoc.title} (${result.pageDoc.url}). Resolve vague references ("this", "it", "this product") against that page.`;
-  }
-  return title
-    ? `The visitor is currently on ${pathname} ("${title}").`
-    : `The visitor is currently on ${pathname}.`;
-}
+/** An internal, allowlisted route and nothing else. */
+const internal = (source: AskSource) =>
+  source.url.startsWith("/") && !source.url.startsWith("//");
 
 function finish(
   result: RetrievalResult,
@@ -101,20 +88,19 @@ function finish(
   turnIndex: number,
   mode: AskResult["mode"],
 ): AskResult {
-  /* Same order as the function: strip disallowed links FIRST, then pick
-     sources from what the answer actually kept. */
   const clean = sanitizeLinks(text);
-  const retrieved = result.docs.map(({ doc, score }) => ({ doc, score }));
+  const sources = result.lowConfidence ? [] : selectSources(clean, result.docs);
+  const suggestions = suggestFollowUps(result.docs, question);
+  const cta = shouldOfferDemo(result.docs, turnIndex)
+    ? { label: "Request a demo", href: demoHref() }
+    : undefined;
 
   return {
     text: clean,
-    /* A person the site has no record for has no source to cite: the nearest
-       record is not evidence about them. */
-    sources: result.entityMiss ? [] : selectSources(clean, retrieved),
-    suggestions: suggestFollowUps(retrieved, question),
-    cta: shouldOfferDemo(retrieved, turnIndex)
-      ? { label: "Request a demo", href: demoHref() }
-      : undefined,
+    sources,
+    relatedLinks: [],
+    suggestions,
+    cta,
     mode,
     lowConfidence: result.lowConfidence,
   };
@@ -123,24 +109,20 @@ function finish(
 /**
  * Answer a question.
  *
- * Retrieval runs first and always. If the model is loaded it writes the prose
- * from the retrieved records; if it is not — no WebGPU, download declined,
- * load failed, or simply not fetched yet — the extract answers instead. Both
- * paths return the same shape, so the panel does not branch.
- *
- * A model failure mid-generation falls through to the extract rather than
- * surfacing an error: the reader asked a question about GaitAI, and there is
- * an answer available that does not need the model.
+ * Retrieval runs first and always. If it finds nothing, the refusal is local
+ * and immediate. Otherwise the hosted model writes the prose from the retrieved
+ * records; if the function cannot be reached for any reason, the extract
+ * answers instead. Both paths return the same shape, so the panel does not
+ * branch.
  */
 export async function ask(options: {
   question: string;
   pathname: string;
   pageTitle?: string;
   turnIndex?: number;
-  /** Prior turns, oldest first — a quarter-weight retrieval signal. */
-  history?: string[];
-  /** False when the model will never be available, so the copy can say so. */
-  modelExpected?: boolean;
+  /** Prior turns, oldest first. The user turns are a retrieval signal; the
+   *  whole window is conversation context for the model. */
+  history?: HostedTurn[];
   signal?: AbortSignal;
 }): Promise<AskResult> {
   const {
@@ -149,55 +131,59 @@ export async function ask(options: {
     pageTitle = "",
     turnIndex = 0,
     history = [],
-    modelExpected = true,
     signal,
   } = options;
 
   await loadCorpus();
-  const result = retrieve(question, pathname, history);
+  const priorUserTurns = history
+    .filter((turn) => turn.role === "user")
+    .map((turn) => turn.content);
+  const result = retrieveGaitAIContext(question, pathname, priorUserTurns);
 
   /* Nothing scored: refuse from retrieval, and do not spend a model call
-     asking a 1.5B network to decline gracefully. The refusal is the site's
-     own wording, every time. */
+     asking a model to decline gracefully. The refusal is the site's own
+     wording, every time. */
   if (result.lowConfidence || result.docs.length === 0) {
     return finish(
       result,
-      composeFinalExtractiveAnswer(result),
+      composeExtractiveAnswer(result),
       question,
       turnIndex,
       "retrieval",
     );
   }
 
-  if (modelReady()) {
+  if (hostedEnabled()) {
     try {
-      const text = await generate(
-        systemPrompt(),
-        buildUserTurn({
-          message: question,
-          contextBlock: buildContextBlock(result),
-          pageLine: pageLineFor(result, pathname, pageTitle),
-          lowConfidence: result.lowConfidence,
-        }),
+      const hosted = await askHosted({
+        question,
+        pathname,
+        pageTitle,
+        history,
         signal,
-      );
-
-      if (text.trim().length > 0) {
-        return finish(result, text, question, turnIndex, "model");
+      });
+      if (hosted.text.trim().length > 0) {
+        /* The server already sanitised and chose sources from its own
+           retrieval. Sanitise again here anyway: the allowlist in this tab is
+           the one that matters for what renders. */
+        return {
+          ...hosted,
+          text: sanitizeLinks(hosted.text),
+          sources: hosted.sources.filter(internal),
+          relatedLinks: hosted.relatedLinks.filter(internal),
+        };
       }
-      /* Empty completion: fall through rather than render a blank answer. */
     } catch (error) {
       if ((error as Error)?.name === "AbortError") throw error;
-      /* Anything else — an OOM on a small GPU, a runtime fault — is a reason
-         to answer from records, not a reason to show an error. */
+      /* Unreachable, rate-limited, over budget, timed out, provider error —
+         all of them are a reason to answer from records, not a reason to
+         show an error. The retrieval that already ran is the answer. */
     }
   }
 
   return finish(
     result,
-    modelExpected
-      ? composeExtractiveAnswer(result)
-      : composeFinalExtractiveAnswer(result),
+    composeExtractiveAnswer(result),
     question,
     turnIndex,
     "retrieval",

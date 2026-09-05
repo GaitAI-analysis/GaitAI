@@ -16,6 +16,13 @@ export const LAB_PHOTO = {
   alt: "The GaitAI biometrics capture room: Anubha Parashar standing at the centre of a bright hall with louvered windows, ringed by twelve tripod-mounted capture cameras.",
 } as const;
 
+/** The cover photograph: the founder sitting at work in the same room. */
+export const LAB_SITTING_PHOTO = {
+  src: "/assets/images/labs/lab-cover-sitting.jpg",
+  width: 1672,
+  height: 941,
+} as const;
+
 export interface PhotoCamera {
   id: string;
   /** Lens position in photograph pixels. */

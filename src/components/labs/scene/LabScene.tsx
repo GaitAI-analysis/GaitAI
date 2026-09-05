@@ -33,13 +33,13 @@ import { LAB_PROGRESS_EVENT, type LabProgress } from "../lab-experience-event";
  * tube fixtures as point lights. ACES tone mapping, sRGB output. Nothing
  * here is a flat colour on a box.
  *
- * THE SUBJECT IS A STAND-IN, AND SAYS SO. `LAB_URLS.avatar` is a realistic
- * rigged human (see public/labs/avatar/README.md) dressed in her clothes —
- * red-and-black plaid under a black vest, jeans, dark shoes — with her long
- * hair and glasses added on the head bone. It is posed and given its idle
- * presence through its bones, and the pose overlay reads those same bones,
- * so replacing the file with a scanned, personalised avatar that uses the
- * Mixamo skeleton changes nothing else.
+ * THE SUBJECT IS ONE SKINNED HUMAN ASSET, LOADED AS AUTHORED. `LAB_URLS.avatar`
+ * is a rigged character (see public/labs/avatar/README.md): its mesh, skin
+ * weights and bind matrices are used exactly as exported — nothing is cut,
+ * nothing is layered over it, no primitive stands in for a body part. It is
+ * cloned with SkeletonUtils, placed by one root transform, posed standing by
+ * two verified bone rotations, and left still. The pose overlay reads its
+ * bones. A personalised replacement with the same skeleton drops in.
  */
 
 export type LabView = { kind: "orbit" } | { kind: "camera"; index: number };
@@ -787,16 +787,19 @@ function CaptureRing({ showSightlines, mats }: { showSightlines: boolean; mats: 
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   The subject — a realistic rigged stand-in, posed and animated by her bones
+   The subject — one skinned human asset, loaded as authored, standing still
    ───────────────────────────────────────────────────────────────────────────── */
 
+/**
+ * The bones the room reads, by name suffix. The asset uses the Mixamo skeleton
+ * (`mixamorig…`); a personalised replacement with the same naming drops in.
+ */
 const BONE = {
   hips: /Hips$/,
-  spine: /Spine$/,
   spine1: /Spine1$/,
-  spine2: /Spine2$/,
   neck: /Neck$/,
   head: /Head$/,
+  headTop: /HeadTop_End$/,
   lArm: /LeftArm$/,
   rArm: /RightArm$/,
   lForeArm: /LeftForeArm$/,
@@ -812,66 +815,38 @@ const BONE = {
 } as const;
 type BoneKey = keyof typeof BONE;
 
-/** The overlay's landmarks, in order, and the bones between them. */
-const LANDMARK_KEYS: BoneKey[] = ["head", "neck", "lArm", "rArm", "lForeArm", "rForeArm", "lHand", "rHand", "lUpLeg", "rUpLeg", "lLeg", "rLeg", "lFoot", "rFoot"];
-const LANDMARK_BONES: [BoneKey, BoneKey][] = [
-  ["head", "neck"], ["neck", "lArm"], ["neck", "rArm"],
-  ["lArm", "lForeArm"], ["lForeArm", "lHand"], ["rArm", "rForeArm"], ["rForeArm", "rHand"],
-  ["lArm", "lUpLeg"], ["rArm", "rUpLeg"], ["lUpLeg", "rUpLeg"],
-  ["lUpLeg", "lLeg"], ["lLeg", "lFoot"], ["rUpLeg", "rLeg"], ["rLeg", "rFoot"],
+/**
+ * The pose overlay's landmarks, each taken from a real bone every frame with
+ * `getWorldPosition`, never from a fixed coordinate. `head` is the midpoint of
+ * the Head bone and HeadTop_End, so the mark sits in the skull, not at its
+ * base; `pelvis` is the Hips bone.
+ */
+const LANDMARKS = ["head", "neck", "lShoulder", "rShoulder", "lElbow", "rElbow", "lWrist", "rWrist", "pelvis", "lHip", "rHip", "lKnee", "rKnee", "lAnkle", "rAnkle"] as const;
+type Landmark = (typeof LANDMARKS)[number];
+const LANDMARK_BONE: Record<Landmark, BoneKey> = {
+  head: "head", neck: "neck", lShoulder: "lArm", rShoulder: "rArm", lElbow: "lForeArm", rElbow: "rForeArm", lWrist: "lHand", rWrist: "rHand",
+  pelvis: "hips", lHip: "lUpLeg", rHip: "rUpLeg", lKnee: "lLeg", rKnee: "rLeg", lAnkle: "lFoot", rAnkle: "rFoot",
+};
+const LANDMARK_LINKS: [Landmark, Landmark][] = [
+  ["head", "neck"], ["neck", "lShoulder"], ["neck", "rShoulder"], ["neck", "pelvis"],
+  ["lShoulder", "lElbow"], ["lElbow", "lWrist"], ["rShoulder", "rElbow"], ["rElbow", "rWrist"],
+  ["pelvis", "lHip"], ["pelvis", "rHip"], ["lHip", "lKnee"], ["lKnee", "lAnkle"], ["rHip", "rKnee"], ["rKnee", "rAnkle"],
 ];
 
 /**
- * Turn a bone so the direction to its child points along `target` (world).
- * Works for any rig convention, because it reads the child's actual offset.
+ * THE STANDING POSE. The asset's rest pose is a T-pose. These two rotations,
+ * checked in an independent Three.js viewer by reading the resulting bone
+ * directions, bring each upper arm down to the side (a rotation about the
+ * bone's local X, which for this rig lies along the body's front-back axis)
+ * and bend the forearms a little forward. Nothing else is touched: no
+ * animation clip, no per-bone scale, no idle. A stable person first.
  */
-function aimBone(bone: THREE.Object3D, child: THREE.Object3D, target: THREE.Vector3) {
-  bone.updateWorldMatrix(true, false);
-  const wq = new THREE.Quaternion();
-  bone.getWorldQuaternion(wq);
-  const childDir = child.position.clone().normalize();
-  const desiredLocal = target.clone().normalize().applyQuaternion(wq.clone().invert());
-  const q = new THREE.Quaternion().setFromUnitVectors(childDir, desiredLocal);
-  bone.quaternion.multiply(q);
-}
+const STANDING = { upperArmX: 1.16, forearmZ: 0.22 } as const;
 
-interface Rest { hips: THREE.Quaternion; spine1: THREE.Quaternion; head: THREE.Quaternion; hipsPos: THREE.Vector3 }
-
-const FIT_DIR = new THREE.Vector3();
-/**
- * Stretch a unit-length cylinder between two world points, extended by `pad`
- * at each end, and place it in the parent group's frame. The clothes and the
- * bones share a parent, so world → parent is one inverse transform.
- */
-function fitSegment(mesh: THREE.Mesh, a: THREE.Vector3, b: THREE.Vector3, pad: number) {
-  const parent = mesh.parent;
-  if (!parent) return;
-  FIT_DIR.copy(b).sub(a);
-  const len = FIT_DIR.length() + pad * 2;
-  FIT_DIR.normalize();
-  const mid = a.clone().add(b).multiplyScalar(0.5);
-  parent.worldToLocal(mid);
-  mesh.position.copy(mid);
-  const q = new THREE.Quaternion().setFromUnitVectors(UP, FIT_DIR);
-  const pq = new THREE.Quaternion();
-  parent.getWorldQuaternion(pq);
-  mesh.quaternion.copy(pq.invert().multiply(q));
-  mesh.scale.set(1, Math.max(0.05, len), 1);
-}
-
-function Avatar({ showPose, reducedMotion, mats }: { showPose: boolean; reducedMotion: boolean; mats: Materials }) {
+function Avatar({ showPose }: { showPose: boolean }) {
   const { scene } = useGLTF(LAB_URLS.avatar, LAB_URLS.draco);
-  const [plaid, plaidNormal] = useTexture([LAB_URLS.tex("plaid_diff.jpg"), LAB_URLS.tex("fabric_nor.jpg")]) as THREE.Texture[];
-  const torsoPlaid = useMemo(() => {
-    prep(plaid, [3, 3], true);
-    prep(plaidNormal, [3, 3], false);
-    const map = plaid.clone();
-    const normalMap = plaidNormal.clone();
-    prep(map, [5, 2], true);
-    prep(normalMap, [5, 2], false);
-    return { map, normalMap };
-  }, [plaid, plaidNormal]);
-
+  /* A skinned hierarchy must be cloned with SkeletonUtils, so the clone's
+     SkinnedMesh binds to the clone's bones and keeps its bind matrices. */
   const model = useMemo(() => cloneSkeleton(scene) as THREE.Group, [scene]);
   const bones = useMemo(() => {
     const found: Partial<Record<BoneKey, THREE.Object3D>> = {};
@@ -882,196 +857,96 @@ function Avatar({ showPose, reducedMotion, mats }: { showPose: boolean; reducedM
     });
     return found;
   }, [model]);
-  const rest = useRef<Rest | null>(null);
-  const group = useRef<THREE.Group>(null);
-  const headAnchor = useRef<THREE.Group>(null);
-  const headYaw = useRef(0);
-  const sleeves = useRef<(THREE.Mesh | null)[]>([null, null, null, null]);
-  const elbows = useRef<(THREE.Mesh | null)[]>([null, null]);
-  const collar = useRef<THREE.Mesh>(null);
-  const vest = useRef<THREE.Mesh>(null);
-  const tmpA = useMemo(() => new THREE.Vector3(), []);
-  const tmpB = useMemo(() => new THREE.Vector3(), []);
-  const landmarks = useRef<THREE.Vector3[]>(LANDMARK_KEYS.map(() => new THREE.Vector3()));
+  const landmarks = useRef<Record<Landmark, THREE.Vector3>>(Object.fromEntries(LANDMARKS.map((k) => [k, new THREE.Vector3()])) as Record<Landmark, THREE.Vector3>);
 
   useLayoutEffect(() => {
     model.traverse((n) => {
       const m = n as THREE.Mesh;
-      if (m.isMesh) {
-        m.castShadow = true;
-        m.receiveShadow = true;
-        m.frustumCulled = false;
-        const mat = m.material as THREE.MeshStandardMaterial;
-        if (mat && "roughness" in mat) {
-          mat.roughness = 0.82;
-          mat.metalness = 0;
-          mat.envMapIntensity = 0.6;
-        }
+      if (!m.isMesh) return;
+      m.castShadow = true;
+      m.receiveShadow = true;
+      m.frustumCulled = false;
+      const mat = m.material as THREE.MeshStandardMaterial;
+      if (mat && "roughness" in mat) {
+        /* One authored material covers skin and clothing; fabric-like, not
+           plastic, and lit by the room's environment like everything else. */
+        mat.roughness = 0.78;
+        mat.metalness = 0;
+        mat.envMapIntensity = 0.7;
+        mat.needsUpdate = true;
       }
     });
-    /* From the rest pose (arms out), stand naturally: upper arms down and a
-       little outward, forearms slightly forward, hands relaxed. */
-    const { lArm, rArm, lForeArm, rForeArm, lHand, rHand, hips, spine1, head } = bones;
-    if (lArm && lForeArm) aimBone(lArm, lForeArm, new THREE.Vector3(0.2, -1, 0.08));
-    if (rArm && rForeArm) aimBone(rArm, rForeArm, new THREE.Vector3(-0.2, -1, 0.08));
-    if (lForeArm && lHand) aimBone(lForeArm, lHand, new THREE.Vector3(0.16, -1, 0.3));
-    if (rForeArm && rHand) aimBone(rForeArm, rHand, new THREE.Vector3(-0.16, -1, 0.3));
-    if (hips && spine1 && head) {
-      rest.current = { hips: hips.quaternion.clone(), spine1: spine1.quaternion.clone(), head: head.quaternion.clone(), hipsPos: hips.position.clone() };
-    }
+    const { lArm, rArm, lForeArm, rForeArm } = bones;
+    lArm?.rotation.set(STANDING.upperArmX, 0, 0);
+    rArm?.rotation.set(STANDING.upperArmX, 0, 0);
+    if (lForeArm) lForeArm.rotation.z += STANDING.forearmZ;
+    if (rForeArm) rForeArm.rotation.z -= STANDING.forearmZ;
+    model.updateMatrixWorld(true);
   }, [model, bones]);
 
-  /* Idle presence and the overlay's landmarks, from the bones themselves. */
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    const { hips, spine1, head } = bones;
-    const r = rest.current;
-    if (r && hips && spine1 && head && !reducedMotion) {
-      const breath = Math.sin(t * 1.1);
-      spine1.quaternion.copy(r.spine1).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(breath * 0.012, Math.sin(t * 0.27) * 0.02, 0)));
-      headYaw.current = Math.sin(t * 0.37) * 0.16 + Math.sin(t * 0.9) * 0.03;
-      head.quaternion.copy(r.head).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(Math.sin(t * 0.6) * 0.03, headYaw.current, Math.sin(t * 0.45) * 0.015)));
-      hips.quaternion.copy(r.hips).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.sin(t * 0.23) * 0.03, Math.sin(t * 0.29) * 0.012)));
-      hips.position.copy(r.hipsPos).add(new THREE.Vector3(Math.sin(t * 0.29) * 0.012, breath * 0.004, 0));
-    }
-    if (head && headAnchor.current && group.current) {
-      head.getWorldPosition(tmpA);
-      group.current.worldToLocal(tmpA);
-      headAnchor.current.position.copy(tmpA);
-      headAnchor.current.rotation.set(0, headYaw.current, 0);
-    }
-    LANDMARK_KEYS.forEach((k, i) => {
-      const b = bones[k];
-      if (b) b.getWorldPosition(landmarks.current[i]);
+  /* Landmarks from the bones themselves, every frame. */
+  useFrame(() => {
+    const L = landmarks.current;
+    LANDMARKS.forEach((k) => {
+      const b = bones[LANDMARK_BONE[k]];
+      if (b) b.getWorldPosition(L[k]);
     });
-    /* Her clothes ride on the skeleton: the plaid shirt from hips to neck with
-       the black vest over it, and a plaid sleeve on each arm segment with a
-       rounded elbow. */
-    const { hips: hp, neck: nk, lArm, lForeArm, lHand, rArm, rForeArm, rHand } = bones;
-    if (hp && nk && collar.current && vest.current && group.current) {
-      hp.getWorldPosition(tmpA); nk.getWorldPosition(tmpB);
-      tmpA.y += 0.02;
-      tmpB.y -= 0.075;
-      fitSegment(vest.current, tmpA, tmpB, 0);
-      tmpA.copy(tmpB); tmpB.y += 0.11;
-      fitSegment(collar.current, tmpA, tmpB, 0);
+    if (bones.head && bones.headTop) {
+      const top = new THREE.Vector3();
+      bones.headTop.getWorldPosition(top);
+      L.head.lerp(top, 0.5);
     }
-    const segs: [THREE.Object3D | undefined, THREE.Object3D | undefined][] = [[lArm, lForeArm], [lForeArm, lHand], [rArm, rForeArm], [rForeArm, rHand]];
-    segs.forEach(([a, b], i) => {
-      const m = sleeves.current[i];
-      if (!a || !b || !m) return;
-      a.getWorldPosition(tmpA); b.getWorldPosition(tmpB);
-      fitSegment(m, tmpA, tmpB, i % 2 === 0 ? 0.018 : 0.012);
-    });
-    [lForeArm, rForeArm].forEach((b, i) => {
-      const m = elbows.current[i];
-      if (!b || !m || !group.current) return;
-      b.getWorldPosition(tmpA);
-      group.current.worldToLocal(tmpA);
-      m.position.copy(tmpA);
-    });
   });
 
   return (
-    <group ref={group} position={[SUBJECT.x, 0, SUBJECT.z]} rotation={[0, Math.PI, 0]}>
+    <group position={[SUBJECT.x, 0, SUBJECT.z]} rotation={[0, Math.PI, 0]}>
       <primitive object={model} />
-      {/* Her clothes, over the body: fitted to the bones every frame (see useFrame). */}
-      <mesh ref={vest} castShadow>
-        <cylinderGeometry args={[0.128, 0.138, 1, 24, 1, true]} />
-        <meshStandardMaterial color="#15171d" roughness={0.92} metalness={0} side={THREE.DoubleSide} />
-      </mesh>
-      <mesh ref={collar} castShadow>
-        <cylinderGeometry args={[0.07, 0.126, 1, 22, 1, true]} />
-        <meshStandardMaterial map={torsoPlaid.map} normalMap={torsoPlaid.normalMap} roughness={0.9} side={THREE.DoubleSide} />
-      </mesh>
-      {[0, 1, 2, 3].map((i) => (
-        <mesh key={i} ref={(el) => { sleeves.current[i] = el; }} castShadow>
-          <cylinderGeometry args={i % 2 === 0 ? [0.046, 0.052, 1, 16] : [0.038, 0.046, 1, 16]} />
-          <meshStandardMaterial map={plaid} normalMap={plaidNormal} roughness={0.9} />
-        </mesh>
-      ))}
-      {[0, 1].map((i) => (
-        <mesh key={i} ref={(el) => { elbows.current[i] = el; }} castShadow>
-          <sphereGeometry args={[0.046, 14, 12]} />
-          <meshStandardMaterial map={plaid} normalMap={plaidNormal} roughness={0.9} />
-        </mesh>
-      ))}
-      {/* Long hair and glasses: positioned from the head bone, oriented in her own
-          frame (up is up, +z is her front) plus the head's turn. The head bone
-          origin is at the top of the neck; the skull centre is ~9 cm above it. */}
-      <group ref={headAnchor}>
-        {/* the crown: the very top of the head, matte */}
-        <mesh position={[0, 0.07, -0.012]} castShadow>
-          <sphereGeometry args={[0.098, 28, 18, 0, Math.PI * 2, 0, Math.PI * 0.36]} />
-          <meshStandardMaterial color="#17100d" roughness={0.86} metalness={0} />
-        </mesh>
-        {/* the fall: one flat sheet of hair from the crown down the back to the shoulder blades */}
-        <mesh position={[0, -0.05, -0.072]} rotation={[-0.04, 0, 0]} scale={[1.5, 1, 0.22]} castShadow>
-          <capsuleGeometry args={[0.052, 0.3, 6, 16]} />
-          <meshStandardMaterial color="#17100d" roughness={0.86} metalness={0} />
-        </mesh>
-        {[-1, 1].map((s) => (
-          <mesh key={s} position={[s * 0.031, 0.095, 0.094]} material={mats.black}>
-            <torusGeometry args={[0.024, 0.0022, 8, 24]} />
-          </mesh>
-        ))}
-        <mesh position={[0, 0.097, 0.096]} material={mats.black}>
-          <boxGeometry args={[0.018, 0.003, 0.003]} />
-        </mesh>
-        {[-1, 1].map((s) => (
-          <mesh key={s} position={[s * 0.072, 0.097, 0.04]} material={mats.black}>
-            <boxGeometry args={[0.003, 0.003, 0.11]} />
-          </mesh>
-        ))}
-      </group>
       {showPose && <PoseOverlay landmarks={landmarks} />}
     </group>
   );
 }
 
 /**
- * Research-grade pose overlay: hairline bones, small nodes, restrained cyan,
- * drawn over the body from the same bone positions the idle animates. The
- * geometry is in world space (the landmarks are world positions), so it is
- * rendered outside the avatar's rotated group.
+ * The pose overlay: an analytical layer over the person — small cyan joints,
+ * thin connectors, subtle transparency — drawn from the bone positions the
+ * avatar publishes, so it stays attached under any orbit, zoom or viewpoint.
+ * The landmarks are world positions; this group undoes the avatar group's
+ * transform so the geometry is written in world space.
  */
-function PoseOverlay({ landmarks }: { landmarks: React.MutableRefObject<THREE.Vector3[]> }) {
-  const lines = useRef<THREE.LineSegments>(null);
+function PoseOverlay({ landmarks }: { landmarks: React.MutableRefObject<Record<Landmark, THREE.Vector3>> }) {
   const nodes = useRef<THREE.InstancedMesh>(null);
   const geometry = useMemo(() => {
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(LANDMARK_BONES.length * 2 * 3), 3));
+    g.setAttribute("position", new THREE.BufferAttribute(new Float32Array(LANDMARK_LINKS.length * 2 * 3), 3));
     return g;
   }, []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   useFrame(() => {
+    const L = landmarks.current;
     const pos = geometry.getAttribute("position") as THREE.BufferAttribute;
-    LANDMARK_BONES.forEach(([a, b], i) => {
-      const pa = landmarks.current[LANDMARK_KEYS.indexOf(a)];
-      const pb = landmarks.current[LANDMARK_KEYS.indexOf(b)];
-      pos.setXYZ(i * 2, pa.x, pa.y, pa.z);
-      pos.setXYZ(i * 2 + 1, pb.x, pb.y, pb.z);
+    LANDMARK_LINKS.forEach(([a, b], i) => {
+      pos.setXYZ(i * 2, L[a].x, L[a].y, L[a].z);
+      pos.setXYZ(i * 2 + 1, L[b].x, L[b].y, L[b].z);
     });
     pos.needsUpdate = true;
     geometry.computeBoundingSphere();
     if (nodes.current) {
-      landmarks.current.forEach((p, i) => {
-        dummy.position.copy(p);
+      LANDMARKS.forEach((k, i) => {
+        dummy.position.copy(L[k]);
         dummy.updateMatrix();
         nodes.current!.setMatrixAt(i, dummy.matrix);
       });
       nodes.current.instanceMatrix.needsUpdate = true;
     }
   });
-  /* World space: undo the avatar group's rotation/position by rendering at the root. */
   return (
     <group rotation={[0, Math.PI, 0]} position={[-SUBJECT.x, 0, -SUBJECT.z]}>
-      <lineSegments ref={lines} geometry={geometry} renderOrder={20} frustumCulled={false}>
-        <lineBasicMaterial color={SIGNAL} transparent opacity={0.55} depthTest={false} depthWrite={false} />
+      <lineSegments geometry={geometry} renderOrder={20} frustumCulled={false}>
+        <lineBasicMaterial color={SIGNAL} transparent opacity={0.5} depthTest={false} depthWrite={false} />
       </lineSegments>
-      <instancedMesh ref={nodes} args={[undefined, undefined, LANDMARK_KEYS.length]} renderOrder={21} frustumCulled={false}>
-        <sphereGeometry args={[0.011, 10, 10]} />
-        <meshBasicMaterial color="#9fe6ff" transparent opacity={0.8} depthTest={false} depthWrite={false} />
+      <instancedMesh ref={nodes} args={[undefined, undefined, LANDMARKS.length]} renderOrder={21} frustumCulled={false}>
+        <sphereGeometry args={[0.009, 10, 10]} />
+        <meshBasicMaterial color="#9fe6ff" transparent opacity={0.75} depthTest={false} depthWrite={false} />
       </instancedMesh>
     </group>
   );
@@ -1156,7 +1031,7 @@ function Rig({ view, reducedMotion }: { view: LabView; reducedMotion: boolean })
       dampingFactor={0.08}
       rotateSpeed={0.55}
       zoomSpeed={0.65}
-      minDistance={1.4}
+      minDistance={1.2}
       maxDistance={6.2}
       minPolarAngle={0.25}
       maxPolarAngle={1.5}
@@ -1225,7 +1100,7 @@ function Scene({ view, showPose, showSightlines, quality, reducedMotion, onReady
       <Room quality={quality} reducedMotion={reducedMotion} mats={mats} />
       <Furniture mats={mats} />
       <CaptureRing showSightlines={showSightlines} mats={mats} />
-      <Avatar showPose={showPose} reducedMotion={reducedMotion} mats={mats} />
+      <Avatar showPose={showPose} />
       <Rig view={view} reducedMotion={reducedMotion} />
       <Ready onReady={onReady} />
     </Suspense>

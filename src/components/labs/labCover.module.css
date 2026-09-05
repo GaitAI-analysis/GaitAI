@@ -1,9 +1,9 @@
 /*
- * THE LABS COVER — a photograph, and one action.
+ * THE LABS COVER — the founder at work, one line, one action.
  *
  * Dark in both themes by design: the colours are written here rather than
  * taken from the theme tokens so the light theme cannot lift the grade the
- * button stands on.
+ * type stands on.
  */
 
 .cover {
@@ -25,27 +25,26 @@
 
 .image {
   object-fit: cover;
-  /* The founder stands at the centre of the frame; keep the eye line in the
-     upper-middle of the section so the ring of cameras reads around her. */
-  object-position: 50% 36%;
+  /* She sits right of centre with the laptop before her; keep her and the
+     room's far wall in frame, the eye line in the upper-middle. */
+  object-position: 50% 40%;
   /* Kept, not recoloured: a touch less saturation and a little less light so
      the daylight room sits inside the dark page instead of in front of it. */
-  filter: saturate(0.88) contrast(1.04) brightness(0.9);
+  filter: saturate(0.9) contrast(1.03) brightness(0.92);
 }
 
 /* One vertical grade: quiet under the header band, clear through the middle
-   where the room is, and settling into the page ground at the foot where
-   the button stands. No horizontal grade — there is no type to hold room
-   for, and the image is the point. */
+   where the room is, settling into the page ground at the foot where the
+   type and the button stand. */
 .grade {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgb(7 11 20 / 0.46) 0%,
+    rgb(7 11 20 / 0.44) 0%,
     rgb(7 11 20 / 0) 22%,
-    rgb(7 11 20 / 0.12) 58%,
-    rgb(7 11 20 / 0.62) 84%,
+    rgb(7 11 20 / 0.1) 55%,
+    rgb(7 11 20 / 0.62) 82%,
     rgb(7 11 20 / 0.96) 100%
   );
 }
@@ -56,20 +55,44 @@
     padding-bottom: 3.5rem;
   }
   .image {
-    object-position: 50% 40%;
+    object-position: 50% 45%;
   }
 }
 
-/* ── The action, centred under the figure ── */
+/* ── The copy: as little as possible ── */
 .inner {
   position: relative;
-  display: flex;
-  justify-content: center;
+}
+
+.copy {
+  max-width: 34rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #4fd1ff;
+}
+
+.line {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  text-wrap: balance;
+  color: #f4f6fb;
+}
+
+.actions {
+  margin-top: 1.75rem;
 }
 
 .enter {
-  /* A little more presence than the default primary, because it is alone on
-     a photograph rather than beside a heading. */
-  padding-inline: 1.75rem;
+  padding-inline: 1.6rem;
   box-shadow: 0 18px 50px -18px rgb(0 0 0 / 0.75);
 }

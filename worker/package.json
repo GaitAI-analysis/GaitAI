@@ -1,6 +1,6 @@
 {
   "name": "gaitai-ask-worker",
-  "description": "Ask GaitAI — the hosted half of the movement-intelligence guide, as a Cloudflare Worker: canonical-record validation, the grounding prompt, one call to Hugging Face Inference Providers, and sanitisation.",
+  "description": "Ask GaitAI — the hosted half of the movement-intelligence guide, as a Cloudflare Worker: canonical-record validation, the grounding prompt, one call to the Google Gemini Developer API, and sanitisation.",
   "private": true,
   "type": "module",
   "scripts": {

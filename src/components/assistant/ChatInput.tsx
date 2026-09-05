@@ -21,7 +21,7 @@ import styles from "./assistant.module.css";
  * more privacy than the build delivers.
  */
 const PRIVACY_NOTE = hostedEnabled()
-  ? "Your text question may be processed by GaitAI’s hosted inference service. Please don’t share sensitive personal or patient information."
+  ? "Your text question may be processed by GaitAI’s hosted AI service. Please don’t share sensitive personal or patient information."
   : "Answers come from GaitAI’s local site knowledge. Please don’t share sensitive personal or patient information.";
 export const ChatInput = forwardRef<
   HTMLTextAreaElement,

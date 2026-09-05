@@ -1,13 +1,14 @@
 // ASK GAITAI — the Cloudflare Worker behind the assistant's hosted answers.
 // =============================================================================
 // One endpoint: POST /api/ask (and its OPTIONS preflight). Everything else 404s.
+// Provider: the Google Gemini Developer API, on its Free Tier.
 //
 // WHAT IS AND IS NOT IN THIS FILE
 //   · plain configuration: the Worker's name, the entry point, the Durable
 //     Object that meters callers, and NON-secret vars
-//   · never a secret. HF_TOKEN is a Cloudflare secret set out of band:
-//       wrangler secret put HF_TOKEN            (production)
-//       worker/.dev.vars                        (local `wrangler dev`, gitignored)
+//   · never a secret. GEMINI_API_KEY is a Cloudflare secret set out of band:
+//       wrangler secret put GEMINI_API_KEY     (production)
+//       worker/.dev.vars                       (local `wrangler dev`, gitignored)
 //     Wrangler has no schema field that declares a secret as required, so the
 //     Worker checks for it at request time and answers 503 `unconfigured`
 //     until it is set — the browser then falls back to its extractive answer.
@@ -45,22 +46,29 @@
     // origins (http://localhost:3000, …) belong in .dev.vars, not here.
     "ALLOWED_ORIGINS": "https://gaitai.in,https://www.gaitai.in",
 
-    // The hosted model, as a Hugging Face Inference Providers model id
-    // (optionally with a `:provider` suffix). DELIBERATELY EMPTY: the model is
-    // chosen by `npm run ask:bench` on the site's own questions after the
-    // token exists, not inherited from a prototype. While it is empty the
-    // Worker answers 503 `model_unconfigured` and the browser falls back.
-    "HF_MODEL": "",
+    // The Gemini model id (e.g. gemini-2.5-flash). DELIBERATELY EMPTY: the
+    // model is chosen by `npm run ask:bench` on the site's own questions, from
+    // the models the Gemini API documents as available on the Free Tier. While
+    // it is empty the Worker answers 503 `model_unconfigured` and the browser
+    // falls back.
+    "GEMINI_MODEL": "",
 
-    // Output ceiling per answer — the single largest lever on cost and latency.
-    "HF_MAX_TOKENS": "450",
+    // Optional thinkingLevel for models that expose one (minimal/low/medium/
+    // high). Empty = the model's own default. Thought text is never requested.
+    "MODEL_THINKING_LEVEL": "",
+
+    // Output ceiling per answer — the single largest lever on latency.
+    "MODEL_MAX_OUTPUT_TOKENS": "450",
     // How long to wait for the provider before answering 504.
-    "HF_TIMEOUT_MS": "22000",
+    "MODEL_TIMEOUT_MS": "22000",
 
     // Abuse controls enforced by the AskGuard Durable Object (see src/guard.ts).
     "ASK_BURST_MAX": "8",        // questions per caller per 2 minutes
     "ASK_HOURLY_MAX": "40",      // questions per caller per hour
-    "ASK_DAILY_BUDGET": "1500"   // model calls per UTC day, site-wide; 0 = unlimited
+    // Our OWN ceiling on hosted calls per UTC day, site-wide, independent of
+    // Google's quota. Kept low while the Free Tier is being evaluated; raise
+    // it deliberately once real usage and quota behaviour are understood.
+    "ASK_DAILY_BUDGET": "25"     // 0 = unlimited
   },
 
   // One small Durable Object holds every counter: per-caller windows keyed by

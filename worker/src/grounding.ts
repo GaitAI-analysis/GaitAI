@@ -33,7 +33,7 @@ import {
 } from "../../src/lib/ask/corpus";
 import { resetIndex, type RetrievedDoc } from "../../src/lib/ask/retrieval";
 import { buildMessages, type ChatTurn } from "../../src/lib/ask/prompt";
-import type { ChatMessage } from "./hf";
+import type { ChatMessage } from "./gemini";
 
 /** Seed the shared corpus module once per isolate. */
 export function ensureCorpus(): void {

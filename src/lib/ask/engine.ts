@@ -21,7 +21,7 @@
  *               their text. The Worker resolves those ids against its own copy
  *               of the canonical corpus, discards any it does not know, builds
  *               the grounding prompt from the canonical records, and calls a
- *               hosted model through Hugging Face Inference Providers. The
+ *               hosted model through the Google Gemini Developer API. The
  *               model only ever sees those records; it never decides which
  *               pages are authoritative, and it never sees the whole site.
  *   fallback    here. If no endpoint is configured, or the Worker is

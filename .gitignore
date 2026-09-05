@@ -14,6 +14,9 @@ worker/.dev.vars
 worker/.dev.vars.*
 .dev.vars
 .dev.vars.*
+# The example carries names only, never values, and must ship with the repo.
+!worker/.dev.vars.example
+!.dev.vars.example
 out
 build
 dist

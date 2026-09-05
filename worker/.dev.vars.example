@@ -1,0 +1,7 @@
+# Copy to worker/.dev.vars for `wrangler dev`. .dev.vars is gitignored.
+# NEVER put a real key in this example file, in wrangler.jsonc, or in Git.
+GEMINI_API_KEY=
+GEMINI_MODEL=
+# Local site origins to accept during development (the production list lives
+# in wrangler.jsonc and is not used when this is set).
+ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000

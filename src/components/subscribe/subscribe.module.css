@@ -293,16 +293,149 @@
 
 /* ═══════════════ VARIANTS ═══════════════ */
 
-/* The block that closes /insights — the largest of the three, with a rule
-   above it so it reads as the end of the archive rather than another card. */
+/* ═══════════ THE BLOG BLOCK ═══════════
+ *
+ * The block that closes /insights, in its own section. The section carries
+ * the rule and the padding, so the block itself carries none: it used to add
+ * a border, a clamp() of margin and a clamp() of padding on top of the section
+ * wrapper's, which stacked into roughly 240px of empty page between discovery
+ * and the title on a desktop.
+ *
+ * THE COMPOSITION, from lg up, is one row: the copy on the left, the field on
+ * the right, and between them the lane — a hairline signal that enters from
+ * beside the copy, runs cyan → blue → violet and meets the field. A short
+ * bridge continues it from the field to the button, where the node is the
+ * terminus. It is the site's signal device at the width of the block, drawn
+ * in a grid cell of its own so it never runs behind a line of type. The
+ * support line, the verdict and the small print stack under the field.
+ *
+ * Below lg everything stacks in reading order and the lane is not drawn; the
+ * node beside the button still carries the idea.
+ */
 .blog {
-  border-top: 1px solid var(--sub-line);
-  padding-top: clamp(2rem, 4vw, 3rem);
-  margin-top: clamp(2.5rem, 5vw, 4rem);
+  --sub-lane-cyan: rgb(79 209 255 / 0.5);
+  --sub-lane-blue: rgb(85 135 255 / 0.5);
+  --sub-lane-violet: rgb(156 100 241 / 0.55);
+
+  position: relative;
+  display: grid;
+  row-gap: 0;
+}
+
+:global(.light) .blog {
+  --sub-lane-cyan: rgb(16 143 192 / 0.45);
+  --sub-lane-blue: rgb(27 78 217 / 0.45);
+  --sub-lane-violet: rgb(95 37 191 / 0.5);
 }
 
 .blog .title {
   font-size: clamp(1.5rem, 3vw, 2.05rem);
+}
+
+.blog .form {
+  max-width: none;
+}
+
+/* The lane is only drawn in the desktop composition. */
+.lane {
+  display: none;
+}
+
+/* The long signal replaces the block's short lead-in hairline. */
+.blog .signal {
+  display: none;
+}
+
+/* The support line: one quiet sentence under the field. */
+.support {
+  margin-top: 0.8rem;
+  max-width: 34rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* THE BRIDGE. From the field to the button, closing the gap the flex row
+   leaves, so the signal reads as one line from the lane to the node. */
+.blog .button {
+  position: relative;
+}
+
+.blog .button::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 0.6rem;
+  height: 1px;
+  background: var(--sub-lane-violet);
+  transition: background-color 0.25s var(--sub-ease);
+}
+
+/* The node at rest carries the colour the signal arrives with. Focus and a
+   stored address use the existing accent states above. */
+.blog .node {
+  border-color: var(--sub-lane-violet);
+}
+
+@media (min-width: 1024px) {
+  .blog {
+    grid-template-columns: minmax(0, 1.1fr) minmax(2.5rem, 0.5fr) minmax(0, 32rem);
+    grid-template-rows: auto auto auto auto;
+    column-gap: 0;
+    align-items: center;
+  }
+
+  .blog .copy {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    padding-right: 2.5rem;
+  }
+
+  .blog .lane {
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--sub-lane-cyan) 35%,
+      var(--sub-lane-blue) 70%,
+      var(--sub-lane-violet) 100%
+    );
+    transition: opacity 0.25s var(--sub-ease);
+    opacity: 0.85;
+  }
+
+  /* The signal brightens while the field is in use — the same response the
+     short hairline gives on the other blocks. */
+  .blog:focus-within .lane {
+    opacity: 1;
+  }
+
+  .blog .form {
+    grid-column: 3;
+    grid-row: 1;
+    margin-top: 0;
+    align-self: center;
+  }
+
+  .blog .support {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .blog .note {
+    grid-column: 3;
+    grid-row: 3;
+  }
+
+  .blog .legal {
+    grid-column: 3;
+    grid-row: 4;
+  }
 }
 
 /* The end of an article. Quieter than the blog block: the reader has just
@@ -615,6 +748,12 @@
     align-items: stretch;
   }
 
+  /* The bridge joins a field and a button that sit on one line; once the
+     button is a row of its own there is nothing to its left to join. */
+  .blog .button::before {
+    display: none;
+  }
+
   /* The field's `flex: 1 1 11rem` is a WIDTH basis in a row. Once the form
      turns into a column, flex-basis becomes a HEIGHT — so the email input was
      176px tall on every phone. Unnoticed while this lived in the footer;
@@ -633,8 +772,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .signal,
+  .lane,
+  .blog .lane,
   .input,
   .button,
+  .blog .button::before,
   .node,
   .arrow {
     transition: none;

@@ -157,7 +157,11 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
        gets fixed — a plan, a model id, an allocation — without a visitor ever
        seeing it. */
     const failed = error instanceof WorkersAiError ? error : new WorkersAiError("upstream");
-    console.log(JSON.stringify({ event: "ask.model_failed", kind: failed.kind, code: failed.code }));
+    /* `diagnostics` is structural only — lengths, counts, finish_reason, key
+       names — never prompt, record, question, answer or reasoning text. */
+    console.log(
+      JSON.stringify({ event: "ask.model_failed", kind: failed.kind, code: failed.code, diagnostics: failed.diagnostics ?? null }),
+    );
 
     switch (failed.kind) {
       case "timeout":

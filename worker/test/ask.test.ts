@@ -17,11 +17,12 @@ import worker from "../src/index";
 import type { AskEnv } from "../src/env";
 import {
   classifyError,
+  describeResult,
   extractText,
   generate,
   toWorkersAiInput,
+  WorkersAiError,
   type AiRunner,
-  type WorkersAiError,
 } from "../src/workers-ai";
 
 const ORIGIN = "https://gaitai.in";
@@ -634,5 +635,140 @@ describe("workers-ai.ts on its own", () => {
     await expect(
       generate({ ai: hanging, model: MODEL, messages: [{ role: "user", content: "hi" }], maxOutputTokens: 10, timeoutMs: 20 }),
     ).rejects.toMatchObject({ kind: "timeout" } satisfies Partial<WorkersAiError>);
+  });
+});
+
+// ── Safe diagnostics ─────────────────────────────────────────────────────────
+
+describe("safe result diagnostics", () => {
+  const SECRET_TEXT = "THE VISITOR ASKED ABOUT WALKSCAN AND THIS IS THE ANSWER";
+  const SECRET_REASONING = "Let me think step by step about the canonical records";
+
+  const emptyWithReasoning = {
+    id: "chatcmpl-x",
+    object: "chat.completion",
+    choices: [
+      {
+        index: 0,
+        finish_reason: "length",
+        message: { role: "assistant", content: "", reasoning_content: SECRET_REASONING },
+      },
+    ],
+    usage: { prompt_tokens: 3900, completion_tokens: 600, total_tokens: 4500 },
+  };
+
+  it("exposes lengths, counts and key names only — never the text", () => {
+    const d = describeResult({ ...emptyWithReasoning, choices: [{ ...emptyWithReasoning.choices[0], message: { ...emptyWithReasoning.choices[0].message, content: SECRET_TEXT } }] }, { model: MODEL, elapsedMs: 1234 });
+    expect(d.model).toBe(MODEL);
+    expect(d.elapsedMs).toBe(1234);
+    expect(d.resultType).toBe("object");
+    expect(d.topLevelKeys).toEqual(["id", "object", "choices", "usage"]);
+    expect(d.choicesCount).toBe(1);
+    expect(d.finishReason).toBe("length");
+    expect(d.messageKeys).toEqual(["role", "content", "reasoning_content"]);
+    expect(d.contentChars).toBe(SECRET_TEXT.length);
+    expect(d.reasoningChars).toBe(SECRET_REASONING.length);
+    expect(d.promptTokens).toBe(3900);
+    expect(d.completionTokens).toBe(600);
+    expect(d.totalTokens).toBe(4500);
+    expect(d.hasLegacyResponse).toBe(false);
+    expect(d.legacyResponseChars).toBeNull();
+    const serialised = JSON.stringify(d);
+    expect(serialised).not.toContain(SECRET_TEXT);
+    expect(serialised).not.toContain("WALKSCAN");
+    expect(serialised).not.toContain(SECRET_REASONING);
+    expect(serialised).not.toContain("step by step");
+    /* Every value is a number, boolean, null, or a short key/enum string. */
+    for (const value of Object.values(d)) {
+      if (Array.isArray(value)) for (const v of value) expect(typeof v).toBe("string");
+      else expect(["number", "boolean", "string"].includes(typeof value) || value === null).toBe(true);
+    }
+  });
+
+  it("captures finish_reason and usage on an empty result and attaches them to the empty error", () => {
+    let caught: unknown;
+    try {
+      extractText(emptyWithReasoning, { model: MODEL, elapsedMs: 42 });
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(WorkersAiError);
+    const failed = caught as WorkersAiError;
+    expect(failed.kind).toBe("empty");
+    expect(failed.diagnostics).toMatchObject({
+      model: MODEL,
+      elapsedMs: 42,
+      finishReason: "length",
+      contentChars: 0,
+      reasoningChars: SECRET_REASONING.length,
+      promptTokens: 3900,
+      completionTokens: 600,
+      totalTokens: 4500,
+      choicesCount: 1,
+    });
+    expect(JSON.stringify(failed.diagnostics)).not.toContain(SECRET_REASONING);
+    expect(failed.message).not.toContain(SECRET_REASONING);
+  });
+
+  it("handles missing metadata safely with nulls, never invented values", () => {
+    const bare = describeResult({ choices: [{ message: { content: "" } }] }, { model: MODEL, elapsedMs: 5 });
+    expect(bare.finishReason).toBeNull();
+    expect(bare.reasoningChars).toBeNull();
+    expect(bare.promptTokens).toBeNull();
+    expect(bare.completionTokens).toBeNull();
+    expect(bare.totalTokens).toBeNull();
+    expect(bare.contentChars).toBe(0);
+    expect(bare.messageKeys).toEqual(["content"]);
+
+    const legacy = describeResult({ response: "   ", usage: { prompt_tokens: 10 } }, { model: MODEL, elapsedMs: 5 });
+    expect(legacy.hasLegacyResponse).toBe(true);
+    expect(legacy.legacyResponseChars).toBe(3);
+    expect(legacy.choicesCount).toBeNull();
+    expect(legacy.promptTokens).toBe(10);
+    expect(legacy.completionTokens).toBeNull();
+
+    expect(describeResult(null, { model: MODEL, elapsedMs: 0 }).resultType).toBe("null");
+    expect(describeResult("just a string", { model: MODEL, elapsedMs: 0 })).toMatchObject({ resultType: "string", topLevelKeys: [], contentChars: 0 });
+    expect(describeResult([1, 2], { model: MODEL, elapsedMs: 0 }).resultType).toBe("array");
+    expect(describeResult({ choices: "nope" }, { model: MODEL, elapsedMs: 0 }).choicesCount).toBeNull();
+  });
+
+  it("reads token counts from either usage naming", () => {
+    const nvidia = describeResult({ choices: [], usage: { input_tokens: 7, output_tokens: 3 } }, { model: MODEL, elapsedMs: 0 });
+    expect(nvidia.promptTokens).toBe(7);
+    expect(nvidia.completionTokens).toBe(3);
+    expect(nvidia.choicesCount).toBe(0);
+  });
+
+  it("returns diagnostics with a successful completion, still without any text", async () => {
+    const ai: AiRunner = { run: async () => ({ ...emptyWithReasoning, choices: [{ ...emptyWithReasoning.choices[0], finish_reason: "stop", message: { role: "assistant", content: SECRET_TEXT, reasoning_content: SECRET_REASONING } }] }) };
+    const completion = await generate({ ai, model: MODEL, messages: [{ role: "user", content: "hi" }], maxOutputTokens: 10, timeoutMs: 1000 });
+    expect(completion.text).toBe(SECRET_TEXT);
+    expect(completion.diagnostics).toMatchObject({ finishReason: "stop", contentChars: SECRET_TEXT.length, reasoningChars: SECRET_REASONING.length, completionTokens: 600 });
+    expect(JSON.stringify(completion.diagnostics)).not.toContain(SECRET_TEXT);
+    expect(JSON.stringify(completion.diagnostics)).not.toContain(SECRET_REASONING);
+  });
+
+  it("keeps the visitor response unchanged: diagnostics never appear in a 200 or an error body", async () => {
+    mockAiRun({ result: { ...emptyWithReasoning, choices: [{ ...emptyWithReasoning.choices[0], finish_reason: "stop", message: { role: "assistant", content: "WalkScan analyses a walking video.", reasoning_content: SECRET_REASONING } }] } });
+    const ok = await (await ask(post())).text();
+    expect(ok).not.toContain("diagnostics");
+    expect(ok).not.toContain("finishReason");
+    expect(ok).not.toContain(SECRET_REASONING);
+    mockAiRun({ result: emptyWithReasoning });
+    const failed = await ask(post());
+    expect(failed.status).toBe(502);
+    const body = await failed.text();
+    expect(JSON.parse(body)).toEqual({ error: "upstream" });
+    expect(body).not.toContain("diagnostics");
+    expect(body).not.toContain(SECRET_REASONING);
+  });
+
+  it("truncates hostile key names and finish_reason so nothing long can ride along", () => {
+    const longKey = "k".repeat(500);
+    const d = describeResult({ [longKey]: 1, choices: [{ finish_reason: "r".repeat(500), message: { [longKey]: "" } }] }, { model: MODEL, elapsedMs: 0 });
+    expect(d.topLevelKeys[0]).toHaveLength(40);
+    expect(d.finishReason).toHaveLength(32);
+    expect(d.messageKeys[0]).toHaveLength(40);
   });
 });

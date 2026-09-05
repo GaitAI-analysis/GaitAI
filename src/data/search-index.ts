@@ -34,7 +34,12 @@ import { allPublications } from "@/data/publications";
 import { researchAreas } from "@/data/evidence";
 import { useCaseDetails } from "@/data/usecase-details";
 import { insightArticles } from "@/data/insights";
-import { LAB_BASIS_LABEL, labs, type LabAction } from "@/data/labs";
+import {
+  LAB_BASIS_LABEL,
+  experiments,
+  type LabAction,
+} from "@/data/experiments";
+import { GAIT_LABS_BLURB, gaitLabs } from "@/data/labs";
 import {
   comparisonHref,
   comparisonLabel,
@@ -68,7 +73,7 @@ export const SEARCH_GROUPS: SearchGroup[] = [
 export const SEARCH_GROUP_LABEL: Record<SearchGroup, string> = {
   destination: "Pages",
   product: "Products",
-  lab: "Labs",
+  lab: "Movement Lab",
   capability: "Capabilities",
   environment: "Environments",
   research: "Research",
@@ -107,9 +112,10 @@ const norm = (parts: (string | undefined)[]) =>
   parts.filter(Boolean).join(" ").toLowerCase();
 
 // ── Destinations ────────────────────────────────────────────────────────────
-// The two interactive experiences. Everything else in this index is derived
-// from a data record; these are routes, so this is the one place the index
-// names something by hand — and the only place it carries a RETIRED name.
+// The interactive experience, the research hub and the blog. Everything else
+// in this index is derived from a data record; these are routes, so this is
+// the one place the index names something by hand — and the only place it
+// carries a RETIRED name.
 //
 // The palette indexed every module, capability, environment, paper and essay,
 // and neither of the two experiences a reader is most likely to look for by
@@ -126,7 +132,7 @@ const destinationEntries: SearchEntry[] = [
     id: "destination:movement-lab",
     group: "destination",
     title: "Movement Intelligence Lab",
-    detail: "See movement become intelligence, stage by stage, with example values",
+    detail: "Interactive movement-analysis experiments, from a clip to the pipeline",
     meta: "Interactive",
     href: "/movement-lab/",
     haystack: norm([
@@ -134,32 +140,53 @@ const destinationEntries: SearchEntry[] = [
       "analyze explore movement pose gait cycle features analytics report",
       "trajectories density flow candidate events operator view",
       "explainability illustrative demo example values footage",
+      /* The experiments listed at the foot of the page, so "signal inspector"
+         or "fusion sandbox" also reach the lab that holds them — each has
+         its own row below as well, linked to its own anchor. */
+      "movement intelligence experiments explore the lab",
+      experiments.map((experiment) => experiment.name).join(" "),
       /* Retired names: findable, never shown. */
       "movement studio",
       "movement lab",
     ]),
   },
   {
-    /* The experiments index. Its own entries deep-link into the two routes
-       above, so they are not indexed separately — that would list one page
-       twice under one heading. Their names live in the haystack instead, so
-       "signal inspector" and "footage check" both arrive here. */
+    /* GaitAI Labs is the gait RESEARCH hub — the gait dataset and the gait
+       biometrics lab. The experiments that used to be listed on this route
+       now live at the foot of the Movement Intelligence Lab and are indexed
+       there, so this haystack carries only the research vocabulary: "gait
+       dataset" and "biometrics lab" arrive here, "privacy lens" does not. */
     id: "destination:labs",
     group: "destination",
     title: "GaitAI Labs",
-    detail: "Experimental movement-intelligence experiences, in one place",
-    meta: "Interactive",
+    detail: "Gait datasets & biometrics research",
+    meta: "Research",
     href: "/labs/",
     haystack: norm([
-      "gaitai labs experiments experimental",
-      "explore movement before deploying it",
-      /* Every lab's name and strap, so "movement x-ray", "time machine" and
-         "footage check" all arrive at the index that lists them. */
-      labs.map((lab) => `${lab.name} ${lab.strap}`).join(" "),
-      "human view ai view x-ray xray skeleton landmarks trajectory",
-      "longitudinal sessions baseline scrub trend",
+      "gaitai labs gait research infrastructure research assets",
+      GAIT_LABS_BLURB,
+      gaitLabs.map((lab) => `${lab.name} ${lab.strap}`).join(" "),
+      "gait dataset gait biometrics biometrics lab gait research dataset card",
     ]),
   },
+  /* The two research assets, each at its own address, derived from the
+     record — so "gait dataset" lands on the dataset, not on the hub that
+     lists it. */
+  ...gaitLabs.map((lab) => ({
+    id: `destination:labs-${lab.id}`,
+    group: "destination" as const,
+    title: lab.name,
+    detail: lab.strap,
+    meta: "GaitAI Labs",
+    href: lab.href,
+    haystack: norm([
+      lab.name,
+      lab.strap,
+      lab.body,
+      ...lab.facets,
+      "gaitai labs gait research dataset biometrics recognition signature",
+    ]),
+  })),
   {
     /* The page a visitor is most likely to search by a word that is not its
        route: "blog" reaches nothing under /insights unless it is spelled out
@@ -237,22 +264,23 @@ const destinationEntries: SearchEntry[] = [
   },
 ];
 
-// ── Labs ───────────────────────────────────────────────────────────────────
-// One entry per experiment, linked to its own address rather than to the index
-// that lists it. Before this, "privacy lens" and "movement x-ray" matched only
-// the /labs haystack, so a reader who knew what they wanted landed on a page
-// listing eight things and had to find it again. Four of the eight live inside
-// a longer page, so their href carries an anchor — which is exactly why they
-// need their own row: nothing else on the site can take a reader straight to
-// the Fusion Sandbox.
-const labEntries: SearchEntry[] = labs.map((lab) => {
+// ── Movement Intelligence Lab experiments ──────────────────────────────────
+// One entry per experiment, linked to its own address rather than to the list
+// at the foot of /movement-lab. Before this, "privacy lens" and "movement
+// x-ray" matched only the list's haystack, so a reader who knew what they
+// wanted landed on a page listing eight things and had to find it again.
+// Several live inside a longer page, so their href carries an anchor — which
+// is exactly why they need their own row: nothing else on the site can take a
+// reader straight to the Fusion Sandbox.
+const labEntries: SearchEntry[] = experiments.map((lab) => {
   const base = {
     id: `lab:${lab.id}`,
     group: "lab" as const,
     title: lab.name,
     detail: lab.strap,
     /* Where it lives, when that is not simply its own page — the same
-       distinction /labs draws, so the palette and the index agree. */
+       distinction the experiments list draws, so the palette and the list
+       agree. */
     meta: lab.home ?? "Interactive",
     haystack: norm([
       lab.name,
@@ -263,10 +291,11 @@ const labEntries: SearchEntry[] = labs.map((lab) => {
       "lab labs experiment experimental interactive try explore",
     ]),
   };
-  /* An action lab (the Atlas) opens in place from the palette, exactly as it
-     does from /labs — no URL is invented for it. For the route labs, labs.ts
-     already carries trailing slashes before its anchors — the validator
-     enforces it — so the href passes straight through. */
+  /* An action experiment (the Atlas) opens in place from the palette,
+     exactly as it does from the experiments list — no URL is invented for
+     it. For the route experiments, experiments.ts already carries trailing
+     slashes before its anchors — the validator enforces it — so the href
+     passes straight through. */
   return lab.kind === "action"
     ? { ...base, action: lab.action }
     : { ...base, href: lab.href };

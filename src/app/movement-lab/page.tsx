@@ -9,6 +9,14 @@ import { IllustrativeBadge } from "@/components/ui/IllustrativeBadge";
 import { CAPABILITY_COUNT, MODULE_COUNT, SIGNAL_COUNT } from "@/data/analytics";
 import { StatRow } from "@/components/analytics/primitives";
 import { LabHeroInstrument } from "@/components/analytics/LabHeroInstrument";
+import { ExperimentIndex } from "@/components/experiments/ExperimentIndex";
+import { LabDistinction } from "@/components/labs/LabDistinction";
+import {
+  EXPERIMENTS_BLURB,
+  EXPERIMENTS_EYEBROW,
+  EXPERIMENTS_TITLE_ACCENT,
+  EXPERIMENTS_TITLE_LEAD,
+} from "@/data/experiments";
 import styles from "@/components/analytics/analytics.module.css";
 
 /**
@@ -55,7 +63,21 @@ export const metadata: Metadata = {
  * sitemap and linked from five places, and a static export cannot redirect,
  * so renaming the route would break every one of them to no reader's
  * benefit. The visible name is the Movement Intelligence Lab, which is what
- * the Explore menu, the Labs index and the search palette all call it.
+ * the Explore menu, the experiments list and the search palette all call it.
+ *
+ * THE PAGE IN FOUR PARTS.
+ *   01  Hero — what the lab is, and its boundary.
+ *   02  Analyze — a real pose model on a clip the reader chooses, in-browser.
+ *   03  Results — the signal chain, the fusion sandbox, the footage check and
+ *       the staged walkthrough: what the movement becomes.
+ *   04  Explore the lab — the interactive experiments, listed from
+ *       `data/experiments.ts`. They used to be the body of /labs; /labs is now
+ *       GaitAI Labs, the gait research hub (the dataset and the biometrics
+ *       lab), and the experiments belong here, after the pipeline has run.
+ *
+ * This lab is "let me experiment with how GaitAI understands movement".
+ * GaitAI Labs is "let me explore the gait dataset and biometrics research".
+ * The strip at the foot of the page states that distinction in place.
  */
 export default function MovementLabPage() {
   return (
@@ -108,8 +130,9 @@ export default function MovementLabPage() {
             <span className="text-gradient">intelligence.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg">
-            Explore how GaitAI transforms movement signals into structured
-            analytical outputs — stage by stage, in both product families.
+            Select the prepared clip, bring your own footage or record a
+            short walk, and explore how movement becomes intelligence — stage
+            by stage, in both product families.
           </p>
 
           <div className="mt-8">
@@ -194,8 +217,9 @@ This is an interactive technology demonstration. The stage,
       </section>
 
       {/* ── SIGNAL → INTELLIGENCE ──
-          `id="signal-chain"` is the Signal Inspector's address in GaitAI
-          Labs, which links straight to this instrument.
+          `id="signal-chain"` is the Signal Inspector's address in the
+          experiments list at the foot of this page and in the search
+          palette, both of which link straight to this instrument.
           The platform-level answer to "how does movement become
           intelligence?": pick a capture source and the whole chain it feeds
           redraws. The lab below then answers the same question at one stage's
@@ -226,7 +250,8 @@ This is an interactive technology demonstration. The stage,
       </section>
 
       {/* ── FUSION SANDBOX ──
-          `id="fusion"` is its address in GaitAI Labs.
+          `id="fusion"` is its address in the experiments list and the
+          search palette.
 
           It follows the signal chain deliberately. That instrument answers
           "what does this input become?" with every input healthy, which is
@@ -296,10 +321,53 @@ This is an interactive technology demonstration. The stage,
         </div>
       </section>
 
-      {/* ── THE LAB ── */}
-      <section className="border-t border-white/[0.07] bg-obsidian-300/25 py-12 sm:py-16">
+      {/* ── THE WALKTHROUGH ──
+          `id="walkthrough"` is the Pipeline Walkthrough's address in the
+          experiments list below: when that list lived on /labs its record
+          pointed at this page as a whole, which on this page would be a link
+          to itself. */}
+      <section
+        id="walkthrough"
+        className="border-t border-white/[0.07] bg-obsidian-300/25 py-12 sm:py-16 site-anchor-offset"
+      >
         <div className="container-wide">
           <MovementLab />
+        </div>
+      </section>
+
+      {/* ── 04 · EXPLORE THE LAB ──
+          `id="experiments"` is the address GaitAI Labs, the search palette
+          and the assistant link to. The experiments used to be the body of
+          /labs; they are listed here now because they are ways of poking at
+          the pipeline the reader has just watched run, and /labs became the
+          home of the gait research assets. One record (`data/experiments.ts`),
+          one list — the search palette and the assistant read the same one. */}
+      <section
+        id="experiments"
+        className="border-t border-white/[0.07] py-14 sm:py-16 site-anchor-offset"
+      >
+        <div className="container-wide">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
+            {EXPERIMENTS_EYEBROW}
+          </span>
+          <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
+            {EXPERIMENTS_TITLE_LEAD}{" "}
+            <span className="text-gradient">{EXPERIMENTS_TITLE_ACCENT}</span>
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
+            {EXPERIMENTS_BLURB}
+          </p>
+
+          <div className="mt-8">
+            <ExperimentIndex />
+          </div>
+
+          {/* Which lab is which, stated where the two are most likely to be
+              blurred: right under the list of experiments, with the research
+              hub one click away. */}
+          <div className="mt-14">
+            <LabDistinction current="movement-lab" />
+          </div>
         </div>
       </section>
 

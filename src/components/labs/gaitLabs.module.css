@@ -1,0 +1,444 @@
+/* =========================================================================
+   GAITAI LABS — the gait research assets, as scenes and rows
+   ---------------------------------------------------------------------------
+   One stylesheet for the /labs hub and its two asset pages. The visual
+   language is the research page's, not the Movement Intelligence Lab's: gait
+   sequences drawn from the project's own stride keyframes, temporal gait
+   phases, a Motion-DNA stack, a signature, and data lineage — instrument
+   type and hairlines, no dashboard chrome and no generic node clouds.
+
+   Rules, same as the research scenes:
+     · hairlines and instrument type, not borders around everything
+     · one accent per meaning — cyan = the movement signal, violet = the
+       protected / identity-bearing side, and nothing else
+     · every scene animates once on entry and then rests
+     · no numeral in any scene can be read as a result; the only figures
+       drawn are dimensionless
+   ========================================================================= */
+
+.root {
+  --g-cyan: #4fd1ff;
+  --g-cyan-soft: rgb(79 209 255 / 0.5);
+  --g-violet: #9c64f1;
+  --g-violet-soft: rgb(156 100 241 / 0.5);
+  --g-line: rgb(148 163 184 / 0.16);
+  --g-line-mid: rgb(148 163 184 / 0.28);
+  --g-ink: rgb(var(--c-soft-white));
+  --g-body: rgb(var(--c-soft-gray));
+  --g-mute: rgb(var(--c-soft-mute));
+  --g-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(.light) .root {
+  --g-cyan: #0e8ab8;
+  --g-cyan-soft: rgb(14 138 184 / 0.55);
+  --g-violet: #6d34c9;
+  --g-violet-soft: rgb(109 52 201 / 0.5);
+  --g-line: rgb(71 85 105 / 0.2);
+  --g-line-mid: rgb(71 85 105 / 0.32);
+}
+
+/* ── The two areas, as alternating rows ─────────────────────────────────── */
+
+.area {
+  position: relative;
+  padding: 3rem 0;
+  border-top: 1px solid var(--g-line);
+}
+
+.area:first-child {
+  border-top: 0;
+}
+
+@media (min-width: 1024px) {
+  .area {
+    display: grid;
+    grid-template-columns: minmax(0, 0.4fr) minmax(0, 0.6fr);
+    gap: 3rem;
+    align-items: center;
+    padding: 4rem 0;
+  }
+  /* Alternating sides, so two rows do not read as a table. The scene is
+     always the wide half. */
+  .areaFlip {
+    grid-template-columns: minmax(0, 0.6fr) minmax(0, 0.4fr);
+  }
+  .areaFlip .areaCopy {
+    order: 2;
+  }
+  .areaFlip .areaStage {
+    order: 1;
+  }
+}
+
+.areaCopy {
+  min-width: 0;
+}
+
+.areaIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--g-cyan);
+}
+
+.areaTitle {
+  margin-top: 0.85rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.028em;
+  color: var(--g-ink);
+  text-wrap: balance;
+}
+
+.areaStrap {
+  margin-top: 0.6rem;
+  font-size: 0.9375rem;
+  color: var(--g-cyan);
+}
+
+.areaBody {
+  margin-top: 1rem;
+  max-width: 30rem;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--g-body);
+}
+
+.areaMeta {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--g-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--g-mute);
+}
+
+.areaMetaCount {
+  color: var(--g-cyan);
+}
+
+.areaCta {
+  margin-top: 1.75rem;
+}
+
+.areaStage {
+  position: relative;
+  min-width: 0;
+  margin-top: 1.75rem;
+}
+
+@media (min-width: 1024px) {
+  .areaStage {
+    margin-top: 0;
+  }
+}
+
+/* The scene sits on its own faint capture ground rather than in a card: a
+   border around a diagram makes it an illustration, and these are readouts. */
+.areaStage::before {
+  content: "";
+  position: absolute;
+  inset: -1rem -0.5rem;
+  border-radius: 1.25rem;
+  background: radial-gradient(
+    75% 70% at 50% 45%,
+    rgb(79 209 255 / 0.045),
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+/* ── Scenes ─────────────────────────────────────────────────────────────── */
+
+.scene {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.sLabel {
+  fill: var(--g-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+}
+
+.sDim {
+  fill: var(--g-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  opacity: 0.7;
+}
+
+.sAxis {
+  stroke: var(--g-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.sFloor {
+  stroke: var(--g-line-mid);
+  stroke-width: 1;
+  stroke-dasharray: 1.5 7;
+  vector-effect: non-scaling-stroke;
+}
+
+.sBone {
+  fill: none;
+  stroke: var(--g-cyan);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sBoneFar {
+  opacity: 0.42;
+}
+
+.sJoint {
+  fill: var(--g-cyan);
+}
+
+.sHead {
+  fill: rgb(var(--c-obsidian-300) / 0.85);
+  stroke: var(--g-cyan);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .sHead {
+  fill: #ffffff;
+}
+
+.sContact {
+  fill: var(--g-cyan);
+  opacity: 0.6;
+}
+
+/* Phase ticks under the sequence: the five canonical gait events. */
+.sTick {
+  stroke: var(--g-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.sFlow line,
+.sFlow polyline {
+  fill: none;
+  stroke: var(--g-cyan);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Data lineage: a record card is a hairline box; the protected copy is violet
+   because it is the identity-bearing side transformed, and nothing else on
+   the page uses violet. */
+.sRecord {
+  fill: rgb(79 209 255 / 0.05);
+  stroke: var(--g-cyan-soft);
+  stroke-width: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+
+.sRecordLine {
+  stroke: var(--g-cyan);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+.sNode {
+  fill: none;
+  stroke: var(--g-cyan);
+  stroke-width: 1.3;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.sNodeProtected {
+  fill: rgb(156 100 241 / 0.14);
+  stroke: var(--g-violet);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.sLink {
+  stroke: var(--g-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.45;
+  vector-effect: non-scaling-stroke;
+}
+
+.sLinkProtected {
+  stroke: var(--g-violet);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.55;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Motion DNA: temporal channels, one polyline each. */
+.sChannel {
+  fill: none;
+  stroke: var(--g-cyan);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: calc(0.45 + var(--s-w, 0.5) * 0.45);
+  vector-effect: non-scaling-stroke;
+}
+
+.sChannelRule {
+  stroke: var(--g-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The signature: a dimensionless bar code, never a score. */
+.sSignature line {
+  stroke: var(--g-cyan);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Covariates orbit the signature: what changes the walk without changing
+   the walker. */
+.sOrbit {
+  fill: none;
+  stroke: var(--g-line-mid);
+  stroke-width: 1;
+  stroke-dasharray: 2 5;
+  vector-effect: non-scaling-stroke;
+}
+
+.sOrbitNode {
+  fill: rgb(var(--c-obsidian-300) / 0.85);
+  stroke: var(--g-violet);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .sOrbitNode {
+  fill: #ffffff;
+}
+
+/* ── Entry motion: once, staggered by --s-i, then rest ──────────────────── */
+
+.enter {
+  opacity: 0;
+  animation: gl-enter 0.9s var(--g-ease) forwards;
+  animation-delay: calc(var(--s-i, 0) * 90ms + 120ms);
+}
+
+@keyframes gl-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* ── Facet grid: the headings a dataset card or a lab has, never values ── */
+
+.facets {
+  margin-top: 2rem;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 720px) {
+  .facets {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .facets {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.facet {
+  border-top: 1px solid var(--g-line-mid);
+  padding-top: 0.75rem;
+}
+
+.facetIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  color: var(--g-cyan);
+}
+
+.facetName {
+  margin-top: 0.4rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--g-ink);
+}
+
+.facetState {
+  margin-top: 0.35rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--g-mute);
+}
+
+.facetStateLive {
+  color: var(--g-cyan);
+}
+
+/* ── Status pill: how far the asset is along, stated as such ────────────── */
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--g-line-mid);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--g-mute);
+}
+
+.statusDot {
+  height: 6px;
+  width: 6px;
+  border-radius: 999px;
+  background: var(--g-cyan);
+}

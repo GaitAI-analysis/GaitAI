@@ -1,10 +1,10 @@
 "use client";
 
-import type { LabAction } from "@/data/labs";
-import { runLabAction } from "./lab-actions";
+import type { LabAction } from "@/data/experiments";
+import { runExperimentAction } from "./experiment-actions";
 
 /**
- * The /labs row for a lab that is an ACTION rather than a place.
+ * The experiments row for an experiment that is an ACTION rather than a place.
  *
  * Visually it is the same row as every other — the page hands it the same
  * class list and the same children — but it is a `<button>`, because a
@@ -17,7 +17,7 @@ import { runLabAction } from "./lab-actions";
  * `document.activeElement` when it mounts and refocuses it when it closes,
  * which is this button when the reader came from here.
  */
-export function LabActionRow({
+export function ExperimentActionRow({
   action,
   label,
   className,
@@ -33,7 +33,7 @@ export function LabActionRow({
     <button
       type="button"
       aria-label={label}
-      onClick={() => runLabAction(action)}
+      onClick={() => runExperimentAction(action)}
       /* A button centres its text and shrinks to fit; the row is a full-width
          grid with left-aligned type, so both are said explicitly. */
       className={`${className} w-full text-left`}

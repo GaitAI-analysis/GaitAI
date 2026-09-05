@@ -14,7 +14,7 @@ import {
   ASSISTANT_ENABLED,
   type AskEventDetail,
 } from "@/components/assistant/config";
-import { runLabAction } from "@/components/labs/lab-actions";
+import { runExperimentAction } from "@/components/experiments/experiment-actions";
 import styles from "./search.module.css";
 
 /**
@@ -109,7 +109,7 @@ export function IntelligenceSearch() {
          has already been handed back to the opener by `close()`, which is
          where the Atlas will return it when it, in turn, closes. */
       if (entry.action) {
-        runLabAction(entry.action);
+        runExperimentAction(entry.action);
         return;
       }
       router.push(entry.href);

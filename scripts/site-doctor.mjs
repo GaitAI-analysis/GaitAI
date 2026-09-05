@@ -53,7 +53,8 @@ const fail = (label, detail) => {
 const ROUTES = [
   "/", "/products/", "/mobilitycare/", "/securevision/", "/use-cases/",
   "/research/", "/research/evidence/", "/research/talks/", "/publications/",
-  "/insights/", "/movement-lab/", "/gaitscape/", "/investors/", "/trust/",
+  "/insights/", "/movement-lab/", "/gaitscape/", "/labs/", "/labs/dataset/",
+  "/labs/biometrics/", "/investors/", "/trust/",
   "/legal/privacy/", "/legal/terms/", "/legal/security/",
   "/legal/responsible-ai/",
 ];

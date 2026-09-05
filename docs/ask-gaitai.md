@@ -8,104 +8,248 @@ the same typed data modules the pages render, it can only link to routes that
 exist, and it inherits the site's evidence discipline: no invented accuracy
 figures, no clinical validation claims, no diagnosis, no certification status.
 
-**It costs nothing to operate and needs no account.** Retrieval and generation
-both run in the visitor's own browser. There is no API key, no inference
-provider, no Cloud Function, no endpoint URL and no environment variable — a
-clone of this repository has a working assistant.
+**Nothing to download, nothing to prepare.** A visitor opens the panel and asks.
+Retrieval runs in their browser over a 315 KB corpus; the prose is written by a
+hosted model behind the project's own Cloud Function. It works on a phone, on
+Safari, on a low-end laptop, and on any browser without WebGPU — which is the
+main reason the previous in-browser model is gone.
 
 ---
 
 ## 1. The architecture
 
 ```
-GitHub Pages (static)
-      |
-      v
-Ask GaitAI panel                     ~34 KB, fetched on first open
-      |
-      +--> /ask/knowledge.json       315 KB, 118 records, cached
-      |         |
-      |         v
-      |    BM25 retrieval            in the tab - the source of truth
-      |         |
-      |         v
-      |    top 7 records
-      |         |
-      +---------+--> EXTRACTIVE ANSWER          <- default, 0 bytes, instant
-      |                quotes the records verbatim
-      |
-      +--> optional: open-weight model          <- opt-in, 1.14 GB, cached
-               Transformers.js + WebGPU
-               writes prose from those same records
-      |
-      v
-answer -> link allowlist -> Sources row
+GitHub Pages (static)                          Firebase (gaitai-intelligence)
+──────────────────────                          ─────────────────────────────
+Ask GaitAI panel
+   |
+   +--> /ask/knowledge.json?v=<digest>          the corpus, versioned per deploy
+   |
+   v
+BM25 + entity + intent retrieval  ─── low confidence? ──> refuse locally, no model call
+   |
+   v  question · route · title · ≤6 prior turns
+POST askGaitai  ─────────────────────────────>  validate · rate-limit · budget
+                                                    |
+                                                    v
+                                                the SAME retrieval, same corpus
+                                                    |
+                                                    v  system policy + records
+                                                Hugging Face Inference Providers
+                                                    (HF_TOKEN from Secret Manager)
+                                                    |
+                                                    v
+                                                clean: no traces, no bare URLs,
+                                                links allowlisted · sources from
+                                                retrieval · related · follow-ups
+   |  <────────────────────────────────────────  JSON
+   v
+sanitize again → render
+   |
+   +-- any failure (network, 429, 503, 502, timeout) → EXTRACTIVE ANSWER
+                                                        from the retrieval that
+                                                        already ran in the tab
 ```
 
-Two answering modes, one pipeline. **Retrieval decides what is true; the model
-only decides how it reads.** If the model is absent — never loaded, declined,
-no WebGPU, or failed — the extract answers instead and the assistant is still
-useful. That is not a fallback bolted on for safety; it is the default path.
+**Retrieval decides what is true; the model only decides how it reads.** The
+model never receives the whole site. It receives the system policy, the
+question, a short conversation window, and the seven records retrieval chose —
+and it is told, in the policy, not to reach past them. Sources under an answer
+come from the deterministic retrieval result, never from the model.
 
 ### What replaced what
 
-| Before | Now |
+| Before (in-browser model) | Now (hosted model) |
 |---|---|
-| Firebase Cloud Function (2nd gen) | nothing — deleted |
-| Anthropic Messages API + `LLM_API_KEY` | open-weight model in the browser |
-| `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` | nothing — deleted |
-| Firestore IP-digest rate limiter | nothing — the tab pays for its own question |
-| CORS origin allowlist | nothing — there is no origin to check |
-| per-question cost | zero |
+| `onnx-community/Qwen2.5-1.5B-Instruct`, q4f16 on WebGPU, q4 on WASM | a 7B-class-or-larger instruct model on Hugging Face Inference Providers |
+| ~1.22 GB download, opt-in behind a button | nothing to download |
+| Transformers.js + ONNX Runtime Web loaded from a CDN | no browser ML runtime at all |
+| "Load local model" strip, download percentage, "Preparing GaitAI Assistant" | header · conversation · composer · privacy line |
+| WebGPU detection, WASM fallback notices | works on every browser |
+| model capped at 1.5B by laptop GPUs | model chosen by benchmark on the site's own questions |
+| "Answers are generated locally in your browser" | "Please don't share sensitive personal or patient information." |
+| `cache: "force-cache"` corpus fetch | corpus URL versioned by content digest |
 
-Firebase itself stays exactly where it was for **comments, journal view/like
-counters, authentication and the admin panel**. Only the assistant's function
-is gone, and `firebase.json` no longer declares a functions codebase at all.
-
-### The model
-
-| | |
-|---|---|
-| Default | `onnx-community/Qwen2.5-1.5B-Instruct` |
-| Licence | Apache-2.0 |
-| Quantization | `q4f16` on WebGPU, `q4` on the WASM/CPU fallback |
-| Weights | **1 221 878 940 B, about 1.14 GiB** (measured from the CDN) |
-| Alternative | `HuggingFaceTB/SmolLM2-1.7B-Instruct`, Apache-2.0, 1.03 GiB |
-| Runtime | `@huggingface/transformers` 4.2.0, from jsDelivr, version-pinned |
-| Settings | `temperature 0.1`, `top_p 0.9`, `max_new_tokens 300` |
-
-**The gigabyte is why the model is opt-in.** A launcher press is not consent to
-a 1.14 GB download; on a phone it may be someone's month. So the panel states
-the size on the button, the extract answers meanwhile, and nothing is blocked
-on the choice. This is the one place the implementation deliberately differs
-from the brief, which asked for the download to begin when the panel opens.
-
-### Why the runtime comes from a CDN
-
-1. **It cannot be bundled here.** `onnxruntime-web`'s WebGPU bundle uses
-   `import.meta`, and Next 14's Terser pass over the emitted asset rejects it:
-   `'import.meta' cannot be used outside of module code`.
-2. **It should not be.** ~9 MB of runtime in a webpack chunk, re-downloaded on
-   every unrelated deploy, for code only an opting-in visitor executes.
-3. **The weights already come from a CDN.** 1.14 GB cannot live in a GitHub
-   Pages repository, so the model path already fetches from `huggingface.co`.
-
-### What the privacy claim does and does not say
-
-The panel says, once the model is running:
-
-> Answers are generated locally in your browser on WebGPU. Your question is
-> not sent to an external AI provider.
-
-Both halves are true. Fetching the runtime and the weights tells those CDNs
-that a browser asked for a model — what any script tag tells any CDN. The
-**question** is matched against a corpus already in memory and generated by
-weights already in memory; it never leaves the tab. The line is only rendered
-in the `ready` state, so it is never shown while it would be false.
+Firebase stays exactly where it was for comments, journal counters,
+authentication and the admin panel. One function is added: `askGaitai`.
 
 ---
 
-## 2. Where the knowledge comes from
+## 2. The Cloud Function
+
+`functions/` — Firebase Cloud Functions (2nd gen), Node 20, region `asia-south1`,
+scale-to-zero, 512 MiB, 60 s timeout, max 10 instances.
+
+| File | Role |
+|---|---|
+| `src/index.ts` | HTTP handler: CORS allowlist, method, validation, per-caller limit, daily budget, the call, the log line |
+| `src/ask.ts` | The core with no HTTP in it: retrieve → prompt → model → clean → sources. Used by the handler and by the local harness unchanged |
+| `src/hf.ts` | One OpenAI-compatible chat completion to `router.huggingface.co/v1/chat/completions` |
+| `src/rate-limit.ts` | Firestore-backed limiter (Admin SDK): burst, hourly, site-wide daily budget |
+| `src/validate.ts` | What a browser may POST: 800-char question, 6 history turns, bounded route and title |
+| `src/knowledge.ts` | Reads `knowledge.json` at cold start and seeds the shared corpus module |
+| `src/test-local.ts` | `npm test` — validation, retrieval and (with a token) the live provider call |
+| `scripts/sync-shared.mjs` | Copies `src/lib/ask/*.ts` and the corpus in before every build |
+| `src/shared/` (generated) | The browser's retrieval, prompt, answer and extractive modules, verbatim |
+
+### One retrieval, two runtimes
+
+The function must run **exactly** the retrieval the browser runs over
+**exactly** the corpus the site shipped. So there is one implementation, in
+`src/lib/ask/`, and `sync-shared.mjs` copies it into `functions/src/shared/`
+before every `tsc`, together with `public/ask/knowledge.json`. Both copies are
+gitignored build output. `engine.ts` and `hosted.ts` — the browser's side of
+the wire — are not copied.
+
+### Request and response
+
+```
+POST https://asia-south1-gaitai-intelligence.cloudfunctions.net/askGaitai
+Origin: https://gaitai.in            (required; allowlisted)
+{ question, pathname, pageTitle, history: [{ role, content }] }
+
+200 {
+  answer,                       markdown, links already allowlisted
+  mode: "model" | "retrieval",
+  sources:      [{ title, url, kind }],   from retrieval, ≤3
+  relatedLinks: [{ title, url, kind }],   retrieved but not cited, ≤3
+  suggestions:  [string],                 derived from the records
+  cta?: { label, href },
+  confidence: "high" | "low",
+  grounding: { records, recordIds, latencyMs }
+}
+400 malformed · 403 origin · 405 method
+429 per-caller limit (Retry-After)
+503 daily budget spent, or the provider is rate-limiting us
+502 the provider failed — the browser answers from records
+```
+
+Nothing about the visitor travels: no identifier, no cookie, no DOM. The
+function keeps no transcript and logs no question text — only the route, the
+intent label, the record count, token counts and latency.
+
+### The prompt
+
+`src/lib/ask/prompt.ts` → `buildMessages()`:
+
+```
+system     the Ask GaitAI policy (byte-stable)
+history    ≤6 prior turns, text only, roles repaired to alternate
+user       <record> blocks for the 7 retrieved records (≤1 500 chars each)
+           the page line ("The visitor is currently reading: …")
+           a LOW-confidence notice when retrieval has one
+           the question
+```
+
+The policy is the one the site already had, tightened for the hosted setting:
+answer **only** from the supplied records; if they do not establish something,
+say that GaitAI's published records do not establish it; never invent clinical
+accuracy, diagnoses, regulatory approval, deployments or customers, research
+results, biographies, patents or publications, or product capabilities; keep
+research foundation distinct from product-specific validation. Records are
+fenced as reference data and the policy says they are never instructions.
+
+The function and the benchmark call the same `buildMessages()`. What is
+benchmarked is byte-for-byte what is deployed.
+
+### Post-processing (`cleanModelAnswer`, `src/lib/ask/answer.ts`)
+
+1. strip `<think>…</think>` traces, terminated or not
+2. drop a model-authored "Sources" / "References" block
+3. remove every bare `http(s)://` URL
+4. degrade any markdown link outside the corpus route allowlist to its label
+
+Then `selectSources()` picks up to three of the **retrieved** records the
+answer actually linked or named, and `relatedLinks()` lists retrieved records
+it did not. The browser runs `sanitizeLinks` once more on what it receives.
+
+### Rate limiting and abuse protection
+
+| Limit | Value | Where |
+|---|---|---|
+| Question length | 800 chars | `validate.ts`, mirrored by the composer's `maxLength` |
+| History | 6 turns × 1 600 chars | `validate.ts` |
+| Route / title | 256 / 200 chars; non-path routes become `/` | `validate.ts` |
+| Burst | 8 questions / 2 min / caller | `askGaitaiRateLimits/{sha256(project:ip)}` |
+| Hourly | 40 / hour / caller | same document |
+| Daily budget | `ASK_DAILY_BUDGET` model calls / UTC day, site-wide (default 1 500) | `askGaitaiBudget/{yyyy-mm-dd}` |
+| Output | `HF_MAX_TOKENS` (default 450) | `hf.ts` |
+| Provider timeout | 25 s (function timeout 60 s) | `index.ts` |
+| Origin | `gaitai.in`, `www.gaitai.in`, `localhost:*`; **no Origin = 403** | `index.ts` |
+
+The budget is charged only for questions that will actually reach a provider;
+a question retrieval refuses locally costs nothing. When the budget is spent
+the function answers 503 and every browser falls back to the extractive answer
+— the assistant keeps working while the bill stops growing. Both collections
+carry `expireAt`; enable a Firestore TTL policy on it in the console so they
+self-empty. The limiter fails open on a Firestore error: an outage degrades the
+protection, not the site.
+
+### Secrets and parameters
+
+| Name | Kind | Set with |
+|---|---|---|
+| `HF_TOKEN` | Secret Manager secret | `npx -y firebase-tools@13 functions:secrets:set HF_TOKEN` |
+| `HF_MODEL` | function parameter | `functions/.env.gaitai-intelligence` or the deploy prompt; default in `index.ts` |
+| `HF_MAX_TOKENS` | function parameter | default 450 |
+| `ASK_DAILY_BUDGET` | function parameter | default 1 500 |
+
+The token is never in the repository, never in a `NEXT_PUBLIC_` variable,
+never in the browser bundle, and never in a response or a log line. The
+browser talks only to the function; the function talks to Hugging Face.
+
+### Deploying
+
+```bash
+npm run functions:test        # offline: validation + retrieval; live with HF_TOKEN=hf_…
+npm run functions:deploy      # build:knowledge → sync → tsc → firebase deploy --only functions
+```
+
+Requirements on the Firebase project, once: the Blaze plan (Cloud Functions
+need billing), the Cloud Functions / Cloud Build / Artifact Registry / Cloud Run
+/ Secret Manager APIs (the CLI enables them on first deploy), and the `HF_TOKEN`
+secret.
+
+---
+
+## 3. The hosted model
+
+Chosen by `npm run ask:bench`, not by reputation or parameter count. The
+benchmark runs the twelve questions the migration brief names plus the 25
+acceptance cases through the real retrieval, the real policy and the real
+post-processing against each candidate on Hugging Face Inference Providers, and
+scores:
+
+| Criterion | How |
+|---|---|
+| grounding | the answer names the record(s) retrieval surfaced; brief-specified phrases present |
+| hallucination | a figure the retrieved context does not contain |
+| boundaries | diagnosis, certification, customers, invented credentials |
+| invented names | module-shaped names the corpus does not have |
+| instruction following | no bare URL, no self-authored Sources block, no reasoning trace, within length |
+| latency | mean, median, p90 wall clock per answer |
+| cost | tokens × the provider's published price from `router.huggingface.co/v1/models` |
+
+```bash
+HF_TOKEN=hf_… npm run ask:bench                                # default candidates
+HF_TOKEN=hf_… npm run ask:bench -- --models Qwen/Qwen3-8B,google/gemma-3-12b-it
+HF_TOKEN=hf_… npm run ask:bench -- --brief --json tmp/bench.json
+```
+
+Candidates on the router in the 7B–12B class at the time of writing:
+`Qwen/Qwen3-8B`, `Qwen/Qwen3.5-9B`, `meta-llama/Llama-3.1-8B-Instruct`,
+`google/gemma-3-12b-it`. (`Qwen/Qwen2.5-7B-Instruct` is not served by any
+provider on the router.) Hybrid-thinking Qwen models are called with
+`chat_template_kwargs.enable_thinking = false`; anything that slips through is
+stripped. Questions retrieval refuses locally are skipped in the benchmark and
+counted as local refusals, exactly as production behaves.
+
+Record the chosen model and its numbers here when the benchmark has run, and
+set `HF_MODEL` to match.
+
+---
+
+## 4. Where the knowledge comes from
 
 `public/ask/knowledge.json` is **generated**, never edited by hand:
 
@@ -117,297 +261,120 @@ It reads the site's canonical modules through `tsx` — `products.ts`,
 `product-details.ts`, `product-details-secure.ts`, `usecase-details.ts`,
 `usecase-facets.ts`, `publications.ts`, `evidence.ts`, `evidence-status.ts`,
 `insights.ts`, `gaitscape/graph.ts`, `taxonomy.ts`, `trust.ts`,
-`responsible-use.ts`, `sample-outputs.ts`, `content.ts` — plus the prose of the
-four `/legal` routes and the Trust Center, read out of the pages themselves.
+`responsible-use.ts`, `sample-outputs.ts`, `content.ts`, `talks.ts` — plus the
+prose of the four `/legal` routes and the Trust Center, read out of the pages
+themselves.
 
-118 records: 23 modules, 17 environments, 9 publications, 4 research areas, 1 person record,
-5 journal articles, 27 capabilities and signals, 10 deployment answers,
-2 policy records, 17 site pages.
+118 records: 23 modules, 17 environments, 9 publications, 4 research areas, 1
+person record, 5 journal articles, 27 capabilities and signals, 10 deployment
+answers, 2 policy records, 17 site pages.
 
-Rename a module or correct a paper's venue and the assistant's answer changes
-with **no edit to the assistant**. It also cannot assert something the site does
-not, because it has nothing else to read.
+The script runs in `predev` and `prebuild`, so the corpus a build ships is
+always current, and `functions/scripts/sync-shared.mjs` copies the same file
+into the function before every deploy.
 
-The script runs automatically in `predev` and `prebuild`, so the corpus a
-build ships is always current. There is no function to deploy it to any more.
+### Freshness: the corpus URL is versioned
 
----
-
-## 3. Retrieval
-
-`src/lib/ask/retrieval.ts` — BM25 over the corpus, with three GaitAI-specific
-signals layered on:
-
-- **Page awareness.** The record for the route the visitor is on gets a scoring
-  bonus *and* a reserved slot, so "what can this do?" on a module page is
-  answered about that module.
-- **Whole-title coverage.** "I run a physiotherapy clinic" matches the
-  *Physiotherapy clinics* environment record even though the words are in a
-  different order and a different number.
-- **Relation expansion.** When an environment or research area is clearly what
-  the question is about, the modules it names come with it — reusing the
-  canonical `industryUseCases` mapping rather than a second recommendation
-  table.
-
-Seven records reach the answering layer, capped at 1 500 characters each. No vector
-database: 113 records of controlled technical vocabulary is a case where lexical
-matching is the more predictable tool, and it costs nothing per request.
-
-If nothing scores above the confidence floor, the model is told so and says it
-has no documented answer instead of inventing one.
-
-### Entity-aware retrieval
-
-"Who is Anubha" used to be answered by whichever records happened to share a
-word with the question — a privacy policy, the Trust Center, a deployment
-note — because nothing in the ranking knew that a name is decisive. Three
-things fixed that, all deterministic and all local:
-
-1. **Entities in the corpus.** Records that *are* a named thing carry
-   `entityId` and `aliases`; records *about* one carry `relatedEntityIds`.
-   The founder has one canonical `person` record, assembled by
-   `build-knowledge.mjs` from `publications.ts` (authorship, publishers, the
-   founder-vs-company distinction quoted from the Publications page) and
-   `talks.ts` (the speaking record). Its aliases are the name's own parts plus
-   the role word the site uses — "founder" — so "who founded gaitai" and
-   "who is the founder" resolve to it. Every publication she authored, the
-   research areas those papers ground, and the Publications, Research and
-   Talks pages point back at her through `relatedEntityIds`, so
-   person → publications and person → research work without a second copy of
-   the biography. The company (`page:/`) and every module are entities too.
-   What the site does not say — degrees, employers, dates, awards — the record
-   states as *not documented*, so the model has that in its context as well.
-
-2. **Intent classification** (`intent.ts`). A rule-based classifier labels the
-   question PERSON, PRODUCT, CAPABILITY, RESEARCH, PUBLICATION, USE_CASE,
-   PRIVACY, SECURITY, NAVIGATION or GENERAL before anything is scored. The
-   label tilts whole record types: a PERSON question lifts person records and
-   penalises policy, deployment and governance pages; a PRIVACY question does
-   the reverse. Order is the model — a named person beats everything, a
-   research question about privacy is still a research question.
-
-3. **Entity resolution** (`entities.ts`). Aliases are matched after folding
-   case, punctuation, honorifics and possessives, with one edit of tolerance
-   on a long name token ("anubah"). A hit on the record that *is* the entity
-   is worth more than any lexical score a single word can earn; records that
-   point at it get a smaller boost. On a person question the result is then
-   *assembled* rather than sorted: the person first, then the research areas
-   and papers that point at them, then site context.
-
-The answer layer follows suit. A person question is answered person-first —
-name, the record's own summary, then up to four related records of different
-kinds — and a person the corpus has no record for gets a named empty state
-("I couldn't find a GaitAI record for 'Priya Sharma'. Try a full name, or
-search Research and Publications.") instead of the nearest neighbour.
+`next.config.mjs` hashes the generated file at build time and inlines the
+digest as `NEXT_PUBLIC_ASK_CORPUS_VERSION`; `corpus.ts` fetches
+`/ask/knowledge.json?v=<digest>`. A deploy that changes the corpus changes the
+URL, so the browser's HTTP cache, any CDN in front of GitHub Pages and any
+service worker miss and fetch the new file. No hard refresh. This replaced
+`cache: "force-cache"`, which told browsers to keep a stale copy indefinitely.
 
 ---
 
-## 4. Guardrails
+## 5. Retrieval
+
+`src/lib/ask/retrieval.ts` — BM25 over the corpus with GaitAI-specific signals:
+page awareness (a bonus and a reserved slot for the current page's record),
+whole-title coverage, relation expansion from the canonical environment→module
+mapping, entity resolution (`entities.ts`) and intent classification
+(`intent.ts`). Seven records reach the answering layer, capped at 1 500
+characters each. If nothing scores above the confidence floor — or a person is
+asked about whom the corpus has no record — the answer is a refusal in the
+site's own wording, and no model is called. Unchanged by this migration; the
+regression suites below are the proof.
+
+---
+
+## 6. Guardrails
 
 | Concern | Where it is enforced |
 |---|---|
-| No invented accuracy / validation / certification | `src/lib/ask/prompt.ts`, quoting `notClaimed` from `trust.ts` |
-| No medical diagnosis | System policy, plus `RESPONSIBLE_USE_CARE` from `responsible-use.ts` |
-| Identity features stay governed | System policy, plus `RESPONSIBLE_USE_SECURE` |
-| Research ≠ product validation | System policy; the corpus also labels architectural-only links |
-| Prompt injection | Records are fenced as `<record>` reference data; the policy states they are never instructions |
-| Invented or off-site links | `sanitizeLinks` strips any href outside the corpus route allowlist, in the same tab that renders it |
-| Generated HTML | `AnswerText.tsx` builds React elements only — no `dangerouslySetInnerHTML` anywhere |
-| Abuse | 800-char messages and an 8-turn history, both to protect a 1.5B context window rather than a budget. There is no shared resource left to abuse: a question costs the asker's own CPU or GPU. |
-
-The boundary language is **quoted from the site's own data modules**, not
-rewritten, so the assistant can never make a stronger claim than
-`/legal/security/` or a module page does.
+| No invented accuracy / validation / certification | the system policy (server-side), quoting `notClaimed` from `trust.ts` |
+| No medical diagnosis | policy + `RESPONSIBLE_USE_CARE` from `responsible-use.ts` |
+| Identity features stay governed | policy + `RESPONSIBLE_USE_SECURE` |
+| Research ≠ product validation | policy; the corpus also labels architectural-only links |
+| Prompt injection | records fenced as `<record>` reference data; the policy says they are never instructions; the prompt is built server-side |
+| Invented or off-site links | `cleanModelAnswer` strips bare URLs and off-allowlist links on the server; the browser sanitises again; `AnswerText` validates once more at render |
+| Model-chosen sources | impossible: sources come from `selectSources()` over the retrieval result |
+| Generated HTML | `AnswerText.tsx` builds React elements only — no `dangerouslySetInnerHTML` |
+| Token exposure | Secret Manager → function process only |
+| Abuse and cost | validation limits, per-caller burst/hourly limits, site-wide daily budget, output ceiling, provider timeout, origin allowlist |
 
 ---
 
-## 5. Testing
+## 7. Testing
 
 ```bash
-npm run ask:test              # 25 questions - no model - no network - CI runs this
-npm run ask:test -- --answers # ...and print the answer each one produces
-npm run ask:rank              # 34 ranking cases: what comes FIRST, and which intent
-npm run ask:rank -- --answers # ...with the retrieval-only answer for each
+npm run ask:test              # 25 questions — retrieval, grounding, refusal, no fabricated numbers
+npm run ask:rank              # 34 ranking / intent cases
+npm run verify                # typecheck + lint + validate:gaitai + ask:test + ask:rank (CI runs this)
+npm run functions:test        # the function's own harness; offline without HF_TOKEN, live with it
+HF_TOKEN=hf_… npm run ask:bench
 ```
 
-`ask:rank` is the regression suite for entity-aware retrieval. It asserts the
-top record (or its type), the record types that must *not* come first, the
-intent label, the named empty state for an unknown person, and substrings the
-answer must and must not contain — starting with the case that motivated it:
-"who is anubha" must rank the person record first and never a policy,
-deployment or page record, and "what is privacyguard" must rank PrivacyGuard
-first. Both suites run in `npm run verify`, which CI runs before every deploy.
-
-Four things are asserted, and none of them needs a key or a download:
-
-1. **Retrieval.** Every case's required record ids reach the answering layer —
-   the assertion that catches a data rename before a visitor does.
-2. **Grounding.** Every link in every answer resolves to a real route in the
-   corpus allowlist.
-3. **Refusal.** A low-confidence question produces the "no documented answer"
-   wording, not a composed one.
-4. **No fabricated numbers.** No answer introduces a percentage that no record
-   states.
-
-This is strictly more than the old suite could check. `functions/src/test-questions.ts`
-needed an Anthropic key to see what a visitor would actually read; the
-extractive answer is deterministic, so what a visitor reads with no model
-loaded is fully assertable in CI.
-
-```
-25/25 retrieval expectations met
-0 grounding failure(s) - 0 fabricated-number failure(s)
-route allowlist: 71 routes
-```
+Both retrieval suites run the same modules the browser and the function run.
+CI also installs and typechecks `functions/` from the copied modules, so a
+change to `src/lib/ask/` that would break the function fails the build.
 
 ---
 
-## 6. Benchmarking a model
+## 8. Privacy
 
-```bash
-npm run ask:bench                     # the default (Qwen2.5-1.5B)
-npm run ask:bench -- --model smollm   # SmolLM2-1.7B
-npm run ask:bench -- --model <hf-id>  # anything Transformers.js loads
-npm run ask:bench -- --limit 5        # a quick pass
-npm run ask:bench -- --json out.json  # machine-readable, for diffing
-```
+Questions now leave the browser: they go to the project's own Cloud Function,
+and from there — with the retrieved records — to a hosted model on Hugging Face
+Inference Providers. Accordingly:
 
-It runs the **site's own 25 questions** through the real retrieval and the real
-system policy, and scores the ten criteria the brief names:
-
-| # | Criterion | How it is scored |
-|---|---|---|
-| 1 | grounded correctness | expected record titles present in the answer |
-| 2 | hallucination | figures not present in the retrieved context |
-| 3 | evidence boundaries | forbidden claim shapes (diagnosis, FDA, certified, customer names, threat determinations) |
-| 4 | product-name accuracy | module-shaped names absent from the corpus |
-| 5 | source consistency | `selectSources()` finds at least one real source |
-| 6 | refusal | low-confidence cases must decline |
-| 7 | conciseness | word count against a 220-word target |
-| 8 | latency | per answer, wall clock |
-| 9 | memory | peak RSS |
-| 10 | download size | the weights, from the loader |
-
-It runs on the **CPU** backend in Node, so its latency is an upper bound
-against the WebGPU path a visitor gets; the two candidates' numbers are
-comparable to each other rather than to the browser. Everything else is
-identical to what the browser produces, because it is the same code.
-
-**Reputation does not choose the model. This does.** Run it on real hardware
-before changing `DEFAULT_MODEL`.
+- the panel no longer says answers are generated locally or that questions are
+  not sent to an external AI provider; both lines are gone
+- the composer's footer reads: *Please don't share sensitive personal or
+  patient information.*
+- the function logs no question text and keeps no transcript
+- the browser sends no identifier, no cookie and nothing from the page beyond
+  the route and the document title
+- the `assistantStats` counters are unchanged: four integers per page type, no
+  text, no identifier
+- the rate limiter stores a salted digest of the caller's IP for at most two
+  hours, never the address
 
 ---
 
-## 7. Local development
+## 9. Files
 
-```bash
-npm run dev      # build:knowledge runs in predev; nothing else to configure
-```
-
-There is no emulator to start, no key to export and no second terminal. The
-assistant works on first run.
-
----
-
-## 8. Cost
-
-Zero, per question and per month. The corpus is a static file on Pages; the
-runtime and the weights come from public CDNs; inference happens on the
-visitor's own hardware. There is no Blaze plan requirement any more — the
-Firestore usage that remains (comments, counters) is what it always was.
-
----
-
-## 9. Usage counters
-
-`assistantStats/{pageType}` — four integers, and nothing that could identify
-anyone:
-
-| Field | Raised when |
-|---|---|
-| `opens` | the launcher was pressed (once per page type per session) |
-| `questions` | a question was submitted |
-| `prompts` | a suggested prompt was chosen rather than typed |
-| `links` | a source, inline link or CTA in an answer was followed |
-
-The document id is the **page type** — a closed list of sixteen values from
-`page-context.ts` — so the counters answer "where do people reach for this,
-and do they type or pick?" and cannot answer anything about a person.
-
-**No question text is ever stored.** Not truncated, not hashed, not sampled.
-`firestore.rules` enforces the shape rather than trusting the client: a write
-carrying any field other than those four and `updatedAt` is refused, exactly
-one counter may move, and it may only move by +1. Reads are admin-only,
-because unlike the journal's view count these numbers are not published.
-
-It reuses the counter pattern `articleStats` already established, so there is
-no second analytics stack, no third-party script and nothing to consent to.
-Every call swallows its own failure — unconfigured, blocked or offline all
-resolve to nothing happening.
-
----
-
-## 10. Search and the assistant, side by side
-
-The palette finds a page; the assistant answers a question. Those are
-different acts, and a visitor who typed a *question* into a find-a-page box
-had no way to discover the second one — so the palette carries a hand-off row:
-
-```
-SEARCH SITE                          ✦ ASK GAITAI THIS INSTEAD →
-```
-
-Pressing it closes the palette and opens the assistant with whatever was
-typed, verbatim. Nothing is removed from search, and the two surfaces stay
-independent: the palette dispatches `ASK_EVENT` on `window` and the assistant
-listens, the same shape `SEARCH_EVENT` already used, so neither imports the
-other and no state is lifted into a provider. The row renders only when an
-endpoint is configured — with no backend there is nothing to hand off to.
-
----
-
-## 11. Files
-
-**Grounding layer** — `src/lib/ask/`, ported from the deleted function
+**Grounding layer** — `src/lib/ask/`, shared with the function
 
 | File | Role |
 |---|---|
-| `corpus.ts` | Types, the fetch, and the lazy derived indexes — including the optional entity fields |
-| `retrieval.ts` | BM25 + entity boosts + intent tilt + page awareness + relation expansion (index built on first use) |
-| `intent.ts` | The rule-based query-intent classifier and the "who is X" subject parser |
-| `entities.ts` | Alias normalisation and entity resolution over records carrying `entityId` |
-| `prompt.ts` | The system policy, memoised on first use |
-| `answer.ts` | Link allowlist, source selection, follow-ups, demo CTA |
-| `extractive.ts` | The retrieval-only answer |
-| `model.ts` | WebGPU detection, the CDN runtime, the loader, generation |
-| `engine.ts` | The pipeline: retrieval -> model or extract -> sources |
+| `corpus.ts` | Types, the versioned fetch, `seedCorpus` for Node, lazy indexes |
+| `retrieval.ts` | BM25 + entity boosts + intent tilt + page awareness + relation expansion |
+| `intent.ts`, `entities.ts` | Rule-based intent classifier; alias resolution |
+| `prompt.ts` | The system policy, `pageLine`, `buildMessages` — read only by the function and the benchmark |
+| `answer.ts` | `cleanModelAnswer`, link allowlist, source selection, related links, follow-ups, CTA |
+| `extractive.ts` | The retrieval-only answer — the floor |
+| `engine.ts` | Browser pipeline: retrieval → hosted call → fallback |
+| `hosted.ts` | The POST to `askGaitai`, with typed failures |
 
-**Panel** — `src/components/assistant/`
+**Panel** — `src/components/assistant/`: `ChatPanel` (header, conversation,
+composer), `ChatMessages` ("Tracing GaitAI knowledge…" while waiting),
+`ChatInput` (the privacy line), `use-assistant` (session memory, ≤6 turns),
+`config.ts` (`ASK_ENDPOINT`, `HOSTED_TIMEOUT_MS`, `HISTORY_TURNS`).
 
-| File | Change |
-|---|---|
-| `use-assistant.ts` | Calls the engine instead of POSTing SSE; owns model state |
-| `ChatPanel.tsx` | Warms the corpus on open; renders the model strip |
-| `ModelStrip.tsx` | **New.** The offer, the progress bar, the privacy line |
-| `config.ts` | The endpoint and its enabled flag are gone |
+**Removed**: `src/lib/ask/model.ts`, `src/components/assistant/ModelStrip.tsx`,
+the model-strip CSS, the `@huggingface/transformers` dependency, the in-browser
+`ask-bench` harness.
 
-**Harnesses** — `scripts/`
-
-| File | Role |
-|---|---|
-| `ask/cases.ts` | **The 25 questions**, moved unchanged, imported by both harnesses |
-| `ask/ranking-cases.ts` | The 34 rank-order and intent cases behind `ask:rank` |
-| `ask-ranking-test.ts` | The ranking regression suite |
-| `ask/corpus-node.ts` | Loads the generated corpus for Node |
-| `ask-test.ts` | The acceptance suite |
-| `ask-bench.ts` | The model benchmark |
-| `build-knowledge.mjs` | Now writes `public/ask/` and `data/` |
-
-**Deleted**
-
-`functions/` entirely — `index.ts`, `retrieval.ts`, `prompt.ts`, `validate.ts`,
-`knowledge.ts`, `rate-limit.ts`, `test-questions.ts`, `package.json`,
-`tsconfig.json`, `knowledge.json`; the `functions` block in `firebase.json`;
-the `askGaitaiRateLimits` rules; the endpoint variable in `deploy.yml` and
-`.env.example`; `scripts/ask-doctor.mjs` (it existed to diagnose a missing
-endpoint).
+**Harnesses** — `scripts/`: `ask/cases.ts` (the 25), `ask/ranking-cases.ts`
+(the 34), `ask/bench-cases.ts` (the brief's 12 + the 25), `ask-test.ts`,
+`ask-ranking-test.ts`, `ask-bench.ts`, `ask/corpus-node.ts`.

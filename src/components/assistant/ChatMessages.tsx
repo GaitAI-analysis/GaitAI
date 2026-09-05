@@ -18,8 +18,12 @@ import styles from "./assistant.module.css";
  * part of the site, not as a widget bolted onto it.
  *
  * SCREEN READERS. The list is a polite live region, so a completed answer is
- * announced without interrupting; the streaming text itself is not announced
- * token by token, which would be unusable.
+ * announced without interrupting. Answers arrive whole, so there is no
+ * token-by-token churn for a reader to sit through.
+ *
+ * THE WAITING LINE says what is happening in the site's own words — "Tracing
+ * GaitAI knowledge…" — and nothing about providers, models or endpoints. The
+ * machinery is not the reader's concern; the answer is.
  */
 
 const FAILURE_COPY: Record<NonNullable<Turn["failed"]>, string> = {
@@ -40,7 +44,6 @@ export function ChatMessages({
   turns,
   opening,
   pending,
-  streaming,
   onPick,
   onRetry,
   onNavigate,
@@ -48,7 +51,6 @@ export function ChatMessages({
   turns: Turn[];
   opening: Opening;
   pending: boolean;
-  streaming: boolean;
   onPick: (prompt: string) => void;
   onRetry: () => void;
   onNavigate: (url: string) => void;
@@ -56,9 +58,9 @@ export function ChatMessages({
   const endRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
-  /* Follow the answer as it streams, but only while the reader is already at
+  /* Follow the thread as it grows, but only while the reader is already at
      the bottom — scrolling up to re-read an earlier answer must not be yanked
-     back down by the next token. */
+     back down when the next one lands. */
   useEffect(() => {
     const scroller = scrollerRef.current;
     if (!scroller) return;
@@ -156,7 +158,7 @@ export function ChatMessages({
                 {waiting ? (
                   <p className={styles.thinking}>
                     <span className={styles.thinkingScan} aria-hidden="true" />
-                    Analyzing GaitAI knowledge…
+                    Tracing GaitAI knowledge…
                   </p>
                 ) : (
                   <AnswerText text={turn.text} />
@@ -182,7 +184,7 @@ export function ChatMessages({
                   </div>
                 )}
 
-                {turn.suggestions && turn.suggestions.length > 0 && !streaming && (
+                {turn.suggestions && turn.suggestions.length > 0 && (
                   <QuickPrompts
                     label="Ask next"
                     prompts={turn.suggestions}

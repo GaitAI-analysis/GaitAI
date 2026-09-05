@@ -1,51 +1,45 @@
 /**
- * ASK GAITAI — MODEL BENCHMARK
+ * ASK GAITAI — HOSTED MODEL BENCHMARK
  * =============================================================================
- * Scores a candidate model on the site's OWN 25 acceptance questions, through
- * the real retrieval and the real system policy. Reputation does not enter into
- * it; the only question is which model answers GaitAI's questions better.
+ * Scores candidate models on Hugging Face Inference Providers against the
+ * site's OWN questions — the twelve the migration brief names plus the 25
+ * acceptance cases — through the real retrieval, the real system policy and
+ * the real post-processing. Reputation and parameter count do not enter into
+ * it; the only question is which model answers GaitAI's questions better, and
+ * at what latency and cost.
  *
- *   npm run ask:bench                        # the default (Qwen2.5-1.5B)
- *   npm run ask:bench -- --model smollm      # SmolLM2-1.7B
- *   npm run ask:bench -- --model <hf-id>     # anything Transformers.js loads
- *   npm run ask:bench -- --limit 5           # a quick pass
- *   npm run ask:bench -- --json out.json     # machine-readable, for diffing
+ *   HF_TOKEN=hf_… npm run ask:bench                                  # the default candidates
+ *   HF_TOKEN=hf_… npm run ask:bench -- --models Qwen/Qwen3-8B,google/gemma-3-12b-it
+ *   HF_TOKEN=hf_… npm run ask:bench -- --brief                        # the 12 brief questions only
+ *   HF_TOKEN=hf_… npm run ask:bench -- --json tmp/bench.json          # machine-readable
  *
- * IT RUNS ON THE CPU BACKEND, IN NODE. That is slower than the WebGPU path a
- * visitor gets, so LATENCY HERE IS AN UPPER BOUND and the two models' numbers
- * are comparable to each other rather than to the browser. Everything else —
- * which records reached the model, what it wrote, whether it invented a figure
- * — is identical to what the browser produces, because it is the same code.
+ * WHAT IS SCORED, per model
+ *   grounding      the answer names the record(s) retrieval surfaced for it
+ *   hallucination  a percentage or figure the retrieved context does not contain
+ *   boundaries     forbidden claim shapes: diagnosis, certification, customers,
+ *                  invented credentials (the brief's own list)
+ *   invented names module-shaped names the corpus does not have
+ *   instruction    no bare URL, no self-authored Sources block, no reasoning
+ *                  trace survives; length inside the policy's ceiling
+ *   latency        wall clock per answer, median and p90
+ *   cost           tokens × the provider's published price, from the router
  *
- * WHAT IS SCORED, and how each maps to the brief's ten criteria:
+ * Questions retrieval refuses locally (low confidence, an unknown person, the
+ * injection attempt) never reach a model in production, so they are skipped
+ * here and counted as local refusals — exactly as the browser behaves.
  *
- *   1  grounded correctness   expected record titles present in the answer
- *   2  hallucination          numbers, product names or venues not in context
- *   3  evidence boundaries    forbidden claim shapes (diagnosis, certification)
- *   4  product-name accuracy  Capitalised module-shaped names not in the corpus
- *   5  source consistency     selectSources() finds at least one real source
- *   6  refusal                low-confidence cases must decline
- *   7  conciseness            words, against a 220-word target
- *   8  latency                per answer, wall clock
- *   9  memory                 peak RSS during the run
- *  10  download size          the model's own weights, reported by the loader
- *
- * A dimension a fixture genuinely cannot judge — whether prose is GOOD — is
- * left to the human reading `--json`. This scores what is checkable and says
- * so, rather than printing a confident number for taste.
+ * The prompt the model sees is `buildMessages()` from src/lib/ask/prompt.ts —
+ * the same function the Cloud Function compiles in. What is benchmarked is
+ * byte-for-byte what is deployed.
  */
 
-import { writeFileSync } from "node:fs";
-import { CASES } from "./ask/cases";
+import { mkdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { BENCH_CASES, BRIEF_CASES, type BenchCase } from "./ask/bench-cases";
 import { loadCorpusFromDisk } from "./ask/corpus-node";
-import {
-  buildContextBlock,
-  retrieveGaitAIContext,
-} from "../src/lib/ask/retrieval";
-import { systemPrompt, buildUserTurn } from "../src/lib/ask/prompt";
-import { sanitizeLinks, selectSources } from "../src/lib/ask/answer";
-import { knowledge } from "../src/lib/ask/corpus";
-import { GENERATION, MODELS, type ModelId } from "../src/lib/ask/model";
+import { buildContextBlock, retrieveGaitAIContext } from "../src/lib/ask/retrieval";
+import { buildMessages } from "../src/lib/ask/prompt";
+import { cleanModelAnswer, selectSources } from "../src/lib/ask/answer";
 
 // ── Arguments ────────────────────────────────────────────────────────────────
 
@@ -53,254 +47,355 @@ function arg(name: string): string | undefined {
   const index = process.argv.indexOf(`--${name}`);
   return index === -1 ? undefined : process.argv[index + 1];
 }
+const flag = (name: string) => process.argv.includes(`--${name}`);
 
-const ALIASES: Record<string, ModelId> = {
-  qwen: "onnx-community/Qwen2.5-1.5B-Instruct",
-  smollm: "HuggingFaceTB/SmolLM2-1.7B-Instruct",
-};
+const DEFAULT_MODELS = [
+  "Qwen/Qwen3-8B",
+  "meta-llama/Llama-3.1-8B-Instruct",
+  "google/gemma-3-12b-it",
+];
 
-const requested = arg("model") ?? "qwen";
-const modelId = (ALIASES[requested] ?? requested) as ModelId;
-const limit = Number(arg("limit") ?? CASES.length);
+const token = process.env.HF_TOKEN ?? "";
+if (!token) {
+  console.error(
+    "\nHF_TOKEN is not set. The benchmark calls Hugging Face Inference Providers and needs a\n" +
+      "read token with Inference Providers enabled. It is a shell variable here and a Secret\n" +
+      "Manager secret in production — never a NEXT_PUBLIC_ variable and never committed.\n",
+  );
+  process.exit(2);
+}
+
+const models = (arg("models") ?? DEFAULT_MODELS.join(",")).split(",").map((m) => m.trim()).filter(Boolean);
+const cases: BenchCase[] = flag("brief") ? BRIEF_CASES : BENCH_CASES;
+const limit = Number(arg("limit") ?? cases.length);
 const jsonOut = arg("json");
+const maxTokens = Number(arg("max-tokens") ?? 450);
+const TIMEOUT_MS = 40_000;
+const ROUTER = "https://router.huggingface.co/v1";
 
 // ── Scoring vocabulary, built from the corpus ────────────────────────────────
 
 const corpus = loadCorpusFromDisk();
 
-/** Every module name the site actually has. Anything else is invented. */
 const REAL_NAMES = new Set(
-  corpus.docs
-    .filter((doc) => doc.type === "product")
-    .map((doc) => doc.title.toLowerCase()),
+  corpus.docs.filter((doc) => doc.type === "product").map((doc) => doc.title.toLowerCase()),
 );
-
-/** Words that look like a GaitAI module but are not one. */
 const NAME_SHAPE = /\b(?:[A-Z][a-z]+){2,}\b/g;
 
-/** Claim shapes the system policy forbids outright. */
 const FORBIDDEN: { label: string; test: RegExp }[] = [
-  { label: "accuracy figure", test: /\b\d{1,3}(?:\.\d+)?\s?%/ },
-  { label: "diagnosis", test: /\b(?:diagnos(?:e|es|ed|is)|you (?:have|likely have))\b/i },
-  { label: "clinical validation", test: /\b(?:clinically validated|FDA|CE[- ]marked|certified)\b/i },
-  { label: "named customer", test: /\b(?:our client|customers include|deployed at)\b/i },
+  { label: "diagnosis", test: /\b(?:GaitAI|NeuroMotion|it|which|that)\s+(?:can|does|will)\s+diagnose\b(?!\s*(?:,|\.)?\s*(?:but|however|no|not|nor|—))/i },
+  { label: "clinical validation", test: /\b(?:clinically validated|FDA[- ]cleared|FDA approved|CE[- ]marked|ISO 27001 certified|HIPAA compliant|SOC 2 certified)\b/i },
+  { label: "named customer", test: /\b(?:our client|customers include|deployed at|is used by)\b/i },
   { label: "threat determination", test: /\b(?:is a threat|criminal intent|identified the suspect)\b/i },
+  { label: "invented credential", test: /\b(?:PhD|Ph\.D|holds a doctorate|professor at|graduated from|studied at)\b/i },
 ];
 
-const CONCISE_TARGET_WORDS = 220;
+const CONCISE_TARGET_WORDS = 260;
 
 interface Row {
+  model: string;
   question: string;
   path: string;
+  skipped: "local-refusal" | null;
   expected: string[];
   retrievedIds: string[];
   retrievalOk: boolean;
-  lowConfidence: boolean;
   answer: string;
   words: number;
   latencyMs: number;
+  provider: string;
+  promptTokens: number;
+  completionTokens: number;
+  costUsd: number;
   sources: string[];
-  /** Failures found in this answer, by criterion. */
+  mentionsExpected: boolean;
+  shouldMentionMissing: string[];
   hallucinations: string[];
   boundaryBreaches: string[];
   inventedNames: string[];
-  refusalExpected: boolean;
-  refused: boolean;
+  instructionFaults: string[];
+  error?: string;
+}
+
+// ── Provider pricing, from the router's own model list ───────────────────────
+
+interface ProviderInfo {
+  provider: string;
+  status: string;
+  pricing?: { input: number; output: number };
+  first_token_latency_ms?: number;
+}
+
+async function pricing(): Promise<Map<string, ProviderInfo[]>> {
+  const map = new Map<string, ProviderInfo[]>();
+  try {
+    const response = await fetch(`${ROUTER}/models`);
+    const payload = (await response.json()) as { data?: { id: string; providers?: ProviderInfo[] }[] };
+    for (const entry of payload.data ?? []) map.set(entry.id, entry.providers ?? []);
+  } catch {
+    /* Cost column stays at zero; everything else still runs. */
+  }
+  return map;
+}
+
+/** USD for one call, given the provider the router actually used. */
+function costFor(
+  providers: ProviderInfo[] | undefined,
+  provider: string,
+  promptTokens: number,
+  completionTokens: number,
+): number {
+  const match =
+    providers?.find((p) => p.provider === provider && p.pricing) ??
+    providers?.find((p) => p.pricing);
+  if (!match?.pricing) return 0;
+  /* Router prices are USD per million tokens. */
+  return (promptTokens * match.pricing.input + completionTokens * match.pricing.output) / 1_000_000;
+}
+
+// ── One call ─────────────────────────────────────────────────────────────────
+
+async function complete(model: string, messages: { role: string; content: string }[]) {
+  const body: Record<string, unknown> = {
+    model,
+    messages,
+    max_tokens: maxTokens,
+    temperature: 0.2,
+    top_p: 0.9,
+    stream: false,
+  };
+  if (/\bqwen3/i.test(model)) body.chat_template_kwargs = { enable_thinking: false };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const started = Date.now();
+  try {
+    const response = await fetch(`${ROUTER}/chat/completions`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    const latencyMs = Date.now() - started;
+    const payload = (await response.json()) as {
+      choices?: { message?: { content?: string | null } }[];
+      usage?: { prompt_tokens?: number; completion_tokens?: number };
+      error?: unknown;
+    };
+    if (!response.ok) {
+      const detail =
+        typeof payload.error === "string"
+          ? payload.error
+          : (payload.error as { message?: string } | undefined)?.message ?? "";
+      throw new Error(`HTTP ${response.status} ${detail}`.trim());
+    }
+    return {
+      raw: payload.choices?.[0]?.message?.content ?? "",
+      latencyMs,
+      provider: response.headers.get("x-inference-provider") ?? "",
+      promptTokens: payload.usage?.prompt_tokens ?? 0,
+      completionTokens: payload.usage?.completion_tokens ?? 0,
+    };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 // ── Run ──────────────────────────────────────────────────────────────────────
 
+const percentile = (values: number[], p: number) => {
+  if (!values.length) return 0;
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.min(sorted.length - 1, Math.floor((p / 100) * sorted.length))];
+};
+
 async function main() {
-  const known = MODELS[modelId];
-  console.log(`\nAsk GaitAI benchmark`);
-  console.log(`  model    ${modelId}`);
-  if (known) {
-    console.log(
-      `  weights  ${(known.bytes / 1024 ** 3).toFixed(2)} GiB (q4f16, measured) · ${known.license}`,
-    );
-  }
-  console.log(`  corpus   ${corpus.docs.length} records`);
-  console.log(`  cases    ${Math.min(limit, CASES.length)} of ${CASES.length}`);
-  console.log(`  backend  wasm (Node) — latency is an upper bound vs WebGPU\n`);
-
-  const { pipeline } = await import("@huggingface/transformers");
-
-  let bytes = 0;
-  const t0 = Date.now();
-  const generator = await pipeline("text-generation", modelId, {
-    dtype: "q4",
-    /* In Node the CPU execution provider is called "cpu"; the browser build
-       calls the same thing "wasm". Transformers.js does not alias them. */
-    device: "cpu",
-    progress_callback: (report: unknown) => {
-      const event = report as { status?: string; total?: number; file?: string };
-      if (event.status === "progress" && event.total && event.file?.endsWith(".onnx")) {
-        bytes = Math.max(bytes, event.total);
-      }
-    },
-  });
-  const loadMs = Date.now() - t0;
-  console.log(
-    `loaded in ${(loadMs / 1000).toFixed(1)}s · largest weight file ${(bytes / 1024 ** 2).toFixed(0)} MB\n`,
-  );
+  const prices = await pricing();
+  console.log(`\nAsk GaitAI hosted-model benchmark`);
+  console.log(`  corpus   ${corpus.docs.length} records, built ${corpus.generatedAt}`);
+  console.log(`  cases    ${Math.min(limit, cases.length)} (${flag("brief") ? "brief" : "brief + acceptance"})`);
+  console.log(`  models   ${models.join(", ")}`);
+  console.log(`  ceiling  ${maxTokens} output tokens\n`);
 
   const rows: Row[] = [];
-  let peakRss = 0;
+  const summaries: Record<string, unknown>[] = [];
 
-  for (const testCase of CASES.slice(0, limit)) {
-    const path = testCase.path ?? "/";
-    const result = retrieveGaitAIContext(testCase.q, path);
-    const ids = result.docs.map((d) => d.doc.id);
+  for (const model of models) {
+    console.log(`${"═".repeat(72)}\n${model}\n${"═".repeat(72)}`);
+    const modelRows: Row[] = [];
 
-    const started = Date.now();
-    const output = (await generator(
-      [
-        { role: "system", content: systemPrompt() },
-        {
-          role: "user",
-          content: buildUserTurn({
-            message: testCase.q,
-            contextBlock: buildContextBlock(result),
-            pageLine: `The visitor is currently on ${path}.`,
-            lowConfidence: result.lowConfidence,
-          }),
-        },
-      ],
-      { ...GENERATION },
-    )) as Array<{ generated_text: unknown }>;
-    const latencyMs = Date.now() - started;
+    for (const testCase of cases.slice(0, limit)) {
+      const pathname = testCase.path ?? "/";
+      const result = retrieveGaitAIContext(testCase.q, pathname);
+      const ids = result.docs.map((d) => d.doc.id);
+      const expectedTitles = testCase.expect
+        .map((id) => corpus.docs.find((doc) => doc.id === id)?.title ?? "")
+        .filter(Boolean);
 
-    const raw = output?.[0]?.generated_text;
-    const answer = sanitizeLinks(
-      Array.isArray(raw)
-        ? String((raw[raw.length - 1] as { content?: string })?.content ?? "").trim()
-        : String(raw ?? "").trim(),
-    );
+      const base: Row = {
+        model,
+        question: testCase.q,
+        path: pathname,
+        skipped: null,
+        expected: testCase.expect,
+        retrievedIds: ids.slice(0, 5),
+        retrievalOk: testCase.expect.every((id) => ids.includes(id)),
+        answer: "",
+        words: 0,
+        latencyMs: 0,
+        provider: "",
+        promptTokens: 0,
+        completionTokens: 0,
+        costUsd: 0,
+        sources: [],
+        mentionsExpected: false,
+        shouldMentionMissing: [],
+        hallucinations: [],
+        boundaryBreaches: [],
+        inventedNames: [],
+        instructionFaults: [],
+      };
 
-    peakRss = Math.max(peakRss, process.memoryUsage().rss);
-
-    const contextText = buildContextBlock(result).toLowerCase();
-    const lower = answer.toLowerCase();
-
-    /* 2 · hallucination — a figure the context does not contain. */
-    const hallucinations: string[] = [];
-    for (const match of answer.matchAll(/\b\d{1,3}(?:\.\d+)?\s?%/g)) {
-      if (!contextText.includes(match[0].toLowerCase())) {
-        hallucinations.push(`figure ${match[0]}`);
+      if (result.lowConfidence || result.docs.length === 0) {
+        modelRows.push({ ...base, skipped: "local-refusal" });
+        console.log(`skip  ${testCase.q}  (retrieval refuses locally — no model call in production)`);
+        continue;
       }
-    }
 
-    /* 3 · evidence boundaries. */
-    const boundaryBreaches = FORBIDDEN.filter(({ test }) => test.test(answer)).map(
-      ({ label }) => label,
-    );
+      const messages = buildMessages({
+        question: testCase.q,
+        result,
+        pathname,
+        pageTitle: "",
+        history: [],
+      });
 
-    /* 4 · product-name accuracy — a module-shaped name the site does not have,
-       excluding the brand itself and names the context introduced. */
-    const inventedNames = [...new Set(answer.match(NAME_SHAPE) ?? [])].filter(
-      (name) => {
+      let raw = "";
+      let call: Awaited<ReturnType<typeof complete>> | null = null;
+      try {
+        call = await complete(model, messages);
+        raw = call.raw;
+      } catch (error) {
+        modelRows.push({ ...base, error: (error as Error).message });
+        console.log(`ERR   ${testCase.q}  ${(error as Error).message}`);
+        continue;
+      }
+
+      const answer = cleanModelAnswer(raw);
+      const contextText = buildContextBlock(result).toLowerCase();
+      const lower = answer.toLowerCase();
+
+      const hallucinations: string[] = [];
+      for (const match of answer.matchAll(/\b\d{1,3}(?:\.\d+)?\s?%/g)) {
+        if (!contextText.includes(match[0].toLowerCase())) hallucinations.push(`figure ${match[0]}`);
+      }
+
+      const boundaryBreaches = [
+        ...FORBIDDEN.filter(({ test }) => test.test(answer)).map(({ label }) => label),
+        ...(testCase.mustNot ?? []).filter((re) => re.test(answer)).map(() => "brief:mustNot"),
+      ];
+
+      const inventedNames = [...new Set(answer.match(NAME_SHAPE) ?? [])].filter((name) => {
         const key = name.toLowerCase();
-        if (key === "gaitai" || key === "mobilitycare" || key === "securevision") {
-          return false;
-        }
+        if (["gaitai", "mobilitycare", "securevision", "webgpu"].includes(key)) return false;
         if (REAL_NAMES.has(key)) return false;
         return !contextText.includes(key);
-      },
-    );
+      });
 
-    const expectedTitles = testCase.expect
-      .map((id) => corpus.docs.find((doc) => doc.id === id)?.title ?? "")
-      .filter(Boolean);
+      const instructionFaults: string[] = [];
+      if (/https?:\/\//i.test(raw)) instructionFaults.push("bare URL");
+      if (/^\s*(?:#{1,6}\s*)?\**\s*sources?\s*:?\s*\**\s*$/im.test(raw)) instructionFaults.push("own Sources block");
+      if (/<think>/i.test(raw)) instructionFaults.push("reasoning trace");
+      if (/^\s*great question/i.test(raw)) instructionFaults.push("preamble");
+      const words = answer.split(/\s+/).filter(Boolean).length;
+      if (words > CONCISE_TARGET_WORDS) instructionFaults.push(`long (${words} words)`);
+      if (!answer) instructionFaults.push("empty after cleaning");
 
-    rows.push({
-      question: testCase.q,
-      path,
-      expected: testCase.expect,
-      retrievedIds: ids.slice(0, 5),
-      retrievalOk: testCase.expect.every((id) => ids.includes(id)),
-      lowConfidence: result.lowConfidence,
-      answer,
-      words: answer.split(/\s+/).filter(Boolean).length,
-      latencyMs,
-      sources: selectSources(answer, result.docs).map((s) => s.url),
-      hallucinations,
-      boundaryBreaches,
-      inventedNames,
-      refusalExpected: result.lowConfidence,
-      refused: /no documented answer|does not (?:establish|document)|not documented/i.test(
+      const shouldMentionMissing = (testCase.shouldMention ?? []).filter(
+        (phrase) => !lower.includes(phrase.toLowerCase()),
+      );
+
+      const row: Row = {
+        ...base,
         answer,
-      ),
-      /* 1 · grounded correctness, as far as a fixture can see it: did the
-         answer actually talk about the records it was given? */
-      ...({ mentionsExpected: expectedTitles.some((t) => lower.includes(t.toLowerCase())) } as object),
-    });
+        words,
+        latencyMs: call.latencyMs,
+        provider: call.provider,
+        promptTokens: call.promptTokens,
+        completionTokens: call.completionTokens,
+        costUsd: costFor(prices.get(model.split(":")[0]), call.provider, call.promptTokens, call.completionTokens),
+        sources: selectSources(answer, result.docs).map((s) => s.url),
+        mentionsExpected:
+          expectedTitles.length === 0 || expectedTitles.some((t) => lower.includes(t.toLowerCase())),
+        shouldMentionMissing,
+        hallucinations,
+        boundaryBreaches,
+        inventedNames,
+        instructionFaults,
+      };
+      modelRows.push(row);
 
-    const flags = [
-      ...hallucinations.map((h) => `HALLUCINATION:${h}`),
-      ...boundaryBreaches.map((b) => `BOUNDARY:${b}`),
-      ...inventedNames.map((n) => `NAME:${n}`),
-    ];
-    console.log(
-      `${flags.length ? "FLAG" : "ok  "}  ${testCase.q}  (${latencyMs} ms, ${
-        answer.split(/\s+/).filter(Boolean).length
-      } words)`,
-    );
-    if (flags.length) console.log(`      ${flags.join(", ")}`);
-    if (testCase.check) console.log(`      check: ${testCase.check}`);
+      const flags = [
+        ...(!row.mentionsExpected ? ["GROUNDING:expected record not named"] : []),
+        ...shouldMentionMissing.map((s) => `GROUNDING:missing "${s}"`),
+        ...hallucinations.map((h) => `HALLUCINATION:${h}`),
+        ...boundaryBreaches.map((b) => `BOUNDARY:${b}`),
+        ...inventedNames.map((n) => `NAME:${n}`),
+        ...instructionFaults.map((f) => `INSTRUCTION:${f}`),
+      ];
+      console.log(
+        `${flags.length ? "FLAG" : "ok  "}  ${testCase.q}  (${call.latencyMs} ms · ${words} words · ${call.provider || "?"} · $${row.costUsd.toFixed(5)})`,
+      );
+      if (flags.length) console.log(`      ${flags.join(", ")}`);
+      if (testCase.check) console.log(`      check: ${testCase.check}`);
+    }
+
+    const answered = modelRows.filter((r) => !r.skipped && !r.error);
+    const latencies = answered.map((r) => r.latencyMs);
+    const n = answered.length;
+    const summary = {
+      model,
+      cases: modelRows.length,
+      answered: n,
+      skippedLocalRefusals: modelRows.filter((r) => r.skipped).length,
+      errors: modelRows.filter((r) => r.error).length,
+      groundedAnswers: answered.filter((r) => r.mentionsExpected && r.shouldMentionMissing.length === 0).length,
+      hallucinationAnswers: answered.filter((r) => r.hallucinations.length).length,
+      boundaryBreachAnswers: answered.filter((r) => r.boundaryBreaches.length).length,
+      inventedNameAnswers: answered.filter((r) => r.inventedNames.length).length,
+      instructionFaultAnswers: answered.filter((r) => r.instructionFaults.length).length,
+      answersWithSource: answered.filter((r) => r.sources.length > 0).length,
+      meanWords: n ? Math.round(answered.reduce((a, r) => a + r.words, 0) / n) : 0,
+      meanLatencyMs: n ? Math.round(latencies.reduce((a, b) => a + b, 0) / n) : 0,
+      medianLatencyMs: percentile(latencies, 50),
+      p90LatencyMs: percentile(latencies, 90),
+      meanPromptTokens: n ? Math.round(answered.reduce((a, r) => a + r.promptTokens, 0) / n) : 0,
+      meanCompletionTokens: n ? Math.round(answered.reduce((a, r) => a + r.completionTokens, 0) / n) : 0,
+      meanCostUsd: n ? answered.reduce((a, r) => a + r.costUsd, 0) / n : 0,
+      providers: [...new Set(answered.map((r) => r.provider).filter(Boolean))],
+    };
+    summaries.push(summary);
+    rows.push(...modelRows);
+
+    console.log(`\n${"─".repeat(72)}`);
+    console.log(`model                 ${summary.model}`);
+    console.log(`answered              ${summary.answered}/${summary.cases} (${summary.skippedLocalRefusals} local refusals, ${summary.errors} errors)`);
+    console.log(`grounded              ${summary.groundedAnswers}/${n}`);
+    console.log(`hallucinated figures  ${summary.hallucinationAnswers}/${n}`);
+    console.log(`boundary breaches     ${summary.boundaryBreachAnswers}/${n}`);
+    console.log(`invented names        ${summary.inventedNameAnswers}/${n}`);
+    console.log(`instruction faults    ${summary.instructionFaultAnswers}/${n}`);
+    console.log(`answers with a source ${summary.answersWithSource}/${n}`);
+    console.log(`words (mean)          ${summary.meanWords} (target ≤ ${CONCISE_TARGET_WORDS})`);
+    console.log(`latency               mean ${summary.meanLatencyMs} ms · median ${summary.medianLatencyMs} ms · p90 ${summary.p90LatencyMs} ms`);
+    console.log(`tokens (mean)         ${summary.meanPromptTokens} in · ${summary.meanCompletionTokens} out`);
+    console.log(`cost (mean per call)  $${summary.meanCostUsd.toFixed(5)}  via ${summary.providers.join(", ") || "n/a"}`);
+    console.log(`${"─".repeat(72)}\n`);
   }
 
-  // ── Summary ────────────────────────────────────────────────────────────────
-  const n = rows.length;
-  const sum = (pick: (row: Row) => number) => rows.reduce((a, r) => a + pick(r), 0);
-  const latencies = rows.map((r) => r.latencyMs).sort((a, b) => a - b);
-  const median = latencies[Math.floor(latencies.length / 2)] ?? 0;
-
-  const summary = {
-    model: modelId,
-    weightsBytes: known?.bytes ?? bytes,
-    loadMs,
-    cases: n,
-    retrievalMet: rows.filter((r) => r.retrievalOk).length,
-    hallucinationAnswers: rows.filter((r) => r.hallucinations.length).length,
-    boundaryBreachAnswers: rows.filter((r) => r.boundaryBreaches.length).length,
-    inventedNameAnswers: rows.filter((r) => r.inventedNames.length).length,
-    answersWithSource: rows.filter((r) => r.sources.length > 0).length,
-    refusalsRequired: rows.filter((r) => r.refusalExpected).length,
-    refusalsHonoured: rows.filter((r) => r.refusalExpected && r.refused).length,
-    medianWords: Math.round(median === 0 ? 0 : sum((r) => r.words) / n),
-    medianLatencyMs: median,
-    meanLatencyMs: Math.round(sum((r) => r.latencyMs) / Math.max(n, 1)),
-    peakRssBytes: peakRss,
-    routes: knowledge().routes.length,
-  };
-
-  console.log(`\n${"─".repeat(72)}`);
-  console.log(`model                 ${summary.model}`);
-  console.log(
-    `weights               ${(summary.weightsBytes / 1024 ** 3).toFixed(2)} GiB`,
-  );
-  console.log(`load                  ${(summary.loadMs / 1000).toFixed(1)} s`);
-  console.log(`retrieval met         ${summary.retrievalMet}/${n}`);
-  console.log(`hallucinated figures  ${summary.hallucinationAnswers}/${n} answers`);
-  console.log(`boundary breaches     ${summary.boundaryBreachAnswers}/${n} answers`);
-  console.log(`invented names        ${summary.inventedNameAnswers}/${n} answers`);
-  console.log(`answers with a source ${summary.answersWithSource}/${n}`);
-  console.log(
-    `refusals honoured     ${summary.refusalsHonoured}/${summary.refusalsRequired}`,
-  );
-  console.log(
-    `words (mean)          ${summary.medianWords} (target ≤ ${CONCISE_TARGET_WORDS})`,
-  );
-  console.log(
-    `latency               median ${summary.medianLatencyMs} ms · mean ${summary.meanLatencyMs} ms`,
-  );
-  console.log(
-    `peak RSS              ${(summary.peakRssBytes / 1024 ** 2).toFixed(0)} MB`,
-  );
-  console.log(`${"─".repeat(72)}\n`);
-
   if (jsonOut) {
-    writeFileSync(jsonOut, `${JSON.stringify({ summary, rows }, null, 2)}\n`, "utf8");
+    mkdirSync(path.dirname(jsonOut), { recursive: true });
+    writeFileSync(jsonOut, `${JSON.stringify({ summaries, rows }, null, 2)}\n`, "utf8");
     console.log(`wrote ${jsonOut}\n`);
   }
 }

@@ -14,7 +14,7 @@
 import { RANKING_CASES } from "./ask/ranking-cases";
 import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { retrieveGaitAIContext } from "../src/lib/ask/retrieval";
-import { composeFinalExtractiveAnswer } from "../src/lib/ask/extractive";
+import { composeExtractiveAnswer } from "../src/lib/ask/extractive";
 import { sanitizeLinks } from "../src/lib/ask/answer";
 
 const showAnswers = process.argv.includes("--answers");
@@ -32,7 +32,7 @@ let failures = 0;
 for (const testCase of RANKING_CASES) {
   const result = retrieveGaitAIContext(testCase.q, testCase.path ?? "/");
   const top = result.docs[0];
-  const answer = sanitizeLinks(composeFinalExtractiveAnswer(result));
+  const answer = sanitizeLinks(composeExtractiveAnswer(result));
   const problems: string[] = [];
 
   if (testCase.top && top?.doc.id !== testCase.top) {

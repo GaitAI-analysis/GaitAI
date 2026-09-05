@@ -252,8 +252,7 @@ export function IntelligenceSearch() {
             than being re-run as a different kind of search — nothing is
             removed, and the palette stays the navigation tool it is.
 
-            Rendered only when the assistant is configured; with no endpoint
-            there is nothing to hand off to. */}
+            Rendered only while the assistant is enabled for this build. */}
         {ASSISTANT_ENABLED && (
           <div className={styles.handoff}>
             <span className={styles.handoffLabel}>Search site</span>

@@ -1,11 +1,11 @@
 /**
  * RETRIEVAL-ONLY MODE — an answer with no language model at all.
  * =============================================================================
- * This is not a degraded error state. It is the assistant's ground floor, and
- * on most visits it is the whole assistant:
+ * This is not a degraded error state. It is the assistant's ground floor:
  *
- *   · it answers in tens of milliseconds, after a 323 KB corpus fetch
- *   · it downloads no model, so it costs the visitor nothing on mobile data
+ *   · it answers in tens of milliseconds, after a 315 KB corpus fetch
+ *   · it needs no network call beyond that fetch, so it works when the hosted
+ *     model does not — provider outage, rate limit, budget, timeout, offline
  *   · it cannot hallucinate, because it writes no new sentences
  *
  * WHAT IT DOES. It quotes the site. Every sentence in the answer below is a
@@ -14,17 +14,11 @@
  * connective scaffolding — "Three records cover that:" — which asserts
  * nothing about GaitAI.
  *
- * WHY THAT IS ENOUGH, MOSTLY. The corpus is 113 records of controlled
- * technical vocabulary and the retrieval over it passes a 25-question
- * acceptance suite. For "what does WalkScan measure?" or "which products use
- * wearables?", the right record's own summary IS the answer, and a 1.1 GiB
- * model paraphrasing it is worse: slower, less accurate, and capable of
- * drifting. The model earns its place on questions that need SYNTHESIS across
- * records — "what is the difference between CrowdSense and SuspiciousMotion?"
- * — which is exactly where an extract reads as two summaries stapled together.
- *
- * So both modes ship, the extract answers immediately, and the model is an
- * upgrade the visitor opts into rather than a dependency.
+ * WHERE IT SITS NOW. The hosted model (see `hosted.ts` and functions/src) is
+ * the default writer: it reads the same retrieved records and composes prose
+ * from them. This module is what answers when that call cannot be made or
+ * does not come back — so the assistant is useful either way, and the model
+ * only ever changes how an answer READS, never whether there is one.
  */
 
 import type { RetrievalResult, RetrievedDoc } from "./retrieval";
@@ -35,6 +29,14 @@ const SUPPORTING = 3;
 
 /** How many related records a person answer will name. */
 const PERSON_RELATED = 4;
+
+/**
+ * Said once, at the end, and only in this mode — the reader should know they
+ * are reading extracts rather than a written answer. No `_emphasis_`:
+ * AnswerText renders a deliberate subset — bold, links and inline code — so
+ * underscores would reach the reader as underscores.
+ */
+const QUOTED_NOTE = "Quoted from the records below rather than written.";
 
 /**
  * The wording for a person the corpus has no record for. Named from the
@@ -158,9 +160,7 @@ export function composeExtractiveAnswer(result: RetrievalResult): string {
   if (lead.doc.type === "person") {
     lines.push(composePersonAnswer(result, lead));
     lines.push("");
-    lines.push(
-      "Quoted from the records below rather than written — ask again once the local model is ready for a composed answer.",
-    );
+    lines.push(QUOTED_NOTE);
     return lines.join("\n");
   }
 
@@ -192,26 +192,8 @@ export function composeExtractiveAnswer(result: RetrievalResult): string {
     lines.push(...supporting);
   }
 
-  /* Said once, at the end, and only in this mode — the reader should know
-     they are reading extracts rather than a written answer.
-     No `_emphasis_`: AnswerText renders a deliberate subset — bold, links and
-     inline code — so underscores would reach the reader as underscores. */
   lines.push("");
-  lines.push(
-    "Quoted from the records below rather than written — ask again once the local model is ready for a composed answer.",
-  );
+  lines.push(QUOTED_NOTE);
 
   return lines.join("\n");
-}
-
-/**
- * The same composition, minus the closing note, for when the model is not
- * coming — no WebGPU, a refused download, or a load failure. Promising a
- * "composed answer" that can never arrive would be a worse answer than none.
- */
-export function composeFinalExtractiveAnswer(result: RetrievalResult): string {
-  return composeExtractiveAnswer(result).replace(
-    "Quoted from the records below rather than written — ask again once the local model is ready for a composed answer.",
-    "Quoted from the records below rather than written.",
-  );
 }

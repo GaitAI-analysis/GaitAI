@@ -44,14 +44,18 @@ jobs:
       # The assistant answers only from the generated corpus, so a data change
       # that breaks retrieval is a content bug the same as a broken product
       # reference. This regenerates the corpus and runs the 25-question
-      # acceptance suite against the SAME modules the browser runs — retrieval,
-      # the link allowlist and the extractive answer. No API key, no network
-      # call and no model download: the assistant's floor is deterministic, so
-      # what a visitor reads with no model loaded is fully assertable here.
+      # acceptance suite against the SAME modules the browser AND the Cloud
+      # Function run — retrieval, the link allowlist and the extractive answer.
+      # No token, no network call: the assistant's floor is deterministic, so
+      # what a visitor reads when the hosted model is unavailable is fully
+      # assertable here. The Cloud Function itself is typechecked from the same
+      # copied modules; it is deployed separately (`npm run functions:deploy`)
+      # by someone holding the Firebase project, never from this workflow.
       - name: Verify Ask GaitAI
         run: |
           npm run build:knowledge
           npm run ask:test
+          cd functions && npm ci && npm run typecheck
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

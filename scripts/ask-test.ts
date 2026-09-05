@@ -27,7 +27,7 @@
 import { CASES } from "./ask/cases";
 import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { retrieveGaitAIContext } from "../src/lib/ask/retrieval";
-import { composeFinalExtractiveAnswer } from "../src/lib/ask/extractive";
+import { composeExtractiveAnswer } from "../src/lib/ask/extractive";
 import { isAllowedHref, sanitizeLinks } from "../src/lib/ask/answer";
 import { knowledge } from "../src/lib/ask/corpus";
 
@@ -71,7 +71,7 @@ for (const testCase of CASES) {
   if (missing.length) console.log(`      MISSING: ${missing.join(", ")}`);
 
   // ── The answer the visitor reads with no model loaded ──────────────────────
-  const answer = sanitizeLinks(composeFinalExtractiveAnswer(result));
+  const answer = sanitizeLinks(composeExtractiveAnswer(result));
 
   for (const match of answer.matchAll(LINKS)) {
     const href = match[1];

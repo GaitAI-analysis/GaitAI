@@ -21,7 +21,8 @@ rules_version = '2';
 //   assistantStats      → Ask GaitAI usage, keyed by PAGE TYPE. Four integers,
 //                         one +1 per write, no text and no identifier the
 //                         schema could hold. ADMIN-ONLY read.
-//   (askGaitaiRateLimits is GONE — the assistant has no server to meter.)
+//   askGaitaiRateLimits, askGaitaiBudget → written only by the askGaitai
+//                       Cloud Function through the Admin SDK; no client rule.
 // =============================================================================
 
 service cloud.firestore {
@@ -335,13 +336,13 @@ service cloud.firestore {
     }
 
     // ---- ASK GAITAI ------------------------------------------------------
-    // There is no rate-limit collection any more.
-    //
-    // `askGaitaiRateLimits` existed to meter a Cloud Function that spent money
-    // per question on a hosted model. Retrieval and generation both run in the
-    // visitor's own browser now, so the only resource a question consumes is
-    // that browser's own CPU or GPU — which is its own rate limit, needs no
-    // salted caller digest to enforce, and needs no TTL policy in the console.
+    // `askGaitaiRateLimits/{callerDigest}` and `askGaitaiBudget/{day}` meter
+    // the `askGaitai` Cloud Function, which spends money per question on a
+    // hosted model. Both are written ONLY by the Admin SDK inside the function,
+    // which bypasses these rules, so there is deliberately no `match` for them:
+    // the catch-all deny below is the rule. No client may read a caller digest
+    // or move the budget counter. Enable a TTL policy on `expireAt` for both
+    // collections in the console so they self-empty.
     //
     // `assistantStats` above is unrelated and stays: four integers of usage,
     // keyed by page type, with no text and no identifier.

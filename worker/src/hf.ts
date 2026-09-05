@@ -22,7 +22,27 @@ export const HF_CHAT_URL = "https://router.huggingface.co/v1/chat/completions";
 /** The router's model catalogue, with per-provider prices. Used by the benchmark only. */
 export const HF_MODELS_URL = "https://router.huggingface.co/v1/models";
 
-export type HfFailure = "timeout" | "rate_limited" | "auth" | "upstream" | "empty";
+/**
+ * What went wrong at the provider, by class — the browser treats every one the
+ * same way (it falls back), but the Worker's status code and log line differ:
+ *   timeout           no answer within the deadline
+ *   rate_limited      429 — the provider is throttling us
+ *   payment_required  402 Payment Required — the account, not the token: a
+ *                     token accepted on the previous call receives this when
+ *                     inference credit is unavailable or exhausted. Check the
+ *                     account's Billing / Inference Providers state; it is NOT
+ *                     an auth failure and must not be read as one.
+ *   auth              401 / 403 — the token is missing, invalid or not allowed
+ *   upstream          any other non-2xx, or a reply that was not JSON
+ *   empty             a 2xx with no text in it
+ */
+export type HfFailure =
+  | "timeout"
+  | "rate_limited"
+  | "payment_required"
+  | "auth"
+  | "upstream"
+  | "empty";
 
 export class HfError extends Error {
   kind: HfFailure;
@@ -119,7 +139,8 @@ export async function chatCompletion(options: {
   }
 
   if (response.status === 429) throw new HfError("rate_limited", 429);
-  if (response.status === 401 || response.status === 402 || response.status === 403) {
+  if (response.status === 402) throw new HfError("payment_required", 402);
+  if (response.status === 401 || response.status === 403) {
     throw new HfError("auth", response.status);
   }
   if (!response.ok) throw new HfError("upstream", response.status);

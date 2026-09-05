@@ -321,6 +321,22 @@ describe("the provider", () => {
     expect(await response.json()).toMatchObject({ error: "provider_rate_limited" });
   });
 
+  it("maps HF 402 Payment Required to 503 payment_required — not an auth failure", async () => {
+    mockHf({ status: 402, body: { error: "You have exceeded your monthly included credits" } });
+    const response = await SELF.fetch(post());
+    expect(response.status).toBe(503);
+    expect(await response.json()).toMatchObject({ error: "payment_required" });
+  });
+
+  it("maps HF 401/403 (token invalid or not allowed) to 502 upstream", async () => {
+    mockHf({ status: 401, body: { error: "Invalid credentials" } });
+    expect((await SELF.fetch(post())).status).toBe(502);
+    mockHf({ status: 403, body: { error: "Forbidden" } });
+    const forbidden = await SELF.fetch(post());
+    expect(forbidden.status).toBe(502);
+    expect(await forbidden.text()).not.toContain("Forbidden");
+  });
+
   it("maps HF 500 to 502 upstream, without the provider's message", async () => {
     mockHf({ status: 500, body: { error: { message: "internal: model xyz OOM on node 7" } } });
     const response = await SELF.fetch(post());

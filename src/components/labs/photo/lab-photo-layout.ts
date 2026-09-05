@@ -16,11 +16,16 @@ export const LAB_PHOTO = {
   alt: "The GaitAI biometrics capture room: Anubha Parashar standing at the centre of a bright hall with louvered windows, ringed by twelve tripod-mounted capture cameras.",
 } as const;
 
-/** The cover photograph: the founder sitting at work in the same room. */
+/**
+ * The cover photograph: the founder sitting at work in the same room. This is
+ * the APPROVED cover — the standing photograph above is for the interactive
+ * lab's Real Room mode only.
+ */
 export const LAB_SITTING_PHOTO = {
   src: "/assets/images/labs/lab-cover-sitting.jpg",
   width: 1672,
   height: 941,
+  alt: "Anubha Parashar seen from behind, sitting at a round table in the GaitAI biometrics lab and working at a laptop that shows a pose skeleton, with camera tripods standing around the bright room.",
 } as const;
 
 export interface PhotoCamera {

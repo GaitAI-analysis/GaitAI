@@ -1,11 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { assetPath } from "@/lib/paths";
-import { LAB_EXPERIENCE_EVENT, LAB_PROGRESS_EVENT, type LabProgress } from "./lab-experience-event";
+import { LAB_EXPERIENCE_EVENT } from "./lab-experience-event";
 import { LabPhotoStage, type PhotoLayers } from "./photo/LabPhotoStage";
-import { LAB_SITTING_PHOTO, PHOTO_CAMERAS } from "./photo/lab-photo-layout";
+import { PHOTO_CAMERAS } from "./photo/lab-photo-layout";
 import { CAPTURE_CAMERA_COUNT } from "./scene/lab-layout";
 import type { LabQuality, LabView } from "./scene/LabScene";
 import styles from "./labExperience.module.css";
@@ -16,6 +16,18 @@ const LabScene = dynamic(() => import("./scene/LabScene"), { ssr: false, loading
 const FOCUS_SELECTOR = 'a[href], button:not([disabled]), input, [tabindex]:not([tabindex="-1"])';
 
 type Mode = "twin" | "photo";
+
+/* The real door of the biometrics lab — the photograph the visitor walks through. */
+const LAB_GATE_PHOTO = "/assets/images/labs/lab-gate.jpg";
+
+/**
+ * The entrance, in phases. "closed": the door photograph is on screen, a
+ * cinematic beat. "opening": the leaf swings into the room. "open": fully open,
+ * held only until the room under it has drawn its first frames. "through": the
+ * view moves in through the doorway and the photograph dissolves. "done":
+ * nothing left of it.
+ */
+type GatePhase = "closed" | "opening" | "open" | "through" | "done";
 
 /**
  * STAGE TWO OF GAITAI LABS — the interactive room.
@@ -28,24 +40,26 @@ type Mode = "twin" | "photo";
  * and the sightlines, and can hold the reconstruction against the real
  * photograph (REAL ROOM), which carries its own camera hotspots and layers.
  *
- * ENTERING IS A FADE, NOT A CUT. The cover photograph is carried into the
- * viewer and dissolves — drifting slightly forward — into the room as it
- * loads, so the visitor feels they are walking into the room they were
- * looking at. Escape or the close control returns to the page,
- * cover intact, with focus back on the button. Nothing reloads.
+ * ENTERING IS WALKING THROUGH THE DOOR. The real door of the lab — the white
+ * leaf with the BIOMETRICS LAB sign — appears, swings open into the room, and
+ * the view moves in through the doorway onto the room, which has been loading
+ * underneath the whole time. There is no loader: if the room is not ready when
+ * the door is open, the door simply stands open a moment longer. Escape or the
+ * close control returns to the page, cover intact, with focus back on the
+ * button. Nothing reloads.
  *
  * The 3D room is labelled for what it is: an approximate reconstruction with
  * a 3D human representation — not a scan, not a 4D capture.
  */
 export function LabExperience() {
   const [open, setOpen] = useState(false);
-  const [entering, setEntering] = useState(false);
+  const [gate, setGate] = useState<GatePhase>("done");
+  const [gateShown, setGateShown] = useState(false);
   const [mode, setMode] = useState<Mode>("twin");
   const [layers, setLayers] = useState<PhotoLayers>({ cameras: false, pose: false, sightlines: false, movement: false });
   const [selected, setSelected] = useState<string | null>(null);
   const [twinView, setTwinView] = useState<LabView>({ kind: "orbit" });
   const [twinReady, setTwinReady] = useState(false);
-  const [progress, setProgress] = useState<LabProgress>({ progress: 0, loaded: 0, total: 0, item: "" });
   const [quality, setQuality] = useState<LabQuality>("high");
   const [reducedMotion, setReducedMotion] = useState(false);
   const [coarse, setCoarse] = useState(false);
@@ -65,33 +79,64 @@ export function LabExperience() {
       setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
       setWebgl(canDraw);
       setMode(canDraw ? "twin" : "photo");
-      setEntering(true);
+      setGateShown(false);
+      setGate("closed");
       setOpen(true);
     };
-    const onProgress = (event: Event) => setProgress((event as CustomEvent<LabProgress>).detail);
     window.addEventListener(LAB_EXPERIENCE_EVENT, onRequest);
-    window.addEventListener(LAB_PROGRESS_EVENT, onProgress);
-    return () => {
-      window.removeEventListener(LAB_EXPERIENCE_EVENT, onRequest);
-      window.removeEventListener(LAB_PROGRESS_EVENT, onProgress);
-    };
+    return () => window.removeEventListener(LAB_EXPERIENCE_EVENT, onRequest);
   }, []);
 
-  /* The entrance dissolve ends on its own; the room may still be loading under it. */
+  /* Warm the door photograph so it is on screen the instant the lab is entered. */
   useEffect(() => {
-    if (!entering) return;
-    const id = window.setTimeout(() => setEntering(false), reducedMotion ? 50 : 1400);
+    const img = new Image();
+    img.src = assetPath(LAB_GATE_PHOTO);
+  }, []);
+
+  /* The room under the door: the twin says when its first frames are drawn; the photograph is ready at once. */
+  const roomReady = mode === "twin" ? twinReady : true;
+
+  /* Closed → opening: a short beat once the door is on screen (and not much longer if the photo is slow). */
+  useEffect(() => {
+    if (gate !== "closed") return;
+    const beat = reducedMotion ? 350 : 650;
+    const id = window.setTimeout(() => setGate(reducedMotion ? "open" : "opening"), gateShown ? beat : 1200);
     return () => window.clearTimeout(id);
-  }, [entering, reducedMotion]);
+  }, [gate, gateShown, reducedMotion]);
+
+  /* Opening → open: the swing of the leaf. */
+  useEffect(() => {
+    if (gate !== "opening") return;
+    const id = window.setTimeout(() => setGate("open"), 1100);
+    return () => window.clearTimeout(id);
+  }, [gate]);
+
+  /* Open → through: the moment the room is ready. The door never holds the visitor indefinitely. */
+  useEffect(() => {
+    if (gate !== "open") return;
+    if (roomReady) {
+      setGate("through");
+      return;
+    }
+    const id = window.setTimeout(() => setGate("through"), 15000);
+    return () => window.clearTimeout(id);
+  }, [gate, roomReady]);
+
+  /* Through → done: the move in through the doorway, then nothing is left of the door. */
+  useEffect(() => {
+    if (gate !== "through") return;
+    const id = window.setTimeout(() => setGate("done"), reducedMotion ? 600 : 1000);
+    return () => window.clearTimeout(id);
+  }, [gate, reducedMotion]);
 
   const close = useCallback(() => {
     setOpen(false);
-    setEntering(false);
+    setGate("done");
+    setGateShown(false);
     setMode("twin");
     setSelected(null);
     setTwinView({ kind: "orbit" });
     setTwinReady(false);
-    setProgress({ progress: 0, loaded: 0, total: 0, item: "" });
   }, []);
 
   /* Modal behaviour: Escape closes, Tab stays inside, the page does not
@@ -136,7 +181,6 @@ export function LabExperience() {
     setTwinView({ kind: "orbit" });
   };
   const chosen = useMemo(() => PHOTO_CAMERAS.find((c) => c.id === selected) ?? null, [selected]);
-  const stage = useMemo(() => stageOf(progress.item), [progress.item]);
 
   if (!open) return null;
 
@@ -184,39 +228,25 @@ export function LabExperience() {
         or show the real photograph of the room with its own camera markers.
       </p>
 
-      {/* The twin's veil, until its first frames are drawn — with what is actually arriving. */}
-      {twin && (
-        <div className={`${styles.veil} ${twinReady ? styles.veilHidden : ""}`} aria-hidden={twinReady}>
-          <div className={styles.veilBox}>
-            <span className={styles.veilTitle}>Preparing the biometrics lab</span>
-            <ol className={styles.veilList}>
-              {STAGES.map((s) => (
-                <li key={s.id} className={`${styles.veilItem} ${stage === s.id ? styles.veilItemOn : ""} ${stageDone(s.id, stage, progress.progress) ? styles.veilItemDone : ""}`}>
-                  <span className={styles.veilDot} />
-                  {s.label}
-                </li>
-              ))}
-            </ol>
-            <span className={styles.veilMeter}>
-              <span className={styles.veilBar} style={{ transform: `scaleX(${Math.max(0.02, progress.progress / 100)})` }} />
-            </span>
-            <span className={styles.veilText}>
-              {progress.total > 0 ? `${progress.loaded} of ${progress.total} assets · ${Math.round(progress.progress)}%` : "Fetching the room…"}
-            </span>
+      {/* The entrance: the lab's real door, opening into the room that is loading beneath it. */}
+      {gate !== "done" && (
+        <div className={styles.gate} data-phase={gate} data-ready={roomReady} aria-hidden="true">
+          <div className={styles.gateFrame}>
+            <div className={styles.gateBackdrop} style={{ "--gate-src": `url("${assetPath(LAB_GATE_PHOTO)}")` } as CSSProperties} />
+            {/* eslint-disable-next-line @next/next/no-img-element -- transient full-screen entrance layers */}
+            <img src={assetPath(LAB_GATE_PHOTO)} alt="" className={styles.gateSurround} onLoad={() => setGateShown(true)} />
+            <div className={styles.gateDoorway} />
+            <div className={styles.gateLeaf}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={assetPath(LAB_GATE_PHOTO)} alt="" className={styles.gateLeafImage} />
+              <span className={styles.gateLeafShade} />
+            </div>
           </div>
         </div>
       )}
 
-      {/* The entrance: the cover photograph, carried in and dissolving into the room. */}
-      {entering && (
-        <div className={styles.enter} aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element -- a transient full-screen dissolve */}
-          <img src={assetPath(LAB_SITTING_PHOTO.src)} alt="" className={styles.enterImage} />
-        </div>
-      )}
-
       {/* ── Chrome: one bar, restrained ── */}
-      <header className={styles.top}>
+      <header className={`${styles.top} ${gate !== "done" ? styles.chromeWait : ""}`}>
         <div className={styles.titleBlock}>
           <span className={styles.eyebrow}>GaitAI Labs · Biometrics capture room</span>
           <h2 id="lab-experience-title" className={styles.title}>
@@ -289,7 +319,7 @@ export function LabExperience() {
       </header>
 
       {twin && (
-        <p className={styles.twinTag}>
+        <p className={`${styles.twinTag} ${gate !== "done" ? styles.chromeWait : ""}`}>
           <span className={styles.twinTagMark} aria-hidden="true" />
           Digital twin · approximate reconstruction · 3D human representation
         </p>
@@ -299,27 +329,6 @@ export function LabExperience() {
 }
 
 /* ── Helpers ── */
-
-const STAGES = [
-  { id: "room", label: "Room" },
-  { id: "light", label: "Daylight" },
-  { id: "fixtures", label: "Fixtures" },
-  { id: "subject", label: "Capture subject" },
-] as const;
-type StageId = (typeof STAGES)[number]["id"];
-
-function stageOf(item: string): StageId {
-  if (/avatar/.test(item)) return "subject";
-  if (/\.hdr/.test(item)) return "light";
-  if (/models\//.test(item)) return "fixtures";
-  return "room";
-}
-
-function stageDone(id: StageId, current: StageId, percent: number) {
-  if (percent >= 100) return true;
-  const order = STAGES.map((s) => s.id);
-  return order.indexOf(id) < order.indexOf(current);
-}
 
 function supportsWebGL() {
   try {

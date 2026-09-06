@@ -60,144 +60,215 @@
   height: 100% !important;
 }
 
-/* ── The twin's veil, while it is fetched and first drawn ── */
-.veil {
+/* ── The entrance: the lab's real door, opening into the room ──
+ *
+ * The photograph of the door is shown at the size of the screen, its leaf cut
+ * out as its own layer and hinged on the right, where the hinges are. Every
+ * opaque layer of the entrance — the dim blurred walls beyond the photograph's
+ * edge, the photograph itself — has a hole the shape of the leaf, so when the
+ * leaf swings into the room, whatever is under the door — the room, drawing
+ * itself — shows through the doorway. Then the view moves in through the
+ * doorway and the photograph is gone. The leaf is the slightly skewed
+ * quadrilateral the camera saw, not a rectangle, so the cut is seamless while
+ * the door is closed. All of it lives inside one scaled frame, so the layers
+ * stay registered while the view moves in.
+ */
+.gate {
+  /* The photograph's box: 3:4, filling the height, never wider than the screen. */
+  --gate-w: min(82.5vh, 124vw);
+  --gate-h: calc(var(--gate-w) * 4 / 3);
+  /* The leaf, a hair larger than the hole so the two anti-aliased edges never show a seam. */
+  --gate-leaf: polygon(27.85% 9.9%, 82.7% 8.68%, 80.62% 96.12%, 29.67% 93.97%);
+
   position: absolute;
   inset: 0;
-  z-index: 3;
-  display: grid;
-  place-content: center;
-  background: #070b14;
-  transition: opacity 0.7s var(--lx-ease), visibility 0.7s;
+  z-index: 6;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.veilHidden {
+.gate[data-phase="through"] {
   opacity: 0;
-  visibility: hidden;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1) 0.4s;
 }
 
-.veilBox {
-  display: grid;
-  gap: 0.9rem;
-  width: min(22rem, 80vw);
-}
-
-.veilTitle {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 10.5px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--lx-signal);
-}
-
-.veilList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.35rem;
-}
-
-.veilItem {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: 0.95rem;
-  color: rgb(148 163 184 / 0.55);
-  transition: color 0.3s var(--lx-ease);
-}
-
-.veilItemOn {
-  color: var(--lx-ink);
-}
-
-.veilItemDone {
-  color: rgb(203 213 225 / 0.9);
-}
-
-.veilDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  border: 1px solid rgb(79 209 255 / 0.5);
-  transition: background-color 0.3s var(--lx-ease);
-}
-
-.veilItemOn .veilDot,
-.veilItemDone .veilDot {
-  background: var(--lx-signal);
-}
-
-.veilMeter {
-  display: block;
-  height: 1px;
-  background: rgb(255 255 255 / 0.1);
-  overflow: hidden;
-}
-
-.veilBar {
-  display: block;
-  height: 100%;
-  transform-origin: left center;
-  background: linear-gradient(90deg, var(--lx-signal), #5587ff, #9c64f1);
-  transition: transform 0.25s var(--lx-ease);
-}
-
-.veilText {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--lx-mute);
-}
-
-/* ── The entrance: the cover photograph dissolving into the room ── */
-.enter {
+/* The first instant: from dark, quickly, so nothing under the door is ever seen. */
+.gate::after {
+  content: "";
   position: absolute;
   inset: 0;
-  z-index: 5;
-  overflow: hidden;
-  pointer-events: none;
-  animation: lab-dissolve 1.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  background: #070b14;
+  animation: gate-dim 0.45s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.enterImage {
+/* The photograph's frame, moving in slowly; the world everything else is registered to. */
+.gateFrame {
+  position: absolute;
+  left: calc(50% - var(--gate-w) / 2);
+  top: calc(50% - var(--gate-h) / 2);
+  width: var(--gate-w);
+  height: var(--gate-h);
+  perspective: 1400px;
+  perspective-origin: 55% 52%;
+  transform-origin: 55.2% 52.2%;
+  animation: gate-drift 2s cubic-bezier(0.25, 0.1, 0.25, 1) both;
+  will-change: transform;
+}
+
+.gate[data-phase="through"] .gateFrame {
+  animation: gate-through 1s cubic-bezier(0.6, 0, 0.35, 1) both;
+}
+
+/* The walls beyond the photograph's edge: the same photograph, soft and dim, with the frame's box cut out. */
+.gateBackdrop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 120vw;
+  height: 120vh;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(ellipse 70% 70% at 50% 50%, rgb(7 11 20 / 0), rgb(7 11 20 / 0.7)),
+    var(--gate-src) center / cover no-repeat;
+  filter: blur(24px) saturate(0.85) brightness(0.45);
+  clip-path: polygon(
+    evenodd,
+    0 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 0,
+    calc(60vw - var(--gate-w) / 2 + 1px) calc(60vh - var(--gate-h) / 2 + 1px),
+    calc(60vw - var(--gate-w) / 2 + 1px) calc(60vh + var(--gate-h) / 2 - 1px),
+    calc(60vw + var(--gate-w) / 2 - 1px) calc(60vh + var(--gate-h) / 2 - 1px),
+    calc(60vw + var(--gate-w) / 2 - 1px) calc(60vh - var(--gate-h) / 2 + 1px),
+    calc(60vw - var(--gate-w) / 2 + 1px) calc(60vh - var(--gate-h) / 2 + 1px)
+  );
+}
+
+.gateSurround,
+.gateLeafImage {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: 50% 45%;
-  animation: lab-approach 1.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  display: block;
 }
 
-@keyframes lab-dissolve {
-  0% {
+/* Everything but the leaf: the walls, the frame, the floor — with a leaf-shaped hole. */
+.gateSurround {
+  clip-path: polygon(evenodd, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 27.99% 10.01%, 29.82% 93.85%, 80.47% 96%, 82.55% 8.79%, 27.99% 10.01%);
+}
+
+/* The doorway: dark until the room under it has drawn, with the lab's light in it. */
+.gateDoorway {
+  position: absolute;
+  inset: 0;
+  clip-path: var(--gate-leaf);
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 42%, rgb(79 209 255 / 0.18), transparent 70%),
+    linear-gradient(180deg, #0a0f1c, #070b14 60%, #0b1220);
+  transition: opacity 0.7s var(--lx-ease);
+}
+
+.gate[data-ready="true"] .gateDoorway {
+  opacity: 0;
+}
+
+/* The leaf, hinged on the right. */
+.gateLeaf {
+  position: absolute;
+  inset: 0;
+  clip-path: var(--gate-leaf);
+  transform-origin: 81.5% 52.4%;
+  transform: rotateY(0deg);
+  will-change: transform;
+}
+
+.gateLeafShade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgb(8 6 4 / 0.75), rgb(8 6 4 / 0.3) 55%, rgb(8 6 4 / 0.12));
+  opacity: 0;
+}
+
+.gate[data-phase="opening"] .gateLeaf,
+.gate[data-phase="open"] .gateLeaf,
+.gate[data-phase="through"] .gateLeaf {
+  animation: gate-swing 1.1s cubic-bezier(0.5, 0.05, 0.2, 1) both;
+}
+
+.gate[data-phase="opening"] .gateLeafShade,
+.gate[data-phase="open"] .gateLeafShade,
+.gate[data-phase="through"] .gateLeafShade {
+  animation: gate-shade 1.1s cubic-bezier(0.5, 0.05, 0.2, 1) both;
+}
+
+@keyframes gate-dim {
+  from {
     opacity: 1;
   }
-  45% {
-    opacity: 1;
-  }
-  100% {
+  to {
     opacity: 0;
   }
 }
 
-@keyframes lab-approach {
+@keyframes gate-drift {
   from {
     transform: scale(1);
-    filter: blur(0);
   }
   to {
-    transform: scale(1.08);
-    filter: blur(6px);
+    transform: scale(1.05);
   }
 }
 
-.shellStill .enter,
-.shellStill .enterImage {
+@keyframes gate-swing {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-84deg);
+  }
+}
+
+@keyframes gate-shade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gate-through {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(3.4);
+  }
+}
+
+/* Until the visitor is through the door the chrome waits; then it arrives exactly as it always has. */
+.shell .chromeWait {
   animation: none;
   opacity: 0;
+}
+
+/* Reduced motion: the door is shown, then simply gives way to the room. */
+.shellStill .gate::after,
+.shellStill .gateFrame,
+.shellStill .gateLeaf,
+.shellStill .gateLeafShade {
+  animation: none;
+}
+
+.shellStill .gate::after {
+  opacity: 0;
+}
+
+.shellStill .gate[data-phase="through"] {
+  transition: opacity 0.5s linear;
 }
 
 /* ── The one bar ── */
@@ -453,10 +524,7 @@
   .twinTag {
     animation: none;
   }
-  .veil,
-  .veilBar,
-  .veilItem,
-  .veilDot,
+  .gateDoorway,
   .chip,
   .stepBtn,
   .segBtn,

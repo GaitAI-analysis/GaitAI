@@ -16,6 +16,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUpRight,
+  BarChart3,
   FileText,
   LayoutDashboard,
   MessageSquareText,
@@ -36,8 +37,9 @@ import {
 import { OverviewView } from "./OverviewView";
 import { ContentView } from "./ContentView";
 import { CommentsView } from "./CommentsView";
+import { InsightsAnalyticsView } from "./InsightsAnalyticsView";
 
-export type PanelTab = "overview" | "content" | "comments";
+export type PanelTab = "overview" | "content" | "comments" | "insights";
 
 const NAV: { id: PanelTab; label: string; icon: React.ReactNode; sub: string }[] =
   [
@@ -58,6 +60,12 @@ const NAV: { id: PanelTab; label: string; icon: React.ReactNode; sub: string }[]
       label: "Comments",
       icon: <MessageSquareText className="h-4 w-4" />,
       sub: "Hide & delete",
+    },
+    {
+      id: "insights",
+      label: "Insights Analytics",
+      icon: <BarChart3 className="h-4 w-4" />,
+      sub: "What readers did",
     },
   ];
 
@@ -284,6 +292,8 @@ function PanelInner({ session }: { session: AdminSession }) {
                     onSave={savePost}
                     onDelete={deletePost}
                   />
+                ) : tab === "insights" ? (
+                  <InsightsAnalyticsView />
                 ) : (
                   <CommentsView
                     comments={comments}

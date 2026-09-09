@@ -158,6 +158,34 @@ assert.equal(events.timeToFirstBucket(2500), "2-5s");
 assert.equal(events.timeToFirstBucket(7000), "5-10s");
 assert.equal(events.timeToFirstBucket(20000), ">10s");
 
+
+/* 9 · the admin read side folds counts without inventing anything */
+const read = await import("../src/lib/insight-analytics-read");
+const docs = [
+  { day: "2026-09-01", article: "a", event: "insight_open", count: 3 },
+  { day: "2026-09-08", article: "a", event: "insight_open", count: 2 },
+  { day: "2026-09-08", article: "a", event: "interactive_figure_start:hero", count: 2 },
+  { day: "2026-09-08", article: "a", event: "interactive_figure_start.time_to_first:2-5s", count: 2 },
+  { day: "2026-09-08", article: "b", event: "article_helpful_yes", count: 1 },
+  { day: "2026-09-08", article: "b", event: "article_helpful_reason:too-technical", count: 1 },
+  { day: "2026-09-08", article: "b", event: "bad", count: -4 },
+];
+const all = read.aggregateInsightCounts(docs);
+assert.equal(all.total, 11, "negative counts are ignored, everything else is summed");
+assert.equal(all.days, 2);
+assert.equal(read.eventTotal(all.byArticle.a, "insight_open"), 5);
+assert.equal(read.eventTotal(all.byArticle.a, "interactive_figure_start"), 2, "secondary keys do not double-count the event");
+assert.equal(read.eventWith(all.byArticle.a, "interactive_figure_start", "hero"), 2);
+assert.deepEqual(read.breakdown(all, "interactive_figure_start", { secondary: "time_to_first" }), [{ dimension: "2-5s", count: 2 }]);
+assert.deepEqual(read.breakdown(all, "article_helpful_reason"), [{ dimension: "too-technical", count: 1 }]);
+const recent = read.aggregateInsightCounts(docs, "2026-09-05");
+assert.equal(read.eventTotal(recent.byArticle.a, "insight_open"), 2, "a period start excludes older days");
+assert.equal(read.share(1, 0), null, "no share without a denominator");
+assert.equal(read.share(1, 4), 25);
+assert.deepEqual(read.parseKey("interactive_figure_start.time_to_first:2-5s"), { event: "interactive_figure_start", secondary: "time_to_first", dimension: "2-5s" });
+assert.equal(read.periodStart("all"), null);
+assert.match(read.periodStart(7, new Date("2026-09-09T12:00:00Z")) ?? "", /^2026-09-03$/);
+
 console.log("Insight analytics checks passed.");
 }
 

@@ -891,6 +891,13 @@ returned, that injected "evidence" never reaches the model, and that the policy
 the model reads forbids inventing customers for *Which Fortune 500 companies
 use GaitAI?*.
 
+**Live checks trip the Worker's own limits.** AskGuard allows 8 questions per
+caller per 2 minutes and 40 per hour, keyed by IP; a headless-browser run,
+an e2e batch and a curl loop from one machine share that budget. Past it the
+panel shows the records-only answer with its status line — the designed
+behaviour, and twice mistaken for a bug during verification. Space batches
+accordingly (a 429 carries `Retry-After`).
+
 **`npm run ask:e2e`** (`scripts/ask-e2e.ts`) is the manual proof against the
 REAL model: it loads the generated corpus, runs the browser's retrieval, POSTs
 the selected ids to a `wrangler dev` Worker (starting one if none is running),

@@ -151,7 +151,7 @@ export function FusionExperiment({ articleSlug, presentation }: FigureProps) {
             <text className={`${fig.label} ${fig.labelInk}`} x={22} y={y + 3}>
               {s.label}
             </text>
-            <text className={`${fig.label} ${fig.labelSmall} ${mode === "corrupt" ? fig.labelWarn : ""}`} x={70} y={y - 20}>
+            <text className={`${fig.label} ${mode === "corrupt" ? fig.labelWarn : ""}`} x={70} y={y - 20}>
               {mode === "ok" ? s.carries : mode === "missing" ? "no stream" : "arriving · damaged"}
             </text>
             {mode === "missing" ? (

@@ -179,7 +179,7 @@ export function LongitudinalTrend({ articleSlug, presentation }: FigureProps) {
           height={band.bottom - band.top}
           rx={3}
         />
-        <text className={`${fig.label} ${fig.labelSmall}`} x={X0 - 36} y={band.top - 6}>
+        <text className={fig.label} x={X0 - 36} y={band.top - 6}>
           {band.label}
         </text>
       </g>
@@ -190,9 +190,13 @@ export function LongitudinalTrend({ articleSlug, presentation }: FigureProps) {
         const on = i < shown;
         const selected = point === i;
         const flagged = complete && reference === "personal" && v < 70.5;
+        const latest = on && i === shown - 1 && !big;
+        /* Recorded assessments are solid points, the latest haloed. The ones
+           still to come are dashed rings on their slots — pending, not
+           missing — until the reader or the scroll brings them in. */
         return (
-          <g key={i} className={fig.fade} style={{ opacity: on ? 1 : 0 }}>
-            <line className={fig.dash} x1={xFor(i)} y1={yFor(v) + 10} x2={xFor(i)} y2={Y_BOTTOM + 8} />
+          <g key={i} className={fig.fade} style={{ opacity: on ? 1 : 0.55 }}>
+            {on && <line className={fig.dash} x1={xFor(i)} y1={yFor(v) + 10} x2={xFor(i)} y2={Y_BOTTOM + 8} />}
             {/* a generous, invisible hit target */}
             <circle
               cx={xFor(i)}
@@ -202,20 +206,31 @@ export function LongitudinalTrend({ articleSlug, presentation }: FigureProps) {
               style={{ cursor: on ? "pointer" : "default" }}
               onClick={() => on && setPoint((prev) => (prev === i ? null : i))}
             />
-            <circle
-              className={`${fig.node} ${fig.move}`}
-              cx={xFor(i)}
-              cy={yFor(v)}
-              r={selected ? 9 : 5.5}
-              style={{ stroke: flagged ? "var(--jr-violet)" : undefined }}
-            />
-            <circle className={flagged ? fig.nodeViolet : fig.nodeFill} cx={xFor(i)} cy={yFor(v)} r={selected ? 3.6 : 2.4} />
-            {!big && (
+            {latest && !selected && <circle className={fig.halo} cx={xFor(i)} cy={yFor(v)} r={14} />}
+            {on ? (
+              <circle
+                className={`${fig.node} ${fig.move}`}
+                cx={xFor(i)}
+                cy={yFor(v)}
+                r={selected ? 9 : 5.5}
+                style={{ stroke: flagged ? "var(--jr-violet)" : undefined }}
+              />
+            ) : (
+              <circle className={fig.nodeFuture} cx={xFor(i)} cy={yFor(v)} r={5} />
+            )}
+            {on && <circle className={flagged ? fig.nodeViolet : fig.nodeFill} cx={xFor(i)} cy={yFor(v)} r={selected ? 3.6 : 2.4} />}
+            {!big && on && (
               <text className={`${fig.label} ${fig.labelSmall}`} x={xFor(i)} y={yFor(v) - 14} textAnchor="middle">
                 {v}
               </text>
             )}
-            <text className={`${fig.label} ${fig.labelSmall}`} x={xFor(i)} y={Y_BOTTOM + 30} textAnchor="middle">
+            <text
+              className={`${fig.label} ${fig.labelSmall} ${on ? fig.labelInk : ""}`}
+              x={xFor(i)}
+              y={Y_BOTTOM + 30}
+              textAnchor="middle"
+              style={{ opacity: on ? 1 : 0.8 }}
+            >
               {LABELS[i].replace("Assessment ", "T")}
             </text>
           </g>

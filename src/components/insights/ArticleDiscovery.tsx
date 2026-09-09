@@ -55,8 +55,9 @@ export function ArticleDiscovery({ current, stories }: { current: PublicationSto
                 )}
               </nav>
               {seriesHref && (
-                <Link href={seriesHref} className="mt-5 inline-flex min-h-[40px] items-center font-mono text-[9.5px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:text-soft-white">
-                  View the reading path →
+                <Link href={seriesHref} className="group mt-5 inline-flex min-h-[40px] items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-cyan-300 transition-colors hover:text-soft-white focus-visible:text-soft-white">
+                  View the reading path{" "}
+                  <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1 group-focus-visible:translate-x-1">→</span>
                 </Link>
               )}
             </div>
@@ -87,8 +88,9 @@ export function ArticleDiscovery({ current, stories }: { current: PublicationSto
                   </li>
                 ))}
               </ol>
-              <Link href="/insights" className="mt-5 inline-flex min-h-[40px] items-center font-mono text-[9.5px] uppercase tracking-[0.18em] text-soft-mute transition-colors hover:text-cyan-300">
-                All stories →
+              <Link href="/insights" className="group mt-5 inline-flex min-h-[40px] items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-soft-mute transition-colors hover:text-cyan-300 focus-visible:text-cyan-300">
+                All stories{" "}
+                <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1 group-focus-visible:translate-x-1">→</span>
               </Link>
             </div>
           )}

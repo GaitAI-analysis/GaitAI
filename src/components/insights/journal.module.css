@@ -1513,6 +1513,11 @@
 .articleKickerCategory {
   color: var(--jr-cyan);
 }
+/* The reading-path position — "Foundations 03" — in the publication's editorial
+   colour, the same one the hub's cover label uses. */
+.articleKickerSeries {
+  color: var(--jr-gold);
+}
 .articleKickerRule {
   height: 1px;
   flex: 1 1 2rem;

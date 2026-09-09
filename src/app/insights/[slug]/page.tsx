@@ -204,7 +204,7 @@ export default async function InsightArticlePage({
   };
 
   return (
-    <div className={styles.journal}>
+    <div className={`${styles.journal} insights-page`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -262,6 +262,9 @@ export default async function InsightArticlePage({
             <div className="mt-8 max-w-[54rem]">
               <ArticleMeta
                 slug={article.slug}
+                seriesLabel={
+                  typeof step === "number" ? `Foundations ${String(step).padStart(2, "0")}` : undefined
+                }
                 typeLabel={POST_TYPE_LABEL[article.postType]}
                 author={INSIGHTS_AUTHOR}
                 date={article.date}

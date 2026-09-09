@@ -138,6 +138,23 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
+/* The same faint local light the hub cards give their drawings: a breath of
+   cyan behind the middle of the stage, under the content, nothing moving. */
+.figureStage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 52% 58% at 50% 46%,
+    color-mix(in srgb, var(--ix-cyan) 7%, transparent),
+    transparent 100%
+  );
+}
+:global(.light) .figureStage::before {
+  opacity: 0.6;
+}
 .figureStage:focus-within {
   outline: none;
 }
@@ -1427,8 +1444,8 @@
   align-items: center;
   gap: 0.5rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ix-cyan);
 }

@@ -53,6 +53,7 @@ import styles from "./engagement.module.css";
  */
 export function ArticleMeta({
   slug,
+  seriesLabel,
   typeLabel,
   author,
   date,
@@ -61,6 +62,10 @@ export function ArticleMeta({
   children,
 }: {
   slug: string;
+  /** The position on the reading path — "Foundations 03" — when the article
+      is one of the Foundations. Not an issue number: it names the series and
+      the step, the same way the hub's cover label and cards do. */
+  seriesLabel?: string;
   /** "Technical Article", "Research Note", … — never an issue number. */
   typeLabel: string;
   author: string;
@@ -86,6 +91,12 @@ export function ArticleMeta({
   return (
     <>
       <p className={journal.articleKicker}>
+        {seriesLabel && (
+          <>
+            <span className={journal.articleKickerSeries}>{seriesLabel}</span>
+            <span aria-hidden="true">·</span>
+          </>
+        )}
         <span className={journal.articleKickerCategory}>{typeLabel}</span>
         <span aria-hidden="true">·</span>
         <span>{author}</span>

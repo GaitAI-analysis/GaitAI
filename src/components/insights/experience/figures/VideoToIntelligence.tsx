@@ -265,7 +265,15 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
         <text className={`${fig.label} ${fig.labelSmall}`} x={336} y={18}>
           pipeline · {String(stage + 1).padStart(2, "0")} / 08
         </text>
-        <text className={`${fig.label} ${fig.labelSmall}`} x={600} y={18} textAnchor="end">
+        {/* Stacked (phones) the panel is half as wide and the type larger, so
+            this state word moves to the foot of the panel instead of sharing
+            the stage-mark line with the pipeline counter. */}
+        <text
+          className={`${fig.label} ${fig.labelSmall}`}
+          x={stacked ? 336 : 600}
+          y={stacked ? 290 : 18}
+          textAnchor={stacked ? undefined : "end"}
+        >
           {stage < 5 ? "signals not yet read" : stage === 5 ? "signals" : stage === 6 ? "context" : "decision support"}
         </text>
       </g>

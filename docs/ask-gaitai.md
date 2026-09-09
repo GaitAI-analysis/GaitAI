@@ -436,10 +436,14 @@ and falls back to the last good read, then to the bundled constants, when the
 network fails. The engine asks it for the endpoint before every hosted call,
 so a stale bundle still talks to the CURRENT Worker; the composer's privacy
 note follows it too. When the server's `build` differs from the bundle's, the
-client is stale: it keeps working with the runtime endpoint, and the thread in
-`sessionStorage` — stored as `{ build, turns }`, keyed to the server's build id
-once it is read — is discarded once if it was written under another
-configuration, so one panel never mixes two. A 429 or 503 now also exposes
+client is stale: it keeps working with the runtime endpoint. The thread in
+`sessionStorage` is stored as `{ build, turns }`, keyed to the BUNDLE that
+wrote it: a new deployment loads a new bundle and drops the previous thread,
+so one panel never mixes two configurations; a stale bundle keeps its own
+thread and simply talks to the current endpoint. (Re-keying the thread to the
+server's build once read was tried and reverted: it raced a question asked in
+the first few hundred milliseconds and wiped it mid-flight.) A 429 or 503 also
+exposes
 `Retry-After` to the browser (`Access-Control-Expose-Headers`), so the
 client's wait hint carries the real number. Only
 https endpoints are accepted; an empty endpoint means the hosted layer is

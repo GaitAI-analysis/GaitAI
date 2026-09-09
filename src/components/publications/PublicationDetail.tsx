@@ -17,6 +17,7 @@ import {
   topicsFor,
 } from "./topics";
 import { PublicationCard } from "./PublicationCard";
+import { PublicationTraceability } from "./PublicationTraceability";
 
 /**
  * Publication detail template. Renders ONLY what the record documents:
@@ -236,6 +237,8 @@ export function PublicationDetail({
             </div>
           </div>
         </div>
+
+        <PublicationTraceability publication={publication} />
 
         {/* Related work */}
         {related.length > 0 && (

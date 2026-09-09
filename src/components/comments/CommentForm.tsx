@@ -41,7 +41,6 @@ export function CommentForm({
   notify,
 }: CommentFormProps) {
   const [name, setName] = useState(user?.displayName ?? "");
-  const [email, setEmail] = useState(user?.email ?? "");
   const [message, setMessage] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -75,10 +74,8 @@ export function CommentForm({
       postSlug,
       contentType,
       userName: name,
-      email,
       message,
       parentCommentId,
-      userId: user?.uid ?? null,
       captchaToken,
     });
     setSubmitting(false);
@@ -117,7 +114,7 @@ export function CommentForm({
       )}
 
       {!user && (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div>
           <div>
             <label className="sr-only" htmlFor={`c-name-${parentCommentId}`}>
               Your name
@@ -132,20 +129,6 @@ export function CommentForm({
               autoFocus={autoFocus}
               onChange={(e) => setName(e.target.value)}
               required
-            />
-          </div>
-          <div>
-            <label className="sr-only" htmlFor={`c-email-${parentCommentId}`}>
-              Email (optional)
-            </label>
-            <input
-              id={`c-email-${parentCommentId}`}
-              type="email"
-              className={fieldCls}
-              placeholder="Email (optional, never shown)"
-              value={email}
-              autoComplete="email"
-              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
         </div>
@@ -206,7 +189,7 @@ export function CommentForm({
             aria-hidden="true"
             className="h-3.5 w-3.5 shrink-0 text-cyan-300/70"
           />
-          Keep it thoughtful. Keep it constructive.
+          Your display name and comment are public.
         </p>
 
         <div className="flex items-center gap-2">

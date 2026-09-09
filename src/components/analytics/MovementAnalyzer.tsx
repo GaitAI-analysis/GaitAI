@@ -13,7 +13,10 @@ import {
   type Suitability,
 } from "./usePoseAnalysis";
 import { PoseStage } from "./PoseStage";
-import { MotionDNA, motionChannels } from "./MotionDNA";
+import { MotionDNA, motionChannels, largestObservedChange } from "./MotionDNA";
+import { MovementViewSelector, type MovementView } from "@/components/visuals/MovementViewSelector";
+import { ShareExploration } from "@/components/ui/ShareExploration";
+import { SegmentTabs } from "./controls";
 import styles from "./analyzer.module.css";
 
 /**
@@ -114,8 +117,8 @@ function demoFor(view: "mobility" | "secure"): Demo | null {
 type Source = "demo" | "upload" | "camera";
 
 const SOURCES: { id: Source; label: string; hint: string }[] = [
-  { id: "demo", label: "Demo", hint: "Try instantly" },
-  { id: "upload", label: "Upload", hint: "Use your own clip" },
+  { id: "demo", label: "Use demo walk", hint: "Try instantly" },
+  { id: "upload", label: "Upload walking video", hint: "Use your own clip" },
   { id: "camera", label: "Camera", hint: "Record 6 seconds" },
 ];
 
@@ -466,6 +469,8 @@ export function MovementAnalyzer() {
   const [how, setHow] = useState(false);
   const [recording, setRecording] = useState(false);
   const [canRecord, setCanRecord] = useState(false);
+  const [readerView, setReaderView] = useState<MovementView>("ai");
+  const [selectedChannel, setSelectedChannel] = useState("");
 
   const { phase, stageIndex, progress, error, result, analyse, reset } =
     usePoseAnalysis();
@@ -478,6 +483,13 @@ export function MovementAnalyzer() {
         typeof MediaRecorder !== "undefined" &&
         MediaRecorder.isTypeSupported("video/webm"),
     );
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("source") === "upload") setSource("upload");
+    if (query.get("demo") !== "mobility-walk") return;
+    const requestedView = query.get("view");
+    if (requestedView === "human" || requestedView === "ai" || requestedView === "explain") setReaderView(requestedView);
+    const requestedMode = query.get("reading");
+    if (requestedMode === "auto" || requestedMode === "mobility" || requestedMode === "secure") setMode(requestedMode);
   }, []);
 
   const releaseUrl = useCallback(() => {
@@ -509,6 +521,7 @@ export function MovementAnalyzer() {
     setOrigin(null);
     setTime(0);
     setTab("");
+    setSelectedChannel("");
     setInputError(null);
   }, [releaseUrl, reset, stopStream]);
 
@@ -523,6 +536,7 @@ export function MovementAnalyzer() {
       setOrigin(from);
       setTime(0);
       setTab("");
+      setSelectedChannel("");
     },
     [releaseUrl, reset],
   );
@@ -541,6 +555,7 @@ export function MovementAnalyzer() {
       setOrigin("demo");
       setTime(0);
       setTab("");
+      setSelectedChannel("");
       setInputError(null);
     },
     [releaseUrl, reset],
@@ -642,6 +657,9 @@ export function MovementAnalyzer() {
     () => (result ? motionChannels(result) : []),
     [result],
   );
+  const explainedChannel = channels.find((channel) => channel.key === selectedChannel) ?? channels[0];
+  const explainedInterval = useMemo(() => result && explainedChannel ? largestObservedChange(explainedChannel, result) : null, [result, explainedChannel]);
+  const selectChannel = (key: string) => { setSelectedChannel(key); setReaderView("explain"); };
 
   const view = result ? resolveMode(mode, result.suitability) : "mobility";
 
@@ -763,7 +781,7 @@ export function MovementAnalyzer() {
       {!src && (
         <div className={styles.intake}>
           <header className={styles.intakeHead}>
-            <h3 className={styles.intakeTitle}>Try movement analysis</h3>
+            <h3 className={styles.intakeTitle}>Experience Movement Intelligence</h3>
             <p className={styles.intakeLead}>
               Start instantly with a prepared demo clip, use your own video, or
               record a short walk. All three run the same pipeline in this tab.
@@ -848,7 +866,7 @@ export function MovementAnalyzer() {
                       className={styles.demoBtn}
                       onClick={() => runDemo(demo)}
                     >
-                      Analyse demo
+                      Use demo walk
                     </button>
                     <p className={styles.privacy}>
                       <strong>Built-in demo · local analysis</strong> This
@@ -933,7 +951,7 @@ export function MovementAnalyzer() {
                       e.target.value = "";
                     }}
                   />
-                  <span>Choose a video</span>
+                  <span>Upload walking video</span>
                 </label>
 
                 <p className={styles.privacy}>
@@ -1021,9 +1039,13 @@ export function MovementAnalyzer() {
       {/* ─────────── WORKBENCH ─────────── */}
       {src && (
         <div className={styles.work}>
+          <div className={styles.viewControls}>
+            <MovementViewSelector value={readerView} onChange={setReaderView} label="Explore this movement clip" />
+            {origin === "demo" && <ShareExploration path="/movement-lab#analyze" title="GaitAI demo walk exploration" params={{ demo: "mobility-walk", reading: mode, view: readerView }} className={styles.link} />}
+          </div>
           {/* The clip stays mounted through the whole run: the analysis samples
               this element, and afterwards the reader scrubs it. */}
-          <div className={styles.split}>
+          <div className={`${styles.split} ${readerView === "human" ? styles.humanOnly : ""}`}>
             <figure className={styles.viewport}>
               <figcaption className={styles.viewHead}>
                 <span className={styles.viewLabel}>What the camera sees</span>
@@ -1056,9 +1078,9 @@ export function MovementAnalyzer() {
               />
             </figure>
 
-            <figure className={styles.viewport}>
+            <figure className={styles.viewport} hidden={readerView === "human"}>
               <figcaption className={styles.viewHead}>
-                <span className={styles.viewLabel}>What GaitAI sees</span>
+                <span className={styles.viewLabel}>What the pose model sees</span>
                 <span className={styles.viewMeta}>
                   {result
                     ? `33 landmarks · ${result.samples.length} instants`
@@ -1066,7 +1088,7 @@ export function MovementAnalyzer() {
                 </span>
               </figcaption>
               {result ? (
-                <PoseStage result={result} time={time} />
+                <PoseStage result={result} time={time} highlight={readerView === "explain" ? explainedChannel?.key : undefined} />
               ) : (
                 <div className={styles.viewWait} aria-hidden="true">
                   <span className={styles.viewWaitBar} />
@@ -1138,27 +1160,33 @@ export function MovementAnalyzer() {
                     channels={channels}
                     time={time}
                     onSeek={seek}
+                    selectedChannel={readerView === "explain" ? explainedChannel?.key : undefined}
+                    onSelectChannel={selectChannel}
+                    interval={readerView === "explain" ? explainedInterval : null}
                   />
                   <p className={styles.caption}>
-                    Click anywhere in the chart to move the clip there.
+                    Select a channel to explain it. Click its trace to move the clip, or use the timeline above with your keyboard.
                   </p>
+                  <div className={styles.channelChoices} role="group" aria-label="Explain a measured movement channel">
+                    {channels.map((channel) => <button key={channel.key} type="button" aria-pressed={readerView === "explain" && explainedChannel?.key === channel.key} onClick={() => selectChannel(channel.key)}>{channel.label}</button>)}
+                  </div>
+                  {readerView === "explain" && explainedChannel && (
+                    <section className={styles.channelExplanation} aria-label={`Explanation of ${explainedChannel.label}`}>
+                      <h4>Why is this signal shown?</h4>
+                      <p>{explainedChannel.note} {explainedChannel.key === "energy" ? "The highlighted channel comes from changes between sampled video frames." : "The highlighted channel and corresponding joint path refer to the same sampled clip."}</p>
+                      {explainedInterval && <>
+                        <p>The shaded interval, {explainedInterval[0].toFixed(2)}–{explainedInterval[1].toFixed(2)} seconds, contains this channel&apos;s largest change between two adjacent visible samples. It is a point to inspect, not a detected gait event or abnormality.</p>
+                        <button type="button" className={styles.link} onClick={() => { videoRef.current?.pause(); seek(explainedInterval[1]); }}>Inspect this interval →</button>
+                      </>}
+                      <p className={styles.caption}>{explainedChannel.key === "energy" ? "Pixel change can reflect lighting, camera movement or any moving object. It does not identify an activity or person." : "Camera movement, perspective and landmark uncertainty can change this trace. Gaps remain missing observations. The normalized shape is not a clinical score or a measure in physical units."}</p>
+                    </section>
+                  )}
                 </section>
               )}
 
               {/* ── Mode readouts ── */}
-              <div role="tablist" aria-label="Readouts" className={styles.tabs}>
-                {tabs.map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={activeTab === t.id}
-                    className={`${styles.tab} ${activeTab === t.id ? styles.tabOn : ""}`}
-                    onClick={() => setTab(t.id)}
-                  >
-                    {t.label}
-                  </button>
-                ))}
+              <div className={styles.tabs}>
+                <SegmentTabs label="Readouts" options={tabs} value={activeTab} onChange={setTab} />
                 {mode === "auto" && (
                   <span className={styles.tabAuto}>
                     Auto chose{" "}

@@ -4,6 +4,8 @@ import { MissionVision } from "@/components/sections/about/MissionVision";
 import { Verticals } from "@/components/sections/Verticals";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
 import { HowItWorks } from "@/components/sections/HowItWorks";
+import { MovementStory } from "@/components/home/MovementStory";
+import { VisitorIntent } from "@/components/home/VisitorIntent";
 import { MovementTeaser } from "@/components/analytics/MovementTeaser";
 import { ResearchCredibility } from "@/components/sections/ResearchCredibility";
 import { EnvironmentStrip } from "@/components/sections/EnvironmentStrip";
@@ -44,11 +46,13 @@ export default function HomePage() {
     <>
       <Hero />
       <MissionVision motion="gait" />
+      <MovementStory />
       <Verticals />
       <FeaturedProducts />
       <HowItWorks />
       <MovementTeaser />
       <ResearchCredibility />
+      <VisitorIntent />
       <EnvironmentStrip />
       <Vision />
       <CTA />

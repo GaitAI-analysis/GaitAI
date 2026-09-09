@@ -4,7 +4,7 @@ import { contact, mailto, CONTACT_FORM_HREF } from "@/data/contact";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/legal/privacy" },
-  title: "Privacy",
+  title: "Privacy Policy",
   description:
     "What this website collects and who processes it, and how GaitAI's products handle movement data — written from what the site actually does.",
 };
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
  * Everything in the website section was verified against the code:
  *   - the demo form posts to Formspree (src/components/sections/CTA.tsx)
  *   - comments are stored in Firebase Firestore (src/lib/comments/*)
- *   - comment submission is gated by Cloudflare Turnstile
+ *   - comment forms can load Cloudflare Turnstile when configured
  *   - theme choice is kept in browser localStorage by next-themes
  *   - embedded post media can come from youtube-nocookie.com / Vimeo
  *   - journal articles keep a view and like counter in Firestore
@@ -26,7 +26,9 @@ export const metadata: Metadata = {
  *     SHA-256 so the list cannot be enumerated (src/lib/subscribe.ts)
  *   - the Movement Lab analyser runs MediaPipe in the tab and uploads
  *     nothing (src/components/analytics/usePoseAnalysis.ts)
- *   - there is NO analytics suite, tag manager or advertising script anywhere
+ *   - Ask GaitAI uses aggregate Firestore counters and optional Workers AI
+ *     hosted requests (src/lib/assistant-stats.ts, src/lib/ask/hosted.ts)
+ *   - there is no advertising analytics suite or session replay script
  *
  * The "no analytics of any kind" line this page used to carry became untrue
  * the moment article counters landed. A counter is a measurement, even a
@@ -47,22 +49,27 @@ export default function PrivacyPage() {
         Legal · Privacy
       </div>
       <h1 className="mt-4 font-display text-display-md text-soft-white">
-        Privacy at GaitAI
+        Privacy Policy
       </h1>
+      <p className="mt-4 text-xs text-soft-mute">
+        Last updated: <time dateTime="2026-09-09">9 September 2026</time> · gaitai.in
+      </p>
       <p className="mt-6 text-soft-gray">
-        This page covers two separate things: what this website does with your
-        data, and how GaitAI&apos;s products are built to handle movement data.
+        This policy explains what gaitai.in collects, why it is processed,
+        the services involved, and how to request help with your data.
+        Product deployment arrangements are described separately below.
       </p>
 
       <h2 className="mt-12 font-display text-xl text-soft-white">
         This website
       </h2>
       <p className="mt-4 text-soft-gray">
-        The site is a static site. There is no account system, no advertising,
-        no tag manager and no third-party analytics or tracking script. Two
-        things are counted, and both are listed below: journal article views,
-        and likes if you press the button. One thing is stored because you
-        asked for it: your email address, if you subscribe to the blog.
+        You can browse without creating an account. Pages are delivered as
+        static files, with separate services for contact forms, comments,
+        subscriptions and Ask GaitAI. We use aggregate article and assistant
+        counters, described below. The site does not include advertising pixels,
+        a tag manager or session-recording software. Administrator sign-in uses
+        Firebase Authentication; it is separate from public browsing.
       </p>
 
       <dl className="mt-6 border-t border-white/[0.08]">
@@ -83,10 +90,15 @@ export default function PrivacyPage() {
           <dt className="text-sm font-semibold text-soft-white">Comments</dt>
           <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
             Where an article or publication page allows comments, your display
-            name, your message and — if you supply one — your email address are
-            stored in Google Firebase (Firestore). Comment forms are protected
-            by Cloudflare Turnstile, which performs a bot check. Comments are
-            moderated and can be hidden by an administrator.
+            name, your message, the article/reply reference and a timestamp are
+            stored in Google Firebase (Firestore) and made public. New comments
+            do not request or attach an email address or sign-in identifier.
+            Earlier versions accepted optional email addresses; contact us about
+            removal of an earlier record. Comments appear when submitted and
+            administrators can hide or delete them. Reports about comments are
+            available to administrators and may include the reporting account&apos;s
+            email if signed in. When configured, the form loads Cloudflare
+            Turnstile for a verification challenge. Do not post private information.
           </dd>
         </div>
         <div className="border-b border-white/[0.08] py-5">
@@ -100,26 +112,26 @@ export default function PrivacyPage() {
             If you subscribe on the blog, an article page or in the footer, we
             store the email address you type, which of those three places you
             typed it, and the times the record was created and last changed.
-            Nothing else — no name, no IP address, no device fingerprint and no
-            marketing profile. The record is held in Google Firebase
-            (Firestore).
+            The subscription record contains no name, IP address, device
+            fingerprint or marketing profile. It is held in Google Firebase
+            (Firestore); service-level request information is described below.
             <br />
             <br />
             <strong className="font-semibold text-soft-white">Purpose.</strong>{" "}
-            To send you GaitAI blog and product updates — research notes,
-            engineering stories and company news. The list is not used for
-            anything else, is not shared, and is never sold or given to an
-            advertising network.
+            To subscribe you to GaitAI blog and product updates — research notes,
+            engineering stories and company news. The address is stored for
+            that purpose; it is not published as a subscriber list or sent to
+            an advertising network by this website.
             <br />
             <br />
             <strong className="font-semibold text-soft-white">
               How the record is stored.
             </strong>{" "}
-            Each subscription is filed under a SHA-256 hash of your own address
-            rather than a sequential id. That is what lets the site refuse a
-            duplicate and find your record when you unsubscribe, without the
-            subscriber list being readable or exportable by anyone visiting the
-            site.
+            Each subscription is filed under a hash of the normalized email
+            address to detect duplicates and support unsubscribe requests.
+            The database rules prevent listing all subscribers. This is not
+            encryption or anonymity: a person who already knows an address
+            can look up its subscription record.
             <br />
             <br />
             <strong className="font-semibold text-soft-white">
@@ -149,12 +161,17 @@ export default function PrivacyPage() {
         </div>
         <div className="border-b border-white/[0.08] py-5">
           <dt className="text-sm font-semibold text-soft-white">
-            Theme preference
+            Browser storage and cookies
           </dt>
           <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
-            Your light or dark choice is saved in your browser&apos;s local
-            storage so the site remembers it. It never leaves your device and is
-            not a tracking cookie.
+            Local storage remembers your theme, article like choices, whether
+            you have seen the assistant introduction, and recent comment
+            submissions to reduce duplicates. Session storage keeps a short
+            Ask GaitAI conversation and article/assistant counter markers.
+            You can clear these through your browser&apos;s site-data controls;
+            this also clears remembered preferences. We do not set advertising
+            cookies. Third-party embeds, verification and sign-in services
+            may use their own storage under their privacy terms.
           </dd>
         </div>
         <div className="border-b border-white/[0.08] py-5">
@@ -165,13 +182,46 @@ export default function PrivacyPage() {
             Each journal article keeps a running count of views and likes in
             Google Firebase (Firestore). The stored record is two whole numbers
             and a timestamp — no IP address, no device or browser fingerprint,
-            and no identifier of any kind, so a count cannot be traced back to
-            a reader. To avoid counting the same visit repeatedly, your browser
+            and no visitor identifier in the counter record. To avoid counting
+            the same visit repeatedly, your browser
             keeps a marker in its own session storage saying it has already
             counted that article; the marker never leaves your device and is
             cleared when you close the tab. If a like is registered, the same
             kind of marker is kept in local storage so the button reflects your
             own choice.
+          </dd>
+        </div>
+        <div className="border-b border-white/[0.08] py-5">
+          <dt className="text-sm font-semibold text-soft-white">Ask GaitAI</dt>
+          <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
+            When a hosted answer is enabled, your question, current page path
+            and title, up to six previous conversation turns and selected public
+            content identifiers are sent to our Cloudflare Worker and Workers AI
+            to prepare an answer. Cookies and uploaded video are not attached.
+            The website can also answer from its public records locally when
+            the hosted service is unavailable or not configured. Do not include
+            patient details, confidential information or sensitive personal data.
+            The short conversation is kept in this tab&apos;s session storage;
+            use the assistant&apos;s reset control or clear browser site data to
+            remove it. The Worker does not write questions or answers to its
+            application logs. It records operational counts, timing and error
+            categories. Abuse prevention stores request timestamps against a
+            daily hash derived from the connecting IP address; this is a
+            pseudonymous identifier, not a guarantee of anonymity. Its cleanup
+            runs every six hours, removing callers idle for an hour and daily
+            totals older than the previous day. Provider processing is covered
+            by the linked Cloudflare terms below.
+          </dd>
+        </div>
+        <div className="border-b border-white/[0.08] py-5">
+          <dt className="text-sm font-semibold text-soft-white">Aggregate assistant usage</dt>
+          <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
+            Firebase stores counts of assistant opens, questions, suggested-prompt
+            selections and answer-link clicks, grouped by page type. Those
+            records contain counters and an update timestamp, with no question,
+            answer, conversation identifier, video or file name. They help us
+            understand which parts of the guide people use. Administrator access
+            is required to read these counts.
           </dd>
         </div>
         <div className="border-b border-white/[0.08] py-5">
@@ -183,11 +233,16 @@ export default function PrivacyPage() {
             your browser. The file is opened through a local object URL and
             handed frame by frame to a pose model that runs in the tab; neither
             the video nor anything derived from it is uploaded, stored or sent
-            to us, and the site has no server that could receive it. The model
-            weights are downloaded to your browser to make that possible. If
+            to us by the analyser. Model weights are downloaded from this site;
+            the runtime is downloaded from jsDelivr when analysis starts. Those
+            downloads expose ordinary request information to the serving
+            providers, but do not contain your video or pose results. If
             you record a short clip with your camera instead, that recording is
-            held in the tab&apos;s memory for the analysis and discarded when
-            you leave the page.
+            held in the tab&apos;s memory. Replacing or clearing the clip releases
+            the local object URL; leaving the page ends the analysis. Built-in
+            demonstrations and illustrative report examples are distinct from
+            measurements of your clip. Sharing an exploration link does not
+            publish a selected private video.
           </dd>
         </div>
         <div className="border-b border-white/[0.08] py-5">
@@ -196,11 +251,79 @@ export default function PrivacyPage() {
           </dt>
           <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
             Some articles embed video from YouTube (via its no-cookie domain)
-            or Vimeo. Playing an embedded video means that provider receives a
-            request from your browser and applies its own privacy terms.
+            or Vimeo. Loading an embedded player or following an external link
+            can send request information to that provider, which applies its own
+            privacy terms. A no-cookie domain does not mean no network processing.
           </dd>
         </div>
       </dl>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">Hosting, logs and service providers</h2>
+      <p className="mt-4 text-soft-gray">
+        GitHub Pages hosts the public site. GitHub states that visitor IP
+        addresses are logged for security, including visits made without signing
+        in. Formspree, Firebase, Cloudflare, jsDelivr and embedded-media providers
+        receive the requests needed to serve the features you use. Their
+        operational records can include IP addresses, browser information,
+        request times and error details. We do not promise that provider logs
+        are absent or share the retention period of a browser-only feature.
+      </p>
+      <ul className="mt-5 space-y-2 text-sm text-soft-gray">
+        {[
+          ["GitHub Pages data collection", "https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection"],
+          ["Formspree privacy policy", "https://formspree.io/legal/privacy-policy/"],
+          ["Firebase privacy and security", "https://firebase.google.com/support/privacy"],
+          ["Cloudflare privacy policy", "https://www.cloudflare.com/privacypolicy/"],
+          ["Workers AI data usage", "https://developers.cloudflare.com/workers-ai/platform/data-usage/"],
+        ].map(([label, href]) => (
+          <li key={href}><a className="text-cyan-300 underline underline-offset-4" href={href} target="_blank" rel="noopener noreferrer">{label}</a></li>
+        ))}
+      </ul>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">Retention and your choices</h2>
+      <p className="mt-4 text-soft-gray">
+        Contact correspondence is retained to handle your enquiry and any
+        follow-up. Public comments remain until removed; aggregate counters do
+        not have an automatic expiry. The website does not currently set a fixed
+        automatic deletion period for contact records, comments or subscriptions.
+        Subscription retention is described above. Service-provider logs and
+        backups follow the relevant provider settings and terms. We do not
+        promise an unverified deletion deadline.
+      </p>
+      <p className="mt-4 text-soft-gray">
+        You can request access, correction or deletion of information you have
+        supplied, ask to stop receiving updates, or raise a privacy concern at
+        the contact below. Include the relevant page or service and enough
+        information to locate the record; do not send identity documents or
+        medical records with an initial request. We may need to verify a request
+        before changing a record. Available rights and any required exceptions
+        depend on applicable law and the processing involved. Clearing browser
+        storage does not delete records held by the services listed above.
+      </p>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">Security</h2>
+      <p className="mt-4 text-soft-gray">
+        The public site and service requests use HTTPS. Database rules restrict
+        administrative changes and access to private collections. No transmission
+        or storage system is risk-free. Please report a suspected issue through
+        our <Link href="/legal/security/" className="text-cyan-300 underline underline-offset-4">security contact</Link>.
+      </p>
+
+      <h2 className="mt-12 font-display text-xl text-soft-white">Children and international visitors</h2>
+      <p className="mt-4 text-soft-gray">
+        The website is intended for professional and general educational
+        exploration, and does not ask children to provide personal information.
+        A parent or guardian can contact us about information a child may have
+        submitted. Do not submit a child&apos;s private or health information in
+        forms, comments or Ask GaitAI.
+      </p>
+      <p className="mt-4 text-soft-gray">
+        Our service providers operate internationally, so information sent to
+        them may be processed outside your country. Applicable privacy rights,
+        contractual arrangements and safeguards depend on the service and
+        jurisdiction. The use of a provider does not itself establish GaitAI&apos;s
+        compliance with a particular law.
+      </p>
 
       <h2 className="mt-12 font-display text-xl text-soft-white">
         GaitAI products
@@ -247,11 +370,11 @@ export default function PrivacyPage() {
         What we do not claim
       </h2>
       <p className="mt-4 text-soft-gray">
-        GaitAI holds no privacy or security certification and asserts no
+        GaitAI claims no privacy or security certification and asserts no
         compliance status — not GDPR, DPDP Act, HIPAA, ISO 27001 or SOC 2. For
-        a product deployment, the lawful basis for processing, consent
-        management and any data-protection assessment rest with the deploying
-        organisation.
+        a product deployment, privacy roles, lawful basis, consent and any
+        required assessments must be established for the actual deployment
+        and the parties involved.
       </p>
       <p className="mt-4 text-soft-gray">
         For commercial deployments, contractual privacy terms, retention
@@ -261,7 +384,13 @@ export default function PrivacyPage() {
         transport hub for a single blanket policy to be meaningful.
       </p>
 
-      <p className="mt-8 text-soft-gray">
+      <h2 className="mt-12 font-display text-xl text-soft-white">Policy changes and contact</h2>
+      <p className="mt-4 text-soft-gray">
+        We will update this page when website behaviour or these disclosures
+        change, with the revision date shown above. Check the current policy
+        before sharing information through a new feature.
+      </p>
+      <p className="mt-4 text-soft-gray">
         Questions about this page, or a request relating to your data:{" "}
         <a
           className="text-cyan-300 transition-colors hover:text-cyan-200"

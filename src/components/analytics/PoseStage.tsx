@@ -117,9 +117,12 @@ function Skeleton({
 export function PoseStage({
   result,
   time,
+  highlight,
 }: {
   result: PoseResult;
   time: number;
+  /** A selected measured Motion DNA channel; no synthetic geometry. */
+  highlight?: string;
 }) {
   const w = 1000;
   const h = Math.round((result.height / result.width) * 1000);
@@ -144,17 +147,23 @@ export function PoseStage({
   /** Each tracked joint's path across the clip, from the primary pose. */
   const paths = useMemo(
     () =>
-      TRACKED.map((joint) => {
-        const pts: string[] = [];
+      [...TRACKED, { key: "hip", index: LM.lHip }].map((joint) => {
+        let path = "";
+        let connected = false;
         for (const s of result.samples) {
           const pose = primaryPose(s);
-          const l = pose?.[joint.index];
-          if (l && l.visibility >= VIS_FLOOR) {
-            pts.push(`${(l.x * w).toFixed(1)},${(l.y * h).toFixed(1)}`);
+          let l = pose?.[joint.index];
+          if (joint.key === "hip") {
+            const right = pose?.[LM.rHip];
+            l = l && right ? { ...l, x: (l.x + right.x) / 2, y: (l.y + right.y) / 2, visibility: Math.min(l.visibility, right.visibility) } : undefined;
           }
+          if (l && l.visibility >= VIS_FLOOR) {
+            path += `${connected ? " L" : " M"}${(l.x * w).toFixed(1)} ${(l.y * h).toFixed(1)}`;
+            connected = true;
+          } else connected = false;
         }
-        return { key: joint.key, points: pts.join(" ") };
-      }).filter((p) => p.points.length > 0),
+        return { key: joint.key, path };
+      }).filter((p) => p.path.length > 0),
     [result.samples, h],
   );
 
@@ -191,10 +200,10 @@ export function PoseStage({
 
       {/* Joint paths across the whole clip: the accumulated trajectories. */}
       {paths.map((p, i) => (
-        <polyline
+        <path
           key={p.key}
-          className={styles.psPath}
-          points={p.points}
+          className={`${styles.psPath} ${highlight && highlight !== "energy" ? (highlight === p.key || (highlight === "path" && p.key === "hip") ? styles.psPathSelected : styles.psPathDim) : ""}`}
+          d={p.path}
           style={{ ["--g" as string]: i }}
         />
       ))}

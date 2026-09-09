@@ -1,0 +1,141 @@
+/* The living hero's caption row: stage progression + motion controls.
+   Mono, small and centred so it reads as a legend under the scene. */
+
+.living {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.sequence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A hairline dot between stages: the progression reads left to right. */
+.sequence li + li::before {
+  content: "·";
+  margin: 0 0.1rem;
+  color: var(--text-muted);
+  opacity: 0.55;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.65rem;
+}
+
+.sequence li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.sequence button,
+.controls button {
+  min-height: 44px;
+  padding: 0.4rem 0.55rem;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--motion-ui, 220ms),
+    border-color var(--motion-ui, 220ms);
+}
+
+.sequence button[aria-pressed="true"],
+.sequence button:hover {
+  color: var(--trajectory);
+  border-bottom-color: var(--trajectory);
+}
+
+.controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.controls button {
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.7rem;
+  letter-spacing: 0;
+}
+
+.controls button:hover {
+  color: var(--text-primary);
+}
+
+.controls button[aria-pressed="true"] {
+  color: var(--trajectory);
+}
+
+.inspect span {
+  color: var(--trajectory);
+}
+
+.sequence button:focus-visible,
+.controls button:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.inspector {
+  width: 100%;
+  max-width: 650px;
+  margin-top: 0.5rem;
+  padding: 1.25rem 0;
+  border-block: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+.inspector > p {
+  color: var(--text-muted);
+  font: 0.65rem var(--font-jetbrains), ui-monospace, monospace;
+}
+
+/* Static Motion DNA behind the copy when WebGL is not on the budget. */
+.fallback {
+  position: absolute;
+  inset: 20% 0 auto;
+  width: 100%;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* The hairline only separates the controls from a stage row that is
+   actually there; without the scene the controls stand alone. */
+@media (min-width: 640px) {
+  .sequence + .controls {
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--border-subtle);
+  }
+}
+
+@media (max-width: 639px) {
+  .living {
+    gap: 0.15rem 1rem;
+  }
+  .sequence button {
+    font-size: 0.6rem;
+    padding-inline: 0.4rem;
+  }
+  .fallback {
+    top: 26%;
+    opacity: 0.1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sequence button,
+  .controls button {
+    transition: none;
+  }
+}

@@ -5,9 +5,12 @@ import { useEffect, useRef } from "react";
 import { AnswerText } from "./AnswerText";
 import { QuickPrompts } from "./QuickPrompts";
 import { SourceLinks } from "./SourceLinks";
+import { AnswerConnections } from "./AnswerConnections";
+import { MotionSignature } from "@/components/visuals/MotionSignature";
 import type { Opening } from "./page-context";
 import type { Turn } from "./use-assistant";
 import styles from "./assistant.module.css";
+import connectionStyles from "./connections.module.css";
 
 /**
  * The transcript.
@@ -156,16 +159,19 @@ export function ChatMessages({
               <span aria-hidden="true" className={styles.answerMark} />
               <div className={styles.answerContent}>
                 {waiting ? (
-                  <p className={styles.thinking}>
-                    <span className={styles.thinkingScan} aria-hidden="true" />
-                    Tracing GaitAI knowledge…
-                  </p>
+                  <div className={styles.thinking}>
+                    <div className={connectionStyles.loader} aria-hidden="true"><MotionSignature compact /></div>
+                    <p>Tracing GaitAI knowledge…</p>
+                  </div>
                 ) : (
                   <AnswerText text={turn.text} />
                 )}
 
                 {turn.sources && turn.sources.length > 0 && (
-                  <SourceLinks sources={turn.sources} onNavigate={onNavigate} />
+                  <>
+                    <SourceLinks sources={turn.sources} onNavigate={onNavigate} />
+                    <AnswerConnections sources={turn.sources} onNavigate={onNavigate} />
+                  </>
                 )}
 
                 {turn.cta && (

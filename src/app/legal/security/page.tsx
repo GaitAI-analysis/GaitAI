@@ -79,12 +79,12 @@ export default function SecurityPage() {
           {
             topic: "Static delivery",
             detail:
-              "The site is pre-rendered to static files and served over HTTPS. There is no application server handling your page requests and no visitor database.",
+              "Pages are pre-rendered and delivered over HTTPS by GitHub Pages. Separate services handle forms, comments, subscriptions and optional hosted Ask GaitAI answers; hosting providers may keep security logs.",
           },
           {
-            topic: "No analytics or tracking",
+            topic: "Aggregate measurement",
             detail:
-              "No analytics platform, tag manager, advertising pixel or session-recording script is present. Visits are not measured.",
+              "Article views and likes, and assistant interaction counts by page type, are stored in Firebase. The counter records contain no questions, uploaded media or visitor identifier. No advertising pixel, tag manager or session-recording script is present.",
           },
           {
             topic: "Form submissions",
@@ -94,17 +94,22 @@ export default function SecurityPage() {
           {
             topic: "Comments",
             detail:
-              "Comment areas store a display name, message, optional email and moderation state in Google Firebase (Firestore), with access governed by Firestore security rules. Submission is gated by a Cloudflare Turnstile bot check.",
+              "New public comments store a display name, message, reply reference, time and moderation state in Google Firebase (Firestore), without collecting an email or sign-in identifier. Administrators can hide or delete comments. Cloudflare Turnstile may be loaded when configured; the browser challenge is not a server-enforced abuse guarantee.",
           },
           {
             topic: "Administration",
             detail:
-              "The content control panel is behind Firebase Authentication and is not reachable without a credential.",
+              "Administrative data and moderation actions require an authorized, verified Firebase Authentication account. Opening the public sign-in page does not grant administrative access.",
           },
           {
             topic: "Browser storage",
             detail:
-              "Only your light/dark theme choice is stored locally, by next-themes. No tracking cookie is set.",
+              "Browser storage holds preferences, like and duplicate-comment markers, a short assistant conversation and counter-deduplication markers. The Privacy Policy details which information is sent to service providers.",
+          },
+          {
+            topic: "Ask GaitAI",
+            detail:
+              "Hosted answers send text questions, limited conversation context, page context and public record IDs to Cloudflare Workers AI. Application logs omit question and answer text; a daily IP-derived hash is used for rate limiting. The movement analyser does not send its video or pose data to this service.",
           },
         ].map((item) => (
           <div key={item.topic} className="border-b border-white/[0.08] py-5">

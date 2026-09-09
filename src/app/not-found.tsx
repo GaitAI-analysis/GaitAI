@@ -7,7 +7,8 @@
  * A post published from the control panel afterwards therefore lands here.
  * When the path looks like /publications/<slug>, we hand off to LivePostView,
  * which resolves the slug against Firestore and renders the real article.
- * Anything else gets a normal, on-brand 404.
+ * Anything else gets the GaitAI 404: a trajectory that left the movement
+ * graph and re-routes to a known node.
  *
  * (Next.js exports this file as 404.html, which GitHub Pages serves for every
  * unknown path — so the fallback works in production too.)
@@ -16,6 +17,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LivePostView } from "@/components/posts/LivePostView";
+import { LostTrajectory } from "@/components/ui/LostTrajectory";
 
 /** Pull "<slug>" out of "/publications/<slug>/" — null if it isn't one. */
 function publicationSlug(pathname: string): string | null {
@@ -41,22 +43,27 @@ export default function NotFound() {
 
   return (
     <div className="site-page-intro-roomy container-wide grid min-h-[70vh] place-items-center pb-24 text-center">
-      <div className="max-w-md">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
+      <div className="w-full max-w-lg">
+        <LostTrajectory />
+        <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-300">
           404 — Not found
-        </div>
+        </p>
         <h1 className="mt-4 font-display text-display-md text-balance text-soft-white">
-          This page doesn&apos;t exist.
+          This path left the movement graph.
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-soft-gray">
-          The link may be broken, or the page may have moved.
+          The link may be broken, or the page may have moved. Every GaitAI
+          route is still connected to one of these.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/" className="btn-primary">
-            Go home
+            Return home
           </Link>
-          <Link href="/insights" className="btn-ghost">
-            Browse the Blog
+          <Link href="/gaitscape/" className="btn-ghost">
+            Explore GaitScape
+          </Link>
+          <Link href="/products/" className="btn-ghost">
+            Explore products
           </Link>
         </div>
       </div>

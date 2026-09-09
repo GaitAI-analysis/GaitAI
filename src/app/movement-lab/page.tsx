@@ -11,6 +11,7 @@ import { StatRow } from "@/components/analytics/primitives";
 import { LabHeroInstrument } from "@/components/analytics/LabHeroInstrument";
 import { ExperimentIndex } from "@/components/experiments/ExperimentIndex";
 import { LabDistinction } from "@/components/labs/LabDistinction";
+import { MovementXRay } from "@/components/visuals/MovementXRay";
 import {
   EXPERIMENTS_BLURB,
   EXPERIMENTS_EYEBROW,
@@ -27,7 +28,7 @@ import styles from "@/components/analytics/analytics.module.css";
 const STUDIO_TITLE = "Movement Intelligence Lab";
 const STUDIO_STRAP = "See movement become intelligence";
 const STUDIO_DESCRIPTION =
-  "An interactive demonstration of the GaitAI pipeline: video, pose, gait cycle, movement features, analytics and output — in a MobilityCare mode and an identity-free SecureVision mode. An illustrative demonstration with example values.";
+  "Experience movement intelligence: analyze a walking clip locally in your browser, inspect measured pose signals, and explore clearly labeled illustrative MobilityCare and SecureVision workflows.";
 
 export const metadata: Metadata = {
   title: `${STUDIO_TITLE} — See movement become intelligence`,
@@ -122,7 +123,7 @@ export default function MovementLabPage() {
             <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
               {STUDIO_TITLE}
             </span>
-            <IllustrativeBadge />
+            <IllustrativeBadge label="Illustrative walkthroughs" />
           </div>
 
           <h1 className="mt-5 font-display text-display-xl text-balance text-soft-white">
@@ -141,7 +142,7 @@ export default function MovementLabPage() {
                 { value: String(MODULE_COUNT), label: "Modules on this pipeline" },
                 { value: String(CAPABILITY_COUNT), label: "Capabilities" },
                 { value: String(SIGNAL_COUNT), label: "Movement signals" },
-                { value: "0", label: "Real recordings used" },
+                { value: "Local", label: "Video processing" },
               ]}
             />
           </div>
@@ -151,19 +152,19 @@ export default function MovementLabPage() {
             <div className={styles.panelBody}>
               <span className={styles.label}>What this is, and is not</span>
               <p className={`${styles.note} mt-2`}>
-This is an interactive technology demonstration. The stage,
-                capability, feature and output names are the platform&apos;s
-                own; the readings beside them are example values chosen to make
-                the pipeline legible, not measurements, benchmarks or clinical
-                results. It is not a medical device and not a live system.
+                The browser analyzer runs a pose model on the clip you choose
+                and reports measured landmark and motion signals. The guided
+                walkthroughs use example values and carry an Illustrative Demo
+                label. Neither provides a clinical assessment or demonstrates
+                validation of a GaitAI product.
               </p>
               <p className={`${styles.note} mt-2`}>
-                Nothing is uploaded from this page. The analyzer below reads a
-                file you choose entirely inside your browser — it is never
-                transmitted, stored or retained anywhere — and the staged
-                walkthroughs further down use example values only. The
-                SecureVision mode is identity-free by construction: it has no
-                identification layer to switch on.
+                Selected video and camera recordings are processed in this tab;
+                this analyzer does not upload them. Media references are released
+                when you clear the clip or leave. The model downloads from this
+                site and its runtime from jsDelivr when analysis starts; ordinary
+                network metadata accompanies those requests. The spatial lens
+                does not perform identity matching. <Link href="/legal/privacy/" className="text-cyan-300 underline underline-offset-4">Media and privacy details</Link>.
               </p>
             </div>
           </div>
@@ -207,12 +208,30 @@ This is an interactive technology demonstration. The stage,
             short walk — a real pose model runs on it in your browser, finding
             33 body landmarks per sampled instant, joint trajectories, the
             body&apos;s path through the frame, and the temporal channels that
-            make up its Motion DNA. Nothing leaves the device.
+            make up its Motion DNA. Your video stays in this browser tab.
           </p>
 
           <div className="mt-10">
             <MovementAnalyzer />
           </div>
+          <details className="mt-8 border-y border-white/10 py-3">
+            <summary className="min-h-11 cursor-pointer py-3 text-sm font-medium text-cyan-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
+              Movement X-Ray — explore the representation, stage by stage
+            </summary>
+            <div className="pb-5 pt-4">
+              <MovementXRay
+                family="mobilitycare"
+                staged
+                sharePath="/movement-lab#movement-xray"
+                humanCaption="An illustrated stride built from shared gait keyframes. This view does not use your selected video."
+                aiCaption="The same illustration as landmarks, trajectories and temporal channels. No measured or clinical results are produced here."
+                reads={[
+                  { label: "Joint trajectories", detail: "Trace how an observed joint changes position across the sequence." },
+                  { label: "Temporal signals", detail: "Inspect the shape of a channel over time before considering an application." },
+                ]}
+              />
+            </div>
+          </details>
         </div>
       </section>
 

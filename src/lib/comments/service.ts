@@ -234,12 +234,14 @@ export async function submitComment(
     contentId: input.postSlug,
     contentType: input.contentType,
     userName: input.userName.trim(),
-    email: input.email?.trim() || null,
+    // Whole comment documents are publicly readable. Never place contact or
+    // authentication identifiers here. Keep null keys for existing rule compatibility.
+    email: null,
     message: input.message.trim(),
     createdAt: serverTimestamp(),
     hidden: false,
     parentCommentId: input.parentCommentId ?? null,
-    userId: input.userId ?? null,
+    userId: null,
   };
 
   try {
@@ -257,7 +259,7 @@ export async function submitComment(
       code: "network",
       message:
         code === "permission-denied"
-          ? "The server rejected this comment (permission denied). If you're the site owner, publish the Firestore security rules."
+          ? "Comments are temporarily unavailable. Please try again later or contact us."
           : "We couldn't post your comment right now. Please try again shortly.",
     };
   }

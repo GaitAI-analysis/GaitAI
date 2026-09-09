@@ -125,6 +125,9 @@ export const notClaimed: string[] = [
   "Guaranteed encryption of data at rest",
   "Clinical approval, regulatory clearance or medical-device status",
   "Measured accuracy, latency or performance figures",
+  "Replacement for clinician judgement or a standalone diagnosis",
+  "Proof of identity from a movement match alone",
+  "Guaranteed detection or prevention of safety incidents",
 ];
 
 // ----------------------------------------------------------------------------

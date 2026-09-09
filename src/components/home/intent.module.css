@@ -1,0 +1,234 @@
+.intent {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.head {
+  display: grid;
+  gap: 1.25rem;
+  align-items: end;
+}
+
+.eyebrow {
+  color: var(--trajectory);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.lead {
+  max-width: 34rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.chip {
+  min-height: 44px;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  transition:
+    color var(--motion-ui, 220ms),
+    border-color var(--motion-ui, 220ms),
+    background-color var(--motion-ui, 220ms);
+}
+
+.chip:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+.chip[aria-pressed="true"] {
+  color: var(--text-primary);
+  border-color: var(--trajectory);
+  background: var(--surface-secondary);
+}
+
+.chip:focus-visible,
+.links a:focus-visible,
+.inline:focus-visible,
+.clear:focus-visible,
+.stackPrimary:focus-visible,
+.stackLink:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.panel {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.pathColumn {
+  min-width: 0;
+}
+
+.summary {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* The module path: input → primary → supporting, read as one line. */
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.6rem 0;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stack li {
+  display: grid;
+  gap: 0.2rem;
+  position: relative;
+  padding-right: 2rem;
+  font-size: 0.875rem;
+}
+
+.stack li + li::before {
+  content: "→";
+  position: absolute;
+  left: -1.55rem;
+  top: 0;
+  color: var(--text-muted);
+}
+
+.stack li + li {
+  margin-left: 1.55rem;
+}
+
+.stackInput {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  padding-top: 0.05rem;
+}
+
+.stackPrimary {
+  font-weight: 600;
+  color: var(--trajectory);
+}
+
+.stackLink {
+  color: var(--text-primary);
+}
+
+.stackPrimary:hover,
+.stackLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.stackRole {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.noStack,
+.reason {
+  margin-top: 1.1rem;
+  max-width: 44rem;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.inline {
+  color: var(--trajectory);
+}
+
+.links {
+  display: grid;
+  gap: 0.9rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.links dt {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.links dd {
+  margin: 0.15rem 0 0;
+}
+
+.links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--motion-ui, 220ms);
+}
+
+.links a:hover {
+  text-decoration-color: var(--trajectory);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+.clear {
+  min-height: 44px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (min-width: 768px) {
+  .head {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .panel {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    grid-template-areas:
+      "path links"
+      "actions links";
+    align-items: start;
+  }
+  .pathColumn { grid-area: path; }
+  .links { grid-area: links; }
+  .actions { grid-area: actions; }
+}
+
+@media (max-width: 430px) {
+  .links a { min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip,
+  .links a {
+    transition: none;
+  }
+}

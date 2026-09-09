@@ -24,8 +24,9 @@ export function SourceLinks({
     <div className={styles.sources}>
       <p className={styles.microLabel}>Sources</p>
       <ul className={styles.sourceList}>
-        {sources.map((source) => (
-          <li key={source.url}>
+        {sources.map((source, index) => (
+          /* Two FAQ entries can cite the same page, so the URL alone is not a key. */
+          <li key={`${source.url}#${index}`}>
             <Link
               href={source.url}
               className={styles.sourceLink}

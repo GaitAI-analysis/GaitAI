@@ -5,6 +5,7 @@ import {
   type EvidenceState,
 } from "@/data/evidence-status";
 import styles from "./evidence-status.module.css";
+import { EvidenceDetails } from "./EvidenceDetails";
 
 /**
  * How far the evidence for one module actually goes.
@@ -26,17 +27,18 @@ const MARK: Record<EvidenceState, string> = {
   available: styles.markOn,
   "in-development": styles.markPart,
   "not-published": styles.markOff,
+  "not-claimed": styles.markOff,
 };
 
 export function EvidenceStatus({ productId }: { productId: string }) {
   const evidence = evidenceStatusFor(productId);
 
   return (
-    <section id="evidence-status" className={styles.wrap}>
+    <div className={styles.wrap}>
       <div className={styles.head}>
-        <h3 className={styles.title}>Evidence status</h3>
+        <h3 className={styles.title}>GaitAI Evidence Index</h3>
         <p className={styles.summary}>
-          {evidence.availableCount} of {evidence.total} established
+          {evidence.availableCount} categories documented
         </p>
       </div>
 
@@ -49,8 +51,8 @@ export function EvidenceStatus({ productId }: { productId: string }) {
       <dl className={styles.rows}>
         {evidence.rows.map((row) => (
           <div key={row.id} className={styles.row}>
-            <span aria-hidden="true" className={`${styles.mark} ${MARK[row.state]}`} />
             <dt className={styles.rowHead}>
+              <span aria-hidden="true" className={`${styles.mark} ${MARK[row.state]}`} />
               <span className={styles.rowLabel}>{row.label}</span>
               <span
                 className={`${styles.state} ${
@@ -60,16 +62,20 @@ export function EvidenceStatus({ productId }: { productId: string }) {
                 {EVIDENCE_STATE_LABEL[row.state]}
               </span>
             </dt>
-            <dd className={styles.rowDetail}>{row.detail}</dd>
+            <dd className={styles.rowDetail}>
+              {row.detail}
+              <EvidenceDetails row={row} reviewedAt={evidence.reviewedAt} />
+            </dd>
           </div>
         ))}
       </dl>
 
       <p className={styles.foot}>
+        <span className={styles.reviewed}>Inventory reviewed <time dateTime={evidence.reviewedAt}>{evidence.reviewedAt}</time></span>
         <Link href="/trust" className={styles.link}>
           How GaitAI states evidence →
         </Link>
       </p>
-    </section>
+    </div>
   );
 }

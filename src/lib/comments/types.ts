@@ -17,7 +17,7 @@ export interface CommentDoc {
   contentId: string;
   contentType: ContentType;
   userName: string;
-  /** Optional — only stored when supplied / available from auth. */
+  /** Legacy records only. New public comments always write null. */
   email: string | null;
   message: string;
   /** ISO string mirror of the Firestore server timestamp (for easy rendering). */
@@ -30,7 +30,7 @@ export interface CommentDoc {
   hidden: boolean;
   /** Set when this is a reply; null for a top-level comment. */
   parentCommentId: string | null;
-  /** Firebase Auth uid when the author was signed in, else null. */
+  /** Legacy records only. Moderation uses admin authentication, not this field. */
   userId: string | null;
 }
 
@@ -55,10 +55,8 @@ export interface NewCommentInput {
   postSlug: string;
   contentType: ContentType;
   userName: string;
-  email?: string | null;
   message: string;
   parentCommentId?: string | null;
-  userId?: string | null;
   /** Cloudflare Turnstile token, when the CAPTCHA gate is enabled. */
   captchaToken?: string | null;
 }

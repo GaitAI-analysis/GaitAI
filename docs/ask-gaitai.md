@@ -293,7 +293,7 @@ not). Development origins go in `.dev.vars`, which overrides the var locally.
 | Question ≤ 800 chars; history ≤ 6 turns × 1 600 chars; route ≤ 256; title ≤ 200; ≤ 7 record ids; body ≤ 32 KB | yes | `validate.ts`, `index.ts` | Free |
 | Per-caller burst: 8 accepted questions per 2 minutes | yes | `AskGuard` Durable Object | Free (SQLite-backed DOs) |
 | Per-caller hourly: 40 per hour | yes | `AskGuard` | Free |
-| Site-wide daily budget: `ASK_DAILY_BUDGET` hosted calls per UTC day, then 503 | yes — **default 25** | `AskGuard` | Free |
+| Site-wide daily budget: `ASK_DAILY_BUDGET` hosted calls per UTC day, then 503 | yes — **100 in production** (the initial limit for the observation period after going live on 2026-09-09; adjust from real Cloudflare usage, never to unlimited; the code falls back to 25 if the var is missing) | `AskGuard` | Free |
 | Model deadline: `MODEL_TIMEOUT_MS` (22 s), then 504 | yes | `workers-ai.ts` | Free |
 | Runaway output: `MODEL_MAX_OUTPUT_TOKENS` (450), hard cap 1 200 | yes | `env.ts`, `workers-ai.ts` | Free |
 | Origin allowlist, Origin required | yes | `cors.ts` | Free |
@@ -302,9 +302,9 @@ not). Development origins go in `.dev.vars`, which overrides the var locally.
 | Bot management / challenge | **not implemented** | Cloudflare Bot Fight Mode / Turnstile | Free (Bot Fight Mode) |
 
 The daily budget is **our own** ceiling, independent of Cloudflare's Neuron
-allocation, and it is deliberately low (25) while Workers AI is being evaluated
-on the Free plan: raise it on purpose once real usage is understood, and never
-to unlimited. Past it the Worker answers 503 and every browser falls back to
+allocation. It is **100** — the initial production limit for the observation
+period after going live on 2026-09-09 (25 while Workers AI was being evaluated):
+adjust it on purpose from real Cloudflare usage, and never to unlimited. Past it the Worker answers 503 and every browser falls back to
 the extractive answer, so the assistant keeps working.
 
 The caller identifier is a salted SHA-256 of the connecting IP **and the UTC
@@ -342,7 +342,7 @@ at 00:00 UTC; past it, "further operations will fail with an error" — the
 Worker maps that error (3036) to `provider_quota` and the browser falls back.
 Neurons are Cloudflare's measure of GPU compute per request; the inference API
 does not report a Neuron count per call, so none is logged or estimated. The
-Worker's own budget (25/day) is meant to trip long before the allocation does.
+Worker's own budget (100/day in production) is meant to trip long before the allocation does.
 No Workers Paid upgrade, no payment method, no AI Gateway and no prepaid
 credits are part of this design.
 

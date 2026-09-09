@@ -352,6 +352,67 @@ describe("the browser selects, the Worker decides", () => {
     expect(body!.answer).toContain("does not establish");
   });
 
+  // ── Negative set: unsupported questions must not conjure a place to look ──
+  const UNSUPPORTED = [
+    "Which companies use GaitAI?",
+    "Which Fortune 500 companies use GaitAI?",
+    "Where can I see GaitAI's customer list?",
+    "Show me GaitAI's defence contracts.",
+    "Which page lists GaitAI deployments?",
+    "Where is the certification page?",
+  ];
+
+  it("carries the general rule against invented pages, sections, products and URLs in the policy — not a per-phrase patch", async () => {
+    const { system } = await rag(UNSUPPORTED[0]);
+    expect(system).toContain("NEVER INVENT A PLACE TO LOOK");
+    expect(system).toMatch(/Never invent the name of a GaitAI page, section, product, module, publication, customer page, deployment page, documentation page or URL/);
+    expect(system).toMatch(/only when its title appears in the supplied records/);
+    expect(system).toMatch(/Never tell the visitor to "see", "visit", "check", "find" or "refer to" information on a page unless that page is one of the supplied records/);
+    expect(system).toMatch(/do not compensate for missing evidence by suggesting a location/);
+    /* The rule is general: the phrase that triggered it is nowhere in the policy. */
+    expect(system).not.toMatch(/Customer and Deployment page/i);
+  });
+
+  for (const question of UNSUPPORTED) {
+    it(`"${question}" — no customer, deployment, contract, certification or page enters the evidence, and every source is canonical`, async () => {
+      reply = "The available GaitAI information does not establish that.";
+      const { retrieval, response, body, prompt } = await rag(question);
+      const evidence = prompt.slice(0, prompt.indexOf("Visitor's question:"));
+      /* Nothing in the corpus documents any of these, so the evidence the model
+         reads cannot contain them — whatever the question's own words are. */
+      expect(evidence).not.toMatch(/Fortune 500/i);
+      expect(evidence).not.toMatch(/\b(?:our|GaitAI's) customers?\b/i);
+      expect(evidence).not.toMatch(/customer (?:list|page)/i);
+      expect(evidence).not.toMatch(/deployments? page/i);
+      expect(evidence).not.toMatch(/certification page/i);
+      expect(evidence).not.toMatch(/defen[cs]e contracts?/i);
+      expect(evidence).not.toMatch(/\bcertified\b(?! by no)/i);
+      /* Every route the model may cite is a real canonical route. */
+      const canonical = new Set(knowledge().docs.map((doc) => path(doc.url)));
+      for (const match of evidence.matchAll(/\]\((\/[^)\s]*)\)/g)) expect(canonical.has(path(match[1]))).toBe(true);
+      expect(retrieval.docs.length).toBeGreaterThan(0);
+      expect(response.status).toBe(200);
+      for (const source of body!.sources) expect(canonical.has(path(source.url))).toBe(true);
+      for (const link of body!.relatedLinks ?? []) expect(canonical.has(path(link.url))).toBe(true);
+      expect(body!.answer).toBe("The available GaitAI information does not establish that.");
+    });
+  }
+
+  it("strips an invented page link and a bare URL if the model produces one anyway — the prose rule has a mechanical backstop", async () => {
+    reply = [
+      "The available GaitAI information does not establish that.",
+      "You can find a list of our customers on our [Customer and Deployment page](/customers/).",
+      "See also https://gaitai.in/certifications/ and [the certification page](https://gaitai.in/certifications/).",
+    ].join("\n");
+    const { body } = await rag("Where can I see GaitAI's customer list?");
+    expect(body!.answer).not.toMatch(/\]\(\/customers\/\)/);
+    expect(body!.answer).not.toMatch(/https?:\/\//);
+    /* No link with a destination survives that is not a canonical route. */
+    const canonical = new Set(knowledge().docs.map((doc) => path(doc.url)));
+    for (const match of body!.answer.matchAll(/\]\(([^)]+)\)/g)) expect(canonical.has(path(match[1]))).toBe(true);
+    for (const source of body!.sources) expect(source.url).not.toMatch(/customers|certifications/);
+  });
+
   it("answers 'what can GaitAI do for military' with capabilities and a boundary — never a person, a talk or an invented deployment", async () => {
     ensureCorpus();
     reply =

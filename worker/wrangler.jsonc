@@ -100,9 +100,13 @@
     "ASK_BURST_MAX": "8",        // questions per caller per 2 minutes
     "ASK_HOURLY_MAX": "40",      // questions per caller per hour
     // Our OWN ceiling on hosted calls per UTC day, site-wide, independent of
-    // Cloudflare's Neuron allocation. Kept low while Workers AI is being
-    // evaluated on the Free plan; raise it deliberately, never to 0.
-    "ASK_DAILY_BUDGET": "25"
+    // Cloudflare's Neuron allocation. 100 is the INITIAL PRODUCTION LIMIT for
+    // the observation period after going live (2026-09-09; it was 25 while
+    // Workers AI was being evaluated). Adjust it later from real usage in the
+    // Cloudflare dashboard — deliberately, and never to unlimited: past the
+    // budget the Worker answers 503 and every browser falls back to its local
+    // extractive answer, so the assistant keeps working.
+    "ASK_DAILY_BUDGET": "100"
   },
 
   // One small Durable Object holds every counter: per-caller windows keyed by

@@ -437,8 +437,11 @@ network fails. The engine asks it for the endpoint before every hosted call,
 so a stale bundle still talks to the CURRENT Worker; the composer's privacy
 note follows it too. When the server's `build` differs from the bundle's, the
 client is stale: it keeps working with the runtime endpoint, and the thread in
-`sessionStorage` — stored as `{ build, turns }` — is discarded if it was
-written by another build, so one panel never mixes two configurations. Only
+`sessionStorage` — stored as `{ build, turns }`, keyed to the server's build id
+once it is read — is discarded once if it was written under another
+configuration, so one panel never mixes two. A 429 or 503 now also exposes
+`Retry-After` to the browser (`Access-Control-Expose-Headers`), so the
+client's wait hint carries the real number. Only
 https endpoints are accepted; an empty endpoint means the hosted layer is
 deliberately off. Nothing is shown to a visitor; no hard refresh is needed.
 The one thing this cannot fix is a bundle that predates it: those tabs learn

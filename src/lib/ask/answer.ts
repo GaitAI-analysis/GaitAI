@@ -212,8 +212,10 @@ export function selectSources(
      stages, a family page by its modules. It leads the row; the home record
      is still excepted, since saying "GaitAI" is not citing a page. */
   const lead = retrieved[0];
-  if (lead && used.length && lead.doc.id !== "page:/" && !used.some((item) => item.doc.id === lead.doc.id)) {
-    used.unshift(lead);
+  if (lead && used.length && lead.doc.id !== "page:/") {
+    const at = used.findIndex((item) => item.doc.id === lead.doc.id);
+    if (at > 0) used.splice(at, 1);
+    if (at !== 0) used.unshift(lead);
   }
 
   /* DEDUPLICATED BY PAGE. A long article is several chunk records with one

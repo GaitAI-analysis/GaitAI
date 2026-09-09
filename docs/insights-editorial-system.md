@@ -119,6 +119,41 @@ interaction is worse than none.
 | `PoseFrame`, `GAIT_PHASES`, `smoothPath` | the project's own body keyframes and stroke vocabulary |
 | `experience.module.css` (`chips`, `segment`, `qual*`) and `figures.module.css` | the shared visual language |
 
+### Visual typography — the canonical system
+
+Every label drawn inside a figure, a hub card mini or a cover uses one type
+system, defined in `src/components/insights/experience/figures.module.css`
+(commit 6e62883). It is canonical: new figures do not invent SVG text sizes,
+and no figure code carries a literal `fontSize`.
+
+| role | class | use | examples |
+| --- | --- | --- | --- |
+| MICRO | `.labelSmall` | state hints, metadata | ILLUSTRATIVE · 8 OBSERVATIONS |
+| LABEL | `.label` | technical labels, annotation | KNEE FLEXION · CAMERA · FACE |
+| KEY | `.labelKey` | conceptual nodes | MOBILITY · OWN BASELINE · LEFT |
+| STATE | `.labelState` | the one output statement | MILDLY ASYMMETRICAL · MODEL RIGHT |
+| VALUE | `.labelDisplay` | a single display numeral | the trend hero's count |
+
+Sizes are viewBox units from the `--vt-*` tokens multiplied by `--fig-type`,
+the per-slot factor `hub.module.css` sets from measured render scales, so a
+label lands at the same on-screen size in a wide spread, a half card, the
+Foundations preview and a phone — always below the story title. Article
+heroes run at factor 1; `.narrow` raises the roles together on a phone-wide
+hero. Rules that follow from this:
+
+* Colour carries selection — `labelAccent`, `labelTeal`, `labelWarn`,
+  `labelInk`, a halo, line weight. Never size; a card must not jump when
+  touched.
+* The order of attention in every card is title → visual → active result →
+  technical labels → metadata. If a label competes with the title, it is in
+  the wrong role, not in need of a bigger font.
+* Density is solved by hiding or demoting, not by shrinking:
+  `.quietOnNarrow` hides a label on phones, `.underOnNarrow` steps a value
+  under its label.
+* The approved Blog design (hub, pagination, cards, heroes) is not restyled
+  unless an actual responsive or accessibility defect is demonstrated with a
+  screenshot or a measurement.
+
 ### Steps
 
 1. Put the pure state model in `figures/<name>-model.ts`: types, closed
@@ -248,6 +283,7 @@ aggregate (admin sign-in). Interpret with care:
   hydration warning appears
 * Text description present; caption states the reading in words
 * The status badge matches `evidenceLevel`
+* Every SVG label uses a type-system class (MICRO / LABEL / KEY / STATE / VALUE); no literal `fontSize`; selection changes colour, not size
 * Share link restores the figure state
 * Series page lists the story with the right micro-label; the bridge names
   the series and the next story

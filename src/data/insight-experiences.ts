@@ -26,7 +26,9 @@ export type FigureKey =
   | "privacy-pipeline"
   | "longitudinal-trend"
   | "fusion-experiment"
-  | "five-questions";
+  | "five-questions"
+  /* the recurring series */
+  | "pose-error-explorer";
 
 export type FigureState = Record<string, string | number | boolean>;
 
@@ -471,6 +473,97 @@ export const articleExperiences: Record<string, ArticleExperience> = {
         { label: "Multimodal fusion", node: "cap-fusion" },
         { label: "Explainability", node: "cap-explain" },
       ],
+      ask: true,
+    },
+  },
+
+  /* ══════════════════════════════════════════════════════════════════════
+     AI UNDER STRESS
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── AI Under Stress · 01 ────────────────────────────────────────────── */
+  "when-pose-estimation-lies": {
+    slug: "when-pose-estimation-lies",
+    hero: "pose-error-explorer",
+    motif: "trace",
+    figures: {},
+    terms: {
+      "plausible-is-not-correct": ["pose-estimation"],
+      "where-keypoints-go-wrong": ["covariates", "occlusion"],
+      "confidence-is-not-correctness": ["keypoint-confidence"],
+      "what-the-error-does-downstream": ["symmetry", "cadence", "temporal-modelling"],
+      "seeing-the-lie": ["signal-quality", "multimodal-fusion"],
+      "what-this-means": ["decision-support"],
+    },
+    moments: [
+      {
+        id: "clean",
+        title: "A clean frame",
+        text: "Full body, steady camera, good light. Every joint the estimator returns was observed.",
+        figure: "pose-error-explorer",
+        state: { issue: "none", view: "original" },
+      },
+      {
+        id: "occlusion-ai",
+        title: "A plausible skeleton",
+        text: "The far leg is behind a bin. The estimator still returns a complete skeleton, and nothing on it says which joints are guesses.",
+        figure: "pose-error-explorer",
+        state: { issue: "occlusion", view: "ai" },
+      },
+      {
+        id: "occlusion-original",
+        title: "The frame it came from",
+        text: "Against the original, the filled-in knee sits off the hidden leg. The estimate was confident; the joint was never seen.",
+        figure: "pose-error-explorer",
+        state: { issue: "occlusion", view: "original" },
+      },
+      {
+        id: "blur",
+        title: "Motion blur",
+        text: "The swing foot is a streak. Its ankle lands along the streak, ahead of the foot — and step timing reads from that ankle.",
+        figure: "pose-error-explorer",
+        state: { issue: "blur", view: "original" },
+      },
+      {
+        id: "cropped",
+        title: "Cropped feet",
+        text: "The feet were never in the frame. Ankles appear at the bottom edge anyway; heel strike, and everything timed from it, is gone.",
+        figure: "pose-error-explorer",
+        state: { issue: "cropped", view: "original" },
+      },
+      {
+        id: "crossing",
+        title: "Left and right trade places",
+        text: "At mid-stance the legs overlap and swap for a span of frames. Each frame is plausible; the symmetry reading is inverted.",
+        figure: "pose-error-explorer",
+        state: { issue: "crossing", view: "original" },
+      },
+    ],
+    bridge: {
+      learned: "You now know that a pose estimator fails by answering — with a skeleton that looks right — and why a measurement has to check it against time, anatomy and other sensors.",
+      nextQuestion: "What else happens to movement AI when the world stops cooperating?",
+    },
+    links: {
+      evidence: [
+        {
+          publication: "neurocomputing-2022",
+          why: "The covariates — clothing, carrying, view, occlusion — that change how a walk looks without changing the walk, surveyed across methods.",
+        },
+        {
+          publication: "iet-pose-2022",
+          why: "Pose features as the representation gait is read from: the joints this essay watches go astray.",
+        },
+        {
+          publication: "prl-2023",
+          why: "How preprocessing decides what a gait pipeline can measure — the stage where a bad frame should be caught.",
+        },
+      ],
+      gaitscape: [
+        { label: "Pose estimation", node: "cap-pose" },
+        { label: "Step symmetry", node: "sig-step-symmetry" },
+        { label: "Gait analysis", node: "cap-gait" },
+      ],
+      lab: { label: "Watch pose landmarks being tracked on a clip in the Movement Intelligence Lab" },
       ask: true,
     },
   },

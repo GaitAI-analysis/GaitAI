@@ -120,6 +120,28 @@ export const INSIGHT_TERMS: Record<string, InsightTerm> = {
     definition:
       "An output offered to a qualified person to review, in context, with its limitations stated. Not a diagnosis, not a prediction that a specific event will happen to a specific person.",
   },
+  covariates: {
+    id: "covariates",
+    term: "covariates",
+    aliases: ["covariate"],
+    definition:
+      "In gait research, the conditions that change how a walk looks without changing the walk: clothing, a carried bag, the camera's viewpoint, occlusion, the walking surface. Studied because they defeat recognition; read from the measurement side, they are the ways a keypoint gets moved off the body.",
+    gaitscape: "cap-pose",
+  },
+  occlusion: {
+    id: "occlusion",
+    term: "occlusion",
+    aliases: ["occluded", "hidden joint"],
+    definition:
+      "Part of the body hidden from the camera — by an object, by another person, or by the body itself. A pose estimator usually returns the hidden joints anyway, placed from typical anatomy rather than from evidence.",
+  },
+  "keypoint-confidence": {
+    id: "keypoint-confidence",
+    term: "confidence score",
+    aliases: ["keypoint confidence", "confidence"],
+    definition:
+      "A number a pose estimator attaches to each joint saying how strongly its internal evidence pointed at that location. Not a probability of being right: a filled-in joint can score high, and a swapped side scores like a correct one.",
+  },
 };
 
 export function getInsightTerm(id: string): InsightTerm | undefined {

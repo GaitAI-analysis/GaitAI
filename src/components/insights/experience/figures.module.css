@@ -383,3 +383,37 @@
 :global(.light) .redact {
   fill: rgb(95 37 191 / 0.5);
 }
+
+/* The body as a camera saw it: the same pose drawn as a soft mass under the
+   estimated skeleton, so a filled-in joint can be seen off the body. */
+.massBone {
+  fill: none;
+  stroke: rgb(203 213 225 / 0.2);
+  stroke-width: 11;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.massBoneFar {
+  fill: none;
+  stroke: rgb(203 213 225 / 0.12);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.massJoint {
+  fill: none;
+  stroke: none;
+}
+.massHead {
+  fill: rgb(203 213 225 / 0.2);
+  stroke: none;
+}
+:global(.light) .massBone {
+  stroke: rgb(15 23 42 / 0.16);
+}
+:global(.light) .massBoneFar {
+  stroke: rgb(15 23 42 / 0.1);
+}
+:global(.light) .massHead {
+  fill: rgb(15 23 42 / 0.16);
+}

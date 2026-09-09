@@ -8,6 +8,7 @@ import { trackInsightEvent } from "@/lib/insight-events";
 import { useFigureActive } from "../experience/useFigureActive";
 import { useNarrow } from "../experience/useNarrow";
 import { StageControl, type Stage } from "../experience/StageControl";
+import { POSE_PHASE_FOR, estimatePose, poseFocusJoint } from "../experience/figures/pose-error-model";
 import fig from "../experience/figures.module.css";
 import ui from "../experience/experience.module.css";
 import styles from "./hub.module.css";
@@ -677,6 +678,70 @@ function Fusion({ states, onToggle }: { states: StreamState[]; onToggle: (i: num
   );
 }
 
+/* ── AI Under Stress 01 · pose error ───────────────────────────────────────
+   AI view → original frame. Drag across: the plausible skeleton stays; the
+   body the camera saw fades in under it, with the bin that hid the far leg
+   and the filled-in knee ringed. The panel on the right turns from "looks
+   fine" to what the measurement inherits. */
+function PoseErrorMini({ p }: { p: number }) {
+  const issue = "occlusion" as const;
+  const actual = GAIT_PHASES[POSE_PHASE_FOR[issue]];
+  const est = estimatePose(actual, issue);
+  const focus = poseFocusJoint(actual, est, issue)!;
+  const cx = 92;
+  const cy = 98;
+  const s = 1.5;
+  const reveal = ramp(p, 0.38, 0.62);
+  const groundY = cy + (48 - actual.lift) * s;
+  const mass = { bone: fig.massBone, boneFar: fig.massBoneFar, joint: fig.massJoint, head: fig.massHead };
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
+      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
+      {/* the body the camera saw, arriving */}
+      <g style={{ opacity: reveal }} transform={`translate(${cx} ${cy - actual.lift * s})`}>
+        <PoseFrame phase={actual} s={s} classes={mass} />
+      </g>
+      {/* the estimate — always complete, always plausible */}
+      <g transform={`translate(${cx} ${cy - actual.lift * s})`}>
+        <PoseFrame phase={est} s={s} classes={CLASSES} />
+        <g style={{ opacity: reveal }}>
+          <line className={fig.dash} x1={focus.est[0] * s} y1={focus.est[1] * s} x2={focus.actual[0] * s} y2={focus.actual[1] * s} />
+          <circle className={fig.node} cx={focus.est[0] * s} cy={focus.est[1] * s} r={5.5} style={{ stroke: "#f0b45a" }} />
+          <circle className={fig.nodeTeal} cx={focus.actual[0] * s} cy={focus.actual[1] * s} r={2.2} />
+        </g>
+      </g>
+      {/* the bin, in front of the far leg */}
+      <g style={{ opacity: reveal }}>
+        <rect x={cx + 5 * s} y={cy + 9 * s} width={22 * s} height={groundY - (cy + 9 * s)} fill="rgb(var(--c-obsidian-400) / 0.7)" stroke="var(--jr-line-mid)" strokeWidth={1} rx={2} />
+      </g>
+      {/* what the measurement inherits */}
+      <g className={`${fig.label} ${fig.labelKey}`}>
+        <text x={186} y={52}>
+          Knee angle
+        </text>
+        <text x={186} y={98}>
+          Step timing
+        </text>
+        <text x={186} y={144}>
+          Confidence
+        </text>
+      </g>
+      <g className={`${fig.label} ${fig.labelSmall}`}>
+        <text x={186} y={66} className={reveal > 0.5 ? fig.labelWarn : fig.labelTeal}>
+          {reveal > 0.5 ? "unavailable" : "looks fine"}
+        </text>
+        <text x={186} y={112} className={reveal > 0.5 ? fig.labelWarn : fig.labelTeal}>
+          {reveal > 0.5 ? "degraded" : "looks fine"}
+        </text>
+        <text x={186} y={158} className={fig.labelInk}>
+          {reveal > 0.5 ? "still high" : "high"}
+        </text>
+      </g>
+    </svg>
+  );
+}
+
 /* ── The interactive wrapper ────────────────────────────────────────────── */
 
 const READOUT: Record<CoverConcept, string[]> = {
@@ -685,6 +750,7 @@ const READOUT: Record<CoverConcept, string[]> = {
   trajectory: ["One reading", "Two", "Three", "Four", "A trend"],
   divergence: ["Mobility", "Recovery", "Identity", "Risk", "Safety"],
   fusion: [],
+  "pose-error": ["AI view", "Original frame"],
 };
 
 const CUE: Record<CoverConcept, string> = {
@@ -693,6 +759,7 @@ const CUE: Record<CoverConcept, string> = {
   trajectory: "Drag to add assessments",
   divergence: "Touch a reading",
   fusion: "Tap a stream",
+  "pose-error": "Drag to reveal the frame",
 };
 
 export function CardInteraction({
@@ -758,6 +825,7 @@ export function CardInteraction({
   useEffect(() => {
     if (!reduced) return;
     if (concept === "trajectory") setP(1);
+    else if (concept === "pose-error") setP(1);
     else if (concept === "pipeline") setP(0.5);
     else if (concept === "reduction") setP(0.6);
   }, [concept, reduced]);
@@ -840,6 +908,7 @@ export function CardInteraction({
       {concept === "trajectory" && <Trajectory p={p} />}
       {concept === "divergence" && <Divergence pick={pick} />}
       {concept === "fusion" && <Fusion states={states} onToggle={toggle} />}
+      {concept === "pose-error" && <PoseErrorMini p={p} />}
       <span className={`${styles.cue} ${coverStage >= 0 ? styles.cueRight : ""}`}>
         <span className={styles.cueMark} />
         {coverStage >= 0 ? "Drag through the signal →" : CUE[concept]}

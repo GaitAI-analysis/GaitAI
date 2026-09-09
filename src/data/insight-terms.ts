@@ -135,6 +135,15 @@ export const INSIGHT_TERMS: Record<string, InsightTerm> = {
     definition:
       "Part of the body hidden from the camera — by an object, by another person, or by the body itself. A pose estimator usually returns the hidden joints anyway, placed from typical anatomy rather than from evidence.",
   },
+  "gait-cycle": {
+    id: "gait-cycle",
+    term: "gait cycle",
+    aliases: ["stride", "stance", "swing"],
+    definition:
+      "One stride of one leg: heel strike to the next heel strike of the same foot. It divides into stance, while the foot is on the ground, and swing, while it is in the air — and for a short period both feet are down at once.",
+    lab: true,
+    gaitscape: "cap-gait",
+  },
   "keypoint-confidence": {
     id: "keypoint-confidence",
     term: "confidence score",

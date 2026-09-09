@@ -997,6 +997,31 @@
   --glow-y: 52%;
   --floor-y: 79%;
 }
+.media[data-concept="symmetry"] {
+  --glow-x: 50%;
+  --glow-y: 48%;
+  --floor-y: 92%;
+}
+.media[data-concept="viewpoint"] {
+  --glow-x: 30%;
+  --glow-y: 52%;
+  --floor-y: 90%;
+}
+.media[data-concept="identity-layers"] {
+  --glow-x: 29%;
+  --glow-y: 52%;
+  --floor-y: 79%;
+}
+.media[data-concept="system-chain"] {
+  --glow-x: 50%;
+  --glow-y: 40%;
+  --floor-y: 94%;
+}
+.media[data-concept="baseline"] {
+  --glow-x: 50%;
+  --glow-y: 52%;
+  --floor-y: 75%;
+}
 :global(.light) .media::before {
   opacity: 0.55;
 }

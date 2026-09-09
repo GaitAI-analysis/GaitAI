@@ -162,7 +162,17 @@ export type CoverConcept =
   | "trajectory"
   | "fusion"
   /** A plausible skeleton beside the frame that reveals its wrong joint. */
-  | "pose-error";
+  | "pose-error"
+  /** Left and right gait cycles as bars of time, drifting out of alignment. */
+  | "symmetry"
+  /** A camera on a ring around a walker, and what each angle keeps. */
+  | "viewpoint"
+  /** A figure stripped from RGB to trajectories beside the identity cues that remain. */
+  | "identity-layers"
+  /** A chain from camera to operator with one link broken while the model stays sound. */
+  | "system-chain"
+  /** A population distribution beside one person's repeated observations. */
+  | "baseline";
 
 export interface InsightArticle {
   slug: string;

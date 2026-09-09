@@ -2,6 +2,11 @@ import { GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
 import { PoseFrame } from "@/components/research/PoseFrame";
 import type { CoverConcept } from "@/data/insights";
 import { POSE_PHASE_FOR, estimatePose, poseFocusJoint } from "./experience/figures/pose-error-model";
+import { symmetryState } from "./experience/figures/symmetry-model";
+import { availabilityAt } from "./experience/figures/camera-model";
+import { bodyMassPath, identityLedger } from "./experience/figures/identity-model";
+import { CHAIN, COMPONENT_LABEL, OUTCOME_LABEL, outcomeFor, type ChainComponent } from "./experience/figures/system-model";
+import { OBSERVATIONS, POPULATION, personalBand, populationCurve } from "./experience/figures/baseline-model";
 import styles from "./covers.module.css";
 
 /**
@@ -962,6 +967,337 @@ function PoseError() {
   );
 }
 
+/**
+ * WHAT DOES GAIT SYMMETRY ACTUALLY MEAN. Two gait cycles as bars of time on
+ * one clock — stance filled, swing open, a tick at each heel strike — with
+ * the right side standing longer than the left, and the left cycle's
+ * boundaries drawn over it as dashed guides. Three comparisons named beneath.
+ */
+function Symmetry() {
+  const state = symmetryState("stance", 2);
+  const x0 = 96;
+  const x1 = 560;
+  const cycles = 1.6;
+  const xAt = (t: number) => x0 + (t / cycles) * (x1 - x0);
+  const segments = (start: number, stance: number) => {
+    const out: Array<[number, number]> = [];
+    for (let k = -1; k <= 2; k++) {
+      const a = Math.max(0, start + k);
+      const b = Math.min(cycles, start + k + stance);
+      if (b > a) out.push([a, b]);
+    }
+    return out;
+  };
+  const bar = (y: number, label: string, side: "left" | "right", start: number, stance: number) => (
+    <g>
+      <text className={styles.cLabel} x={x0 - 12} y={y + 22} textAnchor="end">
+        {label}
+      </text>
+      <rect className={styles.cBarTrack} x={x0} y={y} width={x1 - x0} height={32} rx={3} />
+      {segments(start, stance).map(([a, b]) => (
+        <rect
+          key={`${side}-${a}`}
+          className={side === "left" ? styles.cBarLit : styles.cBarWarm}
+          x={xAt(a)}
+          y={y + 5}
+          width={xAt(b) - xAt(a)}
+          height={22}
+          rx={2}
+        />
+      ))}
+      {[-1, 0, 1, 2].map((k) => start + k).filter((t) => t >= 0 && t <= cycles).map((t) => (
+        <line key={`${side}-${t}`} className={styles.cStem} x1={xAt(t)} y1={y - 10} x2={xAt(t)} y2={y + 42} />
+      ))}
+    </g>
+  );
+  return (
+    <>
+      <text className={styles.cTiny} x={x0} y={92}>
+        Left against right · one gait cycle, then most of the next
+      </text>
+      <line className={styles.cAxis} x1={x0} y1={104} x2={x1} y2={104} />
+      {bar(136, "Left", "left", state.left.start, state.left.stance)}
+      {bar(216, "Right", "right", state.right.start, state.right.stance)}
+      {segments(state.left.start + 0.5, state.left.stance).map(([a, b]) => (
+        <g key={`ghost-${a}`}>
+          <line className={styles.cDash} x1={xAt(a)} y1={212} x2={xAt(a)} y2={252} />
+          <line className={styles.cDash} x1={xAt(b)} y1={212} x2={xAt(b)} y2={252} />
+        </g>
+      ))}
+      <text className={styles.cTinyWarm} x={x1} y={300} textAnchor="end">
+        Asymmetrical · right stands longer
+      </text>
+      <text className={styles.cTiny} x={x0} y={300}>
+        Stance · swing · step timing — three comparisons, one word
+      </text>
+      <text className={styles.cTiny} x={x0} y={340}>
+        Illustrative · no ratio, no threshold
+      </text>
+    </>
+  );
+}
+
+/**
+ * CAMERA ANGLE CHANGES WHAT AI SEES. A plan view: the walker at the centre
+ * heading right, a camera on a ring at the front-right, its line of sight
+ * drawn, the four cardinal positions named — and beside it what this angle
+ * makes easier, harder or unavailable, in words.
+ */
+function Viewpoint() {
+  const cx = 200;
+  const cy = 200;
+  const r = 118;
+  const angle = 135 as const;
+  const a = (angle * Math.PI) / 180;
+  const camX = cx + r * Math.sin(a);
+  const camY = cy + r * Math.cos(a);
+  const availability = availabilityAt(angle);
+  return (
+    <>
+      <circle className={styles.cDash} cx={cx} cy={cy} r={r} />
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((value) => {
+        const t = (value * Math.PI) / 180;
+        return <circle key={value} className={value === angle ? styles.cNodeLit : styles.cNode} cx={cx + r * Math.sin(t)} cy={cy + r * Math.cos(t)} r={value === angle ? 0 : 2.6} />;
+      })}
+      <text className={styles.cTiny} x={cx + r + 14} y={cy + 4}>
+        Front
+      </text>
+      <text className={styles.cTiny} x={cx - r - 14} y={cy + 4} textAnchor="end">
+        Rear
+      </text>
+      <text className={styles.cTiny} x={cx} y={cy + r + 24} textAnchor="middle">
+        Left side
+      </text>
+      <text className={styles.cTiny} x={cx} y={cy - r - 14} textAnchor="middle">
+        Right side
+      </text>
+      <ellipse className={styles.cFrame} cx={cx} cy={cy} rx={22} ry={9} />
+      <circle className={styles.cNodeLit} cx={cx} cy={cy} r={6} style={{ fill: "var(--c-ink)" }} />
+      <path className={styles.cTrace} d={`M${cx + 28} ${cy} H${cx + 58} M${cx + 48} ${cy - 7} L${cx + 60} ${cy} L${cx + 48} ${cy + 7}`} />
+      <line className={styles.cDash} x1={camX} y1={camY} x2={cx} y2={cy} style={{ stroke: "var(--c-a)" }} />
+      <g transform={`translate(${camX} ${camY})`}>
+        <circle className={styles.cRing} r={16} />
+        <rect className={styles.cFrame} x={-12} y={-9} width={24} height={18} rx={3} style={{ stroke: "var(--c-a)" }} />
+        <circle className={styles.cNodeLit} r={3.6} />
+      </g>
+      <text className={styles.cTinyWarm} x={camX + 22} y={camY - 12}>
+        Camera · front-right
+      </text>
+      <text className={styles.cLabel} x={392} y={78}>
+        From this angle
+      </text>
+      {[
+        ["Knee flexion", availability["knee-flexion"]],
+        ["Stride width", availability["stride-width"]],
+        ["Step timing", availability["step-timing"]],
+        ["Foot trajectory", availability["foot-trajectory"]],
+        ["Body path", availability["body-path"]],
+      ].map(([name, state], i) => (
+        <g key={String(name)}>
+          <text className={styles.cTiny} x={392} y={124 + i * 46}>
+            {name}
+          </text>
+          <line className={styles.cHair} x1={392} y1={132 + i * 46} x2={600} y2={132 + i * 46} />
+          <text className={state === "easier" ? styles.cTiny : styles.cTinyWarm} x={600} y={124 + i * 46} textAnchor="end" style={state === "unavailable" ? { opacity: 0.7 } : undefined}>
+            {String(state)}
+          </text>
+        </g>
+      ))}
+    </>
+  );
+}
+
+/**
+ * CAN A SKELETON STILL REVEAL IDENTITY. Three figures in a row — a textured
+ * body, a skeleton, a set of trajectories — each losing more of the picture,
+ * and beneath each the ledger of what could still identify the person. The
+ * ledger never reaches zero; that is the plate's argument.
+ */
+function IdentityLayers() {
+  const s = 1.55;
+  const y = 176;
+  const phase = GAIT_PHASES[2];
+  const cls = { bone: styles.cBone, boneFar: styles.cBoneFar, joint: styles.cJoint, head: styles.cHead };
+  const columns: Array<{ x: number; label: string; ledger: ReturnType<typeof identityLedger> }> = [
+    { x: 130, label: "Face removed", ledger: identityLedger("face-removed", { persisted: false, linked: false }) },
+    { x: 320, label: "Skeleton", ledger: identityLedger("skeleton", { persisted: false, linked: false }) },
+    { x: 510, label: "Trajectories", ledger: identityLedger("trajectories", { persisted: true, linked: false }) },
+  ];
+  const trails = (x: number) =>
+    GAIT_PHASES.map((p, i) => [x - (2 - i) * 16 + p.nearLeg[2][0] * s * 0.45, y - p.lift * s + p.nearLeg[2][1] * s] as Pt);
+  return (
+    <>
+      {columns.map((column, index) => (
+        <g key={column.label}>
+          <text className={styles.cTiny} x={column.x} y={72} textAnchor="middle">
+            {column.label}
+          </text>
+          <line className={styles.cAxis} x1={column.x - 60} y1={y + 48 * s} x2={column.x + 60} y2={y + 48 * s} />
+          {index === 0 && (
+            <>
+              <path className={styles.cContour} d={bodyMassPath(column.x, y, s)} style={{ fill: "rgb(148 163 184 / 0.28)" }} />
+              <rect x={column.x - 9 * s} y={y - 52 * s} width={20 * s} height={17 * s} rx={1} style={{ fill: "rgb(156 100 241 / 0.55)", stroke: "#a78bfa" }} />
+            </>
+          )}
+          {index === 1 && (
+            <g transform={`translate(${column.x} ${y - phase.lift * s})`}>
+              <PoseFrame phase={phase} s={s} classes={cls} />
+            </g>
+          )}
+          {index === 2 && (
+            <>
+              <path className={styles.cTrace} d={smooth(trails(column.x))} />
+              {trails(column.x).map(([tx, ty], i) => (
+                <circle key={i} className={styles.cNodeLit} cx={tx} cy={ty} r={2.4} />
+              ))}
+              <path className={styles.cPathFaint} d={smooth(trails(column.x).map(([tx, ty]) => [tx, ty - 30 * s] as Pt))} />
+            </>
+          )}
+          {(["face", "appearance", "shape", "gait", "context"] as const).map((cue, i) => {
+            const state = column.ledger[cue];
+            return (
+              <text
+                key={cue}
+                className={state === "removed" ? styles.cTiny : styles.cTinyWarm}
+                x={column.x}
+                y={286 + i * 16}
+                textAnchor="middle"
+                style={state === "removed" ? { opacity: 0.5 } : undefined}
+              >
+                {cue === "appearance" ? "clothing" : cue === "shape" ? "build" : cue} · {state}
+              </text>
+            );
+          })}
+        </g>
+      ))}
+      <line className={styles.cDash} x1={190} y1={176} x2={260} y2={176} />
+      <line className={styles.cDash} x1={380} y1={176} x2={450} y2={176} />
+    </>
+  );
+}
+
+/**
+ * A GOOD MODEL CAN STILL BE A BAD SYSTEM. Six links from camera to operator
+ * in a row, the network link broken, the model's link marked sound, and
+ * beneath them the two answers: what the model saw (nothing) and what
+ * reached the person (no alert).
+ */
+function SystemChain() {
+  const failed = new Set<ChainComponent>(["network"]);
+  const { outcome, at } = outcomeFor(failed);
+  const x0 = 72;
+  const gap = (568 - x0) / (CHAIN.length - 1);
+  const y = 150;
+  return (
+    <>
+      {CHAIN.map((component, i) => {
+        const x = x0 + i * gap;
+        const isFailed = failed.has(component);
+        const downstream = at !== null && CHAIN.indexOf(component) > CHAIN.indexOf(at);
+        return (
+          <g key={component} style={{ opacity: downstream ? 0.55 : 1 }}>
+            {i < CHAIN.length - 1 && (
+              <line
+                className={isFailed ? styles.cDash : styles.cTrace}
+                x1={x + 26}
+                y1={y}
+                x2={x + gap - 26}
+                y2={y}
+                style={isFailed ? { stroke: "var(--c-warm)" } : undefined}
+              />
+            )}
+            <circle className={styles.cRing} cx={x} cy={y} r={24} style={{ opacity: 1, stroke: isFailed ? "var(--c-warm)" : "var(--c-a)" }} />
+            {isFailed ? (
+              <g style={{ stroke: "var(--c-warm)" }} className={styles.cTrace}>
+                <line x1={x - 8} y1={y - 8} x2={x + 8} y2={y + 8} />
+                <line x1={x + 8} y1={y - 8} x2={x - 8} y2={y + 8} />
+              </g>
+            ) : (
+              <path className={styles.cTrace} d={`M${x - 8} ${y} L${x - 2} ${y + 7} L${x + 9} ${y - 7}`} style={{ stroke: "var(--c-b)" }} />
+            )}
+            <text className={isFailed ? styles.cTinyWarm : styles.cTiny} x={x} y={y + 48} textAnchor="middle">
+              {COMPONENT_LABEL[component]}
+            </text>
+            {component === "inference" && (
+              <text className={styles.cTiny} x={x} y={y - 40} textAnchor="middle" style={{ fill: "var(--c-b)" }}>
+                model right
+              </text>
+            )}
+          </g>
+        );
+      })}
+      <text className={styles.cTiny} x={x0 - 24} y={268}>
+        What the model sees
+      </text>
+      <text className={styles.cLabel} x={x0 - 24} y={290}>
+        Nothing — its outputs are correct and go nowhere
+      </text>
+      <line className={styles.cHair} x1={x0 - 24} y1={306} x2={592} y2={306} />
+      <text className={styles.cTiny} x={x0 - 24} y={330}>
+        What reaches the person
+      </text>
+      <text className={styles.cTinyWarm} x={x0 - 24} y={352}>
+        {OUTCOME_LABEL[outcome]}
+      </text>
+    </>
+  );
+}
+
+/**
+ * WHAT IS A PERSONAL MOVEMENT BASELINE. Left, a population distribution with
+ * its reference range and one reading inside it; right, the same person's
+ * observations over time forming their own narrow band, with the same
+ * reading outside it. One axis, two references, two answers.
+ */
+function Baseline() {
+  const left = { x: 48, w: 250 };
+  const right = { x: 344, w: 250 };
+  const axisY = 264;
+  const topY = 96;
+  const xIn = (panel: { x: number; w: number }, t: number) => panel.x + t * panel.w;
+  const shown = 8;
+  const latest = OBSERVATIONS[shown - 1];
+  const band = personalBand(shown)!;
+  const curve = smooth(populationCurve().map(([x, y]) => [xIn(left, x), axisY - y * (axisY - topY - 24)] as Pt));
+  return (
+    <>
+      <text className={styles.cTiny} x={left.x} y={64}>
+        Population reference
+      </text>
+      <rect className={styles.cBand} x={xIn(left, POPULATION.range[0])} y={topY} width={xIn(left, POPULATION.range[1]) - xIn(left, POPULATION.range[0])} height={axisY - topY} rx={3} />
+      <path className={styles.cTrace} d={curve} style={{ stroke: "var(--c-b)" }} />
+      <line className={styles.cAxis} x1={left.x} y1={axisY} x2={left.x + left.w} y2={axisY} />
+      <line className={styles.cDash} x1={xIn(left, latest)} y1={topY - 12} x2={xIn(left, latest)} y2={axisY} />
+      <circle className={styles.cNodeLit} cx={xIn(left, latest)} cy={topY - 12} r={4} />
+      <text className={styles.cTiny} x={xIn(left, latest) + 10} y={topY - 8}>
+        latest · inside
+      </text>
+      <text className={styles.cTiny} x={right.x} y={64}>
+        Personal baseline
+      </text>
+      <rect className={styles.cBand} x={xIn(right, POPULATION.range[0])} y={topY} width={xIn(right, POPULATION.range[1]) - xIn(right, POPULATION.range[0])} height={axisY - topY} rx={3} style={{ opacity: 0.35 }} />
+      <rect x={xIn(right, band.low)} y={topY} width={xIn(right, band.high) - xIn(right, band.low)} height={axisY - topY} rx={3} style={{ fill: "var(--c-a)", opacity: 0.16 }} />
+      <line className={styles.cDash} x1={xIn(right, band.low)} y1={topY} x2={xIn(right, band.low)} y2={axisY} style={{ stroke: "var(--c-a)" }} />
+      <line className={styles.cDash} x1={xIn(right, band.high)} y1={topY} x2={xIn(right, band.high)} y2={axisY} style={{ stroke: "var(--c-a)" }} />
+      <line className={styles.cAxis} x1={right.x} y1={axisY} x2={right.x + right.w} y2={axisY} />
+      {OBSERVATIONS.map((value, i) => {
+        const y = topY + 10 + i * ((axisY - topY - 28) / (OBSERVATIONS.length - 1));
+        const isLatest = i === shown - 1;
+        return <circle key={i} className={isLatest ? styles.cNodeLit : styles.cNode} cx={xIn(right, value)} cy={y} r={isLatest ? 4.5 : 3} style={isLatest ? { fill: "var(--c-warm)" } : undefined} />;
+      })}
+      <text className={styles.cTinyWarm} x={xIn(right, latest) - 10} y={axisY - 6} textAnchor="end">
+        latest · outside own band
+      </text>
+      <text className={styles.cLabel} x={left.x} y={318}>
+        The same reading, two references
+      </text>
+      <text className={styles.cTiny} x={left.x} y={340}>
+        Normal for everyone · a change for this person · illustrative
+      </text>
+    </>
+  );
+}
+
 const ART: Record<CoverConcept, () => React.ReactElement> = {
   pipeline: Pipeline,
   divergence: Divergence,
@@ -969,6 +1305,11 @@ const ART: Record<CoverConcept, () => React.ReactElement> = {
   trajectory: Trajectory,
   fusion: Fusion,
   "pose-error": PoseError,
+  symmetry: Symmetry,
+  viewpoint: Viewpoint,
+  "identity-layers": IdentityLayers,
+  "system-chain": SystemChain,
+  baseline: Baseline,
 };
 
 /**

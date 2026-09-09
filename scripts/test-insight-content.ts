@@ -44,6 +44,11 @@ async function main() {
     "fusion-experiment",
     "five-questions",
     "pose-error-explorer",
+    "symmetry-explorer",
+    "camera-angle-explorer",
+    "identity-layers-explorer",
+    "system-chain-explorer",
+    "baseline-explorer",
   ]);
   const FAKE_METRIC = /\b\d{1,3}(\.\d+)?\s?%|\bAUC\b|\bF1\b|\bsensitivity of\b|\bspecificity of\b|\baccuracy of \d/i;
 

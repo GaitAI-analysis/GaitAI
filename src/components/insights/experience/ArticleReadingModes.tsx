@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { trackInsightEvent } from "@/lib/insight-events";
+import { getInsightContext, setInsightContext, trackInsightEvent } from "@/lib/insight-events";
 import { TwoMinute } from "../TwoMinute";
 import { VisualStory, type VisualMoment } from "./VisualStory";
 import styles from "./experience.module.css";
@@ -36,7 +36,10 @@ export function ArticleReadingModes({
 
   const choose = (next: Mode) => {
     setMode(next);
-    trackInsightEvent("article_visual_mode_selected", { article: articleSlug, mode: next });
+    /* The mode travels with every later event on this page, so the dashboard
+       can tell whether a figure was used from the essay or the Visual Story. */
+    setInsightContext({ ...getInsightContext(), reading_mode: next });
+    trackInsightEvent("reading_mode_changed", { article_slug: articleSlug, reading_mode: next });
   };
 
   return (

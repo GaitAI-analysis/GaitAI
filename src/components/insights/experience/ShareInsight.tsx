@@ -120,8 +120,8 @@ export function ShareInsight({
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setDone(false), 2200);
     trackInsightEvent("insight_shared", {
-      figure: figureId,
-      article: articleSlug ?? "",
+      figure_id: figureId,
+      article_slug: articleSlug ?? "",
       method,
     });
   }, [articleSlug, figureId, state, title]);

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { insightArticles, insightHref } from "@/data/insights";
+import { isFoundations } from "@/data/insight-series";
 import { SEARCH_EVENT } from "@/components/search/IntelligenceSearch";
 import styles from "./journal.module.css";
 
@@ -15,7 +16,9 @@ import styles from "./journal.module.css";
  * the path looks like /insights/<slug>/; nothing here is a generic 404 icon.
  */
 export function InsightNotFound({ slug }: { slug: string }) {
-  const foundations = [...insightArticles].sort((a, b) => a.seriesStep - b.seriesStep);
+  const foundations = insightArticles
+    .filter((article) => isFoundations(article.series))
+    .sort((a, b) => (a.seriesOrder ?? a.seriesStep) - (b.seriesOrder ?? b.seriesStep));
   const openSearch = () => {
     window.dispatchEvent(new CustomEvent(SEARCH_EVENT));
   };

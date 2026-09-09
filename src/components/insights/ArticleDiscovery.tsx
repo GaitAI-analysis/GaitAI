@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { TrackedLink } from "./experience/TrackedLink";
 import {
-  normalizeTopicSlug,
   relatedStories,
   seriesNeighbors,
   topicLabel,
   type PublicationStory,
 } from "@/lib/publication";
+import { seriesHref as seriesHrefFor } from "@/data/insight-series";
 import journal from "./journal.module.css";
 
 /**
@@ -25,11 +26,7 @@ export function ArticleDiscovery({ current, stories }: { current: PublicationSto
   const related = relatedStories(current, stories, 4)
     .filter((story) => story.id !== series.next?.id)
     .slice(0, 3);
-  const seriesHref = current.series === "GaitAI Foundations"
-    ? "/insights/start-here"
-    : current.series
-      ? `/insights/series/${normalizeTopicSlug(current.series)}`
-      : undefined;
+  const seriesHref = current.series ? seriesHrefFor(current.series) : undefined;
 
   return (
     <section className={`${journal.journal} border-t border-white/[0.07] py-14 sm:py-16`}>
@@ -42,16 +39,16 @@ export function ArticleDiscovery({ current, stories }: { current: PublicationSto
               </p>
               <nav aria-label={`${current.series} series navigation`} className="mt-5 grid gap-3">
                 {series.previous && (
-                  <Link href={series.previous.href} className="group flex items-baseline gap-3 text-[0.9375rem] text-soft-gray transition-colors hover:text-soft-white">
+                  <TrackedLink href={series.previous.href} event="next_story_clicked" props={{ article_slug: current.slug, to_slug: series.previous.slug, via: "series" }} className="group flex items-baseline gap-3 text-[0.9375rem] text-soft-gray transition-colors hover:text-soft-white">
                     <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-soft-mute">← Previous</span>
                     <span className="underline decoration-white/15 underline-offset-4 group-hover:decoration-cyan-300">{series.previous.title}</span>
-                  </Link>
+                  </TrackedLink>
                 )}
                 {series.next && (
-                  <Link href={series.next.href} className="group flex items-baseline gap-3 text-[0.9375rem] text-soft-gray transition-colors hover:text-soft-white">
+                  <TrackedLink href={series.next.href} event="next_story_clicked" props={{ article_slug: current.slug, to_slug: series.next.slug, via: "series" }} className="group flex items-baseline gap-3 text-[0.9375rem] text-soft-gray transition-colors hover:text-soft-white">
                     <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-soft-mute">Next →</span>
                     <span className="underline decoration-white/15 underline-offset-4 group-hover:decoration-cyan-300">{series.next.title}</span>
-                  </Link>
+                  </TrackedLink>
                 )}
               </nav>
               {seriesHref && (
@@ -69,7 +66,7 @@ export function ArticleDiscovery({ current, stories }: { current: PublicationSto
               <ol className="mt-4">
                 {related.map((story) => (
                   <li key={story.id} className="border-t border-white/[0.07] last:border-b">
-                    <Link href={story.href} className="group flex items-start gap-4 py-4 transition-colors">
+                    <TrackedLink href={story.href} event="next_story_clicked" props={{ article_slug: current.slug, to_slug: story.slug, via: "related" }} className="group flex items-start gap-4 py-4 transition-colors">
                       <span className="mt-1 w-7 shrink-0 font-mono text-[9.5px] tracking-[0.14em] text-violet-300">
                         {typeof story.seriesOrder === "number" ? String(story.seriesOrder).padStart(2, "0") : ""}
                       </span>
@@ -84,7 +81,7 @@ export function ArticleDiscovery({ current, stories }: { current: PublicationSto
                         </span>
                       </span>
                       <span aria-hidden="true" className="mt-1 text-soft-mute transition-transform group-hover:translate-x-1 group-hover:text-cyan-300">→</span>
-                    </Link>
+                    </TrackedLink>
                   </li>
                 ))}
               </ol>

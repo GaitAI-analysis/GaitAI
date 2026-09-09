@@ -83,6 +83,12 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
   const { ref, active, reduced } = useFigureActive<HTMLDivElement>();
   const t = useWalkCycle(active && !presentation, 1500, 0.1, stage);
   const stacked = useNarrow(640);
+  /* Stage changes are analytics events, debounced so a drag counts where it
+     settled; the completion event lives in the effect below. */
+  const chooseStage = (next: number) => {
+    setStage(next);
+    trackInsightEvent("privacy_stage_selected", { article_slug: articleSlug, stage: next }, { debounce: "privacy" });
+  };
 
   useEffect(() => {
     if (shared && typeof shared.stage === "number") setStage(Math.max(0, Math.min(6, shared.stage)));
@@ -92,7 +98,11 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
   }, [presentation]);
   useEffect(() => {
     if (stage === 6 && !presentation) {
-      trackInsightEvent("privacy_slider_completed", { article: articleSlug }, { once: articleSlug });
+      trackInsightEvent(
+        "interactive_figure_complete",
+        { article_slug: articleSlug, figure_id: "privacy-transform" },
+        { once: "privacy-transform" },
+      );
     }
   }, [articleSlug, presentation, stage]);
 
@@ -305,7 +315,7 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
             stages={STAGES}
             labels={PRINTED}
             value={stage}
-            onChange={(next) => setStage(next)}
+            onChange={(next) => chooseStage(next)}
             ariaLabel="Privacy transformation stage"
             hint="Drag the track, tap a stage, or use ← →"
           />

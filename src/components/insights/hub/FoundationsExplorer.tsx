@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import type { PublicationStory } from "@/lib/publication";
 import type { ArticleStats } from "@/lib/article-stats";
 import { getInsightBySlug } from "@/data/insights";
-import { trackInsightEvent } from "@/lib/insight-events";
+import { markNextStoryVia, trackInsightEvent } from "@/lib/insight-events";
+import { seriesMark } from "@/data/insight-series";
 import { InsightCard } from "./InsightCard";
 import styles from "./hub.module.css";
 
@@ -60,7 +61,7 @@ export function FoundationsExplorer({
       if (current !== target.slug) selectedAt.current = performance.now();
       return target.slug;
     });
-    trackInsightEvent("foundation_preview_selected", { article: target.slug, source }, { once: `${target.slug}:${source}` });
+    trackInsightEvent("foundation_preview_selected", { article_slug: target.slug, source }, { once: `${target.slug}:${source}` });
   }, [foundations]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -83,7 +84,10 @@ export function FoundationsExplorer({
       case "Enter":
       case " ":
         event.preventDefault();
-        if (story) router.push(story.href);
+        if (story) {
+          markNextStoryVia("selector");
+          router.push(story.href);
+        }
         return;
       default:
         return;
@@ -142,8 +146,10 @@ export function FoundationsExplorer({
                   /* Already previewing this one for a moment: this press opens
                      it. A press that only just selected it (focus, then click)
                      stays a preview. */
-                  if (on && performance.now() - selectedAt.current > 600) router.push(item.href);
-                  else select(i, "tap");
+                  if (on && performance.now() - selectedAt.current > 600) {
+                    markNextStoryVia("selector");
+                    router.push(item.href);
+                  } else select(i, "tap");
                 }}
               >
                 <span aria-hidden="true" className={styles.explorerMark} />
@@ -165,7 +171,7 @@ export function FoundationsExplorer({
                 event.preventDefault();
                 select(0, "tap");
                 tabRefs.current[0]?.focus();
-              }
+              } else markNextStoryVia("selector");
             }}
           >
             Begin the path <span aria-hidden="true">→</span>
@@ -183,7 +189,7 @@ export function FoundationsExplorer({
         <div key={story.slug} className={styles.previewEnter}>
           <InsightCard
             story={story}
-            step={story.seriesOrder}
+            seriesMark={seriesMark(story.series, story.seriesOrder)}
             views={stats[story.slug]?.views}
             preview
           />

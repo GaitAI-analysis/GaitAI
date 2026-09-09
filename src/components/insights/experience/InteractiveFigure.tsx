@@ -9,7 +9,7 @@ import {
   type PointerEvent,
   type ReactNode,
 } from "react";
-import { trackInsightEvent } from "@/lib/insight-events";
+import { timeToFirstBucket, trackInsightEvent } from "@/lib/insight-events";
 import styles from "./experience.module.css";
 
 export type FigureStatus = "illustrative" | "conceptual" | "measured";
@@ -38,8 +38,9 @@ const STATUS_LABEL: Record<FigureStatus, string> = {
  *                 pointer inside the stage; never on touch, never global
  *   LAYOUT        a min-height so the figure reserves its space before
  *                 hydration and the article does not shift
- *   ANALYTICS     one `interactive_figure_used` per figure per page load,
- *                 fired on the first pointer-down or key press inside it
+ *   ANALYTICS     `interactive_figure_seen` once half of it has been on
+ *                 screen, and `interactive_figure_start` on the first
+ *                 pointer-down or key press, bucketed by how long that took
  *
  * The figure's own controls, the SVG and any share button are children.
  */
@@ -82,15 +83,44 @@ export function InteractiveFigure({
   const descriptionId = useId();
   const [hintOn, setHintOn] = useState(false);
   const used = useRef(false);
+  /* When the figure first had half of itself on screen — the moment the
+     reader could have noticed it. The gap to the first touch is the measure
+     of whether the cue was discoverable. */
+  const seenAt = useRef<number | null>(null);
 
   const markUsed = useCallback(() => {
     if (used.current) return;
     used.current = true;
+    /* Touched before the observer counted it as seen (a tall figure on a
+       short screen): the reader found it at once. */
+    const waited = seenAt.current === null ? 0 : performance.now() - seenAt.current;
     trackInsightEvent(
-      "interactive_figure_used",
-      { figure: id, article: articleSlug ?? "" },
+      "interactive_figure_start",
+      { figure_id: id, article_slug: articleSlug ?? "", time_to_first: timeToFirstBucket(waited) },
       { once: id },
     );
+  }, [articleSlug, id]);
+
+  useEffect(() => {
+    const element = stageRef.current;
+    if (!element || !("IntersectionObserver" in window)) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        if (seenAt.current === null) seenAt.current = performance.now();
+        trackInsightEvent(
+          "interactive_figure_seen",
+          { figure_id: id, article_slug: articleSlug ?? "" },
+          { once: id },
+        );
+        observer.disconnect();
+      },
+      /* A third of the stage: a 700px hero on an 812px phone can never show
+         half of itself at once, and it has certainly been seen by then. */
+      { threshold: 0.3 },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
   }, [articleSlug, id]);
 
   /* The cursor hint follows a fine pointer; it is a CSS-variable write per

@@ -29,6 +29,9 @@ import { TextHighlightShare } from "@/components/insights/experience/TextHighlig
 import { SectionMark } from "@/components/insights/experience/SectionMark";
 import { NextFoundation } from "@/components/insights/experience/NextFoundation";
 import { ArticleLinks } from "@/components/insights/experience/ArticleLinks";
+import { ArticleAnalytics } from "@/components/insights/experience/ArticleAnalytics";
+import { ArticleFeedback } from "@/components/insights/experience/ArticleFeedback";
+import { TrackedLink } from "@/components/insights/experience/TrackedLink";
 import {
   ArticleHero,
   SectionFigures,
@@ -36,6 +39,7 @@ import {
   termsFor,
 } from "@/components/insights/experience/compose";
 import { getArticleExperience } from "@/data/insight-experiences";
+import { FOUNDATIONS_SERIES, seriesHref, seriesMark } from "@/data/insight-series";
 import { assetPath } from "@/lib/paths";
 import { insightToPublicationStory, readPublicationStories } from "@/lib/publication-store";
 import styles from "@/components/insights/journal.module.css";
@@ -147,11 +151,17 @@ export default async function InsightArticlePage({
   const experience = getArticleExperience(article.slug);
   const moments = experience ? buildMoments(experience) : [];
   const sectionIds = article.sections.map((section) => section.id);
-  const foundations = [...insightArticles]
-    .filter((item) => (item.series ?? "GaitAI Foundations") === "GaitAI Foundations")
+  /* THE SERIES. Every article belongs to one editorial series (see
+     data/insight-series.ts); the Foundations are the ordered reading path and
+     the others are open strands. The bridge at the foot of the page hands over
+     to the next story in the SAME series, never across series. */
+  const seriesName = article.series ?? FOUNDATIONS_SERIES;
+  const seriesStories = [...insightArticles]
+    .filter((item) => (item.series ?? FOUNDATIONS_SERIES) === seriesName)
     .sort((a, b) => (a.seriesOrder ?? a.seriesStep) - (b.seriesOrder ?? b.seriesStep));
   const step = article.seriesOrder ?? article.seriesStep;
-  const nextArticle = foundations.find((item) => (item.seriesOrder ?? item.seriesStep) === step + 1);
+  const mark = seriesMark(seriesName, step);
+  const nextArticle = seriesStories.find((item) => (item.seriesOrder ?? item.seriesStep) === step + 1);
 
   const breadcrumbs = {
     "@context": "https://schema.org",
@@ -216,6 +226,12 @@ export default async function InsightArticlePage({
       <ReadingProgress targetId={ARTICLE_ID} sectionIds={sectionIds} />
       <ArticleProgressRail sections={article.sections} articleId={ARTICLE_ID} />
       <TextHighlightShare articleId={ARTICLE_ID} />
+      <ArticleAnalytics
+        slug={article.slug}
+        series={seriesName}
+        seriesOrder={step}
+        foundations={seriesName === FOUNDATIONS_SERIES}
+      />
 
       {/* `overflow-x-clip`, NOT `overflow-hidden`.
           `overflow: hidden` makes an element a scroll container, and a scroll
@@ -262,9 +278,7 @@ export default async function InsightArticlePage({
             <div className="mt-8 max-w-[54rem]">
               <ArticleMeta
                 slug={article.slug}
-                seriesLabel={
-                  typeof step === "number" ? `Foundations ${String(step).padStart(2, "0")}` : undefined
-                }
+                seriesLabel={mark ? `${mark.label} ${mark.number}`.trim() : undefined}
                 typeLabel={POST_TYPE_LABEL[article.postType]}
                 author={INSIGHTS_AUTHOR}
                 date={article.date}
@@ -375,13 +389,18 @@ export default async function InsightArticlePage({
               <div className="mt-20 border-t border-white/8 pt-12">
                 <InsightProse blocks={article.closing} />
 
-                <Link
+                <TrackedLink
                   href={article.cta.href}
+                  event="product_opened"
+                  props={{ article_slug: article.slug, destination: article.cta.href }}
                   className="btn-ghost mt-10 !px-6 !py-3 text-sm font-medium"
                 >
                   {article.cta.label} →
-                </Link>
+                </TrackedLink>
               </div>
+
+              {/* ── One question, two answers — the reader's verdict, counted ── */}
+              <ArticleFeedback slug={article.slug} />
 
               {/* ── Tags ── */}
               <div className="mt-12 flex flex-wrap items-center gap-2">
@@ -400,12 +419,14 @@ export default async function InsightArticlePage({
                 measurements and decision-support outputs for research, clinical
                 and operational teams — not diagnoses. Published research is
                 listed in the{" "}
-                <Link
+                <TrackedLink
                   href="/publications"
+                  event="research_opened"
+                  props={{ article_slug: article.slug, destination: "publications" }}
                   className="text-cyan-300 underline decoration-cyan-300/35 underline-offset-4"
                 >
                   publications library
-                </Link>
+                </TrackedLink>
                 .
               </p>
 
@@ -423,7 +444,9 @@ export default async function InsightArticlePage({
                 <NextFoundation
                   articleSlug={article.slug}
                   step={step}
-                  total={foundations.length}
+                  total={seriesStories.length}
+                  seriesName={seriesName}
+                  seriesHref={seriesHref(seriesName)}
                   learned={experience.bridge.learned}
                   nextQuestion={experience.bridge.nextQuestion}
                   from={article.cover.concept}

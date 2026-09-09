@@ -114,7 +114,7 @@ export function TextHighlightShare({ articleId }: { articleId: string }) {
       }
       setCopied("share");
       window.setTimeout(() => setCopied(null), 1600);
-      trackInsightEvent("insight_shared", { method: "selection" });
+      trackInsightEvent("insight_shared", { article_slug: "", method: "selection" });
     } catch {
       /* Dismissed or blocked. */
     }

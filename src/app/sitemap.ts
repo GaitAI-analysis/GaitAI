@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { readPublishedPosts } from "@/lib/posts-store";
 import { readPublicationStories } from "@/lib/publication-store";
-import { HOME_LATEST_SIZE, PUBLICATION_PAGE_SIZE, normalizeTopicSlug, pageCount, progressivePageCount, publicationTopics, selectCoverStory } from "@/lib/publication";
+import { HOME_LATEST_SIZE, PUBLICATION_PAGE_SIZE, pageCount, progressivePageCount, publicationTopics, selectCoverStory } from "@/lib/publication";
 import { siteRoutes } from "@/data/site-map";
+import { FOUNDATIONS_SERIES, seriesSlug } from "@/data/insight-series";
 
 const siteUrl = "https://gaitai.in";
 
@@ -65,8 +66,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   });
   const seriesRoutes = [...new Set(stories.map((story) => story.series).filter((series): series is string => Boolean(series)))]
-    .filter((series) => series !== "GaitAI Foundations")
-    .map((series) => `/insights/series/${normalizeTopicSlug(series)}`);
+    .filter((series) => series !== FOUNDATIONS_SERIES)
+    .map((series) => `/insights/series/${seriesSlug(series)}`);
 
   return [
     ...staticRoutes.map((route) => ({

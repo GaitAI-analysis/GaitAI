@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Pt } from "@/components/visuals/gait-phases";
 import { smoothPath } from "@/components/research/PoseFrame";
 import { InteractiveFigure } from "../InteractiveFigure";
@@ -9,6 +9,7 @@ import { useFigureActive } from "../useFigureActive";
 import { useNarrow } from "../useNarrow";
 import { noise } from "../gait";
 import type { FigureProps } from "../registry";
+import { trackInsightEvent } from "@/lib/insight-events";
 import fig from "../figures.module.css";
 import ui from "../experience.module.css";
 
@@ -261,7 +262,10 @@ export function FusionExperiment({ articleSlug, presentation }: FigureProps) {
                     type="button"
                     role="radio"
                     aria-checked={modes[s.id] === mode}
-                    onClick={() => setModes((prev) => ({ ...prev, [s.id]: mode }))}
+                    onClick={() => {
+                      setModes((prev) => ({ ...prev, [s.id]: mode }));
+                      trackInsightEvent("fusion_stream_changed", { article_slug: articleSlug, stream: s.id, state: mode });
+                    }}
                     className={`${ui.segmentBtn} flex-1 ${modes[s.id] === mode ? ui.segmentOn : ""}`}
                   >
                     {MODE_LABEL[mode]}

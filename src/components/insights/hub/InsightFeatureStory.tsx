@@ -4,9 +4,11 @@ import Link from "next/link";
 import { getInsightBySlug, readingMinutes } from "@/data/insights";
 import { formatPublicationDate, topicLabel, type PublicationStory } from "@/lib/publication";
 import { formatCount } from "@/lib/article-stats";
-import { trackInsightEvent } from "@/lib/insight-events";
+import { markNextStoryVia, trackInsightEvent } from "@/lib/insight-events";
+import { seriesMark } from "@/data/insight-series";
 import journal from "../journal.module.css";
 import { CardInteraction } from "./CardInteraction";
+import { ImpressionSentinel } from "../experience/ImpressionSentinel";
 import { usePhysicalCard } from "./InsightCard";
 import styles from "./hub.module.css";
 
@@ -41,6 +43,7 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
   const article = getInsightBySlug(story.slug);
   const topic = story.topics[0];
   const artwork = story.coverArtwork;
+  const mark = seriesMark(story.series, story.seriesOrder);
 
   return (
     <article
@@ -54,6 +57,7 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
       <span aria-hidden="true" className={journal.cardAccent} />
       <span aria-hidden="true" className={styles.edgeLight} />
       <span aria-hidden="true" className={styles.hairline} />
+      <ImpressionSentinel slug={story.slug} surface="cover" />
 
       <div className={`${journal.cardMedia} ${styles.featureMedia}`}>
         {artwork.kind === "concept" && (
@@ -66,8 +70,10 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
 
       <div className={`${journal.cardBody} ${styles.featureBody} ${styles.depth}`}>
         <p className={styles.featureRow}>
-          {typeof story.seriesOrder === "number" && (
-            <span className={styles.featureStep}>Foundations {String(story.seriesOrder).padStart(2, "0")}</span>
+          {mark && (
+            <span className={styles.featureStep}>
+              {mark.label} {mark.number}
+            </span>
           )}
           {article && <span className={styles.featureRead}>{readingMinutes(article)} min read</span>}
         </p>
@@ -76,7 +82,10 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
           <Link
             href={story.href}
             className={journal.cardLink}
-            onClick={() => trackInsightEvent("cover_story_open", { article: story.slug })}
+            onClick={() => {
+              markNextStoryVia("cover");
+              trackInsightEvent("cover_story_open", { article_slug: story.slug });
+            }}
           >
             {story.title}
           </Link>

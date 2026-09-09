@@ -7,6 +7,7 @@ import {
   subscribe,
   type SubscribeSource,
 } from "@/lib/subscribe";
+import { trackInsightEvent } from "@/lib/insight-events";
 import styles from "./subscribe.module.css";
 
 /**
@@ -162,6 +163,9 @@ export function SubscribeForm({
     if (result === "subscribed" || result === "resubscribed") {
       setState("success");
       setEmail("");
+      /* Counted by SOURCE only — which block converted. The address never
+         enters analytics; the schema has no field it could travel in. */
+      trackInsightEvent("newsletter_submitted", { source: copy.source });
     } else if (result === "already-subscribed") {
       setState("already");
     } else if (result === "invalid") {

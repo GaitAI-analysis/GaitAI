@@ -9,6 +9,7 @@ import { ShareInsight, useSharedFigureState } from "../ShareInsight";
 import { useFigureActive } from "../useFigureActive";
 import { useNarrow } from "../useNarrow";
 import type { FigureProps } from "../registry";
+import { trackInsightEvent } from "@/lib/insight-events";
 import fig from "../figures.module.css";
 import ui from "../experience.module.css";
 

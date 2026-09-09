@@ -10,7 +10,9 @@ import {
   type PublicationStory,
 } from "@/lib/publication";
 import { formatCount } from "@/lib/article-stats";
+import { seriesMark } from "@/data/insight-series";
 import { JournalCover } from "./JournalCover";
+import { ImpressionSentinel } from "./experience/ImpressionSentinel";
 import journal from "./journal.module.css";
 import styles from "./publication.module.css";
 
@@ -35,6 +37,8 @@ export function PublicationCard({
   const topic = story.topics[0];
   const artwork = story.coverArtwork;
   const validImage = artwork.kind === "image" && isSafeMediaUrl(artwork.src);
+  /* The series identity, as one mono micro label — never a badge. */
+  const mark = seriesMark(story.series, story.seriesOrder);
 
   return (
     <article
@@ -43,6 +47,7 @@ export function PublicationCard({
       } ${TOPIC_CLASS[topic] ?? journal.tResearch}`}
     >
       <span aria-hidden="true" className={journal.cardAccent} />
+      <ImpressionSentinel slug={story.slug} surface="series" />
       <div className={journal.cardMedia}>
         {artwork.kind === "concept" ? (
           <>
@@ -72,6 +77,15 @@ export function PublicationCard({
 
       <div className={journal.cardBody}>
         <div className={journal.cardMeta}>
+          {mark && (
+            <>
+              <span className={journal.cardSeries}>
+                {mark.label}
+                {mark.number ? ` · ${mark.number}` : ""}
+              </span>
+              <span aria-hidden="true">·</span>
+            </>
+          )}
           <time className={journal.cardCategory} dateTime={story.date}>
             {formatPublicationDate(story.date)}
           </time>

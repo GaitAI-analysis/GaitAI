@@ -2,6 +2,7 @@
 
 import type { PublicationStory } from "@/lib/publication";
 import type { ArticleStats } from "@/lib/article-stats";
+import { seriesMark } from "@/data/insight-series";
 import { InsightCard } from "./InsightCard";
 import { FoundationsExplorer } from "./FoundationsExplorer";
 import styles from "./hub.module.css";
@@ -59,7 +60,7 @@ export function HubComposition({
             <InsightCard
               story={story}
               wide={wide}
-              step={story.series === "GaitAI Foundations" ? story.seriesOrder : undefined}
+              seriesMark={seriesMark(story.series, story.seriesOrder)}
               views={stats[story.slug]?.views}
               priority={index < 2}
             />

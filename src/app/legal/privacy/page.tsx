@@ -28,6 +28,9 @@ export const metadata: Metadata = {
  *     nothing (src/components/analytics/usePoseAnalysis.ts)
  *   - Ask GaitAI uses aggregate Firestore counters and optional Workers AI
  *     hosted requests (src/lib/assistant-stats.ts, src/lib/ask/hosted.ts)
+ *   - Blog interactions are counted as day × article × event aggregates
+ *     with no per-visitor row and a Do Not Track opt-out
+ *     (src/lib/insight-events.ts, src/lib/insight-analytics-sink.ts)
  *   - there is no advertising analytics suite or session replay script
  *
  * The "no analytics of any kind" line this page used to carry became untrue
@@ -189,6 +192,29 @@ export default function PrivacyPage() {
             cleared when you close the tab. If a like is registered, the same
             kind of marker is kept in local storage so the button reflects your
             own choice.
+          </dd>
+        </div>
+        <div className="border-b border-white/[0.08] py-5">
+          <dt className="text-sm font-semibold text-soft-white">
+            Blog interaction counts
+          </dt>
+          <dd className="mt-1.5 text-[13.5px] leading-relaxed text-soft-gray">
+            The Blog&apos;s interactive articles keep aggregate counts of how
+            they are used: that a story was opened, how far down it was read
+            (in quarters), whether an interactive figure was started and
+            finished, which illustrative state of a figure was chosen, which
+            reading mode was selected, which links out of a story were
+            followed, and the answer to &ldquo;Did this help you understand
+            the idea?&rdquo; with its fixed-choice reason. Each count is stored
+            in Google Firebase (Firestore) as one whole number per day, per
+            article and per event; there is no record per visitor, session or
+            device, no IP address, no identifier and no free text of any kind.
+            Nothing you upload, type, or measure in the Movement Lab is part of
+            these counts. Your browser keeps short-lived markers in its own
+            session storage so the same visit is not counted twice; they never
+            leave your device. If your browser sends the Do Not Track signal,
+            no count is recorded at all. Administrator sign-in is required to
+            read these counts.
           </dd>
         </div>
         <div className="border-b border-white/[0.08] py-5">

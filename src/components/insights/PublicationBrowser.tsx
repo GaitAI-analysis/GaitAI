@@ -32,6 +32,7 @@ import { LiveSignalMark } from "./hub/LiveSignalMark";
 import styles from "./archive.module.css";
 import journal from "./journal.module.css";
 import hub from "./hub/hub.module.css";
+import { seriesMark } from "@/data/insight-series";
 
 type Sort = "newest" | "oldest" | "views";
 
@@ -331,7 +332,7 @@ export function PublicationBrowser({
                     views={stats[story.slug]?.views}
                     match={publicationMatch(story, query)}
                     query={query}
-                    step={story.series === "GaitAI Foundations" ? story.seriesOrder : undefined}
+                    seriesMark={seriesMark(story.series, story.seriesOrder)}
                   />
                 ))}
               </div>

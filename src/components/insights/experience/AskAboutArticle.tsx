@@ -32,7 +32,7 @@ export function AskAboutArticle({
       ? `In the GaitAI Insights article "${title}", what does the section "${current}" mean in practice?`
       : `What are the key ideas in the GaitAI Insights article "${title}"?`;
     window.dispatchEvent(new CustomEvent<AskEventDetail>(ASK_EVENT, { detail: { question } }));
-    trackInsightEvent("ask_gaitai_from_article", { article: slug, section: current ? "current" : "none" });
+    trackInsightEvent("ask_gaitai_article_opened", { article_slug: slug, section: current ? "current" : "none" });
   };
 
   return (
@@ -59,7 +59,7 @@ export function EvidenceLinkTracker({
     <Link
       href={href}
       className={className}
-      onClick={() => trackInsightEvent("evidence_link_clicked", { article, publication })}
+      onClick={() => trackInsightEvent("citation_opened", { article_slug: article, publication })}
     >
       {children}
     </Link>

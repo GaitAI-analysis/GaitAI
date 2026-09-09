@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { TrackedLink } from "./TrackedLink";
 import { allPublications } from "@/data/publications";
 import type { ArticleExperience } from "@/data/insight-experiences";
 import { AskAboutArticle } from "./AskAboutArticle";
@@ -65,13 +65,15 @@ export function ArticleLinks({
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-cyan-300">See this concept in GaitScape</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {links.gaitscape.map((node) => (
-                <Link
+                <TrackedLink
                   key={node.node}
                   href={`/gaitscape/?focus=${encodeURIComponent(node.node)}`}
+                  event="gaitscape_opened"
+                  props={{ article_slug: slug, node: node.node }}
                   className="inline-flex min-h-[40px] items-center rounded-full border border-white/10 px-3.5 py-1.5 text-[12px] text-soft-gray transition-colors hover:border-cyan-300/50 hover:text-soft-white"
                 >
                   {node.label} <span aria-hidden="true" className="ml-1.5">→</span>
-                </Link>
+                </TrackedLink>
               ))}
             </div>
           </div>
@@ -80,12 +82,14 @@ export function ArticleLinks({
         {links.lab && (
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-cyan-300">Movement Intelligence Lab</p>
-            <Link
+            <TrackedLink
               href="/movement-lab/"
+              event="research_opened"
+              props={{ article_slug: slug, destination: "lab" }}
               className="mt-2 block text-[0.9375rem] leading-relaxed text-soft-gray underline decoration-white/15 underline-offset-4 transition-colors hover:text-soft-white hover:decoration-cyan-300"
             >
               {links.lab.label} →
-            </Link>
+            </TrackedLink>
           </div>
         )}
 

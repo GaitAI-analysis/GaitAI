@@ -3,7 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { CoverConcept } from "@/data/insights";
-import { trackInsightEvent } from "@/lib/insight-events";
+import { seriesByName, seriesMark } from "@/data/insight-series";
+import { markNextStoryVia, trackInsightEvent } from "@/lib/insight-events";
+
+/** "/insights/<slug>/" → "<slug>", the id analytics counts by. */
+function slugOf(href: string): string {
+  return href.replace(/^\/insights\//, "").replace(/\/+$/, "") || href;
+}
 import styles from "./experience.module.css";
 import journal from "../journal.module.css";
 
@@ -26,6 +32,8 @@ export function NextFoundation({
   articleSlug,
   step,
   total,
+  seriesName = "GaitAI Foundations",
+  seriesHref = "/insights/start-here",
   learned,
   nextQuestion,
   from,
@@ -35,6 +43,9 @@ export function NextFoundation({
   articleSlug: string;
   step: number;
   total: number;
+  /** The series this article belongs to, and where the whole series lives. */
+  seriesName?: string;
+  seriesHref?: string;
   learned: string;
   nextQuestion: string;
   from: CoverConcept;
@@ -43,6 +54,11 @@ export function NextFoundation({
 }) {
   const ref = useRef<SVGSVGElement>(null);
   const [on, setOn] = useState(false);
+  /* A reading PATH (the Foundations) completes; an open strand simply has a
+     shelf to go back to. The wording below follows that distinction. */
+  const series = seriesByName(seriesName);
+  const path = (series?.kind ?? "path") === "path";
+  const mark = seriesMark(seriesName, step);
 
   useEffect(() => {
     const element = ref.current;
@@ -64,9 +80,9 @@ export function NextFoundation({
   }, []);
 
   return (
-    <section aria-label="Next in GaitAI Foundations" className={`${styles.root} ${styles.bridge}`}>
+    <section aria-label={`Next in ${seriesName}`} className={`${styles.root} ${styles.bridge}`}>
       <p className={journal.seriesTag}>
-        GaitAI Foundations · {step} of {total}
+        {seriesName} · {step} of {total}
         <span aria-hidden="true" className={journal.seriesDots}>
           {Array.from({ length: total }).map((_, i) => (
             <span key={i} className={`${journal.seriesDot} ${i < step ? journal.seriesDotOn : ""}`} />
@@ -79,19 +95,26 @@ export function NextFoundation({
         <BridgeTrace from={from} to={to} />
       </svg>
 
-      <p className={styles.bridgeNext}>{next ? "Next" : "The path completes"}</p>
+      <p className={styles.bridgeNext}>{next ? "Next" : path ? "The path completes" : "The series so far"}</p>
       <p className={styles.bridgeQuestion}>{nextQuestion}</p>
 
       {next ? (
         <Link
           href={next.href}
           className={styles.bridgeLink}
-          onClick={() =>
-            trackInsightEvent("foundation_next_story_clicked", { from: articleSlug, to: next.href })
-          }
+          onClick={() => {
+            markNextStoryVia("bridge");
+            trackInsightEvent("next_story_clicked", {
+              article_slug: articleSlug,
+              to_slug: slugOf(next.href),
+              via: "bridge",
+            });
+          }}
         >
           <span>
-            <span className={styles.bridgeStep}>Foundations {String(next.step).padStart(2, "0")}</span>
+            <span className={styles.bridgeStep}>
+              {mark?.label ?? seriesName} {String(next.step).padStart(2, "0")}
+            </span>
             <span className={styles.bridgeTitle}>{next.title}</span>
             <span className={styles.bridgeSub}>{next.seriesTitle}</span>
           </span>
@@ -101,17 +124,30 @@ export function NextFoundation({
         </Link>
       ) : (
         <Link
-          href="/insights/start-here"
+          href={seriesHref}
           className={styles.bridgeLink}
-          onClick={() => trackInsightEvent("foundation_next_story_clicked", { from: articleSlug, to: "start-here" })}
+          onClick={() => {
+            markNextStoryVia("series");
+            trackInsightEvent("next_story_clicked", {
+              article_slug: articleSlug,
+              to_slug: path ? "start-here" : "series",
+              via: "series",
+            });
+          }}
         >
           <span>
-            <span className={styles.bridgeStep}>GaitAI Foundations</span>
-            <span className={styles.bridgeTitle}>Walk the whole path again</span>
-            <span className={styles.bridgeSub}>Five stories, from a walking video to an audited claim</span>
+            <span className={styles.bridgeStep}>{seriesName}</span>
+            <span className={styles.bridgeTitle}>
+              {path ? "Walk the whole path again" : `Every story in ${seriesName}`}
+            </span>
+            <span className={styles.bridgeSub}>
+              {path
+                ? "Five stories, from a walking video to an audited claim"
+                : `${total} ${total === 1 ? "story" : "stories"} so far — more follow`}
+            </span>
           </span>
           <span className={styles.bridgeCta}>
-            Start here <span aria-hidden="true">→</span>
+            {path ? "Start here" : "See the series"} <span aria-hidden="true">→</span>
           </span>
         </Link>
       )}
@@ -166,6 +202,10 @@ function BridgeTrace({ from, to }: { from: CoverConcept; to: CoverConcept | "sta
             <path className={styles.bridgePath} pathLength={1} stroke={mute} d="M0 62 C120 62 200 36 320 36" />
           </>
         );
+      default:
+        /* A concept without its own left-hand drawing yet: a plain signal
+           line, so the bridge is never blank. */
+        return <path className={styles.bridgePath} pathLength={1} stroke={cyan} d="M0 36 H320" />;
     }
   })();
 
@@ -213,6 +253,7 @@ function BridgeTrace({ from, to }: { from: CoverConcept; to: CoverConcept | "sta
         );
       case "pipeline":
       case "start":
+      default:
         return (
           <>
             <path className={`${styles.bridgePath} ${styles.bridgePathDelayed}`} pathLength={1} stroke={cyan} d="M320 36 C360 36 364 14 380 14 S404 58 420 58 S444 14 460 14 S484 58 500 58 S524 14 540 14 S564 58 580 58 S620 36 640 36" />

@@ -53,7 +53,7 @@ export function VisualStory({
     const html = document.documentElement;
     const previousOverflow = html.style.overflow;
     html.style.overflow = "hidden";
-    trackInsightEvent("visual_story_started", { article: articleSlug });
+    trackInsightEvent("visual_story_open", { article_slug: articleSlug });
     const frame = requestAnimationFrame(() => panelRef.current?.focus());
     return () => {
       cancelAnimationFrame(frame);
@@ -70,8 +70,8 @@ export function VisualStory({
       if (clamped > reached.current) reached.current = clamped;
       if (clamped === count - 1) {
         trackInsightEvent(
-          "visual_story_completed",
-          { article: articleSlug },
+          "visual_story_complete",
+          { article_slug: articleSlug },
           { once: articleSlug },
         );
       }

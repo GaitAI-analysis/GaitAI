@@ -827,6 +827,11 @@
 .cardCategory {
   color: var(--jr-accent, #4fd1ff);
 }
+/* The series identity on a listing card — "AI UNDER STRESS · 01" — in the
+   publication's editorial colour, the same as the hub's cover label. */
+.cardSeries {
+  color: var(--jr-gold, #e4c48a);
+}
 /* ACTIVITY FLAGS — hairline, mono, the size of the row they sit in.
    Deliberately not a badge: no fill, no brand colour block, no icon, no
    second type size. They are set in the same 9px mono as the date beside

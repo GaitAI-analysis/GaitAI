@@ -19,6 +19,7 @@ import { JournalCover } from "../JournalCover";
 import journal from "../journal.module.css";
 import publication from "../publication.module.css";
 import { CardInteraction } from "./CardInteraction";
+import { ImpressionSentinel } from "../experience/ImpressionSentinel";
 import styles from "./hub.module.css";
 
 const TOPIC_CLASS: Record<string, string> = {
@@ -121,7 +122,7 @@ export function MatchLine({ match, story, query }: { match: PublicationMatch; st
 
 export function InsightCard({
   story,
-  step,
+  seriesMark,
   views,
   match,
   query = "",
@@ -130,8 +131,8 @@ export function InsightCard({
   preview = false,
 }: {
   story: PublicationStory;
-  /** Foundations position, printed as a small editorial number. */
-  step?: number;
+  /** The series identity printed on the picture: "AI UNDER STRESS · 01". */
+  seriesMark?: { label: string; number: string } | null;
   views?: number;
   match?: PublicationMatch | null;
   query?: string;
@@ -158,6 +159,7 @@ export function InsightCard({
       <span aria-hidden="true" className={journal.cardAccent} />
       <span aria-hidden="true" className={styles.edgeLight} />
       <span aria-hidden="true" className={styles.hairline} />
+      <ImpressionSentinel slug={story.slug} surface={preview ? "explorer" : "hub"} />
 
       <div className={journal.cardMedia}>
         {artwork.kind === "concept" ? (
@@ -183,9 +185,15 @@ export function InsightCard({
             <span className={publication.signalDot} />
           </div>
         )}
-        {typeof step === "number" && (
+        {seriesMark && (
           <span aria-hidden="true" className={styles.step}>
-            Foundations <b>{String(step).padStart(2, "0")}</b>
+            {seriesMark.label}
+            {seriesMark.number && (
+              <>
+                {" "}
+                <b>{seriesMark.number}</b>
+              </>
+            )}
           </span>
         )}
         {artwork.kind !== "concept" && <span aria-hidden="true" className={journal.cardMediaScrim} />}

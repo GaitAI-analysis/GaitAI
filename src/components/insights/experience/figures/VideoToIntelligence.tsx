@@ -10,6 +10,7 @@ import { useFigureActive } from "../useFigureActive";
 import { useNarrow } from "../useNarrow";
 import { gaitWave, phaseAt, useWalkCycle } from "../gait";
 import type { FigureProps } from "../registry";
+import { trackInsightEvent } from "@/lib/insight-events";
 import fig from "../figures.module.css";
 
 /**
@@ -74,6 +75,20 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
   /* On a phone the frame and the panel stack; on anything wider they sit
      side by side. Same drawing, one transform. */
   const stacked = useNarrow(640);
+  /* Stage changes are analytics events: debounced so a drag across eight
+     stages counts where it settled, and a first arrival at Intelligence
+     completes the figure. */
+  const chooseStage = (next: number) => {
+    setStage(next);
+    trackInsightEvent("pipeline_stage_changed", { article_slug: articleSlug, stage: next }, { debounce: "pipeline" });
+    if (next === STAGES.length - 1) {
+      trackInsightEvent(
+        "interactive_figure_complete",
+        { article_slug: articleSlug, figure_id: "video-to-intelligence" },
+        { once: "video-to-intelligence" },
+      );
+    }
+  };
 
   useEffect(() => {
     if (shared && typeof shared.stage === "number") setStage(Math.max(0, Math.min(7, shared.stage)));
@@ -391,7 +406,7 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
             stages={STAGES}
             labels={PRINTED}
             value={stage}
-            onChange={(next) => setStage(next)}
+            onChange={(next) => chooseStage(next)}
             ariaLabel="Pipeline stage"
             hint="Drag the track, tap a stage, or use ← →"
           />

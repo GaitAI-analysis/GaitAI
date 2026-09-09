@@ -94,7 +94,7 @@ export function SignalQualityLab({ articleSlug, presentation }: FigureProps) {
       else next.add(id);
       return next;
     });
-    trackInsightEvent("signal_quality_demo_used", { article: articleSlug, condition: id });
+    trackInsightEvent("signal_quality_demo_used", { article_slug: articleSlug, condition: id });
   };
 
   const verdicts = useMemo(

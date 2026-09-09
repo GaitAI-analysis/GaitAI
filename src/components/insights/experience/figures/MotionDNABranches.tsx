@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Pt } from "@/components/visuals/gait-phases";
 import { smoothPath } from "@/components/research/PoseFrame";
 import { InteractiveFigure } from "../InteractiveFigure";
@@ -9,6 +9,7 @@ import { useFigureActive } from "../useFigureActive";
 import { useNarrow } from "../useNarrow";
 import { gaitWave, useWalkCycle } from "../gait";
 import type { FigureProps } from "../registry";
+import { trackInsightEvent } from "@/lib/insight-events";
 import fig from "../figures.module.css";
 import ui from "../experience.module.css";
 

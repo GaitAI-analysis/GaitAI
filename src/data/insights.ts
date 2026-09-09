@@ -208,14 +208,38 @@ export interface InsightArticle {
    * reader deciding whether to start. The full essay stays primary.
    */
   twoMinute: string[];
-  /** Position in the GaitAI Foundations reading path (1-based). */
+  /**
+   * Position within the article's own series (1-based). For the Foundations
+   * this is the reading-path step; for a recurring series it is the order the
+   * strand lists its stories in. Never printed as an issue number.
+   */
   seriesStep: number;
-  /** Named reading path. Existing records safely default to GaitAI Foundations. */
+  /**
+   * The editorial series, by the exact `name` in `data/insight-series.ts`.
+   * Existing records safely default to GaitAI Foundations; every new record
+   * names its series explicitly.
+   */
   series?: string;
   /** Generic series position; existing records safely default to `seriesStep`. */
   seriesOrder?: number;
-  /** How this article is named inside the reading path. */
+  /** How this article is named inside its series index. */
   seriesTitle: string;
+  /**
+   * How the article's claims are supported. `research-informed` means the
+   * evidence links point at peer-reviewed work the argument draws on;
+   * `illustrative` means the figures are drawn to make an argument and carry
+   * no measured values; `conceptual` means the piece is an argument about
+   * design, with no data of its own. Printed by the figures, not by the prose.
+   */
+  evidenceLevel?: "conceptual" | "illustrative" | "research-informed";
+  /** GaitScape signal / capability ids the article is about (see data/gaitscape). */
+  relatedSignals?: string[];
+  /**
+   * The editorial rule for a major story: the one thing a reader should
+   * remember DOING. Stated on the record so the interaction is chosen on
+   * purpose; a story that is better read than played says so.
+   */
+  memorableInteraction?: string;
   /**
    * The raster hero. Retained for the SHARE CARD only — OpenGraph, Twitter
    * and the BlogPosting image all need an absolute raster URL, which a drawn

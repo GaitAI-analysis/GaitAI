@@ -42,7 +42,7 @@ export function InspectableTerm({
     setOpen(true);
     trackInsightEvent(
       "term_inspected",
-      { term: term.id, article: articleSlug ?? "" },
+      { article_slug: articleSlug ?? "", term: term.id },
       { once: `${articleSlug}:${term.id}` },
     );
   }, [articleSlug, term.id]);
@@ -119,7 +119,13 @@ export function InspectableTerm({
             {term.definition}
           </span>
           {term.lab && (
-            <Link href="/movement-lab/" className={styles.termPopLink}>
+            <Link
+              href="/movement-lab/"
+              className={styles.termPopLink}
+              onClick={() =>
+                trackInsightEvent("research_opened", { article_slug: articleSlug ?? "", destination: "lab" })
+              }
+            >
               See in the Movement Intelligence Lab →
             </Link>
           )}
@@ -127,6 +133,9 @@ export function InspectableTerm({
             <Link
               href={`/gaitscape/?focus=${encodeURIComponent(term.gaitscape)}`}
               className={styles.termPopLink}
+              onClick={() =>
+                trackInsightEvent("gaitscape_opened", { article_slug: articleSlug ?? "", node: term.gaitscape ?? "" })
+              }
             >
               Open in GaitScape →
             </Link>

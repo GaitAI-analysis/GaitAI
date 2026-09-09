@@ -716,9 +716,22 @@ export function CardInteraction({
   const markUsed = useCallback(() => {
     if (!used) {
       setUsed(true);
-      trackInsightEvent("hub_card_interaction", { article: slug, concept }, { once: slug });
+      if (large) trackInsightEvent("cover_interaction_start", { article_slug: slug }, { once: slug });
+      else trackInsightEvent("hub_card_interaction", { article_slug: slug, concept }, { once: slug });
     }
-  }, [concept, slug, used]);
+  }, [concept, large, slug, used]);
+
+  /* The cover's stages are analytics: where a drag settled (debounced) and
+     whether the reader reached Intelligence. Only after the reader has
+     touched it — the opening demonstration pass is not a reader's choice. */
+  const coverStageForEvents = concept === "pipeline" && large ? coverStageOf(p) : -1;
+  useEffect(() => {
+    if (!used || coverStageForEvents < 0) return;
+    trackInsightEvent("cover_stage_changed", { article_slug: slug, stage: coverStageForEvents }, { debounce: "cover" });
+    if (coverStageForEvents === 5) {
+      trackInsightEvent("cover_interaction_complete", { article_slug: slug }, { once: slug });
+    }
+  }, [coverStageForEvents, slug, used]);
 
   /* One slow demonstration pass when the card first appears. */
   useEffect(() => {

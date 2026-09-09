@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { trackInsightEvent } from "@/lib/insight-events";
 import styles from "./journal.module.css";
 import experience from "./experience/experience.module.css";
 
@@ -46,7 +47,15 @@ export function ReadingProgress({
         return;
       }
       const scrolled = Math.min(Math.max(-rect.top, 0), total);
-      setProgress(scrolled / total);
+      const fraction = scrolled / total;
+      setProgress(fraction);
+      /* Reading milestones, once each per page load. Scrolling back up and
+         down again does not re-fire them: `once` keys are page-scoped, and a
+         milestone is passed at most once on the way down. */
+      if (fraction >= 0.25) trackInsightEvent("article_scroll_25", { article_slug: "" }, { once: targetId });
+      if (fraction >= 0.5) trackInsightEvent("article_scroll_50", { article_slug: "" }, { once: targetId });
+      if (fraction >= 0.75) trackInsightEvent("article_scroll_75", { article_slug: "" }, { once: targetId });
+      if (fraction >= 0.98) trackInsightEvent("article_scroll_100", { article_slug: "" }, { once: targetId });
     };
 
     const measureTicks = () => {

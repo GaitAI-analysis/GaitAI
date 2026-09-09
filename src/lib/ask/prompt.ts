@@ -306,6 +306,25 @@ export function documentedEnvironments(
 }
 
 /**
+ * The product records among the selected ones that the site documents as
+ * DEDICATED to the domain (`productIds` in the domain vocabulary — DefenceMotion
+ * for defence). Deterministic, from the selected canonical records only, like
+ * `documentedEnvironments`.
+ */
+export function documentedProducts(
+  subject: string,
+  docs: { doc: Pick<KnowledgeDoc, "id" | "type" | "title" | "parentId"> }[],
+): { id: string; title: string }[] {
+  const mapped = new Set(matchDomains(subject).flatMap((concept) => concept.productIds ?? []).map((id) => `product:${id}`));
+  const found = new Map<string, string>();
+  for (const { doc } of docs) {
+    if (doc.type !== "product" || doc.parentId) continue;
+    if (mapped.has(doc.id)) found.set(doc.id, doc.title);
+  }
+  return [...found].map(([id, title]) => ({ id, title }));
+}
+
+/**
  * The one line handed to the model for a domain question — "what can GaitAI
  * do for X", "does it do X", "X?" — or "" for any other. Says whether X is a
  * documented environment (decided from the selected canonical records, never
@@ -325,7 +344,22 @@ export function applicationLine(
   if (understanding.intent !== "DOMAIN_APPLICATION" || !understanding.domain) return "";
   const subject = understanding.domain.subject;
   const environments = documentedEnvironments(subject, docs);
+  const dedicated = documentedProducts(subject, docs);
   const who = understanding.entity.title;
+
+  if (!environments.length && dedicated.length) {
+    /* A product the site documents as dedicated to the domain — DefenceMotion
+       for defence. A documented PRODUCT is not a documented deployment: the
+       boundary about customers, pilots and clearances stands unchanged. */
+    const names = dedicated.map((product) => `"${product.title}"`).join(", ");
+    const shape =
+      understanding.askType === "relationship"
+        ? `Answer in this shape: (1) say first that the available GaitAI information does not establish any existing deployment, customer, contract or partnership in ${subject}, and then that GaitAI documents ${names} as a dedicated ${subject} product; (2) describe it from its record below — its modes, intended users and outputs — and any other capabilities as potentially relevant; (3) never imply that such a relationship exists.`
+        : understanding.askType === "product-exists"
+          ? `Answer in this shape: (1) say first that GaitAI documents ${names} as its ${subject}-specific product; (2) describe it from its record below — its modes, intended users and outputs; (3) never imply a deployment, customer, pilot or clearance in this domain.`
+          : `Answer in this shape: (1) say first that GaitAI documents ${names} as its dedicated ${subject} product, and that the available GaitAI information does not document a dedicated ${subject} deployment, customer, pilot or clearance; (2) then describe it from its record below — its modes, intended users and outputs — and ONLY the other capabilities the records establish, labelled as potentially relevant applications; (3) never imply an existing deployment, customer, approval or clearance in this domain.`;
+    return `Application: this question is about "${subject}" (${understanding.askType ?? "potential"} question; internally read as: ${understanding.normalized}). No GaitAI environment record documents "${subject}" as a deployment, and no record names a customer, pilot, contract, clearance or certification there; the product record ${names} documents a product intended for it. ${shape}`;
+  }
 
   if (environments.length) {
     const names = environments.map((environment) => `"${environment.title}"`).join(", ");

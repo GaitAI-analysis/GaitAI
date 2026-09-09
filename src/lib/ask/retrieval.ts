@@ -269,6 +269,8 @@ export interface ApplicationContext {
   concepts: DomainConcept[];
   /** `use-case:<id>` record ids the site documents for the domain. */
   documentedEnvironmentIds: string[];
+  /** `product:<id>` records the site documents as dedicated to the domain (DefenceMotion for defence). */
+  documentedProductIds: string[];
   family: Family | null;
 }
 
@@ -293,10 +295,15 @@ function readApplication(subject: string, concepts: DomainConcept[], ix: Index):
     const family = docById().get(id)?.family;
     if (family === "mobilitycare" || family === "securevision") families.add(family);
   }
+  const productIds = concepts
+    .flatMap((concept) => concept.productIds ?? [])
+    .map((id) => `product:${id}`)
+    .filter((id) => docById().has(id));
   return {
     subject,
     concepts,
     documentedEnvironmentIds: [...environmentIds],
+    documentedProductIds: [...new Set(productIds)],
     family: families.size === 1 ? ([...families][0] as Family) : null,
   };
 }
@@ -332,6 +339,8 @@ const RELATED_ENTITY_BOOST = 3;
  * added to the query at the weights the vocabulary gives them.
  */
 const DOMAIN_ENVIRONMENT_BOOST = 8;
+/** A product the site documents as dedicated to the domain leads the answer. */
+const DOMAIN_DEDICATED_PRODUCT_BOOST = 9;
 const DOMAIN_ENVIRONMENT_CHUNK_BOOST = 3;
 /* The family landing page consolidates a domain answer ("SecureVision" for a
    defence question) and must keep a slot beside the modules it lists. */
@@ -507,6 +516,7 @@ export function retrieveGaitAIContext(
     }
   }
   const documentedEnvironments = new Set(application?.documentedEnvironmentIds ?? []);
+  const dedicatedProducts = new Set(application?.documentedProductIds ?? []);
   /* The family the question lives in: the domain's, the intent's (SECURITY →
      SecureVision), or the family "it" resolved to ("does it use CCTV" after
      "what is SecureVision"). Records of that family gain a little; its landing
@@ -602,6 +612,9 @@ export function retrieveGaitAIContext(
       if (application && entry.doc.type === "use-case" && documentedEnvironments.has(familyKey)) {
         score += entry.doc.parentId ? DOMAIN_ENVIRONMENT_CHUNK_BOOST : DOMAIN_ENVIRONMENT_BOOST;
         reasons.push("domain:environment");
+      } else if (application && entry.doc.type === "product" && !entry.doc.parentId && dedicatedProducts.has(entry.doc.id)) {
+        score += DOMAIN_DEDICATED_PRODUCT_BOOST;
+        reasons.push("domain:product");
       } else if (entry.doc.type === "page" && familyPageUrl && entry.doc.url === familyPageUrl) {
         score += DOMAIN_FAMILY_PAGE_BOOST;
         reasons.push("domain:family");

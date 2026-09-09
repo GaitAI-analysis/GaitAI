@@ -424,6 +424,11 @@ const PRODUCT_MAP: ProductMap = {
     capabilities: ["cap-anomaly", "cap-har"],
     outcomes: ["out-safer-spaces", "out-realtime"],
   },
+  defencemotion: {
+    signals: ["sig-rehab-progress", "sig-walking-speed", "sig-behaviour", "sig-trajectory", "sig-gait-identity"],
+    capabilities: ["cap-gait", "cap-temporal", "cap-anomaly", "cap-privacy", "cap-edge"],
+    outcomes: ["out-rehab", "out-safer-spaces", "out-privacy"],
+  },
   watchlist: {
     signals: ["sig-gait-identity"],
     capabilities: ["cap-biometrics", "cap-reid", "cap-privacy"],
@@ -502,6 +507,11 @@ const FACT_OVERRIDES: Record<string, Partial<SystemFacts>> = {
     input: "Applies to all connected camera analytics",
     environment: "Every SecureVision deployment",
     deployment: "Policy layer: retention, roles, audit logs",
+  },
+  defencemotion: {
+    input: "Camera feeds, with optional wearable signals for enrolled programmes",
+    environment: "Defence installations — Army, Navy and Air Force modes",
+    deployment: "On-premise / edge analytics; clinician, operator and access dashboards",
   },
   watchlist: {
     environment: "Lawfully authorized deployments only",

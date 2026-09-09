@@ -75,6 +75,14 @@ export interface ProductDetail {
     limitations: string[];
   };
 
+  /**
+   * Service- or setting-specific MODES of one product — DefenceMotion's Army,
+   * Navy and Air Force configurations. Optional: rendered as its own section
+   * only when present. The modes share the product's pipeline and controls;
+   * each names what it is configured for, never a separate product.
+   */
+  modes?: { id: string; name: string; summary: string; focus: string[] }[];
+
   /** Privacy & responsible-use note */
   privacy: string;
   /** Exactly three related product ids */

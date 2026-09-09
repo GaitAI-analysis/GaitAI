@@ -161,7 +161,16 @@ function composeApplicationAnswer(result: RetrievalResult): string {
   const environments = application.documentedEnvironmentIds
     .map((id) => byId.get(id))
     .filter((item): item is RetrievedDoc => Boolean(item));
-  const modules = result.docs.filter((item) => item.doc.type === "product" && !item.doc.parentId);
+  /* A product the site documents as dedicated to the domain (DefenceMotion for
+     defence) is named first, as a documented PRODUCT — still not a deployment,
+     customer, pilot or clearance, which no record establishes. */
+  const dedicatedIds = new Set(application.documentedProductIds);
+  const dedicated = application.documentedProductIds
+    .map((id) => byId.get(id))
+    .filter((item): item is RetrievedDoc => Boolean(item));
+  const modules = result.docs.filter(
+    (item) => item.doc.type === "product" && !item.doc.parentId && !dedicatedIds.has(item.doc.id),
+  );
   const otherCapabilities = result.docs.filter(
     (item) =>
       (item.doc.type === "capability" || item.doc.type === "deployment" || item.doc.type === "policy") &&
@@ -182,6 +191,17 @@ function composeApplicationAnswer(result: RetrievalResult): string {
     for (const environment of environments) {
       lines.push(
         `${askType === "relationship" ? `No customer or live deployment is documented, but ` : ""}GaitAI documents **${environment.doc.title}** as a deployment environment — ${brief(environment.doc, 260)}`,
+      );
+    }
+  } else if (dedicated.length) {
+    for (const product of dedicated) {
+      const summary = brief(product.doc, 260);
+      lines.push(
+        askType === "relationship"
+          ? `No customer, contract or live deployment in ${subject} is documented, but GaitAI documents **${product.doc.title}** as a dedicated ${subject} product — ${summary}`
+          : askType === "product-exists"
+            ? `Yes — GaitAI documents **${product.doc.title}** as its ${subject}-specific product — ${summary}`
+            : `GaitAI documents **${product.doc.title}** as its dedicated ${subject} product — ${summary} The available GaitAI information does not document a dedicated ${subject} deployment, customer, pilot or clearance for it.`,
       );
     }
   } else if (askType === "relationship") {
@@ -213,7 +233,9 @@ function composeApplicationAnswer(result: RetrievalResult): string {
   lines.push(
     environments.length
       ? `Important boundary: the environment page describes a recommended module mix. No customer, pilot, measured result or certification for ${subject} is documented in the current GaitAI site information.`
-      : `Important boundary: no dedicated ${subject} deployment, customer, pilot, clearance or certification is documented in the current GaitAI site information.`,
+      : dedicated.length
+        ? `Important boundary: the product page describes intended use and its modes. No dedicated ${subject} deployment, customer, pilot, clearance or certification is documented in the current GaitAI site information.`
+        : `Important boundary: no dedicated ${subject} deployment, customer, pilot, clearance or certification is documented in the current GaitAI site information.`,
   );
   lines.push("");
   lines.push(QUOTED_NOTE);

@@ -202,14 +202,14 @@ export const CASES: Case[] = [
   // that kind is documented. Never a person, a talk, an essay or a paper.
   {
     q: "What can GaitAI do for military?",
-    expect: ["product:suspiciousmotion", "product:accessmotion", "page:/securevision"],
+    expect: ["product:defencemotion", "product:suspiciousmotion", "product:accessmotion", "page:/securevision"],
     anyOf: ["product:watchlist", "product:campusshield", "product:reid"],
     check:
-      "MUST say no dedicated military deployment is documented; capabilities only, labelled as potentially relevant. No customer, contract, clearance or deployment invented.",
+      "MUST name DefenceMotion as the documented defence product (Army, Navy and Air Force modes) AND say no dedicated military deployment, customer, pilot or clearance is documented; other capabilities labelled as potentially relevant. Nothing invented.",
   },
   {
     q: "What can GaitAI do for defence?",
-    expect: ["product:suspiciousmotion", "product:accessmotion", "page:/securevision"],
+    expect: ["product:defencemotion", "product:suspiciousmotion", "product:accessmotion", "page:/securevision"],
     check: "Same boundary as the military question.",
   },
   { q: "What can GaitAI do for a hospital?", expect: ["use-case:hospitals", "product:fallrisk"] },

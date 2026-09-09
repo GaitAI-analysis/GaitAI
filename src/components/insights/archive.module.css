@@ -41,7 +41,9 @@
      beat below the trail — not the full page-intro token, which put the
      masthead a full line lower than the eye expects. */
   padding-top: 0.75rem;
-  padding-bottom: clamp(3rem, 7vw, 5.5rem);
+  /* The foot of the page (Browse the signal) carries its own top padding, so
+     the feed ends with one editorial beat rather than a field of empty page. */
+  padding-bottom: clamp(1.5rem, 3vw, 2.25rem);
 }
 
 :global(.light) .archive {
@@ -121,6 +123,7 @@
    ground with air around it, the way a magazine's contents line does. */
 .utilities {
   display: flex;
+  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
@@ -556,7 +559,7 @@
 }
 
 .latestSection {
-  scroll-margin-top: 7rem;
+  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
   margin-top: 1.5rem;
 }
 

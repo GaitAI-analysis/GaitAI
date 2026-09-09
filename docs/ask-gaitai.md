@@ -31,17 +31,22 @@ gaitai.in (GitHub Pages)
 Ask GaitAI browser UI
     |
     v
-/ask/knowledge.json?v=<digest>          the local 319 KB corpus, versioned per deploy
+/ask/knowledge.json?v=<digest>          the local ~600 KB corpus, versioned per deploy
     |
     v
-BM25 + entity + intent + page-aware retrieval        ── low confidence? ──> refuse locally,
+understand (pronouns, "what about", ellipsis) → BM25 + entity + intent + page-aware
+retrieval                                            ── low confidence? ──> refuse locally,
     |                                                                        no network request
     |  question · route · title · ≤6 prior turns · SELECTED CANONICAL RECORD IDS
     v
 Cloudflare Worker (Free)   POST https://ask.gaitai.in/api/ask
     |  validate the request · resolve ids against the Worker's own canonical corpus,
-    |  discard unknown ids · meter the caller and the daily budget · build the
-    |  grounding prompt from the CANONICAL records
+    |  discard unknown ids · meter the caller and the daily budget
+    |  HYBRID RETRIEVAL (§5): the same understanding and lexical engine on the
+    |  Worker's side · query embedding (EMBEDDING_MODEL) · cosine over the bundled
+    |  record vectors · merge · cross-encoder rerank (RERANK_MODEL) · final 5–7
+    |  CANONICAL ids — or, when any stage is unavailable, the browser's selection
+    |  build the grounding prompt from the CANONICAL records
     v
 Cloudflare Workers AI      env.AI.run(WORKERS_AI_MODEL, { messages, … })   — the binding, no key
     |
@@ -102,13 +107,17 @@ worker/
     cors.ts                allowlist, exact-origin echo, preflight headers
     validate.ts            limits on every inbound field; unknown fields dropped
     grounding.ts           id → canonical record; page record from the route; the prompt
-    workers-ai.ts          THE provider adapter: env.AI.run(), input mapping, result parsing, error classes
-    response.ts            the wire shape; sources/related/follow-ups from the records
+    workers-ai.ts          THE provider adapter: env.AI.run() for generation, embeddings and reranking; error classes
+    semantic.ts            the hybrid pipeline's Worker half: bundled vectors, query cache, services from env.AI
+    response.ts            the wire shape; sources/related/follow-ups from the records; debug block (ASK_DEBUG only)
     guard.ts               the AskGuard Durable Object: burst, hourly, daily budget
-    bench-entry.ts         loopback-only Worker exposing the adapter for the benchmark (§9)
+    bench-entry.ts         loopback-only Worker exposing /generate, /embed, /rerank for the benchmarks (§9)
     shims.d.ts             lets the shared corpus module typecheck without `process`
     generated/knowledge.json   (gitignored) written by build-corpus.mjs
-  test/ask.test.ts         42 tests; the AI binding is a scripted mock
+    generated/embeddings.json  (gitignored) the record vectors, filtered to the corpus, from data/ask-embeddings.json
+  test/ask.test.ts         the request/guard/provider suite; the AI binding is a scripted mock
+  test/rag.test.ts         the RAG acceptance set through the whole chain
+  test/hybrid.test.ts      the hybrid pipeline in workerd: Worker-side grounding, every fallback, the gates
 ```
 
 The Worker imports the browser's own modules — `src/lib/ask/prompt.ts`,
@@ -311,7 +320,10 @@ text, route, user agent or anything else is stored anywhere.
 | `AI` | Workers AI binding | `"ai": { "binding": "AI" }` in `wrangler.jsonc`. Not a secret: the binding is the Worker's own environment |
 | `WORKERS_AI_MODEL` | non-secret var | `wrangler.jsonc` — `@cf/meta/llama-3.2-3b-instruct`, verified end to end on 2026-09-09. Read only by `src/provider.ts`, the one seam where provider and model are decided; a second provider (a self-hosted primary with Workers AI as fallback) is added there and nowhere else |
 | `MODEL_REASONING_EFFORT` | non-secret var | `wrangler.jsonc` — `""`, `low`, `medium` or `high`; production `""` (Llama 3.2 is not a reasoning model). Sent as `reasoning_effort` only when set; anything else falls back to `""` (model default) |
-| `ASK_DEBUG` | local var | `.dev.vars` only — `1` prints the per-question debug block to the `wrangler dev` console. Never defined in `wrangler.jsonc` |
+| `EMBEDDING_MODEL` | non-secret var | `wrangler.jsonc` — `@cf/baai/bge-small-en-v1.5`. Must equal the model the bundled vectors were built with; otherwise the semantic stage is disabled and logged (§5). Empty turns the stage off |
+| `RERANK_MODEL` | non-secret var | `wrangler.jsonc` — `@cf/baai/bge-reranker-base`. Empty turns reranking off; the hybrid order is used |
+| `HYBRID_WEIGHTS` | non-secret var | `wrangler.jsonc` — `""` (adaptive, §5) or `lexical,semantic,metadata` such as `0.45,0.45,0.1` to pin the merge |
+| `ASK_DEBUG` | local var | `.dev.vars` only — `1` prints the per-question debug block to the `wrangler dev` console and returns a `debug` field in the response. Never defined in `wrangler.jsonc` |
 | `MODEL_MAX_OUTPUT_TOKENS`, `MODEL_TIMEOUT_MS` | non-secret vars | `wrangler.jsonc` — output ceiling stays 450 while `low` is evaluated |
 | `ALLOWED_ORIGINS` | non-secret var | `wrangler.jsonc`; overridden by `.dev.vars` locally |
 | `ASK_BURST_MAX`, `ASK_HOURLY_MAX`, `ASK_DAILY_BUDGET` | non-secret vars | `wrangler.jsonc` |
@@ -593,6 +605,139 @@ customer, clearance or certification. The retrieval-only answer
 the boundary or the documented environment, up to four relevant modules in
 their own words, and an "Important boundary" line.
 
+### Hybrid semantic retrieval and reranking — on the Worker
+
+Lexical retrieval fails one way: a question that shares no words with the
+record that answers it. "someone keeps wandering around the storage area at
+night" is SuspiciousMotion's loitering and restricted-zone events; "let people
+through a door based on how they walk" is AccessMotion; "checking the fit of an
+artificial leg" is ProstheticFit. Adding synonym rules per sentence does not
+end — so `src/lib/ask/semantic.ts` adds a meaning-based stage and a reranker,
+and the evaluation below decides whether they earn their place.
+
+```
+understand (shared)  →  lexical retrieval (shared, top 20 candidates)
+                     →  query embedding (EMBEDDING_MODEL, cached per normalised query)
+                     →  cosine over the 331 bundled record vectors (in memory, <2 ms)
+                     →  hybrid merge: lexical · semantic · metadata, adaptive weights, type gate
+                     →  shortlist ≤20 (+ a guaranteed seat for each engine's strongest hits)
+                     →  cross-encoder rerank (RERANK_MODEL), blended 0.6 rerank / 0.4 hybrid
+                     →  finalize: ≤7 canonical ids, ≤2 per family, a chunk brings its parent
+```
+
+**Every stage yields canonical record ids.** The semantic index is keyed by the
+same ids as the corpus; the Worker resolves the final ids against its own
+`generated/knowledge.json` exactly as it resolves the browser's. Nothing the
+browser sends is evidence, and semantic search cannot bypass grounding.
+
+**What is embedded.** `embeddingText()` composes one text per record — Title,
+Section, Type, Topics, Aliases, Keywords, Summary and the first 1400 characters
+of Content — so a chunk carries its parent's name and a module carries its
+family. No secrets, no visitor data: the corpus is the public site.
+`npm run ask:embed` embeds through the loopback bench Worker (§9), incrementally
+by content hash (FNV-1a 64) — unchanged records are reused, changed records
+regenerated, removed records dropped — and writes `data/ask-embeddings.json`
+(committed): model, pooling, dim, and per record `{id, hash, scale, q}` with the
+vector int8-quantised and base64-encoded. `worker/scripts/build-corpus.mjs`
+copies it, filtered to the corpus ids, into `src/generated/embeddings.json`,
+bundled with the Worker. The browser downloads nothing new.
+
+**The query text** for the embedding is `semanticQueryText()`: the resolved
+question (pronouns replaced by the canonical name, "what about X" unwrapped, an
+ellipsis given its entity) plus the domain vocabulary terms with weight ≥ 0.5 —
+never the intent's boilerplate framing, which pulled every query towards the
+same records.
+
+**Hybrid score.** `hybrid = wL · lexicalNorm + wS · calibrated cosine + wM ·
+metadata`. Lexical scores are min-max normalised within the candidate list;
+cosine is calibrated on an ABSOLUTE scale (0.55 → 0, 0.85 → 1 for bge-small,
+whose cosines cluster in 0.55–0.80) so a weak semantic list cannot look
+confident by being normalised against itself. Metadata is the intent's type
+tilt (+0.25 preferred type, negative for demoted types, entity match, family
+match). Weights start at 0.45/0.45/0.10 and adapt (`adaptiveWeights`): PERSON,
+PUBLICATION, NAVIGATION, INSIGHTS, COMPARISON, PRODUCT, RESEARCH and
+LAB_DATASET are *precise* intents and use 0.7/0.2/0.1 — an exact entity or
+title match still wins; for every other intent the lexical share rises with
+lexical confidence (top score, and whether the top hit matched on structure —
+entity, title, slug, environment — rather than prose) from 0.25 up to 0.8.
+`HYBRID_WEIGHTS` pins the weights when set.
+
+**Guards the semantic list cannot override.** A record type the intent demotes
+hard (tilt ≤ −4: a person or a talk for a domain question) is gated out of the
+semantic list and out of the lexical list beyond its top 3. On a PERSON question
+the pinned person's record stays first and other person records are dropped.
+Precise intents skip the reranker entirely: a cross-encoder that has never seen
+the site would happily rank a co-author above the founder for "who is Anubha".
+
+**Reranker.** `@cf/baai/bge-reranker-base` scores the shortlist (≤ 20 compact
+documents — title, section, topics, ≤ 500 characters of content) against the standalone
+query; its score is blended with the hybrid score so an intent decision made
+upstream survives it. Semantic and rerank calls run only on the Worker, through
+`env.AI`, and never see the visitor's conversation — only the normalised query.
+
+**Fallbacks, each logged as a `degraded` reason:** no `AI` binding, empty
+`EMBEDDING_MODEL`, no bundled vectors or a model mismatch → lexical only
+(`semantic stage: OFF — <why>`); embedding call fails → lexical only; rerank
+fails → hybrid order; retrieval refuses → no model call (`refused-by-retrieval`);
+generation fails → the browser's extractive answer, as before. The browser
+records why it rendered the extractive answer (`fallbackReason` on the result,
+logged in development): `low_confidence`, `no_endpoint`, `worker:<class>`
+(rate_limited, quota, unavailable, timeout, malformed, …) or `empty_answer`.
+
+**Evaluation — three systems, 102 questions** (`npm run ask:eval -- --systems
+all`; `scripts/ask/eval-cases.ts`: people, products, health, security, domains,
+privacy, publications, research, labs, inputs, comparisons, insights, 4
+refusals, multi-turn follow-ups, and 16 questions *described* without any of
+the record's words). Measured 2026-09-09, bge-small, real Workers AI through the
+bench Worker:
+
+| System | top-1 | top-3 | top-7 | wrong family | refusals | mean ms |
+|---|---|---|---|---|---|---|
+| A — lexical only (the baseline, before this work) | 88% | 94% | 95% | 2% | 4/4 | 4 |
+| B — semantic only (cosine) | 57% | 85% | 90% | 7% | 4/4 | 990 |
+| C — hybrid + rerank | **91%** | **96%** | **98%** | **0%** | 4/4 | 1243 |
+
+Semantic search alone is markedly WORSE than the lexical engine: it ranks a
+co-author's record for "what publications does GaitAI have", an essay for "can
+this detect falls", and a talk for "does GaitAI diagnose Parkinson's". It earns
+its place only inside the hybrid, where it recovers described questions
+("spot the same person on two different cameras" → ReID; "measuring how shaky
+someone's hands and steps are" → NeuroMotion; "can you tell if a shopper is
+behaving oddly" → RetailGuard) that lexical retrieval could not reach, while the
+lexical engine, the intent gates and the precise-intent rule keep every PERSON,
+PRODUCT, PUBLICATION and NAVIGATION case exactly where it was. C's remaining
+misses are four described questions (storage-area loitering, a grandmother
+living alone, a prosthetic fit, a gait-based door) where the model's cosine
+does not separate the answer from privacy and policy records.
+
+Embedding models compared on the same set (hybrid top-1/3/7): bge-small
+90/95/97 at 200 KB; bge-base 90/95/98 at 365 KB; bge-m3 90/94/97 at 476 KB. The
+smallest model is kept — one more question in top-7 does not buy a doubled
+index and a slower call.
+
+**Why not Vectorize (yet).** The whole index is 331 × 384 int8 values — 200 KB
+in the bundle, 508 KB decoded in memory (Float32), and one cosine scan costs
+under 2 ms against a bench-measured ~1.2–1.5 s for the embedding call itself and
+~1.5 s for the rerank from a local `wrangler dev`. A Vectorize index would add a
+service, a second deploy step (upsert on every corpus change, keyed by the same
+content hash) and a network hop, to replace a scan that is not on the critical
+path. It becomes worth revisiting above roughly 10 000 records or 5 MB of
+vectors, where the bundle and per-isolate decode would start to matter.
+
+**Latency, real path, local `wrangler dev` (2026-09-09).** lexical 40–56 ms ·
+embed 1.2–1.5 s · cosine 1–2 ms · merge ≤ 2 ms · rerank 1.5–1.6 s · generation
+1.7–3.4 s. The embedding and rerank calls are serial with generation, so a
+reranked answer takes about 3 s longer than before in this measurement; the
+query-embedding cache (256 normalised queries per isolate) removes the embed
+call for repeated questions. Production numbers, where the binding is
+in-network, are to be measured after deploy.
+
+**ASK_DEBUG output** (local only; the visitor-facing UI shows none of it):
+the original and normalised question, intent, entity and how it was resolved,
+domain and question kind, then LEXICAL, SEMANTIC (cosine), HYBRID and RERANK
+lists with scores, FINAL ids, the three model ids, `degraded` reasons and the
+per-stage latencies. `npm run ask:e2e -- "does it do military"` prints it.
+
 ---
 
 ## 6. Guardrails
@@ -617,10 +762,14 @@ their own words, and an "Important boundary" line.
 
 ```bash
 npm run ask:test              # 40 questions — retrieval, grounding, refusal, no fabricated numbers
-npm run ask:rank              # 46 ranking / intent cases
+npm run ask:rank              # 61 ranking / intent cases
+npm run ask:paraphrase        # 249 phrasings in 28 families converge; taxonomy hygiene
+npm run ask:eval              # 102-question retrieval evaluation, lexical baseline (no services)
+npm run ask:eval -- --systems all   # A lexical · B semantic · C hybrid+rerank (spends allocation)
+npm run ask:embed             # (re)build data/ask-embeddings.json incrementally by content hash
 npm run ask:probe             # 15 regression questions, person record first
-npm run verify                # typecheck + lint + validate:gaitai + ask:test + ask:rank (CI)
-npm run worker:test           # the Worker's 101 tests, AI binding mocked (CI)
+npm run verify                # typecheck + lint + validate:gaitai + ask:test + ask:rank + ask:paraphrase (CI)
+npm run worker:test           # the Worker's 123 tests, AI binding mocked (CI)
 npm run worker:check          # wrangler deploy --dry-run
 npm run ask:e2e               # THE REAL PATH: corpus → retrieval → Worker → Workers AI (spends allocation)
 ```

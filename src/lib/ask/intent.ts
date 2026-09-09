@@ -206,7 +206,7 @@ export const INTENTS: Record<Intent, IntentSpec> = {
     prefer: { publication: 2.5, research: 1 },
     /* The founder's record lists every paper; it is not the answer to "what
        publications does GaitAI have". Modules cite the patent; likewise. */
-    demote: { person: -6, page: -2, talk: -3, product: -3.5, "use-case": -2, insight: -2, capability: -1, signal: -1 },
+    demote: { person: -6, page: -2, talk: -4, product: -4, "use-case": -4, insight: -4, capability: -1, signal: -1 },
     family: null,
     hubs: ["page:/publications"],
     policy: "List real records — title, venue, year — from the publication records; a paper grounds a capability, it does not validate a module.",
@@ -221,7 +221,9 @@ export const INTENTS: Record<Intent, IntentSpec> = {
     prefer: { research: 2.5, publication: 1.2 },
     /* A conference talk shares the words of every research question and
        answers none of them; the research-area records do. */
-    demote: { person: -1, page: -2, talk: -6, insight: -2, product: -1 },
+    /* A research question wants areas and papers: a module that cites a paper
+       and a person who wrote one are pointers, not the answer. */
+    demote: { person: -4, page: -2, talk: -6, insight: -2, product: -3, "use-case": -2 },
     family: null,
     /* Not the Research hub itself: its title already carries "research", and a
        hub boost on top lifted it over the research AREA a question names
@@ -239,7 +241,7 @@ export const INTENTS: Record<Intent, IntentSpec> = {
     topics: /^(?:privacy|consent|gdpr|hipaa|retention|anonymisation|anonymization|data)$/i,
     expand: ["privacy", "retention", "consent"],
     prefer: { policy: 3, deployment: 1.5, page: 0 },
-    demote: { product: -3, "use-case": -2, page: -1.5, talk: -3, person: -4, insight: -3, publication: -2 },
+    demote: { product: -3, "use-case": -2, page: -1.5, talk: -4, person: -4, insight: -4, publication: -4 },
     family: null,
     hubs: ["page:/legal/privacy","policy:privacy-controls"],
     policy: "Answer from the privacy policy, the Trust Center and the privacy-controls record; state capability, never certification; quote what is explicitly not claimed.",
@@ -305,7 +307,9 @@ export const INTENTS: Record<Intent, IntentSpec> = {
 
   INSIGHTS: {
     description: "The blog: articles, essays, what is new or worth reading.",
-    triggers: [/\b(articles?|blog|insights?|essays?|read(?:ing)?|stories|story|posts?|latest|newest|what'?s\s+new|recently\s+published)\b/i],
+    /* "read" only in its editorial sense — "something to read", "worth
+       reading", "reading list" — not "reading how someone walks". */
+    triggers: [/\b(articles?|blog|insights?|essays?|(?:something|anything|what)\s+to\s+read|worth\s+reading|reading\s+(?:list|path|material)|read\s+(?:more|about|next|the)|stories|story|posts?|latest|newest|what'?s\s+new|recently\s+published)\b/i],
     topics: /^(?:insights|blog|articles?|essays?|posts?|latest|news)$/i,
     expand: ["article", "insights"],
     prefer: { insight: 2.5, page: 0.5 },

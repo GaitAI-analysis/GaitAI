@@ -243,7 +243,7 @@ describe("configuration", () => {
     const { readConfig } = await import("../src/env");
     const config = readConfig({ WORKERS_AI_MODEL: MODEL });
     expect(Object.keys(config).sort()).toEqual(
-      ["allowedOrigins", "burstMax", "dailyBudget", "debug", "hourlyMax", "maxOutputTokens", "model", "reasoningEffort", "timeoutMs"],
+      ["allowedOrigins", "burstMax", "dailyBudget", "debug", "embeddingModel", "hourlyMax", "hybridWeights", "maxOutputTokens", "model", "reasoningEffort", "rerankModel", "timeoutMs"],
     );
     expect(JSON.stringify(config)).not.toMatch(/apikey|api_key|secret|bearer|authorization/i);
     /* Debug is off unless .dev.vars says so; wrangler.jsonc never defines it. */

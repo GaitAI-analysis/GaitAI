@@ -46,7 +46,8 @@ import { readConfig, type AskEnv } from "./env";
 import { buildPrompt, resolveRecords, type Grounding } from "./grounding";
 import { callerKey, consume } from "./guard";
 import { generateWithFallback, resolveProviders } from "./provider";
-import { buildAnswer, failure, json } from "./response";
+import { buildAnswer, failure, json, type RetrievalDebug } from "./response";
+import { embeddingIndex, retrieveInWorker, type WorkerRetrieval } from "./semantic";
 import { LIMITS, validateRequest, type AskRequest } from "./validate";
 import { WorkersAiError } from "./workers-ai";
 
@@ -71,31 +72,77 @@ const PATH = "/api/ask";
  *   status: 200
  *   latency: 1241ms
  */
+/** The same diagnostics as the console block, as data for the local e2e script. */
+function retrievalDebug(
+  retrieval: WorkerRetrieval | null,
+  grounding: Grounding,
+  models: RetrievalDebug["models"],
+  latency: Record<string, number>,
+): RetrievalDebug {
+  const r = retrieval?.result;
+  return {
+    normalizedQuery: r?.standaloneQuery ?? "",
+    intent: r?.retrieval.intent ?? "",
+    entity: r ? `${r.retrieval.understanding.entity.title} [${r.retrieval.understanding.entity.via}]` : "",
+    domain: r?.retrieval.understanding.domain ? `${r.retrieval.understanding.domain.subject} (${r.retrieval.understanding.askType})` : null,
+    semanticUsed: Boolean(retrieval && retrieval.disabled === null && r && r.semantic.length > 0),
+    disabled: retrieval?.disabled ?? null,
+    degraded: r?.degraded ?? [],
+    lexical: (r?.lexical ?? []).slice(0, 10).map((item) => ({ id: item.doc.id, score: Number(item.score.toFixed(2)) })),
+    semantic: (r?.semantic ?? []).slice(0, 10).map((hit) => ({ id: hit.id, score: Number(hit.score.toFixed(4)) })),
+    hybrid: (r?.merged ?? []).slice(0, 10).map((c) => ({ id: c.id, score: Number(c.hybrid.toFixed(4)) })),
+    reranked: r?.reranked ? r.reranked.slice(0, 10).map((item) => ({ id: item.id, score: Number(item.score.toFixed(4)) })) : null,
+    final: grounding.docs.map((item) => item.doc.id),
+    models,
+    latency: r
+      ? { ...latency, lexicalMs: r.timings.lexicalMs, embedMs: r.timings.embedMs, cosineMs: r.timings.semanticMs, mergeMs: r.timings.mergeMs, rerankMs: r.timings.rerankMs }
+      : latency,
+  };
+}
+
 function debugBlock(options: {
   ask: AskRequest;
   grounding: Grounding;
+  retrieval: WorkerRetrieval | null;
   provider: string;
   model: string;
+  embeddingModel: string;
+  rerankModel: string;
   status: number;
   latencyMs: number;
   note?: string;
 }): string {
-  const { ask, grounding, provider, model, status, latencyMs, note } = options;
+  const { ask, grounding, retrieval, provider, model, embeddingModel, rerankModel, status, latencyMs, note } = options;
   const dropped = ask.selectedRecordIds.filter((id) => !grounding.docs.some((item) => item.doc.id === id));
+  const r = retrieval?.result;
+  const fmt = (n: number) => n.toFixed(3);
   return [
-    "[Ask GaitAI]",
-    `question: ${ask.question}`,
+    "[Ask GaitAI retrieval]",
+    `original: ${ask.question}`,
+    r ? `normalized: ${r.standaloneQuery}` : "",
+    r ? `intent: ${r.retrieval.intent} (${r.retrieval.understanding.confidence}) · entity: ${r.retrieval.understanding.entity.title} [${r.retrieval.understanding.entity.via}]${r.retrieval.understanding.domain ? ` · domain: ${r.retrieval.understanding.domain.subject} (${r.retrieval.understanding.askType})` : ""}` : "",
     `pathname: ${ask.pathname}`,
-    `selected: ${ask.selectedRecordIds.join(", ") || "(none)"}`,
-    dropped.length ? `dropped (unknown ids): ${dropped.join(", ")}` : "",
-    "resolved:",
-    ...grounding.docs.map(
-      (item) => `  ${item.doc.id} — ${item.doc.title}${item.doc.sectionTitle ? ` › ${item.doc.sectionTitle}` : ""}`,
-    ),
+    `browser selected: ${ask.selectedRecordIds.join(", ") || "(none)"}`,
+    dropped.length ? `dropped (not in final grounding): ${dropped.join(", ")}` : "",
+    retrieval?.disabled ? `semantic stage: OFF — ${retrieval.disabled}` : "",
+    r?.degraded.length ? `degraded: ${r.degraded.join("; ")}` : "",
+    r ? "LEXICAL" : "",
+    ...(r ? r.lexical.slice(0, 8).map((item) => `  ${item.score.toFixed(2).padStart(6)} ${item.doc.id}`) : []),
+    r?.semantic.length ? "SEMANTIC (cosine)" : "",
+    ...(r ? r.semantic.slice(0, 8).map((hit) => `  ${fmt(hit.score)} ${hit.id}`) : []),
+    r?.semantic.length ? `HYBRID (w lex ${r.weights.lexical} · sem ${r.weights.semantic} · meta ${r.weights.metadata})` : "",
+    ...(r?.semantic.length ? r.merged.slice(0, 8).map((c) => `  ${fmt(c.hybrid)} ${c.id}  [${c.reasons.join(" ")}]`) : []),
+    r?.reranked ? "RERANK" : "",
+    ...(r?.reranked ? r.reranked.slice(0, 8).map((item) => `  ${fmt(item.score)} ${item.id}`) : []),
+    "FINAL (canonical, resolved)",
+    ...grounding.docs.map((item) => `  ${item.doc.id} — ${item.doc.title}${item.doc.sectionTitle ? ` › ${item.doc.sectionTitle}` : ""}`),
     `provider: ${provider}`,
-    `model: ${model}`,
+    `generation model: ${model}`,
+    `embedding model: ${embeddingModel || "(off)"}`,
+    `reranker model: ${rerankModel || "(off)"}`,
+    r ? `latency: lexical ${r.timings.lexicalMs}ms · embed ${r.timings.embedMs}ms · cosine ${r.timings.semanticMs}ms · merge ${r.timings.mergeMs}ms · rerank ${r.timings.rerankMs}ms · retrieval total ${r.timings.totalMs}ms` : "",
     `status: ${status}`,
-    `latency: ${latencyMs}ms`,
+    `total latency: ${latencyMs}ms`,
     note ? `note: ${note}` : "",
   ]
     .filter(Boolean)
@@ -137,7 +184,9 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
   const ask = parsed.value;
 
   // ── Canonical records: ids in, records out, unknowns gone ───────────────
-  const grounding = resolveRecords(ask.selectedRecordIds, ask.pathname);
+  // The browser's selection is validated first: a request whose ids resolve
+  // to nothing is refused before any model call, exactly as before.
+  let grounding = resolveRecords(ask.selectedRecordIds, ask.pathname);
   if (grounding.docs.length === 0) return failure(422, "no_records", cors);
 
   // ── Configuration: fail clearly, before spending anything ───────────────
@@ -146,6 +195,35 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
   // there and nowhere else.
   const providers = resolveProviders(env, config);
   if (typeof providers === "string") return failure(503, providers, cors);
+
+  // ── Hybrid retrieval, on the Worker's side of the boundary ──────────────
+  // With an embedding model configured and an index bundled, the Worker runs
+  // the full pipeline — understand · lexical · embed · cosine · merge · rerank
+  // — over ITS canonical corpus and grounds on what it selects. The browser's
+  // ids remain the fallback for every degraded path, so a failing embedding
+  // or reranker changes the ranking, never the availability. With the stage
+  // off, the browser's selection is used as before.
+  let retrieval: WorkerRetrieval | null = null;
+  const retrievalStarted = Date.now();
+  try {
+    retrieval = await retrieveInWorker({
+      ai: env.AI,
+      config,
+      question: ask.question,
+      pathname: ask.pathname,
+      history: ask.history,
+    });
+    const usedSemantic = retrieval.disabled === null && retrieval.result.semantic.length > 0;
+    if (usedSemantic && retrieval.result.final.length > 0) {
+      const chosen = resolveRecords(retrieval.result.final.map((item) => item.doc.id), ask.pathname);
+      if (chosen.docs.length > 0) grounding = chosen;
+    }
+  } catch {
+    /* A bug in the pipeline must not take the assistant down: the browser's
+       own selection grounds the answer, as it did before this stage existed. */
+    retrieval = null;
+  }
+  const retrievalMs = Date.now() - retrievalStarted;
 
   // ── Abuse control ───────────────────────────────────────────────────────
   const decision = await consume(env, await callerKey(request), {
@@ -182,6 +260,14 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
       question: ask.question,
       userTurns: ask.history.filter((turn) => turn.role === "user").length,
       startedAt,
+      debug: config.debug
+        ? retrievalDebug(retrieval, grounding, {
+            provider: completion.provider,
+            generation: completion.model,
+            embedding: retrieval && !retrieval.disabled ? config.embeddingModel : "",
+            rerank: retrieval?.result.reranked ? config.rerankModel : "",
+          }, { retrievalMs, modelMs: completion.latencyMs, totalMs: Date.now() - startedAt })
+        : undefined,
     });
 
     /* Production log: structural only. The provider and model ids are
@@ -192,6 +278,19 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
         event: answer ? "ask.answered" : "ask.empty_after_cleaning",
         provider: completion.provider,
         model: completion.model,
+        embeddingModel: retrieval && !retrieval.disabled ? config.embeddingModel : "",
+        rerankModel: retrieval?.result.reranked ? config.rerankModel : "",
+        retrieval: retrieval
+          ? {
+              intent: retrieval.result.retrieval.intent,
+              semantic: retrieval.disabled === null && retrieval.result.semantic.length > 0,
+              reranked: retrieval.result.reranked !== null,
+              degraded: retrieval.result.degraded,
+              ms: retrievalMs,
+              embedMs: retrieval.result.timings.embedMs,
+              rerankMs: retrieval.result.timings.rerankMs,
+            }
+          : null,
         records: grounding.docs.length,
         promptTokens: completion.usage.promptTokens,
         completionTokens: completion.usage.completionTokens,
@@ -205,8 +304,11 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
         debugBlock({
           ask,
           grounding,
+          retrieval,
           provider: completion.provider,
           model: completion.model,
+          embeddingModel: retrieval && !retrieval.disabled ? config.embeddingModel : "",
+          rerankModel: retrieval?.result.reranked ? config.rerankModel : "",
           status,
           latencyMs: Date.now() - startedAt,
           note: answer ? undefined : "completion was empty after cleaning",
@@ -262,8 +364,11 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
         debugBlock({
           ask,
           grounding,
+          retrieval,
           provider: primary.name,
           model: primary.model,
+          embeddingModel: retrieval && !retrieval.disabled ? config.embeddingModel : "",
+          rerankModel: retrieval?.result.reranked ? config.rerankModel : "",
           status: status[0],
           latencyMs: Date.now() - startedAt,
           note: `${failed.kind}${failed.code ? ` (code ${failed.code})` : ""}`,
@@ -277,6 +382,9 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
 export default {
   async fetch(request: Request, env: AskEnv): Promise<Response> {
     try {
+      /* Decode the bundled vectors on the first request of the isolate, so the
+         cost is paid once and never on a per-question basis. */
+      embeddingIndex();
       return await handle(request, env);
     } catch {
       /* A bug on this side must not leak a stack trace, and must not take the

@@ -146,7 +146,27 @@ interface AskResponse {
   sources: { title: string; url: string; kind: string }[];
   relatedLinks: { title: string; url: string; kind: string }[];
   grounding: { records: number; recordIds: string[]; latencyMs: number };
+  /** Present only when the Worker runs with ASK_DEBUG=1 (.dev.vars). */
+  debug?: {
+    normalizedQuery: string;
+    intent: string;
+    entity: string;
+    domain: string | null;
+    semanticUsed: boolean;
+    disabled: string | null;
+    degraded: string[];
+    lexical: { id: string; score: number }[];
+    semantic: { id: string; score: number }[];
+    hybrid: { id: string; score: number }[];
+    reranked: { id: string; score: number }[] | null;
+    final: string[];
+    models: { generation: string; embedding: string; rerank: string; provider: string };
+    latency: Record<string, number>;
+  };
 }
+
+const list = (items: { id: string; score: number }[], digits = 3) =>
+  items.map((item) => `     ${item.score.toFixed(digits).padStart(8)}  ${item.id}`).join("\n");
 
 async function askOne(question: string): Promise<boolean> {
   const retrieval = retrieveGaitAIContext(question, pathname);
@@ -200,9 +220,30 @@ async function askOne(question: string): Promise<boolean> {
 
   const body = (await response.json()) as AskResponse;
   console.log(`   selected ids (sent): ${selectedRecordIds.join(", ")}`);
+  if (body.debug) {
+    const d = body.debug;
+    console.log("   ── Worker-side retrieval (ASK_DEBUG) ──");
+    console.log(`   normalized (Worker): ${d.normalizedQuery}`);
+    console.log(`   intent ${d.intent} · entity ${d.entity}${d.domain ? ` · domain ${d.domain}` : ""}`);
+    if (d.disabled) console.log(`   semantic stage OFF: ${d.disabled}`);
+    if (d.degraded.length) console.log(`   degraded: ${d.degraded.join("; ")}`);
+    console.log("   LEXICAL (Worker)");
+    console.log(list(d.lexical, 2));
+    if (d.semantic.length) {
+      console.log("   SEMANTIC (cosine)");
+      console.log(list(d.semantic, 4));
+      console.log("   HYBRID");
+      console.log(list(d.hybrid, 4));
+    }
+    if (d.reranked) {
+      console.log("   RERANK");
+      console.log(list(d.reranked, 4));
+    }
+    console.log(`   models: provider ${d.models.provider} · generation ${d.models.generation} · embedding ${d.models.embedding || "(off)"} · reranker ${d.models.rerank || "(off)"}`);
+    console.log(`   latency: ${Object.entries(d.latency).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
+  }
   console.log(`   grounded on (Worker-side, canonical): ${body.grounding.recordIds.join(", ")}`);
   console.log(`   status 200 · rendered: MODEL (mode ${body.mode}) · ${latency} ms round trip · ${body.grounding.latencyMs} ms in the Worker`);
-  console.log("   provider/model: see the Worker's ask.answered log line (ASK_DEBUG=1 prints the full block)");
   console.log("");
   console.log(body.answer.split("\n").map((line) => `   ${line}`).join("\n"));
   console.log("");

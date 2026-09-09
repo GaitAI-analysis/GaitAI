@@ -58,7 +58,44 @@ export function cleanModelAnswer(raw: string): string {
   /* 4 · off-allowlist markdown links become their own label. */
   text = sanitizeLinks(text);
 
+  /* 5 · a sentence that sends the reader to a bare site path that does not
+     exist ("… on the /people/ page") is dropped whole. A markdown link degrades
+     to its label in step 4; a bare path has no label to fall back to, and a
+     sentence pointing at a page that is not there is worse than no sentence.
+     Real routes ("the /research/ page") are untouched. */
+  text = dropSentencesWithUnknownPaths(text);
+
   return text.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/**
+ * A bare site path in prose: "/people/", "/trust/#deployments". Not preceded by
+ * a word character, "]", "(", ":" or "." — so "fall/slip", "card/face", "24/7",
+ * a markdown link's own href (already validated) and a URL's path never match.
+ */
+const BARE_PATH = /(?<![\w\]():.\/])\/(?:[a-z0-9][\w-]*\/?)+(?:#[\w-]+)?/gi;
+
+export function dropSentencesWithUnknownPaths(markdown: string): string {
+  const lines = markdown.split("\n");
+  const kept: string[] = [];
+  for (const line of lines) {
+    const marker = line.match(/^(\s*(?:[-*+]|\d+[.)])\s+)/)?.[1] ?? "";
+    const body = line.slice(marker.length);
+    const sentences = body.split(/(?<=[.!?])\s+/);
+    const clean = sentences.filter((sentence) => {
+      for (const match of sentence.matchAll(BARE_PATH)) {
+        if (!isAllowedHref(match[0].replace(/[.,;:!?]+$/, ""))) return false;
+      }
+      return true;
+    });
+    if (clean.length === sentences.length) {
+      kept.push(line);
+    } else if (clean.join(" ").trim().length > 0) {
+      kept.push(marker + clean.join(" "));
+    }
+    /* A line left with nothing but its bullet is dropped. */
+  }
+  return kept.join("\n");
 }
 
 /**

@@ -769,6 +769,7 @@ per-stage latencies. `npm run ask:e2e -- "does it do military"` prints it.
 | Prompt injection | the question is untrusted input, labelled and last; records are canonical and fenced as reference data; the prompt is built on the Worker; unknown request fields are dropped |
 | Web grounding | none: no `tools` are sent; the canonical records are the only evidence |
 | Invented or off-site links | `cleanModelAnswer` on the Worker; `sanitizeLinks` again in the browser; `AnswerText` validates once more at render |
+| Invented pages, sections or places to look ("see our Customer and Deployment page", "on the /people/ page") | the policy's NEVER INVENT A PLACE TO LOOK rule (a page may be named only when its title is in the supplied records; when evidence is insufficient, say so and stop); mechanically, `cleanModelAnswer` step 5 drops any sentence that points at a bare site path that is not a canonical route |
 | Model-chosen sources | impossible: sources come from `selectSources()` over the canonical records |
 | Generated HTML | `AnswerText.tsx` builds React elements only |
 | Secret exposure | nothing to expose: the AI binding has no key |

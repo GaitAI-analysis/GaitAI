@@ -36,7 +36,7 @@ export default function UnsubscribePage() {
             href="/insights"
             className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-soft-mute transition-colors hover:text-soft-white"
           >
-            ← Back to Blog
+            ← Back to Insights
           </Link>
 
           <h1 className="mt-8 font-display text-display-md text-balance text-soft-white">

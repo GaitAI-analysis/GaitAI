@@ -5,7 +5,7 @@ import { buildArchiveGroups, formatPublicationDate, publicationTopics, publicati
 import styles from "@/components/insights/archive-page.module.css";
 
 export const metadata: Metadata = {
-  title: "Blog Archive — Everything GaitAI Has Published",
+  title: "Insights Archive — Everything GaitAI Has Published",
   description: "The complete GaitAI publication archive, organised by year and month.",
   alternates: { canonical: "/insights/archive" },
   openGraph: { type: "website", url: "/insights/archive", title: "GaitAI Blog Archive", description: "Every story, research note and update from GaitAI." },
@@ -18,7 +18,7 @@ export default async function InsightsArchivePage() {
   return (
     <div className={styles.archive}>
       <header className="site-page-intro-compact container-wide pb-12 sm:pb-16">
-        <Link href="/insights" className={styles.back}>← Blog &amp; updates</Link>
+        <Link href="/insights" className={styles.back}>← Insights</Link>
         <p className={styles.kicker}>Archive</p>
         <h1 className={styles.title}>Everything GaitAI has published.</h1>
         <p className={styles.deck}>{stories.length} stories, organised for retrieval rather than display.</p>

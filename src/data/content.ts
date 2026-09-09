@@ -107,10 +107,10 @@ export const navLinks: readonly NavItem[] = [
       },
     ],
   },
-  /* The route stays /insights. The navbar says "Blog" because it has to fit
-     between six other tabs and because it is the word a first-time visitor
-     scans for; the page itself carries the fuller "GaitAI · Blog & Updates",
-     and the footer, which has the room, says "Blog & Updates" too.
+  /* The route stays /insights. The navbar says "Insights", which is the
+     publication's name everywhere now — the masthead reads "GaitAI Insights",
+     the footer says "Insights", and the articles link back to "Insights". One
+     word, one editorial identity.
 
      THE THREE ROWS ARE THE PUBLICATION'S THREE QUESTIONS, in the order a
      reader asks them: what should I read today, where do I begin, and what
@@ -131,7 +131,7 @@ export const navLinks: readonly NavItem[] = [
                 /insights/start-here/, so a row for it would point at the row
                 above it. */
   {
-    label: "Blog",
+    label: "Insights",
     href: "/insights",
     children: [
       {

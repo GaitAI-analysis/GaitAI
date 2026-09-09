@@ -170,6 +170,153 @@ function Pipeline({ p }: { p: number }) {
   );
 }
 
+/* ── 01 · pipeline, at cover size ───────────────────────────────────────────
+   HUMAN → POSE → SKELETON → TRAJECTORY → SIGNAL → INTELLIGENCE. The frame
+   holds the centre while the body is the subject, then slides left to make
+   room for what is read from it: the signals, then the decision-support
+   plate. One thing on screen at a time — the cover teaches, it does not
+   itemise. */
+const COVER_STAGES = ["Human", "Pose", "Skeleton", "Trajectory", "Signal", "Intelligence"] as const;
+const CW = 640;
+const CH = 400;
+function coverStageOf(p: number) {
+  return Math.min(5, Math.floor(clamp01(p) * 6));
+}
+function PipelineCover({ p }: { p: number }) {
+  const stage = coverStageOf(p);
+  const s = 2.3;
+  const fx = 186;
+  const fy = 186;
+  const groundY = fy + 48 * s;
+  const phase = GAIT_PHASES[0];
+  const late = stage >= 4;
+  const pixels = stage === 0 ? 1 : 0;
+  const mass = stage === 0 ? 1 : stage === 1 ? 0.3 : 0;
+  const joints = stage === 1 ? 1 : 0;
+  const bones = stage >= 2 ? (late ? 0.6 : 1) : 0;
+  const trail = stage === 3 ? 1 : late ? 0.35 : 0;
+  const signal = stage === 4 ? 1 : stage === 5 ? 0.3 : 0;
+  const decision = stage === 5 ? 1 : 0;
+
+  const trails = {
+    ankle: smoothPath(
+      GAIT_PHASES.map((ph, i) => [fx - (4 - i) * 32 + ph.nearLeg[2][0] * s * 0.45, fy - ph.lift * s + ph.nearLeg[2][1] * s] as Pt),
+    ),
+    wrist: smoothPath(
+      GAIT_PHASES.map((ph, i) => [fx - (4 - i) * 32 + ph.nearArm[2][0] * s * 0.45, fy - ph.lift * s + ph.nearArm[2][1] * s] as Pt),
+    ),
+  };
+  const wave = (y0: number, amp: number, f: number, ph: number) =>
+    smoothPath(
+      Array.from({ length: 22 }, (_, i) => {
+        const t = i / 21;
+        return [372 + t * 232, y0 + Math.sin(t * Math.PI * 2 * f + ph) * amp] as Pt;
+      }),
+    );
+
+  return (
+    <svg viewBox={`0 0 ${CW} ${CH}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id="cover-frame">
+          <rect x={36} y={30} width={300} height={300} rx={4} />
+        </clipPath>
+      </defs>
+      <g
+        className={fig.move}
+        style={{ transform: late ? "translateX(0px)" : "translateX(134px)", transition: "transform 0.7s cubic-bezier(0.16,1,0.3,1)" }}
+      >
+        <rect className={fig.frame} x={36} y={30} width={300} height={300} rx={4} />
+        <g clipPath="url(#cover-frame)">
+          <g className={fig.fade} style={{ opacity: pixels }}>
+            {Array.from({ length: 16 }, (_, row) =>
+              Array.from({ length: 15 }, (_, col) => (
+                <rect
+                  key={`${row}-${col}`}
+                  className={(row * 7 + col * 5) % 6 === 0 ? fig.pixelLit : fig.pixel}
+                  x={38 + col * 20}
+                  y={32 + row * 21}
+                  width={18}
+                  height={19}
+                />
+              )),
+            )}
+          </g>
+          <line className={fig.ground} x1={48} y1={groundY} x2={324} y2={groundY} />
+          <g className={fig.fade} style={{ opacity: mass }}>
+            <BodyMass x={fx} y={fy} s={s} className={stage === 0 ? fig.massSolid : fig.mass} />
+          </g>
+          <g className={fig.fade} style={{ opacity: trail }}>
+            {GAIT_PHASES.map((ph, i) =>
+              i === 4 ? null : (
+                <g key={ph.id} className={fig.ghost} transform={`translate(${fx - (4 - i) * 32} ${fy - ph.lift * s})`}>
+                  <PoseFrame phase={ph} s={s * 0.45} classes={CLASSES} showFar={false} />
+                </g>
+              ),
+            )}
+            <path className={fig.trace} d={trails.ankle} />
+            <path className={`${fig.trace} ${fig.traceViolet}`} d={trails.wrist} />
+          </g>
+          <g transform={`translate(${fx} ${fy - phase.lift * s})`}>
+            <g className={fig.fade} style={{ opacity: bones }}>
+              <PoseFrame phase={phase} s={s} classes={CLASSES} showContacts={stage === 2 || stage === 3} />
+            </g>
+            <g className={fig.fade} style={{ opacity: joints }}>
+              {[...phase.nearArm, ...phase.nearLeg, ...phase.farLeg.slice(1), GAIT_HEAD].map(([jx, jy], i) => (
+                <circle key={i} className={fig.joint} cx={r1(jx * s)} cy={r1(jy * s)} r={3.4} />
+              ))}
+            </g>
+          </g>
+        </g>
+        <text className={`${fig.label} ${fig.labelSmall}`} x={46} y={48}>
+          {stage <= 1 ? "appearance" : stage <= 3 ? "geometry" : "what was read from it"}
+        </text>
+      </g>
+
+      {/* the signals, read from the trail */}
+      <g className={fig.fade} style={{ opacity: signal }}>
+        {[
+          { y: 96, amp: 10, f: 3, ph: 0, cls: fig.trace, name: "Cadence" },
+          { y: 172, amp: 8, f: 1.5, ph: 1, cls: `${fig.trace} ${fig.traceRoyal}`, name: "Stride rhythm" },
+          { y: 248, amp: 7, f: 2, ph: 0.4, cls: `${fig.trace} ${fig.traceViolet}`, name: "Left / right symmetry" },
+          { y: 324, amp: 6, f: 4, ph: 2, cls: `${fig.trace} ${fig.traceTeal}`, name: "Variability" },
+        ].map((band) => (
+          <g key={band.y}>
+            <text className={`${fig.label} ${fig.labelSmall}`} x={372} y={band.y - 20}>
+              {band.name}
+            </text>
+            <line className={fig.hair} x1={372} y1={band.y} x2={604} y2={band.y} />
+            <path className={band.cls} d={wave(band.y, band.amp, band.f, band.ph)} />
+          </g>
+        ))}
+      </g>
+
+      {/* decision support */}
+      <g className={fig.fade} style={{ opacity: decision }}>
+        <rect className={`${fig.plate} ${fig.plateLit}`} x={384} y={112} width={216} height={168} rx={8} />
+        <text className={`${fig.label} ${fig.labelAccent}`} x={404} y={140}>
+          For review
+        </text>
+        <text className={`${fig.label} ${fig.labelInk}`} x={404} y={166}>
+          Stride variability
+        </text>
+        <text className={`${fig.label} ${fig.labelSmall}`} x={404} y={182}>
+          above this person&apos;s baseline
+        </text>
+        <line className={fig.hair} x1={404} y1={198} x2={580} y2={198} />
+        <text className={`${fig.label} ${fig.labelSmall}`} x={404} y={218}>
+          history · 5 captures · quality clean
+        </text>
+        <text className={`${fig.label} ${fig.labelSmall}`} x={404} y={236}>
+          report · dashboard · alert
+        </text>
+        <text className={`${fig.label} ${fig.labelWarn} ${fig.labelSmall}`} x={404} y={262}>
+          decision support · not a diagnosis
+        </text>
+      </g>
+    </svg>
+  );
+}
+
 /* ── 03 · reduction ────────────────────────────────────────────────────── */
 function Reduction({ p }: { p: number }) {
   const cx = 88;
@@ -190,7 +337,7 @@ function Reduction({ p }: { p: number }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
-      <rect className={fig.frame} x={22} y={18} width={140} height={156} rx={3} />
+      <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
       <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
       {/* RGB: textured body */}
       <g style={{ opacity: rgb }}>
@@ -627,8 +774,11 @@ export function CardInteraction({
     setStates((prev) => prev.map((s, j) => (j === i ? (((s + 1) % 3) as StreamState) : s)));
   };
 
+  const coverStage = concept === "pipeline" && large ? coverStageOf(p) : -1;
   const readout =
-    concept === "divergence"
+    coverStage >= 0
+      ? ""
+      : concept === "divergence"
       ? pick >= 0
         ? READOUT.divergence[pick]
         : "One movement"
@@ -648,16 +798,41 @@ export function CardInteraction({
       onPointerLeave={onLeave}
       style={large ? { minHeight: 260 } : undefined}
     >
-      {concept === "pipeline" && <Pipeline p={p} />}
+      {concept === "pipeline" && (large ? <PipelineCover p={p} /> : <Pipeline p={p} />)}
       {concept === "reduction" && <Reduction p={p} />}
       {concept === "trajectory" && <Trajectory p={p} />}
       {concept === "divergence" && <Divergence pick={pick} />}
       {concept === "fusion" && <Fusion states={states} onToggle={toggle} />}
-      <span className={styles.cue}>
+      <span className={`${styles.cue} ${coverStage >= 0 ? styles.cueRight : ""}`}>
         <span className={styles.cueMark} />
-        {CUE[concept]}
+        {coverStage >= 0 ? "Drag through the signal →" : CUE[concept]}
       </span>
       {readout && <span className={styles.readout}>{readout}</span>}
+      {coverStage >= 0 && (
+        <>
+          <span aria-hidden="true" className={styles.stageName}>
+            {COVER_STAGES[coverStage]}
+          </span>
+          <div className={styles.stages} role="group" aria-label="Pipeline stage">
+            {COVER_STAGES.map((name, i) => (
+              <button
+                key={name}
+                type="button"
+                aria-label={name}
+                aria-pressed={i === coverStage}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={() => {
+                  cancelAnimationFrame(raf.current);
+                  demoed.current = true;
+                  markUsed();
+                  setP((i + 0.5) / 6);
+                }}
+                className={`${styles.stageBtn} ${i === coverStage ? styles.stageBtnOn : ""} ${i < coverStage ? styles.stageBtnDone : ""}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

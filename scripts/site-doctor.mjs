@@ -92,7 +92,9 @@ const FORBIDDEN = [
   ["best-in-class", /best[\s\-]in[\s\-]class/gi],
   ["trusted by", /trusted\s+by/gi],
   ["duplicated brand title", /\| GaitAI \| GaitAI/gi],
-  ["editorial section called Insights", />\s*Insights\s*</gi],
+  /* "Insights" is the publication's name again (2026-09-09): the navbar tab,
+     the footer and the masthead all say it, so the old rule that flagged a
+     bare "Insights" element is retired rather than worked around. */
 ];
 
 async function fetchText(url) {

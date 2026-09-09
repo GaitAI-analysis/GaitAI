@@ -17,12 +17,22 @@ const TOPIC_CLASS: Record<string, string> = {
 };
 
 /**
- * THE COVER STORY — one dominant piece with its interaction at full size.
+ * THE COVER — an editorial cover, not a dashboard tile.
  *
- * The interactive picture takes the larger share of the width; beside it the
- * story's question, headline, deck and the three "you'll learn" hooks that a
- * listing card has no room for. The whole surface lifts and lights like every
- * other card; the picture is explorable in place.
+ *   ┌──────────────────────────────┬────────────────────────┐
+ *   │                              │  FOUNDATIONS 01        │
+ *   │   the interaction, large     │  From Walking Video    │
+ *   │   human → pose → skeleton →  │  to Movement           │
+ *   │   trajectory → signal →      │  Intelligence          │
+ *   │   intelligence               │  the question          │
+ *   │                              │  one-line teaser       │
+ *   │                              │  Explore story →       │
+ *   └──────────────────────────────┴────────────────────────┘
+ *
+ * Roughly 58/42. The headline dominates; the question and one line of
+ * teaser support it; the date, topic and views sit last and small. No
+ * "COVER STORY · DATE · CATEGORY · VIEWS" row competing with the title —
+ * the "Cover story" label lives above the card, once.
  */
 export function InsightFeatureStory({ story, views }: { story: PublicationStory; views?: number }) {
   const { ref, pointer, handlers } = usePhysicalCard();
@@ -50,55 +60,42 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
             <span className="sr-only">{artwork.alt}</span>
           </>
         )}
-        {typeof story.seriesOrder === "number" && (
-          <span aria-hidden="true" className={styles.step}>
-            Foundations <b>{String(story.seriesOrder).padStart(2, "0")}</b>
-          </span>
-        )}
       </div>
 
       <div className={`${journal.cardBody} ${styles.featureBody} ${styles.depth}`}>
-        <p className={styles.featureKicker}>
-          <span className={styles.featureStep}>Cover story</span>
-          <span aria-hidden="true">·</span>
-          <time dateTime={story.date}>{formatPublicationDate(story.date)}</time>
-          <span aria-hidden="true">·</span>
-          <span>{topic ? topicLabel(topic) : story.type}</span>
-          {typeof views === "number" && (
-            <>
-              <span aria-hidden="true">·</span>
-              <span>{formatCount(views, "view")}</span>
-            </>
-          )}
-        </p>
+        {typeof story.seriesOrder === "number" && (
+          <p className={styles.featureStep}>
+            Foundations {String(story.seriesOrder).padStart(2, "0")}
+          </p>
+        )}
 
-        <h3 className={journal.cardTitle}>
+        <h3 className={`${journal.cardTitle} ${styles.featureTitle}`}>
           <Link href={story.href} className={journal.cardLink}>
             {story.title}
           </Link>
         </h3>
-        <p className={journal.cardByline}>{story.author}</p>
 
         {article?.question && <p className={styles.featureQuestion}>{article.question}</p>}
-        <p className={journal.cardExcerpt}>{story.description}</p>
+        <p className={styles.featureTeaser}>{story.description}</p>
 
-        {article && article.hooks.length > 0 && (
-          <ul className={styles.featureHooks}>
-            {article.hooks.slice(0, 3).map((hook) => (
-              <li key={hook} className={styles.featureHook}>
-                <span aria-hidden="true" className={styles.featureHookMark} />
-                <span>{hook}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <span className={journal.cardCta}>
-          {article?.ctaLabel ?? "Read the story"}
+        <span className={`${journal.cardCta} ${styles.featureCta}`}>
+          Explore story
           <span aria-hidden="true" className={journal.cardCtaArrow}>
             →
           </span>
         </span>
+
+        <p className={styles.quietMeta}>
+          <time dateTime={story.date}>{formatPublicationDate(story.date)}</time>
+          <span aria-hidden="true"> · </span>
+          <span>{topic ? topicLabel(topic) : story.type}</span>
+          {typeof views === "number" && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span>{formatCount(views, "view")}</span>
+            </>
+          )}
+        </p>
       </div>
     </article>
   );

@@ -244,7 +244,7 @@ export default async function InsightArticlePage({
               href="/insights"
               className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-soft-mute transition-colors hover:text-soft-white"
             >
-              ← Back to Blog
+              ← Back to Insights
             </Link>
 
             {/* The kicker, the headline block and the counters below it are

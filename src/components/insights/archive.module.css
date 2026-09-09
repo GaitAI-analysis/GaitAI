@@ -36,7 +36,8 @@
 
   --jr-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
-  padding-top: clamp(1.5rem, 4vw, 3rem);
+  /* No padding-top of its own: `site-page-intro-compact` on the element
+     supplies the header clearance from the site's spacing tokens. */
   padding-bottom: clamp(3rem, 7vw, 5.5rem);
 }
 
@@ -67,9 +68,9 @@
 }
 
 .mastheadTitle {
-  margin-top: 1.15rem;
+  margin-top: 0.9rem;
   font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-size: clamp(2rem, 4.4vw, 3rem);
   font-weight: 600;
   line-height: 1.08;
   letter-spacing: -0.03em;
@@ -91,7 +92,7 @@
 }
 
 .mastheadDeck {
-  margin-top: 1.4rem;
+  margin-top: 1rem;
   max-width: 38rem;
   font-size: 1rem;
   line-height: 1.7;
@@ -99,7 +100,7 @@
 }
 
 .mastheadMeta {
-  margin-top: 1.2rem;
+  margin-top: 0.9rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 10.5px;
   letter-spacing: 0.16em;
@@ -112,7 +113,152 @@
   margin-top: 0.4rem;
 }
 
-/* ── Controls ── */
+/* ── Utilities: search · Topics ▾ · Newest ▾ ──
+   One row, after the cover story. No rule above it: it sits on the page
+   ground with air around it, the way a magazine's contents line does. */
+.utilities {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+.utilitiesAfterCover {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+}
+/* On a phone the search takes the first line and the two menus share the
+   second, rather than one control wrapping alone. */
+@media (max-width: 560px) {
+  .utilities .searchWrap {
+    flex-basis: 100%;
+  }
+  .utilities .sort,
+  .utilities .menuWrap {
+    flex: 1 1 auto;
+  }
+  .utilities .menuButton {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+.menuWrap {
+  position: relative;
+}
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  border: 1px solid var(--jr-line-mid);
+  border-radius: 0.55rem;
+  background: rgb(var(--c-soft-white) / 0.04);
+  padding: 0.42rem 0.85rem;
+  font-size: 12.5px;
+  color: var(--jr-ink);
+  cursor: pointer;
+  transition: border-color 0.25s var(--jr-ease), background-color 0.25s var(--jr-ease);
+}
+.menuButton:hover {
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+.menuButton:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: 2px;
+}
+.menuButtonOn {
+  border-color: var(--jr-cyan);
+  color: var(--jr-ink);
+}
+.menuChevron {
+  font-size: 10px;
+  color: var(--jr-mute);
+}
+.menuPanel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(26rem, calc(100vw - 2.5rem));
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--jr-line-mid);
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  background: rgb(var(--c-obsidian-500) / 0.98);
+  box-shadow: 0 18px 60px rgb(0 0 0 / 0.28);
+  backdrop-filter: blur(18px);
+  animation: archiveMenuIn 0.22s var(--jr-ease) both;
+}
+:global(.light) .menuPanel {
+  background: rgb(255 255 255 / 0.98);
+  box-shadow: 0 18px 50px -20px rgb(15 23 42 / 0.3);
+}
+@keyframes archiveMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menuPanel {
+    animation: none;
+  }
+}
+.menuGroup {
+  display: grid;
+  gap: 0.5rem;
+}
+.menuGroupLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.menuCount {
+  margin-left: 0.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  color: var(--jr-mute);
+}
+.menuClear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-self: start;
+  font-size: 11.5px;
+  color: var(--jr-cyan);
+}
+.activeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.9rem;
+}
+.activeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+  border: 1px solid var(--jr-cyan);
+  border-radius: 999px;
+  background: rgb(79 209 255 / 0.1);
+  padding: 0.25rem 0.75rem;
+  font-size: 11.5px;
+  color: var(--jr-ink);
+}
+.resultQuiet {
+  font-size: 12px;
+  color: var(--jr-mute);
+}
+
+/* ── Controls (kept for the topic and archive routes) ── */
 .controls {
   display: flex;
   flex-wrap: wrap;
@@ -374,7 +520,7 @@
 
 /* ── Cover story ── */
 .featured {
-  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  margin-top: clamp(1.6rem, 3vw, 2.25rem);
 }
 
 .featuredLabel {
@@ -408,6 +554,7 @@
 
 .latestSection {
   scroll-margin-top: 7rem;
+  margin-top: 1.5rem;
 }
 
 /* Compact, bounded page navigation. Only the current slice is rendered as

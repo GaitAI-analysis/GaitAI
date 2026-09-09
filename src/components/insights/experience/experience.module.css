@@ -65,6 +65,12 @@
     margin-right: -3.5rem;
   }
 }
+@media (min-width: 1280px) {
+  .figureWide {
+    margin-left: -5.5rem;
+    margin-right: -5.5rem;
+  }
+}
 /* The hero variant: no top margin, sits in the article's media slot. */
 .figureHero {
   margin: 0;

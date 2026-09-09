@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { MessagesSquare, WifiOff } from "lucide-react";
+import { WifiOff } from "lucide-react";
 import {
   buildThread,
   subscribeApprovedComments,
@@ -65,9 +65,8 @@ export function DiscussionSection({
     >
       <header className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-royal-400/25 to-cyan-300/15 text-cyan-300 ring-1 ring-white/10">
-            <MessagesSquare className="h-4 w-4" />
-          </span>
+          {/* No icon box: a discussion heading in a journal is type, not a
+              badge. The count beneath it says what is here. */}
           <div>
             <h2 className="font-display text-xl text-soft-white sm:text-2xl">
               Discussion

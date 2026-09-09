@@ -14,6 +14,7 @@ import {
   type PublicationStory,
 } from "@/lib/publication";
 import { formatCount } from "@/lib/article-stats";
+import { getInsightBySlug, readingMinutes } from "@/data/insights";
 import { JournalCover } from "../JournalCover";
 import journal from "../journal.module.css";
 import publication from "../publication.module.css";
@@ -140,6 +141,7 @@ export function InsightCard({
   const topic = story.topics[0];
   const artwork = story.coverArtwork;
   const validImage = artwork.kind === "image" && isSafeMediaUrl(artwork.src);
+  const article = story.source === "editorial" ? getInsightBySlug(story.slug) : undefined;
 
   return (
     <article
@@ -204,6 +206,12 @@ export function InsightCard({
           <time dateTime={story.date}>{formatPublicationDate(story.date)}</time>
           <span aria-hidden="true"> · </span>
           <span>{topic ? topicLabel(topic) : publicationTypeLabel(story.type)}</span>
+          {article && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span>{readingMinutes(article)} min read</span>
+            </>
+          )}
           {typeof views === "number" && (
             <>
               <span aria-hidden="true"> · </span>

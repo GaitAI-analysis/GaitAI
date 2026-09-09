@@ -77,12 +77,20 @@ export function FusionExperiment({ articleSlug, presentation }: FigureProps) {
       setModes({ rgb: read(presentation, "rgb"), pose: read(presentation, "pose"), imu: read(presentation, "imu"), audio: read(presentation, "audio") });
   }, [presentation]);
 
-  /* The streams flow: a slow phase advance while active. */
+  /* The streams flow for a few seconds after arriving and after every change
+     of state, then settle: a diagram that never stops moving is noise. */
   useEffect(() => {
     if (!active || presentation) return;
-    const id = window.setInterval(() => setTick((v) => (v + 1) % 1000), 90);
+    const until = Date.now() + 4200;
+    const id = window.setInterval(() => {
+      if (Date.now() > until) {
+        window.clearInterval(id);
+        return;
+      }
+      setTick((v) => (v + 1) % 1000);
+    }, 90);
     return () => window.clearInterval(id);
-  }, [active, presentation]);
+  }, [active, presentation, modes]);
 
   const missing = STREAMS.filter((s) => modes[s.id] === "missing");
   const corrupt = STREAMS.filter((s) => modes[s.id] === "corrupt");

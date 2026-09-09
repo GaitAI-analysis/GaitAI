@@ -207,6 +207,15 @@ export function selectSources(
 
   const used = [...linked, ...mentioned];
 
+  /* The record retrieval ranked FIRST grounded the answer whether or not the
+     prose repeats its title — "How GaitAI works end to end" is cited by its
+     stages, a family page by its modules. It leads the row; the home record
+     is still excepted, since saying "GaitAI" is not citing a page. */
+  const lead = retrieved[0];
+  if (lead && used.length && lead.doc.id !== "page:/" && !used.some((item) => item.doc.id === lead.doc.id)) {
+    used.unshift(lead);
+  }
+
   /* DEDUPLICATED BY PAGE. A long article is several chunk records with one
      title and one route; an answer that names it would otherwise cite it
      three times. The best-ranked chunk stands for the page and keeps its

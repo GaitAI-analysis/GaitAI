@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useRef, useState } from "react";
 import { MAX_MESSAGE_LENGTH } from "./config";
 import { hostedEnabled } from "@/lib/ask/hosted";
+import { loadRuntimeConfig } from "@/lib/ask/runtime-config";
 import styles from "./assistant.module.css";
 
 /**
@@ -20,9 +21,25 @@ import styles from "./assistant.module.css";
  * knowledge in the tab, and the line says that instead. Neither version claims
  * more privacy than the build delivers.
  */
-const PRIVACY_NOTE = hostedEnabled()
-  ? "Your text question may be processed by GaitAI’s hosted AI service. Please don’t share sensitive personal or patient information."
-  : "Answers come from GaitAI’s local site knowledge. Please don’t share sensitive personal or patient information.";
+const PRIVACY_NOTE_HOSTED =
+  "Your text question may be processed by GaitAI’s hosted AI service. Please don’t share sensitive personal or patient information.";
+const PRIVACY_NOTE_LOCAL =
+  "Answers come from GaitAI’s local site knowledge. Please don’t share sensitive personal or patient information.";
+
+/** The bundle's answer first; the runtime configuration's once it is read. */
+function usePrivacyNote(): string {
+  const [hosted, setHosted] = useState(hostedEnabled());
+  useEffect(() => {
+    let live = true;
+    void loadRuntimeConfig().then((config) => {
+      if (live && config) setHosted(config.endpoint.length > 0);
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+  return hosted ? PRIVACY_NOTE_HOSTED : PRIVACY_NOTE_LOCAL;
+}
 export const ChatInput = forwardRef<
   HTMLTextAreaElement,
   {
@@ -31,6 +48,7 @@ export const ChatInput = forwardRef<
   }
 >(function ChatInput({ disabled, onSend }, ref) {
   const [value, setValue] = useState("");
+  const privacyNote = usePrivacyNote();
   const localRef = useRef<HTMLTextAreaElement | null>(null);
 
   /* Grow to fit, up to five lines, then scroll. */
@@ -88,7 +106,7 @@ export const ChatInput = forwardRef<
           <span aria-hidden="true">↑</span>
         </button>
       </form>
-      <p className={styles.privacyNote}>{PRIVACY_NOTE}</p>
+      <p className={styles.privacyNote}>{privacyNote}</p>
     </div>
   );
 });

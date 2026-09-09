@@ -45,6 +45,7 @@
 
 import { ASK_ENDPOINT, HOSTED_TIMEOUT_MS } from "@/components/assistant/config";
 import type { AskResult, AskSource } from "./engine";
+import { resolveEndpoint } from "./runtime-config";
 
 export type HostedFailure =
   | "disabled"
@@ -91,7 +92,13 @@ interface HostedResponse {
 }
 
 /** True when a public Worker URL was configured at build time. */
+/** The BUNDLED configuration: true when this build was given an endpoint. The
+ *  engine asks `hostedAvailable()` instead, which also consults the runtime
+ *  configuration a stale bundle would otherwise miss. */
 export const hostedEnabled = () => ASK_ENDPOINT.length > 0;
+
+/** Whether a hosted endpoint is configured NOW — runtime config first, bundle second. */
+export const hostedAvailable = async (): Promise<boolean> => (await resolveEndpoint()).length > 0;
 
 const asSources = (value: unknown): AskSource[] =>
   Array.isArray(value)
@@ -120,7 +127,8 @@ export async function askHosted(options: {
   selectedRecordIds: string[];
   signal?: AbortSignal;
 }): Promise<AskResult> {
-  if (!hostedEnabled()) throw new HostedError("disabled");
+  const endpoint = await resolveEndpoint();
+  if (!endpoint) throw new HostedError("disabled");
 
   const controller = new AbortController();
   let timedOut = false;
@@ -145,7 +153,7 @@ export async function askHosted(options: {
 
   let response: Response;
   try {
-    response = await fetch(ASK_ENDPOINT, {
+    response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,

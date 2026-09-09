@@ -249,4 +249,27 @@ export const RANKING_CASES: RankingCase[] = [
   },
   /* A module named in the "for" form keeps its own intent. */
   { q: "What can WalkScan do for a clinic?", intent: "PRODUCT", top: "product:walkscan" },
+
+  /* ── The platform as a mechanism, and the neighbours it must not collapse into ──
+     "How does GaitAI work end to end" once answered with a Smart Cities use
+     case and a deployment disclaimer. It is an ARCHITECTURE question: the
+     platform record leads; environments, people and talks do not appear on
+     top. Deployment, validation, domain and product questions keep their own
+     intents. */
+  { q: "Tell me about GaitAI", intent: "PRODUCT", top: "page:/", notTopTypes: ["use-case", "person", "talk", "insight"] },
+  { q: "How does GaitAI work?", intent: "ARCHITECTURE", top: "platform:gaitai-end-to-end", notTopTypes: ["use-case", "person", "talk", "publication", "insight"] },
+  { q: "How does GaitAI work end to end?", intent: "ARCHITECTURE", top: "platform:gaitai-end-to-end", notTopTypes: ["use-case", "person", "talk", "publication", "insight"] },
+  { q: "What happens from walking video to insight?", intent: "ARCHITECTURE", top: "platform:gaitai-end-to-end", notTopTypes: ["use-case", "person", "talk"] },
+  { q: "Explain the GaitAI pipeline", intent: "ARCHITECTURE", top: "platform:gaitai-end-to-end" },
+  { q: "How does a camera input become a report?", intent: "ARCHITECTURE", includesType: "page", notTopTypes: ["use-case", "person", "talk", "publication", "insight"] },
+  { q: "What's the end-to-end workflow?", intent: "ARCHITECTURE", top: "platform:gaitai-end-to-end" },
+  { q: "How does GaitAI turn walking video into intelligence?", intent: "ARCHITECTURE", top: "platform:gaitai-end-to-end" },
+  { q: "Explain the architecture", intent: "ARCHITECTURE", top: "platform:gaitai-end-to-end" },
+  { q: "How does the platform process movement?", intent: "ARCHITECTURE", top: "platform:gaitai-end-to-end" },
+  { q: "Where has GaitAI been deployed?", intent: "DEPLOYMENT", topType: "deployment", notTopTypes: ["use-case", "person", "talk", "insight"] },
+  { q: "Has GaitAI been validated in hospitals?", intent: "EVIDENCE", notTopTypes: ["person", "talk", "insight"] },
+  { q: "What can GaitAI do for hospitals?", intent: "DOMAIN_APPLICATION", top: "use-case:hospitals" },
+  { q: "What is MobilityCare?", intent: "PRODUCT", top: "page:/mobilitycare" },
+  /* A named module's "how does it work" is that module's section, not the platform. */
+  { q: "How does WalkScan work?", intent: "PRODUCT", top: "product:walkscan" },
 ];

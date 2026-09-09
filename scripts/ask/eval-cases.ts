@@ -250,4 +250,13 @@ export const EVAL_CASES: EvalCase[] = [
       { role: "assistant", content: "GaitAI documents Hospitals as a deployment environment." },
     ],
   },
+
+  // ── architecture: the platform as a mechanism ──────────────────────────────
+  { q: "How does GaitAI work end to end?", family: "architecture", relevant: ["platform:gaitai-end-to-end"], wrongTypes: ["use-case", "person", "talk", "publication", "insight"] },
+  { q: "How does GaitAI work?", family: "architecture", relevant: ["platform:gaitai-end-to-end", "page:/movement-lab"], wrongTypes: ["use-case", "person", "talk", "publication", "insight"] },
+  { q: "Explain the GaitAI pipeline", family: "architecture", relevant: ["platform:gaitai-end-to-end", "page:/movement-lab"], wrongTypes: ["use-case", "person", "talk"] },
+  { q: "What happens from walking video to insight?", family: "architecture", relevant: ["platform:gaitai-end-to-end", "insight:from-walking-video-to-movement-intelligence"], wrongTypes: ["use-case", "person", "talk"] },
+  { q: "How does a camera input become a report?", family: "architecture", relevant: ["platform:gaitai-end-to-end", "page:/movement-lab"], wrongTypes: ["use-case", "person", "talk"] },
+  { q: "Tell me about GaitAI", family: "overview", relevant: ["page:/"], wrongTypes: ["use-case", "person", "talk", "insight"] },
+  { q: "Where has GaitAI been deployed?", family: "deployment", relevant: ["deployment:process", "page:/trust", "deployment-faq:0"], wrongTypes: ["person", "talk", "insight"] },
 ];

@@ -24,6 +24,22 @@ const basePath = "";
  * that has not run the generator yet) the version is the build time, which
  * still never yields a stale hit.
  */
+/**
+ * ASK GAITAI BUILD ID. Written by scripts/write-ask-config.mjs (prebuild) into
+ * public/ask/config.json together with the hosted endpoint; inlined here as
+ * NEXT_PUBLIC_ASK_BUILD_ID so the client can compare the bundle it is running
+ * against the configuration the server currently publishes. See
+ * src/lib/ask/runtime-config.ts.
+ */
+function assistantBuildId() {
+  try {
+    const parsed = JSON.parse(readFileSync(new URL("./public/ask/config.json", import.meta.url), "utf8"));
+    return typeof parsed.build === "string" ? parsed.build : "";
+  } catch {
+    return "";
+  }
+}
+
 function corpusVersion() {
   try {
     const bytes = readFileSync(new URL("./public/ask/knowledge.json", import.meta.url));
@@ -65,6 +81,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
     NEXT_PUBLIC_ASK_CORPUS_VERSION: corpusVersion(),
+    NEXT_PUBLIC_ASK_BUILD_ID: assistantBuildId(),
   },
 
 };

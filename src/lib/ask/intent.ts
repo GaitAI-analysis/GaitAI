@@ -41,6 +41,7 @@ import type { Family } from "./domains";
 export type Intent =
   | "PERSON"
   | "PRODUCT"
+  | "ARCHITECTURE"
   | "DOMAIN_APPLICATION"
   | "SECURITY"
   | "HEALTH_MOBILITY"
@@ -263,6 +264,45 @@ export const INTENTS: Record<Intent, IntentSpec> = {
     examples: ["How does GaitAI integrate?", "what input does it need?", "does that need a camera?", "how do we start a pilot", "deployment?"],
   },
 
+  ARCHITECTURE: {
+    description: "How the platform works as a whole — the pipeline from capture to review, its stages, inputs and outputs.",
+    /* The platform as the subject: "how does GaitAI / it / the platform work",
+       "end to end", "pipeline", "architecture", "from video to insight". A
+       named module keeps PRODUCT ("how does WalkScan work" is that module's
+       how-it-works section), which classifyIntent checks before this. */
+    triggers: [
+      /\bhow\s+(?:does|do|would|will|can)\s+(?:gaitai|gait\s*ai|it|this|everything|the\s+(?:platform|system|whole\s+(?:thing|system|platform)|pipeline|engine|technology|product))\s+(?:actually\s+|really\s+)?(?:work|operate|function|run|fit\s+together|process|analy[sz]e|handle|turn|convert|go)\b/i,
+      /\b(?:end[\s-]*to[\s-]*end|pipeline|architecture|workflow|under\s+the\s+hood|behind\s+the\s+scenes|step[\s-]+by[\s-]+step|stages?\s+of\s+(?:the\s+)?(?:process|pipeline|platform|system)|processing\s+(?:chain|steps|stages|flow)|data\s+flow|how\s+it\s+(?:all\s+)?works)\b/i,
+      /\bfrom\s+(?:a\s+|the\s+)?(?:walking\s+|raw\s+)?(?:video|camera|clip|footage|sensor|movement|input|capture)s?\s+(?:\S+\s+){0,3}?(?:to|into)\s+(?:an?\s+|the\s+)?(?:insight|report|intelligence|alert|dashboard|output|decision|result)s?\b/i,
+      /\b(?:turn|turns|turning|convert|converts|converting|transform|transforms|transforming)\s+(?:\S+\s+){0,3}?(?:video|movement|footage|walk\w*|motion)\s+into\b/i,
+      /\bhow\s+(?:does|do|is|are|can)\s+(?:a\s+|the\s+|an?\s+)?(?:camera|video|cctv|sensor|wearable|smartwatch)\s+(?:input|feed|clip|footage|signal|stream)s?\s+(?:become|turn\s+into|turned\s+into|get\s+processed|processed|analy[sz]ed)\b/i,
+      /\bwhat\s+happens\s+(?:from|between)\b/i,
+    ],
+    topics: /^(?:architecture|pipeline|workflow|how\s+it\s+works|end[\s-]*to[\s-]*end|stages|the\s+pipeline)$/i,
+    expand: ["pipeline", "pose", "signal", "report", "capture"],
+    /* The platform record (type page) and the capability and signal layers
+       answer it; an environment, a person or a talk never does. */
+    prefer: { page: 0.5, capability: 1.5, signal: 1, policy: 0.5 },
+    /* An environment never answers "how does it work": the Smart Cities page
+       scored on "end-to-end" and opened the answer that prompted this intent. */
+    demote: { "use-case": -6, person: -6, talk: -6, publication: -3, insight: -2.5, product: -0.5, deployment: -1 },
+    family: null,
+    hubs: ["platform:gaitai-end-to-end"],
+    policy:
+      "Describe the platform as its published sequence of stages — capture, pose and movement extraction, movement features and signals, analytics and interpretation by the relevant module, a report or alert, human review — in the records' own terms; add the privacy and governance controls the records state; say nothing about deployments, customers or validation unless asked.",
+    examples: [
+      "How does GaitAI work?",
+      "How does GaitAI work end to end?",
+      "Explain the GaitAI pipeline",
+      "What happens from video to insight?",
+      "How does the platform process movement?",
+      "How does a camera input become a report?",
+      "What's the end-to-end workflow?",
+      "How does GaitAI turn walking video into intelligence?",
+      "Explain the architecture",
+    ],
+  },
+
   CAPABILITY: {
     description: "What the platform can sense, measure or detect — a capability or movement signal.",
     triggers: [
@@ -397,6 +437,7 @@ export const INTENT_ORDER: Intent[] = [
   "SECURITY",
   "HEALTH_MOBILITY",
   "DEPLOYMENT",
+  "ARCHITECTURE",
   "PRODUCT",
   "CAPABILITY",
   "GENERAL",
@@ -584,6 +625,11 @@ export function classifyIntent(query: string, hints: IntentHints = {}): Intent {
   if (/\bwhere\s+(?:does|do|is|are|will)\s+(?:my|the|our)\s+(?:data|video|videos|footage|recordings?|files?)\s+(?:go|stored|kept|end\s+up|held|saved|live)\b/i.test(text)) {
     return "PRIVACY";
   }
+  /* "Where has GaitAI been deployed / used / piloted" asks about deployments,
+     not for a page; the deployment records and their boundary answer it. */
+  if (/\bwhere\s+(?:has|have|is|are|was|were)\s+(?:gaitai|gait\s*ai|it|this|the\s+(?:platform|system))\s+(?:been\s+|already\s+|currently\s+)?(?:deployed|used|installed|running|in\s+use|piloted|live|rolled\s+out|implemented|adopted)\b/i.test(text)) {
+    return "DEPLOYMENT";
+  }
 
   if (who && !AUDIENCE_SUBJECT.test(subject)) {
     /* "Who is FallRisk" is a product question phrased loosely; "who is the
@@ -635,6 +681,13 @@ export function classifyIntent(query: string, hints: IntentHints = {}): Intent {
   /* Commercial and off-topic questions the record cannot answer — before the
      product hints, so "how much does WalkScan cost" is not a product question. */
   if (INTENTS.UNSUPPORTED.triggers.some((t) => t.test(text))) return "UNSUPPORTED";
+
+  /* The platform as a whole — "how does GaitAI work end to end", "explain the
+     pipeline", "from video to insight" — before evidence ("does it actually
+     work" stays EVIDENCE: its trigger needs "actually/really"), before the
+     Insights trigger that "insight" alone would fire, and before PRODUCT. A
+     named module keeps PRODUCT: "how does WalkScan work" is its own section. */
+  if (INTENTS.ARCHITECTURE.triggers.some((t) => t.test(text)) && !hints.namesProduct) return "ARCHITECTURE";
 
   if (INTENTS.EVIDENCE.triggers.some((t) => t.test(text))) return "EVIDENCE";
   if (INTENTS.INSIGHTS.triggers.some((t) => t.test(text)) && !hints.namesProduct) return "INSIGHTS";

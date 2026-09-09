@@ -73,6 +73,15 @@ answer come from those records, never from the model.
 
 **Ask GaitAI never becomes unusable because hosted inference failed.** The
 extractive answer is the floor, and it is computed before the Worker is called.
+Since 2026-09-10 it is shaped as an answer rather than a results page: a frame
+line ("Here's what GaitAI's site says:"), the best record's own words, at most
+one supporting record, then the same Sources row and the closed Related-evidence
+disclosure every answer gets. Under it, one quiet status line — "Showing
+answers from GaitAI's site records." — appears whenever the hosted layer was
+unavailable, over budget, rate-limited or absent from the build; never for a
+retrieval refusal, which is an answer in its own right, and never with the
+technical reason. Internally the turn carries `mode: "retrieval"` and the
+engine's `fallbackReason`; a model answer carries `mode: "model"`.
 
 ### What replaced what
 
@@ -405,6 +414,36 @@ retrieval that already ran: no timeout, no error, no console noise.
 `NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` contains no secret; it is the public Worker
 URL. Leaving it unset ships a retrieval-only assistant.
 
+### The runtime configuration and the assistant build id
+
+The endpoint is a build-time constant — and a bundle can be old. A tab opened
+before a deploy, or a phone restoring a suspended tab hours later, keeps
+running the JavaScript it already has; Next's hashed chunk names change
+nothing for code that is already loaded, and GitHub Pages serves every file
+with `Cache-Control: max-age=600`, so even a fresh load inside ten minutes of a
+deploy can get the previous HTML and the previous chunks. On 2026-09-10 that
+was seen live: a mobile tab answered "tell me about GaitAI" from records
+(the bundle without an endpoint) while a reload answered through the Worker.
+
+Fix: the client reads its configuration from the server, on every panel open.
+`scripts/write-ask-config.mjs` (prebuild) writes `public/ask/config.json` —
+`{ build, endpoint, corpus }`, where `build` is a hash of the commit, the
+corpus digest and the endpoint — and `next.config.mjs` inlines the same
+`build` as `NEXT_PUBLIC_ASK_BUILD_ID`. `src/lib/ask/runtime-config.ts`
+fetches the file with `cache: "no-store"` and a per-minute query string (a new
+URL each minute defeats the CDN's 10-minute object cache), trusts it for 60 s,
+and falls back to the last good read, then to the bundled constants, when the
+network fails. The engine asks it for the endpoint before every hosted call,
+so a stale bundle still talks to the CURRENT Worker; the composer's privacy
+note follows it too. When the server's `build` differs from the bundle's, the
+client is stale: it keeps working with the runtime endpoint, and the thread in
+`sessionStorage` — stored as `{ build, turns }` — is discarded if it was
+written by another build, so one panel never mixes two configurations. Only
+https endpoints are accepted; an empty endpoint means the hosted layer is
+deliberately off. Nothing is shown to a visitor; no hard refresh is needed.
+The one thing this cannot fix is a bundle that predates it: those tabs learn
+the endpoint on their next ordinary load.
+
 ### Movement Lab is a separate system
 
 Ask GaitAI's hosted path accepts **textual assistant requests only**: five
@@ -556,6 +595,7 @@ boosts from the table; nothing is tuned per sentence.
 | PRIVACY | policy, deployment | product, use-case, person, talk, insight | privacy policy, privacy controls |
 | DEPLOYMENT | deployment, product, use-case | person, talk, publication, insight | deployment process, Trust |
 | CAPABILITY | capability, signal | talk, person, insight | GaitScape |
+| ARCHITECTURE | page (the platform record), capability, signal, policy | use-case, person, talk, publication, insight | How GaitAI works end to end |
 | COMPARISON | product, page | person, talk, publication, insight | Products |
 | NAVIGATION | page | talk | — |
 | INSIGHTS | insight, page | person, talk, product | Insights |
@@ -622,6 +662,47 @@ customer, clearance or certification. The retrieval-only answer
 (`composeApplicationAnswer` in `extractive.ts`) has the same shape: a heading,
 the boundary or the documented environment, up to four relevant modules in
 their own words, and an "Important boundary" line.
+
+### Architecture questions — "How does GaitAI work end to end?"
+
+Asked live, this produced "The available GaitAI information does not establish
+that. However, the record /use-cases/smart-cities/ documents a deployment
+environment…" — a deployment boundary on a question about the mechanism. The
+architecture was described on the site in pieces (the home page's workflow
+stages and movement story, the Try GaitAI walkthrough, the Movement
+Intelligence Lab's staged pipelines, the capture sources, GaitScape's signal
+and capability layers, the Trust Center's "one movement-processing engine",
+the privacy controls), so no single record answered it and the Smart Cities
+page won on "end-to-end".
+
+Two things fixed it, both general. `ARCHITECTURE` is an intent in the taxonomy
+(`intent.ts`): "how does GaitAI / it / the platform work", "end to end",
+"pipeline", "architecture", "workflow", "from video to insight", "how does a
+camera input become a report", "turn walking video into intelligence". It
+prefers the platform record, capabilities and signals, demotes environments
+as hard as people and talks, and is checked before EVIDENCE, INSIGHTS and
+PRODUCT — a named module keeps PRODUCT ("how does WalkScan work" is that
+module's own section). And `build-knowledge.mjs` generates one canonical
+record, `platform:gaitai-end-to-end` ("How GaitAI works end to end", linked
+to the Lab's walkthrough), assembled only from those published statements:
+the four workflow steps, the five Try GaitAI stages, the movement story, the
+six capture sources, both Lab pipelines stage by stage, the signal and
+capability layers, the one-engine / two-families line, the privacy and
+governance controls, and where a human decides. It is deliberately not bound
+to the GaitAI entity, so it does not ride the entity boost into deployment or
+validation questions. The prompt gains an `Architecture:` framing line that
+tells the model what kind of question this is and to answer as a numbered
+sequence of stages in the records' terms, without a deployment disclaimer;
+the records-only composer renders the same four steps. Seven kinds stay
+apart, and the ranking, paraphrase and Worker suites assert it: overview
+(PRODUCT), architecture, "where has GaitAI been deployed" (DEPLOYMENT — a new
+rule, it used to read as navigation), "has it been validated in hospitals"
+(EVIDENCE), "what can GaitAI do for hospitals" (DOMAIN_APPLICATION), "what is
+MobilityCare" (PRODUCT), "how does WalkScan work" (PRODUCT).
+
+The same pass fixed a silent generator bug: the home record's "How movement
+becomes intelligence" line read a field that did not exist and rendered four
+stage titles with empty descriptions.
 
 ### Hybrid semantic retrieval and reranking — on the Worker
 
@@ -780,15 +861,15 @@ per-stage latencies. `npm run ask:e2e -- "does it do military"` prints it.
 ## 7. Testing
 
 ```bash
-npm run ask:test              # 40 questions — retrieval, grounding, refusal, no fabricated numbers
-npm run ask:rank              # 61 ranking / intent cases
-npm run ask:paraphrase        # 249 phrasings in 28 families converge; taxonomy hygiene
+npm run ask:test              # 53 questions — retrieval, grounding, refusal, no fabricated numbers
+npm run ask:rank              # 76 ranking / intent cases
+npm run ask:paraphrase        # 267 phrasings in 29 families converge; taxonomy hygiene
 npm run ask:eval              # 102-question retrieval evaluation, lexical baseline (no services)
 npm run ask:eval -- --systems all   # A lexical · B semantic · C hybrid+rerank (spends allocation)
 npm run ask:embed             # (re)build data/ask-embeddings.json incrementally by content hash
 npm run ask:probe             # 15 regression questions, person record first
 npm run verify                # typecheck + lint + validate:gaitai + ask:test + ask:rank + ask:paraphrase (CI)
-npm run worker:test           # the Worker's 123 tests, AI binding mocked (CI)
+npm run worker:test           # the Worker's 136 tests, AI binding mocked (CI)
 npm run worker:check          # wrangler deploy --dry-run
 npm run ask:e2e               # THE REAL PATH: corpus → retrieval → Worker → Workers AI (spends allocation)
 ```

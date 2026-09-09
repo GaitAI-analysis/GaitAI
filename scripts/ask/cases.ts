@@ -228,4 +228,14 @@ export const CASES: Case[] = [
     expect: [],
     check: "MUST refuse with the generic no-documented-answer wording.",
   },
+  {
+    q: "Tell me about GaitAI",
+    expect: ["page:/"],
+    check: "The platform overview — two families, 24 modules — not an environment, a person or an essay.",
+  },
+  {
+    q: "How does GaitAI work end to end?",
+    expect: ["platform:gaitai-end-to-end"],
+    check: "The pipeline in sequence — capture, pose and movement, features, module, report, human review — with no deployment disclaimer and no Smart Cities.",
+  },
 ];

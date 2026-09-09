@@ -25,19 +25,8 @@
 import type { RetrievalResult, RetrievedDoc } from "./retrieval";
 import type { DocType, KnowledgeDoc } from "./corpus";
 
-/** How many supporting records a composed answer will name. */
-const SUPPORTING = 3;
-
 /** How many related records a person answer will name. */
 const PERSON_RELATED = 4;
-
-/**
- * Said once, at the end, and only in this mode — the reader should know they
- * are reading extracts rather than a written answer. No `_emphasis_`:
- * AnswerText renders a deliberate subset — bold, links and inline code — so
- * underscores would reach the reader as underscores.
- */
-const QUOTED_NOTE = "Quoted from the records below rather than written.";
 
 /**
  * The wording for a person the corpus has no record for. Named from the
@@ -102,6 +91,37 @@ function composePersonAnswer(result: RetrievalResult, lead: RetrievedDoc): strin
   }
 
   return lines.join("\n");
+}
+
+/**
+ * The lead record's own words for a records-only answer: its summary, then
+ * the opening sentences of its content while they fit — so "Tell me about
+ * GaitAI" reads the one-line description AND the two families with their
+ * module counts, not the one line alone. Content that merely repeats the
+ * summary is not appended twice.
+ */
+function leadText(doc: KnowledgeDoc, maxChars: number): string {
+  const summary = doc.summary?.trim() ?? "";
+  const content = (doc.content ?? "").replace(/\s+/g, " ").trim();
+  if (!summary) return brief(doc, maxChars);
+  if (!content || content.startsWith(summary.slice(0, 40)) && content.length <= summary.length + 20) return brief(doc, maxChars);
+  const room = maxChars - summary.length - 1;
+  if (room < 60) return summary;
+  /* Skip a first content sentence that is the summary restated, and stop at
+     the first "Label: value" field — a module record's content is a field
+     list after its opening sentence, and a field list is not prose. */
+  const LABEL = /^[A-Z][A-Za-z /&-]{2,40}: /;
+  const body = (content.startsWith(summary) ? content.slice(summary.length).trim() : content)
+    .split(/\s(?=[A-Z][A-Za-z /&-]{2,40}: )/)[0]
+    .trim();
+  if (!body || LABEL.test(body)) return summary;
+  let extra = brief({ ...doc, summary: "", content: body }, room);
+  /* Whole sentences only: a trailing fragment ("24 modular products") is cut. */
+  if (extra && !/[.!?]$/.test(extra)) {
+    const stop = Math.max(extra.lastIndexOf(". "), extra.lastIndexOf("? "), extra.lastIndexOf("! "));
+    extra = stop > 0 ? extra.slice(0, stop + 1) : "";
+  }
+  return extra ? `${summary} ${extra}` : summary;
 }
 
 /** A record's own words, trimmed to one or two sentences. */
@@ -237,8 +257,6 @@ function composeApplicationAnswer(result: RetrievalResult): string {
         ? `Important boundary: the product page describes intended use and its modes. No dedicated ${subject} deployment, customer, pilot, clearance or certification is documented in the current GaitAI site information.`
         : `Important boundary: no dedicated ${subject} deployment, customer, pilot, clearance or certification is documented in the current GaitAI site information.`,
   );
-  lines.push("");
-  lines.push(QUOTED_NOTE);
   return lines.join("\n");
 }
 
@@ -318,41 +336,67 @@ export function composeExtractiveAnswer(result: RetrievalResult): string {
      the person record, with the papers and research listed under it. */
   if (lead.doc.type === "person") {
     lines.push(composePersonAnswer(result, lead));
-    lines.push("");
-    lines.push(QUOTED_NOTE);
     return lines.join("\n");
   }
 
-  const leadBrief = brief(lead.doc, 320);
-  if (leadBrief) {
-    lines.push(`**${lead.doc.title}** — ${leadBrief}`);
-  } else {
-    lines.push(`**${lead.doc.title}** is the closest record.`);
+  /* "How does GaitAI work": the platform record IS the sequence — render its
+     pipeline section whole rather than a 300-character extract that stops
+     mid-stage. */
+  if (result.intent === "ARCHITECTURE" && lead.doc.id === "platform:gaitai-end-to-end") {
+    return composeArchitectureAnswer(lead.doc);
   }
 
-  /* Supporting records get one line each, titled and typed, so the reader can
-     see WHAT KIND of thing each one is before following it. */
-  const supporting = rest
-    .filter((item) => item.doc.id !== lead.doc.id)
-    .slice(0, SUPPORTING)
-    .map((item) => {
-      const noun = TYPE_NOUN[item.doc.type] ?? item.doc.type;
-      const line = brief(item.doc, 150);
-      return `- **${item.doc.title}** (${noun})${line ? ` — ${line}` : ""}`;
-    });
-
-  if (supporting.length) {
-    lines.push("");
-    lines.push(
-      supporting.length === 1
-        ? "One related record:"
-        : `${supporting.length} related records:`,
-    );
-    lines.push(...supporting);
-  }
-
+  /* The shape a reader expects from a records-only answer: a one-line frame,
+     the best record's own words as the answer, and — when a second record
+     genuinely adds to it — one more short paragraph. The "N related records"
+     list that used to follow read as a search engine's results page; those
+     records now live under Sources and the Related-evidence disclosure, where
+     the interface already puts them. */
+  lines.push(FRAME);
   lines.push("");
-  lines.push(QUOTED_NOTE);
+  const leadBrief = leadText(lead.doc, 420);
+  lines.push(leadBrief ? `**${lead.doc.title}** — ${leadBrief}` : `**${lead.doc.title}** is the closest record.`);
 
+  const second = rest.find(
+    (item) =>
+      item.doc.id !== lead.doc.id &&
+      item.doc.parentId !== lead.doc.id &&
+      item.doc.id !== lead.doc.parentId &&
+      item.score >= lead.score * 0.6 &&
+      item.doc.type !== "talk" &&
+      item.doc.type !== "person",
+  );
+  if (second) {
+    const secondBrief = brief(second.doc, 220);
+    if (secondBrief) {
+      lines.push("");
+      lines.push(`**${second.doc.title}** — ${secondBrief}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+/** The frame every records-only answer opens with. */
+const FRAME = "**Here’s what GaitAI’s site says:**";
+
+/**
+ * The architecture answer from the platform record: the frame, the pipeline's
+ * four steps each on its own line, the one-engine line and the human-review
+ * line — all of them the record's own sentences.
+ */
+function composeArchitectureAnswer(doc: KnowledgeDoc): string {
+  const sections = doc.content.split("\n");
+  const section = (label: RegExp) => sections.find((line) => label.test(line))?.replace(/^[^:]+:\s*/, "") ?? "";
+  const steps = section(/^The pipeline in four steps/)
+    .split(/\s+·\s+/)
+    .map((step) => step.trim())
+    .filter((step) => /^\d+\./.test(step));
+  const lines = [FRAME, "", "GaitAI works as a movement-intelligence pipeline:", ""];
+  for (const step of steps) lines.push(step);
+  const engine = section(/^One engine, two product families/).split(/\s+·\s+/)[0];
+  if (engine) lines.push("", engine);
+  const human = section(/^Where a human decides/);
+  if (human) lines.push("", human);
   return lines.join("\n");
 }

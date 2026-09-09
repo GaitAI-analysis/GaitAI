@@ -70,6 +70,11 @@ export function insightToPublicationStory(article: InsightArticle): PublicationS
     relatedSlugs: [...article.related],
     series: article.series ?? "GaitAI Foundations",
     seriesOrder: article.seriesOrder ?? article.seriesStep,
+    sections: article.sections.map((section) => ({
+      id: section.id,
+      title: section.title,
+      label: section.navLabel,
+    })),
   };
 }
 

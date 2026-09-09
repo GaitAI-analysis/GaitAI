@@ -287,10 +287,10 @@ export const insightArticles: InsightArticle[] = [
     seriesStep: 1,
     seriesTitle: "How movement becomes intelligence",
     hero: {
-      src: "/assets/images/insights/01-walking-video-to-movement-intelligence.jpg",
-      alt: "Smartphone video, CCTV and wearable signals converging into a holographic walking figure and gait measurement readouts",
-      width: 1672,
-      height: 941,
+      src: "/assets/images/insights/social/from-walking-video-to-movement-intelligence.png",
+      alt: "GaitAI Insights social card: a walking skeleton in a capture frame beside the movement signals read from it, with the pipeline stages marked",
+      width: 1200,
+      height: 630,
     },
     cover: {
       concept: "pipeline",
@@ -654,10 +654,10 @@ export const insightArticles: InsightArticle[] = [
     seriesStep: 2,
     seriesTitle: "Why gait is more than identity",
     hero: {
-      src: "/assets/images/insights/02-walk-more-than-biometric.jpg",
-      alt: "A holographic walking figure surrounded by panels for identity, health, joint analysis and spatial safety context",
-      width: 1672,
-      height: 941,
+      src: "/assets/images/insights/social/your-walk-is-more-than-a-biometric.png",
+      alt: "GaitAI Insights social card: one gait signal branching into mobility, recovery, identity, risk and safety, with the mobility reading lit",
+      width: 1200,
+      height: 630,
     },
     cover: {
       concept: "divergence",
@@ -907,10 +907,10 @@ export const insightArticles: InsightArticle[] = [
     seriesStep: 3,
     seriesTitle: "Why privacy belongs in the architecture",
     hero: {
-      src: "/assets/images/insights/03-privacy-aware-movement-intelligence.jpg",
-      alt: "A CCTV feed passing through a privacy transformation into an anonymous skeletal movement representation and analytics panels",
-      width: 1672,
-      height: 941,
+      src: "/assets/images/insights/social/movement-intelligence-without-identification.png",
+      alt: "GaitAI Insights social card: a walker reduced to a skeleton, with indicators for movement information retained and identity-bearing information retained",
+      width: 1200,
+      height: 630,
     },
     cover: {
       concept: "reduction",
@@ -1160,10 +1160,10 @@ export const insightArticles: InsightArticle[] = [
     seriesStep: 4,
     seriesTitle: "Why change over time matters",
     hero: {
-      src: "/assets/images/insights/04-longitudinal-fall-risk.jpg",
-      alt: "Five repeated walking assessments numbered 01 to 05 plotted along a timeline showing a longitudinal mobility trend",
-      width: 1672,
-      height: 941,
+      src: "/assets/images/insights/social/fall-risk-is-a-trend-not-a-number.png",
+      alt: "GaitAI Insights social card: five illustrative assessments on a longitudinal graph drifting below a personal baseline band",
+      width: 1200,
+      height: 630,
     },
     cover: {
       concept: "trajectory",
@@ -1410,10 +1410,10 @@ export const insightArticles: InsightArticle[] = [
     seriesStep: 5,
     seriesTitle: "How to audit multimodal AI claims",
     hero: {
-      src: "/assets/images/insights/05-multimodal-fusion-evidence-audit.jpg",
-      alt: "Multiple sensor inputs feeding a central fusion model, with missing-data and corruption warnings, attribution audit and statistical validation outputs",
-      width: 1672,
-      height: 941,
+      src: "/assets/images/insights/social/when-fusion-looks-better-than-it-is.png",
+      alt: "GaitAI Insights social card: four sensor streams converging on a fusion node, one missing and one corrupted, with a result that still looks complete",
+      width: 1200,
+      height: 630,
     },
     cover: {
       concept: "fusion",

@@ -102,8 +102,11 @@ async function fetchText(url) {
 
 function localHtml(route) {
   const p = join(root, "out", route.replace(/^\//, ""), "index.html");
-  const q = join(root, "out", route === "/" ? "index.html" : "");
-  const file = existsSync(p) ? p : existsSync(q) ? q : null;
+  /* Only the root has a second spelling. For any other route the fallback
+     used to resolve to the out/ DIRECTORY itself, and reading a directory
+     threw EISDIR on the first planned-but-unbuilt route. */
+  const q = route === "/" ? join(root, "out", "index.html") : null;
+  const file = existsSync(p) ? p : q && existsSync(q) ? q : null;
   return file ? { status: 200, text: readFileSync(file, "utf8") } : { status: 404, text: "" };
 }
 

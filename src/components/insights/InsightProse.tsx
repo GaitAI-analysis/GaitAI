@@ -2,30 +2,77 @@ import { Fragment, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { InsightBlock } from "@/data/insights";
+import type { InsightTerm } from "@/data/insight-terms";
 import { GaitCycleDiagram, StateStrip, TrendTrack } from "./diagrams";
+import { InspectableTerm } from "./experience/InspectableTerm";
 import styles from "./journal.module.css";
 
 /* ─────────────────────────────────────────────────────────────────────────
    Inline text — a deliberately tiny subset: **bold** and [label](/href).
    Article copy is authored in `data/insights.ts`, so the surface stays small
    on purpose; anything richer belongs in a block type rather than in prose.
+
+   INSPECTABLE TERMS are not authored into the copy. A short list of terms
+   (data/insight-terms.ts) is handed in per section by the article's
+   experience record, and the FIRST occurrence of each inside this run of
+   blocks becomes an InspectableTerm. The text itself is unchanged — the
+   term is a button around the same words — so search engines and readers
+   without JavaScript see the prose exactly as written.
    ───────────────────────────────────────────────────────────────────────── */
 
 const INLINE_TOKEN = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
 
-export function Inline({ text }: { text: string }): ReactNode {
+interface TermContext {
+  terms: InsightTerm[];
+  /** Ids already wrapped in this run — mutated as blocks render. */
+  used: Set<string>;
+  articleSlug?: string;
+}
+
+function escapeRegExp(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Wrap the first matching term phrase in a plain-text run. */
+function withTerms(text: string, keyBase: number, ctx?: TermContext): ReactNode {
+  if (!ctx || ctx.terms.length === 0) return text;
+  for (const term of ctx.terms) {
+    if (ctx.used.has(term.id)) continue;
+    const phrases = [term.term, ...(term.aliases ?? [])];
+    for (const phrase of phrases) {
+      const pattern = new RegExp(`(^|[^\\w-])(${escapeRegExp(phrase)})(?![\\w-])`, "i");
+      const match = pattern.exec(text);
+      if (!match || match.index === undefined) continue;
+      const start = match.index + match[1].length;
+      const end = start + match[2].length;
+      ctx.used.add(term.id);
+      return (
+        <Fragment key={`t${keyBase}`}>
+          {text.slice(0, start)}
+          <InspectableTerm term={term} articleSlug={ctx.articleSlug}>
+            {text.slice(start, end)}
+          </InspectableTerm>
+          {withTerms(text.slice(end), keyBase + 1, ctx)}
+        </Fragment>
+      );
+    }
+  }
+  return text;
+}
+
+export function Inline({ text, ctx }: { text: string; ctx?: TermContext }): ReactNode {
   const nodes: ReactNode[] = [];
   let cursor = 0;
 
   for (const match of text.matchAll(INLINE_TOKEN)) {
     const token = match[0];
     const index = match.index ?? 0;
-    if (index > cursor) nodes.push(text.slice(cursor, index));
+    if (index > cursor) nodes.push(withTerms(text.slice(cursor, index), index, ctx));
 
     if (token.startsWith("**")) {
       nodes.push(
         <strong key={index} className="font-semibold text-soft-white">
-          {token.slice(2, -2)}
+          {withTerms(token.slice(2, -2), index + 1, ctx)}
         </strong>,
       );
     } else {
@@ -57,7 +104,7 @@ export function Inline({ text }: { text: string }): ReactNode {
     cursor = index + token.length;
   }
 
-  if (cursor < text.length) nodes.push(text.slice(cursor));
+  if (cursor < text.length) nodes.push(withTerms(text.slice(cursor), cursor, ctx));
   return <>{nodes}</>;
 }
 
@@ -81,19 +128,19 @@ const TONE = {
   },
 } as const;
 
-function Block({ block }: { block: InsightBlock }) {
+function Block({ block, ctx }: { block: InsightBlock; ctx?: TermContext }) {
   switch (block.type) {
     case "lead":
       return (
         <p className="insight-lead text-[1.2rem] leading-[1.65] text-soft-white sm:text-[1.35rem]">
-          <Inline text={block.text} />
+          <Inline text={block.text} ctx={ctx} />
         </p>
       );
 
     case "p":
       return (
         <p className="mt-6 text-[1.0625rem] leading-[1.8] text-soft-gray">
-          <Inline text={block.text} />
+          <Inline text={block.text} ctx={ctx} />
         </p>
       );
 
@@ -115,7 +162,7 @@ function Block({ block }: { block: InsightBlock }) {
                 className={`mt-[0.7em] h-1.5 w-1.5 shrink-0 rounded-full ${tone.dot}`}
               />
               <span>
-                <Inline text={item} />
+                <Inline text={item} ctx={ctx} />
               </span>
             </li>
           ))}
@@ -147,7 +194,7 @@ function Block({ block }: { block: InsightBlock }) {
             {block.title}
           </p>
           <p className="mt-3 text-[1.0125rem] leading-[1.75] text-soft-gray">
-            <Inline text={block.text} />
+            <Inline text={block.text} ctx={ctx} />
           </p>
         </aside>
       );
@@ -253,7 +300,7 @@ function Block({ block }: { block: InsightBlock }) {
         <aside className={styles.matters}>
           <p className={styles.mattersLabel}>Why this matters</p>
           <p className={styles.mattersText}>
-            <Inline text={block.text} />
+            <Inline text={block.text} ctx={ctx} />
           </p>
         </aside>
       );
@@ -270,7 +317,7 @@ function Block({ block }: { block: InsightBlock }) {
     case "note":
       return (
         <p className="mt-7 border-l border-soft-mute/25 pl-5 text-[0.9375rem] leading-[1.7] text-soft-mute">
-          <Inline text={block.text} />
+          <Inline text={block.text} ctx={ctx} />
         </p>
       );
 
@@ -279,11 +326,24 @@ function Block({ block }: { block: InsightBlock }) {
   }
 }
 
-export function InsightProse({ blocks }: { blocks: InsightBlock[] }) {
+export function InsightProse({
+  blocks,
+  terms,
+  articleSlug,
+}: {
+  blocks: InsightBlock[];
+  /** Terms to make inspectable within this run of blocks (first occurrence). */
+  terms?: InsightTerm[];
+  articleSlug?: string;
+}) {
+  /* One context per render of this run, so "first occurrence" is scoped to
+     the section the page handed the terms to. */
+  const ctx: TermContext | undefined =
+    terms && terms.length > 0 ? { terms, used: new Set(), articleSlug } : undefined;
   return (
     <>
       {blocks.map((block, i) => (
-        <Block key={i} block={block} />
+        <Block key={i} block={block} ctx={ctx} />
       ))}
     </>
   );

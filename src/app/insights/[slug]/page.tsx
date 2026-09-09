@@ -23,6 +23,19 @@ import { ArticleDiscovery } from "@/components/insights/ArticleDiscovery";
 import { DiscussionMount } from "@/components/comments/DiscussionMount";
 import { ArticleMeta } from "@/components/insights/ArticleMeta";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
+import { ArticleReadingModes } from "@/components/insights/experience/ArticleReadingModes";
+import { ArticleProgressRail } from "@/components/insights/experience/ArticleProgressRail";
+import { TextHighlightShare } from "@/components/insights/experience/TextHighlightShare";
+import { SectionMark } from "@/components/insights/experience/SectionMark";
+import { NextFoundation } from "@/components/insights/experience/NextFoundation";
+import { ArticleLinks } from "@/components/insights/experience/ArticleLinks";
+import {
+  ArticleHero,
+  SectionFigures,
+  buildMoments,
+  termsFor,
+} from "@/components/insights/experience/compose";
+import { getArticleExperience } from "@/data/insight-experiences";
 import { assetPath } from "@/lib/paths";
 import { insightToPublicationStory, readPublicationStories } from "@/lib/publication-store";
 import styles from "@/components/insights/journal.module.css";
@@ -124,6 +137,32 @@ export default async function InsightArticlePage({
   const allStories = await readPublicationStories();
   const currentStory = insightToPublicationStory(article);
 
+  /* THE INTERACTIVE LAYER. Everything below that moves, scrubs or reveals is
+     described in `data/insight-experiences.ts` and drawn by the components in
+     `components/insights/experience/`. The article's text — every block,
+     section, quote and link — is untouched by it: the figures sit between the
+     sections the record already has, the terms are wrapped around words that
+     were already there, and an article without an experience record renders
+     exactly as before. */
+  const experience = getArticleExperience(article.slug);
+  const moments = experience ? buildMoments(experience) : [];
+  const sectionIds = article.sections.map((section) => section.id);
+  const foundations = [...insightArticles]
+    .filter((item) => (item.series ?? "GaitAI Foundations") === "GaitAI Foundations")
+    .sort((a, b) => (a.seriesOrder ?? a.seriesStep) - (b.seriesOrder ?? b.seriesStep));
+  const step = article.seriesOrder ?? article.seriesStep;
+  const nextArticle = foundations.find((item) => (item.seriesOrder ?? item.seriesStep) === step + 1);
+
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "GaitAI", item: `${SITE_URL}/` },
+      { "@type": "ListItem", position: 2, name: "GaitAI Insights", item: `${SITE_URL}/insights/` },
+      { "@type": "ListItem", position: 3, name: article.title, item: `${SITE_URL}${insightHref(article.slug)}` },
+    ],
+  };
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -170,7 +209,13 @@ export default async function InsightArticlePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <ReadingProgress targetId={ARTICLE_ID} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
+      />
+      <ReadingProgress targetId={ARTICLE_ID} sectionIds={sectionIds} />
+      <ArticleProgressRail sections={article.sections} articleId={ARTICLE_ID} />
+      <TextHighlightShare articleId={ARTICLE_ID} />
 
       {/* `overflow-x-clip`, NOT `overflow-hidden`.
           `overflow: hidden` makes an element a scroll container, and a scroll
@@ -243,20 +288,40 @@ export default async function InsightArticlePage({
             near-identical glowing walkers; the raster survives only as the
             share-card image, where an absolute URL is required. */}
         <div className="container-wide">
-          <figure className={styles.articleMedia}>
-            <JournalCover concept={article.cover.concept} />
-            {/* The cover is decorative to a screen reader — the headline
-                above it already says what the essay is — but its description
-                is the one place the artwork's meaning is stated in words. */}
-            <figcaption className="sr-only">{article.cover.alt}</figcaption>
-            <span aria-hidden="true" className={styles.articleMediaVignette} />
-          </figure>
+          {experience ? (
+            /* The article's own interactive hero — the argument, explorable,
+               in place of the still cover. The drawn cover still carries the
+               story on the hub and in every card. */
+            <ArticleHero experience={experience} />
+          ) : (
+            <figure className={styles.articleMedia}>
+              <JournalCover concept={article.cover.concept} />
+              {/* The cover is decorative to a screen reader — the headline
+                  above it already says what the essay is — but its description
+                  is the one place the artwork's meaning is stated in words. */}
+              <figcaption className="sr-only">{article.cover.alt}</figcaption>
+              <span aria-hidden="true" className={styles.articleMediaVignette} />
+            </figure>
+          )}
         </div>
 
-        {/* ─────────── THE 2-MINUTE VERSION ─────────── */}
+        {/* ─────────── READING MODES · THE 2-MINUTE VERSION ───────────
+            READ is the default and changes nothing. ESSENTIALS opens the same
+            2-minute <details> the article has always had. VISUAL STORY opens a
+            guided sequence of the figures. */}
         <div className="container-wide">
           <div className="w-full max-w-[46rem]">
-            <TwoMinute points={article.twoMinute} />
+            {experience ? (
+              <ArticleReadingModes
+                articleSlug={article.slug}
+                articleTitle={article.title}
+                readMinutes={readingMinutes(article)}
+                twoMinute={article.twoMinute}
+                moments={moments}
+              />
+            ) : (
+              <TwoMinute points={article.twoMinute} />
+            )}
           </div>
         </div>
 
@@ -271,7 +336,7 @@ export default async function InsightArticlePage({
             <div className="w-full max-w-[46rem]">
               <InsightProse blocks={article.intro} />
 
-              {article.sections.map((section) => (
+              {article.sections.map((section, index) => (
                 <section key={section.id} className={styles.section}>
                   <p aria-hidden="true" className={styles.sectionNumber}>
                     {section.number}
@@ -282,9 +347,23 @@ export default async function InsightArticlePage({
                   <h2 id={section.id} className={styles.sectionTitle}>
                     {section.title}
                   </h2>
-                  <span aria-hidden="true" className={styles.sectionRule} />
+                  {/* The section mark: the essay's motif under each title —
+                      a gait cycle, a branch, a fading trace, temporal markers,
+                      converging streams — in place of a plain gradient rule. */}
+                  {experience ? (
+                    <SectionMark motif={experience.motif} index={index} />
+                  ) : (
+                    <span aria-hidden="true" className={styles.sectionRule} />
+                  )}
                   <div className="mt-7">
-                    <InsightProse blocks={section.blocks} />
+                    <InsightProse
+                      blocks={section.blocks}
+                      terms={termsFor(experience, section.id)}
+                      articleSlug={article.slug}
+                    />
+                    {experience && (
+                      <SectionFigures experience={experience} sectionId={section.id} />
+                    )}
                   </div>
                 </section>
               ))}
@@ -326,6 +405,38 @@ export default async function InsightArticlePage({
                 </Link>
                 .
               </p>
+
+              {/* ── The doors: evidence, GaitScape, the Lab, Ask GaitAI ── */}
+              {experience && (
+                <ArticleLinks
+                  experience={experience}
+                  articleTitle={article.title}
+                  sections={article.sections.map((section) => ({ id: section.id, title: section.title }))}
+                />
+              )}
+
+              {/* ── The bridge into the next Foundation ── */}
+              {experience && (
+                <NextFoundation
+                  articleSlug={article.slug}
+                  step={step}
+                  total={foundations.length}
+                  learned={experience.bridge.learned}
+                  nextQuestion={experience.bridge.nextQuestion}
+                  from={article.cover.concept}
+                  to={nextArticle ? nextArticle.cover.concept : "start"}
+                  next={
+                    nextArticle
+                      ? {
+                          href: insightHref(nextArticle.slug),
+                          title: nextArticle.title,
+                          seriesTitle: nextArticle.seriesTitle,
+                          step: nextArticle.seriesOrder ?? nextArticle.seriesStep,
+                        }
+                      : null
+                  }
+                />
+              )}
             </div>
 
             {/* ── Section rail (desktop) ── */}

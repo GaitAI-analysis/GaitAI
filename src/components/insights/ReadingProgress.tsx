@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import styles from "./journal.module.css";
+import experience from "./experience/experience.module.css";
 
 /**
  * Reading progress — a 2px line across the top of the viewport.
@@ -16,10 +17,22 @@ import styles from "./journal.module.css";
  * one per animation frame on a passive scroll listener, and the element is
  * aria-hidden — a screen reader gets nothing useful from a progress line, and
  * the article's own structure already conveys position.
+ *
+ * SECTION TICKS. Given the section ids, the line also carries one faint tick
+ * per section at the fraction of the article where its heading sits — the
+ * compact, phone-sized version of the desktop progress rail. They are
+ * measured once the page has laid out and again on resize.
  */
-export function ReadingProgress({ targetId }: { targetId: string }) {
+export function ReadingProgress({
+  targetId,
+  sectionIds = [],
+}: {
+  targetId: string;
+  sectionIds?: string[];
+}) {
   const reduce = Boolean(useReducedMotion());
   const [progress, setProgress] = useState(0);
+  const [ticks, setTicks] = useState<number[]>([]);
   const frame = useRef(0);
 
   useEffect(() => {
@@ -38,20 +51,49 @@ export function ReadingProgress({ targetId }: { targetId: string }) {
       setProgress(scrolled / total);
     };
 
+    const measureTicks = () => {
+      const rect = target.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      if (total <= 0 || sectionIds.length === 0) {
+        setTicks([]);
+        return;
+      }
+      const line = Math.max(140, window.innerHeight * 0.35);
+      setTicks(
+        sectionIds
+          .map((id) => document.getElementById(id))
+          .filter((element): element is HTMLElement => element !== null)
+          .map((heading) => {
+            const offset = heading.getBoundingClientRect().top - rect.top - line;
+            return Math.min(1, Math.max(0, offset / total));
+          }),
+      );
+    };
+
     const onScroll = () => {
       if (frame.current) return;
       frame.current = requestAnimationFrame(measure);
     };
+    const onResize = () => {
+      onScroll();
+      measureTicks();
+    };
 
     measure();
+    measureTicks();
+    const settle = window.setTimeout(measureTicks, 600);
+    const ro = new ResizeObserver(() => measureTicks());
+    ro.observe(document.body);
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
       if (frame.current) cancelAnimationFrame(frame.current);
+      window.clearTimeout(settle);
+      ro.disconnect();
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
     };
-  }, [targetId]);
+  }, [targetId, sectionIds]);
 
   return (
     <div className={styles.progressTrack} aria-hidden="true">
@@ -62,6 +104,15 @@ export function ReadingProgress({ targetId }: { targetId: string }) {
           transition: reduce ? "none" : undefined,
         }}
       />
+      {ticks.map((tick, index) =>
+        index === 0 ? null : (
+          <span
+            key={index}
+            className={experience.progressTick}
+            style={{ left: `${tick * 100}%` }}
+          />
+        ),
+      )}
     </div>
   );
 }

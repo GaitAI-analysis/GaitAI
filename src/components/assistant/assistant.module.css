@@ -163,9 +163,25 @@
    PANEL
    ========================================================================== */
 
+/* ── Width discipline ──
+   The panel is narrow and everything inside it must wrap. These are the
+   shared rules: every box sizes to its border, every flex/grid child may
+   shrink below its content width, long words and URLs break rather than
+   widen the pane, and the transcript never scrolls sideways. A one-off fix on
+   a single answer shape would be back the next time a model wrote a long
+   title; this is the container's job. Prose keeps normal breaking —
+   `overflow-wrap: anywhere` only intervenes when a word cannot fit. */
+.panel,
+.panel *,
+.panel *::before,
+.panel *::after {
+  box-sizing: border-box;
+}
+
 .panel {
   display: flex;
   width: min(26rem, calc(100vw - 2rem));
+  max-width: 100%;
   /* Never taller than the viewport minus the fixed header, so the panel can
      not hide the navigation it might be telling someone to use. */
   max-height: min(38rem, calc(100vh - var(--site-header-height) - 3.5rem));
@@ -294,11 +310,32 @@
 
 .scroller {
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
   flex: 1;
   overflow-y: auto;
+  /* Vertical scrolling only. Anything that would need a horizontal bar is
+     a wrapping bug in a child, and the rules below make the children wrap. */
+  overflow-x: hidden;
   overscroll-behavior: contain;
   padding: 1.1rem 1.1rem 0.5rem;
   scrollbar-width: thin;
+  overflow-wrap: anywhere;
+}
+
+/* Every block in the transcript may shrink and must wrap. */
+.scroller > *,
+.thread > *,
+.answerContent > *,
+.opening > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Long link labels and URLs, in prose or in a source row, break anywhere. */
+.scroller a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .opening {
@@ -366,12 +403,16 @@
 
 .answerContent {
   min-width: 0;
+  max-width: 100%;
 }
 
 .answerBody {
+  min-width: 0;
+  max-width: 100%;
   font-size: 13px;
   line-height: 1.62;
   color: var(--ai-body);
+  overflow-wrap: anywhere;
 }
 
 .answerBody > * + * {
@@ -392,11 +433,22 @@
 .answerList {
   display: grid;
   gap: 0.4rem;
+  min-width: 0;
+  max-width: 100%;
   padding-left: 1.05rem;
 }
 
 .answerList li {
+  min-width: 0;
+  max-width: 100%;
   padding-left: 0.15rem;
+  overflow-wrap: anywhere;
+}
+
+/* A nested list indents within the item, never past the panel edge. */
+.answerList .answerList {
+  margin-top: 0.3rem;
+  padding-left: 0.9rem;
 }
 
 .answerList:where(ul) {
@@ -419,6 +471,9 @@
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 0.86em;
   color: var(--ai-accent);
+  /* Inline code wraps like a word would; it never reserves its own line. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .inlineLink {
@@ -487,6 +542,8 @@
 }
 
 .sources {
+  min-width: 0;
+  max-width: 100%;
   margin-top: 1rem;
   border-top: 1px solid var(--ai-line);
   padding-top: 0.7rem;
@@ -494,14 +551,26 @@
 
 .sourceList {
   display: grid;
+  min-width: 0;
+  max-width: 100%;
   margin-top: 0.5rem;
   gap: 1px;
+}
+
+.sourceList li {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .sourceLink {
   display: flex;
   align-items: baseline;
   gap: 0.55rem;
+  min-width: 0;
+  /* The negative margin is paid back in width, so the row never reaches
+     past the pane on the right. */
+  width: calc(100% + 0.4rem);
+  max-width: calc(100% + 0.4rem);
   border-radius: 0.45rem;
   margin-left: -0.4rem;
   padding: 0.35rem 0.4rem;
@@ -517,14 +586,16 @@
   outline-offset: -2px;
 }
 
+/* A source title WRAPS. It used to be one clipped line with an ellipsis,
+   which hid the end of every long paper title; a second line costs nothing
+   and the reader can see what they are about to open. */
 .sourceTitle {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
   font-size: 12.5px;
+  line-height: 1.4;
   color: var(--ai-ink);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .sourceKind {
@@ -542,9 +613,55 @@
   color: var(--ai-accent);
 }
 
+/* ── Related evidence — closed by default ── */
+
+.related {
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 0.6rem;
+}
+
+.relatedSummary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  list-style: none;
+  cursor: pointer;
+  min-height: 32px;
+  border-radius: 0.4rem;
+  margin-left: -0.4rem;
+  padding: 0.3rem 0.4rem;
+  color: var(--ai-mute);
+  transition: background-color 0.25s ease;
+}
+
+.relatedSummary::-webkit-details-marker {
+  display: none;
+}
+
+.relatedSummary:hover {
+  background: var(--ai-raise);
+}
+
+.relatedSummary:focus-visible {
+  outline: 2px solid var(--ai-accent);
+  outline-offset: -2px;
+}
+
+.relatedChevron {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.related[open] .relatedChevron {
+  transform: rotate(180deg);
+}
+
 /* ── Quick prompts / follow-ups ── */
 
 .prompts {
+  min-width: 0;
+  max-width: 100%;
   margin-top: 1rem;
 }
 
@@ -552,6 +669,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+  min-width: 0;
+  max-width: 100%;
   margin-top: 0.5rem;
 }
 
@@ -560,6 +679,8 @@
 }
 
 .prompt {
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--ai-line);
   border-radius: 999px;
   background: var(--ai-raise);
@@ -567,6 +688,7 @@
   font-size: 12px;
   color: var(--ai-body);
   text-align: left;
+  overflow-wrap: anywhere;
   cursor: pointer;
   transition:
     border-color 0.25s ease,
@@ -599,11 +721,14 @@
 /* ── Demo handoff ── */
 
 .cta {
+  min-width: 0;
+  max-width: 100%;
   margin-top: 1rem;
   border: 1px solid var(--ai-line);
   border-radius: 0.7rem;
   background: var(--ai-raise);
   padding: 0.75rem 0.85rem;
+  overflow-wrap: anywhere;
 }
 
 .ctaLead {
@@ -642,6 +767,8 @@
 
 .failure {
   min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .failureLead {
@@ -667,6 +794,8 @@
 /* ── Composer ── */
 
 .composer {
+  min-width: 0;
+  max-width: 100%;
   border-top: 1px solid var(--ai-line);
   padding: 0.8rem 1.1rem calc(0.8rem + env(safe-area-inset-bottom, 0px));
 }
@@ -675,6 +804,8 @@
   display: flex;
   align-items: flex-end;
   gap: 0.5rem;
+  min-width: 0;
+  max-width: 100%;
   border: 1px solid var(--ai-line);
   border-radius: 0.75rem;
   background: var(--ai-raise);

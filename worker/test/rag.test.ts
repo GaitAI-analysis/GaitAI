@@ -350,6 +350,67 @@ describe("the browser selects, the Worker decides", () => {
     expect(body!.answer).toContain("does not establish");
   });
 
+  it("answers 'what can GaitAI do for military' with capabilities and a boundary — never a person, a talk or an invented deployment", async () => {
+    ensureCorpus();
+    reply =
+      "The available GaitAI information does not document a dedicated military deployment. Several SecureVision capabilities could be relevant to restricted or defence environments: [SuspiciousMotion](/securevision/suspiciousmotion/) surfaces restricted-zone entry, tailgating-like patterns and perimeter events; [AccessMotion](/securevision/accessmotion/) adds a gait-consistency signal to access control.";
+    const { retrieval, selectedRecordIds, response, body, prompt, system } = await rag("What can GaitAI do for military?");
+    expect(retrieval.intent).toBe("APPLICATION");
+    expect(retrieval.lowConfidence).toBe(false);
+    /* Leading records: modules, environments, the family page. Not people, talks, essays or papers. */
+    const types = retrieval.docs.map((item) => item.doc.type);
+    expect(types.slice(0, 3).every((type) => type === "product" || type === "use-case")).toBe(true);
+    expect(types).not.toContain("person");
+    expect(types).not.toContain("talk");
+    expect(types).not.toContain("insight");
+    expect(types).not.toContain("publication");
+    expect(selectedRecordIds).toContain("product:suspiciousmotion");
+    expect(selectedRecordIds).toContain("product:accessmotion");
+    expect(selectedRecordIds).toContain("page:/securevision");
+    /* The Worker resolved them and told the model, from ITS canonical records, that no military
+       environment is documented and how to answer. */
+    expect(response.status).toBe(200);
+    expect(body!.grounding.recordIds).toEqual(selectedRecordIds);
+    expect(prompt).toContain('Application: this question asks what GaitAI can do for "military"');
+    expect(prompt).toContain('No GaitAI environment record documents "military" as a deployment');
+    expect(prompt).toContain("does not document a dedicated military deployment");
+    expect(prompt).toContain("never imply an existing deployment, customer, approval or clearance");
+    expect(system).toContain("WHAT GAITAI CAN DO FOR A DOMAIN");
+    /* Nothing in the RECORDS claims a military customer or deployment — the
+       records end where the page line begins; the application line after
+       them is the instruction that says none is documented. */
+    const evidence = prompt.slice(0, prompt.indexOf("The visitor is currently"));
+    expect(evidence).toContain("</record>");
+    expect(evidence).not.toMatch(/military (?:customer|deployment|contract|clearance)/i);
+    expect(evidence).not.toMatch(/deployed (?:by|with|at) the (?:military|army|defen[cs]e)/i);
+    /* Sources are the modules the answer named, from the canonical records. */
+    expect(body!.sources.map((source) => path(source.url))).toEqual(
+      expect.arrayContaining(["/securevision/suspiciousmotion/", "/securevision/accessmotion/"]),
+    );
+    expect(body!.sources.every((source) => source.kind !== "Person" && source.kind !== "Talk")).toBe(true);
+  });
+
+  it("tells the model when the domain IS a documented environment — a railway station is Airports, metro & rail", async () => {
+    ensureCorpus();
+    reply = "[Airports, metro & rail](/use-cases/airports-metro-rail/) is the documented environment.";
+    const { retrieval, prompt } = await rag("What can GaitAI do for a railway station?");
+    expect(retrieval.intent).toBe("APPLICATION");
+    expect(retrieval.docs[0].doc.id).toBe("use-case:airports");
+    expect(prompt).toContain('The GaitAI record documents the deployment environment "Airports, metro & rail"');
+    expect(prompt).not.toContain("does not document a dedicated");
+  });
+
+  it("leaves the person and publication intents untouched", async () => {
+    ensureCorpus();
+    const anubha = retrieveGaitAIContext("Who is Anubha?", "/");
+    expect(anubha.intent).toBe("PERSON");
+    expect(anubha.docs[0].doc.id).toBe("person:anubha-parashar");
+    const pubs = retrieveGaitAIContext("What publications does GaitAI have?", "/");
+    expect(pubs.intent).toBe("PUBLICATION");
+    expect(pubs.docs[0].doc.id).toBe("page:/publications");
+    expect(pubs.docs.filter((item) => item.doc.type === "publication").length).toBeGreaterThanOrEqual(3);
+  });
+
   it("separates general knowledge from GaitAI knowledge in the policy", async () => {
     ensureCorpus();
     const { system } = await rag("What is gait analysis?");

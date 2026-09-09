@@ -189,4 +189,63 @@ export const RANKING_CASES: RankingCase[] = [
   /* A conference-talk title that shares a word is not the answer to a
      module question. */
   { q: "Does GaitAI diagnose Parkinson's?", notTopTypes: ["talk", "person"] },
+
+  // ── "What can GaitAI do for X" ─────────────────────────────────────────────
+  // The bug: "what can GaitAI do for military" answered with the Insights
+  // hub, a patent, the Talks page and the founder's record. An application
+  // question is answered by environments, modules and deployment facts, and
+  // by a plain boundary where the domain is not a documented deployment.
+  {
+    q: "What can GaitAI do for military?",
+    intent: "APPLICATION",
+    topType: "product",
+    notTopTypes: ["person", "talk", "insight", "publication", "research"],
+    includesType: "product",
+    answerHas: [
+      "What GaitAI could contribute for military",
+      "does not document a dedicated military deployment",
+      "Relevant capabilities:",
+      "Important boundary",
+    ],
+    answerLacks: ["Anubha", "Talks and presentations", "GaitAI Insights", "Patent 402202", "deployed", "customer:"],
+  },
+  {
+    q: "What can GaitAI do for defence?",
+    intent: "APPLICATION",
+    notTopTypes: ["person", "talk", "insight", "publication", "research"],
+    answerHas: ["does not document a dedicated defence deployment"],
+    answerLacks: ["Anubha", "Talks and presentations"],
+  },
+  {
+    q: "What can GaitAI do for a hospital?",
+    intent: "APPLICATION",
+    top: "use-case:hospitals",
+    includesType: "product",
+    answerHas: ["GaitAI documents **Hospitals** as a deployment environment", "Relevant capabilities:"],
+  },
+  { q: "What can GaitAI do for elderly care?", intent: "APPLICATION", top: "use-case:elderly", includesType: "product" },
+  { q: "What can GaitAI do for an airport?", intent: "APPLICATION", top: "use-case:airports", includesType: "product" },
+  { q: "What can GaitAI do for a factory?", intent: "APPLICATION", top: "use-case:factories", includesType: "product" },
+  {
+    q: "What can GaitAI do for a railway station?",
+    intent: "APPLICATION",
+    top: "use-case:airports",
+    answerHas: ["Airports, metro & rail"],
+  },
+  { q: "What can GaitAI do for a university campus?", intent: "APPLICATION", top: "use-case:campuses", includesType: "product" },
+  { q: "What can GaitAI do for public safety?", intent: "APPLICATION", top: "use-case:smartcities" },
+  { q: "What can GaitAI do for rehabilitation?", intent: "APPLICATION", top: "use-case:physio" },
+  /* Other forms of the same question. */
+  { q: "How can GaitAI help hospitals?", intent: "APPLICATION", top: "use-case:hospitals" },
+  { q: "Which GaitAI products for factories?", intent: "APPLICATION", top: "use-case:factories" },
+  { q: "GaitAI for elderly care", intent: "APPLICATION", top: "use-case:elderly" },
+  /* An unknown domain refuses rather than listing every environment. */
+  {
+    q: "What can GaitAI do for astronauts?",
+    intent: "APPLICATION",
+    answerHas: ["no documented answer"],
+    answerLacks: ["Relevant capabilities"],
+  },
+  /* A module named in the "for" form keeps its own intent. */
+  { q: "What can WalkScan do for a clinic?", intent: "PRODUCT", top: "product:walkscan" },
 ];

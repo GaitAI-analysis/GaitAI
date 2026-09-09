@@ -1,15 +1,21 @@
-.connections { margin-top: 1rem; border-top: 1px solid rgba(128, 145, 160, .24); padding-top: .8rem; }
+/* The documented-connections walk sits inside the answer column, which is
+   narrow. Every box here may shrink and every line wraps; a product name, a
+   capability list or a research-area title can be long, and none of them
+   may widen the panel. */
+.connections { min-width: 0; max-width: 100%; margin-top: .4rem; border-top: 1px solid rgba(128, 145, 160, .24); padding-top: .8rem; overflow-wrap: anywhere; }
 .label { font-size: .7rem; font-weight: 600; line-height: 1.5; }
 .context { margin: .4rem 0 .6rem; font-size: .7rem; line-height: 1.5; }
-.list { list-style: none; padding: 0; margin: 0; }
-.item { padding-block: .6rem; border-bottom: 1px solid rgba(128, 145, 160, .16); }
-.path { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .5rem; font-size: .75rem; line-height: 1.6; }
+.list { list-style: none; padding: 0; margin: 0; min-width: 0; max-width: 100%; }
+.item { min-width: 0; max-width: 100%; padding-block: .6rem; border-bottom: 1px solid rgba(128, 145, 160, .16); }
+.path { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .5rem; min-width: 0; max-width: 100%; font-size: .75rem; line-height: 1.6; }
+.path > * { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .input { font-size: .65rem; }
-.details { margin-top: .25rem; font-size: .7rem; line-height: 1.6; }
+.details { min-width: 0; max-width: 100%; margin-top: .25rem; font-size: .7rem; line-height: 1.6; }
+.details p { overflow-wrap: anywhere; }
 .details summary { cursor: pointer; min-height: 36px; padding-block: .5rem; }
-.links { display: flex; flex-wrap: wrap; gap: .2rem .75rem; }
-.links a { min-height: 36px; display: inline-flex; align-items: center; }
+.links { display: flex; flex-wrap: wrap; gap: .2rem .75rem; min-width: 0; max-width: 100%; }
+.links a { min-height: 36px; display: inline-flex; align-items: center; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 .note { margin-top: .5rem; font-size: .65rem; line-height: 1.6; }
-.loader { width: 132px; height: 23px; overflow: hidden; }
+.loader { width: 132px; max-width: 100%; height: 23px; overflow: hidden; }
 .connections a:focus-visible, .connections summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 @media (max-width: 430px) { .path { gap: .2rem .4rem; } .details summary, .links a { min-height: 44px; } }

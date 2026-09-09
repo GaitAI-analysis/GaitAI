@@ -23,6 +23,18 @@ export type Intent =
   | "RESEARCH"
   | "PUBLICATION"
   | "USE_CASE"
+  /**
+   * "What can GaitAI do for X" — a recommendation for a domain, industry or
+   * environment the visitor names. Differs from USE_CASE (a question that
+   * mentions an environment the site documents) in that X may be anything:
+   * a documented environment ("hospitals"), a site the corpus groups
+   * differently ("a railway station" → Airports, metro & rail), or a domain
+   * with no record at all ("military"). Retrieval expands X through the
+   * domain vocabulary and ranks environments, modules and deployment
+   * information; the answer layer says whether X is a documented deployment
+   * or only a set of potentially relevant capabilities.
+   */
+  | "APPLICATION"
   | "PRIVACY"
   | "SECURITY"
   | "NAVIGATION"
@@ -62,6 +74,43 @@ const LEADING_NAVIGATION = /^\s*(?:where|take\s+me|go\s+to|open\s+the|navigate|l
  */
 export const WHO_PATTERN =
   /^\s*(?:(?:so|and|ok|okay|hey|hi)[,\s]+)?(?:who\s+(?:is|are|was|were|s)|who's|whos|who\s+founded|who\s+created|who\s+started|who\s+built|who\s+made|who\s+leads|who\s+runs|who\s+owns|who\s+(?:is|are)\s+behind|who\s+works?\s+on|who\s+does\s+the\s+research\s+(?:for|at|behind)|tell\s+me\s+(?:something\s+)?about|what\s+do\s+you\s+know\s+about|what\s+can\s+you\s+tell\s+me\s+about|do\s+you\s+know|introduce|background\s+(?:on|of)|bio\s+(?:of|for)|biography\s+(?:of|for)|profile\s+(?:of|for))\s+(.+?)\s*[?.!]*\s*$/i;
+
+/**
+ * "What can GaitAI do for X", "how can GaitAI help X", "use GaitAI for X",
+ * "GaitAI for X", "which GaitAI products for X", "how would GaitAI work in X",
+ * "can GaitAI be used in X", "does GaitAI have anything for X".
+ *
+ * Anchored at the start of the message like WHO_PATTERN, and the brand name
+ * is optional in most forms ("what can you do for hospitals" asked inside the
+ * GaitAI assistant means the same thing). The captured group is X — the
+ * domain — which retrieval expands through the domain vocabulary and the
+ * answer layer names when it says whether X is documented.
+ */
+export const APPLICATION_PATTERN =
+  /^\s*(?:(?:so|and|ok|okay|hey|hi)[,\s]+)?(?:what\s+(?:can|could|does|would|do)\s+(?:gaitai|gait\s*ai|you|it|the\s+platform)\s+(?:do|offer|provide|bring|deliver|mean)\s+(?:for|in|to|at)|how\s+(?:can|could|would|does|do|might)\s+(?:gaitai|gait\s*ai|you|it|the\s+platform)\s+(?:help|support|serve|assist|be\s+used\s+(?:in|for|at|by)|work\s+(?:in|for|at)|apply\s+(?:to|in)|fit\s+(?:into|in))|(?:can|could)\s+(?:gaitai|gait\s*ai|you|it)\s+(?:be\s+used\s+(?:in|for|at|by)|help|support|work\s+(?:in|for|at))|(?:how\s+to\s+)?us(?:e|ing)\s+(?:gaitai|gait\s*ai)\s+(?:for|in|at)|(?:gaitai|gait\s*ai)\s+(?:for|in)|which\s+(?:gaitai\s+)?(?:products?|modules?|solutions?)\s+(?:are\s+)?(?:for|suit|fit|work\s+(?:in|for))|what\s+(?:gaitai\s+)?(?:products?|modules?|solutions?)\s+(?:are\s+there\s+)?(?:for|in)|(?:is|are)\s+there\s+(?:anything|something|a\s+(?:product|module|solution))\s+for|does\s+(?:gaitai|gait\s*ai)\s+(?:have\s+(?:anything|something|products?|modules?)\s+for|work\s+(?:in|for|with)|support|cover|serve|address))\s+(.+?)\s*[?.!]*\s*$/i;
+
+/** Filler between the pattern and the domain: "a", "the", "an", "a typical". */
+const SUBJECT_FILLER = /^(?:(?:a|an|the|my|our|your|typical|large|small|busy|modern|local|use\s+in|deployments?\s+in|sector|settings?|environments?|context)\s+)+/i;
+/** Trailing words that are the question, not the domain: "environment", "setting", "sector", "use cases". */
+const SUBJECT_TAIL = /\s+(?:environments?|settings?|sectors?|contexts?|use\s*cases?|applications?|deployments?|industr(?:y|ies)|market|domain|space|scenarios?)$/i;
+
+/**
+ * The domain of a "what can GaitAI do for X" question — "military",
+ * "railway station", "elderly care" — or null when the message is not in
+ * that shape. Filler and tail words are trimmed so "a typical hospital
+ * environment" reads as "hospital".
+ */
+export function applicationSubject(query: string): string | null {
+  const match = APPLICATION_PATTERN.exec(query.trim());
+  if (!match) return null;
+  let subject = match[1].replace(/[?.!,;:]+$/g, "").trim();
+  subject = subject.replace(SUBJECT_FILLER, "").replace(SUBJECT_TAIL, "").trim();
+  /* "what can gaitai do for me" is not a domain question. */
+  if (!subject || /^(me|us|you|them|him|her|myself|ourselves|people|someone|anyone|visitors?)$/i.test(subject)) {
+    return null;
+  }
+  return subject;
+}
 
 /** Words that make a "who" question about a role rather than a named person. */
 const ROLE_WORDS =
@@ -133,6 +182,13 @@ export function classifyIntent(query: string, hints: IntentHints = {}): Intent {
     if (hints.subjectUnknown && LOOKS_LIKE_NAME.test(subject)) return "PERSON";
   }
   if (ROLE_WORDS.test(text) && /\b(who|whom|whose)\b/i.test(text)) return "PERSON";
+
+  /* "What can GaitAI do for hospitals" — a recommendation for a domain. It
+     outranks the topic rules because the FORM decides: "what can GaitAI do
+     for privacy-conscious hospitals" is still asking what GaitAI can do for
+     a hospital. A named module keeps its own intent ("what can WalkScan do
+     for a clinic" is about WalkScan). */
+  if (applicationSubject(text) !== null && !hints.namesProduct) return "APPLICATION";
 
   /* "Where are your publications?" is a navigation question about
      publications, not a publication question — the opening word decides. */

@@ -134,6 +134,74 @@ const TYPE_NOUN: Record<string, string> = {
   talk: "talk",
 };
 
+/** How many capabilities an application answer lists. */
+const APPLICATION_MODULES = 4;
+
+/**
+ * An APPLICATION answer — "what can GaitAI do for X" — shaped as an answer,
+ * not as a list of hits:
+ *
+ *   What GaitAI could contribute for X
+ *   one or two sentences: the documented environment, or the boundary
+ *   Relevant capabilities:
+ *   - Module — what it is. Its own summary.
+ *   Important boundary: what is and is not documented.
+ *
+ * Every sentence about GaitAI is a record's own `summary` or `category`; the
+ * scaffolding — the heading, "Relevant capabilities", the boundary line —
+ * asserts nothing about GaitAI except the one thing the corpus is the
+ * authority on: whether an environment record for X exists. That decision is
+ * retrieval's (`result.application.documentedEnvironmentIds`), from the
+ * corpus, never from the question's wording.
+ */
+function composeApplicationAnswer(result: RetrievalResult): string {
+  const application = result.application!;
+  const subject = application.subject;
+  const byId = new Map(result.docs.map((item) => [item.doc.id, item]));
+  const environments = application.documentedEnvironmentIds
+    .map((id) => byId.get(id))
+    .filter((item): item is RetrievedDoc => Boolean(item));
+  const modules = result.docs.filter((item) => item.doc.type === "product" && !item.doc.parentId);
+  const otherCapabilities = result.docs.filter(
+    (item) =>
+      (item.doc.type === "capability" || item.doc.type === "deployment" || item.doc.type === "policy") &&
+      !item.doc.parentId,
+  );
+
+  const lines: string[] = [`## What GaitAI could contribute for ${subject}`];
+
+  if (environments.length) {
+    for (const environment of environments) {
+      lines.push(`GaitAI documents **${environment.doc.title}** as a deployment environment — ${brief(environment.doc, 260)}`);
+    }
+  } else {
+    lines.push(
+      `The available GaitAI information does not document a dedicated ${subject} deployment. The documented capabilities below may be relevant; they are potential applications, not a record of use in this domain.`,
+    );
+  }
+
+  const listed = (modules.length ? modules : otherCapabilities).slice(0, APPLICATION_MODULES);
+  if (listed.length) {
+    lines.push("");
+    lines.push("Relevant capabilities:");
+    for (const item of listed) {
+      const what = item.doc.type === "product" ? item.doc.category : TYPE_NOUN[item.doc.type] ?? item.doc.type;
+      const line = brief(item.doc, 150);
+      lines.push(`- **${item.doc.title}** — ${what}.${line ? ` ${line}` : ""}`);
+    }
+  }
+
+  lines.push("");
+  lines.push(
+    environments.length
+      ? `Important boundary: the environment page describes a recommended module mix. No customer, pilot, measured result or certification for ${subject} is documented in the current GaitAI site information.`
+      : `Important boundary: no dedicated ${subject} deployment, customer, pilot, clearance or certification is documented in the current GaitAI site information.`,
+  );
+  lines.push("");
+  lines.push(QUOTED_NOTE);
+  return lines.join("\n");
+}
+
 /**
  * Compose an answer from the retrieved records alone.
  *
@@ -145,6 +213,11 @@ export function composeExtractiveAnswer(result: RetrievalResult): string {
   /* Asked about a person the site has no record for: say which one, and
      where people do appear — not the nearest policy page. */
   if (result.entityMiss) return composeEntityMiss(result.entityMiss);
+
+  /* "What can GaitAI do for X": an answer with its boundary, not a hit list. */
+  if (result.application && !result.lowConfidence && result.docs.length > 0) {
+    return composeApplicationAnswer(result);
+  }
 
   if (result.lowConfidence || result.docs.length === 0) {
     return [

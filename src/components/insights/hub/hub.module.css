@@ -272,6 +272,15 @@
     transform: none;
   }
 }
+/* The selected preview must read as awake, not dimmed. No opacity sits on
+   the panel or the card — only individual graphic layers are quiet — so the
+   lift is local: the inactive readings of the drawing come up a little, and
+   the muted type in this one card (labels, meta) takes a touch more light.
+   The card itself is not brightened. */
+.previewCard {
+  --mini-dim: 0.72;
+  --jr-mute: color-mix(in srgb, rgb(var(--c-soft-mute)) 62%, rgb(var(--c-soft-gray)));
+}
 /* The preview card: media a little shorter, body closer to it, a call to
    action a reader cannot miss. The hooks are the journal's hashed classes,
    matched by their stable name fragment. */

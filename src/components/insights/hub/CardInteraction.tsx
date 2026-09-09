@@ -526,7 +526,7 @@ function Divergence({ pick }: { pick: number }) {
         const on = pick === i;
         const d = `M${ox} ${oy} C${ox + 50} ${oy} ${tx - 70} ${ty} ${tx - 10} ${ty}`;
         return (
-          <g key={BRANCHES[i]} style={{ opacity: pick < 0 || on ? 1 : 0.48 }}>
+          <g key={BRANCHES[i]} style={{ opacity: pick < 0 || on ? 1 : "var(--mini-dim, 0.48)" }}>
             <path className={`${fig.trace} ${on ? fig.traceBold : fig.traceSoft}`} d={d} />
             {on && <circle className={fig.halo} cx={tx - 10} cy={ty} r={8} />}
             <circle className={on ? fig.nodeFill : fig.nodeMute} cx={tx - 10} cy={ty} r={on ? 3.2 : 2} />

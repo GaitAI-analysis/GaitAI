@@ -610,4 +610,37 @@ export const PARAPHRASE_FAMILIES: ParaphraseFamily[] = [
     lowConfidence: false,
     questions: ["does it do military", "can it work in hospitals", "does it use CCTV", "can this detect falls", "does it track people", "does that need a camera?"],
   },
+
+  // ── The platform as a mechanism: how it works, end to end ──────────────────
+  {
+    name: "architecture — how the platform works",
+    intents: ["ARCHITECTURE"],
+    topTypes: ["page"],
+    /* The essay "From walking video to movement intelligence" is a legitimate
+       neighbour of these questions; people, talks, papers and environments
+       are not. */
+    neverTop: ["person", "talk", "publication", "use-case", "deployment"],
+    anyOf: ["platform:gaitai-end-to-end"],
+    lowConfidence: false,
+    questions: [
+      "How does GaitAI work?",
+      "How does GaitAI work end to end?",
+      "how does it work end to end",
+      "Explain the GaitAI pipeline",
+      "explain the pipeline",
+      "What happens from walking video to insight?",
+      "What happens from video to report?",
+      "How does the platform process movement?",
+      "How does a camera input become a report?",
+      "What's the end-to-end workflow?",
+      "How does GaitAI turn walking video into intelligence?",
+      "Explain the architecture",
+      "how does the whole system fit together",
+      "walk me through the pipeline step by step",
+      "what are the stages of the pipeline",
+      "how does gaitai convert movement into a report",
+      "pipeline?",
+      "architecture?",
+    ],
+  },
 ];

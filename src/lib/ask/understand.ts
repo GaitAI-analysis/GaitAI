@@ -323,6 +323,8 @@ function normalizedQuestion(u: Omit<Understanding, "normalized">): string {
       return `How is ${who} deployed${u.topic ? ` — ${u.topic}` : ""}?`;
     case "CAPABILITY":
       return `Can ${who} ${u.topic || "do this"}, according to its capability records?`;
+    case "ARCHITECTURE":
+      return `How does ${who} work as a platform — the movement-intelligence pipeline from capture to human review?`;
     case "COMPARISON":
       return `How do ${u.topic || "these"} compare on their records?`;
     case "NAVIGATION":

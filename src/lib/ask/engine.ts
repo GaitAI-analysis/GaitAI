@@ -54,7 +54,7 @@ import {
 } from "./answer";
 import { composeExtractiveAnswer } from "./extractive";
 import { loadCorpus } from "./corpus";
-import { askHosted, hostedEnabled, HostedError, type HostedTurn } from "./hosted";
+import { askHosted, hostedAvailable, HostedError, type HostedTurn } from "./hosted";
 
 export interface AskSource {
   title: string;
@@ -191,7 +191,9 @@ export async function ask(options: {
   /* No endpoint configured: no request, no timeout, no error, no console
      noise. The extract is the answer. */
   let fallbackReason = "no_endpoint";
-  if (hostedEnabled()) {
+  /* Runtime configuration first: a bundle loaded before a deploy still learns
+     the current endpoint (see runtime-config.ts). */
+  if (await hostedAvailable()) {
     try {
       const hosted = await askHosted({
         question,

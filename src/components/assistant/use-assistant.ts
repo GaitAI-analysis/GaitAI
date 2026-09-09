@@ -23,6 +23,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HISTORY_TURNS, MAX_MESSAGE_LENGTH } from "./config";
+import { ASSISTANT_BUILD, loadRuntimeConfig } from "@/lib/ask/runtime-config";
 import { ask as askEngine, warmCorpus } from "@/lib/ask/engine";
 import type { PageContext } from "./page-context";
 
@@ -41,6 +42,13 @@ export interface Turn {
   cta?: { label: string; href: string };
   /** Which layer wrote the prose: the hosted model, or the records themselves. */
   mode?: "model" | "retrieval";
+  /**
+   * Why a "retrieval" turn came from records (engine.ts `fallbackReason`):
+   * low_confidence · no_endpoint · worker:<class> · empty_answer. The panel
+   * shows a one-line status for every reason except a retrieval refusal, which
+   * is an answer in its own right. Never shown as a technical detail.
+   */
+  fallback?: string;
   /** Set when nothing could answer — the panel renders a recovery. */
   failed?: "upstream" | "rate_limited" | "network" | "declined" | "timeout";
   retryAfter?: number;
@@ -51,13 +59,35 @@ const STORAGE_KEY = "gaitai:ask:thread";
 const newId = () =>
   `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
+/**
+ * The thread is stored WITH the build id that wrote it. A thread written by an
+ * older bundle — before a deploy changed the hosted configuration — is not
+ * restored: its turns may carry the other build's mode and fallback, and mixing
+ * them with this build's answers is exactly the "two assistants in one panel"
+ * a visitor reported. The bare-array form is what older bundles wrote; it is
+ * treated as foreign for the same reason.
+ */
+interface StoredThread {
+  build: string;
+  turns: Turn[];
+}
+
 function readStored(): Turn[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Turn[]).slice(-HISTORY_TURNS) : [];
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      window.sessionStorage.removeItem(STORAGE_KEY);
+      return [];
+    }
+    const stored = parsed as Partial<StoredThread>;
+    if (stored.build !== ASSISTANT_BUILD || !Array.isArray(stored.turns)) {
+      window.sessionStorage.removeItem(STORAGE_KEY);
+      return [];
+    }
+    return stored.turns.slice(-HISTORY_TURNS);
   } catch {
     return [];
   }
@@ -65,10 +95,8 @@ function readStored(): Turn[] {
 
 function persist(turns: Turn[]) {
   try {
-    window.sessionStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(turns.slice(-HISTORY_TURNS)),
-    );
+    const stored: StoredThread = { build: ASSISTANT_BUILD, turns: turns.slice(-HISTORY_TURNS) };
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
   } catch {
     /* Private mode, or storage full. The thread still works in memory. */
   }
@@ -94,6 +122,10 @@ export function useAssistant(page: PageContext): AssistantState {
 
   useEffect(() => {
     setTurns(readStored());
+    /* Learn the CURRENT hosted configuration before the first question, so a
+       bundle loaded before a deploy does not answer from records for want of
+       an endpoint it was never told about. */
+    void loadRuntimeConfig();
     return () => abortRef.current?.abort();
   }, []);
 
@@ -164,6 +196,7 @@ export function useAssistant(page: PageContext): AssistantState {
             suggestions: answer.suggestions,
             cta: answer.cta,
             mode: answer.mode,
+            fallback: answer.mode === "retrieval" ? answer.fallbackReason : undefined,
           });
           /* Development only: say WHY an answer came from records, so a
              screenshot of the extractive fallback is diagnosable — a

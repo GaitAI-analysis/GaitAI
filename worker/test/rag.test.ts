@@ -437,6 +437,63 @@ describe("the browser selects, the Worker decides", () => {
     expect(answer).not.toMatch(/^\*\s*$/m); // no orphaned bullet
   });
 
+  // ── The platform as a mechanism: ARCHITECTURE, and the kinds it must not blur with ──
+  it("answers 'how does GaitAI work end to end' from the platform record with the architecture framing — no deployment boundary, no Smart Cities", async () => {
+    reply = "GaitAI works as a movement-intelligence pipeline: 1. Capture Movement …";
+    const { retrieval, body, prompt } = await rag("How does GaitAI work end to end?");
+    expect(retrieval.intent).toBe("ARCHITECTURE");
+    expect(retrieval.docs[0].doc.id).toBe("platform:gaitai-end-to-end");
+    expect(body!.grounding.recordIds[0]).toBe("platform:gaitai-end-to-end");
+    /* The model is told what kind of question this is … */
+    expect(prompt).toContain("Architecture: this question asks how GaitAI works as a platform");
+    expect(prompt).toContain('do not open with "the available GaitAI information does not establish"');
+    /* … and NOT given the domain/deployment framing. */
+    expect(prompt).not.toContain("Application: this question is about");
+    /* No environment record is among the evidence the model reads. */
+    const evidence = prompt.slice(0, prompt.indexOf("Visitor's question:"));
+    expect(evidence).not.toMatch(/Smart cities/i);
+    expect(evidence).not.toMatch(/<record[^>]*type="use-case"/i);
+    expect(body!.sources[0].url).toBe(urlOf("platform:gaitai-end-to-end"));
+  });
+
+  it("keeps the seven question kinds apart: overview, architecture (x3), deployment, validation, domain", async () => {
+    const seen: Record<string, string> = {};
+    for (const [question, intent] of [
+      ["Tell me about GaitAI", "PRODUCT"],
+      ["How does GaitAI work?", "ARCHITECTURE"],
+      ["How does GaitAI work end to end?", "ARCHITECTURE"],
+      ["What happens from walking video to insight?", "ARCHITECTURE"],
+      ["Where has GaitAI been deployed?", "DEPLOYMENT"],
+      ["Has GaitAI been validated in hospitals?", "EVIDENCE"],
+      ["What can GaitAI do for hospitals?", "DOMAIN_APPLICATION"],
+      ["What is MobilityCare?", "PRODUCT"],
+    ] as const) {
+      const { retrieval, prompt } = await rag(question);
+      seen[question] = retrieval.intent;
+      expect(retrieval.intent, question).toBe(intent);
+      /* Only the domain question carries the application framing; only the
+         architecture questions carry the architecture framing. */
+      expect(prompt.includes("Application: this question is about"), `${question} application line`).toBe(intent === "DOMAIN_APPLICATION");
+      expect(prompt.includes("Architecture: this question asks"), `${question} architecture line`).toBe(intent === "ARCHITECTURE");
+    }
+    expect(seen["Tell me about GaitAI"]).not.toBe(seen["How does GaitAI work end to end?"]);
+    expect(seen["Where has GaitAI been deployed?"]).not.toBe(seen["Has GaitAI been validated in hospitals?"]);
+  });
+
+  it("grounds 'Tell me about GaitAI' on the platform overview, not on a person, an environment or an essay", async () => {
+    const { retrieval, body } = await rag("Tell me about GaitAI");
+    expect(retrieval.docs[0].doc.id).toBe("page:/");
+    expect(body!.grounding.recordIds[0]).toBe("page:/");
+    expect(["person", "talk", "insight", "use-case"]).not.toContain(retrieval.docs[0].doc.type);
+  });
+
+  it("names a named module's own how-it-works section, not the platform pipeline, for 'how does WalkScan work'", async () => {
+    const { retrieval, prompt } = await rag("How does WalkScan work?");
+    expect(retrieval.intent).toBe("PRODUCT");
+    expect(retrieval.docs[0].doc.id).toBe("product:walkscan");
+    expect(prompt).not.toContain("Architecture: this question asks");
+  });
+
   it("answers 'what can GaitAI do for military' with capabilities and a boundary — never a person, a talk or an invented deployment", async () => {
     ensureCorpus();
     reply =

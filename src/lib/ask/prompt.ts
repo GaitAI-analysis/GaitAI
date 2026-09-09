@@ -382,6 +382,19 @@ export function applicationLine(
 }
 
 /**
+ * The one line handed to the model for an ARCHITECTURE question — "how does
+ * GaitAI work end to end", "explain the pipeline", "from video to insight" —
+ * or "" for any other. The question is about the platform as a mechanism, not
+ * about whether or where it is deployed or validated, so the deployment
+ * boundary that opens a domain answer would be wrong here: the records
+ * describe the pipeline, and the answer is that description in sequence.
+ */
+export function architectureLine(understanding: Understanding): string {
+  if (understanding.intent !== "ARCHITECTURE") return "";
+  return `Architecture: this question asks how ${understanding.entity.title} works as a platform — the pipeline from capture to human review (internally read as: ${understanding.normalized}). It does NOT ask whether, where or how well GaitAI is deployed or validated, so do not open with "the available GaitAI information does not establish" and do not bring in deployments, customers, pilots, validation or any use-case environment unless the visitor asks. Answer as a numbered sequence of stages in the records' own terms — capture from a video, camera or wearable signal; pose and movement extraction; gait cycle and movement features or signals; analytics and interpretation by the relevant MobilityCare or SecureVision module; a report, dashboard or alert; review and decision by a clinician or operator — then one or two lines on the privacy and governance controls the records state. Say nothing a record below does not.`;
+}
+
+/**
  * What "it", "this", "she" or a "what about …" referred to, when the
  * understanding resolved it from the conversation — so the model knows WHAT
  * is being asked about. Facts still come only from the records.
@@ -447,6 +460,7 @@ export function buildMessages(options: {
           return destination ? destinationLine(destination) : "";
         })(),
         applicationLine: applicationLine(question, result.docs, history, understanding),
+        architectureLine: architectureLine(understanding),
         referenceLine: referenceLine(understanding),
       }),
     },
@@ -469,6 +483,8 @@ export function buildUserTurn(options: {
   destinationLine?: string;
   /** From `applicationLine()`, when the question asks what GaitAI can do for a domain; else "". */
   applicationLine?: string;
+  /** From `architectureLine()`, when the question asks how the platform works; else "". */
+  architectureLine?: string;
   /** From `referenceLine()`, when a pronoun, follow-up or short topic was resolved; else "". */
   referenceLine?: string;
 }): string {
@@ -481,6 +497,7 @@ export function buildUserTurn(options: {
     options.referenceLine ?? ``,
     options.destinationLine ?? ``,
     options.applicationLine ?? ``,
+    options.architectureLine ?? ``,
     options.lowConfidence
       ? `Retrieval confidence is LOW — no record matched this question well. Unless the records above genuinely answer it, say you could not find a documented GaitAI answer and offer the closest real page.`
       : ``,

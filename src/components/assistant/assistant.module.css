@@ -430,6 +430,15 @@
   color: var(--ai-ink);
 }
 
+/* "Showing answers from GaitAI's site records." — under a records-only answer. */
+.answerStatus {
+  margin-top: 0.6rem;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  color: var(--ai-mute);
+}
+
 .answerList {
   display: grid;
   gap: 0.4rem;
@@ -928,12 +937,29 @@
     padding: max(1rem, env(safe-area-inset-top, 0px)) 1.1rem 0.9rem;
   }
 
-  .question,
-  .answerBody,
+  /* Chat-reading size on a phone: 14.5px with a slightly tighter leading than
+     the desktop panel. 15px/1.62 with 0.7rem paragraph gaps read as oversized
+     on a 390px screen — one answer filled the whole sheet. */
+  .question {
+    font-size: 14.5px;
+  }
+
+  .answerBody {
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+
+  .answerBody > * + * {
+    margin-top: 0.55rem;
+  }
+
+  .answerList {
+    gap: 0.3rem;
+  }
+
   .input {
-    /* 16px stops iOS Safari zooming the viewport on focus, and reads better
-       at arm's length. */
-    font-size: 15px;
+    /* 16px stops iOS Safari zooming the viewport on focus. */
+    font-size: 16px;
   }
 
   .scroller {

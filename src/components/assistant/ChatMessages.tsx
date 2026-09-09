@@ -167,6 +167,15 @@ export function ChatMessages({
                   <AnswerText text={turn.text} />
                 )}
 
+                {/* A records-only answer that is NOT a retrieval refusal says
+                    so in one quiet line — the hosted layer was unavailable,
+                    over budget, rate-limited or absent from this build. The
+                    reason itself is never shown: "quota", "Worker" and
+                    "reranker" are not a visitor's words. */}
+                {turn.mode === "retrieval" && turn.fallback && turn.fallback !== "low_confidence" && turn.text && (
+                  <p className={styles.answerStatus}>Showing answers from GaitAI’s site records.</p>
+                )}
+
                 {turn.sources && turn.sources.length > 0 && (
                   <>
                     <SourceLinks sources={turn.sources} onNavigate={onNavigate} />

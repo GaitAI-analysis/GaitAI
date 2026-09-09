@@ -49,3 +49,7 @@ tmp/
 
 # Generated at dev/build time from .env.local — never commit
 public/firebase-config.js
+
+# Ask GaitAI runtime config: written per build by scripts/write-ask-config.mjs
+# (the endpoint differs per machine; the build id per build)
+public/ask/config.json

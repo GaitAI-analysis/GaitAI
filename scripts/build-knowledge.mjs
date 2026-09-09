@@ -303,6 +303,8 @@ async function main() {
   const talks = await load("data/talks.ts");
   const insightTopics = await load("data/insight-topics.ts");
   const comparisons = await load("data/comparisons.ts");
+  const labDemo = await load("data/lab-demo.ts");
+  const captureSources = await load("data/capture-sources.ts");
 
   const docs = [];
 
@@ -1320,6 +1322,145 @@ async function main() {
     relatedResearch: [],
   });
 
+  // ── HOW GAITAI WORKS, END TO END ─────────────────────────────────────────
+  // One canonical record for "how does GaitAI work" / "explain the pipeline"
+  // / "from video to insight". The architecture is described on the site in
+  // pieces — the home page's workflow stages and movement story, the Try
+  // GaitAI walkthrough, the Movement Intelligence Lab's staged pipelines, the
+  // capture sources, GaitScape's capability and signal layers, the Trust
+  // Center's deployment steps and the privacy controls — and a question about
+  // the whole pipeline used to be answered by whichever use case shared the
+  // most words. This record assembles ONLY those published statements, in
+  // sequence, and states nothing they do not.
+  {
+    const stages = (relPath, nameKey, textKeys) => {
+      const abs = path.join(ROOT, "src", relPath);
+      if (!existsSync(abs)) return [];
+      const source = readFileSync(abs, "utf8").replace(/\r\n/g, "\n");
+      const field = (chunk, key) => chunk.match(new RegExp(`\\b${key}:\\s*"([^"]+)"`))?.[1] ?? "";
+      const out = [];
+      /* One object literal per stage: split on "{", read the named fields. */
+      for (const chunk of source.split(/\{/)) {
+        const name = field(chunk, nameKey);
+        if (!name) continue;
+        const text = textKeys.map((key) => field(chunk, key)).filter(Boolean).join(" ");
+        out.push({ name, text });
+      }
+      return out;
+    };
+    const tryStages = stages("components/home/TryGaitAI.tsx", "name", ["insight", "note"]);
+    const storySteps = stages("components/home/MovementStory.tsx", "title", ["detail"]);
+    const capabilityTitles = graph.gaitscapeNodes.filter((n) => n.type === "capability").map((n) => n.title);
+    const signalTitles = graph.gaitscapeNodes.filter((n) => n.type === "signal").map((n) => n.title);
+    const engineStep = trust.deploymentSteps.find((step) => /movement-processing engine/i.test(step.desc));
+    const skeletonControl = trust.privacyControls.find((c) => /non-identifying|skeleton/i.test(c.topic));
+    const edgeControl = trust.privacyControls.find((c) => /processing location|edge/i.test(c.topic));
+    docs.push({
+      id: "platform:gaitai-end-to-end",
+      type: "page",
+      title: "How GaitAI works end to end",
+      slug: "how-gaitai-works",
+      /* The Lab's staged walkthrough is where the pipeline is shown running.
+         The anchor also keeps this record distinct from page:/movement-lab,
+         whose exact URL reserves the current-page slot on that route. */
+      url: `${route("/movement-lab")}#walkthrough`,
+      family: "platform",
+      category: "Platform architecture",
+      summary:
+        "GaitAI works as a movement-intelligence pipeline: movement is captured from a video, camera or wearable signal, understood as pose and movement signals, measured as gait and movement features, interpreted by the relevant MobilityCare or SecureVision module, and returned as a report, dashboard or alert for a clinician or operator to review.",
+      content: block(
+        para(
+          "The pipeline in four steps (as the home page states it)",
+          products.workflowStages.map((s, i) => `${i + 1}. ${s.title} — ${s.desc ?? ""}`),
+        ),
+        tryStages.length
+          ? para(
+              "The five stages of the Try GaitAI walkthrough",
+              tryStages.map((s, i) => `${i + 1}. ${s.name} — ${s.text}`),
+            )
+          : "",
+        storySteps.length
+          ? para(
+              "From a person moving to a decision (the movement story)",
+              storySteps.map((s) => `${s.name} — ${s.text}`),
+            )
+          : "",
+        para(
+          "Inputs GaitAI can start from",
+          captureSources.CAPTURE_SOURCES.map((c) => `${c.label} — ${c.note}`),
+        ),
+        para(
+          "MobilityCare pipeline, stage by stage (Movement Intelligence Lab)",
+          labDemo.MOBILITY_STAGES.map((s) => `${s.name} — ${s.note}`).join(" → "),
+        ),
+        para(
+          "SecureVision pipeline, stage by stage (Movement Intelligence Lab)",
+          labDemo.SECURE_STAGES.map((s) => `${s.name} — ${s.note}`).join(" → "),
+        ),
+        para("Movement signals the platform reads", signalTitles.join(" · ")),
+        para("AI capabilities the modules are built on", capabilityTitles.join(" · ")),
+        para(
+          "One engine, two product families",
+          [
+            engineStep ? engineStep.desc : "",
+            `MobilityCare (${products.mobilityProducts.length} clinical, rehabilitation, sports, wearable and elderly-care modules) and SecureVision (${products.secureProducts.length} privacy-aware security, safety and operations modules) are the product layer on the same movement-intelligence core.`,
+          ].filter(Boolean),
+        ),
+        para(
+          "Privacy and governance built into the pipeline",
+          [
+            skeletonControl ? `${skeletonControl.topic}: ${skeletonControl.support}` : "",
+            edgeControl ? `${edgeControl.topic}: ${edgeControl.support}` : "",
+            responsible.RESPONSIBLE_USE_CONTROLS,
+          ].filter(Boolean),
+        ),
+        para(
+          "Where a human decides",
+          "GaitAI outputs are decision support for a clinician, therapist, caregiver, researcher or security operator, who reviews the movement evidence behind them. MobilityCare outputs do not diagnose; SecureVision outputs are not autonomous enforcement.",
+        ),
+        para("What this describes", "The published architecture and the illustrative Movement Intelligence Lab walkthrough — how the platform is designed to work, not a measured result or a validation claim."),
+      ),
+      keywords: [
+        "how gaitai works",
+        "how it works",
+        "end to end",
+        "end-to-end",
+        "pipeline",
+        "architecture",
+        "workflow",
+        "platform",
+        "from video to insight",
+        "from walking video to intelligence",
+        "turn walking video into intelligence",
+        "video to report",
+        "camera input to report",
+        "movement processing",
+        "how the platform processes movement",
+        "capture",
+        "pose estimation",
+        "gait cycle",
+        "movement features",
+        "analytics",
+        "report",
+        "dashboard",
+        "alert",
+        "clinician",
+        "operator",
+        "movement-processing engine",
+        ...products.workflowStages.map((s) => s.title),
+        ...labDemo.MOBILITY_STAGES.map((s) => s.name),
+        ...labDemo.SECURE_STAGES.map((s) => s.name),
+      ],
+      relatedProducts: [],
+      relatedResearch: [],
+      /* Deliberately NOT bound to the GaitAI entity: the entity boost would lift
+         this record for every question that names GaitAI, including the
+         deployment and validation questions it must not answer. Its own title,
+         keywords and the ARCHITECTURE hub boost are what rank it. */
+      aliases: ["how gaitai works", "the gaitai pipeline", "end to end", "end-to-end workflow", "the end-to-end pipeline"],
+    });
+  }
+
   // ── PRIVACY, SECURITY AND WHAT IS NOT CLAIMED ────────────────────────────
   docs.push({
     id: "policy:privacy-controls",
@@ -1481,7 +1622,7 @@ async function main() {
         ),
         para(
           "How movement becomes intelligence",
-          products.workflowStages.map((s) => `${s.title} — ${s.description ?? ""}`),
+          products.workflowStages.map((s) => `${s.title} — ${s.desc ?? s.description ?? ""}`),
         ),
         para("Request a demo, a pilot or a research collaboration", "/#contact"),
       ),

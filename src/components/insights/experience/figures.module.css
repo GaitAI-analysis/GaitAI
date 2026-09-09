@@ -342,3 +342,44 @@
 .narrow .labelSmall {
   font-size: 10.5px;
 }
+
+/* The labels a reader must be able to read at card size: the five readings
+   of one movement, the two privacy indicators, the personal baseline. Set in
+   the body colour and a half-size up from the quiet label; the active one
+   goes to ink. */
+.labelKey {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  fill: var(--jr-body, rgb(203 213 225));
+}
+.labelKeyOn {
+  fill: var(--jr-ink, #f8fafc);
+}
+.narrow .labelKey {
+  font-size: 13px;
+}
+/* A soft disc behind the active node — the one place a branch is lit. */
+.halo {
+  fill: var(--jr-cyan, #4fd1ff);
+  opacity: 0.16;
+  transition: opacity var(--motion-ui) var(--jr-ease, ease);
+}
+/* An assessment not yet taken: a dashed ring, so the empty slots on the
+   trend read as "next" rather than as something missing. */
+.nodeFuture {
+  fill: none;
+  stroke: var(--jr-line-mid, rgb(148 163 184 / 0.28));
+  stroke-width: 1;
+  stroke-dasharray: 2 2.5;
+  vector-effect: non-scaling-stroke;
+}
+/* The redaction over a face: unmistakably a block, in the privacy violet. */
+.redact {
+  fill: rgb(156 100 241 / 0.55);
+  stroke: var(--jr-violet, #9c64f1);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .redact {
+  fill: rgb(95 37 191 / 0.5);
+}

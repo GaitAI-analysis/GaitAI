@@ -890,6 +890,20 @@ body {
     height: var(--site-header-height);
   }
 
+  /* On the journal hub the header floats as a pill, and the stories scrolling
+     beneath it were sliced by its edge. A band of page ground behind the
+     pill, fading out just below the header, lets a headline or the search
+     row dissolve as it passes under rather than look clipped. Scoped to the
+     hub by its global class; other pages keep the bare pill. */
+  body:has(.insights-hub) .site-header::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -1.75rem;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--bg) 0%, var(--bg) 42%, transparent 100%);
+  }
+
   .site-main {
     min-height: calc(100vh - var(--site-header-height));
     min-height: calc(100svh - var(--site-header-height));

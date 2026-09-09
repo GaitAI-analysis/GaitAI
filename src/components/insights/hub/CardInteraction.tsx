@@ -315,7 +315,7 @@ function PipelineCover({ p, narrow = false }: { p: number; narrow?: boolean }) {
 }
 
 /* ── 03 · reduction ────────────────────────────────────────────────────── */
-function Reduction({ p }: { p: number }) {
+function Reduction({ p, narrow = false }: { p: number; narrow?: boolean }) {
   const cx = 88;
   const cy = 98;
   const s = 1.5;
@@ -334,38 +334,42 @@ function Reduction({ p }: { p: number }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
-      <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
-      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
-      {/* RGB: textured body */}
-      <g style={{ opacity: rgb }}>
-        <BodyMass x={cx} y={cy} s={s} className={fig.massSolid} />
-        {Array.from({ length: 5 }, (_, i) => (
-          <line
-            key={i}
-            className={fig.hair}
-            x1={cx - 8 * s}
-            y1={cy - 28 * s + i * 8 * s}
-            x2={cx + 8 * s}
-            y2={cy - 26 * s + i * 8 * s}
-          />
-        ))}
-        <circle cx={cx + 1 * s} cy={cy - 43 * s} r={2.2} className={fig.nodeMute} />
-        <circle cx={cx + 3.5 * s} cy={cy - 44 * s} r={1} className={fig.nodeMute} />
+      {/* On a phone the drawing is a fifth as tall, and the head would sit
+          under the "Foundations 03" step label; the whole plate drops 12
+          units to clear it. */}
+      <g transform={narrow ? "translate(0 12)" : undefined}>
+        <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
+        <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
+        {/* RGB: textured body */}
+        <g style={{ opacity: rgb }}>
+          <BodyMass x={cx} y={cy} s={s} className={fig.massSolid} />
+          {Array.from({ length: 5 }, (_, i) => (
+            <line
+              key={i}
+              className={fig.hair}
+              x1={cx - 8 * s}
+              y1={cy - 28 * s + i * 8 * s}
+              x2={cx + 8 * s}
+              y2={cy - 26 * s + i * 8 * s}
+            />
+          ))}
+          <circle cx={cx + 1 * s} cy={cy - 43 * s} r={2.2} className={fig.nodeMute} />
+          <circle cx={cx + 3.5 * s} cy={cy - 44 * s} r={1} className={fig.nodeMute} />
       </g>
-      {/* redaction */}
-      <rect
-        style={{ opacity: redact }}
-        x={cx - 9 * s}
-        y={cy - 51 * s}
-        width={20 * s}
-        height={15 * s}
-        fill="rgb(var(--c-obsidian-500))"
-        stroke="var(--jr-violet)"
-        strokeWidth={1}
-      />
+      {/* redaction: the body stays as it was, and a violet block covers the
+          face — the one thing that has changed, and it must be unmissable */}
       <g style={{ opacity: redact }}>
         <BodyMass x={cx} y={cy} s={s} className={fig.massSolid} />
       </g>
+      <rect
+        className={fig.redact}
+        style={{ opacity: redact }}
+        x={cx - 10 * s}
+        y={cy - 52 * s}
+        width={22 * s}
+        height={17 * s}
+        rx={1}
+      />
       {/* silhouette */}
       <g style={{ opacity: silhouette }}>
         <BodyMass x={cx} y={cy} s={s} className={fig.mass} />
@@ -382,7 +386,7 @@ function Reduction({ p }: { p: number }) {
         ))}
       </g>
       {/* the two indicators */}
-      <g className={fig.label}>
+      <g className={`${fig.label} ${fig.labelKey}`}>
         <text x={186} y={58}>
           Movement kept
         </text>
@@ -414,6 +418,7 @@ function Reduction({ p }: { p: number }) {
           style={{ opacity: i < identity ? 1 : 0.4 }}
         />
       ))}
+      </g>
     </svg>
   );
 }
@@ -443,25 +448,40 @@ function Trajectory({ p }: { p: number }) {
         x2={280}
         y2={TREND_Y[0]}
       />
-      <text className={`${fig.label} ${fig.labelTeal}`} x={44} y={TREND_Y[0] - 8} style={{ opacity: baseline ? 1 : 0 }}>
+      <text className={`${fig.label} ${fig.labelKey} ${fig.labelTeal}`} x={44} y={TREND_Y[0] - 8} style={{ opacity: baseline ? 1 : 0 }}>
         Own baseline
       </text>
       <path className={`${fig.trace} ${fig.traceTeal}`} d={path} style={{ opacity: shown > 1 ? 1 : 0 }} />
+      {/* Assessments taken are solid points, the latest one haloed; the ones
+          still to come are dashed rings on the same line — slots waiting,
+          not data missing. */}
       {xs.map((x, i) => {
         const on = i < shown;
-        const r = i === 0 ? (big ? 16 : 4.5) : 4.5;
+        const latest = i === shown - 1;
+        const r = i === 0 ? (big ? 16 : 5) : 5;
         return (
-          <g key={x} style={{ opacity: on ? 1 : 0.18 }}>
+          <g key={x} style={{ opacity: on ? 1 : 0.55 }}>
             <line className={fig.dash} x1={x} y1={TREND_Y[i] + 10} x2={x} y2={152} style={{ opacity: on ? 1 : 0 }} />
-            <circle
-              className={fig.node}
-              cx={x}
-              cy={TREND_Y[i]}
-              r={r}
-              style={{ transition: "r 0.4s cubic-bezier(0.16,1,0.3,1)" }}
-            />
-            <circle className={fig.nodeFill} cx={x} cy={TREND_Y[i]} r={i === 0 && big ? 3 : 2} />
-            <text className={`${fig.label} ${fig.labelSmall}`} x={x} y={174} textAnchor="middle">
+            {on && latest && !big && <circle className={fig.halo} cx={x} cy={TREND_Y[i]} r={11} />}
+            {on ? (
+              <circle
+                className={fig.node}
+                cx={x}
+                cy={TREND_Y[i]}
+                r={r}
+                style={{ transition: "r 0.4s cubic-bezier(0.16,1,0.3,1)" }}
+              />
+            ) : (
+              <circle className={fig.nodeFuture} cx={x} cy={TREND_Y[i]} r={4.5} />
+            )}
+            {on && <circle className={fig.nodeFill} cx={x} cy={TREND_Y[i]} r={i === 0 && big ? 3 : 2.4} />}
+            <text
+              className={`${fig.label} ${fig.labelSmall} ${on ? fig.labelInk : ""}`}
+              x={x}
+              y={174}
+              textAnchor="middle"
+              style={{ opacity: on ? 1 : 0.8 }}
+            >
               {String(i + 1).padStart(2, "0")}
             </text>
           </g>
@@ -493,14 +513,18 @@ function Divergence({ pick }: { pick: number }) {
         One movement
       </text>
       {/* branches */}
+      {/* The five readings. At rest all five are legible; once one is chosen
+          the others fall back a step and stay quiet — only the active branch
+          is bold, lit and haloed. */}
       {targets.map(([tx, ty], i) => {
         const on = pick === i;
         const d = `M${ox} ${oy} C${ox + 50} ${oy} ${tx - 70} ${ty} ${tx - 10} ${ty}`;
         return (
-          <g key={BRANCHES[i]} style={{ opacity: pick < 0 || on ? 1 : 0.32 }}>
+          <g key={BRANCHES[i]} style={{ opacity: pick < 0 || on ? 1 : 0.48 }}>
             <path className={`${fig.trace} ${on ? fig.traceBold : fig.traceSoft}`} d={d} />
-            <circle className={on ? fig.nodeFill : fig.nodeMute} cx={tx - 10} cy={ty} r={on ? 3 : 2} />
-            <text className={`${fig.label} ${on ? fig.labelInk : ""}`} x={tx} y={ty + 3}>
+            {on && <circle className={fig.halo} cx={tx - 10} cy={ty} r={8} />}
+            <circle className={on ? fig.nodeFill : fig.nodeMute} cx={tx - 10} cy={ty} r={on ? 3.2 : 2} />
+            <text className={`${fig.label} ${fig.labelKey} ${on ? fig.labelAccent : ""}`} x={tx} y={ty + 3}>
               {BRANCHES[i]}
             </text>
           </g>
@@ -787,8 +811,11 @@ export function CardInteraction({
   return (
     <div
       ref={ref}
-      className={`${styles.media} ${concept === "fusion" ? styles.mediaTap : ""} ${large ? styles.mediaCover : ""} h-full w-full`}
+      className={`${styles.media} ${concept === "fusion" ? styles.mediaTap : ""} ${large ? styles.mediaCover : ""} ${
+        narrow && !large ? fig.narrow : ""
+      } h-full w-full`}
       data-used={used ? "true" : undefined}
+      data-concept={concept}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -796,7 +823,7 @@ export function CardInteraction({
       onPointerLeave={onLeave}
     >
       {concept === "pipeline" && (large ? <PipelineCover p={p} narrow={narrow} /> : <Pipeline p={p} />)}
-      {concept === "reduction" && <Reduction p={p} />}
+      {concept === "reduction" && <Reduction p={p} narrow={narrow} />}
       {concept === "trajectory" && <Trajectory p={p} />}
       {concept === "divergence" && <Divergence pick={pick} />}
       {concept === "fusion" && <Fusion states={states} onToggle={toggle} />}

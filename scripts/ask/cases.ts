@@ -193,4 +193,39 @@ export const CASES: Case[] = [
     check:
       "MUST NOT name a customer. No record documents one; the answer must say the available GaitAI information does not establish it.",
   },
+
+  // ── "What can GaitAI do for X" — application / domain questions ──────────
+  // The environment the site documents for the domain leads and brings its
+  // modules; a domain the site has no environment for (military) still finds
+  // the modules whose records describe restricted zones, perimeters, access
+  // control and authorised watchlists — and the answer says no deployment of
+  // that kind is documented. Never a person, a talk, an essay or a paper.
+  {
+    q: "What can GaitAI do for military?",
+    expect: ["product:suspiciousmotion", "product:accessmotion", "page:/securevision"],
+    anyOf: ["product:watchlist", "product:campusshield", "product:reid"],
+    check:
+      "MUST say no dedicated military deployment is documented; capabilities only, labelled as potentially relevant. No customer, contract, clearance or deployment invented.",
+  },
+  {
+    q: "What can GaitAI do for defence?",
+    expect: ["product:suspiciousmotion", "product:accessmotion", "page:/securevision"],
+    check: "Same boundary as the military question.",
+  },
+  { q: "What can GaitAI do for a hospital?", expect: ["use-case:hospitals", "product:fallrisk"] },
+  { q: "What can GaitAI do for elderly care?", expect: ["use-case:elderly", "product:fallrisk", "product:seniorcare"] },
+  { q: "What can GaitAI do for an airport?", expect: ["use-case:airports", "product:crowdsense", "product:reid"] },
+  { q: "What can GaitAI do for a factory?", expect: ["use-case:factories", "product:industrialsafety"] },
+  /* The site groups rail with airports and metro: one environment record. */
+  { q: "What can GaitAI do for a railway station?", expect: ["use-case:airports", "product:crowdsense", "product:reid"] },
+  { q: "What can GaitAI do for a university campus?", expect: ["use-case:campuses", "product:campusshield"] },
+  { q: "What can GaitAI do for public safety?", expect: ["use-case:smartcities", "product:crowdsense"] },
+  { q: "What can GaitAI do for rehabilitation?", expect: ["use-case:physio", "product:rehabtrack"] },
+  {
+    /* A domain nobody documents and the vocabulary does not know: refuse,
+       rather than list environments that merely share "do" and "for". */
+    q: "What can GaitAI do for astronauts?",
+    expect: [],
+    check: "MUST refuse with the generic no-documented-answer wording.",
+  },
 ];

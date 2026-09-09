@@ -27,8 +27,9 @@
  */
 
 import { docById, knowledge, type DocType, type KnowledgeDoc } from "./corpus";
+import { matchDomains, type DomainConcept, type Family } from "./domains";
 import { resetEntityIndex, resolveEntities, type EntityMatch } from "./entities";
-import { classifyIntent, personSubject, type Intent } from "./intent";
+import { applicationSubject, classifyIntent, personSubject, type Intent } from "./intent";
 
 // ── Tokenisation ────────────────────────────────────────────────────────────
 
@@ -260,6 +261,14 @@ export interface RetrievalResult {
   /** The named entity the question is about, when it names one we index. */
   entity: EntityMatch | null;
   /**
+   * Set for an APPLICATION question: the domain the visitor named, the
+   * environment records the site documents for it (empty when it documents
+   * none — "military"), and the family the domain plainly belongs to. The
+   * answer layers use it to say whether the domain is a documented
+   * deployment environment or only a set of potentially relevant capabilities.
+   */
+  application: ApplicationContext | null;
+  /**
    * Set when the question asked about a person the corpus has no record for —
    * the subject of "who is X", so the answer can say which X it looked for
    * instead of returning whatever happened to be nearest.
@@ -268,6 +277,52 @@ export interface RetrievalResult {
 }
 
 const MAX_DOCS = 7;
+
+export interface ApplicationContext {
+  /** The domain as the visitor named it: "military", "railway station". */
+  subject: string;
+  /** Domain concepts the vocabulary matched, table order. */
+  concepts: DomainConcept[];
+  /** `use-case:<id>` record ids the site documents for the domain. */
+  documentedEnvironmentIds: string[];
+  family: Family | null;
+}
+
+/**
+ * Read an APPLICATION question's domain against the vocabulary and the
+ * corpus's own environment records. A subject the vocabulary does not know
+ * still resolves if its words are an environment's title ("hospitals" →
+ * Hospitals), so the table never has to list what the site already names.
+ */
+function readApplication(query: string, ix: Index): ApplicationContext | null {
+  const subject = applicationSubject(query);
+  if (subject === null) return null;
+  const concepts = matchDomains(subject);
+  const environmentIds = new Set(concepts.flatMap((concept) => concept.environmentIds).map((id) => `use-case:${id}`));
+
+  /* An environment whose title the subject covers — every subject word, as
+     a stem, is in the title ("hospital" ⊂ "Hospitals"). */
+  const subjectTerms = tokenize(subject);
+  if (subjectTerms.length) {
+    for (const entry of ix.docs) {
+      if (entry.doc.type !== "use-case" || entry.doc.parentId) continue;
+      const titleTerms = new Set(entry.titleTerms);
+      if (subjectTerms.every((term) => titleTerms.has(term))) environmentIds.add(entry.doc.id);
+    }
+  }
+
+  const families = new Set(concepts.map((concept) => concept.family).filter(Boolean));
+  for (const id of environmentIds) {
+    const family = docById().get(id)?.family;
+    if (family === "mobilitycare" || family === "securevision") families.add(family);
+  }
+  return {
+    subject,
+    concepts,
+    documentedEnvironmentIds: [...environmentIds],
+    family: families.size === 1 ? ([...families][0] as Family) : null,
+  };
+}
 
 // ── Entity and intent weighting ─────────────────────────────────────────────
 
@@ -317,6 +372,26 @@ const INTENT_TYPE_BOOST: Record<Intent, Partial<Record<DocType, number>>> = {
      boost. */
   PUBLICATION: { publication: 2, research: 1.2, person: -2, page: -2 },
   USE_CASE: { "use-case": 2, product: 1, talk: -3 },
+  /* "What can GaitAI do for X": environments first, then the modules, the
+     deployment facts and the capabilities; policy where the domain is a
+     security one. A person, a talk, an essay, a paper or a hub page is not
+     what GaitAI can DO for anyone — they are demoted hard enough that only
+     an explicit mention could lift them back. Family and Use Cases pages are
+     lifted separately below; they consolidate a whole family's answer. */
+  APPLICATION: {
+    "use-case": 3,
+    product: 2,
+    deployment: 1.5,
+    capability: 1,
+    signal: 0.5,
+    policy: 0.5,
+    research: -1,
+    publication: -4,
+    insight: -4,
+    person: -8,
+    talk: -8,
+    page: -2,
+  },
   /* "how do you store my video" is about handling, not about a retail
      STORE — a penalty on modules and environments keeps the policy and legal
      records ahead of a lexical coincidence, and a light one on ordinary site
@@ -338,6 +413,18 @@ const INTENT_TYPE_BOOST: Record<Intent, Partial<Record<DocType, number>>> = {
  * sections — is what an answer actually uses.
  */
 const MAX_PER_PARENT = 2;
+
+/**
+ * APPLICATION questions: the environment record the domain vocabulary maps
+ * the domain to ("railway station" → Airports, metro & rail) is as decisive
+ * as a named entity; the family page that consolidates the answer
+ * (SecureVision for a defence question) is lifted less. Expansion terms are
+ * added to the query at the weights the vocabulary gives them.
+ */
+const DOMAIN_ENVIRONMENT_BOOST = 8;
+const DOMAIN_ENVIRONMENT_CHUNK_BOOST = 3;
+const DOMAIN_FAMILY_PAGE_BOOST = 3.5;
+const USE_CASES_HUB_BOOST = 1.5;
 
 /** "latest", "recent", "new" — a question that wants dated records newest first. */
 const LATEST_HINTS = /\b(latest|recent|recently|newest|new|last|this (?:week|month|year)|just published)\b/i;
@@ -472,6 +559,25 @@ export function retrieveGaitAIContext(
     entities[0] ??
     null;
   const typeBoost = INTENT_TYPE_BOOST[intent];
+
+  // ── Application questions: expand the domain through the site's vocabulary
+  // "military" is not a word the corpus uses; "restricted", "perimeter",
+  // "tailgating" and "watchlist" are. The expansion terms join the query at
+  // the vocabulary's reduced weights, so the modules that describe those
+  // capabilities can score without the visitor's words being changed.
+  const application = intent === "APPLICATION" ? readApplication(query, ix) : null;
+  if (application) {
+    for (const concept of application.concepts) {
+      for (const { term, weight } of concept.terms) {
+        for (const token of tokenize(term)) {
+          weighted.set(token, Math.max(weighted.get(token) ?? 0, weight));
+        }
+      }
+    }
+  }
+  const documentedEnvironments = new Set(application?.documentedEnvironmentIds ?? []);
+  const familyPageUrl = application?.family ? `/${application.family}/` : null;
+
   /* Does the question name the entity and nothing else? "what is gaitai" →
      yes; "where can I try gaitai" → no ("try" is not part of any alias). */
   const queryIsOnlyEntity = (() => {
@@ -541,6 +647,25 @@ export function retrieveGaitAIContext(
       reasons.push("entity:related");
     }
 
+    // ── Domain-aware ranking ────────────────────────────────────────────────
+    // The environment the site documents for the named domain, and the
+    // family page that consolidates the answer. Applied before the cut, like
+    // an entity: a documented environment IS the answer to "what can GaitAI
+    // do for a railway station", whatever the lexical score says.
+    if (application) {
+      const familyKey = entry.doc.parentId ?? entry.doc.id;
+      if (entry.doc.type === "use-case" && documentedEnvironments.has(familyKey)) {
+        score += entry.doc.parentId ? DOMAIN_ENVIRONMENT_CHUNK_BOOST : DOMAIN_ENVIRONMENT_BOOST;
+        reasons.push("domain:environment");
+      } else if (entry.doc.type === "page" && familyPageUrl && entry.doc.url === familyPageUrl) {
+        score += DOMAIN_FAMILY_PAGE_BOOST;
+        reasons.push("domain:family");
+      } else if (entry.doc.id === "page:/use-cases") {
+        score += USE_CASES_HUB_BOOST;
+        reasons.push("domain:hub");
+      }
+    }
+
     if (score <= 0) continue;
 
     // ── Intent tilt ─────────────────────────────────────────────────────────
@@ -552,6 +677,16 @@ export function retrieveGaitAIContext(
       if (isGovernancePage) {
         if (intent === "PRIVACY" || intent === "SECURITY") tilt = 2.5;
         else if (intent === "PERSON") tilt = typeBoost.policy ?? tilt;
+      }
+      /* The pages that answer an application question — a family landing
+         page, the Use Cases hub, Trust — are not "generic navigation" and
+         keep a neutral tilt; every other page takes the penalty. */
+      if (
+        intent === "APPLICATION" &&
+        entry.doc.type === "page" &&
+        (entry.doc.url === familyPageUrl || entry.doc.id === "page:/use-cases" || entry.doc.id === "page:/trust")
+      ) {
+        tilt = 0;
       }
       /* A page that points at the person (Publications, Talks) is context
          for a person question, not a mismatch. */
@@ -693,8 +828,24 @@ export function retrieveGaitAIContext(
     intent === "PERSON" && !personEntity && (best < CONFIDENCE_FLOOR || subjectUnknown)
       ? askedSubject ?? query.trim()
       : null;
+  /* An application question whose domain the vocabulary or an environment
+     record knows has an honest answer even at a low lexical score — the
+     capabilities, with the boundary stated. A domain nobody knows ("for
+     astronauts") falls through to the floor like any other question. */
+  const applicationKnown =
+    application !== null &&
+    (application.concepts.length > 0 || application.documentedEnvironmentIds.length > 0);
+  /* An unknown domain on an application question: every environment record
+     earns the intent tilt (+3) on the question's own words alone, so the
+     floor for "something actually matched" sits above tilt plus a small
+     lexical hit. Below it the honest answer is the generic refusal, not a
+     list of environments that merely share "do" and "for". */
+  const applicationUnknown =
+    application !== null && !applicationKnown && best < CONFIDENCE_FLOOR + 6;
   const lowConfidence =
-    entityMiss !== null || (best < CONFIDENCE_FLOOR && !pageDoc && !entity);
+    entityMiss !== null ||
+    applicationUnknown ||
+    (best < CONFIDENCE_FLOOR && !pageDoc && !entity && !applicationKnown);
 
   // ── Relation expansion ────────────────────────────────────────────────────
   // An environment record names its modules; a research area names the modules
@@ -722,6 +873,9 @@ export function retrieveGaitAIContext(
   const EXPANSION_FLOOR = best * 0.75;
   for (const item of scored.slice(0, 5)) {
     if (item.doc.type !== "use-case" && item.doc.type !== "research") continue;
+    /* A chunk names the same modules as its parent; expanding from both
+       would count them twice. The parent carries the mapping. */
+    if (item.doc.parentId) continue;
     if (item.score < EXPANSION_FLOOR) continue;
     for (const productId of item.doc.relatedProducts) {
       const related = docById().get(`product:${productId}`);
@@ -752,7 +906,7 @@ export function retrieveGaitAIContext(
        ("compatible CCTV where appropriate"), and not a module and its
        deployment section twice over. Chunks are out of the running; their
        parents answer on merit. */
-    const chunksAllowed = !wantsRecommendation;
+    const chunksAllowed = !wantsRecommendation && intent !== "APPLICATION";
     let candidates = [...ranked, ...scored.filter((item) => !picked.has(item.doc.id))];
     if (!chunksAllowed) {
       /* The module's sections still count as EVIDENCE about the module —
@@ -892,7 +1046,7 @@ export function retrieveGaitAIContext(
     ];
   }
 
-  return { docs, pageDoc, lowConfidence, page, intent, entity, entityMiss };
+  return { docs, pageDoc, lowConfidence, page, intent, entity, entityMiss, application };
 }
 
 // ── Context assembly ────────────────────────────────────────────────────────

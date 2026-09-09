@@ -475,6 +475,45 @@ layer. Unchanged by the hosted migrations — the suites below are the proof, an
 "who is anubha" ranks the canonical person record first with no policy, Trust
 or deployment record ahead of it.
 
+### Application questions — "What can GaitAI do for X?"
+
+An `APPLICATION` intent (`intent.ts`, `applicationSubject()`) recognises the
+recommendation forms — *what can GaitAI do for X · how can GaitAI help X · use
+GaitAI for X · GaitAI for X · which GaitAI products for X · how would GaitAI
+work in X · can GaitAI be used in X* — and extracts the domain X. It fixed one
+screenshot: "what can GaitAI do for military" answered with the Insights hub, a
+patent, the Talks page and the founder's record, because "military" is a word
+the corpus never uses and lexical retrieval fell back to pages sharing "do" and
+"for".
+
+`domains.ts` is a **retrieval-only vocabulary**: for each domain a visitor may
+name it lists the words the site's own records use for the same ground
+("military" → restricted, perimeter, access, tailgating, watchlist,
+high-security; "railway station" → the Airports, metro & rail environment) and,
+only where the site documents one, the environment record for it. Expansion
+terms join the query at reduced weights; nothing from the table is ever shown
+or handed to the model as a fact. A domain the table does not know still
+resolves when its words are an environment's title ("hospitals").
+
+Ranking for the intent: a documented environment for the domain is boosted like
+a named entity and brings its recommended modules through the existing
+relation expansion; the family page (SecureVision / MobilityCare) and the Use
+Cases hub are lifted as consolidating records; modules compete on their own
+records with their sections' evidence folded in; persons, talks, essays, papers
+and other pages are demoted hard. An unknown domain ("astronauts") refuses
+rather than listing every environment.
+
+The answer layer says whether X is documented, decided from the **canonical
+records the Worker resolved** (`applicationLine()` in `prompt.ts`), never from
+the question's wording: where an environment record covers X the model is told
+to describe it; where none does, it is told to say first that no dedicated X
+deployment is documented, then to describe only the capabilities the records
+establish as potentially relevant applications, never implying a deployment,
+customer, clearance or certification. The retrieval-only answer
+(`composeApplicationAnswer` in `extractive.ts`) has the same shape: a heading,
+the boundary or the documented environment, up to four relevant modules in
+their own words, and an "Important boundary" line.
+
 ---
 
 ## 6. Guardrails

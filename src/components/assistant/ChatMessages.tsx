@@ -170,7 +170,18 @@ export function ChatMessages({
                 {turn.sources && turn.sources.length > 0 && (
                   <>
                     <SourceLinks sources={turn.sources} onNavigate={onNavigate} />
-                    <AnswerConnections sources={turn.sources} onNavigate={onNavigate} />
+                    {/* The documented-connections walk is evidence, not the
+                        answer: it stays behind a closed disclosure so the
+                        answer and its two or three sources are what a reader
+                        sees first. It used to render open and took most of
+                        the panel. */}
+                    <details className={styles.related}>
+                      <summary className={styles.relatedSummary}>
+                        <span className={styles.microLabel}>Related evidence</span>
+                        <span aria-hidden="true" className={styles.relatedChevron}>▾</span>
+                      </summary>
+                      <AnswerConnections sources={turn.sources} onNavigate={onNavigate} />
+                    </details>
                   </>
                 )}
 

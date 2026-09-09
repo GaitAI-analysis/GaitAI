@@ -168,7 +168,7 @@ export function PublicationBrowser({
       : `${matches.length} of ${stories.length} stories`;
 
   return (
-    <section className={`${styles.archive} site-page-intro-compact`}>
+    <section className={styles.archive}>
       <JournalBackdrop quiet />
       <div className="container-wide">
         {/* ── Masthead: short, then straight into the cover ── */}

@@ -6,6 +6,7 @@ import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
 import type { CoverConcept } from "@/data/insights";
 import { trackInsightEvent } from "@/lib/insight-events";
 import { useFigureActive } from "../experience/useFigureActive";
+import { useNarrow } from "../experience/useNarrow";
 import { StageControl, type Stage } from "../experience/StageControl";
 import fig from "../experience/figures.module.css";
 import ui from "../experience/experience.module.css";
@@ -185,8 +186,12 @@ const CH = 400;
 function coverStageOf(p: number) {
   return Math.min(5, Math.floor(clamp01(p) * 6));
 }
-function PipelineCover({ p }: { p: number }) {
+function PipelineCover({ p, narrow = false }: { p: number; narrow?: boolean }) {
   const stage = coverStageOf(p);
+  /* On a phone the type is set larger, so the insight lines start further
+     left to stay inside the drawing. */
+  const tx = narrow ? 330 : 386;
+  const lx = narrow ? 318 : 372;
   const s = 2.4;
   const fx = 190;
   const fy = 176;
@@ -195,9 +200,11 @@ function PipelineCover({ p }: { p: number }) {
   const late = stage >= 4;
   const mass = stage === 0 ? 1 : stage === 1 ? 0.28 : 0;
   const joints = stage === 1 ? 1 : 0;
-  const bones = stage >= 2 ? (late ? 0.55 : 1) : 0;
-  const trail = stage === 3 ? 1 : late ? 0.3 : 0;
-  const signal = stage === 4 ? 1 : stage === 5 ? 0.25 : 0;
+  /* The walker stays the hero at every stage; what is read from it arrives
+     beside it and never outweighs it. */
+  const bones = stage >= 2 ? (stage === 4 ? 0.6 : stage === 5 ? 0.8 : 1) : 0;
+  const trail = stage === 3 ? 1 : late ? 0.35 : 0;
+  const signal = stage === 4 ? 1 : stage === 5 ? 0.18 : 0;
   const decision = stage === 5 ? 1 : 0;
 
   const trails = {
@@ -262,21 +269,26 @@ function PipelineCover({ p }: { p: number }) {
             ))}
           </g>
         </g>
-        <text className={`${fig.label} ${fig.labelSmall}`} x={fx - 128} y={44}>
-          {stage <= 1 ? "appearance" : stage <= 3 ? "geometry over time" : "what was read from it"}
-        </text>
       </g>
+      {/* One caption, only once the walk has become something read. */}
+      <text
+        className={`${styles.coverLabel} ${styles.coverLabelAccent} ${fig.fade}`}
+        style={{ opacity: late ? 1 : 0 }}
+        x={372}
+        y={52}
+      >
+        From motion to meaning
+      </text>
 
       {/* the signals, read from the trail */}
       <g className={fig.fade} style={{ opacity: signal }}>
         {[
-          { y: 92, amp: 10, f: 3, ph: 0, cls: fig.trace, name: "Cadence" },
-          { y: 166, amp: 8, f: 1.5, ph: 1, cls: `${fig.trace} ${fig.traceRoyal}`, name: "Stride rhythm" },
-          { y: 240, amp: 7, f: 2, ph: 0.4, cls: `${fig.trace} ${fig.traceViolet}`, name: "Left / right symmetry" },
-          { y: 314, amp: 6, f: 4, ph: 2, cls: `${fig.trace} ${fig.traceTeal}`, name: "Variability" },
+          { y: 112, amp: 11, f: 3, ph: 0, cls: fig.trace, name: "Cadence" },
+          { y: 196, amp: 9, f: 1.5, ph: 1, cls: `${fig.trace} ${fig.traceRoyal}`, name: "Stride rhythm" },
+          { y: 280, amp: 8, f: 2, ph: 0.4, cls: `${fig.trace} ${fig.traceViolet}`, name: "Symmetry" },
         ].map((band) => (
           <g key={band.y}>
-            <text className={`${fig.label} ${fig.labelSmall}`} x={372} y={band.y - 20}>
+            <text className={styles.coverLabel} x={372} y={band.y - 24}>
               {band.name}
             </text>
             <path className={band.cls} d={wave(band.y, band.amp, band.f, band.ph)} />
@@ -284,27 +296,18 @@ function PipelineCover({ p }: { p: number }) {
         ))}
       </g>
 
-      {/* decision support */}
+      {/* the insight: a reading and its boundary, as two lines of type — no
+          box, no report chrome. The walk beside it stays the subject. */}
       <g className={fig.fade} style={{ opacity: decision }}>
-        <rect className={`${fig.plate} ${fig.plateLit}`} x={384} y={108} width={216} height={168} rx={10} />
-        <text className={`${fig.label} ${fig.labelAccent}`} x={404} y={136}>
-          For review
+        <line className={fig.trace} x1={lx} y1={168} x2={lx} y2={232} />
+        <text className={`${styles.coverLabel} ${styles.coverLabelInk}`} x={tx} y={184}>
+          Stride variability rising
         </text>
-        <text className={`${fig.label} ${fig.labelInk}`} x={404} y={162}>
-          Stride variability
+        <text className={styles.coverLabel} x={tx} y={206}>
+          against this person&apos;s baseline
         </text>
-        <text className={`${fig.label} ${fig.labelSmall}`} x={404} y={178}>
-          above this person&apos;s baseline
-        </text>
-        <line className={fig.hair} x1={404} y1={194} x2={580} y2={194} />
-        <text className={`${fig.label} ${fig.labelSmall}`} x={404} y={214}>
-          history · 5 captures · quality clean
-        </text>
-        <text className={`${fig.label} ${fig.labelSmall}`} x={404} y={232}>
-          report · dashboard · alert
-        </text>
-        <text className={`${fig.label} ${fig.labelWarn} ${fig.labelSmall}`} x={404} y={258}>
-          decision support · not a diagnosis
+        <text className={`${styles.coverLabel} ${styles.coverLabelWarn}`} x={tx} y={230}>
+          Decision support, not a diagnosis
         </text>
       </g>
     </svg>
@@ -682,6 +685,7 @@ export function CardInteraction({
   const [states, setStates] = useState<StreamState[]>([0, 0, 0, 0]);
   const [used, setUsed] = useState(false);
   const { ref, active, inView, reduced } = useFigureActive<HTMLDivElement>();
+  const narrow = useNarrow(640);
   const demoed = useRef(false);
   const raf = useRef(0);
 
@@ -790,9 +794,8 @@ export function CardInteraction({
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
       onPointerLeave={onLeave}
-      style={large ? { minHeight: 260 } : undefined}
     >
-      {concept === "pipeline" && (large ? <PipelineCover p={p} /> : <Pipeline p={p} />)}
+      {concept === "pipeline" && (large ? <PipelineCover p={p} narrow={narrow} /> : <Pipeline p={p} />)}
       {concept === "reduction" && <Reduction p={p} />}
       {concept === "trajectory" && <Trajectory p={p} />}
       {concept === "divergence" && <Divergence pick={pick} />}

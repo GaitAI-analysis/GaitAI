@@ -48,6 +48,17 @@ const FIGURES: Record<FigureKey, ComponentType<FigureProps>> = {
   "pose-error-explorer": dynamic(() =>
     import("./figures/PoseErrorExplorer").then((m) => m.PoseErrorExplorer),
   ),
+  "symmetry-explorer": dynamic(() => import("./figures/SymmetryExplorer").then((m) => m.SymmetryExplorer)),
+  "camera-angle-explorer": dynamic(() =>
+    import("./figures/CameraAngleExplorer").then((m) => m.CameraAngleExplorer),
+  ),
+  "identity-layers-explorer": dynamic(() =>
+    import("./figures/IdentityLayersExplorer").then((m) => m.IdentityLayersExplorer),
+  ),
+  "system-chain-explorer": dynamic(() =>
+    import("./figures/SystemChainExplorer").then((m) => m.SystemChainExplorer),
+  ),
+  "baseline-explorer": dynamic(() => import("./figures/BaselineExplorer").then((m) => m.BaselineExplorer)),
 };
 
 export function Figure({

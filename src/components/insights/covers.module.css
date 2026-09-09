@@ -670,3 +670,28 @@
   --c-a: #4fd1ff;
   --c-b: #2dd4bf;
 }
+/* Inside the Signal: cyan left, royal right, warm where they disagree. */
+.symmetry {
+  --c-a: #4fd1ff;
+  --c-b: #5587ff;
+}
+/* Engineering GaitAI: cyan camera, ink walker, warm where a signal is lost. */
+.viewpoint {
+  --c-a: #4fd1ff;
+  --c-b: #60a5fa;
+}
+/* Privacy by Architecture: violet for the identity that remains. */
+.identity-layers {
+  --c-a: #a78bfa;
+  --c-b: #4fd1ff;
+}
+/* Engineering GaitAI · 02: cyan links, teal for sound, warm for the break. */
+.system-chain {
+  --c-a: #4fd1ff;
+  --c-b: #2dd4bf;
+}
+/* Inside the Signal · 02: teal for the person's own band, violet for everyone. */
+.baseline {
+  --c-a: #2dd4bf;
+  --c-b: #a78bfa;
+}

@@ -9,6 +9,11 @@ import { useFigureActive } from "../experience/useFigureActive";
 import { useNarrow } from "../experience/useNarrow";
 import { StageControl, type Stage } from "../experience/StageControl";
 import { POSE_PHASE_FOR, estimatePose, poseFocusJoint } from "../experience/figures/pose-error-model";
+import { READING_LABEL, symmetryState, type SymmetryLevel } from "../experience/figures/symmetry-model";
+import { ANGLE_LABEL, CAMERA_ANGLES, availabilityAt } from "../experience/figures/camera-model";
+import { REPRESENTATIONS, REPRESENTATION_LABEL, bodyMassPath, identityLedger } from "../experience/figures/identity-model";
+import { CHAIN, COMPONENT_LABEL, OUTCOME_LABEL, outcomeFor, type ChainComponent } from "../experience/figures/system-model";
+import { MAX_OBSERVATIONS, OBSERVATIONS, POPULATION, personalBand, populationCurve } from "../experience/figures/baseline-model";
 import fig from "../experience/figures.module.css";
 import ui from "../experience/experience.module.css";
 import styles from "./hub.module.css";
@@ -742,6 +747,311 @@ function PoseErrorMini({ p }: { p: number }) {
   );
 }
 
+/* ── Inside the Signal 01 · symmetry ───────────────────────────────────────
+   Two gait cycles as bars of time. Drag across: the right side's stance
+   grows or shrinks against the left, the dashed guides show where a
+   symmetric side would be, and the reading beneath changes in words. */
+function SymmetryMini({ p }: { p: number }) {
+  const level = Math.max(-3, Math.min(3, Math.round((p - 0.5) * 6))) as SymmetryLevel;
+  const state = symmetryState("stance", level);
+  const x0 = 52;
+  const x1 = 300;
+  const cycles = 1.6;
+  const xAt = (t: number) => x0 + (t / cycles) * (x1 - x0);
+  const segments = (start: number, stance: number) => {
+    const out: Array<[number, number]> = [];
+    for (let k = -1; k <= 2; k++) {
+      const a = Math.max(0, start + k);
+      const b = Math.min(cycles, start + k + stance);
+      if (b > a) out.push([a, b]);
+    }
+    return out;
+  };
+  const bar = (y: number, label: string, side: "left" | "right", start: number, stance: number) => (
+    <g>
+      <text className={`${fig.label} ${fig.labelKey}`} x={x0 - 6} y={y + 13} textAnchor="end">
+        {label}
+      </text>
+      <rect className={fig.frame} x={x0} y={y} width={x1 - x0} height={18} rx={2} />
+      {segments(start, stance).map(([a, b]) => (
+        <rect
+          key={`${side}-${a}`}
+          x={xAt(a)}
+          y={y + 3}
+          width={xAt(b) - xAt(a)}
+          height={12}
+          rx={1.5}
+          fill={side === "left" ? "var(--jr-cyan)" : "var(--jr-royal)"}
+          opacity={0.75}
+        />
+      ))}
+      {[-1, 0, 1, 2].map((k) => start + k).filter((t) => t >= 0 && t <= cycles).map((t) => (
+        <line key={`${side}-${t}`} className={fig.trace} x1={xAt(t)} y1={y - 5} x2={xAt(t)} y2={y + 23} style={{ stroke: side === "left" ? "var(--jr-cyan)" : "var(--jr-royal)" }} />
+      ))}
+    </g>
+  );
+  const asymmetric = state.reading !== "symmetrical";
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <line className={fig.ground} x1={x0} y1={44} x2={x1} y2={44} />
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={36}>
+        one gait cycle · time →
+      </text>
+      {bar(66, "Left", "left", state.left.start, state.left.stance)}
+      {bar(112, "Right", "right", state.right.start, state.right.stance)}
+      <g style={{ opacity: asymmetric ? 1 : 0 }}>
+        {segments(state.left.start + 0.5, state.left.stance).map(([a, b]) => (
+          <g key={`ghost-${a}`}>
+            <line className={fig.dash} x1={xAt(a)} y1={110} x2={xAt(a)} y2={132} />
+            <line className={fig.dash} x1={xAt(b)} y1={110} x2={xAt(b)} y2={132} />
+          </g>
+        ))}
+      </g>
+      <text className={`${fig.label} ${fig.labelKey} ${asymmetric ? fig.labelWarn : fig.labelTeal}`} x={x0} y={166}>
+        {READING_LABEL[state.reading]}
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={182}>
+        {level === 0 ? "stance · swing · timing" : level > 0 ? "right stands longer" : "left stands longer"}
+      </text>
+    </svg>
+  );
+}
+
+/* ── Engineering GaitAI 01 · viewpoint ─────────────────────────────────────
+   A camera on a ring around a walker seen from above. Drag across: the
+   camera moves round the ring and three signals change in words — knee
+   flexion, stride width, body path. */
+function ViewpointMini({ p }: { p: number }) {
+  const angle = CAMERA_ANGLES[Math.min(7, Math.floor(clamp01(p) * 8))];
+  const a = (angle * Math.PI) / 180;
+  const cx = 96;
+  const cy = 104;
+  const r = 60;
+  const camX = cx + r * Math.sin(a);
+  const camY = cy + r * Math.cos(a);
+  const availability = availabilityAt(angle);
+  const word = (state: string) => (
+    <tspan className={state === "easier" ? fig.labelTeal : state === "harder" ? fig.labelWarn : ""} style={state === "unavailable" ? { opacity: 0.7 } : undefined}>
+      {state}
+    </tspan>
+  );
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <circle className={fig.dash} cx={cx} cy={cy} r={r} />
+      {CAMERA_ANGLES.map((value) => {
+        const t = (value * Math.PI) / 180;
+        return <circle key={value} className={fig.nodeMute} cx={cx + r * Math.sin(t)} cy={cy + r * Math.cos(t)} r={value === angle ? 0 : 1.8} />;
+      })}
+      <text className={`${fig.label} ${fig.labelSmall}`} x={cx + r + 8} y={cy + 3}>
+        front
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={cx - r - 8} y={cy + 3} textAnchor="end">
+        rear
+      </text>
+      <ellipse className={fig.mass} cx={cx} cy={cy} rx={14} ry={6} />
+      <circle cx={cx} cy={cy} r={4} style={{ fill: "var(--jr-ink)" }} />
+      <line className={fig.trace} x1={cx + 18} y1={cy} x2={cx + 34} y2={cy} />
+      <line className={fig.dash} x1={camX} y1={camY} x2={cx} y2={cy} style={{ stroke: "var(--jr-cyan)" }} />
+      <g className={fig.move} transform={`translate(${camX} ${camY})`}>
+        <circle className={fig.halo} r={11} />
+        <rect x={-7} y={-5} width={14} height={10} rx={2} fill="rgb(var(--c-obsidian-400))" stroke="var(--jr-cyan)" strokeWidth={1.2} />
+        <circle className={fig.nodeFill} r={2.2} />
+      </g>
+      <text className={`${fig.label} ${fig.labelKey} ${fig.labelAccent}`} x={cx} y={cy + r + 26} textAnchor="middle">
+        {ANGLE_LABEL[angle]}
+      </text>
+      <g className={`${fig.label} ${fig.labelKey}`}>
+        <text x={186} y={52}>
+          Knee flexion
+        </text>
+        <text x={186} y={98}>
+          Stride width
+        </text>
+        <text x={186} y={144}>
+          Body path
+        </text>
+      </g>
+      <g className={`${fig.label} ${fig.labelSmall}`}>
+        <text x={186} y={66}>
+          {word(availability["knee-flexion"])}
+        </text>
+        <text x={186} y={112}>
+          {word(availability["stride-width"])}
+        </text>
+        <text x={186} y={158}>
+          {word(availability["body-path"])}
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+/* ── Privacy by Architecture 01 · identity layers ──────────────────────────
+   Drag across: the figure is stripped from RGB to trajectories while the
+   ledger beside it says what could still identify the person — and it never
+   reaches zero. */
+function IdentityLayersMini({ p }: { p: number }) {
+  const stage = Math.min(4, Math.floor(clamp01(p) * 5));
+  const representation = REPRESENTATIONS[stage];
+  const ledger = identityLedger(representation, { persisted: false, linked: false });
+  const cx = 92;
+  const cy = 98;
+  const s = 1.5;
+  const phase = GAIT_PHASES[2];
+  const groundY = cy + (48 - phase.lift) * s;
+  const trail = smoothPath(GAIT_PHASES.map((ph, i) => [cx - (2 - i) * 18 + ph.nearLeg[2][0] * s * 0.45, cy - ph.lift * s + ph.nearLeg[2][1] * s] as Pt));
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
+      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
+      <g className={fig.fade} style={{ opacity: stage <= 1 ? 1 : 0 }}>
+        <path className={fig.massSolid} d={bodyMassPath(cx, cy, s)} />
+      </g>
+      <rect className={`${fig.fade} ${fig.redact}`} style={{ opacity: stage === 1 ? 1 : 0 }} x={cx - 9 * s} y={cy - 52 * s} width={20 * s} height={17 * s} rx={1} />
+      <path className={`${fig.fade} ${fig.mass}`} style={{ opacity: stage === 2 ? 1 : 0 }} d={bodyMassPath(cx, cy, s)} />
+      <g className={fig.fade} style={{ opacity: stage === 3 ? 1 : stage === 4 ? 0.3 : 0 }} transform={`translate(${cx} ${cy - phase.lift * s})`}>
+        <PoseFrame phase={phase} s={s} classes={CLASSES} />
+      </g>
+      <g className={fig.fade} style={{ opacity: stage === 4 ? 1 : 0 }}>
+        <path className={`${fig.trace} ${fig.traceViolet}`} d={trail} />
+      </g>
+      <g className={`${fig.label} ${fig.labelKey}`}>
+        <text x={186} y={46}>
+          Face
+        </text>
+        <text x={186} y={78}>
+          Clothing
+        </text>
+        <text x={186} y={110}>
+          Build
+        </text>
+        <text x={186} y={142}>
+          Gait
+        </text>
+        <text x={186} y={174}>
+          Time &amp; place
+        </text>
+      </g>
+      <g className={`${fig.label} ${fig.labelSmall}`}>
+        {(["face", "appearance", "shape", "gait", "context"] as const).map((cue, i) => {
+          const state = ledger[cue];
+          return (
+            <text key={cue} x={306} y={46 + i * 32} textAnchor="end" className={state === "present" ? fig.labelWarn : state === "weakened" ? fig.labelAccent : fig.labelTeal}>
+              {state}
+            </text>
+          );
+        })}
+      </g>
+    </svg>
+  );
+}
+
+/* ── Engineering GaitAI 02 · system chain ──────────────────────────────────
+   Six links from camera to operator. Drag across: one link after another
+   breaks while the model's link stays marked right, and the outcome beneath
+   changes in words. */
+function SystemChainMini({ p }: { p: number }) {
+  const index = Math.min(6, Math.floor(clamp01(p) * 7)); /* 0 = all sound */
+  const failed = new Set<ChainComponent>(index > 0 ? [CHAIN[index - 1]] : []);
+  const { outcome, at } = outcomeFor(failed);
+  const x0 = 40;
+  const gap = (280 - x0) / (CHAIN.length - 1);
+  const y = 72;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      {CHAIN.map((component, i) => {
+        const x = x0 + i * gap;
+        const isFailed = failed.has(component);
+        const downstream = at !== null && CHAIN.indexOf(component) > CHAIN.indexOf(at);
+        return (
+          <g key={component} className={fig.fade} style={{ opacity: downstream ? 0.45 : 1 }}>
+            {i < CHAIN.length - 1 && (
+              <line className={isFailed ? fig.dash : fig.trace} x1={x + 13} y1={y} x2={x + gap - 13} y2={y} style={isFailed ? { stroke: "#f0b45a" } : undefined} />
+            )}
+            <circle className={fig.node} cx={x} cy={y} r={11} style={isFailed ? { stroke: "#f0b45a" } : undefined} />
+            {isFailed ? (
+              <g className={fig.trace} style={{ stroke: "#f0b45a" }}>
+                <line x1={x - 4} y1={y - 4} x2={x + 4} y2={y + 4} />
+                <line x1={x + 4} y1={y - 4} x2={x - 4} y2={y + 4} />
+              </g>
+            ) : (
+              <polyline className={fig.trace} points={`${x - 4},${y} ${x - 1},${y + 3.5} ${x + 5},${y - 3.5}`} style={{ stroke: "var(--jr-teal)" }} />
+            )}
+            <text className={`${fig.label} ${fig.labelSmall} ${isFailed ? fig.labelWarn : ""}`} x={x} y={y + 26} textAnchor="middle">
+              {COMPONENT_LABEL[component].toLowerCase()}
+            </text>
+          </g>
+        );
+      })}
+      <text className={`${fig.label} ${fig.labelSmall} ${fig.labelTeal}`} x={x0 + gap} y={y - 22} textAnchor="middle">
+        model right
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={134}>
+        what reaches the person
+      </text>
+      <text className={`${fig.label} ${fig.labelKey} ${outcome === "in-time" ? fig.labelTeal : fig.labelWarn}`} x={x0} y={154}>
+        {OUTCOME_LABEL[outcome].length > 34 ? `${OUTCOME_LABEL[outcome].slice(0, 32)}…` : OUTCOME_LABEL[outcome]}
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={172}>
+        {at ? `decided at the ${COMPONENT_LABEL[at].toLowerCase()}` : "every link sound"}
+      </text>
+    </svg>
+  );
+}
+
+/* ── Inside the Signal 02 · baseline ───────────────────────────────────────
+   Drag across: observations of one person arrive one by one under a
+   population curve; their own band forms, then the latest readings drift
+   out of it while staying inside the population's range. */
+function BaselineMini({ p }: { p: number }) {
+  const shown = 1 + Math.min(MAX_OBSERVATIONS - 1, Math.floor(clamp01(p) * MAX_OBSERVATIONS));
+  const latest = OBSERVATIONS[shown - 1];
+  const band = personalBand(shown);
+  const x0 = 30;
+  const w = 260;
+  const axisY = 150;
+  const topY = 60;
+  const xIn = (t: number) => x0 + t * w;
+  const curve = smoothPath(populationCurve(30).map(([x, y]) => [xIn(x), axisY - y * (axisY - topY - 16)] as Pt));
+  const outside = band ? latest < band.low || latest > band.high : false;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={38}>
+        population · reference range
+      </text>
+      <rect className={fig.band} x={xIn(POPULATION.range[0])} y={topY} width={xIn(POPULATION.range[1]) - xIn(POPULATION.range[0])} height={axisY - topY} rx={3} />
+      <path className={`${fig.trace} ${fig.traceViolet}`} d={curve} />
+      {band && (
+        <g className={fig.fade}>
+          <rect x={xIn(band.low)} y={topY} width={xIn(band.high) - xIn(band.low)} height={axisY - topY} rx={3} fill="var(--jr-teal)" opacity={0.16} />
+          <text className={`${fig.label} ${fig.labelSmall} ${fig.labelTeal}`} x={xIn((band.low + band.high) / 2)} y={topY - 6} textAnchor="middle">
+            own baseline
+          </text>
+        </g>
+      )}
+      <line className={fig.ground} x1={x0} y1={axisY} x2={x0 + w} y2={axisY} />
+      {OBSERVATIONS.map((value, i) => {
+        const on = i < shown;
+        const isLatest = i === shown - 1;
+        const y = axisY - 10 - i * 8;
+        return on ? (
+          <g key={i} className={fig.fade}>
+            {isLatest && <circle className={fig.halo} cx={xIn(value)} cy={y} r={9} />}
+            <circle className={fig.node} cx={xIn(value)} cy={y} r={isLatest ? 4 : 2.8} style={{ stroke: isLatest && outside ? "#f0b45a" : undefined }} />
+            <circle className={fig.nodeFill} cx={xIn(value)} cy={y} r={1.8} />
+          </g>
+        ) : null;
+      })}
+      <text className={`${fig.label} ${fig.labelKey} ${band ? (outside ? fig.labelWarn : fig.labelTeal) : ""}`} x={x0} y={176}>
+        {!band ? "Not enough observations yet" : outside ? "Inside the population · outside own band" : "Within own baseline"}
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={192}>
+        {shown} {shown === 1 ? "observation" : "observations"} · illustrative
+      </text>
+    </svg>
+  );
+}
+
 /* ── The interactive wrapper ────────────────────────────────────────────── */
 
 const READOUT: Record<CoverConcept, string[]> = {
@@ -751,6 +1061,11 @@ const READOUT: Record<CoverConcept, string[]> = {
   divergence: ["Mobility", "Recovery", "Identity", "Risk", "Safety"],
   fusion: [],
   "pose-error": ["AI view", "Original frame"],
+  symmetry: ["Left longer", "Symmetrical", "Right longer"],
+  viewpoint: CAMERA_ANGLES.map((value) => ANGLE_LABEL[value]),
+  "identity-layers": REPRESENTATIONS.map((value) => REPRESENTATION_LABEL[value]),
+  "system-chain": ["All sound", ...CHAIN.map((value) => `${COMPONENT_LABEL[value]} fails`)],
+  baseline: Array.from({ length: MAX_OBSERVATIONS }, (_, i) => `${i + 1} ${i === 0 ? "observation" : "observations"}`),
 };
 
 const CUE: Record<CoverConcept, string> = {
@@ -760,6 +1075,11 @@ const CUE: Record<CoverConcept, string> = {
   divergence: "Touch a reading",
   fusion: "Tap a stream",
   "pose-error": "Drag to reveal the frame",
+  symmetry: "Drag to shift one side",
+  viewpoint: "Drag to move the camera",
+  "identity-layers": "Drag to strip the frame",
+  "system-chain": "Drag to break a link",
+  baseline: "Drag to add observations",
 };
 
 export function CardInteraction({
@@ -826,6 +1146,11 @@ export function CardInteraction({
     if (!reduced) return;
     if (concept === "trajectory") setP(1);
     else if (concept === "pose-error") setP(1);
+    else if (concept === "symmetry") setP(0.85);
+    else if (concept === "viewpoint") setP(0.2);
+    else if (concept === "identity-layers") setP(0.7);
+    else if (concept === "system-chain") setP(0.4);
+    else if (concept === "baseline") setP(1);
     else if (concept === "pipeline") setP(0.5);
     else if (concept === "reduction") setP(0.6);
   }, [concept, reduced]);
@@ -909,6 +1234,11 @@ export function CardInteraction({
       {concept === "divergence" && <Divergence pick={pick} />}
       {concept === "fusion" && <Fusion states={states} onToggle={toggle} />}
       {concept === "pose-error" && <PoseErrorMini p={p} />}
+      {concept === "symmetry" && <SymmetryMini p={p} />}
+      {concept === "viewpoint" && <ViewpointMini p={p} />}
+      {concept === "identity-layers" && <IdentityLayersMini p={p} />}
+      {concept === "system-chain" && <SystemChainMini p={p} />}
+      {concept === "baseline" && <BaselineMini p={p} />}
       <span className={`${styles.cue} ${coverStage >= 0 ? styles.cueRight : ""}`}>
         <span className={styles.cueMark} />
         {coverStage >= 0 ? "Drag through the signal →" : CUE[concept]}

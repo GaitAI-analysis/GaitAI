@@ -28,7 +28,12 @@ export type FigureKey =
   | "fusion-experiment"
   | "five-questions"
   /* the recurring series */
-  | "pose-error-explorer";
+  | "pose-error-explorer"
+  | "symmetry-explorer"
+  | "camera-angle-explorer"
+  | "identity-layers-explorer"
+  | "system-chain-explorer"
+  | "baseline-explorer";
 
 export type FigureState = Record<string, string | number | boolean>;
 
@@ -564,6 +569,380 @@ export const articleExperiences: Record<string, ArticleExperience> = {
         { label: "Gait analysis", node: "cap-gait" },
       ],
       lab: { label: "Watch pose landmarks being tracked on a clip in the Movement Intelligence Lab" },
+      ask: true,
+    },
+  },
+
+  /* ══════════════════════════════════════════════════════════════════════
+     INSIDE THE SIGNAL
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Inside the Signal · 01 ──────────────────────────────────────────── */
+  "what-does-gait-symmetry-actually-mean": {
+    slug: "what-does-gait-symmetry-actually-mean",
+    hero: "symmetry-explorer",
+    motif: "markers",
+    figures: {},
+    terms: {
+      "two-legs-one-cycle": ["gait-cycle", "temporal-modelling"],
+      "what-symmetry-measures": ["symmetry"],
+      "why-nobody-is-perfectly-symmetric": ["personal-baseline"],
+      "what-can-make-it-move": ["covariates", "signal-quality"],
+      "reading-a-change": ["stride-variability", "cadence"],
+      "what-symmetry-can-and-cannot-say": ["decision-support"],
+    },
+    moments: [
+      {
+        id: "symmetric",
+        title: "Two cycles, one clock",
+        text: "Left and right gait cycles as bars of time — stance filled, swing open. Symmetric: each side's phases mirror the other's, half a cycle apart.",
+        figure: "symmetry-explorer",
+        state: { parameter: "stance", level: 0 },
+      },
+      {
+        id: "stance",
+        title: "Stance asymmetry",
+        text: "The right foot stays on the ground longer and the left spends more of its cycle in the air. The dashed guides show where a symmetric right side would be.",
+        figure: "symmetry-explorer",
+        state: { parameter: "stance", level: 2 },
+      },
+      {
+        id: "swing",
+        title: "Swing asymmetry",
+        text: "A different comparison: the right leg swings longer. The bars look similar to the last moment and mean something else.",
+        figure: "symmetry-explorer",
+        state: { parameter: "swing", level: 2 },
+      },
+      {
+        id: "timing",
+        title: "Step timing",
+        text: "Every phase lasts as long as before, but the right heel strikes late: steps alternate short and long. A third asymmetry, with the same word.",
+        figure: "symmetry-explorer",
+        state: { parameter: "timing", level: 3 },
+      },
+      {
+        id: "back",
+        title: "The reference is the person",
+        text: "Nobody is perfectly symmetric, so the informative reading is whether this person's own pattern has moved — not where it sits against a population.",
+        figure: "symmetry-explorer",
+        state: { parameter: "stance", level: 1 },
+      },
+    ],
+    bridge: {
+      learned: "You now know that symmetry is a family of comparisons — stance, swing, timing, length — and that a change is readable only against the same person's baseline.",
+      nextQuestion: "What does that baseline actually consist of?",
+    },
+    links: {
+      evidence: [
+        {
+          publication: "iet-pose-2022",
+          why: "Gait read from pose features — the joints whose timing the left/right comparison is built on.",
+        },
+        {
+          publication: "neurocomputing-2022",
+          why: "Intra-class variation: how the same person's walk changes with conditions, which is what a symmetry reading has to be separated from.",
+        },
+      ],
+      gaitscape: [
+        { label: "Step symmetry", node: "sig-step-symmetry" },
+        { label: "Gait analysis", node: "cap-gait" },
+        { label: "Cadence", node: "sig-cadence" },
+      ],
+      lab: { label: "See left/right symmetry read from a clip in the Movement Intelligence Lab" },
+      ask: true,
+    },
+  },
+
+  /* ══════════════════════════════════════════════════════════════════════
+     ENGINEERING GAITAI
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Engineering GaitAI · 01 ─────────────────────────────────────────── */
+  "camera-angle-changes-what-ai-sees": {
+    slug: "camera-angle-changes-what-ai-sees",
+    hero: "camera-angle-explorer",
+    motif: "trace",
+    figures: {},
+    terms: {
+      "a-camera-is-a-projection": ["pose-estimation"],
+      "what-a-side-view-gives": ["gait-cycle", "symmetry"],
+      "oblique-angles-and-foreshortening": ["trajectory", "covariates"],
+      "height-distance-and-lens": ["signal-quality"],
+      "designing-for-the-angle-you-have": ["cadence", "stride-variability", "multimodal-fusion"],
+    },
+    moments: [
+      {
+        id: "side",
+        title: "The side view",
+        text: "Beside the walker the camera looks across the plane the legs swing in. Knee flexion, stride length and heel strike are laid out; stride width is not in the image.",
+        figure: "camera-angle-explorer",
+        state: { angle: 0 },
+      },
+      {
+        id: "front",
+        title: "The front view",
+        text: "Facing the walker, the picture inverts: width, sway and foot placement appear, knee flexion nearly vanishes, and the figure changes size every frame.",
+        figure: "camera-angle-explorer",
+        state: { angle: 90 },
+      },
+      {
+        id: "oblique",
+        title: "The corner camera",
+        text: "The common mounted view sees both planes partially, compresses every angle, and gains the one thing the others lack — where the person goes in the room.",
+        figure: "camera-angle-explorer",
+        state: { angle: 135 },
+      },
+      {
+        id: "rear",
+        title: "From behind",
+        text: "The rear view is the front view's mirror: the same signals, the same losses, and the person shrinking instead of growing.",
+        figure: "camera-angle-explorer",
+        state: { angle: 270 },
+      },
+      {
+        id: "design",
+        title: "Design for the angle you have",
+        text: "Declare what the view makes unavailable, prefer the timing signals that survive any angle, estimate the geometry and say how well.",
+        figure: "camera-angle-explorer",
+        state: { angle: 45 },
+      },
+    ],
+    bridge: {
+      learned: "You now know that a camera angle decides which plane of movement is measured and which is inferred — and that a system has to say which is which.",
+      nextQuestion: "If the model is right and the camera is right, what else can still go wrong?",
+    },
+    links: {
+      evidence: [
+        {
+          publication: "ai-review-2023",
+          why: "Gait recognition across covariates including viewing angle — the view-invariance problem this article inherits for measurement.",
+        },
+        {
+          publication: "neurocomputing-2022",
+          why: "Intra-class variation with view as a leading source: how the same walk changes across camera positions.",
+        },
+      ],
+      gaitscape: [
+        { label: "Pose estimation", node: "cap-pose" },
+        { label: "Trajectory & path", node: "sig-trajectory" },
+        { label: "Edge inference", node: "cap-edge" },
+      ],
+      ask: true,
+    },
+  },
+
+  /* ══════════════════════════════════════════════════════════════════════
+     PRIVACY BY ARCHITECTURE
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Privacy by Architecture · 01 ────────────────────────────────────── */
+  "can-a-skeleton-still-reveal-identity": {
+    slug: "can-a-skeleton-still-reveal-identity",
+    hero: "identity-layers-explorer",
+    motif: "trace",
+    figures: {},
+    terms: {
+      "what-a-camera-holds": ["privacy-transformation"],
+      "removing-the-face-is-not-anonymity": ["signal-quality"],
+      "silhouettes-and-skeletons": ["pose-estimation", "temporal-modelling"],
+      "trajectories-and-the-passage-of-time": ["trajectory"],
+      "designing-for-honest-privacy": ["decision-support"],
+    },
+    moments: [
+      {
+        id: "rgb",
+        title: "Everything a camera holds",
+        text: "Face, clothing, build, gait and context — five layers of identifying information in a few seconds of video.",
+        figure: "identity-layers-explorer",
+        state: { representation: "rgb" },
+      },
+      {
+        id: "face",
+        title: "Face removed",
+        text: "The most recognisable region is gone and four layers are untouched. A useful step; an incomplete claim.",
+        figure: "identity-layers-explorer",
+        state: { representation: "face-removed" },
+      },
+      {
+        id: "skeleton",
+        title: "A skeleton",
+        text: "Appearance is gone. Shape and gait remain — the representations gait recognition was built on. Identifiable to a model.",
+        figure: "identity-layers-explorer",
+        state: { representation: "skeleton" },
+      },
+      {
+        id: "trajectories",
+        title: "Joint trajectories, alone",
+        text: "The leanest representation. On its own it identifies almost no one — and the word doing the work is alone.",
+        figure: "identity-layers-explorer",
+        state: { representation: "trajectories" },
+      },
+      {
+        id: "persisted",
+        title: "Kept over time",
+        text: "Nothing in the picture changed. Matched across days, the same rhythm at the same door becomes a signature.",
+        figure: "identity-layers-explorer",
+        state: { representation: "trajectories", persisted: true },
+      },
+      {
+        id: "linked",
+        title: "Linked to other data",
+        text: "Joined to a log that names a person, time and place become a name. Privacy was never a property of the picture.",
+        figure: "identity-layers-explorer",
+        state: { representation: "skeleton", linked: true },
+      },
+    ],
+    bridge: {
+      learned: "You now know that identity does not disappear at a stage — it is reduced by decisions about representation, storage, linkage, persistence, purpose and deployment, and every one has to hold.",
+      nextQuestion: "What should a movement system keep, for how long, and how can it show that it did?",
+    },
+    links: {
+      evidence: [
+        {
+          publication: "eaai-2024",
+          why: "Model-based gait recognition — identification from skeletons and joint angles — the evidence that a skeleton is not an anonymised person.",
+        },
+        {
+          publication: "iet-privacy-2022",
+          why: "Protecting a gait dataset inside a deep-learning pipeline: privacy treated as part of the architecture rather than a diagram.",
+        },
+        {
+          publication: "dsp-2024",
+          why: "Deep learning for gait pattern recognition — what a system can learn to recognise from movement alone.",
+        },
+      ],
+      gaitscape: [
+        { label: "Privacy-aware analytics", node: "cap-privacy" },
+        { label: "Gait identity", node: "sig-gait-identity" },
+        { label: "Movement biometrics", node: "cap-biometrics" },
+      ],
+      ask: true,
+    },
+  },
+
+  /* ── Engineering GaitAI · 02 ─────────────────────────────────────────── */
+  "a-good-model-can-still-be-a-bad-system": {
+    slug: "a-good-model-can-still-be-a-bad-system",
+    hero: "system-chain-explorer",
+    motif: "streams",
+    figures: {},
+    terms: {
+      "the-chain": ["decision-support"],
+      "how-each-link-fails": ["silent-corruption"],
+      "known-unknowns": ["signal-quality"],
+      "the-last-link-is-a-person": ["decision-support"],
+    },
+    moments: [
+      {
+        id: "sound",
+        title: "Every link sound",
+        text: "Camera, inference, network, alert, interface, operator. The case every model evaluation assumes.",
+        figure: "system-chain-explorer",
+        state: { failed: "" },
+      },
+      {
+        id: "camera",
+        title: "A frozen feed",
+        text: "The camera repeats one frame. The model infers a perfectly stationary person — correctly — and the system reports calm.",
+        figure: "system-chain-explorer",
+        state: { failed: "camera" },
+      },
+      {
+        id: "network",
+        title: "A partition",
+        text: "Every result is right and none arrives. The model sees nothing wrong, because from where it stands nothing is.",
+        figure: "system-chain-explorer",
+        state: { failed: "network" },
+      },
+      {
+        id: "alert",
+        title: "Swallowed or doubled",
+        text: "A deduplication rule eats a real event, or a retry sends it twice. Transport that does not know what it delivered.",
+        figure: "system-chain-explorer",
+        state: { failed: "alert" },
+      },
+      {
+        id: "operator",
+        title: "The tenth alert",
+        text: "Dismissed unread, because the first nine were wrong. The model was right about the tenth. The last link is a person.",
+        figure: "system-chain-explorer",
+        state: { failed: "operator" },
+      },
+    ],
+    bridge: {
+      learned: "You now know that a movement system is a chain, that the model is one link, and that most of the chain fails without the model noticing.",
+      nextQuestion: "What does the chain look like when every link has to run in real time?",
+    },
+    links: {
+      gaitscape: [
+        { label: "Edge inference", node: "cap-edge" },
+        { label: "Safety-event analytics", node: "out-realtime" },
+        { label: "Explainable reporting", node: "cap-explain" },
+      ],
+      ask: true,
+    },
+  },
+
+  /* ── Inside the Signal · 02 ──────────────────────────────────────────── */
+  "what-is-a-personal-movement-baseline": {
+    slug: "what-is-a-personal-movement-baseline",
+    hero: "baseline-explorer",
+    motif: "markers",
+    figures: {},
+    terms: {
+      "a-threshold-answers-a-different-question": ["personal-baseline"],
+      "what-a-baseline-is-made-of": ["stride-variability"],
+      "how-many-observations": ["temporal-modelling"],
+      "baselines-and-capture-quality": ["signal-quality", "covariates"],
+      "what-a-baseline-can-say": ["decision-support"],
+    },
+    moments: [
+      {
+        id: "population",
+        title: "Where among strangers",
+        text: "A population distribution and its reference range. This person's latest reading sits comfortably inside it.",
+        figure: "baseline-explorer",
+        state: { mode: "population", shown: 8 },
+      },
+      {
+        id: "one",
+        title: "One observation",
+        text: "Against the person, one reading is not yet a baseline. There is nothing to compare it with but the population.",
+        figure: "baseline-explorer",
+        state: { mode: "personal", shown: 1 },
+      },
+      {
+        id: "band",
+        title: "A band forms",
+        text: "After a few observations the person's own band appears — a centre, and a spread that is what ordinary variation looks like for them.",
+        figure: "baseline-explorer",
+        state: { mode: "personal", shown: 5 },
+      },
+      {
+        id: "drift",
+        title: "The two references disagree",
+        text: "The latest readings drift. Still well inside the population range; outside this person's own band. Only one of the references knows the person.",
+        figure: "baseline-explorer",
+        state: { mode: "personal", shown: 8 },
+      },
+    ],
+    bridge: {
+      learned: "You now know that a personal baseline is a set of observations with a centre and a spread, that it moves for reasons that must be told apart, and that it carries its capture with it.",
+      nextQuestion: "What does stride variability measure, and where does it break?",
+    },
+    links: {
+      evidence: [
+        {
+          publication: "neurocomputing-2022",
+          why: "Intra-class variation — how one person's gait differs from day to day — is exactly the spread a personal baseline has to absorb.",
+        },
+      ],
+      gaitscape: [
+        { label: "Mobility decline", node: "sig-mobility-decline" },
+        { label: "Temporal modelling", node: "cap-temporal" },
+        { label: "Rehabilitation progress", node: "sig-rehab-progress" },
+      ],
+      lab: { label: "Explore stride variability against a baseline in the Movement Intelligence Lab" },
       ask: true,
     },
   },

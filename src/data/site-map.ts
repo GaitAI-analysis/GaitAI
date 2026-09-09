@@ -204,7 +204,7 @@ export const siteMap: AtlasNode = {
     },
     {
       id: "blog",
-      label: "Insights",
+      label: "Blog",
       route: "/insights/",
       description: "Research translation, engineering notes and product updates",
       family: "editorial",

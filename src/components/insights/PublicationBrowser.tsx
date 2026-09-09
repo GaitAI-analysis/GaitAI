@@ -59,6 +59,9 @@ function navPages(current: number, total: number): Array<number | "ellipsis"> {
  *
  * The masthead sits under the fixed header through the site's own spacing
  * system (`site-page-intro-compact`), never a hand-picked padding.
+ *
+ * NAMES. The navigation category is "Blog" (tab, footer, breadcrumb, back
+ * links). What the reader arrives at is the publication, "GaitAI Insights".
  */
 export function PublicationBrowser({
   stories,

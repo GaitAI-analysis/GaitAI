@@ -46,7 +46,7 @@ export default async function TopicPaginationPage({ params }: { params: { topic:
         initialPage={page}
         fixedTopic={params.topic}
         basePath={`/insights/topic/${params.topic}`}
-        kicker="Insights topic"
+        kicker="Blog topic"
         title={topicLabel(params.topic)}
         description={topicDescription(params.topic)}
         showCover={false}

@@ -92,9 +92,10 @@ const FORBIDDEN = [
   ["best-in-class", /best[\s\-]in[\s\-]class/gi],
   ["trusted by", /trusted\s+by/gi],
   ["duplicated brand title", /\| GaitAI \| GaitAI/gi],
-  /* "Insights" is the publication's name again (2026-09-09): the navbar tab,
-     the footer and the masthead all say it, so the old rule that flagged a
-     bare "Insights" element is retired rather than worked around. */
+  /* The navigation category is "Blog"; "GaitAI Insights" is the publication's
+     name inside the page. A BARE "Insights" element is a nav tab that has
+     drifted, so it is flagged; "GaitAI Insights" does not match this. */
+  ["editorial section called Insights", />\s*Insights\s*</gi],
 ];
 
 async function fetchText(url) {

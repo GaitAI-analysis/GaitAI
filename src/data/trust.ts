@@ -101,6 +101,12 @@ export const privacyControls: PrivacyControl[] = [
     source: "Responsible-deployment policy · Watchlist product record",
   },
   {
+    topic: "Defence and other high-assurance uses",
+    support:
+      "DefenceMotion is designed for governed, human-supervised defence applications involving personnel safety, readiness, rehabilitation and authorised facility operations. It is not designed for autonomous targeting or lethal decision-making. Readiness and rehabilitation modes run only for enrolled personnel with consent; access mode supplements existing credentials and never identifies or denies on its own. No defence deployment, customer or clearance is documented.",
+    source: "DefenceMotion product record · Responsible-deployment policy",
+  },
+  {
     topic: "Training data",
     support:
       "Privacy-preserving handling of gait datasets inside deep-learning pipelines is a published research area (IET Biometrics, 2022).",

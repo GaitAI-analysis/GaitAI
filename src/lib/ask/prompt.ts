@@ -363,12 +363,17 @@ export function applicationLine(
 
   if (environments.length) {
     const names = environments.map((environment) => `"${environment.title}"`).join(", ");
+    /* A product the site documents as dedicated to the domain (DefenceMotion for
+       defence) is named beside the environment — a documented product, never a
+       documented deployment. */
+    const productNames = dedicated.map((product) => `"${product.title}"`).join(", ");
+    const dedicatedNote = dedicated.length ? `, and documents ${productNames} as a product dedicated to it` : "";
     const lead =
       understanding.askType === "relationship"
-        ? `The question asks whether ${who} already works with, is used by or is deployed in "${subject}". The GaitAI record documents the deployment environment ${names} — describe it as a documented environment and its recommended modules from the records below; do not call it a customer, contract or live deployment unless a record says so.`
+        ? `The question asks whether ${who} already works with, is used by or is deployed in "${subject}". The GaitAI record documents the deployment environment ${names}${dedicatedNote} — describe it as a documented environment and its recommended modules from the records below; do not call it a customer, contract or live deployment unless a record says so.`
         : understanding.askType === "product-exists"
-          ? `The question asks whether ${who} has a product for "${subject}". Answer from the product records below: name the modules the documented environment ${names} recommends, and say whether any is specific to it.`
-          : `The GaitAI record documents the deployment environment ${names} for it — describe that environment and its recommended modules from the records below.`;
+          ? `The question asks whether ${who} has a product for "${subject}". Answer from the product records below: name the modules the documented environment ${names} recommends${dedicated.length ? `; ${productNames} is documented as specific to it` : ", and say whether any is specific to it"}.`
+          : `The GaitAI record documents the deployment environment ${names} for it${dedicatedNote} — describe that environment and its recommended modules from the records below.`;
     return `Application: this question is about "${subject}" (${understanding.askType ?? "potential"} question; internally read as: ${understanding.normalized}). ${lead} Still state nothing the records do not: no customers, pilots, results or certifications.`;
   }
 

@@ -166,7 +166,7 @@ export function openingFor(context: PageContext): Opening {
 
     case "products":
       return {
-        lead: "23 modules, two families.",
+        lead: "24 modules, two families.",
         detail: "Describe your environment and I'll narrow it down.",
         prompts: [
           "Which product fits my environment?",

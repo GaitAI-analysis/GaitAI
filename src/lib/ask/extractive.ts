@@ -213,6 +213,11 @@ function composeApplicationAnswer(result: RetrievalResult): string {
         `${askType === "relationship" ? `No customer or live deployment is documented, but ` : ""}GaitAI documents **${environment.doc.title}** as a deployment environment — ${brief(environment.doc, 260)}`,
       );
     }
+    /* The environment's dedicated product, named in its own line so the answer
+       to "is there a product for it" is never only a list. */
+    for (const product of dedicated) {
+      lines.push(`GaitAI also documents **${product.doc.title}** as a product dedicated to ${subject} — ${brief(product.doc, 260)}`);
+    }
   } else if (dedicated.length) {
     for (const product of dedicated) {
       const summary = brief(product.doc, 260);

@@ -516,9 +516,11 @@ describe("the browser selects, the Worker decides", () => {
     expect(response.status).toBe(200);
     expect(body!.grounding.recordIds).toEqual(selectedRecordIds);
     expect(prompt).toContain('Application: this question is about "military" (potential question');
-    expect(prompt).toContain('No GaitAI environment record documents "military" as a deployment');
-    expect(prompt).toContain("does not document a dedicated military deployment");
-    expect(prompt).toContain("never imply an existing deployment, customer, approval or clearance");
+    /* The Worker resolved, from ITS canonical records, that Defence & Armed Forces IS a documented
+       environment with DefenceMotion as its dedicated product — and that nothing beyond the records
+       (no customer, pilot, result or certification) may be stated. */
+    expect(prompt).toContain('documents the deployment environment "Defence & Armed Forces" for it, and documents "DefenceMotion" as a product dedicated to it');
+    expect(prompt).toContain("Still state nothing the records do not: no customers, pilots, results or certifications");
     expect(system).toContain("WHAT GAITAI CAN DO FOR A DOMAIN");
     /* Nothing in the RECORDS claims a military customer or deployment — the
        records end where the page line begins; the application line after
@@ -578,8 +580,8 @@ describe("the browser selects, the Worker decides", () => {
     /* The Worker read the same understanding from question + history and told the model. */
     expect(prompt).toContain('Application: this question is about "military" (potential question');
     /* DefenceMotion is a documented PRODUCT for the domain; a deployment, customer or clearance is still not. */
-    expect(prompt).toContain('documents "DefenceMotion" as its dedicated military product');
-    expect(prompt).toContain("does not document a dedicated military deployment, customer, pilot or clearance");
+    expect(prompt).toContain('documents "DefenceMotion" as a product dedicated to it');
+    expect(prompt).toContain("Still state nothing the records do not");
     expect(prompt).toContain('Reference: "it" refers to GaitAI');
     expect(body!.sources.every((source) => source.kind !== "Person" && source.kind !== "Talk")).toBe(true);
   });
@@ -588,13 +590,13 @@ describe("the browser selects, the Worker decides", () => {
     ensureCorpus();
     const relationship = await rag("Does GaitAI work with the military?");
     expect(relationship.retrieval.understanding.askType).toBe("relationship");
-    expect(relationship.prompt).toContain("does not establish any existing deployment, customer, contract or partnership in military");
+    expect(relationship.prompt).toContain("do not call it a customer, contract or live deployment unless a record says so");
     const potential = await rag("What could GaitAI do for the military?");
     expect(potential.retrieval.understanding.askType).toBe("potential");
-    expect(potential.prompt).toContain("labelled as potentially relevant applications");
+    expect(potential.prompt).toContain("describe that environment and its recommended modules");
     const exists = await rag("Does GaitAI have a military product?");
     expect(exists.retrieval.understanding.askType).toBe("product-exists");
-    expect(exists.prompt).toContain('documents "DefenceMotion" as its military-specific product');
+    expect(exists.prompt).toContain('"DefenceMotion" is documented as specific to it');
     for (const run of [relationship, potential, exists]) {
       expect(run.retrieval.intent).toBe("DOMAIN_APPLICATION");
       expect(run.retrieval.docs.map((d) => d.doc.type)).not.toContain("person");

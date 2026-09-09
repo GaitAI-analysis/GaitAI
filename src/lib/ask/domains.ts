@@ -80,7 +80,7 @@ export const DOMAIN_CONCEPTS: readonly DomainConcept[] = [
       t("personnel", 0.4),
     ],
     family: "securevision",
-    environmentIds: [],
+    environmentIds: ["defence"],
     productIds: ["defencemotion"],
   },
   {

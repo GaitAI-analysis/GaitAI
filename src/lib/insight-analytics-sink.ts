@@ -76,6 +76,9 @@ const DIMENSION: Partial<Record<InsightEventName, string>> = {
   system_component_failed: "component",
   baseline_mode_changed: "mode",
   article_helpful_reason: "reason",
+  product_mode_selected: "mode",
+  product_related_opened: "destination",
+  product_demo_clicked: "placement",
   term_inspected: "term",
 };
 
@@ -176,7 +179,15 @@ export function recordInsightEvent(
   if (typeof window === "undefined" || disabled) return;
   if (doNotTrack()) return;
 
-  const article = idSafe(typeof props.article_slug === "string" ? props.article_slug : "_site") || "_site";
+  /* The bucket: the story, or — for a product page event — the product,
+     prefixed so the two vocabularies cannot collide. Never a reader. */
+  const bucket =
+    typeof props.article_slug === "string"
+      ? props.article_slug
+      : typeof props.product === "string"
+        ? `product-${props.product}`
+        : "_site";
+  const article = idSafe(bucket) || "_site";
   const dimension = DIMENSION[name];
   const value = dimension ? props[dimension] : undefined;
   const key = value === undefined ? idSafe(name) : `${idSafe(name)}:${idSafe(value)}`;

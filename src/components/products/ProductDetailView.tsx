@@ -24,6 +24,8 @@ import { ContextLimitations } from "@/components/trust/ContextLimitations";
 import { SampleOutputViewer } from "@/components/analytics/SampleOutputViewer";
 import { hasSampleOutput } from "@/data/sample-outputs";
 import { cn } from "@/lib/utils";
+import { ServiceModes } from "@/components/products/ServiceModes";
+import { trackInsightEvent } from "@/lib/insight-events";
 
 const familyConfig = {
   mobilitycare: {
@@ -327,6 +329,13 @@ export function ProductDetailView({ slug }: { slug: string }) {
     [navItems]
   );
 
+  /* One aggregate "page open" per product per session — the same privacy
+     posture as the journal: a count per day and product, never a reader. */
+  useEffect(() => {
+    if (!product) return;
+    trackInsightEvent("product_page_open", { product: product.id, family: product.vertical }, { once: product.id, session: true });
+  }, [product]);
+
   // Scrollspy for the contents navigator
   useEffect(() => {
     const sections = navItems
@@ -437,7 +446,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
           )}
 
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/#contact" className="btn-primary">
+            <Link href="/#contact" className="btn-primary" onClick={() => trackInsightEvent("product_demo_clicked", { product: product.id, placement: "hero" })}>
               Request a pilot
               <ArrowRight className="h-4 w-4" />
             </Link>
@@ -571,29 +580,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
 
                 {detail.modes && detail.modes.length > 0 && (
                   <SectionBlock id="modes" index={sectionIndex("modes")} title="Service modes">
-                    <p className="text-sm leading-relaxed text-soft-gray sm:text-base">
-                      One product, configured per service. The modes share the same movement
-                      pipeline and privacy controls; each names the environments, personnel
-                      programmes and access points it is configured for.
-                    </p>
-                    <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                      {detail.modes.map((mode) => (
-                        <div key={mode.id} className={cn("rounded-xl border p-4", a.chip)}>
-                          <div className={cn("text-[10px] font-semibold uppercase tracking-[0.18em]", a.text)}>
-                            {mode.name}
-                          </div>
-                          <p className="mt-2 text-[13px] leading-relaxed text-soft-gray">{mode.summary}</p>
-                          <ul className="mt-3 grid gap-1.5">
-                            {mode.focus.map((item) => (
-                              <li key={item} className="flex gap-2 text-[12.5px] leading-relaxed text-soft-gray">
-                                <span aria-hidden className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", a.dot)} />
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
+                    <ServiceModes modes={detail.modes} productId={product.id} accent={a} />
                   </SectionBlock>
                 )}
 
@@ -903,7 +890,14 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div
+              className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+              onClickCapture={(event) => {
+                const link = (event.target as HTMLElement).closest("a[href]");
+                const hit = related.find((p) => link?.getAttribute("href")?.includes(`/${p.id}/`));
+                if (hit) trackInsightEvent("product_related_opened", { product: product.id, destination: hit.id });
+              }}
+            >
               {related.map((p, i) => (
                 <ProductCard key={p.id} product={p} index={i} compact />
               ))}
@@ -960,7 +954,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
                   </h2>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <Link href="/#contact" className="btn-primary">
+                  <Link href="/#contact" className="btn-primary" onClick={() => trackInsightEvent("product_demo_clicked", { product: product.id, placement: "pilot" })}>
                     {detail.ctaLabel}
                     <ArrowRight className="h-4 w-4" />
                   </Link>

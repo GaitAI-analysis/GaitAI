@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useReducedMotion } from "framer-motion";
 import styles from "./journal.module.css";
 import experience from "./experience/experience.module.css";
 
@@ -30,7 +29,6 @@ export function ReadingProgress({
   targetId: string;
   sectionIds?: string[];
 }) {
-  const reduce = Boolean(useReducedMotion());
   const [progress, setProgress] = useState(0);
   const [ticks, setTicks] = useState<number[]>([]);
   const frame = useRef(0);
@@ -99,10 +97,12 @@ export function ReadingProgress({
     <div className={styles.progressTrack} aria-hidden="true">
       <div
         className={styles.progressBar}
-        style={{
-          width: `${Math.round(progress * 1000) / 10}%`,
-          transition: reduce ? "none" : undefined,
-        }}
+        /* Only the width is inline. The reduced-motion case is handled by the
+           stylesheet's media query rather than by a hook here: a hook-driven
+           inline `transition: none` differed between the server render and
+           the first client render under that preference, and React logged a
+           hydration mismatch on every article. */
+        style={{ width: `${Math.round(progress * 1000) / 10}%` }}
       />
       {ticks.map((tick, index) =>
         index === 0 ? null : (

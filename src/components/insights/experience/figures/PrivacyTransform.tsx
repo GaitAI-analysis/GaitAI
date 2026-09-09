@@ -116,11 +116,13 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
   }, []);
 
   const panel = stacked ? "translate(-318 330)" : undefined;
-  const viewBox = stacked ? "0 0 322 560" : `0 0 ${W} ${H}`;
+  /* Stacked, the panel's last line sits 618 units down; the box must hold it
+     or it draws over the stage control beneath the figure. */
+  const viewBox = stacked ? "0 0 322 632" : `0 0 ${W} ${H}`;
 
   const Indicator = ({ label, level, color, y }: { label: string; level: Level; color: string; y: number }) => (
     <g>
-      <text className={fig.label} x={330} y={y}>
+      <text className={`${fig.label} ${fig.labelKey}`} x={330} y={y}>
         {label}
       </text>
       {[1, 2, 3].map((n) => (
@@ -180,16 +182,16 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
             <circle cx={3.5 * S} cy={-44 * S} r={1.4} className={fig.nodeMute} />
             <path d={`M${-1 * S} ${-40.5 * S} Q${1.5 * S} ${-39 * S} ${4 * S} ${-40.5 * S}`} fill="none" stroke="var(--jr-mute)" strokeWidth={0.8} />
           </g>
+          {/* The redaction: a violet block over the face, unmissable, the
+              same mark the hub card uses. */}
           <rect
-            className={fig.fade}
+            className={`${fig.fade} ${fig.redact}`}
             style={{ opacity: redact }}
-            x={-8 * S}
-            y={-51 * S}
-            width={18 * S}
-            height={15 * S}
-            fill="rgb(var(--c-obsidian-500))"
-            stroke="var(--jr-violet)"
-            strokeWidth={1}
+            x={-9 * S}
+            y={-52 * S}
+            width={20 * S}
+            height={17 * S}
+            rx={1}
           />
         </g>
         {/* silhouette */}
@@ -253,7 +255,12 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
         <line className={fig.hair} x1={330} y1={44} x2={600} y2={44} />
         <line className={fig.trace} x1={330} y1={44} x2={330 + (stage / 6) * 270} y2={44} style={{ transition: "x2 0.3s" }} />
         <Indicator label="Movement information retained" level={MOVEMENT[stage]} color="var(--jr-teal)" y={82} />
-        <Indicator label="Identity-bearing visual information retained" level={IDENTITY[stage]} color="var(--jr-violet)" y={176} />
+        <Indicator
+          label={stacked ? "Identity information retained" : "Identity-bearing visual information retained"}
+          level={IDENTITY[stage]}
+          color="var(--jr-violet)"
+          y={176}
+        />
         <text className={`${fig.label} ${fig.labelSmall}`} x={330} y={270}>
           qualitative · not a measurement
         </text>

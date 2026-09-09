@@ -237,7 +237,7 @@ export function MotionDNABranches({ articleSlug, presentation }: FigureProps) {
             <g
               key={b.id}
               className={fig.fade}
-              style={{ opacity: dim ? 0.35 : 1, cursor: "pointer" }}
+              style={{ opacity: dim ? 0.48 : 1, cursor: "pointer" }}
               onPointerEnter={(event) => {
                 if (event.pointerType === "mouse") setHover(b.id);
               }}
@@ -247,12 +247,16 @@ export function MotionDNABranches({ articleSlug, presentation }: FigureProps) {
               <path className={`${fig.trace} ${on ? fig.traceBold : fig.traceSoft}`} d={d} />
               {/* a wide invisible hit path for fingers */}
               <path d={d} fill="none" stroke="transparent" strokeWidth={28} style={{ pointerEvents: "stroke" }} />
+              {/* The chosen reading is cyan, bold and haloed; the others stay
+                  legible and quiet. Stacked, alternate labels drop a line so
+                  five names fit across a phone without touching. */}
+              {on && <circle className={fig.halo} cx={tx} cy={stacked ? ty - 10 : ty} r={10} />}
               <circle className={on ? fig.nodeFill : fig.nodeMute} cx={tx} cy={stacked ? ty - 10 : ty} r={on ? 4 : 2.6} />
               <rect x={tx - (stacked ? 30 : 6)} y={ty - 14} width={stacked ? 60 : 74} height={stacked ? 44 : 28} fill="transparent" />
               <text
-                className={`${fig.label} ${stacked ? fig.labelSmall : ""} ${on ? fig.labelInk : ""}`}
+                className={`${fig.label} ${stacked ? fig.labelSmall : fig.labelKey} ${on ? fig.labelAccent : ""}`}
                 x={stacked ? tx : tx + 10}
-                y={stacked ? ty + 14 : ty + 3}
+                y={stacked ? ty + 14 + (i % 2) * 13 : ty + 3}
                 textAnchor={stacked ? "middle" : undefined}
               >
                 {b.label}

@@ -894,8 +894,9 @@ body {
      beneath it were sliced by its edge. A band of page ground behind the
      pill, fading out just below the header, lets a headline or the search
      row dissolve as it passes under rather than look clipped. Scoped to the
-     hub by its global class; other pages keep the bare pill. */
-  body:has(.insights-hub) .site-header::before {
+     hub and the article pages by their global classes; other pages keep the
+     bare pill. */
+  body:has(.insights-hub, .insights-page) .site-header::before {
     content: "";
     position: absolute;
     inset: 0 0 -1.75rem;

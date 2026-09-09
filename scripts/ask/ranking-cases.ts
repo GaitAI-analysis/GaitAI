@@ -55,7 +55,10 @@ export const RANKING_CASES: RankingCase[] = [
     notTopTypes: NOT_A_PERSON_ANSWER,
     includesType: "publication",
     answerHas: ["Anubha Parashar", "Related:"],
-    answerLacks: ["Privacy", "Trust Center", "deployment"],
+    /* No policy, Trust or deployment record may answer a person question. A
+       co-authored paper whose TITLE contains "privacy" is a legitimate
+       related record, so the check names the policy records themselves. */
+    answerLacks: ["Privacy policy", "Privacy and security architecture", "Trust Center", "deployment"],
   },
   {
     q: "who is anubha parashar",
@@ -93,6 +96,23 @@ export const RANKING_CASES: RankingCase[] = [
   // Asked from a page whose own record would otherwise take the lead.
   { q: "who is anubha", path: "/legal/privacy/", top: PERSON, intent: "PERSON" },
   { q: "who is anubha", path: "/trust/", top: PERSON, intent: "PERSON" },
+
+  // ── A second person, sharing a surname ─────────────────────────────────────
+  // The Publications page names Apoorva Parashar as a co-author. "Parashar"
+  // alone is ambiguous and resolves nobody; either first name resolves the
+  // right record, and neither answer offers the other person.
+  {
+    q: "Who is Apoorva Parashar?",
+    top: "person:apoorva-parashar",
+    intent: "PERSON",
+    notTopTypes: NOT_A_PERSON_ANSWER,
+    includesType: "publication",
+    answerHas: ["Apoorva Parashar", "co-author"],
+    answerLacks: ["founder of GaitAI."],
+  },
+  { q: "Who is Apoorva?", top: "person:apoorva-parashar", intent: "PERSON", answerHas: ["Apoorva Parashar"] },
+  { q: "who is anubha", top: PERSON, intent: "PERSON", answerLacks: ["**Apoorva Parashar**"] },
+  { q: "Which papers did Apoorva co-author?", top: "person:apoorva-parashar", intent: "PERSON", includesType: "publication" },
 
   // ── The empty state ────────────────────────────────────────────────────────
   {
@@ -153,4 +173,20 @@ export const RANKING_CASES: RankingCase[] = [
   { q: "papers on gait recognition", intent: "PUBLICATION", topType: "publication" },
   { q: "Show me research on privacy.", intent: "RESEARCH", top: "research:res-privacy" },
   { q: "Where are your publications?", intent: "NAVIGATION", top: "page:/publications", destination: "Publications" },
+
+  // ── The RAG acceptance set: what leads ─────────────────────────────────────
+  { q: "What is MobilityCare?", top: "page:/mobilitycare" },
+  { q: "What is SecureVision?", top: "page:/securevision" },
+  { q: "What is GaitScape?", top: "page:/gaitscape" },
+  { q: "What publications does GaitAI have?", intent: "PUBLICATION", top: "page:/publications", notTopTypes: ["person"] },
+  { q: "What happens in the Biometrics Lab?", top: "page:/labs/biometrics" },
+  /* A GaitAI-level privacy question is answered by the privacy policy and the
+     governance records, never by whichever module's privacy section shares
+     the word. */
+  { q: "What does GaitAI say about privacy?", intent: "PRIVACY", notTopTypes: ["product", "use-case", "person", "talk"] },
+  /* "latest": the hub first, then the articles, newest first. */
+  { q: "What are the latest GaitAI Insights?", top: "page:/insights", includesType: "insight" },
+  /* A conference-talk title that shares a word is not the answer to a
+     module question. */
+  { q: "Does GaitAI diagnose Parkinson's?", notTopTypes: ["talk", "person"] },
 ];

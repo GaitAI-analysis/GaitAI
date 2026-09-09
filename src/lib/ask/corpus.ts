@@ -31,7 +31,8 @@ export type DocType =
   | "deployment"
   | "policy"
   | "page"
-  | "person";
+  | "person"
+  | "talk";
 
 export interface KnowledgeDoc {
   id: string;
@@ -46,6 +47,23 @@ export interface KnowledgeDoc {
   keywords: string[];
   relatedProducts: string[];
   relatedResearch: string[];
+  /**
+   * CHUNK METADATA — optional, present on records that are one SECTION of a
+   * longer page: an article section, a policy heading, a module facet.
+   *
+   * `parentId` names the overview record the chunk belongs to; retrieval caps
+   * how many chunks of one parent reach the model so one long essay cannot
+   * fill every slot. `sectionTitle` is the heading the chunk sits under and
+   * is indexed almost as heavily as the title. `url` on a chunk may carry a
+   * deep-link anchor (`/insights/<slug>/#<section>`); the route allowlist and
+   * source deduplication both work on the path. `topics` and `date` are
+   * display and ranking aids ("latest" questions), never evidence.
+   */
+  parentId?: string;
+  sectionTitle?: string;
+  topics?: string[];
+  /** ISO date (YYYY-MM-DD, or YYYY) for dated records: articles, papers, talks. */
+  date?: string;
   /**
    * ENTITY METADATA — optional, present on records that ARE a named thing.
    *

@@ -43,15 +43,64 @@
 
 import { allowedOrigin, corsHeaders } from "./cors";
 import { readConfig, type AskEnv } from "./env";
-import { buildPrompt, resolveRecords } from "./grounding";
+import { buildPrompt, resolveRecords, type Grounding } from "./grounding";
 import { callerKey, consume } from "./guard";
+import { generateWithFallback, resolveProviders } from "./provider";
 import { buildAnswer, failure, json } from "./response";
-import { LIMITS, validateRequest } from "./validate";
-import { generate, WorkersAiError } from "./workers-ai";
+import { LIMITS, validateRequest, type AskRequest } from "./validate";
+import { WorkersAiError } from "./workers-ai";
 
 export { AskGuard } from "./guard";
 
 const PATH = "/api/ask";
+
+/**
+ * LOCAL DEBUG BLOCK — printed only when ASK_DEBUG is set in .dev.vars, never
+ * in production (wrangler.jsonc does not define it). This is the one place
+ * the question text is ever written to a log, and it exists so a developer
+ * running `wrangler dev` can see the whole RAG path for one question:
+ *
+ *   [Ask GaitAI]
+ *   question: Who is Anubha?
+ *   selected: person:anubha-parashar, research:res-gait-biometrics, …
+ *   resolved:
+ *     person:anubha-parashar — Anubha Parashar
+ *     …
+ *   provider: workers-ai
+ *   model: @cf/meta/llama-3.2-3b-instruct
+ *   status: 200
+ *   latency: 1241ms
+ */
+function debugBlock(options: {
+  ask: AskRequest;
+  grounding: Grounding;
+  provider: string;
+  model: string;
+  status: number;
+  latencyMs: number;
+  note?: string;
+}): string {
+  const { ask, grounding, provider, model, status, latencyMs, note } = options;
+  const dropped = ask.selectedRecordIds.filter((id) => !grounding.docs.some((item) => item.doc.id === id));
+  return [
+    "[Ask GaitAI]",
+    `question: ${ask.question}`,
+    `pathname: ${ask.pathname}`,
+    `selected: ${ask.selectedRecordIds.join(", ") || "(none)"}`,
+    dropped.length ? `dropped (unknown ids): ${dropped.join(", ")}` : "",
+    "resolved:",
+    ...grounding.docs.map(
+      (item) => `  ${item.doc.id} — ${item.doc.title}${item.doc.sectionTitle ? ` › ${item.doc.sectionTitle}` : ""}`,
+    ),
+    `provider: ${provider}`,
+    `model: ${model}`,
+    `status: ${status}`,
+    `latency: ${latencyMs}ms`,
+    note ? `note: ${note}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
 async function handle(request: Request, env: AskEnv): Promise<Response> {
   const url = new URL(request.url);
@@ -92,8 +141,11 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
   if (grounding.docs.length === 0) return failure(422, "no_records", cors);
 
   // ── Configuration: fail clearly, before spending anything ───────────────
-  if (!env.AI) return failure(503, "unconfigured", cors);
-  if (!config.model) return failure(503, "model_unconfigured", cors);
+  // Provider and model are decided in provider.ts — one seam, so a second
+  // provider (a self-hosted primary with Workers AI as fallback) is added
+  // there and nowhere else.
+  const providers = resolveProviders(env, config);
+  if (typeof providers === "string") return failure(503, providers, cors);
 
   // ── Abuse control ───────────────────────────────────────────────────────
   const decision = await consume(env, await callerKey(request), {
@@ -120,15 +172,9 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
     history: ask.history,
   });
 
+  const primary = providers[0];
   try {
-    const completion = await generate({
-      ai: env.AI,
-      model: config.model,
-      messages,
-      maxOutputTokens: config.maxOutputTokens,
-      timeoutMs: config.timeoutMs,
-      reasoningEffort: config.reasoningEffort || undefined,
-    });
+    const completion = await generateWithFallback(providers, messages, { timeoutMs: config.timeoutMs });
 
     const answer = buildAnswer({
       raw: completion.text,
@@ -138,15 +184,35 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
       startedAt,
     });
 
+    /* Production log: structural only. The provider and model ids are
+       configuration, not visitor data, and are what an operator needs to see
+       when a fallback provider answered instead of the primary. */
     console.log(
       JSON.stringify({
         event: answer ? "ask.answered" : "ask.empty_after_cleaning",
+        provider: completion.provider,
+        model: completion.model,
         records: grounding.docs.length,
         promptTokens: completion.usage.promptTokens,
         completionTokens: completion.usage.completionTokens,
         modelLatencyMs: completion.latencyMs,
       }),
     );
+
+    const status = answer ? 200 : 502;
+    if (config.debug) {
+      console.log(
+        debugBlock({
+          ask,
+          grounding,
+          provider: completion.provider,
+          model: completion.model,
+          status,
+          latencyMs: Date.now() - startedAt,
+          note: answer ? undefined : "completion was empty after cleaning",
+        }),
+      );
+    }
 
     if (!answer) return failure(502, "upstream", cors);
     return json(200, answer, cors);
@@ -160,27 +226,51 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
     /* `diagnostics` is structural only — lengths, counts, finish_reason, key
        names — never prompt, record, question, answer or reasoning text. */
     console.log(
-      JSON.stringify({ event: "ask.model_failed", kind: failed.kind, code: failed.code, diagnostics: failed.diagnostics ?? null }),
+      JSON.stringify({
+        event: "ask.model_failed",
+        provider: primary.name,
+        model: primary.model,
+        kind: failed.kind,
+        code: failed.code,
+        diagnostics: failed.diagnostics ?? null,
+      }),
     );
 
-    switch (failed.kind) {
-      case "timeout":
-        return failure(504, "timeout", cors);
-      case "free_quota":
-        return failure(503, "provider_quota", cors);
-      case "capacity":
-        return failure(503, "provider_capacity", cors);
-      case "paid_model":
-        return failure(503, "paid_model_unavailable", cors);
-      case "permission":
-        return failure(502, "provider_unavailable", cors);
-      case "invalid_model":
-      case "invalid_request":
-        return failure(502, "provider_rejected", cors);
-      default:
-        /* malformed · empty · upstream */
-        return failure(502, "upstream", cors);
+    const status = (() => {
+      switch (failed.kind) {
+        case "timeout":
+          return [504, "timeout"] as const;
+        case "free_quota":
+          return [503, "provider_quota"] as const;
+        case "capacity":
+          return [503, "provider_capacity"] as const;
+        case "paid_model":
+          return [503, "paid_model_unavailable"] as const;
+        case "permission":
+          return [502, "provider_unavailable"] as const;
+        case "invalid_model":
+        case "invalid_request":
+          return [502, "provider_rejected"] as const;
+        default:
+          /* malformed · empty · upstream */
+          return [502, "upstream"] as const;
+      }
+    })();
+
+    if (config.debug) {
+      console.log(
+        debugBlock({
+          ask,
+          grounding,
+          provider: primary.name,
+          model: primary.model,
+          status: status[0],
+          latencyMs: Date.now() - startedAt,
+          note: `${failed.kind}${failed.code ? ` (code ${failed.code})` : ""}`,
+        }),
+      );
     }
+    return failure(status[0], status[1], cors);
   }
 }
 

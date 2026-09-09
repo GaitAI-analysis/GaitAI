@@ -31,6 +31,15 @@ export interface AskEnv {
   ASK_BURST_MAX?: string;
   ASK_HOURLY_MAX?: string;
   ASK_DAILY_BUDGET?: string;
+  /**
+   * LOCAL DEVELOPMENT ONLY. "1" or "true" makes the Worker print one
+   * human-readable block per question — the question, the selected and
+   * resolved record ids and titles, provider, model, status and latency — to
+   * the `wrangler dev` console. It lives in `.dev.vars` (gitignored) and is
+   * deliberately absent from wrangler.jsonc, so a deployed Worker never has
+   * it: production logs stay structural (no question text, no answer text).
+   */
+  ASK_DEBUG?: string;
   ASK_GUARD?: DurableObjectNamespace<AskGuard>;
 }
 
@@ -52,6 +61,8 @@ export interface AskConfig {
   burstMax: number;
   hourlyMax: number;
   dailyBudget: number;
+  /** See ASK_DEBUG. Never true in production. */
+  debug: boolean;
 }
 
 const int = (value: string | undefined, fallback: number): number => {
@@ -77,5 +88,6 @@ export function readConfig(env: AskEnv): AskConfig {
        Neuron allocation. Conservative on purpose while Workers AI is being
        evaluated on the Free plan. */
     dailyBudget: int(env.ASK_DAILY_BUDGET, 25),
+    debug: /^(1|true)$/i.test((env.ASK_DEBUG ?? "").trim()),
   };
 }

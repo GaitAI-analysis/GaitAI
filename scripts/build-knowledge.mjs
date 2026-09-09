@@ -29,6 +29,30 @@
  * reads each page's own source and strips the markup, so the assistant quotes
  * the page a visitor would read.
  *
+ * SEMANTIC CHUNKS
+ * A long article or policy page is not one record. Each becomes a PARENT
+ * record (the overview: title, standfirst, topics, section list) plus one
+ * CHILD record per section — `insight:<slug>#<section-id>`,
+ * `page:/legal/privacy#<heading-slug>` — carrying that section's own words,
+ * its `sectionTitle`, a deep-link `url` and `parentId`. Ids are derived from
+ * the section's own anchor or heading, so they are stable across builds and
+ * retrieval can hand the model the paragraph that answers rather than the
+ * first 1 500 characters of a 9 000-character essay. A section longer than
+ * the per-record budget is split on paragraph boundaries into `…#id`,
+ * `…#id-2`, ….
+ *
+ * PEOPLE
+ * One record per person the public site names: the founder (from
+ * publications.ts + talks.ts) and every co-author on the Publications page.
+ * A co-author record states co-authorship and nothing else — no role, no
+ * affiliation, no degree — because that is all the site documents.
+ *
+ * NEWSROOM POSTS
+ * `data/posts.json` is the Firestore mirror `sync-posts.mjs` refreshes in the
+ * same predev/prebuild hook that runs this script. Posts marked `verified`
+ * render publicly under /publications/<slug>/ and are indexed here, chunked
+ * by their markdown headings; drafts never enter the corpus.
+ *
  *   npm run build:knowledge
  * =============================================================================
  */
@@ -38,6 +62,68 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
+
+/**
+ * Per-record character budget for CHUNKED content. Mirrors PER_DOC_CHARS in
+ * src/lib/ask/retrieval.ts (1 500) with headroom for the "Article:" and
+ * "Section:" header lines, so a chunk reaches the model whole rather than
+ * being cut mid-sentence by the prompt builder.
+ */
+const CHUNK_CHARS = 1400;
+
+const slugify = (value) =>
+  String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+/**
+ * Split a list of paragraphs into runs of at most `max` characters, never
+ * breaking inside a paragraph. One paragraph longer than `max` stands alone
+ * (the prompt builder will cap it) rather than being cut mid-sentence.
+ */
+function splitParagraphs(paragraphs, max = CHUNK_CHARS) {
+  const parts = [];
+  let current = [];
+  let size = 0;
+  for (const paragraph of paragraphs.map(clean).filter(Boolean)) {
+    if (current.length && size + paragraph.length + 1 > max) {
+      parts.push(current.join("\n"));
+      current = [];
+      size = 0;
+    }
+    current.push(paragraph);
+    size += paragraph.length + 1;
+  }
+  if (current.length) parts.push(current.join("\n"));
+  return parts;
+}
+
+/** The first sentence or two of a passage, for a chunk's summary line. */
+function lead(text, max = 240) {
+  const flat = clean(text);
+  if (flat.length <= max) return flat;
+  const window = flat.slice(0, max);
+  const stop = Math.max(window.lastIndexOf(". "), window.lastIndexOf("? "));
+  if (stop > max * 0.4) return window.slice(0, stop + 1);
+  const space = window.lastIndexOf(" ");
+  return `${window.slice(0, space > 0 ? space : max)}…`;
+}
+
+/**
+ * Inline markdown the journal allows in its text — **bold** and
+ * [label](/href) — and the light markdown a newsroom post body uses, folded
+ * to plain words. Links keep their label; the route is carried by the record.
+ */
+const unmark = (text) =>
+  String(text ?? "")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "");
 /**
  * The corpus ships to the BROWSER, because that is where retrieval now runs.
  *
@@ -89,22 +175,9 @@ const block = (...lines) => lines.filter(Boolean).join("\n");
  * and it means the legal pages have exactly one copy of their text, in the
  * page that renders it.
  */
-function prosePage(relPath) {
-  const abs = path.join(ROOT, "src", relPath);
-  if (!existsSync(abs)) return { title: "", description: "", text: "" };
-  const source = readFileSync(abs, "utf8");
-
-  const title = clean((source.match(/\btitle:\s*"((?:[^"\\]|\\.)*)"/) ?? [])[1] ?? "");
-  const description = clean(
-    (source.match(/\bdescription:\s*\n?\s*"((?:[^"\\]|\\.)*)"/) ?? [])[1] ?? "",
-  );
-
-  // Everything the component returns, markup removed. Start at the `return`
-  // so the component signature is not mistaken for prose.
-  const afterDefault = source.slice(source.indexOf("export default"));
-  const returnAt = afterDefault.indexOf("return");
-  const body = returnAt === -1 ? afterDefault : afterDefault.slice(returnAt + 6);
-  const text = body
+/** JSX → the words a visitor reads. */
+const stripJsx = (markup) =>
+  markup
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, " ") // JSX comments
     .replace(/\{[^{}]*\}/g, " ") // embedded expressions, incl. {" "}
     .replace(/<[^>]+>/g, " ") // tags with their attributes
@@ -120,8 +193,92 @@ function prosePage(relPath) {
     .replace(/\s+/g, " ")
     .trim();
 
-  return { title, description, text };
+function prosePage(relPath) {
+  const abs = path.join(ROOT, "src", relPath);
+  if (!existsSync(abs)) return { title: "", description: "", text: "", sections: [] };
+  const source = readFileSync(abs, "utf8");
+
+  const title = clean((source.match(/\btitle:\s*"((?:[^"\\]|\\.)*)"/) ?? [])[1] ?? "");
+  const description = clean(
+    (source.match(/\bdescription:\s*\n?\s*"((?:[^"\\]|\\.)*)"/) ?? [])[1] ?? "",
+  );
+
+  // Everything the component returns, markup removed. Start at the `return`
+  // so the component signature is not mistaken for prose.
+  const afterDefault = source.slice(source.indexOf("export default"));
+  const returnAt = afterDefault.indexOf("return");
+  const body = returnAt === -1 ? afterDefault : afterDefault.slice(returnAt + 6);
+  const text = stripJsx(body);
+
+  /* SECTIONS, by the page's own <h2> headings. The heading text is the
+     section title; everything up to the next <h2> is its body. A page with
+     no <h2> yields no sections and stays one record. */
+  const sections = [];
+  const pieces = body.split(/<h2\b[^>]*>/);
+  for (const piece of pieces.slice(1)) {
+    const close = piece.indexOf("</h2>");
+    if (close === -1) continue;
+    const heading = stripJsx(piece.slice(0, close));
+    const rest = stripJsx(piece.slice(close + 5));
+    if (heading && rest) sections.push({ heading, text: rest });
+  }
+
+  return { title, description, text, sections };
 }
+
+// ---------------------------------------------------------------------------
+// JOURNAL BLOCKS → TEXT
+// ---------------------------------------------------------------------------
+/**
+ * The words in one InsightBlock (see data/insights.ts). Diagrams and drawn
+ * figures keep their captions and labels — those are the only words they
+ * have — and inline markdown is folded to plain text.
+ */
+function blockText(block) {
+  switch (block.type) {
+    case "lead":
+    case "p":
+    case "h3":
+    case "quote":
+    case "note":
+    case "matters":
+      return unmark(block.text);
+    case "list":
+      return block.items.map(unmark).join(" · ");
+    case "callout":
+      return `${unmark(block.title)}: ${unmark(block.text)}`;
+    case "flow":
+      return [block.steps.map(unmark).join(" → "), block.caption && unmark(block.caption)]
+        .filter(Boolean)
+        .join(" ");
+    case "compare":
+      return [
+        block.caption && unmark(block.caption),
+        ...block.columns.map(
+          (column) => `${column.label} — ${unmark(column.title)}: ${column.points.map(unmark).join("; ")}`,
+        ),
+      ]
+        .filter(Boolean)
+        .join(" ");
+    case "states":
+      return [
+        block.caption && unmark(block.caption),
+        ...block.items.map((item) => `${item.label} ${item.name}: ${unmark(item.note)}`),
+      ]
+        .filter(Boolean)
+        .join(" ");
+    case "trend":
+      return [block.caption && unmark(block.caption), block.points.join(" → ")]
+        .filter(Boolean)
+        .join(" ");
+    case "gaitcycle":
+      return block.caption ? unmark(block.caption) : "";
+    default:
+      return typeof block.text === "string" ? unmark(block.text) : "";
+  }
+}
+
+const blocksText = (blocks) => (blocks ?? []).map(blockText).map(clean).filter(Boolean);
 
 // ---------------------------------------------------------------------------
 
@@ -144,6 +301,8 @@ async function main() {
   const experimentsMod = await load("data/experiments.ts");
   const labsMod = await load("data/labs.ts");
   const talks = await load("data/talks.ts");
+  const insightTopics = await load("data/insight-topics.ts");
+  const comparisons = await load("data/comparisons.ts");
 
   const docs = [];
 
@@ -154,17 +313,31 @@ async function main() {
   // person record is assembled below from publications.ts and talks.ts —
   // nothing biographical is written here, and the aliases are the name's own
   // parts plus the one role word the site uses for her ("founder").
-  const slugify = (value) =>
-    String(value)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
   const FOUNDER = publications.FOUNDER_NAME;
   const FOUNDER_ID = slugify(FOUNDER);
   const COMPANY_ID = "gaitai";
   const authoredByFounder = (record) => record.authors.includes(FOUNDER);
   const founderRelated = (records) =>
     records.some(authoredByFounder) ? [FOUNDER_ID] : [];
+  /* Every person named on the Publications page gets a person record below,
+     so a publication points at ALL its authors — the founder and each
+     co-author — through `relatedEntityIds`. A name spelled two ways on the
+     page ("Rajveer S. Shekhawat" / "Rajveer Singh Shekhawat") is one person:
+     the entity id is built from the longest spelling that shares the first
+     and last word, exactly as the co-author records below are. */
+  const allAuthorNames = [...new Set(publications.allPublications.flatMap((p) => p.authors))];
+  const personId = (name) => {
+    const words = name.split(/\s+/);
+    const key = `${words[0]} ${words[words.length - 1]}`.toLowerCase();
+    const same = allAuthorNames.filter((other) => {
+      const w = other.split(/\s+/);
+      return `${w[0]} ${w[w.length - 1]}`.toLowerCase() === key;
+    });
+    const canonical = [...same].sort((a, b) => b.length - a.length)[0] ?? name;
+    return slugify(canonical);
+  };
+  const authorEntities = (records) =>
+    [...new Set(records.flatMap((record) => record.authors.map(personId)))];
 
   const detailBySlug = new Map(
     [...details.productDetails, ...secureDetails.secureProductDetails].map((d) => [
@@ -202,95 +375,134 @@ async function main() {
     const papersFor = evidence.publicationsForProduct(product.id);
     const sample = samples.sampleOutputFor(product.id);
 
-    docs.push({
-      id: `product:${product.id}`,
-      type: "product",
-      title: product.short,
+    const parentId = `product:${product.id}`;
+    const productUrl = route(`/${product.vertical}/${product.id}`);
+    const familyName = product.vertical === "mobilitycare" ? "MobilityCare" : "SecureVision";
+    const primarySources = graph
+      .sourcesForProduct(product.id)
+      .map((id) => graph.CAPTURE_SOURCE_LABEL[id]);
+    const supportingSources = graph
+      .supportingSourcesForProduct(product.id)
+      .map((id) => graph.CAPTURE_SOURCE_LABEL[id]);
+
+    /* The record's sections, as named blocks, so the parent and its three
+       facet chunks are composed from ONE set of lines and cannot disagree. */
+    const identity = block(
+      para("Full name", product.name),
+      para("Product family", familyName),
+      para("What it is", product.label),
+      para("Headline", product.headline),
+      para("Description", product.description),
+      detail && para("Overview", detail.overview),
+      detail &&
+        para(
+          "At a glance",
+          `input — ${detail.glance.input}; analysis — ${detail.glance.analysis}; output — ${detail.glance.output}; user — ${detail.glance.user}`,
+        ),
+      detail && para("Problem it addresses", detail.problem),
+      detail && para("How it works", detail.solution),
+      para("Who it is for", product.users),
+      detail && para("What the user receives", detail.receives),
+      para("Outputs", product.outputs),
+      /* What it takes in is identity, not detail: "which products work with
+         CCTV" is answered by the modules whose own record says CCTV. */
+      detail && para("Inputs accepted", detail.tech.inputs),
+      para("Primary capture sources", primarySources),
+    );
+    const howItWorks = block(
+      detail && para("Inputs accepted", detail.tech.inputs),
+      /* The same primary/supporting split the configurator and the footage
+         matcher use. Without it the assistant answered capture-source
+         questions from the prose in tech.inputs while those surfaces
+         answered from the derivation, so "can FallRisk use a wearable?"
+         got yes here and a dropped module there. One table now. */
+      para("Primary capture sources", primarySources),
+      para(
+        "Also documented as usable, where available",
+        supportingSources.length
+          ? supportingSources
+          : "Nothing beyond the primary capture sources above.",
+      ),
+      detail && para("Processing pipeline", detail.tech.pipeline),
+      detail && para("Movement features used", detail.tech.features),
+      detail && para("Models", detail.tech.models),
+      detail && para("Quality requirements", detail.tech.quality),
+    );
+    const deployment = block(
+      detail && para("Workflow", detail.workflow),
+      detail && para("Deployment", detail.deployment),
+      /* Canonical, from the environment records whose own product mix names
+         this module — the hand-written `detail.environments` tags this used
+         to read contradicted them for eleven of twenty-three modules and
+         have been removed. See the note in product-details.ts. */
+      para(
+        "Documented deployment environments",
+        environmentsFor(product.id).length
+          ? environmentsFor(product.id)
+          : "No environment record in the GaitAI catalogue lists this module in its documented product mix.",
+      ),
+      detail && para("Integration", detail.tech.integration),
+    );
+    const maturity = para(
+      "Maturity",
+      product.status ??
+        "Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.",
+    );
+    const limitsAndPrivacy = block(
+      detail && para("Documented limitations", detail.tech.limitations),
+      detail && para("Interpretation of outputs", detail.interpretation),
+      detail && para("Responsible use and privacy", detail.privacy),
+    );
+    const evidenceBlock = block(
+      para("Movement signals sensed", chain.signals.map((s) => s.title)),
+      para("AI capabilities used", chain.capabilities.map((c) => c.title)),
+      para("Application domains served", chain.domains.map((d) => d.title)),
+      para(
+        "Published research reaching this module",
+        papersFor.length
+          ? papersFor.map((p) => `${p.title} (${p.venue}, ${p.year})`)
+          : "No publication in the GaitAI record addresses this module specifically.",
+      ),
+      para(
+        "Evidence status",
+        status.rows.map(
+          (r) => `${r.label} — ${evidenceStatus.EVIDENCE_STATE_LABEL[r.state]}`,
+        ),
+      ),
+      sample &&
+        para(
+          "Illustrative sample output (example values, not a measured result)",
+          sample.tabs.flatMap((t) => t.metrics?.map((m) => `${m.label} ${m.value}`) ?? []),
+        ),
+      maturity,
+    );
+
+    const productTopics = [familyName, ...chain.domains.map((d) => d.title)];
+    const shared = {
       slug: product.id,
-      url: route(`/${product.vertical}/${product.id}`),
+      url: productUrl,
       family: product.vertical,
       category: product.label,
+      relatedProducts: detail ? [...detail.related] : [],
+      relatedResearch: papersFor.map((p) => p.id),
+      tags: [product.vertical],
+      topics: productTopics,
+    };
+
+    /* THE PARENT: what the module is. Carries the entity and the retrieval
+       keywords, so a question that names the module lands here first. */
+    docs.push({
+      id: parentId,
+      type: "product",
+      title: product.short,
+      ...shared,
       summary: product.description,
       content: block(
-        para("Full name", product.name),
-        para("What it is", product.label),
-        para("Headline", product.headline),
-        para("Description", product.description),
-        detail && para("Overview", detail.overview),
-        detail &&
-          para(
-            "At a glance",
-            `input — ${detail.glance.input}; analysis — ${detail.glance.analysis}; output — ${detail.glance.output}; user — ${detail.glance.user}`,
-          ),
-        detail && para("Problem it addresses", detail.problem),
-        detail && para("How it works", detail.solution),
-        para("Who it is for", product.users),
-        detail && para("What the user receives", detail.receives),
-        para("Outputs", product.outputs),
-        detail && para("Inputs accepted", detail.tech.inputs),
-        /* The same primary/supporting split the configurator and the footage
-           matcher use. Without it the assistant answered capture-source
-           questions from the prose in tech.inputs while those surfaces
-           answered from the derivation, so "can FallRisk use a wearable?"
-           got yes here and a dropped module there. One table now. */
+        identity,
+        maturity,
         para(
-          "Primary capture sources",
-          graph
-            .sourcesForProduct(product.id)
-            .map((id) => graph.CAPTURE_SOURCE_LABEL[id]),
-        ),
-        para(
-          "Also documented as usable, where available",
-          graph.supportingSourcesForProduct(product.id).length
-            ? graph
-                .supportingSourcesForProduct(product.id)
-                .map((id) => graph.CAPTURE_SOURCE_LABEL[id])
-            : "Nothing beyond the primary capture sources above.",
-        ),
-        detail && para("Processing pipeline", detail.tech.pipeline),
-        detail && para("Movement features used", detail.tech.features),
-        detail && para("Models", detail.tech.models),
-        detail && para("Workflow", detail.workflow),
-        detail && para("Deployment", detail.deployment),
-        /* Canonical, from the environment records whose own product mix names
-           this module — the hand-written `detail.environments` tags this used
-           to read contradicted them for eleven of twenty-three modules and
-           have been removed. See the note in product-details.ts. */
-        para(
-          "Documented deployment environments",
-          environmentsFor(product.id).length
-            ? environmentsFor(product.id)
-            : "No environment record in the GaitAI catalogue lists this module in its documented product mix.",
-        ),
-        detail && para("Integration", detail.tech.integration),
-        detail && para("Quality requirements", detail.tech.quality),
-        detail && para("Documented limitations", detail.tech.limitations),
-        detail && para("Interpretation of outputs", detail.interpretation),
-        detail && para("Responsible use and privacy", detail.privacy),
-        para("Movement signals sensed", chain.signals.map((s) => s.title)),
-        para("AI capabilities used", chain.capabilities.map((c) => c.title)),
-        para("Application domains served", chain.domains.map((d) => d.title)),
-        para(
-          "Published research reaching this module",
-          papersFor.length
-            ? papersFor.map((p) => `${p.title} (${p.venue}, ${p.year})`)
-            : "No publication in the GaitAI record addresses this module specifically.",
-        ),
-        para(
-          "Evidence status",
-          status.rows.map(
-            (r) => `${r.label} — ${evidenceStatus.EVIDENCE_STATE_LABEL[r.state]}`,
-          ),
-        ),
-        sample &&
-          para(
-            "Illustrative sample output (example values, not a measured result)",
-            sample.tabs.flatMap((t) => t.metrics?.map((m) => `${m.label} ${m.value}`) ?? []),
-          ),
-        para(
-          "Maturity",
-          product.status ??
-            "Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.",
+          "Further sections of this module's record",
+          ["How it works and what it needs", "Deployment and integration", "Limits, interpretation and privacy", "Signals, capabilities, research and evidence"],
         ),
       ),
       keywords: [
@@ -308,20 +520,72 @@ async function main() {
            camera, for the question "which products work with CCTV?".
            Supporting sources stay in the content, where they are findable
            without outranking the modules built for the job. */
-        ...graph
-          .sourcesForProduct(product.id)
-          .map((id) => graph.CAPTURE_SOURCE_LABEL[id]),
+        ...primarySources,
         ...(detail ? [detail.glance.input, detail.glance.output] : []),
         ...chain.signals.map((s) => s.title),
         ...chain.capabilities.map((c) => c.title),
       ],
-      relatedProducts: detail ? [...detail.related] : [],
-      relatedResearch: papersFor.map((p) => p.id),
       /* A module is an entity: "what is fallrisk" names it exactly. */
       entityId: product.id,
       aliases: [product.short, product.name],
-      tags: [product.vertical],
     });
+
+    /* THE FACET CHUNKS: the rest of the module page, in three sections a
+       question actually asks for. No entity id — the parent is the module;
+       these are about it — and a per-parent cap in retrieval keeps one
+       module from filling every slot. */
+    const facetChunks = [
+      {
+        anchor: "how-it-works",
+        title: "How it works and what it needs",
+        content: howItWorks,
+        /* PRIMARY sources only, for the same reason as the parent's keywords:
+           a hedged secondary input ("compatible CCTV where appropriate") is
+           in the content, findable, and must not rank WalkScan above the
+           modules built for a fixed camera. */
+        keywords: [
+          "how does it work", "pipeline", "inputs", "input data", "models", "features", "capture", "quality",
+          ...(detail ? detail.tech.inputs : []),
+          ...primarySources,
+        ],
+      },
+      {
+        anchor: "deployment",
+        title: "Deployment and integration",
+        content: deployment,
+        keywords: ["deployment", "deploy", "integration", "integrate", "workflow", "environments", "where is it used", "api", "rollout", ...environmentsFor(product.id)],
+      },
+      {
+        anchor: "limits-and-privacy",
+        title: "Limits, interpretation and privacy",
+        content: limitsAndPrivacy,
+        keywords: ["limitations", "limits", "interpretation", "interpret", "privacy", "responsible use", "consent", "anonymisation", "does not diagnose", "decision support"],
+      },
+      {
+        anchor: "evidence",
+        title: "Signals, capabilities, research and evidence",
+        content: evidenceBlock,
+        keywords: ["evidence", "validation", "validated", "accuracy", "research", "papers", "maturity", "signals", "capabilities", "sample output", ...chain.signals.map((s) => s.title), ...chain.capabilities.map((c) => c.title)],
+      },
+    ];
+    for (const facet of facetChunks) {
+      if (!facet.content) continue;
+      docs.push({
+        id: `${parentId}#${facet.anchor}`,
+        type: "product",
+        title: product.short,
+        sectionTitle: facet.title,
+        ...shared,
+        summary: `${product.short} — ${facet.title.toLowerCase()}. ${product.description}`,
+        content: block(
+          para("Module", `${product.short} (${product.name}) — ${product.label}`),
+          para("Section", facet.title),
+          facet.content,
+        ),
+        keywords: [product.short, product.name, facet.title, ...facet.keywords],
+        parentId,
+      });
+    }
   }
 
   // ── USE CASES / ENVIRONMENTS ─────────────────────────────────────────────
@@ -353,11 +617,9 @@ async function main() {
         detail && para("Value proposition", detail.valueProp),
         detail && para("Deployment overview", detail.overview),
         detail && para("Why current workflows fall short", detail.shortfall),
-        detail && para("How the modules work together", detail.together),
-        detail && para("Example workflow", detail.workflow),
-        detail && para("Signals and outputs", detail.signals),
-        detail && para("Deployment considerations", detail.deployment),
-        detail && para("Responsible use and privacy", detail.privacy),
+        /* The workflow, signals, deployment considerations and responsible-use
+           text are the environment's second chunk (below), not repeated here. */
+        detail && para("Further sections of this environment's record", ["Deployment, signals and responsible use"]),
         para("Output chips", facets.outputChipsFor(entry.id)),
         para(
           "Facets",
@@ -373,7 +635,40 @@ async function main() {
       ],
       relatedProducts: entry.productIds,
       relatedResearch: [],
+      topics: [entry.industry, entry.vertical === "mobilitycare" ? "MobilityCare" : "SecureVision"],
     });
+
+    /* The second half of the environment page — how a deployment runs and
+       what it must not do — as its own chunk, so the parent's first 1 500
+       characters (problem, outcome, modules, value) are not all the model
+       ever sees of it. */
+    if (detail) {
+      docs.push({
+        id: `use-case:${entry.id}#deployment`,
+        type: "use-case",
+        title: entry.industry,
+        sectionTitle: "Deployment, signals and responsible use",
+        slug: detail.slug,
+        url: route(`/use-cases/${detail.slug}`),
+        family: entry.vertical,
+        category: "Environment",
+        summary: `${entry.industry} — how the deployment runs, what it produces and its responsible-use boundary.`,
+        content: block(
+          para("Environment", entry.industry),
+          para("Section", "Deployment, signals and responsible use"),
+          para("How the modules work together", detail.together),
+          para("Example workflow", detail.workflow),
+          para("Signals and outputs", detail.signals),
+          para("Deployment considerations", detail.deployment),
+          para("Responsible use and privacy", detail.privacy),
+        ),
+        keywords: [entry.industry, "deployment", "workflow", "signals", "outputs", "responsible use", "privacy", ...detail.signals],
+        relatedProducts: entry.productIds,
+        relatedResearch: [],
+        parentId: `use-case:${entry.id}`,
+        topics: [entry.industry, entry.vertical === "mobilitycare" ? "MobilityCare" : "SecureVision"],
+      });
+    }
   }
 
   // ── PUBLICATIONS ─────────────────────────────────────────────────────────
@@ -429,8 +724,12 @@ async function main() {
       ],
       relatedProducts: areas.flatMap((a) => a.directProducts.map((p) => p.id)),
       relatedResearch: areas.map((a) => a.id),
-      /* person → publications, without a second copy of the biography. */
-      relatedEntityIds: founderRelated([record]),
+      /* person → publications, without a second copy of the biography. Every
+         author, so "which papers did Apoorva co-author" assembles the same
+         way the founder's do. */
+      relatedEntityIds: authorEntities([record]),
+      topics: [...(record.keywords ?? []), ...areas.map((a) => a.title)],
+      date: record.date ?? `${record.year}-01-01`,
     });
   }
 
@@ -480,6 +779,7 @@ async function main() {
       relatedProducts: area.directProducts.map((p) => p.id),
       relatedResearch: area.publications.map((p) => p.id),
       relatedEntityIds: founderRelated(area.publications),
+      topics: ["gait research", ...area.capabilities.map((c) => c.title)],
     });
   }
 
@@ -538,10 +838,6 @@ async function main() {
           "These are academic and individually held records rather than company-produced output. GaitAI does not currently hold company-assigned publications or patents of its own; the product modules are subsequent platform implementations.",
         ),
         para(
-          "Publications authored",
-          authored.map((p) => `${p.title} (${p.venue}, ${p.year})`),
-        ),
-        para(
           "Research areas this work grounds",
           areasGrounded.map((a) => a.title),
         ),
@@ -553,6 +849,13 @@ async function main() {
         para(
           "Not documented in the GaitAI record",
           "Academic degrees, job history, institutional affiliations, awards, dates of employment, and any role other than founder and author. None of these may be stated or implied.",
+        ),
+        /* Last, because it is the longest line and each paper is also its own
+           record: if a budget cuts this record, it cuts the list, not the
+           facts above it. */
+        para(
+          "Publications authored",
+          authored.map((p) => `${p.title} (${p.venue}, ${p.year})`),
         ),
       ),
       keywords: [
@@ -588,17 +891,151 @@ async function main() {
       ],
       relatedEntityIds: [COMPANY_ID],
       tags: ["founder", "author", ...(speaker ? ["speaker"] : [])],
+      topics: ["gait research", "movement intelligence", ...areasGrounded.map((a) => a.title)],
+    });
+  }
+
+  // ── CO-AUTHORS ───────────────────────────────────────────────────────────
+  // Every other name on the Publications page. The site documents exactly one
+  // fact about each: which records they co-authored, with whom. The record
+  // says that, lists the papers, and states that nothing else — role,
+  // affiliation, degree, employer — is documented, so the assistant can
+  // answer "who is Apoorva" from the record instead of inferring from an
+  // author list.
+  {
+    /* One person, one record — even when the Publications page spells a name
+       two ways ("Rajveer S. Shekhawat" / "Rajveer Singh Shekhawat"). Names
+       sharing first and last word are one person; the longest spelling is
+       the title and every spelling is an alias, so either finds the record.
+       `authorEntities` above resolves each spelling the same way. */
+    const spellings = new Map();
+    for (const name of new Set(publications.allPublications.flatMap((p) => p.authors))) {
+      if (name === FOUNDER) continue;
+      const words = name.split(/\s+/);
+      const key = `${words[0]} ${words[words.length - 1]}`.toLowerCase();
+      spellings.set(key, [...(spellings.get(key) ?? []), name]);
+    }
+
+    for (const names of spellings.values()) {
+      const name = [...names].sort((a, b) => b.length - a.length)[0];
+      const id = personId(name);
+      const authored = publications.allPublications.filter((p) =>
+        p.authors.some((author) => names.includes(author)),
+      );
+      const papers = authored.filter((p) => p.kind !== "patent");
+      const patents = authored.filter((p) => p.kind === "patent");
+      const areasGrounded = evidence.researchAreas.filter((a) =>
+        a.publications.some((p) => p.authors.includes(name)),
+      );
+      const publishers = [...new Set(authored.map((p) => p.publisher))];
+      const [firstName, ...restName] = name.split(/\s+/);
+      const lastName = restName[restName.length - 1] ?? "";
+      const count = `${papers.length} peer-reviewed paper${papers.length === 1 ? "" : "s"}${
+        patents.length ? ` and ${patents.length} granted patent${patents.length === 1 ? "" : "s"}` : ""
+      }`;
+
+      docs.push({
+        id: `person:${id}`,
+        type: "person",
+        title: name,
+        slug: id,
+        url: route("/publications"),
+        family: "research",
+        category: "Co-author",
+        summary: clean(
+          `${name} is a co-author, with GaitAI founder ${FOUNDER}, of ${count} in the research record listed on the GaitAI Publications page — across ${areasGrounded.map((a) => a.title.toLowerCase()).join(", ") || "the published record"}.`,
+        ),
+        content: block(
+          para("Name", name),
+          para(
+            "Role in the GaitAI record",
+            `Co-author. ${name} appears as an author on ${authored.length} of the ${publications.allPublications.length} records on the GaitAI Publications page, each co-authored with ${FOUNDER}, the founder of GaitAI.`,
+          ),
+          para("Research record", `${count}, published with ${publishers.join(", ")}.`),
+          names.length > 1 &&
+            para("Also listed on the Publications page as", names.filter((n) => n !== name)),
+          para(
+            "Publications co-authored",
+            authored.map((p) => `${p.title} (${p.venue}, ${p.year})`),
+          ),
+          para("Research areas this work grounds", areasGrounded.map((a) => a.title)),
+          para(
+            "Provenance",
+            "These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.",
+          ),
+          para(
+            "Not documented in the GaitAI record",
+            `Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to ${FOUNDER} beyond co-authorship. None of these may be stated or implied.`,
+          ),
+        ),
+        keywords: [...names, firstName, lastName, "co-author", "coauthor", "author"],
+        relatedProducts: [],
+        relatedResearch: [...areasGrounded.map((a) => a.id), ...authored.map((p) => p.id)],
+        entityId: id,
+        aliases: [...names, firstName, lastName, `dr ${name}`, `dr. ${name}`],
+        relatedEntityIds: [FOUNDER_ID],
+        tags: ["co-author", "author"],
+        topics: ["gait research", ...areasGrounded.map((a) => a.title)],
+      });
+    }
+  }
+
+  // ── TALKS ────────────────────────────────────────────────────────────────
+  // One record per documented appearance, from talks.ts — the founder's
+  // academic speaking record. Each carries the provenance line the page
+  // carries: a personal research appearance, not a GaitAI company one.
+  for (const talk of talks.talkRecords) {
+    const area = talk.researchAreaId
+      ? evidence.researchAreas.find((a) => a.id === talk.researchAreaId)
+      : null;
+    docs.push({
+      id: `talk:${talk.id}`,
+      type: "talk",
+      title: talk.title,
+      slug: talk.id,
+      url: `/research/talks/#${talk.id}`,
+      family: "research",
+      category: talks.TALK_KIND_LABEL[talk.kind],
+      summary: clean(
+        `${talks.TALK_KIND_LABEL[talk.kind]} by ${talks.TALKS_SPEAKER}${talk.event ? ` at ${talk.event}` : ""}${talk.venue ? `, ${talk.venue}` : ""} (${talk.date ?? talk.year}).`,
+      ),
+      content: block(
+        para("Title", talk.title),
+        para("Kind", talks.TALK_KIND_LABEL[talk.kind]),
+        para("Speaker", `${talks.TALKS_SPEAKER}, in an academic and personal research capacity. Not a GaitAI company appearance.`),
+        para("Date", talk.date ?? String(talk.year)),
+        talk.event && para("Event", talk.event),
+        talk.venue && para("Venue", talk.venue),
+        talk.description && para("Description", talk.description),
+        area
+          ? para("GaitAI research area this work belongs to", area.title)
+          : "GaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      ),
+      keywords: [talk.title, talks.TALK_KIND_LABEL[talk.kind], talk.event, talk.venue, String(talk.year), "talk", "presentation"],
+      relatedProducts: [],
+      relatedResearch: area ? [area.id] : [],
+      relatedEntityIds: talks.TALKS_SPEAKER === FOUNDER ? [FOUNDER_ID] : [],
+      topics: area ? [area.title] : [],
+      date: `${talk.year}-01-01`,
     });
   }
 
   // ── JOURNAL / INSIGHTS ───────────────────────────────────────────────────
+  // A parent record per article (what it is, what it argues, its sections),
+  // then one child record per section carrying the section's own words. The
+  // child id is the section's anchor — the same `id` the on-page navigation
+  // uses — so it is stable for as long as the section is.
+  const topicLabel = (topic) => insightTopics.INSIGHT_TOPIC_CONFIG[topic]?.label ?? topic;
   for (const article of insights.insightArticles) {
+    const parentId = `insight:${article.slug}`;
+    const articleUrl = route(`/insights/${article.slug}`);
+    const topicNames = article.topics.map(topicLabel);
     docs.push({
-      id: `insight:${article.slug}`,
+      id: parentId,
       type: "insight",
       title: article.title,
       slug: article.slug,
-      url: route(`/insights/${article.slug}`),
+      url: articleUrl,
       family: "journal",
       category: article.category,
       summary: article.deck,
@@ -608,16 +1045,18 @@ async function main() {
         para("Standfirst", article.deck),
         para("Kind", insights.POST_TYPE_LABEL[article.postType]),
         para("Category", article.category),
-        para("Topics", article.topics),
+        para("Topics", topicNames),
         para("Published", article.date),
+        para("Author", article.author ?? insights.INSIGHTS_AUTHOR),
         para("Reading time", `${insights.readingMinutes(article)} minutes`),
         para("The question it answers", article.question),
         para("Excerpt", article.excerpt),
+        para("Opening", blocksText(article.intro)),
         para("What the reader takes away", article.hooks),
         para("The two-minute version", article.twoMinute),
         para(
           "Sections",
-          article.sections.map((s) => s.heading ?? s.title ?? "").filter(Boolean),
+          article.sections.map((s) => `${s.number} ${s.title}`),
         ),
         para("Reading-path position", `Step ${article.seriesStep} — ${article.seriesTitle}`),
         para("Tags", article.tags),
@@ -627,13 +1066,176 @@ async function main() {
         article.deck,
         article.category,
         article.question,
+        "insights",
+        "gaitai insights",
+        "article",
+        insights.POST_TYPE_LABEL[article.postType],
         ...article.topics,
+        ...topicNames,
         ...article.tags,
         ...article.hooks,
       ],
-      relatedProducts: [],
-      relatedResearch: [],
+      relatedProducts: [...(article.relatedProducts ?? [])],
+      relatedResearch: [...(article.relatedResearch ?? [])],
+      topics: topicNames,
+      date: article.updated ?? article.date,
     });
+
+    const sections = [
+      ...article.sections.map((section) => ({
+        id: section.id,
+        title: section.title,
+        number: section.number,
+        navLabel: section.navLabel,
+        paragraphs: blocksText(section.blocks),
+      })),
+      /* The closing blocks are the article's conclusion; they read as one
+         more section under the article's own title. */
+      ...(article.closing?.length
+        ? [
+            {
+              id: "closing",
+              title: "Closing",
+              number: "",
+              navLabel: "Closing",
+              paragraphs: blocksText(article.closing),
+            },
+          ]
+        : []),
+    ];
+
+    for (const section of sections) {
+      const parts = splitParagraphs(section.paragraphs);
+      parts.forEach((text, index) => {
+        const suffix = index === 0 ? "" : `-${index + 1}`;
+        docs.push({
+          id: `${parentId}#${section.id}${suffix}`,
+          type: "insight",
+          title: article.title,
+          sectionTitle: section.title,
+          slug: article.slug,
+          url: `${articleUrl}#${section.id}`,
+          family: "journal",
+          category: article.category,
+          summary: lead(text),
+          content: block(
+            para("Article", article.title),
+            para("Section", `${section.number ? `${section.number} ` : ""}${section.title}${parts.length > 1 ? ` (part ${index + 1} of ${parts.length})` : ""}`),
+            text,
+          ),
+          keywords: [
+            article.title,
+            section.title,
+            section.navLabel,
+            ...article.topics,
+            ...topicNames,
+          ],
+          relatedProducts: [...(article.relatedProducts ?? [])],
+          relatedResearch: [...(article.relatedResearch ?? [])],
+          parentId,
+          topics: topicNames,
+          date: article.updated ?? article.date,
+        });
+      });
+    }
+  }
+
+  // ── NEWSROOM POSTS ───────────────────────────────────────────────────────
+  // Firestore-managed posts, mirrored to data/posts.json by sync-posts.mjs in
+  // the same prebuild hook. Only `verified` posts render publicly, at
+  // /publications/<slug>/ (see lib/publication-store.ts), so only those are
+  // indexed. The body is markdown; it is chunked by its own headings.
+  {
+    const postsFile = path.join(ROOT, "data", "posts.json");
+    let posts = [];
+    if (existsSync(postsFile)) {
+      try {
+        const parsed = JSON.parse(readFileSync(postsFile, "utf8"));
+        posts = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.posts) ? parsed.posts : [];
+      } catch {
+        posts = [];
+      }
+    }
+    const published = posts.filter(
+      (post) => post && post.publicationStatus === "verified" && post.slug && post.title,
+    );
+
+    for (const post of published) {
+      const parentId = `post:${post.slug}`;
+      const postUrl = route(`/publications/${post.slug}`);
+      const topicNames = (post.topics ?? []).map(topicLabel);
+      /* Markdown → sections on `##`/`###` headings; the text before the first
+         heading is the opening. */
+      const sections = [];
+      let current = { heading: "", paragraphs: [] };
+      for (const raw of String(post.body ?? "").split(/\r?\n/)) {
+        const heading = raw.match(/^\s*#{2,3}\s+(.+?)\s*$/);
+        if (heading) {
+          if (current.paragraphs.length) sections.push(current);
+          current = { heading: unmark(heading[1]), paragraphs: [] };
+          continue;
+        }
+        const line = clean(unmark(raw));
+        if (line) current.paragraphs.push(line);
+      }
+      if (current.paragraphs.length) sections.push(current);
+
+      docs.push({
+        id: parentId,
+        type: "insight",
+        title: post.title,
+        slug: post.slug,
+        url: postUrl,
+        family: "journal",
+        category: post.category,
+        summary: clean(post.summary || sections[0]?.paragraphs[0] || post.title),
+        content: block(
+          para("Post", post.title),
+          para("Summary", post.summary),
+          para("Category", post.category),
+          para("Topics", topicNames),
+          para("Published", String(post.publishedAt).slice(0, 10)),
+          para("Author", post.author),
+          para("Tags", post.tags),
+          para("Sections", sections.map((s) => s.heading).filter(Boolean)),
+        ),
+        keywords: [post.title, post.summary, post.category, "insights", "post", ...(post.tags ?? []), ...topicNames],
+        relatedProducts: [...(post.relatedProducts ?? [])],
+        relatedResearch: [...(post.relatedResearch ?? [])],
+        topics: topicNames,
+        date: String(post.updatedAt ?? post.publishedAt).slice(0, 10),
+      });
+
+      sections.forEach((section, sectionIndex) => {
+        const anchor = section.heading ? slugify(section.heading) : "opening";
+        const parts = splitParagraphs(section.paragraphs);
+        parts.forEach((text, index) => {
+          const suffix = index === 0 ? "" : `-${index + 1}`;
+          docs.push({
+            id: `${parentId}#${anchor || `section-${sectionIndex + 1}`}${suffix}`,
+            type: "insight",
+            title: post.title,
+            sectionTitle: section.heading || "Opening",
+            slug: post.slug,
+            url: postUrl,
+            family: "journal",
+            category: post.category,
+            summary: lead(text),
+            content: block(
+              para("Post", post.title),
+              para("Section", section.heading || "Opening"),
+              text,
+            ),
+            keywords: [post.title, section.heading, ...(post.tags ?? [])],
+            relatedProducts: [],
+            relatedResearch: [],
+            parentId,
+            topics: topicNames,
+            date: String(post.updatedAt ?? post.publishedAt).slice(0, 10),
+          });
+        });
+      });
+    }
   }
 
   // ── CAPABILITIES AND MOVEMENT SIGNALS ────────────────────────────────────
@@ -805,20 +1407,59 @@ async function main() {
   for (const [url, source, fallbackTitle] of proseRoutes) {
     const page = prosePage(source);
     if (!page.text) continue;
+    const parentId = `page:${url}`;
+    const title = page.title || fallbackTitle;
     docs.push({
-      id: `page:${url}`,
+      id: parentId,
       type: "page",
-      title: page.title || fallbackTitle,
+      title,
       slug: url.split("/").pop(),
       url: route(url),
       family: "platform",
       category: "Policy page",
       summary: page.description || page.text.slice(0, 220),
-      content: page.text.slice(0, 6000),
-      keywords: [page.title || fallbackTitle, page.description],
+      /* The overview: the page's opening (before its first heading) and the
+         list of its sections. The sections' own words are the chunks below. */
+      content: page.sections.length
+        ? block(
+            page.text.slice(0, 1800),
+            para("Sections", page.sections.map((s) => s.heading)),
+          )
+        : page.text.slice(0, 6000),
+      keywords: [title, page.description, ...page.sections.map((s) => s.heading)],
       relatedProducts: [],
       relatedResearch: [],
+      topics: ["privacy", "governance", "trust"],
     });
+
+    for (const section of page.sections) {
+      const anchor = slugify(section.heading);
+      const parts = splitParagraphs(section.text.split(/(?<=[.!?])\s+(?=[A-Z])/), CHUNK_CHARS);
+      parts.forEach((text, index) => {
+        const suffix = index === 0 ? "" : `-${index + 1}`;
+        docs.push({
+          id: `${parentId}#${anchor}${suffix}`,
+          type: "page",
+          title,
+          sectionTitle: section.heading,
+          slug: url.split("/").pop(),
+          url: route(url),
+          family: "platform",
+          category: "Policy page",
+          summary: lead(text),
+          content: block(
+            para("Page", title),
+            para("Section", `${section.heading}${parts.length > 1 ? ` (part ${index + 1} of ${parts.length})` : ""}`),
+            text,
+          ),
+          keywords: [title, section.heading],
+          relatedProducts: [],
+          relatedResearch: [],
+          parentId,
+          topics: ["privacy", "governance", "trust"],
+        });
+      });
+    }
   }
 
   // ── NAVIGATION / DESTINATION ROUTES ──────────────────────────────────────
@@ -955,24 +1596,105 @@ async function main() {
       title: "Publications",
       category: "Research & IP",
       summary: `${publications.papers.length} peer-reviewed papers and one granted patent.`,
-      content: para(
-        "Records",
-        publications.allPublications.map((p) => `${p.title} (${p.venue}, ${p.year})`),
+      content: block(
+        para(
+          "Records",
+          publications.allPublications.map((p) => `${p.title} (${p.venue}, ${p.year})`),
+        ),
+        para(
+          "Authors named on this page",
+          [...new Set(publications.allPublications.flatMap((p) => p.authors))],
+        ),
       ),
       keywords: ["publications", "papers", "patent", "journal", "citations", "where are your papers"],
-      relatedEntityIds: founderRelated(publications.allPublications),
+      relatedEntityIds: authorEntities(publications.allPublications),
+    },
+    {
+      url: "/research/evidence",
+      title: "Full evidence record",
+      category: "Research & IP",
+      summary: `Every paper mapped to every capability: ${publications.papers.length} peer-reviewed papers and the granted patent, each mapped to the capabilities it informs and the modules built on them.`,
+      content: block(
+        "The full evidence record behind GaitAI, filterable by year and record type. Every mapping comes from the research areas; a record grounds a capability and is never, by itself, a validation of a module.",
+        para(
+          "Research areas and their records",
+          evidence.researchAreas.map(
+            (a) => `${a.title}: ${a.publications.map((p) => `${p.title} (${p.year})`).join("; ")}`,
+          ),
+        ),
+      ),
+      keywords: ["evidence", "evidence record", "full record", "papers mapped", "research areas", "capabilities"],
+      relatedEntityIds: [FOUNDER_ID],
     },
     {
       url: "/insights",
-      title: "The GaitAI Journal",
+      title: "GaitAI Insights",
       category: "Journal",
-      summary: "Long-form essays on movement intelligence. The route is /insights.",
-      content: para(
-        "Articles",
-        insights.insightArticles.map((a) => `${a.title} — ${a.deck}`),
+      summary: `The GaitAI blog: ${insights.insightArticles.length} long-form articles on movement intelligence, newest first. The route is /insights.`,
+      content: block(
+        "GaitAI Insights is the site's blog and editorial record — technical articles, research notes and updates on how movement becomes measurable, interpretable signal. Ordered newest first.",
+        para(
+          "Articles, newest first",
+          [...insights.insightArticles]
+            .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+            .map((a) => `${a.title} (${a.date}) — ${a.deck}`),
+        ),
+        para(
+          "Topics",
+          [...new Set(insights.insightArticles.flatMap((a) => a.topics))].map(topicLabel),
+        ),
       ),
-      keywords: ["journal", "insights", "articles", "blog", "essays", "reading"],
+      keywords: ["gaitai insights", "insights", "journal", "articles", "blog", "essays", "reading", "latest", "recent", "new", "posts"],
     },
+    {
+      url: "/insights/topics",
+      title: "Insights topics",
+      category: "Journal",
+      summary: "The subjects GaitAI writes about, each with its own topic page.",
+      content: para(
+        "Topics",
+        [...new Set(insights.insightArticles.flatMap((a) => a.topics))].map(
+          (topic) =>
+            `${topicLabel(topic)} (/insights/topic/${topic}/) — ${
+              insightTopics.INSIGHT_TOPIC_CONFIG[topic]?.description ?? ""
+            }`,
+        ),
+      ),
+      keywords: ["topics", "subjects", "what does gaitai write about", "insights topics"],
+    },
+    ...[...new Set(insights.insightArticles.flatMap((a) => a.topics))].map((topic) => ({
+      url: `/insights/topic/${topic}`,
+      title: `${topicLabel(topic)} — Insights topic`,
+      category: "Journal",
+      summary:
+        insightTopics.INSIGHT_TOPIC_CONFIG[topic]?.description ??
+        `GaitAI Insights articles filed under ${topicLabel(topic)}.`,
+      content: para(
+        `Articles filed under ${topicLabel(topic)}`,
+        insights.insightArticles
+          .filter((a) => a.topics.includes(topic))
+          .map((a) => `${a.title} — ${a.deck}`),
+      ),
+      keywords: [topicLabel(topic), topic, "topic", "insights"],
+    })),
+    ...comparisons.productComparisons.map((comparison) => {
+      const [a, b] = comparison.pair.map((id) => productById.get(id)).filter(Boolean);
+      return {
+        id: `comparison:${comparison.id}`,
+        url: comparisons.comparisonHref(comparison),
+        title: `${a?.short ?? comparison.pair[0]} vs ${b?.short ?? comparison.pair[1]}`,
+        category: "Comparison",
+        summary: comparison.question,
+        content: block(
+          para("The question this comparison answers", comparison.question),
+          a && para(a.short, `${a.label}. ${a.description}`),
+          b && para(b.short, `${b.label}. ${b.description}`),
+          "The comparison table on /products reads both modules' records live: inputs, outputs, capabilities, environments and research. Nothing about either module is restated here.",
+        ),
+        keywords: ["compare", "comparison", "difference", "versus", "vs", a?.short, b?.short],
+        relatedProducts: comparison.pair,
+      };
+    }),
     {
       url: "/gaitscape",
       title: "GaitScape",
@@ -1169,18 +1891,21 @@ async function main() {
   ];
 
   for (const page of nav) {
+    /* A comparison lives at /products/?compare=a,b#compare: the record id is
+       the path plus query so two comparisons never share an id. */
+    const idPath = page.url.replace(/\?.*$/, "");
     docs.push({
-      id: `page:${page.url}`,
+      id: page.id ?? `page:${idPath}`,
       type: "page",
       title: page.title,
-      slug: page.url.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "home",
-      url: page.url === "/#contact" ? "/#contact" : route(page.url),
+      slug: (page.id ?? idPath).replace(/^[a-z-]+:/, "").replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "") || "home",
+      url: page.url === "/#contact" ? "/#contact" : page.url.includes("?") ? page.url : route(page.url),
       family: "platform",
       category: page.category,
       summary: page.summary,
       content: page.content,
       keywords: page.keywords,
-      relatedProducts: [],
+      relatedProducts: page.relatedProducts ?? [],
       relatedResearch: [],
       ...(page.entityId ? { entityId: page.entityId } : {}),
       ...(page.aliases ? { aliases: page.aliases } : {}),
@@ -1211,6 +1936,25 @@ async function main() {
     if (doc.relatedEntityIds && doc.relatedEntityIds.length === 0) {
       delete doc.relatedEntityIds;
     }
+    /* Chunk metadata: serialised only where it says something. Topics keep
+       their case (they are shown, not only matched). */
+    if (doc.topics) {
+      doc.topics = Array.from(new Set(doc.topics.filter(Boolean).map(clean).filter(Boolean)));
+      if (!doc.topics.length) delete doc.topics;
+    }
+    if (doc.sectionTitle !== undefined) {
+      doc.sectionTitle = clean(doc.sectionTitle);
+      if (!doc.sectionTitle) delete doc.sectionTitle;
+    }
+    if (doc.date !== undefined) {
+      doc.date = clean(doc.date);
+      if (!/^\d{4}(-\d{2}(-\d{2})?)?$/.test(doc.date)) delete doc.date;
+    }
+    if (doc.parentId === undefined) delete doc.parentId;
+    /* Chunk ids must survive the Worker's id validator: [a-z-]+:[A-Za-z0-9/#._-]+ */
+    if (!/^[a-z-]+:[A-Za-z0-9/#._-]+$/.test(doc.id) || doc.id.length > 120) {
+      throw new Error(`record id is not a valid canonical id: ${doc.id}`);
+    }
   }
 
   const entityIds = new Set(docs.filter((d) => d.entityId).map((d) => d.entityId));
@@ -1226,6 +1970,11 @@ async function main() {
   for (const doc of docs) {
     if (ids.has(doc.id)) throw new Error(`duplicate knowledge id: ${doc.id}`);
     ids.add(doc.id);
+  }
+  for (const doc of docs) {
+    if (doc.parentId && !ids.has(doc.parentId)) {
+      throw new Error(`${doc.id} points at unknown parent "${doc.parentId}"`);
+    }
   }
 
   const payload = {
@@ -1256,8 +2005,13 @@ async function main() {
         "/use-cases/",
         "/research/",
         "/research/evidence/",
+        "/research/talks/",
         "/publications/",
         "/insights/",
+        "/insights/archive/",
+        "/insights/start-here/",
+        "/insights/topics/",
+        "/labs/",
         "/gaitscape/",
         "/movement-lab/",
         "/mobilitycare/",

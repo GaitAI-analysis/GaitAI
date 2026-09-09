@@ -88,9 +88,14 @@ interface IndexedDoc {
 /** Field weights: a hit in a title means far more than a hit in body prose. */
 const FIELD_WEIGHT = {
   title: 12,
+  /* A chunk's section heading is what that chunk is ABOUT — nearly a title,
+     kept just under it so the parent record (title only) still leads on a
+     question that names only the page. */
+  sectionTitle: 9,
   keywords: 5,
   summary: 3,
   category: 3,
+  topics: 2,
   content: 1,
 } as const;
 
@@ -137,9 +142,11 @@ function index(): Index {
   const docs: IndexedDoc[] = knowledge().docs.map((doc) => {
     const terms = new Map<string, number>();
     addTerms(terms, doc.title, FIELD_WEIGHT.title);
+    if (doc.sectionTitle) addTerms(terms, doc.sectionTitle, FIELD_WEIGHT.sectionTitle);
     addTerms(terms, doc.keywords.join(" "), FIELD_WEIGHT.keywords);
     addTerms(terms, doc.summary, FIELD_WEIGHT.summary);
     addTerms(terms, doc.category, FIELD_WEIGHT.category);
+    if (doc.topics?.length) addTerms(terms, doc.topics.join(" "), FIELD_WEIGHT.topics);
     addTerms(terms, doc.content, FIELD_WEIGHT.content);
 
     let mass = 0;
@@ -151,7 +158,7 @@ function index(): Index {
       length: Math.max(mass, 1),
       titleLower: doc.title.toLowerCase(),
       titleTerms: tokenize(doc.title),
-      haystack: `${doc.title} ${doc.keywords.join(" ")} ${doc.summary}`.toLowerCase(),
+      haystack: `${doc.title} ${doc.sectionTitle ?? ""} ${doc.keywords.join(" ")} ${doc.summary}`.toLowerCase(),
     };
   });
 
@@ -288,6 +295,7 @@ const INTENT_TYPE_BOOST: Record<Intent, Partial<Record<DocType, number>>> = {
     person: 10,
     publication: 0.5,
     research: 0.5,
+    talk: 0.5,
     policy: -6,
     deployment: -6,
     page: -3,
@@ -297,20 +305,44 @@ const INTENT_TYPE_BOOST: Record<Intent, Partial<Record<DocType, number>>> = {
     signal: -3,
     insight: -2,
   },
-  PRODUCT: { product: 2, page: 0.5 },
-  CAPABILITY: { capability: 2, signal: 2, product: 0.5 },
-  RESEARCH: { research: 2, publication: 1.2, person: 0.5, page: -2 },
-  PUBLICATION: { publication: 2, research: 1.2, person: 0.5, page: -2 },
-  USE_CASE: { "use-case": 2, product: 1 },
+  /* A talk record is the founder's academic speaking record. It answers
+     person and research questions; it must not answer "does GaitAI diagnose
+     Parkinson's" because a conference title shares the word. */
+  PRODUCT: { product: 2, page: 0.5, talk: -3 },
+  CAPABILITY: { capability: 2, signal: 2, product: 0.5, talk: -2 },
+  RESEARCH: { research: 2, publication: 1.2, person: -1, talk: 0.5, page: -2 },
+  /* "What publications does GaitAI have?" is answered by the publications
+     and their hub page — not by the eight author records that each list
+     them. A person named in the question still wins through the entity
+     boost. */
+  PUBLICATION: { publication: 2, research: 1.2, person: -2, page: -2 },
+  USE_CASE: { "use-case": 2, product: 1, talk: -3 },
   /* "how do you store my video" is about handling, not about a retail
-     STORE — a light penalty on modules and environments keeps the policy
-     and legal records ahead of a lexical coincidence. A module named in the
-     question still wins through its entity boost. */
-  PRIVACY: { policy: 2, deployment: 1.5, product: -1, "use-case": -1 },
-  SECURITY: { policy: 2, deployment: 1.5, product: -1, "use-case": -1 },
-  NAVIGATION: { page: 1.5 },
-  GENERAL: {},
+     STORE — a penalty on modules and environments keeps the policy and legal
+     records ahead of a lexical coincidence, and a light one on ordinary site
+     pages keeps the Movement Lab (which lists a "Privacy Lens" experiment)
+     from answering "what does GaitAI say about privacy". Governance pages
+     are lifted separately below. A module named in the question still wins
+     through its entity boost. */
+  PRIVACY: { policy: 3, deployment: 1.5, product: -3, "use-case": -2, page: -1.5, talk: -3 },
+  SECURITY: { policy: 3, deployment: 1.5, product: -3, "use-case": -2, page: -1.5, talk: -3 },
+  NAVIGATION: { page: 1.5, talk: -2 },
+  GENERAL: { talk: -2 },
 };
+
+/**
+ * How many chunks of ONE parent record may reach the model. A long essay is
+ * seven section records; without a cap, a question squarely about it fills
+ * every slot with that essay and loses the module or policy that should sit
+ * beside it. Two — the overview and the best section, or the two best
+ * sections — is what an answer actually uses.
+ */
+const MAX_PER_PARENT = 2;
+
+/** "latest", "recent", "new" — a question that wants dated records newest first. */
+const LATEST_HINTS = /\b(latest|recent|recently|newest|new|last|this (?:week|month|year)|just published)\b/i;
+/** A recency tilt for dated editorial records on such a question. */
+const LATEST_BOOST = 5;
 
 /** Legal and Trust routes are pages, but they answer privacy and security. */
 const GOVERNANCE_PAGE = /^\/(legal|trust)\//;
@@ -325,6 +357,7 @@ const PERSON_TYPE_RANK: Partial<Record<DocType, number>> = {
   research: 1,
   publication: 2,
   page: 3,
+  talk: 4,
 };
 
 /**
@@ -344,7 +377,7 @@ const RECOMMENDATION_HINTS =
 const RESEARCH_HINTS =
   /\b(paper|papers|publication|published|research|study|studies|patent|journal|doi|evidence|cite|citation|peer.?reviewed)\b/i;
 
-const READING_HINTS = /\b(article|read|journal|essay|insight|blog|story)\b/i;
+const READING_HINTS = /\b(articles?|read|reading|journal|essays?|insights?|blog|stories|story|posts?|published|publish)\b/i;
 
 const NAVIGATION_HINTS =
   /\b(where|find|show me|link|page|take me|navigate|go to|located)\b/i;
@@ -383,8 +416,19 @@ export function retrieveGaitAIContext(
   const wantsResearch = RESEARCH_HINTS.test(query);
   const wantsReading = READING_HINTS.test(query);
   const wantsNavigation = NAVIGATION_HINTS.test(query);
+  const wantsLatest = LATEST_HINTS.test(query);
 
   const ix = index();
+
+  /* Dated parent article records, newest first → rank. Built only when the
+     question asks for the latest; a handful of records, so it is cheap. */
+  const recencyRank = new Map<string, number>();
+  if (wantsLatest) {
+    ix.docs
+      .filter((entry) => entry.doc.type === "insight" && !entry.doc.parentId && entry.doc.date)
+      .sort((a, b) => String(b.doc.date).localeCompare(String(a.doc.date)))
+      .forEach((entry, rank) => recencyRank.set(entry.doc.id, rank));
+  }
 
   const pageDoc =
     ix.docs.find((entry) => entry.doc.url === page.pathname)?.doc ??
@@ -506,13 +550,24 @@ export function retrieveGaitAIContext(
       const isGovernancePage = entry.doc.type === "page" && GOVERNANCE_PAGE.test(entry.doc.url);
       let tilt = typeBoost[entry.doc.type] ?? 0;
       if (isGovernancePage) {
-        if (intent === "PRIVACY" || intent === "SECURITY") tilt = 1.5;
+        if (intent === "PRIVACY" || intent === "SECURITY") tilt = 2.5;
         else if (intent === "PERSON") tilt = typeBoost.policy ?? tilt;
       }
       /* A page that points at the person (Publications, Talks) is context
          for a person question, not a mismatch. */
       if (intent === "PERSON" && entity && entry.doc.relatedEntityIds?.includes(entity.entityId)) {
         tilt = Math.max(tilt, 0);
+      }
+      /* ANOTHER person is not the answer to "who is X". Every co-author
+         record names the founder, and the founder's names each co-author's
+         papers; the person tilt belongs to the record that IS the subject. */
+      if (
+        intent === "PERSON" &&
+        entry.doc.type === "person" &&
+        entity?.doc.type === "person" &&
+        entry.doc.entityId !== entity.entityId
+      ) {
+        tilt = -4;
       }
       if (tilt !== 0) {
         score += tilt;
@@ -544,6 +599,19 @@ export function retrieveGaitAIContext(
          environment and loses to whichever one happens to be wordier. */
       score += 5;
       reasons.push("title:covered");
+    } else if (!brandInPassing && entry.titleTerms.length >= 3) {
+      /* HALF A LONG TITLE. An article is titled in a sentence — "From
+         Walking Video to Movement Intelligence" — and a visitor asks with
+         half of it: "how does GaitAI use walking video", "what is movement
+         intelligence". Body prose alone cannot lift a 3 000-character essay
+         over a module that mentions the same two words; a proportional
+         title-coverage credit can, without touching one-word module titles. */
+      const matched = entry.titleTerms.filter((term) => queryTermSet.has(term)).length;
+      const coverage = matched / entry.titleTerms.length;
+      if (matched >= 2 && coverage >= 0.5) {
+        score += 4 * coverage;
+        reasons.push("title:partial");
+      }
     }
     if (entry.doc.slug.length > 4 && queryLower.includes(entry.doc.slug)) {
       /* Same reasoning as the title: a one-word slug that is also a common
@@ -564,6 +632,17 @@ export function retrieveGaitAIContext(
     if (wantsReading && entry.doc.type === "insight") {
       score += 1.2;
       reasons.push("intent:reading");
+    }
+    /* "What are the latest GaitAI Insights?" wants the articles, newest
+       first — not the home page and whatever module shares a word. The
+       PARENT article records (not their sections) are lifted, by recency
+       rank, so the answer can list them in order. */
+    if (wantsLatest && wantsReading && entry.doc.type === "insight" && !entry.doc.parentId) {
+      const rank = recencyRank.get(entry.doc.id);
+      if (rank !== undefined) {
+        score += LATEST_BOOST + Math.max(0, 3 - rank);
+        reasons.push("intent:latest");
+      }
     }
     /* Gated by the classifier: "show me research on privacy" trips the
        navigation regex on "show me" but is a research question, and the
@@ -655,6 +734,98 @@ export function retrieveGaitAIContext(
   let ranked = [...picked.values()].sort((a, b) => b.score - a.score);
 
   /*
+   * ── One parent, at most two records ──────────────────────────────────────
+   * A chunk and its parent share a `parentId` family; keep the best two of
+   * any family and let the next-best OTHER record take the freed slot. The
+   * candidates come from the full scored list, so the slot is refilled
+   * rather than left empty.
+   */
+  {
+    const perFamily = new Map<string, number>();
+    const family = (item: RetrievedDoc) => item.doc.parentId ?? item.doc.id;
+    const kept: RetrievedDoc[] = [];
+    const keptIds = new Set<string>();
+    const scoredById = new Map(scored.map((item) => [item.doc.id, item]));
+    /* A "which products / what should I use" question wants the modules
+       themselves, one slot each, competing on their OWN records — not a
+       module lifted by a section that mentions the input in passing
+       ("compatible CCTV where appropriate"), and not a module and its
+       deployment section twice over. Chunks are out of the running; their
+       parents answer on merit. */
+    const chunksAllowed = !wantsRecommendation;
+    let candidates = [...ranked, ...scored.filter((item) => !picked.has(item.doc.id))];
+    if (!chunksAllowed) {
+      /* The module's sections still count as EVIDENCE about the module —
+         a deployment section that says "CCTV" three times is why the module
+         is a CCTV module — so each parent inherits half of its best
+         section's score, and the parents are re-ranked on that. The section
+         itself does not take a slot. */
+      const bestChunk = new Map<string, number>();
+      for (const item of scored) {
+        if (!item.doc.parentId) continue;
+        bestChunk.set(item.doc.parentId, Math.max(bestChunk.get(item.doc.parentId) ?? 0, item.score));
+      }
+      const parents = new Map<string, RetrievedDoc>();
+      for (const item of candidates) {
+        if (item.doc.parentId) {
+          if (!parents.has(item.doc.parentId) && !scored.some((s) => s.doc.id === item.doc.parentId)) {
+            const parentDoc = docById().get(item.doc.parentId);
+            if (parentDoc) parents.set(parentDoc.id, { doc: parentDoc, score: 0, reason: "parent" });
+          }
+          continue;
+        }
+        parents.set(item.doc.id, item);
+      }
+      candidates = [...parents.values()]
+        .map((item) => {
+          const chunk = bestChunk.get(item.doc.id) ?? 0;
+          return chunk > 0
+            ? { ...item, score: item.score + chunk * 0.5, reason: `${item.reason}+sections` }
+            : item;
+        })
+        .sort((a, b) => b.score - a.score);
+    }
+    for (const item of candidates) {
+      if (kept.length >= MAX_DOCS) break;
+      if (keptIds.has(item.doc.id)) continue;
+      const key = family(item);
+      const count = perFamily.get(key) ?? 0;
+      if (count >= MAX_PER_PARENT) continue;
+
+      if (item.doc.parentId) {
+        const parentId = item.doc.parentId;
+        /* A SECTION TRAVELS WITH ITS PARENT. The chunk says what one passage
+           says; the parent says what the page IS — a module's identity and
+           route, an article's title and standfirst. The model needs both to
+           answer and to cite. The parent takes the slot first, at the chunk's
+           score, so the pair sits together; a second chunk of the same
+           family is then over the cap and yields to another record. */
+        if (!keptIds.has(parentId)) {
+          if (kept.length >= MAX_DOCS - 1) continue;
+          const parentDoc = docById().get(parentId);
+          if (!parentDoc) continue;
+          const parent = scoredById.get(parentId);
+          perFamily.set(key, count + 2);
+          keptIds.add(parentId);
+          keptIds.add(item.doc.id);
+          kept.push({
+            doc: parentDoc,
+            score: Math.max(parent?.score ?? 0, item.score),
+            reason: parent ? `${parent.reason}+parent` : "parent",
+          });
+          kept.push(item);
+          continue;
+        }
+      }
+
+      perFamily.set(key, count + 1);
+      keptIds.add(item.doc.id);
+      kept.push(item);
+    }
+    ranked = kept;
+  }
+
+  /*
    * ── Person questions are assembled, not just sorted ──────────────────────
    * When the question is about a person we index, the answering layer wants
    * the person record first and then the records that point back at them —
@@ -663,9 +834,14 @@ export function retrieveGaitAIContext(
    * Everything shown still has to have scored; this only orders and fills.
    */
   if (personEntity) {
+    /* Records ABOUT the person: research, papers, pages, talks. Not other
+       people — a co-author record points at the founder, and the founder's
+       at each co-author, but "who is Anubha" is not answered by listing
+       everyone she has written with. */
     const related = scored.filter(
       (item) =>
         item.doc.id !== personEntity.doc.id &&
+        item.doc.type !== "person" &&
         item.doc.relatedEntityIds?.includes(personEntity.entityId),
     );
     const person = scored.find((item) => item.doc.id === personEntity.doc.id) ?? {
@@ -703,7 +879,13 @@ export function retrieveGaitAIContext(
    * plus the +3.5 page bonus already puts it first on merit.
    */
   let docs = ranked.slice(0, MAX_DOCS);
-  if (pageDoc && !docs.some((item) => item.doc.id === pageDoc.id)) {
+  /* The HOME record is the one page that is not "this": a visitor on "/"
+     asking "which products work with CCTV" is not asking about the home
+     page, and reserving a slot for it there cost the seventh CCTV module its
+     place on every question asked from the front door. The home record
+     still competes on score — "what is GaitAI" puts it first on merit. */
+  const reserveSlot = pageDoc !== null && pageDoc.id !== "page:/";
+  if (reserveSlot && pageDoc && !docs.some((item) => item.doc.id === pageDoc.id)) {
     docs = [
       ...docs.slice(0, MAX_DOCS - 1),
       picked.get(pageDoc.id) ?? { doc: pageDoc, score: 0, reason: "page:reserved" },
@@ -718,19 +900,27 @@ export function retrieveGaitAIContext(
 /** Per-record character budget. Seven records at this size is roughly 3k
  *  tokens of context — enough to answer well, small enough to stay cheap. */
 const PER_DOC_CHARS = 1500;
+/**
+ * The LEAD record — the one retrieval ranked first — answers the question, so
+ * it gets more room: a person record's provenance and "not documented" lines,
+ * a module's overview and outputs, all reach the model whole. Mirrored by
+ * worker/scripts/build-corpus.mjs, which trims the Worker's copy to this.
+ */
+export const LEAD_DOC_CHARS = 2600;
 
 const TYPE_LABEL: Record<string, string> = {
   product: "GaitAI product module",
   "use-case": "Deployment environment",
   publication: "Publication record",
   research: "Research area",
-  insight: "Blog article",
+  insight: "GaitAI Insights article",
   capability: "AI capability",
   signal: "Movement signal",
   deployment: "Deployment information",
   policy: "Policy and governance",
   page: "Site page",
   person: "Person record",
+  talk: "Talk or presentation record",
 };
 
 /**
@@ -746,15 +936,16 @@ export function buildContextBlock(result: Pick<RetrievalResult, "docs">): string
   return result.docs
     .map((item, index) => {
       const { doc } = item;
+      const budget = index === 0 ? LEAD_DOC_CHARS : PER_DOC_CHARS;
       const body =
-        doc.content.length > PER_DOC_CHARS
-          ? `${doc.content.slice(0, PER_DOC_CHARS)}…`
-          : doc.content;
+        doc.content.length > budget ? `${doc.content.slice(0, budget)}…` : doc.content;
       return [
         `<record index="${index + 1}" type="${TYPE_LABEL[doc.type] ?? doc.type}">`,
         `Title: ${doc.title}`,
+        doc.sectionTitle ? `Section: ${doc.sectionTitle}` : "",
         `Link: ${doc.url}`,
         doc.family && doc.family !== "platform" ? `Family: ${doc.family}` : "",
+        doc.date ? `Date: ${doc.date}` : "",
         `Summary: ${doc.summary}`,
         body,
         `</record>`,

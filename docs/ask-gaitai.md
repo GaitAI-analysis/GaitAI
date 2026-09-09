@@ -9,10 +9,10 @@ exist, and it inherits the site's evidence discipline: no invented accuracy
 figures, no clinical validation claims, no diagnosis, no certification status.
 
 **Nothing to download, nothing to prepare.** A visitor opens the panel and asks.
-Retrieval runs in their browser over a 319 KB corpus; the prose, when a hosted
-endpoint is configured, is written by a hosted model behind a Cloudflare
-Worker. It works on a phone, on Safari, on a low-end laptop, and on any browser
-without WebGPU.
+Retrieval runs in their browser over a ~600 KB corpus of 331 records covering
+the whole public site; the prose, when a hosted endpoint is configured, is
+written by a hosted model behind a Cloudflare Worker. It works on a phone, on
+Safari, on a low-end laptop, and on any browser without WebGPU.
 
 **Hosted inference provider: Cloudflare Workers AI**, reached through the
 Worker's own `AI` binding on the Workers Free plan. There is no external model
@@ -309,8 +309,9 @@ text, route, user agent or anything else is stored anywhere.
 | Name | Kind | Set with |
 |---|---|---|
 | `AI` | Workers AI binding | `"ai": { "binding": "AI" }` in `wrangler.jsonc`. Not a secret: the binding is the Worker's own environment |
-| `WORKERS_AI_MODEL` | non-secret var | `wrangler.jsonc` — **deliberately empty** until the benchmark has run |
-| `MODEL_REASONING_EFFORT` | non-secret var | `wrangler.jsonc` — `""`, `low`, `medium` or `high`; production `low`. Sent as `reasoning_effort` only when set; anything else falls back to `""` (model default) |
+| `WORKERS_AI_MODEL` | non-secret var | `wrangler.jsonc` — `@cf/meta/llama-3.2-3b-instruct`, verified end to end on 2026-09-09. Read only by `src/provider.ts`, the one seam where provider and model are decided; a second provider (a self-hosted primary with Workers AI as fallback) is added there and nowhere else |
+| `MODEL_REASONING_EFFORT` | non-secret var | `wrangler.jsonc` — `""`, `low`, `medium` or `high`; production `""` (Llama 3.2 is not a reasoning model). Sent as `reasoning_effort` only when set; anything else falls back to `""` (model default) |
+| `ASK_DEBUG` | local var | `.dev.vars` only — `1` prints the per-question debug block to the `wrangler dev` console. Never defined in `wrangler.jsonc` |
 | `MODEL_MAX_OUTPUT_TOKENS`, `MODEL_TIMEOUT_MS` | non-secret vars | `wrangler.jsonc` — output ceiling stays 450 while `low` is evaluated |
 | `ALLOWED_ORIGINS` | non-secret var | `wrangler.jsonc`; overridden by `.dev.vars` locally |
 | `ASK_BURST_MAX`, `ASK_HOURLY_MAX`, `ASK_DAILY_BUDGET` | non-secret vars | `wrangler.jsonc` |
@@ -397,12 +398,60 @@ npm run build:knowledge
 It reads the site's canonical modules through `tsx` — `products.ts`,
 `product-details*.ts`, `usecase-details.ts`, `usecase-facets.ts`,
 `publications.ts`, `evidence.ts`, `evidence-status.ts`, `insights.ts`,
-`gaitscape/graph.ts`, `taxonomy.ts`, `trust.ts`, `responsible-use.ts`,
-`sample-outputs.ts`, `content.ts`, `talks.ts` — plus the prose of the `/legal`
-routes and the Trust Center, read out of the pages themselves. 120 records
-including one canonical `person` record for the founder. The script runs in
-`predev` and `prebuild`; the Worker's `build-corpus.mjs` derives its compact
-copy from the same file before every Worker build.
+`insight-topics.ts`, `comparisons.ts`, `gaitscape/graph.ts`, `taxonomy.ts`,
+`trust.ts`, `responsible-use.ts`, `sample-outputs.ts`, `content.ts`,
+`talks.ts`, `labs.ts`, `experiments.ts` — plus the prose of the `/legal` routes
+and the Trust Center, read out of the pages themselves, and the Firestore
+mirror `data/posts.json` (verified newsroom posts only). The script runs in
+`predev` and `prebuild`, after `sync-posts.mjs`; the Worker's
+`build-corpus.mjs` derives its compact copy from the same file before every
+Worker build. **Nothing is edited by hand: a new article in `insights.ts`, a
+new paper, a new module, a new environment or a newly verified post enters the
+corpus with the next build.**
+
+### Coverage (331 records, 82 routes, 2026-09-09)
+
+| type | records | what |
+|---|---|---|
+| `product` | 115 | 23 modules, each a parent + 4 facet sections (how it works · deployment · limits & privacy · signals, research & evidence) |
+| `use-case` | 34 | 17 environments, each a parent + a deployment / responsible-use section |
+| `insight` | 41 | 5 GaitAI Insights articles, each a parent + one record per section (plus verified newsroom posts, chunked by heading) |
+| `page` | 61 | home, Products, MobilityCare, SecureVision, Use Cases, Research, full evidence record, Talks, Publications, Insights hub, topics and per-topic pages, GaitScape, Movement Intelligence Lab, GaitAI Labs, Gait Dataset, Gait Biometrics Lab, Start here, Archive, Investors, Contact, 4 product comparisons, Trust Center and the 4 `/legal` pages — legal/Trust pages as a parent + one record per `<h2>` section |
+| `talk` | 21 | every documented appearance in `talks.ts` |
+| `capability` / `signal` | 13 / 14 | GaitScape nodes |
+| `publication` | 9 | 8 papers + the patent |
+| `person` | 8 | the founder + 7 co-authors named on the Publications page |
+| `research` | 4 | research areas |
+| `deployment` / `policy` | 9 / 2 | Trust Center FAQ, deployment process, privacy controls, responsible use |
+
+**What is excluded**, by construction: `/admin-controlpanel`, navigation and
+footer, cookie UI, configuration and secrets, source code, build metadata,
+draft posts, decorative labels. The generator refuses any record id the
+Worker's validator would not accept.
+
+### Semantic chunks
+
+A long page is a **parent** record (title, standfirst, topics, section list)
+plus one **child** record per section, with `sectionTitle`, `parentId`, a
+deep-link `url` (`/insights/<slug>/#<section-id>`) and a stable id derived from
+the section's own anchor or heading (`insight:<slug>#<section-id>`,
+`page:/legal/privacy#<heading-slug>`, `product:walkscan#how-it-works`). A
+section longer than the record budget is split on paragraph boundaries into
+`#id`, `#id-2`, …. Retrieval indexes `sectionTitle` almost as heavily as a
+title, lets at most **two records of one family** reach the model (the parent
+travels with its best section), and gives the lead record a 2 600-character
+budget (others 1 500) so the record that answers arrives whole.
+
+### People
+
+Every person the public site names has one canonical `person` record and is
+resolvable by first name, full name or "Dr." form: the founder (assembled from
+`publications.ts`, `talks.ts` and the Publications page) and each co-author
+(`Apoorva Parashar`, `Imad Rida`, `Rajveer Singh Shekhawat` — two spellings on
+the page, one record — and the others). A co-author record documents
+**co-authorship and nothing else**, and says so. A surname shared by two people
+("Parashar") resolves nobody on its own; "who is Apoorva" and "who is Anubha"
+each resolve to their own record and never offer the other.
 
 ### Freshness: the corpus URL is versioned
 
@@ -449,13 +498,38 @@ or deployment record ahead of it.
 ## 7. Testing
 
 ```bash
-npm run ask:test              # 25 questions — retrieval, grounding, refusal, no fabricated numbers
-npm run ask:rank              # 34 ranking / intent cases
+npm run ask:test              # 40 questions — retrieval, grounding, refusal, no fabricated numbers
+npm run ask:rank              # 46 ranking / intent cases
 npm run ask:probe             # 15 regression questions, person record first
 npm run verify                # typecheck + lint + validate:gaitai + ask:test + ask:rank (CI)
-npm run worker:test           # the Worker's 42 tests, AI binding mocked (CI)
+npm run worker:test           # the Worker's 101 tests, AI binding mocked (CI)
 npm run worker:check          # wrangler deploy --dry-run
+npm run ask:e2e               # THE REAL PATH: corpus → retrieval → Worker → Workers AI (spends allocation)
 ```
+
+**`worker/test/rag.test.ts`** runs the RAG acceptance set — *Who is Anubha
+Parashar? · Who is Anubha? · Who is Apoorva Parashar? · Who is Apoorva? · What
+is GaitAI? · What is MobilityCare? · What is SecureVision? · What is GaitScape?
+· What does GaitAI research? · What publications does GaitAI have? · What
+happens in the Biometrics Lab? · What is movement intelligence? · How does
+GaitAI use walking video? · What does GaitAI say about privacy? · What are the
+latest GaitAI Insights?* — through the whole chain inside workerd with the model
+mocked: the browser's retrieval selects ids, the Worker resolves them against
+its canonical corpus, and the suite asserts the records the mocked model was
+handed (titles, routes, question last), the canonical deduplicated sources
+returned, that injected "evidence" never reaches the model, and that the policy
+the model reads forbids inventing customers for *Which Fortune 500 companies
+use GaitAI?*.
+
+**`npm run ask:e2e`** (`scripts/ask-e2e.ts`) is the manual proof against the
+REAL model: it loads the generated corpus, runs the browser's retrieval, POSTs
+the selected ids to a `wrangler dev` Worker (starting one if none is running),
+and prints the retrieved ids with scores, the ids the Worker grounded on, the
+answer, and the sources. Every call is a real Workers AI inference. With
+`ASK_DEBUG=1` in `worker/.dev.vars` the Worker prints its own block per
+question — question, selected and resolved ids, provider, model, status,
+latency — to the same console. `ASK_DEBUG` is never set in `wrangler.jsonc`, so
+production logs stay structural.
 
 The Worker suite runs in workerd with `remoteBindings: false`, so the pool
 starts without a Cloudflare session, and every path that reaches the model

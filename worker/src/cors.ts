@@ -26,6 +26,9 @@ export function corsHeaders(origin: string): Record<string, string> {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
+    /* Without this a browser cannot READ Retry-After on a 429/503, and the
+       client's "give it a moment — about a minute" wording has no number. */
+    "Access-Control-Expose-Headers": "Retry-After",
     "Access-Control-Max-Age": "3600",
     Vary: "Origin",
   };

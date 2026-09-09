@@ -23,7 +23,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { HISTORY_TURNS, MAX_MESSAGE_LENGTH } from "./config";
-import { ASSISTANT_BUILD, loadRuntimeConfig } from "@/lib/ask/runtime-config";
+import { ASSISTANT_BUILD, loadRuntimeConfig, runtimeConfig } from "@/lib/ask/runtime-config";
 import { ask as askEngine, warmCorpus } from "@/lib/ask/engine";
 import type { PageContext } from "./page-context";
 
@@ -72,6 +72,10 @@ interface StoredThread {
   turns: Turn[];
 }
 
+/** The configuration this tab is running under: the server's build id once
+ *  read, the bundle's until then. */
+const currentBuild = () => runtimeConfig()?.build || ASSISTANT_BUILD;
+
 function readStored(): Turn[] {
   if (typeof window === "undefined") return [];
   try {
@@ -83,7 +87,7 @@ function readStored(): Turn[] {
       return [];
     }
     const stored = parsed as Partial<StoredThread>;
-    if (stored.build !== ASSISTANT_BUILD || !Array.isArray(stored.turns)) {
+    if (stored.build !== currentBuild() || !Array.isArray(stored.turns)) {
       window.sessionStorage.removeItem(STORAGE_KEY);
       return [];
     }
@@ -95,7 +99,7 @@ function readStored(): Turn[] {
 
 function persist(turns: Turn[]) {
   try {
-    const stored: StoredThread = { build: ASSISTANT_BUILD, turns: turns.slice(-HISTORY_TURNS) };
+    const stored: StoredThread = { build: currentBuild(), turns: turns.slice(-HISTORY_TURNS) };
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
   } catch {
     /* Private mode, or storage full. The thread still works in memory. */
@@ -124,9 +128,20 @@ export function useAssistant(page: PageContext): AssistantState {
     setTurns(readStored());
     /* Learn the CURRENT hosted configuration before the first question, so a
        bundle loaded before a deploy does not answer from records for want of
-       an endpoint it was never told about. */
-    void loadRuntimeConfig();
-    return () => abortRef.current?.abort();
+       an endpoint it was never told about. If the server's build differs from
+       the one the stored thread was written under, that thread belongs to
+       another configuration: it is dropped once, and the thread from here on
+       is keyed to the current build. */
+    let live = true;
+    void loadRuntimeConfig().then(() => {
+      if (!live) return;
+      const restored = readStored();
+      setTurns((previous) => (restored.length === 0 && previous.length > 0 ? [] : previous));
+    });
+    return () => {
+      live = false;
+      abortRef.current?.abort();
+    };
   }, []);
 
   const finish = useCallback((updater: (previous: Turn[]) => Turn[]) => {

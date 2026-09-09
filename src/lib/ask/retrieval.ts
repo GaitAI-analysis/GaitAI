@@ -234,6 +234,12 @@ export interface RetrievalResult {
    * retrieval or to ranking.
    */
   lexicalTop: { id: string; score: number }[];
+  /**
+   * The twenty best records after every boost, before the seven-record cut —
+   * the lexical half of the hybrid merge (semantic.ts). `docs` is what the
+   * browser's own answer uses; `candidates` is what the Worker merges.
+   */
+  candidates: RetrievedDoc[];
   /** The named entity the question is about, when it names one we index. */
   entity: EntityMatch | null;
   /**
@@ -1002,7 +1008,14 @@ export function retrieveGaitAIContext(
   }
 
   const lexicalTop = lexical.sort((a, b) => b.score - a.score).slice(0, 10);
-  return { docs, pageDoc, lowConfidence, page, intent, understanding, lexicalTop, entity, entityMiss, application };
+  /* The wider candidate list for the hybrid merge: the final seven first (they
+     carry the assembly rules), then the next-best scored records. */
+  const candidateIds = new Set(docs.map((item) => item.doc.id));
+  const candidates: RetrievedDoc[] = [
+    ...docs,
+    ...scored.filter((item) => !candidateIds.has(item.doc.id)).slice(0, Math.max(0, 20 - docs.length)),
+  ];
+  return { docs, pageDoc, lowConfidence, page, intent, understanding, lexicalTop, candidates, entity, entityMiss, application };
 }
 
 // ── Context assembly ────────────────────────────────────────────────────────

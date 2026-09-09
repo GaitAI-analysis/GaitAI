@@ -355,6 +355,82 @@ export function extractText(
   };
 }
 
+// ── Embeddings and reranking ─────────────────────────────────────────────────
+// The two other Workers AI tasks the retrieval pipeline uses. Same binding,
+// same error classification, no text ever logged. Input shapes as Cloudflare
+// documents them (worker-configuration.d.ts): the embedding model takes
+// `{ text: string[], pooling }` and answers `{ data: number[][] }`; the
+// reranker takes `{ query, contexts: [{ text }], top_k }` and answers
+// `{ response: [{ id, score }] }` where `id` is the context's index.
+
+/** Embed up to 100 texts. Returns one vector per text, in order. */
+export async function embedTexts(options: {
+  ai: AiRunner;
+  model: string;
+  texts: string[];
+  pooling?: "cls" | "mean";
+  timeoutMs?: number;
+}): Promise<number[][]> {
+  const { ai, model, texts, pooling, timeoutMs = 15_000 } = options;
+  if (!texts.length) return [];
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new WorkersAiError("timeout")), timeoutMs);
+  });
+  let result: unknown;
+  try {
+    result = await Promise.race([ai.run(model, pooling ? { text: texts, pooling } : { text: texts }), deadline]);
+  } catch (error) {
+    throw classifyError(error);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+  const data = (result as { data?: unknown })?.data;
+  if (!Array.isArray(data) || data.length !== texts.length || !data.every((row) => Array.isArray(row) && row.every((v) => typeof v === "number"))) {
+    throw new WorkersAiError("malformed", undefined, describeResult(result, { model, elapsedMs: 0 }));
+  }
+  return data as number[][];
+}
+
+/** Score each document against the query. Returns one score per document, in order. */
+export async function rerankDocuments(options: {
+  ai: AiRunner;
+  model: string;
+  query: string;
+  documents: string[];
+  timeoutMs?: number;
+}): Promise<number[]> {
+  const { ai, model, query, documents, timeoutMs = 15_000 } = options;
+  if (!documents.length) return [];
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new WorkersAiError("timeout")), timeoutMs);
+  });
+  let result: unknown;
+  try {
+    result = await Promise.race([
+      ai.run(model, { query, contexts: documents.map((text) => ({ text })), top_k: documents.length }),
+      deadline,
+    ]);
+  } catch (error) {
+    throw classifyError(error);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
+  const response = (result as { response?: unknown })?.response;
+  if (!Array.isArray(response)) throw new WorkersAiError("malformed", undefined, describeResult(result, { model, elapsedMs: 0 }));
+  const scores = new Array<number>(documents.length).fill(Number.NEGATIVE_INFINITY);
+  for (const item of response as { id?: unknown; score?: unknown }[]) {
+    if (typeof item?.id === "number" && typeof item.score === "number" && item.id >= 0 && item.id < documents.length) {
+      scores[item.id] = item.score;
+    }
+  }
+  if (scores.some((score) => !Number.isFinite(score))) {
+    throw new WorkersAiError("malformed", undefined, describeResult(result, { model, elapsedMs: 0 }));
+  }
+  return scores;
+}
+
 export async function generate(options: {
   ai: AiRunner;
   model: string;

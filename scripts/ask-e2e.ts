@@ -29,6 +29,7 @@ import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import path from "node:path";
 import { loadCorpusFromDisk } from "./ask/corpus-node";
 import { retrieveGaitAIContext } from "../src/lib/ask/retrieval";
+import { composeExtractiveAnswer } from "../src/lib/ask/extractive";
 
 const ROOT = path.join(import.meta.dirname, "..");
 const WORKER_DIR = path.join(ROOT, "worker");
@@ -151,16 +152,24 @@ async function askOne(question: string): Promise<boolean> {
   const retrieval = retrieveGaitAIContext(question, pathname);
   const selectedRecordIds = retrieval.docs.map((item) => item.doc.id);
 
+  const u = retrieval.understanding;
   console.log("─".repeat(78));
   console.log(`Q: ${question}`);
-  console.log(`   intent ${retrieval.intent}${retrieval.entity ? ` · entity ${retrieval.entity.entityId}` : ""}${retrieval.lowConfidence ? " · LOW CONFIDENCE" : ""}`);
-  console.log("   retrieved (browser-side, deterministic):");
+  console.log(`   understood as: ${u.normalized}`);
+  if (u.text !== u.original) console.log(`   resolved text: ${u.text}`);
+  console.log(
+    `   intent ${retrieval.intent} (${u.confidence})${u.domain ? ` · domain "${u.domain.subject}" (${u.askType})` : ""} · entity ${u.entity.title} [${u.entity.via}]${u.pronoun ? ` · "${u.pronoun}" resolved` : ""}${u.continuation ? " · follow-up" : ""}${u.elliptical ? " · elliptical" : ""}${retrieval.lowConfidence ? " · LOW CONFIDENCE" : ""}`,
+  );
+  console.log("   lexical top 10 (before intent, entity and domain ranking):");
+  for (const item of retrieval.lexicalTop) console.log(`     ${item.score.toFixed(2).padStart(6)}  ${item.id}`);
+  console.log("   retrieved (browser-side, after ranking):");
   for (const item of retrieval.docs) {
     console.log(`     ${item.score.toFixed(2).padStart(6)}  ${item.doc.id}${item.doc.sectionTitle ? ` › ${item.doc.sectionTitle}` : ""}`);
   }
 
   if (retrieval.lowConfidence) {
-    console.log("   → the browser refuses locally (low confidence); no Worker call is made for this question.");
+    console.log("   → rendered: EXTRACTIVE (low confidence — the browser answers locally; no Worker call is made):");
+    console.log(composeExtractiveAnswer(retrieval).split("\n").map((line) => `     ${line}`).join("\n"));
     return true;
   }
 
@@ -190,8 +199,10 @@ async function askOne(question: string): Promise<boolean> {
   }
 
   const body = (await response.json()) as AskResponse;
+  console.log(`   selected ids (sent): ${selectedRecordIds.join(", ")}`);
   console.log(`   grounded on (Worker-side, canonical): ${body.grounding.recordIds.join(", ")}`);
-  console.log(`   status 200 · mode ${body.mode} · ${latency} ms round trip · ${body.grounding.latencyMs} ms in the Worker`);
+  console.log(`   status 200 · rendered: MODEL (mode ${body.mode}) · ${latency} ms round trip · ${body.grounding.latencyMs} ms in the Worker`);
+  console.log("   provider/model: see the Worker's ask.answered log line (ASK_DEBUG=1 prints the full block)");
   console.log("");
   console.log(body.answer.split("\n").map((line) => `   ${line}`).join("\n"));
   console.log("");

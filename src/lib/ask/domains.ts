@@ -111,7 +111,9 @@ export const DOMAIN_CONCEPTS: readonly DomainConcept[] = [
   {
     id: "industrial",
     match: /\b(factor(?:y|ies)|warehous(?:e|es|ing)|plants?|industr(?:y|ial)|manufacturing|construction|mining|mines?|logistics|oil|gas|utilities)\b/,
-    terms: [t("factory"), t("warehouse"), t("industrial"), t("worker"), t("restricted-zone", 0.5), t("safety", 0.3)],
+    /* "warehouses", not "warehouse": the tokenizer's plural rule stems both
+       the corpus word and this one to the same token only in the plural. */
+    terms: [t("factory"), t("warehouses"), t("industrial"), t("worker"), t("restricted-zone", 0.5), t("safety", 0.3)],
     family: "securevision",
     environmentIds: ["factories"],
   },

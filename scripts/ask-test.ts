@@ -96,12 +96,16 @@ for (const testCase of CASES) {
     }
   }
 
-  /* Two refusal shapes: the generic one, and the named one for a person the
-     corpus has no record for ("I couldn't find a GaitAI record for …"). */
+  /* Four refusal shapes: the generic one; the named one for a person the
+     corpus has no record for ("I couldn't find a GaitAI record for …"); the
+     domain one ("I couldn't find a documented GaitAI … deployment"); and the
+     unsupported one ("The available GaitAI information does not establish"). */
   if (
     result.lowConfidence &&
     !answer.includes("no documented answer") &&
-    !answer.includes("couldn't find a GaitAI record")
+    !answer.includes("couldn't find a GaitAI record") &&
+    !answer.includes("couldn't find a documented GaitAI") &&
+    !answer.includes("does not establish")
   ) {
     groundingFailures += 1;
     console.log("      REFUSAL: low confidence did not produce a refusal");

@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { insightArticles, insightHref } from "@/data/insights";
 import type { PublicationStory } from "@/lib/publication";
 import type { ArticleStats } from "@/lib/article-stats";
 import { InsightCard } from "./InsightCard";
+import { FoundationsExplorer } from "./FoundationsExplorer";
 import styles from "./hub.module.css";
 
 /**
@@ -16,21 +15,25 @@ import styles from "./hub.module.css";
  *   ┌───────────────────────────────┐
  *   │  story 04 — wide              │      picture beside copy, a different rhythm
  *   └───────────────────────────────┘
- *   Foundations note    ┌──────────────────┐
- *   set on the page     │  story 05        │
- *                       └──────────────────┘
+ *   Foundations index    ┌──────────────────┐
+ *   01 02 03 04 05 ───▶  │  selected story  │      the interactive table of contents
+ *                        └──────────────────┘
  *
  * The rhythm is a pair, then a spread, repeating — and the pair is
- * ASYMMETRIC: three fifths beside two fifths, reversed on the next pair. A
- * story left alone at the start of a row keeps its width and the Foundations
- * note takes the rest — text on the page ground, not another card — so the
- * last row is composed rather than left over. Not a masonry.
+ * ASYMMETRIC: three fifths beside two fifths, reversed on the next pair. The
+ * row a story would be left alone in becomes the Foundations explorer: the
+ * five essays as an index on the left, and the selected one — that lone
+ * story by default — previewed on the right with its own interaction. Not a
+ * masonry.
  */
 export function HubComposition({
   stories,
+  foundations,
   stats,
 }: {
   stories: PublicationStory[];
+  /** Every Foundation, in reading order — the explorer previews from these. */
+  foundations: PublicationStory[];
   stats: Record<string, ArticleStats>;
 }) {
   const layout = stories.map((story, index) => {
@@ -42,14 +45,17 @@ export function HubComposition({
     const major = !wide && (pair % 2 === 0 ? slot === 0 : slot === 1);
     return { story, wide, major, lonely: last && slot === 0 };
   });
-  const foundations = [...insightArticles].sort((a, b) => a.seriesStep - b.seriesStep);
+  const lone = layout.find((item) => item.lonely)?.story;
+  const explorerDefault =
+    lone && foundations.some((story) => story.id === lone.id)
+      ? lone.slug
+      : foundations[foundations.length - 1]?.slug;
 
   return (
     <div className={styles.composition}>
-      {layout.map(({ story, wide, major, lonely }, index) => (
-        <div key={story.id} className="contents">
-          {lonely && !major && <FoundationsNote foundations={foundations} className={styles.spanMajor} />}
-          <div className={wide ? styles.wide : major ? styles.spanMajor : styles.spanMinor}>
+      {layout.map(({ story, wide, major, lonely }, index) =>
+        lonely && explorerDefault === story.slug ? null : (
+          <div key={story.id} className={wide ? styles.wide : major ? styles.spanMajor : styles.spanMinor}>
             <InsightCard
               story={story}
               wide={wide}
@@ -58,48 +64,13 @@ export function HubComposition({
               priority={index < 2}
             />
           </div>
-          {lonely && major && <FoundationsNote foundations={foundations} className={styles.spanMinor} />}
+        ),
+      )}
+      {foundations.length > 0 && (
+        <div className={styles.wide}>
+          <FoundationsExplorer foundations={foundations} stats={stats} initialSlug={explorerDefault} />
         </div>
-      ))}
+      )}
     </div>
-  );
-}
-
-/**
- * The Foundations introduction: one sentence on what the five essays are,
- * the five titles in order, and the door into the path. Type on the page
- * ground, deliberately not a card.
- */
-function FoundationsNote({
-  foundations,
-  className,
-}: {
-  foundations: typeof insightArticles;
-  className: string;
-}) {
-  return (
-    <aside className={`${styles.foundationsNote} ${className}`} aria-label="GaitAI Foundations">
-      <p className={styles.foundationsKicker}>Foundations</p>
-      <p className={styles.foundationsTitle}>
-        Five interactive essays on how human movement becomes machine-readable intelligence.
-      </p>
-      <p className={styles.foundationsBody}>
-        Read them in order, from a walking video to an audited multimodal claim — or start anywhere.
-        Each one can be explored as well as read.
-      </p>
-      <ol className={styles.foundationsList}>
-        {foundations.map((article) => (
-          <li key={article.slug}>
-            <Link href={insightHref(article.slug)} className={styles.foundationsItem}>
-              <span className={styles.foundationsIndex}>{String(article.seriesStep).padStart(2, "0")}</span>
-              <span>{article.seriesTitle}</span>
-            </Link>
-          </li>
-        ))}
-      </ol>
-      <Link href="/insights/start-here" className={styles.foundationsCta}>
-        Begin the path <span aria-hidden="true">→</span>
-      </Link>
-    </aside>
   );
 }

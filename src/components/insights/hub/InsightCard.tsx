@@ -127,6 +127,7 @@ export function InsightCard({
   query = "",
   wide = false,
   priority = false,
+  preview = false,
 }: {
   story: PublicationStory;
   /** Foundations position, printed as a small editorial number. */
@@ -136,6 +137,8 @@ export function InsightCard({
   query?: string;
   wide?: boolean;
   priority?: boolean;
+  /** The Foundations explorer's preview: tighter body, a clearer call to action. */
+  preview?: boolean;
 }) {
   const { ref, pointer, handlers } = usePhysicalCard();
   const topic = story.topics[0];
@@ -150,7 +153,7 @@ export function InsightCard({
       data-pointer={pointer ? "true" : undefined}
       className={`${journal.card} journal-card ${wide ? journal.cardWide : journal.cardTall} ${
         TOPIC_CLASS[topic] ?? journal.tResearch
-      } ${styles.physical} ${wide ? styles.wide : ""}`}
+      } ${styles.physical} ${wide ? styles.wide : ""} ${preview ? styles.previewCard : ""}`}
     >
       <span aria-hidden="true" className={journal.cardAccent} />
       <span aria-hidden="true" className={styles.edgeLight} />

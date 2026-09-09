@@ -17,23 +17,32 @@
 // login and every env.AI.run() call spends the account's daily Neuron
 // allocation. The test suite therefore mocks the binding and never calls it.
 //
+// PUBLIC URL — the workers.dev hostname, deployed 2026-09-09.
+//   The Worker is live at https://gaitai-ask.<account>.workers.dev/api/ask and
+//   the site's build variable NEXT_PUBLIC_ASK_GAITAI_ENDPOINT points there
+//   (.github/workflows/deploy.yml). The URL is public by nature; the endpoint
+//   accepts only the origins in ALLOWED_ORIGINS and is metered by AskGuard.
+//
 // CUSTOM DOMAIN — prepared, not active.
-//   The intended public URL is https://ask.gaitai.in/api/ask. gaitai.in itself
-//   stays on GitHub Pages. To activate, once the zone is on Cloudflare:
-//     1. uncomment the `routes` block below
-//     2. set NEXT_PUBLIC_ASK_GAITAI_ENDPOINT=https://ask.gaitai.in/api/ask in
-//        the site's GitHub Actions secrets and rebuild the site
-//   Until then the Worker is reachable on its workers.dev URL only if
-//   `workers_dev` is set to true.
+//   The intended public URL is https://ask.gaitai.in/api/ask. A Worker custom
+//   domain needs the gaitai.in zone on Cloudflare; on 2026-09-09 the zone's
+//   nameservers were the registrar's (dns-parking.com), so it cannot be
+//   attached yet. gaitai.in itself stays on GitHub Pages. To activate, once
+//   the zone's nameservers point at Cloudflare (with the GitHub Pages A/CNAME
+//   records recreated there):
+//     1. uncomment the `routes` block below and deploy
+//     2. set the repository variable NEXT_PUBLIC_ASK_GAITAI_ENDPOINT to
+//        https://ask.gaitai.in/api/ask (it overrides the workflow default)
+//        and rebuild the site
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "gaitai-ask",
   "main": "src/index.ts",
   "compatibility_date": "2026-05-01",
 
-  // Off until the custom domain is live, so a stray deploy does not publish
-  // an unreviewed public URL. `wrangler dev` does not need it.
-  "workers_dev": false,
+  // The workers.dev hostname is the production URL until the custom domain
+  // can be attached (see above). `wrangler dev` does not need it.
+  "workers_dev": true,
 
   // "routes": [{ "pattern": "ask.gaitai.in", "custom_domain": true }],
 

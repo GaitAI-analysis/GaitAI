@@ -365,11 +365,29 @@ npm run dev                          # wrangler dev — signs in and SPENDS the 
 Wrangler is pinned to the 4.86 line because this machine and CI run Node 20;
 wrangler ≥ 4.88 requires Node 22. Upgrade both together.
 
-To go live, later: run the benchmark, set `WORKERS_AI_MODEL`, uncomment the
-`routes` block for `ask.gaitai.in`, `wrangler deploy`, then set
-`NEXT_PUBLIC_ASK_GAITAI_ENDPOINT=https://ask.gaitai.in/api/ask` in the site's
-build and redeploy the site. Consider adding one WAF rate-limiting rule on the
-zone. `gaitai.in` itself stays on GitHub Pages.
+### Live since 2026-09-09
+
+The Worker is deployed as `gaitai-ask` on the account's `workers.dev`
+hostname — `https://gaitai-ask.gait-ai-founder.workers.dev/api/ask` — and the
+site's build (`.github/workflows/deploy.yml`) sets
+`NEXT_PUBLIC_ASK_GAITAI_ENDPOINT` to it, so the live assistant answers through
+hybrid retrieval → canonical grounding → Workers AI. The repository variable
+of the same name overrides the workflow default without a commit.
+
+`ask.gaitai.in` is NOT attached yet: a Worker custom domain needs the
+`gaitai.in` zone on Cloudflare, and on 2026-09-09 the zone's nameservers were
+the registrar's (`dns-parking.com`); the hostname does not resolve. To move
+to it: point the nameservers at Cloudflare and recreate the GitHub Pages
+records there, uncomment the `routes` block, `wrangler deploy`, set the
+repository variable to `https://ask.gaitai.in/api/ask`, and let the site
+redeploy. Consider adding one WAF rate-limiting rule on the zone then.
+`gaitai.in` itself stays on GitHub Pages.
+
+Production timings from the deployed Worker's structured logs (2026-09-09,
+five requests): embed 115–311 ms, cosine 1–2 ms, merge ≤ 2 ms, rerank 255 ms
+warm (4175 ms on the first, cold call), generation 546–1360 ms; wall time in
+the Worker 0.5–1.4 s warm, 6.3 s cold. Far below the local `wrangler dev`
+numbers, where every binding call left the machine.
 
 ---
 

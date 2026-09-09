@@ -584,7 +584,7 @@
    scales up in viewBox units to stay legible. */
 @media (max-width: 640px) {
   .coverLabel {
-    font-size: 14px;
+    font-size: 13px;
     letter-spacing: 0.1em;
   }
 }
@@ -1039,16 +1039,81 @@
    stage readout sits; the chosen branch is already lit in cyan, so the
    readout is not needed there. */
 @media (max-width: 640px) {
-  .media[data-concept="divergence"] .readout {
+  .media[data-concept="divergence"] .readout,
+  .media[data-concept="identity-layers"] .readout {
     display: none;
   }
 }
-/* On a phone the trend's assessment numbers run along the bottom edge where
-   the cue pill sits; the cue moves to the top-left, under the step label,
-   where the chart has only a gridline. */
+/* On a phone the drawing is a 16:10 picture in a 16:9 box, so its last row
+   was cut at the edge and the cue pill sat on the labels beneath it — the
+   trend's assessment numbers, a chain's verdict, a ledger's last cue. The box
+   grows to 16:11 and the cue owns a band along the foot; the picture keeps
+   its full height above the band and barely changes size. */
 @media (max-width: 640px) {
-  .media[data-concept="trajectory"] .cue {
-    bottom: auto;
-    top: 2.3rem;
+  :global([class*="cardMedia"]):has(> .media:not(.mediaCover)) {
+    aspect-ratio: 16 / 11;
+  }
+  .media:not(.mediaCover) {
+    position: absolute;
+    inset: 0;
+    padding-bottom: 2.2rem;
+  }
+}
+
+/* ── Visual type scale per card context ──
+   A card's drawing is a 320-unit viewBox stretched to the card, so its labels
+   stretch with it: in a wide spread a "key" label reached 21px against a 20px
+   title. `--fig-type` (read by figures.module.css) brings every role to one
+   on-screen size regardless of the slot — key ≈ 12px, label ≈ 11px, micro ≈
+   9.5px on a laptop — so the title always wins, then the picture, then the
+   words. Widths cap with the container, so 1920 renders as 1440. The preview
+   card is also a wide card, so its rule comes last in each range. */
+.media {
+  --fig-type: 1;
+}
+@media (min-width: 1280px) {
+  .spanMinor .media {
+    --fig-type: 0.88;
+  }
+  .wide .media {
+    --fig-type: 0.78;
+  }
+  .spanMajor .media,
+  .previewCard .media {
+    --fig-type: 0.57;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .spanMinor .media {
+    --fig-type: 1.1;
+  }
+  .spanMajor .media,
+  .previewCard .media {
+    --fig-type: 0.75;
+  }
+}
+/* A tablet: the half and wide cards render near 1:1 without the phone's
+   raised roles, so their words come up instead of down; the preview, full
+   width there, comes down. */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .spanMinor .media,
+  .wide .media {
+    --fig-type: 1.35;
+  }
+  .previewCard .media {
+    --fig-type: 0.6;
+  }
+}
+/* A phone: the drawing is near 1:1 and the roles are already raised by
+   `.narrow`; a touch down keeps them under the 17px card title. The narrowest
+   phones keep the full raise — there the picture itself is small. */
+@media (min-width: 361px) and (max-width: 640px) {
+  .media {
+    --fig-type: 0.92;
+  }
+}
+@media (max-width: 360px) {
+  .media {
+    --fig-type: 1;
   }
 }

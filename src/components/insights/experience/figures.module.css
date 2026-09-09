@@ -254,9 +254,25 @@
 }
 
 /* ── Type ── */
+/* ── The visual type system ──
+   Six roles, one scale, for every label drawn inside a figure, a hub card or a
+   cover. Sizes are viewBox units, so a drawing rendered wide would render its
+   type wide too; `--fig-type` is the context factor a card sets (hub.module.css)
+   so a label lands at the same on-screen size in a wide spread, a half card,
+   the Foundations preview and a phone — always below the story title.
+
+     MICRO       .labelSmall   state hints, metadata        ILLUSTRATIVE · 03
+     LABEL       .label        technical labels, annotation CADENCE · KNEE FLEXION
+     KEY         .labelKey     conceptual nodes             MOBILITY · OWN BASELINE
+     STATE       .labelState   the one output statement     MILDLY ASYMMETRICAL
+     VALUE       .labelDisplay a single display numeral
+
+   Selection is colour (accent, ink, halo, line weight), never size. `.narrow`
+   raises the roles together on a phone-wide hero, where the drawing is a third
+   of its desktop width. */
 .label {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
+  font-size: calc(var(--vt-label, 8.5px) * var(--fig-type, 1));
   letter-spacing: 0.14em;
   text-transform: uppercase;
   fill: var(--jr-mute, rgb(148 163 184));
@@ -281,7 +297,7 @@
   fill: #b7791f;
 }
 .labelSmall {
-  font-size: 7px;
+  font-size: calc(var(--vt-micro, 7px) * var(--fig-type, 1));
 }
 .labelDisplay {
   font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
@@ -336,11 +352,11 @@
 /* On a phone the whole drawing is a third of its desktop width, so the type
    scales up in viewBox units to stay legible. Applied by the figure when it
    detects a narrow viewport (useNarrow). */
-.narrow .label {
-  font-size: 12.5px;
-}
-.narrow .labelSmall {
-  font-size: 10.5px;
+.narrow {
+  --vt-micro: 10.5px;
+  --vt-label: 12.5px;
+  --vt-key: 13px;
+  --vt-state: 12px;
 }
 
 /* The labels a reader must be able to read at card size: the five readings
@@ -348,15 +364,20 @@
    the body colour and a half-size up from the quiet label; the active one
    goes to ink. */
 .labelKey {
-  font-size: 9.5px;
+  font-size: calc(var(--vt-key, 9.5px) * var(--fig-type, 1));
   letter-spacing: 0.16em;
   fill: var(--jr-body, rgb(203 213 225));
 }
 .labelKeyOn {
   fill: var(--jr-ink, #f8fafc);
 }
-.narrow .labelKey {
-  font-size: 13px;
+/* STATE: the one sentence a figure concludes with. Reads as an annotation —
+   ink, a touch more tracking — never as a headline; the accent classes colour
+   it. */
+.labelState {
+  font-size: calc(var(--vt-state, 9px) * var(--fig-type, 1));
+  letter-spacing: 0.18em;
+  fill: var(--jr-ink, #f8fafc);
 }
 /* A soft disc behind the active node — the one place a branch is lit. */
 .halo {
@@ -416,4 +437,15 @@
 }
 :global(.light) .massHead {
   fill: rgb(15 23 42 / 0.16);
+}
+
+/* Density on a phone-wide card. A label that has nothing to add there hides
+   (the middle links of a chain whose endpoints and failure are named); a value
+   that shared its row with a label steps under it instead of into it. */
+.narrow .quietOnNarrow {
+  display: none;
+}
+.narrow .underOnNarrow {
+  transform: translate(-120px, 13px);
+  text-anchor: start;
 }

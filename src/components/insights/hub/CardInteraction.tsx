@@ -509,7 +509,7 @@ function Divergence({ pick }: { pick: number }) {
         return [x0 + t * (x1 - x0), y0 + Math.sin(t * Math.PI * 2 * f + phase) * amp] as Pt;
       }),
     );
-  const targets = BRANCHES.map((_, i) => [258, 30 + i * 35] as Pt);
+  const targets = BRANCHES.map((_, i) => [246, 30 + i * 35] as Pt);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
       {/* one movement */}
@@ -721,7 +721,7 @@ function PoseErrorMini({ p }: { p: number }) {
         <rect x={cx + 5 * s} y={cy + 9 * s} width={22 * s} height={groundY - (cy + 9 * s)} fill="rgb(var(--c-obsidian-400) / 0.7)" stroke="var(--jr-line-mid)" strokeWidth={1} rx={2} />
       </g>
       {/* what the measurement inherits */}
-      <g className={`${fig.label} ${fig.labelKey}`}>
+      <g className={fig.label}>
         <text x={186} y={52}>
           Knee angle
         </text>
@@ -807,7 +807,7 @@ function SymmetryMini({ p }: { p: number }) {
           </g>
         ))}
       </g>
-      <text className={`${fig.label} ${fig.labelKey} ${asymmetric ? fig.labelWarn : fig.labelTeal}`} x={x0} y={166}>
+      <text className={`${fig.label} ${fig.labelState} ${asymmetric ? fig.labelWarn : fig.labelTeal}`} x={x0} y={166}>
         {READING_LABEL[state.reading]}
       </text>
       <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={182}>
@@ -857,10 +857,10 @@ function ViewpointMini({ p }: { p: number }) {
         <rect x={-7} y={-5} width={14} height={10} rx={2} fill="rgb(var(--c-obsidian-400))" stroke="var(--jr-cyan)" strokeWidth={1.2} />
         <circle className={fig.nodeFill} r={2.2} />
       </g>
-      <text className={`${fig.label} ${fig.labelKey} ${fig.labelAccent}`} x={cx} y={cy + r + 26} textAnchor="middle">
+      <text className={`${fig.label} ${fig.labelState} ${fig.labelAccent}`} x={cx} y={cy + r + 26} textAnchor="middle">
         {ANGLE_LABEL[angle]}
       </text>
-      <g className={`${fig.label} ${fig.labelKey}`}>
+      <g className={fig.label}>
         <text x={186} y={52}>
           Knee flexion
         </text>
@@ -915,7 +915,7 @@ function IdentityLayersMini({ p }: { p: number }) {
       <g className={fig.fade} style={{ opacity: stage === 4 ? 1 : 0 }}>
         <path className={`${fig.trace} ${fig.traceViolet}`} d={trail} />
       </g>
-      <g className={`${fig.label} ${fig.labelKey}`}>
+      <g className={fig.label}>
         <text x={186} y={46}>
           Face
         </text>
@@ -936,7 +936,7 @@ function IdentityLayersMini({ p }: { p: number }) {
         {(["face", "appearance", "shape", "gait", "context"] as const).map((cue, i) => {
           const state = ledger[cue];
           return (
-            <text key={cue} x={306} y={46 + i * 32} textAnchor="end" className={state === "present" ? fig.labelWarn : state === "weakened" ? fig.labelAccent : fig.labelTeal}>
+            <text key={cue} x={306} y={46 + i * 32} textAnchor="end" className={`${fig.underOnNarrow} ${state === "present" ? fig.labelWarn : state === "weakened" ? fig.labelAccent : fig.labelTeal}`}>
               {state}
             </text>
           );
@@ -977,7 +977,12 @@ function SystemChainMini({ p }: { p: number }) {
             ) : (
               <polyline className={fig.trace} points={`${x - 4},${y} ${x - 1},${y + 3.5} ${x + 5},${y - 3.5}`} style={{ stroke: "var(--jr-teal)" }} />
             )}
-            <text className={`${fig.label} ${fig.labelSmall} ${isFailed ? fig.labelWarn : ""}`} x={x} y={y + 26} textAnchor="middle">
+            <text
+              className={`${fig.label} ${fig.labelSmall} ${isFailed ? fig.labelWarn : ""} ${i > 0 && i < CHAIN.length - 1 && !isFailed ? fig.quietOnNarrow : ""}`}
+              x={x}
+              y={y + 26}
+              textAnchor="middle"
+            >
               {COMPONENT_LABEL[component].toLowerCase()}
             </text>
           </g>
@@ -989,7 +994,7 @@ function SystemChainMini({ p }: { p: number }) {
       <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={134}>
         what reaches the person
       </text>
-      <text className={`${fig.label} ${fig.labelKey} ${outcome === "in-time" ? fig.labelTeal : fig.labelWarn}`} x={x0} y={154}>
+      <text className={`${fig.label} ${fig.labelState} ${outcome === "in-time" ? fig.labelTeal : fig.labelWarn}`} x={x0} y={154}>
         {OUTCOME_LABEL[outcome].length > 34 ? `${OUTCOME_LABEL[outcome].slice(0, 32)}…` : OUTCOME_LABEL[outcome]}
       </text>
       <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={172}>
@@ -1042,7 +1047,7 @@ function BaselineMini({ p }: { p: number }) {
           </g>
         ) : null;
       })}
-      <text className={`${fig.label} ${fig.labelKey} ${band ? (outside ? fig.labelWarn : fig.labelTeal) : ""}`} x={x0} y={176}>
+      <text className={`${fig.label} ${fig.labelState} ${band ? (outside ? fig.labelWarn : fig.labelTeal) : ""}`} x={x0} y={176}>
         {!band ? "Not enough observations yet" : outside ? "Inside the population · outside own band" : "Within own baseline"}
       </text>
       <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={192}>

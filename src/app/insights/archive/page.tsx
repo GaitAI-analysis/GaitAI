@@ -18,7 +18,7 @@ export default async function InsightsArchivePage() {
   return (
     <div className={styles.archive}>
       <header className="site-page-intro-compact container-wide pb-12 sm:pb-16">
-        <Link href="/insights" className={styles.back}>← Insights</Link>
+        <Link href="/insights" className={styles.back}>← Blog &amp; updates</Link>
         <p className={styles.kicker}>Archive</p>
         <h1 className={styles.title}>Everything GaitAI has published.</h1>
         <p className={styles.deck}>{stories.length} stories, organised for retrieval rather than display.</p>

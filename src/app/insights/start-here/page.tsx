@@ -73,7 +73,7 @@ export default function StartHerePage() {
           built on. The first screen is the question now; the back link and
           the framing line have moved inside it. */}
       <JournalOpening
-        back={{ href: "/insights", label: "← Insights" }}
+        back={{ href: "/insights", label: "← Blog" }}
         framing="Five stories on what GaitAI measures, why movement means more than identity, and how evidence and responsibility shape the work."
       >
         <OpeningWalker />

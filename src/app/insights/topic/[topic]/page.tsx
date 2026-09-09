@@ -33,7 +33,7 @@ export default async function TopicPage({ params }: { params: { topic: string } 
         stories={stories}
         fixedTopic={params.topic}
         basePath={`/insights/topic/${params.topic}`}
-        kicker="Insights topic"
+        kicker="Blog topic"
         title={topicLabel(params.topic)}
         description={topicDescription(params.topic)}
         showCover={false}

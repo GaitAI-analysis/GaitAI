@@ -407,10 +407,34 @@ describe("the browser selects, the Worker decides", () => {
     const { body } = await rag("Where can I see GaitAI's customer list?");
     expect(body!.answer).not.toMatch(/\]\(\/customers\/\)/);
     expect(body!.answer).not.toMatch(/https?:\/\//);
+    /* The invented on-site path degraded to its label; the invented external
+       link lost its destination. */
+    expect(body!.answer).toContain("Customer and Deployment page.");
+    expect(body!.answer).not.toMatch(/\/customers\//);
     /* No link with a destination survives that is not a canonical route. */
     const canonical = new Set(knowledge().docs.map((doc) => path(doc.url)));
     for (const match of body!.answer.matchAll(/\]\(([^)]+)\)/g)) expect(canonical.has(path(match[1]))).toBe(true);
     for (const source of body!.sources) expect(source.url).not.toMatch(/customers|certifications/);
+  });
+
+  it("drops a sentence that sends the reader to a bare site path that does not exist, and keeps one that names a real route", async () => {
+    reply = [
+      "The available GaitAI information does not establish that.",
+      "You can find a list of research areas on the /research/ page, and a list of people on the /people/ page.",
+      "The /publications/ page lists every paper. Worker movement & fall/slip analytics are documented; 24/7 monitoring is not claimed.",
+      "* See the /customers/ page for deployments.",
+      "* WalkScan takes a walking video and produces a report.",
+    ].join("\n");
+    const { body } = await rag("Which companies use GaitAI?");
+    const answer = body!.answer;
+    expect(answer).toContain("The available GaitAI information does not establish that.");
+    expect(answer).not.toMatch(/\/people\//);
+    expect(answer).not.toMatch(/\/customers\//);
+    expect(answer).not.toMatch(/list of research areas/); // the whole offending sentence went, not just the path
+    expect(answer).toContain("The /publications/ page lists every paper.");
+    expect(answer).toContain("fall/slip analytics are documented; 24/7 monitoring is not claimed.");
+    expect(answer).toContain("* WalkScan takes a walking video and produces a report.");
+    expect(answer).not.toMatch(/^\*\s*$/m); // no orphaned bullet
   });
 
   it("answers 'what can GaitAI do for military' with capabilities and a boundary — never a person, a talk or an invented deployment", async () => {

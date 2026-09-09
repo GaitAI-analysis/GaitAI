@@ -236,7 +236,7 @@
  */
 .note {
   min-height: 1.15rem;
-  margin-top: 0.7rem;
+  margin-top: 0.45rem;
   font-size: 0.8125rem;
   line-height: 1.4;
   color: rgb(var(--c-soft-mute));
@@ -245,6 +245,14 @@
 .note:empty {
   min-height: 0;
   margin-top: 0;
+}
+
+/* The second sentence of a success: what happens next, in the quiet colour,
+   on its own line inside the same live region. */
+.noteDetail {
+  display: block;
+  margin-top: 0.1rem;
+  color: rgb(var(--c-soft-mute));
 }
 
 .ok {
@@ -267,7 +275,7 @@
    makes the field, the button and the small print read as one unit. With a
    message present it is 14px below that instead. */
 .legal {
-  margin-top: 0.875rem;
+  margin-top: 0.6rem;
   max-width: 34rem;
   font-size: 0.75rem;
   line-height: 1.6;
@@ -348,7 +356,7 @@
 
 /* The support line: one quiet sentence under the field. */
 .support {
-  margin-top: 0.8rem;
+  margin-top: 0.55rem;
   max-width: 34rem;
   font-size: 0.8125rem;
   line-height: 1.5;
@@ -379,24 +387,40 @@
 }
 
 @media (min-width: 1024px) {
+  /* Two columns and ONE row: the copy, and the field group (form, support
+     line, verdict, small print) beside it. The group is one block so its lines
+     keep their own tight margins; an earlier version placed each line in its
+     own grid row under a copy that spanned them all, and whenever the copy was
+     taller than the group the grid distributed the difference between the
+     rows, opening 40px of nothing between the support line and the small
+     print at tablet widths. */
   .blog {
-    grid-template-columns: minmax(0, 1.1fr) minmax(2.5rem, 0.5fr) minmax(0, 32rem);
-    grid-template-rows: auto auto auto auto;
-    column-gap: 0;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 32rem);
+    column-gap: var(--sub-lane-width);
     align-items: center;
+    --sub-lane-width: clamp(3rem, 9vw, 9rem);
   }
 
   .blog .copy {
     grid-column: 1;
-    grid-row: 1 / -1;
     padding-right: 2.5rem;
   }
 
+  .blog .field {
+    display: block;
+    position: relative;
+    grid-column: 2;
+  }
+
+  /* THE LANE: drawn in the column gap, level with the middle of the field,
+     from beside the copy to the field's left edge. It runs cyan into blue
+     into violet and hands on to the bridge and the node beside the button. */
   .blog .lane {
     display: block;
-    grid-column: 2;
-    grid-row: 1;
-    align-self: center;
+    position: absolute;
+    right: 100%;
+    top: 1.45rem;
+    width: var(--sub-lane-width);
     height: 1px;
     background: linear-gradient(
       90deg,
@@ -416,26 +440,15 @@
   }
 
   .blog .form {
-    grid-column: 3;
-    grid-row: 1;
     margin-top: 0;
-    align-self: center;
   }
+}
 
-  .blog .support {
-    grid-column: 3;
-    grid-row: 2;
-  }
-
-  .blog .note {
-    grid-column: 3;
-    grid-row: 3;
-  }
-
-  .blog .legal {
-    grid-column: 3;
-    grid-row: 4;
-  }
+/* The field group is only a box in the desktop composition; everywhere else
+   it is transparent to layout so the stacked order and margins are exactly
+   what they were. */
+.field {
+  display: contents;
 }
 
 /* The end of an article. Quieter than the blog block: the reader has just
@@ -780,5 +793,57 @@
   .node,
   .arrow {
     transition: none;
+  }
+}
+
+/* ═══════════ THE SIGNAL'S STATES, on the blog block ═══════════
+ *
+ * Focus, a well-formed address, and a stored one — three readings of the same
+ * hairline, so the lane answers what the reader does instead of decorating
+ * the block. `data-valid` and `data-done` are set by the component; focus is
+ * :focus-within. The completion is the one transition: a cyan line drawn
+ * over the lane from the copy to the field, once, when the write has landed.
+ * Nothing loops. Under reduced motion the completed line simply appears.
+ */
+.blog[data-valid="true"] .lane {
+  opacity: 1;
+}
+.blog[data-valid="true"] .node,
+.blog[data-done="true"] .node {
+  border-color: var(--sub-accent);
+}
+.blog[data-valid="true"] .button::before {
+  background: var(--sub-accent-soft);
+}
+.blog[data-done="true"] .button::before {
+  background: var(--sub-accent);
+}
+.blog .lane::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--sub-accent));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--motion-signal, 0.7s) var(--sub-ease);
+}
+.blog[data-done="true"] .lane {
+  opacity: 1;
+}
+.blog[data-done="true"] .lane::after {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog .lane::after {
+    transition: none;
+  }
+}
+
+/* Between the phone and the desktop composition the row is a single line
+   across the page. Kept short of the right edge so the Subscribe button never
+   sits under the fixed Ask GaitAI launcher in the corner. */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .blog .form {
+    max-width: min(34rem, 100% - 8rem);
   }
 }

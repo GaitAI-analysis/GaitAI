@@ -3,7 +3,6 @@
 import { useCallback, useId, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useReducedMotion } from "framer-motion";
 import type { PublicationStory } from "@/lib/publication";
 import type { ArticleStats } from "@/lib/article-stats";
 import { getInsightBySlug } from "@/data/insights";
@@ -28,7 +27,8 @@ import styles from "./hub.module.css";
  * focus previews on a keyboard; a tap previews on touch. The right panel is
  * the story's own card — the same drawing and mini interaction it has
  * everywhere else on the hub — so each of the five looks like itself, and
- * it crossfades in ~360ms (instantly under reduced motion). One quiet
+ * it crossfades in ~360ms (the stylesheet cancels that under reduced motion,
+ * so server and client render the same markup). One quiet
  * live-region sentence announces the change.
  */
 export function FoundationsExplorer({
@@ -41,7 +41,6 @@ export function FoundationsExplorer({
   initialSlug?: string;
 }) {
   const router = useRouter();
-  const reduced = Boolean(useReducedMotion());
   const id = useId();
   const [selected, setSelected] = useState(() => initialSlug ?? foundations[foundations.length - 1]?.slug ?? "");
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -181,7 +180,7 @@ export function FoundationsExplorer({
         aria-labelledby={`${id}-tab-${index}`}
         className={styles.explorerPreview}
       >
-        <div key={story.slug} className={reduced ? undefined : styles.previewEnter}>
+        <div key={story.slug} className={styles.previewEnter}>
           <InsightCard
             story={story}
             step={story.seriesOrder}

@@ -1,0 +1,324 @@
+/* =========================================================================
+   THE FOOT OF THE JOURNAL — browse by subject, the archive as time, and the
+   signal that flattens into the footer.
+   ---------------------------------------------------------------------------
+   Typography first. No pills, no cards: rows of type with a trajectory whose
+   length is the count, a timeline drawn from the real publication dates, and
+   one hairline that carries the page's movement language into the footer.
+   Every rule has a light branch.
+   ========================================================================= */
+
+.section {
+  padding: clamp(2.5rem, 5vw, 3.75rem) 0 clamp(2rem, 4vw, 3rem);
+  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+}
+.grid {
+  display: grid;
+  gap: 2.5rem;
+}
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: clamp(3rem, 6vw, 6rem);
+    align-items: start;
+  }
+}
+
+.kicker {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.heading {
+  margin-top: 0.6rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--jr-ink);
+}
+
+/* ── By subject: label ━━━━━━━━ count ── */
+.subjects {
+  margin-top: 1.25rem;
+  display: grid;
+}
+.subject {
+  --reach: 50%;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(9rem, auto) minmax(0, 1fr) 2.2rem;
+  align-items: center;
+  gap: 1rem;
+  min-height: 44px;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--jr-line);
+  color: var(--jr-body);
+  font-size: 0.9375rem;
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.subject:hover,
+.subject:focus-visible {
+  color: var(--jr-ink);
+  outline: none;
+}
+.subject:focus-visible .subjectLabel {
+  text-decoration: underline;
+  text-decoration-color: var(--jr-cyan);
+  text-underline-offset: 4px;
+}
+.subjectLabel {
+  white-space: nowrap;
+}
+/* The trajectory: a hairline whose lit portion is the subject's share of the
+   archive. On hover or focus the lit portion advances a little and a signal
+   point arrives at its end — the row is alive, not a bar chart. */
+.track {
+  position: relative;
+  height: 14px;
+}
+.track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--jr-line);
+}
+.trackLit {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: var(--reach);
+  height: 1px;
+  background: linear-gradient(90deg, var(--jr-cyan), var(--jr-royal));
+  opacity: 0.75;
+  transform: translateY(-50%);
+  transition: width var(--motion-editorial) var(--jr-ease), opacity var(--motion-ui) var(--jr-ease);
+}
+.trackDot {
+  position: absolute;
+  left: var(--reach);
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--jr-cyan);
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  transition:
+    left var(--motion-editorial) var(--jr-ease),
+    opacity var(--motion-ui) var(--jr-ease),
+    transform var(--motion-ui) var(--jr-ease);
+}
+.subject:hover .trackLit,
+.subject:focus-visible .trackLit {
+  width: calc(var(--reach) + 6%);
+  opacity: 1;
+}
+.subject:hover .trackDot,
+.subject:focus-visible .trackDot {
+  left: calc(var(--reach) + 6%);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.count {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-align: right;
+  color: var(--jr-mute);
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.subject:hover .count,
+.subject:focus-visible .count {
+  color: var(--jr-cyan);
+}
+@media (max-width: 480px) {
+  .subject {
+    grid-template-columns: minmax(0, auto) minmax(2rem, 1fr) 2rem;
+    gap: 0.75rem;
+  }
+  .subjectLabel {
+    white-space: normal;
+    font-size: 0.875rem;
+  }
+}
+
+/* ── Everything published: the archive as movement through time ── */
+.timeline {
+  display: block;
+  width: 100%;
+  /* Capped so a single-column layout does not scale the type inside it up
+     with the column: this is a small drawing, not a hero. */
+  max-width: 26rem;
+  height: auto;
+  margin-top: 1.1rem;
+  overflow: visible;
+}
+.tlRail {
+  fill: none;
+  stroke: var(--jr-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.tlLit {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.8;
+}
+.tlNode {
+  fill: rgb(var(--c-obsidian-400));
+  stroke: var(--jr-cyan);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .tlNode {
+  fill: #f6f8fc;
+}
+.tlNodeLatest {
+  fill: var(--jr-cyan);
+}
+.tlLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: var(--jr-mute);
+}
+.tlYear {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  fill: var(--jr-ink);
+}
+.archiveBody {
+  margin-top: 0.75rem;
+  max-width: 24rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--jr-body);
+}
+
+/* ── The one CTA family ── */
+.cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  min-height: 44px;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jr-cyan);
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.cta span {
+  transition: transform var(--motion-ui) var(--jr-ease);
+}
+.cta::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 8px;
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, var(--jr-cyan), transparent);
+  transition: width var(--motion-editorial) var(--jr-ease);
+}
+.cta:hover,
+.cta:focus-visible {
+  color: var(--jr-ink);
+  outline: none;
+}
+.cta:hover::after,
+.cta:focus-visible::after {
+  width: 100%;
+}
+.cta:hover span,
+.cta:focus-visible span {
+  transform: translateX(4px);
+}
+
+/* ── The newsletter, then the signal flattens into the footer ── */
+/* The last section of the page. Its bottom margin cancels the site footer's
+   own top margin (mt-12), so the signal below flattens straight into the
+   footer's rule instead of stopping short of it. */
+.newsletter {
+  padding: clamp(2rem, 4vw, 3rem) 0 0;
+  margin-bottom: -3rem;
+  border-top: 1px solid var(--jr-line);
+  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+}
+.footerSignal {
+  display: block;
+  width: 100%;
+  height: 44px;
+  margin-top: clamp(1.25rem, 3vw, 2.25rem);
+  overflow: visible;
+}
+.fsPath {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.7;
+}
+.fsRule {
+  fill: none;
+  stroke: var(--jr-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.fsDot {
+  fill: var(--jr-cyan);
+}
+/* Draws as it scrolls into view where scroll-driven animation exists;
+   complete everywhere else and under reduced motion. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .fsDraw {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: fsDraw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+    }
+  }
+}
+@keyframes fsDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trackLit,
+  .trackDot,
+  .cta::after,
+  .cta span {
+    transition: none;
+  }
+}
+
+/* One drawing per width band; the other is not in the layout at all. */
+.fsNarrow {
+  display: none;
+}
+@media (max-width: 640px) {
+  .fsWide {
+    display: none;
+  }
+  .fsNarrow {
+    display: block;
+  }
+}

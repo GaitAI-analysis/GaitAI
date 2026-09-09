@@ -78,8 +78,30 @@ const compact = {
 mkdirSync(outDir, { recursive: true });
 writeFileSync(target, JSON.stringify(compact), "utf8");
 
+/* THE EMBEDDING INDEX — copied, filtered, never computed here.
+   data/ask-embeddings.json is built by `npm run ask:embed` (Workers AI through
+   the loopback bench Worker) and committed. This step keeps only the vectors
+   whose record is still in the corpus, so a removed page cannot be retrieved
+   through a stale vector. A missing file yields an empty index and the Worker
+   falls back to lexical retrieval — the semantic stage degrades, never fails. */
+const embeddingsSource = path.join(repoRoot, "data", "ask-embeddings.json");
+const embeddingsTarget = path.join(outDir, "embeddings.json");
+const corpusIds = new Set(full.docs.map((doc) => doc.id));
+let embeddings = { model: "", pooling: "cls", dim: 384, generatedAt: "", records: [] };
+if (existsSync(embeddingsSource)) {
+  try {
+    const file = JSON.parse(readFileSync(embeddingsSource, "utf8"));
+    embeddings = { ...file, records: (file.records ?? []).filter((record) => corpusIds.has(record.id)) };
+  } catch {
+    console.warn("[worker corpus] data/ask-embeddings.json is unreadable — semantic stage disabled");
+  }
+}
+writeFileSync(embeddingsTarget, JSON.stringify(embeddings), "utf8");
+
 const kb = (bytes) => (bytes / 1024).toFixed(0);
 console.log(
   `[worker corpus] ${compact.docs.length} records, ${compact.routes.length} routes → ` +
-    `src/generated/knowledge.json (${kb(statSync(target).size)} KB from ${kb(statSync(source).size)} KB)`,
+    `src/generated/knowledge.json (${kb(statSync(target).size)} KB from ${kb(statSync(source).size)} KB)` +
+    `\n[worker corpus] ${embeddings.records.length} vectors${embeddings.model ? ` · ${embeddings.model} · ${embeddings.dim}d` : ""} → ` +
+    `src/generated/embeddings.json (${kb(statSync(embeddingsTarget).size)} KB)`,
 );

@@ -24,6 +24,7 @@
     "ask:test": "tsx scripts/ask-test.ts",
     "ask:rank": "tsx scripts/ask-ranking-test.ts",
     "ask:paraphrase": "tsx scripts/ask-paraphrase-test.ts",
+    "ask:embed": "npm run build:knowledge && tsx scripts/build-embeddings.ts",
     "ask:probe": "tsx scripts/ask/regression-probe.ts",
     "ask:bench": "tsx scripts/ask-bench.ts",
     "ask:e2e": "npm run build:knowledge && node worker/scripts/build-corpus.mjs && tsx scripts/ask-e2e.ts",

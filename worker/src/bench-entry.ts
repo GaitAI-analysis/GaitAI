@@ -25,10 +25,24 @@
  *   npm run ask:bench                         # at the repo root, in another shell
  */
 
-import { generate, readThinkingMode, WorkersAiError, type ChatMessage } from "./workers-ai";
+import { embedTexts, generate, readThinkingMode, rerankDocuments, WorkersAiError, type ChatMessage } from "./workers-ai";
 
 interface BenchEnv {
   AI?: Ai;
+}
+
+/** POST /embed — { model, texts: string[], pooling? } → { data: number[][] } */
+interface EmbedRequest {
+  model: string;
+  texts: string[];
+  pooling?: "cls" | "mean";  // omitted for models that take none (bge-m3)
+}
+
+/** POST /rerank — { model, query, texts: string[] } → { scores: number[] } */
+interface RerankRequest {
+  model: string;
+  query: string;
+  texts: string[];
 }
 
 interface BenchRequest {
@@ -48,10 +62,35 @@ export default {
   async fetch(request: Request, env: BenchEnv): Promise<Response> {
     const url = new URL(request.url);
     if (!LOOPBACK.has(url.hostname)) return new Response("loopback only", { status: 403 });
-    if (request.method !== "POST" || url.pathname !== "/generate") {
-      return new Response("POST /generate", { status: 404 });
+    if (request.method !== "POST" || !["/generate", "/embed", "/rerank"].includes(url.pathname)) {
+      return new Response("POST /generate · /embed · /rerank", { status: 404 });
     }
     if (!env.AI) return Response.json({ error: "unconfigured" }, { status: 503 });
+
+    /* Embeddings and reranking for the build step and the evaluation harness —
+       the same adapter functions the production Worker calls. */
+    if (url.pathname === "/embed" || url.pathname === "/rerank") {
+      let payload: EmbedRequest | RerankRequest;
+      try {
+        payload = (await request.json()) as EmbedRequest | RerankRequest;
+      } catch {
+        return Response.json({ error: "malformed" }, { status: 400 });
+      }
+      if (!payload?.model || !Array.isArray(payload.texts) || payload.texts.length > 100) {
+        return Response.json({ error: "invalid_request" }, { status: 400 });
+      }
+      try {
+        if (url.pathname === "/embed") {
+          const data = await embedTexts({ ai: env.AI, model: payload.model, texts: payload.texts, pooling: (payload as EmbedRequest).pooling });
+          return Response.json({ data });
+        }
+        const scores = await rerankDocuments({ ai: env.AI, model: payload.model, query: (payload as RerankRequest).query ?? "", documents: payload.texts });
+        return Response.json({ scores });
+      } catch (error) {
+        const failed = error instanceof WorkersAiError ? error : new WorkersAiError("upstream");
+        return Response.json({ error: failed.kind, code: failed.code ?? null }, { status: 502 });
+      }
+    }
 
     let body: BenchRequest;
     try {

@@ -73,7 +73,7 @@ export default function StartHerePage() {
           built on. The first screen is the question now; the back link and
           the framing line have moved inside it. */}
       <JournalOpening
-        back={{ href: "/insights", label: "← Blog" }}
+        back={{ href: "/insights", label: "← Insights" }}
         framing="Five stories on what GaitAI measures, why movement means more than identity, and how evidence and responsibility shape the work."
       >
         <OpeningWalker />
@@ -85,7 +85,7 @@ export default function StartHerePage() {
       <StoryMoment {...moment(4)} side="left">{VISUAL[4]}</StoryMoment>
       <EditorialPause lines={PAUSE_TWO.lines} source={PAUSE_TWO.source} href={insightHref(PAUSE_TWO.slug)} />
       <StoryMoment {...moment(5)} side="right">{VISUAL[5]}</StoryMoment>
-      <JournalClose latestHref="/insights" latestTitle="GaitAI Blog & Updates" entries={foundations.map((article) => ({ step: article.seriesOrder ?? article.seriesStep, theme: THEME[article.slug] ?? article.category, href: insightHref(article.slug), title: article.title }))} />
+      <JournalClose latestHref="/insights" latestTitle="GaitAI Insights" entries={foundations.map((article) => ({ step: article.seriesOrder ?? article.seriesStep, theme: THEME[article.slug] ?? article.category, href: insightHref(article.slug), title: article.title }))} />
     </div>
   );
 }

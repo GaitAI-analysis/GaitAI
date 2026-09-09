@@ -187,31 +187,30 @@ export function InsightCard({
       </div>
 
       <div className={`${journal.cardBody} ${styles.depth}`}>
-        <div className={journal.cardMeta}>
-          <time className={journal.cardCategory} dateTime={story.date}>
-            {formatPublicationDate(story.date)}
-          </time>
-          <span aria-hidden="true">·</span>
-          <span>{topic ? topicLabel(topic) : publicationTypeLabel(story.type)}</span>
-          {typeof views === "number" && (
-            <>
-              <span aria-hidden="true">·</span>
-              <span>{formatCount(views, "view")}</span>
-            </>
-          )}
-        </div>
-
+        {/* Headline first. The date, topic and views follow the excerpt in a
+            quiet line — metadata is the last thing a reader needs, not the
+            first thing they see. */}
         <h3 className={journal.cardTitle}>
           <Link href={story.href} className={journal.cardLink}>
             {query ? highlight(story.title, query) : story.title}
           </Link>
         </h3>
-        <p className={journal.cardByline}>{story.author}</p>
         {match && match.where !== "title" ? (
           <MatchLine match={match} story={story} query={query} />
         ) : (
-          <p className={journal.cardExcerpt}>{story.description}</p>
+          <p className={`${journal.cardExcerpt} mt-3`}>{story.description}</p>
         )}
+        <p className={styles.cardMetaQuiet}>
+          <time dateTime={story.date}>{formatPublicationDate(story.date)}</time>
+          <span aria-hidden="true"> · </span>
+          <span>{topic ? topicLabel(topic) : publicationTypeLabel(story.type)}</span>
+          {typeof views === "number" && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span>{formatCount(views, "view")}</span>
+            </>
+          )}
+        </p>
         <span className={journal.cardCta}>
           Read the story
           <span aria-hidden="true" className={journal.cardCtaArrow}>

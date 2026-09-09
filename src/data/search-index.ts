@@ -79,7 +79,7 @@ export const SEARCH_GROUP_LABEL: Record<SearchGroup, string> = {
   research: "Research",
   publication: "Publications",
   talk: "Talks",
-  insight: "Blog",
+  insight: "Insights",
 };
 
 interface SearchEntryBase {

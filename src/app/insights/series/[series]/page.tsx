@@ -46,7 +46,7 @@ export default async function SeriesPage({ params }: { params: { series: string 
   return (
     <div className={journal.journal}>
       <header className="site-page-intro-compact container-wide pb-12 sm:pb-16">
-        <Link href="/insights" className="font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute hover:text-soft-white">← Blog &amp; updates</Link>
+        <Link href="/insights" className="font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute hover:text-soft-white">← Insights</Link>
         <p className="mt-8 font-mono text-[10px] uppercase tracking-[0.22em] text-violet-300">Reading path</p>
         <h1 className="mt-4 max-w-4xl font-display text-display-xl text-balance text-soft-white">{name}</h1>
         <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">{stories.length} stories, arranged in editorial sequence.</p>

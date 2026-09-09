@@ -1,12 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
 import {
   HOME_LATEST_SIZE,
   PUBLICATION_PAGE_SIZE,
-  VISIBLE_TOPIC_COUNT,
   filterPublicationStories,
   formatPublicationDate,
   pageCount,
@@ -47,19 +46,27 @@ function navPages(current: number, total: number): Array<number | "ellipsis"> {
   return output;
 }
 
+/**
+ * THE INSIGHTS HUB.
+ *
+ * CONTENT BEFORE UTILITIES. The order on the page is the order a reader
+ * wants: a short masthead, then the cover story with its interaction, then
+ * one quiet row of utilities — search, Topics, sort — then the remaining
+ * stories in an editorial composition. The type and topic filters still
+ * exist in full; they live behind "Topics ▾" until a reader wants them,
+ * because five stories do not need two rows of pills standing in front of
+ * them. When the archive grows the same menu simply has more entries.
+ *
+ * The masthead sits under the fixed header through the site's own spacing
+ * system (`site-page-intro-compact`), never a hand-picked padding.
+ */
 export function PublicationBrowser({
   stories,
   initialPage = 1,
   basePath = "/insights",
   fixedTopic,
-  /* The journal's identity. "GaitAI Insights" is the publication; the navbar
-     tab is still "Blog", and the metadata title still says "Blog & Updates",
-     so nothing a search engine or a returning reader relies on has moved. */
   kicker = "GaitAI Insights",
   title = "Ideas in motion.",
-  /* One line on what the publication is FOR, not a list of formats — the type
-     and topic filters directly below already say what kinds of writing are
-     here. */
   description = "Research, engineering and perspective on how machines understand human movement. Every story can be explored, not just read.",
   showCover = true,
 }: {
@@ -77,6 +84,8 @@ export function PublicationBrowser({
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("newest");
   const [page, setPage] = useState(initialPage);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { stats, loaded: statsLoaded } = useArticleStats();
 
   const allTopics = useMemo(() => publicationTopics(stories), [stories]);
@@ -84,7 +93,8 @@ export function PublicationBrowser({
   const allTypes = useMemo(() => publicationTypes(stories), [stories]);
   const cover = useMemo(() => (showCover ? selectCoverStory(stories) : undefined), [showCover, stories]);
   const activeTopic = fixedTopic ?? topic;
-  const clean = !query.trim() && type === "all" && activeTopic === (fixedTopic ?? "all") && sort === "newest";
+  const filtering = type !== "all" || activeTopic !== (fixedTopic ?? "all");
+  const clean = !query.trim() && !filtering && sort === "newest";
 
   const matches = useMemo(() => {
     const filtered = filterPublicationStories(stories, { query, type, topic: activeTopic });
@@ -110,8 +120,22 @@ export function PublicationBrowser({
     ? progressivePage(feed, page, showCover ? HOME_LATEST_SIZE : PUBLICATION_PAGE_SIZE)
     : paginate(feed, page, PUBLICATION_PAGE_SIZE);
 
-  const visibleTopics = allTopics.slice(0, VISIBLE_TOPIC_COUNT);
-  const moreTopics = allTopics.slice(VISIBLE_TOPIC_COUNT);
+  /* The Topics menu closes on an outside press or Escape, like any menu. */
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDown = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
 
   const changePage = (nextPage: number) => {
     setPage(nextPage);
@@ -125,15 +149,22 @@ export function PublicationBrowser({
     setPage(1);
   };
 
+  const activeTopicLabel = allTopics.find((item) => item.slug === activeTopic)?.label;
+  const menuLabel = !fixedTopic && activeTopic !== "all" ? activeTopicLabel ?? "Topics" : "Topics";
+  const resultText = clean
+    ? ""
+    : matches.length === stories.length
+      ? `${stories.length} stories`
+      : `${matches.length} of ${stories.length} stories`;
+
   return (
-    <section className={styles.archive}>
-      <JournalBackdrop />
+    <section className={`${styles.archive} site-page-intro-compact`}>
+      <JournalBackdrop quiet />
       <div className="container-wide">
+        {/* ── Masthead: short, then straight into the cover ── */}
         <header className={styles.masthead}>
           <p className={styles.mastheadKicker}>
             {kicker}
-            {/* The publication's mark: one gait cycle with a signal moving
-                through it. It moves only while on screen. */}
             {showCover && <LiveSignalMark />}
           </p>
           <h1 className={styles.mastheadTitle}>{title}</h1>
@@ -144,7 +175,16 @@ export function PublicationBrowser({
           </p>
         </header>
 
-        <div className={styles.controls}>
+        {/* ── Cover story ── */}
+        {coverVisible && cover && (
+          <div className={styles.featured}>
+            <h2 className={styles.featuredLabel}>Cover story</h2>
+            <InsightFeatureStory story={cover} views={stats[cover.slug]?.views} />
+          </div>
+        )}
+
+        {/* ── Utilities: search · Topics ▾ · Newest ▾ ── */}
+        <div id="latest" className={`${styles.utilities} ${coverVisible ? styles.utilitiesAfterCover : ""}`}>
           <div className={styles.searchWrap}>
             <Search aria-hidden="true" className={styles.searchIcon} />
             <input
@@ -159,103 +199,103 @@ export function PublicationBrowser({
               className={styles.search}
             />
           </div>
-          <div className={styles.sortWrap}>
-            <label htmlFor="publication-sort" className={styles.sortLabel}>Sort</label>
-            <select
-              id="publication-sort"
-              value={sort}
-              onChange={(event) => {
-                setSort(event.target.value as Sort);
-                setPage(1);
-              }}
-              className={styles.sort}
+
+          <div ref={menuRef} className={styles.menuWrap}>
+            <button
+              type="button"
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
+              aria-controls="insights-filter-menu"
+              onClick={() => setMenuOpen((open) => !open)}
+              className={`${styles.menuButton} ${filtering ? styles.menuButtonOn : ""}`}
             >
-              <option value="newest">Newest</option>
-              <option value="oldest">Oldest</option>
-              {statsLoaded && <option value="views">Most viewed</option>}
-            </select>
-          </div>
-        </div>
-
-        <div className={styles.filters}>
-          <div className={styles.filterRow}>
-            <span className={styles.filterLabel}>Type</span>
-            <div className={styles.topics} role="group" aria-label="Filter by type">
-              <FilterButton active={type === "all"} onClick={() => { setType("all"); setPage(1); }}>All</FilterButton>
-              {allTypes.map((value) => (
-                <FilterButton key={value} active={type === value} onClick={() => { setType(value); setPage(1); }}>
-                  {publicationTypeLabel(value, true)}
-                </FilterButton>
-              ))}
-            </div>
-          </div>
-
-          {!fixedTopic && (
-            <div className={styles.filterRow}>
-              <span className={styles.filterLabel}>Topic</span>
-              <div className={styles.topics} role="group" aria-label="Filter by topic">
-                <FilterButton active={topic === "all"} onClick={() => { setTopic("all"); setPage(1); }}>All</FilterButton>
-                {visibleTopics.map((value) => (
-                  <FilterButton key={value.slug} active={topic === value.slug} onClick={() => { setTopic(value.slug); setPage(1); }}>
-                    {value.label}
-                  </FilterButton>
-                ))}
-                {moreTopics.length > 0 && (
-                  <details className={styles.moreTopics}>
-                    <summary className={`${styles.topicChip} ${moreTopics.some((item) => item.slug === topic) ? styles.topicChipOn : ""}`}>
-                      More <span aria-hidden="true">▾</span>
-                    </summary>
-                    <div className={styles.moreMenu}>
-                      {moreTopics.map((value) => (
-                        <button
-                          key={value.slug}
-                          type="button"
-                          aria-pressed={topic === value.slug}
-                          onClick={() => { setTopic(value.slug); setPage(1); }}
-                          className={styles.moreOption}
-                        >
-                          <span>{value.label}</span><span>{value.count}</span>
-                        </button>
+              {menuLabel}
+              <span aria-hidden="true" className={styles.menuChevron}>▾</span>
+            </button>
+            {menuOpen && (
+              <div id="insights-filter-menu" className={styles.menuPanel}>
+                {!fixedTopic && (
+                  <div className={styles.menuGroup}>
+                    <span className={styles.menuGroupLabel}>Topic</span>
+                    <div className={styles.topics} role="group" aria-label="Filter by topic">
+                      <FilterButton active={topic === "all"} onClick={() => { setTopic("all"); setPage(1); }}>All</FilterButton>
+                      {allTopics.map((value) => (
+                        <FilterButton key={value.slug} active={topic === value.slug} onClick={() => { setTopic(value.slug); setPage(1); }}>
+                          {value.label} <span className={styles.menuCount}>{value.count}</span>
+                        </FilterButton>
                       ))}
                     </div>
-                  </details>
+                  </div>
+                )}
+                <div className={styles.menuGroup}>
+                  <span className={styles.menuGroupLabel}>Type</span>
+                  <div className={styles.topics} role="group" aria-label="Filter by type">
+                    <FilterButton active={type === "all"} onClick={() => { setType("all"); setPage(1); }}>All</FilterButton>
+                    {allTypes.map((value) => (
+                      <FilterButton key={value} active={type === value} onClick={() => { setType(value); setPage(1); }}>
+                        {publicationTypeLabel(value, true)}
+                      </FilterButton>
+                    ))}
+                  </div>
+                </div>
+                {filtering && (
+                  <button type="button" onClick={() => { setType("all"); if (!fixedTopic) setTopic("all"); setPage(1); }} className={styles.menuClear}>
+                    <X aria-hidden="true" className="h-3 w-3" /> Clear filters
+                  </button>
                 )}
               </div>
-            </div>
-          )}
-        </div>
-
-        <div className={styles.resultRow} aria-live="polite">
-          <span>{matches.length === stories.length ? `${stories.length} stories` : `${matches.length} of ${stories.length} stories`}</span>
-          {!clean && (
-            <button type="button" onClick={reset} className={styles.clear}>
-              <X aria-hidden="true" className="h-3 w-3" /> Clear
-            </button>
-          )}
-        </div>
-
-        {coverVisible && cover && (
-          <div className={styles.featured}>
-            <h2 className={styles.featuredLabel}>Cover story</h2>
-            <InsightFeatureStory story={cover} views={stats[cover.slug]?.views} />
+            )}
           </div>
+
+          <select
+            aria-label="Sort stories"
+            value={sort}
+            onChange={(event) => {
+              setSort(event.target.value as Sort);
+              setPage(1);
+            }}
+            className={styles.sort}
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            {statsLoaded && <option value="views">Most viewed</option>}
+          </select>
+        </div>
+
+        {/* Active filters, as removable chips, only when there are any. */}
+        {(filtering || query.trim()) && (
+          <div className={styles.activeRow}>
+            {type !== "all" && (
+              <button type="button" onClick={() => { setType("all"); setPage(1); }} className={styles.activeChip}>
+                {publicationTypeLabel(type, true)} <X aria-hidden="true" className="h-3 w-3" />
+              </button>
+            )}
+            {!fixedTopic && activeTopic !== "all" && (
+              <button type="button" onClick={() => { setTopic("all"); setPage(1); }} className={styles.activeChip}>
+                {activeTopicLabel} <X aria-hidden="true" className="h-3 w-3" />
+              </button>
+            )}
+            <span className={styles.resultQuiet} aria-live="polite">{resultText}</span>
+            <button type="button" onClick={reset} className={styles.clear}>
+              Clear all
+            </button>
+          </div>
+        )}
+        {!(filtering || query.trim()) && (
+          <span className="sr-only" aria-live="polite">{resultText}</span>
         )}
 
         {visible.length > 0 && (
-          <div id="latest" className={styles.latestSection}>
-            <h2 className={styles.gridHeading}>
-              {fixedTopic
-                ? `Latest in ${allTopics.find((item) => item.slug === fixedTopic)?.label ?? "this topic"}`
-                : query.trim()
-                  ? `Stories matching “${query.trim()}”`
-                  : "Latest from GaitAI"}
-            </h2>
-            {/* Untouched by any filter, the feed is an editorial composition —
-                half, half, wide — so the stories carry different weight. Once a
-                reader filters or searches it becomes a plain grid of results,
-                each saying where it matched. The key is the FILTER signature,
-                so changing a chip replays the settle while typing narrows the
-                same grid in place without a flash. */}
+          <div className={styles.latestSection}>
+            {(fixedTopic || !coverVisible) && (
+              <h2 className={styles.gridHeading}>
+                {fixedTopic
+                  ? `Latest in ${allTopics.find((item) => item.slug === fixedTopic)?.label ?? "this topic"}`
+                  : query.trim()
+                    ? `Stories matching “${query.trim()}”`
+                    : "Stories"}
+              </h2>
+            )}
             {coverVisible ? (
               <div key="composition" className={journal.gridEnter}>
                 <HubComposition stories={visible} stats={stats} />

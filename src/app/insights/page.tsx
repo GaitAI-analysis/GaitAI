@@ -5,7 +5,7 @@ import { readPublicationStories } from "@/lib/publication-store";
 import styles from "@/components/insights/journal.module.css";
 
 export const metadata: Metadata = {
-  title: { absolute: "GaitAI Blog & Updates — Research, Product & Movement Intelligence" },
+  title: { absolute: "GaitAI Insights — Research, Product & Movement Intelligence" },
   description: "Ideas, research, product stories and the latest from GaitAI — movement intelligence, multimodal AI, privacy and the evidence behind it.",
   alternates: {
     canonical: "/insights",
@@ -15,12 +15,12 @@ export const metadata: Metadata = {
     type: "website",
     url: "/insights",
     siteName: "GaitAI",
-    title: "GaitAI Blog & Updates",
+    title: "GaitAI Insights",
     description: "Ideas, research, product stories and the latest from GaitAI.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "GaitAI Blog & Updates",
+    title: "GaitAI Insights",
     description: "Ideas, research, product stories and the latest from GaitAI.",
   },
 };

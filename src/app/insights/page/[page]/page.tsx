@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: { page: string } })
     return { title: "No older stories", alternates: { canonical: "/insights" }, robots: { index: false, follow: true } };
   }
   return {
-    title: `Blog & Updates — Page ${page}`,
+    title: `GaitAI Insights — Page ${page}`,
     description: `Older ideas, research, product stories and updates from GaitAI. Page ${page}.`,
     alternates: { canonical: `/insights/page/${page}` },
   };
@@ -41,7 +41,7 @@ export default async function InsightsPaginationPage({ params }: { params: { pag
   const stories = await readPublicationStories();
   const total = await countPages();
   if (!Number.isInteger(page) || page < 2 || page > total) {
-    return <div className="site-page-intro-roomy container-wide pb-24"><h1 className="font-display text-4xl text-soft-white">You&apos;re up to date.</h1><p className="mt-4 text-soft-gray">There are no older story pages yet.</p><Link href="/insights" className="btn-ghost mt-8">Return to Blog &amp; updates</Link></div>;
+    return <div className="site-page-intro-roomy container-wide pb-24"><h1 className="font-display text-4xl text-soft-white">You&apos;re up to date.</h1><p className="mt-4 text-soft-gray">There are no older story pages yet.</p><Link href="/insights" className="btn-ghost mt-8">Return to Insights</Link></div>;
   }
   return (
     <div className={styles.journal}>

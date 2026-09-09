@@ -46,7 +46,14 @@
  */
 import styles from "./backdrop.module.css";
 
-export function JournalBackdrop() {
+/**
+ * `quiet` — the hub's setting. The baseline grid, the column rules and the two
+ * type blocks stay off, the trajectories run a third fainter, and the band is
+ * shorter, so the masthead breathes on the page ground with a faint movement
+ * layer behind it rather than a drawn console. The archive and topic routes
+ * keep the full drawing.
+ */
+export function JournalBackdrop({ quiet = false }: { quiet?: boolean } = {}) {
   /* Four trajectories over the page, as the platform draws movement: a smooth
      path with sampled points on it. Deterministic — these are fixed curves,
      not generated, so the composition is the same for every reader. */
@@ -129,7 +136,9 @@ export function JournalBackdrop() {
       /* Bounded to the masthead band rather than inset-0: the archive section
          runs the full length of the card grid, and a slice-scaled drawing
          stretched over all of it would put trajectories behind every row. */
-      className={`pointer-events-none absolute inset-x-0 top-0 -z-10 h-[min(620px,78vw)] overflow-hidden ${styles.band}`}
+      className={`pointer-events-none absolute inset-x-0 top-0 -z-10 overflow-hidden ${styles.band} ${
+        quiet ? "h-[min(440px,60vw)]" : "h-[min(620px,78vw)]"
+      }`}
     >
       <svg
         viewBox="0 0 1020 420"
@@ -166,20 +175,24 @@ export function JournalBackdrop() {
 
         <g mask="url(#jb-mask)">
           {/* ── The page: a baseline grid, then column rules ── */}
+          {!quiet && (
           <g stroke="rgb(148 163 184 / 0.1)" strokeWidth="1">
             {Array.from({ length: 15 }, (_, i) => (
               <line key={`b${i}`} x1="0" y1={i * 28 + 14} x2="1020" y2={i * 28 + 14} />
             ))}
           </g>
+          )}
+          {!quiet && (
           <g stroke="rgb(148 163 184 / 0.2)" strokeWidth="1">
             {[404, 664, 924].map((x) => (
               <line key={x} x1={x} y1="30" x2={x} y2="390" />
             ))}
           </g>
+          )}
 
           {/* ── Two text blocks, set as an article would be. Rules of varying
                 length read as prose; a solid block would read as a bar. ── */}
-          {[
+          {!quiet && [
             { x: 428, y: 62, rows: 9 },
             { x: 688, y: 214, rows: 7 },
           ].map((block) => (
@@ -206,7 +219,12 @@ export function JournalBackdrop() {
               key={trace.d}
               d={trace.d}
               className={styles.trace}
-              style={{ "--jb-o": trace.o, "--jb-o-light": trace.lo } as React.CSSProperties}
+              style={
+                {
+                  "--jb-o": quiet ? trace.o * 0.66 : trace.o,
+                  "--jb-o-light": quiet ? trace.lo * 0.66 : trace.lo,
+                } as React.CSSProperties
+              }
               fill="none"
               strokeWidth="1.2"
             />

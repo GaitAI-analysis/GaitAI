@@ -86,7 +86,7 @@ const COPY: Record<
        same four things the reader has just scrolled past on this page, and it
        was the only line between the label and the field. The label says what
        the block is; the field says what to do. */
-    title: "Blog & updates",
+    title: "Insights & updates",
     cta: "Subscribe",
     /* The STORED value stays "footer". `source` is an enum bounded by the
        deployed security rules — `d.source in ['blog','article','footer',

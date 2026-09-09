@@ -9,7 +9,6 @@ import {
   filterPublicationStories,
   formatPublicationDate,
   pageCount,
-  pageHref,
   paginate,
   progressivePage,
   progressivePageCount,
@@ -29,24 +28,13 @@ import { InsightCard } from "./hub/InsightCard";
 import { InsightFeatureStory } from "./hub/InsightFeatureStory";
 import { HubComposition } from "./hub/HubComposition";
 import { LiveSignalMark } from "./hub/LiveSignalMark";
+import { PublicationPagination } from "./PublicationPagination";
 import styles from "./archive.module.css";
 import journal from "./journal.module.css";
 import hub from "./hub/hub.module.css";
 import { seriesMark } from "@/data/insight-series";
 
 type Sort = "newest" | "oldest" | "views";
-
-function navPages(current: number, total: number): Array<number | "ellipsis"> {
-  if (total <= 7) return Array.from({ length: total }, (_, index) => index + 1);
-  const values = new Set([1, total, current - 1, current, current + 1]);
-  const ordered = [...values].filter((value) => value > 0 && value <= total).sort((a, b) => a - b);
-  const output: Array<number | "ellipsis"> = [];
-  ordered.forEach((value, index) => {
-    if (index > 0 && value - ordered[index - 1] > 1) output.push("ellipsis");
-    output.push(value);
-  });
-  return output;
-}
 
 /**
  * THE INSIGHTS HUB.
@@ -314,6 +302,9 @@ export function PublicationBrowser({
                   : query.trim()
                     ? `Stories matching “${query.trim()}”`
                     : "Stories"}
+                {page > 1 && totalPages > 1 && (
+                  <span className={styles.gridHeadingState}> · page {String(page).padStart(2, "0")} of {String(totalPages).padStart(2, "0")}</span>
+                )}
               </h2>
             )}
             {coverVisible ? (
@@ -354,44 +345,7 @@ export function PublicationBrowser({
         )}
 
         {visible.length > 0 && totalPages > 1 && (
-          <nav className={styles.pagination} aria-label="Publication pages">
-            {page > 1 && (
-              routedPagination ? (
-                <Link href={pageHref(basePath, page - 1)} className={styles.pageDirection}>← Newer</Link>
-              ) : (
-                <button type="button" onClick={() => changePage(page - 1)} className={styles.pageDirection}>← Newer</button>
-              )
-            )}
-            <div className={styles.pageNumbers}>
-              {navPages(page, totalPages).map((value, index) =>
-                value === "ellipsis" ? (
-                  <span key={`ellipsis-${index}`} className={styles.pageEllipsis}>…</span>
-                ) : routedPagination ? (
-                  <Link
-                    key={value}
-                    href={pageHref(basePath, value)}
-                    aria-current={page === value ? "page" : undefined}
-                    className={`${styles.pageNumber} ${page === value ? styles.pageNumberOn : ""}`}
-                  >{value}</Link>
-                ) : (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => changePage(value)}
-                    aria-current={page === value ? "page" : undefined}
-                    className={`${styles.pageNumber} ${page === value ? styles.pageNumberOn : ""}`}
-                  >{value}</button>
-                ),
-              )}
-            </div>
-            {page < totalPages && (
-              routedPagination ? (
-                <Link href={pageHref(basePath, page + 1)} className={styles.pageDirection}>Older →</Link>
-              ) : (
-                <button type="button" onClick={() => changePage(page + 1)} className={styles.pageDirection}>Older →</button>
-              )
-            )}
-          </nav>
+          <PublicationPagination page={page} total={totalPages} basePath={basePath} routed={routedPagination} onChange={changePage} />
         )}
       </div>
     </section>

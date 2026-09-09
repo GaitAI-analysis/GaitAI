@@ -9,7 +9,8 @@
    ========================================================================= */
 
 .section {
-  padding: clamp(2.5rem, 5vw, 3.75rem) 0 clamp(2rem, 4vw, 3rem);
+  padding: clamp(2rem, 4vw, 3rem) 0 clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--jr-line);
   scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
 }
 .grid {

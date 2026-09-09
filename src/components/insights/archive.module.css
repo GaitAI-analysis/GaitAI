@@ -565,79 +565,231 @@
   margin-top: 1.5rem;
 }
 
-/* Compact, bounded page navigation. Only the current slice is rendered as
-   cards; these crawlable links expose every older slice to search engines. */
+/* ── The transition to older stories ──
+   Pagination as a moment in the journal: a track from the newest page to the
+   oldest, one node per page, the current one lit, and words that say where
+   this collection is and where the rest is. Close to the stories it belongs
+   to; the next section opens with its own separation. The routes behind it
+   stay crawlable (`/insights/`, `/insights/page/2/`). */
 .pagination {
-  margin-top: clamp(2rem, 5vw, 3.25rem);
-  display: grid;
-  grid-template-columns: minmax(5rem, 1fr) auto minmax(5rem, 1fr);
-  align-items: center;
-  gap: 1rem;
-  padding-top: 1.5rem;
+  position: relative;
+  margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+  padding: 1.1rem 0 0.25rem;
   border-top: 1px solid var(--jr-line);
-}
-
-.pageNumbers {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-}
-
-.pageNumber,
-.pageDirection {
-  min-width: 2.25rem;
-  min-height: 2.25rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--jr-line);
-  border-radius: 999px;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  color: var(--jr-mute);
-  transition: border-color 0.25s var(--jr-ease), color 0.25s var(--jr-ease);
-}
-
-.pageDirection {
-  min-width: 0;
-  border: 0;
-  justify-self: start;
   text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 9.5px;
+  color: var(--jr-mute);
 }
 
-.pageDirection:last-child {
-  justify-self: end;
+/* Which way is which, and where we are. */
+.pageRail {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
 }
-
-.pageNumber:hover,
-.pageDirection:hover,
-.pageNumberOn {
-  border-color: var(--jr-cyan);
+.pageEnd:last-child {
+  text-align: right;
+}
+.pageState {
+  color: var(--jr-mute);
+  letter-spacing: 0.22em;
+}
+.pageState b {
+  font-weight: 600;
   color: var(--jr-ink);
 }
-
-.pageNumberOn {
-  background: rgb(79 209 255 / 0.1);
+.pageStateInline {
+  display: none;
 }
 
-.pageEllipsis {
+/* The track. The nodes are anchored to it by percentage; the line and the
+   travelling signal are its own layers. */
+.pageTrack {
+  position: relative;
+  height: 2.75rem;
+  margin: 0.55rem 0.35rem 0;
+}
+.pageTrackLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.55rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--jr-cyan) 0, var(--jr-line-mid) 18%, var(--jr-line-mid) 82%, var(--jr-line) 100%);
+}
+/* A short signal that travels the track from the current node towards the
+   destination when a reader hovers or focuses a link — once, then rests. */
+.pageTrackSignal {
+  position: absolute;
+  top: calc(0.55rem - 1px);
+  left: var(--pg-from, 0%);
+  width: 26px;
+  height: 3px;
+  margin-left: -13px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--jr-cyan), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+.pagination:has(.pageWordOlder:hover, .pageWordOlder:focus-visible) .pageTrackSignal {
+  animation: pgTravel 0.7s var(--jr-ease) 1 both;
+  --pg-dest: var(--pg-to-older);
+}
+.pagination:has(.pageWordLink:not(.pageWordOlder):hover, .pageWordLink:not(.pageWordOlder):focus-visible) .pageTrackSignal {
+  animation: pgTravel 0.7s var(--jr-ease) 1 both;
+  --pg-dest: var(--pg-to-newer);
+}
+@keyframes pgTravel {
+  0% {
+    left: var(--pg-from);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    left: var(--pg-dest);
+    opacity: 0;
+  }
+}
+
+.pageNodes {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pageNodeSlot,
+.pageNodeGap {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+}
+.pageNodeGap {
+  top: 0.15rem;
+  letter-spacing: 0.1em;
+  color: var(--jr-line-mid);
+}
+/* A node is a small dot on the line with its number beneath; the target is
+   the whole 44px column around it. */
+.pageNode {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding-top: calc(0.55rem - 3px);
+  color: var(--jr-mute);
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.pageDot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: 1px solid var(--jr-line-mid);
+  background: rgb(var(--c-obsidian-500, 7 11 20));
+  transition: border-color var(--motion-ui) var(--jr-ease), background var(--motion-ui) var(--jr-ease), transform var(--motion-ui) var(--jr-ease);
+}
+:global(.light) .pageDot {
+  background: #f8fafc;
+}
+.pageNo {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+}
+.pageNode:hover .pageDot,
+.pageNode:focus-visible .pageDot {
+  border-color: var(--jr-cyan);
+}
+.pageNode:hover,
+.pageNode:focus-visible {
+  color: var(--jr-ink);
+}
+.pageNode:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.pageNodeOn {
+  color: var(--jr-ink);
+}
+.pageNodeOn .pageDot {
+  border-color: var(--jr-cyan);
+  background: var(--jr-cyan);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.14);
+}
+.pageNodeOn .pageNo {
+  color: var(--jr-cyan);
+}
+
+/* The words. */
+.pageWords {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-top: 0.1rem;
+}
+.pageWord {
+  grid-column: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
   color: var(--jr-mute);
 }
+.pageStateInline {
+  grid-column: 2;
+}
+.pageWordOlder {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+}
+.pageWordLink {
+  color: var(--jr-body);
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.pageWordLink:hover,
+.pageWordLink:focus-visible {
+  color: var(--jr-cyan);
+}
+.pageWordLink:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
 
+/* A phone: one row, `← NEWER · 1 / 2 · OLDER →`, generous targets, and the
+   track kept only as a line — a 7px dot is not a tap target. */
 @media (max-width: 560px) {
-  .pagination {
-    grid-template-columns: 1fr 1fr;
+  .pageRail,
+  .pageNodes {
+    display: none;
   }
-
-  .pageNumbers {
-    grid-column: 1 / -1;
-    grid-row: 1;
+  .pageTrack {
+    display: none;
   }
+  .pageStateInline {
+    display: inline;
+  }
+  .pageWord {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+  }
+}
 
-  .pageDirection {
-    grid-row: 2;
+@media (prefers-reduced-motion: reduce) {
+  .pageTrackSignal {
+    animation: none !important;
   }
 }
 
@@ -784,4 +936,10 @@
     transition: none;
     transform: none;
   }
+}
+
+/* On an older page the heading says which page this is. */
+.gridHeadingState {
+  color: var(--jr-body);
+  letter-spacing: 0.18em;
 }

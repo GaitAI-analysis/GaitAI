@@ -1,0 +1,318 @@
+/* =========================================================================
+   INSIGHTS · FIGURE VOCABULARY
+   ---------------------------------------------------------------------------
+   The strokes every interactive figure draws with. One instrument language —
+   the same hairline weights, the same joint radius, the same mono labels —
+   so the five articles' figures read as one journal while their compositions
+   differ.
+
+   Every class carries a light branch. Movement visuals keep their fidelity in
+   the light theme: inks deepen, nothing washes out.
+   ========================================================================= */
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ── The body ── */
+.bone {
+  fill: none;
+  stroke: var(--jr-ink, #f8fafc);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease), stroke var(--motion-editorial) var(--jr-ease, ease);
+}
+.boneFar {
+  opacity: 0.38;
+  stroke-width: 1.6;
+}
+.joint {
+  fill: var(--jr-cyan, #4fd1ff);
+  stroke: rgb(var(--c-obsidian-400));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease), r var(--motion-ui) var(--jr-ease, ease);
+}
+:global(.light) .joint {
+  stroke: #ffffff;
+}
+.head {
+  fill: none;
+  stroke: var(--jr-ink, #f8fafc);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease);
+}
+.contact {
+  fill: var(--jr-cyan, #4fd1ff);
+  opacity: 0.3;
+}
+/* A soft body mass — the person before there is a skeleton. */
+.mass {
+  fill: rgb(203 213 225 / 0.16);
+  stroke: rgb(203 213 225 / 0.35);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease);
+}
+:global(.light) .mass {
+  fill: rgb(51 65 85 / 0.14);
+  stroke: rgb(51 65 85 / 0.4);
+}
+.massSolid {
+  fill: rgb(203 213 225 / 0.55);
+  stroke: none;
+}
+:global(.light) .massSolid {
+  fill: rgb(51 65 85 / 0.5);
+}
+.ghost {
+  opacity: 0.22;
+}
+.ghostFaint {
+  opacity: 0.1;
+}
+
+/* ── Lines and traces ── */
+.trace {
+  fill: none;
+  stroke: var(--jr-cyan, #4fd1ff);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease), stroke var(--motion-editorial) var(--jr-ease, ease);
+}
+.traceViolet {
+  stroke: var(--jr-violet, #9c64f1);
+}
+.traceTeal {
+  stroke: var(--jr-teal, #2dd4bf);
+}
+.traceRoyal {
+  stroke: var(--jr-royal, #5587ff);
+}
+.traceGold {
+  stroke: var(--jr-gold, #e4c48a);
+}
+.traceWarn {
+  stroke: #f0b45a;
+}
+:global(.light) .traceWarn {
+  stroke: #b7791f;
+}
+.traceSoft {
+  stroke: var(--jr-line-mid, rgb(148 163 184 / 0.28));
+}
+.traceThin {
+  stroke-width: 1;
+}
+.traceBold {
+  stroke-width: 2.2;
+}
+.dash {
+  fill: none;
+  stroke: var(--jr-line-mid, rgb(148 163 184 / 0.28));
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  vector-effect: non-scaling-stroke;
+}
+.hair {
+  fill: none;
+  stroke: var(--jr-line, rgb(148 163 184 / 0.16));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.grid line {
+  stroke: var(--jr-grid, rgb(148 163 184 / 0.07));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.ground {
+  fill: none;
+  stroke: var(--jr-line-mid, rgb(148 163 184 / 0.28));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Marks ── */
+.node {
+  fill: rgb(var(--c-obsidian-400));
+  stroke: var(--jr-cyan, #4fd1ff);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease), transform var(--motion-ui) var(--jr-ease, ease);
+}
+:global(.light) .node {
+  fill: #ffffff;
+}
+.nodeFill {
+  fill: var(--jr-cyan, #4fd1ff);
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease), transform var(--motion-ui) var(--jr-ease, ease);
+}
+.nodeViolet {
+  fill: var(--jr-violet, #9c64f1);
+}
+.nodeTeal {
+  fill: var(--jr-teal, #2dd4bf);
+}
+.nodeWarn {
+  fill: #f0b45a;
+}
+:global(.light) .nodeWarn {
+  fill: #b7791f;
+}
+.nodeMute {
+  fill: var(--jr-line-mid, rgb(148 163 184 / 0.28));
+}
+
+/* ── Frames, pixels and bands ── */
+.frame {
+  fill: none;
+  stroke: var(--jr-line-mid, rgb(148 163 184 / 0.28));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.frameAccent {
+  stroke: var(--jr-cyan, #4fd1ff);
+  stroke-dasharray: 4 3;
+}
+.pixel {
+  fill: rgb(148 163 184 / 0.12);
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease);
+}
+.pixelLit {
+  fill: rgb(203 213 225 / 0.3);
+}
+:global(.light) .pixel {
+  fill: rgb(51 65 85 / 0.1);
+}
+:global(.light) .pixelLit {
+  fill: rgb(51 65 85 / 0.26);
+}
+.band {
+  fill: rgb(79 209 255 / 0.07);
+  stroke: rgb(79 209 255 / 0.25);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .band {
+  fill: rgb(16 143 192 / 0.07);
+  stroke: rgb(16 143 192 / 0.3);
+}
+.bandViolet {
+  fill: rgb(156 100 241 / 0.08);
+  stroke: rgb(156 100 241 / 0.3);
+}
+.bandWarn {
+  fill: rgb(240 180 90 / 0.1);
+  stroke: rgb(240 180 90 / 0.4);
+}
+.plate {
+  fill: rgb(var(--c-obsidian-200) / 0.7);
+  stroke: var(--jr-line, rgb(148 163 184 / 0.16));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .plate {
+  fill: rgb(255 255 255 / 0.9);
+}
+.plateLit {
+  stroke: var(--jr-cyan, #4fd1ff);
+}
+
+/* ── Type ── */
+.label {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: var(--jr-mute, rgb(148 163 184));
+  transition: fill var(--motion-ui) var(--jr-ease, ease), opacity var(--motion-editorial) var(--jr-ease, ease);
+}
+.labelInk {
+  fill: var(--jr-ink, #f8fafc);
+}
+.labelAccent {
+  fill: var(--jr-cyan, #4fd1ff);
+}
+.labelViolet {
+  fill: var(--jr-violet, #9c64f1);
+}
+.labelTeal {
+  fill: var(--jr-teal, #2dd4bf);
+}
+.labelWarn {
+  fill: #f0b45a;
+}
+:global(.light) .labelWarn {
+  fill: #b7791f;
+}
+.labelSmall {
+  font-size: 7px;
+}
+.labelDisplay {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  fill: var(--jr-ink, #f8fafc);
+  text-transform: none;
+}
+
+/* ── State helpers ── */
+.hidden {
+  opacity: 0;
+}
+.dim {
+  opacity: 0.35;
+}
+.fade {
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease);
+}
+.move {
+  transition:
+    transform var(--motion-editorial) var(--jr-ease, ease),
+    opacity var(--motion-editorial) var(--jr-ease, ease);
+}
+.draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset var(--motion-signal-slow, 1.6s) var(--jr-ease, ease);
+}
+.drawOn {
+  stroke-dashoffset: 0;
+}
+
+/* The corrupted-stream look: still present, visibly wrong. */
+.noisy {
+  filter: url(#ix-noise);
+}
+.blur {
+  filter: blur(1.6px);
+}
+.dark {
+  opacity: 0.4;
+}
+
+/* The living gait waveform in the hub identity and the hero. Paused offscreen
+   by the component (data-active), and never runs under reduced motion. */
+.pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* On a phone the whole drawing is a third of its desktop width, so the type
+   scales up in viewBox units to stay legible. Applied by the figure when it
+   detects a narrow viewport (useNarrow). */
+.narrow .label {
+  font-size: 12.5px;
+}
+.narrow .labelSmall {
+  font-size: 10.5px;
+}

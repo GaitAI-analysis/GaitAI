@@ -1,0 +1,1594 @@
+/* =========================================================================
+   INSIGHTS · THE INTERACTIVE LAYER
+   ---------------------------------------------------------------------------
+   Shared chrome for every interactive figure, control and reading-mode
+   surface in the journal. The figures themselves draw with
+   figures.module.css; this file is the frame around them.
+
+   Rules:
+     · every rule has a light branch, keyed on :global(.light)
+     · motion durations come from the site tokens (--motion-*), which collapse
+       under prefers-reduced-motion by themselves
+     · touch targets are 44px where a finger will land
+     · nothing here glows, spins or floats — the only movement is a state
+       arriving
+   ========================================================================= */
+
+/* ── Tokens the layer reads. The journal root already defines --jr-*; these
+      fall back so a figure dropped somewhere else still has colour. ── */
+.root {
+  --ix-cyan: var(--jr-cyan, #4fd1ff);
+  --ix-royal: var(--jr-royal, #5587ff);
+  --ix-violet: var(--jr-violet, #9c64f1);
+  --ix-teal: var(--jr-teal, #2dd4bf);
+  --ix-gold: var(--jr-gold, #e4c48a);
+  --ix-warn: #f0b45a;
+  --ix-line: var(--jr-line, rgb(148 163 184 / 0.16));
+  --ix-line-mid: var(--jr-line-mid, rgb(148 163 184 / 0.28));
+  --ix-ink: rgb(var(--c-soft-white));
+  --ix-body: rgb(var(--c-soft-gray));
+  --ix-mute: rgb(var(--c-soft-mute));
+  --ix-surface: rgb(var(--c-obsidian-300) / 0.72);
+  --ix-surface-2: rgb(var(--c-obsidian-200) / 0.9);
+  --ix-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+:global(.light) .root {
+  --ix-warn: #b7791f;
+  --ix-surface: rgb(255 255 255 / 0.9);
+  --ix-surface-2: #ffffff;
+}
+
+/* =========================================================================
+   1 · THE FIGURE SHELL
+   ========================================================================= */
+
+.figure {
+  position: relative;
+  isolation: isolate;
+  margin: 2.75rem 0;
+  border: 1px solid var(--ix-line);
+  border-radius: 1.25rem;
+  background:
+    radial-gradient(120% 80% at 80% 0%, rgb(79 209 255 / 0.05), transparent 60%),
+    linear-gradient(180deg, rgb(var(--c-obsidian-300) / 0.85), rgb(var(--c-obsidian-400) / 0.95));
+  overflow: hidden;
+}
+:global(.light) .figure {
+  background:
+    radial-gradient(120% 80% at 80% 0%, rgb(16 143 192 / 0.05), transparent 60%),
+    linear-gradient(180deg, #ffffff, #f8fafc);
+  box-shadow: 0 1px 0 rgb(255 255 255) inset, 0 18px 40px -30px rgb(15 23 42 / 0.25);
+}
+@media (min-width: 1024px) {
+  .figureWide {
+    margin-left: -3.5rem;
+    margin-right: -3.5rem;
+  }
+}
+/* The hero variant: no top margin, sits in the article's media slot. */
+.figureHero {
+  margin: 0;
+}
+
+.figureHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  padding: 0.9rem 1.1rem 0;
+}
+.figureEyebrow {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ix-cyan);
+}
+.figureTitle {
+  flex: 1 1 12rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ix-ink);
+}
+.figureStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--ix-line-mid);
+  border-radius: 999px;
+  padding: 0.22rem 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-mute);
+  white-space: nowrap;
+}
+.figureStatus::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.8;
+}
+.statusIllustrative {
+  color: var(--ix-gold);
+  border-color: color-mix(in srgb, var(--ix-gold) 40%, transparent);
+}
+.statusMeasured {
+  color: var(--ix-cyan);
+  border-color: color-mix(in srgb, var(--ix-cyan) 45%, transparent);
+}
+
+/* The interactive area. `pan-y` keeps a vertical finger a page scroll. */
+.figureStage {
+  position: relative;
+  padding: 0.75rem 1.1rem 0.5rem;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.figureStage:focus-within {
+  outline: none;
+}
+
+.figureFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  padding: 0.5rem 1.1rem 1rem;
+  border-top: 1px solid var(--ix-line);
+}
+.figureCaption {
+  flex: 1 1 18rem;
+  max-width: 42rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--ix-mute);
+}
+.figureActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* The accessible equivalent: a plain-text description, always present, closed
+   by default, never a wall of controls. */
+.figureDescription {
+  flex-basis: 100%;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  color: var(--ix-body);
+}
+.figureDescriptionToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-mute);
+  min-height: 32px;
+}
+.figureDescriptionToggle::-webkit-details-marker {
+  display: none;
+}
+.figureDescriptionToggle:hover,
+.figureDescriptionToggle:focus-visible {
+  color: var(--ix-ink);
+}
+.figureDescriptionToggle:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.figureDescriptionBody {
+  margin-top: 0.5rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--ix-line-mid);
+  white-space: pre-line;
+}
+
+/* The lazy placeholder, the same size as the figure it stands in for. */
+.figurePlaceholder {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--ix-mute);
+  text-align: center;
+}
+
+/* ── Desktop cursor hint. A small label rides with the pointer inside the
+      stage. Never on touch, never global. ── */
+.cursorHint {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  transform: translate(calc(var(--cx, 0px) + 14px), calc(var(--cy, 0px) + 14px));
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+  background: rgb(var(--c-obsidian-200) / 0.92);
+  border: 1px solid var(--ix-line-mid);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ix-ink);
+  opacity: 0;
+  transition: opacity var(--motion-ui) var(--ix-ease);
+  will-change: transform;
+}
+:global(.light) .cursorHint {
+  background: rgb(255 255 255 / 0.96);
+}
+@media (hover: hover) and (pointer: fine) {
+  .figureStage:hover .cursorHint {
+    opacity: 1;
+  }
+  .figureStage[data-dragging="true"] .cursorHint {
+    opacity: 0;
+  }
+}
+
+/* =========================================================================
+   2 · THE STAGE CONTROL — RAW ━━━ POSE ━━━ ● ━━━ SIGNAL
+   ========================================================================= */
+
+.scrub {
+  position: relative;
+  margin-top: 0.5rem;
+}
+.scrubTrack {
+  position: relative;
+  height: 44px;
+  cursor: grab;
+  touch-action: pan-y;
+  border-radius: 8px;
+  outline: none;
+}
+.scrubTrack:active,
+.scrubTrack[data-dragging="true"] {
+  cursor: grabbing;
+}
+.scrubTrack:focus-visible {
+  box-shadow: 0 0 0 2px var(--ix-cyan);
+}
+.scrubLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--ix-line-mid);
+  transform: translateY(-50%);
+}
+.scrubFill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, var(--ix-cyan), var(--ix-royal));
+  transition: width var(--motion-ui) var(--ix-ease);
+}
+.scrubTrack[data-dragging="true"] .scrubFill {
+  transition: none;
+}
+.scrubTick {
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: 8px;
+  background: var(--ix-line-mid);
+  transform: translate(-50%, -50%);
+}
+.scrubTickOn {
+  background: var(--ix-cyan);
+}
+.scrubKnob {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: var(--ix-ink);
+  border: 2px solid var(--ix-cyan);
+  box-shadow: 0 0 0 4px rgb(79 209 255 / 0.14);
+  transform: translate(-50%, -50%);
+  transition:
+    left var(--motion-ui) var(--ix-ease),
+    transform var(--motion-fast) var(--ix-ease);
+}
+.scrubTrack[data-dragging="true"] .scrubKnob {
+  transition: transform var(--motion-fast) var(--ix-ease);
+  transform: translate(-50%, -50%) scale(0.9);
+}
+:global(.light) .scrubKnob {
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgb(16 143 192 / 0.14);
+}
+
+/* The stage names. Buttons, so a tap jumps; ≥44px tall on touch. */
+.scrubLabels {
+  display: grid;
+  margin-top: 0.15rem;
+}
+.scrubLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0.35rem 0.2rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1.3;
+  text-align: center;
+  color: var(--ix-mute);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color var(--motion-ui) var(--ix-ease);
+}
+.scrubLabel:first-child {
+  justify-content: flex-start;
+  text-align: left;
+}
+.scrubLabel:last-child {
+  justify-content: flex-end;
+  text-align: right;
+}
+.scrubLabel:hover,
+.scrubLabel:focus-visible {
+  color: var(--ix-ink);
+}
+.scrubLabel:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: -2px;
+}
+.scrubLabelOn,
+.scrubLabelOn:hover {
+  color: var(--ix-cyan);
+  font-weight: 600;
+}
+@media (pointer: coarse) {
+  .scrubLabel {
+    min-height: 44px;
+  }
+}
+/* Below ~560px eight labels do not fit; show the current one only. */
+.scrubCurrent {
+  display: none;
+  margin-top: 0.1rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-cyan);
+  text-align: center;
+  min-height: 24px;
+}
+@media (max-width: 559px) {
+  .scrubLabelsDense {
+    display: none;
+  }
+  .scrubCurrent {
+    display: block;
+  }
+}
+.scrubHint {
+  margin-top: 0.15rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-mute);
+  text-align: center;
+}
+
+/* =========================================================================
+   3 · CHIPS, TOGGLES AND QUALITATIVE LABELS
+   ========================================================================= */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 34px;
+  border: 1px solid var(--ix-line);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 11.5px;
+  color: var(--ix-mute);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-ui) var(--ix-ease),
+    color var(--motion-ui) var(--ix-ease),
+    background-color var(--motion-ui) var(--ix-ease),
+    transform var(--motion-fast) var(--ix-ease);
+}
+.chip:hover,
+.chip:focus-visible {
+  border-color: var(--ix-line-mid);
+  color: var(--ix-ink);
+  background: rgb(var(--c-soft-white) / 0.04);
+}
+.chip:active {
+  transform: translateY(1px) scale(0.985);
+}
+.chip:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 2px;
+}
+.chipOn,
+.chipOn:hover {
+  border-color: var(--ix-cyan);
+  background: rgb(79 209 255 / 0.12);
+  color: var(--ix-ink);
+  font-weight: 600;
+}
+:global(.light) .chipOn,
+:global(.light) .chipOn:hover {
+  background: rgb(16 143 192 / 0.1);
+}
+.chipViolet.chipOn {
+  border-color: var(--ix-violet);
+  background: rgb(156 100 241 / 0.14);
+}
+.chipWarn.chipOn {
+  border-color: var(--ix-warn);
+  background: color-mix(in srgb, var(--ix-warn) 14%, transparent);
+}
+@media (pointer: coarse) {
+  .chip {
+    min-height: 44px;
+    padding-inline: 0.95rem;
+  }
+}
+
+/* A row of small pressable labels under a stream, e.g. Healthy · Missing ·
+   Corrupted. Segmented so the current one is obvious without colour. */
+.segment {
+  display: inline-flex;
+  border: 1px solid var(--ix-line);
+  border-radius: 999px;
+  padding: 2px;
+  background: rgb(var(--c-soft-white) / 0.02);
+}
+:global(.light) .segment {
+  background: rgb(15 23 42 / 0.03);
+}
+.segmentBtn {
+  min-height: 30px;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ix-mute);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-ui) var(--ix-ease),
+    color var(--motion-ui) var(--ix-ease);
+}
+.segmentBtn:hover {
+  color: var(--ix-ink);
+}
+.segmentBtn:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: -1px;
+}
+.segmentOn,
+.segmentOn:hover {
+  background: rgb(var(--c-soft-white) / 0.1);
+  color: var(--ix-ink);
+}
+:global(.light) .segmentOn,
+:global(.light) .segmentOn:hover {
+  background: rgb(15 23 42 / 0.09);
+}
+@media (pointer: coarse) {
+  .segmentBtn {
+    min-height: 40px;
+  }
+}
+
+/* Qualitative status labels — never numbers. */
+.qualRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--ix-line);
+  font-size: 0.8125rem;
+  color: var(--ix-body);
+}
+.qualRow:last-child {
+  border-bottom: 0;
+}
+.qualName {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ix-body);
+}
+.qual {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: color var(--motion-ui) var(--ix-ease);
+}
+.qual::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+.qualOk {
+  color: var(--ix-teal);
+}
+.qualMid {
+  color: var(--ix-warn);
+}
+.qualBad {
+  color: #f0879b;
+}
+:global(.light) .qualBad {
+  color: #be123c;
+}
+.qualOff {
+  color: var(--ix-mute);
+}
+.qualOff::before {
+  background: transparent;
+  border: 1px solid currentColor;
+}
+
+/* Three-level indicator: High / Medium / Low, as three bars. */
+.level {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 14px;
+}
+.levelBar {
+  width: 5px;
+  border-radius: 1px;
+  background: var(--ix-line-mid);
+  transition: background-color var(--motion-ui) var(--ix-ease);
+}
+.levelBar:nth-child(1) {
+  height: 6px;
+}
+.levelBar:nth-child(2) {
+  height: 10px;
+}
+.levelBar:nth-child(3) {
+  height: 14px;
+}
+.levelBarOn {
+  background: var(--level-color, var(--ix-cyan));
+}
+
+/* =========================================================================
+   4 · READING MODES — READ · ESSENTIALS · VISUAL STORY
+   ========================================================================= */
+
+.modes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 2rem;
+}
+.mode {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-height: 44px;
+  min-width: 7.5rem;
+  border: 1px solid var(--ix-line);
+  border-radius: 0.8rem;
+  padding: 0.55rem 0.9rem;
+  text-align: left;
+  color: var(--ix-mute);
+  background: rgb(var(--c-soft-white) / 0.02);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-ui) var(--ix-ease),
+    background-color var(--motion-ui) var(--ix-ease),
+    color var(--motion-ui) var(--ix-ease),
+    transform var(--motion-fast) var(--ix-ease);
+}
+:global(.light) .mode {
+  background: #ffffff;
+}
+.mode:hover,
+.mode:focus-visible {
+  border-color: var(--ix-line-mid);
+  color: var(--ix-ink);
+}
+.mode:active {
+  transform: translateY(1px);
+}
+.mode:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 2px;
+}
+.modeOn,
+.modeOn:hover {
+  border-color: var(--ix-cyan);
+  background: rgb(79 209 255 / 0.08);
+  color: var(--ix-ink);
+}
+:global(.light) .modeOn,
+:global(.light) .modeOn:hover {
+  background: rgb(16 143 192 / 0.07);
+}
+.modeName {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.modeMeta {
+  font-size: 11px;
+  color: var(--ix-mute);
+}
+.modeOn .modeMeta {
+  color: var(--ix-body);
+}
+.modeStory .modeName::after {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 1px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  background: linear-gradient(90deg, var(--ix-cyan), var(--ix-violet));
+}
+.essentials {
+  margin-top: 1.25rem;
+}
+
+/* =========================================================================
+   5 · VISUAL STORY — a guided sequence in a dialog
+   ========================================================================= */
+
+.storyBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+  background: rgb(4 8 15 / 0.82);
+  backdrop-filter: blur(14px);
+  animation: ixFade var(--motion-editorial) var(--ix-ease) both;
+}
+:global(.light) .storyBackdrop {
+  background: rgb(15 23 42 / 0.5);
+}
+.storyPanel {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: min(100%, 64rem);
+  max-height: min(100dvh - 1rem, 56rem);
+  border: 1px solid var(--ix-line-mid);
+  border-radius: 1.5rem;
+  background: rgb(var(--c-obsidian-400));
+  color: var(--ix-ink);
+  overflow: hidden;
+  outline: none;
+  animation: ixRise var(--motion-editorial) var(--ix-ease) both;
+}
+:global(.light) .storyPanel {
+  background: #f6f8fc;
+}
+.storyBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--ix-line);
+}
+.storyKicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ix-cyan);
+}
+.storyKickerTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ix-mute);
+}
+.storyCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--ix-mute);
+  white-space: nowrap;
+}
+.storyBody {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+  overflow: auto;
+}
+.storyVisual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: clamp(220px, 42vh, 420px);
+  padding: 1rem clamp(0.75rem, 3vw, 2rem);
+  background:
+    radial-gradient(90% 70% at 50% 0%, rgb(79 209 255 / 0.05), transparent 65%);
+}
+.storyVisual > * {
+  width: 100%;
+  max-width: 44rem;
+}
+.storyText {
+  padding: 0.5rem clamp(1rem, 4vw, 2.5rem) 1.25rem;
+  text-align: center;
+}
+.storyIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ix-cyan);
+}
+.storyTitle {
+  margin-top: 0.4rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.25rem, 2.6vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--ix-ink);
+  text-wrap: balance;
+}
+.storyLine {
+  margin: 0.7rem auto 0;
+  max-width: 36rem;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--ix-body);
+}
+.storyControls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.1rem 0.9rem;
+  border-top: 1px solid var(--ix-line);
+}
+.storyDots {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}
+.storyDot {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  color: var(--ix-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color var(--motion-ui) var(--ix-ease), background-color var(--motion-ui) var(--ix-ease);
+}
+.storyDot::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ix-line-mid);
+  transition: background-color var(--motion-ui) var(--ix-ease), transform var(--motion-ui) var(--ix-ease);
+}
+.storyDot:hover::before,
+.storyDot:focus-visible::before {
+  background: var(--ix-ink);
+}
+.storyDot:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: -2px;
+}
+.storyDotDone::before {
+  background: var(--ix-cyan);
+  opacity: 0.55;
+}
+.storyDotOn::before {
+  background: var(--ix-cyan);
+  transform: scale(1.35);
+  opacity: 1;
+}
+.storyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  border: 1px solid var(--ix-line-mid);
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-ink);
+  background: rgb(var(--c-soft-white) / 0.03);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-ui) var(--ix-ease),
+    background-color var(--motion-ui) var(--ix-ease),
+    transform var(--motion-fast) var(--ix-ease);
+}
+:global(.light) .storyBtn {
+  background: #ffffff;
+}
+.storyBtn:hover {
+  border-color: var(--ix-cyan);
+  background: rgb(79 209 255 / 0.08);
+}
+.storyBtn:active {
+  transform: translateY(1px);
+}
+.storyBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  transform: none;
+}
+.storyBtn:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 2px;
+}
+.storyBtnPrimary {
+  border-color: var(--ix-cyan);
+  background: rgb(79 209 255 / 0.12);
+}
+.storyExit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-mute);
+  cursor: pointer;
+  transition: color var(--motion-ui) var(--ix-ease);
+}
+.storyExit:hover,
+.storyExit:focus-visible {
+  color: var(--ix-ink);
+}
+.storyExit:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 2px;
+}
+.storyMoment {
+  animation: ixFade var(--motion-editorial) var(--ix-ease) both;
+}
+@media (max-width: 560px) {
+  .storyControls {
+    grid-template-columns: 1fr 1fr;
+  }
+  .storyDots {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .storyDot {
+    width: 28px;
+    height: 28px;
+  }
+  .storyBtn {
+    justify-content: center;
+  }
+}
+
+/* =========================================================================
+   6 · SHARE
+   ========================================================================= */
+
+.share {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 36px;
+  border: 1px solid var(--ix-line);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-body);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-ui) var(--ix-ease),
+    color var(--motion-ui) var(--ix-ease),
+    transform var(--motion-fast) var(--ix-ease);
+}
+.share:hover,
+.share:focus-visible {
+  border-color: var(--ix-cyan);
+  color: var(--ix-ink);
+}
+.share:active {
+  transform: translateY(1px);
+}
+.share:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 2px;
+}
+.shareMark {
+  width: 12px;
+  height: 12px;
+}
+.shareDone {
+  color: var(--ix-teal);
+  border-color: color-mix(in srgb, var(--ix-teal) 50%, transparent);
+}
+@media (pointer: coarse) {
+  .share {
+    min-height: 44px;
+    padding-inline: 1rem;
+  }
+}
+
+/* The selection control: Copy · Share, floating above a text selection. */
+.selectionBar {
+  position: fixed;
+  z-index: 70;
+  display: inline-flex;
+  gap: 2px;
+  transform: translate(-50%, calc(-100% - 10px));
+  border: 1px solid var(--ix-line-mid);
+  border-radius: 999px;
+  padding: 2px;
+  background: rgb(var(--c-obsidian-200) / 0.96);
+  box-shadow: 0 12px 30px -12px rgb(0 0 0 / 0.6);
+  animation: ixFade var(--motion-fast) var(--ix-ease) both;
+}
+:global(.light) .selectionBar {
+  background: rgb(255 255 255 / 0.98);
+  box-shadow: 0 12px 30px -14px rgb(15 23 42 / 0.3);
+}
+.selectionBtn {
+  min-height: 34px;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-ink);
+  cursor: pointer;
+  transition: background-color var(--motion-ui) var(--ix-ease);
+}
+.selectionBtn:hover,
+.selectionBtn:focus-visible {
+  background: rgb(var(--c-soft-white) / 0.08);
+}
+:global(.light) .selectionBtn:hover,
+:global(.light) .selectionBtn:focus-visible {
+  background: rgb(15 23 42 / 0.06);
+}
+.selectionBtn:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: -1px;
+}
+
+/* =========================================================================
+   7 · INSPECTABLE TERMS
+   ========================================================================= */
+
+.term {
+  position: relative;
+  display: inline;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: help;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--ix-cyan) 70%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color var(--motion-ui) var(--ix-ease), color var(--motion-ui) var(--ix-ease);
+}
+.term:hover,
+.term:focus-visible,
+.term[aria-expanded="true"] {
+  color: var(--ix-ink);
+  text-decoration-color: var(--ix-cyan);
+  text-decoration-style: solid;
+}
+.term:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+.termPop {
+  position: absolute;
+  z-index: 40;
+  left: var(--pop-x, 0);
+  top: calc(100% + 8px);
+  width: min(20rem, calc(100vw - 2rem));
+  border: 1px solid var(--ix-line-mid);
+  border-radius: 0.9rem;
+  padding: 0.85rem 1rem 0.9rem;
+  background: rgb(var(--c-obsidian-200) / 0.97);
+  box-shadow: 0 18px 44px -20px rgb(0 0 0 / 0.7);
+  text-align: left;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--ix-body);
+  animation: ixRise var(--motion-ui) var(--ix-ease) both;
+  -webkit-user-select: text;
+  user-select: text;
+}
+:global(.light) .termPop {
+  background: rgb(255 255 255 / 0.98);
+  box-shadow: 0 18px 44px -22px rgb(15 23 42 / 0.3);
+}
+.termPopTerm {
+  display: block;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ix-ink);
+}
+.termPopBody {
+  margin-top: 0.35rem;
+  display: block;
+}
+.termPopLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-cyan);
+  min-height: 28px;
+}
+.termPopLink:hover {
+  color: var(--ix-ink);
+}
+/* An inline element cannot host an absolutely positioned child reliably in
+   every browser, so the anchor is a wrapper span. */
+.termWrap {
+  position: relative;
+  display: inline;
+}
+
+/* =========================================================================
+   8 · PROGRESS RAIL (desktop)
+   ========================================================================= */
+
+.rail {
+  position: fixed;
+  z-index: 40;
+  right: clamp(10px, 1.2vw, 22px);
+  top: 50%;
+  display: none;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity var(--motion-editorial) var(--ix-ease);
+  pointer-events: none;
+}
+@media (min-width: 1280px) {
+  .rail {
+    display: block;
+  }
+}
+.railOn {
+  opacity: 1;
+  pointer-events: auto;
+}
+.railList {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 6px 0;
+}
+.railLine {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  bottom: 22px;
+  width: 1px;
+  background: var(--ix-line-mid);
+  transform: translateX(-50%);
+}
+.railFill {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--ix-cyan), var(--ix-royal));
+  transform: translateX(-50%);
+  transition: height 0.15s linear;
+}
+.railNode {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  color: var(--ix-mute);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: color var(--motion-ui) var(--ix-ease);
+}
+.railNode::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid var(--ix-line-mid);
+  background: rgb(var(--c-obsidian-400));
+  transition:
+    background-color var(--motion-ui) var(--ix-ease),
+    border-color var(--motion-ui) var(--ix-ease),
+    transform var(--motion-ui) var(--ix-ease);
+}
+:global(.light) .railNode::before {
+  background: #f6f8fc;
+}
+.railNode span {
+  position: absolute;
+  right: calc(100% + 2px);
+  opacity: 0;
+  transform: translateX(4px);
+  transition: opacity var(--motion-ui) var(--ix-ease), transform var(--motion-ui) var(--ix-ease);
+}
+.railNodeDone::before {
+  border-color: var(--ix-cyan);
+  background: var(--ix-cyan);
+}
+.railNodeOn::before {
+  border-color: var(--ix-cyan);
+  background: var(--ix-ink);
+  transform: scale(1.4);
+}
+.railNode:hover span,
+.railNode:focus-visible span,
+.rail:hover .railNodeOn span {
+  opacity: 1;
+  transform: none;
+}
+.railNode:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: -4px;
+}
+.railTip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border: 1px solid var(--ix-line-mid);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  background: rgb(var(--c-obsidian-200) / 0.96);
+  color: var(--ix-ink);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+:global(.light) .railTip {
+  background: rgb(255 255 255 / 0.98);
+}
+.railTipIndex {
+  color: var(--ix-cyan);
+}
+
+/* The mobile / top progress line gains section ticks. */
+.progressTick {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: rgb(var(--c-soft-white) / 0.35);
+  transform: translateX(-50%);
+}
+
+/* =========================================================================
+   9 · SECTION MARKS — the movement-inspired transitions between sections
+   ========================================================================= */
+
+.mark {
+  display: block;
+  margin-top: 1.1rem;
+  width: clamp(7rem, 22vw, 11rem);
+  height: 18px;
+  overflow: visible;
+}
+.markLine {
+  fill: none;
+  stroke: var(--ix-cyan);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.markLineSoft {
+  stroke: var(--ix-line-mid);
+}
+.markDot {
+  fill: var(--ix-cyan);
+}
+.markDotSoft {
+  fill: var(--ix-line-mid);
+}
+.markViolet {
+  stroke: var(--ix-violet);
+}
+.markTeal {
+  stroke: var(--ix-teal);
+}
+.markGold {
+  stroke: var(--ix-gold);
+}
+/* Draws itself as the section enters — where the browser has scroll-driven
+   animation. Everywhere else, and under reduced motion, the mark is complete. */
+.markDraw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .markDraw {
+      stroke-dashoffset: 1;
+      animation: ixDraw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+@keyframes ixDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* =========================================================================
+   10 · THE FOUNDATIONS BRIDGE
+   ========================================================================= */
+
+.bridge {
+  position: relative;
+  margin-top: 4rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--ix-line);
+}
+.bridgeLearned {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  color: var(--ix-ink);
+  text-wrap: balance;
+  max-width: 40rem;
+}
+.bridgeVisual {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 1.5rem 0 1.25rem;
+  overflow: visible;
+}
+.bridgeNext {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ix-mute);
+}
+.bridgeQuestion {
+  margin-top: 0.5rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  color: var(--ix-ink);
+  text-wrap: balance;
+  max-width: 36rem;
+}
+.bridgeLink {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.5rem;
+  border: 1px solid var(--ix-line);
+  border-radius: 1rem;
+  padding: 1.1rem 1.25rem;
+  color: var(--ix-body);
+  background: rgb(var(--c-soft-white) / 0.02);
+  transition:
+    border-color var(--motion-ui) var(--ix-ease),
+    background-color var(--motion-ui) var(--ix-ease),
+    transform var(--motion-ui) var(--ix-ease);
+}
+:global(.light) .bridgeLink {
+  background: #ffffff;
+}
+.bridgeLink:hover,
+.bridgeLink:focus-visible {
+  border-color: var(--ix-cyan);
+  transform: translateY(-2px);
+}
+.bridgeLink:active {
+  transform: translateY(0);
+}
+.bridgeLink:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 3px;
+}
+.bridgeStep {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ix-violet);
+}
+.bridgeTitle {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ix-ink);
+}
+.bridgeSub {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.8125rem;
+  color: var(--ix-mute);
+}
+.bridgeCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ix-cyan);
+}
+.bridgeCta span {
+  transition: transform var(--motion-ui) var(--ix-ease);
+}
+.bridgeLink:hover .bridgeCta span {
+  transform: translateX(3px);
+}
+
+/* Draw-on for the bridge trace when it scrolls into view (JS sets data-on). */
+.bridgePath {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.6s var(--ix-ease);
+}
+.bridgeVisual[data-on="true"] .bridgePath {
+  stroke-dashoffset: 0;
+}
+.bridgePathDelayed {
+  transition-delay: 0.7s;
+}
+.bridgeNode {
+  opacity: 0;
+  transition: opacity 0.5s var(--ix-ease);
+  transition-delay: 1.3s;
+}
+.bridgeVisual[data-on="true"] .bridgeNode {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bridgePath,
+  .bridgeNode {
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transition: none;
+  }
+}
+
+/* =========================================================================
+   11 · SMALL UTILITIES
+   ========================================================================= */
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.holdBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 48px;
+  border: 1px solid var(--ix-line-mid);
+  border-radius: 999px;
+  padding: 0.6rem 1.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ix-ink);
+  background: rgb(var(--c-soft-white) / 0.03);
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  transition:
+    border-color var(--motion-ui) var(--ix-ease),
+    background-color var(--motion-ui) var(--ix-ease),
+    transform var(--motion-fast) var(--ix-ease),
+    box-shadow var(--motion-fast) var(--ix-ease);
+}
+:global(.light) .holdBtn {
+  background: #ffffff;
+}
+.holdBtn:hover {
+  border-color: var(--ix-cyan);
+}
+.holdBtn:focus-visible {
+  outline: 2px solid var(--ix-cyan);
+  outline-offset: 2px;
+}
+.holdBtnOn,
+.holdBtnOn:hover {
+  border-color: var(--ix-cyan);
+  background: rgb(79 209 255 / 0.14);
+  transform: scale(0.97);
+  box-shadow: 0 0 0 6px rgb(79 209 255 / 0.1);
+}
+.holdRing {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+  transition: background-color var(--motion-fast) var(--ix-ease);
+}
+.holdBtnOn .holdRing {
+  background: var(--ix-cyan);
+  border-color: var(--ix-cyan);
+}
+
+.note {
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--ix-mute);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.1rem;
+  margin-top: 0.5rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ix-mute);
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.legendSwatch {
+  width: 10px;
+  height: 2px;
+  background: var(--swatch, var(--ix-cyan));
+}
+
+@keyframes ixFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes ixRise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .storyBackdrop,
+  .storyPanel,
+  .storyMoment,
+  .termPop,
+  .selectionBar {
+    animation: none;
+  }
+}

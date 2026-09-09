@@ -8,11 +8,13 @@ import {
   PUBLICATION_PAGE_SIZE,
   VISIBLE_TOPIC_COUNT,
   filterPublicationStories,
+  formatPublicationDate,
   pageCount,
   pageHref,
   paginate,
   progressivePage,
   progressivePageCount,
+  publicationMatch,
   publicationTopics,
   publicationTypeLabel,
   publicationTypes,
@@ -23,9 +25,13 @@ import {
 } from "@/lib/publication";
 import { useArticleStats } from "./useArticleStats";
 import { JournalBackdrop } from "./JournalBackdrop";
-import { PublicationCard } from "./PublicationCard";
+import { InsightCard } from "./hub/InsightCard";
+import { InsightFeatureStory } from "./hub/InsightFeatureStory";
+import { HubComposition } from "./hub/HubComposition";
+import { LiveSignalMark } from "./hub/LiveSignalMark";
 import styles from "./archive.module.css";
 import journal from "./journal.module.css";
+import hub from "./hub/hub.module.css";
 
 type Sort = "newest" | "oldest" | "views";
 
@@ -46,13 +52,15 @@ export function PublicationBrowser({
   initialPage = 1,
   basePath = "/insights",
   fixedTopic,
-  kicker = "Blog & updates",
-  title = "Ideas, research, product stories and the latest from GaitAI.",
-  /* Says what kinds of writing are here, which is the question a first-time
-     reader actually has in front of a feed. The previous line named three
-     subjects — and subjects are what the topic filters directly below it are
-     for, so it was answering a question the page answers twice more. */
-  description = "Technical explainers, research translation, engineering notes, product updates and what we're building.",
+  /* The journal's identity. "GaitAI Insights" is the publication; the navbar
+     tab is still "Blog", and the metadata title still says "Blog & Updates",
+     so nothing a search engine or a returning reader relies on has moved. */
+  kicker = "GaitAI Insights",
+  title = "Ideas in motion.",
+  /* One line on what the publication is FOR, not a list of formats — the type
+     and topic filters directly below already say what kinds of writing are
+     here. */
+  description = "Research, engineering and perspective on how machines understand human movement. Every story can be explored, not just read.",
   showCover = true,
 }: {
   stories: PublicationStory[];
@@ -72,6 +80,7 @@ export function PublicationBrowser({
   const { stats, loaded: statsLoaded } = useArticleStats();
 
   const allTopics = useMemo(() => publicationTopics(stories), [stories]);
+  const newest = useMemo(() => sortNewest(stories)[0], [stories]);
   const allTypes = useMemo(() => publicationTypes(stories), [stories]);
   const cover = useMemo(() => (showCover ? selectCoverStory(stories) : undefined), [showCover, stories]);
   const activeTopic = fixedTopic ?? topic;
@@ -121,10 +130,18 @@ export function PublicationBrowser({
       <JournalBackdrop />
       <div className="container-wide">
         <header className={styles.masthead}>
-          <p className={styles.mastheadKicker}>{kicker}</p>
+          <p className={styles.mastheadKicker}>
+            {kicker}
+            {/* The publication's mark: one gait cycle with a signal moving
+                through it. It moves only while on screen. */}
+            {showCover && <LiveSignalMark />}
+          </p>
           <h1 className={styles.mastheadTitle}>{title}</h1>
           <p className={styles.mastheadDeck}>{description}</p>
-          <p className={styles.mastheadMeta}>{stories.length} stories</p>
+          <p className={styles.mastheadMeta}>
+            {stories.length} stories
+            {newest ? ` · Latest ${formatPublicationDate(newest.date)}` : ""}
+          </p>
         </header>
 
         <div className={styles.controls}>
@@ -137,8 +154,8 @@ export function PublicationBrowser({
                 setQuery(event.target.value);
                 setPage(1);
               }}
-              placeholder="Search the full publication…"
-              aria-label="Search the full publication"
+              placeholder="Search stories, ideas and research…"
+              aria-label="Search stories, ideas and research"
               className={styles.search}
             />
           </div>
@@ -220,36 +237,58 @@ export function PublicationBrowser({
         {coverVisible && cover && (
           <div className={styles.featured}>
             <h2 className={styles.featuredLabel}>Cover story</h2>
-            <PublicationCard
-              story={cover}
-              featured
-              priority
-              views={stats[cover.slug]?.views}
-            />
+            <InsightFeatureStory story={cover} views={stats[cover.slug]?.views} />
           </div>
         )}
 
         {visible.length > 0 && (
           <div id="latest" className={styles.latestSection}>
             <h2 className={styles.gridHeading}>
-              {fixedTopic ? `Latest in ${allTopics.find((item) => item.slug === fixedTopic)?.label ?? "this topic"}` : "Latest from GaitAI"}
+              {fixedTopic
+                ? `Latest in ${allTopics.find((item) => item.slug === fixedTopic)?.label ?? "this topic"}`
+                : query.trim()
+                  ? `Stories matching “${query.trim()}”`
+                  : "Latest from GaitAI"}
             </h2>
-            <div className={`${journal.indexGrid} ${journal.gridEnter}`}>
-              {visible.map((story) => (
-                <PublicationCard
-                  key={story.id}
-                  story={story}
-                  views={stats[story.slug]?.views}
-                />
-              ))}
-            </div>
+            {/* Untouched by any filter, the feed is an editorial composition —
+                half, half, wide — so the stories carry different weight. Once a
+                reader filters or searches it becomes a plain grid of results,
+                each saying where it matched. The key is the FILTER signature,
+                so changing a chip replays the settle while typing narrows the
+                same grid in place without a flash. */}
+            {coverVisible ? (
+              <div key="composition" className={journal.gridEnter}>
+                <HubComposition stories={visible} stats={stats} />
+              </div>
+            ) : (
+              <div
+                key={`${type}|${activeTopic}|${sort}|${page}`}
+                className={`${journal.indexGrid} ${journal.gridEnter}`}
+              >
+                {visible.map((story) => (
+                  <InsightCard
+                    key={story.id}
+                    story={story}
+                    views={stats[story.slug]?.views}
+                    match={publicationMatch(story, query)}
+                    query={query}
+                    step={story.series === "GaitAI Foundations" ? story.seriesOrder : undefined}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {matches.length === 0 && (
           <div className={styles.empty}>
-            <p className={styles.emptyTitle}>No stories match this signal yet.</p>
-            <p className={styles.emptyBody}>Try another search, type or topic.</p>
+            <svg aria-hidden="true" viewBox="0 0 120 20" className={hub.emptyLine}>
+              <path className={hub.emptyPath} d="M0 10 C20 10 24 3 34 3 S50 17 60 17 S76 3 86 3 S104 10 120 10" />
+            </svg>
+            <p className={styles.emptyTitle}>No signal found for this combination.</p>
+            <p className={styles.emptyBody}>
+              Try another word, type or topic — or clear everything and browse the whole journal.
+            </p>
             <button type="button" onClick={reset} className="btn-ghost mt-6">Clear filters</button>
           </div>
         )}

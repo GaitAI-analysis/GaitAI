@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LivePostView } from "@/components/posts/LivePostView";
 import { LostTrajectory } from "@/components/ui/LostTrajectory";
+import { InsightNotFound } from "@/components/insights/InsightNotFound";
 
 /** Pull "<slug>" out of "/publications/<slug>/" — null if it isn't one. */
 function publicationSlug(pathname: string): string | null {
@@ -28,18 +29,34 @@ function publicationSlug(pathname: string): string | null {
   return null;
 }
 
+/** Pull "<slug>" out of "/insights/<slug>/" — null if it isn't one. The
+    journal's own routes (/insights/topic/…, /insights/page/…) have their own
+    pages, so only a single unknown segment counts. */
+function insightSlug(pathname: string): string | null {
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length === 2 && parts[0] === "insights") {
+    return decodeURIComponent(parts[1]);
+  }
+  return null;
+}
+
 export default function NotFound() {
   // Resolved on the client only — the exported HTML is path-agnostic.
   const [slug, setSlug] = useState<string | null>(null);
+  const [insight, setInsight] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setSlug(publicationSlug(window.location.pathname));
+    setInsight(insightSlug(window.location.pathname));
     setReady(true);
   }, []);
 
   if (!ready) return <div className="min-h-[70vh]" />;
   if (slug) return <LivePostView slug={slug} />;
+  /* An Insights slug that no longer resolves gets the journal's own
+     recovery — the reading path, the hub and search — not the site 404. */
+  if (insight) return <InsightNotFound slug={insight} />;
 
   return (
     <div className="site-page-intro-roomy container-wide grid min-h-[70vh] place-items-center pb-24 text-center">

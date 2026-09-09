@@ -1,0 +1,417 @@
+/* =========================================================================
+   THE INSIGHTS HUB — editorial composition, physical cards, live signal
+   ---------------------------------------------------------------------------
+   Sits on top of journal.module.css (which owns the card's ground, accent
+   line, media and body type) and archive.module.css (masthead, controls,
+   filters). This file adds three things and nothing else:
+
+     1. the composition — a cover story, then stories of varying footprint in
+        an intentional order, never a masonry
+     2. the physical response — a 2–4px lift, a border that lights where the
+        pointer is, a hairline that travels, a press, a spring return
+     3. the living signal beside the masthead
+
+   Touch never depends on hover: every card's interaction responds to tap and
+   drag, and the cue line is painted at full strength under (hover: none).
+   ========================================================================= */
+
+/* ── The live signal beside the kicker ── */
+.signal {
+  display: inline-block;
+  width: 64px;
+  height: 18px;
+  vertical-align: middle;
+  margin-left: 0.9rem;
+  overflow: visible;
+}
+.signalPath {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 46 400;
+  stroke-dashoffset: 0;
+}
+.signal[data-active="true"] .signalPath {
+  animation: hubSignal 4.2s linear infinite;
+}
+.signalBase {
+  fill: none;
+  stroke: var(--jr-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.signalDot {
+  fill: var(--jr-cyan);
+}
+.signal[data-active="true"] .signalDot {
+  animation: hubSignalDot 4.2s linear infinite;
+}
+@keyframes hubSignal {
+  from {
+    stroke-dashoffset: 446;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes hubSignalDot {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .signal[data-active="true"] .signalPath,
+  .signal[data-active="true"] .signalDot {
+    animation: none;
+  }
+}
+
+/* ── The composition ──
+   Two columns from 700px. The cover story stands alone above it. Inside, a
+   story is `half` (one column) or `wide` (both), in an order decided by the
+   composition component — so the grid is intentional at every count. */
+.composition {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 1.25rem;
+}
+@media (min-width: 700px) {
+  .composition {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ── The physical card ──
+   Layered on `.card` from journal.module.css. The pointer position arrives
+   as --mx / --my (0..1) and drives the border light and the faint tilt. */
+.physical {
+  --mx: 0.5;
+  --my: 0.5;
+  --tilt: 0;
+  transform-style: preserve-stretch;
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.5s var(--jr-ease),
+    box-shadow 0.6s var(--jr-ease);
+}
+.physical[data-pointer="true"] {
+  transform: translateY(-3px)
+    perspective(1200px)
+    rotateX(calc((0.5 - var(--my)) * 1.4deg))
+    rotateY(calc((var(--mx) - 0.5) * 1.6deg));
+  transition:
+    transform 0.16s ease-out,
+    border-color 0.5s var(--jr-ease),
+    box-shadow 0.6s var(--jr-ease);
+}
+.physical:active,
+.physical[data-pressed="true"] {
+  transform: translateY(-1px) scale(0.995);
+  transition: transform 0.08s ease-out;
+}
+/* The border light: a radial highlight on the card edge, centred where the
+   pointer is. Masked to a 1px ring so it reads as the border catching light,
+   not as a glow. */
+.physical .edgeLight {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+    color-mix(in srgb, var(--jr-accent, #4fd1ff) 85%, white),
+    color-mix(in srgb, var(--jr-accent, #4fd1ff) 35%, transparent) 40%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s var(--jr-ease);
+}
+.physical[data-pointer="true"] .edgeLight {
+  opacity: 0.9;
+}
+/* A moving hairline across the top edge, once, on entry. */
+.physical .hairline {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--jr-accent, #4fd1ff), transparent);
+  opacity: 0;
+}
+.physical[data-pointer="true"] .hairline {
+  animation: hubHairline 1.1s var(--jr-ease) 1 both;
+}
+@keyframes hubHairline {
+  0% {
+    left: -30%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+/* Content depth: the body lifts a hair less than the media so the card has
+   a front and a back. */
+.physical[data-pointer="true"] .depth {
+  transform: translateZ(6px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .physical,
+  .physical[data-pointer="true"],
+  .physical:active {
+    transform: none;
+  }
+  .physical .hairline {
+    animation: none;
+  }
+}
+@media (hover: none) {
+  /* On touch there is no pointer to follow: the edge light rests centred and
+     only the press remains. */
+  .physical[data-pointer="true"] {
+    transform: translateY(-2px);
+  }
+}
+
+/* ── The media zone that carries a mini interaction ──
+   It sits ABOVE the card's stretched link so a finger on the picture
+   interacts and a finger on the words navigates. */
+.media {
+  position: relative;
+  /* Above the card's stretched link (`.cardLink::after`, z-index 5), so a
+     finger or a pointer on the picture explores it and never navigates. */
+  z-index: 6;
+  touch-action: pan-y;
+  cursor: crosshair;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.mediaTap {
+  cursor: pointer;
+}
+.mediaSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* The instruction, painted on the media: what this picture does. Faint at
+   rest, legible on hover, always visible on touch. */
+.cue {
+  position: absolute;
+  z-index: 4;
+  left: 0.85rem;
+  bottom: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  pointer-events: none;
+  border-radius: 999px;
+  padding: 0.28rem 0.6rem;
+  background: rgb(var(--c-obsidian-500) / 0.72);
+  border: 1px solid var(--jr-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-ink);
+  opacity: 0.55;
+  transition: opacity 0.3s var(--jr-ease);
+}
+.card:hover .cue,
+.card:focus-within .cue,
+.media[data-used="true"] .cue {
+  opacity: 0.95;
+}
+.cueMark {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--jr-accent, #4fd1ff);
+}
+@media (hover: none) {
+  .cue {
+    opacity: 0.9;
+  }
+}
+/* The state readout on the media: which stage the reader is at. */
+.readout {
+  position: absolute;
+  z-index: 4;
+  right: 0.85rem;
+  top: 0.7rem;
+  pointer-events: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-accent, #4fd1ff);
+  text-shadow: 0 1px 0 rgb(var(--c-obsidian-500) / 0.6);
+}
+:global(.light) .readout {
+  text-shadow: none;
+}
+
+/* ── The search match line under a card's headline ── */
+.match {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--jr-body);
+}
+.matchWhere {
+  flex: 0 0 auto;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-cyan);
+}
+.matchSection {
+  position: relative;
+  z-index: 3;
+  color: var(--jr-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--jr-line-mid);
+  text-underline-offset: 3px;
+}
+.matchSection:hover {
+  text-decoration-color: var(--jr-cyan);
+}
+.matchMark {
+  color: var(--jr-ink);
+  font-weight: 600;
+  background: rgb(79 209 255 / 0.14);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+:global(.light) .matchMark {
+  background: rgb(16 143 192 / 0.12);
+}
+
+/* ── The cover story ── */
+.feature {
+  --jr-card-ambient: 12%;
+}
+.featureMedia {
+  aspect-ratio: 16 / 10;
+}
+@media (min-width: 1024px) {
+  .feature {
+    flex-direction: row;
+  }
+  .featureMedia {
+    aspect-ratio: auto;
+    flex: 0 0 58%;
+    min-height: 380px;
+  }
+  .featureBody {
+    padding: 2rem 2.25rem;
+    justify-content: center;
+  }
+}
+.featureKicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.featureStep {
+  color: var(--jr-gold);
+}
+.featureQuestion {
+  margin-top: 1rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--jr-body);
+  max-width: 30rem;
+}
+.featureHooks {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+.featureHook {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--jr-body);
+}
+.featureHookMark {
+  margin-top: 0.62em;
+  width: 10px;
+  height: 1px;
+  flex: 0 0 auto;
+  background: var(--jr-accent, #4fd1ff);
+}
+
+/* Story numbers as an editorial device: small, at the card's top-left. */
+.step {
+  position: absolute;
+  z-index: 4;
+  left: 0.85rem;
+  top: 0.7rem;
+  pointer-events: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.step b {
+  font-weight: 600;
+  color: var(--jr-ink);
+}
+
+/* ── Empty ── */
+.emptyLine {
+  display: block;
+  margin: 0 auto 1.25rem;
+  width: 120px;
+  height: 20px;
+}
+.emptyPath {
+  fill: none;
+  stroke: var(--jr-line-mid);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 5;
+  vector-effect: non-scaling-stroke;
+}

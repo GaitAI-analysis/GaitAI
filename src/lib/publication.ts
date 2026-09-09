@@ -38,6 +38,12 @@ export interface PublicationStory {
   relatedSlugs: string[];
   series?: string;
   seriesOrder?: number;
+  /**
+   * Section headings, for editorial stories only. Search matches against them
+   * so a query like "privacy" can say WHICH part of an article it found, and
+   * the hub can link straight to that section.
+   */
+  sections?: Array<{ id: string; title: string; label: string }>;
 }
 
 const TYPE_LABELS: Record<string, { singular: string; plural: string }> = {
@@ -187,7 +193,65 @@ export function publicationSearchText(story: PublicationStory): string {
        should find its five stories by typing it into the blog's own search,
        not only by finding the menu row. */
     story.series ?? "",
+    /* Section headings, so "quality" finds the section about capture quality
+       and not only an article whose summary happens to use the word. */
+    (story.sections ?? []).map((section) => `${section.title} ${section.label}`).join(" "),
   ].join(" ").toLocaleLowerCase();
+}
+
+export interface PublicationMatch {
+  /** Where the query was found. */
+  where: "title" | "summary" | "section" | "topic" | "tag" | "type" | "author" | "series";
+  /** A short excerpt around the match, for the card. Empty for a title hit. */
+  snippet: string;
+  /** The section it was found in, when `where` is "section". */
+  section?: { id: string; title: string };
+}
+
+function excerptAround(text: string, query: string, radius = 56): string {
+  const lower = text.toLocaleLowerCase();
+  const at = lower.indexOf(query);
+  if (at < 0) return "";
+  const start = Math.max(0, at - radius);
+  const end = Math.min(text.length, at + query.length + radius);
+  const head = start > 0 ? "…" : "";
+  const tail = end < text.length ? "…" : "";
+  return `${head}${text.slice(start, end).trim()}${tail}`;
+}
+
+/**
+ * Why a story matched a search — the context a result should show instead
+ * of a bare title. Checked in the order a reader would find most useful:
+ * the headline, then the section it lives in, then the summary, then the
+ * classification fields.
+ */
+export function publicationMatch(story: PublicationStory, rawQuery: string): PublicationMatch | null {
+  const query = rawQuery.trim().toLocaleLowerCase();
+  if (!query) return null;
+  if (story.title.toLocaleLowerCase().includes(query)) return { where: "title", snippet: "" };
+  const section = (story.sections ?? []).find(
+    (candidate) =>
+      candidate.title.toLocaleLowerCase().includes(query) ||
+      candidate.label.toLocaleLowerCase().includes(query),
+  );
+  if (section) {
+    return { where: "section", snippet: section.title, section: { id: section.id, title: section.title } };
+  }
+  if (story.description.toLocaleLowerCase().includes(query)) {
+    return { where: "summary", snippet: excerptAround(story.description, query) };
+  }
+  const topic = story.topics.find(
+    (value) => value.includes(query) || topicLabel(value).toLocaleLowerCase().includes(query),
+  );
+  if (topic) return { where: "topic", snippet: topicLabel(topic) };
+  const tag = story.tags.find((value) => value.toLocaleLowerCase().includes(query));
+  if (tag) return { where: "tag", snippet: tag };
+  if (publicationTypeLabel(story.type).toLocaleLowerCase().includes(query) || story.type.includes(query)) {
+    return { where: "type", snippet: publicationTypeLabel(story.type) };
+  }
+  if (story.author.toLocaleLowerCase().includes(query)) return { where: "author", snippet: story.author };
+  if (story.series?.toLocaleLowerCase().includes(query)) return { where: "series", snippet: story.series };
+  return null;
 }
 
 export interface PublicationMonthGroup {

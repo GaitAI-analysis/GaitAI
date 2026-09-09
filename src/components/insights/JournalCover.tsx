@@ -1,6 +1,7 @@
 import { GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
 import { PoseFrame } from "@/components/research/PoseFrame";
 import type { CoverConcept } from "@/data/insights";
+import { POSE_PHASE_FOR, estimatePose, poseFocusJoint } from "./experience/figures/pose-error-model";
 import styles from "./covers.module.css";
 
 /**
@@ -895,12 +896,79 @@ function Fusion() {
   );
 }
 
+/**
+ * WHEN POSE ESTIMATION LIES. A camera frame with a plausible skeleton in it,
+ * drawn as the estimator returned it — and, beside the hidden leg, the one
+ * joint that was filled in rather than seen: the estimate ringed warm, the
+ * actual position a teal point, a dashed line between. To the right, what the
+ * measurement inherits, as three qualitative lines. No number anywhere.
+ */
+function PoseError() {
+  const issue = "occlusion" as const;
+  const actual = GAIT_PHASES[POSE_PHASE_FOR[issue]];
+  const est = estimatePose(actual, issue);
+  const focus = poseFocusJoint(actual, est, issue)!;
+  const s = 2.6;
+  const fx = 190;
+  const fy = 196;
+  const cls = { bone: styles.cBone, boneFar: styles.cBoneFar, joint: styles.cJoint, head: styles.cHead };
+  const groundY = fy + (48 - actual.lift) * s;
+  return (
+    <>
+      {/* the frame */}
+      <rect className={styles.cFrame} x={72} y={56} width={236} height={292} rx={4} />
+      <text className={styles.cTiny} x={84} y={78}>
+        Original frame
+      </text>
+      <line className={styles.cAxis} x1={84} y1={groundY} x2={296} y2={groundY} />
+      {/* the bin in front of the far leg */}
+      <rect className={styles.cFrame} x={fx + 6 * s} y={fy + 10 * s} width={26 * s} height={groundY - (fy + 10 * s)} rx={2} />
+      <line className={styles.cHair} x1={fx + 6 * s} y1={fy + 22 * s} x2={fx + 32 * s} y2={fy + 22 * s} />
+      {/* the estimate, complete and plausible */}
+      <g transform={`translate(${fx} ${fy - actual.lift * s})`}>
+        <PoseFrame phase={est} s={s} classes={cls} />
+        {/* the filled-in joint against the observed one */}
+        <line className={styles.cDash} x1={focus.est[0] * s} y1={focus.est[1] * s} x2={focus.actual[0] * s} y2={focus.actual[1] * s} />
+        <circle className={styles.cRing} cx={focus.est[0] * s} cy={focus.est[1] * s} r={9} style={{ stroke: "var(--c-warm)", opacity: 0.9 }} />
+        <circle className={styles.cNodeLit} cx={focus.actual[0] * s} cy={focus.actual[1] * s} r={3.2} style={{ fill: "var(--c-b)" }} />
+      </g>
+      <text className={styles.cTinyWarm} x={84} y={332}>
+        Far knee · estimated, not observed
+      </text>
+      {/* what the measurement inherits */}
+      <text className={styles.cLabel} x={352} y={78}>
+        What the measurement inherits
+      </text>
+      {[
+        ["Step timing", "degraded"],
+        ["Knee angle", "unavailable"],
+        ["Left / right symmetry", "questionable"],
+        ["Cadence", "reliable"],
+      ].map(([name, state], i) => (
+        <g key={name}>
+          <text className={styles.cTiny} x={352} y={124 + i * 46}>
+            {name}
+          </text>
+          <line className={styles.cHair} x1={352} y1={132 + i * 46} x2={584} y2={132 + i * 46} />
+          <text className={state === "reliable" ? styles.cTiny : styles.cTinyWarm} x={584} y={124 + i * 46} textAnchor="end">
+            {state}
+          </text>
+        </g>
+      ))}
+      <text className={styles.cTiny} x={352} y={332}>
+        Reported confidence · still high
+      </text>
+    </>
+  );
+}
+
 const ART: Record<CoverConcept, () => React.ReactElement> = {
   pipeline: Pipeline,
   divergence: Divergence,
   reduction: Reduction,
   trajectory: Trajectory,
   fusion: Fusion,
+  "pose-error": PoseError,
 };
 
 /**

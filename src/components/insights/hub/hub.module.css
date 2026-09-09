@@ -992,6 +992,11 @@
   --glow-y: 52%;
   --floor-y: 90%;
 }
+.media[data-concept="pose-error"] {
+  --glow-x: 29%;
+  --glow-y: 52%;
+  --floor-y: 79%;
+}
 :global(.light) .media::before {
   opacity: 0.55;
 }

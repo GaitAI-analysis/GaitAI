@@ -664,3 +664,9 @@
     stroke-dasharray: none !important;
   }
 }
+
+/* AI Under Stress: the estimate in cyan, the truth in teal, the warning warm. */
+.pose-error {
+  --c-a: #4fd1ff;
+  --c-b: #2dd4bf;
+}

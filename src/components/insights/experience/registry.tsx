@@ -44,6 +44,10 @@ const FIGURES: Record<FigureKey, ComponentType<FigureProps>> = {
     import("./figures/FusionExperiment").then((m) => m.FusionExperiment),
   ),
   "five-questions": dynamic(() => import("./figures/FiveQuestions").then((m) => m.FiveQuestions)),
+  /* ── the recurring series ── */
+  "pose-error-explorer": dynamic(() =>
+    import("./figures/PoseErrorExplorer").then((m) => m.PoseErrorExplorer),
+  ),
 };
 
 export function Figure({

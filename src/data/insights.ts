@@ -14,6 +14,8 @@
  * never diagnoses.
  */
 
+import { phaseTwoArticles } from "./insights-phase2";
+
 /** Open topic vocabulary. Presentation is generated from metadata/config. */
 export type InsightTopic = string;
 
@@ -158,7 +160,9 @@ export type CoverConcept =
   | "divergence"
   | "reduction"
   | "trajectory"
-  | "fusion";
+  | "fusion"
+  /** A plausible skeleton beside the frame that reveals its wrong joint. */
+  | "pose-error";
 
 export interface InsightArticle {
   slug: string;
@@ -1690,6 +1694,10 @@ export const insightArticles: InsightArticle[] = [
       "movement-intelligence-without-identification",
     ],
   },
+  /* ══════════════════════════════════════════════════════════════════════
+     The recurring series — one record per file under ./insights-phase2/
+     ══════════════════════════════════════════════════════════════════════ */
+  ...phaseTwoArticles,
 ];
 
 /** Newest first — the landing page features `[0]`. */

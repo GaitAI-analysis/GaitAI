@@ -119,7 +119,12 @@ export function LocationTrail() {
 
   return (
     <div className={`${styles.scope} container-wide`}>
-      <nav aria-label="You are here" className={styles.trail}>
+      <nav
+        aria-label="You are here"
+        /* Inside the journal the trail orients and steps back: the masthead
+           and "Ideas in motion." are the loud things on that page. */
+        className={`${styles.trail} ${pathname.startsWith("/insights") ? styles.trailQuiet : ""}`}
+      >
         <ol className={styles.path}>
           {trail.map((node, i) => {
             const isCurrent = i === trail.length - 1;

@@ -36,8 +36,11 @@
 
   --jr-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* No padding-top of its own: `site-page-intro-compact` on the element
-     supplies the header clearance from the site's spacing tokens. */
+  /* The fixed header is already cleared by `.site-main`, and the location
+     trail sits between it and this section. What remains is one editorial
+     beat below the trail — not the full page-intro token, which put the
+     masthead a full line lower than the eye expects. */
+  padding-top: 0.75rem;
   padding-bottom: clamp(3rem, 7vw, 5.5rem);
 }
 

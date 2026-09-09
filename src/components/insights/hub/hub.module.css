@@ -321,12 +321,49 @@
 .mediaTap {
   cursor: pointer;
 }
+/* Type inside the cover artwork. Readable or absent: 11 viewBox units on a
+   640-wide drawing lands at ~12px on a desktop cover, and the labels that
+   did not earn that size are gone. */
+.coverLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  fill: var(--jr-mute);
+}
+.coverLabelInk {
+  fill: var(--jr-ink);
+}
+.coverLabelAccent {
+  fill: var(--jr-cyan);
+}
+.coverLabelWarn {
+  fill: var(--jr-gold);
+}
+/* On a phone the whole drawing is a third of its desktop width, so the type
+   scales up in viewBox units to stay legible. */
+@media (max-width: 640px) {
+  .coverLabel {
+    font-size: 14px;
+    letter-spacing: 0.1em;
+  }
+}
 .mediaCover {
+  /* Pinned to the media slot's box. `height: 100%` against an aspect-ratio
+     parent resolves to auto and let the column grow past the slot, which
+     clipped the stage control on phones; absolute inset gives the column
+     the slot's real height. */
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
 }
 .mediaCover .mediaSvg {
-  flex: 1 1 auto;
+  /* Fill whatever height the control leaves, never more: with `height: 0`
+     the drawing letterboxes inside the remaining space, so the stage
+     control is always visible below it — on a phone included. */
+  flex: 1 1 0%;
+  height: 0;
   min-height: 0;
 }
 .coverControl {
@@ -365,8 +402,8 @@
   opacity: 0.55;
   transition: opacity 0.3s var(--jr-ease);
 }
-.card:hover .cue,
-.card:focus-within .cue {
+:global(.journal-card):hover .cue,
+:global(.journal-card):focus-within .cue {
   opacity: 0.95;
 }
 .media[data-used="true"] .cue {
@@ -445,20 +482,25 @@
 .feature {
   --jr-card-ambient: 10%;
 }
-.featureMedia {
-  aspect-ratio: 16 / 10;
+/* `.card .featureMedia` so it outranks journal's `.cardFull .cardMedia`,
+   which otherwise pins the slot to 16/9. Stacked (phones, tablets): tall
+   enough for the walker AND the stage control beneath it to stay legible. */
+:global(.journal-card).feature .featureMedia {
+  aspect-ratio: 4 / 3;
 }
 @media (min-width: 1024px) {
   .feature {
     flex-direction: row;
   }
-  .featureMedia {
+  :global(.journal-card).feature .featureMedia {
     aspect-ratio: auto;
     flex: 0 0 58%;
     min-height: 420px;
   }
   .featureBody {
-    padding: 2.25rem 2.5rem;
+    /* A wider gutter on the left: the artwork and the editorial column need
+       air between them to read as a spread. */
+    padding: 2.25rem 2.5rem 2.25rem 4rem;
     justify-content: center;
   }
 }
@@ -473,9 +515,11 @@
   margin-top: 0.9rem;
 }
 @media (min-width: 1024px) {
-  .card .featureTitle {
-    font-size: clamp(1.95rem, 2.6vw, 2.5rem);
-    line-height: 1.08;
+  /* `.card` here would be THIS module's hash, not journal's — the shared
+     hook between the two stylesheets is the global `journal-card` class. */
+  :global(.journal-card).feature .featureTitle {
+    font-size: clamp(2.15rem, 2.85vw, 2.75rem);
+    line-height: 1.06;
     letter-spacing: -0.035em;
   }
 }
@@ -516,6 +560,11 @@
 .featureCta {
   margin-top: 1.4rem !important;
   padding-top: 0 !important;
+  /* A touch larger than a listing card's cue, and cyan from the start: on the
+     cover the call to action must be found without a hover. */
+  font-size: 11px !important;
+  letter-spacing: 0.2em !important;
+  color: var(--jr-cyan) !important;
 }
 /* Listing-card metadata: below the excerpt, small, and quiet, so the
    headline is the first thing read and the date the last. */

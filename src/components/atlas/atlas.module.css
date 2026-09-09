@@ -41,6 +41,10 @@
   min-height: 26px;
   padding-block: 0.15rem;
 }
+/* On the journal the trail is a fifth quieter than elsewhere. */
+.trailQuiet {
+  opacity: 0.8;
+}
 
 .path {
   display: flex;

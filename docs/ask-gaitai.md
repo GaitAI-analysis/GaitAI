@@ -475,6 +475,85 @@ layer. Unchanged by the hosted migrations — the suites below are the proof, an
 "who is anubha" ranks the canonical person record first with no policy, Trust
 or deployment record ahead of it.
 
+### Query understanding — before intent, before retrieval
+
+`src/lib/ask/understand.ts` turns what a visitor typed into what they asked,
+deterministically and without a model call, so short, conversational and
+imperfect questions converge on the same intent and evidence as polished ones:
+
+- **Reference resolution.** "it", "this", "the platform", "you" refer to GaitAI
+  unless the recent conversation names another canonical entity (a family, a
+  module, a person); "she"/"he" refer to the last person named. The entity's
+  NAME is substituted into the working text — "does it use CCTV" after "what
+  is SecureVision" becomes "does SecureVision use CCTV" — so the ordinary
+  entity boost does the rest. User turns are read first, assistant turns
+  second, and only for a name: **history resolves references; it is never
+  evidence.** The Worker runs the same function on the question and history
+  it receives, so the framing it gives the model is derived on its side.
+- **Continuation.** "what about X", "and X?", "how about X" inherit the previous
+  question's intent and entity and replace the topic. Asked cold, the frame
+  is simply stripped ("what about defence?" → "defence?").
+- **Ellipsis.** "military?", "for elderly?", "papers?", "CCTV?" are classified
+  from the topic word: a domain word is a domain question, a taxonomy topic
+  word its intent.
+- **Domain extraction and the three domain questions.** "does X do Y", "can X
+  work in Y", "is X relevant to Y", "does X have a Y product", "for Y" — Y is
+  checked against the domain vocabulary and the environment records, and the
+  question is tagged `relationship` (existing deployment or customer),
+  `product-exists`, or `potential`. The prompt's Application line and the
+  retrieval-only composer answer each differently; none may claim a
+  deployment, customer, clearance or certification.
+- **Normalisation.** A readable internal question is composed for the debug
+  log and prompt framing ("Which GaitAI capabilities are relevant to military
+  (defence) environments?"). The visitor's words are never rewritten on screen.
+
+### The intent taxonomy — declared once
+
+`src/lib/ask/intent.ts` declares every intent family in one table: triggers,
+topic words, corpus-vocabulary expansions, preferred and demoted record types,
+family scope, hub records, answer policy and examples. Retrieval reads its
+boosts from the table; nothing is tuned per sentence.
+
+| Intent | Prefers | Demotes | Hubs |
+|---|---|---|---|
+| PERSON | person | policy, deployment, page, product, use-case | — |
+| PRODUCT | product | talk, person | Products |
+| DOMAIN_APPLICATION | use-case, product, deployment, capability | person, talk, publication, insight, page | Use Cases |
+| SECURITY | product, use-case, capability, policy (SecureVision scope) | person, talk, publication, insight | SecureVision, responsible use |
+| HEALTH_MOBILITY | product, capability, signal, use-case (MobilityCare scope) | person, talk, publication, insight | MobilityCare |
+| PUBLICATION | publication, research | person, product, page, talk | Publications |
+| RESEARCH | research, publication | talk, page, insight | full evidence record |
+| PRIVACY | policy, deployment | product, use-case, person, talk, insight | privacy policy, privacy controls |
+| DEPLOYMENT | deployment, product, use-case | person, talk, publication, insight | deployment process, Trust |
+| CAPABILITY | capability, signal | talk, person, insight | GaitScape |
+| COMPARISON | product, page | person, talk, publication, insight | Products |
+| NAVIGATION | page | talk | — |
+| INSIGHTS | insight, page | person, talk, product | Insights |
+| LAB_DATASET | page | person, talk, publication, insight, product | — |
+| EVIDENCE | policy, product, research | person, talk, insight | evidence record, privacy controls |
+| UNSUPPORTED | page, product, use-case (graceful refusal, no model call) | person, talk, publication | Contact |
+| GENERAL | page, product, use-case (the fallback rule) | person, talk, publication | — |
+
+Expansion vocabulary per intent (every term exists in the corpus, and the
+paraphrase suite checks that it does): SECURITY — security, camera, cctv,
+operator, restricted, suspicious, monitoring, safety · HEALTH_MOBILITY —
+mobility, clinician, gait, walking, fall · DEPLOYMENT — deployment,
+integration, pilot, input · RESEARCH — research, area, capability · PRIVACY —
+privacy, retention, consent · EVIDENCE — evidence, validation, maturity, not
+claimed · INSIGHTS — article, insights · CAPABILITY — capability, signal ·
+PERSON — founder, author, co-author · COMPARISON — compare, comparison. The
+domain vocabulary (`domains.ts`) adds the site's words for each domain a
+visitor may name.
+
+`npm run ask:paraphrase` runs the paraphrase matrix — 249 phrasings in 28
+families (domains, security, health, people, publications, research, privacy,
+deployment, insights, labs, evidence, comparison, navigation, products,
+unsupported, and multi-turn follow-ups where "it", "she" and "what about" are
+resolved from history) — and asserts each family converges on its intents and
+evidence types, never on person, talk, paper or essay records unless asked.
+It also checks taxonomy hygiene: every example classifies to its intent and
+every expansion term is corpus vocabulary.
+
 ### Application questions — "What can GaitAI do for X?"
 
 An `APPLICATION` intent (`intent.ts`, `applicationSubject()`) recognises the

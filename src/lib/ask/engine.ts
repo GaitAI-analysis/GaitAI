@@ -137,10 +137,10 @@ export async function ask(options: {
   } = options;
 
   await loadCorpus();
-  const priorUserTurns = history
-    .filter((turn) => turn.role === "user")
-    .map((turn) => turn.content);
-  const result = retrieveGaitAIContext(question, pathname, priorUserTurns);
+  /* The whole recent conversation goes to retrieval — for REFERENCE
+     resolution only: what "it", "she" and "what about" mean. No turn's text
+     is evidence; the records retrieved for this question are. */
+  const result = retrieveGaitAIContext(question, pathname, history);
   const startedAt = Date.now();
 
   /* LOCAL DEVELOPMENT ONLY. `next dev` inlines NODE_ENV, so this whole block
@@ -154,7 +154,9 @@ export async function ask(options: {
       [
         "[Ask GaitAI]",
         `question: ${question}`,
-        `intent: ${result.intent}${result.entity ? ` · entity: ${result.entity.entityId}` : ""}${result.lowConfidence ? " · LOW CONFIDENCE" : ""}`,
+        `understood as: ${result.understanding.normalized}`,
+        `resolved text: ${result.understanding.text}`,
+        `intent: ${result.intent} (${result.understanding.confidence})${result.understanding.domain ? ` · domain: ${result.understanding.domain.subject} (${result.understanding.askType})` : ""} · entity: ${result.understanding.entity.title} (${result.understanding.entity.via})${result.understanding.carried.length ? ` · from conversation: ${result.understanding.carried.join(", ")}` : ""}${result.lowConfidence ? " · LOW CONFIDENCE" : ""}`,
         "retrieved:",
         ...result.docs.map(
           (item) => `  ${item.score.toFixed(2).padStart(6)} ${item.doc.id}${item.doc.sectionTitle ? ` › ${item.doc.sectionTitle}` : ""}`,

@@ -11837,7 +11837,14 @@
         "clinicaltrials"
       ],
       "relatedProducts": [],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "entityId": "mobilitycare",
+      "aliases": [
+        "mobilitycare",
+        "mobility care",
+        "the mobilitycare family",
+        "the clinical family"
+      ]
     },
     {
       "id": "page:/securevision",
@@ -11870,7 +11877,14 @@
         "watchlist"
       ],
       "relatedProducts": [],
-      "relatedResearch": []
+      "relatedResearch": [],
+      "entityId": "securevision",
+      "aliases": [
+        "securevision",
+        "secure vision",
+        "the securevision family",
+        "the security family"
+      ]
     },
     {
       "id": "page:/use-cases",

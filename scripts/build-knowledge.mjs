@@ -58,7 +58,7 @@
  */
 
 import { pathToFileURL } from "node:url";
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, statSync, openSync, writeSync, closeSync } from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
@@ -1513,6 +1513,11 @@ async function main() {
       url: "/mobilitycare",
       title: "MobilityCare",
       category: "Product family",
+      /* A family is an entity: "does it use CCTV" after "what is
+         SecureVision" resolves "it" to the family, and the family record
+         must be findable by that name. */
+      entityId: "mobilitycare",
+      aliases: ["mobilitycare", "mobility care", "the mobilitycare family", "the clinical family"],
       summary: `Clinical, sports, wearable and rehab movement intelligence — ${products.mobilityProducts.length} modules.`,
       content: block(
         `MobilityCare is the GaitAI family for clinical, rehabilitation, sports and elderly-care movement intelligence. ${products.mobilityProducts.length} modules.`,
@@ -1536,6 +1541,8 @@ async function main() {
       url: "/securevision",
       title: "SecureVision",
       category: "Product family",
+      entityId: "securevision",
+      aliases: ["securevision", "secure vision", "the securevision family", "the security family"],
       summary: `Privacy-aware movement intelligence for security and safety — ${products.secureProducts.length} modules.`,
       content: block(
         `SecureVision is the GaitAI family for privacy-aware security, safety and operations movement intelligence, built around existing camera and CCTV feeds. ${products.secureProducts.length} modules.`,
@@ -2027,13 +2034,68 @@ async function main() {
     docs,
   };
 
-  mkdirSync(path.dirname(OUT), { recursive: true });
-  writeFileSync(OUT, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
-
-  /* The browser copy: minified, because nobody reads it, and served as a
-     static asset so it caches independently of any JS bundle hash. */
+  /* The browser copy first: minified, because nobody reads it, and served as
+     a static asset so it caches independently of any JS bundle hash. It is
+     the copy that matters — the site and the Worker both derive from it. */
   mkdirSync(path.dirname(WEB_OUT), { recursive: true });
-  writeFileSync(WEB_OUT, JSON.stringify(payload), "utf8");
+  /* A file watcher or scanner can hold the previous copy for a moment on this
+     shared checkout (Windows reports it as UNKNOWN/EBUSY). Retry briefly
+     before giving up; the browser copy must land. */
+  const writeWithRetry = (target, text, attempts = 5) => {
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        writeFileSync(target, text, "utf8");
+        return;
+      } catch (error) {
+        /* Windows refuses to TRUNCATE or RENAME a file another process holds
+           as a memory-mapped section ("UNKNOWN: unknown error, open" from
+           Node; a Vite/esbuild dev server elsewhere on this machine mapping
+           the old copy did exactly this). It still allows writing in place
+           and extending. JSON ignores trailing whitespace, so the new payload
+           is written from offset 0 and padded with spaces up to the old length
+           — a valid file, no truncation, and every reader sees the new corpus. */
+        if (error.code === "UNKNOWN" || error.code === "EBUSY" || error.code === "EPERM") {
+          try {
+            const previous = existsSync(target) ? statSync(target).size : 0;
+            const bytes = Buffer.from(text, "utf8");
+            const padded =
+              bytes.length < previous ? Buffer.concat([bytes, Buffer.alloc(previous - bytes.length, 0x20)]) : bytes;
+            const fd = openSync(target, "r+");
+            try {
+              writeSync(fd, padded, 0, padded.length, 0);
+            } finally {
+              closeSync(fd);
+            }
+            console.warn(
+              `[build-knowledge] ${path.relative(ROOT, target)} is memory-mapped by another process; written in place${
+                padded.length > bytes.length ? ` (padded ${padded.length - bytes.length} bytes)` : ""
+              }.`,
+            );
+            return;
+          } catch {
+            /* fall through to the retry */
+          }
+        }
+        if (attempt >= attempts) throw error;
+        const until = Date.now() + 400 * attempt;
+        while (Date.now() < until) {
+          /* busy-wait: the script is synchronous and short-lived */
+        }
+      }
+    }
+  };
+  writeWithRetry(WEB_OUT, JSON.stringify(payload));
+
+  /* The review copy is a convenience for diffing. A locked file (an editor
+     holding it open, another process mid-write on this shared checkout) must
+     not fail the build that the browser copy has already served. */
+  let reviewCopyNote = "";
+  try {
+    mkdirSync(path.dirname(OUT), { recursive: true });
+    writeWithRetry(OUT, `${JSON.stringify(payload, null, 2)}\n`, 3);
+  } catch (error) {
+    reviewCopyNote = `\n  !! review copy not written (${error.code ?? "error"}: ${path.relative(ROOT, OUT)} is locked?) — browser copy is current`;
+  }
 
   const bytes = Buffer.byteLength(JSON.stringify(payload));
   console.log(
@@ -2050,7 +2112,8 @@ async function main() {
       Object.entries(payload.counts)
         .sort()
         .map(([type, n]) => `  ${String(n).padStart(3)}  ${type}`)
-        .join("\n"),
+        .join("\n") +
+      reviewCopyNote,
   );
 }
 

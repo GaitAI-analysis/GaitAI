@@ -168,15 +168,33 @@ function composeApplicationAnswer(result: RetrievalResult): string {
       !item.doc.parentId,
   );
 
-  const lines: string[] = [`## What GaitAI could contribute for ${subject}`];
+  const askType = result.understanding.askType ?? "potential";
+  const who = result.understanding.entity.title;
+  const lines: string[] = [
+    askType === "relationship"
+      ? `## Does ${who} work with ${subject}?`
+      : askType === "product-exists"
+        ? `## Is there a ${subject} product?`
+        : `## What ${who} could contribute for ${subject}`,
+  ];
 
   if (environments.length) {
     for (const environment of environments) {
-      lines.push(`GaitAI documents **${environment.doc.title}** as a deployment environment — ${brief(environment.doc, 260)}`);
+      lines.push(
+        `${askType === "relationship" ? `No customer or live deployment is documented, but ` : ""}GaitAI documents **${environment.doc.title}** as a deployment environment — ${brief(environment.doc, 260)}`,
+      );
     }
+  } else if (askType === "relationship") {
+    lines.push(
+      `The available GaitAI information does not establish any existing deployment, customer, contract or partnership in ${subject}. The documented capabilities below may be relevant to such an environment; they are potential applications, not a record of use.`,
+    );
+  } else if (askType === "product-exists") {
+    lines.push(
+      `No ${subject}-specific product is documented in the GaitAI catalogue. The modules below are the documented ones whose records come closest.`,
+    );
   } else {
     lines.push(
-      `The available GaitAI information does not document a dedicated ${subject} deployment. The documented capabilities below may be relevant; they are potential applications, not a record of use in this domain.`,
+      `The available GaitAI information does not document a dedicated ${subject} deployment or ${subject}-specific product. The documented capabilities below may be relevant; they are potential applications, not a record of use in this domain.`,
     );
   }
 
@@ -203,6 +221,35 @@ function composeApplicationAnswer(result: RetrievalResult): string {
 }
 
 /**
+ * The graceful answer for what the public record cannot say: pricing,
+ * customers, contracts, hiring, finances — or something off-topic. It names
+ * the topic that was looked for, says the record does not establish it, and
+ * offers the closest real destinations from the retrieved records.
+ */
+function composeUnsupported(result: RetrievalResult): string {
+  const topic = result.understanding.topic || result.understanding.original.replace(/[?.!]+$/g, "");
+  const commercial =
+    /\b(pric\w*|cost\w*|how much|fees?|subscription|quote|customers?|clients?|who uses|case stud\w*|fortune|contracts?|tenders?)\b/i.test(
+      result.understanding.text,
+    );
+  const nearest = result.docs
+    .filter((item) => item.doc.type === "page" || item.doc.type === "product" || item.doc.type === "use-case")
+    .slice(0, 2);
+  const lines = [
+    `The available GaitAI information does not establish ${topic ? `"${topic}"` : "that"}.`,
+    "",
+    commercial
+      ? "Pricing, customers, contracts and commercial terms are not part of the public record. For a commercial or partnership conversation, [request a demo](/#contact)."
+      : "I answer from GaitAI's own records — modules, environments, capabilities, publications, research and policy pages — and nothing there covers this.",
+  ];
+  if (nearest.length) {
+    lines.push("");
+    lines.push(`Closest documented pages: ${nearest.map((item) => `[${item.doc.title}](${item.doc.url})`).join(" · ")}.`);
+  }
+  return lines.join("\n");
+}
+
+/**
  * Compose an answer from the retrieved records alone.
  *
  * Deterministic: the same question and the same corpus always produce the same
@@ -217,6 +264,21 @@ export function composeExtractiveAnswer(result: RetrievalResult): string {
   /* "What can GaitAI do for X": an answer with its boundary, not a hit list. */
   if (result.application && !result.lowConfidence && result.docs.length > 0) {
     return composeApplicationAnswer(result);
+  }
+
+  /* A question the public record cannot answer by its nature — pricing,
+     customers, hiring — or off-topic. Say so, and point somewhere real. */
+  if (result.intent === "UNSUPPORTED") return composeUnsupported(result);
+
+  /* A domain question whose domain nothing documents and nothing scores:
+     the graceful answer names what was looked for. */
+  if (result.lowConfidence && result.understanding.domain) {
+    const subject = result.understanding.domain.subject;
+    return [
+      `I couldn't find a documented GaitAI ${subject} deployment or ${subject}-specific product.`,
+      "",
+      `I can show you which GaitAI capabilities may be relevant to that kind of environment — try asking about the [SecureVision](/securevision/) or [MobilityCare](/mobilitycare/) family, or browse the documented [use cases](/use-cases/).`,
+    ].join("\n");
   }
 
   if (result.lowConfidence || result.docs.length === 0) {

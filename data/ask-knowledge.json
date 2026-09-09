@@ -7,12 +7,12 @@
     "research": 4,
     "person": 8,
     "talk": 21,
-    "insight": 41,
+    "insight": 95,
     "signal": 14,
     "capability": 13,
     "deployment": 9,
     "policy": 2,
-    "page": 61
+    "page": 63
   },
   "environmentMap": [
     {
@@ -202,17 +202,24 @@
     "/",
     "/gaitscape/",
     "/insights/",
+    "/insights/a-good-model-can-still-be-a-bad-system/",
     "/insights/archive/",
+    "/insights/camera-angle-changes-what-ai-sees/",
+    "/insights/can-a-skeleton-still-reveal-identity/",
     "/insights/fall-risk-is-a-trend-not-a-number/",
     "/insights/from-walking-video-to-movement-intelligence/",
     "/insights/movement-intelligence-without-identification/",
     "/insights/start-here/",
+    "/insights/topic/engineering/",
     "/insights/topic/mobility/",
     "/insights/topic/movement-intelligence/",
     "/insights/topic/research/",
     "/insights/topic/responsible-ai/",
     "/insights/topics/",
+    "/insights/what-does-gait-symmetry-actually-mean/",
+    "/insights/what-is-a-personal-movement-baseline/",
     "/insights/when-fusion-looks-better-than-it-is/",
+    "/insights/when-pose-estimation-lies/",
     "/insights/your-walk-is-more-than-a-biometric/",
     "/investors/",
     "/labs/",
@@ -10080,6 +10087,1664 @@
       "date": "2026-07-29"
     },
     {
+      "id": "insight:when-pose-estimation-lies",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "Pose estimators return a full skeleton on almost every frame, and most of the time it is a good one. The failures that matter are the ones that still look like a person — an ankle a few pixels off, two legs that trade places, a foot that quietly disappears — because every gait measurement downstream inherits them without being told.",
+      "content": "Article: When Pose Estimation Lies\nSubtitle: A skeleton can look right while the joints underneath it are wrong\nStandfirst: Pose estimators return a full skeleton on almost every frame, and most of the time it is a good one. The failures that matter are the ones that still look like a person — an ankle a few pixels off, two legs that trade places, a foot that quietly disappears — because every gait measurement downstream inherits them without being told.\nKind: Technical Article\nCategory: AI Under Stress\nTopics: Movement intelligence · Engineering · Research\nPublished: 2026-09-09\nAuthor: GaitAI Research\nReading time: 10 minutes\nThe question it answers: If the skeleton looks fine, how can the measurement be wrong?\nExcerpt: Pose estimators almost always return a plausible skeleton. The failures that matter are the ones that still look like a person: a misplaced ankle, crossed legs, a foot that vanishes — and every gait measure downstream inherits them.\nOpening: Show a pose estimator a frame of someone walking and it will hand back a skeleton: a dozen or so joints, connected in the right order, roughly where a body should be. It will do this for a clean frame. It will also do this for a frame where one leg is behind a bin, the swing foot is a smear of motion blur, or the feet were never in the picture at all. · That is the property this essay is about. Pose estimation does not fail by refusing. It fails by answering — with a skeleton that is anatomically plausible, drawn with confidence, and wrong in a place you would have to look twice to notice. · For a research demo the difference between a plausible skeleton and a correct one is cosmetic. For a movement measurement it is everything, because the ankle the estimator placed is the ankle the step timing is read from, the knee it placed is the knee whose angle is computed, and the side it labelled left is the side the symmetry score believes. · The figures in this essay are illustrative. They are drawn from GaitAI's own gait keyframes to make the failure modes visible; they are not measurements from any model, dataset or deployment, and no accuracy is claimed for any system.\nWhat the reader takes away: Why a plausible skeleton is the most dangerous kind of wrong · Seven ways a keypoint goes astray, from occlusion to a left/right swap · How a few pixels of error become a wrong symmetry reading\nThe two-minute version: A pose estimator is built to return a skeleton. It will return one for a partly hidden, blurred or cropped body too — and it will usually look plausible. · The failures that matter are not the frames where the skeleton is obviously broken. They are the frames where it looks fine and is wrong by a joint or a side. · Occlusion, overlapping legs, motion blur, loose clothing, cropped joints, poor contrast and temporary left/right swaps each move a keypoint in a characteristic way. · A confidence score describes how sure the model is, not how right it is. Estimators can be confidently wrong, and often are exactly where the image is hardest. · A misplaced ankle is a small image error and a large measurement error: step timing, stride length, joint angles and symmetry all read from that ankle. · A system can defend itself by checking consistency over time, against anatomy and across sensors — and by withholding the measures a bad frame cannot support.\nSections: 01 Plausible is not the same as correct · 02 Where keypoints go wrong · 03 Confidence is not correctness · 04 What a small error does downstream · 05 How a system can tell it is being lied to · 06 What this means for movement intelligence\nReading-path position: Step 1 — When the skeleton looks right but isn't\nTags: Pose Estimation · Robustness · Occlusion · Gait Analysis · AI Under Stress",
+      "keywords": [
+        "when pose estimation lies",
+        "pose estimators return a full skeleton on almost every frame, and most of the time it is a good one. the failures that matter are the ones that still look like a person — an ankle a few pixels off, two legs that trade places, a foot that quietly disappears — because every gait measurement downstream inherits them without being told.",
+        "ai under stress",
+        "if the skeleton looks fine, how can the measurement be wrong?",
+        "insights",
+        "gaitai insights",
+        "article",
+        "technical article",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence",
+        "pose estimation",
+        "robustness",
+        "occlusion",
+        "gait analysis",
+        "why a plausible skeleton is the most dangerous kind of wrong",
+        "seven ways a keypoint goes astray, from occlusion to a left/right swap",
+        "how a few pixels of error become a wrong symmetry reading"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#plausible-is-not-correct",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "Plausible is not the same as correct",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#plausible-is-not-correct",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "A pose model is trained to produce skeletons that look like the skeletons in its training data. That is what makes it useful — and what makes its failures quiet.",
+      "content": "Article: When Pose Estimation Lies\nSection: 01 Plausible is not the same as correct\nA pose model is trained to produce skeletons that look like the skeletons in its training data. That is what makes it useful — and what makes its failures quiet. When the evidence in a frame is poor, the model does not output a warning shape. It outputs the most likely body given what it can see, filled in with what bodies usually look like.\nSo a hidden knee is placed where knees usually are. A blurred ankle is placed somewhere along the blur. Feet that were cropped out of the image are placed at the bottom edge, because a body has feet. The result passes every test a glance can apply: right number of joints, right proportions, a person walking.\nThe skeleton that looks obviously broken is the safe one. The one that looks fine is the one that reaches the measurement.\nThis is why the hero figure above has two views. AI view is the skeleton as the estimator returned it. Original frame is what the camera captured, with the estimate laid over it. Nothing in the AI view says which joints are guesses; only the comparison does.",
+      "keywords": [
+        "when pose estimation lies",
+        "plausible is not the same as correct",
+        "plausible",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#where-keypoints-go-wrong",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "Where keypoints go wrong",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#where-keypoints-go-wrong",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "The gait-recognition literature has a word for the conditions that change how a walk looks without changing the walk: covariates.",
+      "content": "Article: When Pose Estimation Lies\nSection: 02 Where keypoints go wrong (part 1 of 2)\nThe gait-recognition literature has a word for the conditions that change how a walk looks without changing the walk: covariates. Clothing, carried objects, viewing angle, occlusion and walking surface are the classic ones, studied because they defeat identity models. Read from the measurement side, the same list is a catalogue of the ways a keypoint can be moved off the body.",
+      "keywords": [
+        "when pose estimation lies",
+        "where keypoints go wrong",
+        "failure modes",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#where-keypoints-go-wrong-2",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "Where keypoints go wrong",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#where-keypoints-go-wrong",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "Seven ways a keypoint goes astray, and what each one does to the estimate. Illustrative — the pattern of the error, not its size. 01 Occlusion: A pillar, a bin, another person.",
+      "content": "Article: When Pose Estimation Lies\nSection: 02 Where keypoints go wrong (part 2 of 2)\nSeven ways a keypoint goes astray, and what each one does to the estimate. Illustrative — the pattern of the error, not its size. 01 Occlusion: A pillar, a bin, another person. The hidden joint is filled in from typical anatomy and reported anyway. 02 Overlapping legs: At mid-stance in a side view the legs cross. The estimator can assign the near knee to the far leg for a few frames, then swap back. 03 Motion blur: The swing foot moves fastest and blurs most. Its ankle lands somewhere along the streak, biased in the direction of travel. 04 Loose clothing: A long coat or wide trousers hide the knee. The joint is placed at the fabric's fold rather than the leg's bend. 05 Cropped joints: Feet below the frame, head above it. The estimator produces a plausible foot at the edge — a joint that was never observed. 06 Poor contrast: Dark trousers against a dark floor, or backlighting. Edges vanish and joints drift toward the middle of whatever region remains. 07 Temporary swaps: Left and right exchange for a stretch of frames and return. Each frame looks correct; the sequence is not.\nTwo things are true of every item on that list. The estimator still returns a complete skeleton, and the error is local: one joint, one side, one span of frames. Locality is what keeps the skeleton plausible. It is also what decides which measurements are damaged.",
+      "keywords": [
+        "when pose estimation lies",
+        "where keypoints go wrong",
+        "failure modes",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#confidence-is-not-correctness",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "Confidence is not correctness",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#confidence-is-not-correctness",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "Most estimators attach a confidence score to each keypoint. It is tempting to read that score as a probability of being right.",
+      "content": "Article: When Pose Estimation Lies\nSection: 03 Confidence is not correctness\nMost estimators attach a confidence score to each keypoint. It is tempting to read that score as a probability of being right. It is closer to a statement about how strongly the model's internal evidence pointed at that location — which is not the same thing, and diverges most exactly where the image is hardest.\nA filled-in joint can score high. When a knee is occluded, the model's prior about where knees go can be sharp and unanimous. The score reports that sharpness, not the missing evidence. · A swapped side scores as well as a correct one. Left and right are both legs. If the model has committed to the wrong assignment, nothing in its confidence says so. · Confidence is per joint, per frame. Temporal errors — a swap that lasts twelve frames — have no natural place to be reported at all. · Calibration varies by condition. A score of 0.9 under studio lighting and a score of 0.9 in a dim corridor are not the same claim, unless the model was explicitly calibrated across both.\nThe quiet consequence: A pipeline that filters keypoints by confidence removes the failures the model knows about and keeps the ones it does not. That is better than nothing. It is not the same as knowing the skeleton is right.",
+      "keywords": [
+        "when pose estimation lies",
+        "confidence is not correctness",
+        "confidence",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#what-the-error-does-downstream",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "What a small error does downstream",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#what-the-error-does-downstream",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "A few pixels of ankle error sounds like a rounding problem. Follow it through the pipeline and it is not. Gait measures are built from joints in a chain, and each link amplifies a particular kind of error.",
+      "content": "Article: When Pose Estimation Lies\nSection: 04 What a small error does downstream (part 1 of 2)\nA few pixels of ankle error sounds like a rounding problem. Follow it through the pipeline and it is not. Gait measures are built from joints in a chain, and each link amplifies a particular kind of error.\nKeypoint — an ankle, placed a few pixels off → Joint angle — the knee angle that ankle defines is now wrong → Gait event — heel strike is detected early or late, or twice → Temporal measures — step time, stance and swing duration shift → Comparative measures — left/right symmetry compares a real leg with a guessed one → Interpretation — a trend or an asymmetry that is in the estimate, not in the person How a frame-level error becomes a sequence-level measurement error. Illustrative chain, not a quantified propagation.\nThe same error, seen at the two levels that matter. In the frame — Small, local, plausible: One joint moved by a small fraction of body height; Skeleton still anatomically valid; Confidence for the joint may be unchanged; Invisible without the original frame In the measurement — Large, structural, persistent: Knee angle, step timing and stride length read from that joint; A left/right swap inverts symmetry for the affected span; A cropped foot removes the heel-strike event entirely; The error survives averaging if it recurs at the same gait phase",
+      "keywords": [
+        "when pose estimation lies",
+        "what a small error does downstream",
+        "downstream",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#what-the-error-does-downstream-2",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "What a small error does downstream",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#what-the-error-does-downstream",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "The measurements most often used to describe mobility — cadence, step timing, stride length, symmetry — are exactly the ones that depend on the joints most often estimated wrongly: the feet and knees, at the moments they move fastest or…",
+      "content": "Article: When Pose Estimation Lies\nSection: 04 What a small error does downstream (part 2 of 2)\nThe measurements most often used to describe mobility — cadence, step timing, stride length, symmetry — are exactly the ones that depend on the joints most often estimated wrongly: the feet and knees, at the moments they move fastest or overlap. The failure is not random noise on top of the signal; it lands on the signal's most informative parts.",
+      "keywords": [
+        "when pose estimation lies",
+        "what a small error does downstream",
+        "downstream",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#seeing-the-lie",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "How a system can tell it is being lied to",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#seeing-the-lie",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "No single frame can reveal a plausible error, which is why the defences all live outside the frame. A movement-intelligence system has four sources of evidence a pose estimator does not use when it draws a skeleton. Time.",
+      "content": "Article: When Pose Estimation Lies\nSection: 05 How a system can tell it is being lied to (part 1 of 2)\nNo single frame can reveal a plausible error, which is why the defences all live outside the frame. A movement-intelligence system has four sources of evidence a pose estimator does not use when it draws a skeleton.\nTime. Ankles do not teleport. A joint that moves further between two frames than a body can move is an estimate, not an observation — and a left/right swap shows up as two legs exchanging trajectories. · Anatomy. Limb lengths are constant for one person within one capture. A shin that grows by a third when the foot is occluded has been filled in. · Other sensors. A wearable that records a heel strike the video did not, or a second camera angle where the hidden leg is visible, is independent evidence the estimator never had. · The capture itself. Framing, contrast, motion and occlusion can be judged before any joint is placed. A frame that fails those checks should not be allowed to contribute a measurement, whatever skeleton it yields.\nNone of these makes the estimator better. They make the system honest about the estimator: the wrong frames are found, and the measures that depend on them are withheld or flagged rather than averaged in. The first Foundation called this signal-quality control; this essay is the closest look at why it is needed.",
+      "keywords": [
+        "when pose estimation lies",
+        "how a system can tell it is being lied to",
+        "detecting",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#seeing-the-lie-2",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "How a system can tell it is being lied to",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#seeing-the-lie",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "Withhold, don't smooth: Smoothing a keypoint trajectory hides an error inside a plausible curve. Withholding the affected measure keeps the error visible as an absence — which a clinician or operator can see, and a downstream model can be…",
+      "content": "Article: When Pose Estimation Lies\nSection: 05 How a system can tell it is being lied to (part 2 of 2)\nWithhold, don't smooth: Smoothing a keypoint trajectory hides an error inside a plausible curve. Withholding the affected measure keeps the error visible as an absence — which a clinician or operator can see, and a downstream model can be told about.",
+      "keywords": [
+        "when pose estimation lies",
+        "how a system can tell it is being lied to",
+        "detecting",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#what-this-means",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "What this means for movement intelligence",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#what-this-means",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "It means the skeleton is an intermediate, not an answer. A system that shows a stick figure and a number is showing the least informative part of its work.",
+      "content": "Article: When Pose Estimation Lies\nSection: 06 What this means for movement intelligence\nIt means the skeleton is an intermediate, not an answer. A system that shows a stick figure and a number is showing the least informative part of its work. What matters is whether it knows which joints it observed and which it inferred, and whether the numbers it produced were allowed to depend on the second kind.\nIt means robustness has to be tested where it fails. A benchmark of well-lit, full-body, side-view walking will report excellent pose accuracy and say nothing about a corridor, a coat or a waste bin. The conditions above are not edge cases in a care home or a station; they are Tuesday.\nAnd it means the output of movement intelligence is decision support: a reading, with its capture quality attached, offered to a person who can look at the frame if the number is surprising. A plausible skeleton is where the argument for that stance begins.",
+      "keywords": [
+        "when pose estimation lies",
+        "what this means for movement intelligence",
+        "implications",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:when-pose-estimation-lies#closing",
+      "type": "insight",
+      "title": "When Pose Estimation Lies",
+      "sectionTitle": "Closing",
+      "slug": "when-pose-estimation-lies",
+      "url": "/insights/when-pose-estimation-lies/#closing",
+      "family": "journal",
+      "category": "AI Under Stress",
+      "summary": "Pose estimation is the step that turns pixels into geometry, and it is remarkably good at it. The point of this essay is not that it fails often.",
+      "content": "Article: When Pose Estimation Lies\nSection: Closing\nPose estimation is the step that turns pixels into geometry, and it is remarkably good at it. The point of this essay is not that it fails often. It is that when it fails, it fails by looking right — and a system that measures movement has to be built as if that is true on every frame, because it cannot tell from the skeleton alone which frames it is.\nThe next stories in AI Under Stress take the same stance to the other places the world stops cooperating: a person disappearing behind another, half a body out of view, a foot below the frame.",
+      "keywords": [
+        "when pose estimation lies",
+        "closing",
+        "movement-intelligence",
+        "engineering",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:when-pose-estimation-lies",
+      "topics": [
+        "Movement intelligence",
+        "Engineering",
+        "Research"
+      ],
+      "date": "2026-09-09"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "Symmetry is one of the most quoted movement measures and one of the least examined. It compares the left side of a walk with the right — but a walk has several things that can be compared, they can disagree, and nobody is perfectly symmetric to begin with. This is what the measure is, what moves it, and what it can and cannot say.",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSubtitle: Left against right, in time and in space — and why one number is never the whole answer\nStandfirst: Symmetry is one of the most quoted movement measures and one of the least examined. It compares the left side of a walk with the right — but a walk has several things that can be compared, they can disagree, and nobody is perfectly symmetric to begin with. This is what the measure is, what moves it, and what it can and cannot say.\nKind: Technical Article\nCategory: Inside the Signal\nTopics: Movement intelligence · Mobility · Research\nPublished: 2026-09-16\nAuthor: GaitAI Research\nReading time: 8 minutes\nThe question it answers: When a system says a walk is asymmetric, what exactly has it compared?\nExcerpt: Symmetry compares the left side of a walk with the right — but stance, swing and step timing can each be asymmetric on their own, nobody is perfectly symmetric, and what a change means depends on the baseline it is read against.\nOpening: Ask what a movement system measures and symmetry is one of the first answers. It sounds simple: does the left side move like the right? It is also one of the least examined measures in the field, because the simple question hides three harder ones — symmetric in what, compared with whom, and measured how well. · This story takes the measure apart. Not to argue against it — symmetry is genuinely informative — but so that when a system reports an asymmetry, a reader knows what has actually been compared and what has not. · The figures are illustrative: the gait cycles are drawn to make each kind of asymmetry visible and carry no measured values. Nothing here is a clinical threshold, and nothing here diagnoses anything.\nWhat the reader takes away: The three things a symmetry measure can compare, and why they can disagree · Why a perfectly symmetric walk is not the reference · What moves the measure without the person changing at all\nThe two-minute version: A gait cycle is one stride: stance, when the foot is on the ground, and swing, when it is not. Symmetry compares the left cycle with the right. · There is not one symmetry. Stance duration, swing duration, step timing and step length can each be compared, and they can move independently. · Nobody is perfectly symmetric. Healthy walking carries a small, stable asymmetry, so the reference is a person's own pattern, not a mirror. · Surface, footwear, a carried bag, walking speed, fatigue, camera viewpoint and pose error all move a symmetry measure without the person changing. · The useful reading is a change against the same person's baseline, with capture quality attached — not a single value against a population cut-off. · Symmetry is decision support: a reason to look closer, never a finding on its own.\nSections: 01 Two legs, one cycle · 02 What a symmetry measure actually compares · 03 Why nobody is perfectly symmetric · 04 What can make it move · 05 Reading a change, not a number · 06 What symmetry can and cannot say\nReading-path position: Step 1 — What symmetry compares\nTags: Gait Symmetry · Gait Cycle · Movement Intelligence · Inside the Signal",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "symmetry is one of the most quoted movement measures and one of the least examined. it compares the left side of a walk with the right — but a walk has several things that can be compared, they can disagree, and nobody is perfectly symmetric to begin with. this is what the measure is, what moves it, and what it can and cannot say.",
+        "inside the signal",
+        "when a system says a walk is asymmetric, what exactly has it compared?",
+        "insights",
+        "gaitai insights",
+        "article",
+        "technical article",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence",
+        "gait symmetry",
+        "gait cycle",
+        "the three things a symmetry measure can compare, and why they can disagree",
+        "why a perfectly symmetric walk is not the reference",
+        "what moves the measure without the person changing at all"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean#two-legs-one-cycle",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "sectionTitle": "Two legs, one cycle",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/#two-legs-one-cycle",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "A gait cycle is one stride of one leg: from the moment its heel strikes the ground to the moment the same heel strikes again. Inside that cycle the leg is either on the ground — stance — or moving through the air — swing.",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSection: 01 Two legs, one cycle\nA gait cycle is one stride of one leg: from the moment its heel strikes the ground to the moment the same heel strikes again. Inside that cycle the leg is either on the ground — stance — or moving through the air — swing. In ordinary walking stance takes the larger share, and for a short period both feet are down at once.\nOne stride, drawn from GaitAI's own gait keyframes: heel strike, loading, mid-stance, toe-off, swing.\nThe other leg runs the same cycle, offset by roughly half a cycle. Symmetry is a comparison between the two: how alike are the left cycle and the right? That framing already contains the first surprise. The two cycles are drawn on the same clock, so they can differ in how long each phase lasts, in when each begins, and in how far the body travels during it — and those are three different comparisons.",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "two legs, one cycle",
+        "the cycle",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-does-gait-symmetry-actually-mean",
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean#what-symmetry-measures",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "sectionTitle": "What a symmetry measure actually compares",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/#what-symmetry-measures",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "The hero figure above lets you move each comparison on its own. Choose stance duration and one foot stays on the ground longer than the other. Choose swing duration and one leg spends longer in the air.",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSection: 02 What a symmetry measure actually compares (part 1 of 2)\nThe hero figure above lets you move each comparison on its own. Choose stance duration and one foot stays on the ground longer than the other. Choose swing duration and one leg spends longer in the air. Choose step timing and the right heel strikes early or late, so steps are no longer evenly spaced even if every phase has the same length.\nThree families of symmetry, each answering a different question. Temporal — How long, and when: Stance time, swing time, double-support time — left against right; Step time: the interval between one heel strike and the next; Readable from a side view and from a wearable's timing signal Spatial — How far: Step length and stride length, left against right; Foot placement relative to the body's path; Sensitive to camera geometry, which the next story in Engineering GaitAI takes up\nBecause these are different comparisons, they can disagree. A person who protects one leg may spend less time on it — a temporal asymmetry — while keeping step lengths even. Another may take a shorter step with one leg at a normal rhythm. A single reported \"symmetry\" hides which of these happened, and the interpretation is different for each.",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "what a symmetry measure actually compares",
+        "three comparisons",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-does-gait-symmetry-actually-mean",
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean#what-symmetry-measures-2",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "sectionTitle": "What a symmetry measure actually compares",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/#what-symmetry-measures",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "Ratio, difference, index: Even within one comparison there are several ways to turn two durations into one number — a ratio, a difference, a normalised index. They behave differently at the extremes and they are not interchangeable.",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSection: 02 What a symmetry measure actually compares (part 2 of 2)\nRatio, difference, index: Even within one comparison there are several ways to turn two durations into one number — a ratio, a difference, a normalised index. They behave differently at the extremes and they are not interchangeable. A system should say which it uses; a reader should ask.",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "what a symmetry measure actually compares",
+        "three comparisons",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-does-gait-symmetry-actually-mean",
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean#why-nobody-is-perfectly-symmetric",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "sectionTitle": "Why nobody is perfectly symmetric",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/#why-nobody-is-perfectly-symmetric",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "If the reference were a mirror, everyone would fail it. Healthy walking carries a small asymmetry — most people have a preferred leg for propulsion and another for support, the way they have a preferred hand — and that asymmetry is…",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSection: 03 Why nobody is perfectly symmetric\nIf the reference were a mirror, everyone would fail it. Healthy walking carries a small asymmetry — most people have a preferred leg for propulsion and another for support, the way they have a preferred hand — and that asymmetry is remarkably stable from day to day for the same person.\nThe informative reference is not symmetry. It is this person's own asymmetry, and whether it has moved.\nThis is the same argument the fourth Foundation makes for fall risk, arriving from a different direction. A symmetry value compared against a population cut-off tells you where a person sits among strangers. The same value compared against that person's own earlier walks tells you whether something changed — which is usually the question that was being asked.\nA measure whose healthy value is \"a little asymmetric, and stable\" cannot be read as a pass/fail test. It has to be read as a trajectory, which means repeated measurement under comparable conditions — and conditions, it turns out, move the measure a great deal.",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "why nobody is perfectly symmetric",
+        "the reference",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-does-gait-symmetry-actually-mean",
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean#what-can-make-it-move",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "sectionTitle": "What can make it move",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/#what-can-make-it-move",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "A change in symmetry is a change in the comparison between two cycles. The person is one thing that can move it.",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSection: 04 What can make it move\nA change in symmetry is a change in the comparison between two cycles. The person is one thing that can move it. Here are the others, and every one of them has produced a convincing asymmetry in a recording of someone who was walking exactly as they always do.\nThings that change a symmetry reading without changing the person. Illustrative list; the size of each effect depends on the setup. 01 Surface: A slope, a kerb, a turn in the corridor. One leg does more work for a few strides. 02 Footwear: A stiff shoe, a heel, a slipper. Stance and push-off change on one side more than the other. 03 Carried load: A bag on one shoulder shifts the body's mass; the free side compensates. 04 Speed and fatigue: Faster walks are more symmetric for some people and less for others; tired walks drift. 05 Camera viewpoint: A camera off the walking axis foreshortens one side's step length. A spatial asymmetry that is in the geometry, not the gait. 06 Pose error: A misplaced ankle or a left/right swap inverts or invents an asymmetry for a span of frames — the previous story in AI Under Stress.\nNone of these is exotic. They are what a corridor, a care home or a sports hall looks like on a normal day. A system that reports symmetry without recording the conditions it was measured under is reporting a number it cannot interpret.",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "what can make it move",
+        "what moves it",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-does-gait-symmetry-actually-mean",
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean#reading-a-change",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "sectionTitle": "Reading a change, not a number",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/#reading-a-change",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "Put the pieces together and a defensible reading of symmetry has four parts. Which comparison moved — stance, swing, timing, length — because they mean different things.",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSection: 05 Reading a change, not a number\nPut the pieces together and a defensible reading of symmetry has four parts. Which comparison moved — stance, swing, timing, length — because they mean different things. How far it moved from this person's own baseline, because the population is the wrong reference. Whether the capture supports the comparison at all, because a foreshortened view or a filled-in joint can manufacture the whole effect. And whether it persists across walks, because a single asymmetric recording is one observation.\nWhich comparison → Against whose baseline → Under what capture → Across how many walks The four questions a symmetry reading has to answer before it means anything.\nThis is why, in a movement-intelligence system, symmetry does not arrive alone. It arrives with the cadence and stride variability of the same walk, the capture-quality judgement made before any number was computed, and the history it is being compared against. The signal is only as informative as the context that travels with it.",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "reading a change, not a number",
+        "reading a change",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-does-gait-symmetry-actually-mean",
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean#what-symmetry-can-and-cannot-say",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "sectionTitle": "What symmetry can and cannot say",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/#what-symmetry-can-and-cannot-say",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "It can say that one side of a walk is behaving differently from the other, in a named way, compared with the same person's earlier walks.",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSection: 06 What symmetry can and cannot say\nIt can say that one side of a walk is behaving differently from the other, in a named way, compared with the same person's earlier walks. · It can say that the difference appeared after a change in conditions — or did not, which is the more interesting case. · It cannot say why. A protective pattern, a stiff shoe, a slope and a pose error can all produce the same number. · It cannot say that anything is wrong. It says that something is worth a closer look by someone qualified to take one.\nThat last line is not a disclaimer bolted on at the end; it is the design. A symmetry measure that knows what it compared, what it was compared against and how well it was captured is a good instrument. Read as a verdict, the same measure is a source of confident mistakes. The word decision support is the difference between the two.",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "what symmetry can and cannot say",
+        "what it can say",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-does-gait-symmetry-actually-mean",
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:what-does-gait-symmetry-actually-mean#closing",
+      "type": "insight",
+      "title": "What Does Gait Symmetry Actually Mean?",
+      "sectionTitle": "Closing",
+      "slug": "what-does-gait-symmetry-actually-mean",
+      "url": "/insights/what-does-gait-symmetry-actually-mean/#closing",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "Symmetry is the most quoted movement measure because the idea is so clear: left should look like right.",
+      "content": "Article: What Does Gait Symmetry Actually Mean?\nSection: Closing\nSymmetry is the most quoted movement measure because the idea is so clear: left should look like right. The measure earns its place when the idea is made precise — which comparison, whose baseline, what capture, how many walks — and loses it the moment a single number is asked to stand for all four.\nInside the Signal continues with the reference that makes a change readable at all: what a personal movement baseline is, and how it differs from a population threshold.",
+      "keywords": [
+        "what does gait symmetry actually mean?",
+        "closing",
+        "movement-intelligence",
+        "mobility",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-does-gait-symmetry-actually-mean",
+      "topics": [
+        "Movement intelligence",
+        "Mobility",
+        "Research"
+      ],
+      "date": "2026-09-16"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "A camera does not record a walk; it records a projection of one. Which direction it flattens away decides which signals survive: a side view keeps the swing of the knee and loses the width of the stride, a front view does the reverse, and an oblique view keeps a little of everything while the scale changes under the person's feet. This is what that means for a system that has to measure movement from wherever the camera happens to be.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSubtitle: The same walk, flattened eight different ways\nStandfirst: A camera does not record a walk; it records a projection of one. Which direction it flattens away decides which signals survive: a side view keeps the swing of the knee and loses the width of the stride, a front view does the reverse, and an oblique view keeps a little of everything while the scale changes under the person's feet. This is what that means for a system that has to measure movement from wherever the camera happens to be.\nKind: Engineering Note\nCategory: Engineering GaitAI\nTopics: Engineering · Movement intelligence · Research\nPublished: 2026-09-23\nAuthor: GaitAI Research\nReading time: 9 minutes\nThe question it answers: Why does the same walk give a different answer from a different corner of the room?\nExcerpt: A camera records a projection of a walk, not the walk. The angle decides which signals survive the flattening — knee flexion, stride width, timing, foot trajectory, body path — and a movement system has to be honest about which it has.\nOpening: Put the same person on the same corridor and film them from the side, from the front, and from the corner where the building happens to have a camera. Three recordings of one walk — and a movement system will find three different sets of things it can measure well, measure badly, or not measure at all. · Nothing has changed about the walk. What changed is the direction the camera flattened it in. This is the most basic fact about video-based movement analysis and one of the least discussed, because in a research setting the camera is put where the measurement wants it. In a deployment it is put where the wall is. · The figures in this article are illustrative: a plan-view sketch of a walker and a camera, drawn to show which plane each angle sees. They are not a camera model, and the availability of each signal is stated in words — easier, harder, unavailable — never as a number.\nWhat the reader takes away: What a side view sees that a front view cannot, and vice versa · Why oblique cameras are the common case and the hard one · How height, distance and lens quietly change the measurement\nThe two-minute version: A camera flattens three dimensions into two. Whatever moves along the line of sight is lost; whatever moves across it is kept. · A side view keeps the sagittal plane — knee flexion, stride length, the foot's arc, heel-strike timing — and cannot see stride width at all. · A front or rear view keeps the coronal plane — stride width, sway, foot placement — and foreshortens everything along the walk, hiding knee angles. · Oblique views, the common case for a mounted camera, see both planes partially, with a scale that changes as the person approaches or recedes. · Camera height, distance and lens decide how many pixels a limb gets, which bounds how precisely any joint can be placed. · A robust system declares what each view makes unavailable, favours features that survive the view it has, and never reports a measurement the geometry did not support.\nSections: 01 A camera is a projection · 02 What a side view gives, and what it cannot · 03 What a front or rear view gives · 04 Oblique angles: the common case · 05 Height, distance and lens · 06 Designing for the angle you have\nReading-path position: Step 1 — What the angle takes away\nTags: Camera Geometry · Pose Estimation · Deployment · Engineering GaitAI",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "a camera does not record a walk; it records a projection of one. which direction it flattens away decides which signals survive: a side view keeps the swing of the knee and loses the width of the stride, a front view does the reverse, and an oblique view keeps a little of everything while the scale changes under the person's feet. this is what that means for a system that has to measure movement from wherever the camera happens to be.",
+        "engineering gaitai",
+        "why does the same walk give a different answer from a different corner of the room?",
+        "insights",
+        "gaitai insights",
+        "article",
+        "engineering note",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence",
+        "camera geometry",
+        "pose estimation",
+        "deployment",
+        "what a side view sees that a front view cannot, and vice versa",
+        "why oblique cameras are the common case and the hard one",
+        "how height, distance and lens quietly change the measurement"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#a-camera-is-a-projection",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "A camera is a projection",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#a-camera-is-a-projection",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "A body moves in three dimensions. An image has two. Every camera resolves that by discarding one direction — the one along its line of sight — and keeping the two across it.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: 01 A camera is a projection\nA body moves in three dimensions. An image has two. Every camera resolves that by discarding one direction — the one along its line of sight — and keeping the two across it. Movement along the line of sight does not vanish entirely; it appears as a change in apparent size. But a change in size is a much weaker signal than a change in position, and it is entangled with distance.\nSo the question for any camera is not \"can it see the person\" but \"which plane of the person's movement is it looking across\". Gait analysts name two planes: the sagittal plane, the side-on slice in which the legs swing forward and back, and the coronal plane, the front-on slice in which the body sways and the feet are placed left and right. A camera sees one of them well, the other badly, or both partially.\nThe camera does not choose what to measure. Its angle already has.",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "a camera is a projection",
+        "projection",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#what-a-side-view-gives",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "What a side view gives, and what it cannot",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#what-a-side-view-gives",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "Beside the walker, the camera looks across the sagittal plane. This is the textbook view, and for good reason: the knee's flexion and extension, the stride length, the arc the foot describes and the exact instant the heel meets the ground…",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: 02 What a side view gives, and what it cannot\nBeside the walker, the camera looks across the sagittal plane. This is the textbook view, and for good reason: the knee's flexion and extension, the stride length, the arc the foot describes and the exact instant the heel meets the ground are all laid out across the image. Temporal measures read cleanly from here, because the events that define them — heel strike, toe-off — are unambiguous.\nWhat the side view cannot see is anything that happens across the walk. Stride width — how far apart the feet are placed — is along its line of sight and collapses to nothing. Lateral sway is a small change in size. And the two legs overlap for part of every cycle, which is exactly the condition under which a pose estimator swaps left and right, as the first story in AI Under Stress showed.\nBest for: Joint angles in the plane of walking, stride length, the timing of gait events, the shape of the foot's path. Weak or absent: stride width, sway, foot placement.",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "what a side view gives, and what it cannot",
+        "side view",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#what-a-front-view-gives",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "What a front or rear view gives",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#what-a-front-view-gives",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "Turn the camera to face the walker and the picture inverts. Now the coronal plane is across the image: stride width, the side-to-side sway of the trunk, whether the feet land in line or splayed, whether one shoulder drops.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: 03 What a front or rear view gives\nTurn the camera to face the walker and the picture inverts. Now the coronal plane is across the image: stride width, the side-to-side sway of the trunk, whether the feet land in line or splayed, whether one shoulder drops. These are the signals that describe balance and support, and the side view could not give them.\nThe cost is everything along the walk. Stride length is foreshortened to a change in scale. Knee flexion — a rotation in the plane the camera is looking along — is nearly invisible. Heel strike is harder to place in time, because the event that marks it is a vertical motion seen at a shallow angle, and the person's apparent size grows every frame as they approach, so nothing can be compared frame to frame without correcting for it.\nThe two canonical views, and what each keeps. Side — Sagittal plane: Knee and hip angles; Stride length and foot arc; Heel strike and toe-off timing; Stride width: unavailable Front / rear — Coronal plane: Stride width and foot placement; Trunk sway and shoulder drop; Scale changes every frame; Knee flexion: unavailable",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "what a front or rear view gives",
+        "front view",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#oblique-angles-and-foreshortening",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "Oblique angles: the common case",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#oblique-angles-and-foreshortening",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "Almost no deployed camera is a side view or a front view. Cameras are mounted high in corners, looking down and across a space, and the people in that space walk in whichever direction they were going.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: 04 Oblique angles: the common case (part 1 of 2)\nAlmost no deployed camera is a side view or a front view. Cameras are mounted high in corners, looking down and across a space, and the people in that space walk in whichever direction they were going. The typical view is oblique: somewhere around forty-five degrees to the walk, from above.\nAn oblique view sees both planes — partially. Knee flexion is visible but compressed; stride width is visible but mixed with stride length; the foot's arc is a slanted ellipse. Every one of these can be recovered in principle, if the geometry is known. In practice the geometry is often not known precisely, and it changes as the person walks: a stride at the near end of the corridor covers many more pixels than the same stride at the far end.\nWhat an oblique camera does to each signal, compared with the view that measures it best. Illustrative. 01 Knee flexion: Visible but compressed; recoverable only with a good estimate of the viewing angle. 02 Stride width: Mixed with stride length in the image; the two cannot be separated without the geometry. 03 Step timing: Available — the rhythm survives any view — but heel strike is placed less precisely. 04 Foot trajectory: A slanted, shrinking ellipse; its shape depends on where in the frame the foot is. 05 Body path: Actually improves: an elevated oblique view sees where a person goes in the room, which neither canonical view does well.",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "oblique angles: the common case",
+        "oblique",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#oblique-angles-and-foreshortening-2",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "Oblique angles: the common case",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#oblique-angles-and-foreshortening",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "The oblique view is not a degraded side view; it is a different instrument with a different strength — spatial context — and a different weakness — every joint angle.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: 04 Oblique angles: the common case (part 2 of 2)\nThe oblique view is not a degraded side view; it is a different instrument with a different strength — spatial context — and a different weakness — every joint angle. A system designed for the side view and deployed on a corner camera will be confidently measuring things the image does not contain.",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "oblique angles: the common case",
+        "oblique",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#height-distance-and-lens",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "Height, distance and lens",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#height-distance-and-lens",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "Angle is the largest of the camera's choices but not the only one. Three quieter ones set the floor under everything a pose estimator can do. Height.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: 05 Height, distance and lens\nAngle is the largest of the camera's choices but not the only one. Three quieter ones set the floor under everything a pose estimator can do.\nHeight. A camera above head height looks down on the walker, so vertical motion — the foot lifting and landing — is seen at an angle and the ground plane is tilted in the image. Heel strike timing gets harder to place; body path gets easier to read. · Distance. Further away, the person occupies fewer pixels. A shin that is thirty pixels long can carry a knee that is right to within a pixel or two; a shin that is eight pixels long cannot. Precision is bounded by pixels per limb before any model is involved. · Lens. A wide lens covers the room and bends straight lines near its edges; a long lens sees a narrow slice with less distortion. The same walk at the edge of a wide frame is not the same shape as at its centre.\nNone of these are properties of the person and all of them change the measurement. A recording made from a different mount, or after a camera was moved by a few centimetres, is not directly comparable to the one before — which is why a longitudinal reading has to record its capture geometry alongside its values.",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "height, distance and lens",
+        "height & lens",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#designing-for-the-angle-you-have",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "Designing for the angle you have",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#designing-for-the-angle-you-have",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "An engineering team cannot move the walls. What it can do is treat the view as a first-class input rather than a nuisance. Declare what is unavailable. If the geometry does not support knee flexion, do not compute it.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: 06 Designing for the angle you have (part 1 of 2)\nAn engineering team cannot move the walls. What it can do is treat the view as a first-class input rather than a nuisance.\nDeclare what is unavailable. If the geometry does not support knee flexion, do not compute it. A withheld measure is honest; a foreshortened one is a wrong number with a confident label. · Prefer signals that survive the view. Rhythm, cadence and step-to-step variability are properties of timing, and timing survives almost any angle. Lean on them where the geometry is poor. · Estimate the geometry, and say how well. A known camera height and angle turns an oblique view back into measurements; an unknown one should lower the confidence of every spatial value, explicitly. · Use a second sensor for what the view cannot see. A wearable measures heel strike in the body's frame, not the camera's. The fifth Foundation's caution applies: fusion adds coverage only when the streams are honest about their own quality. · Compare like with like. Two recordings from different mounts are two instruments. A trend is only a trend if the capture geometry was the same, or was corrected for.",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "designing for the angle you have",
+        "designing for it",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#designing-for-the-angle-you-have-2",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "Designing for the angle you have",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#designing-for-the-angle-you-have",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "The view-invariance literature in gait recognition spent a decade on exactly this problem, for identity; the covariate surveys in the evidence below are where that work is collected.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: 06 Designing for the angle you have (part 2 of 2)\nThe view-invariance literature in gait recognition spent a decade on exactly this problem, for identity; the covariate surveys in the evidence below are where that work is collected. Movement measurement inherits both the problem and the tools, and adds one requirement the identity work did not have: the output is a number a person will act on, so the geometry it came from has to be part of the answer.",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "designing for the angle you have",
+        "designing for it",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:camera-angle-changes-what-ai-sees#closing",
+      "type": "insight",
+      "title": "Camera Angle Changes What AI Sees",
+      "sectionTitle": "Closing",
+      "slug": "camera-angle-changes-what-ai-sees",
+      "url": "/insights/camera-angle-changes-what-ai-sees/#closing",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "A camera angle is not a detail of installation. It is a decision about which plane of human movement will be measured and which will be inferred — made, usually, by whoever mounted the bracket.",
+      "content": "Article: Camera Angle Changes What AI Sees\nSection: Closing\nA camera angle is not a detail of installation. It is a decision about which plane of human movement will be measured and which will be inferred — made, usually, by whoever mounted the bracket. A movement-intelligence system that knows this can be deployed on the camera a building already has. One that does not will measure the corridor's geometry and call it a person's gait.\nEngineering GaitAI continues with the gap between a good model and a good system: the camera, the network, the alert and the person at the end of it.",
+      "keywords": [
+        "camera angle changes what ai sees",
+        "closing",
+        "engineering",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:camera-angle-changes-what-ai-sees",
+      "topics": [
+        "Engineering",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-23"
+    },
+    {
+      "id": "insight:can-a-skeleton-still-reveal-identity",
+      "type": "insight",
+      "title": "Can a Skeleton Still Reveal Identity?",
+      "slug": "can-a-skeleton-still-reveal-identity",
+      "url": "/insights/can-a-skeleton-still-reveal-identity/",
+      "family": "journal",
+      "category": "Privacy by Architecture",
+      "summary": "Strip a walking video down: remove the face, keep only the silhouette, keep only the skeleton, keep only the paths the joints trace. Each step removes something that could identify a person and keeps something that still might. Where identity actually disappears is not a property of the picture; it depends on what is stored, what it is combined with, how long it persists and what it is for.",
+      "content": "Article: Can a Skeleton Still Reveal Identity?\nSubtitle: There is no single point where a person disappears from the data\nStandfirst: Strip a walking video down: remove the face, keep only the silhouette, keep only the skeleton, keep only the paths the joints trace. Each step removes something that could identify a person and keeps something that still might. Where identity actually disappears is not a property of the picture; it depends on what is stored, what it is combined with, how long it persists and what it is for.\nKind: Technical Article\nCategory: Privacy by Architecture\nTopics: Responsible AI · Movement intelligence · Research\nPublished: 2026-09-30\nAuthor: GaitAI Research\nReading time: 8 minutes\nThe question it answers: If the face is gone and only a skeleton remains, is anyone still identifiable?\nExcerpt: RGB, face removed, silhouette, skeleton, joint trajectories: each representation removes some identifying cues and keeps others. Where identity disappears depends on storage, combination, persistence and purpose — not on the picture alone.\nOpening: The most common privacy claim in movement AI is a diagram. A camera on the left, a stick figure on the right, an arrow between them, and the sentence \"we only process skeletons\". The diagram is honest about the engineering. It is not, on its own, a statement about privacy — and the field that made the engineering possible is the reason why. · Gait recognition is the study of identifying people by how they walk. Its best-known methods work from silhouettes and from skeletons: exactly the representations the diagram offers as the point where identity is gone. That is not a contradiction to be argued away. It is the fact a privacy architecture has to be built around. · The hero figure is illustrative — a drawn figure and a qualitative ledger, not a measurement of anyone's re-identifiability. The evidence links at the end point at the published surveys the argument draws on. Nothing here claims that any representation is anonymous.\nWhat the reader takes away: The five kinds of identifying information a walking video carries · Why the gait-recognition literature is the strongest argument for privacy engineering · The six things privacy actually depends on — and representation is only one\nThe two-minute version: A walking video carries several kinds of identifying information at once: face, clothing and colour, body shape and proportions, the gait pattern itself, and the context of time and place. · Removing the face removes one of them. Clothing, build and gait are untouched; on their own they narrow a person down considerably. · A silhouette removes texture and colour but keeps shape and movement — the very signals a decade of gait-recognition research has learned to identify people from. · A skeleton removes appearance almost entirely, but pose sequences carry identity too; the research that makes GaitAI possible is the evidence. · Joint trajectories carry the least image information — and if they are stored with times and places, or matched across days, a pattern can still be re-identified. · Privacy depends on representation, storage, combination, persistence, purpose and deployment together. A diagram of the pipeline is not a privacy guarantee.\nSections: 01 What a walking video actually holds · 02 Removing the face is not anonymity · 03 Silhouettes and skeletons carry gait — and gait carries identity · 04 Trajectories, and the passage of time · 05 What privacy actually depends on · 06 Designing for honest privacy\nReading-path position: Step 1 — Where identity does and does not disappear\nTags: Privacy · Gait Biometrics · Data Minimisation · Privacy by Architecture",
+      "keywords": [
+        "can a skeleton still reveal identity?",
+        "strip a walking video down: remove the face, keep only the silhouette, keep only the skeleton, keep only the paths the joints trace. each step removes something that could identify a person and keeps something that still might. where identity actually disappears is not a property of the picture; it depends on what is stored, what it is combined with, how long it persists and what it is for.",
+        "privacy by architecture",
+        "if the face is gone and only a skeleton remains, is anyone still identifiable?",
+        "insights",
+        "gaitai insights",
+        "article",
+        "technical article",
+        "responsible-ai",
+        "movement-intelligence",
+        "research",
+        "responsible ai",
+        "movement intelligence",
+        "privacy",
+        "gait biometrics",
+        "data minimisation",
+        "the five kinds of identifying information a walking video carries",
+        "why the gait-recognition literature is the strongest argument for privacy engineering",
+        "the six things privacy actually depends on — and representation is only one"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "topics": [
+        "Responsible AI",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-30"
+    },
+    {
+      "id": "insight:can-a-skeleton-still-reveal-identity#what-a-camera-holds",
+      "type": "insight",
+      "title": "Can a Skeleton Still Reveal Identity?",
+      "sectionTitle": "What a walking video actually holds",
+      "slug": "can-a-skeleton-still-reveal-identity",
+      "url": "/insights/can-a-skeleton-still-reveal-identity/#what-a-camera-holds",
+      "family": "journal",
+      "category": "Privacy by Architecture",
+      "summary": "It helps to name the kinds of identifying information a few seconds of video carries, because they are removed by different steps and they do not weigh the same. Five layers of identity in a walking video.",
+      "content": "Article: Can a Skeleton Still Reveal Identity?\nSection: 01 What a walking video actually holds\nIt helps to name the kinds of identifying information a few seconds of video carries, because they are removed by different steps and they do not weigh the same.\nFive layers of identity in a walking video. Illustrative grouping; the boundaries are not sharp. 01 Face: The strongest single cue, and the one most people think of as identity. 02 Appearance: Clothing, colour, hair, accessories. Weak alone; strong in combination, and stable across a day. 03 Shape: Height, build, limb proportions. Persistent across days and clothing. 04 Gait: The pattern of the walk itself — timing, rhythm, posture. The subject of an entire recognition literature. 05 Context: When and where. Two anonymous observations at the same door at the same time each morning are not anonymous for long.\nEvery stage of a privacy pipeline removes some of these and keeps others. The question is never \"is identity gone\" but \"which layers remain, and what would it take to use them\".",
+      "keywords": [
+        "can a skeleton still reveal identity?",
+        "what a walking video actually holds",
+        "what is held",
+        "responsible-ai",
+        "movement-intelligence",
+        "research",
+        "responsible ai",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:can-a-skeleton-still-reveal-identity",
+      "topics": [
+        "Responsible AI",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-30"
+    },
+    {
+      "id": "insight:can-a-skeleton-still-reveal-identity#removing-the-face-is-not-anonymity",
+      "type": "insight",
+      "title": "Can a Skeleton Still Reveal Identity?",
+      "sectionTitle": "Removing the face is not anonymity",
+      "slug": "can-a-skeleton-still-reveal-identity",
+      "url": "/insights/can-a-skeleton-still-reveal-identity/#removing-the-face-is-not-anonymity",
+      "family": "journal",
+      "category": "Privacy by Architecture",
+      "summary": "Blurring or masking the face is the first thing most systems do, and it should be: it removes the most recognisable region before anything is stored. It is also the step most often mistaken for the whole job. Look at what remains.",
+      "content": "Article: Can a Skeleton Still Reveal Identity?\nSection: 02 Removing the face is not anonymity\nBlurring or masking the face is the first thing most systems do, and it should be: it removes the most recognisable region before anything is stored. It is also the step most often mistaken for the whole job.\nLook at what remains. The clothing is intact, and clothing is stable for a day. The build and proportions are intact, and they are stable for years. The walk is intact. In a small population — a ward, an office, a school — appearance and build alone narrow a person down to a handful, and the third Foundation's privacy figure showed exactly this: after face redaction the identity indicator barely moved.\nA useful step, an incomplete claim: Face removal reduces the most direct route to identity and should be applied at the edge. Describing the result as anonymous is an overclaim, because four of the five layers are untouched.",
+      "keywords": [
+        "can a skeleton still reveal identity?",
+        "removing the face is not anonymity",
+        "face removed",
+        "responsible-ai",
+        "movement-intelligence",
+        "research",
+        "responsible ai",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:can-a-skeleton-still-reveal-identity",
+      "topics": [
+        "Responsible AI",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-30"
+    },
+    {
+      "id": "insight:can-a-skeleton-still-reveal-identity#silhouettes-and-skeletons",
+      "type": "insight",
+      "title": "Can a Skeleton Still Reveal Identity?",
+      "sectionTitle": "Silhouettes and skeletons carry gait — and gait carries identity",
+      "slug": "can-a-skeleton-still-reveal-identity",
+      "url": "/insights/can-a-skeleton-still-reveal-identity/#silhouettes-and-skeletons",
+      "family": "journal",
+      "category": "Privacy by Architecture",
+      "summary": "A silhouette discards texture and colour: no face, no clothing detail, no hair. What it keeps is the outline — shape and its movement over time. A skeleton discards even the outline, keeping a dozen joints and how they move.",
+      "content": "Article: Can a Skeleton Still Reveal Identity?\nSection: 03 Silhouettes and skeletons carry gait — and gait carries identity\nA silhouette discards texture and colour: no face, no clothing detail, no hair. What it keeps is the outline — shape and its movement over time. A skeleton discards even the outline, keeping a dozen joints and how they move.\nThis is where the diagram's argument is weakest, because these are the representations gait recognition was built on. Silhouette-based methods have identified people from outlines for two decades; model-based methods do it from skeletons and joint angles. The surveys in the evidence below collect hundreds of such results across clothing changes, carried objects and viewing angles. That research is what makes movement measurement possible at all — and it is also a demonstration that a skeleton is not an anonymised person.\nWhat each representation removes and keeps. Qualitative; the strength of what remains depends on the population and the data around it. Removed — Gone by the skeleton stage: Face; Clothing, colour, hair; Most of the body's outline; Background and scene Kept — Still present in a skeleton: Limb proportions and height; The gait pattern — timing, rhythm, posture; Whatever context travels with the frames; A signature that recognition methods can learn\nThe skeleton is not where identity ends. It is where identity stops being visible to a person and starts being visible only to a model.",
+      "keywords": [
+        "can a skeleton still reveal identity?",
+        "silhouettes and skeletons carry gait — and gait carries identity",
+        "silhouette · skeleton",
+        "responsible-ai",
+        "movement-intelligence",
+        "research",
+        "responsible ai",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:can-a-skeleton-still-reveal-identity",
+      "topics": [
+        "Responsible AI",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-30"
+    },
+    {
+      "id": "insight:can-a-skeleton-still-reveal-identity#trajectories-and-the-passage-of-time",
+      "type": "insight",
+      "title": "Can a Skeleton Still Reveal Identity?",
+      "sectionTitle": "Trajectories, and the passage of time",
+      "slug": "can-a-skeleton-still-reveal-identity",
+      "url": "/insights/can-a-skeleton-still-reveal-identity/#trajectories-and-the-passage-of-time",
+      "family": "journal",
+      "category": "Privacy by Architecture",
+      "summary": "Reduce further and only movement remains: the paths a few joints trace, or the path a person takes through a room. This is the leanest representation a movement system can work from, and it is genuinely far from an image.",
+      "content": "Article: Can a Skeleton Still Reveal Identity?\nSection: 04 Trajectories, and the passage of time\nReduce further and only movement remains: the paths a few joints trace, or the path a person takes through a room. This is the leanest representation a movement system can work from, and it is genuinely far from an image. A single trajectory, alone, identifies almost no one.\nThe word doing the work in that sentence is alone. Trajectories are recorded at a time, in a place. Keep them for a week and the same route at the same hour becomes a pattern. Join them to a door-access log, a rota, a room booking, and the pattern acquires a name. Match today's rhythm against yesterday's and a system that never stored a face is re-identifying a person by their walk — which is, once again, precisely the capability the recognition literature describes.\nThe privacy of a representation is not a property of the representation. It is a property of the representation together with how long it is kept, what it is stored next to and what it is compared against. A pipeline diagram shows none of those.",
+      "keywords": [
+        "can a skeleton still reveal identity?",
+        "trajectories, and the passage of time",
+        "trajectories",
+        "responsible-ai",
+        "movement-intelligence",
+        "research",
+        "responsible ai",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:can-a-skeleton-still-reveal-identity",
+      "topics": [
+        "Responsible AI",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-30"
+    },
+    {
+      "id": "insight:can-a-skeleton-still-reveal-identity#privacy-depends-on",
+      "type": "insight",
+      "title": "Can a Skeleton Still Reveal Identity?",
+      "sectionTitle": "What privacy actually depends on",
+      "slug": "can-a-skeleton-still-reveal-identity",
+      "url": "/insights/can-a-skeleton-still-reveal-identity/#privacy-depends-on",
+      "family": "journal",
+      "category": "Privacy by Architecture",
+      "summary": "Put the argument together and identity does not disappear at a stage; it is reduced by a set of decisions, each of which can be undone by another. Six of them decide the outcome. Representation.",
+      "content": "Article: Can a Skeleton Still Reveal Identity?\nSection: 05 What privacy actually depends on\nPut the argument together and identity does not disappear at a stage; it is reduced by a set of decisions, each of which can be undone by another. Six of them decide the outcome.\nRepresentation. What survives the transformation: a skeleton keeps less than a silhouette, a trajectory less than a skeleton. Necessary, never sufficient. · Storage. Whether the reduced data is kept at all, for how long, and whether the original frames are kept alongside it. A skeleton next to its source video is a video. · Combination. What the data can be joined to: identity logs, timetables, other cameras, other sensors. Linkage is how anonymous data stops being anonymous. · Persistence. Whether observations of the same walk can be matched across days. A pattern that recurs is a signature. · Purpose. What the model is asked to do. A system built to count people in a corridor and a system built to recognise them can consume the same skeletons. · Deployment. Who operates it, who can query it, and what the people being observed have been told. Architecture sets the ceiling; governance decides where under it a system sits.\nRepresentation is the one an engineering team controls most directly, which is why it is the one that gets drawn. The other five are where most real privacy failures happen.",
+      "keywords": [
+        "can a skeleton still reveal identity?",
+        "what privacy actually depends on",
+        "what it depends on",
+        "responsible-ai",
+        "movement-intelligence",
+        "research",
+        "responsible ai",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:can-a-skeleton-still-reveal-identity",
+      "topics": [
+        "Responsible AI",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-30"
+    },
+    {
+      "id": "insight:can-a-skeleton-still-reveal-identity#designing-for-honest-privacy",
+      "type": "insight",
+      "title": "Can a Skeleton Still Reveal Identity?",
+      "sectionTitle": "Designing for honest privacy",
+      "slug": "can-a-skeleton-still-reveal-identity",
+      "url": "/insights/can-a-skeleton-still-reveal-identity/#designing-for-honest-privacy",
+      "family": "journal",
+      "category": "Privacy by Architecture",
+      "summary": "None of this argues against privacy engineering. It argues for doing all of it, and for describing it accurately. Minimise at the edge, and mean it. Transform before storage, not after.",
+      "content": "Article: Can a Skeleton Still Reveal Identity?\nSection: 06 Designing for honest privacy\nNone of this argues against privacy engineering. It argues for doing all of it, and for describing it accurately.\nMinimise at the edge, and mean it. Transform before storage, not after. If the raw frames are never kept, four of the five layers never enter the system. · Do not keep what the purpose does not need. A counting system needs no trajectories from last week. Expiry is a privacy control. · Do not link by default. Movement data joined to identity data is identity data. Linkage should be a deliberate, disclosed decision. · Say what remains. \"We process skeletons\" is a description of the representation. \"Skeletons can carry gait identity; here is what we do about that\" is a description of the privacy. · Treat re-identification as a capability the system has, not one it lacks. The literature says it does. Govern accordingly.\nThe third Foundation called this privacy by architecture: sensing and identification as separable stages, separated on purpose. This story adds the caveat that keeps the phrase honest. The separation is not a place in the pipeline where identity is gone. It is a set of decisions that keep identity from being reassembled — and every one of them has to hold.",
+      "keywords": [
+        "can a skeleton still reveal identity?",
+        "designing for honest privacy",
+        "designing honestly",
+        "responsible-ai",
+        "movement-intelligence",
+        "research",
+        "responsible ai",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:can-a-skeleton-still-reveal-identity",
+      "topics": [
+        "Responsible AI",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-30"
+    },
+    {
+      "id": "insight:can-a-skeleton-still-reveal-identity#closing",
+      "type": "insight",
+      "title": "Can a Skeleton Still Reveal Identity?",
+      "sectionTitle": "Closing",
+      "slug": "can-a-skeleton-still-reveal-identity",
+      "url": "/insights/can-a-skeleton-still-reveal-identity/#closing",
+      "family": "journal",
+      "category": "Privacy by Architecture",
+      "summary": "Can a skeleton still reveal identity? Yes — the research that makes movement intelligence possible is the proof.",
+      "content": "Article: Can a Skeleton Still Reveal Identity?\nSection: Closing\nCan a skeleton still reveal identity? Yes — the research that makes movement intelligence possible is the proof. That is not an argument against skeleton-based systems; it is the reason their privacy has to be engineered in storage, linkage, persistence, purpose and governance, not declared by a diagram.\nPrivacy by Architecture continues with the engineering of those decisions: what a movement system should keep, for how long, and how it can show that it did.",
+      "keywords": [
+        "can a skeleton still reveal identity?",
+        "closing",
+        "responsible-ai",
+        "movement-intelligence",
+        "research",
+        "responsible ai",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:can-a-skeleton-still-reveal-identity",
+      "topics": [
+        "Responsible AI",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-09-30"
+    },
+    {
+      "id": "insight:a-good-model-can-still-be-a-bad-system",
+      "type": "insight",
+      "title": "A Good Model Can Still Be a Bad System",
+      "slug": "a-good-model-can-still-be-a-bad-system",
+      "url": "/insights/a-good-model-can-still-be-a-bad-system/",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "A movement model can be right on every frame and the system built around it can still fail the person it was meant to help. Cameras drop frames, inference queues fill, networks stall, alerts arrive late or twice, dashboards hide the one that matters, and a tired operator dismisses the tenth false alarm of the shift. Model quality is one link in that chain. This is about the others.",
+      "content": "Article: A Good Model Can Still Be a Bad System\nSubtitle: Everything between the camera and the person who acts\nStandfirst: A movement model can be right on every frame and the system built around it can still fail the person it was meant to help. Cameras drop frames, inference queues fill, networks stall, alerts arrive late or twice, dashboards hide the one that matters, and a tired operator dismisses the tenth false alarm of the shift. Model quality is one link in that chain. This is about the others.\nKind: Engineering Note\nCategory: Engineering GaitAI\nTopics: Engineering · Movement intelligence\nPublished: 2026-10-07\nAuthor: GaitAI Research\nReading time: 8 minutes\nThe question it answers: If the model is right, why did the alert never arrive?\nExcerpt: A model can be right on every frame while the system around it fails: dropped frames, stalled inference, a network that swallows an alert, an interface that hides it, a person who has stopped trusting it. Model quality is one link in the chain.\nOpening: Most of the writing about movement AI, including a good deal of this journal, is about the model: what it sees, where it fails, what it should and should not claim. That is right, and it is not enough. A model does not help anyone. A system does — and the system is everything between the lens and the person who decides what to do. · This story follows that chain link by link. It is not a catalogue of things that go wrong for its own sake; it is an argument that reliability is a property of the whole, that most of the whole is not the model, and that a system has to be honest about its own state in exactly the way the earlier stories asked a model to be honest about its measurements. · The hero figure is a conceptual demonstration. It shows kinds of failure and their consequences as states, not as rates; no uptime, latency or accuracy figure appears anywhere in this article, and none should be inferred.\nWhat the reader takes away: The six places a movement system fails that have nothing to do with the model · Why a late alert and a false alert are different engineering problems · What reliability means when the last component is a person\nThe two-minute version: A deployed movement system is a chain: capture, inference, transport, alerting, interface, human review. The model is one link. · Each link fails in its own way — a frozen camera, a saturated inference queue, a network partition, an alert that arrives twice or never, a dashboard that buries it, an operator who has learned to ignore it. · Most of these failures are invisible to the model. It keeps producing correct outputs for the frames it receives; the frames, or the outputs, simply stop going anywhere useful. · Late is a failure mode of its own. A correct alert that arrives after the moment it was for has the cost of a missed one and the cost of a false one. · Reliability has to be designed end to end: heartbeats, known-unknown states, idempotent alerts, honest interfaces, and a human workload the system does not exhaust. · The measure of a system is not the model's score. It is whether the right person saw the right thing in time — and knew when they could not.\nSections: 01 The chain · 02 How each link fails, and what the model sees · 03 Late is its own failure · 04 The system has to know when it does not know · 05 The last link is a person · 06 What reliability means here\nReading-path position: Step 2 — The chain around the model\nTags: Reliability · Deployment · Systems Engineering · Engineering GaitAI",
+      "keywords": [
+        "a good model can still be a bad system",
+        "a movement model can be right on every frame and the system built around it can still fail the person it was meant to help. cameras drop frames, inference queues fill, networks stall, alerts arrive late or twice, dashboards hide the one that matters, and a tired operator dismisses the tenth false alarm of the shift. model quality is one link in that chain. this is about the others.",
+        "engineering gaitai",
+        "if the model is right, why did the alert never arrive?",
+        "insights",
+        "gaitai insights",
+        "article",
+        "engineering note",
+        "engineering",
+        "movement-intelligence",
+        "movement intelligence",
+        "reliability",
+        "deployment",
+        "systems engineering",
+        "the six places a movement system fails that have nothing to do with the model",
+        "why a late alert and a false alert are different engineering problems",
+        "what reliability means when the last component is a person"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "topics": [
+        "Engineering",
+        "Movement intelligence"
+      ],
+      "date": "2026-10-07"
+    },
+    {
+      "id": "insight:a-good-model-can-still-be-a-bad-system#the-chain",
+      "type": "insight",
+      "title": "A Good Model Can Still Be a Bad System",
+      "sectionTitle": "The chain",
+      "slug": "a-good-model-can-still-be-a-bad-system",
+      "url": "/insights/a-good-model-can-still-be-a-bad-system/#the-chain",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "Camera → Inference → Network → Alert → Interface → Operator Six links between a movement and a decision. The model lives inside the second. Every deployed movement system has some version of this chain.",
+      "content": "Article: A Good Model Can Still Be a Bad System\nSection: 01 The chain\nCamera → Inference → Network → Alert → Interface → Operator Six links between a movement and a decision. The model lives inside the second.\nEvery deployed movement system has some version of this chain. A camera or sensor captures; a model, on a device or a server, infers; a network carries the result; an alerting layer decides what is worth someone's attention; an interface shows it; a person reads it and acts, or does not. The names vary, the order sometimes does, but the shape is constant.\nThe model's quality — everything the first Foundation and the AI Under Stress stories are about — decides how good the second link is. It says nothing about the other five. A system is only as reliable as the weakest of the six, and the weakest is rarely the one with the research literature behind it.",
+      "keywords": [
+        "a good model can still be a bad system",
+        "the chain",
+        "engineering",
+        "movement-intelligence",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:a-good-model-can-still-be-a-bad-system",
+      "topics": [
+        "Engineering",
+        "Movement intelligence"
+      ],
+      "date": "2026-10-07"
+    },
+    {
+      "id": "insight:a-good-model-can-still-be-a-bad-system#how-each-link-fails",
+      "type": "insight",
+      "title": "A Good Model Can Still Be a Bad System",
+      "sectionTitle": "How each link fails, and what the model sees",
+      "slug": "a-good-model-can-still-be-a-bad-system",
+      "url": "/insights/a-good-model-can-still-be-a-bad-system/#how-each-link-fails",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "The hero figure lets you break each link in turn. The right-hand column is the important one: what the model experiences while the system fails around it. In most cases, nothing. A failure per link, and the model's view of it.",
+      "content": "Article: A Good Model Can Still Be a Bad System\nSection: 02 How each link fails, and what the model sees\nThe hero figure lets you break each link in turn. The right-hand column is the important one: what the model experiences while the system fails around it. In most cases, nothing.\nA failure per link, and the model's view of it. Conceptual — kinds of failure, not frequencies. 01 Camera: A frozen frame, a smeared lens, a lost feed. The model receives fewer frames, or the same frame, and infers on what arrives. 02 Inference: A saturated queue, a throttled device, a stale model. Results arrive late or are skipped; the ones that arrive are correct. 03 Network: A partition, a retry storm, a buffer that fills and drops. Correct results leave the device and never arrive. 04 Alert: A threshold that fires twice, a deduplication that swallows a real event, a message queued behind a backlog. 05 Interface: The right alert on the wrong screen, in a colour that means nothing, below the fold of a list nobody scrolls. 06 Operator: The tenth alert of a shift dismissed without being read, because the first nine were wrong. The model was right about the tenth.\nIn five of the six failures, the model's outputs were correct. In all six, the person who needed them did not get them in time.",
+      "keywords": [
+        "a good model can still be a bad system",
+        "how each link fails, and what the model sees",
+        "failures",
+        "engineering",
+        "movement-intelligence",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:a-good-model-can-still-be-a-bad-system",
+      "topics": [
+        "Engineering",
+        "Movement intelligence"
+      ],
+      "date": "2026-10-07"
+    },
+    {
+      "id": "insight:a-good-model-can-still-be-a-bad-system#late-is-its-own-failure",
+      "type": "insight",
+      "title": "A Good Model Can Still Be a Bad System",
+      "sectionTitle": "Late is its own failure",
+      "slug": "a-good-model-can-still-be-a-bad-system",
+      "url": "/insights/a-good-model-can-still-be-a-bad-system/#late-is-its-own-failure",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "Model evaluation asks whether an output is right. Systems have a second axis: when. A movement event — a fall, a stop, a change in gait that a clinician wanted to know about — has a window in which knowing about it is useful.",
+      "content": "Article: A Good Model Can Still Be a Bad System\nSection: 03 Late is its own failure\nModel evaluation asks whether an output is right. Systems have a second axis: when. A movement event — a fall, a stop, a change in gait that a clinician wanted to know about — has a window in which knowing about it is useful. An alert that arrives after the window is not a late success. It is a miss that also costs someone's attention.\nTwo alerts, one correct model. In time — The alert does its job: Arrives inside the window it was for; Costs one look; Builds trust when it is right Late — The alert costs twice: The event has already resolved, well or badly; Costs a look and a dismissal; Teaches the operator that alerts arrive after the fact\nLatency accumulates along the chain: capture, inference, transport, queueing, rendering, noticing. Each stage adds a little; several add a lot under load, which is exactly when the events being watched for are most likely. A system that reports its own end-to-end delay, and knows when it has exceeded the window, is doing something the model cannot do for it.",
+      "keywords": [
+        "a good model can still be a bad system",
+        "late is its own failure",
+        "latency",
+        "engineering",
+        "movement-intelligence",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:a-good-model-can-still-be-a-bad-system",
+      "topics": [
+        "Engineering",
+        "Movement intelligence"
+      ],
+      "date": "2026-10-07"
+    },
+    {
+      "id": "insight:a-good-model-can-still-be-a-bad-system#known-unknowns",
+      "type": "insight",
+      "title": "A Good Model Can Still Be a Bad System",
+      "sectionTitle": "The system has to know when it does not know",
+      "slug": "a-good-model-can-still-be-a-bad-system",
+      "url": "/insights/a-good-model-can-still-be-a-bad-system/#known-unknowns",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "The fifth Foundation drew a line between a missing input and a silently corrupted one: the first is a routing problem the system can see, the second a detection problem it may not. The same line runs through the whole chain.",
+      "content": "Article: A Good Model Can Still Be a Bad System\nSection: 04 The system has to know when it does not know\nThe fifth Foundation drew a line between a missing input and a silently corrupted one: the first is a routing problem the system can see, the second a detection problem it may not. The same line runs through the whole chain. A camera that reports \"no frames for thirty seconds\" is a known unknown. A camera that keeps sending the same frozen frame is a silent one — and the model will infer a perfectly stationary person from it, correctly.\nHeartbeats, not silence. Every link should say \"I am here and this is my state\" on a schedule, so that silence means failure rather than calm. · Staleness is a state. A result older than its window should be shown as stale, not as current. Age is data. · Duplicates are failures too. An alert delivered twice is not twice as safe; it is a sign the transport does not know what it delivered, and it costs attention. · Degraded is a mode. A system that has lost a camera should say so and keep running on what remains, rather than either stopping or pretending.\nThe stories before this one asked the model to withhold a measurement it could not support. This one asks the system to do the same about itself: to surface its own gaps as gaps, so that an absence of alerts is never mistaken for an absence of events.",
+      "keywords": [
+        "a good model can still be a bad system",
+        "the system has to know when it does not know",
+        "known unknowns",
+        "engineering",
+        "movement-intelligence",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:a-good-model-can-still-be-a-bad-system",
+      "topics": [
+        "Engineering",
+        "Movement intelligence"
+      ],
+      "date": "2026-10-07"
+    },
+    {
+      "id": "insight:a-good-model-can-still-be-a-bad-system#the-last-link-is-a-person",
+      "type": "insight",
+      "title": "A Good Model Can Still Be a Bad System",
+      "sectionTitle": "The last link is a person",
+      "slug": "a-good-model-can-still-be-a-bad-system",
+      "url": "/insights/a-good-model-can-still-be-a-bad-system/#the-last-link-is-a-person",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "Everything upstream exists so that a person can decide something. That person is a component with its own failure modes, and they are not moral failings: attention is finite, trust is earned and lost by experience, and a screen full of…",
+      "content": "Article: A Good Model Can Still Be a Bad System\nSection: 05 The last link is a person\nEverything upstream exists so that a person can decide something. That person is a component with its own failure modes, and they are not moral failings: attention is finite, trust is earned and lost by experience, and a screen full of alerts that are usually wrong trains anyone to stop reading it. This is the oldest finding in alarm design, and movement AI is not exempt from it.\nIt follows that the number of alerts a system emits is a reliability decision, not just a sensitivity setting. A model tuned to miss nothing will, through the operator, end up missing a great deal. The decision support framing the Foundations insisted on is partly about this: the output is offered to a person to review, so the system has to be designed around what a person can actually review.\nDesign the workload, not just the model: How many alerts an hour; how they are ranked; what one look tells the operator; how a dismissal is recorded and learned from; what happens on the night shift. None of these is in the model's evaluation, and all of them decide whether the model's correctness reaches anyone.",
+      "keywords": [
+        "a good model can still be a bad system",
+        "the last link is a person",
+        "the person",
+        "engineering",
+        "movement-intelligence",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:a-good-model-can-still-be-a-bad-system",
+      "topics": [
+        "Engineering",
+        "Movement intelligence"
+      ],
+      "date": "2026-10-07"
+    },
+    {
+      "id": "insight:a-good-model-can-still-be-a-bad-system#what-reliability-means",
+      "type": "insight",
+      "title": "A Good Model Can Still Be a Bad System",
+      "sectionTitle": "What reliability means here",
+      "slug": "a-good-model-can-still-be-a-bad-system",
+      "url": "/insights/a-good-model-can-still-be-a-bad-system/#what-reliability-means",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "Reliability for a movement system is not the model's score and not the servers' uptime. It is a chain of properties, each of which has to hold: The capture is present and the system knows when it is not.",
+      "content": "Article: A Good Model Can Still Be a Bad System\nSection: 06 What reliability means here\nReliability for a movement system is not the model's score and not the servers' uptime. It is a chain of properties, each of which has to hold:\nThe capture is present and the system knows when it is not. · The inference is current and the system knows when it is stale. · The transport delivers once and the system knows what it delivered. · The alert is in time and the system knows the window. · The interface shows the right thing first. · The person has a workload they can carry, and reasons to trust what they see.\nA good model is the part of this that gets published. A good system is the part that gets deployed. GaitAI's own position is that the second is the product — and that it should be described, tested and reported as a chain, because that is what fails.",
+      "keywords": [
+        "a good model can still be a bad system",
+        "what reliability means here",
+        "reliability",
+        "engineering",
+        "movement-intelligence",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:a-good-model-can-still-be-a-bad-system",
+      "topics": [
+        "Engineering",
+        "Movement intelligence"
+      ],
+      "date": "2026-10-07"
+    },
+    {
+      "id": "insight:a-good-model-can-still-be-a-bad-system#closing",
+      "type": "insight",
+      "title": "A Good Model Can Still Be a Bad System",
+      "sectionTitle": "Closing",
+      "slug": "a-good-model-can-still-be-a-bad-system",
+      "url": "/insights/a-good-model-can-still-be-a-bad-system/#closing",
+      "family": "journal",
+      "category": "Engineering GaitAI",
+      "summary": "A model that is right on every frame is necessary and not remotely sufficient. The frames have to arrive, the results have to travel, the alert has to land in time on a screen someone is looking at, and that someone has to have been given…",
+      "content": "Article: A Good Model Can Still Be a Bad System\nSection: Closing\nA model that is right on every frame is necessary and not remotely sufficient. The frames have to arrive, the results have to travel, the alert has to land in time on a screen someone is looking at, and that someone has to have been given reason to believe it. Every one of those is engineering, and every one of them fails quietly.\nEngineering GaitAI continues with the hardest version of this chain — the one that has to run in real time, where every link's latency is a link in its own right.",
+      "keywords": [
+        "a good model can still be a bad system",
+        "closing",
+        "engineering",
+        "movement-intelligence",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:a-good-model-can-still-be-a-bad-system",
+      "topics": [
+        "Engineering",
+        "Movement intelligence"
+      ],
+      "date": "2026-10-07"
+    },
+    {
+      "id": "insight:what-is-a-personal-movement-baseline",
+      "type": "insight",
+      "title": "What Is a Personal Movement Baseline?",
+      "slug": "what-is-a-personal-movement-baseline",
+      "url": "/insights/what-is-a-personal-movement-baseline/",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "Every movement measure needs something to be compared against. A population reference says where a person sits among strangers. A personal baseline — the same person, measured again and again under comparable conditions — says whether they have changed. The two can disagree about the same reading, and when they do, only one of them knows the person.",
+      "content": "Article: What Is a Personal Movement Baseline?\nSubtitle: The reference that makes a change readable\nStandfirst: Every movement measure needs something to be compared against. A population reference says where a person sits among strangers. A personal baseline — the same person, measured again and again under comparable conditions — says whether they have changed. The two can disagree about the same reading, and when they do, only one of them knows the person.\nKind: Technical Article\nCategory: Inside the Signal\nTopics: Mobility · Movement intelligence · Research\nPublished: 2026-10-14\nAuthor: GaitAI Research\nReading time: 8 minutes\nThe question it answers: Why can a reading be normal for everyone and a change for this person?\nExcerpt: A population reference says where a person sits among strangers; a personal baseline says whether they have changed. What a baseline is made of, how many observations it needs, when it moves, and what it can and cannot say.\nOpening: Take any movement measure — cadence, symmetry, stride variability, a composite index — and ask what a single value of it means. On its own, nothing. It means something only next to a reference, and there are two very different references to choose from. · The fourth Foundation made the case that fall risk is a trend, not a number, and the symmetry story before this one ended on the same note: the informative reference is the person's own pattern. This story is about that reference itself. What a personal baseline is made of, how much of it you need, when it is allowed to move, and what it entitles a system to say. · The hero figure is illustrative: a drawn distribution and drawn observations, chosen to make the argument visible. There is no clinical threshold in this article and no value is stated as a number; the readings are phrases.\nWhat the reader takes away: The difference between a threshold and a baseline, on one axis · What a baseline is actually made of — and why it has a width · When the baseline itself should be allowed to move\nThe two-minute version: A population reference is a distribution of strangers. It says whether a reading is unusual in general, and nothing about whether it is unusual for this person. · A personal baseline is the same person measured repeatedly under comparable conditions. It has a centre and a spread, because nobody walks identically twice. · A baseline needs enough observations to know its own spread. Three shows a tendency; more shows what ordinary variation looks like, which is what a change has to exceed. · Baselines move. Recovery, seasons, footwear and a new camera position all shift them; the system has to know whether the person or the setup changed. · Capture quality travels with the baseline. Observations made from different geometry are different instruments, and cannot be pooled without saying so. · A reading outside a personal baseline is context, not a finding. It is the reason for a closer look by someone qualified to take one.\nSections: 01 A threshold answers a different question · 02 What a baseline is made of · 03 How many observations is enough · 04 When the baseline itself should move · 05 Baselines and capture quality · 06 What a baseline can and cannot say\nReading-path position: Step 2 — The reference that knows the person\nTags: Personal Baseline · Longitudinal Monitoring · Mobility · Inside the Signal",
+      "keywords": [
+        "what is a personal movement baseline?",
+        "every movement measure needs something to be compared against. a population reference says where a person sits among strangers. a personal baseline — the same person, measured again and again under comparable conditions — says whether they have changed. the two can disagree about the same reading, and when they do, only one of them knows the person.",
+        "inside the signal",
+        "why can a reading be normal for everyone and a change for this person?",
+        "insights",
+        "gaitai insights",
+        "article",
+        "technical article",
+        "mobility",
+        "movement-intelligence",
+        "research",
+        "movement intelligence",
+        "personal baseline",
+        "longitudinal monitoring",
+        "the difference between a threshold and a baseline, on one axis",
+        "what a baseline is actually made of — and why it has a width",
+        "when the baseline itself should be allowed to move"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "topics": [
+        "Mobility",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-10-14"
+    },
+    {
+      "id": "insight:what-is-a-personal-movement-baseline#a-threshold-answers-a-different-question",
+      "type": "insight",
+      "title": "What Is a Personal Movement Baseline?",
+      "sectionTitle": "A threshold answers a different question",
+      "slug": "what-is-a-personal-movement-baseline",
+      "url": "/insights/what-is-a-personal-movement-baseline/#a-threshold-answers-a-different-question",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "A population reference is what most people picture when they hear \"normal range\": a distribution of many people's values, with a band across the middle that most of them fall inside.",
+      "content": "Article: What Is a Personal Movement Baseline?\nSection: 01 A threshold answers a different question\nA population reference is what most people picture when they hear \"normal range\": a distribution of many people's values, with a band across the middle that most of them fall inside. Compare one reading against it and you learn where the person sits among strangers. That is a real question, and for some purposes the right one.\nIt is not the question most movement monitoring is asking. A care team, a physiotherapist, a coach or the person themselves usually wants to know whether something has changed — and a population band cannot say. Two people can sit at the same point in it for opposite reasons: one has always been there, one has drifted there from somewhere else. The reading is identical; the story is not.\nThe same reading, two references, two answers. Population — Where among strangers: Wide, because people differ; Says whether a value is unusual in general; Silent about direction of travel; Available from the first observation Personal — Whether this person changed: Narrow, because one person is consistent; Says whether a value is unusual for this person; Direction of travel is the reading; Needs several observations first",
+      "keywords": [
+        "what is a personal movement baseline?",
+        "a threshold answers a different question",
+        "two questions",
+        "mobility",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-is-a-personal-movement-baseline",
+      "topics": [
+        "Mobility",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-10-14"
+    },
+    {
+      "id": "insight:what-is-a-personal-movement-baseline#what-a-baseline-is-made-of",
+      "type": "insight",
+      "title": "What Is a Personal Movement Baseline?",
+      "sectionTitle": "What a baseline is made of",
+      "slug": "what-is-a-personal-movement-baseline",
+      "url": "/insights/what-is-a-personal-movement-baseline/#what-a-baseline-is-made-of",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "A personal baseline is not a value. It is a set of observations of the same measure, from the same person, made under conditions alike enough to compare — and it has two properties, both of which matter. A centre.",
+      "content": "Article: What Is a Personal Movement Baseline?\nSection: 02 What a baseline is made of\nA personal baseline is not a value. It is a set of observations of the same measure, from the same person, made under conditions alike enough to compare — and it has two properties, both of which matter.\nA centre. Where this person's readings tend to fall. Often nowhere near the population centre, and that is not a problem; it is the point. · A spread. How much the readings vary from one ordinary day to the next. Nobody walks identically twice, and the spread is what a change has to exceed before it counts as one.\nThe hero figure draws both. Bring the observations in one at a time and the first few form a cluster; the band drawn around them is the spread. The latest reading is then judged against that band — not against a number, and not against a population.\nA baseline without a spread is a threshold with a personal name on it. The spread is what makes it a baseline.",
+      "keywords": [
+        "what is a personal movement baseline?",
+        "what a baseline is made of",
+        "made of",
+        "mobility",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-is-a-personal-movement-baseline",
+      "topics": [
+        "Mobility",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-10-14"
+    },
+    {
+      "id": "insight:what-is-a-personal-movement-baseline#how-many-observations",
+      "type": "insight",
+      "title": "What Is a Personal Movement Baseline?",
+      "sectionTitle": "How many observations is enough",
+      "slug": "what-is-a-personal-movement-baseline",
+      "url": "/insights/what-is-a-personal-movement-baseline/#how-many-observations",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "There is no universal number, and any story that offers one should be read carefully. What a baseline needs is enough observations to know its own spread: to have seen what an ordinary good day and an ordinary bad day look like for this…",
+      "content": "Article: What Is a Personal Movement Baseline?\nSection: 03 How many observations is enough\nThere is no universal number, and any story that offers one should be read carefully. What a baseline needs is enough observations to know its own spread: to have seen what an ordinary good day and an ordinary bad day look like for this person, so that a reading outside that range means something.\nThree observations show a tendency. More show the variation around it. The figure draws its band only once three are in and keeps widening it as ordinary variation appears — because a band drawn from two very consistent days would flag the third, perfectly ordinary, day as a change.\nConsistency of capture matters more than the count. Five observations from the same corridor, the same camera and the same time of day form a better baseline than fifteen from wherever the person happened to be filmed. The next section is about why.",
+      "keywords": [
+        "what is a personal movement baseline?",
+        "how many observations is enough",
+        "how many",
+        "mobility",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-is-a-personal-movement-baseline",
+      "topics": [
+        "Mobility",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-10-14"
+    },
+    {
+      "id": "insight:what-is-a-personal-movement-baseline#when-the-baseline-moves",
+      "type": "insight",
+      "title": "What Is a Personal Movement Baseline?",
+      "sectionTitle": "When the baseline itself should move",
+      "slug": "what-is-a-personal-movement-baseline",
+      "url": "/insights/what-is-a-personal-movement-baseline/#when-the-baseline-moves",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "A baseline describes a person at a period of their life, and people change. Someone recovering from an injury has a baseline that is supposed to move; freezing it at the first week would flag every improvement as an anomaly.",
+      "content": "Article: What Is a Personal Movement Baseline?\nSection: 04 When the baseline itself should move\nA baseline describes a person at a period of their life, and people change. Someone recovering from an injury has a baseline that is supposed to move; freezing it at the first week would flag every improvement as an anomaly. Someone whose walk changes with the season, with new footwear or with a new routine has a baseline that has genuinely shifted, not a change worth a closer look.\nReasons a baseline moves, and what each asks of the system. Illustrative. 01 Recovery: The centre moves on purpose. The system should track the trajectory of the baseline, not alarm on it. 02 Season and routine: Slow drift with weather, footwear, activity. Expected; re-baselining on a schedule absorbs it. 03 A step change: A sudden, sustained shift. The reason a baseline exists — and the one case where the old baseline should be kept for comparison. 04 A change in setup: A moved camera, a new device, a different room. The baseline did not move; the instrument did. See the next section.\nTelling these apart is not something the measure can do alone. It takes the history — how fast the centre moved and whether it stayed — and it takes a record of the conditions each observation was made under.",
+      "keywords": [
+        "what is a personal movement baseline?",
+        "when the baseline itself should move",
+        "when it moves",
+        "mobility",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-is-a-personal-movement-baseline",
+      "topics": [
+        "Mobility",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-10-14"
+    },
+    {
+      "id": "insight:what-is-a-personal-movement-baseline#baselines-and-capture-quality",
+      "type": "insight",
+      "title": "What Is a Personal Movement Baseline?",
+      "sectionTitle": "Baselines and capture quality",
+      "slug": "what-is-a-personal-movement-baseline",
+      "url": "/insights/what-is-a-personal-movement-baseline/#baselines-and-capture-quality",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "The Engineering GaitAI story on camera angle made the point that two recordings from different mounts are two instruments. For a baseline this is decisive.",
+      "content": "Article: What Is a Personal Movement Baseline?\nSection: 05 Baselines and capture quality\nThe Engineering GaitAI story on camera angle made the point that two recordings from different mounts are two instruments. For a baseline this is decisive. If the observations that built the band came from a side-on camera and today's reading came from an oblique one, the reading is outside the band because the geometry changed — not because the person did.\nEvery observation carries its capture. Angle, distance, lighting, occlusion, which sensor. A baseline is built only from observations whose capture is comparable, or corrected to be. · A degraded capture does not enter the baseline. The fourth Foundation's figure showed an assessment with a degraded capture sitting in a sequence; it is shown, and it is not counted. · A change in setup resets the comparison, not the person. When the instrument changes, the honest reading is \"not comparable yet\", and the baseline starts again alongside the old one.\nThe baseline is a pair: A set of values and the conditions they were measured under. Store one without the other and the first surprising reading cannot be interpreted.",
+      "keywords": [
+        "what is a personal movement baseline?",
+        "baselines and capture quality",
+        "capture",
+        "mobility",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-is-a-personal-movement-baseline",
+      "topics": [
+        "Mobility",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-10-14"
+    },
+    {
+      "id": "insight:what-is-a-personal-movement-baseline#what-a-baseline-can-say",
+      "type": "insight",
+      "title": "What Is a Personal Movement Baseline?",
+      "sectionTitle": "What a baseline can and cannot say",
+      "slug": "what-is-a-personal-movement-baseline",
+      "url": "/insights/what-is-a-personal-movement-baseline/#what-a-baseline-can-say",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "A reading outside a personal baseline says one thing: this person's movement, measured this way, under these conditions, is not where it usually is.",
+      "content": "Article: What Is a Personal Movement Baseline?\nSection: 06 What a baseline can and cannot say\nA reading outside a personal baseline says one thing: this person's movement, measured this way, under these conditions, is not where it usually is. That is a great deal more than a population threshold can say — and it is still not a finding.\nIt can say that something changed, in which measure, and roughly when. · It can say whether the change persists across observations or was one unusual day. · It cannot say why. Recovery, fatigue, footwear, a slope, a moved camera and a pose error all move a reading. · It cannot say what to do. It is offered to a person who can look at the history, the capture and the person — as decision support.\nThat is the whole design. The population reference answers a question about everyone. The personal baseline answers a question about someone — and it can only do that if it is built carefully, allowed to move for the right reasons, and kept together with the conditions that made it.",
+      "keywords": [
+        "what is a personal movement baseline?",
+        "what a baseline can and cannot say",
+        "what it can say",
+        "mobility",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-is-a-personal-movement-baseline",
+      "topics": [
+        "Mobility",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-10-14"
+    },
+    {
+      "id": "insight:what-is-a-personal-movement-baseline#closing",
+      "type": "insight",
+      "title": "What Is a Personal Movement Baseline?",
+      "sectionTitle": "Closing",
+      "slug": "what-is-a-personal-movement-baseline",
+      "url": "/insights/what-is-a-personal-movement-baseline/#closing",
+      "family": "journal",
+      "category": "Inside the Signal",
+      "summary": "A personal movement baseline is the reference that turns a measurement into context. It is made of repeated observations, it has a spread, it moves for reasons that have to be told apart, and it carries its capture with it.",
+      "content": "Article: What Is a Personal Movement Baseline?\nSection: Closing\nA personal movement baseline is the reference that turns a measurement into context. It is made of repeated observations, it has a spread, it moves for reasons that have to be told apart, and it carries its capture with it. Built that way, it can say something a population threshold never could: not whether this reading is normal, but whether it is normal for you.\nInside the Signal continues, one signal at a time — next, what stride variability measures and where it breaks.",
+      "keywords": [
+        "what is a personal movement baseline?",
+        "closing",
+        "mobility",
+        "movement-intelligence",
+        "research",
+        "movement intelligence"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "insight:what-is-a-personal-movement-baseline",
+      "topics": [
+        "Mobility",
+        "Movement intelligence",
+        "Research"
+      ],
+      "date": "2026-10-14"
+    },
+    {
       "id": "capability:sig-gait-identity",
       "type": "signal",
       "title": "Gait identity",
@@ -10987,7 +12652,7 @@
       "family": "platform",
       "category": "Policy page",
       "summary": "You can browse without creating an account. Pages are delivered as static files, with separate services for contact forms, comments, subscriptions and Ask GaitAI. We use aggregate article and assistant counters, described below.",
-      "content": "Page: Privacy Policy\nSection: This website (part 1 of 5)\nYou can browse without creating an account.\nPages are delivered as static files, with separate services for contact forms, comments, subscriptions and Ask GaitAI.\nWe use aggregate article and assistant counters, described below.\nThe site does not include advertising pixels, a tag manager or session-recording software.\nAdministrator sign-in uses Firebase Authentication; it is separate from public browsing.\nDemo and contact requests The form asks for your area of interest, name, work email, organization and message.\nIt is delivered to us by Formspree, a third-party form service, which processes the submission on our behalf.\nWe use those details to respond to your enquiry.\nNo health or clinical information is requested — please don’t include any.\nComments Where an article or publication page allows comments, your display name, your message, the article/reply reference and a timestamp are stored in Google Firebase (Firestore) and made public.\nNew comments do not request or attach an email address or sign-in identifier.\nEarlier versions accepted optional email addresses; contact us about removal of an earlier record.\nComments appear when submitted and administrators can hide or delete them.\nReports about comments are available to administrators and may include the reporting account’s email if signed in.",
+      "content": "Page: Privacy Policy\nSection: This website (part 1 of 6)\nYou can browse without creating an account.\nPages are delivered as static files, with separate services for contact forms, comments, subscriptions and Ask GaitAI.\nWe use aggregate article and assistant counters, described below.\nThe site does not include advertising pixels, a tag manager or session-recording software.\nAdministrator sign-in uses Firebase Authentication; it is separate from public browsing.\nDemo and contact requests The form asks for your area of interest, name, work email, organization and message.\nIt is delivered to us by Formspree, a third-party form service, which processes the submission on our behalf.\nWe use those details to respond to your enquiry.\nNo health or clinical information is requested — please don’t include any.\nComments Where an article or publication page allows comments, your display name, your message, the article/reply reference and a timestamp are stored in Google Firebase (Firestore) and made public.\nNew comments do not request or attach an email address or sign-in identifier.\nEarlier versions accepted optional email addresses; contact us about removal of an earlier record.\nComments appear when submitted and administrators can hide or delete them.\nReports about comments are available to administrators and may include the reporting account’s email if signed in.",
       "keywords": [
         "privacy policy",
         "this website"
@@ -11011,7 +12676,7 @@
       "family": "platform",
       "category": "Policy page",
       "summary": "When configured, the form loads Cloudflare Turnstile for a verification challenge. Do not post private information. Blog subscription What is collected.",
-      "content": "Page: Privacy Policy\nSection: This website (part 2 of 5)\nWhen configured, the form loads Cloudflare Turnstile for a verification challenge.\nDo not post private information.\nBlog subscription What is collected.\nIf you subscribe on the blog, an article page or in the footer, we store the email address you type, which of those three places you typed it, and the times the record was created and last changed.\nThe subscription record contains no name, IP address, device fingerprint or marketing profile.\nIt is held in Google Firebase (Firestore); service-level request information is described below.\nPurpose.\nTo subscribe you to GaitAI blog and product updates — research notes, engineering stories and company news.\nThe address is stored for that purpose; it is not published as a subscriber list or sent to an advertising network by this website.\nHow the record is stored.\nEach subscription is filed under a hash of the normalized email address to detect duplicates and support unsubscribe requests.\nThe database rules prevent listing all subscribers.\nThis is not encryption or anonymity: a person who already knows an address can look up its subscription record.\nUnsubscribing.\nUse the unsubscribe page at any time — enter the address you subscribed with; no account or sign-in is needed.\nYour record is then marked as unsubscribed and stops receiving anything.\nRetention.\nAn active subscription is kept until you unsubscribe.",
+      "content": "Page: Privacy Policy\nSection: This website (part 2 of 6)\nWhen configured, the form loads Cloudflare Turnstile for a verification challenge.\nDo not post private information.\nBlog subscription What is collected.\nIf you subscribe on the blog, an article page or in the footer, we store the email address you type, which of those three places you typed it, and the times the record was created and last changed.\nThe subscription record contains no name, IP address, device fingerprint or marketing profile.\nIt is held in Google Firebase (Firestore); service-level request information is described below.\nPurpose.\nTo subscribe you to GaitAI blog and product updates — research notes, engineering stories and company news.\nThe address is stored for that purpose; it is not published as a subscriber list or sent to an advertising network by this website.\nHow the record is stored.\nEach subscription is filed under a hash of the normalized email address to detect duplicates and support unsubscribe requests.\nThe database rules prevent listing all subscribers.\nThis is not encryption or anonymity: a person who already knows an address can look up its subscription record.\nUnsubscribing.\nUse the unsubscribe page at any time — enter the address you subscribed with; no account or sign-in is needed.\nYour record is then marked as unsubscribed and stops receiving anything.\nRetention.\nAn active subscription is kept until you unsubscribe.",
       "keywords": [
         "privacy policy",
         "this website"
@@ -11035,7 +12700,7 @@
       "family": "platform",
       "category": "Policy page",
       "summary": "An unsubscribed record is kept — flagged, and never sent to — so that a later import cannot quietly put you back on the list. If you want the record deleted outright rather than flagged, ask us at the address below and we will remove it.",
-      "content": "Page: Privacy Policy\nSection: This website (part 3 of 5)\nAn unsubscribed record is kept — flagged, and never sent to — so that a later import cannot quietly put you back on the list.\nIf you want the record deleted outright rather than flagged, ask us at the address below and we will remove it.\nBrowser storage and cookies Local storage remembers your theme, article like choices, whether you have seen the assistant introduction, and recent comment submissions to reduce duplicates.\nSession storage keeps a short Ask GaitAI conversation and article/assistant counter markers.\nYou can clear these through your browser’s site-data controls; this also clears remembered preferences.\nWe do not set advertising cookies.\nThird-party embeds, verification and sign-in services may use their own storage under their privacy terms.\nBlog article views and likes Each journal article keeps a running count of views and likes in Google Firebase (Firestore).\nThe stored record is two whole numbers and a timestamp — no IP address, no device or browser fingerprint, and no visitor identifier in the counter record.\nTo avoid counting the same visit repeatedly, your browser keeps a marker in its own session storage saying it has already counted that article; the marker never leaves your device and is cleared when you close the tab.\nIf a like is registered, the same kind of marker is kept in local storage so the button reflects your own choice.",
+      "content": "Page: Privacy Policy\nSection: This website (part 3 of 6)\nAn unsubscribed record is kept — flagged, and never sent to — so that a later import cannot quietly put you back on the list.\nIf you want the record deleted outright rather than flagged, ask us at the address below and we will remove it.\nBrowser storage and cookies Local storage remembers your theme, article like choices, whether you have seen the assistant introduction, and recent comment submissions to reduce duplicates.\nSession storage keeps a short Ask GaitAI conversation and article/assistant counter markers.\nYou can clear these through your browser’s site-data controls; this also clears remembered preferences.\nWe do not set advertising cookies.\nThird-party embeds, verification and sign-in services may use their own storage under their privacy terms.\nBlog article views and likes Each journal article keeps a running count of views and likes in Google Firebase (Firestore).\nThe stored record is two whole numbers and a timestamp — no IP address, no device or browser fingerprint, and no visitor identifier in the counter record.\nTo avoid counting the same visit repeatedly, your browser keeps a marker in its own session storage saying it has already counted that article; the marker never leaves your device and is cleared when you close the tab.\nIf a like is registered, the same kind of marker is kept in local storage so the button reflects your own choice.",
       "keywords": [
         "privacy policy",
         "this website"
@@ -11058,8 +12723,8 @@
       "url": "/legal/privacy/",
       "family": "platform",
       "category": "Policy page",
-      "summary": "Ask GaitAI When a hosted answer is enabled, your question, current page path and title, up to six previous conversation turns and selected public content identifiers are sent to our Cloudflare Worker and Workers AI to prepare an answer.",
-      "content": "Page: Privacy Policy\nSection: This website (part 4 of 5)\nAsk GaitAI When a hosted answer is enabled, your question, current page path and title, up to six previous conversation turns and selected public content identifiers are sent to our Cloudflare Worker and Workers AI to prepare an answer.\nCookies and uploaded video are not attached.\nThe website can also answer from its public records locally when the hosted service is unavailable or not configured.\nDo not include patient details, confidential information or sensitive personal data.\nThe short conversation is kept in this tab’s session storage; use the assistant’s reset control or clear browser site data to remove it.\nThe Worker does not write questions or answers to its application logs.\nIt records operational counts, timing and error categories.\nAbuse prevention stores request timestamps against a daily hash derived from the connecting IP address; this is a pseudonymous identifier, not a guarantee of anonymity.\nIts cleanup runs every six hours, removing callers idle for an hour and daily totals older than the previous day.\nProvider processing is covered by the linked Cloudflare terms below.\nAggregate assistant usage Firebase stores counts of assistant opens, questions, suggested-prompt selections and answer-link clicks, grouped by page type.\nThose records contain counters and an update timestamp, with no question, answer, conversation identifier, video or file name.",
+      "summary": "Blog interaction counts The Blog’s interactive articles keep aggregate counts of how they are used: that a story was opened, how far down it was read (in quarters), whether an interactive figure was started and finished, which illustrative…",
+      "content": "Page: Privacy Policy\nSection: This website (part 4 of 6)\nBlog interaction counts The Blog’s interactive articles keep aggregate counts of how they are used: that a story was opened, how far down it was read (in quarters), whether an interactive figure was started and finished, which illustrative state of a figure was chosen, which reading mode was selected, which links out of a story were followed, and the answer to \"Did this help you understand the idea?\" with its fixed-choice reason.\nEach count is stored in Google Firebase (Firestore) as one whole number per day, per article and per event; there is no record per visitor, session or device, no IP address, no identifier and no free text of any kind.\nNothing you upload, type, or measure in the Movement Lab is part of these counts.\nYour browser keeps short-lived markers in its own session storage so the same visit is not counted twice; they never leave your device.\nIf your browser sends the Do Not Track signal, no count is recorded at all.\nAdministrator sign-in is required to read these counts.\nAsk GaitAI When a hosted answer is enabled, your question, current page path and title, up to six previous conversation turns and selected public content identifiers are sent to our Cloudflare Worker and Workers AI to prepare an answer.\nCookies and uploaded video are not attached.",
       "keywords": [
         "privacy policy",
         "this website"
@@ -11082,8 +12747,32 @@
       "url": "/legal/privacy/",
       "family": "platform",
       "category": "Policy page",
-      "summary": "They help us understand which parts of the guide people use. Administrator access is required to read these counts. Movement Lab video The Movement Lab analyser reads a clip you choose entirely inside your browser.",
-      "content": "Page: Privacy Policy\nSection: This website (part 5 of 5)\nThey help us understand which parts of the guide people use.\nAdministrator access is required to read these counts.\nMovement Lab video The Movement Lab analyser reads a clip you choose entirely inside your browser.\nThe file is opened through a local object URL and handed frame by frame to a pose model that runs in the tab; neither the video nor anything derived from it is uploaded, stored or sent to us by the analyser.\nModel weights are downloaded from this site; the runtime is downloaded from jsDelivr when analysis starts.\nThose downloads expose ordinary request information to the serving providers, but do not contain your video or pose results.\nIf you record a short clip with your camera instead, that recording is held in the tab’s memory.\nReplacing or clearing the clip releases the local object URL; leaving the page ends the analysis.\nBuilt-in demonstrations and illustrative report examples are distinct from measurements of your clip.\nSharing an exploration link does not publish a selected private video.\nEmbedded media Some articles embed video from YouTube (via its no-cookie domain) or Vimeo.\nLoading an embedded player or following an external link can send request information to that provider, which applies its own privacy terms.\nA no-cookie domain does not mean no network processing.",
+      "summary": "The website can also answer from its public records locally when the hosted service is unavailable or not configured. Do not include patient details, confidential information or sensitive personal data.",
+      "content": "Page: Privacy Policy\nSection: This website (part 5 of 6)\nThe website can also answer from its public records locally when the hosted service is unavailable or not configured.\nDo not include patient details, confidential information or sensitive personal data.\nThe short conversation is kept in this tab’s session storage; use the assistant’s reset control or clear browser site data to remove it.\nThe Worker does not write questions or answers to its application logs.\nIt records operational counts, timing and error categories.\nAbuse prevention stores request timestamps against a daily hash derived from the connecting IP address; this is a pseudonymous identifier, not a guarantee of anonymity.\nIts cleanup runs every six hours, removing callers idle for an hour and daily totals older than the previous day.\nProvider processing is covered by the linked Cloudflare terms below.\nAggregate assistant usage Firebase stores counts of assistant opens, questions, suggested-prompt selections and answer-link clicks, grouped by page type.\nThose records contain counters and an update timestamp, with no question, answer, conversation identifier, video or file name.\nThey help us understand which parts of the guide people use.\nAdministrator access is required to read these counts.\nMovement Lab video The Movement Lab analyser reads a clip you choose entirely inside your browser.",
+      "keywords": [
+        "privacy policy",
+        "this website"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "page:/legal/privacy",
+      "topics": [
+        "privacy",
+        "governance",
+        "trust"
+      ]
+    },
+    {
+      "id": "page:/legal/privacy#this-website-6",
+      "type": "page",
+      "title": "Privacy Policy",
+      "sectionTitle": "This website",
+      "slug": "privacy",
+      "url": "/legal/privacy/",
+      "family": "platform",
+      "category": "Policy page",
+      "summary": "The file is opened through a local object URL and handed frame by frame to a pose model that runs in the tab; neither the video nor anything derived from it is uploaded, stored or sent to us by the analyser.",
+      "content": "Page: Privacy Policy\nSection: This website (part 6 of 6)\nThe file is opened through a local object URL and handed frame by frame to a pose model that runs in the tab; neither the video nor anything derived from it is uploaded, stored or sent to us by the analyser.\nModel weights are downloaded from this site; the runtime is downloaded from jsDelivr when analysis starts.\nThose downloads expose ordinary request information to the serving providers, but do not contain your video or pose results.\nIf you record a short clip with your camera instead, that recording is held in the tab’s memory.\nReplacing or clearing the clip releases the local object URL; leaving the page ends the analysis.\nBuilt-in demonstrations and illustrative report examples are distinct from measurements of your clip.\nSharing an exploration link does not publish a selected private video.\nEmbedded media Some articles embed video from YouTube (via its no-cookie domain) or Vimeo.\nLoading an embedded player or following an external link can send request information to that provider, which applies its own privacy terms.\nA no-cookie domain does not mean no network processing.",
       "keywords": [
         "privacy policy",
         "this website"
@@ -12008,8 +13697,8 @@
       "url": "/insights/",
       "family": "platform",
       "category": "Journal",
-      "summary": "The GaitAI blog: 5 long-form articles on movement intelligence, newest first. The route is /insights.",
-      "content": "GaitAI Insights is the site's blog and editorial record — technical articles, research notes and updates on how movement becomes measurable, interpretable signal. Ordered newest first.\nArticles, newest first: From Walking Video to Movement Intelligence (2026-08-26) — Capture, pose estimation, gait features, sensor fusion, quality control and output — the sequence of transformations that turns an ordinary walking sequence into something a clinician, researcher or operator can act on. · Your Walk Is More Than a Biometric (2026-08-19) — Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find. · Can AI Understand Movement Without Identifying the Person? (2026-08-12) — Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs — and then declines to retain the rest. · A Fall-Risk Score Is Not Enough (2026-08-05) — A single assessment describes how someone moves today. Longitudinal movement analysis asks the more useful question — how is that movement changing, relative to this person's own history? · When Fusion Looks Better Than It Is (2026-07-29) — More modalities and more elaborate fusion do not automatically mean better evidence. Five questions that separate a genuinely convincing multimodal result from a well-decorated benchmark number.\nTopics: Movement intelligence · Research · Mobility · Responsible AI",
+      "summary": "The GaitAI blog: 11 long-form articles on movement intelligence, newest first. The route is /insights.",
+      "content": "GaitAI Insights is the site's blog and editorial record — technical articles, research notes and updates on how movement becomes measurable, interpretable signal. Ordered newest first.\nArticles, newest first: What Is a Personal Movement Baseline? (2026-10-14) — Every movement measure needs something to be compared against. A population reference says where a person sits among strangers. A personal baseline — the same person, measured again and again under comparable conditions — says whether they have changed. The two can disagree about the same reading, and when they do, only one of them knows the person. · A Good Model Can Still Be a Bad System (2026-10-07) — A movement model can be right on every frame and the system built around it can still fail the person it was meant to help. Cameras drop frames, inference queues fill, networks stall, alerts arrive late or twice, dashboards hide the one that matters, and a tired operator dismisses the tenth false alarm of the shift. Model quality is one link in that chain. This is about the others. · Can a Skeleton Still Reveal Identity? (2026-09-30) — Strip a walking video down: remove the face, keep only the silhouette, keep only the skeleton, keep only the paths the joints trace. Each step removes something that could identify a person and keeps something that still might. Where identity actually disappears is not a property of the picture; it depends on what is stored, what it is combined with, how long it persists and what it is for. · Camera Angle Changes What AI Sees (2026-09-23) — A camera does not record a walk; it records a projection of one. Which direction it flattens away decides which signals survive: a side view keeps the swing of the knee and loses the width of the stride, a front view does the reverse, and an oblique view keeps a little of everything while the scale changes under the person's feet. This is what that means for a system that has to measure movement from wherever the camera happens to be. · What Does Gait Symmetry Actually Mean? (2026-09-16) — Symmetry is one of the most quoted movement measures and one of the least examined. It compares the left side of a walk with the right — but a walk has several things that can be compared, they can disagree, and nobody is perfectly symmetric to begin with. This is what the measure is, what moves it, and what it can and cannot say. · When Pose Estimation Lies (2026-09-09) — Pose estimators return a full skeleton on almost every frame, and most of the time it is a good one. The failures that matter are the ones that still look like a person — an ankle a few pixels off, two legs that trade places, a foot that quietly disappears — because every gait measurement downstream inherits them without being told. · From Walking Video to Movement Intelligence (2026-08-26) — Capture, pose estimation, gait features, sensor fusion, quality control and output — the sequence of transformations that turns an ordinary walking sequence into something a clinician, researcher or operator can act on. · Your Walk Is More Than a Biometric (2026-08-19) — Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find. · Can AI Understand Movement Without Identifying the Person? (2026-08-12) — Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs — and then declines to retain the rest. · A Fall-Risk Score Is Not Enough (2026-08-05) — A single assessment describes how someone moves today. Longitudinal movement analysis asks the more useful question — how is that movement changing, relative to this person's own history? · When Fusion Looks Better Than It Is (2026-07-29) — More modalities and more elaborate fusion do not automatically mean better evidence. Five questions that separate a genuinely convincing multimodal result from a well-decorated benchmark number.\nTopics: Movement intelligence · Research · Mobility · Responsible AI · Engineering",
       "keywords": [
         "gaitai insights",
         "insights",
@@ -12035,7 +13724,7 @@
       "family": "platform",
       "category": "Journal",
       "summary": "The subjects GaitAI writes about, each with its own topic page.",
-      "content": "Topics: Movement intelligence (/insights/topic/movement-intelligence/) — How movement becomes measurable, interpretable signal. · Research (/insights/topic/research/) — Evidence, methods and research translation from GaitAI. · Mobility (/insights/topic/mobility/) — Longitudinal movement, ageing and mobility support. · Responsible AI (/insights/topic/responsible-ai/) — Privacy, governance and the boundaries of movement AI.",
+      "content": "Topics: Movement intelligence (/insights/topic/movement-intelligence/) — How movement becomes measurable, interpretable signal. · Research (/insights/topic/research/) — Evidence, methods and research translation from GaitAI. · Mobility (/insights/topic/mobility/) — Longitudinal movement, ageing and mobility support. · Responsible AI (/insights/topic/responsible-ai/) — Privacy, governance and the boundaries of movement AI. · Engineering (/insights/topic/engineering/) — How GaitAI systems, tools and evaluation workflows are built.",
       "keywords": [
         "topics",
         "subjects",
@@ -12054,7 +13743,7 @@
       "family": "platform",
       "category": "Journal",
       "summary": "How movement becomes measurable, interpretable signal.",
-      "content": "Articles filed under Movement intelligence: From Walking Video to Movement Intelligence — Capture, pose estimation, gait features, sensor fusion, quality control and output — the sequence of transformations that turns an ordinary walking sequence into something a clinician, researcher or operator can act on. · Your Walk Is More Than a Biometric — Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find. · Can AI Understand Movement Without Identifying the Person? — Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs — and then declines to retain the rest. · A Fall-Risk Score Is Not Enough — A single assessment describes how someone moves today. Longitudinal movement analysis asks the more useful question — how is that movement changing, relative to this person's own history?",
+      "content": "Articles filed under Movement intelligence: From Walking Video to Movement Intelligence — Capture, pose estimation, gait features, sensor fusion, quality control and output — the sequence of transformations that turns an ordinary walking sequence into something a clinician, researcher or operator can act on. · Your Walk Is More Than a Biometric — Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find. · Can AI Understand Movement Without Identifying the Person? — Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs — and then declines to retain the rest. · A Fall-Risk Score Is Not Enough — A single assessment describes how someone moves today. Longitudinal movement analysis asks the more useful question — how is that movement changing, relative to this person's own history? · When Pose Estimation Lies — Pose estimators return a full skeleton on almost every frame, and most of the time it is a good one. The failures that matter are the ones that still look like a person — an ankle a few pixels off, two legs that trade places, a foot that quietly disappears — because every gait measurement downstream inherits them without being told. · What Does Gait Symmetry Actually Mean? — Symmetry is one of the most quoted movement measures and one of the least examined. It compares the left side of a walk with the right — but a walk has several things that can be compared, they can disagree, and nobody is perfectly symmetric to begin with. This is what the measure is, what moves it, and what it can and cannot say. · Camera Angle Changes What AI Sees — A camera does not record a walk; it records a projection of one. Which direction it flattens away decides which signals survive: a side view keeps the swing of the knee and loses the width of the stride, a front view does the reverse, and an oblique view keeps a little of everything while the scale changes under the person's feet. This is what that means for a system that has to measure movement from wherever the camera happens to be. · Can a Skeleton Still Reveal Identity? — Strip a walking video down: remove the face, keep only the silhouette, keep only the skeleton, keep only the paths the joints trace. Each step removes something that could identify a person and keeps something that still might. Where identity actually disappears is not a property of the picture; it depends on what is stored, what it is combined with, how long it persists and what it is for. · A Good Model Can Still Be a Bad System — A movement model can be right on every frame and the system built around it can still fail the person it was meant to help. Cameras drop frames, inference queues fill, networks stall, alerts arrive late or twice, dashboards hide the one that matters, and a tired operator dismisses the tenth false alarm of the shift. Model quality is one link in that chain. This is about the others. · What Is a Personal Movement Baseline? — Every movement measure needs something to be compared against. A population reference says where a person sits among strangers. A personal baseline — the same person, measured again and again under comparable conditions — says whether they have changed. The two can disagree about the same reading, and when they do, only one of them knows the person.",
       "keywords": [
         "movement intelligence",
         "movement-intelligence",
@@ -12073,7 +13762,7 @@
       "family": "platform",
       "category": "Journal",
       "summary": "Evidence, methods and research translation from GaitAI.",
-      "content": "Articles filed under Research: From Walking Video to Movement Intelligence — Capture, pose estimation, gait features, sensor fusion, quality control and output — the sequence of transformations that turns an ordinary walking sequence into something a clinician, researcher or operator can act on. · Your Walk Is More Than a Biometric — Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find. · When Fusion Looks Better Than It Is — More modalities and more elaborate fusion do not automatically mean better evidence. Five questions that separate a genuinely convincing multimodal result from a well-decorated benchmark number.",
+      "content": "Articles filed under Research: From Walking Video to Movement Intelligence — Capture, pose estimation, gait features, sensor fusion, quality control and output — the sequence of transformations that turns an ordinary walking sequence into something a clinician, researcher or operator can act on. · Your Walk Is More Than a Biometric — Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find. · When Fusion Looks Better Than It Is — More modalities and more elaborate fusion do not automatically mean better evidence. Five questions that separate a genuinely convincing multimodal result from a well-decorated benchmark number. · When Pose Estimation Lies — Pose estimators return a full skeleton on almost every frame, and most of the time it is a good one. The failures that matter are the ones that still look like a person — an ankle a few pixels off, two legs that trade places, a foot that quietly disappears — because every gait measurement downstream inherits them without being told. · What Does Gait Symmetry Actually Mean? — Symmetry is one of the most quoted movement measures and one of the least examined. It compares the left side of a walk with the right — but a walk has several things that can be compared, they can disagree, and nobody is perfectly symmetric to begin with. This is what the measure is, what moves it, and what it can and cannot say. · Camera Angle Changes What AI Sees — A camera does not record a walk; it records a projection of one. Which direction it flattens away decides which signals survive: a side view keeps the swing of the knee and loses the width of the stride, a front view does the reverse, and an oblique view keeps a little of everything while the scale changes under the person's feet. This is what that means for a system that has to measure movement from wherever the camera happens to be. · Can a Skeleton Still Reveal Identity? — Strip a walking video down: remove the face, keep only the silhouette, keep only the skeleton, keep only the paths the joints trace. Each step removes something that could identify a person and keeps something that still might. Where identity actually disappears is not a property of the picture; it depends on what is stored, what it is combined with, how long it persists and what it is for. · What Is a Personal Movement Baseline? — Every movement measure needs something to be compared against. A population reference says where a person sits among strangers. A personal baseline — the same person, measured again and again under comparable conditions — says whether they have changed. The two can disagree about the same reading, and when they do, only one of them knows the person.",
       "keywords": [
         "research",
         "topic",
@@ -12091,7 +13780,7 @@
       "family": "platform",
       "category": "Journal",
       "summary": "Longitudinal movement, ageing and mobility support.",
-      "content": "Articles filed under Mobility: Your Walk Is More Than a Biometric — Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find. · A Fall-Risk Score Is Not Enough — A single assessment describes how someone moves today. Longitudinal movement analysis asks the more useful question — how is that movement changing, relative to this person's own history?",
+      "content": "Articles filed under Mobility: Your Walk Is More Than a Biometric — Gait research has often been framed around identity. Human movement also carries information about mobility, recovery, functional change, risk and safety context — and the framing decides what a system gets built to find. · A Fall-Risk Score Is Not Enough — A single assessment describes how someone moves today. Longitudinal movement analysis asks the more useful question — how is that movement changing, relative to this person's own history? · What Does Gait Symmetry Actually Mean? — Symmetry is one of the most quoted movement measures and one of the least examined. It compares the left side of a walk with the right — but a walk has several things that can be compared, they can disagree, and nobody is perfectly symmetric to begin with. This is what the measure is, what moves it, and what it can and cannot say. · What Is a Personal Movement Baseline? — Every movement measure needs something to be compared against. A population reference says where a person sits among strangers. A personal baseline — the same person, measured again and again under comparable conditions — says whether they have changed. The two can disagree about the same reading, and when they do, only one of them knows the person.",
       "keywords": [
         "mobility",
         "topic",
@@ -12109,10 +13798,28 @@
       "family": "platform",
       "category": "Journal",
       "summary": "Privacy, governance and the boundaries of movement AI.",
-      "content": "Articles filed under Responsible AI: Can AI Understand Movement Without Identifying the Person? — Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs — and then declines to retain the rest. · When Fusion Looks Better Than It Is — More modalities and more elaborate fusion do not automatically mean better evidence. Five questions that separate a genuinely convincing multimodal result from a well-decorated benchmark number.",
+      "content": "Articles filed under Responsible AI: Can AI Understand Movement Without Identifying the Person? — Many movement-intelligence tasks do not inherently require identity. A privacy-aware architecture starts by asking what information the task actually needs — and then declines to retain the rest. · When Fusion Looks Better Than It Is — More modalities and more elaborate fusion do not automatically mean better evidence. Five questions that separate a genuinely convincing multimodal result from a well-decorated benchmark number. · Can a Skeleton Still Reveal Identity? — Strip a walking video down: remove the face, keep only the silhouette, keep only the skeleton, keep only the paths the joints trace. Each step removes something that could identify a person and keeps something that still might. Where identity actually disappears is not a property of the picture; it depends on what is stored, what it is combined with, how long it persists and what it is for.",
       "keywords": [
         "responsible ai",
         "responsible-ai",
+        "topic",
+        "insights"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": []
+    },
+    {
+      "id": "page:/insights/topic/engineering",
+      "type": "page",
+      "title": "Engineering — Insights topic",
+      "slug": "insights-topic-engineering",
+      "url": "/insights/topic/engineering/",
+      "family": "platform",
+      "category": "Journal",
+      "summary": "How GaitAI systems, tools and evaluation workflows are built.",
+      "content": "Articles filed under Engineering: When Pose Estimation Lies — Pose estimators return a full skeleton on almost every frame, and most of the time it is a good one. The failures that matter are the ones that still look like a person — an ankle a few pixels off, two legs that trade places, a foot that quietly disappears — because every gait measurement downstream inherits them without being told. · Camera Angle Changes What AI Sees — A camera does not record a walk; it records a projection of one. Which direction it flattens away decides which signals survive: a side view keeps the swing of the knee and loses the width of the stride, a front view does the reverse, and an oblique view keeps a little of everything while the scale changes under the person's feet. This is what that means for a system that has to measure movement from wherever the camera happens to be. · A Good Model Can Still Be a Bad System — A movement model can be right on every frame and the system built around it can still fail the person it was meant to help. Cameras drop frames, inference queues fill, networks stall, alerts arrive late or twice, dashboards hide the one that matters, and a tired operator dismisses the tenth false alarm of the shift. Model quality is one link in that chain. This is about the others.",
+      "keywords": [
+        "engineering",
         "topic",
         "insights"
       ],

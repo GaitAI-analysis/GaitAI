@@ -1007,6 +1007,21 @@ export function retrieveGaitAIContext(
     ];
   }
 
+  /* "Latest" questions: the recency lift above spaces out only the newest
+     few articles; among the rest a stray word match could still put an older
+     story ahead of a newer one, and the answer would list them out of order.
+     The articles keep the slots they won on score; the slots are filled
+     newest first. Nothing else moves. */
+  if (recencyRank.size) {
+    const slots = docs.map((item, i) => (item.reason.split("+").includes("intent:latest") ? i : -1)).filter((i) => i >= 0);
+    if (slots.length > 1) {
+      const byRecency = slots.map((i) => docs[i]).sort((a, b) => (recencyRank.get(a.doc.id) ?? 0) - (recencyRank.get(b.doc.id) ?? 0));
+      slots.forEach((slot, k) => {
+        docs[slot] = byRecency[k];
+      });
+    }
+  }
+
   const lexicalTop = lexical.sort((a, b) => b.score - a.score).slice(0, 10);
   /* The wider candidate list for the hybrid merge: the final seven first (they
      carry the assembly rules), then the next-best scored records. */

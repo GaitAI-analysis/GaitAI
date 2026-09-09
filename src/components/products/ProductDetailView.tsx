@@ -276,6 +276,7 @@ export function ProductDetailView({ slug }: { slug: string }) {
         { id: "problem", label: "Problem" },
         { id: "solution", label: "What GaitAI does" },
         { id: "who", label: "Who it's for" },
+        ...(detail.modes?.length ? [{ id: "modes", label: "Service modes" }] : []),
         { id: "outputs", label: "Outputs" },
         { id: "why", label: "Why it matters" },
         { id: "workflow", label: "Workflow" },
@@ -567,6 +568,34 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <SectionBlock id="who" index={sectionIndex("who")} title="Who uses it">
                   <BulletList items={detail.whoFor} dot={a.dot} />
                 </SectionBlock>
+
+                {detail.modes && detail.modes.length > 0 && (
+                  <SectionBlock id="modes" index={sectionIndex("modes")} title="Service modes">
+                    <p className="text-sm leading-relaxed text-soft-gray sm:text-base">
+                      One product, configured per service. The modes share the same movement
+                      pipeline and privacy controls; each names the environments, personnel
+                      programmes and access points it is configured for.
+                    </p>
+                    <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                      {detail.modes.map((mode) => (
+                        <div key={mode.id} className={cn("rounded-xl border p-4", a.chip)}>
+                          <div className={cn("text-[10px] font-semibold uppercase tracking-[0.18em]", a.text)}>
+                            {mode.name}
+                          </div>
+                          <p className="mt-2 text-[13px] leading-relaxed text-soft-gray">{mode.summary}</p>
+                          <ul className="mt-3 grid gap-1.5">
+                            {mode.focus.map((item) => (
+                              <li key={item} className="flex gap-2 text-[12.5px] leading-relaxed text-soft-gray">
+                                <span aria-hidden className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", a.dot)} />
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
+                  </SectionBlock>
+                )}
 
                 <SectionBlock
                   id="outputs"

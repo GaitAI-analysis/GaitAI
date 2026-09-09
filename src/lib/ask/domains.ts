@@ -18,7 +18,9 @@
  * THE LINE THIS FILE MUST NOT CROSS. A concept may point at an ENVIRONMENT
  * record (`environmentIds`) only where the site documents that environment —
  * "railway station" → `airports` ("Airports, metro & rail") is the site's own
- * grouping. A concept with no environment record (defence) points at nothing:
+ * grouping. A concept may also name a PRODUCT the site documents as dedicated
+ * to it (`productIds` — DefenceMotion for defence): a documented product, never
+ * a documented deployment. A concept with no environment record points at nothing:
  * retrieval finds the capabilities, and the answer layer says plainly that no
  * dedicated deployment of that kind is documented. The vocabulary can make a
  * module FINDABLE for a question; it can never make a claim about it.
@@ -44,6 +46,14 @@ export interface DomainConcept {
    * environment record genuinely covers it. Empty means: no documented
    * environment — capabilities may be relevant, a deployment is not claimed.
    */
+  /**
+   * Product ids the site documents AS DEDICATED to this domain — DefenceMotion
+   * for defence. Only where a product record names the domain as its own
+   * ground. A product here is a documented product, not a documented
+   * deployment: the answer layers still say no customer, pilot or clearance
+   * is recorded.
+   */
+  productIds?: string[];
   environmentIds: string[];
 }
 
@@ -65,9 +75,13 @@ export const DOMAIN_CONCEPTS: readonly DomainConcept[] = [
       t("high-security"),
       t("critical infrastructure", 0.5),
       t("security", 0.25),
+      t("defence", 0.8),
+      t("readiness", 0.5),
+      t("personnel", 0.4),
     ],
     family: "securevision",
     environmentIds: [],
+    productIds: ["defencemotion"],
   },
   {
     id: "restricted-site",

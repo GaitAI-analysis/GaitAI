@@ -500,7 +500,7 @@ describe("the browser selects, the Worker decides", () => {
 
   it("understands 'does it do military' — pronoun to GaitAI, elliptical domain, capabilities with the boundary", async () => {
     ensureCorpus();
-    reply = "The current GaitAI information does not document a dedicated military deployment or military-specific product. Some SecureVision capabilities may be relevant: [SuspiciousMotion](/securevision/suspiciousmotion/) surfaces restricted-zone and perimeter events.";
+    reply = "GaitAI documents [DefenceMotion](/securevision/defencemotion/) as its defence product, with Army, Navy and Air Force modes; no military deployment, customer or clearance is documented. Other SecureVision capabilities may be relevant: [SuspiciousMotion](/securevision/suspiciousmotion/) surfaces restricted-zone and perimeter events.";
     const { retrieval, selectedRecordIds, response, body, prompt } = await rag("does it do military");
     const u = retrieval.understanding;
     expect(u.intent).toBe("DOMAIN_APPLICATION");
@@ -520,7 +520,9 @@ describe("the browser selects, the Worker decides", () => {
     expect(body!.grounding.recordIds).toEqual(selectedRecordIds);
     /* The Worker read the same understanding from question + history and told the model. */
     expect(prompt).toContain('Application: this question is about "military" (potential question');
-    expect(prompt).toContain("does not document a dedicated military deployment or military-specific product");
+    /* DefenceMotion is a documented PRODUCT for the domain; a deployment, customer or clearance is still not. */
+    expect(prompt).toContain('documents "DefenceMotion" as its dedicated military product');
+    expect(prompt).toContain("does not document a dedicated military deployment, customer, pilot or clearance");
     expect(prompt).toContain('Reference: "it" refers to GaitAI');
     expect(body!.sources.every((source) => source.kind !== "Person" && source.kind !== "Talk")).toBe(true);
   });
@@ -535,7 +537,7 @@ describe("the browser selects, the Worker decides", () => {
     expect(potential.prompt).toContain("labelled as potentially relevant applications");
     const exists = await rag("Does GaitAI have a military product?");
     expect(exists.retrieval.understanding.askType).toBe("product-exists");
-    expect(exists.prompt).toContain("no military-specific product is documented");
+    expect(exists.prompt).toContain('documents "DefenceMotion" as its military-specific product');
     for (const run of [relationship, potential, exists]) {
       expect(run.retrieval.intent).toBe("DOMAIN_APPLICATION");
       expect(run.retrieval.docs.map((d) => d.doc.type)).not.toContain("person");

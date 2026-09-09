@@ -1239,4 +1239,169 @@ export const secureProductDetails: ProductDetail[] = [
     related: ["reid", "accessmotion", "privacyguard"],
     ctaLabel: "Discuss an authorized deployment",
   },
+
+  // ==========================================================================
+  // 13 — DEFENCEMOTION
+  // One product, three service modes. Wording: readiness, rehabilitation,
+  // facility safety and authorised access for defence PERSONNEL and
+  // installations — never combat, weapons or targeting. No deployment,
+  // customer, contract or clearance is claimed anywhere in this record.
+  // ==========================================================================
+  {
+    slug: "defencemotion",
+    overview:
+      "DefenceMotion applies GaitAI's privacy-aware movement intelligence to defence personnel and installations: readiness and rehabilitation movement profiles for service members, movement-event awareness across facilities, and a gait-consistency signal at authorised access points — one product, configured as Army, Navy and Air Force modes.",
+    glance: {
+      input: "Camera feeds",
+      analysis: "Movement & gait analysis",
+      output: "Readiness, safety & access indicators",
+      user: "Defence medical, safety & access teams",
+    },
+    problem:
+      "Defence organisations look after large numbers of people whose movement matters — for readiness, for recovery after injury, for safety on busy installations and for who is entering controlled areas — across environments as different as a training area, a dockyard and a flight line, and with a duty of care to the personnel being observed.",
+    solution:
+      "One movement pipeline serves three service modes. Consent-based readiness and rehabilitation profiles follow a service member's own movement over time; movement-first event awareness surfaces falls, restricted-zone entry and abnormal movement on installations for operator review; and a gait-consistency signal adds a non-identifying check to existing access credentials. Each mode names the environments, personnel programmes and access points it is configured for.",
+    whoFor: [
+      "Army: land installations, training areas and depots",
+      "Navy: shore establishments, dockyards and vessel spaces",
+      "Air Force: air bases, aprons and hangars",
+      "Defence medical and rehabilitation teams",
+      "Installation safety and operations teams",
+      "Authorised access and security teams",
+    ],
+    receives: [
+      "Readiness movement profile",
+      "Rehabilitation progress trend",
+      "Facility movement-event alert",
+      "Access consistency indicator",
+      "Service-mode summary",
+      "Privacy and audit record",
+    ],
+    whyItMatters:
+      "Readiness and recovery become observable trends rather than one-off assessments, safety events on large installations surface for review without identifying anyone first, and access decisions gain a movement signal that never replaces a credential — all under one privacy architecture instead of three separate systems.",
+    workflow: [
+      "A service selects its mode and configures environments, programmes and access points",
+      "Camera feeds (and, where a programme provides them, wearable signals) enter the movement pipeline",
+      "Personnel programmes build consent-based readiness and rehabilitation baselines over time",
+      "Facility analysis surfaces movement events to an operator timeline",
+      "Access points receive a gait-consistency indicator alongside existing credentials",
+      "Medical, safety and access teams review and decide; nothing is automated to a decision",
+    ],
+    deployment: [
+      "On-premise or edge processing inside the installation's own network",
+      "Per-mode, per-site configuration of environments and programmes",
+      "Clinician, operator and access-team dashboards with role-based access",
+      "PrivacyGuard controls, retention policy and audit logs apply throughout",
+    ],
+    metrics: [
+      { value: "3", label: "Service modes" },
+      { value: "Movement-first", label: "Analysis basis" },
+      { value: "On-premise", label: "Processing option" },
+      { value: "Per-site", label: "Configuration" },
+    ],
+    interpretation:
+      "Every output is decision support for a qualified person. A readiness profile or rehabilitation trend is a movement observation for a clinician or programme lead, not a fitness verdict; a facility event is a prompt for operator review, not a finding; an access indicator is one consistency signal beside a credential, never an identification or a denial on its own.",
+    tech: {
+      systemOverview:
+        "A single movement pipeline with three configuration profiles. Person detection and pose tracking produce non-identifying trajectories and gait features; a longitudinal layer builds personal baselines for enrolled, consenting personnel; a behaviour layer compares facility movement against configured norms; an access layer scores movement consistency at credentialed points. Mode selection sets which layers run, where, and with what thresholds.",
+      inputs: [
+        "Fixed and access-point camera feeds inside the installation network",
+        "Optional wearable sensor signals where a readiness or rehabilitation programme provides them",
+        "Mode, environment, zone and access-point configuration",
+        "Personnel enrolment and consent records for readiness and rehabilitation programmes",
+      ],
+      pipeline: [
+        "Camera feed",
+        "Person / pose tracking",
+        "Gait & trajectory features",
+        "Mode layers: baseline · behaviour · access",
+        "Indicators & events",
+        "Team dashboards + audit",
+      ],
+      features: [
+        "Walking speed, cadence and symmetry over time (readiness, rehabilitation)",
+        "Personal baseline and deviation from it",
+        "Zone entry, dwell and fall indicators (facility)",
+        "Gait-consistency score against an enrolled movement pattern (access)",
+        "Capture-quality flags on every observation",
+      ],
+      models: [
+        "Multi-person detection and pose tracking",
+        "Longitudinal baseline modelling per enrolled person",
+        "Rule-assisted anomaly scoring designed to stay explainable",
+        "Movement-consistency matching scoped to enrolled, consenting personnel",
+      ],
+      outputSchema: [
+        { field: "mode", desc: "army | navy | airforce" },
+        { field: "readiness_profile", desc: "Movement profile against the person's own baseline (illustrative)" },
+        { field: "rehab_trend", desc: "Direction and stability of recovery indicators over time" },
+        { field: "facility_event", desc: "Event type, zone reference and anonymous track reference" },
+        { field: "access_consistency", desc: "Consistency indicator with confidence band" },
+        { field: "audit_entry", desc: "Who saw what, when, under which policy" },
+      ],
+      longitudinal:
+        "Readiness and rehabilitation modes are longitudinal by design: each enrolled person is compared with their own earlier movement, and a change is read against that personal baseline rather than a population threshold.",
+      quality: [
+        "Per-camera coverage, angle and lighting checks",
+        "Capture-quality flags that keep degraded observations out of baselines",
+        "Per-site threshold tuning to manage false positives",
+        "Human review required before any indicator becomes an action",
+      ],
+      integration: [
+        "Clinician and programme dashboards",
+        "Operator timeline and alert routing",
+        "Existing access-control systems, as an additional signal",
+        "PrivacyGuard policy, retention and audit layer",
+      ],
+      limitations: [
+        "Readiness and rehabilitation outputs are movement observations, not medical or fitness determinations",
+        "Facility events describe movement, not intent — operator review is required",
+        "Access consistency supplements a credential and cannot identify or deny on its own",
+        "No deployment, customer, contract or clearance is documented; this page describes intended use",
+      ],
+    },
+    modes: [
+      {
+        id: "army",
+        name: "Army mode",
+        summary:
+          "Land installations, training areas and depots: readiness movement profiles for personnel programmes, rehabilitation progress after musculoskeletal injury, and movement-event awareness across large, open sites.",
+        focus: [
+          "Readiness profiles from routine walking and marching movement (illustrative)",
+          "Rehabilitation trends for unit medical teams",
+          "Falls and restricted-zone events across training areas and depots",
+          "Access consistency at controlled zones",
+        ],
+      },
+      {
+        id: "navy",
+        name: "Navy mode",
+        summary:
+          "Shore establishments, dockyards and confined vessel spaces: movement in narrow corridors, gangways and ladders, recovery after injury at sea, and access consistency at berths and secure compartments.",
+        focus: [
+          "Readiness and recovery profiles adapted to confined-space movement",
+          "Fall and unsafe-movement events on gangways, ladders and decks",
+          "Dockyard and berth movement-event awareness",
+          "Access consistency at secure compartments",
+        ],
+      },
+      {
+        id: "airforce",
+        name: "Air Force mode",
+        summary:
+          "Air bases and flight-line environments: readiness and rehabilitation for aircrew and ground crew, movement-event awareness on aprons and in hangars, and access consistency at controlled technical areas.",
+        focus: [
+          "Aircrew and ground-crew readiness and recovery profiles",
+          "Apron and hangar movement events for safety teams",
+          "Restricted technical-area entry awareness",
+          "Access consistency at controlled areas",
+        ],
+      },
+    ],
+    privacy:
+      "Responsible deployment: readiness and rehabilitation modes operate only for enrolled personnel with consent and a named programme owner; facility mode is movement-first and identity-free by default; access mode supplements existing credentials for enrolled personnel and never identifies or denies on its own. Outputs are decision support for qualified teams. " +
+      SECURE_PRIVACY,
+    related: ["accessmotion", "industrialsafety", "privacyguard"],
+    ctaLabel: "Discuss DefenceMotion",
+  },
 ];

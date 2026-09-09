@@ -57,7 +57,7 @@ const SECURE = [
   "product:retailguard",
   "product:privacyguard",
 ];
-const DEFENCE = ["product:suspiciousmotion", "product:accessmotion", "product:watchlist", "page:/securevision", "product:campusshield"];
+const DEFENCE = ["product:defencemotion", "product:suspiciousmotion", "product:accessmotion", "product:watchlist", "page:/securevision", "product:campusshield"];
 const CCTV = ["deployment-faq:1", "product:suspiciousmotion", "product:crowdsense", "product:reid", "product:forensicsearch", "product:campusshield", "page:/securevision", "capability:cap-anomaly", "capability:cap-trajectory"];
 const TRACKING = ["product:reid", "product:suspiciousmotion", "product:forensicsearch", "capability:cap-reid", "capability:cap-trajectory", "capability:sig-trajectory", "policy:responsible-use", "page:/securevision"];
 const FALLS = ["product:fallrisk", "product:seniorcare", "product:watchcare", "product:industrialsafety", "capability:sig-fall-risk", "capability:cap-risk", "use-case:elderly"];

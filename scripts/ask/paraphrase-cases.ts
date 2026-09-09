@@ -70,7 +70,7 @@ export const PARAPHRASE_FAMILIES: ParaphraseFamily[] = [
     topTypes: ["product", "use-case", "page"],
     neverTop: NOISE,
     neverPresent: ["person", "talk"],
-    anyOf: ["product:suspiciousmotion", "product:accessmotion", "product:watchlist"],
+    anyOf: ["product:defencemotion", "product:suspiciousmotion", "product:accessmotion", "product:watchlist"],
     domain: /military|defen[cs]e|army|armed forces|bases?|restricted/i,
     lowConfidence: false,
     questions: [

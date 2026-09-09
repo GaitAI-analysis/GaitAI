@@ -863,13 +863,18 @@
   color: var(--jr-ink);
   text-wrap: balance;
 }
+/* When the headline opens the body (the hub cards), the body's own padding is
+   the only space above it — the same 1.25rem on every card. */
+.cardBody > .cardTitle:first-child {
+  margin-top: 0;
+}
 /* Three lines, and then it stops. The excerpts in the record are written for
    the article page and run to five or six lines at card width; clamping here
    is what lets one field serve both surfaces instead of a second, shorter
    field that would drift out of sync with it. The feature card below lifts the
    clamp, being the one place with the height for the full passage. */
 .cardExcerpt {
-  margin-top: 0.6rem;
+  margin-top: 0.65rem;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -897,11 +902,11 @@
   align-items: center;
   gap: 0.45rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--jr-accent, #4fd1ff);
-  opacity: 0.82;
+  opacity: 0.9;
   transition: filter 0.4s var(--jr-ease), opacity 0.4s var(--jr-ease);
 }
 .card:hover .cardCta,

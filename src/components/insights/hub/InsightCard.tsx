@@ -203,7 +203,7 @@ export function InsightCard({
         {match && match.where !== "title" ? (
           <MatchLine match={match} story={story} query={query} />
         ) : (
-          <p className={`${journal.cardExcerpt} mt-3`}>{story.description}</p>
+          <p className={journal.cardExcerpt}>{story.description}</p>
         )}
         <p className={styles.cardMetaQuiet}>
           <time dateTime={story.date}>{formatPublicationDate(story.date)}</time>

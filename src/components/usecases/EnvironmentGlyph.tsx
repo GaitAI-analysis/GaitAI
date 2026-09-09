@@ -263,6 +263,19 @@ const Events = () => (
   </>
 );
 
+
+/** Defence: a protected perimeter, the person inside it, and the signal read
+    from their walk — readiness and safety, not surveillance. */
+const Defence = () => (
+  <>
+    <path className={styles.gLine} d="M24 6 L37 11 V21 C37 29 31.6 35.4 24 38 C16.4 35.4 11 29 11 21 V11 Z" />
+    <Walker x={24} y={29} s={1.05} />
+    <Signal x={39} y={24} w={0} n={1} amp={0} />
+    <path className={styles.gRule} d="M6 42 L42 42" />
+    <Path d="M28 16 C32 14 35 15 38 13" dashed />
+  </>
+);
+
 const GLYPHS: Record<string, () => JSX.Element> = {
   physio: Physio,
   hospitals: Hospitals,
@@ -281,6 +294,7 @@ const GLYPHS: Record<string, () => JSX.Element> = {
   factories: Factories,
   retail: Retail,
   events: Events,
+  defence: Defence,
 };
 
 /** Is there a drawn glyph for this environment? */

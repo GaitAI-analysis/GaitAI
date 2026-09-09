@@ -52,7 +52,7 @@
 
 GaitAI is a production-grade, research-led marketing and publication platform for the **GaitAI** brand — a Human Movement Intelligence Platform built on **10+ years of founder-led research** in gait recognition, computer vision, biometrics and movement AI.
 
-The platform organises everything around two verticals and 23 modular products:
+The platform organises everything around two verticals and 24 modular products:
 
 | Vertical | Focus |
 | --- | --- |

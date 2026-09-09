@@ -1,4 +1,6 @@
+import type { ComponentType, SVGProps } from "react";
 import type { LucideIcon } from "lucide-react";
+import { DefenceMotionIcon } from "@/components/icons/CapabilityIcons";
 import type { CaptureSource } from "./capture-sources";
 import {
   Activity,
@@ -747,7 +749,7 @@ export const secureProducts: GaitProduct[] = [
       "Army",
       "Navy",
       "Air Force",
-      "Defence medical & rehabilitation teams",
+      "Defence and military medical & rehabilitation teams",
       "Installation safety teams",
       "Authorised access teams",
     ],
@@ -808,7 +810,8 @@ export const productPropositionShort =
 export interface UseCaseEntry {
   id: string;
   industry: string;
-  icon: LucideIcon;
+  /** A lucide icon, or one of the site's own pictograms (CapabilityIcons). */
+  icon: LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
   vertical: Vertical;
   problem: string;
   productIds: string[];
@@ -819,6 +822,13 @@ export interface UseCaseEntry {
    * environment, so the copy must not imply one.
    */
   outcome: string;
+  /**
+   * Where the homepage environment card sends a visitor, when that is not the
+   * environment's own /use-cases page: an environment that IS one product
+   * (Defence & Armed Forces → DefenceMotion) lands on the product. The
+   * /use-cases explorer still links the environment page.
+   */
+  landing?: string;
   accent: "teal" | "blue" | "gold" | "cyan" | "violet" | "emerald";
 }
 
@@ -1026,6 +1036,19 @@ export const industryUseCases: UseCaseEntry[] = [
     outcome:
       "Movement-derived endpoints, study cohorts, exportable metrics and protocol-based reports.",
     accent: "violet",
+  },
+  {
+    id: "defence",
+    industry: "Defence & Armed Forces",
+    icon: DefenceMotionIcon,
+    vertical: "securevision",
+    problem:
+      "Defence and military organisations need readiness, rehabilitation, facility-safety and access intelligence for personnel across very different installations — without identity-first monitoring of the people they have a duty of care to.",
+    productIds: ["defencemotion", "accessmotion", "suspiciousmotion"],
+    outcome:
+      "Privacy-aware movement intelligence for personnel readiness, rehabilitation, facility safety and secure access across Army, Navy and Air Force.",
+    accent: "blue",
+    landing: "/securevision/defencemotion/",
   },
 ];
 

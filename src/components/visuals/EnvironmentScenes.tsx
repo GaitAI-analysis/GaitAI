@@ -348,6 +348,22 @@ function Events() {
 
 /* ────────────────────────────────── registry ────────────────────────────── */
 
+
+/** Defence — a shield-shaped perimeter with a figure inside it and the
+    signal read from their walk. No weapon, vehicle or camouflage. */
+function Defence() {
+  return (
+    <Scene>
+      <Ground />
+      <path d="M22 4.6 L31 8 V15.2 C31 20.4 27.4 24.6 22 26.6 C16.6 24.6 13 20.4 13 15.2 V8 Z" />
+      <Figure x={22} stride={0.7} scale={0.62} />
+      <path className="env-scene-signal" d="M33.4 12 H37.6 M33.6 15 H38.2 M33.4 18 H37" />
+      <path className="env-scene-far" d="M6 12 H10 M6.4 15 H9.6" />
+      <circle className="env-scene-node" cx="39.6" cy="24.6" r="0.9" />
+    </Scene>
+  );
+}
+
 const SCENES: Record<string, () => JSX.Element> = {
   physio: Physio,
   hospitals: Hospitals,
@@ -366,6 +382,7 @@ const SCENES: Record<string, () => JSX.Element> = {
   factories: Factories,
   retail: Retail,
   events: Events,
+  defence: Defence,
 };
 
 /**

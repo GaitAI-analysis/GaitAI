@@ -340,7 +340,7 @@ const RELATED_ENTITY_BOOST = 3;
  */
 const DOMAIN_ENVIRONMENT_BOOST = 8;
 /** A product the site documents as dedicated to the domain leads the answer. */
-const DOMAIN_DEDICATED_PRODUCT_BOOST = 9;
+const DOMAIN_DEDICATED_PRODUCT_BOOST = 12;
 const DOMAIN_ENVIRONMENT_CHUNK_BOOST = 3;
 /* The family landing page consolidates a domain answer ("SecureVision" for a
    defence question) and must keep a slot beside the modules it lists. */

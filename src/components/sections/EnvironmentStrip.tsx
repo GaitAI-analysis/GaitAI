@@ -36,6 +36,10 @@ import { useCaseDetails } from "@/data/usecase-details";
  */
 
 const hrefFor = (caseId: string, vertical: Vertical) => {
+  /* An environment that is one product (Defence & Armed Forces → DefenceMotion)
+     lands on that product; the /use-cases explorer still links its page. */
+  const landing = industryUseCases.find((u) => u.id === caseId)?.landing;
+  if (landing) return landing;
   const detail = useCaseDetails.find((d) => d.caseId === caseId);
   return detail ? `/use-cases/${detail.slug}/` : `/${vertical}/`;
 };

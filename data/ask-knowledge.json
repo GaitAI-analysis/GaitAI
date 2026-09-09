@@ -2,7 +2,7 @@
   "generatedAt": "2026-09-09",
   "counts": {
     "product": 120,
-    "use-case": 34,
+    "use-case": 36,
     "publication": 9,
     "research": 4,
     "person": 8,
@@ -196,6 +196,17 @@
         "watchcare"
       ],
       "url": "/use-cases/research-clinical-trials/"
+    },
+    {
+      "id": "defence",
+      "industry": "Defence & Armed Forces",
+      "vertical": "securevision",
+      "productIds": [
+        "defencemotion",
+        "accessmotion",
+        "suspiciousmotion"
+      ],
+      "url": "/use-cases/defence-armed-forces/"
     }
   ],
   "routes": [
@@ -274,6 +285,7 @@
     "/use-cases/",
     "/use-cases/airports-metro-rail/",
     "/use-cases/corporate-university-campuses/",
+    "/use-cases/defence-armed-forces/",
     "/use-cases/elderly-care-centers/",
     "/use-cases/factories-warehouses/",
     "/use-cases/fitness-wellness/",
@@ -3407,6 +3419,7 @@
         "corporate & university campuses",
         "factories & warehouses",
         "malls & retail",
+        "defence & armed forces",
         "fixed camera streams (rtsp/onvif-class sources)",
         "zone and rule configuration",
         "site calibration metadata",
@@ -3490,7 +3503,7 @@
         "SecureVision"
       ],
       "summary": "SuspiciousMotion — deployment and integration. Surfaces candidate movement events — loitering, running, restricted-zone entry, tailgating-like patterns and perimeter events — for operator review, without requiring identity recognition.",
-      "content": "Module: SuspiciousMotion (GaitAI SuspiciousMotion) — Suspicious movement & anomaly detection\nSection: Deployment and integration\nWorkflow: Cameras stream into the movement pipeline · People are tracked as non-identifying trajectories · Behaviour analysis compares movement against configured rules and norms · Anomalous events post to the operator timeline · Operator reviews and responds\nDeployment: Works with existing fixed cameras · Zone and rule configuration per site · Operator timeline and alert routing · PrivacyGuard controls apply platform-wide\nDocumented deployment environments: Airports, metro & rail · Corporate & university campuses · Factories & warehouses · Malls & retail\nIntegration: Operator dashboard and alert routing · VMS integration for clip review · Feeds ForensicSearch event indexing",
+      "content": "Module: SuspiciousMotion (GaitAI SuspiciousMotion) — Suspicious movement & anomaly detection\nSection: Deployment and integration\nWorkflow: Cameras stream into the movement pipeline · People are tracked as non-identifying trajectories · Behaviour analysis compares movement against configured rules and norms · Anomalous events post to the operator timeline · Operator reviews and responds\nDeployment: Works with existing fixed cameras · Zone and rule configuration per site · Operator timeline and alert routing · PrivacyGuard controls apply platform-wide\nDocumented deployment environments: Airports, metro & rail · Corporate & university campuses · Factories & warehouses · Malls & retail · Defence & Armed Forces\nIntegration: Operator dashboard and alert routing · VMS integration for clip review · Feeds ForensicSearch event indexing",
       "keywords": [
         "suspiciousmotion",
         "gaitai suspiciousmotion",
@@ -3507,7 +3520,8 @@
         "airports, metro & rail",
         "corporate & university campuses",
         "factories & warehouses",
-        "malls & retail"
+        "malls & retail",
+        "defence & armed forces"
       ],
       "parentId": "product:suspiciousmotion"
     },
@@ -5015,6 +5029,7 @@
         "tailgating alert",
         "access audit log",
         "corporate & university campuses",
+        "defence & armed forces",
         "entry-zone camera views",
         "enrolled movement profiles (consented)",
         "primary credential events from the access system",
@@ -5109,7 +5124,7 @@
         "SecureVision"
       ],
       "summary": "AccessMotion — deployment and integration. Contributes a passive gait-consistency signal alongside card, face or mobile authentication in high-security spaces. It supports an existing credential rather than replacing it.",
-      "content": "Module: AccessMotion (GaitAI AccessMotion) — Gait-enhanced access control\nSection: Deployment and integration\nWorkflow: Enrolled personnel consent to movement-profile enrolment · At entry, primary credential is presented as usual · Movement consistency is scored passively · Low-consistency events flag for secondary verification · All decisions log to the access audit trail\nDeployment: Consent-based enrolment for authorized personnel · Integration with existing access-control systems · Site-configured confidence thresholds · Positioned as an additional factor, not sole authentication\nDocumented deployment environments: Corporate & university campuses\nIntegration: Access-control system integration · CampusShield entry events · Security-operations audit tooling",
+      "content": "Module: AccessMotion (GaitAI AccessMotion) — Gait-enhanced access control\nSection: Deployment and integration\nWorkflow: Enrolled personnel consent to movement-profile enrolment · At entry, primary credential is presented as usual · Movement consistency is scored passively · Low-consistency events flag for secondary verification · All decisions log to the access audit trail\nDeployment: Consent-based enrolment for authorized personnel · Integration with existing access-control systems · Site-configured confidence thresholds · Positioned as an additional factor, not sole authentication\nDocumented deployment environments: Corporate & university campuses · Defence & Armed Forces\nIntegration: Access-control system integration · CampusShield entry events · Security-operations audit tooling",
       "keywords": [
         "accessmotion",
         "gaitai accessmotion",
@@ -5123,7 +5138,8 @@
         "where is it used",
         "api",
         "rollout",
-        "corporate & university campuses"
+        "corporate & university campuses",
+        "defence & armed forces"
       ],
       "parentId": "product:accessmotion"
     },
@@ -5925,7 +5941,7 @@
         "SecureVision"
       ],
       "summary": "Privacy-aware gait and movement intelligence for defence personnel readiness, rehabilitation, facility safety and secure access.",
-      "content": "Full name: GaitAI DefenceMotion\nProduct family: SecureVision\nWhat it is: Defence personnel readiness, rehabilitation, facility safety & secure access\nHeadline: Movement intelligence for Army, Navy and Air Force.\nDescription: Privacy-aware gait and movement intelligence for defence personnel readiness, rehabilitation, facility safety and secure access.\nOverview: DefenceMotion applies GaitAI's privacy-aware movement intelligence to defence personnel and installations: readiness and rehabilitation movement profiles for service members, movement-event awareness across facilities, and a gait-consistency signal at authorised access points — one product, configured as Army, Navy and Air Force modes.\nAt a glance: input — Camera feeds; analysis — Movement & gait analysis; output — Readiness, safety & access indicators; user — Defence medical, safety & access teams\nProblem it addresses: Defence organisations look after large numbers of people whose movement matters — for readiness, for recovery after injury, for safety on busy installations and for who is entering controlled areas — across environments as different as a training area, a dockyard and a flight line, and with a duty of care to the personnel being observed.\nHow it works: One movement pipeline serves three service modes. Consent-based readiness and rehabilitation profiles follow a service member's own movement over time; movement-first event awareness surfaces falls, restricted-zone entry and abnormal movement on installations for operator review; and a gait-consistency signal adds a non-identifying check to existing access credentials. Each mode names the environments, personnel programmes and access points it is configured for.\nWho it is for: Army · Navy · Air Force · Defence medical & rehabilitation teams · Installation safety teams · Authorised access teams\nWhat the user receives: Readiness movement profile · Rehabilitation progress trend · Facility movement-event alert · Access consistency indicator · Service-mode summary · Privacy and audit record\nOutputs: Readiness movement profile · Rehabilitation progress trend · Facility movement-event alert · Access consistency indicator · Service-mode summary\nInputs accepted: Fixed and access-point camera feeds inside the installation network · Optional wearable sensor signals where a readiness or rehabilitation programme provides them · Mode, environment, zone and access-point configuration · Personnel enrolment and consent records for readiness and rehabilitation programmes\nPrimary capture sources: CCTV / fixed camera · Wearable\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.\nFurther sections of this module's record: How it works and what it needs · Deployment and integration · Limits, interpretation and privacy · Signals, capabilities, research and evidence",
+      "content": "Full name: GaitAI DefenceMotion\nProduct family: SecureVision\nWhat it is: Defence personnel readiness, rehabilitation, facility safety & secure access\nHeadline: Movement intelligence for Army, Navy and Air Force.\nDescription: Privacy-aware gait and movement intelligence for defence personnel readiness, rehabilitation, facility safety and secure access.\nOverview: DefenceMotion applies GaitAI's privacy-aware movement intelligence to defence personnel and installations: readiness and rehabilitation movement profiles for service members, movement-event awareness across facilities, and a gait-consistency signal at authorised access points — one product, configured as Army, Navy and Air Force modes.\nAt a glance: input — Camera feeds; analysis — Movement & gait analysis; output — Readiness, safety & access indicators; user — Defence medical, safety & access teams\nProblem it addresses: Defence organisations look after large numbers of people whose movement matters — for readiness, for recovery after injury, for safety on busy installations and for who is entering controlled areas — across environments as different as a training area, a dockyard and a flight line, and with a duty of care to the personnel being observed.\nHow it works: One movement pipeline serves three service modes. Consent-based readiness and rehabilitation profiles follow a service member's own movement over time; movement-first event awareness surfaces falls, restricted-zone entry and abnormal movement on installations for operator review; and a gait-consistency signal adds a non-identifying check to existing access credentials. Each mode names the environments, personnel programmes and access points it is configured for.\nWho it is for: Army · Navy · Air Force · Defence and military medical & rehabilitation teams · Installation safety teams · Authorised access teams\nWhat the user receives: Readiness movement profile · Rehabilitation progress trend · Facility movement-event alert · Access consistency indicator · Service-mode summary · Privacy and audit record\nOutputs: Readiness movement profile · Rehabilitation progress trend · Facility movement-event alert · Access consistency indicator · Service-mode summary\nInputs accepted: Fixed and access-point camera feeds inside the installation network · Optional wearable sensor signals where a readiness or rehabilitation programme provides them · Mode, environment, zone and access-point configuration · Personnel enrolment and consent records for readiness and rehabilitation programmes\nPrimary capture sources: CCTV / fixed camera · Wearable\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.\nFurther sections of this module's record: How it works and what it needs · Deployment and integration · Limits, interpretation and privacy · Signals, capabilities, research and evidence",
       "keywords": [
         "defencemotion",
         "gaitai defencemotion",
@@ -5933,7 +5949,7 @@
         "army",
         "navy",
         "air force",
-        "defence medical & rehabilitation teams",
+        "defence and military medical & rehabilitation teams",
         "installation safety teams",
         "authorised access teams",
         "readiness movement profile",
@@ -5941,6 +5957,7 @@
         "facility movement-event alert",
         "access consistency indicator",
         "service-mode summary",
+        "defence & armed forces",
         "fixed and access-point camera feeds inside the installation network",
         "optional wearable sensor signals where a readiness or rehabilitation programme provides them",
         "mode, environment, zone and access-point configuration",
@@ -6042,7 +6059,7 @@
         "SecureVision"
       ],
       "summary": "DefenceMotion — deployment and integration. Privacy-aware gait and movement intelligence for defence personnel readiness, rehabilitation, facility safety and secure access.",
-      "content": "Module: DefenceMotion (GaitAI DefenceMotion) — Defence personnel readiness, rehabilitation, facility safety & secure access\nSection: Deployment and integration\nWorkflow: A service selects its mode and configures environments, programmes and access points · Camera feeds (and, where a programme provides them, wearable signals) enter the movement pipeline · Personnel programmes build consent-based readiness and rehabilitation baselines over time · Facility analysis surfaces movement events to an operator timeline · Access points receive a gait-consistency indicator alongside existing credentials · Medical, safety and access teams review and decide; nothing is automated to a decision\nDeployment: On-premise or edge processing inside the installation's own network · Per-mode, per-site configuration of environments and programmes · Clinician, operator and access-team dashboards with role-based access · PrivacyGuard controls, retention policy and audit logs apply throughout\nDocumented deployment environments: No environment record in the GaitAI catalogue lists this module in its documented product mix.\nIntegration: Clinician and programme dashboards · Operator timeline and alert routing · Existing access-control systems, as an additional signal · PrivacyGuard policy, retention and audit layer",
+      "content": "Module: DefenceMotion (GaitAI DefenceMotion) — Defence personnel readiness, rehabilitation, facility safety & secure access\nSection: Deployment and integration\nWorkflow: A service selects its mode and configures environments, programmes and access points · Camera feeds (and, where a programme provides them, wearable signals) enter the movement pipeline · Personnel programmes build consent-based readiness and rehabilitation baselines over time · Facility analysis surfaces movement events to an operator timeline · Access points receive a gait-consistency indicator alongside existing credentials · Medical, safety and access teams review and decide; nothing is automated to a decision\nDeployment: On-premise or edge processing inside the installation's own network · Per-mode, per-site configuration of environments and programmes · Clinician, operator and access-team dashboards with role-based access · PrivacyGuard controls, retention policy and audit logs apply throughout\nDocumented deployment environments: Defence & Armed Forces\nIntegration: Clinician and programme dashboards · Operator timeline and alert routing · Existing access-control systems, as an additional signal · PrivacyGuard policy, retention and audit layer",
       "keywords": [
         "defencemotion",
         "gaitai defencemotion",
@@ -6055,7 +6072,8 @@
         "environments",
         "where is it used",
         "api",
-        "rollout"
+        "rollout",
+        "defence & armed forces"
       ],
       "parentId": "product:defencemotion"
     },
@@ -6091,7 +6109,7 @@
         "SecureVision"
       ],
       "summary": "DefenceMotion — limits, interpretation and privacy. Privacy-aware gait and movement intelligence for defence personnel readiness, rehabilitation, facility safety and secure access.",
-      "content": "Module: DefenceMotion (GaitAI DefenceMotion) — Defence personnel readiness, rehabilitation, facility safety & secure access\nSection: Limits, interpretation and privacy\nDocumented limitations: Readiness and rehabilitation outputs are movement observations, not medical or fitness determinations · Facility events describe movement, not intent — operator review is required · Access consistency supplements a credential and cannot identify or deny on its own · No deployment, customer, contract or clearance is documented; this page describes intended use\nInterpretation of outputs: Every output is decision support for a qualified person. A readiness profile or rehabilitation trend is a movement observation for a clinician or programme lead, not a fitness verdict; a facility event is a prompt for operator review, not a finding; an access indicator is one consistency signal beside a credential, never an identification or a denial on its own.\nResponsible use and privacy: Responsible deployment: readiness and rehabilitation modes operate only for enrolled personnel with consent and a named programme owner; facility mode is movement-first and identity-free by default; access mode supplements existing credentials for enrolled personnel and never identifies or denies on its own. Outputs are decision support for qualified teams. Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
+      "content": "Module: DefenceMotion (GaitAI DefenceMotion) — Defence personnel readiness, rehabilitation, facility safety & secure access\nSection: Limits, interpretation and privacy\nDocumented limitations: Readiness and rehabilitation outputs are movement observations, not medical or fitness determinations · Facility events describe movement, not intent — operator review is required · Access consistency supplements a credential and cannot identify or deny on its own · Not designed for autonomous targeting, weapons integration, adversary tracking or lethal decision-making · No deployment, customer, contract or clearance is documented; this page describes intended use\nInterpretation of outputs: Every output is decision support for a qualified person. A readiness profile or rehabilitation trend is a movement observation for a clinician or programme lead, not a fitness verdict; a facility event is a prompt for operator review, not a finding; an access indicator is one consistency signal beside a credential, never an identification or a denial on its own.\nResponsible use and privacy: Designed for governed, human-supervised defence applications involving personnel safety, readiness, rehabilitation and authorized facility operations. Not designed for autonomous targeting or lethal decision-making. Readiness and rehabilitation modes operate only for enrolled personnel with consent and a named programme owner; facility mode is movement-first and identity-free by default; access mode supplements existing credentials for enrolled personnel and never identifies or denies on its own. Outputs are decision support for qualified teams. Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
       "keywords": [
         "defencemotion",
         "gaitai defencemotion",
@@ -7575,6 +7593,94 @@
       "topics": [
         "Research & clinical trials",
         "MobilityCare"
+      ]
+    },
+    {
+      "id": "use-case:defence",
+      "type": "use-case",
+      "title": "Defence & Armed Forces",
+      "slug": "defence-armed-forces",
+      "url": "/use-cases/defence-armed-forces/",
+      "family": "securevision",
+      "category": "Environment",
+      "summary": "Defence and military organisations need readiness, rehabilitation, facility-safety and access intelligence for personnel across very different installations — without identity-first monitoring of the people they have a duty of care to.",
+      "content": "Environment: Defence & Armed Forces\nProblem: Defence and military organisations need readiness, rehabilitation, facility-safety and access intelligence for personnel across very different installations — without identity-first monitoring of the people they have a duty of care to.\nWhat this deployment produces: Privacy-aware movement intelligence for personnel readiness, rehabilitation, facility safety and secure access across Army, Navy and Air Force.\nRecommended GaitAI modules: DefenceMotion — Defence personnel readiness, rehabilitation, facility safety & secure access · AccessMotion — Gait-enhanced access control · SuspiciousMotion — Suspicious movement & anomaly detection\nValue proposition: One movement platform for personnel, installations and access.\nDeployment overview: For defence organisations, GaitAI can run DefenceMotion as one product with Army, Navy and Air Force modes — readiness and rehabilitation movement profiles for enrolled personnel, movement-first facility events, and a gait-consistency signal at authorised access points — with AccessMotion and SuspiciousMotion covering controlled entries and perimeter events on the same camera estate.\nWhy current workflows fall short: Readiness and recovery are judged from one-off assessments, safety events on large installations are found after the fact, and access relies on credentials alone — while the people being observed are owed a duty of care that identity-first monitoring does not respect.\nFurther sections of this environment's record: Deployment, signals and responsible use\nOutput chips: Readiness profile · Rehabilitation trend · Facility events · Access consistency",
+      "keywords": [
+        "defence & armed forces",
+        "defencemotion",
+        "army",
+        "navy",
+        "air force",
+        "defence and military medical & rehabilitation teams",
+        "installation safety teams",
+        "authorised access teams",
+        "accessmotion",
+        "data centers",
+        "r&d labs",
+        "defense campuses",
+        "high-security offices",
+        "suspiciousmotion",
+        "campuses",
+        "offices",
+        "malls",
+        "hospitals",
+        "transport hubs",
+        "factories",
+        "security teams",
+        "readiness movement profile and rehabilitation trend",
+        "facility movement-event alerts",
+        "access consistency indicators",
+        "service-mode summary with audit record",
+        "readiness profile",
+        "rehabilitation trend",
+        "facility events",
+        "access consistency"
+      ],
+      "relatedProducts": [
+        "defencemotion",
+        "accessmotion",
+        "suspiciousmotion"
+      ],
+      "relatedResearch": [],
+      "topics": [
+        "Defence & Armed Forces",
+        "SecureVision"
+      ]
+    },
+    {
+      "id": "use-case:defence#deployment",
+      "type": "use-case",
+      "title": "Defence & Armed Forces",
+      "sectionTitle": "Deployment, signals and responsible use",
+      "slug": "defence-armed-forces",
+      "url": "/use-cases/defence-armed-forces/",
+      "family": "securevision",
+      "category": "Environment",
+      "summary": "Defence & Armed Forces — how the deployment runs, what it produces and its responsible-use boundary.",
+      "content": "Environment: Defence & Armed Forces\nSection: Deployment, signals and responsible use\nHow the modules work together: DefenceMotion carries the personnel programmes (readiness, rehabilitation) and the installation's movement-event awareness in the mode a service selects; AccessMotion adds a passive consistency signal at controlled doors and compartments; SuspiciousMotion surfaces restricted-zone entry and perimeter events for operator review. PrivacyGuard controls apply to all of it.\nExample workflow: A service selects its mode and configures installations, programmes and access points · Enrolled personnel build consent-based readiness and rehabilitation baselines over time · Facility movement events surface on the operator timeline · Controlled entries receive a gait-consistency indicator beside existing credentials · Medical, safety and access teams review and decide under service procedures\nSignals and outputs: Readiness movement profile and rehabilitation trend · Facility movement-event alerts · Access consistency indicators · Service-mode summary with audit record\nDeployment considerations: On-premise or edge processing inside the installation's own network · Consent-based enrolment for readiness, rehabilitation and access signals · Human review before any indicator becomes an action · Not designed for autonomous targeting or lethal decision-making\nResponsible use and privacy: Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
+      "keywords": [
+        "defence & armed forces",
+        "deployment",
+        "workflow",
+        "signals",
+        "outputs",
+        "responsible use",
+        "privacy",
+        "readiness movement profile and rehabilitation trend",
+        "facility movement-event alerts",
+        "access consistency indicators",
+        "service-mode summary with audit record"
+      ],
+      "relatedProducts": [
+        "defencemotion",
+        "accessmotion",
+        "suspiciousmotion"
+      ],
+      "relatedResearch": [],
+      "parentId": "use-case:defence",
+      "topics": [
+        "Defence & Armed Forces",
+        "SecureVision"
       ]
     },
     {
@@ -12880,7 +12986,7 @@
       "family": "platform",
       "category": "Trust",
       "summary": "What the GaitAI architecture is designed to support, control area by control area — stated as capability, not as a running deployment.",
-      "content": "Processing location: Designed for edge and on-device inference as well as server-side processing; the optimised edge pipeline is the subject of the granted patent. Which mode a given site runs is a deployment decision. (source: Patent 402202 · Edge inference capability)\nNon-identifying mode: The architecture is designed so skeleton-only processing can replace identifiable video as the analytic substrate, letting movement analytics run without identity. SecureVision is designed to lead with identity-free capabilities by default. (source: PrivacyGuard · pipeline stages)\nFace blur: Face blur is designed as an optional pipeline transformation stage that can be applied before analytics rather than after. (source: PrivacyGuard · processing pipeline)\nRaw video handling: The pipeline is designed to transform raw streams into movement features, so analytics operate on those features rather than on raw footage. (source: PrivacyGuard · privacy stack)\nRetention controls: Retention is intended to be configurable per data class, with schedules set per site, so clinical captures need be kept only as long as the care workflow requires. Actual periods are agreed per deployment. (source: PrivacyGuard · deployment · shared clinical privacy note)\nRole-based access: An authorization layer is designed to mediate dashboard views so roles see only permitted data, with policy configured per site and per role. (source: PrivacyGuard · access model)\nAudit logs: The design provides for logging of access and policy-change events, with audit logs exportable for an organisation's own compliance review. (source: PrivacyGuard · audit and policy logs)\nConsent: Clinical assessments are intended to be captured with informed consent, with policy and consent records held alongside the audit log. (source: Shared clinical privacy note · PrivacyGuard output schema)\nData in transit: Captures are intended to be uploaded over encrypted channels. Transport and storage configuration is agreed per deployment. (source: Shared clinical privacy note)\nBiometric and identity processing: Identity-bearing modules (ReID, AccessMotion, Watchlist) are gated behind stricter policy controls and are intended only for deployments with lawful authority, consent, access control and auditability. Where non-identifying movement intelligence is sufficient, that is the intended default. (source: Responsible-deployment policy · Watchlist product record)\nTraining data: Privacy-preserving handling of gait datasets inside deep-learning pipelines is a published research area (IET Biometrics, 2022). (source: Publication: gait dataset privacy protection)\nScope of the controls: These are architectural capabilities of the GaitAI pipeline rather than a description of a running deployment; what a given site enables is agreed with it. Lawful basis, consent management and deployment decisions remain with the deploying organisation, and privacy-aware architecture is not a guarantee of anonymity. (source: PrivacyGuard · documented limitations)\nEXPLICITLY NOT CLAIMED anywhere in the GaitAI record: SOC 2, ISO 27001 or any other security certification · HIPAA, GDPR or DPDP Act compliance certification · A specific guaranteed retention or deletion window · Guaranteed encryption of data at rest · Clinical approval, regulatory clearance or medical-device status · Measured accuracy, latency or performance figures · Replacement for clinician judgement or a standalone diagnosis · Proof of identity from a movement match alone · Guaranteed detection or prevention of safety incidents",
+      "content": "Processing location: Designed for edge and on-device inference as well as server-side processing; the optimised edge pipeline is the subject of the granted patent. Which mode a given site runs is a deployment decision. (source: Patent 402202 · Edge inference capability)\nNon-identifying mode: The architecture is designed so skeleton-only processing can replace identifiable video as the analytic substrate, letting movement analytics run without identity. SecureVision is designed to lead with identity-free capabilities by default. (source: PrivacyGuard · pipeline stages)\nFace blur: Face blur is designed as an optional pipeline transformation stage that can be applied before analytics rather than after. (source: PrivacyGuard · processing pipeline)\nRaw video handling: The pipeline is designed to transform raw streams into movement features, so analytics operate on those features rather than on raw footage. (source: PrivacyGuard · privacy stack)\nRetention controls: Retention is intended to be configurable per data class, with schedules set per site, so clinical captures need be kept only as long as the care workflow requires. Actual periods are agreed per deployment. (source: PrivacyGuard · deployment · shared clinical privacy note)\nRole-based access: An authorization layer is designed to mediate dashboard views so roles see only permitted data, with policy configured per site and per role. (source: PrivacyGuard · access model)\nAudit logs: The design provides for logging of access and policy-change events, with audit logs exportable for an organisation's own compliance review. (source: PrivacyGuard · audit and policy logs)\nConsent: Clinical assessments are intended to be captured with informed consent, with policy and consent records held alongside the audit log. (source: Shared clinical privacy note · PrivacyGuard output schema)\nData in transit: Captures are intended to be uploaded over encrypted channels. Transport and storage configuration is agreed per deployment. (source: Shared clinical privacy note)\nBiometric and identity processing: Identity-bearing modules (ReID, AccessMotion, Watchlist) are gated behind stricter policy controls and are intended only for deployments with lawful authority, consent, access control and auditability. Where non-identifying movement intelligence is sufficient, that is the intended default. (source: Responsible-deployment policy · Watchlist product record)\nDefence and other high-assurance uses: DefenceMotion is designed for governed, human-supervised defence applications involving personnel safety, readiness, rehabilitation and authorised facility operations. It is not designed for autonomous targeting or lethal decision-making. Readiness and rehabilitation modes run only for enrolled personnel with consent; access mode supplements existing credentials and never identifies or denies on its own. No defence deployment, customer or clearance is documented. (source: DefenceMotion product record · Responsible-deployment policy)\nTraining data: Privacy-preserving handling of gait datasets inside deep-learning pipelines is a published research area (IET Biometrics, 2022). (source: Publication: gait dataset privacy protection)\nScope of the controls: These are architectural capabilities of the GaitAI pipeline rather than a description of a running deployment; what a given site enables is agreed with it. Lawful basis, consent management and deployment decisions remain with the deploying organisation, and privacy-aware architecture is not a guarantee of anonymity. (source: PrivacyGuard · documented limitations)\nEXPLICITLY NOT CLAIMED anywhere in the GaitAI record: SOC 2, ISO 27001 or any other security certification · HIPAA, GDPR or DPDP Act compliance certification · A specific guaranteed retention or deletion window · Guaranteed encryption of data at rest · Clinical approval, regulatory clearance or medical-device status · Measured accuracy, latency or performance figures · Replacement for clinician judgement or a standalone diagnosis · Proof of identity from a movement match alone · Guaranteed detection or prevention of safety incidents",
       "keywords": [
         "privacy",
         "security",
@@ -12905,6 +13011,7 @@
         "audit logs",
         "data in transit",
         "biometric and identity processing",
+        "defence and other high-assurance uses",
         "training data",
         "scope of the controls",
         "soc 2, iso 27001 or any other security certification",
@@ -13926,7 +14033,7 @@
       "family": "platform",
       "category": "Explore",
       "summary": "Problems by environment, and the module mix each one calls for.",
-      "content": "Environments: Physiotherapy clinics → walkscan, rehabtrack, sportsmotion · Hospitals → fallrisk, neuromotion, orthomotion · Sports academies → sportsmotion, watchcare, rehabtrack · Elderly-care centers → fallrisk, seniorcare, watchcare · Neurology clinics → neuromotion, walkscan, watchcare · Home care & telehealth → remotecare, watchcare, fallrisk · Airports, metro & rail → crowdsense, reid, suspiciousmotion · Smart cities → crowdsense, forensicsearch, privacyguard · Corporate & university campuses → campusshield, accessmotion, suspiciousmotion · Factories & warehouses → industrialsafety, suspiciousmotion · Malls & retail → retailguard, crowdsense, suspiciousmotion · Large events & stadiums → eventshield, crowdsense · Fitness centers & wellness → sportsmotion, walkscan · Schools & academies → pediatricmotion, sportsmotion · Prosthetic & orthotic clinics → prostheticfit, walkscan · Insurance & wellness programs → watchcare, fallrisk, seniorcare · Research & clinical trials → clinicaltrials, walkscan, watchcare",
+      "content": "Environments: Physiotherapy clinics → walkscan, rehabtrack, sportsmotion · Hospitals → fallrisk, neuromotion, orthomotion · Sports academies → sportsmotion, watchcare, rehabtrack · Elderly-care centers → fallrisk, seniorcare, watchcare · Neurology clinics → neuromotion, walkscan, watchcare · Home care & telehealth → remotecare, watchcare, fallrisk · Airports, metro & rail → crowdsense, reid, suspiciousmotion · Smart cities → crowdsense, forensicsearch, privacyguard · Corporate & university campuses → campusshield, accessmotion, suspiciousmotion · Factories & warehouses → industrialsafety, suspiciousmotion · Malls & retail → retailguard, crowdsense, suspiciousmotion · Large events & stadiums → eventshield, crowdsense · Fitness centers & wellness → sportsmotion, walkscan · Schools & academies → pediatricmotion, sportsmotion · Prosthetic & orthotic clinics → prostheticfit, walkscan · Insurance & wellness programs → watchcare, fallrisk, seniorcare · Research & clinical trials → clinicaltrials, walkscan, watchcare · Defence & Armed Forces → defencemotion, accessmotion, suspiciousmotion",
       "keywords": [
         "use cases",
         "environments",
@@ -13948,7 +14055,8 @@
         "schools & academies",
         "prosthetic & orthotic clinics",
         "insurance & wellness programs",
-        "research & clinical trials"
+        "research & clinical trials",
+        "defence & armed forces"
       ],
       "relatedProducts": [],
       "relatedResearch": []

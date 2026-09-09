@@ -31,6 +31,7 @@ export const USE_CASE_FACETS = [
   "Industrial",
   "Retail",
   "Events",
+  "Defence",
 ] as const;
 
 export type UseCaseFacet = (typeof USE_CASE_FACETS)[number];
@@ -54,6 +55,7 @@ const NAMED_FACETS: Record<string, UseCaseFacet[]> = {
   factories: ["Industrial"],
   retail: ["Retail"],
   events: ["Events"],
+  defence: ["Defence"],
 };
 
 /**
@@ -184,6 +186,12 @@ export const OUTPUT_CHIPS: Record<string, string[]> = {
     "Density vs capacity",
     "Bottleneck indicators",
     "Evacuation summary",
+  ],
+  defence: [
+    "Readiness profile",
+    "Rehabilitation trend",
+    "Facility events",
+    "Access consistency",
   ],
 };
 

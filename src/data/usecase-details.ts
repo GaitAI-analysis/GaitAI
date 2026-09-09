@@ -643,6 +643,41 @@ export const useCaseDetails: UseCaseDetail[] = [
     privacy: SECURE_PRIVACY_UC,
     related: ["smart-cities", "airports-metro-rail", "malls-retail"],
   },
+  {
+    slug: "defence-armed-forces",
+    caseId: "defence",
+    family: "securevision",
+    valueProp: "One movement platform for personnel, installations and access.",
+    overview:
+      "For defence organisations, GaitAI can run DefenceMotion as one product with Army, Navy and Air Force modes — readiness and rehabilitation movement profiles for enrolled personnel, movement-first facility events, and a gait-consistency signal at authorised access points — with AccessMotion and SuspiciousMotion covering controlled entries and perimeter events on the same camera estate.",
+    shortfall:
+      "Readiness and recovery are judged from one-off assessments, safety events on large installations are found after the fact, and access relies on credentials alone — while the people being observed are owed a duty of care that identity-first monitoring does not respect.",
+    together:
+      "DefenceMotion carries the personnel programmes (readiness, rehabilitation) and the installation's movement-event awareness in the mode a service selects; AccessMotion adds a passive consistency signal at controlled doors and compartments; SuspiciousMotion surfaces restricted-zone entry and perimeter events for operator review. PrivacyGuard controls apply to all of it.",
+    workflow: [
+      "A service selects its mode and configures installations, programmes and access points",
+      "Enrolled personnel build consent-based readiness and rehabilitation baselines over time",
+      "Facility movement events surface on the operator timeline",
+      "Controlled entries receive a gait-consistency indicator beside existing credentials",
+      "Medical, safety and access teams review and decide under service procedures",
+    ],
+    outcome:
+      "Readiness and rehabilitation movement profiles, facility movement-event alerts, access consistency indicators and a privacy and audit record — across Army, Navy and Air Force.",
+    signals: [
+      "Readiness movement profile and rehabilitation trend",
+      "Facility movement-event alerts",
+      "Access consistency indicators",
+      "Service-mode summary with audit record",
+    ],
+    deployment: [
+      "On-premise or edge processing inside the installation's own network",
+      "Consent-based enrolment for readiness, rehabilitation and access signals",
+      "Human review before any indicator becomes an action",
+      "Not designed for autonomous targeting or lethal decision-making",
+    ],
+    privacy: SECURE_PRIVACY_UC,
+    related: ["corporate-university-campuses", "factories-warehouses", "airports-metro-rail"],
+  },
 ];
 
 /**

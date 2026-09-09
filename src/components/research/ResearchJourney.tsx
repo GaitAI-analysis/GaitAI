@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import styles from "./observatory.module.css";
+import { productCount } from "@/data/products";
 
 /**
  * The research journey, drawn on a stride path.
@@ -52,7 +53,7 @@ const milestones: Milestone[] = [
     year: "Today",
     label: "GaitAI platform",
     detail:
-      "Two verticals and 23 modular products on one Movement Intelligence Platform, built on that research foundation.",
+      `Two verticals and  modular products on one Movement Intelligence Platform, built on that research foundation.`,
   },
 ];
 

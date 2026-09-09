@@ -94,6 +94,15 @@ export function PublicationBrowser({
 
   const allTopics = useMemo(() => publicationTopics(stories), [stories]);
   const newest = useMemo(() => sortNewest(stories)[0], [stories]);
+  /* The Foundations, in reading order, for the explorer at the foot of the
+     composition — every one of them, including the cover story. */
+  const foundations = useMemo(
+    () =>
+      stories
+        .filter((story) => story.series === "GaitAI Foundations" && typeof story.seriesOrder === "number")
+        .sort((a, b) => (a.seriesOrder ?? 0) - (b.seriesOrder ?? 0)),
+    [stories],
+  );
   const allTypes = useMemo(() => publicationTypes(stories), [stories]);
   const cover = useMemo(() => (showCover ? selectCoverStory(stories) : undefined), [showCover, stories]);
   const activeTopic = fixedTopic ?? topic;
@@ -308,7 +317,7 @@ export function PublicationBrowser({
             )}
             {coverVisible ? (
               <div key="composition" className={journal.gridEnter}>
-                <HubComposition stories={visible} stats={stats} />
+                <HubComposition stories={visible} foundations={foundations} stats={stats} />
               </div>
             ) : (
               <div

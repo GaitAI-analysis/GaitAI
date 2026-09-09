@@ -100,6 +100,201 @@
   }
 }
 
+/* ── The Foundations explorer: index on the left, live preview on the right ── */
+.explorer {
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .explorer {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.5fr);
+    gap: clamp(2rem, 3.5vw, 3.5rem);
+  }
+}
+.explorerIndex {
+  position: relative;
+  padding: 0.5rem 0 0.5rem 0.25rem;
+}
+.explorerTabs {
+  margin-top: 1rem;
+  display: grid;
+}
+/* A row: marker · number · title. A button, so it is a tab a keyboard can
+   drive; the whole row is the target and it is never shorter than 44px. */
+.explorerRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.1rem 2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--jr-line);
+  text-align: left;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: var(--jr-body);
+  cursor: pointer;
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.explorerRow:hover,
+.explorerRow:focus-visible {
+  color: var(--jr-ink);
+  outline: none;
+}
+.explorerRow:focus-visible .explorerLabel {
+  text-decoration: underline;
+  text-decoration-color: var(--jr-cyan);
+  text-underline-offset: 4px;
+}
+.explorerIndexNo {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--jr-violet);
+}
+.explorerLabel {
+  transition: font-weight var(--motion-fast) var(--jr-ease);
+}
+/* The selected state: a cyan point that slides in, trailing a short
+   trajectory; the title takes weight. No fill, no pill. */
+.explorerMark {
+  position: relative;
+  display: block;
+  width: 1.1rem;
+  height: 6px;
+}
+.explorerMark::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--jr-cyan);
+  transform: translate(-6px, -50%) scale(0.4);
+  opacity: 0;
+  transition: transform var(--motion-editorial) var(--jr-ease), opacity var(--motion-ui) var(--jr-ease);
+}
+.explorerMark::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--jr-cyan), transparent);
+  transform: translateY(-50%);
+  transition: width var(--motion-editorial) var(--jr-ease);
+}
+.explorerRowOn {
+  color: var(--jr-ink);
+}
+.explorerRowOn .explorerLabel {
+  font-weight: 600;
+}
+.explorerRowOn .explorerMark::before {
+  transform: translate(0, -50%) scale(1);
+  opacity: 1;
+}
+.explorerRowOn .explorerMark::after {
+  width: 0.9rem;
+  left: 8px;
+}
+/* The connection to the preview: a short trajectory leaving the selected row
+   toward the card, with a signal point travelling along it once. Desktop
+   only — on a stacked layout the card sits directly below the index. */
+@media (min-width: 900px) {
+  .explorerRowOn::after {
+    content: "";
+    position: absolute;
+    right: -2.6rem;
+    top: 50%;
+    width: 2.6rem;
+    height: 1px;
+    background: linear-gradient(90deg, var(--jr-cyan), transparent);
+    opacity: 0.7;
+    animation: hubConnect var(--motion-editorial) var(--jr-ease) both;
+  }
+  .explorerRowOn::before {
+    content: "";
+    position: absolute;
+    right: -2.6rem;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--jr-cyan);
+    transform: translate(0, -50%);
+    animation: hubConnectDot 0.9s var(--jr-ease) both;
+  }
+}
+@keyframes hubConnect {
+  from {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+}
+@keyframes hubConnectDot {
+  0% {
+    transform: translate(0, -50%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(2.4rem, -50%);
+    opacity: 0;
+  }
+}
+.explorerPreview {
+  min-width: 0;
+}
+/* The preview crossfades in; under reduced motion the class is not applied. */
+.previewEnter {
+  animation: hubPreviewIn 0.36s var(--jr-ease) both;
+}
+@keyframes hubPreviewIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* The preview card: media a little shorter, body closer to it, a call to
+   action a reader cannot miss. The hooks are the journal's hashed classes,
+   matched by their stable name fragment. */
+.previewCard :global([class*="cardMedia"]) {
+  aspect-ratio: 16 / 10;
+}
+.previewCard :global([class*="cardBody"]) {
+  padding-top: 1rem;
+}
+.previewCard :global([class*="cardCta"]) {
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  color: var(--jr-cyan);
+}
+@media (prefers-reduced-motion: reduce) {
+  .previewEnter,
+  .explorerRowOn::after,
+  .explorerRowOn::before {
+    animation: none;
+  }
+  .explorerMark::before,
+  .explorerMark::after {
+    transition: none;
+  }
+}
+
 /* ── The Foundations note: text on the page ground, beside the last story ── */
 .foundationsNote {
   display: flex;
@@ -163,19 +358,45 @@
   color: var(--jr-violet);
 }
 .foundationsCta {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   margin-top: 1rem;
-  min-height: 40px;
+  min-height: 44px;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 9.5px;
+  font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--jr-cyan);
 }
-.foundationsCta:hover {
+/* The journey begins here: a movement line draws under the words on hover
+   or focus, and the arrow steps forward. */
+.foundationsCta::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 8px;
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, var(--jr-cyan), transparent);
+  transition: width var(--motion-editorial) var(--jr-ease);
+}
+.foundationsCta span {
+  transition: transform var(--motion-ui) var(--jr-ease);
+}
+.foundationsCta:hover,
+.foundationsCta:focus-visible {
   color: var(--jr-ink);
+  outline: none;
+}
+.foundationsCta:hover::after,
+.foundationsCta:focus-visible::after {
+  width: 100%;
+}
+.foundationsCta:hover span,
+.foundationsCta:focus-visible span {
+  transform: translateX(4px);
 }
 
 /* ── The physical card ──
@@ -395,11 +616,11 @@
   background: rgb(var(--c-obsidian-500) / 0.72);
   border: 1px solid var(--jr-line);
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
-  letter-spacing: 0.18em;
+  font-size: 9px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--jr-ink);
-  opacity: 0.55;
+  opacity: 0.6;
   transition: opacity 0.3s var(--jr-ease);
 }
 :global(.journal-card):hover .cue,
@@ -428,8 +649,8 @@
   top: 0.7rem;
   pointer-events: none;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
-  letter-spacing: 0.18em;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--jr-accent, #4fd1ff);
   text-shadow: 0 1px 0 rgb(var(--c-obsidian-500) / 0.6);
@@ -571,11 +792,10 @@
 .cardMetaQuiet {
   margin-top: 0.9rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
-  letter-spacing: 0.16em;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--jr-mute);
-  opacity: 0.85;
 }
 .quietMeta {
   margin-top: 1.25rem;
@@ -614,8 +834,8 @@
   top: 0.7rem;
   pointer-events: none;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 8.5px;
-  letter-spacing: 0.2em;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--jr-mute);
 }

@@ -30,6 +30,7 @@ export type InsightEventName =
   | "insight_shared"
   | "hub_card_interaction"
   | "cover_story_open"
+  | "foundation_preview_selected"
   | "filter_used"
   | "ask_gaitai_from_article"
   | "evidence_link_clicked";

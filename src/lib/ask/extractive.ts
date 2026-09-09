@@ -131,6 +131,7 @@ const TYPE_NOUN: Record<string, string> = {
   policy: "policy",
   page: "page",
   person: "person",
+  talk: "talk",
 };
 
 /**

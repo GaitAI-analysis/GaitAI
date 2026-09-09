@@ -4,4 +4,9 @@
 #
 # Local site origins to accept during development (the production list lives
 # in wrangler.jsonc and is not used when this is set).
-ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://gaitai.in
+
+# Print one readable block per question to the wrangler dev console: the
+# question, selected/resolved record ids and titles, provider, model, status
+# and latency. LOCAL ONLY — never set this on the deployed Worker.
+ASK_DEBUG=1

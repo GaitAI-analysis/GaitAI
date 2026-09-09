@@ -141,11 +141,35 @@ export async function ask(options: {
     .filter((turn) => turn.role === "user")
     .map((turn) => turn.content);
   const result = retrieveGaitAIContext(question, pathname, priorUserTurns);
+  const startedAt = Date.now();
+
+  /* LOCAL DEVELOPMENT ONLY. `next dev` inlines NODE_ENV, so this whole block
+     is dead code in the production bundle: a visitor's console never sees a
+     question or a record id. In dev it shows the retrieval half of the RAG
+     path — the Worker's ASK_DEBUG block shows the other half. */
+  const debug = process.env.NODE_ENV !== "production";
+  const trace = (mode: AskResult["mode"], note: string) => {
+    if (!debug) return;
+    console.debug(
+      [
+        "[Ask GaitAI]",
+        `question: ${question}`,
+        `intent: ${result.intent}${result.entity ? ` · entity: ${result.entity.entityId}` : ""}${result.lowConfidence ? " · LOW CONFIDENCE" : ""}`,
+        "retrieved:",
+        ...result.docs.map(
+          (item) => `  ${item.score.toFixed(2).padStart(6)} ${item.doc.id}${item.doc.sectionTitle ? ` › ${item.doc.sectionTitle}` : ""}`,
+        ),
+        `mode: ${mode}${note ? ` (${note})` : ""}`,
+        `latency: ${Date.now() - startedAt}ms`,
+      ].join("\n"),
+    );
+  };
 
   /* Nothing scored: refuse from retrieval, and do not spend a model call
      asking a model to decline gracefully. The refusal is the site's own
      wording, every time. */
   if (result.lowConfidence || result.docs.length === 0) {
+    trace("retrieval", "low confidence — refused locally, no request made");
     return finish(
       result,
       composeExtractiveAnswer(result),
@@ -168,6 +192,7 @@ export async function ask(options: {
         signal,
       });
       if (hosted.text.trim().length > 0) {
+        trace("model", "hosted Worker answered");
         /* The Worker already sanitised and chose sources from the canonical
            records. Sanitise again here anyway: the allowlist in this tab is
            the one that matters for what renders. */
@@ -184,7 +209,10 @@ export async function ask(options: {
          error, malformed reply — all of them are a reason to answer from
          records, not a reason to show an error. The retrieval that already
          ran is the answer. */
+      trace("retrieval", `hosted failed: ${(error as Error)?.message ?? "unknown"}`);
     }
+  } else {
+    trace("retrieval", "no hosted endpoint configured");
   }
 
   return finish(

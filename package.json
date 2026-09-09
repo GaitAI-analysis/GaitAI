@@ -25,6 +25,7 @@
     "ask:rank": "tsx scripts/ask-ranking-test.ts",
     "ask:probe": "tsx scripts/ask/regression-probe.ts",
     "ask:bench": "tsx scripts/ask-bench.ts",
+    "ask:e2e": "npm run build:knowledge && node worker/scripts/build-corpus.mjs && tsx scripts/ask-e2e.ts",
     "worker:corpus": "node worker/scripts/build-corpus.mjs",
     "worker:typecheck": "npm run build:knowledge && npm --prefix worker run typecheck",
     "worker:test": "npm run build:knowledge && npm --prefix worker test",

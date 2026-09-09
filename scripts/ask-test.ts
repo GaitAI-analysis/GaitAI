@@ -53,6 +53,9 @@ for (const testCase of CASES) {
   const result = retrieveGaitAIContext(testCase.q, path);
   const ids = result.docs.map((d) => d.doc.id);
   const missing = testCase.expect.filter((id) => !ids.includes(id));
+  if (testCase.anyOf?.length && !testCase.anyOf.some((id) => ids.includes(id))) {
+    missing.push(`one of: ${testCase.anyOf.join(" | ")}`);
+  }
 
   if (missing.length) retrievalFailures += 1;
 

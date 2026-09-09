@@ -243,9 +243,13 @@ describe("configuration", () => {
     const { readConfig } = await import("../src/env");
     const config = readConfig({ WORKERS_AI_MODEL: MODEL });
     expect(Object.keys(config).sort()).toEqual(
-      ["allowedOrigins", "burstMax", "dailyBudget", "hourlyMax", "maxOutputTokens", "model", "reasoningEffort", "timeoutMs"],
+      ["allowedOrigins", "burstMax", "dailyBudget", "debug", "hourlyMax", "maxOutputTokens", "model", "reasoningEffort", "timeoutMs"],
     );
     expect(JSON.stringify(config)).not.toMatch(/apikey|api_key|secret|bearer|authorization/i);
+    /* Debug is off unless .dev.vars says so; wrangler.jsonc never defines it. */
+    expect(config.debug).toBe(false);
+    expect(readConfig({ ASK_DEBUG: "1" }).debug).toBe(true);
+    expect(readConfig({ ASK_DEBUG: "yes" }).debug).toBe(false);
   });
 });
 
@@ -303,15 +307,18 @@ describe("the model", () => {
       messages: { role: string; content: string }[];
       max_completion_tokens: number;
       temperature: number;
-      reasoning_effort: string;
+      reasoning_effort?: string;
     };
-    /* wrangler.jsonc ships MODEL_REASONING_EFFORT="low", so production sends it. */
-    expect(Object.keys(input).sort()).toEqual(["max_completion_tokens", "messages", "reasoning_effort", "temperature", "top_p"]);
+    /* wrangler.jsonc ships MODEL_REASONING_EFFORT="" for Llama 3.2 (not a
+       reasoning model), so production sends no reasoning_effort at all. */
+    expect(Object.keys(input).sort()).toEqual(["max_completion_tokens", "messages", "temperature", "top_p"]);
     expect(input.max_completion_tokens).toBe(450);
     expect(input.temperature).toBe(0.2);
-    expect(input.reasoning_effort).toBe("low");
+    expect(input.reasoning_effort).toBeUndefined();
     expect(input.messages[0].role).toBe("system");
-    expect(input.messages[0].content).toContain("Answer using ONLY the GaitAI records");
+    expect(input.messages[0].content).toContain("You are Ask GaitAI, the grounded AI assistant for GaitAI");
+    expect(input.messages[0].content).toContain("answer from the GaitAI EVIDENCE supplied with the question");
+    expect(input.messages[0].content).toContain("Do not invent GaitAI facts");
     const last = input.messages[input.messages.length - 1];
     expect(last.role).toBe("user");
     expect(last.content).toContain('<record index="1"');

@@ -71,16 +71,24 @@ export function relatedLinks(
   retrieved: { doc: KnowledgeDoc }[],
   max = 3,
 ): { title: string; url: string; kind: string }[] {
-  const used = new Set(sources.map((source) => source.url));
-  return retrieved
-    .filter(({ doc }) => !used.has(doc.url) && doc.id !== "page:/" && isAllowedHref(doc.url))
-    .slice(0, max)
-    .map(({ doc }) => ({
-      title: doc.title,
-      url: doc.url,
-      kind: SOURCE_KIND[doc.type] ?? "Page",
-    }));
+  const used = new Set(sources.map((source) => pagePath(source.url)));
+  const out: { title: string; url: string; kind: string }[] = [];
+  for (const { doc } of retrieved) {
+    if (out.length >= max) break;
+    const path = pagePath(doc.url);
+    if (used.has(path) || doc.id === "page:/" || !isAllowedHref(doc.url)) continue;
+    used.add(path);
+    out.push({ title: doc.title, url: doc.url, kind: SOURCE_KIND[doc.type] ?? "Page" });
+  }
+  return out;
 }
+
+/**
+ * The page a link lands on, ignoring the section anchor and query — so two
+ * chunks of one article, or a comparison and the products page, count as ONE
+ * source. The first (best-ranked) record keeps its deep link.
+ */
+const pagePath = (url: string) => url.split(/[?#]/)[0] || "/";
 
 /**
  * Strip every link the model produced that is not a real GaitAI route.
@@ -162,9 +170,20 @@ export function selectSources(
 
   const used = [...linked, ...mentioned];
 
-  const chosen = (used.length ? used : retrieved.slice(0, 1))
-    .filter(({ doc }) => isAllowedHref(doc.url))
-    .slice(0, 3);
+  /* DEDUPLICATED BY PAGE. A long article is several chunk records with one
+     title and one route; an answer that names it would otherwise cite it
+     three times. The best-ranked chunk stands for the page and keeps its
+     section anchor, so the reader lands on the passage that answered. */
+  const seen = new Set<string>();
+  const chosen: { doc: KnowledgeDoc }[] = [];
+  for (const item of used.length ? used : retrieved.slice(0, 1)) {
+    if (chosen.length >= 3) break;
+    if (!isAllowedHref(item.doc.url)) continue;
+    const path = pagePath(item.doc.url);
+    if (seen.has(path)) continue;
+    seen.add(path);
+    chosen.push(item);
+  }
 
   return chosen.map(({ doc }) => ({
     title: doc.title,
@@ -194,6 +213,7 @@ const SOURCE_KIND: Record<KnowledgeDoc["type"], string> = {
   policy: "Governance",
   page: "Page",
   person: "Person",
+  talk: "Talk",
 };
 
 /**

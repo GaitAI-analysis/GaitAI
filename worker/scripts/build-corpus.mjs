@@ -11,9 +11,10 @@
  * and trims.
  *
  * What is trimmed, and why it changes nothing the model sees:
- *   · each record's `content` is cut to 1 500 characters plus an ellipsis —
- *     exactly the cap `buildContextBlock` applies before a record reaches the
- *     prompt, so the prompt is byte-identical to one built from the full file
+ *   · each record's `content` is cut to 2 600 characters plus an ellipsis —
+ *     the larger of the two caps `buildContextBlock` applies before a record
+ *     reaches the prompt (lead record 2 600, others 1 500), so the prompt is
+ *     byte-identical to one built from the full file
  *   · the two policy records keep their full content: the system policy quotes
  *     them
  *   · `environmentMap` is dropped: it is a retrieval aid, and the Worker does
@@ -36,8 +37,13 @@ const source = path.join(repoRoot, "public", "ask", "knowledge.json");
 const outDir = path.join(workerDir, "src", "generated");
 const target = path.join(outDir, "knowledge.json");
 
-/** Mirrors PER_DOC_CHARS in src/lib/ask/retrieval.ts. */
-const PER_DOC_CHARS = 1500;
+/**
+ * Mirrors LEAD_DOC_CHARS in src/lib/ask/retrieval.ts — the LARGER of the two
+ * prompt budgets (the lead record gets 2 600 characters, the rest 1 500), so
+ * whichever position a record lands in, the prompt built here is byte-identical
+ * to one built from the full file.
+ */
+const PER_DOC_CHARS = 2600;
 const KEEP_FULL = new Set(["policy:privacy-controls", "policy:responsible-use"]);
 
 if (!existsSync(source)) {

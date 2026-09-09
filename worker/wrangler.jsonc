@@ -57,19 +57,19 @@
     // origins (http://localhost:3000, …) belong in .dev.vars, not here.
     "ALLOWED_ORIGINS": "https://gaitai.in,https://www.gaitai.in",
 
-    // The Workers AI model id (e.g. @cf/zai-org/glm-4.7-flash). DELIBERATELY
-    // EMPTY: the model is chosen by the benchmark on the site's own questions,
-    // from the models Cloudflare documents as available on Workers Free. While
-    // it is empty the Worker answers 503 `model_unconfigured`, makes no AI
-    // call, and the browser falls back.
-    "WORKERS_AI_MODEL": "",
+    // The Workers AI model id. Verified end to end on 2026-09-09: env.AI
+    // binding, chat messages, a system prompt and supplied GaitAI context
+    // produced a correctly grounded answer. Provider and model selection are
+    // centralised in src/provider.ts; this var is the one knob it reads.
+    "WORKERS_AI_MODEL": "@cf/meta/llama-3.2-3b-instruct",
 
-    // Reasoning effort for the reasoning-capable Free-plan candidates: "" |
-    // "low" | "medium" | "high", sent as `reasoning_effort` only when set. At
-    // the models' default effort the first real calls spent the entire
-    // completion budget reasoning and returned an empty answer at 450 tokens
-    // (and 17 visible words after 1 200), so production asks for the minimum.
-    "MODEL_REASONING_EFFORT": "low",
+    // Reasoning effort for the reasoning-capable candidates (GLM, Gemma,
+    // Nemotron): "" | "low" | "medium" | "high", sent as `reasoning_effort`
+    // only when set. Llama 3.2 3B is not a reasoning model, so nothing is
+    // sent; set "low" when switching to a reasoning model — at their default
+    // effort the first real calls spent the whole completion budget thinking
+    // and returned an empty answer.
+    "MODEL_REASONING_EFFORT": "",
 
     // Output ceiling per answer — the single largest lever on latency and
     // Neuron spend. Kept at 450 while reasoning_effort=low is evaluated.

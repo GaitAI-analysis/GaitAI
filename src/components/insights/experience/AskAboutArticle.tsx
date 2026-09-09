@@ -37,7 +37,7 @@ export function AskAboutArticle({
 
   return (
     <button type="button" onClick={ask} className={`${styles.root} ${styles.share} mt-3`}>
-      Ask GaitAI about this article →
+      Ask GaitAI about this story →
     </button>
   );
 }

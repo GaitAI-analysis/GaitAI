@@ -93,8 +93,9 @@ export function ArticleLinks({
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-cyan-300">Ask GaitAI</p>
             <p className="mt-2 text-[0.8125rem] leading-relaxed text-soft-mute">
-              Ask about this article. The assistant receives only the article&apos;s public title and the
-              section you are in — never anything you have typed or selected.
+              Ask about this story — explain it simply, define a term, or connect it to GaitScape. The
+              assistant receives only the story&apos;s public title and the section you are in — never
+              anything you have typed or selected.
             </p>
             <AskAboutArticle slug={slug} title={articleTitle} sections={sections} />
           </div>

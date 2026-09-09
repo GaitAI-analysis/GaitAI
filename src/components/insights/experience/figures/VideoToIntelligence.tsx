@@ -70,7 +70,7 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
   );
   const [dragging, setDragging] = useState(false);
   const { ref, active, reduced } = useFigureActive<HTMLDivElement>();
-  const t = useWalkCycle(active && !presentation, 1500);
+  const t = useWalkCycle(active && !presentation, 1500, 0.1, stage);
   /* On a phone the frame and the panel stack; on anything wider they sit
      side by side. Same drawing, one transform. */
   const stacked = useNarrow(640);

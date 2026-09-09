@@ -49,31 +49,65 @@ export function phaseAt(t: number): GaitPhase {
 }
 
 /**
- * Advance a walk cycle while `active`. Returns t in [0, 1). One stride takes
- * `strideMs`; the default is a comfortable walking pace.
+ * Advance a walk cycle while `active`, THEN SETTLE. Returns t in [0, 1).
+ *
+ * A figure that walks forever is a screensaver. The walker moves for
+ * `runMs` after it comes into view and after every `kick` (a stage change,
+ * a chosen branch), then finishes its stride and rests at `start` — heel
+ * strike, the most legible pose — until the reader touches it again. One
+ * stride takes `strideMs`; the default is a comfortable walking pace.
  */
-export function useWalkCycle(active: boolean, strideMs = 1400, start = 0.1): number {
+export function useWalkCycle(
+  active: boolean,
+  strideMs = 1400,
+  start = 0.1,
+  kick: unknown = null,
+  runMs = 4200,
+): number {
   const [t, setT] = useState(start);
   const last = useRef<number | null>(null);
   const value = useRef(start);
+  const until = useRef(0);
+  const [running, setRunning] = useState(false);
+
+  /* Every kick, and every arrival on screen, buys another run. */
+  useEffect(() => {
+    if (!active) return;
+    until.current = performance.now() + runMs;
+    setRunning(true);
+  }, [active, kick, runMs]);
 
   useEffect(() => {
-    if (!active) {
+    if (!active || !running) {
       last.current = null;
       return;
     }
     let frame = 0;
     const tick = (now: number) => {
       if (last.current !== null) {
-        value.current = (value.current + (now - last.current) / strideMs) % 1;
-        setT(value.current);
+        const prev = value.current;
+        const next = (prev + (now - last.current) / strideMs) % 1;
+        /* Time is up: keep walking until the stride reaches its resting pose,
+           then stop there, so the figure never freezes mid-swing. */
+        if (now > until.current) {
+          const wrapped = next < prev;
+          const crossed = wrapped ? start >= prev || start <= next : prev <= start && next >= start;
+          if (crossed) {
+            value.current = start;
+            setT(start);
+            setRunning(false);
+            return;
+          }
+        }
+        value.current = next;
+        setT(next);
       }
       last.current = now;
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [active, strideMs]);
+  }, [active, running, start, strideMs]);
 
   return t;
 }

@@ -29,6 +29,8 @@ export type InsightEventName =
   | "term_inspected"
   | "insight_shared"
   | "hub_card_interaction"
+  | "cover_story_open"
+  | "filter_used"
   | "ask_gaitai_from_article"
   | "evidence_link_clicked";
 

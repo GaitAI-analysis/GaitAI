@@ -81,7 +81,7 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
   );
   const [dragging, setDragging] = useState(false);
   const { ref, active, reduced } = useFigureActive<HTMLDivElement>();
-  const t = useWalkCycle(active && !presentation, 1500);
+  const t = useWalkCycle(active && !presentation, 1500, 0.1, stage);
   const stacked = useNarrow(640);
 
   useEffect(() => {

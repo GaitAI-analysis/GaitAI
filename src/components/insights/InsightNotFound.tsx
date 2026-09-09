@@ -35,17 +35,17 @@ export function InsightNotFound({ slug }: { slug: string }) {
             <circle key={x} cx={x} cy={12 + (i % 2 ? 3 : -3) * (i + 1) * 0.6} r={1.8 - i * 0.25} fill="#94a3b8" opacity={0.9 - i * 0.16} />
           ))}
         </svg>
-        <h1 className="mt-6 font-display text-display-md text-balance text-soft-white">This signal left the archive.</h1>
+        <h1 className="mt-6 font-display text-display-md text-balance text-soft-white">This story left the archive.</h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-soft-gray">
           There is no story at <span className="font-mono text-[0.85em] text-soft-white">/insights/{slug}/</span>. It
           may have moved, or the link may have been mistyped. Every published story is still one of these.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/insights" className="btn-primary">
-            GaitAI Insights
+            Return to Blog
           </Link>
           <Link href="/insights/start-here" className="btn-ghost">
-            The Foundations path
+            Explore Foundations
           </Link>
           <button type="button" onClick={openSearch} className="btn-ghost">
             Search stories

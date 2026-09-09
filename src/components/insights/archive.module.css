@@ -68,9 +68,9 @@
 }
 
 .mastheadTitle {
-  margin-top: 0.9rem;
+  margin-top: 0.8rem;
   font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
-  font-size: clamp(2rem, 4.4vw, 3rem);
+  font-size: clamp(2.125rem, 4.4vw, 3.125rem);
   font-weight: 600;
   line-height: 1.08;
   letter-spacing: -0.03em;
@@ -92,15 +92,15 @@
 }
 
 .mastheadDeck {
-  margin-top: 1rem;
-  max-width: 38rem;
+  margin-top: 0.9rem;
+  max-width: 36rem;
   font-size: 1rem;
-  line-height: 1.7;
+  line-height: 1.65;
   color: var(--jr-body);
 }
 
 .mastheadMeta {
-  margin-top: 0.9rem;
+  margin-top: 0.8rem;
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 10.5px;
   letter-spacing: 0.16em;
@@ -520,7 +520,7 @@
 
 /* ── Cover story ── */
 .featured {
-  margin-top: clamp(1.6rem, 3vw, 2.25rem);
+  margin-top: clamp(1.4rem, 2.6vw, 2rem);
 }
 
 .featuredLabel {

@@ -72,6 +72,32 @@
 :global(.light) .massSolid {
   fill: rgb(51 65 85 / 0.5);
 }
+/* The cover's silhouette: a person, not a grey cut-out — a soft fill and a
+   faint edge, lit from the field behind it. */
+.silhouette {
+  fill: rgb(203 213 225 / 0.2);
+  stroke: rgb(203 213 225 / 0.55);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .silhouette {
+  fill: rgb(51 65 85 / 0.16);
+  stroke: rgb(51 65 85 / 0.55);
+}
+/* The cover's silhouette: a person, not a grey cut-out — a soft fill and a
+   faint edge, lit from the field behind it. */
+.silhouette {
+  fill: rgb(203 213 225 / 0.2);
+  stroke: rgb(203 213 225 / 0.55);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .silhouette {
+  fill: rgb(51 65 85 / 0.16);
+  stroke: rgb(51 65 85 / 0.55);
+}
 .ghost {
   opacity: 0.22;
 }

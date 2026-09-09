@@ -22,6 +22,7 @@ import {
   sortOldest,
   type PublicationStory,
 } from "@/lib/publication";
+import { trackInsightEvent } from "@/lib/insight-events";
 import { useArticleStats } from "./useArticleStats";
 import { JournalBackdrop } from "./JournalBackdrop";
 import { InsightCard } from "./hub/InsightCard";
@@ -139,6 +140,12 @@ export function PublicationBrowser({
       document.removeEventListener("keydown", onKey);
     };
   }, [menuOpen]);
+
+  /* Filters and sort are recorded once per distinct choice, as names only. */
+  useEffect(() => {
+    if (type === "all" && (fixedTopic || topic === "all") && sort === "newest") return;
+    trackInsightEvent("filter_used", { type, topic: fixedTopic ?? topic, sort }, { once: `${type}|${topic}|${sort}` });
+  }, [fixedTopic, sort, topic, type]);
 
   const changePage = (nextPage: number) => {
     setPage(nextPage);
@@ -328,7 +335,7 @@ export function PublicationBrowser({
             <svg aria-hidden="true" viewBox="0 0 120 20" className={hub.emptyLine}>
               <path className={hub.emptyPath} d="M0 10 C20 10 24 3 34 3 S50 17 60 17 S76 3 86 3 S104 10 120 10" />
             </svg>
-            <p className={styles.emptyTitle}>No signal found for this combination.</p>
+            <p className={styles.emptyTitle}>No stories match this signal.</p>
             <p className={styles.emptyBody}>
               Try another word, type or topic — or clear everything and browse the whole journal.
             </p>

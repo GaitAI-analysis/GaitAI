@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { getInsightBySlug } from "@/data/insights";
+import { getInsightBySlug, readingMinutes } from "@/data/insights";
 import { formatPublicationDate, topicLabel, type PublicationStory } from "@/lib/publication";
 import { formatCount } from "@/lib/article-stats";
+import { trackInsightEvent } from "@/lib/insight-events";
 import journal from "../journal.module.css";
 import { CardInteraction } from "./CardInteraction";
 import { usePhysicalCard } from "./InsightCard";
@@ -20,7 +21,7 @@ const TOPIC_CLASS: Record<string, string> = {
  * THE COVER — an editorial cover, not a dashboard tile.
  *
  *   ┌──────────────────────────────┬────────────────────────┐
- *   │                              │  FOUNDATIONS 01        │
+ *   │                              │  FOUNDATIONS 01 · 8 MIN│
  *   │   the interaction, large     │  From Walking Video    │
  *   │   human → pose → skeleton →  │  to Movement           │
  *   │   trajectory → signal →      │  Intelligence          │
@@ -30,9 +31,10 @@ const TOPIC_CLASS: Record<string, string> = {
  *   └──────────────────────────────┴────────────────────────┘
  *
  * Roughly 58/42. The headline dominates; the question and one line of
- * teaser support it; the date, topic and views sit last and small. No
- * "COVER STORY · DATE · CATEGORY · VIEWS" row competing with the title —
- * the "Cover story" label lives above the card, once.
+ * teaser support it; reading time sits beside the Foundations number, and
+ * the date, topic and views sit last and small. No "COVER STORY · DATE ·
+ * CATEGORY · VIEWS" row competing with the title — the "Cover story" label
+ * lives above the card, once.
  */
 export function InsightFeatureStory({ story, views }: { story: PublicationStory; views?: number }) {
   const { ref, pointer, handlers } = usePhysicalCard();
@@ -63,14 +65,19 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
       </div>
 
       <div className={`${journal.cardBody} ${styles.featureBody} ${styles.depth}`}>
-        {typeof story.seriesOrder === "number" && (
-          <p className={styles.featureStep}>
-            Foundations {String(story.seriesOrder).padStart(2, "0")}
-          </p>
-        )}
+        <p className={styles.featureRow}>
+          {typeof story.seriesOrder === "number" && (
+            <span className={styles.featureStep}>Foundations {String(story.seriesOrder).padStart(2, "0")}</span>
+          )}
+          {article && <span className={styles.featureRead}>{readingMinutes(article)} min read</span>}
+        </p>
 
         <h3 className={`${journal.cardTitle} ${styles.featureTitle}`}>
-          <Link href={story.href} className={journal.cardLink}>
+          <Link
+            href={story.href}
+            className={journal.cardLink}
+            onClick={() => trackInsightEvent("cover_story_open", { article: story.slug })}
+          >
             {story.title}
           </Link>
         </h3>

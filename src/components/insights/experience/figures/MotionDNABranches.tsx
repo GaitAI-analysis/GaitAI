@@ -85,7 +85,7 @@ export function MotionDNABranches({ articleSlug, presentation }: FigureProps) {
   );
   const [hover, setHover] = useState<Branch>("none");
   const { ref, active, reduced } = useFigureActive<HTMLDivElement>();
-  const t = useWalkCycle(active && !presentation, 1500);
+  const t = useWalkCycle(active && !presentation, 1500, 0.1, branch);
   const stacked = useNarrow(640);
 
   useEffect(() => {

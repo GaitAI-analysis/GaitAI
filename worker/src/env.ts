@@ -27,6 +27,17 @@ export interface AskEnv {
   MODEL_REASONING_EFFORT?: string;
   MODEL_MAX_OUTPUT_TOKENS?: string;
   MODEL_TIMEOUT_MS?: string;
+  /**
+   * Retrieval models, non-secret. EMBEDDING_MODEL must match the model the
+   * committed index (data/ask-embeddings.json) was built with — the Worker
+   * refuses to compare vectors from different models. Empty disables the
+   * semantic stage (the browser's lexical selection is used, as before).
+   * RERANK_MODEL empty disables reranking (hybrid order is used).
+   */
+  EMBEDDING_MODEL?: string;
+  RERANK_MODEL?: string;
+  /** Hybrid weights "lexical,semantic,metadata", e.g. "0.45,0.45,0.1". */
+  HYBRID_WEIGHTS?: string;
   ALLOWED_ORIGINS?: string;
   ASK_BURST_MAX?: string;
   ASK_HOURLY_MAX?: string;
@@ -63,6 +74,11 @@ export interface AskConfig {
   dailyBudget: number;
   /** See ASK_DEBUG. Never true in production. */
   debug: boolean;
+  /** "" disables semantic retrieval. */
+  embeddingModel: string;
+  /** "" disables reranking. */
+  rerankModel: string;
+  hybridWeights: { lexical: number; semantic: number; metadata: number } | null;
 }
 
 const int = (value: string | undefined, fallback: number): number => {
@@ -89,5 +105,15 @@ export function readConfig(env: AskEnv): AskConfig {
        evaluated on the Free plan. */
     dailyBudget: int(env.ASK_DAILY_BUDGET, 25),
     debug: /^(1|true)$/i.test((env.ASK_DEBUG ?? "").trim()),
+    embeddingModel: (env.EMBEDDING_MODEL ?? "").trim(),
+    rerankModel: (env.RERANK_MODEL ?? "").trim(),
+    hybridWeights: readWeights(env.HYBRID_WEIGHTS),
   };
+}
+
+/** "0.45,0.45,0.1" → weights; anything else → null (the pipeline's defaults). */
+export function readWeights(value: string | undefined): AskConfig["hybridWeights"] {
+  const parts = (value ?? "").split(",").map((part) => Number.parseFloat(part.trim()));
+  if (parts.length !== 3 || parts.some((part) => !Number.isFinite(part) || part < 0)) return null;
+  return { lexical: parts[0], semantic: parts[1], metadata: parts[2] };
 }

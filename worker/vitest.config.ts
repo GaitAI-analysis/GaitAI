@@ -28,6 +28,12 @@ export default defineConfig({
         bindings: {
           WORKERS_AI_MODEL: "@cf/test/grounded-model",
           MODEL_TIMEOUT_MS: "150",
+          /* Semantic retrieval OFF by default in the suite: the mocked AI has
+             no real embeddings, so the existing tests keep asserting the
+             browser-selection path. The hybrid tests turn it on per test with
+             a scripted embedding/reranker mock. */
+          EMBEDDING_MODEL: "",
+          RERANK_MODEL: "",
           /* The suite makes well over 25 hosted calls against one shared guard
              object; the production default (25/day) is asserted separately
              through readConfig, and the budget path is exercised with an

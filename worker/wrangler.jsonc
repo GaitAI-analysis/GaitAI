@@ -71,6 +71,16 @@
     // and returned an empty answer.
     "MODEL_REASONING_EFFORT": "",
 
+    // Retrieval models (src/lib/ask/semantic.ts, worker/src/semantic.ts).
+    // EMBEDDING_MODEL must be the model the committed index
+    // (data/ask-embeddings.json) was built with; the Worker checks and falls
+    // back to lexical retrieval on a mismatch. Empty disables the stage.
+    "EMBEDDING_MODEL": "@cf/baai/bge-small-en-v1.5",
+    "RERANK_MODEL": "@cf/baai/bge-reranker-base",
+    // Hybrid score weights "lexical,semantic,metadata"; empty = the pipeline's
+    // defaults (0.45, 0.45, 0.10; precise intents 0.70, 0.20, 0.10).
+    "HYBRID_WEIGHTS": "",
+
     // Output ceiling per answer — the single largest lever on latency and
     // Neuron spend. Kept at 450 while reasoning_effort=low is evaluated.
     "MODEL_MAX_OUTPUT_TOKENS": "450",

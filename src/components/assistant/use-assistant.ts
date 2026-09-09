@@ -165,6 +165,13 @@ export function useAssistant(page: PageContext): AssistantState {
             cta: answer.cta,
             mode: answer.mode,
           });
+          /* Development only: say WHY an answer came from records, so a
+             screenshot of the extractive fallback is diagnosable — a
+             retrieval decision, a missing endpoint or a Worker failure are
+             different problems. Never rendered; never in production. */
+          if (process.env.NODE_ENV !== "production" && answer.mode === "retrieval") {
+            console.debug(`[Ask GaitAI] extractive fallback rendered — reason: ${answer.fallbackReason ?? "unknown"}`);
+          }
         } catch (error) {
           if ((error as Error)?.name === "AbortError") return;
           /* The engine falls back to records internally, so reaching here

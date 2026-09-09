@@ -40,6 +40,32 @@ export interface AskResponse {
     recordIds: string[];
     latencyMs: number;
   };
+  /**
+   * LOCAL DEVELOPMENT ONLY — present when ASK_DEBUG is set in .dev.vars, never
+   * in production (wrangler.jsonc does not define it). The retrieval
+   * diagnostics the debug console block also prints, so `npm run ask:e2e` can
+   * show the whole path in one place. Structural and canonical: ids, scores,
+   * model ids and latencies; the standalone query is derived from the
+   * visitor's own question.
+   */
+  debug?: RetrievalDebug;
+}
+
+export interface RetrievalDebug {
+  normalizedQuery: string;
+  intent: string;
+  entity: string;
+  domain: string | null;
+  semanticUsed: boolean;
+  disabled: string | null;
+  degraded: string[];
+  lexical: { id: string; score: number }[];
+  semantic: { id: string; score: number }[];
+  hybrid: { id: string; score: number }[];
+  reranked: { id: string; score: number }[] | null;
+  final: string[];
+  models: { generation: string; embedding: string; rerank: string; provider: string };
+  latency: Record<string, number>;
 }
 
 export type ErrorCode =
@@ -101,8 +127,9 @@ export function buildAnswer(options: {
   question: string;
   userTurns: number;
   startedAt: number;
+  debug?: RetrievalDebug;
 }): AskResponse | null {
-  const { raw, grounding, question, userTurns, startedAt } = options;
+  const { raw, grounding, question, userTurns, startedAt, debug } = options;
   const answer = cleanModelAnswer(raw);
   if (!answer) return null;
 
@@ -122,5 +149,6 @@ export function buildAnswer(options: {
       recordIds: grounding.docs.map((item) => item.doc.id),
       latencyMs: Date.now() - startedAt,
     },
+    ...(debug ? { debug } : {}),
   };
 }

@@ -54,7 +54,7 @@ import {
 } from "./answer";
 import { composeExtractiveAnswer } from "./extractive";
 import { loadCorpus } from "./corpus";
-import { askHosted, hostedEnabled, type HostedTurn } from "./hosted";
+import { askHosted, hostedEnabled, HostedError, type HostedTurn } from "./hosted";
 
 export interface AskSource {
   title: string;
@@ -72,6 +72,17 @@ export interface AskResult {
   /** Which layer wrote the prose: the hosted model, or the records themselves. */
   mode: "model" | "retrieval";
   lowConfidence: boolean;
+  /**
+   * WHY the answer came from records rather than the model, when it did.
+   * Distinguishes a retrieval decision from a generation failure so a
+   * screenshot of the extractive answer can be diagnosed, not guessed at:
+   *   low_confidence     retrieval refused; no request was made
+   *   no_endpoint        no hosted endpoint configured at build time
+   *   worker:<kind>      the Worker answered with an error class (rate_limited,
+   *                      budget, rejected, upstream, timeout, network)
+   *   empty_answer       the Worker answered 200 with nothing usable
+   */
+  fallbackReason?: string;
 }
 
 /** Fetch the corpus ahead of the first question. Safe to call repeatedly. */
@@ -89,6 +100,7 @@ function finish(
   question: string,
   turnIndex: number,
   mode: AskResult["mode"],
+  fallbackReason?: string,
 ): AskResult {
   const clean = sanitizeLinks(text);
   const sources = result.lowConfidence ? [] : selectSources(clean, result.docs);
@@ -105,6 +117,7 @@ function finish(
     cta,
     mode,
     lowConfidence: result.lowConfidence,
+    fallbackReason,
   };
 }
 
@@ -172,17 +185,12 @@ export async function ask(options: {
      wording, every time. */
   if (result.lowConfidence || result.docs.length === 0) {
     trace("retrieval", "low confidence — refused locally, no request made");
-    return finish(
-      result,
-      composeExtractiveAnswer(result),
-      question,
-      turnIndex,
-      "retrieval",
-    );
+    return finish(result, composeExtractiveAnswer(result), question, turnIndex, "retrieval", "low_confidence");
   }
 
   /* No endpoint configured: no request, no timeout, no error, no console
      noise. The extract is the answer. */
+  let fallbackReason = "no_endpoint";
   if (hostedEnabled()) {
     try {
       const hosted = await askHosted({
@@ -205,23 +213,20 @@ export async function ask(options: {
           relatedLinks: hosted.relatedLinks.filter(internal),
         };
       }
+      fallbackReason = "empty_answer";
     } catch (error) {
       if ((error as Error)?.name === "AbortError") throw error;
       /* Unreachable, rejected, rate-limited, over budget, timed out, provider
          error, malformed reply — all of them are a reason to answer from
          records, not a reason to show an error. The retrieval that already
-         ran is the answer. */
-      trace("retrieval", `hosted failed: ${(error as Error)?.message ?? "unknown"}`);
+         ran is the answer. The CLASS is kept so a fallback can be diagnosed. */
+      const kind = error instanceof HostedError ? error.kind : "network";
+      fallbackReason = `worker:${kind}`;
+      trace("retrieval", `hosted failed: ${fallbackReason}`);
     }
   } else {
     trace("retrieval", "no hosted endpoint configured");
   }
 
-  return finish(
-    result,
-    composeExtractiveAnswer(result),
-    question,
-    turnIndex,
-    "retrieval",
-  );
+  return finish(result, composeExtractiveAnswer(result), question, turnIndex, "retrieval", fallbackReason);
 }

@@ -32,6 +32,13 @@ export interface Provider {
   generate(messages: ChatMessage[], options: { timeoutMs: number }): Promise<Completion>;
 }
 
+/**
+ * Retrieval models are routed separately from generation (worker/src/semantic.ts):
+ * embeddings and reranking are Workers AI tasks today, and a future generation
+ * provider (a self-hosted model) need not supply them. The model ids come from
+ * EMBEDDING_MODEL and RERANK_MODEL; see env.ts.
+ */
+
 /** Why no provider could be built — mapped to a 503 by the handler. */
 export type ProviderGap = "unconfigured" | "model_unconfigured";
 

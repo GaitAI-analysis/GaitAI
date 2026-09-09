@@ -69,9 +69,6 @@
 }
 
 .row {
-  display: grid;
-  grid-template-columns: 0.85rem minmax(0, 1fr);
-  gap: 0.15rem 0.7rem;
   padding: 0.7rem 0;
   border-top: 1px solid var(--ev-line);
 }
@@ -103,7 +100,8 @@
 }
 
 .rowDetail {
-  grid-column: 2;
+  margin-top: 0.25rem;
+  padding-left: 1.4rem;
   max-width: 64ch;
   font-size: 11.5px;
   line-height: 1.6;
@@ -113,6 +111,7 @@
 /* ── State marks: three distinct shapes ── */
 
 .mark {
+  flex-shrink: 0;
   margin-top: 0.32rem;
   height: 0.55rem;
   width: 0.55rem;
@@ -161,3 +160,14 @@
 .link:hover {
   color: var(--ev-ink);
 }
+
+.reviewed { display: block; margin-bottom: 0.65rem; font-size: 11px; color: var(--ev-mute); }
+.disclosure { margin-top: 0.45rem; }
+.disclosureTrigger { width: fit-content; min-height: 2rem; padding: 0.4rem 0; color: var(--ev-on); cursor: pointer; font-size: 11px; }
+.disclosureTrigger:focus-visible, .sourceLink:focus-visible, .link:focus-visible { outline: 2px solid var(--ev-on); outline-offset: 4px; border-radius: 2px; }
+.disclosureBody { margin-top: 0.25rem; padding: 0.75rem 0 0.25rem; border-top: 1px solid var(--ev-line); }
+.disclosureBody p + p { margin-top: 0.5rem; }
+.disclosureBody strong { color: var(--ev-body); font-weight: 500; }
+.sources { margin: 0.8rem 0; display: grid; gap: 0.7rem; }
+.sourceKind { display: block; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; }
+.sourceLink { color: var(--ev-on); text-decoration: underline; text-decoration-color: var(--ev-line-mid); text-underline-offset: 3px; overflow-wrap: anywhere; }

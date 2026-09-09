@@ -41,8 +41,8 @@ export function TrustEvidence({
     },
     {
       value: `${withFoundation}/${modules}`,
-      label: "Modules with a research foundation",
-      note: "A published record informs a capability they are built on",
+      label: "Modules directly informed by research",
+      note: "A published record addresses a capability they are built on",
     },
     {
       value: "0",

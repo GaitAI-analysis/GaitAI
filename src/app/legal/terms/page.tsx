@@ -46,7 +46,7 @@ export default function TermsPage() {
       <p className="mt-4 text-soft-gray">
         This site exists to explain what GaitAI is and what its products are
         designed to do. Product pages describe intended capability. They are
-        not a specification, and capabilities may change as the platform
+        not a contractual specification, and capabilities may change as the platform
         develops.
       </p>
       <p className="mt-4 text-soft-gray">

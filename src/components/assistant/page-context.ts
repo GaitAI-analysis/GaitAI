@@ -112,10 +112,10 @@ export interface Opening {
 
 /** The four universal starters, used wherever the route has nothing sharper. */
 const DEFAULT_PROMPTS = [
-  "Find the right product",
-  "Explore research",
-  "Ask about a use case",
-  "How does GaitAI work?",
+  "I run a physiotherapy clinic. Which products matter to me?",
+  "I only have CCTV cameras. What can I explore?",
+  "Which capabilities have published research?",
+  "Where can I try GaitAI?",
 ];
 
 /**

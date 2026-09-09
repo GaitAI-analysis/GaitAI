@@ -51,9 +51,12 @@ export function IntelligenceSearch() {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   /** Focus returns here on close — the element that had it when we opened. */
   const restoreRef = useRef<HTMLElement | null>(null);
+  /** When the palette opened — see the scrim's mousedown guard. */
+  const openedAtRef = useRef(0);
 
   const results = useMemo(
     () => (query.trim().length >= 2 ? searchEntries(query, MAX_RESULTS) : searchStarters),
@@ -172,6 +175,7 @@ export function IntelligenceSearch() {
 
   // Focus the input on open; lock the page behind the dialog.
   useEffect(() => {
+    if (open) openedAtRef.current = performance.now();
     if (!open) return;
     inputRef.current?.focus();
     const previous = document.body.style.overflow;
@@ -194,11 +198,28 @@ export function IntelligenceSearch() {
   if (!open) return null;
 
   const onKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Tab") {
+      const controls = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]):not([tabindex="-1"]), input, a[href], [tabindex="0"]',
+      );
+      if (!controls?.length) return;
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+      return;
+    }
     if (event.key === "Escape") {
       event.preventDefault();
       close();
       return;
     }
+    if (event.target !== inputRef.current) return;
     if (event.key === "ArrowDown") {
       event.preventDefault();
       setActive((i) => (flat.length ? (i + 1) % flat.length : 0));
@@ -224,10 +245,16 @@ export function IntelligenceSearch() {
       className={styles.scrim}
       role="presentation"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) close();
+        if (e.target !== e.currentTarget) return;
+        /* A tap on the navbar trigger is followed by a synthesized mousedown
+           at the same point — which, by then, is this scrim. Without the
+           guard the palette closed itself on every touch open. */
+        if (performance.now() - openedAtRef.current < 400) return;
+        close();
       }}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="GaitAI intelligence search"
@@ -343,6 +370,7 @@ export function IntelligenceSearch() {
                         type="button"
                         id={`gs-opt-${entry.id}`}
                         role="option"
+                        tabIndex={-1}
                         aria-selected={isActive}
                         data-active={isActive}
                         onMouseMove={() => setActive(index)}

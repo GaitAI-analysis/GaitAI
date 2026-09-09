@@ -38,6 +38,22 @@ export type Channel = {
   invert?: boolean;
 };
 
+/** A real pair of adjacent visible samples; gaps are never interpolated. */
+export function largestObservedChange(channel: Channel, result: PoseResult): [number, number] | null {
+  let change = 0;
+  let interval: [number, number] | null = null;
+  for (let index = 1; index < channel.values.length; index += 1) {
+    const before = channel.values[index - 1];
+    const after = channel.values[index];
+    const start = result.samples[index - 1]?.t;
+    const end = result.samples[index]?.t;
+    if (before === null || after === null || start === undefined || end === undefined || end <= start) continue;
+    const delta = Math.abs(after - before);
+    if (delta > change) { change = delta; interval = [start, end]; }
+  }
+  return interval;
+}
+
 /** Pull every channel that this clip actually supports. */
 export function motionChannels(result: PoseResult): Channel[] {
   const { samples } = result;
@@ -131,6 +147,7 @@ function band(
   values: (number | null)[],
   top: number,
   invert: boolean,
+  result: PoseResult,
 ): { line: string; area: string } {
   const seen = values.filter((v): v is number => v !== null);
   const min = Math.min(...seen);
@@ -145,7 +162,7 @@ function band(
     return bottom - up * BAND;
   };
   const x = (i: number) =>
-    GUTTER + (values.length > 1 ? (i / (values.length - 1)) * inner : inner / 2);
+    GUTTER + Math.min(1, Math.max(0, (result.samples[i]?.t ?? 0) / (result.duration || 1))) * inner;
 
   /* Runs are broken where the joint was unseen, so a gap stays a gap. */
   let line = "";
@@ -181,11 +198,17 @@ export function MotionDNA({
   channels,
   time,
   onSeek,
+  selectedChannel,
+  onSelectChannel,
+  interval,
 }: {
   result: PoseResult;
   channels: Channel[];
   time: number;
   onSeek?: (t: number) => void;
+  selectedChannel?: string;
+  onSelectChannel?: (key: string) => void;
+  interval?: [number, number] | null;
 }) {
   const height = PAD_T * 2 + channels.length * (BAND + GAP) - GAP;
 
@@ -194,17 +217,19 @@ export function MotionDNA({
       channels.map((c, i) => ({
         ...c,
         top: PAD_T + i * (BAND + GAP),
-        ...band(c.values, PAD_T + i * (BAND + GAP), c.invert ?? false),
+        ...band(c.values, PAD_T + i * (BAND + GAP), c.invert ?? false, result),
       })),
-    [channels],
+    [channels, result],
   );
 
   const span = result.duration || 1;
   const cursorX = GUTTER + Math.min(1, Math.max(0, time / span)) * (W - GUTTER);
 
   const seek = (event: React.MouseEvent<SVGSVGElement>) => {
-    if (!onSeek) return;
     const box = event.currentTarget.getBoundingClientRect();
+    const row = Math.floor(((event.clientY - box.top) / box.height * height - PAD_T) / (BAND + GAP));
+    if (row >= 0 && row < channels.length) onSelectChannel?.(channels[row].key);
+    if (!onSeek) return;
     const frac = (event.clientX - box.left) / box.width;
     const inner = (frac * W - GUTTER) / (W - GUTTER);
     onSeek(Math.min(1, Math.max(0, inner)) * span);
@@ -221,7 +246,7 @@ export function MotionDNA({
         .join(", ")}. Cursor at ${time.toFixed(1)} seconds.`}
     >
       {bands.map((b, i) => (
-        <g key={b.key} style={{ ["--g" as string]: i }}>
+        <g key={b.key} className={selectedChannel && selectedChannel !== b.key ? styles.dnaDim : undefined} style={{ ["--g" as string]: i }}>
           <line
             className={styles.dnaBase}
             x1={GUTTER}
@@ -236,6 +261,16 @@ export function MotionDNA({
           </text>
         </g>
       ))}
+
+      {interval && (
+        <rect
+          className={styles.dnaInterval}
+          x={GUTTER + interval[0] / span * (W - GUTTER)}
+          y={PAD_T - 10}
+          width={Math.max(2, (interval[1] - interval[0]) / span * (W - GUTTER))}
+          height={height - PAD_T * 2 + 16}
+        />
+      )}
 
       <line
         className={styles.dnaCursor}

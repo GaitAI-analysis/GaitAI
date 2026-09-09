@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { LayoutGrid, Rows3, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { allPublications, type Publication } from "@/data/publications";
+import { allProducts } from "@/data/products";
+import { researchAreas } from "@/data/evidence";
 import {
   allTopics,
   allYears,
@@ -17,6 +19,12 @@ import { PublicationListItem } from "./PublicationListItem";
 type View = "grid" | "list";
 type Sort = "newest" | "oldest";
 
+const productPublicationIds = new Map(allProducts.map((product) => [product.id,
+  new Set(researchAreas.filter((area) => area.directProducts.some((entry) => entry.id === product.id))
+    .flatMap((area) => area.publications.map((publication) => publication.id))),
+]));
+const connectedProducts = allProducts.filter((product) => productPublicationIds.get(product.id)?.size);
+
 /**
  * The research library: search + topic/year filters, a
  * newest-first LATEST RESEARCH strip, and the full collection in either the
@@ -29,6 +37,8 @@ export function PublicationLibrary() {
   const [query, setQuery] = useState("");
   const [topic, setTopic] = useState("all");
   const [year, setYear] = useState("all");
+  const [productId, setProductId] = useState("all");
+  const [evidenceType, setEvidenceType] = useState("all");
 
   // Restore the view from the URL on mount; keep it there on change.
   useEffect(() => {
@@ -44,12 +54,14 @@ export function PublicationLibrary() {
   };
 
   const filtersActive =
-    query.trim() !== "" || topic !== "all" || year !== "all";
+    query.trim() !== "" || topic !== "all" || year !== "all" || productId !== "all" || evidenceType !== "all";
 
   const clearFilters = () => {
     setQuery("");
     setTopic("all");
     setYear("all");
+    setProductId("all");
+    setEvidenceType("all");
   };
 
   const filtered = useMemo(() => {
@@ -57,6 +69,9 @@ export function PublicationLibrary() {
     const matches = allPublications.filter((p) => {
       if (topic !== "all" && !topicsFor(p).includes(topic)) return false;
       if (year !== "all" && String(p.year) !== year) return false;
+      if (productId !== "all" && !productPublicationIds.get(productId)?.has(p.id)) return false;
+      if (evidenceType === "patent" && p.kind !== "patent") return false;
+      if (evidenceType === "paper" && p.kind === "patent") return false;
       if (q) {
         const haystack = [
           p.title,
@@ -77,7 +92,7 @@ export function PublicationLibrary() {
         ? dateSortKey(b) - dateSortKey(a)
         : dateSortKey(a) - dateSortKey(b)
     );
-  }, [query, topic, year, sort]);
+  }, [query, topic, year, productId, evidenceType, sort]);
 
   // Latest three by real publication date — shown only in the unfiltered view.
   const latest = useMemo(
@@ -143,6 +158,17 @@ export function PublicationLibrary() {
           ))}
         </select>
 
+        <select value={productId} onChange={(event) => setProductId(event.target.value)} aria-label="Filter by directly informed product" className="publib-select">
+          <option value="all">Product connection</option>
+          {connectedProducts.map((product) => <option key={product.id} value={product.id}>{product.short}</option>)}
+        </select>
+
+        <select value={evidenceType} onChange={(event) => setEvidenceType(event.target.value)} aria-label="Filter by evidence type" className="publib-select">
+          <option value="all">Evidence type</option>
+          <option value="paper">Peer-reviewed paper</option>
+          <option value="patent">Granted patent</option>
+        </select>
+
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as Sort)}
@@ -193,6 +219,8 @@ export function PublicationLibrary() {
           </div>
         </div>
       </div>
+
+      {productId !== "all" && <p className="mt-3 text-xs leading-relaxed text-soft-mute">Showing research that directly informs a product capability. This is research provenance, not product-specific validation.</p>}
 
       {/* Result count. The set is 8 peer-reviewed papers plus 1 granted
           patent, so it is counted as research outputs — calling the patent a

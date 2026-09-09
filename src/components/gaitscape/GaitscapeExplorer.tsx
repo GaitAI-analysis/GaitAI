@@ -36,7 +36,10 @@ import {
   nodeById,
 } from "@/data/gaitscape/graph";
 import { gaitscapeChallenges } from "@/data/gaitscape/challenges";
+import { gaitscapeStories, storyById } from "@/data/gaitscape/stories";
 import { researchAreas } from "@/data/evidence";
+import { ShareExploration } from "@/components/ui/ShareExploration";
+import { StoryMode } from "./StoryMode";
 import type {
   GaitscapeNode,
   GaitscapeNodeType,
@@ -467,6 +470,10 @@ export function GaitscapeExplorer() {
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [transform, setTransform] = useState<Transform>(INITIAL_TRANSFORM);
   const [animated, setAnimated] = useState(true);
+  const [storyId, setStoryId] = useState<string | null>(null);
+  const [storyStep, setStoryStep] = useState(0);
+  const [urlReady, setUrlReady] = useState(false);
+  const story = storyId ? storyById.get(storyId) ?? null : null;
   const svgRef = useRef<SVGSVGElement | null>(null);
   const dragRef = useRef<{ x: number; y: number; tx: number; ty: number } | null>(null);
   const prevFocusRef = useRef<string | null>(null);
@@ -499,6 +506,80 @@ export function GaitscapeExplorer() {
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
   }, []);
+
+  // Public graph state only. This also makes existing search ?focus links work.
+  useEffect(() => {
+    const restore = () => {
+      const params = new URLSearchParams(window.location.search);
+      const restoredStory = storyById.get(params.get("story") ?? "");
+      const parsedStep = Number(params.get("step") ?? 0);
+      const step = restoredStory && Number.isInteger(parsedStep)
+        ? Math.max(0, Math.min(parsedStep, restoredStory.steps.length - 1)) : 0;
+      const focus = params.get("focus");
+      setStoryId(restoredStory?.id ?? null);
+      setStoryStep(step);
+      setSelectedId(restoredStory?.steps[step].nodeId ?? (focus && nodeById.has(focus) ? focus : null));
+      setUrlReady(true);
+    };
+    restore();
+    window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  }, []);
+
+  useEffect(() => {
+    if (!urlReady) return;
+    const url = new URL(window.location.href);
+    const values: Record<string, string | null> = { focus: selectedId, story: storyId, step: storyId ? String(storyStep) : null };
+    for (const [key, value] of Object.entries(values)) {
+      if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+    }
+    if (url.href !== window.location.href) window.history.replaceState(window.history.state, "", url.href);
+  }, [selectedId, storyId, storyStep, urlReady]);
+
+  const writeStoryHistory = useCallback((id: string | null, step: number, replace = false) => {
+    const url = new URL(window.location.href);
+    if (id) {
+      url.searchParams.set("story", id);
+      url.searchParams.set("step", String(step));
+      const next = storyById.get(id)?.steps[step];
+      if (next) url.searchParams.set("focus", next.nodeId);
+    } else {
+      url.searchParams.delete("story");
+      url.searchParams.delete("step");
+    }
+    if (url.href !== window.location.href) {
+      window.history[replace ? "replaceState" : "pushState"](window.history.state, "", url.href);
+    }
+  }, []);
+
+  const chooseStory = useCallback((id: string) => {
+    const next = storyById.get(id);
+    if (!next) return;
+    writeStoryHistory(id, 0);
+    setStoryId(id);
+    setStoryStep(0);
+    setSelectedId(next.steps[0].nodeId);
+    setHoverId(null);
+    setFilters(new Set());
+    setSearch("");
+    setFocusGroupId(null);
+    setViewBy("intelligence");
+    setChallengeId(null);
+  }, [writeStoryHistory]);
+
+  const chooseStoryStep = useCallback((step: number, automatic = false) => {
+    if (!story || !story.steps[step]) return;
+    writeStoryHistory(story.id, step, automatic);
+    setStoryStep(step);
+    setSelectedId(story.steps[step].nodeId);
+    setHoverId(null);
+  }, [story, writeStoryHistory]);
+
+  const exitStory = useCallback(() => {
+    writeStoryHistory(null, 0);
+    setStoryId(null);
+    setStoryStep(0);
+  }, [writeStoryHistory]);
 
   // ---- visible node set --------------------------------------------------
   const challenge = useMemo(
@@ -748,6 +829,7 @@ export function GaitscapeExplorer() {
   }, [view]);
 
   const fullReset = () => {
+    exitStory();
     setAnimated(true);
     setTransform(INITIAL_TRANSFORM);
     setSelectedId(null);
@@ -777,11 +859,11 @@ export function GaitscapeExplorer() {
   // Escape closes the detail panel from anywhere in the explorer.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedId(null);
+      if (event.key === "Escape") { setSelectedId(null); exitStory(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [exitStory]);
 
   // ---- fullscreen workspace --------------------------------------------------
   const toggleFullscreen = useCallback(() => {
@@ -855,6 +937,7 @@ export function GaitscapeExplorer() {
   }, [isFullscreen, zoomBy, fitView]);
 
   const toggleFilter = (id: string) => {
+    if (story) exitStory();
     setFilters((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -863,9 +946,17 @@ export function GaitscapeExplorer() {
     });
   };
 
-  const selectNode = (id: string) => {
-    setSelectedId((prev) => (prev === id ? null : id));
+  const visitNode = (id: string | null) => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("story");
+    url.searchParams.delete("step");
+    if (id) url.searchParams.set("focus", id); else url.searchParams.delete("focus");
+    if (url.href !== window.location.href) window.history.pushState(window.history.state, "", url.href);
+    setStoryId(null);
+    setStoryStep(0);
+    setSelectedId(id);
   };
+  const selectNode = (id: string) => visitNode(selectedId === id ? null : id);
 
   const neighborsByType = useCallback((id: string) => {
     const grouped = new Map<GaitscapeNodeType, GaitscapeNode[]>();
@@ -1013,6 +1104,19 @@ export function GaitscapeExplorer() {
         </div>
       )}
 
+      {!(isFullscreen && fsHideUi) && (
+        <>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="gaitscape-seg" role="group" aria-label="Exploration style">
+              <button type="button" className={cn("gaitscape-seg-btn", !story && "gaitscape-seg-btn--on")} aria-pressed={!story} onClick={exitStory}>Explore</button>
+              <button type="button" className={cn("gaitscape-seg-btn", story && "gaitscape-seg-btn--on")} aria-pressed={Boolean(story)} onClick={() => { if (!story) chooseStory(gaitscapeStories[0].id); }}>Story Mode</button>
+            </div>
+            {(selectedId || story) && <ShareExploration path="/gaitscape/" title={story?.title ?? "GaitScape exploration"} params={{ focus: selectedId ?? undefined, story: story?.id, step: story ? String(storyStep) : undefined }} />}
+          </div>
+          {story && <StoryMode story={story} step={storyStep} reducedMotion={reducedMotion} onStory={chooseStory} onStep={chooseStoryStep} onExit={exitStory} />}
+        </>
+      )}
+
       {/* ---------------- controls ----------------
           One toolbar grid: control groups left, Search + Filters right.
           When space runs out the right pair wraps to its own full row
@@ -1105,6 +1209,7 @@ export function GaitscapeExplorer() {
               role="tab"
               aria-selected={viewBy === v.id}
               onClick={() => {
+                if (story) exitStory();
                 setViewBy(v.id);
                 setChallengeId(null);
                 setSelectedId(null);
@@ -1136,7 +1241,7 @@ export function GaitscapeExplorer() {
             <input
               type="search"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => { if (story) exitStory(); setSearch(e.target.value); }}
               placeholder="Search products, signals, capabilities…"
               aria-label="Search the landscape"
               className="gaitscape-input w-full pl-9 min-[1440px]:w-[300px] 2xl:w-[330px]"
@@ -1727,7 +1832,7 @@ export function GaitscapeExplorer() {
                     node={selected}
                     neighborsByType={neighborsByType}
                     onClose={() => setSelectedId(null)}
-                    onNavigate={(id) => setSelectedId(id)}
+                    onNavigate={visitNode}
                   />
                 </div>
               )}
@@ -1740,7 +1845,7 @@ export function GaitscapeExplorer() {
               groupLabel={groupLabel}
               challengeActive={viewBy === "challenges"}
               selectedChallengeId={challengeId}
-              onSelect={(id) => setSelectedId(id)}
+              onSelect={visitNode}
             />
           )}
 
@@ -1784,7 +1889,7 @@ export function GaitscapeExplorer() {
                 node={selected}
                 neighborsByType={neighborsByType}
                 onClose={() => setSelectedId(null)}
-                onNavigate={(id) => setSelectedId(id)}
+                onNavigate={visitNode}
               />
             </div>
           )}
@@ -1827,7 +1932,7 @@ export function GaitscapeExplorer() {
                       {stage.ids.map((id) => (
                         <li key={id}>
                           <button
-                            onClick={() => setSelectedId(id)}
+                            onClick={() => visitNode(id)}
                             className="text-left text-[12.5px] text-soft-white underline-offset-2 hover:text-cyan-200 hover:underline"
                           >
                             {nodeById.get(id)?.title}

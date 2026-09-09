@@ -37,6 +37,27 @@
   color: var(--t-accent);
 }
 
+.matrixWrap { margin-bottom: 3rem; }
+.matrixIntro { margin-top: 0.8rem; color: var(--t-mute); font-size: 0.8125rem; line-height: 1.7; }
+.matrix { width: 100%; margin-top: 1.75rem; border-collapse: collapse; text-align: left; font-size: 0.8125rem; line-height: 1.6; }
+.matrix th, .matrix td { padding: 1rem 0; border-bottom: 1px solid var(--t-line); vertical-align: top; }
+.matrix th { padding-right: 1rem; color: var(--t-ink); font-weight: 500; width: 30%; }
+.matrix thead th { color: var(--t-mute); font-size: 0.7rem; }
+.matrix td p { margin-top: 0.3rem; color: var(--t-body); }
+.matrixLink { display: inline-block; color: var(--t-accent); text-decoration: underline; text-decoration-color: var(--t-line-mid); text-underline-offset: 4px; }
+.matrixLink:focus-visible, .inventory summary:focus-visible, .moduleLinks a:focus-visible { outline: 2px solid var(--t-accent); outline-offset: 4px; border-radius: 2px; }
+.inventory { border-bottom: 1px solid var(--t-line); padding-bottom: 0.3rem; }
+.inventory summary { min-height: 44px; padding: 1rem 0; color: var(--t-ink); font-size: 0.8125rem; cursor: pointer; }
+.inventory > p { margin-bottom: 1rem; color: var(--t-body); font-size: 0.8125rem; line-height: 1.7; }
+.moduleLinks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr)); gap: 0.4rem 2rem; padding-bottom: 1.25rem; }
+.moduleLinks a { display: block; padding: 0.5rem 0; color: var(--t-accent); font-size: 0.8125rem; }
+.moduleLinks span { display: block; color: var(--t-mute); font-size: 0.6875rem; }
+
+@media (max-width: 480px) {
+  .matrix { font-size: 0.75rem; }
+  .matrix th { width: 34%; padding-right: 0.7rem; }
+}
+
 .eyebrowRule {
   height: 1px;
   width: 1.75rem;

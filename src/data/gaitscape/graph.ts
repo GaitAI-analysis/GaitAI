@@ -56,8 +56,8 @@ const verticalNodes: GaitscapeNode[] = [
 ];
 
 const signalNodes: GaitscapeNode[] = [
-  { id: "sig-gait-identity", type: "signal", title: "Gait identity", shortDescription: "A person's individual walking signature, usable as a movement biometric." },
-  { id: "sig-stride-variability", type: "signal", title: "Stride variability", shortDescription: "Step-to-step rhythm consistency — an early instability marker." },
+  { id: "sig-gait-identity", type: "signal", title: "Gait identity", shortDescription: "Walking signatures studied for movement biometrics; identification depends on a specifically validated workflow." },
+  { id: "sig-stride-variability", type: "signal", title: "Stride variability", shortDescription: "Step-to-step rhythm consistency, interpreted with capture conditions and clinical context." },
   { id: "sig-balance", type: "signal", title: "Balance & postural sway", shortDescription: "Stability and sway signals extracted from body movement." },
   { id: "sig-cadence", type: "signal", title: "Cadence & rhythm", shortDescription: "Steps per minute and walking rhythm over time." },
   { id: "sig-step-symmetry", type: "signal", title: "Step symmetry", shortDescription: "Left/right movement balance across steps and limbs." },
@@ -73,11 +73,11 @@ const signalNodes: GaitscapeNode[] = [
 ];
 
 const capabilityNodes: GaitscapeNode[] = [
-  { id: "cap-pose", type: "capability", title: "Pose estimation", shortDescription: "Detects body landmarks from video — skeleton signals at frame rate." },
+  { id: "cap-pose", type: "capability", title: "Pose estimation", shortDescription: "Estimates visible body landmarks from video; throughput and reliability depend on the model and capture conditions." },
   { id: "cap-gait", type: "capability", title: "Gait analysis", shortDescription: "Cadence, stride rhythm, speed, asymmetry, posture, balance, variability." },
   { id: "cap-temporal", type: "capability", title: "Temporal modelling", shortDescription: "Longitudinal movement trends across sessions, days and months." },
   { id: "cap-biometrics", type: "capability", title: "Movement biometrics", shortDescription: "Identity-bearing movement signatures beyond face or fingerprint." },
-  { id: "cap-reid", type: "capability", title: "Person re-identification", shortDescription: "Linking the same person across cameras by movement signature." },
+  { id: "cap-reid", type: "capability", title: "Person re-identification", shortDescription: "Exploring movement-based associations across camera views; associations need validation and human review." },
   { id: "cap-har", type: "capability", title: "Human activity recognition", shortDescription: "Classifying movement events from human activity." },
   { id: "cap-trajectory", type: "capability", title: "Trajectory analysis", shortDescription: "Modelling paths, flow and spatial movement over time." },
   { id: "cap-fusion", type: "capability", title: "Multimodal sensor fusion", shortDescription: "Smartwatch and IMU signals fused with video features." },
@@ -101,8 +101,8 @@ const outcomeNodes: GaitscapeNode[] = [
   { id: "out-performance", type: "outcome", title: "Performance & injury-risk insight", shortDescription: "Symmetry, fatigue and return-to-play signals for athletes." },
   { id: "out-identity", type: "outcome", title: "Movement-based identity", shortDescription: "Recognition and access support when faces aren't enough." },
   { id: "out-safer-spaces", type: "outcome", title: "Safer public environments", shortDescription: "Movement awareness across campuses, cities, industry and events." },
-  { id: "out-privacy", type: "outcome", title: "Privacy-aware monitoring", shortDescription: "Movement intelligence without invasive surveillance." },
-  { id: "out-realtime", type: "outcome", title: "Real-time safety analytics", shortDescription: "Movement-event alerts operators can review and act on." },
+  { id: "out-privacy", type: "outcome", title: "Privacy-aware monitoring", shortDescription: "An intended workflow with proportionate data handling and deployment-specific privacy controls." },
+  { id: "out-realtime", type: "outcome", title: "Safety-event analytics", shortDescription: "Movement events intended for operator review; latency and reliability require deployment-specific validation." },
 ];
 
 // Research areas — each backed by publications / the granted patent listed

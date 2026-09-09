@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { TrustPillar } from "@/components/trust/TrustPillar";
 import { TrustEvidence } from "@/components/trust/TrustEvidence";
+import { TrustMatrix } from "@/components/trust/TrustMatrix";
 import { privacyControls, notClaimed } from "@/data/trust";
 import { researchAreas } from "@/data/evidence";
 import { evidenceTotals } from "@/data/evidence-status";
@@ -99,6 +100,7 @@ export default function TrustPage() {
       {/* ── FOUR PILLARS ── */}
       <section className="section border-t border-white/[0.07]">
         <div className="container-wide">
+          <TrustMatrix />
           <div className={styles.pillars}>
             <Reveal>
               <TrustPillar
@@ -116,7 +118,7 @@ export default function TrustPage() {
                   },
                   {
                     label: "Modules with a research foundation",
-                    value: `${evidenceTotals.withResearchFoundation} of ${evidenceTotals.modules}. A published record informs a capability those modules are built on.`,
+                    value: `${evidenceTotals.withResearchFoundation} of ${evidenceTotals.modules} are directly informed: a published record addresses a capability they are built on. ${evidenceTotals.withArchitecturalResearch} more reach research only through shared platform capabilities, listed separately on each module page.`,
                   },
                   {
                     label: "Product-specific validation",
@@ -151,7 +153,7 @@ export default function TrustPage() {
                   {
                     label: "Lawful basis",
                     value:
-                      "Lawful basis, consent management and any data-protection assessment rest with the deploying organisation.",
+                      "Privacy roles, lawful basis, consent and required assessments must be established for the actual deployment and parties involved.",
                   },
                   {
                     label: "Anonymity",
@@ -226,7 +228,7 @@ export default function TrustPage() {
       {/* ── WHAT IS NOT CLAIMED ──
           As prominent as the pillars. For a security or clinical reviewer this
           is the most useful section on the page. */}
-      <section className="section border-t border-white/[0.07] bg-obsidian-300/25">
+      <section id="not-claimed" className="section site-anchor-offset border-t border-white/[0.07] bg-obsidian-300/25">
         <div className="container-wide">
           <div className="max-w-3xl">
             <span className={styles.eyebrow}>
@@ -238,8 +240,8 @@ export default function TrustPage() {
               <span className="text-gradient">not claim.</span>
             </h2>
             <p className="mt-5 text-[0.9375rem] leading-relaxed text-soft-gray">
-              Nothing in this repository establishes any of the following, so
-              no page on this site implies them.
+              The published record does not establish the following. Product
+              documentation and demonstrations should be read within that context.
             </p>
           </div>
 

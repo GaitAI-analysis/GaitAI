@@ -369,6 +369,31 @@
   gap: 1.25rem;
 }
 
+.viewControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.humanOnly { grid-template-columns: minmax(0, 1fr) !important; }
+.viewport[hidden] { display: none; }
+.dnaDim { opacity: 0.27; transition: opacity var(--motion-ui, 220ms); }
+.dnaInterval { fill: var(--ma-cyan); fill-opacity: 0.12; pointer-events: none; }
+.psPathSelected { stroke: var(--ma-cyan) !important; stroke-opacity: 1; opacity: 1 !important; stroke-width: 2.8 !important; }
+.psPathDim { opacity: 0.08 !important; }
+.channelChoices { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin-top: 0.8rem; }
+.channelChoices button { min-height: 44px; border-bottom: 1px solid transparent; color: var(--ma-body); font-size: 0.75rem; text-align: left; }
+.channelChoices button[aria-pressed="true"] { color: var(--ma-cyan); border-color: var(--ma-cyan); }
+.channelChoices button:focus-visible, .channelExplanation button:focus-visible { outline: 2px solid var(--ma-cyan); outline-offset: 4px; }
+.channelExplanation { margin-top: 1rem; padding: 1rem 0 0 1rem; border-left: 2px solid var(--ma-cyan); }
+.channelExplanation h4 { font-weight: 600; color: var(--ma-ink); font-size: 0.875rem; }
+.channelExplanation p { margin-top: 0.6rem; font-size: 0.8125rem; line-height: 1.7; color: var(--ma-body); }
+.channelExplanation button { display: inline-flex; align-items: center; min-height: 44px; }
+
+@media (prefers-reduced-motion: reduce) { .dnaDim { transition: none; } }
+
 .split {
   display: grid;
   gap: 1rem;

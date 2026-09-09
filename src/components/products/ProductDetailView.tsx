@@ -20,6 +20,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "@/components/products/ProductCard";
 import { ProductEvidence } from "@/components/products/ProductEvidence";
 import { EvidenceStatus } from "@/components/analytics/EvidenceStatus";
+import { ContextLimitations } from "@/components/trust/ContextLimitations";
 import { SampleOutputViewer } from "@/components/analytics/SampleOutputViewer";
 import { hasSampleOutput } from "@/data/sample-outputs";
 import { cn } from "@/lib/utils";
@@ -793,6 +794,9 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <p className="relative text-sm leading-relaxed text-soft-gray">
                   {detail.privacy}
                 </p>
+                {view === "executive" && (
+                  <div className="mt-5"><ContextLimitations context={detail.tech.limitations} /></div>
+                )}
               </div>
             </SectionBlock>
 

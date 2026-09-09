@@ -194,6 +194,7 @@ function WalkingFigure({
   color = "#4FD1FF",
   speed = 0.35,
   phase = 0,
+  signatureStage,
 }: {
   offsetX?: number;
   z?: number;
@@ -201,43 +202,69 @@ function WalkingFigure({
   color?: string;
   speed?: number;
   phase?: number;
+  signatureStage?: number;
 }) {
   const linesRef = useRef<THREE.LineSegments>(null);
   const jointsRef = useRef<THREE.Points>(null);
 
-  const lineGeometry = useMemo(() => new THREE.BufferGeometry(), []);
-  const jointsGeometry = useMemo(() => new THREE.BufferGeometry(), []);
+  const lineGeometry = useMemo(() => new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(new Float32Array(bones.length * 6), 3).setUsage(THREE.DynamicDrawUsage)), []);
+  const jointsGeometry = useMemo(() => new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(new Float32Array(13 * 3), 3).setUsage(THREE.DynamicDrawUsage)), []);
+  const bodyRef = useRef<THREE.InstancedMesh>(null);
+  const headRef = useRef<THREE.Mesh>(null);
+  const matrix = useMemo(() => new THREE.Object3D(), []);
+  const direction = useMemo(() => new THREE.Vector3(), []);
+  const up = useMemo(() => new THREE.Vector3(0, 1, 0), []);
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime() * speed + phase;
     const frame = interpolateFrame(t);
 
     // Build line positions from bones
-    const linePos = new Float32Array(bones.length * 2 * 3);
+    const linePos = lineGeometry.attributes.position.array as Float32Array;
     bones.forEach(([a, b], i) => {
       const [ax, ay] = frame[a];
       const [bx, by] = frame[b];
-      linePos.set([ax + offsetX, ay, z, bx + offsetX, by, z], i * 6);
+      const at = i * 6;
+      linePos[at] = ax + offsetX; linePos[at + 1] = ay; linePos[at + 2] = z;
+      linePos[at + 3] = bx + offsetX; linePos[at + 4] = by; linePos[at + 5] = z;
+      if (bodyRef.current) {
+        direction.set(bx - ax, by - ay, 0);
+        matrix.position.set((ax + bx) / 2 + offsetX, (ay + by) / 2, z);
+        matrix.scale.set(i === 7 ? 1.8 : 1, direction.length(), i === 7 ? 1.8 : 1);
+        matrix.quaternion.setFromUnitVectors(up, direction.normalize());
+        matrix.updateMatrix();
+        bodyRef.current.setMatrixAt(i, matrix.matrix);
+      }
     });
-    lineGeometry.setAttribute("position", new THREE.BufferAttribute(linePos, 3));
     lineGeometry.attributes.position.needsUpdate = true;
+    if (bodyRef.current) bodyRef.current.instanceMatrix.needsUpdate = true;
+    if (headRef.current) headRef.current.position.set(frame[0][0] + offsetX, frame[0][1], z);
 
     // Joint positions
-    const jointsPos = new Float32Array(frame.length * 3);
+    const jointsPos = jointsGeometry.attributes.position.array as Float32Array;
     frame.forEach(([x, y], i) => {
-      jointsPos.set([x + offsetX, y, z], i * 3);
+      jointsPos[i * 3] = x + offsetX; jointsPos[i * 3 + 1] = y; jointsPos[i * 3 + 2] = z;
     });
-    jointsGeometry.setAttribute("position", new THREE.BufferAttribute(jointsPos, 3));
     jointsGeometry.attributes.position.needsUpdate = true;
   });
 
   return (
     <group>
+      {signatureStage !== undefined && <>
+        <instancedMesh ref={bodyRef} args={[undefined, undefined, bones.length]} frustumCulled={false}>
+          <cylinderGeometry args={[0.05, 0.05, 1, 8]} />
+          <meshBasicMaterial color={color} transparent opacity={signatureStage === 0 ? .85 : signatureStage === 1 ? .25 : 0} depthWrite={false} toneMapped={false} />
+        </instancedMesh>
+        <mesh ref={headRef}>
+          <sphereGeometry args={[0.13, 12, 8]} />
+          <meshBasicMaterial color={color} transparent opacity={signatureStage === 0 ? .85 : signatureStage === 1 ? .25 : 0} depthWrite={false} toneMapped={false} />
+        </mesh>
+      </>}
       <lineSegments ref={linesRef} geometry={lineGeometry}>
         <lineBasicMaterial
           color={color}
           transparent
-          opacity={opacity}
+          opacity={signatureStage === 0 || signatureStage === 1 ? 0 : opacity}
           linewidth={2}
           toneMapped={false}
         />
@@ -248,7 +275,7 @@ function WalkingFigure({
           size={0.06}
           sizeAttenuation
           transparent
-          opacity={opacity}
+          opacity={signatureStage === 0 ? 0 : opacity}
           toneMapped={false}
         />
       </points>
@@ -328,12 +355,13 @@ function MouseParallax() {
 
 /* ---------- The scene ---------- */
 
-export default function HeroScene() {
+export default function HeroScene({ running = true, signatureStage = 2 }: { running?: boolean; signatureStage?: number }) {
   return (
     <Canvas
       camera={{ position: [0, 0.4, 4.2], fov: 50 }}
-      dpr={[1, 2]}
-      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      dpr={[1, 1.5]}
+      frameloop={running ? "always" : "never"}
+      gl={{ antialias: true, alpha: true, powerPreference: "default" }}
       style={{ background: "transparent" }}
     >
       <Suspense fallback={null}>
@@ -354,7 +382,7 @@ export default function HeroScene() {
                 per stride (within the 1.2–1.6 s observable-walk window). */}
             <WalkingFigure offsetX={-2.4} z={-1.5} opacity={0.35} color="#7C3AED" speed={0.66} phase={0.0} />
             <WalkingFigure offsetX={-1.2} z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.7}  phase={0.2} />
-            <WalkingFigure offsetX={0}    z={0}    opacity={1}    color="#2563FF" speed={0.72} phase={0.4} />
+            <WalkingFigure offsetX={0}    z={0}    opacity={1}    color="#2563FF" speed={0.72} phase={0.4} signatureStage={signatureStage} />
             <WalkingFigure offsetX={1.2}  z={-0.6} opacity={0.55} color="#4FD1FF" speed={0.7}  phase={0.6} />
             <WalkingFigure offsetX={2.4}  z={-1.5} opacity={0.35} color="#2563FF" speed={0.66} phase={0.8} />
           </group>

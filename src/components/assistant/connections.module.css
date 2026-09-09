@@ -1,0 +1,15 @@
+.connections { margin-top: 1rem; border-top: 1px solid rgba(128, 145, 160, .24); padding-top: .8rem; }
+.label { font-size: .7rem; font-weight: 600; line-height: 1.5; }
+.context { margin: .4rem 0 .6rem; font-size: .7rem; line-height: 1.5; }
+.list { list-style: none; padding: 0; margin: 0; }
+.item { padding-block: .6rem; border-bottom: 1px solid rgba(128, 145, 160, .16); }
+.path { display: flex; flex-wrap: wrap; align-items: baseline; gap: .35rem .5rem; font-size: .75rem; line-height: 1.6; }
+.input { font-size: .65rem; }
+.details { margin-top: .25rem; font-size: .7rem; line-height: 1.6; }
+.details summary { cursor: pointer; min-height: 36px; padding-block: .5rem; }
+.links { display: flex; flex-wrap: wrap; gap: .2rem .75rem; }
+.links a { min-height: 36px; display: inline-flex; align-items: center; }
+.note { margin-top: .5rem; font-size: .65rem; line-height: 1.6; }
+.loader { width: 132px; height: 23px; overflow: hidden; }
+.connections a:focus-visible, .connections summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+@media (max-width: 430px) { .path { gap: .2rem .4rem; } .details summary, .links a { min-height: 44px; } }

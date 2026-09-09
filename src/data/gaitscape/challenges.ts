@@ -10,7 +10,7 @@ export const gaitscapeChallenges: GaitscapeChallenge[] = [
     id: "ch-decline",
     question: "How can mobility decline be detected earlier?",
     summary:
-      "Everyday walking carries early evidence of decline — long before an incident. Longitudinal movement trends make it visible.",
+      "A conceptual care workflow: comparable walking observations can help a care team review changes in mobility. Earlier detection is an intended use, not an established outcome here.",
     signalIds: ["sig-mobility-decline", "sig-walking-speed", "sig-stride-variability"],
     capabilityIds: ["cap-temporal", "cap-risk"],
     productIds: ["fallrisk", "seniorcare", "watchcare"],
@@ -21,7 +21,7 @@ export const gaitscapeChallenges: GaitscapeChallenge[] = [
     id: "ch-rehab",
     question: "How can rehabilitation progress be measured objectively?",
     summary:
-      "Recovery decisions deserve more than observation. Session-over-session gait comparison turns therapy into measurable progress.",
+      "A conceptual rehabilitation workflow: compare movement features across sessions, then review them with the clinician. Capture consistency and clinical context matter.",
     signalIds: ["sig-rehab-progress", "sig-step-symmetry"],
     capabilityIds: ["cap-gait", "cap-explain"],
     productIds: ["rehabtrack", "walkscan", "remotecare"],
@@ -32,7 +32,7 @@ export const gaitscapeChallenges: GaitscapeChallenge[] = [
     id: "ch-fall",
     question: "How can fall risk be surfaced from movement?",
     summary:
-      "Balance, variability and slowing gait quietly raise risk. Combining them produces fall-risk context care teams can act on.",
+      "A conceptual care workflow: balance, variability and walking speed can contribute context for fall-risk review. These signals alone do not establish a validated prediction.",
     signalIds: ["sig-balance", "sig-fall-risk", "sig-stride-variability"],
     capabilityIds: ["cap-risk", "cap-fusion"],
     productIds: ["fallrisk", "watchcare", "industrialsafety"],
@@ -43,7 +43,7 @@ export const gaitscapeChallenges: GaitscapeChallenge[] = [
     id: "ch-identity",
     question: "How can people be recognized without relying solely on faces?",
     summary:
-      "Gait is a non-contact biometric that works where face, fingerprint or iris fall short — at distance, in motion, across cameras.",
+      "Gait recognition research explores movement as a biometric. Recognition across cameras or at distance depends on the specific method and validation conditions; it is not a general guarantee.",
     signalIds: ["sig-gait-identity"],
     capabilityIds: ["cap-biometrics", "cap-reid"],
     productIds: ["reid", "accessmotion", "watchlist"],
@@ -55,7 +55,7 @@ export const gaitscapeChallenges: GaitscapeChallenge[] = [
     question:
       "How can public-space movement be understood while protecting privacy?",
     summary:
-      "Skeleton-only analytics, face blur and audit controls let operators understand movement without watching individuals.",
+      "A conceptual spatial workflow: configured representations, face blur, retention and access controls can reduce unnecessary identity exposure. Their implementation must be verified for each deployment.",
     signalIds: ["sig-crowd-flow", "sig-behaviour"],
     capabilityIds: ["cap-privacy", "cap-anomaly"],
     productIds: ["privacyguard", "crowdsense", "campusshield"],
@@ -66,7 +66,7 @@ export const gaitscapeChallenges: GaitscapeChallenge[] = [
     id: "ch-anomaly",
     question: "How can abnormal movement become an actionable safety signal?",
     summary:
-      "Loitering, running, falls and restricted-zone entry become operator alerts for review — without identifying anyone first.",
+      "A conceptual spatial workflow: movement events such as running or zone entry can be surfaced for operator review. An event does not establish intention or wrongdoing.",
     signalIds: ["sig-behaviour", "sig-trajectory"],
     capabilityIds: ["cap-anomaly", "cap-har", "cap-edge"],
     productIds: ["suspiciousmotion", "eventshield", "retailguard"],

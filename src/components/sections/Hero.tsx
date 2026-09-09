@@ -7,6 +7,11 @@ import { ArrowRight } from "lucide-react";
 import { productCount } from "@/data/products";
 import { TryGaitAI } from "@/components/home/TryGaitAI";
 import { MotionDNAThread } from "@/components/home/MotionDNAThread";
+import { useEffect, useState } from "react";
+import { useVisualBudget } from "@/lib/useVisualBudget";
+import { MotionSignature } from "@/components/visuals/MotionSignature";
+import { SceneBoundary } from "@/components/three/SceneBoundary";
+import living from "./heroLiving.module.css";
 
 const HeroScene = dynamic(() => import("@/components/three/HeroScene"), {
   ssr: false,
@@ -28,9 +33,46 @@ const fadeUp = {
 
 export function Hero() {
   const reduceMotion = useReducedMotion();
+  const { ref, eligible, visible } = useVisualBudget();
+  const [signatureStage, setSignatureStage] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [manual, setManual] = useState(false);
+  const [inspect, setInspect] = useState(false);
+  const stages = [
+    "Human",
+    "Pose",
+    "Skeleton",
+    "Trajectories",
+    "Signals",
+    "Intelligence",
+  ];
+  useEffect(() => {
+    if (
+      reduceMotion ||
+      !eligible ||
+      !visible ||
+      paused ||
+      manual ||
+      signatureStage >= 5
+    )
+      return;
+    const timer = window.setTimeout(
+      () => setSignatureStage((stage) => Math.min(stage + 1, 5)),
+      1500,
+    );
+    return () => window.clearTimeout(timer);
+  }, [reduceMotion, eligible, visible, paused, manual, signatureStage]);
+
+  /* What every device without the scene sees: the same Motion DNA, still. */
+  const staticSignature = (
+    <div aria-hidden="true" className={living.fallback}>
+      <MotionSignature stage={2} />
+    </div>
+  );
 
   return (
     <section
+      ref={ref}
       id="platform"
       aria-labelledby="home-hero-title"
       className="site-viewport-section relative flex w-full items-center overflow-hidden py-20 sm:py-28 lg:py-32"
@@ -38,13 +80,20 @@ export function Hero() {
       <div className="hero-ambient pointer-events-none absolute inset-0 -z-10" />
       <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-25" />
 
-      {!reduceMotion && (
-        <div
-          aria-hidden="true"
-          className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-[0.29]"
-        >
-          <HeroScene />
-        </div>
+      {eligible && !reduceMotion ? (
+        <SceneBoundary fallback={staticSignature}>
+          <div
+            aria-hidden="true"
+            className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-[0.29]"
+          >
+            <HeroScene
+              running={visible && !paused}
+              signatureStage={signatureStage}
+            />
+          </div>
+        </SceneBoundary>
+      ) : (
+        staticSignature
       )}
 
       <div className="container-wide relative z-10">
@@ -68,7 +117,7 @@ export function Hero() {
             custom={1}
             className="mt-8 max-w-5xl pb-2 text-balance font-display text-[clamp(1.85rem,9.3vw,3.5rem)] font-semibold leading-[0.95] tracking-[-0.055em] text-soft-white sm:mt-10 sm:pb-2.5 sm:text-[clamp(3rem,8vw,7.25rem)] lg:pb-3.5"
           >
-            <span className="block whitespace-nowrap">Intelligence in{" "}</span>
+            <span className="block whitespace-nowrap">Intelligence in </span>
             <span className="mt-0.5 block whitespace-nowrap text-[0.9em] leading-[0.95] text-gradient sm:mt-1">
               Motion.
             </span>
@@ -79,10 +128,10 @@ export function Hero() {
             custom={2}
             className="mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-white/90 sm:mt-10 sm:text-xl"
           >
-            GaitAI turns video, wearable signals and human movement into
-            actionable intelligence across MobilityCare and SecureVision — one
-            Movement Intelligence Platform with {productCount} modular
-            products.
+            GaitAI turns human movement into meaningful intelligence for
+            mobility, recovery, safety and governed identity applications —
+            across MobilityCare and SecureVision, with {productCount} connected
+            modules.
           </motion.p>
 
           <motion.div
@@ -131,6 +180,74 @@ export function Hero() {
               platform.
             </span>
           </motion.div>
+
+          {/* The living signature's one line of controls: the six stages the
+              scene walks through (selectable, so the progression is legible
+              without waiting for it), then the motion and stride controls.
+              Mono and quiet on purpose — a caption to the scene, not a
+              toolbar over the headline. */}
+          <div className={living.living}>
+            {eligible && !reduceMotion && (
+              <ol
+                className={living.sequence}
+                aria-label="Stages of the living movement signature"
+              >
+                {stages.map((stage, index) => (
+                  <li key={stage}>
+                    <button
+                      type="button"
+                      aria-pressed={signatureStage === index}
+                      onClick={() => {
+                        setManual(true);
+                        setSignatureStage(index);
+                      }}
+                    >
+                      {stage}
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            )}
+            <div className={living.controls}>
+              {eligible && !reduceMotion && (
+                <button
+                  type="button"
+                  onClick={() => setPaused((value) => !value)}
+                  aria-pressed={paused}
+                  aria-label={
+                    paused ? "Resume hero motion" : "Pause hero motion"
+                  }
+                >
+                  {paused ? "Resume motion" : "Pause motion"}
+                </button>
+              )}
+              <button
+                type="button"
+                className={living.inspect}
+                aria-expanded={inspect}
+                aria-controls="hero-stride-inspector"
+                onClick={() => setInspect((value) => !value)}
+              >
+                {inspect ? "Close stride" : "Inspect one stride"}
+                <span aria-hidden="true"> {inspect ? "−" : "+"}</span>
+              </button>
+            </div>
+          </div>
+          <div
+            id="hero-stride-inspector"
+            hidden={!inspect}
+            className={living.inspector}
+          >
+            {inspect && (
+              <>
+                <p>Illustrative Motion DNA · explore a joint or trajectory</p>
+                <MotionSignature
+                  stage={Math.max(2, signatureStage)}
+                  interactive
+                />
+              </>
+            )}
+          </div>
 
           {/* The hero's one interaction: the same signal, four readings. Kept
               to a strip so the headline, the actions and the 3D scene above it

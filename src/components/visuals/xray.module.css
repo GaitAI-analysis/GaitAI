@@ -215,6 +215,87 @@
   opacity: 0;
 }
 
+.exploreButton {
+  margin-top: 1rem;
+  color: rgb(var(--x-accent));
+  font-size: 0.8125rem;
+  min-height: 44px;
+}
+
+.pipeline {
+  margin-top: 0.5rem;
+  padding: 1rem 0;
+  border-block: 1px solid rgb(var(--x-line) / var(--x-line-a));
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.steps button {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  color: rgb(var(--x-ink) / 0.7);
+  border-bottom: 1px solid rgb(var(--x-line) / var(--x-line-a));
+  transition: color var(--motion-ui), border-color var(--motion-ui);
+}
+
+.steps button[aria-current="step"] {
+  border-color: rgb(var(--x-accent));
+  color: rgb(var(--x-accent));
+}
+
+.stepNumber {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.625rem;
+  opacity: 0.7;
+}
+
+.scrubLabel {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.2rem;
+  color: rgb(var(--x-ink) / 0.75);
+  font-size: 0.75rem;
+}
+
+.scrubLabel > span {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.stepName { color: rgb(var(--x-accent)); }
+.scrubLabel input { width: 100%; min-height: 28px; accent-color: rgb(var(--x-accent)); }
+.stageContext { margin-top: 0.75rem; font-size: 0.8125rem; line-height: 1.7; color: rgb(var(--x-ink) / 0.75); }
+.rawVideo { display: block; width: 100%; max-height: 330px; object-fit: contain; background: #080d17; border-radius: 0.75rem; }
+.poseOnly .bone, .poseOnly .head { opacity: 0; }
+.selectedTrail { stroke: rgb(var(--x-accent)); stroke-width: 2.8; stroke-dasharray: none; }
+.explanation { margin-top: 1.5rem; padding-left: 1rem; border-left: 2px solid rgb(var(--x-accent) / 0.5); }
+.explanation h3 { font-size: 0.875rem; font-weight: 600; color: rgb(var(--x-ink)); }
+.explanation p { margin-top: 0.75rem; font-size: 0.8125rem; line-height: 1.7; color: rgb(var(--x-ink) / 0.78); }
+.explanation .limitation { font-size: 0.75rem; color: rgb(var(--x-ink) / 0.62); }
+.channelChoices, .actions { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 0.75rem; }
+.channelChoices button, .actions a { min-height: 44px; display: inline-flex; align-items: center; font-size: 0.8125rem; color: rgb(var(--x-ink) / 0.75); border-bottom: 1px solid transparent; }
+.channelChoices button[aria-pressed="true"], .actions a { color: rgb(var(--x-accent)); border-color: rgb(var(--x-accent) / 0.5); }
+.xray button:focus-visible, .xray a:focus-visible, .xray input:focus-visible { outline: 2px solid rgb(var(--x-accent)); outline-offset: 4px; border-radius: 3px; }
+
+@media (max-width: 640px) {
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .layer {
     transition: none;

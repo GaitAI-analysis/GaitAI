@@ -62,11 +62,13 @@ service cloud.firestore {
         && d.contentId is string
         && d.contentType in ['research','announcement','documentation','approval','blog','demo']
         && d.userName is string && d.userName.size() >= 2 && d.userName.size() <= 80
-        && (d.email == null || (d.email is string && d.email.size() <= 254))
+        // Public reads return the whole document. Contact and authentication
+        // identifiers must never be written into a new public comment.
+        && d.email == null
         && d.message is string && d.message.size() >= 2 && d.message.size() <= 2000
         && d.createdAt is timestamp
         && (d.parentCommentId == null || d.parentCommentId is string)
-        && (d.userId == null || d.userId is string);
+        && d.userId == null;
     }
 
     function reportFieldsValid(d) {

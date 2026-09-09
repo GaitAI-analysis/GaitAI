@@ -37,6 +37,8 @@ import {
 } from "./graphics";
 import { Eyebrow, ResultColumn, ResultColumns } from "./primitives";
 import { parseOne, useQueryState } from "./useQueryState";
+import { ShareExploration } from "@/components/ui/ShareExploration";
+import { MovementViewSelector } from "@/components/visuals/MovementViewSelector";
 import styles from "./analytics.module.css";
 
 /**
@@ -217,6 +219,15 @@ export function MovementLab() {
           onSelect={chooseStage}
           label={`${mode === "mobility" ? "MobilityCare" : "SecureVision"} pipeline`}
         />
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <MovementViewSelector
+          value={stage === "video" ? "human" : ["analytics", "report", "events", "operator"].includes(stage) ? "explain" : "ai"}
+          onChange={(next) => chooseStage(next === "human" ? "video" : next === "ai" ? mode === "mobility" ? "pose" : "extract" : mode === "mobility" ? "analytics" : "events")}
+          label="View this illustrative pipeline"
+        />
+        <ShareExploration path="/movement-lab#walkthrough" title="GaitAI illustrative pipeline exploration" params={{ mode, stage }} />
       </div>
 
       {/* ── STAGE ── */}

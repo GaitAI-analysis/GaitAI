@@ -1,0 +1,278 @@
+/* ==========================================================================
+   THE WORKFLOW JOURNEY
+   --------------------------------------------------------------------------
+   A stepper and one panel. The connector line under the four stages fills as
+   far as the stage being read, and the node is hollow when a stage is merely
+   available and filled when it is the one open — the site's shared
+   available/active grammar, kept identical to the workflow rail it replaces
+   so nothing had to be relearned.
+   ========================================================================== */
+
+.journey {
+  --wf-cyan: #4fd1ff;
+  --wf-violet: #a78bfa;
+  --wf-line: rgb(148 163 184 / 0.2);
+  --wf-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  margin-top: 1.75rem;
+}
+
+:global(.light) .journey {
+  --wf-cyan: #0e7490;
+  --wf-violet: #6d28d9;
+  --wf-line: rgb(15 23 42 / 0.14);
+}
+
+/* ── The stepper ──
+   A scrollable row on a phone; four equal columns from 640px up. Never a
+   wrapping grid: "Capture → Analyze → Report → Act" stops being a sequence
+   the moment it breaks onto two lines. */
+
+.stepper {
+  display: flex;
+  gap: 0;
+  margin: 0 -1.25rem;
+  padding: 1rem 1.25rem 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+}
+
+.stepper::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .stepper {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0;
+    padding: 1rem 0 0;
+    overflow: visible;
+  }
+}
+
+.step {
+  position: relative;
+  flex: none;
+  min-width: 8.5rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  min-height: 48px;
+  padding: 0.85rem 1rem 0.85rem 0;
+  text-align: left;
+  transition: color 0.35s var(--wf-ease);
+}
+
+@media (min-width: 640px) {
+  .step {
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+}
+
+/* The connector: each stage carries the segment of line above it, so the rail
+   is drawn by the stages themselves and cannot fall out of step with them. */
+.step::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--wf-line);
+}
+
+.step::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--wf-cyan), var(--wf-violet));
+  transition: transform 0.5s var(--wf-ease);
+}
+
+.step[data-passed="true"]::after {
+  transform: scaleX(1);
+}
+
+.node {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 9px;
+  width: 9px;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--wf-line);
+  border-radius: 999px;
+  background: rgb(var(--c-obsidian-400));
+  transition:
+    background-color 0.35s var(--wf-ease),
+    border-color 0.35s var(--wf-ease);
+}
+
+.step[data-passed="true"] .node {
+  border-color: var(--wf-cyan);
+}
+
+.step[data-on="true"] .node {
+  border-color: var(--wf-cyan);
+  background: var(--wf-cyan);
+}
+
+.index {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+  transition: color 0.35s var(--wf-ease);
+}
+
+.short {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  color: var(--text-muted);
+  transition: color 0.35s var(--wf-ease);
+}
+
+.step[data-on="true"] .index {
+  color: var(--wf-cyan);
+}
+
+.step[data-on="true"] .short {
+  color: rgb(var(--c-soft-white));
+}
+
+@media (hover: hover) {
+  .step:hover .short,
+  .step:hover .index {
+    color: rgb(var(--c-soft-white));
+  }
+  .step:hover .node {
+    border-color: var(--wf-cyan);
+  }
+}
+
+.step:focus-visible {
+  outline: 2px solid var(--wf-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── The open stage ── */
+
+.panel {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+/* `display: grid` above beats the user-agent's `[hidden] { display: none }`,
+   so without this the three closed stages render underneath the open one and
+   the section is four panels tall. Any rule that sets `display` on an element
+   that also uses the `hidden` attribute has to say this. */
+.panel[hidden] {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: 3rem;
+  }
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--wf-cyan);
+  outline-offset: 8px;
+  border-radius: 12px;
+}
+
+.copy {
+  min-width: 0;
+  animation: stageEnter 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes stageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.stageLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.stageTitle {
+  margin-top: 0.75rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: rgb(var(--c-soft-white));
+}
+
+.stageDesc {
+  margin-top: 1rem;
+  max-width: 34rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* The film keeps a fixed box so switching stages never reflows the section —
+   a panel that changes height under a click reads as a layout bug. */
+.film {
+  height: 13rem;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .film {
+    height: 15rem;
+  }
+}
+
+.filmTag {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step,
+  .step::after,
+  .index,
+  .short,
+  .node {
+    transition: none;
+  }
+  .copy {
+    animation: none;
+  }
+}

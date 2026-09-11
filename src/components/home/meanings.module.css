@@ -1,0 +1,213 @@
+/* ==========================================================================
+   ONE MOVEMENT. MANY MEANINGS.
+   --------------------------------------------------------------------------
+   Two columns: the signal and its five branches on the left, the readout for
+   whichever branch is live on the right. One column on a phone, with the
+   drawing first — the drawing is what says "this changes", and a readout
+   above it would be a paragraph with no visible cause.
+
+   Nothing here introduces a colour, a radius or a type size the site does not
+   already use. The readout is the same hairline-and-ground treatment the
+   capture-chain panel uses, so the two read as one family of panels.
+   ========================================================================== */
+
+.meanings {
+  margin-top: 2.75rem;
+}
+
+@media (min-width: 900px) {
+  .meanings {
+    margin-top: 3.25rem;
+  }
+}
+
+.head {
+  max-width: 46rem;
+}
+
+.eyebrow {
+  color: var(--trajectory);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.title {
+  margin-top: 1rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.5rem, 2.5vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  color: rgb(var(--c-soft-white));
+}
+
+.lead {
+  margin-top: 1rem;
+  max-width: 42rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* ── The two columns ── */
+
+.layout {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: 1.75rem;
+  align-items: start;
+}
+
+@media (min-width: 1000px) {
+  .layout {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    gap: 3rem;
+  }
+}
+
+.thread {
+  min-width: 0;
+}
+
+/* ── The readout ── */
+
+.readout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 15.5rem;
+  padding: 1.25rem 1.35rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  background: var(--surface-secondary);
+}
+
+.readoutBody {
+  flex: 1 1 auto;
+  animation: meaningEnter 380ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes meaningEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.meaning {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--trajectory);
+}
+
+.note {
+  margin-top: 0.5rem;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: rgb(var(--c-soft-white));
+}
+
+.rule {
+  height: 1px;
+  margin: 1rem 0;
+  background: var(--border-subtle);
+}
+
+.detail {
+  margin: 0;
+}
+
+.detail dt {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.detail dd {
+  margin: 0.4rem 0 1rem;
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.detail dd:last-child {
+  margin-bottom: 0;
+}
+
+.familyLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--trajectory);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.familyLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.familyLink:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Position ── */
+
+.position {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.count {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.pips {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+.pip {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border-subtle);
+  transition: background-color var(--motion-ui, 220ms) ease;
+}
+
+.pip[data-on="true"] {
+  background: var(--trajectory);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .readoutBody {
+    animation: none;
+  }
+  .pip {
+    transition: none;
+  }
+}

@@ -5,23 +5,24 @@ import { useAutoDemonstrate } from "@/lib/useAutoDemonstrate";
 import styles from "./thread.module.css";
 
 /**
- * MOTION DNA — the hero's one interactive thread.
+ * MOTION DNA — the platform claim, made touchable.
  *
- *   one movement signal → four readings
+ *   one movement signal → five readings
  *
- * The claim the whole platform rests on, made touchable in about 90px of
- * vertical space: the same walk supports different interpretations depending
- * on what it is being read for. Point at a reading (or tab to it) and its
- * branch lights while the others recede — so the visitor discovers that the
- * signal is shared and the *purpose* is what differs, without a caption
- * saying so.
+ * The claim the whole platform rests on: the same walk supports different
+ * interpretations depending on what it is being read for. Point at a reading
+ * (or tab to it, or swipe) and its branch lights while the others recede — so
+ * the visitor discovers that the signal is shared and the *purpose* is what
+ * differs, without a caption saying so.
  *
- * WHY IT IS THIS SMALL. The hero already carries the message, three actions
- * and a 3D scene. A second large visual would compete with all of them, and
- * the brief is explicit that the hero must stay clear. This is a strip under
- * the tagline, not a panel.
+ * WHERE IT LIVES. It began as a 96px strip under the hero headline, competing
+ * with three actions and a 3D scene for the first viewport. The hero now asks
+ * one question and offers two doors, and this strip is the first thing under
+ * it: the "One movement. Many meanings." section, where it has room to say
+ * what each reading actually measures. `MovementMeanings` is the section, this
+ * is its control and its drawing, and the two share `READINGS`.
  *
- * NO CLAIMS. The four words are reading *purposes* — what someone might look
+ * NO CLAIMS. The five words are reading *purposes* — what someone might look
  * for — not outputs, capabilities or results. Nothing here says GaitAI
  * detects a condition, identifies a person or predicts an event, and no
  * number appears at all.
@@ -29,7 +30,7 @@ import styles from "./thread.module.css";
  * ─────────────────────────────────────────────────────────────────────────────
  * PREVIEW AND LOCK — the part that was missing
  *
- * The four readings were always the control, but nothing said so: they moved
+ * The five readings were always the control, but nothing said so: they moved
  * the branches on hover and again on click, both to the same state, so a
  * visitor who pointed at one and moved away saw a flicker and learned
  * nothing. There are now two distinct states and they mean different things:
@@ -51,23 +52,23 @@ import styles from "./thread.module.css";
  * it never loops, and it is off under prefers-reduced-motion — the highlight
  * alone still carries the state, because the state is state, not animation.
  *
- * KEYBOARD. A labelled group of four toggles: Tab reaches the group, arrows
+ * KEYBOARD. A labelled group of five toggles: Tab reaches the group, arrows
  * (and Home/End) move within it, Enter/Space locks, Escape releases. Focus
  * previews without committing, which is the same bargain the pointer gets.
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * THE BRANCHES ARE CONTROLS TOO
  *
- * The four lines out of the hub now preview and lock the same state the rows
+ * The five lines out of the hub now preview and lock the same state the rows
  * do, so the drawing and the labels are one interaction rather than a picture
  * with a legend under it. Each branch gets a second, transparent copy of its
  * own path at an 18px stroke (28px on touch), pinned with
  * `non-scaling-stroke` so the target is 18 CSS px at 390px as well as at
  * 1920px — nobody is asked to hit a 1px curve.
  *
- * The hit paths carry no semantics: the SVG stays `aria-hidden` and the four
+ * The hit paths carry no semantics: the SVG stays `aria-hidden` and the five
  * buttons remain the only accessible control, because a screen-reader user
- * gains nothing from four unlabelled paths that duplicate the rows below.
+ * gains nothing from five unlabelled paths that duplicate the rows below.
  *
  * The preview on a hit path is guarded to a mouse. A touch fires
  * pointerenter → click, and if pointerleave never arrives the branch stays
@@ -75,14 +76,71 @@ import styles from "./thread.module.css";
  * which is what a phone actually needs.
  */
 
-const READINGS = [
-  { id: "identity", label: "Identity", note: "who is walking — governed use only" },
-  { id: "mobility", label: "Mobility", note: "how well someone moves" },
-  { id: "recovery", label: "Recovery", note: "how that changes over time" },
-  { id: "safety", label: "Safety", note: "what is happening in a space" },
+/**
+ * THE FIVE READINGS.
+ *
+ * Reading PURPOSES — what somebody might look for in a walk — never outputs,
+ * capabilities or results. Nothing here says GaitAI detects a condition,
+ * identifies a person or predicts an event, and no number appears at all.
+ *
+ * Exported because the section around this strip renders the detail for
+ * whichever reading is shown, and two lists of five meanings would drift.
+ * `reads` describes the measurement in the same capability language the
+ * product records use; `family` and `href` point at the surface that owns it.
+ *
+ * READINESS is the fifth, and it is here because DefenceMotion made it real:
+ * movement change across a programme or under load, against a personal
+ * baseline. It is not a fitness verdict and the copy must not imply one.
+ */
+export const READINGS = [
+  {
+    id: "health",
+    label: "Health",
+    note: "how well someone moves",
+    reads:
+      "Walking speed, cadence, stride symmetry and joint motion — described for a clinician to read, not scored.",
+    family: "MobilityCare",
+    href: "/mobilitycare/",
+  },
+  {
+    id: "recovery",
+    label: "Recovery",
+    note: "how that changes over time",
+    reads:
+      "The same measures repeated, so a session is read against that person's own earlier movement rather than a population threshold.",
+    family: "MobilityCare",
+    href: "/mobilitycare/",
+  },
+  {
+    id: "identity",
+    label: "Identity",
+    note: "who is walking — governed use only",
+    reads:
+      "A gait-consistency signal beside existing credentials, intended only for lawful, authorised deployments under human oversight.",
+    family: "SecureVision",
+    href: "/securevision/",
+  },
+  {
+    id: "safety",
+    label: "Safety",
+    note: "what is happening in a space",
+    reads:
+      "Movement events in a space — falls, restricted-zone entry, crowd flow — with identity not required by default.",
+    family: "SecureVision",
+    href: "/securevision/",
+  },
+  {
+    id: "readiness",
+    label: "Readiness",
+    note: "how movement holds up under load",
+    reads:
+      "Movement change across a programme or under load, read against a personal baseline. Movement, never a fitness verdict.",
+    family: "SecureVision",
+    href: "/securevision/defencemotion/",
+  },
 ] as const;
 
-type ReadingId = (typeof READINGS)[number]["id"];
+export type ReadingId = (typeof READINGS)[number]["id"];
 
 /**
  * How long a previewed reading stays lit after the pointer leaves, before the
@@ -92,20 +150,38 @@ type ReadingId = (typeof READINGS)[number]["id"];
 const HOLD_MS = 650;
 
 const W = 760;
-const H = 96;
+const H = 110;
 /** Where the shared signal ends and the branches begin. */
 const SPLIT = 300;
+/** Vertical separation between two branch endpoints. */
+const BRANCH_STEP = 21.5;
 
-/** One branch's path, so the base line and its trace overlay cannot drift. */
-function branchPath(index: number) {
-  const y = 16 + index * 21.5;
+/**
+ * One branch's path, so the base line and its trace overlay cannot drift.
+ *
+ * The fan is centred on the hub and derived from how many readings there are,
+ * rather than starting at a fixed y — which is what let a fifth reading be
+ * added without the drawing going lopsided or running out of the viewBox.
+ */
+function branchPath(index: number, count: number = READINGS.length) {
+  const y = H / 2 - ((count - 1) * BRANCH_STEP) / 2 + index * BRANCH_STEP;
   return `M ${SPLIT} ${H / 2} C ${SPLIT + 90} ${H / 2} ${W - 150} ${y} ${
     W - 60
   } ${y}`;
 }
 
-export function MotionDNAThread() {
-  /* Mobility is the lens the movement signal reads as by default, and it
+export function MotionDNAThread({
+  onShownChange,
+}: {
+  /**
+   * Called with the reading currently being shown, whichever of preview, lock
+   * or the slow cycle is driving it. The section around the strip renders that
+   * reading's detail, so it has to hear about every change — including the
+   * ones the visitor did not cause.
+   */
+  onShownChange?: (id: ReadingId) => void;
+} = {}) {
+  /* Health is the lens the movement signal reads as by default, and it
      means the section arrives showing what it does rather than waiting to be
      discovered — which matters more now that the "select a lens" microcopy is
      gone. Every other reading is one pointer or one arrow key away. */
@@ -119,12 +195,12 @@ export function MotionDNAThread() {
    *
    * Everything above already worked; nothing said it did. The strip rested on
    * one reading and stayed there, so a visitor who never happened to point at
-   * it never discovered that the same signal reads four ways — which is the
+   * it never discovered that the same signal reads five ways — which is the
    * one claim this component exists to make.
    *
    * `cycles: "infinite"` rather than the hook's default two passes, because
    * here the stepping IS the content: somebody who arrives after two passes
-   * should still be told there are four readings. This is the one place on the
+   * should still be told there are five readings. This is the one place on the
    * site that opts out of "demonstrate once, then be still" — the workflow
    * rail, which uses the same hook to hint that it is interactive, keeps the
    * default.
@@ -136,12 +212,24 @@ export function MotionDNAThread() {
    */
   const demo = useAutoDemonstrate<HTMLDivElement>({
     steps: READINGS.length,
-    intervalMs: 1000,
+    /* Slow on purpose. This strip is now a section rather than a 96px band
+       under a headline, and at a second per state a five-step cycle beside
+       body copy reads as an advertising carousel. Three and a bit seconds is
+       long enough to read the reading and its detail before it moves, and it
+       still only runs while the section is actually on screen. */
+    intervalMs: 3200,
     cycles: "infinite",
   });
   const demoReading = demo.index === null ? null : READINGS[demo.index].id;
 
   const shown = preview ?? locked ?? demoReading ?? READINGS[0].id;
+
+  /* Tell the section which reading is showing. In an effect rather than at
+     each call site, so preview, lock, swipe and the cycle all report through
+     one path and none of them can forget to. */
+  useEffect(() => {
+    onShownChange?.(shown);
+  }, [shown, onShownChange]);
 
   /* The reading the pointer or the keyboard was last on, so the cycle can be
      resumed FROM it rather than from wherever it had got to. */
@@ -181,10 +269,54 @@ export function MotionDNAThread() {
     }, HOLD_MS);
   }, [demo, locked]);
 
+  /**
+   * SWIPE — the gesture a phone offers and a row of 12px labels does not.
+   *
+   * A horizontal drag across the strip moves to the next or previous reading
+   * and locks it, which is the same commitment a tap makes. Vertical drags are
+   * left alone (`touch-action: pan-y` on the wrap), so the page still scrolls
+   * through the strip rather than being trapped by it.
+   *
+   * A swipe ends in a `click` on whatever was under the finger, which would
+   * immediately toggle that element's lock and undo the swipe. `swiped` is
+   * the one-shot flag that swallows exactly that click; every pointerdown
+   * clears it, so it can never suppress a real tap.
+   */
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
+
+  const onPointerDown = useCallback((event: React.PointerEvent) => {
+    swipeStart.current = { x: event.clientX, y: event.clientY };
+    swiped.current = false;
+  }, []);
+
+  const onPointerUp = useCallback(
+    (event: React.PointerEvent) => {
+      const start = swipeStart.current;
+      swipeStart.current = null;
+      if (!start) return;
+      const dx = event.clientX - start.x;
+      const dy = event.clientY - start.y;
+      /* 44px, and more sideways than vertical: the threshold a scroll that
+         drifts a little should not cross. */
+      if (Math.abs(dx) < 44 || Math.abs(dx) <= Math.abs(dy)) return;
+      swiped.current = true;
+      window.clearTimeout(holdTimer.current);
+      const from = READINGS.findIndex((reading) => reading.id === shown);
+      const next =
+        (from + (dx < 0 ? 1 : -1) + READINGS.length) % READINGS.length;
+      setPreview(null);
+      demo.pause();
+      setLocked(READINGS[next].id);
+    },
+    [demo, shown],
+  );
+
   /* Clicking another reading moves the lock; clicking the locked one releases
      it and hands the strip back to the cycle, starting where it is. */
   const toggleLock = useCallback(
     (id: ReadingId) => {
+      if (swiped.current) return;
       window.clearTimeout(holdTimer.current);
       setLocked((current) => {
         const next = current === id ? null : id;
@@ -246,7 +378,17 @@ export function MotionDNAThread() {
   const shownIndex = READINGS.findIndex((r) => r.id === shown);
 
   return (
-    <div ref={demo.ref} className={styles.wrap} data-demo={demo.running}>
+    <div
+      ref={demo.ref}
+      className={styles.wrap}
+      data-demo={demo.running}
+      data-shown={shown}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerCancel={() => {
+        swipeStart.current = null;
+      }}
+    >
       <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg} aria-hidden="true">
         {/* the one signal */}
         <path className={styles.signal} d={signal} />
@@ -257,7 +399,7 @@ export function MotionDNAThread() {
           r={3.4}
         />
 
-        {/* four branches out of it */}
+        {/* five branches out of it */}
         {READINGS.map((reading, i) => {
           const on = shown === reading.id;
           return (
@@ -307,7 +449,7 @@ export function MotionDNAThread() {
 
           The instruction that used to sit here is gone from the page but kept
           as the group's accessible name: the branches now demonstrate what it
-          said, and a screen-reader user still needs to be told what the four
+          said, and a screen-reader user still needs to be told what the five
           toggles are for. */}
       <ul
         className={styles.readings}
@@ -347,7 +489,8 @@ export function MotionDNAThread() {
       </ul>
 
       <p className={styles.caption}>
-        One movement signal. Four ways to read it — the purpose decides which.
+        One movement signal. Five ways to read it — the purpose decides which.
+        Point at a reading, tap it, or swipe across the strip.
       </p>
     </div>
   );

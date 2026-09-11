@@ -1,0 +1,170 @@
+/* ==========================================================================
+   THE HOME SECTION RAIL
+   --------------------------------------------------------------------------
+   Sticky under the fixed global header, and nothing else: no card, no shadow,
+   no second identity. A hairline, a blurred band of page ground and eight
+   quiet labels, so it reads as part of the chrome rather than as a widget
+   that landed on the page.
+
+   The bar keeps its own height in a token (--home-nav-height, declared in
+   globals.css) because two other things must agree with it: the sticky
+   offset here, and the `scroll-margin-top` every home section carries so an
+   anchor never arrives underneath this rail.
+   ========================================================================== */
+
+.bar {
+  position: sticky;
+  /* Flush against the header — a gap here shows a stripe of moving page
+     between two fixed things, which reads as a rendering fault. */
+  top: var(--site-header-height);
+  z-index: 30;
+  height: var(--home-nav-height);
+  border-bottom: 1px solid var(--border-subtle);
+  /* Page ground, not a surface colour: the sections scrolling under it are
+     several different grounds and a tinted bar would clash with each in turn. */
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* A hairline of the brand gradient along the bottom edge, at low opacity.
+   The one piece of decoration, and it is the same gradient the workflow rail
+   and the section headings already use. */
+.bar::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(79 209 255 / 0.35) 20%,
+    rgb(124 58 237 / 0.35) 80%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.inner {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1320px;
+  height: 100%;
+  padding-inline: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .inner {
+    padding-inline: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    padding-inline: 2.25rem;
+  }
+}
+
+/* ── The rail ──
+   Horizontally scrollable at every width; it simply has nothing to scroll
+   once there is room. `scrollbar-width: none` rather than `overflow: hidden`
+   so a touch device can still swipe it. */
+.rail {
+  display: flex;
+  align-items: stretch;
+  gap: 0.1rem;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+  /* Vertical gestures belong to the page; only sideways ones to the rail. */
+  touch-action: pan-x pan-y;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  flex: none;
+  display: flex;
+}
+
+.link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  /* 44px of height on a coarse pointer comes from the bar itself (52px);
+     the padding here is what makes the horizontal target comfortable. */
+  min-height: 44px;
+  padding: 0 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    color var(--motion-ui, 220ms) ease,
+    background-color var(--motion-ui, 220ms) ease;
+}
+
+@media (min-width: 640px) {
+  .link {
+    padding-inline: 0.85rem;
+    font-size: 0.68rem;
+  }
+}
+
+/* The underline IS the state. It grows from the centre, so the rail reads as
+   one continuous track being marked rather than eight buttons lighting up. */
+.link::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0.55rem;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(90deg, #4fd1ff, #7c3aed);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--motion-ui, 220ms) ease;
+}
+
+.link[data-on="true"] {
+  color: var(--text-primary);
+}
+
+.link[data-on="true"]::after {
+  transform: scaleX(1);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--text-primary);
+  }
+  .link:hover::after {
+    transform: scaleX(0.55);
+  }
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: -4px;
+  border-radius: 6px;
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .link::after {
+    transition: none;
+  }
+}

@@ -1171,24 +1171,32 @@ export const watchcareFeatures = [
 // on the product pages where gait genuinely is the subject.
 // ============================================================================
 
+// `short` is the one-word name of the stage, for a control that has to fit
+// four of them across a phone: the home page's workflow stepper shows
+// "Capture · Analyze · Report · Act" and reveals the full `title` and `desc`
+// in the stage's own panel. Two names for one stage, from one record.
 export const workflowStages = [
   {
     step: "01",
+    short: "Capture",
     title: "Capture Movement",
     desc: "A short walking video, CCTV feed, or smartwatch signal — captured wherever the person is, contactless.",
   },
   {
     step: "02",
+    short: "Analyze",
     title: "AI Understands Movement",
     desc: "Pose estimation, gait and activity feature extraction and sensor-fusion models translate motion into measurable signals.",
   },
   {
     step: "03",
+    short: "Report",
     title: "Insight, Report or Dashboard",
     desc: "Movement reports, mobility scores, operator dashboards or safety alerts are generated automatically.",
   },
   {
     step: "04",
+    short: "Act",
     title: "Clinician / Operator Acts",
     desc: "The right person — clinician, therapist, caregiver or security operator — receives the right signal, with the movement evidence behind it.",
   },

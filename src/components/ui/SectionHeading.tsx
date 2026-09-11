@@ -8,6 +8,16 @@ interface Props {
   title: React.ReactNode;
   description?: React.ReactNode;
   align?: "left" | "center";
+  /**
+   * Which step of the display scale the heading takes.
+   *
+   * "xl" is the site-wide default and every existing caller keeps it. "lg" is
+   * for the home page, where eight sections each spend a full display-xl on a
+   * heading and the visitor is meant to be moving between them rather than
+   * arriving at each one — one step down the SAME scale, not a different
+   * typeface, weight or tracking.
+   */
+  size?: "xl" | "lg";
   className?: string;
 }
 
@@ -16,6 +26,7 @@ export function SectionHeading({
   title,
   description,
   align = "center",
+  size = "xl",
   className,
 }: Props) {
   return (
@@ -43,7 +54,10 @@ export function SectionHeading({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.05 }}
-        className="font-display text-display-xl text-balance text-soft-white"
+        className={cn(
+          "font-display text-balance text-soft-white",
+          size === "lg" ? "text-display-lg" : "text-display-xl",
+        )}
       >
         {title}
       </motion.h2>

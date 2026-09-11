@@ -10,6 +10,11 @@
   /* Fixed site chrome. Keep this in sync with the deterministic header box. */
   --site-header-height: 5.625rem;
   --site-anchor-gap: 1.5rem;
+  /* The home page's sticky section rail, which sits directly under the header.
+     Three things read this: the rail's own height, its sticky offset, and the
+     `scroll-margin-top` on every home section (`.home-section` below) — so an
+     anchored section never arrives underneath it. */
+  --home-nav-height: 3.25rem;
   --site-page-intro-space: 3.375rem;
   --site-page-intro-space-compact: 2.375rem;
   --site-page-intro-space-roomy: 4.375rem;
@@ -949,6 +954,25 @@ body {
   .site-sticky-below-header {
     position: sticky;
     top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  }
+
+  /* Every addressable section on the home page. The global `[id]` rule clears
+     the header; these also have to clear the sticky section rail, or a
+     deep-linked section arrives with its heading hidden behind it. */
+  .home-section {
+    scroll-margin-top: calc(
+      var(--site-header-height) + var(--home-nav-height) + var(--site-anchor-gap)
+    );
+  }
+
+  /* `.section` spaces a section as the thing you have just arrived at, with
+     144px of air above and below it at desktop. That is right on a page read
+     top to bottom and wrong on the home page, where a visitor jumps between
+     eight sections and the air between them is pure travel. Home sections
+     keep the same internal rhythm at two thirds of the outer padding. */
+  .home-section.section,
+  .home-band.section {
+    @apply py-16 sm:py-20 lg:py-24;
   }
 
   .container-wide {

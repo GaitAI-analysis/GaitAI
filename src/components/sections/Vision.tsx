@@ -4,9 +4,21 @@ import { motion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Quote } from "lucide-react";
 
+/**
+ * The closing statement.
+ *
+ * Its own `.section` padding put 288px of air around a quote at the end of a
+ * page that already ends with the visitor-intent paths and the contact form —
+ * three closing gestures in a row, each spaced as though it were the first
+ * thing on a page. The spacing is tightened here and nothing else changed: the
+ * heading, the quote and the attribution are untouched.
+ */
 export function Vision() {
   return (
-    <section id="vision" className="section relative overflow-hidden">
+    <section
+      id="vision"
+      className="relative w-full overflow-hidden py-12 sm:py-14 lg:py-16"
+    >
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-mesh opacity-50" />
       <div className="container-wide">
         <SectionHeading
@@ -19,6 +31,7 @@ export function Vision() {
             </>
           }
           description="GaitAI exists for a future where AI doesn’t only respond after something goes wrong, but quietly helps predict, prevent and protect — before it does."
+          size="lg"
         />
 
         <motion.figure
@@ -26,7 +39,7 @@ export function Vision() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="relative mx-auto mt-16 max-w-4xl rounded-3xl border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-10 sm:p-14"
+          className="relative mx-auto mt-8 max-w-4xl rounded-3xl border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-7 sm:p-9"
         >
           <Quote className="absolute -top-5 left-8 h-10 w-10 rounded-full bg-obsidian p-2 text-cyan-300 ring-1 ring-cyan-300/30" />
           <blockquote className="font-display text-2xl leading-relaxed text-soft-white sm:text-3xl">

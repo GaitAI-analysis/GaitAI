@@ -1349,7 +1349,14 @@ async function main() {
       return out;
     };
     const tryStages = stages("components/home/TryGaitAI.tsx", "name", ["insight", "note"]);
-    const storySteps = stages("components/home/MovementStory.tsx", "title", ["detail"]);
+    /* The home page's "One movement. Many meanings." strip. It replaced the
+       five-step movement story that used to be scraped from MovementStory.tsx:
+       the pipeline narrative that told is still in this record twice over — the
+       Try GaitAI walkthrough above and the two Lab pipelines below — and what
+       the home page teaches now is what the SAME signal means depending on
+       what is being asked of it. Read from the component that renders it, so
+       a reading added there reaches Ask without a second list. */
+    const meanings = stages("components/home/MotionDNAThread.tsx", "label", ["note", "reads"]);
     const capabilityTitles = graph.gaitscapeNodes.filter((n) => n.type === "capability").map((n) => n.title);
     const signalTitles = graph.gaitscapeNodes.filter((n) => n.type === "signal").map((n) => n.title);
     const engineStep = trust.deploymentSteps.find((step) => /movement-processing engine/i.test(step.desc));
@@ -1379,10 +1386,10 @@ async function main() {
               tryStages.map((s, i) => `${i + 1}. ${s.name} — ${s.text}`),
             )
           : "",
-        storySteps.length
+        meanings.length
           ? para(
-              "From a person moving to a decision (the movement story)",
-              storySteps.map((s) => `${s.name} — ${s.text}`),
+              "One movement signal, and what each reading of it looks for (the home page's \"One movement. Many meanings.\")",
+              meanings.map((s) => `${s.name} — ${s.text}`),
             )
           : "",
         para(

@@ -34,7 +34,7 @@ import styles from "./analytics.module.css";
 const TABS: CaptureSource[] = ["video", "cctv", "wearable", "pose"];
 const CAP = 4;
 
-export function MovementTeaser() {
+export function MovementTeaser({ nested = false }: { nested?: boolean } = {}) {
   const [source, setSource] = useState<CaptureSource>("video");
   const chain = useMemo(() => chainForSource(source), [source]);
 
@@ -58,22 +58,47 @@ export function MovementTeaser() {
   const family =
     source === "cctv" ? styles.famSecure : styles.famCare;
 
+  /* NESTED — the home page's Technology section renders the chain under the
+     workflow journey, inside a section that already owns the heading, the
+     padding and the container. So `nested` drops this component's own
+     `<section>`, its section padding and its container, and demotes its
+     heading a level; everything below is identical. It is the same panel
+     either way, which is the point of the flag rather than a second copy. */
+  const Shell = nested ? "div" : "section";
+  const Title = "h2";
+
   return (
-    <section id="movement-chain" className={`section ${styles.lab} ${family}`}>
-      <div className="container-wide">
-        <div className="flex flex-wrap items-end justify-between gap-5">
-          <div className="min-w-0">
-            <Eyebrow>What can movement tell us?</Eyebrow>
-            <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
-              One signal in.{" "}
-              <span className="text-gradient">A structured answer out.</span>
-            </h2>
-            <p className="mt-5 max-w-xl text-sm leading-relaxed text-soft-gray">
-              Choose what you can capture and follow it through the platform —
-              the signals it carries, the measurements taken, the intelligence
-              applied and the modules that use them.
-            </p>
-          </div>
+    <Shell
+      /* Nested, the disclosure around it owns `#movement-chain` — the anchor
+         has to be on the element that is still in the layout when the chain is
+         closed, or a deep link lands on something with `hidden` on it. */
+      id={nested ? undefined : "movement-chain"}
+      className={nested ? `${styles.lab} ${family}` : `section ${styles.lab} ${family}`}
+    >
+      <div className={nested ? "" : "container-wide"}>
+        <div
+          className={`flex flex-wrap items-end gap-5 ${
+            nested ? "justify-end" : "justify-between"
+          }`}
+        >
+          {/* Nested, the disclosure row above has already said all of this —
+              the eyebrow, the headline and the lead are what its summary is
+              made of. Repeating them inside the panel it opens printed the
+              same heading twice, four lines apart. */}
+          {!nested && (
+            <div className="min-w-0">
+              <Eyebrow>What can movement tell us?</Eyebrow>
+              <Title className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
+                One signal in.{" "}
+                <span className="text-gradient">A structured answer out.</span>
+              </Title>
+              <p className="mt-5 max-w-xl text-sm leading-relaxed text-soft-gray">
+                Choose what you can capture and follow it through the platform —
+                the signals it carries, the measurements taken, the intelligence
+                applied and the modules that use them.
+              </p>
+            </div>
+          )}
           {/* The selector is the single most important interaction on the
               home page and it used to read as a row of captions above a
               diagram. It now carries the interaction system's segmented
@@ -84,6 +109,7 @@ export function MovementTeaser() {
             label="Capture input"
             hint="Choose an input to explore"
             cueKey="home-input-selector"
+            controls="movement-chain-panel"
             value={source}
             onChange={(id) => setSource(id as CaptureSource)}
             options={TABS.map((id) => ({
@@ -93,7 +119,12 @@ export function MovementTeaser() {
           />
         </div>
 
-        <div className={`${styles.panel} mt-8`} aria-live="polite">
+        <div
+          id="movement-chain-panel"
+          role="tabpanel"
+          className={`${styles.panel} mt-8`}
+          aria-live="polite"
+        >
           <div className={styles.panelHead}>
             <span className={styles.label}>
               {CAPTURE_SOURCES.find((item) => item.id === source)!.label}
@@ -169,6 +200,6 @@ export function MovementTeaser() {
           </div>
         </div>
       </div>
-    </section>
+    </Shell>
   );
 }

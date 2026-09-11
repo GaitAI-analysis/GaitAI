@@ -1,0 +1,143 @@
+/* ==========================================================================
+   THE CAPTURE-CHAIN DISCLOSURE
+   --------------------------------------------------------------------------
+   One row that states what is inside and opens it. It has to read as an
+   invitation rather than as a collapsed accordion item, because what is behind
+   it is the best explanation on the page — so it carries the eyebrow, the
+   headline and the lead the chain used to carry above itself, and the only
+   thing the open state adds is the chain.
+   ========================================================================== */
+
+.disclosure {
+  margin-top: 2.5rem;
+}
+
+.summary {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 1.35rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  background: var(--surface-secondary);
+  text-align: left;
+  transition:
+    border-color var(--motion-ui, 220ms) ease,
+    background-color var(--motion-ui, 220ms) ease;
+}
+
+@media (hover: hover) {
+  .summary:hover {
+    border-color: rgb(79 209 255 / 0.35);
+  }
+}
+
+.summary:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: 3px;
+}
+
+/* Open, the row becomes the panel's header: square bottom corners and no
+   bottom border, so the row and the chain read as one surface. */
+.summary[data-open="true"] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+
+.summaryCopy {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: block;
+  color: var(--trajectory);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.headline {
+  display: block;
+  margin-top: 0.6rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: rgb(var(--c-soft-white));
+}
+
+.hint {
+  display: block;
+  margin-top: 0.6rem;
+  max-width: 44rem;
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+/* ── The marker ── */
+
+.marker {
+  display: none;
+  flex: none;
+  align-items: center;
+  gap: 0.7rem;
+  padding-top: 0.15rem;
+}
+
+@media (min-width: 720px) {
+  .marker {
+    display: inline-flex;
+  }
+}
+
+.markerLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.summary[data-open="true"] .markerLabel {
+  color: var(--trajectory);
+}
+
+/* A chevron drawn with two borders, so no icon has to be imported for it. */
+.chevron {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-right: 1.5px solid var(--trajectory);
+  border-bottom: 1.5px solid var(--trajectory);
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform var(--motion-ui, 220ms) ease;
+}
+
+.summary[data-open="true"] .chevron {
+  transform: rotate(225deg);
+}
+
+/* ── The region ── */
+
+.region {
+  padding: 0 1.35rem 1.35rem;
+  border: 1px solid var(--border-subtle);
+  border-top: 0;
+  border-radius: 0 0 1rem 1rem;
+  background: var(--surface-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .summary,
+  .chevron {
+    transition: none;
+  }
+}

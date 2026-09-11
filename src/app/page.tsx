@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
-import { MissionVision } from "@/components/sections/about/MissionVision";
+import { HomeSectionNav } from "@/components/home/HomeSectionNav";
+import { OverviewSection } from "@/components/home/OverviewSection";
 import { Verticals } from "@/components/sections/Verticals";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
-import { HowItWorks } from "@/components/sections/HowItWorks";
-import { MovementStory } from "@/components/home/MovementStory";
+import { EnvironmentExplorer } from "@/components/home/EnvironmentExplorer";
+import { TechnologySection } from "@/components/home/TechnologySection";
+import { ResearchGateway } from "@/components/home/ResearchGateway";
+import { TrustGateway } from "@/components/home/TrustGateway";
 import { VisitorIntent } from "@/components/home/VisitorIntent";
-import { MovementTeaser } from "@/components/analytics/MovementTeaser";
-import { ResearchCredibility } from "@/components/sections/ResearchCredibility";
-import { EnvironmentStrip } from "@/components/sections/EnvironmentStrip";
 import { Vision } from "@/components/sections/Vision";
 import { CTA } from "@/components/sections/CTA";
 
@@ -20,40 +20,64 @@ export const metadata: Metadata = {
 };
 
 /**
- * Home — "what is GaitAI and why should I care?", and nothing else.
+ * Home — eight places to go, not one document to read.
+ * =============================================================================
+ * It used to be twelve sections in a fixed order, about 16,000px at 1440, and
+ * the only way to reach the ninth thing was to scroll past the eight before
+ * it. Every section was good. The arrangement was a specification document.
  *
- *   1. Hero                        what this is
- *   2. Mission / Vision            the Motion DNA band
- *   3. Verticals                   the two product families
- *   4. Featured products           the eight we lead with
- *   5. How GaitAI works            the four-stage pipeline
- *   5b. What can movement tell us?  one interactive chain, teaser only
- *   6. Research credibility        why believe it, + featured references
- *   7. Environments                where it applies (teaser → /use-cases)
- *   8. Philosophy                  the closing statement
- *   9. CTA                         request a demo
+ * THE SHAPE NOW
  *
- * Everything with its own destination is a teaser here and lives in full
- * elsewhere: the research timeline on /research, the publication library on
- * /publications, the product grids on /mobilitycare and /securevision, the
- * problem-led breakdown on /use-cases, WatchCare's deep dive on
- * /mobilitycare#watchcare, and the collaboration and investment material on
- * /investors. The obsolete /about route is gone; the audience framing it
- * carried now opens /use-cases.
+ *   Hero                 one question, two doors, one demo
+ *   HomeSectionNav       sticky — the eight destinations below
+ *   #overview            Motion DNA band + "One movement. Many meanings."
+ *   #mobilitycare        the clinical family, its own band
+ *   #securevision        the privacy-aware family, its own band
+ *   #products            the featured four per family, behind a family tab
+ *   #use-cases           18 environments behind 7 categories
+ *   #technology          the four-stage journey + the capture chain
+ *   #research            the founder record and the two research doors
+ *   #trust               four principles and the Trust Center
+ *   VisitorIntent        "what brings you here?" — the last, narrowest path
+ *   Vision               the closing statement
+ *   #contact             request a demo
+ *
+ * EVERY SECTION NAME ABOVE THAT STARTS WITH `#` IS A REAL ANCHOR, listed once
+ * in `data/home-sections.ts`, carried by exactly one element, and offset for
+ * the header and the sticky rail by `.home-section` in globals.css. A hash
+ * pasted into a fresh tab lands where it says it does.
+ *
+ * WHAT PROGRESSIVE DISCLOSURE REPLACED, AND WHERE IT WENT
+ *
+ *   the 5-step movement story   → the 5 meanings, which is the same signal
+ *                                 making the platform's point in one screen;
+ *                                 the pipeline narrative it told is the
+ *                                 Technology section's subject and
+ *                                 /movement-lab's in full
+ *   the 4 stacked workflow rows → one stage panel, clicked through
+ *   18 stacked environments     → 7 categories over the same 18 records
+ *   the full research section   → a gateway; the evidence map is on /research
+ *                                 and the library on /publications
+ *   the trust material buried
+ *   under research              → its own section, which it never had
+ *
+ * Nothing was deleted to make the page shorter. Every claim, every count and
+ * every link either still renders here or renders on the page this one now
+ * points at by name.
  */
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <MissionVision motion="gait" />
-      <MovementStory />
+      <HomeSectionNav />
+      <OverviewSection />
       <Verticals />
       <FeaturedProducts />
-      <HowItWorks />
-      <MovementTeaser />
-      <ResearchCredibility />
+      <EnvironmentExplorer />
+      <TechnologySection />
+      <ResearchGateway />
+      <TrustGateway />
       <VisitorIntent />
-      <EnvironmentStrip />
       <Vision />
       <CTA />
     </>

@@ -140,6 +140,7 @@ export function SegmentTabs({
   label,
   hint,
   cueKey,
+  controls,
 }: {
   options: { id: string; label: string }[];
   value: string;
@@ -149,6 +150,14 @@ export function SegmentTabs({
   hint?: string;
   /** Storage key for the one-time first-visit ring. Omit to never show one. */
   cueKey?: string;
+  /**
+   * id of the region these tabs govern. Optional only because the control
+   * predates the panels having ids; pass it wherever the panel has one, so a
+   * screen-reader user is told what the tabs change rather than having to
+   * find out. A `tablist` whose tabs control nothing is a row of buttons
+   * wearing tab semantics.
+   */
+  controls?: string;
 }) {
   const listRef = useRef<HTMLDivElement>(null);
   const firstVisit = useFirstVisit(cueKey);
@@ -192,6 +201,7 @@ export function SegmentTabs({
               type="button"
               role="tab"
               aria-selected={on}
+              aria-controls={controls}
               tabIndex={on ? 0 : -1}
               onClick={() => onChange(option.id)}
               onKeyDown={(event) => {

@@ -19,6 +19,9 @@
 .wrap {
   width: 100%;
   max-width: 46rem;
+  /* Sideways drags are the strip's swipe gesture; vertical ones stay the
+     page's, so scrolling through the section is never trapped by it. */
+  touch-action: pan-y;
 }
 
 .svg {
@@ -187,12 +190,17 @@
 
 /* ── The readings, which are the control ─────────────────────────────────── */
 .readings {
-  /* Two aligned columns rather than a wrapping row. Four rows of name +
-     purpose do not fit across 736px, so the flex version wrapped into an
-     uneven 2×2 whose second line started at a different x than the first —
-     which read as an accident. A grid puts the four markers on two axes. */
+  /* Aligned columns rather than a wrapping row. Rows of name + purpose do not
+     all fit across one line, and the flex version wrapped into an uneven grid
+     whose second line started at a different x than the first — which read as
+     an accident. A grid keeps every marker on an axis.
+
+     `auto-fit` rather than a fixed two: the strip is no longer always the full
+     width of the hero. In the section's left column it settles at two columns
+     of five readings; on a phone it becomes one; and adding a sixth reading
+     would not need this rule changed. */
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   gap: 0.1rem 0.75rem;
   justify-items: start;
   /* Closed up against the branches now that the instruction line between them

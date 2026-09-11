@@ -62,6 +62,8 @@ async function main() {
   const labsMod = await load("data/labs.ts");
   const fusion = await load("data/fusion-sandbox.ts");
   const privacyLens = await load("data/privacy-lens.ts");
+  const envCategories = await load("data/environment-categories.ts");
+  const homeSectionsMod = await load("data/home-sections.ts");
 
   const { allProducts, industryUseCases } = products;
   const { gaitscapeNodes, gaitscapeRelationships } = graph;
@@ -565,6 +567,69 @@ async function main() {
             "in products.ts, and a second one drifts out of step with it",
         );
       }
+    }
+  }
+
+  // ── 11b. The home page's environment categories ──────────────────────────
+  // The home page reaches every environment through exactly one category. An
+  // environment no category claims is unreachable from the home page; one two
+  // categories claim is counted twice and the per-category counts stop adding
+  // up to the total in the heading. Both are build errors rather than a card
+  // quietly missing from a tab nobody checked.
+  ran.push("environment categories");
+  const {
+    environmentCategories,
+    uncategorisedEnvironmentIds,
+    duplicateEnvironmentIds,
+    unknownEnvironmentReferences,
+  } = envCategories;
+
+  for (const id of uncategorisedEnvironmentIds) {
+    err(
+      "environment categories",
+      `environment "${id}" is in no home-page category — it would be ` +
+        "unreachable from the home page's explorer",
+    );
+  }
+  for (const id of duplicateEnvironmentIds) {
+    err(
+      "environment categories",
+      `environment "${id}" is claimed by more than one category, so the ` +
+        "category counts no longer add up to the environment total",
+    );
+  }
+  for (const reference of unknownEnvironmentReferences) {
+    err(
+      "environment categories",
+      `category references an environment that does not exist: ${reference}`,
+    );
+  }
+  const categorised = environmentCategories.reduce(
+    (total, category) => total + category.environmentIds.length,
+    0,
+  );
+  if (categorised !== industryUseCases.length) {
+    err(
+      "environment categories",
+      `categories cover ${categorised} environments but there are ` +
+        `${industryUseCases.length}`,
+    );
+  }
+
+  // ── 11c. The home page's section registry ────────────────────────────────
+  // Every navigator item must name a section id that is unique, and the two
+  // family bands must match the product verticals — `/#mobilitycare` is both a
+  // nav destination and the family's own name, and they have to agree.
+  ran.push("home sections");
+  const { homeSectionIds } = homeSectionsMod;
+  dupes("home section", homeSectionIds);
+  for (const vertical of ["mobilitycare", "securevision"]) {
+    if (!homeSectionIds.includes(vertical)) {
+      err(
+        "home sections",
+        `the home navigator has no "${vertical}" section, but that family ` +
+          "band carries it as its anchor",
+      );
     }
   }
 

@@ -6,7 +6,6 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { productCount } from "@/data/products";
 import { TryGaitAI } from "@/components/home/TryGaitAI";
-import { MotionDNAThread } from "@/components/home/MotionDNAThread";
 import { useEffect, useState } from "react";
 import { useVisualBudget } from "@/lib/useVisualBudget";
 import { MotionSignature } from "@/components/visuals/MotionSignature";
@@ -37,7 +36,6 @@ export function Hero() {
   const [signatureStage, setSignatureStage] = useState(0);
   const [paused, setPaused] = useState(false);
   const [manual, setManual] = useState(false);
-  const [inspect, setInspect] = useState(false);
   const stages = [
     "Human",
     "Pose",
@@ -75,7 +73,7 @@ export function Hero() {
       ref={ref}
       id="platform"
       aria-labelledby="home-hero-title"
-      className="site-viewport-section relative flex w-full items-center overflow-hidden py-20 sm:py-28 lg:py-32"
+      className="site-viewport-section relative flex w-full items-center overflow-hidden py-16 sm:py-20 lg:py-24"
     >
       <div className="hero-ambient pointer-events-none absolute inset-0 -z-10" />
       <div className="ring-grid pointer-events-none absolute inset-0 -z-10 opacity-25" />
@@ -123,15 +121,21 @@ export function Hero() {
             </span>
           </motion.h1>
 
+          {/* THE QUESTION.
+              What stood here was the platform explained: two families, four
+              application areas and a module count, in one sentence, before the
+              visitor had done anything. It is a good sentence and it was the
+              wrong first move — it asks somebody to process the whole platform
+              to earn the right to click. A question does the opposite: it
+              makes the answer worth going to find, and the answer is the
+              section immediately below this one. */}
           <motion.p
             variants={fadeUp}
             custom={2}
-            className="mt-8 max-w-2xl text-balance text-base leading-relaxed text-soft-white/90 sm:mt-10 sm:text-xl"
+            className="mt-8 max-w-3xl text-balance font-display text-lg leading-[1.45] text-soft-white/90 sm:mt-10 sm:text-2xl sm:leading-[1.4]"
           >
-            GaitAI turns human movement into meaningful intelligence for
-            mobility, recovery, safety and governed identity applications —
-            across MobilityCare and SecureVision, with {productCount} connected
-            modules.
+            What if the way we move could reveal health, risk, recovery and
+            safety — before anything goes wrong?
           </motion.p>
 
           <motion.div
@@ -139,12 +143,13 @@ export function Hero() {
             custom={3}
             className="mt-10 flex w-full max-w-3xl flex-col items-stretch justify-center gap-3 sm:mt-12 sm:flex-row sm:items-center sm:flex-wrap"
           >
-            {/* The demo comes first: it is the one thing above the fold that
-                lets a visitor SEE what the platform does rather than read
-                about it. The two family links keep their copy and their
-                order behind it. Nothing loads until it is pressed. */}
-            <TryGaitAI />
-
+            {/* THE TWO DOORS FIRST.
+                The demo used to lead. It is the best thing in the hero and it
+                is still here, but it answers "show me" — and a visitor who has
+                only just read the question is choosing WHICH WORLD they are
+                in, not asking for a demonstration. The two families are that
+                choice, so they come first and the demo follows them. Nothing
+                loads until the demo is pressed. */}
             <Link
               href="/mobilitycare"
               className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/35 bg-teal-300/[0.1] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/50 hover:bg-teal-300/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
@@ -165,27 +170,33 @@ export function Hero() {
                 aria-hidden="true"
               />
             </Link>
+
+            <TryGaitAI />
           </motion.div>
 
-          {/* The two vertical panels immediately below spell out the same
-              coverage in full, so the hero states the span rather than
-              listing it. */}
-          <motion.div
+          {/* The supporting evidence, kept and demoted. One line: the span and
+              the module count, derived. It is the sentence the old paragraph
+              opened with, at the weight a supporting fact should carry rather
+              than the weight of the first thing you read. */}
+          <motion.p
             variants={fadeUp}
             custom={4}
-            className="mt-12 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs text-soft-gray/80 sm:mt-16"
+            className="mt-9 max-w-xl text-balance text-[13px] leading-relaxed text-soft-gray/80 sm:mt-11 sm:text-sm"
           >
-            <span>
-              Clinical mobility and privacy-aware public safety, on one
-              platform.
-            </span>
-          </motion.div>
+            Clinical mobility and privacy-aware public safety, on one platform —
+            MobilityCare and SecureVision, {productCount} connected modules.
+          </motion.p>
 
           {/* The living signature's one line of controls: the six stages the
               scene walks through (selectable, so the progression is legible
-              without waiting for it), then the motion and stride controls.
-              Mono and quiet on purpose — a caption to the scene, not a
-              toolbar over the headline. */}
+              without waiting for it), then the motion control.
+
+              THE STRIDE INSPECTOR IS GONE FROM HERE. It opened a second,
+              interactive Motion DNA drawing inside the first viewport, under
+              a headline, two doors and a demo — and the section directly below
+              this one is now an interactive Motion DNA drawing with room to
+              explain itself. One of them had to go and it was not going to be
+              the one with the explanation. */}
           <div className={living.living}>
             {eligible && !reduceMotion && (
               <ol
@@ -221,44 +232,15 @@ export function Hero() {
                   {paused ? "Resume motion" : "Pause motion"}
                 </button>
               )}
-              <button
-                type="button"
-                className={living.inspect}
-                aria-expanded={inspect}
-                aria-controls="hero-stride-inspector"
-                onClick={() => setInspect((value) => !value)}
-              >
-                {inspect ? "Close stride" : "Inspect one stride"}
-                <span aria-hidden="true"> {inspect ? "−" : "+"}</span>
-              </button>
+              {/* Down to the answer. A link rather than a scroll script, so
+                  it deep-links, it enters the history and the keyboard
+                  reaches it like everything else. */}
+              <a href="#overview" className={living.inspect}>
+                What can movement tell us?
+                <span aria-hidden="true"> ↓</span>
+              </a>
             </div>
           </div>
-          <div
-            id="hero-stride-inspector"
-            hidden={!inspect}
-            className={living.inspector}
-          >
-            {inspect && (
-              <>
-                <p>Illustrative Motion DNA · explore a joint or trajectory</p>
-                <MotionSignature
-                  stage={Math.max(2, signatureStage)}
-                  interactive
-                />
-              </>
-            )}
-          </div>
-
-          {/* The hero's one interaction: the same signal, four readings. Kept
-              to a strip so the headline, the actions and the 3D scene above it
-              all keep their weight. */}
-          <motion.div
-            variants={fadeUp}
-            custom={5}
-            className="mt-8 flex w-full justify-center sm:mt-10"
-          >
-            <MotionDNAThread />
-          </motion.div>
         </motion.div>
       </div>
     </section>

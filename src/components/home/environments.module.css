@@ -1,0 +1,334 @@
+/* ==========================================================================
+   THE HOME PAGE'S ENVIRONMENT EXPLORER
+   --------------------------------------------------------------------------
+   A category rail over a grid of three to five environment cards. The card
+   itself is the treatment the environment rails already used — scene tile,
+   name, outcome, corner arrow, accent from the family — because those cards
+   were not the problem. Eighteen of them stacked vertically was.
+
+   Only the accent branches by family: teal for MobilityCare, royal for
+   SecureVision, exactly as the rest of the site does it.
+   ========================================================================== */
+
+.explorer {
+  margin-top: 2.5rem;
+}
+
+/* ── The category rail ── */
+
+.rail {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 -1.25rem;
+  padding: 0 1.25rem 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overscroll-behavior-x: contain;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .rail {
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+}
+
+.tab {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* The site's touch floor. These are the section's primary control and they
+     are reached with a thumb more often than with a pointer. */
+  min-height: 44px;
+  padding: 0 0.95rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-secondary);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    border-color var(--motion-ui, 220ms) ease,
+    background-color var(--motion-ui, 220ms) ease,
+    color var(--motion-ui, 220ms) ease;
+}
+
+.tab[data-on="true"] {
+  border-color: rgb(79 209 255 / 0.45);
+  background: rgb(79 209 255 / 0.09);
+  color: rgb(var(--c-soft-white));
+}
+
+:global(.light) .tab[data-on="true"] {
+  border-color: rgb(14 116 144 / 0.45);
+  background: rgb(14 116 144 / 0.08);
+}
+
+@media (hover: hover) {
+  .tab:hover {
+    border-color: rgb(79 209 255 / 0.3);
+    color: rgb(var(--c-soft-white));
+  }
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: 2px;
+}
+
+.tabCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.tab[data-on="true"] .tabCount {
+  color: var(--trajectory);
+}
+
+/* ── A panel ── */
+
+.panel {
+  margin-top: 1.75rem;
+}
+
+.panel:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: 6px;
+  border-radius: 10px;
+}
+
+.blurb {
+  max-width: 46rem;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.cards {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 700px) {
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ── One environment card ── */
+
+.card {
+  --card-accent: 79 209 255;
+  position: relative;
+  display: flex;
+  height: 100%;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.95rem 2.1rem 1rem 0.95rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.9rem;
+  background: var(--surface-secondary);
+  transition:
+    border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cardCare {
+  --card-accent: 45 212 191;
+}
+
+.cardSecure {
+  --card-accent: 122 152 255;
+}
+
+:global(.light) .cardCare {
+  --card-accent: 13 148 136;
+}
+
+:global(.light) .cardSecure {
+  --card-accent: 37 99 235;
+}
+
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: rgb(var(--card-accent) / 0.4);
+    background-color: rgb(var(--card-accent) / 0.05);
+  }
+}
+
+.card:focus-visible {
+  outline: 2px solid rgb(var(--card-accent));
+  outline-offset: 3px;
+}
+
+.scene {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  height: 2.5rem;
+  padding: 0.2rem 0.25rem;
+  border: 1px solid rgb(var(--card-accent) / 0.22);
+  border-radius: 0.55rem;
+  background-color: rgb(var(--card-accent) / 0.06);
+  color: rgb(var(--card-accent) / 0.9);
+}
+
+.copy {
+  min-width: 0;
+}
+
+.name {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: rgb(var(--c-soft-white));
+}
+
+.outcome {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.arrow {
+  position: absolute;
+  top: 0.95rem;
+  right: 0.9rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--text-muted);
+  transition: color 0.35s ease;
+}
+
+.card:hover .arrow {
+  color: rgb(var(--card-accent));
+}
+
+/* ── Service-mode chips (Defence only) ── */
+
+.contexts {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px dashed var(--border-subtle);
+  border-radius: 0.9rem;
+}
+
+.contextsHead {
+  font-size: 0.75rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border: 1px solid rgb(122 152 255 / 0.3);
+  border-radius: 999px;
+  background: rgb(122 152 255 / 0.07);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition:
+    border-color var(--motion-ui, 220ms) ease,
+    color var(--motion-ui, 220ms) ease;
+}
+
+.chip:hover {
+  border-color: rgb(122 152 255 / 0.55);
+  color: rgb(var(--c-soft-white));
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: 2px;
+}
+
+/* ── Panel footer ── */
+
+.panelFoot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.75rem;
+  margin-top: 1.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.footLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  color: var(--trajectory);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.footLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.footLink:focus-visible {
+  outline: 2px solid var(--trajectory);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.footArrow {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .card,
+  .arrow,
+  .chip {
+    transition: none;
+  }
+  .card:hover {
+    transform: none;
+  }
+}

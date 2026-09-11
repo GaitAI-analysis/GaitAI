@@ -85,9 +85,10 @@ export function HomeSectionNav() {
      *
      * The question is simply "which section have I scrolled past the top
      * of", so it is answered that way: the LAST section whose top edge is at
-     * or above the band. The observer stays, but only as the trigger — it
-     * fires on exactly the crossings that can change the answer, which is
-     * why there is no scroll listener here and no rAF loop.
+     * or above the band. The observer is the trigger for the crossings that
+     * can change the answer, and a settle handler below covers the one case
+     * it cannot see — a smooth scroll that is still running when its last
+     * callback fires. There is no rAF loop and nothing measures per frame.
      */
     const resolve = () => {
       /* The line a section's top has to have crossed to count as the one
@@ -114,7 +115,52 @@ export function HomeSectionNav() {
     });
 
     for (const element of elements) observer.observe(element);
-    return () => observer.disconnect();
+
+    /**
+     * AND ONE RECOMPUTE WHEN THE PAGE STOPS MOVING.
+     *
+     * The observer alone is not enough, and the reason is `scroll-behavior:
+     * smooth` in globals.css. Arriving at `/#research` animates the viewport
+     * from the top of the page all the way down, the observer fires its
+     * crossings DURING that animation, and its last callback lands before the
+     * animation finishes — so the highlight is computed from a position the
+     * reader never stops at, and nothing recomputes once they do. Live, that
+     * left `/#research` lighting Technology every time and `/#use-cases`
+     * lighting Products two arrivals in three; the further down the page, the
+     * longer the animation and the further behind the last callback fell.
+     *
+     * It is not a stale-layout problem — the document height and the target's
+     * position were identical on every run — so nudging the scroll does not
+     * fix it either: a one-pixel move crosses no band edge and produces no
+     * callback at all.
+     *
+     * `scrollend` fires exactly once when scrolling settles, which is the
+     * event this needs. Where it does not exist yet (Safari), a debounced
+     * `scroll` listener stands in — still one `setTimeout` per frame rather
+     * than a layout read, with the actual measuring done once at the end.
+     * `resize` matters too, because the line the answer is measured against
+     * is a fraction of the viewport height.
+     */
+    let settle: number | undefined;
+    const onScroll = () => {
+      window.clearTimeout(settle);
+      settle = window.setTimeout(resolve, 120);
+    };
+    const hasScrollEnd = "onscrollend" in window;
+    if (hasScrollEnd) {
+      window.addEventListener("scrollend", resolve, { passive: true });
+    } else {
+      window.addEventListener("scroll", onScroll, { passive: true });
+    }
+    window.addEventListener("resize", onScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.clearTimeout(settle);
+      if (hasScrollEnd) window.removeEventListener("scrollend", resolve);
+      else window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   /* Keep the current item visible in the rail without moving the page. */

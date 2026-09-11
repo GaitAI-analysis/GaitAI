@@ -34,32 +34,32 @@ export function Hero() {
   const reduceMotion = useReducedMotion();
   const { ref, eligible, visible } = useVisualBudget();
   const [signatureStage, setSignatureStage] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [manual, setManual] = useState(false);
-  const stages = [
-    "Human",
-    "Pose",
-    "Skeleton",
-    "Trajectories",
-    "Signals",
-    "Intelligence",
-  ];
+
+  /**
+   * THE SCENE STILL WALKS ITS SIX STAGES. Only the caption row that listed
+   * them is gone.
+   *
+   * It used to carry three controls: the six stage names as buttons, a pause
+   * toggle, and a link down to the next section. All three are removed from
+   * the hero — the stage list was a legend for a background effect, which is
+   * not something the first viewport should spend a row on, and the two
+   * pieces of state behind it (`manual`, `paused`) existed only to serve
+   * those buttons.
+   *
+   * What is NOT removed is the progression itself: this timer still advances
+   * the scene from stage 0 to stage 5, so the background animation is
+   * unchanged. Reduced motion and the visual budget still switch it off, and
+   * under either the scene is never mounted in the first place — so dropping
+   * the pause button takes away a control, not an escape hatch.
+   */
   useEffect(() => {
-    if (
-      reduceMotion ||
-      !eligible ||
-      !visible ||
-      paused ||
-      manual ||
-      signatureStage >= 5
-    )
-      return;
+    if (reduceMotion || !eligible || !visible || signatureStage >= 5) return;
     const timer = window.setTimeout(
       () => setSignatureStage((stage) => Math.min(stage + 1, 5)),
       1500,
     );
     return () => window.clearTimeout(timer);
-  }, [reduceMotion, eligible, visible, paused, manual, signatureStage]);
+  }, [reduceMotion, eligible, visible, signatureStage]);
 
   /* What every device without the scene sees: the same Motion DNA, still. */
   const staticSignature = (
@@ -85,7 +85,7 @@ export function Hero() {
             className="hero-scene-mask pointer-events-none absolute inset-x-0 top-[8%] -z-0 h-[76%] w-full opacity-[0.29]"
           >
             <HeroScene
-              running={visible && !paused}
+              running={visible}
               signatureStage={signatureStage}
             />
           </div>
@@ -186,61 +186,6 @@ export function Hero() {
             Clinical mobility and privacy-aware public safety, on one platform —
             MobilityCare and SecureVision, {productCount} connected modules.
           </motion.p>
-
-          {/* The living signature's one line of controls: the six stages the
-              scene walks through (selectable, so the progression is legible
-              without waiting for it), then the motion control.
-
-              THE STRIDE INSPECTOR IS GONE FROM HERE. It opened a second,
-              interactive Motion DNA drawing inside the first viewport, under
-              a headline, two doors and a demo — and the section directly below
-              this one is now an interactive Motion DNA drawing with room to
-              explain itself. One of them had to go and it was not going to be
-              the one with the explanation. */}
-          <div className={living.living}>
-            {eligible && !reduceMotion && (
-              <ol
-                className={living.sequence}
-                aria-label="Stages of the living movement signature"
-              >
-                {stages.map((stage, index) => (
-                  <li key={stage}>
-                    <button
-                      type="button"
-                      aria-pressed={signatureStage === index}
-                      onClick={() => {
-                        setManual(true);
-                        setSignatureStage(index);
-                      }}
-                    >
-                      {stage}
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            )}
-            <div className={living.controls}>
-              {eligible && !reduceMotion && (
-                <button
-                  type="button"
-                  onClick={() => setPaused((value) => !value)}
-                  aria-pressed={paused}
-                  aria-label={
-                    paused ? "Resume hero motion" : "Pause hero motion"
-                  }
-                >
-                  {paused ? "Resume motion" : "Pause motion"}
-                </button>
-              )}
-              {/* Down to the answer. A link rather than a scroll script, so
-                  it deep-links, it enters the history and the keyboard
-                  reaches it like everything else. */}
-              <a href="#overview" className={living.inspect}>
-                What can movement tell us?
-                <span aria-hidden="true"> ↓</span>
-              </a>
-            </div>
-          </div>
         </motion.div>
       </div>
     </section>

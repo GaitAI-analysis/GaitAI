@@ -19,7 +19,9 @@
   top: var(--site-header-height);
   z-index: 30;
   height: var(--home-nav-height);
-  border-bottom: 1px solid var(--border-subtle);
+  /* NO border here. The bar is as wide as the viewport because its blurred
+     ground is chrome; the separator belongs to the rail and lives on
+     `.track`. A border here was a rule across the whole page. */
   /* Page ground, not a surface colour: the sections scrolling under it are
      several different grounds and a tinted bar would clash with each in turn. */
   background: color-mix(in srgb, var(--bg) 88%, transparent);
@@ -27,24 +29,6 @@
   -webkit-backdrop-filter: blur(14px);
 }
 
-/* A hairline of the brand gradient along the bottom edge, at low opacity.
-   The one piece of decoration, and it is the same gradient the workflow rail
-   and the section headings already use. */
-.bar::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: -1px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(79 209 255 / 0.35) 20%,
-    rgb(124 58 237 / 0.35) 80%,
-    transparent
-  );
-  pointer-events: none;
-}
 
 .inner {
   margin-inline: auto;
@@ -64,6 +48,43 @@
   .inner {
     padding-inline: 2.25rem;
   }
+}
+
+/* ── The track ──
+   The separator, and the only thing that carries it.
+
+   `width: max-content` makes this box exactly as wide as the eight labels
+   inside it, so the rule starts at OVERVIEW's left edge and stops at USE
+   CASES' right edge. `max-width: 100%` is what keeps that honest on a narrow
+   screen: the track can never exceed the container, so the labels scroll
+   inside a rule that ends where the container does rather than running off
+   the side of the page. No viewport units, and nothing on the section. */
+.track {
+  position: relative;
+  width: max-content;
+  max-width: 100%;
+  height: 100%;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* A hairline of the brand gradient along that same edge, at low opacity. The
+   one piece of decoration, and it is the same gradient the workflow rail and
+   the section headings already use. It follows the track, so it is the width
+   of the labels too. */
+.track::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(79 209 255 / 0.35) 20%,
+    rgb(124 58 237 / 0.35) 80%,
+    transparent
+  );
+  pointer-events: none;
 }
 
 /* ── The rail ──

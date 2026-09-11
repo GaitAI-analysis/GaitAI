@@ -61,7 +61,8 @@ export function VisitorIntent() {
 
   return (
     <section
-      className={`section home-band ${styles.intent}`}
+      id="trust"
+      className={`home-section section home-band ${styles.intent}`}
       aria-labelledby="visitor-intent-title"
     >
       <div className="container-wide">

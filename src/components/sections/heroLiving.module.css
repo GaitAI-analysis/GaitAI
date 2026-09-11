@@ -1,97 +1,14 @@
-/* The living hero's caption row: stage progression + motion controls.
-   Mono, small and centred so it reads as a legend under the scene. */
+/* The hero's still fallback.
+   ==========================================================================
+   This file used to hold the caption row under the hero: the six stage names
+   the 3D scene walks through, a pause toggle and a link down to the next
+   section. That row is gone from the hero — a legend for a background effect
+   is not what the first viewport should spend a line on — and its rules went
+   with it rather than being left behind as dead selectors.
 
-.living {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem 1.5rem;
-  margin-top: 1.25rem;
-}
-
-.sequence {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* A hairline dot between stages: the progression reads left to right. */
-.sequence li + li::before {
-  content: "·";
-  margin: 0 0.1rem;
-  color: var(--text-muted);
-  opacity: 0.55;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.65rem;
-}
-
-.sequence li {
-  display: inline-flex;
-  align-items: center;
-}
-
-.sequence button,
-.controls button,
-.controls a {
-  min-height: 44px;
-  padding: 0.4rem 0.55rem;
-  color: var(--text-muted);
-  font-size: 0.65rem;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  letter-spacing: 0.02em;
-  border-bottom: 1px solid transparent;
-  transition:
-    color var(--motion-ui, 220ms),
-    border-color var(--motion-ui, 220ms);
-}
-
-.sequence button[aria-pressed="true"],
-.sequence button:hover {
-  color: var(--trajectory);
-  border-bottom-color: var(--trajectory);
-}
-
-.controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.controls button,
-.controls a {
-  display: inline-flex;
-  align-items: center;
-  color: var(--text-secondary);
-  font-family: inherit;
-  font-size: 0.7rem;
-  letter-spacing: 0;
-}
-
-.controls button:hover,
-.controls a:hover {
-  color: var(--text-primary);
-}
-
-.controls button[aria-pressed="true"] {
-  color: var(--trajectory);
-}
-
-.inspect span {
-  color: var(--trajectory);
-}
-
-.sequence button:focus-visible,
-.controls button:focus-visible,
-.controls a:focus-visible {
-  outline: 2px solid var(--trajectory);
-  outline-offset: 3px;
-  border-radius: 3px;
-}
+   THE SCENE ITSELF IS UNCHANGED. It still advances through its six stages;
+   see the timer in Hero.tsx. What is left here is the picture shown in its
+   place on a device that never gets the scene at all. */
 
 /* Static Motion DNA behind the copy when WebGL is not on the budget. */
 .fallback {
@@ -102,32 +19,9 @@
   pointer-events: none;
 }
 
-/* The hairline only separates the controls from a stage row that is
-   actually there; without the scene the controls stand alone. */
-@media (min-width: 640px) {
-  .sequence + .controls {
-    padding-left: 1.5rem;
-    border-left: 1px solid var(--border-subtle);
-  }
-}
-
 @media (max-width: 639px) {
-  .living {
-    gap: 0.15rem 1rem;
-  }
-  .sequence button {
-    font-size: 0.6rem;
-    padding-inline: 0.4rem;
-  }
   .fallback {
     top: 26%;
     opacity: 0.1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sequence button,
-  .controls button {
-    transition: none;
   }
 }

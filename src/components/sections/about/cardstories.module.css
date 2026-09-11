@@ -1,0 +1,98 @@
+/* ==========================================================================
+   MISSION → ITS CHAPTER, VISION → ITS CHAPTER
+   --------------------------------------------------------------------------
+   A control under each card, and a full-width panel under the whole
+   Mission / Motion DNA / Vision row. Neither one touches the row: the three
+   cells above are laid out exactly as they were before this existed.
+
+   The two controls are one style. Everything — the type, the spacing, the
+   chevron, the timing, the focus treatment — is shared, and the single thing
+   that differs is the accent variable, which each side inherits from the card
+   it belongs to. Cyan on the left, violet on the right, the same two colours
+   the section has always used to tell its halves apart.
+
+   The control itself lives in components/ui/disclosure.module.css and is the
+   same pill the workflow and the research record use, so the site has one way
+   of saying "there is more here", not three.
+   ========================================================================== */
+
+/* ── The trigger ──
+   The pill itself is the shared home-page disclosure control
+   (components/ui/disclosure.module.css). All this file does is choose the
+   accent, because the mission/vision pair speaks in two colours by design —
+   cyan on the left, violet on the right — and that is the one thing about
+   these two controls that should NOT match the rest of the page.
+
+   Nothing else is restated here. Every property the control sets, it keeps;
+   the attribute selectors below beat the shared `.control` class on
+   specificity, so the variable lands whatever order the two stylesheets end
+   up in. */
+.trigger[data-story="mission"] {
+  --dc-accent: 79 209 255;
+  --dc-accent-ink: #0a6890;
+}
+
+.trigger[data-story="vision"] {
+  --dc-accent: 156 100 241;
+  --dc-accent-ink: #5f25bf;
+}
+
+/* ── The chapters ──
+   0fr → 1fr is the one height transition that needs no measured value, so it
+   cannot go stale when the content inside reflows at another breakpoint. The
+   inner element carries the overflow clip; the outer one is only the track.
+
+   Both panels use this, so a swap — Mission opening while Vision closes —
+   is two halves of one movement at one duration rather than two animations
+   racing each other. */
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.panel[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.panelInner {
+  overflow: hidden;
+  opacity: 0;
+  /* `visibility` is what actually takes a closed chapter out of the tab order
+     and out of the accessibility tree. It is delayed until the collapse has
+     finished, so the content is still painted while it shrinks — which is the
+     part `hidden` cannot do. */
+  visibility: hidden;
+  transform: translateY(-0.4rem);
+  transition:
+    opacity 280ms ease,
+    transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    visibility 0s linear 300ms;
+}
+
+.panel[data-open="true"] .panelInner {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity 280ms ease 40ms,
+    transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1) 40ms,
+    visibility 0s linear 0s;
+}
+
+/* The site's motion tokens already collapse to 1ms here, but the panels' own
+   durations are written out above, so they are zeroed by hand. Opening still
+   works — it simply arrives rather than travels. */
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .panelInner,
+  .panel[data-open="true"] .panelInner {
+    transition-duration: 1ms;
+    transition-delay: 0s;
+  }
+
+  .panelInner {
+    transform: none;
+    transition-delay: 0s, 0s, 1ms;
+  }
+}

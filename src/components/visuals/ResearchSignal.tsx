@@ -37,6 +37,14 @@ export type ResearchSignalArea = {
   title: string;
   /** Papers + patent records backing the area. */
   records: number;
+  /**
+   * Where this record node leads — the area's own records, never a generic
+   * page. Omitted leaves the node inert and the drawing decorative, exactly
+   * as it was before links existed.
+   */
+  href?: string;
+  /** Accessible name for the link, e.g. "View 6 … records". */
+  linkLabel?: string;
 };
 
 export type ResearchSignalCapability = {
@@ -75,6 +83,13 @@ type Geometry = {
     countY: number;
     titleSize: number;
     countSize: number;
+    /**
+     * The record node's click target, when the node links out. Centred on the
+     * node's x and clamped inside the viewBox; it covers the title and the
+     * count, which is what the reader reads as the node. Invisible — it adds
+     * no ink to the drawing, only a hit area and a focus ring.
+     */
+    hit: { w: number; y: number; h: number };
   };
   stack: {
     cx: number;
@@ -142,6 +157,7 @@ const DESKTOP: Geometry = {
     countY: 41,
     titleSize: 11.5,
     countSize: 9,
+    hit: { w: 236, y: 9, h: 40 },
   },
   stack: { cx: 520, cy0: 190, gap: 56, hw: 132, hh: 34, depth: 8, labelSize: 11.5 },
   capture: {
@@ -194,6 +210,13 @@ const COMPACT: Geometry = {
     countY: 72,
     titleSize: 10,
     countSize: 8.5,
+    /* The compact band draws no title, so the target is the node and its
+       count together — 72 × 50 units is ~44px of real touch target at phone
+       width, where the count alone would have been half that. It stops short
+       of the capture frame's top edge at y = 84, and is narrow enough that
+       the fourth node, clamped inside the viewBox, still does not reach back
+       over the third. */
+    hit: { w: 72, y: 32, h: 50 },
   },
   stack: { cx: 180, cy0: 246, gap: 52, hw: 96, hh: 26, depth: 6, labelSize: 10 },
   capture: {
@@ -261,6 +284,8 @@ function signalPath(geo: Geometry) {
 }
 
 const round = (n: number) => Math.round(n * 10) / 10;
+const clamp = (n: number, min: number, max: number) =>
+  round(Math.min(Math.max(n, min), Math.max(min, max)));
 
 /** Sampled stride bars under the capture frame. */
 function captureSamples(geo: Geometry) {
@@ -596,9 +621,19 @@ export function ResearchSignal({
   const samples = captureSamples(geo);
   const groundY = round(capture.baseY + 48 * capture.s);
 
+  /**
+   * With linked record nodes the drawing is no longer purely decorative: it
+   * contains four real links, and a link inside an `aria-hidden` subtree is
+   * the worst of both worlds — tabbable but unannounced. So the root drops
+   * `aria-hidden` exactly when it has links to expose, and every decorative
+   * group carries it instead. Assistive technology then finds four links in
+   * here and nothing else; without links, nothing changes at all.
+   */
+  const linked = bandNodes.some((node) => Boolean(node.href));
+
   return (
     <svg
-      aria-hidden="true"
+      aria-hidden={linked ? undefined : "true"}
       viewBox={`0 0 ${geo.w} ${geo.h}`}
       className={`res-signal${compact ? " res-signal--compact" : ""}${
         className ? ` ${className}` : ""
@@ -637,7 +672,7 @@ export function ResearchSignal({
       </defs>
 
       {/* ── Radial rings behind the engine — the platform's field ── */}
-      <g className="res-rings">
+      <g aria-hidden="true" className="res-rings">
         <ellipse
           className="res-core-glow"
           cx={stack.cx}
@@ -660,7 +695,7 @@ export function ResearchSignal({
       </g>
 
       {/* ══ 1 · The flowing research signal, with the record sitting on it ══ */}
-      <g className="res-band">
+      <g aria-hidden="true" className="res-band">
         <path
           className="res-band-fill"
           d={`${signalPath(geo)}L${band.to} ${band.y + band.amp + 16}L${band.from} ${
@@ -674,14 +709,23 @@ export function ResearchSignal({
         <path className="res-trace-flow" d={signalPath(geo)} pathLength={100} />
       </g>
 
-      {bandNodes.map((node) => (
-        <g
-          key={node.id}
-          className="res-record"
-          style={{ "--res-i": node.order } as CSSProperties}
-        >
-          {band.titleY !== undefined && (
-            <>
+      {bandNodes.map((node) => {
+        /* The title and the count, exactly as they were drawn before — plus a
+           hairline arrow when the node leads somewhere, and the invisible
+           rect that makes the pair a real target rather than a few glyphs. */
+        const readout = (
+          <>
+            {node.href && (
+              <rect
+                className="res-record-hit"
+                x={clamp(node.x - band.hit.w / 2, 2, geo.w - band.hit.w - 2)}
+                y={band.hit.y}
+                width={band.hit.w}
+                height={band.hit.h}
+                rx={9}
+              />
+            )}
+            {band.titleY !== undefined && (
               <text
                 className="res-label"
                 x={node.x}
@@ -691,25 +735,7 @@ export function ResearchSignal({
               >
                 {node.title}
               </text>
-              <text
-                className="res-mono"
-                x={node.x}
-                y={band.countY}
-                fontSize={band.countSize}
-                textAnchor="middle"
-              >
-                {node.records} {node.records === 1 ? "record" : "records"}
-              </text>
-              <line
-                className="res-record-tick"
-                x1={node.x}
-                y1={band.countY + 7}
-                x2={node.x}
-                y2={round(node.y - 12)}
-              />
-            </>
-          )}
-          {band.titleY === undefined && (
+            )}
             <text
               className="res-mono"
               x={node.x}
@@ -717,14 +743,69 @@ export function ResearchSignal({
               fontSize={band.countSize}
               textAnchor="middle"
             >
-              {node.records}
+              {band.titleY !== undefined
+                ? `${node.records} ${node.records === 1 ? "record" : "records"}`
+                : node.records}
+              {node.href && (
+                <tspan className="res-record-arrow" dx={3.5}>
+                  ↗
+                </tspan>
+              )}
             </text>
-          )}
-          <circle className="res-record-halo" cx={node.x} cy={node.y} r={13} />
-          <circle className="res-record-ring" cx={node.x} cy={node.y} r={6.5} />
-          <circle className="res-record-dot" cx={node.x} cy={node.y} r={2.4} />
-        </g>
-      ))}
+          </>
+        );
+
+        return (
+          <g
+            key={node.id}
+            className="res-record"
+            style={{ "--res-i": node.order } as CSSProperties}
+          >
+            {node.href ? (
+              <a
+                className="res-record-link"
+                href={node.href}
+                aria-label={node.linkLabel ?? node.title}
+              >
+                {readout}
+              </a>
+            ) : (
+              readout
+            )}
+            {band.titleY !== undefined && (
+              <line
+                aria-hidden="true"
+                className="res-record-tick"
+                x1={node.x}
+                y1={band.countY + 7}
+                x2={node.x}
+                y2={round(node.y - 12)}
+              />
+            )}
+            <circle
+              aria-hidden="true"
+              className="res-record-halo"
+              cx={node.x}
+              cy={node.y}
+              r={13}
+            />
+            <circle
+              aria-hidden="true"
+              className="res-record-ring"
+              cx={node.x}
+              cy={node.y}
+              r={6.5}
+            />
+            <circle
+              aria-hidden="true"
+              className="res-record-dot"
+              cx={node.x}
+              cy={node.y}
+              r={2.4}
+            />
+          </g>
+        );
+      })}
 
       {/* Dashed evidence traces: published work grounding the engine. */}
       {bandNodes.map((node) => (
@@ -746,7 +827,7 @@ export function ResearchSignal({
       ))}
 
       {/* ══ 2 · Capture — the data path's origin ══ */}
-      <g className="res-capture">
+      <g aria-hidden="true" className="res-capture">
         <rect
           className="res-frame"
           x={capture.frame[0]}
@@ -840,7 +921,7 @@ export function ResearchSignal({
       />
 
       {/* ══ 3 · The layered movement engine ══ */}
-      <g className="res-stack">
+      <g aria-hidden="true" className="res-stack">
         {plates.map((plate) => {
           const { cx } = stack;
           const { hw, hh, depth } = stack;
@@ -906,7 +987,7 @@ export function ResearchSignal({
       </g>
 
       {/* ══ 4 · Engine → capability the record actually backs ══ */}
-      <g className="res-bus">
+      <g aria-hidden="true" className="res-bus">
         <line
           className="res-bus-link"
           x1={stack.cx + (compact ? 0 : stack.hw)}
@@ -927,6 +1008,7 @@ export function ResearchSignal({
         return (
           <g
             key={cap.id}
+            aria-hidden="true"
             className="res-cap"
             style={{ "--res-i": cap.order } as CSSProperties}
           >
@@ -952,7 +1034,7 @@ export function ResearchSignal({
 
       {/* ── Zone ruler ── */}
       {geo.ruler && (
-        <g className="res-ruler">
+        <g aria-hidden="true" className="res-ruler">
           {geo.ruler.zones.map((zone) => (
             <g key={zone.label}>
               <line

@@ -116,7 +116,7 @@ export function EnvironmentExplorer() {
     <section
       id="use-cases"
       aria-label="Where GaitAI is used"
-      className="home-section section env-section relative overflow-hidden bg-obsidian-300/40"
+      className="home-section home-compact section env-section relative overflow-hidden bg-obsidian-300/40"
     >
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="env-ambient env-ambient--care" />

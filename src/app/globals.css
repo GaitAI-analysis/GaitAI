@@ -15,10 +15,6 @@
      `scroll-margin-top` on every home section (`.home-section` below) — so an
      anchored section never arrives underneath it. */
   --home-nav-height: 3.25rem;
-  --site-page-intro-space: 3.375rem;
-  --site-page-intro-space-compact: 2.375rem;
-  --site-page-intro-space-roomy: 4.375rem;
-
   /* ═══════════════════════════════════════════════════════════════════════
      THE THEME BRANCH POINT — DARK BRANCH
      ─────────────────────────────────────────────────────────────────────────
@@ -960,6 +956,17 @@ body {
      the header; these also have to clear the sticky section rail, or a
      deep-linked section arrives with its heading hidden behind it. */
   .home-section {
+    scroll-margin-top: calc(
+      var(--site-header-height) + var(--home-nav-height) + var(--site-anchor-gap)
+    );
+  }
+
+  /* The same offset for something that is scrolled to INSIDE a home section
+     rather than being one — a disclosure control that travels to the top of
+     the viewport when its panel opens. It cannot use `.home-section` itself:
+     that class is also how the rail finds the eight sections it tracks, and a
+     ninth element wearing it would appear in the rail's own reckoning. */
+  .home-reveal-offset {
     scroll-margin-top: calc(
       var(--site-header-height) + var(--home-nav-height) + var(--site-anchor-gap)
     );
@@ -4532,6 +4539,78 @@ body {
   }
   .res-record .res-label {
     fill: rgb(var(--c-soft-white));
+  }
+
+  /* ── The record node as a link ──────────────────────────────────────────
+     Each research area on the band leads to its own records. The drawing is
+     unchanged: the target is an invisible rect over the title and the count,
+     and the only ink the link adds is a hairline arrow after the count. What
+     moves on hover and focus is colour, never geometry — the band, the nodes
+     and the dashed evidence traces stay exactly where they were drawn. */
+  .res-record-link {
+    cursor: pointer;
+    /* The focus ring is drawn on the hit rect below, so the browser's own
+       outline (which brackets the whole group's bounding box, ticks and
+       circles included) is suppressed. */
+    outline: none;
+  }
+  .res-record-hit {
+    fill: rgb(79 209 255 / 0);
+    stroke: rgb(79 209 255 / 0);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    transition:
+      fill var(--motion-ui) ease,
+      stroke var(--motion-ui) ease;
+  }
+  .res-record-arrow {
+    fill: rgb(79 209 255 / 0.62);
+    transition: fill var(--motion-ui) ease;
+  }
+  .light .res-record-arrow {
+    fill: rgb(16 143 192 / 0.7);
+  }
+
+  @media (hover: hover) {
+    .res-record-link:hover .res-record-hit {
+      fill: rgb(79 209 255 / 0.06);
+      stroke: rgb(79 209 255 / 0.3);
+    }
+    .res-record-link:hover .res-label {
+      fill: #bfe9ff;
+    }
+    .res-record-link:hover .res-mono,
+    .res-record-link:hover .res-record-arrow {
+      fill: rgb(79 209 255 / 0.95);
+    }
+    .light .res-record-link:hover .res-record-hit {
+      fill: rgb(16 143 192 / 0.07);
+      stroke: rgb(16 143 192 / 0.36);
+    }
+    .light .res-record-link:hover .res-label,
+    .light .res-record-link:hover .res-mono,
+    .light .res-record-link:hover .res-record-arrow {
+      fill: rgb(10 104 144);
+    }
+  }
+
+  .res-record-link:focus-visible .res-record-hit {
+    fill: rgb(79 209 255 / 0.08);
+    stroke: rgb(79 209 255 / 0.9);
+    stroke-width: 1.5;
+  }
+  .res-record-link:focus-visible .res-label,
+  .res-record-link:focus-visible .res-mono,
+  .res-record-link:focus-visible .res-record-arrow {
+    fill: #bfe9ff;
+  }
+  .light .res-record-link:focus-visible .res-record-hit {
+    stroke: rgb(10 104 144);
+  }
+  .light .res-record-link:focus-visible .res-label,
+  .light .res-record-link:focus-visible .res-mono,
+  .light .res-record-link:focus-visible .res-record-arrow {
+    fill: rgb(10 104 144);
   }
 
   /* Dashed evidence: published work grounding the engine. */

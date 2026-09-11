@@ -21,9 +21,7 @@ const footerLinks = [
       { label: "MobilityCare", href: "/mobilitycare" },
       { label: "SecureVision", href: "/securevision" },
       { label: "GaitScape", href: "/gaitscape" },
-      /* The home page's workflow lives in the Technology section now; `#how`
-         was the old four-row pipeline's id and no element carries it. */
-      { label: "How it works", href: "/#technology" },
+      { label: "How it works", href: "/#how" },
     ],
   },
   {

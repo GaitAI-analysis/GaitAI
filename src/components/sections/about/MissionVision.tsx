@@ -1,8 +1,23 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Reveal } from "@/components/ui/Reveal";
+import {
+  CardStories,
+  CardStoryPanel,
+  CardStoryTrigger,
+} from "./CardStories";
 
 type MissionVisionProps = {
   motion?: "ambient" | "gait";
+  /**
+   * The deeper chapters the two cards unlock — on the home page, "One
+   * movement. Many meanings." under Mission and "Our vision / AI as a silent
+   * guardian" under Vision. Passed in rather than imported so the ambient
+   * (/about) variant, which has no chapters, does not drag home-page sections
+   * into its bundle. With neither passed there is no control and no panel:
+   * the row alone. Either may be given on its own.
+   */
+  missionStory?: ReactNode;
+  visionStory?: ReactNode;
 };
 
 type Pt = readonly [number, number];
@@ -580,8 +595,16 @@ function GaitCard({
   );
 }
 
-function GaitMissionVision() {
-  return (
+function GaitMissionVision({
+  missionStory,
+  visionStory,
+}: {
+  missionStory?: ReactNode;
+  visionStory?: ReactNode;
+}) {
+  const hasStories = Boolean(missionStory || visionStory);
+
+  const row = (
     <section
       id="mission-vision"
       aria-label="Mission and vision"
@@ -719,8 +742,61 @@ function GaitMissionVision() {
             />
           </Reveal>
         </div>
+
+        {/* The way into the chapter behind Vision.
+
+            It sits under the row rather than inside the violet card because
+            the card is restored exactly as it was — its padding, its minimum
+            height and the one paragraph it holds are the design, and a second
+            line of chrome inside it would change all three. Under the row it
+            costs the row nothing and still reads as Vision's, being the only
+            violet thing below it. */}
+        {hasStories ? (
+          <Reveal
+            delay={0.24}
+            className="mt-7 grid gap-3 lg:mt-5 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1.8fr)_minmax(0,0.62fr)_minmax(0,1.8fr)_minmax(0,1.12fr)] lg:gap-5 xl:gap-6"
+          >
+            {/* Same five-column template as the row above, so on desktop each
+                control starts on its own card's left edge and there is no
+                doubt which card it belongs to — Mission's in column 2,
+                Vision's in column 4, the Motion DNA column between them left
+                empty exactly as it is above. Centred and stacked on mobile,
+                where the row is a single column anyway. */}
+            <span className="flex justify-center lg:col-start-2 lg:justify-start">
+              {missionStory ? <CardStoryTrigger story="mission" /> : null}
+            </span>
+            <span className="flex justify-center lg:col-start-4 lg:justify-start">
+              {visionStory ? <CardStoryTrigger story="vision" /> : null}
+            </span>
+          </Reveal>
+        ) : null}
       </div>
     </section>
+  );
+
+  /* No chapters (the /about variant): the row is the whole component, and no
+     provider is mounted for a state nothing would read. */
+  if (!hasStories) return row;
+
+  return (
+    <CardStories>
+      {row}
+      {/* Outside the section, so the row keeps its own borders, its minimum
+          height and the absolutely-positioned gait stage that fills it — and
+          so a chapter opens at the page's full width rather than inside a box
+          built for three columns.
+
+          Both panels live below both controls, in the order their cards are
+          read. Only one is ever open, so they never stack; and because the
+          controls sit above both of them, opening either one moves nothing
+          the visitor is currently looking at. */}
+      {missionStory ? (
+        <CardStoryPanel story="mission">{missionStory}</CardStoryPanel>
+      ) : null}
+      {visionStory ? (
+        <CardStoryPanel story="vision">{visionStory}</CardStoryPanel>
+      ) : null}
+    </CardStories>
   );
 }
 
@@ -730,9 +806,15 @@ function GaitMissionVision() {
  * motion-capture sequences flanking the cards and a temporal gait signature
  * running through the center.
  */
-export function MissionVision({ motion = "ambient" }: MissionVisionProps) {
+export function MissionVision({
+  motion = "ambient",
+  missionStory,
+  visionStory,
+}: MissionVisionProps) {
   if (motion === "gait") {
-    return <GaitMissionVision />;
+    return (
+      <GaitMissionVision missionStory={missionStory} visionStory={visionStory} />
+    );
   }
 
   return (

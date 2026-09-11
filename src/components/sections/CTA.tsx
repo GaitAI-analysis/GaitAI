@@ -69,7 +69,7 @@ export function CTA() {
   }
 
   return (
-    <section id="contact" className="relative w-full overflow-hidden py-10 sm:py-12 lg:py-14">
+    <section id="contact" className="relative w-full overflow-hidden py-10 sm:py-14 lg:py-20">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/2 top-1/2 h-[600px] w-[1200px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-radial-glow opacity-50 blur-3xl" />
       </div>

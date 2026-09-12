@@ -10,25 +10,7 @@
   /* Fixed site chrome. Keep this in sync with the deterministic header box. */
   --site-header-height: 5.625rem;
   --site-anchor-gap: 1.5rem;
-  /* The home page's sticky section rail, which sits directly under the header.
-     Three things read this: the rail's own height, its sticky offset, and the
-     `scroll-margin-top` on every home section (`.home-section` below) — so an
-     anchored section never arrives underneath it. */
-  --home-nav-height: 3.25rem;
-  /* ── THE RIGHT-HAND SECTION INDEX ──
-     From 1280px the home page's section navigation is a small index down the
-     RIGHT of the content: a label and a dot per section, nothing else. Two
-     widths, because the point of the narrow one is to cost a laptop no
-     measure at all — collapsed it is the dot column alone and the labels
-     arrive on hover. Below 1280px none of this applies and the navigation is
-     the horizontal chip bar. */
-  --home-rail-dot-col: 0.85rem;
-  --home-rail-row: 1.65rem;
-  --home-rail-width: 1.35rem;
-  --home-rail-gap: 1.5rem;
-  /* Clearance kept at the bottom of the index's centring box so it can never
-     reach the Ask GaitAI launcher, which is fixed in that corner. */
-  --home-rail-floor: 6rem;
+
   /* ═══════════════════════════════════════════════════════════════════════
      THE THEME BRANCH POINT — DARK BRANCH
      ─────────────────────────────────────────────────────────────────────────
@@ -187,21 +169,6 @@
 
    Only the tokens change. No component branches, no duplicate page.
    ═════════════════════════════════════════════════════════════════════════ */
-/* Wide enough for the labels to sit beside the nodes without costing the page
-   any measure: the shell grows by exactly what the rail takes.
-
-   IT LIVES HERE, AFTER THE WHOLE `:root` BLOCK, and unlayered. Two earlier
-   attempts got this wrong in ways worth recording: inside `@layer components`
-   it was simply ignored, because an unlayered custom property beats a layered
-   one whatever the order; and splitting `:root` in half to wrap the override
-   swallowed every theme token below it into a 1440px media query, which left
-   the site with no colours at all on a narrow screen. */
-@media (min-width: 1440px) {
-  :root {
-    --home-rail-width: 7rem;
-  }
-}
-
 :root.light {
   /* Ground and surfaces — paper, then white cards, then a lifted white */
   --page-bg: #f6f8fc;
@@ -337,27 +304,22 @@ html {
   scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
 }
 
-/* A home-page disclosure control that travels to the top of the viewport when
-   its panel opens, so the revealed content starts in the readable viewport
-   rather than below the fold. See `lib/useDisclosureReveal`.
+/* THE DISCLOSURE CONTROLS' SCROLL OFFSET — now zero, and deliberately still
+ * here rather than deleted.
  *
- * WHY IT ADDS ONLY THE RAIL'S HEIGHT. `html` already carries a
- * `scroll-padding-top` of header + gap, and scroll padding and scroll margin
- * ADD: a margin of header + rail + gap here would count the header and the
- * gap twice and park the control a third of a screen down. The sticky rail is
- * the one piece of chrome that padding does not know about, so that is
- * exactly what this contributes.
+ * `html` already carries `scroll-padding-top` of header + gap, and scroll
+ * padding and scroll margin ADD. This class existed to contribute the one
+ * piece of chrome the padding did not know about: the sticky section rail.
+ * The rail is gone, so its contribution is nothing.
  *
- * WHY IT IS HERE, UNLAYERED. `[id]` above is unlayered, and unlayered rules
- * beat every `@layer` regardless of specificity — the same reason
- * `.home-section`'s own offset in the components layer never reaches an
- * element that has an id. An exception to that rule has to live beside it.
- *
- * WHY NOT `.home-section`. That class is also how the rail finds the eight
- * sections it tracks; a ninth element wearing it would show up in the rail's
- * own reckoning of the page. */
+ * It is not simply removed, because these controls carry an `id`, and the
+ * unlayered `[id] { scroll-margin-top: header + gap }` rule above would then
+ * apply to them — counting the header and the gap twice and parking the
+ * control a third of a screen down. Zero here is what keeps that from
+ * happening, and `useDisclosureReveal` reads this computed value back, so the
+ * hook follows without knowing anything changed. */
 .home-reveal-offset {
-  scroll-margin-top: var(--home-nav-height);
+  scroll-margin-top: 0;
 }
 
 html,
@@ -1004,37 +966,17 @@ body {
     top: calc(var(--site-header-height) + var(--site-anchor-gap));
   }
 
-  /* ── THE RAIL'S GUTTER ──────────────────────────────────────────────────
-     The rail is fixed, so the page's own content has to move out from under
-     it. It SHIFTS rather than shrinks wherever there is room: the container's
-     max-width grows by exactly what its left padding does, so on a wide
-     screen the measure is unchanged and the content simply sits further
-     right. Only where the viewport cannot afford the whole shell does the
-     content give up anything.
+  /* Every addressable section on the home page.
 
-     Scoped to `main`, so the footer — outside it, and outside the shift — is
-     not dragged right on one route. The hero opts back out below: the rail is
-     not shown over it, and content shifted under nothing looks off-centre. */
-  @media (min-width: 1280px) {
-    body:has(nav[aria-label="Home page sections"]) main .container-wide {
-      max-width: calc(1320px + var(--home-rail-width) + var(--home-rail-gap));
-      padding-right: calc(
-        3rem + var(--home-rail-width) + var(--home-rail-gap)
-      );
-    }
-
-    #platform .container-wide {
-      max-width: 1320px;
-      padding-right: 3rem;
-    }
-  }
-
-  /* Every addressable section on the home page. The global `[id]` rule clears
-     the header; these also have to clear the sticky section rail, or a
-     deep-linked section arrives with its heading hidden behind it. */
+     It clears the fixed header and nothing else now. It used to add the
+     sticky section rail's height on top, and with the rail gone that term
+     would park a deep-linked section 52px lower than the page's own `[id]`
+     rule puts every other anchor on the site. The class stays because the
+     sections carry it and because `.home-section.section` below still uses
+     it for spacing. */
   .home-section {
     scroll-margin-top: calc(
-      var(--site-header-height) + var(--home-nav-height) + var(--site-anchor-gap)
+      var(--site-header-height) + var(--site-anchor-gap)
     );
   }
 

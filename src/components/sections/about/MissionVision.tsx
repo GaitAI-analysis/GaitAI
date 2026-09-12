@@ -608,7 +608,23 @@ function GaitMissionVision({
     <section
       id="mission-vision"
       aria-label="Mission and vision"
-      className="mission-vision-section mission-vision-section--gait relative isolate overflow-hidden border-y border-white/[0.06] py-10 sm:py-14 lg:flex lg:min-h-[440px] lg:flex-col lg:justify-center lg:py-7"
+      /* `home-section` is the scroll offset only — it clears the fixed header
+         and the sticky home rail so a deep link does not park this section
+         underneath them. It used to come from a wrapper in page.tsx; the
+         wrapper is gone, and the anchor it carried was always this one.
+
+         `border-t`, NOT `border-y`. This band closes the home page, and the
+         footer under it already draws the site-wide `border-t` that separates
+         the footer from whatever precedes it on every page. With a bottom
+         border here as well, the end of the page was two hairlines 48px apart
+         — the band's own and the footer's — which read as a heavy, accidental
+         seam rather than as one divider. The footer's is the one that is
+         global and load-bearing, so this is the one that goes.
+
+         It is also the right answer when a chapter is open: the chapter is
+         that card's own story, and a rule between a card and its story would
+         cut one block into two. */
+      className="home-section mission-vision-section mission-vision-section--gait relative isolate overflow-hidden border-t border-white/[0.06] py-10 sm:py-14 lg:flex lg:min-h-[440px] lg:flex-col lg:justify-center lg:py-7"
     >
       <Reveal
         y={0}

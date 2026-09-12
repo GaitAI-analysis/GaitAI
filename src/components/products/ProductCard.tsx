@@ -35,10 +35,40 @@ export function ProductCard({
   product,
   index = 0,
   compact = false,
+  headlineOnly = false,
 }: {
   product: GaitProduct;
   index?: number;
   compact?: boolean;
+  /**
+   * THE HOME PAGE ONLY. Eyebrow, headline, corner arrow — nothing else.
+   *
+   * The three surfaces this card appears on are asking three different
+   * questions, and until now they all got the same answer:
+   *
+   *   HOME          which of these do I want to look at?   → navigation
+   *   /products     how do these differ from each other?   → comparison
+   *   a detail page what exactly does this one do?         → explanation
+   *
+   * Only the first is served by a name and a promise. The description, the
+   * output pills and the "View product" line are what make a card comparable,
+   * so they stay everywhere they are doing that job and come off the one
+   * surface where the reader is choosing a door rather than reading about it.
+   *
+   * A SEPARATE FLAG RATHER THAN A WIDER `compact`. `compact` is also what
+   * /use-cases and the related-products rail pass, and both of those are still
+   * comparing — dropping their descriptions to shorten the home page would be
+   * the change leaking onto pages that never asked for it.
+   *
+   * The arrow becomes the only cue here, which section 4 of interactions.css
+   * explicitly warns against ("a secondary cue and never the only one"). That
+   * is a deliberate exception for this one variant: at four cards with two
+   * lines each, a repeated "VIEW PRODUCT" under every one is noise rather
+   * than guidance. The corner is legible at rest (0.75, and 1 on touch) and
+   * the card also takes `.card-lift`, so the surface itself answers the
+   * pointer — the arrow is not carrying the affordance unaided.
+   */
+  headlineOnly?: boolean;
 }) {
   // The accent class carries --pa-rgb / --pa-ink / --pa-pill-ink to the whole
   // subtree, so the eyebrow and the pills read one branching source.
@@ -61,7 +91,11 @@ export function ProductCard({
          `whileHover` on this one component, so a focused card looks exactly
          like a hovered one and every card on the site moves by the same 2px.
          See interactions.css. */
-      className={`card-surface group overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent ${accent}`}
+      className={`card-surface group overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent ${
+        /* framer leaves an inline transform here once the entrance settles,
+           which beats `.card-surface:hover`. See `.card-lift`. */
+        headlineOnly ? "card-lift " : ""
+      }${accent}`}
     >
       {/* Whole-card link (stretched). Enter activates natively; Space is
           handled explicitly so keyboard users can open a focused card. */}
@@ -87,7 +121,11 @@ export function ProductCard({
         }}
       />
 
-      <div className={`relative ${compact ? "p-5" : "p-6"}`}>
+      <div
+        className={`relative ${
+          headlineOnly ? "px-5 pb-6 pt-5" : compact ? "p-5" : "p-6"
+        }`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between gap-3">
           <div
@@ -100,18 +138,28 @@ export function ProductCard({
           </span>
         </div>
 
-        {/* Name + label */}
-        <div className="mt-2.5">
-          <h3 className="font-display text-lg font-semibold text-soft-white">
+        {/* Name + label. Headline-only cards brighten the headline on hover
+            and on focus, because with the cue gone it is the largest thing on
+            the card and so the one the reader watches for a response. */}
+        <div className={headlineOnly ? "mt-3" : "mt-2.5"}>
+          <h3
+            className={`font-display text-lg font-semibold ${
+              headlineOnly
+                ? "leading-snug text-balance text-soft-white/[0.88] transition-colors duration-200 group-hover:text-soft-white group-focus-within:text-soft-white"
+                : "text-soft-white"
+            }`}
+          >
             {product.headline}
           </h3>
-          <p className="mt-2 text-[13px] leading-relaxed text-soft-mute">
-            {product.description}
-          </p>
+          {!headlineOnly && (
+            <p className="mt-2 text-[13px] leading-relaxed text-soft-mute">
+              {product.description}
+            </p>
+          )}
         </div>
 
         {/* Outputs preview */}
-        {!compact && (
+        {!compact && !headlineOnly && (
           <div className="mt-5 flex flex-wrap gap-1.5">
             {product.outputs.slice(0, 3).map((o) => (
               <span
@@ -131,11 +179,15 @@ export function ProductCard({
 
         {/* The cue. Legible at rest rather than revealed on hover: on a
             phone the hover state never arrives, and this line is the only
-            thing that says the card opens something. */}
-        <div aria-hidden className="card-cue mt-5">
-          View product
-          <ArrowRight className="card-cue-arrow h-3 w-3" />
-        </div>
+            thing that says the card opens something. The headline-only
+            variant drops it and leans on the corner arrow instead — see the
+            note on `headlineOnly` above. */}
+        {!headlineOnly && (
+          <div aria-hidden className="card-cue mt-5">
+            View product
+            <ArrowRight className="card-cue-arrow h-3 w-3" />
+          </div>
+        )}
       </div>
     </motion.article>
   );

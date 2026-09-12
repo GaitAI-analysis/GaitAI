@@ -1,9 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
+import { GAIT_PHASES } from "@/components/visuals/gait-phases";
+import {
+  PLATE,
+  WALKER_HEAD,
+  WALKER_MASK,
+  WALKER_PHASE,
+  plateFit,
+  walkerStride,
+} from "@/components/visuals/capture-plate";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
 import { trackInsightEvent } from "@/lib/insight-events";
+import { assetPath } from "@/lib/paths";
 import { InteractiveFigure } from "../InteractiveFigure";
 import { StageControl, type Stage } from "../StageControl";
 import { ShareInsight, useSharedFigureState } from "../ShareInsight";
@@ -14,7 +23,6 @@ import {
   REPRESENTATIONS,
   REPRESENTATION_LABEL,
   VERDICT_LABEL,
-  bodyMassPath,
   identityLedger,
   identityVerdict,
   isRepresentation,
@@ -48,10 +56,22 @@ import ui from "../experience.module.css";
 const W = 640;
 const H = 360;
 const FRAME = { x: 40, y: 30, w: 250, h: 300 };
-const FX = 165;
-const FY = 176;
-const S = 2.3;
 const PANEL_X = 328;
+
+/**
+ * THE FRAME IS A PHOTOGRAPH, and every later stage is derived from it.
+ * RGB used to be a drawn body with four "clothing" lines and two dots for a
+ * face, on a grid of drawn pixels — an illustration labelled RGB. The frame is
+ * now the site's real capture plate, "face removed" blocks the head the
+ * photograph actually has, the silhouette is that walker's own segmentation
+ * mask, the skeleton is that walker's joints, and the trajectories are the
+ * stride those joints imply. See visuals/capture-plate.ts.
+ */
+const FIT = plateFit("portrait", FRAME);
+const [FX, FY] = FIT.hip;
+const S = FIT.poseScale;
+const HEAD = FIT.at([WALKER_HEAD.cx, WALKER_HEAD.cy]);
+const HEAD_R = WALKER_HEAD.r * FIT.scale;
 
 const CLASSES = { bone: fig.bone, boneFar: fig.boneFar, joint: fig.joint, head: fig.head };
 
@@ -114,14 +134,17 @@ export function IdentityLayersExplorer({ articleSlug, presentation }: FigureProp
   const context = { persisted, linked };
   const ledger = identityLedger(representation, context);
   const verdict = identityVerdict(representation, context);
-  const phase = GAIT_PHASES[2];
-  const groundY = FY + (48 - phase.lift) * S;
+  const phase = WALKER_PHASE;
+  const groundY = FY + 48 * S;
   const stage = REPRESENTATIONS.indexOf(representation);
 
+  /* The stride scaled to this walker: earlier moments of the same walk behind
+     the photographed one, and the paths three joints trace through them. */
+  const stride = walkerStride(FIT, GAIT_PHASES, 6);
   const trails = {
-    ankle: smoothPath(GAIT_PHASES.map((p, i) => [FX - (2 - i) * 24 + p.nearLeg[2][0] * S * 0.45, FY - p.lift * S + p.nearLeg[2][1] * S] as Pt)),
-    wrist: smoothPath(GAIT_PHASES.map((p, i) => [FX - (2 - i) * 24 + p.nearArm[2][0] * S * 0.45, FY - p.lift * S + p.nearArm[2][1] * S] as Pt)),
-    hip: smoothPath(GAIT_PHASES.map((p, i) => [FX - (2 - i) * 24 + p.nearLeg[0][0] * S * 0.45, FY - p.lift * S + p.nearLeg[0][1] * S] as Pt)),
+    ankle: smoothPath(stride.map((m) => m.pick((p) => p.nearLeg[2]))),
+    wrist: smoothPath(stride.map((m) => m.pick((p) => p.nearArm[2]))),
+    hip: smoothPath(stride.map((m) => m.pick((p) => p.nearLeg[0]))),
   };
 
   const viewBox = stacked ? "0 0 322 640" : `0 0 ${W} ${H}`;
@@ -136,37 +159,42 @@ export function IdentityLayersExplorer({ articleSlug, presentation }: FigureProp
         {REPRESENTATION_LABEL[representation]}
       </text>
       <line className={fig.ground} x1={FRAME.x + 12} y1={groundY} x2={FRAME.x + FRAME.w - 12} y2={groundY} />
-      {/* pixels behind the earliest stages */}
-      <g className={fig.fade} style={{ opacity: stage <= 1 ? 1 : stage === 2 ? 0.25 : 0 }}>
-        {Array.from({ length: 10 }, (_, row) =>
-          Array.from({ length: 12 }, (_, col) => (
-            <rect
-              key={`${row}-${col}`}
-              className={(row * 7 + col * 3) % 5 === 0 ? fig.pixelLit : fig.pixel}
-              x={FRAME.x + 12 + col * 19}
-              y={FRAME.y + 30 + row * 24}
-              width={16}
-              height={20}
-            />
-          )),
-        )}
-      </g>
-      {/* RGB / face removed: a textured body */}
-      <g className={fig.fade} style={{ opacity: stage <= 1 ? 1 : 0 }}>
-        <path className={fig.massSolid} d={bodyMassPath(FX, FY, S)} />
-        {[0, 1, 2, 3].map((i) => (
-          <line key={i} className={fig.hair} x1={FX - 7 * S} y1={FY - 26 * S + i * 7 * S} x2={FX + 7 * S} y2={FY - 24 * S + i * 7 * S} />
-        ))}
-        <g className={fig.fade} style={{ opacity: stage === 0 ? 1 : 0 }}>
-          <circle cx={FX - 0.5 * S} cy={FY - 44 * S} r={1.4} className={fig.nodeMute} />
-          <circle cx={FX + 3.5 * S} cy={FY - 44 * S} r={1.4} className={fig.nodeMute} />
+      <defs>
+        <clipPath id="idl-frame">
+          <rect x={FRAME.x} y={FRAME.y} width={FRAME.w} height={FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#idl-frame)">
+        {/* RGB, and face removed: the photograph. Faint under the mask so the
+            mask reads as cut from it; gone after that. */}
+        <g className={fig.fade} style={{ opacity: stage <= 1 ? 1 : stage === 2 ? 0.14 : 0 }}>
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={FRAME.x}
+            y={FRAME.y}
+            width={FRAME.w}
+            height={FRAME.h}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.photo}
+          />
+        </g>
+        {/* face removed: the block sits on the head the photograph has */}
+        <rect
+          className={`${fig.fade} ${fig.redact}`}
+          style={{ opacity: stage === 1 ? 1 : 0 }}
+          x={HEAD[0] - HEAD_R - 3}
+          y={HEAD[1] - HEAD_R - 4}
+          width={HEAD_R * 2 + 6}
+          height={HEAD_R * 2 + 8}
+          rx={2}
+        />
+        {/* silhouette: the walker's own segmentation, traced from the frame */}
+        <g className={fig.fade} style={{ opacity: stage === 2 ? 1 : stage === 3 ? 0.2 : 0 }} transform={FIT.transform}>
+          <path className={fig.segMask} d={WALKER_MASK.path} />
         </g>
       </g>
-      <rect className={`${fig.fade} ${fig.redact}`} style={{ opacity: stage === 1 ? 1 : 0 }} x={FX - 9 * S} y={FY - 52 * S} width={20 * S} height={17 * S} rx={1} />
-      {/* silhouette */}
-      <path className={`${fig.fade} ${fig.mass}`} style={{ opacity: stage === 2 ? 1 : stage === 3 ? 0.25 : 0 }} d={bodyMassPath(FX, FY, S)} />
-      {/* skeleton */}
-      <g className={fig.fade} style={{ opacity: stage === 3 ? 1 : stage === 4 ? 0.3 : 0 }} transform={`translate(${FX} ${FY - phase.lift * S})`}>
+      {/* skeleton: that walker's joints */}
+      <g className={fig.fade} style={{ opacity: stage === 3 ? 1 : stage === 4 ? 0.3 : 0 }} transform={`translate(${FX} ${FY})`}>
         <PoseFrame phase={phase} s={S} classes={CLASSES} />
       </g>
       {/* trajectories */}
@@ -174,9 +202,10 @@ export function IdentityLayersExplorer({ articleSlug, presentation }: FigureProp
         <path className={fig.trace} d={trails.ankle} />
         <path className={`${fig.trace} ${fig.traceViolet}`} d={trails.wrist} />
         <path className={`${fig.trace} ${fig.traceRoyal} ${fig.traceThin}`} d={trails.hip} />
-        {GAIT_PHASES.map((p, i) => (
-          <circle key={p.id} className={fig.nodeViolet} cx={FX - (2 - i) * 24 + p.nearArm[2][0] * S * 0.45} cy={FY - p.lift * S + p.nearArm[2][1] * S} r={2} />
-        ))}
+        {stride.map((m, i) => {
+          const [nx, ny] = m.pick((p) => p.nearArm[2]);
+          return <circle key={i} className={fig.nodeViolet} cx={nx} cy={ny} r={2} />;
+        })}
       </g>
       {/* the two context facts, drawn onto the frame as marks */}
       <g className={fig.fade} style={{ opacity: persisted ? 1 : 0 }}>

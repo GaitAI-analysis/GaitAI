@@ -1089,3 +1089,13 @@
   letter-spacing: 0.2em;
 }
 
+
+/* ── 01 CAPTURE is a photograph ──
+   The site's capture plate inside the camera frame (visuals/capture-plate.ts);
+   the corner marks and the label stay. */
+.ssPhoto {
+  filter: contrast(1.04) saturate(0.9);
+}
+:global(.light) .ssPhoto {
+  filter: contrast(1.02) saturate(0.95) brightness(1.06);
+}

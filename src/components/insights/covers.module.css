@@ -695,3 +695,20 @@
   --c-a: #2dd4bf;
   --c-b: #a78bfa;
 }
+
+/* ── A photograph on a cover ──
+   Where a cover says "Original frame" or "Face removed" the frame is the site's
+   capture plate (visuals/capture-plate.ts), under the cover's own furniture. */
+.cPhoto {
+  filter: contrast(1.05) saturate(0.85) brightness(0.96);
+}
+.cMask {
+  fill: var(--c-a);
+  opacity: 0.86;
+}
+.cRedact {
+  fill: rgb(156 100 241 / 0.6);
+  stroke: #a78bfa;
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}

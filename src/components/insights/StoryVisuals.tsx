@@ -1,5 +1,7 @@
 import { GAIT_PHASES, GAIT_HEAD, type Pt } from "@/components/visuals/gait-phases";
+import { PLATE, WALKER_MASK, WALKER_PHASE, plateFit, walkerStride } from "@/components/visuals/capture-plate";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
+import { assetPath } from "@/lib/paths";
 import styles from "./scenes.module.css";
 
 /**
@@ -99,102 +101,109 @@ export function IdentityFieldVisual() {
 
 const P_STAGES = ["CAPTURE", "PRIVACY LAYER", "SKELETON", "MOVEMENT"] as const;
 
+/**
+ * CAPTURE IS A PHOTOGRAPH, and the three stages after it are cut from it.
+ * The first two columns were a drawn body — thick strokes and a tapered torso
+ * — under a label that said CAPTURE. The capture is now the site's real frame
+ * (visuals/capture-plate.ts); the privacy layer keeps that frame faint under
+ * the walker's own segmentation mask; the skeleton is that walker's joints;
+ * the movement column is the stride those joints imply. Same person, same
+ * place in the frame, less of them each time.
+ */
 export function PrivacyLayersVisual() {
-  const S = 1.5;
-  const phase = GAIT_PHASES[2];
   const xs = [72, 214, 348, 470];
-  /* PoseFrame puts the PELVIS at the origin and the ground ~48 local units
-     below it, so the floor line goes at the feet, not at the translate. */
-  const baseY = 148;
-  const floorY = baseY + 48 * 1.5 + 2;
-
-  const limbs = (list: readonly Pt[]) =>
-    list.map(([x, y]) => `${(x * S).toFixed(1)},${(y * S).toFixed(1)}`).join(" ");
-
-  /* A tapered torso, so the first two stages read as a body. Thick limb
-     strokes on their own read as a smear — and a smear losing definition is
-     not the same picture as a person losing their appearance. */
-  const torso = [
-    [-7.5, -34],
-    [9, -34],
-    [6, -14],
-    [-5, -14],
-  ]
-    .map(([x, y]) => `${(x * S).toFixed(1)},${(y * S).toFixed(1)}`)
-    .join(" ");
+  const PANE_TOP = 56;
+  const floorY = 222;
+  const paneW = 96;
 
   return (
     <svg aria-hidden="true" viewBox={VB} className={styles.scene}>
+      <defs>
+        {xs.map((x, i) => (
+          <clipPath key={i} id={`plv-pane-${i}`}>
+            <rect x={x - paneW / 2} y={PANE_TOP} width={paneW} height={floorY - PANE_TOP - 2} rx={3} />
+          </clipPath>
+        ))}
+      </defs>
       <line className={styles.scFloor} x1={30} y1={floorY} x2={496} y2={floorY} />
 
-      {P_STAGES.map((label, i) => (
-        <g key={label} style={{ ["--sc-i" as string]: i }}>
-          <text className={styles.scLabel} x={xs[i]} y={40} textAnchor="middle">
-            {label}
-          </text>
+      {P_STAGES.map((label, i) => {
+        const box = { x: xs[i] - paneW / 2, y: PANE_TOP, w: paneW, h: floorY - PANE_TOP - 2 };
+        const fit = plateFit("portrait", box);
+        const stride = walkerStride(fit, GAIT_PHASES, 5);
+        return (
+          <g key={label} style={{ ["--sc-i" as string]: i }}>
+            <text className={styles.scLabel} x={xs[i]} y={40} textAnchor="middle">
+              {label}
+            </text>
 
-          <g transform={`translate(${xs[i]} ${baseY})`}>
-            <g className={styles.scPose}>
+            <rect className={styles.scPlate} x={box.x} y={box.y} width={box.w} height={box.h} rx={3} />
+            <g className={styles.scPose} clipPath={`url(#plv-pane-${i})`}>
               {(i === 0 || i === 1) && (
-                <g className={i === 0 ? styles.scMass : styles.scMassFade}>
-                  <polyline className={styles.scLimb} points={limbs(phase.farArm)} />
-                  <polyline className={styles.scLimbLeg} points={limbs(phase.farLeg)} />
-                  <polygon className={styles.scTorso} points={torso} />
-                  <polyline className={styles.scLimbLeg} points={limbs(phase.nearLeg)} />
-                  <polyline className={styles.scLimb} points={limbs(phase.nearArm)} />
-                  <circle
-                    className={styles.scMassHead}
-                    cx={GAIT_HEAD[0] * S}
-                    cy={GAIT_HEAD[1] * S}
-                    r={6.4 * S}
-                  />
+                <image
+                  href={assetPath(PLATE.portrait.src)}
+                  x={box.x}
+                  y={box.y}
+                  width={box.w}
+                  height={box.h}
+                  preserveAspectRatio="xMidYMid slice"
+                  className={styles.scPhoto}
+                  style={i === 1 ? { opacity: 0.16 } : undefined}
+                />
+              )}
+              {i === 1 && (
+                <g transform={fit.transform}>
+                  <path className={styles.scMaskFill} d={WALKER_MASK.path} />
                 </g>
               )}
               {i === 2 && (
-                <PoseFrame
-                  phase={phase}
-                  s={S}
-                  classes={{
-                    bone: styles.scBone,
-                    boneFar: styles.scBoneFar,
-                    joint: styles.scJoint,
-                    head: styles.scHeadOpen,
-                  }}
-                />
+                <>
+                  <g transform={fit.transform}>
+                    <path className={styles.scMaskEdge} d={WALKER_MASK.path} />
+                  </g>
+                  <g transform={`translate(${fit.hip[0]} ${fit.hip[1]})`}>
+                    <PoseFrame
+                      phase={WALKER_PHASE}
+                      s={fit.poseScale}
+                      classes={{
+                        bone: styles.scBone,
+                        boneFar: styles.scBoneFar,
+                        joint: styles.scJoint,
+                        head: styles.scHeadOpen,
+                      }}
+                    />
+                  </g>
+                </>
               )}
               {i === 3 && (
                 <>
-                  {[...phase.nearArm, ...phase.nearLeg].map(([x, y], j) => (
-                    <circle
-                      key={j}
-                      className={styles.scDot}
-                      cx={x * S}
-                      cy={y * S}
-                      r={2.2}
-                    />
+                  {stride.slice(0, -1).map((m, k) => (
+                    <g key={k} transform={`translate(${m.x} ${m.y})`} opacity={0.16 + k * 0.08}>
+                      <PoseFrame
+                        phase={m.phase}
+                        s={m.scale}
+                        showFar={false}
+                        classes={{ bone: styles.scBone, boneFar: styles.scBoneFar, joint: styles.scDot, head: styles.scGhostHead }}
+                      />
+                    </g>
                   ))}
-                  <path
-                    className={styles.scTrail}
-                    d={smoothPath(
-                      GAIT_PHASES.map((p, k) => {
-                        const [ax, ay] = p.nearLeg[2];
-                        return [(k - 2) * 9 + ax * 0.4, ay * S * 0.6 - 8] as Pt;
-                      }),
-                    )}
-                  />
+                  {[...WALKER_PHASE.nearArm, ...WALKER_PHASE.nearLeg].map(([x, y]: Pt, j) => (
+                    <circle key={j} className={styles.scDot} cx={fit.hip[0] + x * fit.poseScale} cy={fit.hip[1] + y * fit.poseScale} r={2.2} />
+                  ))}
+                  <path className={styles.scTrail} d={smoothPath(stride.map((m) => m.pick((p) => p.nearLeg[2])))} />
                 </>
               )}
             </g>
-          </g>
 
-          {/* The privacy layer is where the appearance stops travelling. */}
-          {i === 1 && (
-            <g className={styles.scGate}>
-              <line x1={xs[i] - 52} y1={54} x2={xs[i] - 52} y2={floorY - 4} />
-            </g>
-          )}
-        </g>
-      ))}
+            {/* The privacy layer is where the appearance stops travelling. */}
+            {i === 1 && (
+              <g className={styles.scGate}>
+                <line x1={xs[i] - 52} y1={54} x2={xs[i] - 52} y2={floorY - 4} />
+              </g>
+            )}
+          </g>
+        );
+      })}
 
       <text className={styles.scCaption} x={30} y={262}>
         APPEARANCE STOPS HERE

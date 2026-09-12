@@ -1,8 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { useId } from "react";
 import { GAIT_PHASES, GAIT_HEAD, type Pt } from "@/components/visuals/gait-phases";
+import {
+  PLATE,
+  WALKER_HEAD,
+  WALKER_MASK,
+  WALKER_PHASE,
+  plateFit,
+  walkerStride,
+} from "@/components/visuals/capture-plate";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
+import { assetPath } from "@/lib/paths";
 import type { CoverConcept } from "@/data/insights";
 import { trackInsightEvent } from "@/lib/insight-events";
 import { useFigureActive } from "../experience/useFigureActive";
@@ -11,7 +21,7 @@ import { StageControl, type Stage } from "../experience/StageControl";
 import { POSE_PHASE_FOR, estimatePose, poseFocusJoint } from "../experience/figures/pose-error-model";
 import { READING_LABEL, symmetryState, type SymmetryLevel } from "../experience/figures/symmetry-model";
 import { ANGLE_LABEL, CAMERA_ANGLES, availabilityAt } from "../experience/figures/camera-model";
-import { REPRESENTATIONS, REPRESENTATION_LABEL, bodyMassPath, identityLedger } from "../experience/figures/identity-model";
+import { REPRESENTATIONS, REPRESENTATION_LABEL, identityLedger } from "../experience/figures/identity-model";
 import { CHAIN, COMPONENT_LABEL, OUTCOME_LABEL, outcomeFor, type ChainComponent } from "../experience/figures/system-model";
 import { MAX_OBSERVATIONS, OBSERVATIONS, POPULATION, personalBand, populationCurve } from "../experience/figures/baseline-model";
 import fig from "../experience/figures.module.css";
@@ -40,6 +50,14 @@ import styles from "./hub.module.css";
 const W = 320;
 const H = 200;
 const CLASSES = { bone: fig.bone, boneFar: fig.boneFar, joint: fig.joint, head: fig.head };
+/* The ghosted stride behind the walker: no head circles. */
+const GHOST = { ...CLASSES, head: fig.ghostHead };
+
+/* The 140 × 146 frame three of the minis share, and the site's capture plate
+   fitted into it (visuals/capture-plate.ts): the walker's pelvis and scale in
+   card units, so the photograph, its mask and its skeleton coincide. */
+const MINI_FRAME = { x: 22, y: 30, w: 140, h: 146 };
+const MINI_FIT = plateFit("portrait", MINI_FRAME);
 
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 /** 0 below `a`, 1 above `b`, smooth between. */
@@ -49,32 +67,19 @@ const ramp = (p: number, a: number, b: number) => {
 };
 const r1 = (n: number) => Math.round(n * 10) / 10;
 
-/** A soft body outline around the mid-stance pose — the person before pose. */
-function BodyMass({ x, y, s, className }: { x: number; y: number; s: number; className: string }) {
-  const d = [
-    `M${x - 9 * s} ${y - 33 * s}`,
-    `C${x - 11 * s} ${y - 20 * s} ${x - 8 * s} ${y - 6 * s} ${x - 7 * s} ${y + 4 * s}`,
-    `L${x - 10 * s} ${y + 44 * s} L${x - 2 * s} ${y + 46 * s} L${x} ${y + 14 * s}`,
-    `L${x + 3 * s} ${y + 46 * s} L${x + 11 * s} ${y + 45 * s} L${x + 7 * s} ${y + 4 * s}`,
-    `C${x + 9 * s} ${y - 6 * s} ${x + 12 * s} ${y - 20 * s} ${x + 9 * s} ${y - 33 * s}`,
-    `C${x + 6 * s} ${y - 36 * s} ${x - 6 * s} ${y - 36 * s} ${x - 9 * s} ${y - 33 * s} Z`,
-  ].join(" ");
-  return (
-    <g className={className}>
-      <path d={d} />
-      <circle cx={x + 1 * s} cy={y - 43 * s} r={6.5 * s} />
-    </g>
-  );
-}
-
-/* ── 01 · pipeline ─────────────────────────────────────────────────────── */
+/* ── 01 · pipeline ─────────────────────────────────────────────────────────
+   VIDEO IS A PHOTOGRAPH. The first two stages were a grid of drawn pixels and
+   a drawn body; they are now the site's capture plate — at Video the frame, at
+   Person the detection box on it — and every later stage is that walker: its
+   joints, its skeleton, the stride scaled to it. See visuals/capture-plate.ts. */
+const PIPE_FRAME = { x: 22, y: 20, w: 158, h: 148 };
+const PIPE_FIT = plateFit("portrait", PIPE_FRAME);
 function Pipeline({ p }: { p: number }) {
-  const cx = 96;
-  const cy = 96;
-  const s = 1.55;
-  const phase = GAIT_PHASES[0];
-  const pixels = ramp(p, 0.22, 0.05);
-  const mass = ramp(p, 0.42, 0.18);
+  const clip = useId();
+  const [cx, cy] = PIPE_FIT.hip;
+  const s = PIPE_FIT.poseScale;
+  const phase = WALKER_PHASE;
+  const photo = ramp(p, 0.42, 0.18);
   const box = ramp(p, 0.14, 0.26) * ramp(p, 0.62, 0.48);
   const joints = ramp(p, 0.3, 0.42);
   const bones = ramp(p, 0.44, 0.56);
@@ -83,12 +88,11 @@ function Pipeline({ p }: { p: number }) {
   const signal = ramp(p, 0.78, 0.92);
   const groundY = cy + 48 * s;
 
-  const ankle = smoothPath(
-    GAIT_PHASES.map((ph, i) => [cx + (i - 2) * 22 + ph.nearLeg[2][0] * s * 0.6, cy + ph.nearLeg[2][1] * s] as Pt),
-  );
-  const wrist = smoothPath(
-    GAIT_PHASES.map((ph, i) => [cx + (i - 2) * 22 + ph.nearArm[2][0] * s * 0.6, cy + ph.nearArm[2][1] * s] as Pt),
-  );
+  const stride = walkerStride(PIPE_FIT, GAIT_PHASES, 6);
+  const ankle = smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[2])));
+  const wrist = smoothPath(stride.map((m) => m.pick((ph) => ph.nearArm[2])));
+  const [bx0, by0] = PIPE_FIT.at([WALKER_MASK.bbox.x0, WALKER_MASK.bbox.y0]);
+  const [bx1, by1] = PIPE_FIT.at([WALKER_MASK.bbox.x1, WALKER_MASK.bbox.y1]);
   const wave = (y0: number, amp: number, f: number, ph: number) =>
     smoothPath(
       Array.from({ length: 16 }, (_, i) => {
@@ -99,66 +103,60 @@ function Pipeline({ p }: { p: number }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
-      {/* pixels */}
-      <g style={{ opacity: pixels }}>
-        {Array.from({ length: 8 }, (_, row) =>
-          Array.from({ length: 12 }, (_, col) => {
-            const lit = (row * 7 + col * 3) % 5 === 0;
-            return (
-              <rect
-                key={`${row}-${col}`}
-                className={lit ? fig.pixelLit : fig.pixel}
-                x={24 + col * 13}
-                y={22 + row * 18}
-                width={11}
-                height={16}
-              />
-            );
-          }),
-        )}
-      </g>
-      {/* frame + ground */}
-      <rect className={fig.frame} x={22} y={20} width={158} height={148} rx={3} />
-      <line className={fig.ground} x1={30} y1={groundY} x2={172} y2={groundY} />
-      {/* body mass */}
-      <g style={{ opacity: mass }}>
-        <BodyMass x={cx} y={cy} s={s} className={fig.mass} />
-      </g>
-      {/* detection box */}
-      <rect
-        className={`${fig.frame} ${fig.frameAccent}`}
-        style={{ opacity: box }}
-        x={cx - 22}
-        y={cy - 54}
-        width={50}
-        height={108}
-        rx={2}
-      />
-      {/* ghosts + trails */}
-      <g style={{ opacity: ghosts }}>
-        {GAIT_PHASES.map((ph, i) =>
-          i === 0 ? null : (
-            <g key={ph.id} className={fig.ghost} transform={`translate(${cx + (i - 2) * 22} ${cy - ph.lift * s})`}>
-              <PoseFrame phase={ph} s={s * 0.6} classes={CLASSES} showFar={false} />
-            </g>
-          ),
-        )}
-      </g>
-      <g style={{ opacity: trails }}>
-        <path className={fig.trace} d={ankle} />
-        <path className={`${fig.trace} ${fig.traceViolet}`} d={wrist} />
-      </g>
-      {/* skeleton */}
-      <g transform={`translate(${cx} ${cy - phase.lift * s})`} style={{ opacity: Math.max(joints, bones) }}>
-        <g style={{ opacity: bones }}>
-          <PoseFrame phase={phase} s={s} classes={CLASSES} />
+      <defs>
+        <clipPath id={clip}>
+          <rect x={PIPE_FRAME.x} y={PIPE_FRAME.y} width={PIPE_FRAME.w} height={PIPE_FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${clip})`}>
+        {/* the frame */}
+        <g style={{ opacity: photo }}>
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={PIPE_FRAME.x}
+            y={PIPE_FRAME.y}
+            width={PIPE_FRAME.w}
+            height={PIPE_FRAME.h}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.photo}
+          />
         </g>
-        <g style={{ opacity: joints * (1 - bones) }}>
-          {[...phase.nearArm, ...phase.nearLeg, GAIT_HEAD].map(([jx, jy], i) => (
-            <circle key={i} className={fig.joint} cx={r1(jx * s)} cy={r1(jy * s)} r={2.4} />
+        <line className={fig.ground} x1={30} y1={groundY} x2={172} y2={groundY} />
+        {/* detection box, on the walker the frame has */}
+        <rect
+          className={`${fig.frame} ${fig.frameAccent}`}
+          style={{ opacity: box }}
+          x={bx0 - 3}
+          y={by0 - 3}
+          width={bx1 - bx0 + 6}
+          height={by1 - by0 + 6}
+          rx={2}
+        />
+        {/* ghosts + trails */}
+        <g style={{ opacity: ghosts }}>
+          {stride.slice(0, -1).map((m, i) => (
+            <g key={i} className={fig.ghost} transform={`translate(${m.x} ${m.y})`}>
+              <PoseFrame phase={m.phase} s={m.scale} classes={GHOST} showFar={false} />
+            </g>
           ))}
         </g>
+        <g style={{ opacity: trails }}>
+          <path className={fig.trace} d={ankle} />
+          <path className={`${fig.trace} ${fig.traceViolet}`} d={wrist} />
+        </g>
+        {/* skeleton */}
+        <g transform={`translate(${cx} ${cy})`} style={{ opacity: Math.max(joints, bones) }}>
+          <g style={{ opacity: bones }}>
+            <PoseFrame phase={phase} s={s} classes={CLASSES} />
+          </g>
+          <g style={{ opacity: joints * (1 - bones) }}>
+            {[...phase.nearArm, ...phase.nearLeg, GAIT_HEAD].map(([jx, jy], i) => (
+              <circle key={i} className={fig.joint} cx={r1(jx * s)} cy={r1(jy * s)} r={2.4} />
+            ))}
+          </g>
+        </g>
       </g>
+      <rect className={fig.frame} x={PIPE_FRAME.x} y={PIPE_FRAME.y} width={PIPE_FRAME.w} height={PIPE_FRAME.h} rx={3} />
       {/* signal */}
       <g style={{ opacity: signal }}>
         {[
@@ -189,6 +187,9 @@ const COVER_STAGES = ["Human", "Pose", "Skeleton", "Trajectory", "Signal", "Inte
 const COVER_CONTROL: Stage[] = COVER_STAGES.map((name) => ({ id: name.toLowerCase(), label: name, name }));
 const CW = 640;
 const CH = 400;
+/* The frame the cover's walker stands in — sized to the figure at the cover's
+   scale, portrait cut, so the photograph fills it. */
+const COVER_FRAME = { x: 76, y: 42, w: 228, h: 296 };
 function coverStageOf(p: number) {
   return Math.min(5, Math.floor(clamp01(p) * 6));
 }
@@ -198,11 +199,15 @@ function PipelineCover({ p, narrow = false }: { p: number; narrow?: boolean }) {
      left to stay inside the drawing. */
   const tx = narrow ? 330 : 386;
   const lx = narrow ? 318 : 372;
-  const s = 2.4;
-  const fx = 190;
-  const fy = 176;
+  /* HUMAN IS A PHOTOGRAPH. The subject "stands in a soft field of light, the
+     way a subject stands in a photograph" — so at Human it is one: the site's
+     capture plate in a frame around the walker, and everything read from it
+     afterwards is that walker (visuals/capture-plate.ts). */
+  const fit = plateFit("portrait", COVER_FRAME);
+  const s = fit.poseScale;
+  const [fx, fy] = fit.hip;
   const groundY = fy + 48 * s;
-  const phase = GAIT_PHASES[0];
+  const phase = WALKER_PHASE;
   const late = stage >= 4;
   const mass = stage === 0 ? 1 : stage === 1 ? 0.28 : 0;
   const joints = stage === 1 ? 1 : 0;
@@ -213,16 +218,11 @@ function PipelineCover({ p, narrow = false }: { p: number; narrow?: boolean }) {
   const signal = stage === 4 ? 1 : stage === 5 ? 0.18 : 0;
   const decision = stage === 5 ? 1 : 0;
 
+  const stride = walkerStride(fit, GAIT_PHASES, 7);
   const trails = {
-    ankle: smoothPath(
-      GAIT_PHASES.map((ph, i) => [fx - (4 - i) * 34 + ph.nearLeg[2][0] * s * 0.45, fy - ph.lift * s + ph.nearLeg[2][1] * s] as Pt),
-    ),
-    wrist: smoothPath(
-      GAIT_PHASES.map((ph, i) => [fx - (4 - i) * 34 + ph.nearArm[2][0] * s * 0.45, fy - ph.lift * s + ph.nearArm[2][1] * s] as Pt),
-    ),
-    hip: smoothPath(
-      GAIT_PHASES.map((ph, i) => [fx - (4 - i) * 34 + ph.nearLeg[0][0] * s * 0.45, fy - ph.lift * s + ph.nearLeg[0][1] * s] as Pt),
-    ),
+    ankle: smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[2]))),
+    wrist: smoothPath(stride.map((m) => m.pick((ph) => ph.nearArm[2]))),
+    hip: smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[0]))),
   };
   const wave = (y0: number, amp: number, f: number, ph: number) =>
     smoothPath(
@@ -235,6 +235,9 @@ function PipelineCover({ p, narrow = false }: { p: number; narrow?: boolean }) {
   return (
     <svg viewBox={`0 0 ${CW} ${CH}`} className={styles.mediaSvg} aria-hidden="true">
       <defs>
+        <clipPath id="cover-frame-clip">
+          <rect x={COVER_FRAME.x} y={COVER_FRAME.y} width={COVER_FRAME.w} height={COVER_FRAME.h} rx={4} />
+        </clipPath>
         <radialGradient id="cover-field" cx="0.5" cy="0.6" r="0.6">
           <stop offset="0" stopColor="var(--jr-cyan, #4fd1ff)" stopOpacity="0.09" />
           <stop offset="0.65" stopColor="var(--jr-cyan, #4fd1ff)" stopOpacity="0.025" />
@@ -249,18 +252,26 @@ function PipelineCover({ p, narrow = false }: { p: number; narrow?: boolean }) {
         style={{ transform: late ? "translateX(0px)" : "translateX(130px)", transition: "transform 0.7s cubic-bezier(0.16,1,0.3,1)" }}
       >
         <ellipse cx={fx} cy={fy + 24} rx={158} ry={178} fill="url(#cover-field)" />
-        <line className={fig.ground} x1={fx - 128} y1={groundY} x2={fx + 128} y2={groundY} />
-        <g className={fig.fade} style={{ opacity: mass }}>
-          <BodyMass x={fx} y={fy} s={s} className={fig.silhouette} />
+        {/* the frame: whole at Human, faint under the landmarks at Pose */}
+        <g className={fig.fade} style={{ opacity: mass }} clipPath="url(#cover-frame-clip)">
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={COVER_FRAME.x}
+            y={COVER_FRAME.y}
+            width={COVER_FRAME.w}
+            height={COVER_FRAME.h}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.photo}
+          />
         </g>
+        <rect className={`${fig.frame} ${fig.fade}`} style={{ opacity: Math.max(mass, 0.35) }} x={COVER_FRAME.x} y={COVER_FRAME.y} width={COVER_FRAME.w} height={COVER_FRAME.h} rx={4} />
+        <line className={fig.ground} x1={fx - 128} y1={groundY} x2={fx + 128} y2={groundY} />
         <g className={fig.fade} style={{ opacity: trail }}>
-          {GAIT_PHASES.map((ph, i) =>
-            i === 4 ? null : (
-              <g key={ph.id} className={fig.ghost} transform={`translate(${fx - (4 - i) * 34} ${fy - ph.lift * s})`}>
-                <PoseFrame phase={ph} s={s * 0.45} classes={CLASSES} showFar={false} />
-              </g>
-            ),
-          )}
+          {stride.slice(0, -1).map((m, i) => (
+            <g key={i} className={fig.ghost} transform={`translate(${m.x} ${m.y})`}>
+              <PoseFrame phase={m.phase} s={m.scale} classes={GHOST} showFar={false} />
+            </g>
+          ))}
           <path className={fig.trace} d={trails.ankle} />
           <path className={`${fig.trace} ${fig.traceViolet}`} d={trails.wrist} />
           <path className={`${fig.trace} ${fig.traceRoyal} ${fig.traceThin}`} d={trails.hip} />
@@ -320,66 +331,67 @@ function PipelineCover({ p, narrow = false }: { p: number; narrow?: boolean }) {
   );
 }
 
-/* ── 03 · reduction ────────────────────────────────────────────────────── */
+/* ── 03 · reduction ─────────────────────────────────────────────────────────
+   RGB IS A PHOTOGRAPH. The first three states were one drawn body — textured,
+   then with a block over its face, then flat. They are now the site's capture
+   plate, the same plate with the head it has blocked out, and that walker's
+   own segmentation mask; the skeleton is that walker's joints and the
+   trajectory the stride scaled to it. See visuals/capture-plate.ts. */
 function Reduction({ p, narrow = false }: { p: number; narrow?: boolean }) {
-  const cx = 88;
-  const cy = 98;
-  const s = 1.5;
-  const phase = GAIT_PHASES[2];
+  const clip = useId();
+  const [cx, cy] = MINI_FIT.hip;
+  const s = MINI_FIT.poseScale;
+  const phase = WALKER_PHASE;
   const rgb = ramp(p, 0.24, 0.08);
   const redact = ramp(p, 0.12, 0.2) * ramp(p, 0.48, 0.34);
   const silhouette = ramp(p, 0.26, 0.4) * ramp(p, 0.68, 0.54);
   const skeleton = ramp(p, 0.5, 0.64) * ramp(p, 0.92, 0.8);
   const trail = ramp(p, 0.76, 0.9);
   const groundY = cy + 48 * s;
-  const ankle = smoothPath(
-    GAIT_PHASES.map((ph, i) => [cx + (i - 2) * 24 + ph.nearLeg[2][0] * s * 0.5, cy + ph.nearLeg[2][1] * s * 0.6 - 6] as Pt),
-  );
+  const [hx, hy] = MINI_FIT.at([WALKER_HEAD.cx, WALKER_HEAD.cy]);
+  const hr = WALKER_HEAD.r * MINI_FIT.scale;
+  const stride = walkerStride(MINI_FIT, GAIT_PHASES, 6);
+  const ankle = smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[2])));
   const movement = p < 0.9 ? 3 : 2;
   const identity = p < 0.2 ? 3 : p < 0.5 ? 2 : 1;
+  /* The photograph is whole for RGB and the redaction, and stays faint under
+     the mask so the mask reads as cut from it. */
+  const photo = Math.max(rgb, redact, silhouette * 0.14);
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id={clip}>
+          <rect x={MINI_FRAME.x} y={MINI_FRAME.y} width={MINI_FRAME.w} height={MINI_FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
       {/* On a phone the drawing is a fifth as tall, and the head would sit
           under the "Foundations 03" step label; the whole plate drops 12
           units to clear it. */}
       <g transform={narrow ? "translate(0 12)" : undefined}>
         <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
-        <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
-        {/* RGB: textured body */}
-        <g style={{ opacity: rgb }}>
-          <BodyMass x={cx} y={cy} s={s} className={fig.massSolid} />
-          {Array.from({ length: 5 }, (_, i) => (
-            <line
-              key={i}
-              className={fig.hair}
-              x1={cx - 8 * s}
-              y1={cy - 28 * s + i * 8 * s}
-              x2={cx + 8 * s}
-              y2={cy - 26 * s + i * 8 * s}
+        <g clipPath={`url(#${clip})`}>
+          <g style={{ opacity: photo }}>
+            <image
+              href={assetPath(PLATE.portrait.src)}
+              x={MINI_FRAME.x}
+              y={MINI_FRAME.y}
+              width={MINI_FRAME.w}
+              height={MINI_FRAME.h}
+              preserveAspectRatio="xMidYMid slice"
+              className={fig.photo}
             />
-          ))}
-          <circle cx={cx + 1 * s} cy={cy - 43 * s} r={2.2} className={fig.nodeMute} />
-          <circle cx={cx + 3.5 * s} cy={cy - 44 * s} r={1} className={fig.nodeMute} />
-      </g>
-      {/* redaction: the body stays as it was, and a violet block covers the
-          face — the one thing that has changed, and it must be unmissable */}
-      <g style={{ opacity: redact }}>
-        <BodyMass x={cx} y={cy} s={s} className={fig.massSolid} />
-      </g>
-      <rect
-        className={fig.redact}
-        style={{ opacity: redact }}
-        x={cx - 10 * s}
-        y={cy - 52 * s}
-        width={22 * s}
-        height={17 * s}
-        rx={1}
-      />
-      {/* silhouette */}
-      <g style={{ opacity: silhouette }}>
-        <BodyMass x={cx} y={cy} s={s} className={fig.mass} />
-      </g>
+          </g>
+          {/* redaction: the frame stays as it was, and a violet block covers
+              the head — the one thing that has changed, and it must be
+              unmissable */}
+          <rect className={fig.redact} style={{ opacity: redact }} x={hx - hr - 2} y={hy - hr - 3} width={hr * 2 + 4} height={hr * 2 + 6} rx={1.5} />
+          {/* silhouette: the walker's segmentation */}
+          <g style={{ opacity: silhouette }} transform={MINI_FIT.transform}>
+            <path className={fig.segMask} d={WALKER_MASK.path} />
+          </g>
+        </g>
+        <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
       {/* skeleton */}
       <g transform={`translate(${cx} ${cy})`} style={{ opacity: skeleton }}>
         <PoseFrame phase={phase} s={s} classes={CLASSES} />
@@ -387,9 +399,10 @@ function Reduction({ p, narrow = false }: { p: number; narrow?: boolean }) {
       {/* trajectory */}
       <g style={{ opacity: trail }}>
         <path className={`${fig.trace} ${fig.traceViolet}`} d={ankle} />
-        {GAIT_PHASES.map((_, i) => (
-          <circle key={i} className={fig.nodeViolet} cx={cx + (i - 2) * 24} cy={cy + 22 - (i % 2) * 6} r={1.8} />
-        ))}
+        {stride.map((m, i) => {
+          const [nx, ny] = m.pick((ph) => ph.nearLeg[2]);
+          return <circle key={i} className={fig.nodeViolet} cx={nx} cy={ny} r={1.8} />;
+        })}
       </g>
       {/* the two indicators */}
       <g className={`${fig.label} ${fig.labelKey}`}>
@@ -689,26 +702,40 @@ function Fusion({ states, onToggle }: { states: StreamState[]; onToggle: (i: num
    and the filled-in knee ringed. The panel on the right turns from "looks
    fine" to what the measurement inherits. */
 function PoseErrorMini({ p }: { p: number }) {
+  const clip = useId();
   const issue = "occlusion" as const;
-  const actual = GAIT_PHASES[POSE_PHASE_FOR[issue]];
+  /* The frame the camera saw is the photograph, so the "actual" pose is that
+     walker's joints (visuals/capture-plate.ts). */
+  const actual = WALKER_PHASE;
   const est = estimatePose(actual, issue);
   const focus = poseFocusJoint(actual, est, issue)!;
-  const cx = 92;
-  const cy = 98;
-  const s = 1.5;
+  const [cx, cy] = MINI_FIT.hip;
+  const s = MINI_FIT.poseScale;
   const reveal = ramp(p, 0.38, 0.62);
-  const groundY = cy + (48 - actual.lift) * s;
-  const mass = { bone: fig.massBone, boneFar: fig.massBoneFar, joint: fig.massJoint, head: fig.massHead };
+  const groundY = cy + 48 * s;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id={clip}>
+          <rect x={MINI_FRAME.x} y={MINI_FRAME.y} width={MINI_FRAME.w} height={MINI_FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
       <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
-      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
-      {/* the body the camera saw, arriving */}
-      <g style={{ opacity: reveal }} transform={`translate(${cx} ${cy - actual.lift * s})`}>
-        <PoseFrame phase={actual} s={s} classes={mass} />
+      {/* the frame the camera saw, arriving */}
+      <g style={{ opacity: reveal }} clipPath={`url(#${clip})`}>
+        <image
+          href={assetPath(PLATE.portrait.src)}
+          x={MINI_FRAME.x}
+          y={MINI_FRAME.y}
+          width={MINI_FRAME.w}
+          height={MINI_FRAME.h}
+          preserveAspectRatio="xMidYMid slice"
+          className={fig.photo}
+        />
       </g>
+      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
       {/* the estimate — always complete, always plausible */}
-      <g transform={`translate(${cx} ${cy - actual.lift * s})`}>
+      <g transform={`translate(${cx} ${cy})`}>
         <PoseFrame phase={est} s={s} classes={CLASSES} />
         <g style={{ opacity: reveal }}>
           <line className={fig.dash} x1={focus.est[0] * s} y1={focus.est[1] * s} x2={focus.actual[0] * s} y2={focus.actual[1] * s} />
@@ -891,25 +918,47 @@ function ViewpointMini({ p }: { p: number }) {
    ledger beside it says what could still identify the person — and it never
    reaches zero. */
 function IdentityLayersMini({ p }: { p: number }) {
+  const clip = useId();
   const stage = Math.min(4, Math.floor(clamp01(p) * 5));
   const representation = REPRESENTATIONS[stage];
   const ledger = identityLedger(representation, { persisted: false, linked: false });
-  const cx = 92;
-  const cy = 98;
-  const s = 1.5;
-  const phase = GAIT_PHASES[2];
-  const groundY = cy + (48 - phase.lift) * s;
-  const trail = smoothPath(GAIT_PHASES.map((ph, i) => [cx - (2 - i) * 18 + ph.nearLeg[2][0] * s * 0.45, cy - ph.lift * s + ph.nearLeg[2][1] * s] as Pt));
+  /* RGB is the photograph; face removed blocks the head it has; the silhouette
+     is that walker's segmentation; the skeleton its joints. */
+  const [cx, cy] = MINI_FIT.hip;
+  const s = MINI_FIT.poseScale;
+  const phase = WALKER_PHASE;
+  const groundY = cy + 48 * s;
+  const [hx, hy] = MINI_FIT.at([WALKER_HEAD.cx, WALKER_HEAD.cy]);
+  const hr = WALKER_HEAD.r * MINI_FIT.scale;
+  const stride = walkerStride(MINI_FIT, GAIT_PHASES, 6);
+  const trail = smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[2])));
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id={clip}>
+          <rect x={MINI_FRAME.x} y={MINI_FRAME.y} width={MINI_FRAME.w} height={MINI_FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
       <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
-      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
-      <g className={fig.fade} style={{ opacity: stage <= 1 ? 1 : 0 }}>
-        <path className={fig.massSolid} d={bodyMassPath(cx, cy, s)} />
+      <g clipPath={`url(#${clip})`}>
+        <g className={fig.fade} style={{ opacity: stage <= 1 ? 1 : stage === 2 ? 0.14 : 0 }}>
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={MINI_FRAME.x}
+            y={MINI_FRAME.y}
+            width={MINI_FRAME.w}
+            height={MINI_FRAME.h}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.photo}
+          />
+        </g>
+        <rect className={`${fig.fade} ${fig.redact}`} style={{ opacity: stage === 1 ? 1 : 0 }} x={hx - hr - 2} y={hy - hr - 3} width={hr * 2 + 4} height={hr * 2 + 6} rx={1.5} />
+        <g className={fig.fade} style={{ opacity: stage === 2 ? 1 : 0 }} transform={MINI_FIT.transform}>
+          <path className={fig.segMask} d={WALKER_MASK.path} />
+        </g>
       </g>
-      <rect className={`${fig.fade} ${fig.redact}`} style={{ opacity: stage === 1 ? 1 : 0 }} x={cx - 9 * s} y={cy - 52 * s} width={20 * s} height={17 * s} rx={1} />
-      <path className={`${fig.fade} ${fig.mass}`} style={{ opacity: stage === 2 ? 1 : 0 }} d={bodyMassPath(cx, cy, s)} />
-      <g className={fig.fade} style={{ opacity: stage === 3 ? 1 : stage === 4 ? 0.3 : 0 }} transform={`translate(${cx} ${cy - phase.lift * s})`}>
+      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
+      <g className={fig.fade} style={{ opacity: stage === 3 ? 1 : stage === 4 ? 0.3 : 0 }} transform={`translate(${cx} ${cy})`}>
         <PoseFrame phase={phase} s={s} classes={CLASSES} />
       </g>
       <g className={fig.fade} style={{ opacity: stage === 4 ? 1 : 0 }}>

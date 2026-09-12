@@ -449,3 +449,49 @@
   transform: translate(-120px, 13px);
   text-anchor: start;
 }
+
+/* ── The capture plate ──
+   A photograph where a figure says RGB, raw video or original frame, and the
+   walker's own segmentation where it says silhouette. Both come from
+   visuals/capture-plate.ts. The photo is graded only by a hair in light mode;
+   it is never recoloured — a tinted photograph reads as an illustration again. */
+.photo {
+  filter: contrast(1.04) saturate(0.9);
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease);
+}
+:global(.light) .photo {
+  filter: contrast(1.02) saturate(0.95) brightness(1.06);
+}
+/* The frame behind a plate, so a stage with the photograph faded still reads
+   as a camera frame rather than as a hole in the page. */
+.photoGround {
+  fill: rgb(var(--c-obsidian-400) / 0.92);
+}
+:global(.light) .photoGround {
+  fill: rgb(226 232 240 / 0.9);
+}
+/* The segmentation: one flat colour, no internal stroke — a mask, not a body
+   made of parts. */
+.segMask {
+  fill: var(--jr-cyan, #4fd1ff);
+  opacity: 0.88;
+  transition: opacity var(--motion-editorial) var(--jr-ease, ease);
+}
+/* The same boundary as a faint outline, for the stages after the mask. */
+.segEdge {
+  fill: none;
+  stroke: var(--jr-cyan, #4fd1ff);
+  stroke-width: 1;
+  stroke-opacity: 0.35;
+  vector-effect: non-scaling-stroke;
+}
+/* A blurred region of the photograph — the head, or a moving limb. */
+.photoBlur {
+  filter: url(#fig-blur);
+}
+
+/* The ghosted stride poses behind the walker: joints and bones only. Five
+   head circles stacked over one another read as clutter, not as time. */
+.ghostHead {
+  display: none;
+}

@@ -1,10 +1,13 @@
+import { useId } from "react";
 import { GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
+import { PLATE, WALKER_HEAD, WALKER_PHASE, plateFit } from "@/components/visuals/capture-plate";
 import { PoseFrame } from "@/components/research/PoseFrame";
+import { assetPath } from "@/lib/paths";
 import type { CoverConcept } from "@/data/insights";
-import { POSE_PHASE_FOR, estimatePose, poseFocusJoint } from "./experience/figures/pose-error-model";
+import { estimatePose, poseFocusJoint } from "./experience/figures/pose-error-model";
 import { symmetryState } from "./experience/figures/symmetry-model";
 import { availabilityAt } from "./experience/figures/camera-model";
-import { bodyMassPath, identityLedger } from "./experience/figures/identity-model";
+import { identityLedger } from "./experience/figures/identity-model";
 import { CHAIN, COMPONENT_LABEL, OUTCOME_LABEL, outcomeFor, type ChainComponent } from "./experience/figures/system-model";
 import { OBSERVATIONS, POPULATION, personalBand, populationCurve } from "./experience/figures/baseline-model";
 import styles from "./covers.module.css";
@@ -162,7 +165,13 @@ function Pipeline() {
       <path className={styles.cPlane} d="M 68 78 L 372 62 L 372 336 L 68 320 Z" />
       <path className={styles.cPlane} d="M 392 74 L 616 62 L 616 348 L 392 336 Z" />
 
-      {/* ── 01 · source frames, stacked and nearly gone ── */}
+      <defs>
+        <clipPath id="cover-source-frame">
+          <rect x={40} y={136} width={70} height={52} rx={2} />
+        </clipPath>
+      </defs>
+      {/* ── 01 · source frames, stacked and nearly gone — the front one a real
+          frame, the site's capture plate ── */}
       {[0, 1, 2].map((i) => (
         <rect
           key={i}
@@ -174,6 +183,17 @@ function Pipeline() {
           rx={2}
         />
       ))}
+      <g clipPath="url(#cover-source-frame)">
+        <image
+          href={assetPath(PLATE.wide.src)}
+          x={40}
+          y={136}
+          width={70}
+          height={52}
+          preserveAspectRatio="xMidYMid slice"
+          className={styles.cPhoto}
+        />
+      </g>
       <rect className={styles.cFrame} x={40} y={136} width={70} height={52} rx={2} />
       {[0, 1, 2, 3].map((k) => (
         <line
@@ -908,29 +928,50 @@ function Fusion() {
  * actual position a teal point, a dashed line between. To the right, what the
  * measurement inherits, as three qualitative lines. No number anywhere.
  */
+const PE_FRAME = { x: 72, y: 56, w: 236, h: 292 };
+const PE_FIT = plateFit("portrait", PE_FRAME);
 function PoseError() {
+  const clip = useId();
   const issue = "occlusion" as const;
-  const actual = GAIT_PHASES[POSE_PHASE_FOR[issue]];
+  /* The original frame is the photograph, so the observed pose is that
+     walker's joints (visuals/capture-plate.ts). */
+  const actual = WALKER_PHASE;
   const est = estimatePose(actual, issue);
   const focus = poseFocusJoint(actual, est, issue)!;
-  const s = 2.6;
-  const fx = 190;
-  const fy = 196;
+  const s = PE_FIT.poseScale;
+  const [fx, fy] = PE_FIT.hip;
   const cls = { bone: styles.cBone, boneFar: styles.cBoneFar, joint: styles.cJoint, head: styles.cHead };
-  const groundY = fy + (48 - actual.lift) * s;
+  const groundY = fy + 48 * s;
   return (
     <>
-      {/* the frame */}
-      <rect className={styles.cFrame} x={72} y={56} width={236} height={292} rx={4} />
+      <defs>
+        <clipPath id={clip}>
+          <rect x={PE_FRAME.x} y={PE_FRAME.y} width={PE_FRAME.w} height={PE_FRAME.h} rx={4} />
+        </clipPath>
+      </defs>
+      {/* the frame: what the camera captured */}
+      <g clipPath={`url(#${clip})`}>
+        <image
+          href={assetPath(PLATE.portrait.src)}
+          x={PE_FRAME.x}
+          y={PE_FRAME.y}
+          width={PE_FRAME.w}
+          height={PE_FRAME.h}
+          preserveAspectRatio="xMidYMid slice"
+          className={styles.cPhoto}
+          style={{ opacity: 0.9 }}
+        />
+      </g>
+      <rect className={styles.cFrame} x={72} y={56} width={236} height={292} rx={4} style={{ fill: "none" }} />
       <text className={styles.cTiny} x={84} y={78}>
         Original frame
       </text>
       <line className={styles.cAxis} x1={84} y1={groundY} x2={296} y2={groundY} />
       {/* the bin in front of the far leg */}
-      <rect className={styles.cFrame} x={fx + 6 * s} y={fy + 10 * s} width={26 * s} height={groundY - (fy + 10 * s)} rx={2} />
+      <rect className={styles.cFrame} x={fx + 6 * s} y={fy + 10 * s} width={26 * s} height={groundY - (fy + 10 * s)} rx={2} style={{ fill: "rgb(7 11 20 / 0.82)" }} />
       <line className={styles.cHair} x1={fx + 6 * s} y1={fy + 22 * s} x2={fx + 32 * s} y2={fy + 22 * s} />
       {/* the estimate, complete and plausible */}
-      <g transform={`translate(${fx} ${fy - actual.lift * s})`}>
+      <g transform={`translate(${fx} ${fy})`}>
         <PoseFrame phase={est} s={s} classes={cls} />
         {/* the filled-in joint against the observed one */}
         <line className={styles.cDash} x1={focus.est[0] * s} y1={focus.est[1] * s} x2={focus.actual[0] * s} y2={focus.actual[1] * s} />
@@ -1113,10 +1154,15 @@ function Viewpoint() {
  * and beneath each the ledger of what could still identify the person. The
  * ledger never reaches zero; that is the plate's argument.
  */
+const IL_PANE = { x: 70, y: 92, w: 120, h: 162 };
+const IL_FIT = plateFit("portrait", IL_PANE);
 function IdentityLayers() {
+  const clip = useId();
   const s = 1.55;
   const y = 176;
   const phase = GAIT_PHASES[2];
+  const [hx, hy] = IL_FIT.at([WALKER_HEAD.cx, WALKER_HEAD.cy]);
+  const hr = WALKER_HEAD.r * IL_FIT.scale;
   const cls = { bone: styles.cBone, boneFar: styles.cBoneFar, joint: styles.cJoint, head: styles.cHead };
   const columns: Array<{ x: number; label: string; ledger: ReturnType<typeof identityLedger> }> = [
     { x: 130, label: "Face removed", ledger: identityLedger("face-removed", { persisted: false, linked: false }) },
@@ -1135,8 +1181,25 @@ function IdentityLayers() {
           <line className={styles.cAxis} x1={column.x - 60} y1={y + 48 * s} x2={column.x + 60} y2={y + 48 * s} />
           {index === 0 && (
             <>
-              <path className={styles.cContour} d={bodyMassPath(column.x, y, s)} style={{ fill: "rgb(148 163 184 / 0.28)" }} />
-              <rect x={column.x - 9 * s} y={y - 52 * s} width={20 * s} height={17 * s} rx={1} style={{ fill: "rgb(156 100 241 / 0.55)", stroke: "#a78bfa" }} />
+              {/* the photograph, with the head it has blocked out */}
+              <defs>
+                <clipPath id={clip}>
+                  <rect x={IL_PANE.x} y={IL_PANE.y} width={IL_PANE.w} height={IL_PANE.h} rx={3} />
+                </clipPath>
+              </defs>
+              <g clipPath={`url(#${clip})`}>
+                <image
+                  href={assetPath(PLATE.portrait.src)}
+                  x={IL_PANE.x}
+                  y={IL_PANE.y}
+                  width={IL_PANE.w}
+                  height={IL_PANE.h}
+                  preserveAspectRatio="xMidYMid slice"
+                  className={styles.cPhoto}
+                />
+                <rect className={styles.cRedact} x={hx - hr - 3} y={hy - hr - 4} width={hr * 2 + 6} height={hr * 2 + 8} rx={2} />
+              </g>
+              <rect className={styles.cFrame} x={IL_PANE.x} y={IL_PANE.y} width={IL_PANE.w} height={IL_PANE.h} rx={3} style={{ fill: "none" }} />
             </>
           )}
           {index === 1 && (

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { GAIT_PHASES } from "@/components/visuals/gait-phases";
+import { PLATE, WALKER_PHASE, plateFit } from "@/components/visuals/capture-plate";
 import { PoseFrame } from "@/components/research/PoseFrame";
 import { trackInsightEvent } from "@/lib/insight-events";
+import { assetPath } from "@/lib/paths";
 import { InteractiveFigure } from "../InteractiveFigure";
 import { StageControl, type Stage } from "../StageControl";
 import { ShareInsight, useSharedFigureState } from "../ShareInsight";
@@ -50,6 +51,32 @@ const R = 108;
 const FRAME = { x: 300, y: 44, w: 156, h: 250 };
 const PANEL_X = 468;
 const PANEL_W = 166;
+
+/**
+ * WHAT THE CAMERA SEES IS THE SAME FRAME, RE-PROJECTED.
+ * The middle panel used to be a keyframe skeleton on an empty rectangle — a
+ * viewpoint represented by a camera icon orbiting a mannequin. It is now the
+ * site's capture plate seen from each position: from the side as shot; from
+ * the right side mirrored, because the walker is now heading the other way;
+ * from front or rear compressed along the walk so the stride foreshortens;
+ * from an oblique position compressed and leaned. Over it, that walker's own
+ * joints projected the same way (`projectPhase`), so the photograph and the
+ * skeleton agree about what the angle does. A plan-view sketch of a
+ * projection, not a camera model — the caption says so, as it always did.
+ */
+const FIT = plateFit("portrait", FRAME);
+const FRAME_CX = FRAME.x + FRAME.w / 2;
+const FRAME_CY = FRAME.y + FRAME.h / 2;
+
+/** How the frame re-projects for an angle: horizontal scale (signed) and lean. */
+function frameView(angle: CameraAngle): { sx: number; skew: number } {
+  const theta = (angle * Math.PI) / 180;
+  const along = Math.cos(theta);
+  /* Never to zero: a front view is narrow, not a line. */
+  const sx = Math.sign(along || 1) * Math.max(0.42, Math.abs(along));
+  const skew = angle % 90 === 0 ? 0 : (angle < 180 ? -1 : 1) * 7;
+  return { sx, skew };
+}
 
 const DESCRIPTION = `A plan view of a walker seen from above, walking to the right, with a camera on a ring around them at one of eight positions: side (left), front-left, front, front-right, side (right), rear-right, rear, rear-left.
 Dragging the camera round the ring, or moving the eight-step track, shows the same stride projected from the chosen position in a middle panel: from the side the legs swing in one plane and the stride is fully visible; from the front or rear the figure is narrow, the feet are apart and the stride is foreshortened; from an oblique position both are partially visible.
@@ -141,14 +168,17 @@ export function CameraAngleExplorer({ articleSlug, presentation }: FigureProps) 
     dragging.current = false;
   };
 
-  const phase = GAIT_PHASES[1];
+  const phase = WALKER_PHASE;
   const projected = projectPhase(phase, angle);
   const availability = availabilityAt(angle);
   const [camX, camY] = ringPoint(angle);
-  const fx = FRAME.x + FRAME.w / 2;
-  const fy = FRAME.y + 118;
-  const s = 2;
-  const groundY = fy + (48 - phase.lift) * s;
+  const view = frameView(angle);
+  /* The projected walker stays on the frame's centre line, as the photograph
+     does once it is scaled about that line. */
+  const fx = FRAME_CX;
+  const fy = FIT.hip[1];
+  const s = FIT.poseScale;
+  const groundY = fy + 48 * s;
 
   const stages: Stage[] = CAMERA_ANGLES.map((value) => ({ id: String(value), label: ANGLE_LABEL[value], name: ANGLE_LABEL[value] }));
   const bucket = ANGLE_BUCKET[angle];
@@ -218,12 +248,35 @@ export function CameraAngleExplorer({ articleSlug, presentation }: FigureProps) 
         <text className={`${fig.label} ${fig.labelInk}`} x={FRAME.x + 10} y={FRAME.y + 16}>
           What the camera sees
         </text>
-        <line className={fig.ground} x1={FRAME.x + 12} y1={groundY} x2={FRAME.x + FRAME.w - 12} y2={groundY} />
-        <g className={fig.move} transform={`translate(${fx} ${fy - phase.lift * s})`}>
-          <PoseFrame phase={projected} s={s} classes={CLASSES} />
+        <defs>
+          <clipPath id="cam-frame">
+            <rect x={FRAME.x} y={FRAME.y} width={FRAME.w} height={FRAME.h} rx={3} />
+          </clipPath>
+        </defs>
+        <g clipPath="url(#cam-frame)">
+          {/* the frame as this camera would resolve it */}
+          <g
+            className={fig.move}
+            transform={`translate(${FRAME_CX} ${FRAME_CY}) scale(${view.sx} 1) skewX(${view.skew}) translate(${-FRAME_CX} ${-FRAME_CY})`}
+          >
+            <image
+              href={assetPath(PLATE.portrait.src)}
+              x={FRAME.x}
+              y={FRAME.y}
+              width={FRAME.w}
+              height={FRAME.h}
+              preserveAspectRatio="xMidYMid slice"
+              className={fig.photo}
+              style={{ opacity: 0.82 }}
+            />
+          </g>
+          <line className={fig.ground} x1={FRAME.x + 12} y1={groundY} x2={FRAME.x + FRAME.w - 12} y2={groundY} />
+          <g className={fig.move} transform={`translate(${fx} ${fy})`}>
+            <PoseFrame phase={projected} s={s} classes={CLASSES} />
+          </g>
         </g>
         <text className={`${fig.label} ${fig.labelSmall}`} x={FRAME.x + 10} y={FRAME.y + FRAME.h - 10}>
-          {bucket === "side" ? "one plane · full stride" : bucket === "front" || bucket === "rear" ? "narrow · stride foreshortened" : "both planes · partially"}
+          {bucket === "side" ? "same frame · one plane · full stride" : bucket === "front" || bucket === "rear" ? "same frame · narrow · foreshortened" : "same frame · both planes · partially"}
         </text>
       </g>
 

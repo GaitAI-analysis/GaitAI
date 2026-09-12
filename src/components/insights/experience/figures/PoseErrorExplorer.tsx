@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GAIT_PHASES } from "@/components/visuals/gait-phases";
+import { PLATE, WALKER, WALKER_PHASE, plateFit } from "@/components/visuals/capture-plate";
 import { PoseFrame } from "@/components/research/PoseFrame";
 import { trackInsightEvent } from "@/lib/insight-events";
+import { assetPath } from "@/lib/paths";
 import { InteractiveFigure } from "../InteractiveFigure";
 import { ShareInsight, useSharedFigureState } from "../ShareInsight";
 import { useNarrow } from "../useNarrow";
@@ -39,7 +40,6 @@ import ui from "../experience.module.css";
 
 import {
   POSE_CROP_Y,
-  POSE_PHASE_FOR as PHASE_FOR,
   estimatePose as estimate,
   isPoseIssue as isIssue,
   isPoseView as isView,
@@ -96,14 +96,31 @@ const RELIABILITY_LABEL: Record<Reliability, string> = {
 
 const W = 640;
 const H = 360;
-const FX = 170;
-const FY = 176;
-const S = 2.3;
 const FRAME = { x: 40, y: 30, w: 260, h: 300 };
+
+/**
+ * THE ORIGINAL FRAME IS A PHOTOGRAPH.
+ * "What the camera saw" used to be a grey drawn body under the estimate; the
+ * one figure whose point is the gap between a real frame and a model's
+ * reading of it showed no real frame. The frame is now the site's capture
+ * plate and the "actual" pose is that walker's own joints, so the estimate,
+ * the occluder, the blur and the crop all sit on the photograph they are
+ * supposed to be about. The AI view stays what the essay says it is: the
+ * skeleton alone, with nothing marked. See visuals/capture-plate.ts.
+ */
+const FIT = plateFit("portrait", FRAME);
+const [FX, FY] = FIT.hip;
+const S = FIT.poseScale;
+/* The swing leg in frame coordinates — the region motion blur smears. */
+const LEG = {
+  x: FIT.at(WALKER.kneeN)[0] - 26,
+  y: FIT.at(WALKER.kneeN)[1] - 14,
+  w: FIT.at(WALKER.toeN)[0] - FIT.at(WALKER.kneeN)[0] + 50,
+  h: FIT.at(WALKER.toeN)[1] - FIT.at(WALKER.kneeN)[1] + 24,
+};
 const PANEL_X = 340;
 
 const CLASSES = { bone: fig.bone, boneFar: fig.boneFar, joint: fig.joint, head: fig.head };
-const MASS = { bone: fig.massBone, boneFar: fig.massBoneFar, joint: fig.massJoint, head: fig.massHead };
 
 const DESCRIPTION = `A camera frame with a walking figure, shown two ways. AI view: the skeleton as a pose estimator would return it — complete and plausible, with nothing marked. Original frame: what the camera captured, with the estimate laid over it.
 Four failure modes can be chosen. Occlusion: a bin hides the far leg; the estimator fills in a knee and ankle that were never observed. Motion blur: the swing foot is a streak; its ankle is placed along the streak, ahead of where the foot is. Cropped foot: the feet are below the frame; the estimator places ankles at the bottom edge. Leg crossing: at mid-stance the legs overlap and left and right are swapped for a few frames.
@@ -150,7 +167,7 @@ export function PoseErrorExplorer({ articleSlug, presentation }: FigureProps) {
     );
   };
 
-  const actual = GAIT_PHASES[PHASE_FOR[issue]];
+  const actual = WALKER_PHASE;
   const est = useMemo(() => estimate(actual, issue), [actual, issue]);
   const focus = focusJoint(actual, est, issue);
   const original = view === "original";
@@ -171,6 +188,16 @@ export function PoseErrorExplorer({ articleSlug, presentation }: FigureProps) {
         <clipPath id="pose-error-frame">
           <rect x={FRAME.x} y={FRAME.y} width={FRAME.w} height={issue === "cropped" ? cropLineY - FRAME.y : FRAME.h} />
         </clipPath>
+        <clipPath id="pose-error-leg">
+          <rect x={LEG.x} y={LEG.y} width={LEG.w} height={LEG.h} />
+        </clipPath>
+        <clipPath id="pose-error-below">
+          <rect x={FRAME.x} y={cropLineY} width={FRAME.w} height={FRAME.y + FRAME.h - cropLineY} />
+        </clipPath>
+        {/* A walking foot at 1/30 s smears along its own direction of travel. */}
+        <filter id="pose-error-blur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3.2 0.5" />
+        </filter>
         <pattern id="pose-error-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <line x1="0" y1="0" x2="0" y2="6" stroke="var(--jr-line-mid)" strokeWidth="1" />
         </pattern>
@@ -190,21 +217,31 @@ export function PoseErrorExplorer({ articleSlug, presentation }: FigureProps) {
       <g clipPath="url(#pose-error-frame)">
         <line className={fig.ground} x1={FRAME.x + 12} y1={groundY} x2={FRAME.x + FRAME.w - 12} y2={groundY} />
 
-        {/* ORIGINAL: the body as it was, then the occluder / blur / crop */}
+        {/* ORIGINAL: what the camera saw — the photograph — then the occluder,
+            the smeared foot or the crop laid on it */}
         {original && (
           <g className={fig.fade}>
-            <g transform={`translate(${FX} ${FY - actual.lift * S})`}>
-              <PoseFrame phase={actual} s={S} classes={MASS} />
-            </g>
+            <image
+              href={assetPath(PLATE.portrait.src)}
+              x={FRAME.x}
+              y={FRAME.y}
+              width={FRAME.w}
+              height={FRAME.h}
+              preserveAspectRatio="xMidYMid slice"
+              className={fig.photo}
+            />
             {issue === "blur" && (
-              <g transform={`translate(${FX} ${FY - actual.lift * S})`} opacity={0.35}>
-                {[-8, 0, 8].map((dx) => (
-                  <polyline
-                    key={dx}
-                    className={fig.massBone}
-                    points={`${(actual.nearLeg[1][0] + dx * 0.4) * S},${actual.nearLeg[1][1] * S} ${(actual.nearLeg[2][0] + dx) * S},${actual.nearLeg[2][1] * S}`}
-                  />
-                ))}
+              <g clipPath="url(#pose-error-leg)">
+                <image
+                  href={assetPath(PLATE.portrait.src)}
+                  x={FRAME.x}
+                  y={FRAME.y}
+                  width={FRAME.w}
+                  height={FRAME.h}
+                  preserveAspectRatio="xMidYMid slice"
+                  className={fig.photo}
+                  filter="url(#pose-error-blur)"
+                />
               </g>
             )}
           </g>
@@ -233,8 +270,16 @@ export function PoseErrorExplorer({ articleSlug, presentation }: FigureProps) {
             below the frame · not observed
           </text>
           {original && (
-            <g transform={`translate(${FX} ${FY - actual.lift * S})`} opacity={0.35}>
-              <PoseFrame phase={actual} s={S} classes={MASS} />
+            <g clipPath="url(#pose-error-below)" opacity={0.28}>
+              <image
+                href={assetPath(PLATE.portrait.src)}
+                x={FRAME.x}
+                y={FRAME.y}
+                width={FRAME.w}
+                height={FRAME.h}
+                preserveAspectRatio="xMidYMid slice"
+                className={fig.photo}
+              />
             </g>
           )}
         </g>

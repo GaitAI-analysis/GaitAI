@@ -1,5 +1,7 @@
 import { GAIT_HEAD, GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
+import { PLATE } from "@/components/visuals/capture-plate";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
+import { assetPath } from "@/lib/paths";
 import scene from "./scenes.module.css";
 import styles from "./signal.module.css";
 
@@ -12,7 +14,8 @@ import styles from "./signal.module.css";
  * essay the whole page is built around. It is now the five transformations the
  * essay actually walks through:
  *
- *   01 CAPTURE        the body as mass, inside a real capture frame
+ *   01 CAPTURE        a real camera frame — the site's capture plate
+ *                     (visuals/capture-plate.ts) — inside the frame marks
  *   02 GAIT PHASES    one stride at its five canonical events, earlier events
  *                     ghosted behind the current one
  *   03 TRAJECTORIES   the paths those joints accumulate across the cycle
@@ -172,6 +175,11 @@ export function SignalStage() {
         </text>
 
         {/* The frame a camera actually produces, with its corner marks. */}
+        <defs>
+          <clipPath id="ss-capture-frame">
+            <rect x={CAP_X - 62} y={46} width={128} height={ROW1_GROUND - 30} rx={3} />
+          </clipPath>
+        </defs>
         <rect
           className={styles.ssFrame}
           x={CAP_X - 62}
@@ -195,32 +203,17 @@ export function SignalStage() {
           />
         ))}
 
-        <g transform={`translate(${CAP_X} ${capY})`}>
-          {/* Mass, not outline: at capture the body is still pixels. */}
-          <g className={styles.ssMass}>
-            <polyline points={chain(CAP_PHASE.farArm, CAP_S)} />
-            <polyline points={chain(CAP_PHASE.farLeg, CAP_S)} />
-            <line
-              x1={0}
-              y1={0}
-              x2={r1(GAIT_HEAD[0] * CAP_S)}
-              y2={r1(GAIT_HEAD[1] * CAP_S)}
-            />
-            <polyline points={chain(CAP_PHASE.nearLeg, CAP_S)} />
-            <polyline points={chain(CAP_PHASE.nearArm, CAP_S)} />
-            <circle
-              className={styles.ssMassHead}
-              cx={r1(GAIT_HEAD[0] * CAP_S)}
-              cy={r1(GAIT_HEAD[1] * CAP_S)}
-              r={r1(6.6 * CAP_S)}
-            />
-          </g>
-          <ellipse
-            className={styles.ssShadow}
-            cx={6}
-            cy={r1(48 * CAP_S)}
-            rx={r1(17 * CAP_S)}
-            ry={r1(2.4 * CAP_S)}
+        {/* The frame itself: a photograph. At capture the body is still
+            pixels, so the pixels are real ones. */}
+        <g clipPath="url(#ss-capture-frame)">
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={CAP_X - 62}
+            y={46}
+            width={128}
+            height={ROW1_GROUND - 30}
+            preserveAspectRatio="xMidYMid slice"
+            className={styles.ssPhoto}
           />
         </g>
       </g>

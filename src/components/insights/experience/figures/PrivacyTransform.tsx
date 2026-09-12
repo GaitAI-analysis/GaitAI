@@ -1,15 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { GAIT_HEAD, GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
+import { GAIT_HEAD, GAIT_PHASES } from "@/components/visuals/gait-phases";
+import {
+  PLATE,
+  WALKER_HEAD,
+  WALKER_MASK,
+  WALKER_PHASE,
+  plateFit,
+  walkerStride,
+} from "@/components/visuals/capture-plate";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
 import { trackInsightEvent } from "@/lib/insight-events";
+import { assetPath } from "@/lib/paths";
 import { InteractiveFigure } from "../InteractiveFigure";
 import { StageControl, type Stage } from "../StageControl";
 import { ShareInsight, useSharedFigureState } from "../ShareInsight";
 import { useFigureActive } from "../useFigureActive";
 import { useNarrow } from "../useNarrow";
-import { phaseAt, useWalkCycle } from "../gait";
 import type { FigureProps } from "../registry";
 import fig from "../figures.module.css";
 import ui from "../experience.module.css";
@@ -58,16 +66,32 @@ const NOTES = [
 
 const W = 640;
 const H = 340;
-const FX = 150;
-const FY = 160;
-const S = 2.1;
+const FRAME = { x: 30, y: 22, w: 240, h: 290 };
+
+/**
+ * RAW RGB IS A PHOTOGRAPH, AND THE STAGES ARE CUT FROM IT.
+ * The frame used to be a grid of drawn pixels with a drawn body on it, and
+ * "face redacted" a violet block over a drawn face — an illustration labelled
+ * RGB. The frame is now the site's real capture plate; the redaction blocks the
+ * head the photograph has; the silhouette is that walker's own segmentation;
+ * the landmarks and skeleton are that walker's joints; the trajectory is the
+ * stride those joints imply. A single frame does not walk, so the figure holds
+ * the photographed moment instead of cycling through keyframes — the stages
+ * still move, the person does not. See visuals/capture-plate.ts.
+ */
+const FIT = plateFit("portrait", FRAME);
+const [FX, FY] = FIT.hip;
+const S = FIT.poseScale;
 const GROUND = FY + 48 * S;
+const HEAD = FIT.at([WALKER_HEAD.cx, WALKER_HEAD.cy]);
+const HEAD_R = WALKER_HEAD.r * FIT.scale;
 const CLASSES = { bone: fig.bone, boneFar: fig.boneFar, joint: fig.joint, head: fig.head, contact: fig.contact };
+const GHOST = { ...CLASSES, head: fig.ghostHead };
 
 const DESCRIPTION = `A seven-stage slider from identity-rich to movement-minimised.
-Raw RGB: high identity-bearing visual information, high movement information.
-Face redacted: still high identity (clothing, build, gait visible), high movement.
-Silhouette: medium identity, high movement.
+Raw RGB: a camera frame of a person walking past a wall — high identity-bearing visual information, high movement information.
+Face redacted: the same frame with the head blocked out; still high identity (clothing, build, gait visible), high movement.
+Silhouette: the walker's foreground mask cut from that frame — medium identity, high movement.
 Pose landmarks: low identity, high movement.
 Skeleton: lower direct visual identity, high structural movement information — but pose and gait can themselves carry identifying information.
 Trajectory: minimal image information, medium temporal movement information retained.
@@ -80,8 +104,7 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
     typeof presentation?.stage === "number" ? presentation.stage : 0,
   );
   const [dragging, setDragging] = useState(false);
-  const { ref, active, reduced } = useFigureActive<HTMLDivElement>();
-  const t = useWalkCycle(active && !presentation, 1500, 0.1, stage);
+  const { ref } = useFigureActive<HTMLDivElement>();
   const stacked = useNarrow(640);
   /* Stage changes are analytics events, debounced so a drag counts where it
      settled; the completion event lives in the effect below. */
@@ -106,24 +129,28 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
     }
   }, [articleSlug, presentation, stage]);
 
-  const phase = reduced || presentation ? GAIT_PHASES[0] : phaseAt(t);
+  const phase = WALKER_PHASE;
 
-  const rgb = stage === 0 ? 1 : 0;
   const redact = stage === 1 ? 1 : 0;
-  const bodyTextured = stage <= 1 ? 1 : 0;
-  const silhouette = stage === 2 ? 1 : stage === 3 ? 0.3 : 0;
+  const silhouette = stage === 2 ? 1 : stage === 3 ? 0.22 : 0;
   const joints = stage === 3 ? 1 : 0;
   const bones = stage === 4 ? 1 : stage === 5 ? 0.35 : 0;
   const trail = stage === 5 ? 1 : 0;
   const output = stage === 6 ? 1 : 0;
-  const pixels = stage <= 1 ? 1 : stage === 2 ? 0.25 : 0;
+  /* The photograph: whole for RGB and the redaction, faint under the mask so
+     the mask reads as cut from it, gone after that. */
+  const pixels = stage <= 1 ? 1 : stage === 2 ? 0.14 : 0;
 
-  const trails = useMemo(() => {
-    const step = 30;
-    const pts = (pick: (p: (typeof GAIT_PHASES)[number]) => Pt) =>
-      GAIT_PHASES.map((p, i) => [FX - (4 - i) * step + pick(p)[0] * S * 0.45, FY - p.lift * S + pick(p)[1] * S] as Pt);
-    return { ankle: smoothPath(pts((p) => p.nearLeg[2])), wrist: smoothPath(pts((p) => p.nearArm[2])) };
-  }, []);
+  /* The stride scaled to this walker: earlier moments of the same walk behind
+     the photographed one, and the paths the ankle and wrist trace through them. */
+  const stride = useMemo(() => walkerStride(FIT, GAIT_PHASES, 6.5), []);
+  const trails = useMemo(
+    () => ({
+      ankle: smoothPath(stride.map((m) => m.pick((p) => p.nearLeg[2]))),
+      wrist: smoothPath(stride.map((m) => m.pick((p) => p.nearArm[2]))),
+    }),
+    [stride],
+  );
 
   const panel = stacked ? "translate(-318 330)" : undefined;
   /* Stacked, the panel's last line sits 618 units down; the box must hold it
@@ -163,65 +190,47 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
       </defs>
       <rect className={fig.frame} x={30} y={22} width={240} height={290} rx={4} />
       <g clipPath="url(#pt-frame)">
-        {/* background: a room, as pixels */}
+        {/* the frame: the photograph */}
         <g className={fig.fade} style={{ opacity: pixels }}>
-          {Array.from({ length: 14 }, (_, row) =>
-            Array.from({ length: 12 }, (_, col) => (
-              <rect
-                key={`${row}-${col}`}
-                className={(row * 5 + col * 3) % 7 === 0 ? fig.pixelLit : fig.pixel}
-                x={32 + col * 20}
-                y={24 + row * 21}
-                width={18}
-                height={19}
-              />
-            )),
-          )}
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={FRAME.x}
+            y={FRAME.y}
+            width={FRAME.w}
+            height={FRAME.h}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.photo}
+          />
         </g>
         <line className={fig.ground} x1={40} y1={GROUND} x2={260} y2={GROUND} />
 
-        {/* the person, textured */}
-        <g className={fig.fade} style={{ opacity: bodyTextured }} transform={`translate(${FX} ${FY - phase.lift * S})`}>
-          <Body solid />
-          {/* clothing lines and a face */}
-          {[0, 1, 2, 3].map((i) => (
-            <line key={i} className={fig.hair} x1={-7 * S} y1={-26 * S + i * 7 * S} x2={7 * S} y2={-24 * S + i * 7 * S} />
-          ))}
-          <g className={fig.fade} style={{ opacity: rgb }}>
-            <circle cx={-0.5 * S} cy={-44 * S} r={1.4} className={fig.nodeMute} />
-            <circle cx={3.5 * S} cy={-44 * S} r={1.4} className={fig.nodeMute} />
-            <path d={`M${-1 * S} ${-40.5 * S} Q${1.5 * S} ${-39 * S} ${4 * S} ${-40.5 * S}`} fill="none" stroke="var(--jr-mute)" strokeWidth={0.8} />
-          </g>
-          {/* The redaction: a violet block over the face, unmissable, the
-              same mark the hub card uses. */}
-          <rect
-            className={`${fig.fade} ${fig.redact}`}
-            style={{ opacity: redact }}
-            x={-9 * S}
-            y={-52 * S}
-            width={20 * S}
-            height={17 * S}
-            rx={1}
-          />
-        </g>
-        {/* silhouette */}
-        <g className={fig.fade} style={{ opacity: silhouette }} transform={`translate(${FX} ${FY - phase.lift * S})`}>
-          <Body />
+        {/* the redaction: a violet block over the head the photograph has —
+            unmissable, the same mark the hub card uses */}
+        <rect
+          className={`${fig.fade} ${fig.redact}`}
+          style={{ opacity: redact }}
+          x={HEAD[0] - HEAD_R - 3}
+          y={HEAD[1] - HEAD_R - 4}
+          width={HEAD_R * 2 + 6}
+          height={HEAD_R * 2 + 8}
+          rx={2}
+        />
+        {/* silhouette: the walker's own segmentation, traced from the frame */}
+        <g className={fig.fade} style={{ opacity: silhouette }} transform={FIT.transform}>
+          <path className={fig.segMask} d={WALKER_MASK.path} />
         </g>
         {/* trail */}
         <g className={fig.fade} style={{ opacity: trail }}>
-          {GAIT_PHASES.map((p, i) =>
-            i === 4 ? null : (
-              <g key={p.id} className={fig.ghost} transform={`translate(${FX - (4 - i) * 30} ${FY - p.lift * S})`}>
-                <PoseFrame phase={p} s={S * 0.45} classes={CLASSES} showFar={false} />
-              </g>
-            ),
-          )}
+          {stride.slice(0, -1).map((m, i) => (
+            <g key={i} className={fig.ghost} transform={`translate(${m.x} ${m.y})`}>
+              <PoseFrame phase={m.phase} s={m.scale} classes={GHOST} showFar={false} />
+            </g>
+          ))}
           <path className={`${fig.trace} ${fig.traceViolet}`} d={trails.ankle} />
           <path className={`${fig.trace}`} d={trails.wrist} />
         </g>
         {/* joints / skeleton */}
-        <g transform={`translate(${FX} ${FY - phase.lift * S})`}>
+        <g transform={`translate(${FX} ${FY})`}>
           <g className={fig.fade} style={{ opacity: bones }}>
             <PoseFrame phase={phase} s={S} classes={CLASSES} />
           </g>
@@ -326,23 +335,5 @@ export function PrivacyTransform({ articleSlug, presentation }: FigureProps) {
         </p>
       </InteractiveFigure>
     </div>
-  );
-}
-
-function Body({ solid = false }: { solid?: boolean }) {
-  const s = S;
-  const d = [
-    `M${-9 * s} ${-33 * s}`,
-    `C${-11 * s} ${-20 * s} ${-8 * s} ${-6 * s} ${-7 * s} ${4 * s}`,
-    `L${-10 * s} ${44 * s} L${-2 * s} ${46 * s} L0 ${14 * s}`,
-    `L${3 * s} ${46 * s} L${11 * s} ${45 * s} L${7 * s} ${4 * s}`,
-    `C${9 * s} ${-6 * s} ${12 * s} ${-20 * s} ${9 * s} ${-33 * s}`,
-    `C${6 * s} ${-36 * s} ${-6 * s} ${-36 * s} ${-9 * s} ${-33 * s} Z`,
-  ].join(" ");
-  return (
-    <g className={solid ? fig.massSolid : fig.mass}>
-      <path d={d} />
-      <circle cx={1 * s} cy={-43 * s} r={6.5 * s} />
-    </g>
   );
 }

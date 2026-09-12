@@ -329,3 +329,38 @@
 }
 
 /* ═══ 06 · THE CONSTELLATION ══════════════════════════════════════════════ */
+
+/* ── A captured frame in a scene ──
+   Photograph and derived mask from visuals/capture-plate.ts. */
+.scPlate {
+  fill: rgb(var(--c-obsidian-400) / 0.9);
+  stroke: var(--j-line, rgb(148 163 184 / 0.18));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .scPlate {
+  fill: rgb(226 232 240 / 0.9);
+}
+.scPhoto {
+  filter: contrast(1.04) saturate(0.9);
+}
+:global(.light) .scPhoto {
+  filter: contrast(1.02) saturate(0.95) brightness(1.06);
+}
+.scMaskFill {
+  fill: var(--j-cyan);
+  opacity: 0.88;
+}
+.scMaskEdge {
+  fill: none;
+  stroke: var(--j-cyan);
+  stroke-width: 1;
+  stroke-opacity: 0.32;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The ghosted stride poses behind the photographed one: joints and bones only.
+   Five head circles stacked over one another read as clutter, not as time. */
+.scGhostHead {
+  display: none;
+}

@@ -197,84 +197,79 @@
 }
 
 /* ==========================================================================
-   THE VERTICAL RAIL — 1280px and up
+   THE RIGHT-HAND SECTION INDEX — 1280px and up
    --------------------------------------------------------------------------
-   A movement timeline, not a sidebar. One hairline down the page with eight
-   nodes on it: hollow where you have not been, filled and lit where you are.
-   No panel, no ground, no pill behind any item — the only things drawn are a
-   1px line, a 7px mark and a word.
+   A page index, not a navigation panel. Eight rows down the right of the
+   content, each one a 9.5px label and a 4px dot: muted and hollow where you
+   have not been, brighter with a small cyan dot where you are.
 
-   Same markup, same order, same ids, same links as the phone's chip bar. Only
-   the orientation changes, and it changes entirely in CSS, so there is no
-   second nav in the DOM for a screen reader to meet twice and no width at
-   which the two can disagree about which section is active.
+   There is no ground, no border, no pill and no connecting line. The whole
+   thing is about 112px wide and 220px tall, and at rest it should read as
+   page furniture you can ignore until you want it.
+
+   Same markup as the phone's chip bar — the label and the dot are simply
+   placed into two grid columns in the other order, so nothing in the DOM
+   changes with the orientation and a screen reader never meets two navs.
    ========================================================================== */
 
 @media (min-width: 1280px) {
   .bar {
-    /* Fixed, not sticky: sticky needs a containing block spanning the
-       sections, and giving them a shared wrapper would take their full-bleed
-       backgrounds away. The box is the full height under the header and the
-       rail centres inside it, so the timeline sits in the upper middle of
-       the viewport and never rides up under the navbar. */
+    /* Fixed rather than sticky: sticky needs a containing block spanning the
+       sections, and giving them a shared wrapper would cost them their
+       full-bleed backgrounds. The box runs from under the header down to a
+       floor that clears the Ask GaitAI launcher, and the index centres
+       inside it. */
     position: fixed;
     top: calc(var(--site-header-height) + var(--site-anchor-gap));
-    bottom: var(--site-anchor-gap);
-    left: max(
+    bottom: var(--home-rail-floor);
+    right: max(
       3rem,
       calc(
         (100vw - (1320px + var(--home-rail-width) + var(--home-rail-gap))) / 2 +
           3rem
       )
     );
+    left: auto;
     width: var(--home-rail-width);
     height: auto;
     display: flex;
     align-items: center;
-    /* The box is tall and mostly empty; only the links may take a click. */
+    /* The box is tall and almost entirely empty; only the rows take a click,
+       so nothing here blocks the page behind it. */
     pointer-events: none;
     background: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     transition:
-      opacity 240ms ease,
-      transform 240ms ease;
+      opacity 220ms ease,
+      transform 220ms ease;
   }
 
-  /* A SCRIM, NOT A PANEL. The Mission band's artwork is full-bleed — mocap
-     walkers and a Motion DNA signal running edge to edge — and the timeline
-     floats over it. Without this the top two labels sit inside a walking
-     figure and cannot be read.
-
-     It is a gradient of the page's own ground, feathered over 100% of its
-     width so it has no visible edge anywhere, and it is wider and taller
-     than the rail so the fade finishes in empty space. At no point is there
-     a box, a border or a fill behind an item — which is the thing this
-     section is not allowed to become. */
+  /* A SCRIM, NOT A PANEL. The Mission band's artwork is full-bleed and the
+     index floats over it. This is a gradient of the page's own ground,
+     feathered to nothing across its whole width so it has no edge anywhere,
+     and it is wider than the index so the fade ends in empty space. Mirrored
+     for the right-hand side: opaque at the right, gone by the left. */
   .bar::before {
     content: "";
     position: absolute;
-    inset: -2rem -4rem -2rem -3rem;
+    inset: -1.5rem -2.5rem -1.5rem -3rem;
     z-index: -1;
-    /* Plain `var(--bg)` fading out, NOT `color-mix()` stops: a color-mix
-       inside a gradient stop computed to `none` here and the scrim silently
-       did nothing. The page's own ground at full strength on the left is
-       what the labels need anyway. */
     background: linear-gradient(
-      90deg,
+      270deg,
       var(--bg) 0%,
       var(--bg) 30%,
       transparent 100%
     );
-    opacity: 0.92;
+    opacity: 0.9;
     pointer-events: none;
   }
 
-  /* Shown only while there is a section to point at — not over the hero it
-     sits above, and not over the footer it does not belong to. */
+  /* Shown only while there is a section to point at — never over the hero it
+     sits above, never over the footer it does not belong to. */
   .bar[data-docked="false"] {
     opacity: 0;
-    transform: translateX(-0.5rem);
+    transform: translateX(0.5rem);
   }
 
   .inner {
@@ -285,7 +280,6 @@
     padding: 0;
   }
 
-  /* The horizontal bar's separator was its bottom edge. A column has none. */
   .track {
     position: relative;
     width: 100%;
@@ -295,37 +289,9 @@
     pointer-events: auto;
   }
 
-  .track::after {
-    display: none;
-  }
-
-  /* THE LINE. One hairline behind every node, stopping at the first and last
-     node's centre rather than running past them — a timeline has ends. */
+  .track::after,
   .track::before {
-    content: "";
-    position: absolute;
-    left: calc(var(--home-rail-node-col) / 2 - 0.5px);
-    top: calc(var(--home-rail-row) / 2);
-    bottom: calc(var(--home-rail-row) / 2);
-    width: 1px;
-    background: linear-gradient(
-      180deg,
-      rgb(148 163 184 / 0.05),
-      rgb(148 163 184 / 0.22) 12%,
-      rgb(148 163 184 / 0.22) 88%,
-      rgb(148 163 184 / 0.05)
-    );
-    pointer-events: none;
-  }
-
-  :global(.light) .track::before {
-    background: linear-gradient(
-      180deg,
-      rgb(15 23 42 / 0.04),
-      rgb(15 23 42 / 0.16) 12%,
-      rgb(15 23 42 / 0.16) 88%,
-      rgb(15 23 42 / 0.04)
-    );
+    display: none;
   }
 
   .rail {
@@ -343,127 +309,136 @@
   .link {
     position: relative;
     display: grid;
-    grid-template-columns: var(--home-rail-node-col) minmax(0, 1fr);
+    /* Label first, dot hard against the right edge. */
+    grid-template-columns: minmax(0, 1fr) var(--home-rail-dot-col);
     align-items: center;
-    gap: 0.5rem;
-    /* 44px: the click area the rail is specified at. */
+    gap: 0.45rem;
+    /* 26px: small, and still past the 24px minimum target size. */
     min-height: var(--home-rail-row);
     padding: 0;
-    font-size: 0.66rem;
-    letter-spacing: 0.14em;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
     white-space: nowrap;
   }
 
-  /* The underline the chip bar uses has no place on a timeline: the node is
-     the state. */
+  /* The chip bar's underline has no place on an index; the dot is the state. */
   .link::after {
     display: none;
   }
 
-  /* ── The node ── */
+  /* ── The dot ── */
   .node {
     display: block;
-    justify-self: center;
-    width: 7px;
-    height: 7px;
+    grid-column: 2;
+    justify-self: end;
+    width: 4px;
+    height: 4px;
     border-radius: 999px;
-    border: 1px solid rgb(148 163 184 / 0.45);
-    background: rgb(var(--c-obsidian-400));
+    border: 1px solid rgb(148 163 184 / 0.4);
+    background: transparent;
     transition:
-      border-color 220ms ease,
-      background-color 220ms ease,
-      box-shadow 220ms ease;
+      border-color 200ms ease,
+      background-color 200ms ease,
+      box-shadow 200ms ease;
   }
 
   :global(.light) .node {
-    border-color: rgb(15 23 42 / 0.3);
-    background: rgb(255 255 255);
+    border-color: rgb(15 23 42 / 0.28);
   }
 
-  @media (hover: hover) {
-    .link:hover .node {
-      border-color: rgb(79 209 255 / 0.7);
-    }
-  }
-
-  /* ACTIVE: filled cyan, with a short cyan-into-violet glow. Two shadows, no
-     extra element, and it settles in 220ms and then holds. */
+  /* ACTIVE: filled cyan with a small glow, and nothing else. */
   .link[data-on="true"] .node {
     border-color: #4fd1ff;
     background: #4fd1ff;
     box-shadow:
-      0 0 0 3px rgb(79 209 255 / 0.14),
-      0 0 10px 1px rgb(79 209 255 / 0.5),
-      0 0 18px 4px rgb(124 58 237 / 0.32);
-    animation: railNodeArrive 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  }
-
-  /* Once, when the node becomes the active one — the rule only exists while
-     `data-on` is true, so it starts on that change and never repeats. */
-  @keyframes railNodeArrive {
-    from {
-      transform: scale(0.55);
-    }
-    to {
-      transform: scale(1);
-    }
+      0 0 0 2px rgb(79 209 255 / 0.13),
+      0 0 7px 1px rgb(79 209 255 / 0.45);
   }
 
   /* ── The label ── */
   .text {
+    grid-column: 1;
     display: block;
+    text-align: right;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: color 220ms ease;
+    color: var(--text-muted);
+    opacity: 0.72;
+    transition:
+      color 200ms ease,
+      opacity 200ms ease;
   }
 
-  .link[data-on="true"] {
+  .link[data-on="true"] .text {
     color: var(--text-primary);
+    opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .link:hover .text {
+      color: var(--text-primary);
+      opacity: 1;
+    }
+    .link:hover .node {
+      border-color: rgb(79 209 255 / 0.8);
+    }
   }
 
   .link:focus-visible {
-    outline: 2px solid var(--trajectory);
-    outline-offset: 2px;
-    border-radius: 6px;
+    outline: 1px solid var(--trajectory);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  .link:focus-visible .text {
+    color: var(--text-primary);
+    opacity: 1;
   }
 }
 
-/* ── COLLAPSED, 1280–1439 ──
-   A laptop cannot spare 9.5rem of measure, so between these widths the rail
-   is the node column alone and the label arrives on hover or focus. The
-   timeline still reads: eight marks on a line, one of them lit. */
+/* ── DOTS ONLY, 1280–1439 ──
+   A laptop should not give up 7rem of measure for an index. Between these
+   widths it is the dot column alone and the label arrives on hover or focus,
+   floating to the LEFT of the dots so it never runs off the viewport. */
 @media (min-width: 1280px) and (max-width: 1439.98px) {
   .link {
-    grid-template-columns: var(--home-rail-node-col);
+    grid-template-columns: var(--home-rail-dot-col);
     gap: 0;
   }
 
   .text {
     position: absolute;
-    left: calc(var(--home-rail-node-col) + 0.5rem);
+    right: calc(var(--home-rail-dot-col) + 0.45rem);
     top: 50%;
-    transform: translateY(-50%) translateX(-0.25rem);
-    padding: 0.3rem 0.6rem;
-    border: 1px solid var(--border-subtle);
-    border-radius: 0.4rem;
+    transform: translateY(-50%) translateX(0.25rem);
+    padding: 0.22rem 0.5rem;
+    border-radius: 0.3rem;
     background: color-mix(in srgb, var(--bg) 94%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     opacity: 0;
     pointer-events: none;
-    /* Above the page it floats over while it is open. */
+    /* Above the content it briefly floats over. */
     z-index: 1;
     transition:
-      opacity 200ms ease,
-      transform 200ms ease;
+      opacity 180ms ease,
+      transform 180ms ease;
   }
 
-  /* Hover and focus only. Pinning the active label open looked helpful and
-     parked a floating word permanently over the content column — the node
-     already says which section you are in, and it says it inside the rail's
-     own width. */
+  /* The active label has to be told to stay hidden here. `.link[data-on]
+     .text` in the block above sets `opacity: 1` and outranks the bare
+     `.text` default, so without this reset the current section's label sits
+     open permanently — floating over the content column, which is the one
+     thing the collapsed mode exists to avoid. */
+  .link[data-on="true"] .text {
+    opacity: 0;
+  }
+
+  /* Hover and focus only. The dot already says where you are. */
   .link:hover .text,
-  .link:focus-visible .text {
+  .link:focus-visible .text,
+  .link[data-on="true"]:hover .text,
+  .link[data-on="true"]:focus-visible .text {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
   }
@@ -474,8 +449,5 @@
   .node,
   .text {
     transition: none;
-  }
-  .link[data-on="true"] .node {
-    animation: none;
   }
 }

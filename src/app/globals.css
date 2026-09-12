@@ -6246,21 +6246,21 @@ body {
     border-color: rgb(var(--env-accent) / 0.6);
   }
 
+  /* A rounded square, one flat tint, one hairline, one accent — and nothing
+     else. It was 3.4x2.6rem because it framed 44x32 line art, and it carried
+     a radial glow on top of that; with a 20px glyph in the middle, the
+     landscape box and the gradient were both decoration. The accent still
+     comes from --env-accent, so the column decides the hue: cyan down
+     MobilityCare, royal/violet down SecureVision. */
   .env-scene {
     flex: none;
     display: grid;
     place-items: center;
-    width: 3.4rem;
+    width: 2.6rem;
     height: 2.6rem;
-    padding: 0.2rem 0.25rem;
-    border-radius: 0.55rem;
+    border-radius: 0.6rem;
     border: 1px solid rgb(var(--env-accent) / 0.2);
     background-color: rgb(var(--env-accent) / 0.05);
-    background-image: radial-gradient(
-      120% 120% at 50% 0%,
-      rgb(var(--env-accent) / 0.1),
-      transparent 70%
-    );
     color: rgb(var(--env-accent) / 0.85);
     transition:
       border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
@@ -6270,29 +6270,11 @@ body {
     border-color: rgb(var(--env-accent) / 0.42);
     color: rgb(var(--env-accent));
   }
+  /* The glyph carries its own size and stroke (see EnvironmentScenes), so all
+     this does is stop it inheriting a stretch. The ground/figure/signal/node
+     classes that used to live here went with the drawings they styled. */
   .env-scene-art {
     display: block;
-    width: 100%;
-    height: auto;
-  }
-  .env-scene-ground {
-    stroke: currentColor;
-    opacity: 0.4;
-    stroke-dasharray: 1.4 2.6;
-  }
-  .env-scene-far {
-    opacity: 0.45;
-  }
-  .env-scene-figure {
-    opacity: 0.95;
-  }
-  .env-scene-signal {
-    stroke-dasharray: 2 2.2;
-    opacity: 0.8;
-  }
-  .env-scene-node {
-    fill: currentColor;
-    stroke: none;
   }
 
   .env-copy {
@@ -6335,6 +6317,98 @@ body {
     .env-panel:hover .env-arrow,
     .env-panel:focus-visible .env-arrow {
       transform: none;
+    }
+  }
+
+  /* ── The rest of a column ────────────────────────────────────────────
+     Rendered and collapsed, never dropped: closed rows stay in the HTML for a
+     crawler and stay out of the tab order for everyone else. Same recipe as
+     the workflow disclosure — a zero-minimum grid track and a clipped child. */
+  .env-more {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      grid-template-rows 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 320ms ease,
+      visibility 0s linear 320ms;
+  }
+  .env-more[data-open="true"] {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    opacity: 1;
+    transition:
+      grid-template-rows 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 320ms ease,
+      visibility 0s linear 0s;
+  }
+  /* The clip is what lets the track collapse. The rail nodes and their leads
+     sit OUTSIDE the list box, in the gutter, so the box is widened by the
+     gutter on both sides and pulled back by the same amount: the clip then
+     falls clear of the dots instead of shaving them off. */
+  .env-more-inner {
+    overflow: hidden;
+    padding-inline: calc(var(--env-gutter) + 0.4rem);
+    margin-inline: calc((var(--env-gutter) + 0.4rem) * -1);
+  }
+  /* Once it has finished opening, stop clipping: a panel's hover shadow
+     reaches past the bottom row. */
+  .env-more[data-settled="true"] .env-more-inner {
+    overflow: visible;
+  }
+
+  /* Centred under its own column, and nothing more than a line of type: a
+     button drawn as a button here would outweigh the rows it reveals. */
+  .env-more-control {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.75rem;
+  }
+  .env-more-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: rgb(var(--env-accent) / 0.82);
+    transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .env-more-chevron {
+    width: 0.8rem;
+    height: 0.8rem;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .env-more-button[aria-expanded="true"] .env-more-chevron {
+    transform: rotate(180deg);
+  }
+  @media (hover: hover) {
+    .env-more-button:hover {
+      color: rgb(var(--env-accent));
+    }
+    .env-more-button:hover .env-more-chevron {
+      transform: translateY(2px);
+    }
+    .env-more-button[aria-expanded="true"]:hover .env-more-chevron {
+      transform: rotate(180deg) translateY(2px);
+    }
+  }
+  .env-more-button:focus-visible {
+    outline: 2px solid rgb(var(--env-accent) / 0.7);
+    outline-offset: 3px;
+    border-radius: 8px;
+    color: rgb(var(--env-accent));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .env-more,
+    .env-more[data-open="true"],
+    .env-more-button,
+    .env-more-chevron {
+      transition: none;
     }
   }
 

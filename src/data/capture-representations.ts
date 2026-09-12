@@ -53,8 +53,17 @@ export interface CaptureRepresentation {
   kept: string[];
   /** Kinds of information it no longer carries. Empty for raw capture. */
   reduced: string[];
-  /** The word shown against the visual-identity meter. */
+  /** The word shown against the identity meter. */
   identityLabel: string;
+  /**
+   * The word shown against the movement meter.
+   *
+   * Stated per representation rather than derived from `movementDetail`,
+   * because the raw frame is not a representation that "retains" anything —
+   * it is the input, and both of its meters have to say so. A number cannot
+   * express that difference; a word can.
+   */
+  movementLabel: string;
   /**
    * Relative VISUAL identity carried, 0–1. Never printed and never given an
    * axis: it only has to decrease down the list, which it does by
@@ -75,15 +84,40 @@ export const captureRepresentations: CaptureRepresentation[] = [
     id: "capture",
     label: "Camera Video",
     lead: "The frame as recorded — everything the camera can see, before anything has been done to it.",
+    /*
+     * WHAT THESE TWO COLUMNS MEAN AT THE RAW STAGE, because it is not what
+     * they mean further down the list.
+     *
+     * A camera frame plainly contains a face. Saying otherwise would be
+     * false, and the `lead` above says the opposite in as many words —
+     * everything the camera can see. So `kept` is NOT a claim about which
+     * pixels exist; it is what the pipeline carries forward as movement
+     * signal, and facial appearance is not on that list. It used to be,
+     * which read as "GaitAI keeps your face", and that is not what this
+     * product does with a frame.
+     *
+     * The distinction the columns now draw, and must keep drawing:
+     *   raw input MAY CONTAIN facial pixels
+     *   ≠ facial expression is RETAINED OR USED as an analysis signal
+     */
     kept: [
-      "Facial appearance",
       "Clothing, colour and build",
       "Scene and background",
       "Body pose and position",
       "Movement over time",
     ],
-    reduced: [],
-    identityLabel: "Retained in full",
+    reduced: [
+      "Facial expression and facial-detail signals are not retained for movement analysis",
+    ],
+    /*
+     * "Present in raw input", never "Retained in full". The frame arrives
+     * carrying identity detail; nothing here has chosen to keep it, and a
+     * meter reading "retained" at the input stage claims an intent the
+     * pipeline does not have. The same word goes on the movement meter, for
+     * the same reason: at this stage both are simply what arrived.
+     */
+    identityLabel: "Present in raw input",
+    movementLabel: "Present in raw input",
     retainedIdentity: 1,
     movementDetail: 1,
   },
@@ -99,6 +133,7 @@ export const captureRepresentations: CaptureRepresentation[] = [
     ],
     reduced: ["Facial appearance", "Clothing detail and colour", "Scene and background"],
     identityLabel: "Reduced",
+    movementLabel: "Substantially retained",
     retainedIdentity: 0.55,
     movementDetail: 0.8,
   },
@@ -119,6 +154,7 @@ export const captureRepresentations: CaptureRepresentation[] = [
       "Scene and background",
     ],
     identityLabel: "Strongly reduced",
+    movementLabel: "Retained",
     retainedIdentity: 0.32,
     movementDetail: 0.95,
   },
@@ -134,6 +170,7 @@ export const captureRepresentations: CaptureRepresentation[] = [
       "Body geometry",
     ],
     identityLabel: "Strongly reduced",
+    movementLabel: "Task-scoped",
     retainedIdentity: 0.18,
     movementDetail: 0.45,
   },
@@ -153,6 +190,7 @@ export const captureRepresentations: CaptureRepresentation[] = [
       "Scene and background",
     ],
     identityLabel: "No camera image",
+    movementLabel: "Substantially retained",
     retainedIdentity: 0.1,
     movementDetail: 0.6,
   },

@@ -1,3 +1,4 @@
+import { assetPath } from "@/lib/paths";
 import { smoothPath } from "@/components/research/PoseFrame";
 import type { Pt } from "@/components/visuals/gait-phases";
 import styles from "./representations.module.css";
@@ -49,9 +50,38 @@ import styles from "./representations.module.css";
  */
 
 /* The box. Matches the card figure area the section already reserves. */
+/**
+ * THE CAPTURE PLATE — A REAL FRAME, NOT A DRAWING OF ONE.
+ * ---------------------------------------------------------------------------
+ * This card has to read as raw camera footage before any privacy transform,
+ * and a vector figure cannot: however much grain, vignette and motion blur go
+ * over it, a drawn person stays a drawn person. So the capture view is a
+ * photograph.
+ *
+ * WHERE IT COMES FROM. The site already owned one: the insights cover
+ * `01-walking-video-to-movement-intelligence.jpg` contains, inside the phone
+ * in its top-left corner, a photoreal frame of a man walking past a concrete
+ * wall. `scripts/build-capture-plate.py` crops that region clear of the phone
+ * bezel and its UI, grades it away from the cover's blue key toward the
+ * near-neutral, low-contrast look of a camera at gain, and writes the portrait
+ * plate below. Nothing was fetched from the internet and no new licence is
+ * involved — it is the project's own asset, reframed.
+ *
+ * TO REPLACE IT, drop a different still at the same path (or point this at a
+ * new one) and rerun nothing: the recording furniture — vignette, grain,
+ * scanlines, brackets, REC, CAM 03, timestamp — is drawn over whatever is
+ * here. A photograph of an identifiable person presented as surveillance
+ * footage needs a model release, so that stays a decision for the site owner.
+ *
+ * Set to null to fall back to the drawn room, which is still below.
+ */
+const CCTV_PLATE: string | null = "/assets/images/capture/cctv-walk-frame.jpg";
+
 const W = 150;
 const H = 156;
 const GROUND = 126;
+/** Where the floor's perspective lines converge, just above the horizon. */
+const VP: [number, number] = [88, 71];
 
 /**
  * THE LANDMARK SET, in box coordinates.
@@ -197,16 +227,22 @@ const JOINTS_NEAR: Pt[] = [P.ear, P.eye, P.nose, P.shoulderR, P.elbowR, P.wristR
  * trajectory read as a WALK rather than as a slide. Deterministic, so the
  * server and the browser draw the same curve.
  */
-const TRAIL: Pt[] = Array.from({ length: 13 }, (_, i) => {
-  const t = i / 12;
+const TRAIL: Pt[] = Array.from({ length: 25 }, (_, i) => {
+  const t = i / 24;
   return [
-    14 + t * (P.hipC[0] - 14),
-    P.hipC[1] + 8 - t * 8 - Math.sin(t * Math.PI * 4) * 2.6,
+    10 + t * (W - 22),
+    /* Walking toward the camera as well as across it, so the path has
+       depth rather than being a horizontal line with a wobble. */
+    P.hipC[1] + 26 - t * 30 - Math.sin(t * Math.PI * 5) * 3.1,
   ] as Pt;
 });
 
-/** Where the ghosts stand, as a fraction along the trail. */
-const GHOSTS = [0.18, 0.52];
+/**
+ * Samples along the trail, used for the time ticks. Spacing is the
+ * observation interval, so where the dots bunch the walker was slower —
+ * which is the one quantity a trajectory carries that a path alone does not.
+ */
+const TRAIL_TICKS = [0, 4, 8, 12, 16, 20, 24];
 
 /* ── The wearable signal ─────────────────────────────────────────────────
    Three accelerometer channels over about three and a bit gait cycles.
@@ -228,7 +264,10 @@ const at = (t: number) => PAD_X + t * (W - PAD_X * 2);
 const strike = (t: number) => {
   let v = 0;
   for (let k = 0; k <= Math.ceil(CYCLES); k += 1) {
-    const d = (t - k / CYCLES) * CYCLES * 26;
+    /* Narrow: a heel strike is a transient, and at 100 Hz it is a spike
+       with a fall, not a hump. Widening this is what made the vertical
+       channel read as a sine wave. */
+    const d = (t - k / CYCLES) * CYCLES * 44;
     v += Math.exp(-d * d);
   }
   return v;
@@ -247,7 +286,12 @@ const phase = (t: number) => t * CYCLES * Math.PI * 2;
 
 /** Vertical: two peaks a stride, plus the heel-strike transient. */
 const ACC_Y = channel(
-  (t) => -Math.cos(phase(t) * 2) * 0.62 + strike(t) * 0.9 - 0.1,
+  (t) =>
+    -Math.cos(phase(t) * 2) * 0.42 +
+    strike(t) * 1.35 -
+    /* The loading-response dip that follows every strike. */
+    strike(t - 0.055 / CYCLES) * 0.38 -
+    0.08,
   66,
   15,
 );
@@ -313,35 +357,184 @@ export function RepresentationFigure({
           <clipPath id="gai-frame">
             <rect x="0" y="0" width={W} height={H} rx="4" />
           </clipPath>
+
+          {/* ── What makes a rectangle read as footage rather than artwork ──
+              Grain, focus and smear: three things every real frame has and no
+              illustration does. They are cheap at this size and they are the
+              whole difference between the two readings. */}
+
+          {/* A SEGMENTATION BOUNDARY, NOT A SHAPE.
+              The mask was a union of capsules, which is geometrically perfect
+              in a way no segmenter's output ever is: a real foreground mask
+              wobbles along the edge, swells a little at the shoulders and
+              bites into the thin parts. A low-frequency displacement gives it
+              that boundary without changing the pose, the proportions or the
+              silhouette's reading — it is the same body, cut out by a model
+              rather than drawn with a compass. Seeded, so the server and the
+              browser produce the same edge. */}
+          <filter id="gai-seg" x="-10%" y="-8%" width="120%" height="116%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.042 0.075"
+              numOctaves="3"
+              seed="19"
+              result="segNoise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="segNoise"
+              scale="3.1"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+
+          {/* Sensor noise. Real at any gain; the dominant texture at low light. */}
+          <filter id="gai-grain" x="0" y="0" width="100%" height="100%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.82"
+              numOctaves="3"
+              seed="11"
+              stitchTiles="stitch"
+              result="noise"
+            />
+            <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+            <feComponentTransfer in="mono">
+              <feFuncA type="linear" slope="0.5" intercept="-0.16" />
+            </feComponentTransfer>
+          </filter>
+
+          {/* Depth of field. The far plane is not where the lens is focused. */}
+          <filter id="gai-dof" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="0.85" />
+          </filter>
+
+          {/* Motion blur. A walking person at 1/30s smears horizontally — and
+              the limbs, which travel fastest, smear most. */}
+          <filter id="gai-motion" x="-14%" y="-8%" width="128%" height="116%">
+            <feGaussianBlur stdDeviation="0.85 0.22" />
+          </filter>
+          <filter id="gai-motion-limb" x="-24%" y="-10%" width="148%" height="120%">
+            <feGaussianBlur stdDeviation="1.9 0.3" />
+          </filter>
+
+          {/* The room's own light: a ceiling source falling off down the wall,
+              and a floor that is brightest where it is nearest. */}
+          <linearGradient id="gai-wall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2b3140" />
+            <stop offset="100%" stopColor="#151a25" />
+          </linearGradient>
+          <linearGradient id="gai-floor" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#191f2b" />
+            <stop offset="100%" stopColor="#0a0e16" />
+          </linearGradient>
+          {/* Tone on the body, so it is lit from one side rather than filled. */}
+          <linearGradient id="gai-lit" x1="0" y1="0" x2="1" y2="0.2">
+            <stop offset="0%" stopColor="#000" stopOpacity="0.42" />
+            <stop offset="58%" stopColor="#000" stopOpacity="0" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.1" />
+          </linearGradient>
         </defs>
 
         {/* ═══ CAMERA VIDEO ═══════════════════════════════════════════════
-            A room, a person in it, and the furniture of a recording. */}
+            A room, a person in it, and the furniture of a recording — drawn
+            the way a camera resolves a dim room rather than the way an
+            illustration describes one. The scene is a lit wall and a receding
+            floor with a real vanishing point, the person is tonally modelled
+            and motion-blurred (the limbs more than the trunk, because they
+            travel faster), and the whole plate carries the vignette, sensor
+            grain, compression blocking and scanlines that no drawing has.
+            Set CCTV_PLATE to swap the drawing for a licensed still. */}
         {draw === "frame" && (
           <g clipPath="url(#gai-frame)">
             <rect x="0" y="0" width={W} height={H} className={styles.camGround} />
-            {/* Back wall, floor, and the perspective that separates them. */}
-            <rect x="0" y="0" width={W} height={74} className={styles.camWall} />
-            <rect x="0" y="74" width={W} height={H - 74} className={styles.camFloor} />
-            <path d={`M0 74H${W}`} className={styles.camEdge} />
-            <path d={`M-20 ${H}L44 74`} className={styles.camEdgeSoft} />
-            <path d={`M${W + 20} ${H}L${W - 44} 74`} className={styles.camEdgeSoft} />
-            <path d={`M20 ${H}L58 74`} className={styles.camEdgeSoft} />
-            <path d={`M${W - 20} ${H}L${W - 58} 74`} className={styles.camEdgeSoft} />
-            {/* A doorway and the light coming through it. */}
-            <rect x="14" y="36" width="24" height="38" className={styles.camDoor} />
-            <path d="M14 74 L38 74 L46 156 L2 156 Z" fill="url(#gai-spill)" className={styles.camSpill} />
-            {/* Ceiling luminaire. */}
-            <ellipse cx="104" cy="12" rx="20" ry="4.5" className={styles.camLamp} />
 
-            {/* The person, in tone rather than as a flat shape. */}
-            <g className={styles.camShadowWrap}>
-              <ellipse cx="76" cy={GROUND + 1} rx="26" ry="3.6" className={styles.camShadow} />
-            </g>
-            <Body tone className={styles.camBody} />
+            {CCTV_PLATE ? (
+              <image
+                href={assetPath(CCTV_PLATE)}
+                x="0"
+                y="0"
+                width={W}
+                height={H}
+                preserveAspectRatio="xMidYMid slice"
+                className={styles.camPlate}
+              />
+            ) : (
+              <>
+                {/* ── The room, behind the plane of focus ── */}
+                <g filter="url(#gai-dof)">
+                  <rect x="-4" y="-4" width={W + 8} height={82} fill="url(#gai-wall)" />
+                  <rect x="-4" y="74" width={W + 8} height={H - 70} fill="url(#gai-floor)" />
 
-            {/* Camera furniture. */}
+                  {/* The floor recedes to a vanishing point on the horizon.
+                      Spacing tightens with distance — that is perspective, and
+                      it is what evenly spaced lines were failing to be. */}
+                  <g className={styles.camPerspective}>
+                    {[-70, -28, 6, 40, 78, 120, 168, 220].map((x) => (
+                      <path key={x} d={`M${x} ${H + 6}L${VP[0]} ${VP[1]}`} />
+                    ))}
+                    {[0.1, 0.24, 0.42, 0.64, 0.88].map((f) => {
+                      const y = VP[1] + (H + 6 - VP[1]) * f * f;
+                      return <path key={f} d={`M-4 ${y}H${W + 4}`} />;
+                    })}
+                  </g>
+
+                  {/* Where the wall meets the floor, and the skirting under it. */}
+                  <path d={`M-4 74H${W + 4}`} className={styles.camEdge} />
+                  <path d={`M-4 77.4H${W + 4}`} className={styles.camSkirt} />
+
+                  {/* A doorway, and the light it puts on the floor. */}
+                  <rect x="14" y="34" width="24" height="40" className={styles.camDoor} />
+                  <path
+                    d="M14 74 L38 74 L52 162 L-6 162 Z"
+                    fill="url(#gai-spill)"
+                    className={styles.camSpill}
+                  />
+                  {/* Ceiling luminaire and the pool it throws. */}
+                  <ellipse cx="104" cy="10" rx="21" ry="4.2" className={styles.camLamp} />
+                  <ellipse cx="96" cy="112" rx="52" ry="20" className={styles.camPool} />
+                </g>
+
+                {/* ── The person, on the plane of focus ──
+                    Trunk and head take the light; the limbs carry the smear.
+                    The tonal wash over the top is what stops the fills reading
+                    as flat colour. */}
+                <g className={styles.camShadowWrap}>
+                  <ellipse cx="76" cy={GROUND + 1} rx="27" ry="3.4" className={styles.camShadow} />
+                </g>
+                <g filter="url(#gai-motion)">
+                  <Body tone className={styles.camBody} />
+                </g>
+                <g filter="url(#gai-motion-limb)" className={styles.camSmear}>
+                  <Body tone className={styles.camBody} />
+                </g>
+                <g className={styles.camModel} clipPath="url(#gai-frame)">
+                  <rect x="40" y="20" width="76" height={GROUND - 18} fill="url(#gai-lit)" />
+                </g>
+              </>
+            )}
+
+            {/* ── The recording itself ── */}
             <rect x="0" y="0" width={W} height={H} fill="url(#gai-vignette)" />
+            {/* Macroblocking: the artifact every compressed camera stream has
+                and no drawing does. Faint, irregular, and only in the dark. */}
+            <g className={styles.camBlocks}>
+              {[
+                [8, 88], [24, 88], [8, 104], [112, 40], [128, 40], [120, 128],
+                [40, 136], [56, 136], [96, 16], [136, 96],
+              ].map(([x, y]) => (
+                <rect key={`${x}-${y}`} x={x} y={y} width="8" height="8" />
+              ))}
+            </g>
+            <rect
+              x="0"
+              y="0"
+              width={W}
+              height={H}
+              filter="url(#gai-grain)"
+              className={styles.camGrain}
+            />
             <g className={styles.scanlines}>
               {Array.from({ length: 26 }, (_, i) => (
                 <path key={i} d={`M0 ${i * 6 + 2}H${W}`} />
@@ -387,7 +580,13 @@ export function RepresentationFigure({
                 ),
               )}
             </g>
-            <Body className={styles.mask} />
+            <g filter="url(#gai-seg)">
+              <Body className={styles.mask} />
+              {/* The fragment a segmenter leaves near the trailing foot, where
+                  shoe and shadow are the same few pixels. One, small, and on
+                  the ground line — an artifact, not decoration. */}
+              <ellipse cx="44" cy={GROUND - 3} rx="3.1" ry="1.7" className={styles.maskFleck} />
+            </g>
             <text x={W / 2} y={H - 8} textAnchor="middle" className={styles.maskLabel}>
               FOREGROUND MASK
             </text>
@@ -431,43 +630,62 @@ export function RepresentationFigure({
             The path is the subject; the body is where the path has got to. */}
         {draw === "trajectory" && (
           <g>
+            {/* The floor the path is drawn on, in perspective — a trajectory
+                is a route through a place, and without the place it is a
+                line. */}
+            <g className={styles.trajFloor}>
+              {[-10, 40, 90, 140, 180].map((x) => (
+                <path key={x} d={`M${x} ${H - 6}L${VP[0]} ${VP[1] + 30}`} />
+              ))}
+              {[0.16, 0.34, 0.56, 0.82].map((f) => {
+                const y = VP[1] + 14 + (H - 6 - VP[1] - 14) * f * f;
+                return <path key={f} d={`M4 ${y}H${W - 4}`} />;
+              })}
+            </g>
             <path d={`M6 ${GROUND}H${W - 6}`} className={styles.trajGround} />
-            {GHOSTS.map((g) => {
-              const i = Math.round(g * (TRAIL.length - 1));
-              const [x, y] = TRAIL[i];
-              return (
-                <g
-                  key={g}
-                  className={styles.ghost}
-                  style={{ opacity: 0.05 + g * 0.08 }}
-                  transform={`translate(${x - P.hipC[0]} ${y - P.hipC[1]})`}
-                >
-                  <Body />
-                </g>
-              );
-            })}
+
+            {/* THE PATH IS THE SUBJECT. The walker is one small marker at the
+                head of it, not a body with a line attached: what this
+                representation keeps is where somebody went and how fast, and
+                the drawing has to say that before it says anything else. */}
+            <path d={smoothPath(TRAIL)} className={styles.trailGlow} />
             <path
               d={smoothPath(TRAIL)}
               className={styles.trailLine}
               stroke="url(#gai-trail)"
             />
-            {TRAIL.filter((_, i) => i % 2 === 0).map(([x, y], i, arr) => (
-              <circle
-                key={x}
-                cx={x}
-                cy={y}
-                r={i === arr.length - 1 ? 3.2 : 1.8}
-                className={styles.trailDot}
-                style={{ opacity: 0.25 + (i / (arr.length - 1)) * 0.75 }}
-              />
-            ))}
-            <g className={styles.trajBody}>
-              <Body />
-            </g>
-            <circle cx={P.hipC[0]} cy={P.hipC[1]} r="3.4" className={styles.centroid} />
-            <text x={P.hipC[0] + 7} y={P.hipC[1] - 5} className={styles.trajTag}>
-              CENTROID
-            </text>
+
+            {/* Observation ticks. Evenly spaced in TIME, so their spacing on
+                the path is the speed. */}
+            {TRAIL_TICKS.map((i, k) => {
+              const [x, y] = TRAIL[i];
+              const last = k === TRAIL_TICKS.length - 1;
+              return (
+                <g key={i} style={{ opacity: 0.3 + (k / (TRAIL_TICKS.length - 1)) * 0.7 }}>
+                  <path d={`M${x} ${y - 3.4}V${y + 3.4}`} className={styles.trailTick} />
+                  <circle cx={x} cy={y} r={last ? 2.2 : 1.5} className={styles.trailDot} />
+                </g>
+              );
+            })}
+
+            {/* Where the walker is now: a position marker on the path, with the
+                ground point under it. Two rings and a dot — the same vocabulary
+                the rest of the site uses for "a thing at a place". */}
+            {(() => {
+              const [x, y] = TRAIL[TRAIL.length - 1];
+              return (
+                <g>
+                  <path d={`M${x} ${y}V${GROUND - 2}`} className={styles.trajDrop} />
+                  <ellipse cx={x} cy={GROUND - 1} rx="7" ry="2.2" className={styles.trajFoot} />
+                  <circle cx={x} cy={y} r="7.5" className={styles.centroidHalo} />
+                  <circle cx={x} cy={y} r="3.4" className={styles.centroid} />
+                  <text x={x - 7} y={y - 8} textAnchor="end" className={styles.trajTag}>
+                    CENTROID
+                  </text>
+                </g>
+              );
+            })()}
+
             <text x="8" y={H - 8} className={styles.trajTag}>
               t − 3.0 s
             </text>

@@ -12,7 +12,6 @@ import {
   FileText,
   Gauge,
   HeartPulse,
-  Lock,
   PersonStanding,
   Route,
   ShieldCheck,
@@ -41,7 +40,7 @@ import styles from "./privacypipeline.module.css";
  * =============================================================================
  * The platform's privacy argument, drawn as the pipeline it is:
  *
- *   intro + privacy plate
+ *   intro
  *   representation selector (five inputs, one rail)
  *   1 CAPTURE → 2 PRIVACY LAYER → 3 REPRESENTATION → 4 ENGINE → 5 OUTCOMES
  *   what we keep / what we reduce  ·  privacy vs utility
@@ -141,6 +140,24 @@ export function PrivacyPipeline() {
   const tabId = (id: RepresentationId) => `${baseId}-tab-${id}`;
   const panelId = `${baseId}-ledger`;
 
+  /*
+   * THE LOWER ROW IS BEHIND ONE DISCLOSURE, closed on arrival.
+   *
+   * The figure, the five stages and the outcomes are the section's argument;
+   * the ledger and the two meters are the detail behind it, and they cost a
+   * screen. Closed, the section ends on a compact header that names what is
+   * inside it.
+   *
+   * CHOOSING A REPRESENTATION OPENS IT. The ledger is the tablist's
+   * `tabpanel`: a selected tab whose panel is collapsed is a control that
+   * appears to do nothing and, to a screen reader, points `aria-controls` at
+   * something not being presented. So a tab press opens the row. The default
+   * is still closed, because on arrival nothing has been chosen.
+   */
+  const [detailOpen, setDetailOpen] = useState(false);
+  const detailHeadId = `${baseId}-detail-head`;
+  const detailRegionId = `${baseId}-detail`;
+
   const index = captureRepresentations.findIndex((r) => r.id === active);
   const rep = captureRepresentations[index] ?? captureRepresentations[0];
   /* A wearable signal does not come from a camera, so the capture card stops
@@ -152,6 +169,7 @@ export function PrivacyPipeline() {
     const next =
       (from + step + captureRepresentations.length) % captureRepresentations.length;
     setActive(captureRepresentations[next].id);
+    setDetailOpen(true);
     tabRefs.current[next]?.focus();
   }, []);
 
@@ -217,37 +235,21 @@ export function PrivacyPipeline() {
       <div className="container-wide">
         {/* ═══ 1 · INTRO ═══════════════════════════════════════════════ */}
         <div className={styles.intro}>
-          <div>
-            <p className={styles.eyebrow}>
-              <span aria-hidden="true" className={styles.eyebrowRule} />
-              Privacy-preserving movement intelligence
-            </p>
-            <h2 id={`${baseId}-title`} className={styles.title}>
-              Capture movement.{" "}
-              <span className="text-gradient">Protect identity.</span>
-            </h2>
-            <p className={styles.lead}>
-              GaitAI does not always need the full visual identity of a person.
-              Depending on the task, movement can be interpreted through
-              privacy-aware representations such as silhouettes, pose structure,
-              trajectories or wearable signals — preserving what the system
-              needs while reducing what it does not.
-            </p>
-          </div>
-
-          <div className={styles.plate}>
-            <span aria-hidden="true" className={styles.plateIcon}>
-              <Lock size={20} />
-            </span>
-            <span>
-              <span className={styles.plateTitle}>Privacy by design</span>
-              <span className={styles.plateNote}>
-                Minimum necessary representation.
-                <br />
-                Maximum real-world impact.
-              </span>
-            </span>
-          </div>
+          <p className={styles.eyebrow}>
+            <span aria-hidden="true" className={styles.eyebrowRule} />
+            Privacy-preserving movement intelligence
+          </p>
+          <h2 id={`${baseId}-title`} className={styles.title}>
+            Capture movement.{" "}
+            <span className="text-gradient">Protect identity.</span>
+          </h2>
+          <p className={styles.lead}>
+            GaitAI does not always need the full visual identity of a person.
+            Depending on the task, movement can be interpreted through
+            privacy-aware representations such as silhouettes, pose structure,
+            trajectories or wearable signals — preserving what the system needs
+            while reducing what it does not.
+          </p>
         </div>
 
         {/* ═══ 2 · THE SELECTOR ════════════════════════════════════════ */}
@@ -272,7 +274,10 @@ export function PrivacyPipeline() {
                   aria-selected={on}
                   aria-controls={panelId}
                   tabIndex={on ? 0 : -1}
-                  onClick={() => setActive(option.id)}
+                  onClick={() => {
+                    setActive(option.id);
+                    setDetailOpen(true);
+                  }}
                   onKeyDown={(event) => onKeyDown(event, i)}
                   data-on={on}
                   className={styles.option}
@@ -387,7 +392,47 @@ export function PrivacyPipeline() {
           </Stage>
         </div>
 
-        {/* ═══ 4 · THE LOWER ROW ═══════════════════════════════════════ */}
+        {/* ═══ 4 · THE LOWER ROW, BEHIND ONE DISCLOSURE ════════════════ */}
+        <div className={styles.detail}>
+          <button
+            type="button"
+            id={detailHeadId}
+            aria-expanded={detailOpen}
+            aria-controls={detailRegionId}
+            onClick={() => setDetailOpen((value) => !value)}
+            data-open={detailOpen}
+            className={styles.detailHead}
+          >
+            <span className={styles.detailCopy}>
+              {/* Named after the representation on screen, not hardcoded to
+                  the raw frame: the row's contents change with the selector,
+                  and a header that always said RAW FRAME would be wrong in
+                  four states out of five. */}
+              <span className={styles.detailTitle}>
+                {/* The spaces are written out because the dot is hidden from
+                    the accessibility tree, and without them the button's
+                    accessible name runs the two halves together. */}
+                {rep.label}{" "}
+                <span aria-hidden="true" className={styles.detailDot}>
+                  ·
+                </span>{" "}
+                Privacy &amp; utility
+              </span>
+              <span className={styles.detailSub}>
+                What this representation keeps, and what it reduces
+              </span>
+            </span>
+            <span aria-hidden="true" className={styles.detailMark} />
+          </button>
+
+          <div
+            id={detailRegionId}
+            role="region"
+            aria-labelledby={detailHeadId}
+            data-open={detailOpen}
+            className={styles.collapse}
+          >
+            <div className={styles.collapseInner}>
         <div className={styles.lower}>
           {/* The ledger. The panel the tablist controls — and the home of the
               lead sentence that used to be a full-width block of its own. */}
@@ -462,13 +507,7 @@ export function PrivacyPipeline() {
                 <div className={styles.meter}>
                   <dt>Movement detail</dt>
                   <dd>
-                    <span className={styles.meterWord}>
-                      {rep.movementDetail >= 0.9
-                        ? "Retained"
-                        : rep.movementDetail >= 0.55
-                          ? "Substantially retained"
-                          : "Task-scoped"}
-                    </span>
+                    <span className={styles.meterWord}>{rep.movementLabel}</span>
                     <span aria-hidden="true" className={styles.meterTrack}>
                       <span
                         className={`${styles.meterFill} ${styles.meterFillMotion}`}
@@ -483,6 +522,10 @@ export function PrivacyPipeline() {
                 The task decides the representation. Privacy is designed into
                 the pipeline.
               </p>
+            </div>
+          </div>
+        </div>
+
             </div>
           </div>
         </div>

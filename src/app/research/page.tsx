@@ -65,7 +65,8 @@ export const metadata: Metadata = {
  * responsibility notes that /legal/responsible-ai and /trust already own. One
  * thing in it existed nowhere else — the drawn chain — so that is the one
  * thing that moved. Home keeps a gateway: the claim, the four subjects and a
- * link here. See components/home/ResearchGateway.
+ * link here. The home page now says it in one line under the
+ * workflow control — see the research credit in sections/HowItWorks.
  *
  * Every figure, record, capability mapping and product link is derived from
  * `researchAreas`, `publications.ts` and `products.ts` — nothing on this page

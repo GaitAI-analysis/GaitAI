@@ -8,8 +8,12 @@ import {
   useTransform,
 } from "framer-motion";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { MovementTeaser } from "@/components/analytics/MovementTeaser";
 import { workflowStages } from "@/data/products";
+import { allPublications, papers } from "@/data/publications";
 import { useAutoDemonstrate } from "@/lib/useAutoDemonstrate";
 import { useDisclosureReveal } from "@/lib/useDisclosureReveal";
 import { assetPath } from "@/lib/paths";
@@ -57,7 +61,22 @@ import styles from "./howitworks.module.css";
  * viewport and stage 01 begins directly under it; on close the page only moves
  * if the collapse has carried the control off screen. See
  * `lib/useDisclosureReveal`.
+ *
+ * THE RESEARCH CREDIT UNDER THE CONTROL replaces a section. The home page used
+ * to carry a research block of its own, and every version of it retold
+ * /research. A reader who has just been shown how the platform works has one
+ * research question at that moment — is any of this grounded? — and one line
+ * answers it and hands them the door. It is a line of type on purpose: no
+ * card, no rule, no background, nothing that reads as a second section.
+ *
+ * THE TWO COUNTS ARE READ, NEVER TYPED. `papers` is the publication ledger and
+ * the patent is the rest of `allPublications`, so the line cannot drift from
+ * /publications the way a hand-written "8 papers" would.
  */
+
+/** The publication record, counted rather than asserted. */
+const PAPER_COUNT = papers.length;
+const PATENT_COUNT = allPublications.length - papers.length;
 
 export function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null);
@@ -92,6 +111,17 @@ export function HowItWorks() {
   const panelBase = useId();
   const revealId = `${panelBase}-reveal`;
   const panelId = `${panelBase}-workflow`;
+
+  /* The capture chain, behind its own control and its own state — see the
+     note above the second button for why these two never talk to each other. */
+  const [chainOpen, setChainOpen] = useState(false);
+  const {
+    anchorRef: chainRevealRef,
+    panelRef: chainPanelRef,
+    reveal: chainReveal,
+  } = useDisclosureReveal<HTMLButtonElement, HTMLDivElement>();
+  const chainRevealId = `${panelBase}-chain-reveal`;
+  const chainPanelId = `${panelBase}-chain`;
 
   const demo = useAutoDemonstrate<HTMLDivElement>({
     steps: workflowStages.length,
@@ -231,6 +261,7 @@ export function HowItWorks() {
           </button>
         </div>
 
+
         <div
           ref={panelRef}
           id={panelId}
@@ -292,6 +323,81 @@ export function HowItWorks() {
                 })}
               </div>
             </div>
+          </div>
+        </div>
+        {/* The spaces around the separators are written out, because the dots are
+            hidden from the accessibility tree and the words either side would
+            otherwise run together when the line is read aloud. The space BEFORE
+            each dot is non-breaking, so a wrap never leaves a line starting on
+            a separator, and each count is glued to its noun so "1 granted
+            patent" survives as one unit when the line breaks on a phone. */}
+        <p className={styles.record}>
+          Built on a published research record{"\u00a0"}
+          <span aria-hidden="true" className={styles.recordDot}>
+            ·
+          </span>{" "}
+          {PAPER_COUNT}{"\u00a0"}papers{"\u00a0"}
+          <span aria-hidden="true" className={styles.recordDot}>
+            ·
+          </span>{" "}
+          {PATENT_COUNT}{"\u00a0"}granted{"\u00a0"}patent{PATENT_COUNT === 1 ? "" : "s"}{"\u00a0"}
+          <span aria-hidden="true" className={styles.recordDot}>
+            ·
+          </span>{" "}
+          <Link href="/research/" className={styles.recordLink}>
+            Explore Research
+            <ArrowUpRight aria-hidden="true" className={styles.recordArrow} />
+          </Link>
+        </p>
+
+        {/* ── AND THE CAPTURE CHAIN, BEHIND ITS OWN CONTROL ──────────────
+            "What can movement tell us?" was a section of its own directly
+            under this one: a second full-width explanation of the platform
+            immediately after the first, which is how a page becomes a
+            document again. It is the same component, unchanged and rendered
+            once — it simply is not unrolled until somebody asks for it.
+
+            TWO INDEPENDENT DISCLOSURES, not a pair. Opening the workflow does
+            not close this and opening this does not close the workflow: they
+            answer different questions and a reader may want both open at
+            once. The research line sits between them because it belongs to
+            neither — it is the page's answer to "is any of this grounded?",
+            and it stays visible whatever is open. */}
+        <div className={`${disclosure.center} ${styles.chainRow}`}>
+          <button
+            ref={chainRevealRef}
+            type="button"
+            id={chainRevealId}
+            aria-expanded={chainOpen}
+            aria-controls={chainPanelId}
+            onClick={() => {
+              const next = !chainOpen;
+              setChainOpen(next);
+              chainReveal(next);
+            }}
+            data-open={chainOpen}
+            className={`home-reveal-offset ${disclosure.control}`}
+          >
+            <span aria-hidden="true" className={disclosure.dot} />
+            <span className={disclosure.label}>
+              {chainOpen
+                ? "Hide what movement can tell us"
+                : "Explore what movement can tell us"}
+            </span>
+            <span aria-hidden="true" className={disclosure.mark} />
+          </button>
+        </div>
+
+        <div
+          ref={chainPanelRef}
+          id={chainPanelId}
+          role="region"
+          aria-labelledby={chainRevealId}
+          data-open={chainOpen}
+          className={styles.panel}
+        >
+          <div className={styles.panelInner}>
+            <MovementTeaser />
           </div>
         </div>
       </div>

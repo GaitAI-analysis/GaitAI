@@ -423,6 +423,120 @@
   margin-top: 2.25rem;
 }
 
+/* The second control, under the research line. Same gap the research line
+   takes from the button above it, so the three rows — control, credit,
+   control — sit on one rhythm whatever is open or closed underneath them. */
+.chainRow {
+  margin-top: 1.625rem;
+}
+
+/* Open, the workflow panel ends on a stage row and the research line would
+   sit 26px under a film. This is the air that makes the credit read as the
+   next thing rather than as a caption on the zigzag — and it is on the PANEL,
+   so it collapses to nothing with it. */
+.panel[data-open="true"] > .panelInner {
+  padding-bottom: 3.5rem;
+}
+
+/* ── The research credit ───────────────────────────────────────────────
+   One line of type under the disclosure control, standing in for the research
+   section this page no longer carries. Deliberately not a component: no card,
+   no border, no background, nothing that could read as a section of its own.
+   It sits 1.5rem under the control — close enough to belong to it, far enough
+   not to crowd it — and wraps to two lines on a phone on its own. */
+
+/* The provenance line under the workflow button.
+   It was 11px, which made the one sentence on the page that says the work is
+   published read as a legal footnote. It is body-sized now and still clearly
+   secondary to the button above it: the weight stays at 500, the colour stays
+   muted, and only "Explore Research" takes the accent. Sized per breakpoint
+   rather than by clamp, because the range is narrow enough that three steps
+   are easier to reason about than a viewport curve. */
+.record {
+  /* ~26px below the button: far enough to read as its own line, close enough
+     to still belong to it. */
+  margin: 1.625rem auto 0;
+  max-width: 54rem;
+  text-align: center;
+  font-size: 0.9375rem; /* 15px — phones */
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  color: var(--text-mute);
+}
+
+@media (min-width: 640px) {
+  .record {
+    font-size: 1rem; /* 16px — tablets */
+  }
+}
+
+@media (min-width: 1024px) {
+  .record {
+    font-size: 1.0625rem; /* 17px — desktop */
+  }
+}
+
+.recordDot {
+  margin: 0 0.2em;
+  opacity: 0.55;
+}
+
+/* The one piece of colour in the line. Dark and light are stated side by side
+   — cyan-300 is unreadable on the light ground, and a colour defined only
+   inside a media query is a colour that goes missing in one theme. */
+.recordLink {
+  /* Inline, not inline-flex: a flex box on a text line sets its own top edge
+     and stops sharing the line box, which shows up as an uneven line when the
+     sentence wraps. The arrow rides the baseline instead. */
+  display: inline;
+  padding-block: 0.2rem;
+  color: rgb(79 209 255);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+:global(.light) .recordLink {
+  color: rgb(14 116 144);
+}
+
+.recordArrow {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.28em;
+  vertical-align: -0.06em;
+  transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .recordLink:hover {
+    color: rgb(125 224 255);
+  }
+
+  :global(.light) .recordLink:hover {
+    color: rgb(8 87 110);
+  }
+
+  .recordLink:hover .recordArrow {
+    transform: translate(2px, -2px);
+  }
+}
+
+.recordLink:focus-visible {
+  outline: 2px solid rgb(79 209 255);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recordLink,
+  .recordArrow {
+    transition: none;
+  }
+}
+
 /* ── The panel ── */
 
 .panel {

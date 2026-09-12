@@ -48,7 +48,9 @@ export const metadata: Metadata = {
  *   The sticky rail        home/HomeSectionNav.tsx + data/home-sections.ts
  *
  * MissionVision and VisitorIntent are approved too and are unchanged between
- * the two versions, so they simply stay where the old page had them.
+ * the two versions. VisitorIntent stays where the old page had it;
+ * MissionVision is the same component with the same props and closes the page
+ * now — see THE CLOSING STATEMENT on the block itself.
  *
  * ── WHAT COMES FROM THE OLD PAGE, UNTOUCHED ───────────────────────────────
  *   Verticals              the shared-core diagram and the two flagship
@@ -82,8 +84,6 @@ export const metadata: Metadata = {
  * offset, never a change to layout, spacing or markup. In the order they are
  * rendered below, which is also the order the rail runs in:
  *
- *   #overview       this file's wrapper around the Motion DNA band and the
- *                   meanings strip, which have no shared parent otherwise
  *   #mobilitycare   Verticals' MobilityCare panel — the `<article>` itself
  *   #securevision   Verticals' SecureVision panel — the `<article>` itself
  *   #products       FeaturedProducts, which carries it already
@@ -93,8 +93,11 @@ export const metadata: Metadata = {
  *                   one is a judgement call rather than an obvious fit
  *   #use-cases      EnvironmentStrip, adapted by id only (it shipped as
  *                   `#environments`, which nothing links to)
+ *   #overview       this file's wrapper around the Motion DNA band and the
+ *                   meanings strip, which have no shared parent otherwise —
+ *                   last on the page now, and last in the rail with it
  *
- * USE CASES IS LAST BECAUSE IT IS LAST. The old page puts the environments
+ * USE CASES SITS WHERE IT SITS. The old page puts the environments
  * after the research and visitor-intent sections, and the rail follows the
  * page rather than the order the labels were approved in — a rail that lists
  * its destinations in an order the page does not use is a second, conflicting
@@ -113,22 +116,6 @@ export default function HomePage() {
     <>
       <Hero />
       <HomeSectionNav />
-      {/* The wrapper exists only so the rail has one "overview" target; it
-          adds no spacing of its own. Both chapters are inside MissionVision
-          now, so it holds a single child. */}
-      <section id="overview" className="home-section">
-        <MissionVision
-          motion="gait"
-          missionStory={
-            /* The container the section had when it stood on its own, plus
-               the bottom air it used to borrow from whatever followed it. */
-            <div className="container-wide pb-14 sm:pb-16 lg:pb-20">
-              <MovementMeanings />
-            </div>
-          }
-          visionStory={<Vision />}
-        />
-      </section>
       <Verticals />
       <FeaturedProducts />
       <HowItWorks />
@@ -137,6 +124,34 @@ export default function HomePage() {
       <VisitorIntent />
       <EnvironmentStrip />
       <CTA />
+      {/* THE CLOSING STATEMENT, and now genuinely the last thing on the page.
+          It sat directly under the hero; it reads better under the demo block.
+          That block is the ask — request a demo, discuss a pilot, start a
+          research collaboration — and this is what the company is for, which
+          is the note to leave a reader on rather than something to interrupt
+          the ask with.
+
+          The SAME component, moved. Not a copy: same props, same cards, same
+          Motion DNA centre, same gait stage, same two chapters behind the same
+          two controls, and the `#mission-vision` id it has always carried is
+          still the only one of its kind on the page. The wrapper comes with it
+          because the wrapper is the `#overview` anchor, nothing more; it adds
+          no spacing of its own, so the section's top border lands against the
+          demo block's bottom padding. */}
+      <section id="overview" className="home-section">
+        <MissionVision
+          motion="gait"
+          missionStory={
+            /* The container the section had when it stood on its own, plus
+               the bottom air it used to borrow from whatever followed it —
+               now the footer. */
+            <div className="container-wide pb-14 sm:pb-16 lg:pb-20">
+              <MovementMeanings />
+            </div>
+          }
+          visionStory={<Vision />}
+        />
+      </section>
     </>
   );
 }

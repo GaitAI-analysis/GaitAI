@@ -1,10 +1,33 @@
 "use client";
 
-import { useCallback, useId, useRef, useState } from "react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { PoseSilhouette } from "@/components/visuals/PoseSilhouette";
-import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
-import { GAIT_PHASES, GAIT_HEAD, type Pt } from "@/components/visuals/gait-phases";
+import { useCallback, useId, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
+import {
+  ArrowUpRight,
+  BarChart3,
+  BellRing,
+  Check,
+  ChevronRight,
+  EyeOff,
+  FileText,
+  Gauge,
+  HeartPulse,
+  Lock,
+  PersonStanding,
+  Route,
+  ShieldCheck,
+  Smartphone,
+  TrendingUp,
+  User,
+  Video,
+  Watch,
+  Waves,
+  X,
+} from "lucide-react";
+import {
+  RepresentationFigure,
+  type RepresentationDraw,
+} from "./RepresentationFigure";
 import {
   captureOutcomes,
   captureRepresentations,
@@ -16,144 +39,99 @@ import styles from "./privacypipeline.module.css";
 /**
  * CAPTURE MOVEMENT. PROTECT IDENTITY.
  * =============================================================================
- * The platform's privacy argument, made as an instrument rather than a
- * paragraph. One walk, five representations of it, and — for each — what the
- * representation still carries and what it has stopped carrying.
+ * The platform's privacy argument, drawn as the pipeline it is:
  *
- * ── WHY THIS IS NOT THE WORKFLOW SECTION AGAIN ───────────────────────────
- * The home page already has two pipelines and does not need a third. The
- * workflow section answers "what happens to movement" (capture → understand →
- * report → act) and the capture-chain teaser answers "what can this input
- * tell me" (signal → measurements → intelligence → modules). Neither asks the
- * question this section exists for: HOW MUCH OF THE PERSON DOES ANY OF IT
- * NEED?
+ *   intro + privacy plate
+ *   representation selector (five inputs, one rail)
+ *   1 CAPTURE → 2 PRIVACY LAYER → 3 REPRESENTATION → 4 ENGINE → 5 OUTCOMES
+ *   what we keep / what we reduce  ·  privacy vs utility
+ *   one quiet CTA
  *
- * So the five stage captions are labels on the three areas of ONE diagram,
- * not a second rail a visitor can drive. The only thing that moves here is
- * the representation, because the representation is the whole argument. If
- * this section ever grows its own interactive pipeline, it has become the
- * workflow section and one of the two should go.
+ * ── WHY IT IS FIVE CARDS AND NOT THREE COLUMNS ───────────────────────────
+ * It was three tall panels — figure, privacy layer, engine+outcomes — with
+ * the kept/reduced ledger as a fourth block underneath. Every fact was there
+ * and the reading was wrong: three panels side by side say "three topics",
+ * and the thing being described is one sequence. The outcomes column alone
+ * ran taller than the figure it was supposed to follow from, and the section
+ * came to about one and a half viewports before the ledger started.
  *
- * ── ONE FIGURE, FIVE STATES, NO RELOAD ───────────────────────────────────
- * Every rendering stays mounted over the same body and cross-fades. Watching
- * the SAME person become an outline, then joints, then a line through space
- * is the argument; five pictures side by side would only assert it, and a
- * reflow between them would break it. The poses are the site's shared gait
- * keyframes (`visuals/gait-phases`), so the walker here is anatomically the
- * same walker the research pages and the privacy lens draw — no limb is
- * placed by a transform and nothing is invented for this section.
+ * Five cards with arrows between them say the one thing the layout has to
+ * say before any of the words are read: this happens, then this, then this.
  *
- * The silhouette and the skeleton are the existing `PoseSilhouette` and
- * `PoseFrame` renderers, given this module's class names. The trajectory's
- * node spacing is the real per-phase stride offset, and the sensor trace is
- * derived from the same keyframes' pelvic lift — so even the waveform is this
- * walk rather than decoration. Both are computed, never random, because a
- * random path would differ between the server and the client render.
+ * ── THE SELECTOR IS THE ONLY CONTROL, AND IT DRIVES THE FLOW ─────────────
+ * Choosing an input changes three of the five cards — which device is lit in
+ * CAPTURE, what the PRIVACY LAYER is transforming, and what REPRESENTATION
+ * draws — plus both lower panels. Stages 4 and 5 are deliberately constant:
+ * which representation a task needs is a deployment decision, and lighting
+ * different outcomes per representation would be a capability claim this
+ * repository cannot support.
+ *
+ * Camera Video is the exception worth naming: its REPRESENTATION card draws a
+ * pose skeleton, captioned as an example view. The card's question is "what
+ * does this become", and for a raw frame the answer is one of the privacy-
+ * aware representations — showing the frame again would say nothing.
+ *
+ * ── FIVE REPRESENTATIONS, FIVE DIFFERENT KINDS OF PICTURE ────────────────
+ * The drawings live in `RepresentationFigure`, and the reason they are not
+ * the site's shared gait keyframes any more is the argument this section is
+ * making. Those keyframes are one stick figure; rendered at three opacities
+ * the camera frame, the silhouette and the skeleton came out as three
+ * versions of the same mannequin, so a visitor could see the label change
+ * and not the data change.
+ *
+ * Each one is now recognisable as the thing it is: a tonal figure inside
+ * camera furniture, a flat foreground mask, landmarks and bones at the
+ * joints a pose estimator reports, a hip centroid with its history, and —
+ * with no body at all — three accelerometer channels. All five are authored
+ * from one landmark set, so it is still visibly one walk losing information.
+ * See the header of that file, including the note on provenance.
  *
  * ── WHAT IT IS FORBIDDEN FROM CLAIMING ───────────────────────────────────
- * Not anonymity. Not a measurement — both meters are relative shapes with no
- * scale and no printed figure, asserting only an ordering. Not a product
- * specification — no module is named as running any representation. See
- * data/capture-representations.ts, which carries the full reasoning.
- *
- * ── THE SECTION ENDS AT THE LEDGER ───────────────────────────────────────
- * It used to close with a principle line, three links out and a boundary
- * paragraph. All three are gone: the links repeated destinations the page
- * already offers above and below this point, and the closing text turned the
- * instrument back into the paragraph it was built to replace. Nothing carried
- * spacing of its own beyond its top margin, so the section now ends on the
- * ledger and the next section follows on the page's normal rhythm.
+ * Not anonymity. Not a measurement — the two meters are relative shapes with
+ * no scale and no printed figure, asserting only an ordering. Not a product
+ * specification. See data/capture-representations.ts, which carries the full
+ * reasoning, and note that the OUTCOMES card is captioned with what it
+ * produces rather than with "insights without identity".
  *
  * ── ACCESSIBILITY ────────────────────────────────────────────────────────
  * The selector is a real tablist: five `role="tab"` buttons, one tab stop,
  * arrows and Home/End to move, `aria-selected` and `aria-controls` pointing
- * at the panel the ledger lives in. The figure is `role="img"` with a label
- * that names the current representation, so it announces as a picture of
- * something rather than as decorative SVG. The meters are `<meter>`-shaped
- * markup — a term, a word, and a bar that is `aria-hidden` because the word
- * beside it is the accessible value.
+ * at the ledger panel. Each figure is `role="img"` with a label naming what
+ * it draws. The meters are a description list — a term, a word, and a bar
+ * that is `aria-hidden` because the word beside it is the accessible value.
+ * The arrows between cards are decorative and hidden.
  */
 
-/* The figure's box. Taller than it is wide, because the subject is a standing
-   human and the panel it sits in is a column — a landscape box left the figure
-   stranded in the middle of it at a fraction of the available height. */
-const W = 320;
-const H = 300;
-const FIG_X = 160;
-const FIG_Y = 208;
-const S = 2.05;
+/** The input devices beside the capture frame, one of them live. */
+const INPUTS = [
+  { id: "camera", Icon: Video, label: "Camera" },
+  { id: "wearable", Icon: Watch, label: "Wearable" },
+  { id: "phone", Icon: Smartphone, label: "Phone" },
+] as const;
 
-/**
- * HEEL STRIKE, not mid-stance.
- *
- * The privacy lens uses mid-stance because it is the most legible SINGLE
- * pose — the limbs overlap least against a busy stage. Here the figure has to
- * read as somebody WALKING at a glance, and at mid-stance the legs are
- * directly under the pelvis: drawn small, that silhouette is a person
- * standing still. Heel strike is the moment of maximum stride separation, so
- * the walk is legible even in the skeleton's thin strokes.
- */
-const PHASE = GAIT_PHASES[0];
+/** The selector's icons, in `captureRepresentations` order. */
+const REP_ICONS = [Video, User, PersonStanding, Route, Waves] as const;
 
-/**
- * The path through the space, at the stride spacing this walk actually has.
- *
- * The first version plotted the ankle's own y as well, which is flat by
- * definition — a foot stays on the floor — so the trajectory drew a ruler
- * lying on the ground and read as nothing at all. What a trajectory means
- * here is where somebody went, seen across a room, so the line rises into
- * depth while the SPACING between its nodes stays the real per-phase stride
- * offset. The rhythm is the data; the recession is the drawing.
- */
-const TRAIL: Pt[] = GAIT_PHASES.map((phase, i) => {
-  const t = i / (GAIT_PHASES.length - 1);
-  return [
-    44 + t * (W - 118) + phase.nearLeg[2][0] * 0.45,
-    FIG_Y - 10 - t * 116 + Math.sin(t * Math.PI) * 18,
-  ] as Pt;
-});
+/** The engine's layers, outermost first. Named processes, not products. */
+const ENGINE_LAYERS = [
+  "Feature extraction",
+  "Temporal modelling",
+  "Multi-task inference",
+  "Privacy-aware analytics",
+];
 
-/**
- * The sensor trace, computed from the keyframes' pelvic lift.
- *
- * A walk's vertical oscillation is what an IMU on the trunk actually reads,
- * so the trace is that curve repeated across the box rather than a decorative
- * squiggle. Deterministic by construction: the same input produces the same
- * path on the server and in the browser.
- */
-const SENSOR_PATH = (() => {
-  const points: Pt[] = [];
-  const cycles = 3;
-  const samples = GAIT_PHASES.length * cycles;
-  for (let i = 0; i <= samples; i += 1) {
-    const phase = GAIT_PHASES[i % GAIT_PHASES.length];
-    const x = 30 + (i / samples) * (W - 60);
-    /* Lift is a drop below the high point, so it is negated to read as a
-       rise; the second term is the step-rate ripple the same data implies. */
-    const y =
-      FIG_Y -
-      62 -
-      (1.5 - phase.lift) * 15 -
-      Math.sin((i / GAIT_PHASES.length) * Math.PI * 2) * 9;
-    points.push([x, y]);
-  }
-  return smoothPath(points);
-})();
+/** One icon per outcome, in `captureOutcomes` order. */
+const OUTCOME_ICONS = [TrendingUp, Gauge, FileText, HeartPulse, BellRing, EyeOff];
 
-const SILHOUETTE_CLASSES = {
-  group: styles.mass,
-  torso: styles.massTorso,
-  limb: styles.massLimb,
-  limbLeg: styles.massLimbLeg,
-  head: styles.massHead,
-};
-
-const POSE_CLASSES = {
-  bone: styles.bone,
-  boneFar: styles.boneFar,
-  joint: styles.joint,
-  head: styles.poseHead,
-  contact: styles.contact,
+/** Which illustration the REPRESENTATION card draws for a given selection. */
+const REPRESENTATION_DRAW: Record<RepresentationId, { draw: RepresentationDraw; caption: string }> = {
+  /* A raw frame's representation is one of the privacy-aware forms, not the
+     frame again — so Camera Video shows the pose skeleton as an example. */
+  capture: { draw: "pose", caption: "Pose skeleton (example view)" },
+  silhouette: { draw: "silhouette", caption: "Body outline (silhouette)" },
+  pose: { draw: "pose", caption: "Pose skeleton (keypoints)" },
+  trajectory: { draw: "trajectory", caption: "Path through space" },
+  sensor: { draw: "sensor", caption: "Wearable motion signal" },
 };
 
 export function PrivacyPipeline() {
@@ -165,6 +143,10 @@ export function PrivacyPipeline() {
 
   const index = captureRepresentations.findIndex((r) => r.id === active);
   const rep = captureRepresentations[index] ?? captureRepresentations[0];
+  /* A wearable signal does not come from a camera, so the capture card stops
+     drawing one the moment that is the selected input. */
+  const fromSensor = active === "sensor";
+  const representation = REPRESENTATION_DRAW[active];
 
   const move = useCallback((from: number, step: number) => {
     const next =
@@ -193,8 +175,38 @@ export function PrivacyPipeline() {
     [move],
   );
 
-  /* The three areas carry the five stage captions between them. */
   const stage = (i: number) => captureStages[i];
+
+  /** A card, so the five share one shape and one set of spacings. */
+  const Stage = ({
+    at,
+    live = false,
+    draw,
+    children,
+    foot,
+  }: {
+    at: number;
+    live?: boolean;
+    draw?: string;
+    children: ReactNode;
+    foot?: string;
+  }) => (
+    <div className={styles.stage} data-live={live} data-draw={draw}>
+      <div className={styles.stageHead}>
+        <span className={styles.stageStep}>{stage(at).step}.</span>
+        <span className={styles.stageLabel}>{stage(at).label}</span>
+      </div>
+      <p className={styles.stageNote}>{stage(at).note}</p>
+      <div className={styles.stageBody}>{children}</div>
+      {foot ? <p className={styles.stageFoot}>{foot}</p> : null}
+    </div>
+  );
+
+  const Arrow = () => (
+    <span aria-hidden="true" className={styles.arrow}>
+      <ChevronRight size={22} strokeWidth={2.5} />
+    </span>
+  );
 
   return (
     <section
@@ -203,311 +215,287 @@ export function PrivacyPipeline() {
       className={`home-section section ${styles.section}`}
     >
       <div className="container-wide">
-        <SectionHeading
-          eyebrow="Privacy-aware capture"
-          title={
-            <span id={`${baseId}-title`}>
+        {/* ═══ 1 · INTRO ═══════════════════════════════════════════════ */}
+        <div className={styles.intro}>
+          <div>
+            <p className={styles.eyebrow}>
+              <span aria-hidden="true" className={styles.eyebrowRule} />
+              Privacy-preserving movement intelligence
+            </p>
+            <h2 id={`${baseId}-title`} className={styles.title}>
               Capture movement.{" "}
               <span className="text-gradient">Protect identity.</span>
+            </h2>
+            <p className={styles.lead}>
+              GaitAI does not always need the full visual identity of a person.
+              Depending on the task, movement can be interpreted through
+              privacy-aware representations such as silhouettes, pose structure,
+              trajectories or wearable signals — preserving what the system
+              needs while reducing what it does not.
+            </p>
+          </div>
+
+          <div className={styles.plate}>
+            <span aria-hidden="true" className={styles.plateIcon}>
+              <Lock size={20} />
             </span>
-          }
-          description="GaitAI does not always need the full visual identity of a person. Depending on the task, movement can be interpreted through privacy-aware representations such as silhouettes, pose structure, trajectories or wearable signals — preserving what the system needs while reducing what it does not."
-          size="lg"
-        />
-
-        {/* ── THE SELECTOR ── the one thing in this section that moves. */}
-        <div
-          role="tablist"
-          aria-label="Movement representation"
-          className={styles.selector}
-        >
-          {captureRepresentations.map((option, i) => {
-            const on = option.id === active;
-            return (
-              <button
-                key={option.id}
-                ref={(node) => {
-                  tabRefs.current[i] = node;
-                }}
-                type="button"
-                role="tab"
-                id={tabId(option.id)}
-                aria-selected={on}
-                aria-controls={panelId}
-                tabIndex={on ? 0 : -1}
-                onClick={() => setActive(option.id)}
-                onKeyDown={(event) => onKeyDown(event, i)}
-                data-on={on}
-                className={styles.option}
-              >
-                <span aria-hidden="true" className={styles.optionDot} />
-                <span>{option.label}</span>
-              </button>
-            );
-          })}
+            <span>
+              <span className={styles.plateTitle}>Privacy by design</span>
+              <span className={styles.plateNote}>
+                Minimum necessary representation.
+                <br />
+                Maximum real-world impact.
+              </span>
+            </span>
+          </div>
         </div>
 
-        <div className={styles.diagram} data-rep={active}>
-          {/* ── LEFT · 01 CAPTURE ─────────────────────────────────────── */}
-          <figure className={styles.capture}>
-            <figcaption className={styles.areaHead}>
-              <span className={styles.areaStep}>{stage(0).step}</span>
-              <span className={styles.areaLabel}>{stage(0).label}</span>
-              <span className={styles.areaNote}>{stage(0).note}</span>
-            </figcaption>
-
-            <div
-              role="img"
-              aria-label={`The same walk drawn as: ${rep.label}. ${rep.lead}`}
-              className={styles.figureWrap}
-            >
-              <svg
-                viewBox={`0 0 ${W} ${H}`}
-                preserveAspectRatio="xMidYMid meet"
-                className={styles.figure}
-                aria-hidden="true"
-              >
-                {/* The recording frame — corner ticks only, present for raw
-                    capture and gone the moment the image is left behind. */}
-                <g className={styles.frameTicks} data-on={active === "capture"}>
-                  {[
-                    [16, 16, 1, 1],
-                    [W - 16, 16, -1, 1],
-                    [16, H - 16, 1, -1],
-                    [W - 16, H - 16, -1, -1],
-                  ].map(([x, y, dx, dy]) => (
-                    <path
-                      key={`${x}-${y}`}
-                      d={`M${x} ${y + dy * 14}L${x} ${y}L${x + dx * 14} ${y}`}
-                    />
-                  ))}
-                </g>
-
-                {/* The scene — a room, stated in four lines: the wall/floor
-                    join, two receding floor edges and one doorway. Only raw
-                    capture has one; every representation after it has already
-                    discarded the background, which is the point. */}
-                <g className={styles.scene} data-on={active === "capture"}>
-                  <path d={`M28 ${FIG_Y - 74}H${W - 28}`} />
-                  <path d={`M28 ${H - 26}L96 ${FIG_Y - 74}`} />
-                  <path d={`M${W - 28} ${H - 26}L${W - 96} ${FIG_Y - 74}`} />
-                  <path
-                    d={`M${W - 92} ${FIG_Y - 74}v-46h34v46`}
-                    className={styles.sceneDoor}
-                  />
-                </g>
-
-                <path className={styles.ground} d={`M28 ${FIG_Y + 5}H${W - 28}`} />
-
-                {/* 01 · FULL CAPTURE and 02 · SILHOUETTE are the same body at
-                    two densities: the first with appearance detail sitting on
-                    it, the second with the detail gone. */}
-                <g
-                  className={styles.layer}
-                  data-on={active === "capture" || active === "silhouette"}
-                  transform={`translate(${FIG_X} ${FIG_Y})`}
+        {/* ═══ 2 · THE SELECTOR ════════════════════════════════════════ */}
+        <div className={styles.selectorRow}>
+          <div
+            role="tablist"
+            aria-label="Movement representation"
+            className={styles.selector}
+          >
+            {captureRepresentations.map((option, i) => {
+              const on = option.id === active;
+              const Icon = REP_ICONS[i];
+              return (
+                <button
+                  key={option.id}
+                  ref={(node) => {
+                    tabRefs.current[i] = node;
+                  }}
+                  type="button"
+                  role="tab"
+                  id={tabId(option.id)}
+                  aria-selected={on}
+                  aria-controls={panelId}
+                  tabIndex={on ? 0 : -1}
+                  onClick={() => setActive(option.id)}
+                  onKeyDown={(event) => onKeyDown(event, i)}
+                  data-on={on}
+                  className={styles.option}
                 >
-                  <PoseSilhouette phase={PHASE} s={S} classes={SILHOUETTE_CLASSES} />
-                </g>
-
-                <g
-                  className={styles.appearance}
-                  data-on={active === "capture"}
-                  transform={`translate(${FIG_X} ${FIG_Y})`}
-                >
-                  {/* Face and clothing detail, stated as marks rather than
-                      drawn as a face: the point is that something identifying
-                      is present, not what it looks like. */}
-                  <circle cx={GAIT_HEAD[0] * S - 2} cy={GAIT_HEAD[1] * S - 1} r={1.5} />
-                  <circle cx={GAIT_HEAD[0] * S + 3} cy={GAIT_HEAD[1] * S - 1} r={1.5} />
-                  <path d={`M${GAIT_HEAD[0] * S - 3} ${GAIT_HEAD[1] * S + 4}q3 2 6 0`} />
-                  <path d={`M${-6 * S} ${-30 * S}h${14 * S}`} />
-                  <path d={`M${-5 * S} ${-24 * S}h${11 * S}`} />
-                  <path d={`M${-4 * S} ${-18 * S}h${9 * S}`} />
-                </g>
-
-                {/* 03 · POSE */}
-                <g
-                  className={styles.layer}
-                  data-on={active === "pose"}
-                  transform={`translate(${FIG_X} ${FIG_Y})`}
-                >
-                  <PoseFrame phase={PHASE} s={S} classes={POSE_CLASSES} showContacts />
-                </g>
-
-                {/* 04 · TRAJECTORY — the real ankle path, and the footfalls
-                    that produced it. */}
-                <g className={styles.layer} data-on={active === "trajectory"}>
-                  {/* The floor the path crosses, so the line reads as depth
-                      rather than as a graph. */}
-                  <path
-                    className={styles.trailFloor}
-                    d={`M30 ${H - 34}L${W - 116} ${FIG_Y - 126}`}
-                  />
-                  <path
-                    className={styles.trailFloor}
-                    d={`M${W - 30} ${H - 60}L${W - 92} ${FIG_Y - 126}`}
-                  />
-                  <path className={styles.trail} d={smoothPath(TRAIL)} />
-                  {TRAIL.map(([x, y], i) => (
-                    <g key={x}>
-                      {i === 2 && (
-                        <circle className={styles.trailDwell} cx={x} cy={y} r={9} />
-                      )}
-                      <circle
-                        className={styles.trailNode}
-                        cx={x}
-                        cy={y}
-                        r={i === 2 ? 4 : 2.8}
-                      />
-                    </g>
-                  ))}
-                  <path
-                    className={styles.trailArrow}
-                    d={`M${TRAIL[4][0] + 11} ${TRAIL[4][1] - 5}l-11 -3 4 9z`}
-                  />
-                </g>
-
-                {/* 05 · SENSOR — the trunk's vertical oscillation, which is
-                    what an IMU on a walking body actually reads. */}
-                <g className={styles.layer} data-on={active === "sensor"}>
-                  <path className={styles.axis} d={`M28 ${FIG_Y - 28}H${W - 28}`} />
-                  <path className={styles.wave} d={SENSOR_PATH} />
-                  <g className={styles.device}>
-                    <rect x={FIG_X - 13} y={FIG_Y + 18} width={26} height={20} rx={6} />
-                    <path d={`M${FIG_X - 5} ${FIG_Y + 28}h10`} />
-                  </g>
-                </g>
-              </svg>
-            </div>
-          </figure>
-
-          {/* ── CENTRE · 02 REDUCE · 03 REPRESENT ─────────────────────── */}
-          <div className={styles.middle}>
-            <div className={styles.areaHead}>
-              <span className={styles.areaStep}>
-                {stage(1).step}–{stage(2).step}
-              </span>
-              <span className={styles.areaLabel}>
-                {stage(1).label} · {stage(2).label}
-              </span>
-              <span className={styles.areaNote}>{stage(2).note}</span>
-            </div>
-
-            {/* Shield and meters travel together as one block, centred in
-                whatever height the tallest column gives this one. Pinned to
-                the top they left 250px of nothing underneath; pinned to the
-                bottom the gap merely moved above them. */}
-            <div className={styles.middleBody}>
-            {/* The privacy layer: the thing the capture passes through. */}
-            <div className={styles.shield}>
-              <span aria-hidden="true" className={styles.shieldBeam} />
-              <span className={styles.shieldTitle}>
-                Minimum necessary representation
-              </span>
-              <span className={styles.shieldNote}>{stage(1).note}</span>
-            </div>
-
-            {/* Two relative meters. No scale, no number — see the data file. */}
-            <dl className={styles.meters}>
-              <div className={styles.meter}>
-                <dt>Visual identity retained</dt>
-                <dd>
-                  <span className={styles.meterWord}>{rep.identityLabel}</span>
-                  <span aria-hidden="true" className={styles.meterTrack}>
-                    <span
-                      className={`${styles.meterFill} ${styles.meterFillIdentity}`}
-                      style={{ transform: `scaleX(${rep.retainedIdentity})` }}
-                    />
-                  </span>
-                </dd>
-              </div>
-              <div className={styles.meter}>
-                <dt>Movement detail retained</dt>
-                <dd>
-                  <span className={styles.meterWord}>
-                    {rep.movementDetail >= 0.9
-                      ? "High"
-                      : rep.movementDetail >= 0.55
-                        ? "Substantial"
-                        : "Task-scoped"}
-                  </span>
-                  <span aria-hidden="true" className={styles.meterTrack}>
-                    <span
-                      className={`${styles.meterFill} ${styles.meterFillMotion}`}
-                      style={{ transform: `scaleX(${rep.movementDetail})` }}
-                    />
-                  </span>
-                </dd>
-              </div>
-            </dl>
-            </div>
+                  <Icon aria-hidden="true" size={17} className={styles.optionIcon} />
+                  <span>{option.label}</span>
+                </button>
+              );
+            })}
           </div>
+          <p className={styles.selectorHint}>
+            Select an input type to see how we protect identity and extract
+            movement intelligence.
+          </p>
+        </div>
 
-          {/* ── RIGHT · 04 PROCESS · 05 OUTPUT ────────────────────────── */}
-          <div className={styles.right}>
-            <div className={styles.areaHead}>
-              <span className={styles.areaStep}>
-                {stage(3).step}–{stage(4).step}
-              </span>
-              <span className={styles.areaLabel}>
-                {stage(3).label} · {stage(4).label}
-              </span>
-              <span className={styles.areaNote}>{stage(3).note}</span>
-            </div>
-
-            <div className={styles.engine}>
-              <span aria-hidden="true" className={styles.engineCore} />
-              <span className={styles.engineTitle}>Movement engine</span>
-              <span className={styles.engineNote}>
-                Feature extraction, modelling, inference
-              </span>
-            </div>
-
-            <ul className={styles.outcomes} aria-label="Outputs">
-              {captureOutcomes.map((outcome) => (
-                <li key={outcome.title} className={styles.outcome}>
-                  <span className={styles.outcomeTitle}>{outcome.title}</span>
-                  <span className={styles.outcomeNote}>{outcome.note}</span>
-                </li>
+        {/* ═══ 3 · THE FIVE STAGES ═════════════════════════════════════ */}
+        <div className={styles.flow} data-rep={active}>
+          {/* 1 · CAPTURE */}
+          <Stage
+            at={0}
+            foot={
+              fromSensor
+                ? "Wearable motion stream (for illustration)"
+                : "Raw video frame (for illustration)"
+            }
+          >
+            <span aria-hidden="true" className={styles.inputs}>
+              {INPUTS.map(({ id, Icon }) => (
+                <span
+                  key={id}
+                  className={styles.input}
+                  data-on={fromSensor ? id === "wearable" : id === "camera"}
+                >
+                  <Icon size={15} />
+                </span>
               ))}
+            </span>
+            <RepresentationFigure className={styles.figureWrap}
+              draw={fromSensor ? "sensor" : "frame"}
+              label={
+                fromSensor
+                  ? "A wearable motion signal, as captured."
+                  : "A walking person in a room, as a camera records them."
+              }
+            />
+          </Stage>
+
+          <Arrow />
+
+          {/* 2 · PRIVACY LAYER */}
+          <Stage
+            at={1}
+            draw="privacy"
+            foot="Identity detail reduced. Task-relevant motion retained."
+          >
+            <RepresentationFigure className={styles.figureWrap}
+              draw={fromSensor ? "sensor" : "silhouette"}
+              label={
+                fromSensor
+                  ? "The same signal, carrying no camera image."
+                  : "The same walk with facial and clothing detail gone."
+              }
+            />
+            <span aria-hidden="true" className={styles.shieldMark}>
+              <ShieldCheck size={18} />
+            </span>
+          </Stage>
+
+          <Arrow />
+
+          {/* 3 · REPRESENTATION — the card the selector drives. */}
+          <Stage at={2} live foot={representation.caption}>
+            <RepresentationFigure className={styles.figureWrap}
+              draw={representation.draw}
+              label={`The same walk drawn as: ${rep.label}. ${rep.lead}`}
+            />
+          </Stage>
+
+          <Arrow />
+
+          {/* 4 · MOVEMENT ENGINE */}
+          <Stage at={3}>
+            <div aria-hidden="true" className={styles.engineStack}>
+              {ENGINE_LAYERS.map((layer) => (
+                <span key={layer} className={styles.engineLayer}>
+                  {layer}
+                </span>
+              ))}
+            </div>
+            <span className="sr-only">
+              Feature extraction, temporal modelling, multi-task inference and
+              privacy-aware analytics.
+            </span>
+          </Stage>
+
+          <Arrow />
+
+          {/* 5 · OUTCOMES */}
+          <Stage at={4}>
+            <ul className={styles.outcomes}>
+              {captureOutcomes.map((outcome, i) => {
+                const Icon = OUTCOME_ICONS[i] ?? BarChart3;
+                return (
+                  <li key={outcome.title} className={styles.outcome}>
+                    <Icon aria-hidden="true" size={14} className={styles.outcomeIcon} />
+                    {outcome.title}
+                  </li>
+                );
+              })}
             </ul>
-          </div>
+          </Stage>
         </div>
 
-        {/* ── THE LEDGER ── what this representation keeps, and what it
-            has stopped carrying. The panel the tablist controls. */}
-        <div
-          id={panelId}
-          role="tabpanel"
-          aria-labelledby={tabId(rep.id)}
-          className={styles.ledger}
-        >
-          <p className={styles.ledgerLead}>{rep.lead}</p>
-          <div className={styles.columns}>
-            <section className={styles.column} data-kind="kept">
-              <h3 className={styles.columnHead}>Kept</h3>
-              <ul>
-                {rep.kept.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </section>
-            <section className={styles.column} data-kind="reduced">
-              <h3 className={styles.columnHead}>Reduced or removed</h3>
-              {rep.reduced.length > 0 ? (
+        {/* ═══ 4 · THE LOWER ROW ═══════════════════════════════════════ */}
+        <div className={styles.lower}>
+          {/* The ledger. The panel the tablist controls — and the home of the
+              lead sentence that used to be a full-width block of its own. */}
+          <div
+            id={panelId}
+            role="tabpanel"
+            aria-labelledby={tabId(rep.id)}
+            className={styles.panel}
+          >
+            <p className={styles.ledgerLead}>{rep.lead}</p>
+            <div className={styles.columns}>
+              <section className={styles.column} data-kind="kept">
+                <h3 className={styles.columnHead}>
+                  <Check aria-hidden="true" size={15} className={styles.tick} />
+                  What we keep
+                </h3>
                 <ul>
-                  {rep.reduced.map((item) => (
-                    <li key={item}>{item}</li>
+                  {rep.kept.map((item) => (
+                    <li key={item}>
+                      <Check aria-hidden="true" size={13} className={styles.tick} />
+                      {item}
+                    </li>
                   ))}
                 </ul>
-              ) : (
-                <p className={styles.columnEmpty}>
-                  Nothing yet — this is the frame before any reduction.
-                </p>
-              )}
-            </section>
+              </section>
+
+              <section className={styles.column} data-kind="reduced">
+                <h3 className={styles.columnHead}>
+                  <X aria-hidden="true" size={15} className={styles.cross} />
+                  What we reduce or remove
+                </h3>
+                {rep.reduced.length > 0 ? (
+                  <ul>
+                    {rep.reduced.map((item) => (
+                      <li key={item}>
+                        <X aria-hidden="true" size={13} className={styles.cross} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className={styles.columnEmpty}>
+                    Nothing yet — this is the frame before any reduction.
+                  </p>
+                )}
+              </section>
+            </div>
           </div>
+
+          {/* Privacy vs utility. Qualitative by design: the words are the
+              value and the bars carry no scale, no axis and no figure,
+              because no such measurement exists. */}
+          <div className={styles.panel}>
+            <p className={styles.pvuHead}>
+              <BarChart3 aria-hidden="true" size={16} className={styles.outcomeIcon} />
+              Privacy vs. utility
+            </p>
+            <div className={styles.pvu}>
+              <dl className={styles.meters}>
+                <div className={styles.meter}>
+                  <dt>Identity detail</dt>
+                  <dd>
+                    <span className={styles.meterWord}>{rep.identityLabel}</span>
+                    <span aria-hidden="true" className={styles.meterTrack}>
+                      <span
+                        className={`${styles.meterFill} ${styles.meterFillIdentity}`}
+                        style={{ transform: `scaleX(${rep.retainedIdentity})` }}
+                      />
+                    </span>
+                  </dd>
+                </div>
+                <div className={styles.meter}>
+                  <dt>Movement detail</dt>
+                  <dd>
+                    <span className={styles.meterWord}>
+                      {rep.movementDetail >= 0.9
+                        ? "Retained"
+                        : rep.movementDetail >= 0.55
+                          ? "Substantially retained"
+                          : "Task-scoped"}
+                    </span>
+                    <span aria-hidden="true" className={styles.meterTrack}>
+                      <span
+                        className={`${styles.meterFill} ${styles.meterFillMotion}`}
+                        style={{ transform: `scaleX(${rep.movementDetail})` }}
+                      />
+                    </span>
+                  </dd>
+                </div>
+              </dl>
+
+              <p className={styles.principle}>
+                The task decides the representation. Privacy is designed into
+                the pipeline.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ═══ 5 · THE CTA ═════════════════════════════════════════════ */}
+        <div className={styles.foot}>
+          <Link href="/movement-lab/" className={styles.cta}>
+            Explore how GaitAI works
+            <ArrowUpRight aria-hidden="true" size={16} />
+          </Link>
+          <span className={styles.strap}>
+            From movement to a safer, healthier, more inclusive world.
+          </span>
         </div>
       </div>
     </section>

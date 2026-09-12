@@ -1,0 +1,345 @@
+/* ===========================================================================
+   THE FIVE REPRESENTATIONS — PAINT
+   ---------------------------------------------------------------------------
+   Geometry lives in RepresentationFigure.tsx; this file is only colour,
+   weight and opacity. Everything reads from the section's own tokens
+   (--pp-accent, --pp-raw, --pp-line, --pp-ink) so the drawings stay inside
+   GaitAI's dark navy / cyan / violet language while each one is recognisable
+   as the kind of data it represents.
+
+   Each theme's values sit beside each other, never only inside a media query.
+   =========================================================================== */
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Limb capsules: the body is drawn as round-capped strokes plus two filled
+   shapes, all in one colour, so the union reads as one region. Painting the
+   stroke AND the fill from `currentColor` is what keeps the seams invisible. */
+.svg path,
+.svg circle,
+.svg ellipse,
+.svg rect {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ═══ CAMERA VIDEO ═══════════════════════════════════════════════════════
+   A night-CCTV palette: everything desaturated towards the section's navy,
+   with one warm spill from the doorway. It has to look RECORDED — which is
+   mostly vignette, scanlines and furniture, not the person. */
+
+.camGround {
+  fill: #070c17;
+}
+
+:global(.light) .camGround {
+  fill: #1a2233;
+}
+
+.camWall {
+  fill: #0c1424;
+}
+
+:global(.light) .camWall {
+  fill: #222c40;
+}
+
+.camFloor {
+  fill: #0a1120;
+}
+
+:global(.light) .camFloor {
+  fill: #1c2536;
+}
+
+.camEdge {
+  stroke: rgb(148 163 184 / 0.28);
+  stroke-width: 0.8;
+  fill: none;
+}
+
+.camEdgeSoft {
+  stroke: rgb(148 163 184 / 0.12);
+  stroke-width: 0.6;
+  fill: none;
+}
+
+.camDoor {
+  fill: rgb(120 170 220 / 0.13);
+  stroke: rgb(148 163 184 / 0.22);
+  stroke-width: 0.7;
+}
+
+.camSpill {
+  color: rgb(140 180 230);
+}
+
+.camLamp {
+  fill: rgb(190 220 255 / 0.07);
+}
+
+.camShadow {
+  fill: rgb(0 0 0 / 0.55);
+}
+
+/* The person, in tone. Deliberately desaturated and low-contrast: this is a
+   figure in a dim room on a camera, not an illustration of a specific
+   person, and no feature of any face is drawn anywhere in this file. */
+.camBody {
+  fill: none;
+}
+
+.toneSkin {
+  fill: #9aa6b8;
+  stroke: #9aa6b8;
+}
+
+.toneWear {
+  fill: #4b6a8f;
+  stroke: #4b6a8f;
+}
+
+.toneLegs {
+  fill: #2f4463;
+  stroke: #2f4463;
+}
+
+.toneShoe {
+  fill: #1b2739;
+  stroke: #1b2739;
+}
+
+.scanlines path {
+  stroke: rgb(255 255 255 / 0.035);
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.camBracket path {
+  stroke: rgb(var(--pp-accent) / 0.85);
+  stroke-width: 1.4;
+  fill: none;
+}
+
+.camRec {
+  fill: #ef4444;
+}
+
+.camText {
+  fill: rgb(226 238 255 / 0.82);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 6.4px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.camStamp {
+  fill: rgb(226 238 255 / 0.6);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.8px;
+  letter-spacing: 0.04em;
+}
+
+/* ═══ SILHOUETTE ═════════════════════════════════════════════════════════
+   A binary foreground mask over the "no background" chequer. Flat by
+   definition: one value, no shading, no features, no internal edges. */
+
+.checker rect {
+  fill: rgb(var(--pp-line) / 0.07);
+}
+
+.mask {
+  fill: rgb(var(--pp-accent));
+  stroke: rgb(var(--pp-accent));
+  opacity: 0.92;
+}
+
+.maskLabel {
+  fill: rgb(var(--pp-accent) / 0.7);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.6px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+/* ═══ POSE SKELETON ══════════════════════════════════════════════════════
+   Thin bones, round landmarks, the near side brighter than the far side —
+   the way a pose overlay distinguishes left from right. */
+
+.poseNear path {
+  stroke: rgb(var(--pp-accent));
+  stroke-width: 1.7;
+  fill: none;
+}
+
+.poseFar path {
+  stroke: rgb(var(--pp-accent) / 0.42);
+  stroke-width: 1.4;
+  fill: none;
+}
+
+.poseFar circle {
+  fill: rgb(var(--pp-accent) / 0.45);
+}
+
+.poseJoint circle {
+  fill: #eaf7ff;
+  stroke: rgb(var(--pp-accent));
+  stroke-width: 1.1;
+}
+
+:global(.light) .poseJoint circle {
+  fill: #ffffff;
+}
+
+.poseBox {
+  fill: none;
+  stroke: rgb(var(--pp-accent) / 0.32);
+  stroke-width: 0.8;
+  stroke-dasharray: 4 3;
+}
+
+.poseTag,
+.poseCount {
+  fill: rgb(var(--pp-accent) / 0.8);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.6px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* ═══ TRAJECTORY ═════════════════════════════════════════════════════════
+   The path carries the colour and the body is nearly gone — which is the
+   information difference this representation actually makes. */
+
+.trajGround {
+  stroke: rgb(var(--pp-line) / 0.22);
+  stroke-width: 0.8;
+  fill: none;
+}
+
+.ghost {
+  fill: rgb(var(--pp-accent));
+  stroke: rgb(var(--pp-accent));
+}
+
+.trajBody {
+  fill: rgb(var(--pp-accent));
+  stroke: rgb(var(--pp-accent));
+  opacity: 0.22;
+}
+
+.trailLine {
+  color: rgb(var(--pp-raw));
+  fill: none;
+  stroke-width: 2.6;
+  filter: drop-shadow(0 0 3px rgb(var(--pp-raw) / 0.5));
+}
+
+.trailDot {
+  fill: rgb(var(--pp-raw));
+  stroke: rgb(var(--pp-surface) / 0.9);
+  stroke-width: 0.6;
+}
+
+.centroid {
+  fill: #fff;
+  stroke: rgb(var(--pp-raw));
+  stroke-width: 1.6;
+}
+
+.trajTag {
+  fill: rgb(var(--pp-raw) / 0.85);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.4px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* ═══ SENSOR SIGNAL ══════════════════════════════════════════════════════
+   A plot, not a picture. Three channels at three weights so the vertical
+   trace — the one that carries the gait cycle — reads first. */
+
+.grid path {
+  stroke: rgb(var(--pp-line) / 0.12);
+  stroke-width: 0.6;
+  fill: none;
+}
+
+.contact path {
+  stroke: rgb(var(--pp-raw) / 0.4);
+  stroke-width: 0.7;
+  stroke-dasharray: 2 3;
+  fill: none;
+}
+
+.accY {
+  stroke: rgb(var(--pp-accent));
+  stroke-width: 1.7;
+  fill: none;
+}
+
+.accX {
+  stroke: rgb(var(--pp-accent) / 0.55);
+  stroke-width: 1.2;
+  fill: none;
+}
+
+.accZ {
+  stroke: rgb(var(--pp-raw) / 0.7);
+  stroke-width: 1.2;
+  fill: none;
+}
+
+.strikeDot {
+  fill: rgb(var(--pp-raw));
+}
+
+.sensorTag {
+  fill: rgb(var(--pp-line) / 0.85);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.4px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.sensorLegendY {
+  fill: rgb(var(--pp-accent));
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.sensorLegendX {
+  fill: rgb(var(--pp-accent) / 0.55);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.sensorLegendZ {
+  fill: rgb(var(--pp-raw) / 0.7);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.8px;
+  font-weight: 700;
+}
+
+.watch rect {
+  fill: rgb(var(--pp-line) / 0.5);
+}
+
+.watchFace {
+  fill: rgb(var(--pp-surface) / 0.95);
+  stroke: rgb(var(--pp-accent) / 0.6);
+  stroke-width: 1;
+}
+
+.watchTrace {
+  fill: none;
+  stroke: rgb(var(--pp-accent));
+  stroke-width: 1;
+}

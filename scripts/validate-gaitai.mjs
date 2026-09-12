@@ -63,7 +63,6 @@ async function main() {
   const fusion = await load("data/fusion-sandbox.ts");
   const privacyLens = await load("data/privacy-lens.ts");
   const envCategories = await load("data/environment-categories.ts");
-  const homeSectionsMod = await load("data/home-sections.ts");
 
   const { allProducts, industryUseCases } = products;
   const { gaitscapeNodes, gaitscapeRelationships } = graph;
@@ -616,22 +615,12 @@ async function main() {
     );
   }
 
-  // ── 11c. The home page's section registry ────────────────────────────────
-  // Every navigator item must name a section id that is unique, and the two
-  // family bands must match the product verticals — `/#mobilitycare` is both a
-  // nav destination and the family's own name, and they have to agree.
-  ran.push("home sections");
-  const { homeSectionIds } = homeSectionsMod;
-  dupes("home section", homeSectionIds);
-  for (const vertical of ["mobilitycare", "securevision"]) {
-    if (!homeSectionIds.includes(vertical)) {
-      err(
-        "home sections",
-        `the home navigator has no "${vertical}" section, but that family ` +
-          "band carries it as its anchor",
-      );
-    }
-  }
+  // (The home page's section-registry check lived here. It validated
+  //  data/home-sections.ts — the sticky section rail's list of anchors — and
+  //  went with the rail: the module no longer exists, and `load()` throws on
+  //  a missing one, so leaving the check in place failed the whole validator
+  //  rather than reporting anything. The environment-category check above is
+  //  unaffected and still runs.)
 
   // ── 12. Naming consistency (Phase 25) ────────────────────────────────────
   // One entity must not become two through capitalisation drift.

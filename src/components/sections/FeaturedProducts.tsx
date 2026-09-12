@@ -41,6 +41,15 @@ import { ProductCard } from "@/components/products/ProductCard";
  *
  * FOUR, NOT THE CATALOGUE. `featured` is a field on the product record, so
  * which four appear is the registry's decision and not this component's.
+ *
+ * THE CARDS ARE DOORS, NOT SUMMARIES. They are `headlineOnly`: the product
+ * name, its one-line promise and the corner arrow, and nothing else. A visitor
+ * here is deciding which of eight things to look at, not comparing them — the
+ * descriptions and the output pills that answer "how do these differ" are the
+ * job of /products, which is one click away under every panel. Carrying them
+ * on the home page cost four paragraphs of reading before the first decision
+ * and roughly doubled the height of the row. See the note on `headlineOnly`
+ * in ProductCard for why that is a separate flag from `compact`.
  */
 
 const productViews: { id: Vertical; label: string; total: number; href: string }[] = [
@@ -165,7 +174,12 @@ export function FeaturedProducts() {
             >
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {visible.map((product, i) => (
-                  <ProductCard key={product.id} product={product} index={i} compact />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={i}
+                    headlineOnly
+                  />
                 ))}
               </div>
 

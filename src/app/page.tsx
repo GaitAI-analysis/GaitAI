@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
-import { HomeSectionNav } from "@/components/home/HomeSectionNav";
 import { MissionVision } from "@/components/sections/about/MissionVision";
 import { MovementMeanings } from "@/components/home/MovementMeanings";
 import { Verticals } from "@/components/sections/Verticals";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
+import { PrivacyPipeline } from "@/components/home/PrivacyPipeline";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { VisitorIntent } from "@/components/home/VisitorIntent";
 import { MovementTeaser } from "@/components/analytics/MovementTeaser";
-import { ResearchCredibility } from "@/components/sections/ResearchCredibility";
+import { ResearchGateway } from "@/components/home/ResearchGateway";
 import { EnvironmentStrip } from "@/components/sections/EnvironmentStrip";
 import { Vision } from "@/components/sections/Vision";
 import { CTA } from "@/components/sections/CTA";
@@ -45,20 +45,36 @@ export const metadata: Metadata = {
  *                          readings and the family links are untouched.
  *   24 modular products    sections/FeaturedProducts.tsx, with the family
  *                          tablist and the per-family links
- *   The sticky rail        home/HomeSectionNav.tsx + data/home-sections.ts
+
+ * THERE IS NO SECTION RAIL. The home page carried one for a while — first a
+ * horizontal bar under the header, then a vertical timeline, then a small
+ * right-hand index — and it is gone along with the gutter that reserved room
+ * for it, so the content is back at its full width. The section ids below all
+ * remain: they are what `/#research` resolves against, what the footer links
+ * to and what the search index points at. An anchor does not need a widget
+ * pointing at it to work.
  *
  * MissionVision and VisitorIntent are approved too and are unchanged between
  * the two versions. VisitorIntent stays where the old page had it;
- * MissionVision is the same component with the same props and closes the page
- * now — see THE CLOSING STATEMENT on the block itself.
+ * MissionVision is the same component with the same props and has been moved
+ * to the end of the page — see MISSION & VISION CLOSES THE PAGE below.
  *
  * ── WHAT COMES FROM THE OLD PAGE, UNTOUCHED ───────────────────────────────
  *   Verticals              the shared-core diagram and the two flagship
  *                          panels SIDE BY SIDE, as designed
  *   HowItWorks             the four-stage pipeline at full height
  *   MovementTeaser         the capture chain as its own section
- *   ResearchCredibility    the research flow diagram, the instrument panel,
- *                          the references and both decision cards
+ *   ResearchGateway        the research claim, the four subjects and the
+ *                          door to /research. The section used to be the
+ *                          page's second-longest, and every part of it but
+ *                          the drawn capture → engine → capability chain was
+ *                          a second copy of /research or /publications — the
+ *                          same headline, the same counts, a cut of the same
+ *                          ledger, a card describing a map that lives there.
+ *                          The drawing moved to /research ("The record,
+ *                          drawn"); the copies were deleted rather than
+ *                          transplanted. Same `#research` id, so the rail is
+ *                          unaffected
  *   EnvironmentStrip       the two-column environment diagram — the hub,
  *                          the cyan MobilityCare rail and the blue
  *                          SecureVision rail, every environment a node on
@@ -79,7 +95,7 @@ export const metadata: Metadata = {
  *   CTA                    unchanged
  *
  * ── ANCHORS ───────────────────────────────────────────────────────────────
- * The rail needs eight targets and the old sections were not built with them.
+ * The rail needs its targets and the old sections were not built with them.
  * Each one is adapted by ID ONLY — an `id` and the `home-section` scroll
  * offset, never a change to layout, spacing or markup. In the order they are
  * rendered below, which is also the order the rail runs in:
@@ -87,71 +103,85 @@ export const metadata: Metadata = {
  *   #mobilitycare   Verticals' MobilityCare panel — the `<article>` itself
  *   #securevision   Verticals' SecureVision panel — the `<article>` itself
  *   #products       FeaturedProducts, which carries it already
+ *   #privacy        PrivacyPipeline, a new section built with this anchor —
+ *                   the privacy-aware capture argument, placed directly after
+ *                   the products it applies to and before the workflow that
+ *                   consumes what it produces. See the component for why it
+ *                   is a representation selector rather than a third pipeline
  *   #technology     HowItWorks (was `how`; the footer links here by name)
- *   #research       ResearchCredibility, which carries it already
- *   #trust          VisitorIntent — see data/home-sections.ts for why this
+ *   #research       ResearchGateway, which carries it already
+ *   #trust          VisitorIntent — the page has no trust section of its
+ *                   own, and what it says about privacy and lawful deployment
+ *                   is said inside the research section; this
  *                   one is a judgement call rather than an obvious fit
  *   #use-cases      EnvironmentStrip, adapted by id only (it shipped as
  *                   `#environments`, which nothing links to)
- *   #overview       this file's wrapper around the Motion DNA band and the
- *                   meanings strip, which have no shared parent otherwise —
- *                   last on the page now, and last in the rail with it
+ *   #mission-vision MissionVision's own gait row, which has always carried
+ *                   this id — it only needed the `home-section` offset once
+ *                   the wrapper that used to supply it was removed
+ *
+ * MISSION & VISION CLOSES THE PAGE. It used to sit directly under the hero,
+ * where a philosophy statement interrupted the product story before the
+ * product had been made. Read last, the same three cards are the argument the
+ * page has spent its whole length earning, and the CTA immediately under them
+ * — request a demo, discuss a pilot, start a research collaboration — is what
+ * to do about it. The block moved verbatim: same cards, same Motion DNA
+ * centre, same gait stage, same two chapters behind the same two controls.
+ * The only thing that did not come with it is the `<section id="overview">`
+ * wrapper, which held nothing else and was an anchor, not a layout.
  *
  * USE CASES SITS WHERE IT SITS. The old page puts the environments
  * after the research and visitor-intent sections, and the rail follows the
  * page rather than the order the labels were approved in — a rail that lists
  * its destinations in an order the page does not use is a second, conflicting
- * story about the same page. HomeSectionNav re-derives the order from the
- * document on mount, so moving a section here moves its rail item with it.
+ * story about the same page.
  *
  * THE TWO FAMILY PANELS SIT SIDE BY SIDE, so `#mobilitycare` and
  * `#securevision` resolve to the same scroll position on a wide screen. Both
  * are still real, separate anchors — the ids are on the two panels, never on
  * the shared GaitAI Core block above them — and the rail no longer tries to
  * tell them apart by geometry, which is impossible when their top edges are
- * identical. See the "two sections on one row" note in HomeSectionNav.
+ * identical. Nothing tries to tell them apart by geometry any more.
  */
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <HomeSectionNav />
       <Verticals />
       <FeaturedProducts />
+      <PrivacyPipeline />
       <HowItWorks />
       <MovementTeaser />
-      <ResearchCredibility />
+      <ResearchGateway />
       <VisitorIntent />
       <EnvironmentStrip />
       <CTA />
       {/* THE CLOSING STATEMENT, and now genuinely the last thing on the page.
-          It sat directly under the hero; it reads better under the demo block.
-          That block is the ask — request a demo, discuss a pilot, start a
-          research collaboration — and this is what the company is for, which
-          is the note to leave a reader on rather than something to interrupt
-          the ask with.
+          It sat above the demo block; it reads better under it. The demo block
+          is the ask — talk to us, run a pilot, collaborate — and this is what
+          the company is for, which is the note to leave a reader on rather
+          than something to interrupt the ask with.
 
-          The SAME component, moved. Not a copy: same props, same cards, same
-          Motion DNA centre, same gait stage, same two chapters behind the same
-          two controls, and the `#mission-vision` id it has always carried is
-          still the only one of its kind on the page. The wrapper comes with it
-          because the wrapper is the `#overview` anchor, nothing more; it adds
-          no spacing of its own, so the section's top border lands against the
-          demo block's bottom padding. */}
-      <section id="overview" className="home-section">
-        <MissionVision
-          motion="gait"
-          missionStory={
-            /* The container the section had when it stood on its own, plus
-               the bottom air it used to borrow from whatever followed it —
-               now the footer. */
-            <div className="container-wide pb-14 sm:pb-16 lg:pb-20">
-              <MovementMeanings />
-            </div>
-          }
-          visionStory={<Vision />}
-        />
-      </section>
+          The SAME component, moved. Not a copy: it still carries its own
+          `#mission-vision` anchor, its own `border-y`, its own gait stage and
+          its own two chapters, and the ids that point at it are unchanged.
+
+          It needs no spacing of its own here. The section's top border lands
+          against the demo block's bottom padding, which is a stated edge
+          rather than a collision, and its `lg:min-h-[440px]` gives it the
+          presence a closing statement wants without opening a gap. */}
+      <MissionVision
+        motion="gait"
+        missionStory={
+          /* The container the section had when it stood on its own, plus the
+             bottom air it used to borrow from whatever followed it — now the
+             footer. */
+          <div className="container-wide pb-14 sm:pb-16 lg:pb-20">
+            <MovementMeanings />
+          </div>
+        }
+        visionStory={<Vision />}
+      />
     </>
   );
 }

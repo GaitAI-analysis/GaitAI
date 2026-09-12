@@ -12,14 +12,13 @@ import { useCallback, useEffect, useRef } from "react";
  * nothing appears to happen, and they have to go looking for it.
  *
  * So opening also travels: the control moves to the top of the READABLE
- * viewport, which on this site means below the fixed header and below the
- * sticky home rail, and the newly revealed content starts immediately under
- * it.
+ * viewport, which on this site means below the fixed header, and the newly
+ * revealed content starts immediately under it.
  *
  * WHERE THE OFFSET COMES FROM. Not from a number here. The caller puts
  * `scroll-margin-top` on the element in CSS — built from
- * `--site-header-height`, `--home-nav-height` and `--site-anchor-gap`, the
- * same expression `.home-section` uses — and this hook reads that computed
+ * `--site-header-height` and `--site-anchor-gap`, the same expression
+ * `.home-section` uses — and this hook reads that computed
  * value back when it needs to know where the readable viewport begins. One
  * definition, so the scroll and the chrome cannot drift apart.
  *

@@ -189,6 +189,34 @@
   transition-duration: var(--motion-fast);
 }
 
+/* THE LIFT, FOR CARDS WHOSE CONTAINER IS ANIMATED.
+   A container animated by framer-motion is left with an inline `transform`
+   once its entrance finishes, and an inline style outranks any stylesheet —
+   so `.card-surface:hover { transform: ... }` above silently does nothing on
+   those cards and they are the only ones on the site that do not move.
+
+   `translate` is a separate property that composes with `transform` rather
+   than competing with it, so the 2px arrives whatever the animation left
+   behind. Opt-in, not automatic: a card that already lifts must not lift
+   twice. The home page's headline-only product cards use it, where the lift
+   is carrying more of the affordance than usual because the "View product"
+   line is gone.
+
+   Hover and focus-within together, per rule 1 at the top of this file. */
+.card-lift {
+  transition: translate var(--hit-speed) var(--hit-ease);
+}
+
+.card-lift:hover,
+.card-lift:focus-within {
+  translate: 0 var(--hit-lift);
+}
+
+.card-lift:active {
+  translate: 0 0;
+  transition-duration: var(--motion-fast);
+}
+
 /* The stretched link. Its accessible name is the card's destination; the
    sighted reader never sees it. */
 .card-hit {

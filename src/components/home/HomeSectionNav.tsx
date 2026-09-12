@@ -148,6 +148,17 @@ function readBandTop() {
 
 export function HomeSectionNav() {
   const [active, setActive] = useState<string | null>(null);
+  /**
+   * Whether there is a section to point at right now.
+   *
+   * Only the vertical rail needs this. Horizontal it is in flow and scrolls
+   * away with the page; vertical it is fixed, and a fixed timeline has no
+   * business floating over the hero — which it sits above, not beside — or
+   * over the footer, which is outside the home page's content shift and
+   * would be overlapped by it. Above the first section `active` is already
+   * null, so this only has to answer for the far end.
+   */
+  const [pastEnd, setPastEnd] = useState(false);
   /* Page order. Seeded from the registry — which is written in page order —
      and replaced on mount by what the document actually says. */
   const [items, setItems] = useState<HomeSection[]>(homeSections);
@@ -212,6 +223,13 @@ export function HomeSectionNav() {
          each time, because the header's height changes with the breakpoint. */
       const line = readBandTop() + window.innerHeight * 0.22;
       const tops = elements.map((element) => element.getBoundingClientRect().top);
+
+      /* The end of the readable page: the contact block if it is there, else
+         the last section the rail knows about. */
+      const tail =
+        document.getElementById("contact") ?? elements[elements.length - 1];
+      const ended = tail.getBoundingClientRect().bottom < readBandTop();
+      setPastEnd((current) => (current === ended ? current : ended));
 
 
       let last = -1;
@@ -342,7 +360,11 @@ export function HomeSectionNav() {
   }, [active]);
 
   return (
-    <nav aria-label="Home page sections" className={styles.bar}>
+    <nav
+      aria-label="Home page sections"
+      className={styles.bar}
+      data-docked={active !== null && !pastEnd}
+    >
       <div className={styles.inner}>
         {/* The separator lives on this track, not on the bar. The bar spans
             the viewport because its blurred ground is chrome; the line under
@@ -377,7 +399,14 @@ export function HomeSectionNav() {
                   className={styles.link}
                   data-on={on}
                 >
-                  {section.label}
+                  {/* The node and the connector are the desktop rail's whole
+                      vocabulary: a hollow mark on a thin line, filled and lit
+                      when you are in that section. Both are decoration —
+                      the link's accessible name is the label beside it — so
+                      the node is hidden from assistive technology and simply
+                      does not render below the breakpoint. */}
+                  <span aria-hidden="true" className={styles.node} />
+                  <span className={styles.text}>{section.label}</span>
                 </a>
               </li>
             );

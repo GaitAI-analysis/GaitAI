@@ -15,6 +15,16 @@
      `scroll-margin-top` on every home section (`.home-section` below) — so an
      anchored section never arrives underneath it. */
   --home-nav-height: 3.25rem;
+  /* ── THE VERTICAL SECTION RAIL ──
+     From 1280px the home page's section navigation is a timeline down the
+     left of the content. Two widths, because the point of the narrow one is
+     to not cost a laptop any measure: collapsed it is the node column alone
+     and the labels appear on hover; expanded it carries them. Below 1280px
+     none of this applies and the rail is the horizontal chip bar. */
+  --home-rail-node-col: 1.35rem;
+  --home-rail-row: 2.75rem;
+  --home-rail-width: 2.5rem;
+  --home-rail-gap: 1.75rem;
   /* ═══════════════════════════════════════════════════════════════════════
      THE THEME BRANCH POINT — DARK BRANCH
      ─────────────────────────────────────────────────────────────────────────
@@ -173,6 +183,21 @@
 
    Only the tokens change. No component branches, no duplicate page.
    ═════════════════════════════════════════════════════════════════════════ */
+/* Wide enough for the labels to sit beside the nodes without costing the page
+   any measure: the shell grows by exactly what the rail takes.
+
+   IT LIVES HERE, AFTER THE WHOLE `:root` BLOCK, and unlayered. Two earlier
+   attempts got this wrong in ways worth recording: inside `@layer components`
+   it was simply ignored, because an unlayered custom property beats a layered
+   one whatever the order; and splitting `:root` in half to wrap the override
+   swallowed every theme token below it into a 1440px media query, which left
+   the site with no colours at all on a narrow screen. */
+@media (min-width: 1440px) {
+  :root {
+    --home-rail-width: 9.5rem;
+  }
+}
+
 :root.light {
   /* Ground and surfaces — paper, then white cards, then a lifted white */
   --page-bg: #f6f8fc;
@@ -306,6 +331,29 @@ html {
 
 [id] {
   scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+}
+
+/* A home-page disclosure control that travels to the top of the viewport when
+   its panel opens, so the revealed content starts in the readable viewport
+   rather than below the fold. See `lib/useDisclosureReveal`.
+ *
+ * WHY IT ADDS ONLY THE RAIL'S HEIGHT. `html` already carries a
+ * `scroll-padding-top` of header + gap, and scroll padding and scroll margin
+ * ADD: a margin of header + rail + gap here would count the header and the
+ * gap twice and park the control a third of a screen down. The sticky rail is
+ * the one piece of chrome that padding does not know about, so that is
+ * exactly what this contributes.
+ *
+ * WHY IT IS HERE, UNLAYERED. `[id]` above is unlayered, and unlayered rules
+ * beat every `@layer` regardless of specificity — the same reason
+ * `.home-section`'s own offset in the components layer never reaches an
+ * element that has an id. An exception to that rule has to live beside it.
+ *
+ * WHY NOT `.home-section`. That class is also how the rail finds the eight
+ * sections it tracks; a ninth element wearing it would show up in the rail's
+ * own reckoning of the page. */
+.home-reveal-offset {
+  scroll-margin-top: var(--home-nav-height);
 }
 
 html,
@@ -952,21 +1000,35 @@ body {
     top: calc(var(--site-header-height) + var(--site-anchor-gap));
   }
 
+  /* ── THE RAIL'S GUTTER ──────────────────────────────────────────────────
+     The rail is fixed, so the page's own content has to move out from under
+     it. It SHIFTS rather than shrinks wherever there is room: the container's
+     max-width grows by exactly what its left padding does, so on a wide
+     screen the measure is unchanged and the content simply sits further
+     right. Only where the viewport cannot afford the whole shell does the
+     content give up anything.
+
+     Scoped to `main`, so the footer — outside it, and outside the shift — is
+     not dragged right on one route. The hero opts back out below: the rail is
+     not shown over it, and content shifted under nothing looks off-centre. */
+  @media (min-width: 1280px) {
+    body:has(nav[aria-label="Home page sections"]) main .container-wide {
+      max-width: calc(1320px + var(--home-rail-width) + var(--home-rail-gap));
+      padding-left: calc(
+        3rem + var(--home-rail-width) + var(--home-rail-gap)
+      );
+    }
+
+    #platform .container-wide {
+      max-width: 1320px;
+      padding-left: 3rem;
+    }
+  }
+
   /* Every addressable section on the home page. The global `[id]` rule clears
      the header; these also have to clear the sticky section rail, or a
      deep-linked section arrives with its heading hidden behind it. */
   .home-section {
-    scroll-margin-top: calc(
-      var(--site-header-height) + var(--home-nav-height) + var(--site-anchor-gap)
-    );
-  }
-
-  /* The same offset for something that is scrolled to INSIDE a home section
-     rather than being one — a disclosure control that travels to the top of
-     the viewport when its panel opens. It cannot use `.home-section` itself:
-     that class is also how the rail finds the eight sections it tracks, and a
-     ninth element wearing it would appear in the rail's own reckoning. */
-  .home-reveal-offset {
     scroll-margin-top: calc(
       var(--site-header-height) + var(--home-nav-height) + var(--site-anchor-gap)
     );

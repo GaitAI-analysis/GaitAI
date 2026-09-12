@@ -158,14 +158,6 @@ export default function MovementLabPage() {
                 label. Neither provides a clinical assessment or demonstrates
                 validation of a GaitAI product.
               </p>
-              <p className={`${styles.note} mt-2`}>
-                Selected video and camera recordings are processed in this tab;
-                this analyzer does not upload them. Media references are released
-                when you clear the clip or leave. The model downloads from this
-                site and its runtime from jsDelivr when analysis starts; ordinary
-                network metadata accompanies those requests. The spatial lens
-                does not perform identity matching. <Link href="/legal/privacy/" className="text-cyan-300 underline underline-offset-4">Media and privacy details</Link>.
-              </p>
             </div>
           </div>
           </div>

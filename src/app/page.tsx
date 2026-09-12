@@ -7,8 +7,6 @@ import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
 import { PrivacyPipeline } from "@/components/home/PrivacyPipeline";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { VisitorIntent } from "@/components/home/VisitorIntent";
-import { MovementTeaser } from "@/components/analytics/MovementTeaser";
-import { ResearchGateway } from "@/components/home/ResearchGateway";
 import { EnvironmentStrip } from "@/components/sections/EnvironmentStrip";
 import { Vision } from "@/components/sections/Vision";
 import { CTA } from "@/components/sections/CTA";
@@ -64,17 +62,6 @@ export const metadata: Metadata = {
  *                          panels SIDE BY SIDE, as designed
  *   HowItWorks             the four-stage pipeline at full height
  *   MovementTeaser         the capture chain as its own section
- *   ResearchGateway        the research claim, the four subjects and the
- *                          door to /research. The section used to be the
- *                          page's second-longest, and every part of it but
- *                          the drawn capture → engine → capability chain was
- *                          a second copy of /research or /publications — the
- *                          same headline, the same counts, a cut of the same
- *                          ledger, a card describing a map that lives there.
- *                          The drawing moved to /research ("The record,
- *                          drawn"); the copies were deleted rather than
- *                          transplanted. Same `#research` id, so the rail is
- *                          unaffected
  *   EnvironmentStrip       the two-column environment diagram — the hub,
  *                          the cyan MobilityCare rail and the blue
  *                          SecureVision rail, every environment a node on
@@ -109,16 +96,23 @@ export const metadata: Metadata = {
  *                   consumes what it produces. See the component for why it
  *                   is a representation selector rather than a third pipeline
  *   #technology     HowItWorks (was `how`; the footer links here by name)
- *   #research       ResearchGateway, which carries it already
  *   #trust          VisitorIntent — the page has no trust section of its
- *                   own, and what it says about privacy and lawful deployment
- *                   is said inside the research section; this
- *                   one is a judgement call rather than an obvious fit
+ *                   own, so this one is a judgement call rather than an
+ *                   obvious fit
  *   #use-cases      EnvironmentStrip, adapted by id only (it shipped as
  *                   `#environments`, which nothing links to)
  *   #mission-vision MissionVision's own gait row, which has always carried
  *                   this id — it only needed the `home-section` offset once
  *                   the wrapper that used to supply it was removed
+ *
+ * THERE IS NO RESEARCH SECTION ON THIS PAGE, and `#research` is no longer an
+ * anchor here. It was a full section — first a 2,600px research argument, then
+ * a shorter gateway — and both were a second telling of /research. What the
+ * home page owes a reader is that the record exists and where to read it,
+ * which is one line of type under the workflow control: see the research
+ * credit in sections/HowItWorks.tsx. Nothing links to `/#research`; the
+ * footer, the search index and the navigation all point at `/research/`, the
+ * page that actually holds the record.
  *
  * MISSION & VISION CLOSES THE PAGE. It used to sit directly under the hero,
  * where a philosophy statement interrupted the product story before the
@@ -151,8 +145,6 @@ export default function HomePage() {
       <FeaturedProducts />
       <PrivacyPipeline />
       <HowItWorks />
-      <MovementTeaser />
-      <ResearchGateway />
       <VisitorIntent />
       <EnvironmentStrip />
       <CTA />

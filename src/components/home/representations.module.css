@@ -32,54 +32,113 @@
    with one warm spill from the doorway. It has to look RECORDED — which is
    mostly vignette, scanlines and furniture, not the person. */
 
+/* ── THE CAPTURE VIEW ─────────────────────────────────────────────────────
+   Repainted as a camera resolves a dim room, not as a diagram describes one.
+   The scene is near-neutral and low-contrast — a real sensor at gain has very
+   little colour and very little separation between tones — with the only
+   saturation coming from the doorway and the record light. The brand blue
+   that used to fill these shapes is what made the frame read as artwork.
+   ------------------------------------------------------------------------ */
+
 .camGround {
-  fill: #070c17;
+  fill: #05070c;
 }
 
 :global(.light) .camGround {
-  fill: #1a2233;
+  fill: #10141d;
 }
 
+/* The wall and floor are gradients in the markup (gai-wall / gai-floor); these
+   remain for anything that still paints a flat plane. */
 .camWall {
-  fill: #0c1424;
-}
-
-:global(.light) .camWall {
-  fill: #222c40;
+  fill: #1b2029;
 }
 
 .camFloor {
-  fill: #0a1120;
+  fill: #10141c;
 }
 
-:global(.light) .camFloor {
-  fill: #1c2536;
+/* The plate arrives already graded by scripts/build-capture-plate.py, so this
+   only has to seat it in the card: a touch more contrast than the file
+   carries, and nothing that would double-apply the desaturation. */
+.camPlate {
+  filter: contrast(1.04) saturate(0.9);
+}
+
+:global(.light) .camPlate {
+  filter: contrast(1.02) saturate(0.95) brightness(1.08);
+}
+
+.camPerspective path {
+  stroke: rgb(206 216 230 / 0.1);
+  stroke-width: 0.45;
+  fill: none;
 }
 
 .camEdge {
-  stroke: rgb(148 163 184 / 0.28);
-  stroke-width: 0.8;
+  stroke: rgb(198 210 226 / 0.16);
+  stroke-width: 0.7;
+  fill: none;
+}
+
+.camSkirt {
+  stroke: rgb(0 0 0 / 0.45);
+  stroke-width: 2.4;
   fill: none;
 }
 
 .camEdgeSoft {
-  stroke: rgb(148 163 184 / 0.12);
+  stroke: rgb(148 163 184 / 0.08);
   stroke-width: 0.6;
   fill: none;
 }
 
 .camDoor {
-  fill: rgb(120 170 220 / 0.13);
-  stroke: rgb(148 163 184 / 0.22);
-  stroke-width: 0.7;
+  fill: rgb(206 196 168 / 0.16);
+  stroke: rgb(206 196 168 / 0.2);
+  stroke-width: 0.6;
 }
 
 .camSpill {
-  color: rgb(140 180 230);
+  color: rgb(204 194 166);
+  opacity: 0.5;
 }
 
 .camLamp {
-  fill: rgb(190 220 255 / 0.07);
+  fill: rgb(232 236 244 / 0.08);
+}
+
+/* The pool of light the luminaire puts on the floor — the reason the middle
+   of the frame is brighter than its corners before the vignette touches it. */
+.camPool {
+  fill: rgb(226 232 242 / 0.035);
+}
+
+/* The moving-limb pass, laid over the sharper one. */
+.camSmear {
+  opacity: 0.4;
+}
+
+/* One directional wash across the figure, so it is lit rather than filled. */
+.camModel {
+  mix-blend-mode: soft-light;
+  opacity: 0.9;
+}
+
+/* Sensor noise over the whole plate. The single strongest cue that a frame
+   came off a camera: no illustration is grainy, and every real frame is. */
+.camGrain {
+  mix-blend-mode: overlay;
+  opacity: 0.34;
+}
+
+:global(.light) .camGrain {
+  opacity: 0.24;
+}
+
+/* Compression blocking, in the shadows where a real encoder puts it. */
+.camBlocks rect {
+  fill: rgb(255 255 255 / 0.022);
 }
 
 .camShadow {
@@ -94,28 +153,28 @@
 }
 
 .toneSkin {
-  fill: #9aa6b8;
-  stroke: #9aa6b8;
+  fill: #8d8a86;
+  stroke: #8d8a86;
 }
 
 .toneWear {
-  fill: #4b6a8f;
-  stroke: #4b6a8f;
+  fill: #55596a;
+  stroke: #55596a;
 }
 
 .toneLegs {
-  fill: #2f4463;
-  stroke: #2f4463;
+  fill: #34384a;
+  stroke: #34384a;
 }
 
 .toneShoe {
-  fill: #1b2739;
-  stroke: #1b2739;
+  fill: #191c26;
+  stroke: #191c26;
 }
 
 .scanlines path {
-  stroke: rgb(255 255 255 / 0.035);
-  stroke-width: 1.6;
+  stroke: rgb(0 0 0 / 0.16);
+  stroke-width: 0.9;
   fill: none;
 }
 
@@ -156,6 +215,13 @@
   fill: rgb(var(--pp-accent));
   stroke: rgb(var(--pp-accent));
   opacity: 0.92;
+}
+
+/* The stray fragment, at the same value as the mask — a segmenter's mistakes
+   are the same colour as its successes. */
+.maskFleck {
+  fill: rgb(var(--pp-accent));
+  opacity: 0.72;
 }
 
 .maskLabel {
@@ -227,10 +293,46 @@
   stroke: rgb(var(--pp-accent));
 }
 
-.trajBody {
-  fill: rgb(var(--pp-accent));
-  stroke: rgb(var(--pp-accent));
-  opacity: 0.22;
+/* The floor the route runs across. Quiet — it is the ground, not the figure. */
+.trajFloor path {
+  stroke: rgb(148 163 184 / 0.055);
+  stroke-width: 0.45;
+  fill: none;
+}
+
+/* A soft bloom under the trail, so the path reads as the brightest thing in
+   the frame at a glance. The three body ghosts that used to be the brightest
+   thing are gone: this representation keeps a route, and a drawing of it that
+   leads with a body is a drawing of the wrong thing. */
+.trailGlow {
+  fill: none;
+  stroke: rgb(var(--pp-accent) / 0.16);
+  stroke-width: 6;
+  stroke-linecap: round;
+  filter: blur(2.5px);
+}
+
+.trailTick {
+  stroke: rgb(var(--pp-accent) / 0.55);
+  stroke-width: 1;
+  fill: none;
+}
+
+/* Straight down from the centroid to the floor: the route is a path over
+   ground, and this is what ties the two together. */
+.trajDrop {
+  stroke: rgb(var(--pp-accent) / 0.3);
+  stroke-width: 0.8;
+  stroke-dasharray: 1.5 2;
+  fill: none;
+}
+
+.trajFoot {
+  fill: rgb(var(--pp-accent) / 0.16);
+}
+
+.centroidHalo {
+  fill: rgb(var(--pp-accent) / 0.16);
 }
 
 .trailLine {

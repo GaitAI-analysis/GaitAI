@@ -1,12 +1,10 @@
-import type { CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { PlatformHub } from "@/components/visuals/PlatformHub";
-import { EnvironmentScene } from "@/components/visuals/EnvironmentScenes";
-import { industryUseCases, type Vertical } from "@/data/products";
-import { useCaseDetails } from "@/data/usecase-details";
+import { EnvironmentBranch } from "@/components/home/EnvironmentBranch";
+import { industryUseCases } from "@/data/products";
 
 /**
  * Where GaitAI is used — drawn as the graph it actually is.
@@ -23,86 +21,21 @@ import { useCaseDetails } from "@/data/usecase-details";
  * breakpoint: side by side on desktop, stacked on mobile, the trunks always
  * arrive where the rail begins.
  *
- * Both columns list every environment in their family — the breadth is the
- * point, so nothing is collapsed behind a "+ more" count. Content per row
- * stays light (name and outcome only); /use-cases still owns the problem-led
- * treatment, the product mix and the detail.
+ * Both columns open on five environments and keep the rest one click away in
+ * the same column. Eleven rows against seven made the two sides visibly
+ * uneven, and the breadth is still stated — by the count beside each heading,
+ * which reads "5 of 11 environments" until the column is open, and by the
+ * control itself. Every row is in the HTML either way; see
+ * home/EnvironmentBranch. Content per row stays light (name and outcome
+ * only); /use-cases still owns the problem-led treatment, the product mix and
+ * the detail.
  *
  * Both columns read from `industryUseCases`, so nothing here is restated by
  * hand, and each environment's scene is drawn line art rather than stock
- * photography. The columns are top-aligned and finish at their own heights —
- * MobilityCare has eleven entries to SecureVision's six, and padding one out
- * to match the other would only add empty rail.
+ * photography. The columns are top-aligned and finish at their own heights:
+ * closed they match, and open they end where their own content does rather
+ * than being padded out to a shared height.
  */
-
-const hrefFor = (caseId: string, vertical: Vertical) => {
-  /* An environment that is one product (Defence & Armed Forces → DefenceMotion)
-     lands on that product; the /use-cases explorer still links its page. */
-  const landing = industryUseCases.find((u) => u.id === caseId)?.landing;
-  if (landing) return landing;
-  const detail = useCaseDetails.find((d) => d.caseId === caseId);
-  return detail ? `/use-cases/${detail.slug}/` : `/${vertical}/`;
-};
-
-/** Full class names, written out — Tailwind drops @layer rules it can't find. */
-const COLUMN_CLASS = {
-  care: "env-column env-column--care",
-  secure: "env-column env-column--secure",
-} as const;
-
-const BRANCH_CLASS = {
-  care: "env-branch env-branch--care",
-  secure: "env-branch env-branch--secure",
-} as const;
-
-function EnvironmentBranch({
-  vertical,
-  label,
-  accent,
-}: {
-  vertical: Vertical;
-  label: string;
-  accent: "care" | "secure";
-}) {
-  /*
-   * Every environment in the family, in data order. There is no cap: the
-   * section previously showed five per column and deferred the rest to a
-   * "+ 6 more MobilityCare environments" line, which hid the breadth that is
-   * the whole point of the section.
-   */
-  const entries = industryUseCases.filter((u) => u.vertical === vertical);
-
-  return (
-    <div className={COLUMN_CLASS[accent]}>
-      <div className="env-column-head">
-        <span aria-hidden="true" className="env-column-node" />
-        <h3 className="env-column-title">{label}</h3>
-        <span className="env-column-count">
-          {entries.length} environments
-        </span>
-      </div>
-
-      <div className={BRANCH_CLASS[accent]}>
-        <ul className="env-list">
-          {entries.map((entry, i) => (
-            <li key={entry.id} className="env-item" style={{ "--env-i": i } as CSSProperties}>
-              <Link href={hrefFor(entry.id, entry.vertical)} className="env-panel">
-                <span aria-hidden="true" className="env-scene">
-                  <EnvironmentScene id={entry.id} />
-                </span>
-                <span className="env-copy">
-                  <span className="env-name">{entry.industry}</span>
-                  <span className="env-outcome">{entry.outcome}</span>
-                </span>
-                <ArrowUpRight aria-hidden="true" className="env-arrow" />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
 
 export function EnvironmentStrip() {
   const careCount = industryUseCases.filter((u) => u.vertical === "mobilitycare").length;

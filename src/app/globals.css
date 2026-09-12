@@ -15,16 +15,20 @@
      `scroll-margin-top` on every home section (`.home-section` below) — so an
      anchored section never arrives underneath it. */
   --home-nav-height: 3.25rem;
-  /* ── THE VERTICAL SECTION RAIL ──
-     From 1280px the home page's section navigation is a timeline down the
-     left of the content. Two widths, because the point of the narrow one is
-     to not cost a laptop any measure: collapsed it is the node column alone
-     and the labels appear on hover; expanded it carries them. Below 1280px
-     none of this applies and the rail is the horizontal chip bar. */
-  --home-rail-node-col: 1.35rem;
-  --home-rail-row: 2.75rem;
-  --home-rail-width: 2.5rem;
-  --home-rail-gap: 1.75rem;
+  /* ── THE RIGHT-HAND SECTION INDEX ──
+     From 1280px the home page's section navigation is a small index down the
+     RIGHT of the content: a label and a dot per section, nothing else. Two
+     widths, because the point of the narrow one is to cost a laptop no
+     measure at all — collapsed it is the dot column alone and the labels
+     arrive on hover. Below 1280px none of this applies and the navigation is
+     the horizontal chip bar. */
+  --home-rail-dot-col: 0.85rem;
+  --home-rail-row: 1.65rem;
+  --home-rail-width: 1.35rem;
+  --home-rail-gap: 1.5rem;
+  /* Clearance kept at the bottom of the index's centring box so it can never
+     reach the Ask GaitAI launcher, which is fixed in that corner. */
+  --home-rail-floor: 6rem;
   /* ═══════════════════════════════════════════════════════════════════════
      THE THEME BRANCH POINT — DARK BRANCH
      ─────────────────────────────────────────────────────────────────────────
@@ -194,7 +198,7 @@
    the site with no colours at all on a narrow screen. */
 @media (min-width: 1440px) {
   :root {
-    --home-rail-width: 9.5rem;
+    --home-rail-width: 7rem;
   }
 }
 
@@ -1014,14 +1018,14 @@ body {
   @media (min-width: 1280px) {
     body:has(nav[aria-label="Home page sections"]) main .container-wide {
       max-width: calc(1320px + var(--home-rail-width) + var(--home-rail-gap));
-      padding-left: calc(
+      padding-right: calc(
         3rem + var(--home-rail-width) + var(--home-rail-gap)
       );
     }
 
     #platform .container-wide {
       max-width: 1320px;
-      padding-left: 3rem;
+      padding-right: 3rem;
     }
   }
 

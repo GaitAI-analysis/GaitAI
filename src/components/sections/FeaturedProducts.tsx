@@ -183,10 +183,42 @@ export function FeaturedProducts() {
                 ))}
               </div>
 
-              <div className="mt-7 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-white/[0.07] pt-5">
+              {/* ── THE FOOTER ROW ──────────────────────────────────────
+                  Four actions on one line at desktop: what you are looking at
+                  on the left, the two ways out of the whole catalogue in the
+                  middle, and the way deeper into THIS family on the right.
+                  The two middle buttons used to sit centred on a row of their
+                  own below the panels, which read as a second, unrelated
+                  offer and left the count and the family link stranded on a
+                  line with a gap down the middle of it.
+
+                  THEY LIVE INSIDE THE PANEL because the row they belong to
+                  does. Each panel renders its own copy; only the open one is
+                  in the document's accessibility tree or tab order, so the
+                  reader meets one set. The alternative — lifting the count and
+                  the family link out of the panels — would have dropped two of
+                  the three family links out of the served HTML, which is the
+                  crawlability the tablist was built to keep.
+
+                  The middle group is the one that gives: it tightens its own
+                  gap before anything wraps, and the labels never break mid
+                  phrase. */}
+              <div className="mt-7 flex flex-col items-start gap-4 border-t border-white/[0.07] pt-5 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-x-6 md:gap-y-4">
                 <p className="text-[11px] uppercase tracking-[0.16em] text-soft-mute">
                   Showing {visible.length} of {view.total} {view.label} products
                 </p>
+
+                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center md:min-w-0 md:gap-2 lg:gap-3">
+                  <Link href="/products" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]">
+                    Browse all {productCount} products
+                    <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                  </Link>
+                  <Link href="/gaitscape" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]">
+                    Explore how they connect
+                    <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+
                 <Link
                   href={view.href}
                   className="inline-flex min-h-11 items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:text-cyan-200"
@@ -199,22 +231,6 @@ export function FeaturedProducts() {
           );
         })}
 
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/products"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]"
-          >
-            Browse all {productCount} products
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
-          <Link
-            href="/gaitscape"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]"
-          >
-            Explore how they connect
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
       </div>
     </section>
   );

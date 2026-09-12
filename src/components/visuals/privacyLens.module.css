@@ -81,6 +81,61 @@
   stroke: none;
 }
 
+/* ── 01 SENSING: the photograph ──────────────────────────────────────────── */
+
+.plate {
+  /* Seated in the stage rather than pasted on it: a touch of contrast, and
+     the saturation held down so it reads as a camera in a dim place in both
+     themes without recolouring the photograph. */
+  filter: contrast(1.04) saturate(0.9);
+}
+
+:global(.light) .plate {
+  filter: contrast(1.02) saturate(0.95) brightness(1.06);
+}
+
+.plateEdge {
+  fill: none;
+  stroke: rgb(var(--p-line) / calc(var(--p-line-a) * 1.4));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.rec {
+  fill: #ef4444;
+}
+
+.camText,
+.camStamp {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  fill: rgb(226 238 255 / 0.85);
+  letter-spacing: 0.08em;
+}
+
+.camText {
+  font-size: 5.6px;
+  font-weight: 600;
+}
+
+.camStamp {
+  font-size: 5px;
+  fill: rgb(226 238 255 / 0.65);
+}
+
+/* Step two keeps the frame under the skeleton, but quieter, so the geometry
+   reads as the thing that continues and the picture as the thing leaving. */
+.plateFaded {
+  opacity: 0.55;
+}
+
+.blurRing {
+  fill: none;
+  stroke: rgb(var(--p-accent) / 0.55);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+  vector-effect: non-scaling-stroke;
+}
+
 /* ── 02 PRIVACY TRANSFORMED: the skeleton ────────────────────────────────── */
 
 .bone {

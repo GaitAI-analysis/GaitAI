@@ -1253,6 +1253,13 @@ body {
     object-fit: contain;
     object-position: center;
     border-radius: inherit;
+  }
+
+  /* A photograph fills its card; the letterbox that suits the labelled
+     renders would leave a real frame floating on a dark slab. */
+  .workflow-stage-still {
+    object-fit: cover;
+    object-position: 50% 42%;
     pointer-events: none;
   }
 

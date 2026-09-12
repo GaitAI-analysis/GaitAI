@@ -19,7 +19,8 @@ WHAT IT DOES
      lift out of the hero's darkness, contrast slightly down, which is how a
      sensor at gain in a dim place actually behaves
   4. crops to the card's own 150:156 portrait, framed on the walker
-  5. writes public/assets/images/capture/cctv-walk-frame.jpg
+  5. writes public/assets/images/capture/cctv-walk-frame.jpg (+ .webp), and
+     a wide, differently graded cut for the workflow's Stage 01 card
 
 Nothing is fetched from the internet and no new licence is involved: this is
 the project's own asset, reframed. Re-run after changing the source cover.
@@ -44,22 +45,42 @@ CARD_W, CARD_H = 150, 156
 WALKER_X = 390
 
 
+WIDE_TARGET = ROOT / "public/assets/images/capture/capture-walk-wide.jpg"
+
+
+def grade(frame: Image.Image, colour: float, brightness: float, contrast: float) -> Image.Image:
+    frame = ImageEnhance.Color(frame).enhance(colour)
+    frame = ImageEnhance.Brightness(frame).enhance(brightness)
+    return ImageEnhance.Contrast(frame).enhance(contrast)
+
+
+def save(frame: Image.Image, target: Path) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    frame.save(target, quality=84, optimize=True, progressive=True)
+    webp = target.with_suffix(".webp")
+    frame.save(webp, "WEBP", quality=80, method=6)
+    print(f"{target.relative_to(ROOT)}  {frame.width}x{frame.height}  "
+          f"{target.stat().st_size // 1024} KB  (+ {webp.name} {webp.stat().st_size // 1024} KB)")
+
+
 def main() -> None:
-    frame = Image.open(SOURCE).convert("RGB").crop(CROP)
-    frame = frame.resize((frame.width * SCALE, frame.height * SCALE), Image.LANCZOS)
+    source = Image.open(SOURCE).convert("RGB").crop(CROP)
+    source = source.resize((source.width * SCALE, source.height * SCALE), Image.LANCZOS)
 
-    frame = ImageEnhance.Color(frame).enhance(0.30)
-    frame = ImageEnhance.Brightness(frame).enhance(1.18)
-    frame = ImageEnhance.Contrast(frame).enhance(0.94)
+    # 1 · The portrait plate for the privacy pipeline's Camera Video card and
+    #     the /securevision Privacy Lens: neutral, low-contrast, a camera at gain.
+    portrait = grade(source, 0.30, 1.18, 0.94)
+    width = round(portrait.height * CARD_W / CARD_H)
+    left = max(0, min(portrait.width - width, WALKER_X - width // 2))
+    save(portrait.crop((left, 0, left + width, portrait.height)), TARGET)
 
-    width = round(frame.height * CARD_W / CARD_H)
-    left = max(0, min(frame.width - width, WALKER_X - width // 2))
-    frame = frame.crop((left, 0, left + width, frame.height))
-
-    TARGET.parent.mkdir(parents=True, exist_ok=True)
-    frame.save(TARGET, quality=84, optimize=True, progressive=True)
-    print(f"{TARGET.relative_to(ROOT)}  {frame.width}x{frame.height}  "
-          f"{TARGET.stat().st_size // 1024} KB")
+    # 2 · The wide plate for the workflow's Stage 01 card. Same source — the
+    #     repository has exactly one photoreal walking frame — but the whole
+    #     width, a warmer and higher-contrast grade and no vignette treatment,
+    #     so the two do not read as the same shot. Listed in
+    #     public/assets/images/capture/README.md as the first slot to replace
+    #     with a dedicated asset.
+    save(grade(source, 0.55, 1.10, 1.06), WIDE_TARGET)
 
 
 if __name__ == "__main__":

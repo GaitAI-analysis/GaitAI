@@ -2,7 +2,7 @@
 
 import { useId, useState } from "react";
 import { GAIT_PHASES, GAIT_HEAD, type Pt } from "./gait-phases";
-import { PoseSilhouette } from "./PoseSilhouette";
+import { assetPath } from "@/lib/paths";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
 import { AnalyticsPipeline } from "@/components/analytics/AnalyticsPipeline";
 import {
@@ -54,6 +54,28 @@ const GROUND_Y = FIG_Y + 48 * S;
 /** Mid-stance: the most legible single pose in the keyframe set. */
 const PHASE = GAIT_PHASES[2];
 
+/**
+ * THE SENSING STEP IS A PHOTOGRAPH.
+ * "What a camera holds before anything has been done to it" was drawn as a
+ * solid figure — a mannequin standing in for footage, on the one page whose
+ * entire argument is what real footage contains. It is now the site's real
+ * capture plate (see scripts/build-capture-plate.py: the project's own asset,
+ * reframed), inside a frame that matches the plate's own aspect so nothing is
+ * stretched. Step two keeps the photograph but blurs the head and lays the
+ * keypoint skeleton over the person; step three is unchanged — the photograph
+ * is gone and only the ankle's path remains. The skeleton's placement over the
+ * walker is by eye against the plate, not a detection: this is an
+ * illustration of a transformation, and says so in its title.
+ */
+const PLATE = "/assets/images/capture/cctv-walk-frame.jpg";
+const PLATE_W = 180;
+const PLATE_H = 188;
+const PLATE_X = FIG_X - PLATE_W / 2;
+/* Where the walker stands inside the plate, in stage units. */
+const WALKER_HIP: Pt = [151, 100];
+const WALKER_S = 1.66;
+const HEAD_BLUR: { cx: number; cy: number; r: number } = { cx: 149, cy: 35, r: 12 };
+
 export function PrivacyLens() {
   const [index, setIndex] = useState(0);
   const stage = privacyStages[index];
@@ -98,10 +120,10 @@ export function PrivacyLens() {
           >
             <title id={labelId}>
               {stage.render === "body"
-                ? "A person standing mid-stride, drawn as a solid figure — appearance present."
+                ? "A camera frame of a person walking past a concrete wall — face, clothing and scene all present."
                 : stage.render === "skeleton"
-                  ? "The same figure as a pose skeleton of keypoints, with the head drawn as an empty dashed ring."
-                  : "The same figure reduced to faint keypoints and the path the ankle traces across a stride."}
+                  ? "The same frame with the head blurred and a pose skeleton of keypoints laid over the walker, placed by eye for illustration."
+                  : "The frame is gone: faint keypoints and the path the ankle traces across a stride."}
             </title>
 
             <line
@@ -112,45 +134,93 @@ export function PrivacyLens() {
               y2={GROUND_Y}
             />
 
-            {/* 01 SENSING */}
+            <defs>
+              <clipPath id="pl-plate">
+                <rect x={PLATE_X} y={0} width={PLATE_W} height={PLATE_H} rx={3} />
+              </clipPath>
+              <clipPath id="pl-head">
+                <circle cx={HEAD_BLUR.cx} cy={HEAD_BLUR.cy} r={HEAD_BLUR.r} />
+              </clipPath>
+              <filter id="pl-blur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3.2" />
+              </filter>
+              <radialGradient id="pl-vignette" cx="50%" cy="46%" r="72%">
+                <stop offset="58%" stopColor="#000" stopOpacity="0" />
+                <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+              </radialGradient>
+            </defs>
+
+            {/* 01 SENSING — the frame as recorded. */}
             <g
               className={`${styles.layer} ${
                 stage.render === "body" ? "" : styles.layerOff
               }`}
               aria-hidden="true"
-              transform={`translate(${FIG_X} ${FIG_Y})`}
             >
-              <PoseSilhouette
-                phase={PHASE}
-                s={S}
-                classes={{
-                  group: styles.mass,
-                  torso: styles.massTorso,
-                  limb: styles.massLimb,
-                  limbLeg: styles.massLimbLeg,
-                  head: styles.massHead,
-                }}
-              />
+              <g clipPath="url(#pl-plate)">
+                <image
+                  href={assetPath(PLATE)}
+                  x={PLATE_X}
+                  y={0}
+                  width={PLATE_W}
+                  height={PLATE_H}
+                  preserveAspectRatio="xMidYMid slice"
+                  className={styles.plate}
+                />
+                <rect x={PLATE_X} y={0} width={PLATE_W} height={PLATE_H} fill="url(#pl-vignette)" />
+              </g>
+              <rect x={PLATE_X} y={0} width={PLATE_W} height={PLATE_H} rx={3} className={styles.plateEdge} />
+              <circle cx={PLATE_X + 9} cy={10} r={2} className={styles.rec} />
+              <text x={PLATE_X + 14} y={12} className={styles.camText}>REC</text>
+              <text x={PLATE_X + PLATE_W - 6} y={12} textAnchor="end" className={styles.camText}>CAM 03</text>
+              <text x={PLATE_X + 6} y={PLATE_H - 6} className={styles.camStamp}>09:41:07</text>
             </g>
 
-            {/* 02 PRIVACY TRANSFORMED */}
+            {/* 02 PRIVACY TRANSFORMED — same frame, face gone, geometry kept. */}
             <g
               className={`${styles.layer} ${
                 stage.render === "skeleton" ? "" : styles.layerOff
               }`}
               aria-hidden="true"
-              transform={`translate(${FIG_X} ${FIG_Y})`}
             >
-              <PoseFrame
-                phase={PHASE}
-                s={S}
-                classes={{
-                  bone: styles.bone,
-                  boneFar: styles.boneFar,
-                  joint: styles.joint,
-                  head: styles.head,
-                }}
-              />
+              <g clipPath="url(#pl-plate)" className={styles.plateFaded}>
+                <image
+                  href={assetPath(PLATE)}
+                  x={PLATE_X}
+                  y={0}
+                  width={PLATE_W}
+                  height={PLATE_H}
+                  preserveAspectRatio="xMidYMid slice"
+                  className={styles.plate}
+                />
+                {/* The blur is a real blur of the real pixels, clipped to the
+                    head, not a drawn disc pretending to be one. */}
+                <g clipPath="url(#pl-head)">
+                  <image
+                    href={assetPath(PLATE)}
+                    x={PLATE_X}
+                    y={0}
+                    width={PLATE_W}
+                    height={PLATE_H}
+                    preserveAspectRatio="xMidYMid slice"
+                    filter="url(#pl-blur)"
+                  />
+                </g>
+                <circle cx={HEAD_BLUR.cx} cy={HEAD_BLUR.cy} r={HEAD_BLUR.r} className={styles.blurRing} />
+              </g>
+              <rect x={PLATE_X} y={0} width={PLATE_W} height={PLATE_H} rx={3} className={styles.plateEdge} />
+              <g transform={`translate(${WALKER_HIP[0]} ${WALKER_HIP[1]})`}>
+                <PoseFrame
+                  phase={PHASE}
+                  s={WALKER_S}
+                  classes={{
+                    bone: styles.bone,
+                    boneFar: styles.boneFar,
+                    joint: styles.joint,
+                    head: styles.head,
+                  }}
+                />
+              </g>
             </g>
 
             {/* 03 MOVEMENT INTELLIGENCE */}

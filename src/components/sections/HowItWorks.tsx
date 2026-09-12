@@ -422,6 +422,23 @@ const STAGE_VIDEOS = [
  * poster frame stays" when a play() was rejected, but with no poster there was
  * nothing to stay. Together they are ~140 KB against 5.0 MB of video.
  */
+/**
+ * STAGE 01 IS A PHOTOGRAPH, NOT A FILM.
+ * The capture stage's render was an infographic — a glowing wireframe walker
+ * between three input icons — in the one card whose copy says "a short
+ * walking video, CCTV feed or smartwatch signal". A rendered figure cannot
+ * stand in for footage there, so this stage shows a real frame instead: the
+ * wide cut of the site's capture plate (scripts/build-capture-plate.py). The
+ * other three stages keep their films; they depict outputs, which the renders
+ * are honest about. Null here would restore the film.
+ */
+const STAGE_STILL: (string | null)[] = [
+  "/assets/images/capture/capture-walk-wide.jpg",
+  null,
+  null,
+  null,
+];
+
 const STAGE_POSTERS = [
   "/assets/videos/workflow/stage-01-capture-poster.jpg",
   "/assets/videos/workflow/stage-02-analyze-poster.jpg",
@@ -440,6 +457,7 @@ function StageVisual({
   const reduceMotion = Boolean(useReducedMotion());
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const still = STAGE_STILL[index];
   /**
    * Four looping renders sit in this section. Autoplaying all of them on mount
    * downloaded and decoded every one the moment the home page loaded, whether
@@ -480,6 +498,26 @@ function StageVisual({
       video.pause();
     }
   }, [inView, revealed, reduceMotion]);
+
+  if (still) {
+    return (
+      <div className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72">
+        {/* eslint-disable-next-line @next/next/no-img-element -- a fixed
+            photographic plate inside a sized card; next/image's layout
+            machinery buys nothing here and its wrapper fights the card. */}
+        <img
+          src={assetPath(still)}
+          alt="A camera frame of a person walking past a concrete wall — the kind of short walking video or CCTV clip the pipeline starts from."
+          loading="lazy"
+          decoding="async"
+          className="workflow-stage-video workflow-stage-still"
+        />
+        <div className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
+          <span>stage_0{index + 1}</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

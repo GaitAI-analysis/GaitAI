@@ -73,7 +73,7 @@ export interface CaptureRepresentation {
 export const captureRepresentations: CaptureRepresentation[] = [
   {
     id: "capture",
-    label: "Full capture",
+    label: "Camera Video",
     lead: "The frame as recorded — everything the camera can see, before anything has been done to it.",
     kept: [
       "Facial appearance",
@@ -83,7 +83,7 @@ export const captureRepresentations: CaptureRepresentation[] = [
       "Movement over time",
     ],
     reduced: [],
-    identityLabel: "Full",
+    identityLabel: "Retained in full",
     retainedIdentity: 1,
     movementDetail: 1,
   },
@@ -104,7 +104,7 @@ export const captureRepresentations: CaptureRepresentation[] = [
   },
   {
     id: "pose",
-    label: "Pose skeleton",
+    label: "Pose Skeleton",
     lead: "Keeps joint motion, gait rhythm and posture relationships while removing facial and appearance detail.",
     kept: [
       "Body pose as keypoints",
@@ -118,7 +118,7 @@ export const captureRepresentations: CaptureRepresentation[] = [
       "Body outline and mass",
       "Scene and background",
     ],
-    identityLabel: "Low",
+    identityLabel: "Strongly reduced",
     retainedIdentity: 0.32,
     movementDetail: 0.95,
   },
@@ -133,13 +133,13 @@ export const captureRepresentations: CaptureRepresentation[] = [
       "Posture and limb detail",
       "Body geometry",
     ],
-    identityLabel: "Low",
+    identityLabel: "Strongly reduced",
     retainedIdentity: 0.18,
     movementDetail: 0.45,
   },
   {
     id: "sensor",
-    label: "Sensor signal",
+    label: "Sensor Signal",
     lead: "Uses inertial or wearable motion directly, without needing camera identity information.",
     kept: [
       "Acceleration and rotation over time",
@@ -159,17 +159,47 @@ export const captureRepresentations: CaptureRepresentation[] = [
 ];
 
 /**
- * The five steps the diagram is laid out along. Deliberately captions on the
- * three areas of ONE diagram rather than a second interactive pipeline: the
- * workflow section already owns "capture → understand → report → act", and a
- * page with two pipelines has neither.
+ * The five stages, drawn left to right as five cards with arrows between.
+ *
+ * These are the labels the approved wireframe uses, and they are stages of
+ * ONE pipeline rather than a second rail a visitor can drive — the only
+ * control in the section is the representation selector above them. The
+ * workflow section still owns "capture → understand → report → act"; this one
+ * answers a different question, which is how much of the person any of it
+ * needs.
+ *
+ * NOTE THE WORDING OF 02 AND 05. Identity detail is REDUCED, never removed
+ * outright, and the outcomes are named as outputs rather than as insights
+ * "without identity" — pose and gait can themselves carry identifying
+ * information, which is this company's own published research subject. See
+ * the header of this file; no wording here may drift towards anonymity.
  */
 export const captureStages: { step: string; label: string; note: string }[] = [
-  { step: "01", label: "Capture", note: "Movement is observed from a camera or a sensor." },
-  { step: "02", label: "Reduce", note: "Detail the task does not need is removed." },
-  { step: "03", label: "Represent", note: "Motion becomes a task-ready representation." },
-  { step: "04", label: "Process", note: "Movement models read the representation." },
-  { step: "05", label: "Output", note: "Reports, scores, alerts and dashboards are produced." },
+  {
+    step: "1",
+    label: "Capture",
+    note: "Movement observed from camera or sensor.",
+  },
+  {
+    step: "2",
+    label: "Privacy layer",
+    note: "Unnecessary identity detail is reduced.",
+  },
+  {
+    step: "3",
+    label: "Representation",
+    note: "Convert into task-relevant movement representation.",
+  },
+  {
+    step: "4",
+    label: "Movement engine",
+    note: "Analyse movement features, temporal patterns, inference.",
+  },
+  {
+    step: "5",
+    label: "Outcomes",
+    note: "Mobility, recovery, reports, safety, privacy-aware analytics.",
+  },
 ];
 
 /** The outcome ids this section shows, read from the taxonomy by id. */

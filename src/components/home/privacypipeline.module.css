@@ -1,10 +1,26 @@
 /* ===========================================================================
    CAPTURE MOVEMENT. PROTECT IDENTITY.
    ---------------------------------------------------------------------------
-   One walk, five representations, and an instrument that shows what each one
-   stops carrying. Built in the page's own language: deep ground, a cyan →
-   violet accent, hairlines rather than borders, and no fill heavier than it
-   has to be.
+   FIVE STAGES, LEFT TO RIGHT, AND ONE SELECTOR ABOVE THEM.
+
+   This section is a pipeline drawing, and it is laid out as one: intro and a
+   small "privacy by design" plate, a five-way input selector across the full
+   width, then CAPTURE -> PRIVACY LAYER -> REPRESENTATION -> MOVEMENT ENGINE
+   -> OUTCOMES as five cards with chevrons between them, then a two-panel
+   row — the kept/reduced ledger beside a compact privacy-vs-utility readout
+   — and a quiet CTA.
+
+   It used to be three tall columns (figure | privacy layer | engine+outcomes)
+   with the ledger as a fourth block underneath. Same content, but the reading
+   was "here are three unrelated panels" rather than "this is what happens to
+   a movement, in order", and one column of outcomes was taller than the rest
+   of the section. The five-card row is the structure the argument actually
+   has, so it is now the structure on the screen.
+
+   DENSITY IS A REQUIREMENT HERE, not a preference. Heading, selector and the
+   whole five-stage flow have to be readable in about one desktop viewport, or
+   the pipeline stops being a pipeline and becomes five things you scroll
+   past. Every gap in this file is chosen against that.
 
    THE ACCENT SHIFTS WITH THE REPRESENTATION, and that is the section's one
    piece of colour logic. Raw capture is violet — the state with the most of
@@ -43,40 +59,169 @@
 }
 
 /* The live accent: violet while the frame is raw, cyan once it is not. */
-.diagram {
+.flow {
   --pp-live: var(--pp-accent);
 }
 
-.diagram[data-rep="capture"] {
+.flow[data-rep="capture"] {
   --pp-live: var(--pp-raw);
 }
 
-/* ── The selector ───────────────────────────────────────────────────────── */
+/* === 1 · THE INTRO ROW ===================================================
+   Copy left, the privacy plate right. The plate is deliberately small: it is
+   a statement of principle, not a panel of content, and at card size it
+   competed with the heading it is meant to sit beside. */
+
+.intro {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .intro {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: rgb(var(--pp-mute));
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.eyebrowRule {
+  height: 2px;
+  width: 1.6rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgb(var(--pp-raw)), rgb(var(--pp-accent)));
+}
+
+.title {
+  margin-top: 0.9rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(2rem, 3.6vw, 3.05rem);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: rgb(var(--pp-ink));
+}
+
+.lead {
+  margin-top: 0.85rem;
+  max-width: 62ch;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgb(var(--pp-gray));
+}
+
+/* The plate. A lock, two lines, one hairline — nothing that reads as a card
+   the visitor is supposed to act on. */
+.plate {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  max-width: 22rem;
+  padding: 0.85rem 1.05rem;
+  border: 1px solid rgb(var(--pp-accent) / 0.28);
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--pp-accent) / 0.09),
+    rgb(var(--pp-surface) / var(--pp-surface-a))
+  );
+}
+
+.plateIcon {
+  display: grid;
+  place-items: center;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 0.7rem;
+  border: 1px solid rgb(var(--pp-accent) / 0.35);
+  background: rgb(var(--pp-accent) / 0.1);
+  color: rgb(var(--pp-accent));
+}
+
+.plateTitle {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgb(var(--pp-ink));
+}
+
+.plateNote {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgb(var(--pp-mute));
+}
+
+/* === 2 · THE SELECTOR ====================================================
+   One segmented rail across the width, five equal cells with hairlines
+   between them — not five loose pills. It is the input the whole pipeline
+   below reads, so it should look like one control rather than five. */
+
+.selectorRow {
+  display: grid;
+  gap: 0.9rem 2rem;
+  align-items: center;
+  margin-top: 1.9rem;
+}
+
+@media (min-width: 1280px) {
+  .selectorRow {
+    grid-template-columns: minmax(0, 1fr) 17rem;
+  }
+}
 
 .selector {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 2.5rem;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  padding: 0.3rem;
+  border: 1px solid rgb(var(--pp-line) / var(--pp-line-a));
+  border-radius: 999px;
+  background: rgb(var(--pp-surface) / var(--pp-surface-a));
+}
+
+/* Phones scroll it rather than wrapping it: five wrapped chips stop reading
+   as one rail, and the rail is what says these are alternatives. */
+@media (max-width: 767px) {
+  .selector {
+    grid-auto-columns: minmax(9.5rem, auto);
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-radius: 1rem;
+  }
+
+  .selector::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .option {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
+  justify-content: center;
+  gap: 0.5rem;
   min-height: 44px;
-  padding: 0 1.05rem;
-  border: 1px solid rgb(var(--pp-line) / var(--pp-line-a));
+  padding: 0 0.9rem;
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: rgb(var(--pp-surface) / var(--pp-surface-a));
+  background: transparent;
   color: rgb(var(--pp-gray));
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 0.83rem;
+  font-weight: 500;
   line-height: 1;
-  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -86,115 +231,301 @@
     box-shadow var(--motion-ui, 220ms) var(--pp-ease);
 }
 
-.optionDot {
-  height: 0.3rem;
-  width: 0.3rem;
-  border-radius: 999px;
-  background: rgb(var(--pp-line) / 0.5);
-  transition:
-    background-color var(--motion-ui, 220ms) var(--pp-ease),
-    box-shadow var(--motion-ui, 220ms) var(--pp-ease);
+/* The hairline between cells. On the selected cell and the one after it the
+   divider is suppressed, so the outline reads as one unbroken shape. */
+.option + .option {
+  box-shadow: inset 1px 0 0 rgb(var(--pp-line) / var(--pp-line-a));
+}
+
+.option[data-on="true"],
+.option[data-on="true"] + .option {
+  box-shadow: none;
+}
+
+.optionIcon {
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity var(--motion-ui, 220ms) var(--pp-ease);
 }
 
 @media (hover: hover) {
   .option:hover {
     color: rgb(var(--pp-ink));
-    border-color: rgb(var(--pp-accent) / 0.45);
+  }
+
+  .option:hover .optionIcon {
+    opacity: 1;
   }
 }
 
 .option[data-on="true"] {
   color: rgb(var(--pp-ink));
-  border-color: rgb(var(--pp-accent) / 0.5);
-  background: rgb(var(--pp-accent) / 0.07);
-  box-shadow: 0 6px 20px -12px rgb(var(--pp-accent) / 0.6);
+  border-color: rgb(var(--pp-accent) / 0.55);
+  background: rgb(var(--pp-accent) / 0.1);
+  box-shadow: 0 6px 22px -12px rgb(var(--pp-accent) / 0.75);
+  font-weight: 600;
 }
 
-.option[data-on="true"] .optionDot {
-  background: rgb(var(--pp-accent));
-  box-shadow: 0 0 0 3px rgb(var(--pp-accent) / 0.18);
+.option[data-on="true"] .optionIcon {
+  opacity: 1;
+  color: rgb(var(--pp-accent));
 }
 
 .option:focus-visible {
   outline: 2px solid rgb(var(--pp-accent));
-  outline-offset: 3px;
-  color: rgb(var(--pp-ink));
+  outline-offset: -2px;
 }
 
-/* ── The diagram: three areas ───────────────────────────────────────────── */
+.selectorHint {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: rgb(var(--pp-mute));
+}
 
-.diagram {
+/* === 3 · THE FIVE STAGES =================================================
+   The row is `1fr` five times with a fixed chevron column between each pair,
+   so no card can grow at another's expense and the whole flow fits one
+   desktop width. Card 5 is given slightly less because a list of short
+   outcome rows needs less measure than a drawing does. */
+
+.flow {
   display: grid;
-  gap: 1.25rem;
-  margin-top: 2rem;
-  grid-template-columns: 1fr;
+  gap: 0.85rem;
+  margin-top: 1.6rem;
 }
 
 @media (min-width: 1024px) {
-  .diagram {
-    /* The figure takes the most room; the outcome column needs enough to set
-       two lines per chip without hyphenating. */
-    grid-template-columns: 1.15fr 0.95fr 1fr;
+  .flow {
+    grid-template-columns:
+      minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr)
+      auto minmax(0, 1fr) auto minmax(0, 0.92fr);
+    gap: 0;
     align-items: stretch;
   }
 }
 
-.capture,
-.middle,
-.right {
+.stage {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin: 0;
-  padding: 1.25rem;
+  padding: 1.05rem 1.05rem 1.15rem;
   border: 1px solid rgb(var(--pp-line) / var(--pp-line-a));
-  border-radius: 1.1rem;
-  background: rgb(var(--pp-surface) / calc(var(--pp-surface-a) * 0.62));
+  border-radius: 0.95rem;
+  background: rgb(var(--pp-surface) / var(--pp-surface-a));
 }
 
-/* ── An area's heading: step, name, and the one line it does ───────────── */
+/* The selected stage — always REPRESENTATION, the one the selector drives —
+   carries the live accent so the control and its effect are visibly wired. */
+.stage[data-live="true"] {
+  border-color: rgb(var(--pp-live) / 0.42);
+  background: linear-gradient(
+    180deg,
+    rgb(var(--pp-live) / 0.07),
+    rgb(var(--pp-surface) / var(--pp-surface-a))
+  );
+}
 
-.areaHead {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.1rem 0.6rem;
+.stageHead {
+  display: flex;
   align-items: baseline;
+  gap: 0.45rem;
 }
 
-.areaStep {
+.stageStep {
+  color: rgb(var(--pp-accent));
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  color: rgb(var(--pp-live));
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
-.areaLabel {
+.stageLabel {
   font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.66rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgb(var(--pp-ink));
 }
 
-.areaNote {
-  grid-column: 2;
+.stageNote {
+  margin-top: 0.4rem;
   font-size: 0.78rem;
   line-height: 1.45;
   color: rgb(var(--pp-mute));
 }
 
-/* ── LEFT: the figure ───────────────────────────────────────────────────── */
+/* Everything below the caption. `flex: 1` so the five illustrations sit at
+   the same baseline whatever their captions wrapped to. */
+.stageBody {
+  display: flex;
+  flex: 1;
+  gap: 0.6rem;
+  align-items: stretch;
+  margin-top: 0.85rem;
+}
+
+.stageFoot {
+  margin-top: 0.7rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: rgb(var(--pp-mute));
+}
+
+/* The chevron between two cards. Present only where the row is horizontal;
+   on a stacked layout the cards are already in reading order and a sideways
+   arrow between them would point the wrong way. */
+.arrow {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .arrow {
+    display: grid;
+    place-items: center;
+    width: 1.9rem;
+    color: rgb(var(--pp-accent) / 0.8);
+  }
+}
+
+/* -- Stage 1 · the input devices beside the frame ----------------------- */
+
+.inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.input {
+  display: grid;
+  place-items: center;
+  height: 2.1rem;
+  width: 2.1rem;
+  border-radius: 0.55rem;
+  border: 1px solid rgb(var(--pp-line) / var(--pp-line-a));
+  background: rgb(var(--pp-surface) / 0.6);
+  color: rgb(var(--pp-mute));
+  transition:
+    color var(--motion-ui, 220ms) var(--pp-ease),
+    border-color var(--motion-ui, 220ms) var(--pp-ease),
+    background-color var(--motion-ui, 220ms) var(--pp-ease);
+}
+
+/* Which device is lit follows the selector: a wearable signal does not come
+   from a camera, and the card should not go on implying that it does. */
+.input[data-on="true"] {
+  color: rgb(var(--pp-live));
+  border-color: rgb(var(--pp-live) / 0.5);
+  background: rgb(var(--pp-live) / 0.12);
+}
+
+/* -- Stage 2 · the shield over the body --------------------------------- */
+
+.shieldMark {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.9rem;
+  display: grid;
+  place-items: center;
+  height: 2.2rem;
+  width: 2.2rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgb(var(--pp-accent) / 0.4);
+  background: rgb(var(--pp-accent) / 0.12);
+  color: rgb(var(--pp-accent));
+}
+
+/* -- Stage 4 · the engine's layers -------------------------------------- */
+
+.engineStack {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  perspective: 34rem;
+}
+
+.engineLayer {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid rgb(var(--pp-accent) / 0.22);
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    100deg,
+    rgb(var(--pp-accent) / 0.14),
+    rgb(var(--pp-accent) / 0.03)
+  );
+  font-size: 0.74rem;
+  line-height: 1.3;
+  color: rgb(var(--pp-gray));
+  /* A shallow tilt so four flat rows read as a stack seen slightly from the
+     side, which is the wireframe's drawing — not as four more list items.
+     The perspective lives on the parent so all four share one vanishing
+     point; applied per-slab each one would be its own little scene. */
+  transform: rotateX(26deg) rotateZ(-1.5deg);
+  transform-origin: center bottom;
+  box-shadow: 0 4px 10px -6px rgb(0 0 0 / 0.6);
+}
+
+.engineLayer:nth-child(1) {
+  margin-right: 0.5rem;
+}
+
+.engineLayer:nth-child(2) {
+  margin-right: 0.25rem;
+}
+
+.engineLayer:nth-child(4) {
+  margin-left: 0.35rem;
+  color: rgb(var(--pp-ink));
+}
+
+/* -- Stage 5 · the outcome rows ----------------------------------------- */
+
+.outcomes {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.outcome {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgb(var(--pp-line) / var(--pp-line-a));
+  border-radius: 0.5rem;
+  background: rgb(var(--pp-surface) / 0.55);
+  font-size: 0.7rem;
+  line-height: 1.25;
+  color: rgb(var(--pp-gray));
+}
+
+.outcomeIcon {
+  flex-shrink: 0;
+  color: rgb(var(--pp-accent) / 0.85);
+}
 
 .figureWrap {
   position: relative;
-  /* Fills whatever height the tallest column gives this one, and the SVG
-     fills the wrapper — so the figure is drawn at the size of the panel it
-     is in rather than at the size of its own aspect ratio. Before this it
-     was a small walker stranded in the middle of a tall empty box. */
+  /* Card scale, not column scale. This was `min-height: 19rem` when the
+     figure owned a full-height column of its own; inside a pipeline card
+     that one value was worth ~250px of card height each, and it was the
+     single reason the five-card row did not fit a desktop viewport. The
+     illustration is now sized like an illustration. */
   flex: 1;
-  min-height: 19rem;
+  min-width: 0;
+  min-height: 9rem;
+  /* The SVG paints outside its viewBox (`.figure` is `overflow: visible`, so
+     glows are not clipped at the box edge). In a full-height column that was
+     free; inside a card it put feet and trail nodes over the card's own
+     border, so the card clips. */
+  overflow: hidden;
   display: flex;
   align-items: center;
   border-radius: 0.8rem;
@@ -213,257 +544,10 @@
   overflow: visible;
 }
 
-/* Every rendering stays mounted; only opacity changes. */
-.layer,
-.appearance,
-.scene,
-.frameTicks {
-  opacity: 0;
-  transition: opacity 420ms var(--pp-ease);
-}
-
-.layer[data-on="true"],
-.appearance[data-on="true"],
-.scene[data-on="true"],
-.frameTicks[data-on="true"] {
-  opacity: 1;
-}
-
-.ground {
-  stroke: rgb(var(--pp-line) / var(--pp-line-a));
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.frameTicks path {
-  fill: none;
-  stroke: rgb(var(--pp-raw) / 0.55);
-  stroke-width: 1.2;
-  vector-effect: non-scaling-stroke;
-}
-
-.scene path {
-  fill: none;
-  stroke: rgb(var(--pp-line) / 0.2);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.sceneDoor {
-  stroke: rgb(var(--pp-line) / 0.28) !important;
-}
-
-/* The body. Group opacity, not per-shape: the torso, the four limbs and the
-   head all overlap, and fading them individually makes every overlap darker —
-   which is how a silhouette stops looking like a person. */
-.mass {
-  fill: rgb(var(--pp-ink));
-  stroke: rgb(var(--pp-ink));
-  opacity: 0.42;
-}
-
-.diagram[data-rep="silhouette"] .mass {
-  opacity: 0.58;
-}
-
-.massTorso,
-.massLimb,
-.massLimbLeg,
-.massHead {
-  fill: inherit;
-  stroke: inherit;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.massTorso {
-  stroke-width: 1.2;
-}
-
-.massLimb {
-  stroke-width: 5;
-}
-
-.massLimbLeg {
-  stroke-width: 6.5;
-}
-
-/* Appearance detail — present only while the frame is raw. */
-.appearance circle {
-  fill: rgb(var(--pp-raw) / 0.9);
-}
-
-.appearance path {
-  fill: none;
-  stroke: rgb(var(--pp-raw) / 0.6);
-  stroke-width: 1.1;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-/* The skeleton. */
-.bone,
-.boneFar {
-  fill: none;
-  stroke: rgb(var(--pp-accent));
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.boneFar {
-  stroke: rgb(var(--pp-accent) / 0.32);
-}
-
-.joint {
-  fill: rgb(var(--pp-accent));
-  stroke: none;
-}
-
-.poseHead {
-  fill: none;
-  stroke: rgb(var(--pp-accent));
-  stroke-width: 1.6;
-  vector-effect: non-scaling-stroke;
-}
-
-.contact {
-  fill: rgb(var(--pp-accent) / 0.18);
-}
-
-/* The trajectory. */
-.trail {
-  fill: none;
-  stroke: rgb(var(--pp-accent));
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-/* Two receding floor edges: without them the path is a line on a black
-   field, and a line on a black field is a chart, not a room. */
-.trailFloor {
-  fill: none;
-  stroke: rgb(var(--pp-line) / 0.16);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-/* The one dwell on the path — "dwell and timing" is in the kept column, so
-   it is on the drawing too. */
-.trailDwell {
-  fill: rgb(var(--pp-accent) / 0.14);
-  stroke: rgb(var(--pp-accent) / 0.4);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.trailNode {
-  fill: rgb(var(--pp-accent));
-}
-
-.trailArrow {
-  fill: rgb(var(--pp-accent));
-}
-
-/* The sensor trace. */
-.axis {
-  stroke: rgb(var(--pp-line) / 0.28);
-  stroke-width: 1;
-  stroke-dasharray: 3 4;
-  vector-effect: non-scaling-stroke;
-}
-
-.wave {
-  fill: none;
-  stroke: rgb(var(--pp-accent));
-  stroke-width: 1.7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-
-.device rect {
-  fill: none;
-  stroke: rgb(var(--pp-accent) / 0.7);
-  stroke-width: 1.3;
-  vector-effect: non-scaling-stroke;
-}
-
-.device path {
-  stroke: rgb(var(--pp-accent) / 0.7);
-  stroke-width: 1.3;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-}
-
-/* ── CENTRE: the privacy layer and the two meters ──────────────────────── */
-
-/* The shield and the meters as one block, vertically centred in the column.
-   The three panels stretch to the tallest of them, so this one has height to
-   spare; centring the group is the only arrangement where the spare height
-   reads as composition rather than as a gap somebody forgot to close. */
-.middleBody {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-  margin: auto 0;
-}
-
-.shield {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  overflow: hidden;
-  padding: 1rem 1.1rem;
-  border: 1px solid rgb(var(--pp-accent) / 0.28);
-  border-radius: 0.9rem;
-  background: rgb(var(--pp-accent) / 0.05);
-}
-
-/* The filter itself: one pass of light across the layer the capture goes
-   through. Slow, once every six seconds, and gone under reduced motion. */
-.shieldBeam {
-  position: absolute;
-  inset: 0 auto 0 -40%;
-  width: 40%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(var(--pp-accent) / 0.16),
-    transparent
-  );
-  animation: ppSweep 6s var(--pp-ease) infinite;
-  pointer-events: none;
-}
-
-@keyframes ppSweep {
-  0%,
-  55% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(350%);
-  }
-}
-
-.shieldTitle {
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgb(var(--pp-ink));
-}
-
-.shieldNote {
-  font-size: 0.8rem;
-  line-height: 1.45;
-  color: rgb(var(--pp-gray));
-}
+/* The drawings themselves moved to RepresentationFigure and its own
+   stylesheet: five representations that had to stop being one stick
+   figure at five opacities. What stays here is the BOX they sit in,
+   above — the section owns the card, the figure owns the picture. */
 
 .meters {
   display: flex;
@@ -530,191 +614,194 @@
   );
 }
 
-/* ── RIGHT: the engine and its outputs ─────────────────────────────────── */
 
-.engine {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.9rem 1.1rem;
-  border: 1px solid rgb(var(--pp-line) / var(--pp-line-a));
-  border-radius: 0.9rem;
-  background: rgb(var(--pp-surface) / calc(var(--pp-surface-a) * 0.8));
-}
+/* === 4 · THE LOWER ROW ===================================================
+   The ledger and the privacy/utility readout, side by side. Both are driven
+   by the selector; between them they carry everything the old full-width
+   text block underneath used to say, which is why that block is gone rather
+   than kept alongside them. */
 
-.engineCore {
-  height: 0.4rem;
-  width: 0.4rem;
-  border-radius: 999px;
-  background: rgb(var(--pp-accent));
-  box-shadow: 0 0 0 4px rgb(var(--pp-accent) / 0.14);
-}
-
-.engineTitle {
-  margin-top: 0.35rem;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgb(var(--pp-ink));
-}
-
-.engineNote {
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: rgb(var(--pp-mute));
-}
-
-.outcomes {
+.lower {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+  gap: 0.85rem;
+  margin-top: 0.85rem;
 }
 
-@media (min-width: 640px) and (max-width: 1023.98px) {
-  .outcomes {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (min-width: 1024px) {
+  .lower {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
   }
 }
 
-.outcome {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  border-left: 1px solid rgb(var(--pp-accent) / 0.3);
-  padding: 0.15rem 0 0.15rem 0.7rem;
-}
-
-.outcomeTitle {
-  font-size: 0.82rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: rgb(var(--pp-ink));
-}
-
-.outcomeNote {
-  font-size: 0.75rem;
-  line-height: 1.45;
-  color: rgb(var(--pp-mute));
-}
-
-/* ── The ledger: kept vs reduced ───────────────────────────────────────── */
-
-.ledger {
-  margin-top: 1.25rem;
-  padding: 1.35rem 1.5rem;
+.panel {
+  padding: 1.05rem 1.15rem 1.2rem;
   border: 1px solid rgb(var(--pp-line) / var(--pp-line-a));
-  border-radius: 1.1rem;
-  background: rgb(var(--pp-surface) / calc(var(--pp-surface-a) * 0.62));
+  border-radius: 0.95rem;
+  background: rgb(var(--pp-surface) / var(--pp-surface-a));
 }
 
+/* The representation's own sentence, which used to be the lead of a separate
+   full-width block. It belongs here: it is the thing the two columns below
+   are itemising. */
 .ledgerLead {
-  margin: 0 0 1.1rem;
-  max-width: 62ch;
-  font-size: 0.95rem;
-  line-height: 1.55;
+  margin-bottom: 0.95rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgb(var(--pp-line) / var(--pp-line-a));
+  font-size: 0.82rem;
+  line-height: 1.5;
   color: rgb(var(--pp-gray));
 }
 
 .columns {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.25rem;
+  gap: 1.1rem 1.6rem;
 }
 
 @media (min-width: 640px) {
   .columns {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 2rem;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-.column ul {
+.columnHead {
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  margin: 0;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgb(var(--pp-ink));
+}
+
+.column ul {
+  margin: 0.6rem 0 0;
   padding: 0;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
 .column li {
-  position: relative;
-  padding-left: 1.1rem;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
   color: rgb(var(--pp-gray));
 }
 
-/* A tick for kept, a dash for removed: the state is in the mark, not only in
-   the column it happens to be under. */
-.column[data-kind="kept"] li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.42em;
-  height: 0.3rem;
-  width: 0.55rem;
-  border-left: 1.5px solid rgb(var(--pp-accent));
-  border-bottom: 1.5px solid rgb(var(--pp-accent));
-  transform: rotate(-45deg);
+.tick {
+  flex-shrink: 0;
+  margin-top: 0.12rem;
+  color: rgb(52 211 153);
 }
 
-.column[data-kind="reduced"] li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.66em;
-  height: 1.5px;
-  width: 0.6rem;
-  background: rgb(var(--pp-line) / 0.55);
+:global(.light) .tick {
+  color: rgb(4 120 87);
+}
+
+.cross {
+  flex-shrink: 0;
+  margin-top: 0.12rem;
+  color: rgb(248 113 113);
+}
+
+:global(.light) .cross {
+  color: rgb(185 28 28);
 }
 
 .column[data-kind="reduced"] li {
   color: rgb(var(--pp-mute));
-  text-decoration: line-through;
-  text-decoration-color: rgb(var(--pp-line) / 0.35);
-  text-decoration-thickness: 1px;
-}
-
-.columnHead {
-  margin: 0 0 0.7rem;
-  font-family: var(--font-jetbrains), ui-monospace, monospace;
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgb(var(--pp-mute));
-}
-
-.column[data-kind="kept"] .columnHead {
-  color: rgb(var(--pp-accent));
 }
 
 .columnEmpty {
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.5;
+  margin-top: 0.6rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
   color: rgb(var(--pp-mute));
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .option,
-  .optionDot,
-  .layer,
-  .appearance,
-  .scene,
-  .frameTicks,
-  .meterFill {
-    transition: none;
-  }
+/* -- The privacy / utility readout -------------------------------------- */
 
-  .shieldBeam {
-    animation: none;
-    opacity: 0;
+.pvu {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .pvu {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+    align-items: center;
   }
+}
+
+.pvuHead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgb(var(--pp-ink));
+}
+
+/* The principle, quoted rather than stated — a dashed rule and the violet
+   voice, so it reads as the section's conclusion and not as another metric. */
+.principle {
+  padding: 0.85rem 0.95rem;
+  border: 1px dashed rgb(var(--pp-raw) / 0.5);
+  border-radius: 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.45;
+  color: rgb(var(--pp-raw));
+}
+
+/* === 5 · THE CTA ========================================================= */
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.3rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  padding: 0 1.25rem;
+  border: 1px solid rgb(var(--pp-accent) / 0.4);
+  border-radius: 999px;
+  background: rgb(var(--pp-accent) / 0.07);
+  color: rgb(var(--pp-ink));
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition:
+    border-color var(--motion-ui, 220ms) var(--pp-ease),
+    background-color var(--motion-ui, 220ms) var(--pp-ease);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    border-color: rgb(var(--pp-accent) / 0.7);
+    background: rgb(var(--pp-accent) / 0.13);
+  }
+}
+
+.cta:focus-visible {
+  outline: 2px solid rgb(var(--pp-accent));
+  outline-offset: 3px;
+}
+
+.strap {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--pp-mute));
 }

@@ -120,6 +120,48 @@
   stroke: none;
 }
 
+/* ── HUMAN VIEW: the recording ───────────────────────────────────────────── */
+
+.plate {
+  filter: contrast(1.04) saturate(0.9);
+}
+
+:global(.light) .plate {
+  filter: contrast(1.02) saturate(0.95) brightness(1.06);
+}
+
+.plateEdge {
+  fill: none;
+  stroke: rgb(var(--x-line) / calc(var(--x-line-a) * 1.6));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.eventTick {
+  stroke: rgb(var(--x-accent) / 0.8);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.eventLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: rgb(var(--x-ink) / 0.6);
+}
+
+/* The raw-video step, as a frame rather than a clip. */
+.rawFrame {
+  display: block;
+  width: 100%;
+  max-height: 330px;
+  object-fit: cover;
+  object-position: 50% 40%;
+  background: #080d17;
+  border-radius: 0.75rem;
+}
+
 /* ── AI VIEW: skeleton, landmarks, traces ────────────────────────────────── */
 
 .bone {

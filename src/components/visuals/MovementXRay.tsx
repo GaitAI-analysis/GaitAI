@@ -3,7 +3,6 @@
 import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { GAIT_PHASES, type Pt } from "./gait-phases";
-import { PoseSilhouette } from "./PoseSilhouette";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
 import { MovementViewSelector, type MovementView } from "./MovementViewSelector";
 import { assetPath } from "@/lib/paths";
@@ -13,16 +12,17 @@ import styles from "./xray.module.css";
 /**
  * MOVEMENT X-RAY — the same walk, twice.
  *
- * HUMAN VIEW is the body a person sees. AI VIEW is what the pipeline actually
- * reads off it: the skeleton, the landmarks, where the feet meet the ground,
- * the path a joint traces across the stride, and two temporal channels.
+ * HUMAN VIEW is the recording a person sees - a camera frame. AI VIEW is what
+ * the pipeline reads: the skeleton, the landmarks, where the feet meet the
+ * ground, the path a joint traces across the stride, and two temporal
+ * channels. See XRAY_PLATE below for why the frame is one photograph rather
+ * than five drawn figures, and what replaces it when a real strip exists.
  *
- * WHY BOTH VIEWS ARE PROVABLY THE SAME WALK. Both read `GAIT_PHASES` — one
- * stride sampled at five canonical gait events, with every joint placed by
- * data. The human view draws it through `PoseSilhouette` and the AI view
- * through `PoseFrame`, and those two share their coordinates. So the claim
- * this component makes — "this is the same person, read differently" — is
- * true by construction rather than by two artists agreeing.
+ * THE AI VIEW IS KEYFRAMES, NOT DETECTION. It reads `GAIT_PHASES` - one
+ * stride sampled at five canonical gait events, every joint placed by data -
+ * through `PoseFrame`. It is not inferred from the frame in the human view,
+ * and every caption says so; the five event ticks on the frame's timeline are
+ * the honest join between the two.
  *
  * WHAT IT REFUSES TO SHOW. No numbers. Not one. The reveal names the channels
  * the pipeline reads and stops there, because a value on this figure would be
@@ -42,9 +42,58 @@ import styles from "./xray.module.css";
  */
 
 /* Five figures across one stride, and the frame that holds them. */
+export type XRayFamily = "mobilitycare" | "securevision";
+
 const XS = [96, 226, 356, 486, 616];
 const S = 1.15;
 const FIG_Y = 128;
+
+/**
+ * HUMAN VIEW IS A CAMERA FRAME.
+ * It was five grey silhouettes - a drawn body standing in for "what a person
+ * sees", on both family pages and in the Movement Lab. A drawn body is not a
+ * human view; a camera frame is. So the human layer is now a photograph across
+ * the stride region with the five gait events the AI view samples marked on
+ * its timeline, and the AI and Explain layers are unchanged over it:
+ * real frame -> keypoints -> interpretation.
+ *
+ * ONE FRAME, NOT FIVE. The repository holds exactly one photoreal walking
+ * frame (scripts/build-capture-plate.py), and five consecutive frames of one
+ * stride cannot be invented from it without faking a recording - which is
+ * the thing this pass exists to remove. The frame is shown once, as recorded,
+ * and the five instants are ticks on the ground line. When a real five-frame
+ * strip exists per family (public/assets/images/capture/README.md specifies
+ * it), `XRAY_STRIP` takes it and the human layer becomes five frames at XS.
+ *
+ * PER FAMILY: MobilityCare takes the wide, warmer cut; SecureVision the
+ * neutral CCTV-graded cut. Same source, different framing and grade - the
+ * dedicated clinic-corridor and concourse frames are the first two slots in
+ * the manifest.
+ */
+const XRAY_PLATE: Record<XRayFamily, { src: string; alt: string; ratio: number }> = {
+  mobilitycare: {
+    src: "/assets/images/capture/capture-walk-wide.jpg",
+    alt: "A camera frame of a person walking past a concrete wall, side on.",
+    ratio: 688 / 516,
+  },
+  securevision: {
+    src: "/assets/images/capture/cctv-walk-frame.jpg",
+    alt: "A fixed-camera frame of a person walking past a concrete wall.",
+    ratio: 496 / 516,
+  },
+};
+/** Five consecutive frames of one stride, per family, when they exist. */
+const XRAY_STRIP: Partial<Record<XRayFamily, readonly string[]>> = {};
+/* The frame stands on the ground line at its own aspect - a still, not a
+   band. Stretching it across the whole stride region sliced a 4:3 photograph
+   to a strip through the walker's torso. */
+const PLATE_Y = 8;
+const PLATE_H = FIG_Y + 48 * S - PLATE_Y;
+const plateBox = (family: XRayFamily) => {
+  const w = Math.round(PLATE_H * XRAY_PLATE[family].ratio);
+  return { x: Math.round(356 - w / 2), w };
+};
+const EVENT_LABELS = ["heel strike", "loading", "mid-stance", "toe-off", "swing"];
 const GROUND_Y = FIG_Y + 48 * S;
 const W = 712;
 /* Tall enough for BOTH channel strips. It was 236, which put the second one
@@ -65,7 +114,6 @@ const TRACE_COUNT = 2;
 const H =
   TRACE_TOP + TRACE_COUNT * TRACE_H + (TRACE_COUNT - 1) * TRACE_GAP + 10;
 
-export type XRayFamily = "mobilitycare" | "securevision";
 
 /** A named channel, and one line on what reads it. No values. */
 export interface XRayRead {
@@ -74,8 +122,8 @@ export interface XRayRead {
 }
 
 const XRAY_STAGES = [
-  { name: "Raw video", detail: "The camera records appearance and movement together. This prepared clip is a rendered walking figure, not a patient recording." },
-  { name: "Silhouette", detail: "The shape of a body makes the walking motion visible. The illustration below uses the same joint coordinates as its skeleton." },
+  { name: "Raw video", detail: "The camera records appearance and movement together. One frame, as recorded; the five instants the AI view samples are marked on its timeline. Not a patient or subject recording." },
+  { name: "Silhouette", detail: "The shape of a body makes the walking motion visible. The frame below is the recording; the skeleton that follows is drawn from shared gait keyframes, not detected from it." },
   { name: "Pose", detail: "Landmarks describe where joints are in each frame. Visibility matters: an obscured joint cannot be treated as a reliable observation." },
   { name: "Skeleton", detail: "Connections between landmarks reveal body structure. A skeleton represents estimated positions, not a diagnosis or proof of identity." },
   { name: "Temporal trajectories", detail: "Following the ankle and wrist through this illustrated stride reveals their paths over time." },
@@ -224,9 +272,15 @@ export function MovementXRay({
 
       <figure className="mt-6">
         {activeStep === 0 ? (
-          <video className={styles.rawVideo} controls playsInline muted preload="none" poster={assetPath("/assets/videos/samples/mobility-walk-demo-poster.jpg")} aria-label="Prepared rendered walking clip, an illustrative movement example">
-            <source src={assetPath("/assets/videos/samples/mobility-walk-demo.mp4")} type="video/mp4" />
-          </video>
+          /* eslint-disable-next-line @next/next/no-img-element -- a fixed
+             photographic plate; next/image's wrapper fights the figure box. */
+          <img
+            className={styles.rawFrame}
+            src={assetPath(XRAY_PLATE[family].src)}
+            alt={XRAY_PLATE[family].alt}
+            loading="lazy"
+            decoding="async"
+          />
         ) : (
         <div className={styles.scroller}>
         <svg
@@ -241,7 +295,7 @@ export function MovementXRay({
           <title id={labelId}>
             {ai
               ? `An illustrated stride as ${activeStep === 2 ? "pose landmarks" : "connected body landmarks"} at five gait events${showTrails ? ", with ankle and wrist trajectories" : ""}${showSignals ? " and two temporal signal channels" : ""}. No measured or clinical results.`
-              : "One stride shown as five figures of a person walking, left to right."}
+              : "A camera frame of a person walking, with the five gait events the AI view samples marked along the ground line."}
           </title>
 
           <line
@@ -253,28 +307,62 @@ export function MovementXRay({
           />
 
           {/* ── HUMAN LAYER ──
-              Kept mounted and faded rather than unmounted, so the figures
-              never reflow between views — the point of the control is that
-              the BODY does not change, only the reading of it. */}
+              Kept mounted and faded rather than unmounted, so nothing reflows
+              between views - the point of the control is that the RECORDING
+              does not change, only the reading of it. */}
+          <defs>
+            <clipPath id={`${labelId}-plate`}>
+              <rect x={plateBox(family).x} y={PLATE_Y} width={plateBox(family).w} height={PLATE_H} rx={4} />
+            </clipPath>
+          </defs>
           <g
             className={`${styles.layer} ${ai ? styles.layerOff : ""}`}
             aria-hidden="true"
           >
-            {GAIT_PHASES.map((phase, i) => (
-              <g key={phase.id} transform={`translate(${XS[i]} ${FIG_Y})`}>
-                <PoseSilhouette
-                  phase={phase}
-                  s={S}
-                  classes={{
-                    group: styles.mass,
-                    torso: styles.massTorso,
-                    limb: styles.massLimb,
-                    limbLeg: styles.massLimbLeg,
-                    head: styles.massHead,
-                  }}
+            {XRAY_STRIP[family] ? (
+              XRAY_STRIP[family]!.slice(0, 5).map((src, i) => (
+                <image
+                  key={src}
+                  href={assetPath(src)}
+                  x={XS[i] - 58}
+                  y={PLATE_Y}
+                  width={116}
+                  height={PLATE_H}
+                  preserveAspectRatio="xMidYMid slice"
+                  className={styles.plate}
+                />
+              ))
+            ) : (
+              <g clipPath={`url(#${labelId}-plate)`}>
+                <image
+                  href={assetPath(XRAY_PLATE[family].src)}
+                  x={plateBox(family).x}
+                  y={PLATE_Y}
+                  width={plateBox(family).w}
+                  height={PLATE_H}
+                  preserveAspectRatio="xMidYMid slice"
+                  className={styles.plate}
                 />
               </g>
-            ))}
+            )}
+            <rect className={styles.plateEdge} x={plateBox(family).x} y={PLATE_Y} width={plateBox(family).w} height={PLATE_H} rx={4} />
+            {/* The five instants the AI view samples, on the recording's own
+                timeline - so switching views reads as "the same moments, read
+                differently" without five frames being pretended. */}
+            {EVENT_LABELS.map((label, i) => {
+              const box = XRAY_STRIP[family] ? { x: 40, w: 632 } : plateBox(family);
+              const x = box.x + 18 + ((box.w - 36) * i) / (EVENT_LABELS.length - 1);
+              return (
+                <g key={label}>
+                  <line className={styles.eventTick} x1={x} y1={GROUND_Y - 6} x2={x} y2={GROUND_Y + 6} />
+                  {/* Staggered on two rows: under a frame at its own aspect
+                      the five labels would otherwise run into each other. */}
+                  <text className={styles.eventLabel} x={x} y={GROUND_Y + (i % 2 ? 29 : 17)} textAnchor="middle">
+                    {label}
+                  </text>
+                </g>
+              );
+            })}
           </g>
 
           {/* ── AI LAYER ── */}
@@ -352,7 +440,7 @@ export function MovementXRay({
         )}
 
         <figcaption className="mt-4 text-[13.5px] leading-relaxed text-soft-gray">
-          {activeStep === 0 ? "Prepared walking clip · Illustrative Demo. Explore the same movement concepts in the keyframe illustration that follows." : ai ? aiCaption : humanCaption}
+          {activeStep === 0 ? "A camera frame, as recorded. The steps that follow read shared gait keyframes, not this frame." : ai ? aiCaption : humanCaption}
         </figcaption>
       </figure>
 
@@ -364,7 +452,7 @@ export function MovementXRay({
             <button type="button" aria-pressed={channel === "wrist"} onClick={() => setChannel("wrist")}>Wrist swing</button>
           </div>
           <p>{channel === "ankle" ? "The highlighted trajectory follows the ankle across five illustrated gait events. Its vertical position produces the ankle-height trace. This can help explain when a foot rises; it does not measure stride length, diagnose gait or estimate fall risk." : "The highlighted trajectory follows the wrist across the same illustrated stride. Its horizontal position produces the wrist-swing trace. It shows how a joint changes position; a recording would also need camera-motion and visibility checks before interpretation."}</p>
-          <p className={styles.limitation}>Illustrative Demo · Shared keyframes, not inference from the rendered clip. No clinical, identity or safety conclusion is generated here.</p>
+          <p className={styles.limitation}>Illustrative Demo · Shared keyframes, not inference from the frame shown. No clinical, identity or safety conclusion is generated here.</p>
         </section>
       )}
 

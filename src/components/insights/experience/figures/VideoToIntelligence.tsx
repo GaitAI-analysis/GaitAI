@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GAIT_HEAD, GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
+import { assetPath } from "@/lib/paths";
 import { InteractiveFigure } from "../InteractiveFigure";
 import { StageControl, type Stage } from "../StageControl";
 import { ShareInsight, useSharedFigureState } from "../ShareInsight";
@@ -52,10 +53,21 @@ const FX = 150;
 const FY = 168;
 const S = 2.1;
 const GROUND = FY + 48 * S;
+/**
+ * RAW VIDEO IS A PHOTOGRAPH.
+ * Stage 0 used to be a mosaic of drawn "pixels" with the drawn walker on top -
+ * an illustration labelled RAW VIDEO. The capture frame is now the site's real
+ * capture plate (scripts/build-capture-plate.py), and the drawn body only
+ * appears once the frame has faded: at "Person" the detection box sits on the
+ * photograph, at "Pose" the landmarks replace it. Which is the story the figure
+ * tells - appearance leaves, geometry stays - now shown on a real frame.
+ */
+const PLATE = "/assets/images/capture/cctv-walk-frame.jpg";
+
 const CLASSES = { bone: fig.bone, boneFar: fig.boneFar, joint: fig.joint, head: fig.head, contact: fig.contact };
 
 const DESCRIPTION = `An eight-stage progression, one walking figure throughout.
-Raw video: a frame of pixels with a person somewhere in it.
+Raw video: a camera frame of a person walking past a wall.
 Person: a detection box around the walker, tracked across frames.
 Pose: a small set of landmarks — head, shoulders, hips, knees, ankles, wrists — replaces appearance.
 Skeleton: the landmarks joined into bones; geometry only.
@@ -103,7 +115,7 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
 
   /* Layer weights per stage. */
   const pixels = stage === 0 ? 1 : stage === 1 ? 0.35 : 0;
-  const mass = stage <= 1 ? 1 : stage === 2 ? 0.35 : 0;
+  const mass = stage <= 1 ? 0 : stage === 2 ? 0.35 : 0;
   const box = stage === 1 ? 1 : stage === 2 ? 0.4 : 0;
   const joints = stage >= 2 ? 1 : 0;
   const bones = stage >= 3 ? 1 : 0;
@@ -169,21 +181,15 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
       <rect className={fig.frame} x={30} y={22} width={240} height={290} rx={4} />
       <g clipPath="url(#v2i-frame)">
         <g className={fig.fade} style={{ opacity: pixels }}>
-          {Array.from({ length: 14 }, (_, row) =>
-            Array.from({ length: 12 }, (_, col) => {
-              const lit = (row * 7 + col * 5) % 6 === 0;
-              return (
-                <rect
-                  key={`${row}-${col}`}
-                  className={lit ? fig.pixelLit : fig.pixel}
-                  x={32 + col * 20}
-                  y={24 + row * 21}
-                  width={18}
-                  height={19}
-                />
-              );
-            }),
-          )}
+          <image
+            href={assetPath(PLATE)}
+            x={30}
+            y={22}
+            width={240}
+            height={290}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.plate}
+          />
         </g>
         <line className={fig.ground} x1={40} y1={GROUND} x2={260} y2={GROUND} />
 

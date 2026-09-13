@@ -1224,7 +1224,7 @@
   position: absolute;
   top: 0.7rem;
   right: 0.9rem;
-  color: var(--ma-line-mid);
+  color: var(--ma-mute);
   font-family: var(--ma-mono);
   font-size: 0.65rem;
 }
@@ -1259,6 +1259,12 @@
   border: 1px solid var(--ma-line);
   border-radius: 0.8rem;
   background: #060b16;
+  /* The poster frame is a dark island in both themes, so its caption keeps
+     the dark-theme ink; the light remaps of --ma-cyan/--ma-mute would put
+     dark text on it. */
+  --ma-cyan: #4fd1ff;
+  --ma-mute: rgb(148 163 184);
+  --ma-line: rgb(148 163 184 / 0.16);
 }
 
 .demoPoster {

@@ -1,3 +1,5 @@
+import { ctas } from "./content";
+import { productGuardrails } from "./responsible-use";
 // ============================================================================
 // MOBILITYCARE PRODUCT DETAIL CONTENT
 // ----------------------------------------------------------------------------
@@ -97,7 +99,7 @@ export interface ProductDetail {
  */
 const SHARED_PRIVACY = RESPONSIBLE_USE_CARE;
 
-export const productDetails: ProductDetail[] = [
+const mobilityDetailRecords: ProductDetail[] = [
   // ==========================================================================
   // 01 — WALKSCAN
   // ==========================================================================
@@ -218,7 +220,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["rehabtrack", "fallrisk", "orthomotion"],
-    ctaLabel: "Pilot WalkScan",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -340,7 +342,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["seniorcare", "watchcare", "remotecare"],
-    ctaLabel: "Explore FallRisk",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -458,7 +460,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["walkscan", "orthomotion", "sportsmotion"],
-    ctaLabel: "Use RehabTrack in a pilot",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -578,7 +580,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["rehabtrack", "watchcare", "walkscan"],
-    ctaLabel: "Explore SportsMotion",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -697,7 +699,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["fallrisk", "seniorcare", "remotecare"],
-    ctaLabel: "Explore WatchCare",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -816,7 +818,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["walkscan", "rehabtrack", "watchcare"],
-    ctaLabel: "Explore NeuroMotion",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -932,7 +934,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["walkscan", "rehabtrack", "prostheticfit"],
-    ctaLabel: "Explore OrthoMotion",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1049,7 +1051,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["fallrisk", "watchcare", "remotecare"],
-    ctaLabel: "Explore SeniorCare",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1163,7 +1165,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["walkscan", "rehabtrack", "sportsmotion"],
-    ctaLabel: "Explore PediatricMotion",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1276,7 +1278,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["orthomotion", "walkscan", "rehabtrack"],
-    ctaLabel: "Explore ProstheticFit",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1391,7 +1393,7 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["watchcare", "walkscan", "fallrisk"],
-    ctaLabel: "Explore RemoteCare",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1510,9 +1512,14 @@ export const productDetails: ProductDetail[] = [
     },
     privacy: SHARED_PRIVACY,
     related: ["walkscan", "watchcare", "neuromotion"],
-    ctaLabel: "Discuss a ClinicalTrials deployment",
+    ctaLabel: ctas.pilot.label,
   },
 ];
+
+export const productDetails = mobilityDetailRecords.map((record) => ({
+  ...record,
+  privacy: [record.privacy, productGuardrails(record.slug)].filter(Boolean).join(" "),
+}));
 
 export const productDetailBySlug = (slug: string) =>
   allProductDetails.find((d) => d.slug === slug);

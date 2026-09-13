@@ -64,7 +64,7 @@ import styles from "./analytics.module.css";
  *     all of it is invented for illustration
  *   · every panel that shows a number carries the illustrative label, and
  *     the badge is repeated per stage rather than once at the top
- *   · the SecureVision mode is identity-free by construction: there is no
+ *   · the SecureVision mode is privacy-aware by construction: there is no
  *     identification layer, no face, no name, no watchlist — the toggles are
  *     trajectories, density, flow, zones, candidate events and a
  *     privacy-aware view, and nothing else exists to switch on
@@ -359,7 +359,7 @@ function MobilityStage({
   if (stage === "video") {
     return (
       <div>
-        <StageVideo src="/assets/videos/workflow/stage-01-capture.mp4" />
+        <StageVideo src="/assets/videos/samples/recorded-walk.mp4" poster="/assets/images/capture/sequence/poster.webp" />
         <ResultColumns count={2}>
           <ResultColumn
             title="What enters the pipeline"
@@ -686,7 +686,7 @@ function SecureStage({
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <IllustrativeBadge />
         {layers.privacy && (
-          <span className={styles.reason}>Identity-free view</span>
+          <span className={styles.reason}>Privacy-aware view</span>
         )}
       </div>
 

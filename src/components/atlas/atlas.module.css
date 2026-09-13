@@ -167,8 +167,17 @@ a.node:focus-visible {
 }
 
 .slot[data-phase="here"] .here {
-  opacity: 0.78;
+  opacity: 0.9;
   translate: 0 -50%;
+}
+/* Light ground: the accent tints and the 80%/90% opacities land at 4.2–4.4:1
+   on 8–10px type, so the trail reads at full opacity in solid mute. */
+:global(.light) .trailQuiet {
+  opacity: 1;
+}
+:global(.light) .slot[data-phase="here"] .here {
+  opacity: 1;
+  color: var(--at-mute);
 }
 
 /* Leaving: two full seconds, up 2px as it goes, which is what makes it read

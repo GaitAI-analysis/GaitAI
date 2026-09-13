@@ -1,3 +1,4 @@
+import { productGuardrails } from "../responsible-use";
 import { allProducts, industryUseCases } from "@/data/products";
 import { allPublications } from "@/data/publications";
 import { useCaseHrefById } from "@/data/usecase-details";
@@ -63,9 +64,10 @@ const signalNodes: GaitscapeNode[] = [
   { id: "sig-step-symmetry", type: "signal", title: "Step symmetry", shortDescription: "Left/right movement balance across steps and limbs." },
   { id: "sig-walking-speed", type: "signal", title: "Walking speed", shortDescription: "Gait speed — a widely used functional mobility measure." },
   { id: "sig-posture", type: "signal", title: "Posture markers", shortDescription: "Body-alignment markers observed while standing and walking." },
-  { id: "sig-mobility-decline", type: "signal", title: "Mobility decline", shortDescription: "Gradual longitudinal change in everyday movement." },
-  { id: "sig-rehab-progress", type: "signal", title: "Rehabilitation progress", shortDescription: "Session-over-session movement recovery trend." },
-  { id: "sig-fall-risk", type: "signal", title: "Fall-risk signals", shortDescription: "Movement patterns associated with elevated fall risk." },
+  { id: "sig-mobility-decline", type: "signal", vertical: "mobilitycare", title: "Mobility decline", shortDescription: "Gradual longitudinal change in everyday movement." },
+  { id: "sig-rehab-progress", type: "signal", vertical: "mobilitycare", title: "Rehabilitation progress", shortDescription: "Session-over-session movement recovery trend." },
+  { id: "sig-fall-risk", type: "signal", vertical: "mobilitycare", title: "Fall-risk signals", shortDescription: "Movement patterns associated with elevated fall risk." },
+  { id: "sig-safety-event", type: "signal", vertical: "securevision", title: "Safety event", shortDescription: "Observed events such as a fall, person down or restricted-zone entry for operator review." },
   { id: "sig-tremor-neuro", type: "signal", title: "Neurological movement signals", shortDescription: "Shuffling, freezing-like events, tremor and turning difficulty." },
   { id: "sig-trajectory", type: "signal", title: "Trajectory & path", shortDescription: "Where people move — paths, zones and timelines across space." },
   { id: "sig-behaviour", type: "signal", title: "Behaviour patterns", shortDescription: "Movement events such as loitering, running or tailgating." },
@@ -82,7 +84,7 @@ const capabilityNodes: GaitscapeNode[] = [
   { id: "cap-trajectory", type: "capability", title: "Trajectory analysis", shortDescription: "Modelling paths, flow and spatial movement over time." },
   { id: "cap-fusion", type: "capability", title: "Multimodal sensor fusion", shortDescription: "Smartwatch and IMU signals fused with video features." },
   { id: "cap-edge", type: "capability", title: "Edge inference", shortDescription: "Optimized on-device movement analytics pipelines." },
-  { id: "cap-anomaly", type: "capability", title: "Anomaly detection", shortDescription: "Surfacing unusual movement without identifying anyone first." },
+  { id: "cap-anomaly", type: "capability", title: "Anomaly detection", shortDescription: "Surfacing unusual movement without identity matching as a prerequisite." },
   { id: "cap-risk", type: "capability", title: "Risk scoring", shortDescription: "Combining movement signals into fall, injury and safety risk indicators." },
   // The capability the privacy RESEARCH informs is a principle — handling
   // gait data with minimal identity exposure. The shipped controls
@@ -385,7 +387,7 @@ const PRODUCT_MAP: ProductMap = {
     outcomes: ["out-safer-spaces", "out-realtime"],
   },
   industrialsafety: {
-    signals: ["sig-fall-risk", "sig-behaviour", "sig-trajectory"],
+    signals: ["sig-safety-event", "sig-behaviour", "sig-trajectory"],
     capabilities: ["cap-har", "cap-anomaly", "cap-risk", "cap-edge"],
     outcomes: ["out-realtime", "out-safer-spaces"],
   },
@@ -395,7 +397,7 @@ const PRODUCT_MAP: ProductMap = {
     outcomes: ["out-privacy"],
   },
   campusshield: {
-    signals: ["sig-behaviour", "sig-trajectory", "sig-fall-risk"],
+    signals: ["sig-behaviour", "sig-trajectory", "sig-safety-event"],
     capabilities: ["cap-anomaly", "cap-har", "cap-privacy"],
     outcomes: ["out-safer-spaces", "out-realtime"],
   },
@@ -523,7 +525,8 @@ export function systemFactsFor(productId: string): SystemFacts {
   const product = allProducts.find((p) => p.id === productId);
   const base =
     product?.vertical === "securevision" ? SECURE_FACTS : MOBILITY_FACTS;
-  return { ...base, ...FACT_OVERRIDES[productId] };
+  const facts = { ...base, ...FACT_OVERRIDES[productId] };
+  return { ...facts, privacy: [facts.privacy, productGuardrails(productId)].filter(Boolean).join(" ") };
 }
 
 

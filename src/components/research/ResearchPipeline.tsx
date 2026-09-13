@@ -181,7 +181,7 @@ export function ResearchPipeline({
 
       <p className={styles.pipeNote}>
         Only capabilities with a published record behind them are listed; the
-        number is the shipped product modules each one carries. What the
+        number is the registered product modules each one carries. What the
         research establishes, and where a separate implementation takes over,
         is set out in the{" "}
         <Link href="#evidence-map" className={styles.pipeNoteLink}>

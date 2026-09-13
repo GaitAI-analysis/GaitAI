@@ -1036,7 +1036,7 @@ export const insightArticles: InsightArticle[] = [
             items: [
               "**Face blurring or redaction** at or near the point of capture",
               "**Skeletal representation** — retaining geometry while discarding appearance",
-              "**Non-identifying identifiers** in place of any personal reference",
+              "**Pseudonymous track references** instead of direct personal references; linkage and movement may still permit identification",
               "**Short-lived track identifiers** that maintain continuity within a sequence, then expire",
               "**Aggregated metrics** where only counts, flows or rates leave the system",
             ],
@@ -1441,7 +1441,7 @@ export const insightArticles: InsightArticle[] = [
     twoMinute: [
       "If the benchmark is already easy, an extra modality can raise the score without adding capability.",
       "The honest test is what happens when one modality disappears at inference time.",
-      "Silent corruption is worse than absence: a stream that is present but wrong is trusted by default.",
+      "Silent corruption is worse than absence: a stream that is present but wrong is believed by default.",
       "An explanation is only useful if it reflects the model that actually made the decision.",
       "An improvement has to be both statistically and operationally meaningful to matter to anyone.",
     ],

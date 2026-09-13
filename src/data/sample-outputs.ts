@@ -365,7 +365,7 @@ const sportsmotion: SampleOutput = {
 };
 
 // ----------------------------------------------------------------------------
-// SECUREVISION — identity-free by default
+// SECUREVISION — privacy-aware by default
 // ----------------------------------------------------------------------------
 
 const crowdsense: SampleOutput = {

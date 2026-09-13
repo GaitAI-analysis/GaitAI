@@ -15,7 +15,7 @@ import styles from "./privacyLens.module.css";
 /**
  * PRIVACY LENS — sensing → privacy transformed → movement intelligence.
  *
- * "Identity-free safety intelligence" is the SecureVision proposition and, as
+ * "Privacy-aware safety intelligence" is the SecureVision proposition and, as
  * a sentence, a reader cannot check it. This is the version they can look at:
  * one person, three steps, and information visibly leaving at each one.
  *

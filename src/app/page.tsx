@@ -41,7 +41,7 @@ export const metadata: Metadata = {
  *                          longer a section of its own: it is the chapter the
  *                          Mission card opens. The interaction, the five
  *                          readings and the family links are untouched.
- *   24 modular products    sections/FeaturedProducts.tsx, with the family
+ *   24 product modules    sections/FeaturedProducts.tsx, with the family
  *                          tablist and the per-family links
 
  * THERE IS NO SECTION RAIL. The home page carried one for a while — first a

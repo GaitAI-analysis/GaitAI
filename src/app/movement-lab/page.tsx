@@ -215,8 +215,8 @@ export default function MovementLabPage() {
                 family="mobilitycare"
                 staged
                 sharePath="/movement-lab#movement-xray"
-                humanCaption="An illustrated stride built from shared gait keyframes. This view does not use your selected video."
-                aiCaption="The same illustration as landmarks, trajectories and temporal channels. No measured or clinical results are produced here."
+
+
                 reads={[
                   { label: "Joint trajectories", detail: "Trace how an observed joint changes position across the sequence." },
                   { label: "Temporal signals", detail: "Inspect the shape of a channel over time before considering an application." },

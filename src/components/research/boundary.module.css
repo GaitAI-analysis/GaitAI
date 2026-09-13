@@ -19,8 +19,8 @@
 }
 
 :global(.light) .boundary {
-  --b-cyan: #0e8ab8;
-  --b-cyan-soft: rgb(14 138 184 / 0.5);
+  --b-cyan: #0e7490;
+  --b-cyan-soft: rgb(14 116 144 / 0.5);
   --b-amber: #8a6320;
   --b-amber-soft: rgb(138 99 32 / 0.45);
   --b-line: rgb(71 85 105 / 0.2);

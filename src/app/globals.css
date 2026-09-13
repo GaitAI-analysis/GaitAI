@@ -10,6 +10,7 @@
   /* Fixed site chrome. Keep this in sync with the deterministic header box. */
   --site-header-height: 5.625rem;
   --site-anchor-gap: 1.5rem;
+  --header-clearance: calc(var(--site-header-height) + var(--site-anchor-gap));
 
   /* ═══════════════════════════════════════════════════════════════════════
      THE THEME BRANCH POINT — DARK BRANCH
@@ -186,7 +187,7 @@
   --border-strong: rgba(15, 23, 42, 0.18);
 
   /* Deepened product accents: the dark teal/violet read as pastel on paper */
-  --mobility-accent: #0d9488;
+  --mobility-accent: #0f766e;
   --mobility-soft: rgb(13 148 136 / 0.1);
   --secure-accent: #5f25bf;
   --secure-soft: rgb(95 37 191 / 0.09);
@@ -234,7 +235,7 @@
   --graph-shadow-sm: 0 16px 44px -20px rgb(15 23 42 / 0.24);
 
   --graph-node-core: #96701c;
-  --graph-node-mobility: #0d9488;
+  --graph-node-mobility: #0f766e;
   --graph-node-secure: #4a41c4;
   --graph-node-product: #1d5fd0;
   --graph-node-input: #157347;
@@ -258,7 +259,7 @@
   --c-gunmetal-dark: 241 245 249;
   --c-soft-white: 11 18 32;          /* primary text → near-black navy */
   --c-soft-gray: 51 65 85;            /* secondary text → slate-700 */
-  --c-soft-mute: 100 116 139;         /* muted → slate-500 */
+  --c-soft-mute: 71 85 105;         /* muted → slate-500 */
 
   --glass-bg-a: rgba(255, 255, 255, 0.92);
   --glass-bg-b: rgba(255, 255, 255, 0.7);
@@ -281,7 +282,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-padding-top: 0;
 }
 
 /* Reduced motion, globally. Components that own their motion already check
@@ -300,26 +301,12 @@ html {
   }
 }
 
-[id] {
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+:where([id], a, button, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-top: var(--header-clearance);
 }
 
-/* THE DISCLOSURE CONTROLS' SCROLL OFFSET — now zero, and deliberately still
- * here rather than deleted.
- *
- * `html` already carries `scroll-padding-top` of header + gap, and scroll
- * padding and scroll margin ADD. This class existed to contribute the one
- * piece of chrome the padding did not know about: the sticky section rail.
- * The rail is gone, so its contribution is nothing.
- *
- * It is not simply removed, because these controls carry an `id`, and the
- * unlayered `[id] { scroll-margin-top: header + gap }` rule above would then
- * apply to them — counting the header and the gap twice and parking the
- * control a third of a screen down. Zero here is what keeps that from
- * happening, and `useDisclosureReveal` reads this computed value back, so the
- * hook follows without knowing anything changed. */
 .home-reveal-offset {
-  scroll-margin-top: 0;
+  scroll-margin-top: var(--header-clearance);
 }
 
 html,
@@ -958,12 +945,12 @@ body {
      reference the token).
      --------------------------------------------------------------------- */
   .site-anchor-offset {
-    scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+    scroll-margin-top: var(--header-clearance);
   }
 
   .site-sticky-below-header {
     position: sticky;
-    top: calc(var(--site-header-height) + var(--site-anchor-gap));
+    top: var(--header-clearance);
   }
 
   /* Every addressable section on the home page.
@@ -975,9 +962,7 @@ body {
      sections carry it and because `.home-section.section` below still uses
      it for spacing. */
   .home-section {
-    scroll-margin-top: calc(
-      var(--site-header-height) + var(--site-anchor-gap)
-    );
+    scroll-margin-top: var(--header-clearance);
   }
 
   /* `.section` spaces a section as the thing you have just arrived at, with
@@ -2167,7 +2152,8 @@ body {
   width: 100%;
 }
 
-.securevision-hero-video {
+.securevision-hero-video,
+.securevision-hero-labels {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -2282,7 +2268,8 @@ body {
     background: #030812;
   }
 
-  .securevision-hero-video {
+  .securevision-hero-video,
+  .securevision-hero-labels {
     object-fit: contain;
   }
 
@@ -3385,9 +3372,9 @@ body {
 
 /* Amber is the hardest of the accents on paper — amber-300 is a highlighter.
    The warm IDENTITY survives; the highlighter value does not. */
-.light .text-amber-300 { color: #a16207; }
+.light .text-amber-300 { color: #854d0e; }
 .light .text-amber-200 { color: #854d0e; }
-.light .text-amber-300\/80 { color: rgb(161 98 7 / 0.85); }
+.light .text-amber-300\/80 { color: #854d0e; }
 .light .hover\:text-amber-200:hover { color: #854d0e; }
 .light .decoration-amber-300\/40 { text-decoration-color: rgb(161 98 7 / 0.45); }
 .light .decoration-cyan-300\/40 { text-decoration-color: rgb(14 116 144 / 0.45); }
@@ -6382,7 +6369,7 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.16em;
-    color: rgb(var(--env-accent) / 0.82);
+    color: rgb(var(--env-accent));
     transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .env-more-chevron {
@@ -6581,4 +6568,28 @@ body {
     background-size: cover;
     background-position: center center;
   }
+
+  .securevision-hero-labels {
+    object-fit: cover;
+    filter: none;
+  }
 }
+
+.skip-link { position: fixed; top: 1rem; left: 1rem; z-index: 1000; transform: translateY(-200%); padding: .75rem 1rem; background: var(--bg); color: var(--text); border: 2px solid currentColor; border-radius: .5rem; }
+.skip-link:focus { transform: none; }
+[data-motion-paused="true"], [data-motion-paused="true"] *, [data-motion-paused="true"]::before, [data-motion-paused="true"]::after { animation-play-state: paused !important; }
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--focus-ring, #38bdf8); outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Corrective contrast pass: readable text on light surfaces, same palette. */
+.light .text-cyan-300\/70, .light .text-cyan-300\/80, .light .text-cyan-300\/90,
+.light .gaitscape-seg-btn--on, .light .gaitscape-seg-btn--on:hover,
+.light .gaitscape-group-row--on, .light .gaitscape-group-row--on > span:last-child { color: #0e7490; }
+.light .text-rose-300 { color: #be123c; }
+.light .text-soft-mute\/70, .light .text-soft-mute\/80 { color: rgb(var(--c-soft-mute)); }
+/* The featured-products tab pill is a 55% dark glass; on the light ground it reads mid-grey (#727886) under its light tab text. Near-solid here keeps the dark island and the same text. */
+.light .featured-tabs { background: rgba(10, 18, 40, 0.92); }
+.light .env-more-button { color: #0e7490; }
+.light .env-column--secure .env-more-button { color: #1d4ed8; }

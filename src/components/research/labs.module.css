@@ -26,7 +26,7 @@
 }
 
 :global(.light) .labs {
-  --l-cyan: #0e8ab8;
+  --l-cyan: #0e7490;
   --l-cyan-soft: rgb(14 138 184 / 0.55);
   --l-violet: #6d34c9;
   --l-gold: #8a6320;

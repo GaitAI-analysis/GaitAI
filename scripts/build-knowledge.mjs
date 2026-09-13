@@ -306,7 +306,20 @@ async function main() {
   const labDemo = await load("data/lab-demo.ts");
   const captureSources = await load("data/capture-sources.ts");
 
-  const docs = [];
+  const registry = await load("data/registry.ts");
+  const docs = [{
+    id: "page:canonical-inventory", type: "page", title: "GaitAI catalogue terminology and evidence inventory", url: "/products/", family: "platform", category: "Platform inventory", slug: "canonical-inventory",
+    summary: `${registry.siteCounts.productModules} product modules on one movement-intelligence platform across ${registry.siteCounts.environments} environments.`,
+    content: [
+      `${registry.siteCounts.mobilitycare} MobilityCare modules and ${registry.siteCounts.securevision} SecureVision modules, including DefenceMotion. Army, Navy and Air Force are service modes of that single module.`,
+      `${registry.siteCounts.publications} surfaced academic papers and ${registry.siteCounts.patents} granted patent form ${registry.siteCounts.researchRecords} research records across ${registry.siteCounts.researchAreas} research areas. Product-specific validation studies published: ${registry.siteCounts.productValidationStudies}.`,
+      `${registry.siteCounts.talksAndPresentations} talks and presentations: ${registry.siteCounts.talkKinds.invitedTalks} invited talks, ${registry.siteCounts.talkKinds.presentations} presentations, ${registry.siteCounts.talkKinds.paperPresentations} conference paper presentations, ${registry.siteCounts.talkKinds.posters} poster.`,
+      publications.FOUNDER_ACADEMIC_RECORD.scope,
+      ...Object.entries(registry.terminology).map(([term,definition])=>`${term}: ${definition}`),
+      responsible.RESPONSIBLE_USE_CONTROLS,
+    ].join("\n"),
+    keywords: ["count", "how many", "product modules", "environments", "terminology", "DefenceMotion", "research records", "founder academic record", "validation"],
+  }];
 
   // ── ENTITIES ─────────────────────────────────────────────────────────────
   // The named things a visitor asks about BY NAME: the founder, the company,
@@ -685,7 +698,7 @@ async function main() {
       slug: record.id,
       url: route(`/publications/${record.id}`),
       family: "research",
-      category: record.kind === "patent" ? "Granted patent" : "Peer-reviewed paper",
+      category: record.kind === "patent" ? "Granted patent" : record.publicationStatus === "publisher-unverified" ? "Manuscript · publisher unverified" : "Surfaced academic paper",
       summary: `${record.venue} · ${record.publisher} · ${record.year}`,
       content: block(
         para("Title", record.title),
@@ -694,6 +707,7 @@ async function main() {
         para("Publisher", record.publisher),
         para("Year", String(record.year)),
         record.date && para("Date", record.date),
+        record.verificationNote && para("Verification", record.verificationNote),
         para("Authors", record.authors),
         record.doi && para("DOI", record.doi),
         record.patentNumber && para("Patent number", record.patentNumber),
@@ -720,6 +734,7 @@ async function main() {
         record.publisher,
         String(record.year),
         record.kind,
+        ...(record.kind === "journal" && record.publicationStatus !== "publisher-unverified" ? ["peer-reviewed research", "journal paper"] : []),
         ...(record.keywords ?? []),
         ...record.authors,
         ...(record.patentNumber ? [record.patentNumber, `patent ${record.patentNumber}`] : []),
@@ -821,7 +836,7 @@ async function main() {
       family: "research",
       category: "Founder",
       summary: clean(
-        `${FOUNDER} is the founder of GaitAI. The research record the platform is built on — ${authoredPapers.length} peer-reviewed papers${patentLine ? ` and ${patentLine}` : ""} — was authored by ${FOUNDER} with academic co-authors, across gait recognition, computer vision, biometrics, pose estimation, machine learning and privacy-preserving movement analysis.`,
+        `${FOUNDER} is the founder of GaitAI. The research record the platform is built on — ${authoredPapers.length} surfaced academic papers${patentLine ? ` and ${patentLine}` : ""} — was authored by ${FOUNDER} with academic co-authors, across gait recognition, computer vision, biometrics, pose estimation, machine learning and privacy-preserving movement analysis.`,
       ),
       content: block(
         para("Name", FOUNDER),
@@ -831,7 +846,7 @@ async function main() {
         ),
         para(
           "Research record",
-          `${authoredPapers.length} peer-reviewed papers${patentLine ? ` and ${patentLine}` : ""}, authored with academic co-authors and published with ${publishers.join(", ")}.`,
+          `${authoredPapers.length} surfaced academic papers${patentLine ? ` and ${patentLine}` : ""}, authored with academic co-authors and published with ${publishers.join(", ")}.`,
         ),
         publicationsPage.description &&
           para("How the Publications page describes it", publicationsPage.description),
@@ -932,7 +947,7 @@ async function main() {
       const publishers = [...new Set(authored.map((p) => p.publisher))];
       const [firstName, ...restName] = name.split(/\s+/);
       const lastName = restName[restName.length - 1] ?? "";
-      const count = `${papers.length} peer-reviewed paper${papers.length === 1 ? "" : "s"}${
+      const count = `${papers.length} surfaced academic paper${papers.length === 1 ? "" : "s"}${
         patents.length ? ` and ${patents.length} granted patent${patents.length === 1 ? "" : "s"}` : ""
       }`;
 
@@ -1621,7 +1636,7 @@ async function main() {
       summary:
         "GaitAI is a research-led AI platform for movement intelligence, organised into two product families.",
       content: block(
-        `GaitAI turns human movement into structured intelligence across ${products.productCount} modular products in two families: MobilityCare (${products.mobilityProducts.length} clinical, sports, wearable and rehab modules) and SecureVision (${products.secureProducts.length} privacy-aware security and safety modules).`,
+        `GaitAI turns human movement into structured intelligence across ${products.productCount} product modules in two families: MobilityCare (${products.mobilityProducts.length} clinical, sports, wearable and rehab modules) and SecureVision (${products.secureProducts.length} privacy-aware security and safety modules).`,
         products.productProposition,
         para(
           "Platform counters",
@@ -1750,7 +1765,7 @@ async function main() {
       url: "/publications",
       title: "Publications",
       category: "Research & IP",
-      summary: `${publications.papers.length} peer-reviewed papers and one granted patent.`,
+      summary: `${publications.papers.length} surfaced academic papers and one granted patent.`,
       content: block(
         para(
           "Records",
@@ -1768,7 +1783,7 @@ async function main() {
       url: "/research/evidence",
       title: "Full evidence record",
       category: "Research & IP",
-      summary: `Every paper mapped to every capability: ${publications.papers.length} peer-reviewed papers and the granted patent, each mapped to the capabilities it informs and the modules built on them.`,
+      summary: `Every paper mapped to every capability: ${publications.papers.length} surfaced academic papers and the granted patent, each mapped to the capabilities it informs and the modules built on them.`,
       content: block(
         "The full evidence record behind GaitAI, filterable by year and record type. Every mapping comes from the research areas; a record grounds a capability and is never, by itself, a validation of a module.",
         para(
@@ -2132,6 +2147,13 @@ async function main() {
     }
   }
 
+  // Reject incomplete records at generation time, before retrieval can crash.
+  for (const doc of docs) {
+    for (const key of ["id", "type", "title", "url", "summary", "category", "content"]) {
+      if (typeof doc[key] !== "string" || !doc[key].trim()) throw new Error(`Invalid knowledge record ${doc.id}: missing ${key}`);
+    }
+    if (!Array.isArray(doc.keywords) || doc.keywords.some(word => typeof word !== "string")) throw new Error(`Invalid knowledge keywords: ${doc.id}`);
+  }
   const payload = {
     generatedAt: new Date().toISOString().slice(0, 10),
     counts: docs.reduce((acc, d) => {

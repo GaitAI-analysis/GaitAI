@@ -12,7 +12,7 @@ import styles from "@/components/research/observatory.module.css";
 
 export const metadata: Metadata = {
   title: "Full evidence record — every paper mapped to every capability",
-  description: `The complete evidence record behind GaitAI: ${papers.length} peer-reviewed papers and granted Indian patent ${patent.patentNumber}, each mapped to the capabilities it informs and the product modules built on them, filterable by year and record type.`,
+  description: `The complete evidence record behind GaitAI: ${papers.length} surfaced academic papers and granted Indian patent ${patent.patentNumber}, each mapped to the capabilities it informs and the product modules built on them, filterable by year and record type.`,
   alternates: { canonical: "/research/evidence" },
 };
 

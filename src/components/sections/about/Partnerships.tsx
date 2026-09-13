@@ -26,7 +26,7 @@ const programmes = [
   },
   {
     title: "Public-sector & smart spaces",
-    desc: "Campus, transport and civic operators evaluating privacy-aware crowd and safety analytics, where identity-free movement intelligence is the requirement rather than the compromise.",
+    desc: "Campus, transport and civic operators evaluating privacy-aware crowd and safety analytics, where privacy-aware movement intelligence is the requirement rather than the compromise.",
     looking: "Campuses, transport operators, civic bodies",
   },
   {
@@ -53,29 +53,30 @@ export function Partnerships() {
         />
 
         <Reveal>
+          {/* A <dl> group may hold only dt/dd, so the index lives inside the
+              term and is positioned into the gutter the flex column used to
+              give it: same place on screen, valid list semantics. */}
           <dl className="mt-12 grid gap-x-12 border-t border-white/[0.06] lg:grid-cols-2">
             {programmes.map((programme, i) => (
               <div
                 key={programme.title}
-                className="flex gap-4 border-b border-white/[0.06] py-6"
+                className="relative border-b border-white/[0.06] py-6 pl-8"
               >
-                <span
-                  aria-hidden="true"
-                  className="font-mono text-[11px] tabular-nums text-cyan-300/70"
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="min-w-0">
-                  <dt className="font-display text-lg font-semibold text-soft-white">
-                    {programme.title}
-                  </dt>
-                  <dd className="mt-1.5 text-sm leading-relaxed text-soft-mute">
-                    {programme.desc}
-                    <span className="mt-2 block text-[11px] uppercase tracking-[0.16em] text-soft-mute/80">
-                      Looking for: {programme.looking}
-                    </span>
-                  </dd>
-                </div>
+                <dt className="font-display text-lg font-semibold text-soft-white">
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-0 top-6 font-mono text-[11px] tabular-nums text-cyan-300/70"
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  {programme.title}
+                </dt>
+                <dd className="mt-1.5 text-sm leading-relaxed text-soft-mute">
+                  {programme.desc}
+                  <span className="mt-2 block text-[11px] uppercase tracking-[0.16em] text-soft-mute/80">
+                    Looking for: {programme.looking}
+                  </span>
+                </dd>
               </div>
             ))}
           </dl>

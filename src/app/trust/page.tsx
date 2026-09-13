@@ -1,3 +1,4 @@
+import siteFacts from "@/data/generated/site-facts.json";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
@@ -60,7 +61,7 @@ const SECURITY_TOPICS = [
 ];
 
 export default function TrustPage() {
-  const records = papers.length + 1;
+  const records = siteFacts.counts.researchRecords;
   const securityRows = privacyControls
     .filter((c) => SECURITY_TOPICS.includes(c.topic))
     .map((c) => ({ label: c.topic, value: c.support }));
@@ -101,6 +102,12 @@ export default function TrustPage() {
       <section className="section border-t border-white/[0.07]">
         <div className="container-wide">
           <TrustMatrix />
+          <details className="mb-8 rounded-xl border border-white/10 p-5 text-sm text-soft-gray">
+            <summary className="cursor-pointer font-semibold text-soft-white">Registry definitions and evidence scope</summary>
+            <p className="mt-4">{siteFacts.founderAcademicRecord.scope}</p>
+            <p className="mt-3">{siteFacts.counts.productValidationStudies} product-specific validation studies are published in the current evidence registry.</p>
+            <dl className="mt-4 space-y-3">{Object.entries(siteFacts.terminology).map(([term,definition]) => <div key={term}><dt className="font-semibold text-soft-white">{term.replace(/([A-Z])/g, " $1").toLowerCase()}</dt><dd>{definition}</dd></div>)}</dl>
+          </details>
           <div className={styles.pillars}>
             <Reveal>
               <TrustPillar
@@ -110,7 +117,7 @@ export default function TrustPage() {
                 rows={[
                   {
                     label: "Published record",
-                    value: `${papers.length} peer-reviewed papers and granted Indian patent ${patent.patentNumber}.`,
+                    value: `${papers.length} surfaced academic papers and granted Indian patent ${patent.patentNumber}.`,
                   },
                   {
                     label: "Research areas",
@@ -143,7 +150,7 @@ export default function TrustPage() {
                   {
                     label: "Default posture",
                     value:
-                      "Identity-free movement analytics — anomaly detection, crowd flow, worker safety and campus monitoring run on movement features rather than identity.",
+                      "Privacy-aware movement analytics — anomaly detection, crowd flow, worker safety and campus monitoring run on movement features rather than identity.",
                   },
                   {
                     label: "Data minimization",
@@ -165,7 +172,7 @@ export default function TrustPage() {
                   { href: "/legal/privacy", label: "Privacy" },
                   {
                     href: "/securevision#privacy-aware",
-                    label: "Identity-free capability group",
+                    label: "Privacy-aware capability group",
                   },
                 ]}
               />

@@ -37,7 +37,11 @@
   min-height: inherit;
   display: flex;
   align-items: center;
-  padding-block: clamp(3.5rem, 8vh, 6rem);
+  /* The vertical budget. Heading, sub-line, CTA row, evidence line and all
+     three selectors have to fit under the navbar at 1280x720 and 1366x768
+     with browser chrome, so the padding is tighter than a hero usually gets
+     and shrinks further with viewport height (see the max-height rule). */
+  padding-block: clamp(2.25rem, 6vh, 5rem);
   /* Vertical scrolling stays the browser's; horizontal swipes are ours. */
   touch-action: pan-y;
 }
@@ -67,13 +71,34 @@
   background: rgb(var(--ink));
 }
 
+/* A 2172x~193 band asked to fill an 800px-tall hero is upscaled about 4x and
+   shows a sixth of its width — which is what read as "zoomed and blurred".
+   The band now fills a centred strip about a third of the viewport wide in
+   height (never less than ~58% of the hero, never more than all of it), so
+   the upscale drops to ~2.5x, roughly a quarter of the band is in view, and
+   the subject stands smaller in a wider, sharper frame. Its top and bottom
+   edges fade into the backdrop's own dark, so the strip reads as a cinematic
+   widescreen frame rather than as a cut-out. Nothing is blurred: the pixels
+   are the same, there are simply fewer screen pixels per source pixel. */
 .frame {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  /* Centred read as starting late, and 45% still did: at 1440x900 the
+     picture's visible top sat ~210px under the navbar. 39% lifts the strip
+     ~50px — a quarter of that dark — so the story starts nearer the fold's
+     top while the copy, centred on the section, stays where it was. */
+  top: 39%;
+  /* Per-frame: a frame may set `--strip` to stand its subject smaller in a
+     wider, sharper window (see `HeroFrame.strip`); the rest take the default. */
+  height: var(--strip, clamp(58%, 34vw, 100%));
+  transform: translateY(-50%);
   display: block;
   opacity: 0;
   transition: opacity var(--fade) var(--ease);
   will-change: opacity;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent);
 }
 
 .frameOn {
@@ -86,6 +111,14 @@
   height: 100%;
   object-fit: cover;
   object-position: var(--pos-narrow, 50% 50%);
+}
+
+/* Match the image's cover crop exactly, including narrow-screen positioning.
+   Only the event badge is painted; the approved background stays intact. */
+.labelOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 @media (min-width: 768px) {
@@ -156,7 +189,26 @@
    hidden`, which also takes them out of the accessibility tree. */
 .copyStack {
   display: grid;
-  max-width: 44rem;
+  max-width: 54rem;
+}
+
+/* A deliberate line break for a headline that asked for one — "What can
+   movement tell us" / "before we can see it?". Two blocks from tablet width
+   up, so the break falls where it was written (at 768px the first line is
+   ~540px in a ~670px column); inline on phones, where the column cannot hold
+   the first line anyway and a forced break would strand a word. */
+.line {
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .line {
+    display: inline;
+  }
+
+  .line + .line::before {
+    content: " ";
+  }
 }
 
 .copy {
@@ -225,7 +277,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
-  margin-top: 1.7rem;
+  margin-top: 1.4rem;
   min-height: 3rem;
 }
 
@@ -290,7 +342,9 @@
   .words {
     display: grid;
     padding-left: 1.4rem;
-    border-left: 1px solid rgb(148 163 184 / 0.28);
+    /* The rail reads as part of the composition only if it is visibly
+       anchored; at 0.28 it was a rumour of a line. */
+    border-left: 1px solid rgb(148 163 184 / 0.42);
   }
 
   /* Same stacking as the copy: one cell, tallest list sets the height. */
@@ -324,14 +378,16 @@
     font-weight: 500;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: rgb(203 213 225 / 0.78);
+    /* Was 0.78 over the darkest part of the scrim, which measured under
+       4.5:1 against the artwork's mid-tones. Same type, more ink. */
+    color: rgb(226 232 240 / 0.94);
     white-space: nowrap;
   }
 
   .tagline {
     margin: 1.6rem 0 0;
     font-size: 0.8rem;
-    color: rgb(203 213 225 / 0.7);
+    color: rgb(226 232 240 / 0.86);
     white-space: nowrap;
   }
 }
@@ -342,9 +398,35 @@
   position: relative;
   z-index: 10;
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 2.4rem;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+/* The chapter list and its pause control are one cluster. The pause used to
+   sit to the right of row 01 — but the list is as wide as its widest row
+   (03 SECUREVISION plus the running line), so beside the shortest row it
+   floated 70px out in the dark and read as belonging to nothing. It now sits
+   under 03, flush with the numbers' column, at a size and weight that says
+   "a switch for the line above" rather than "another control". */
+.chapters {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.controls .pause {
+  height: 1.6rem;
+  width: 1.6rem;
+  margin: 0.35rem 0 0 0.05rem;
+  border-color: transparent;
+  background: transparent;
+  color: rgb(226 232 240 / 0.42);
+}
+
+.controls .pause svg {
+  width: 0.7rem;
+  height: 0.7rem;
 }
 
 /* The floating "Ask GaitAI" button lives bottom-right; on a phone the control
@@ -356,9 +438,10 @@
     gap: 0.5rem 0.6rem;
   }
 
-  /* Two tidy rows rather than a wrap that strands one arrow: the numbers
-     first across the row, then previous / pause / next beneath them. */
-  .controls .dots {
+  /* Two tidy rows rather than a wrap that strands one arrow: the chapter
+     cluster (numbers, then the pause) first across the row, then previous
+     and next beneath it. */
+  .controls .chapters {
     order: -1;
     flex-basis: 100%;
   }
@@ -371,20 +454,29 @@
 .dots {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.1rem;
+  align-items: stretch;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
+  min-width: 13.5rem;
 }
 
+/* The whole row — number, label and the space where the line runs — is one
+   button, so anywhere along it previews on hover and selects on click. */
 .dot {
-  display: inline-flex;
+  display: flex;
+  width: 100%;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.75rem;
-  min-height: 2.25rem;
-  padding: 0 0.15rem;
-  color: rgb(203 213 225 / 0.5);
+  min-height: 1.85rem;
+  padding: 0 0.5rem 0 0.15rem;
+  cursor: pointer;
+  /* 0.66, from 0.58: at 0.58 the two unselected rows read as a caption. A
+     seventh brighter and they read as the switches they are, while staying
+     clearly under the selected row's white. */
+  color: rgb(203 213 225 / 0.66);
   font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 0.7rem;
   font-weight: 600;
@@ -464,6 +556,11 @@
   }
 }
 
+/* Quiet by default — a hairline and a dim glyph — and lit only under the
+   pointer. The earlier version's brighter border plus a focus ring read as a
+   double cyan ring after any click, because the button kept focus. Now the
+   border never turns cyan on focus; only :focus-visible draws a ring, and a
+   mouse click never does. */
 .arrow,
 .pause {
   display: inline-grid;
@@ -471,14 +568,20 @@
   height: 2.5rem;
   width: 2.5rem;
   border-radius: 999px;
-  border: 1px solid rgb(148 163 184 / 0.32);
-  background: rgb(7 11 20 / 0.45);
-  color: #e2e8f0;
-  backdrop-filter: blur(6px);
+  border: 1px solid rgb(148 163 184 / 0.18);
+  background: rgb(7 11 20 / 0.35);
+  color: rgb(226 232 240 / 0.7);
+  cursor: pointer;
   transition:
     border-color 220ms var(--ease),
     background-color 220ms var(--ease),
     color 220ms var(--ease);
+}
+
+.arrow:focus:not(:focus-visible),
+.pause:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
 }
 
 .arrow svg,
@@ -492,16 +595,43 @@
   height: 0.9rem;
 }
 
-.arrow:hover,
-.pause:hover {
-  border-color: rgb(79 209 255 / 0.7);
-  color: #fff;
+@media (hover: hover) {
+  .arrow:hover,
+  .pause:hover {
+    border-color: rgb(79 209 255 / 0.55);
+    background: rgb(79 209 255 / 0.08);
+    color: #fff;
+  }
 }
 
 .arrow:focus-visible,
 .pause:focus-visible {
-  outline: 2px solid #4fd1ff;
-  outline-offset: 3px;
+  outline: 2px solid rgb(79 209 255 / 0.8);
+  outline-offset: 2px;
+}
+
+/* Short viewports (a laptop with browser chrome): the type steps down a size
+   and the spacing closes up so the third selector stays above the fold. */
+@media (min-width: 768px) and (max-height: 820px) {
+  .slider {
+    padding-block: 1.75rem;
+  }
+
+  .title {
+    font-size: clamp(2rem, 4.6vw, 3.3rem);
+  }
+
+  .sub {
+    margin-top: 0.8rem;
+  }
+
+  .actions {
+    margin-top: 1.1rem;
+  }
+
+  .controls {
+    margin-top: 1.1rem;
+  }
 }
 
 .pause[disabled] {
@@ -527,12 +657,19 @@
     width: 2.75rem;
   }
 
+  /* 3.5rem outside the copy container — but never outside the screen. The
+     container is 1320px wide, so between 1280 and ~1430 its edge is inside
+     3.5rem of the viewport and a fixed offset put the arrow half off-screen
+     (at 1366 the previous arrow sat at x = -33). The second term is the
+     distance from the container's edge to the viewport's, less a margin, so
+     the arrow stops 0.75rem in from the screen edge when the ideal offset
+     would cross it, and takes the ideal offset once there is room. */
   .arrowPrev {
-    left: -3.5rem;
+    left: max(-3.5rem, calc(0.75rem - (100vw - 100%) / 2));
   }
 
   .arrowNext {
-    right: -3.5rem;
+    right: max(-3.5rem, calc(0.75rem - (100vw - 100%) / 2));
   }
 }
 
@@ -546,5 +683,28 @@
 
   .dotTrack[data-running="true"]::after {
     animation: none;
+  }
+}
+
+/* Edge vignette, desktop only. The bands carry painted copy in their left
+   quarter and, on frame 02, a HUD panel from about 52% — and a 26%-wide
+   window has almost no clean room between them. Rather than balance each
+   focal point on a knife edge, the backdrop goes opaque at both sides: the
+   left fade covers any painted tail behind the live copy, the right fade
+   (steeper) swallows a panel edge before it can read as a clipped word. It
+   also reads as a cinematic vignette, which is what the strip wants anyway. */
+@media (min-width: 768px) {
+  .scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      rgb(var(--ink)) 0%,
+      rgb(var(--ink) / 0) 7%,
+      rgb(var(--ink) / 0) 84%,
+      rgb(var(--ink)) 94%
+    );
   }
 }

@@ -48,7 +48,7 @@ import { hasSampleOutput } from "@/data/sample-outputs";
 export type EvidenceState = "available" | "in-development" | "not-published" | "not-claimed";
 
 /** Review of the website's published evidence inventory, not a study date. */
-export const EVIDENCE_REVIEWED_AT = "2026-09-09";
+export const EVIDENCE_REVIEWED_AT = "2026-09-13";
 
 export const EVIDENCE_STATE_LABEL: Record<EvidenceState, string> = {
   available: "Available",
@@ -111,7 +111,9 @@ const detailSlugs = new Set(allProductDetails.map((d) => d.slug));
 /** Distinct publications across a set of research areas, newest first. */
 function publicationsIn(areas: ResearchArea[]): Publication[] {
   const seen = new Map<string, Publication>();
-  for (const area of areas) for (const paper of area.publications) seen.set(paper.id, paper);
+  for (const area of areas) for (const paper of area.publications) {
+    if (paper.publicationStatus !== "publisher-unverified") seen.set(paper.id, paper);
+  }
   return Array.from(seen.values()).sort((a, b) => b.year - a.year);
 }
 

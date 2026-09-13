@@ -222,7 +222,7 @@ export function PublicationLibrary() {
 
       {productId !== "all" && <p className="mt-3 text-xs leading-relaxed text-soft-mute">Showing research that directly informs a product capability. This is research provenance, not product-specific validation.</p>}
 
-      {/* Result count. The set is 8 peer-reviewed papers plus 1 granted
+      {/* Result count. The set is 8 surfaced academic papers plus 1 granted
           patent, so it is counted as research outputs — calling the patent a
           publication would be wrong. */}
       <div className="mt-5 text-xs text-soft-mute" aria-live="polite">

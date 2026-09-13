@@ -3,7 +3,6 @@
 import {
   motion,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useTransform,
 } from "framer-motion";
@@ -16,6 +15,7 @@ import { workflowStages } from "@/data/products";
 import { allPublications, papers } from "@/data/publications";
 import { useAutoDemonstrate } from "@/lib/useAutoDemonstrate";
 import { useDisclosureReveal } from "@/lib/useDisclosureReveal";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { assetPath } from "@/lib/paths";
 import disclosure from "@/components/ui/disclosure.module.css";
 import styles from "./howitworks.module.css";
@@ -331,7 +331,7 @@ export function HowItWorks() {
             each dot is non-breaking, so a wrap never leaves a line starting on
             a separator, and each count is glued to its noun so "1 granted
             patent" survives as one unit when the line breaks on a phone. */}
-        <p className={styles.record}>
+        <p id="research" className={styles.record}>
           Built on a published research record{"\u00a0"}
           <span aria-hidden="true" className={styles.recordDot}>
             ·
@@ -454,7 +454,9 @@ function StageVisual({
   index: number;
   revealed: boolean;
 }) {
-  const reduceMotion = Boolean(useReducedMotion());
+  /* Hydration-safe: the <source> below exists only without reduced motion,
+     so the first client render has to agree with the server (see the hook). */
+  const reduceMotion = usePrefersReducedMotion();
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const still = STAGE_STILL[index];

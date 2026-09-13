@@ -12,8 +12,8 @@
 // NOTHING HERE IS NEW CONTENT. Every entity and every relationship is read
 // out of data the repository already carries:
 //
-//   products.ts ................ the 23 modules, their outputs and users, and
-//                                the 17 environments with their product mixes
+//   products.ts ................ the product modules, their outputs and users, and
+//                                the environments with their product mixes
 //   gaitscape/graph.ts ......... signal / capability / outcome nodes and the
 //                                documented senses · powered-by · serves ·
 //                                produces relationships, plus systemFactsFor()

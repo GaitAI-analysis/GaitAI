@@ -1154,3 +1154,8 @@
     transform: none;
   }
 }
+
+:global(.light) .stageIndex {
+  /* 8.5px on a tinted card: solid slate-700 clears 4.5:1 where the mute token sat at 4.47. */
+  color: rgb(51 65 85);
+}

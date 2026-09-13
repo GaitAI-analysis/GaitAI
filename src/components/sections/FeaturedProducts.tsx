@@ -93,7 +93,7 @@ export function FeaturedProducts() {
             eyebrow="Featured · Movement intelligence products"
             title={
               <>
-                {productCount} modular products.{" "}
+                {productCount} product modules.{" "}
                 <span className="text-gradient">
                   One Movement Intelligence Platform.
                 </span>
@@ -109,7 +109,7 @@ export function FeaturedProducts() {
             role="tablist"
             aria-label="Choose a product family"
             aria-orientation="horizontal"
-            className="inline-flex h-10 max-w-full shrink-0 items-center rounded-full touch:h-[3.25rem] border border-[rgba(110,150,255,0.18)] bg-[rgba(10,18,40,0.55)] p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[10px]"
+            className="featured-tabs inline-flex h-10 max-w-full shrink-0 items-center rounded-full touch:h-[3.25rem] border border-[rgba(110,150,255,0.18)] bg-[rgba(10,18,40,0.55)] p-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-[10px]"
           >
             {productViews.map((view, i) => {
               const isActive = selectedView === view.id;

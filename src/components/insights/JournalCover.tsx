@@ -684,7 +684,7 @@ function Reduction() {
         Movement structure retained
       </text>
       <text className={styles.cTiny} x={432} y={296}>
-        No identity channel remains
+        Appearance channel removed
       </text>
     </>
   );

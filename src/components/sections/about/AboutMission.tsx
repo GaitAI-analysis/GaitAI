@@ -45,7 +45,7 @@ export function AboutMission({
               using gait as a non-contact biometric where face, fingerprint or
               iris recognition fall short. Today, that decade of work powers a
               Human Movement Intelligence Platform with two verticals and{" "}
-              {productCount} modular products.
+              {productCount} product modules.
             </p>
           </div>
         </div>

@@ -33,7 +33,7 @@
 }
 
 :global(.light) .journal {
-  --jr-cyan: #108fc0;
+  --jr-cyan: #0e7490;
   --jr-royal: #1b4ed9;
   --jr-violet: #5f25bf;
   --jr-teal: #0d9488;
@@ -1716,7 +1716,7 @@ details[open] > .summaryBody {
    * it follows automatically if the header height changes.
    */
   position: sticky;
-  top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  top: var(--header-clearance);
   /* Never taller than the space beneath the header. Seven sections do not
      need this; an essay with twenty would scroll inside the rail instead of
      running off the screen — and `contain` stops that scroll chaining back
@@ -1758,6 +1758,9 @@ details[open] > .summaryBody {
   font-size: 9px;
   letter-spacing: 0.14em;
   opacity: 0.75;
+}
+:global(.light) .railIndex {
+  opacity: 1;
 }
 .railItemActive {
   color: var(--jr-ink);
@@ -1851,7 +1854,7 @@ details[open] > .summaryBody {
   letter-spacing: -0.03em;
   color: var(--jr-ink);
   text-wrap: balance;
-  scroll-margin-top: calc(var(--site-header-height) + 2rem);
+  scroll-margin-top: var(--header-clearance);
 }
 .sectionRule {
   display: block;

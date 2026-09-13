@@ -44,6 +44,9 @@ export function ChipScroller({
   /** Right-aligned control, e.g. a "clear" button. */
   action?: ReactNode;
 }) {
+  const groupRef = useRef<HTMLDivElement>(null);
+  const enabled = options.filter(option => !option.disabled);
+  const tabStop = enabled.find(option => selected.includes(option.id))?.id ?? enabled[0]?.id;
   return (
     <div className={styles.controlGroup}>
       {(label || action) && (
@@ -54,6 +57,7 @@ export function ChipScroller({
       )}
       <div
         role={multi ? "group" : "radiogroup"}
+        ref={groupRef}
         aria-label={groupLabel ?? label}
         className={styles.chips}
       >
@@ -64,6 +68,17 @@ export function ChipScroller({
               key={option.id}
               type="button"
               disabled={option.disabled}
+              tabIndex={multi || option.id === tabStop ? 0 : -1}
+              onKeyDown={(event) => {
+                if (multi || !enabled.length) return;
+                const direction = ["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : ["ArrowLeft", "ArrowUp"].includes(event.key) ? -1 : 0;
+                if (!direction && event.key !== "Home" && event.key !== "End") return;
+                event.preventDefault();
+                const index = enabled.findIndex(item => item.id === option.id);
+                const next = event.key === "Home" ? 0 : event.key === "End" ? enabled.length - 1 : (index + direction + enabled.length) % enabled.length;
+                onSelect(enabled[next].id);
+                groupRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')[next]?.focus();
+              }}
               {...(multi
                 ? { "aria-pressed": on }
                 : { role: "radio", "aria-checked": on })}

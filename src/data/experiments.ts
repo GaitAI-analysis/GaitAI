@@ -146,7 +146,7 @@ export const experiments: ExperimentRecord[] = [
     name: "Pipeline Walkthrough",
     strap: "Capture → pose → signal → intelligence",
     body:
-      "The whole pipeline as one staged walkthrough: a clip becomes body landmarks, landmarks become temporal channels, and channels become the features a module reads — in a MobilityCare mode and an identity-free SecureVision mode.",
+      "The whole pipeline as one staged walkthrough: a clip becomes body landmarks, landmarks become temporal channels, and channels become the features a module reads — in a MobilityCare mode and an privacy-aware SecureVision mode.",
     href: "/movement-lab/#walkthrough",
     home: "Inside the Movement Intelligence Lab",
     basis: "illustrative",
@@ -200,7 +200,7 @@ export const experiments: ExperimentRecord[] = [
     name: "Privacy Lens",
     strap: "Sensing → privacy transformed → movement intelligence",
     body:
-      "Step through the three processing stages of the identity-free path and see what each one carries forward and what stops being available — one figure, losing information, with the scope of the claim stated on screen.",
+      "Step through the three processing stages of the privacy-aware path and see what each one carries forward and what stops being available — one figure, losing information, with the scope of the claim stated on screen.",
     href: "/securevision/#privacy-lens",
     home: "Inside SecureVision",
     basis: "illustrative",

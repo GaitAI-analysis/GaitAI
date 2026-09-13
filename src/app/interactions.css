@@ -81,7 +81,7 @@
   --hit-shadow: 0 16px 32px -20px rgb(15 23 42 / 0.22);
   --hit-ring: rgb(27 78 217 / 0.6);
 
-  --hit-cue: rgb(21 94 173 / 0.85);
+  --hit-cue: rgb(21 94 173);
   --hit-cue-on: #0f5ea8;
 
   --hit-row: rgb(15 23 42 / 0.035);

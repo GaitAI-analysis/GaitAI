@@ -46,49 +46,8 @@ const ACCEPT = "video/mp4,video/quicktime,video/webm";
 /** Length of a camera-recorded clip. Long enough for several movement cycles. */
 const CLIP_SECONDS = 6;
 
-/**
- * THE BUILT-IN DEMO.
- *
- * WHY THIS IS A RENDERED FIGURE AND NOT FOOTAGE OF A PERSON. Every other video
- * in this repository has fabricated readouts drawn into the picture — cadence
- * figures, mobility scores, identity matches, "FALL RISK MEDIUM", a patient id
- * — and most also carry a skeleton overlay burned onto the subject. Feeding
- * one of those to a pose model would put someone else's invented overlay on
- * top of a real analysis, which is the exact confusion this page exists to
- * avoid. The clip is therefore rendered for this lab.
- *
- * WHAT IT SHOWS. A side-view walker taking nine real steps across the frame
- * over 6.6 seconds — heel strike, foot flat, heel rise, toe-off and a
- * knee-flexed swing on each leg in turn, arms swinging opposite the legs, the
- * pelvis rising at mid-stance and dropping at double support. The gait is
- * kinematically consistent by construction: the planted foot is anchored to
- * the floor and the leg is solved from that contact by inverse kinematics, so
- * a foot on the ground never slides and the body travels by walking rather
- * than by being moved. The generator, with its numerical checks, is
- * `scripts/demo-walker/`.
- *
- * WHAT THE ANALYSIS OF IT IS. Real. BlazePose runs on this clip exactly as on
- * an uploaded file — measured at 52 of 53 sampled instants with a tracked
- * body — and every landmark, trajectory, rhythm and range on the right comes
- * from those detections, so the skeleton, the timeline and the Motion DNA
- * channels are the model's reading of the same frames a reader is watching.
- * The clip replaced an earlier one in which a wireframe figure held a single
- * pose while it was translated across a still frame: the model tracked it,
- * but nothing walked, and the panels showed a sliding figure with a frozen
- * skeleton. That is the failure the generator's slip and floor checks exist
- * to rule out.
- *
- * REPLACING IT. Drop a licensed clip of a person walking into
- * `public/assets/videos/samples/`, point `src`, `poster` and `seconds` at it,
- * and the demo becomes footage of a person with no other change.
- *
- * ON A SECUREVISION DEMO. There is none, deliberately. `pose_landmarker_lite`
- * returns one subject per frame, so a crowd clip is undetectable to it — a
- * three-figure version of an earlier clip was measured at 1% detection, which
- * would have told visitors "no bodies found" over footage plainly containing
- * three. The spatial lens still runs on a visitor's own public-space clip; the
- * demo tab says so in that mode rather than shipping a demo that misreports.
- */
+/** Licensed recorded stock footage, with no burned-in analytics. The browser
+ * extracts its own landmarks; this brief example is not validation evidence. */
 type Demo = {
   id: string;
   label: string;
@@ -101,11 +60,11 @@ type Demo = {
 const MOBILITY_DEMO: Demo = {
   id: "mobility-walk",
   label: "Walking analysis demo",
-  src: "/assets/videos/samples/mobility-walk-demo.mp4",
-  poster: "/assets/videos/samples/mobility-walk-demo-poster.jpg",
-  seconds: 7,
+  src: "/assets/videos/samples/recorded-walk.mp4",
+  poster: "/assets/images/capture/sequence/poster.webp",
+  seconds: 1.28,
   description:
-    "A rendered walking figure taking nine steps across the frame — heel strike to toe-off on each leg, arms swinging opposite — built for this lab so the pose model has a real gait to read. Analysed in your browser by the same pipeline as your own footage.",
+    "Recorded studio walk by SHVETS production / Pexels, used under the Pexels licence. No product endorsement or validation evidence. This brief sample demonstrates source-aligned pose extraction; it cannot establish cadence or symmetry. Analysed locally by the same pipeline as uploaded footage.",
 };
 
 /** Which built-in demo a lens offers, if any. */
@@ -127,7 +86,7 @@ type Mode = "auto" | "mobility" | "secure";
 const MODES: { id: Mode; label: string; note: string }[] = [
   { id: "auto", label: "Auto", note: "Pick a lens from what is in the clip" },
   { id: "mobility", label: "MobilityCare", note: "Body movement over time" },
-  { id: "secure", label: "SecureVision", note: "Spatial flow, no identity" },
+  { id: "secure", label: "SecureVision", note: "Spatial flow, identity not required" },
 ];
 
 type Tab = { id: string; label: string };
@@ -843,7 +802,7 @@ export function MovementAnalyzer() {
                   <figure className={styles.demoPreview}>
                     <img
                       src={assetPath(demo.poster)}
-                      alt="A rendered figure walking to the right across a dark frame, mid-stride with one foot planted and the other swinging through — a frame from the prepared demonstration clip."
+                      alt="A frame of a person in a denim shirt and shorts walking in a studio, from the recorded demonstration clip."
                       loading="lazy"
                       decoding="async"
                       className={styles.demoPoster}
@@ -853,7 +812,7 @@ export function MovementAnalyzer() {
                         Demo walking clip
                       </span>
                       <span className={styles.demoMeta}>
-                        ~{demo.seconds} sec · rendered walking figure
+                        ~{demo.seconds} sec · recorded studio walk
                       </span>
                     </figcaption>
                   </figure>
@@ -1054,7 +1013,7 @@ export function MovementAnalyzer() {
                     come from this clip through the same pose model an
                     uploaded file goes through, so calling them examples would
                     be the inaccurate label. What the clip itself is — a
-                    prepared, rendered figure — is stated where it is chosen
+                    licensed recorded studio walk — is stated where it is chosen
                     and in the suitability banner. */}
                 <span className={styles.viewMeta} title={name}>
                   {origin === "camera"
@@ -1378,8 +1337,7 @@ export function MovementAnalyzer() {
 
                   <p className={styles.boundary}>
                     This lens holds positions and paths — where movement was,
-                    and which way it went. No face, no appearance and no
-                    identity is extracted, so none can be shown; and no anomaly
+                    and which way it went. Identity matching is not performed here; movement and linked track references may still be identifying. No anomaly
                     or risk is scored, because flagging deviation needs an
                     expected flow for a specific space, which one clip does not
                     define.

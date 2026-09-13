@@ -68,6 +68,17 @@ export default function SecureVisionPage() {
           />
         </video>
 
+        {/* Text-only corrections share the footage's crop and the reduced-motion
+            poster's crop. The video and poster themselves remain unchanged. */}
+        <img
+          className="securevision-hero-labels"
+          src={assetPath("/images/hero/securevision-operations-overlay.svg")}
+          width={1600}
+          height={900}
+          alt=""
+          aria-hidden="true"
+        />
+
         {/* Left-side readability gradient — fades to transparent so the
             tracking visuals and analytics panel stay bright */}
         <div className="securevision-video-shade" aria-hidden="true" />
@@ -83,7 +94,7 @@ export default function SecureVisionPage() {
                 for safer public spaces.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg lg:mt-5 lg:text-base">
-                {secureProducts.length} modular products built around safety
+                {secureProducts.length} product modules built around safety
                 analytics, crowd flow, anomaly detection and post-event
                 investigation — grounded in{" "}
                 <span className="text-soft-white">
@@ -144,7 +155,7 @@ export default function SecureVisionPage() {
               href="#privacy-aware"
               className="text-royal-300 underline decoration-royal-300/40 underline-offset-2 transition-colors hover:text-royal-200"
             >
-              identity-free safety intelligence
+              privacy-aware safety intelligence
             </Link>{" "}
             — anomaly detection, crowd flow, worker safety and campus
             monitoring.{" "}
@@ -162,7 +173,7 @@ export default function SecureVisionPage() {
 
       {/* MOVEMENT X-RAY
           Placed immediately after the governance note, which has just used
-          the phrase "identity-free safety intelligence". That phrase is the
+          the phrase "privacy-aware safety intelligence". That phrase is the
           whole SecureVision proposition and, as text, it is unfalsifiable —
           a reader has no way to check it. This shows it: the human view has a
           person in it, the AI view has a skeleton, two trajectories and two
@@ -187,19 +198,19 @@ export default function SecureVisionPage() {
                     </span>
                   </>
                 }
-                description="Identity-free is a claim about what reaches the model. Switch the view and see what that leaves: geometry and timing, with no appearance in it."
+                description="Compare the source, its estimated pose and a feature-level explanation. Reducing appearance detail can support privacy-aware workflows; pose and movement may still carry identifying information."
                 align="left"
               />
             </div>
             <MovementXRay
               family="securevision"
-              humanCaption="Five moments in one walk. Everything that identifies a person — face, clothing, build, colour — is in this view, and none of it is what SecureVision's identity-free modules are looking for."
-              aiCaption="The same walk as geometry and timing: a pose skeleton, ground contacts, the paths two landmarks trace, and those paths as temporal channels. An anomaly, a crowd flow or a safety event is read from this, which is why it can be read without knowing who is walking."
+
+
               reads={[
                 {
                   label: "Pose geometry",
                   detail:
-                    "Body keypoints and the skeleton between them. No appearance is carried forward from the frame.",
+                    "Estimated body keypoints and their connections reduce appearance detail. They do not guarantee anonymity.",
                 },
                 {
                   label: "Trajectory",
@@ -214,7 +225,7 @@ export default function SecureVisionPage() {
                 {
                   label: "What is not here",
                   detail:
-                    "No face, no clothing, no identity. SecureVision's identity capabilities are a separate, governed group and are not part of this path.",
+                    "No face, no clothing detail — identity is not required for this path. SecureVision's identity capabilities are a separate, governed group and are not part of this path.",
                 },
               ]}
             />
@@ -231,7 +242,7 @@ export default function SecureVisionPage() {
             eyebrow="SecureVision · Product suite"
             title={
               <>
-                {secureProducts.length} modular products,{" "}
+                {secureProducts.length} product modules,{" "}
                 <span className="text-gradient-secure">two governance tiers.</span>
               </>
             }
@@ -264,7 +275,7 @@ export default function SecureVisionPage() {
                       WebkitTextFillColor: "transparent",
                     }}
                   >
-                    without invasive surveillance.
+                    with task-relevant movement representations.
                   </span>
                 </h2>
                 <p className="mt-5 max-w-md text-base leading-relaxed text-soft-gray">

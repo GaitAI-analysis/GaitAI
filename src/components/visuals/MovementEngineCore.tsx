@@ -30,7 +30,7 @@ import styles from "./engine.module.css";
  *     by a single sweep per loop rather than spun, an ingest arc that responds
  *     when the inbound signal lands, and an emit arc when the output leaves.
  *   SecureVision — anonymous human movement intelligence in public space. A
- *     plan view of a monitored environment: anonymous pedestrian poses walking
+ *     plan view of a monitored environment: illustrative pedestrian poses walking
  *     it, each standing on the route it is walking, over density contours,
  *     restricted-zone geometry, computed intersections and one flagged
  *     deviation. The figures are pose graphs, not silhouettes — no face, no
@@ -557,7 +557,7 @@ function Walker({
   );
 }
 
-/** One anonymous pedestrian, standing on the ground point it is given.
+/** One illustrative pedestrian, standing on the ground point it is given.
     The strokes are drawn twice — a wide, very faint copy under the real one —
     which is the whole of the "glow": a filter would be the only filter in the
     composition, and a fill would make a silhouette. */
@@ -894,7 +894,7 @@ export function MovementEngineCore({
   return (
     <svg
       role="img"
-      aria-label="How the GaitAI ecosystem turns human movement into intelligence. On the left, MobilityCare: a stride's joint-angle field, four walking poses from heel strike to swing, and a time axis of gait events. In the centre, the GaitAI Movement Intelligence Engine, shown as a sampling ring that illuminates as the signal arrives. On the right, SecureVision: a plan view of a public space with anonymous pedestrian figures walking through it, each standing on its own tracked route, over density contours and a restricted zone, with one route deviating into that zone and flagged."
+      aria-label="How the GaitAI ecosystem turns human movement into intelligence. On the left, MobilityCare: a stride's joint-angle field, four walking poses from heel strike to swing, and a time axis of gait events. In the centre, the GaitAI Movement Intelligence Engine, shown as a sampling ring that illuminates as the signal arrives. On the right, SecureVision: a plan view of a public space with illustrative pedestrian figures walking through it, each standing on its own tracked route, over density contours and a restricted zone, with one route deviating into that zone and flagged."
       viewBox={`0 0 ${geo.w} ${geo.h}`}
       data-focus={focus ?? "none"}
       className={`${styles.engine} ${

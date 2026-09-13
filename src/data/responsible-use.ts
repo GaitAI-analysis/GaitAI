@@ -28,7 +28,36 @@
  * privacy or security claim on one page than on another.
  */
 export const RESPONSIBLE_USE_CONTROLS =
-  "Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction.";
+  "Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information.";
+
+export const IDENTITY_GUARDRAIL =
+  "Watchlist, ReID, AccessMotion and ForensicSearch require documented lawful authority, consent where applicable, purpose-limited access, audit logs and human review. Candidate associations are not proof of identity and must not trigger automatic denial, enforcement or adverse decisions.";
+
+export const DEFENCE_GUARDRAIL =
+  "DefenceMotion requires an authorized programme owner, consent for enrolled personnel, purpose-limited retention, audit and qualified human review. It is not for autonomous targeting or lethal decisions, or for automated fitness-for-duty, disciplinary, promotion or personnel decisions. Any separately governed personnel process must establish its own legal basis, evidence and human decision-making.";
+
+export const INSURANCE_GUARDRAIL =
+  "Insurance and wellness workflows are not for automated underwriting, eligibility, coverage or premium decisions. Any such use requires separate explicit governance and a documented legal basis; the published evidence does not establish support for those decisions.";
+
+export const CHILDREN_GUARDRAIL =
+  "Children and school workflows require guardian and institutional consent as applicable, limited retention, no automatic identity matching unless specifically authorized, and no automated educational decisions. Qualified people must review movement observations in context.";
+
+/** Applicability is declared centrally, so cards, detail pages and the corpus
+ * inherit the same constraints without maintaining copies of the wording. */
+export function productGuardrails(id: string): string {
+  if (id === "defencemotion") return `${IDENTITY_GUARDRAIL} ${DEFENCE_GUARDRAIL}`;
+  if (["watchlist", "reid", "accessmotion", "forensicsearch"].includes(id)) return IDENTITY_GUARDRAIL;
+  if (id === "pediatricmotion" || id === "campusshield") return CHILDREN_GUARDRAIL;
+  if (id === "watchcare") return INSURANCE_GUARDRAIL;
+  return "";
+}
+
+export function environmentGuardrails(id: string): string {
+  if (id === "defence") return DEFENCE_GUARDRAIL;
+  if (id === "insurance") return INSURANCE_GUARDRAIL;
+  if (id === "schools" || id === "campuses") return CHILDREN_GUARDRAIL;
+  return "";
+}
 
 /** Clinical boundary — assessment support, never diagnosis. */
 const CARE_BOUNDARY =

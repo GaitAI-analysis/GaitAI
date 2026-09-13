@@ -632,6 +632,7 @@ const ART: Record<string, Art> = {
  */
 export function publicationKindLabel(pub: Publication): string {
   if (pub.kind === "patent") return "Granted patent";
+  if (pub.publicationStatus === "publisher-unverified") return "Manuscript · publisher unverified";
   const t = pub.title.toLowerCase();
   if (t.includes("review")) return "Review";
   if (t.includes("survey")) return "Survey";

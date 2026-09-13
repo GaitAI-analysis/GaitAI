@@ -42,6 +42,27 @@ the asset, drop it at the path, and the treatment already applies.
 All stills: JPEG at quality 84 plus a WebP sibling, longest edge ≤ 1200 px,
 progressive, no EXIF. The build script does this for anything it emits.
 
+## Homepage hero — art-directed, not capture (separate rule)
+
+The hero is a cinematic background, not a Human View: it may stay processed
+and it must NOT gain boxes or skeletons. What it should gain is a real
+photographic base. The three frames in `public/images/hero/` are AI-generated
+composites — 2172 × 193 px strips, `object-fit: cover` into a viewport-height
+section, which is why the foreground man, reflections and background people
+read soft and synthetic when stretched to ~700 px tall.
+
+Drop-in spec (no code change; the navy scrim, crossfade and label overlay are
+all CSS in `heroSlider.module.css`):
+
+| Stem | Scene | Framing | Deliver as |
+|---|---|---|---|
+| `gaitai-hero-01` | Everyday public space, several people walking, one nearer the camera | Wide, eye height, subject standing right-of-centre (`pos: 42% 50%` keeps them clear of the copy) | 2400 × 1350 min, WebP q80 (+ AVIF for 02/03) |
+| `gaitai-hero-02-mobilitycare` | Clinic corridor / rehab space, one person walking | Same | same |
+| `gaitai-hero-03-securevision` | Station or concourse, natural crowd | Same; the SVG label overlay draws over it unchanged | same |
+
+Licensed stock with model releases, or a commissioned shoot. Keep people
+un-annotated: the treatment is atmosphere, not analytics.
+
 ## Licensing and likeness
 
 A photograph of an identifiable person presented as surveillance or clinical
@@ -49,3 +70,12 @@ footage needs a model release, whoever supplies it — a stock licence, a
 commissioned shoot, or an image generated for GaitAI. That decision belongs to
 the site owner and is why none of the slots above have been filled with a
 placeholder.
+
+## Recorded walking sequence
+
+| File | Used by | Source |
+|---|---|---|
+| `sequence/frame-1..5.webp`, `sequence/mask-1..5.png`, `sequence/poster.webp`, `sequence/contact-sheet.webp` | `visuals/SequenceFrame` — Movement X-Ray human / AI / explain views on `/mobilitycare/`, `/securevision/`, `/movement-lab/`; home privacy pipeline; research capture transform; Insights *From Walking Video to Movement Intelligence* | Five fixed-size tracked crops from one continuous take of Pexels video 9731860, *A man walking inside the studio* by SHVETS production, used under the Pexels licence (https://www.pexels.com/license/). Landmarks and segmentation are extracted from these exact frames by `scripts/derive-walking-sequence.mjs` with the repository pose model and written to `src/data/generated/walking-sequence.json`, which also records this provenance. |
+| `/assets/videos/samples/recorded-walk.mp4` | Movement Analyzer sample clip (`/movement-lab/`) — the browser pose model runs on it | A 1.28 s, 960x540 excerpt of the same Pexels take, re-encoded with ffmpeg. Illustrative demonstration footage only: no product endorsement, validation result or clinical/safety conclusion. |
+
+The excerpt is short by design: it is a demonstration of the pipeline, not a dataset. Phase labels drawn over it are illustrative annotations, not validated gait-event detection.

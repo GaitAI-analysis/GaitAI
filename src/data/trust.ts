@@ -47,9 +47,9 @@ export const privacyControls: PrivacyControl[] = [
     source: "Patent 402202 · Edge inference capability",
   },
   {
-    topic: "Non-identifying mode",
+    topic: "Identity-not-required workflow",
     support:
-      "The architecture is designed so skeleton-only processing can replace identifiable video as the analytic substrate, letting movement analytics run without identity. SecureVision is designed to lead with identity-free capabilities by default.",
+      "The architecture is designed to support task-relevant pose and movement features in workflows that do not require identity matching. Pose, gait and trajectories may still carry identifying information: privacy-aware architecture does not automatically mean anonymity.",
     source: "PrivacyGuard · pipeline stages",
   },
   {
@@ -97,7 +97,7 @@ export const privacyControls: PrivacyControl[] = [
   {
     topic: "Biometric and identity processing",
     support:
-      "Identity-bearing modules (ReID, AccessMotion, Watchlist) are gated behind stricter policy controls and are intended only for deployments with lawful authority, consent, access control and auditability. Where non-identifying movement intelligence is sufficient, that is the intended default.",
+      "Identity-bearing modules (ReID, AccessMotion, Watchlist) are gated behind stricter policy controls and are intended only for deployments with lawful authority, consent, access control and auditability. Where identity-not-required movement workflows is sufficient, that is the intended default.",
     source: "Responsible-deployment policy · Watchlist product record",
   },
   {

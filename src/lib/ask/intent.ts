@@ -203,11 +203,11 @@ export const INTENTS: Record<Intent, IntentSpec> = {
       /\b(paper|papers|publication|publications|publish(?:ed|es)?(?!\s+(?:articles?|blog|posts?|stories))|patent|patents|doi|(?:journal|research|academic|scientific|peer.?reviewed)\s+(?:articles?|work|output)|cite|citation|citations|peer.?reviewed|preprint|proceedings|venue)\b/i,
     ],
     topics: /^(?:papers?|publications?|patents?|citations?|doi|journals?|peer.?reviewed)$/i,
-    expand: [],
+    expand: ["paper", "publication", "journal", "conference"],
     prefer: { publication: 2.5, research: 1 },
     /* The founder's record lists every paper; it is not the answer to "what
        publications does GaitAI have". Modules cite the patent; likewise. */
-    demote: { person: -6, page: -2, talk: -4, product: -4, "use-case": -4, insight: -4, capability: -1, signal: -1 },
+    demote: { person: -12, page: -2, talk: -4, product: -4, "use-case": -4, insight: -4, capability: -1, signal: -1 },
     family: null,
     hubs: ["page:/publications"],
     policy: "List real records — title, venue, year — from the publication records; a paper grounds a capability, it does not validate a module.",

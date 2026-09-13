@@ -134,7 +134,7 @@ export const siteMap: AtlasNode = {
       id: "products",
       label: "Products",
       route: "/products/",
-      description: `All ${allProducts.length} modular products`,
+      description: `All ${allProducts.length} product modules`,
       family: "neutral",
       children: [
         {

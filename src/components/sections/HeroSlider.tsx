@@ -10,9 +10,9 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
-import { useReducedMotion } from "framer-motion";
 import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { assetPath } from "@/lib/paths";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import styles from "./heroSlider.module.css";
 
 /**
@@ -85,6 +85,8 @@ export interface HeroFrame {
   id: string;
   /** Asset stem in /images/hero, e.g. "gaitai-hero-01". */
   image: string;
+  /** Optional label correction in the artwork's intrinsic coordinate space. */
+  overlay?: string;
   /** Intrinsic size of the band, for the img attributes. */
   width: number;
   height: number;
@@ -92,6 +94,13 @@ export interface HeroFrame {
   pos: string;
   /** Position on narrow screens, where only a sliver of the band is shown. */
   posNarrow?: string;
+  /**
+   * The strip's height as a CSS length — how tall the band is drawn, and so
+   * how large its subject stands and how far the 193px source is upscaled.
+   * Omit for the default (`clamp(58%, 34vw, 100%)`); a frame whose subject
+   * reads too large sets a smaller one and gets a wider, sharper window.
+   */
+  strip?: string;
   alt: string;
   /** The control-list label beside the frame number, e.g. "MobilityCare". */
   short: string;
@@ -115,7 +124,9 @@ export function HeroSlider({
   /** Constant content under the per-frame copy — the demo, the evidence line. */
   children?: ReactNode;
 }) {
-  const reduce = useReducedMotion();
+  /* Hydration-safe: the Play/Pause glyph below is chosen on this value, so
+     the first client render has to agree with the server (see the hook). */
+  const reduce = usePrefersReducedMotion();
   const [active, setActive] = useState(0);
   /* A frame being glanced at from the control list; null when none. */
   const [preview, setPreview] = useState<number | null>(null);
@@ -123,6 +134,15 @@ export function HeroSlider({
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(true);
+  useEffect(() => {
+    const node = heroRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
   const [userPaused, setUserPaused] = useState(false);
   const [restIdle, setRestIdle] = useState(false);
   /* A tick that restarts the interval after a manual selection, even when
@@ -171,7 +191,7 @@ export function HeroSlider({
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
 
-  const playing = !reduce && !hovered && !focused && !hidden && !userPaused && count > 1;
+  const playing = inView && !reduce && !hovered && !focused && !hidden && !userPaused && count > 1;
 
   useEffect(() => {
     if (!playing) return;
@@ -203,6 +223,7 @@ export function HeroSlider({
   return (
     <div
       className={styles.slider}
+      ref={heroRef}
       role="region"
       aria-roledescription="carousel"
       aria-label="GaitAI, MobilityCare and SecureVision"
@@ -224,7 +245,7 @@ export function HeroSlider({
       onPointerUp={onPointerUp}
       onPointerCancel={() => (start.current = null)}
     >
-      {/* ── THE ARTWORK ── one <picture> per frame, all stacked, opacity does
+      {/* ── THE ARTWORK ── one layer per frame, all stacked, opacity does
           the crossfade. Decorative: the live copy carries the meaning. */}
       <div className={styles.backdrop} aria-hidden="true">
         {frames.map((f, i) => {
@@ -234,30 +255,42 @@ export function HeroSlider({
           const webp = assetPath(`/images/hero/${f.image}.webp`);
           const avif = assetPath(`/images/hero/${f.image}.avif`);
           return (
-            <picture
+            <div
               key={f.id}
               className={`${styles.frame} ${on ? styles.frameOn : ""}`}
               style={
                 {
                   "--pos": f.pos,
                   "--pos-narrow": f.posNarrow ?? f.pos,
+                  ...(f.strip ? { "--strip": f.strip } : {}),
                 } as React.CSSProperties
               }
             >
-              {/* Frame 01 is WebP-only so the single preload and the chosen
-                  source are the same bytes; the rest prefer AVIF. */}
-              {i > 0 && <source srcSet={avif} type="image/avif" />}
-              <img
-                src={webp}
-                alt=""
-                width={f.width}
-                height={f.height}
-                decoding="async"
-                loading="eager"
-                fetchPriority={i === 0 ? "high" : "low"}
-                className={styles.img}
-              />
-            </picture>
+              <picture>
+                {/* Frame 01 is WebP-only so the single preload and the chosen
+                    source are the same bytes; the rest prefer AVIF. */}
+                {i > 0 && <source srcSet={avif} type="image/avif" />}
+                <img
+                  src={webp}
+                  alt=""
+                  width={f.width}
+                  height={f.height}
+                  decoding="async"
+                  loading="eager"
+                  fetchPriority={i === 0 ? "high" : "low"}
+                  className={styles.img}
+                />
+              </picture>
+              {f.overlay && (
+                <img
+                  src={assetPath(`/images/hero/${f.overlay}`)}
+                  alt=""
+                  width={f.width}
+                  height={f.height}
+                  className={`${styles.img} ${styles.labelOverlay}`}
+                />
+              )}
+            </div>
           );
         })}
         {/* Legibility scrim over the artwork — heavier on the left where the
@@ -332,51 +365,54 @@ export function HeroSlider({
             <ChevronLeft aria-hidden="true" />
           </button>
 
-          <ol className={styles.dots} aria-label="Frames">
-            {frames.map((f, i) => {
-              const on = i === active;
-              const glance = preview === i && !on;
-              return (
-                <li key={f.id}>
-                  <button
-                    type="button"
-                    className={`${styles.dot} ${on ? styles.dotOn : ""} ${glance ? styles.dotGlance : ""}`}
-                    onClick={() => go(i)}
-                    /* Mouse only: a touch "enter" is the start of a tap, and a
-                       tap should select, not glance. */
-                    onPointerEnter={(e) => e.pointerType === "mouse" && setPreview(i)}
-                    onPointerLeave={(e) => e.pointerType === "mouse" && setPreview((p) => (p === i ? null : p))}
-                    /* Keyboard focus previews the way hover does; Enter and
-                       Space are the button's own click. */
-                    onFocus={(e) => e.currentTarget.matches(":focus-visible") && setPreview(i)}
-                    onBlur={() => setPreview((p) => (p === i ? null : p))}
-                    aria-label={`Show frame ${i + 1} of ${count}: ${f.short}`}
-                    aria-current={on ? "true" : undefined}
-                    aria-controls={copyId}
-                  >
-                    <span className={styles.dotNum}>{String(i + 1).padStart(2, "0")}</span>
-                    <span className={styles.dotLabel}>{f.short}</span>
-                    <span
-                      className={styles.dotTrack}
-                      data-running={on && playing ? "true" : undefined}
-                      style={{ "--interval": `${INTERVAL_MS}ms` } as React.CSSProperties}
-                    />
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
+          {/* The list and its pause are one cluster; see .chapters. */}
+          <div className={styles.chapters}>
+            <ol className={styles.dots} aria-label="Frames">
+              {frames.map((f, i) => {
+                const on = i === active;
+                const glance = preview === i && !on;
+                return (
+                  <li key={f.id}>
+                    <button
+                      type="button"
+                      className={`${styles.dot} ${on ? styles.dotOn : ""} ${glance ? styles.dotGlance : ""}`}
+                      onClick={() => go(i)}
+                      /* Mouse only: a touch "enter" is the start of a tap, and a
+                         tap should select, not glance. */
+                      onPointerEnter={(e) => e.pointerType === "mouse" && setPreview(i)}
+                      onPointerLeave={(e) => e.pointerType === "mouse" && setPreview((p) => (p === i ? null : p))}
+                      /* Keyboard focus previews the way hover does; Enter and
+                         Space are the button's own click. */
+                      onFocus={(e) => e.currentTarget.matches(":focus-visible") && setPreview(i)}
+                      onBlur={() => setPreview((p) => (p === i ? null : p))}
+                      aria-label={`Show frame ${i + 1} of ${count}: ${f.short}`}
+                      aria-current={on ? "true" : undefined}
+                      aria-controls={copyId}
+                    >
+                      <span className={styles.dotNum}>{String(i + 1).padStart(2, "0")}</span>
+                      <span className={styles.dotLabel}>{f.short}</span>
+                      <span
+                        className={styles.dotTrack}
+                        data-running={on && playing ? "true" : undefined}
+                        style={{ "--interval": `${INTERVAL_MS}ms` } as React.CSSProperties}
+                      />
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
 
-          <button
-            type="button"
-            className={styles.pause}
-            onClick={() => setUserPaused((p) => !p)}
-            aria-pressed={userPaused}
-            aria-label={userPaused ? "Resume auto-advance" : "Pause auto-advance"}
-            disabled={!!reduce}
-          >
-            {userPaused || reduce ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
-          </button>
+            <button
+              type="button"
+              className={styles.pause}
+              onClick={() => setUserPaused((p) => !p)}
+              aria-pressed={userPaused}
+              aria-label={userPaused ? "Resume auto-advance" : "Pause auto-advance"}
+              disabled={!!reduce}
+            >
+              {userPaused || reduce ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
+            </button>
+          </div>
 
           <button
             type="button"

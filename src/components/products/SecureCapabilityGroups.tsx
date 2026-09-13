@@ -16,7 +16,7 @@ import { secureProducts } from "@/data/products";
  * see separately.
  *
  * The suite previously read as one undifferentiated grid, which put
- * identity-free crowd and safety analytics next to person re-identification
+ * privacy-aware crowd and safety analytics next to person re-identification
  * and watchlist matching as if they carried the same governance weight. They
  * do not. Group A works without identifying anyone; Group B requires lawful
  * authority, access control and auditability, and carries that condition
@@ -120,7 +120,7 @@ export function SecureCapabilityGroups() {
             <p className="mt-2.5 max-w-3xl text-[13.5px] leading-relaxed text-soft-gray">
               Identity-related capabilities are intended only for lawful,
               authorized environments with appropriate access controls,
-              governance and auditability. Where non-identifying movement
+              governance and auditability. Where movement without identity matching
               intelligence is sufficient for the outcome, that is the
               intended default.
             </p>

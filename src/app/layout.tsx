@@ -1,3 +1,5 @@
+import { ScrollClearance } from "@/components/layout/ScrollClearance";
+import { MotionBudget } from "@/components/layout/MotionBudget";
 import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
@@ -165,12 +167,15 @@ export default function RootLayout({
         />
         <Providers>
           <div className="relative min-h-screen">
+            <a href="#main-content" className="skip-link">Skip to content</a>
             <Navbar />
+            <ScrollClearance />
+            <MotionBudget />
             {/* Cmd/Ctrl + K over the whole site. Mounted once at the root and
                 renders nothing until opened, so it costs one keydown listener
                 and no markup on any route. */}
             <IntelligenceSearch />
-            <main className="site-main relative">
+            <main id="main-content" tabIndex={-1} className="site-main relative">
               {/* GaitAI Atlas, level one: a 26px strip saying where this page
                   sits in the site. In the layout rather than on each page so
                   that all ~70 routes — including the fifty generated ones —

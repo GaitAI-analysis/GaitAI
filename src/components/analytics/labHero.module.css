@@ -332,7 +332,6 @@
   text-transform: uppercase;
   text-align: center;
   color: var(--lh-mute);
-  opacity: 0.8;
   /* Wrapping is the point: two lines is the designed outcome for the last
      label, not a failure mode to be avoided by shrinking the type. */
   text-wrap: balance;
@@ -353,7 +352,6 @@
   text-transform: uppercase;
   text-align: right;
   color: var(--lh-mute);
-  opacity: 0.7;
 }
 
 /* ── Motion ── */

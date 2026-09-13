@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/legal/security" },
   title: "Security & privacy controls",
   description:
-    "What GaitAI's architecture supports, control by control: processing location, non-identifying modes, face blur, retention, role-based access, audit logs, consent and biometric governance — and what is explicitly not claimed.",
+    "What GaitAI's architecture supports, control by control: processing location, identity-not-required workflows, face blur, retention, role-based access, audit logs, consent and biometric governance — and what is explicitly not claimed.",
 };
 
 /**

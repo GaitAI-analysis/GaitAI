@@ -203,7 +203,8 @@
   color: rgb(var(--c-soft-mute));
 }
 .lvLow {
-  color: rgb(148 163 184 / 0.45);
+  /* Dim by design, but 4.5:1 on the ground: 0.45 read at 2.4:1. */
+  color: rgb(148 163 184 / 0.8);
 }
 
 /* ── Why ──────────────────────────────────────────────────────────────── */
@@ -242,7 +243,7 @@
   color: rgb(var(--c-soft-gray));
 }
 .whyOff {
-  color: rgb(148 163 184 / 0.5);
+  color: rgb(148 163 184 / 0.8);
 }
 
 .whyDot {
@@ -278,6 +279,11 @@
 :global(.light) .segOn {
   background: rgb(15 23 42 / 0.06);
 }
-:global(.light) .lvLow {
-  color: rgb(15 23 42 / 0.4);
+:global(.light) .lvLow,
+:global(.light) .whyOff {
+  color: rgb(15 23 42 / 0.7);
+}
+:global(.light) .match {
+  --fm-care: #0e7490;
+  --fm-secure: #6d28d9;
 }

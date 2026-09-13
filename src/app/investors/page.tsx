@@ -46,8 +46,8 @@ export default function InvestorsPage() {
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
               GaitAI began as founder-led research into what walking reveals
               about health, identity and safety. That work — {papers.length}{" "}
-              peer-reviewed papers and a granted Indian patent — now underpins
-              two verticals and {productCount} modular products.
+              surfaced academic papers and a granted Indian patent — now underpins
+              two verticals and {productCount} product modules.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link href="/research" className="btn-primary">

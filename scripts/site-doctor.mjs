@@ -21,7 +21,7 @@
  *   4. Whether the article view counters are readable by an anonymous
  *      visitor (the detail lives in journal:doctor; this reports the verdict).
  */
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -50,7 +50,7 @@ const fail = (label, detail) => {
 };
 
 /* Every public route, in the order the checklist lists them. */
-const ROUTES = [
+const CORE_ROUTES = [
   "/", "/products/", "/mobilitycare/", "/securevision/", "/use-cases/",
   "/research/", "/research/evidence/", "/research/talks/", "/publications/",
   "/insights/", "/movement-lab/", "/gaitscape/", "/labs/", "/labs/dataset/",
@@ -58,6 +58,14 @@ const ROUTES = [
   "/legal/privacy/", "/legal/terms/", "/legal/security/",
   "/legal/responsible-ai/",
 ];
+
+// Built route inventory includes all product, environment, paper and article routes.
+const EXPORT_ROOT = process.env.GAITAI_AUDIT_OUT || join(root, "out");
+function exportedRoutes(dir, prefix="/") {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, {withFileTypes:true}).flatMap(e => e.isDirectory() ? exportedRoutes(join(dir,e.name), `${prefix}${e.name}/`) : e.name === "index.html" ? [prefix] : []);
+}
+const ROUTES = [...new Set([...CORE_ROUTES,...exportedRoutes(EXPORT_ROOT)])].filter(route => !route.startsWith("/admin"));
 
 /* Routes that have been requested but are not built. Listed so the report
    says "not implemented" rather than silently passing. */
@@ -104,11 +112,11 @@ async function fetchText(url) {
 }
 
 function localHtml(route) {
-  const p = join(root, "out", route.replace(/^\//, ""), "index.html");
+  const p = join(EXPORT_ROOT, route.replace(/^\//, ""), "index.html");
   /* Only the root has a second spelling. For any other route the fallback
      used to resolve to the out/ DIRECTORY itself, and reading a directory
      threw EISDIR on the first planned-but-unbuilt route. */
-  const q = route === "/" ? join(root, "out", "index.html") : null;
+  const q = route === "/" ? join(EXPORT_ROOT, "index.html") : null;
   const file = existsSync(p) ? p : q && existsSync(q) ? q : null;
   return file ? { status: 200, text: readFileSync(file, "utf8") } : { status: 404, text: "" };
 }
@@ -237,4 +245,4 @@ if (failures) {
   console.log(C.bad(`  ${failures} check(s) failed.`));
   process.exit(1);
 }
-console.log(C.ok("  Live site matches the repository on every checked item.\n"));
+console.log(C.ok(`  ${useLocal ? "Local export" : "Live site"} matches the repository on every checked item.\n`));

@@ -64,8 +64,8 @@ const MODULES: Record<
     now: "Module to follow, grounded in the covariate-invariant recognition papers listed below.",
   },
   Privacy: {
-    what: "How a gait dataset and a signature are protected inside a deep-learning pipeline, and what an identity-free path keeps versus gives up.",
-    now: "The Privacy Lens in the Movement Intelligence Lab walks the identity-free path today, on illustrative data. The dataset-protection work is published.",
+    what: "How a gait dataset and a signature are protected inside a deep-learning pipeline, and what an privacy-aware path keeps versus gives up.",
+    now: "The Privacy Lens in the Movement Intelligence Lab walks the privacy-aware path today, on illustrative data. The dataset-protection work is published.",
     href: "/securevision/#privacy-lens",
     hrefLabel: "Step through the Privacy Lens",
   },
@@ -212,7 +212,7 @@ export default function GaitBiometricsLabPage() {
             Published work this lab rests on
           </span>
           <h2 className="mt-5 max-w-2xl font-display text-display-md text-balance text-soft-white">
-            {papers.length} peer-reviewed papers on{" "}
+            {papers.length} surfaced academic papers on{" "}
             <span className="text-gradient">gait recognition.</span>
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">

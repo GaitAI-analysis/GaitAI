@@ -34,6 +34,8 @@ export interface Publication {
   founderIndex?: number;
   doi?: string;
   externalUrl: string;
+  publicationStatus?: "publisher-confirmed" | "publisher-unverified";
+  verificationNote?: string;
   cover: string;
   /**
    * Optional card visual with priority over the first-page capture:
@@ -169,10 +171,10 @@ export const papers: Publication[] = [
       "Mohammad Shabaz",
       "Deepak Gupta",
       "Aditya Kumar Sahu",
+      "Muhammad Attique Khan",
     ],
-    externalUrl: scholar(
-      "Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques Anubha Parashar"
-    ),
+    doi: "10.1016/j.engappai.2023.107712",
+    externalUrl: "https://doi.org/10.1016/j.engappai.2023.107712",
     cover: "/publications/paper-eaai.jpg",
     artwork: "/assets/images/publications/model-based-gait-recognition.webp",
     keywords: [
@@ -192,9 +194,8 @@ export const papers: Publication[] = [
     publisher: "Elsevier",
     year: 2024,
     authors: ["Anubha Parashar", "Apoorva Parashar", "Imad Rida"],
-    externalUrl: scholar(
-      "Journey into Gait Biometrics Integrating Deep Learning for Enhanced Pattern Recognition Anubha Parashar"
-    ),
+    doi: "10.1016/j.dsp.2024.104393",
+    externalUrl: "https://doi.org/10.1016/j.dsp.2024.104393",
     cover: "/publications/paper-dsp.jpg",
     artwork: "/assets/images/publications/deep-learning-gait-pattern-recognition.webp",
     keywords: [
@@ -220,9 +221,8 @@ export const papers: Publication[] = [
       "Mohammad Shabaz",
       "Imad Rida",
     ],
-    externalUrl: scholar(
-      "Data Preprocessing and Feature Selection Techniques in Gait Recognition Anubha Parashar"
-    ),
+    doi: "10.1016/j.patrec.2023.05.021",
+    externalUrl: "https://doi.org/10.1016/j.patrec.2023.05.021",
     cover: "/publications/paper-prl.jpg",
     artwork: "/assets/images/publications/gait-preprocessing-feature-selection.webp",
     keywords: [
@@ -235,6 +235,8 @@ export const papers: Publication[] = [
   },
   {
     id: "ivc-2023",
+    publicationStatus: "publisher-unverified",
+    verificationNote: "A manuscript first page is available in this archive. Its publisher record, DOI and publication status have not been independently verified. The external link searches the exact title on Google Scholar.",
     kind: "journal",
     title:
       "Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification",
@@ -263,13 +265,10 @@ export const papers: Publication[] = [
     venue: "IET Biometrics",
     publisher: "Wiley · IET",
     year: 2022,
-    date: "Accepted 26 September 2022 · Vol. 11, pp. 601–613",
+    date: "Published 20 October 2022 · Vol. 11, pp. 601–613",
     authors: ["Anubha Parashar", "Apoorva Parashar", "Rajveer Singh Shekhawat"],
-    // Switched to a Scholar search keyed on the exact title + founder so it
-    // resolves to the right paper rather than the previous mis-attributed DOI.
-    externalUrl: scholar(
-      "A robust covariate-invariant gait recognition based on pose features Anubha Parashar IET Biometrics"
-    ),
+    doi: "10.1049/bme2.12103",
+    externalUrl: "https://doi.org/10.1049/bme2.12103",
     cover: "/publications/paper-iet-pose.jpg",
     artwork: "/assets/images/publications/pose-covariate-invariant-gait.webp",
     keywords: [
@@ -290,9 +289,8 @@ export const papers: Publication[] = [
     year: 2022,
     date: "Accepted 31 July 2022",
     authors: ["Anubha Parashar", "Rajveer Singh Shekhawat"],
-    externalUrl: scholar(
-      "Protection of gait data set for preserving its privacy in deep learning pipeline Anubha Parashar IET Biometrics"
-    ),
+    doi: "10.1049/bme2.12093",
+    externalUrl: "https://doi.org/10.1049/bme2.12093",
     cover: "/publications/paper-iet-privacy.jpg",
     artwork: "/assets/images/publications/privacy-preserving-gait-data.webp",
     keywords: [
@@ -352,3 +350,18 @@ export const publisherAccent: Record<
     ring: "ring-amber-300/40",
   },
 };
+
+/** A search destination must never be labelled as a paper or a DOI. */
+export function publicationLinkLabel(publication: Publication): string {
+  if (publication.kind === "patent") return "Search patent registry";
+  if (publication.doi) return "DOI / publisher";
+  if (publication.externalUrl.startsWith("https://scholar.google.com/")) return "Find on Google Scholar";
+  return "Publisher record";
+}
+
+export const FOUNDER_ACADEMIC_RECORD = {
+  name: FOUNDER_NAME,
+  source: FOUNDER_PORTFOLIO_URL,
+  researchSince: 2014,
+  scope: "The founder academic record spans work with academic co-authors. This website surfaces a curated selection; the wider publication record is maintained on the founder portfolio and Scholar profile. It is separate from GaitAI product-specific validation and company-assigned IP.",
+} as const;

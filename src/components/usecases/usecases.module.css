@@ -1692,3 +1692,7 @@
     margin-top: -0.5rem;
   }
 }
+
+:global(.light) .groupLabel { color: var(--mobility-accent); }
+:global(.light) :global(#secure) .groupLabel { color: #1d4ed8; }
+:global(.light) .familyCount { color: #0e7490; }

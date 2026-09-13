@@ -4,9 +4,9 @@
 // One flat, typed index over everything the site already knows, built by
 // DERIVING from the canonical sources — never by listing terms by hand:
 //
-//   products.ts .................. 23 modules + 17 environments
+//   products.ts .................. the module and environment registries
 //   gaitscape/graph.ts ........... capabilities and movement signals
-//   publications.ts .............. 8 papers + the granted patent
+//   publications.ts .............. the surfaced papers and the granted patent
 //   evidence.ts .................. research areas
 //   usecase-details.ts ........... the environment detail routes
 //   insights.ts .................. published articles
@@ -194,7 +194,7 @@ const destinationEntries: SearchEntry[] = [
        learned it. */
     id: "destination:blog",
     group: "destination",
-    title: "Blog & Updates",
+    title: "Blog",
     detail:
       "Technical explainers, research translation, engineering notes and product updates",
     meta: "Editorial",

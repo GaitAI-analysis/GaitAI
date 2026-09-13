@@ -12,8 +12,8 @@
 // workflow comes from `workflowStages` in products.ts.
 // ============================================================================
 
-import { mobilityProducts, productCount, secureProducts } from "@/data/products";
-import { papers } from "@/data/publications";
+import siteFacts from "@/data/generated/site-facts.json";
+const { counts } = siteFacts;
 
 export interface NavItem {
   label: string;
@@ -57,18 +57,19 @@ export const navLinks: readonly NavItem[] = [
       {
         label: "Product Overview",
         href: "/products",
-        description: `All ${productCount} modular products`,
+        description: `All ${counts.productModules} product modules`,
       },
       {
         label: "MobilityCare",
         href: "/mobilitycare",
-        description: `Clinical movement intelligence · ${mobilityProducts.length}`,
+        description: `Clinical movement intelligence · ${counts.mobilitycare}`,
       },
       {
         label: "SecureVision",
         href: "/securevision",
-        description: `Privacy-aware movement intelligence · ${secureProducts.length}`,
+        description: `Privacy-aware movement intelligence · ${counts.securevision}`,
       },
+      ...siteFacts.products.filter((p) => p.navigation).map((p) => ({ label: p.label, href: p.href, description: "Governed movement decision support" })),
     ],
   },
   {
@@ -78,7 +79,7 @@ export const navLinks: readonly NavItem[] = [
       {
         label: "Use Cases",
         href: "/use-cases",
-        description: "Problems, by environment",
+        description: `${counts.environments} environments and their intended workflows`,
       },
       {
         label: "GaitScape",
@@ -203,7 +204,7 @@ export type CtaFamily = "demo" | "pilot" | "research" | "investor";
 export const ctas: Record<CtaFamily, { label: string; href: string }> = {
   demo: { label: "Request a demo", href: "/#contact" },
   pilot: { label: "Discuss a pilot", href: "/#contact" },
-  research: { label: "Start a research collaboration", href: "/#contact" },
+  research: { label: "Research collaboration", href: "/#contact" },
   investor: { label: "Investor enquiries", href: "/#contact" },
 };
 
@@ -212,8 +213,8 @@ export const ctas: Record<CtaFamily, { label: string; href: string }> = {
  * strip can never drift from the data or assert an unmeasured figure.
  */
 export const heroStats = [
-  { value: `${productCount}`, label: "Modular products" },
-  { value: "2", label: "Product verticals" },
-  { value: `${papers.length}`, label: "Peer-reviewed papers" },
-  { value: "1", label: "Granted patent" },
+  { value: `${counts.productModules}`, label: "Product modules" },
+  { value: `${counts.verticals}`, label: "Product families" },
+  { value: `${counts.publications}`, label: "Surfaced academic papers" },
+  { value: `${counts.patents}`, label: "Granted patents" },
 ];

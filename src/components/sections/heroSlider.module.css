@@ -1,0 +1,550 @@
+/* ===========================================================================
+   HOMEPAGE HERO SLIDER
+   ---------------------------------------------------------------------------
+   Three photographic bands behind one live copy block. The artwork is the
+   background — nothing is drawn behind it — and everything painted here is
+   either the crossfade, the legibility scrim, or the controls.
+
+   Colour is fixed rather than themed on purpose: the artwork is dark navy in
+   both themes, so the copy over it is always light and the scrim is always
+   the page's obsidian. Switching the site to light mode changes the page
+   around the hero, not the hero.
+   =========================================================================== */
+
+.slider {
+  --fade: 800ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* The artwork's own dark, as literals. The obsidian TOKEN is remapped by
+     the light theme, and a scrim that turns white over a dark photograph is
+     how the first draft of this washed out in light mode. */
+  --ink: 7 11 20;
+  /* The hero is dark in both themes, so everything inside it — including
+     components that colour themselves from the theme tokens, like the demo
+     trigger — gets the dark palette pinned here. The light theme remaps
+     these to near-black text, which over this artwork is invisible. */
+  --c-soft-white: 248 250 252;
+  --c-soft-gray: 203 213 225;
+  --c-soft-mute: 148 163 184;
+  --c-obsidian: 7 11 20;
+  --c-obsidian-50: 26 34 56;
+  --c-obsidian-100: 20 26 44;
+  --c-obsidian-200: 14 19 34;
+  --c-obsidian-300: 10 15 27;
+  --c-obsidian-400: 7 11 20;
+  color-scheme: dark;
+  position: relative;
+  width: 100%;
+  min-height: inherit;
+  display: flex;
+  align-items: center;
+  padding-block: clamp(3.5rem, 8vh, 6rem);
+  /* Vertical scrolling stays the browser's; horizontal swipes are ours. */
+  touch-action: pan-y;
+}
+
+.slider[data-reduce="true"] {
+  --fade: 1ms;
+}
+
+/* A glance, not a scene change: while a control is being previewed (and for
+   a beat after) the crossfade and the copy lift run at hover speed. */
+.slider[data-fast="true"] {
+  --fade: 380ms;
+  --copy-in: 300ms;
+}
+
+.slider[data-reduce="true"][data-fast="true"] {
+  --fade: 1ms;
+}
+
+/* ── The artwork ─────────────────────────────────────────────────────────── */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: rgb(var(--ink));
+}
+
+.frame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  opacity: 0;
+  transition: opacity var(--fade) var(--ease);
+  will-change: opacity;
+}
+
+.frameOn {
+  opacity: 1;
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--pos-narrow, 50% 50%);
+}
+
+@media (min-width: 768px) {
+  .img {
+    object-position: var(--pos, 50% 50%);
+  }
+}
+
+/* Heavier where the copy sits, lighter over the subject, and a fade into the
+   page ground so the section ends on the page's own colour. */
+.scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      to right,
+      rgb(var(--ink) / 0.82) 0%,
+      rgb(var(--ink) / 0.62) 36%,
+      rgb(var(--ink) / 0.22) 62%,
+      rgb(var(--ink) / 0.32) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgb(var(--ink) / 0.35) 0%,
+      transparent 22%,
+      transparent 72%,
+      var(--page-bg) 100%
+    );
+}
+
+@media (max-width: 767px) {
+  .scrim {
+    background:
+      linear-gradient(
+        to bottom,
+        rgb(var(--ink) / 0.55) 0%,
+        rgb(var(--ink) / 0.35) 40%,
+        rgb(var(--ink) / 0.7) 80%,
+        var(--page-bg) 100%
+      );
+  }
+}
+
+/* ── The copy ────────────────────────────────────────────────────────────── */
+
+.stage {
+  display: grid;
+  gap: 2rem;
+  align-items: end;
+  padding-block: 1rem 0;
+}
+
+@media (min-width: 1024px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 3rem;
+  }
+}
+
+.copyCol {
+  min-width: 0;
+}
+
+/* All three copy blocks share one grid cell, so the stack is as tall as the
+   tallest frame at every width and nothing below it moves when the frame
+   changes. The blocks crossfade in place; hidden ones are `visibility:
+   hidden`, which also takes them out of the accessibility tree. */
+.copyStack {
+  display: grid;
+  max-width: 44rem;
+}
+
+.copy {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  /* Bottom-anchored, so a shorter headline leaves its slack above the eyebrow
+     rather than between the sub-line and the CTA row it should sit on. */
+  align-self: end;
+  transform: translateY(8px);
+  transition:
+    opacity var(--copy-in, 520ms) var(--ease),
+    transform var(--copy-in, 520ms) var(--ease),
+    visibility 0s linear var(--copy-in, 520ms);
+}
+
+.copyOn {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.slider[data-reduce="true"] .copy,
+.slider[data-reduce="true"] .wordsPane {
+  transition: none;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #4fd1ff;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(2.1rem, 5.6vw, 4.2rem);
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  color: #f8fafc;
+  text-wrap: balance;
+}
+
+/* The one accented word or phrase in each headline, from the artwork. */
+.title em {
+  font-style: normal;
+  color: #4fd1ff;
+}
+
+.sub {
+  margin: 1.1rem 0 0;
+  max-width: 34rem;
+  font-size: clamp(0.98rem, 1.15vw, 1.15rem);
+  line-height: 1.5;
+  color: rgb(226 232 240 / 0.86);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.7rem;
+  min-height: 3rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 3rem;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgb(79 209 255 / 0.55);
+  background: rgb(7 11 20 / 0.55);
+  color: #f8fafc;
+  font-size: 0.9rem;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  transition:
+    border-color 220ms var(--ease),
+    background-color 220ms var(--ease),
+    transform 220ms var(--ease);
+}
+
+.cta:hover {
+  border-color: rgb(79 209 255 / 0.9);
+  background: rgb(79 209 255 / 0.14);
+  transform: translateY(-1px);
+}
+
+.cta:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 3px;
+}
+
+.ctaArrow {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 220ms var(--ease);
+}
+
+.cta:hover .ctaArrow {
+  transform: translateX(3px);
+}
+
+/* The demo trigger (TryGaitAI) styles itself for the light theme with a
+   hard-coded near-black ink in its own stylesheet, which the token pin above
+   cannot reach. Inside this hero the ground is always dark, so its dark-theme
+   values are restated here — structurally, since its class name is hashed —
+   at a specificity that beats `.light .trigger`. */
+.slider .actions > button[aria-haspopup="dialog"] {
+  border-color: rgb(79 209 255 / 0.5);
+  background: linear-gradient(180deg, rgb(79 209 255 / 0.18), rgb(37 99 235 / 0.14));
+  color: #eaf7ff;
+}
+
+/* The right-hand word list. Desktop only: on a phone it would sit on the
+   subject, and it is a texture rather than information. */
+.words {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .words {
+    display: grid;
+    padding-left: 1.4rem;
+    border-left: 1px solid rgb(148 163 184 / 0.28);
+  }
+
+  /* Same stacking as the copy: one cell, tallest list sets the height. */
+  .wordsPane {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--copy-in, 640ms) var(--ease),
+      visibility 0s linear var(--copy-in, 640ms);
+  }
+
+  .wordsOn {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .words ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.42rem;
+  }
+
+  .words li {
+    font-family: var(--font-jetbrains), ui-monospace, monospace;
+    font-size: 0.64rem;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgb(203 213 225 / 0.78);
+    white-space: nowrap;
+  }
+
+  .tagline {
+    margin: 1.6rem 0 0;
+    font-size: 0.8rem;
+    color: rgb(203 213 225 / 0.7);
+    white-space: nowrap;
+  }
+}
+
+/* ── Controls ────────────────────────────────────────────────────────────── */
+
+.controls {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2.4rem;
+}
+
+/* The floating "Ask GaitAI" button lives bottom-right; on a phone the control
+   row stops short of it rather than disappearing underneath it. */
+@media (max-width: 639px) {
+  .controls {
+    flex-wrap: wrap;
+    max-width: calc(100% - 7.5rem);
+    gap: 0.5rem 0.6rem;
+  }
+
+  /* Two tidy rows rather than a wrap that strands one arrow: the numbers
+     first across the row, then previous / pause / next beneath them. */
+  .controls .dots {
+    order: -1;
+    flex-basis: 100%;
+  }
+}
+
+/* Three labelled rows: number, family, and — on the selected one — the
+   running line. Hovering a row previews its frame; the row itself says so by
+   turning cyan, while the selected row stays white with its line running.
+   Two different states, two different signals. */
+.dots {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.25rem;
+  padding: 0 0.15rem;
+  color: rgb(203 213 225 / 0.5);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: color 200ms var(--ease);
+}
+
+.dotNum {
+  width: 1.4rem;
+  flex-shrink: 0;
+}
+
+.dotLabel {
+  transition: color 200ms var(--ease);
+}
+
+.dotOn {
+  color: #f8fafc;
+}
+
+/* The glance: cyan label, nothing else moves. */
+.dotGlance,
+.dot:hover:not(.dotOn) {
+  color: rgb(203 213 225 / 0.8);
+}
+
+.dotGlance .dotLabel,
+.dot:hover:not(.dotOn) .dotLabel {
+  color: #4fd1ff;
+}
+
+.dot:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* The line beside the number. On the active frame it fills over the interval
+   — the same duration the timer runs — and freezes whenever autoplay is
+   paused, so the line is an honest readout of the timer. */
+.dotTrack {
+  position: relative;
+  display: block;
+  height: 2px;
+  width: 0;
+  border-radius: 999px;
+  background: rgb(148 163 184 / 0.35);
+  overflow: hidden;
+  transition: width 320ms var(--ease);
+}
+
+.dotOn .dotTrack {
+  width: 3.4rem;
+  margin-left: 0.25rem;
+}
+
+.dotTrack::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: #4fd1ff;
+}
+
+.dotTrack[data-running="true"]::after {
+  animation: heroProgress var(--interval, 7500ms) linear both;
+}
+
+@keyframes heroProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.arrow,
+.pause {
+  display: inline-grid;
+  place-items: center;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid rgb(148 163 184 / 0.32);
+  background: rgb(7 11 20 / 0.45);
+  color: #e2e8f0;
+  backdrop-filter: blur(6px);
+  transition:
+    border-color 220ms var(--ease),
+    background-color 220ms var(--ease),
+    color 220ms var(--ease);
+}
+
+.arrow svg,
+.pause svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.pause svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.arrow:hover,
+.pause:hover {
+  border-color: rgb(79 209 255 / 0.7);
+  color: #fff;
+}
+
+.arrow:focus-visible,
+.pause:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 3px;
+}
+
+.pause[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Wide screens: the arrows leave the control row for the frame's edges, as
+   in the approved artwork; the row keeps the numbers and the pause. */
+@media (min-width: 1280px) {
+  /* The row stops being the arrows' containing block so they attach to the
+     copy container and centre on it — the hero's edges, as in the artwork,
+     and well clear of the Ask widget at the foot. */
+  .controls {
+    position: static;
+  }
+
+  .arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2.75rem;
+    width: 2.75rem;
+  }
+
+  .arrowPrev {
+    left: -3.5rem;
+  }
+
+  .arrowNext {
+    right: -3.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .dotTrack,
+  .cta,
+  .ctaArrow {
+    transition: none;
+  }
+
+  .dotTrack[data-running="true"]::after {
+    animation: none;
+  }
+}

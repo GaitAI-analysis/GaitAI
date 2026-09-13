@@ -140,6 +140,17 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
+      {/* The hero's first frame is the page's LCP image. Preloading it here
+          puts it in the initial HTML for the preload scanner, ahead of
+          hydration; frames 02/03 are deferred by the slider itself. */}
+      <link
+        rel="preload"
+        as="image"
+        href="/images/hero/gaitai-hero-01.webp"
+        type="image/webp"
+        // @ts-expect-error React 18 types lack fetchPriority on <link>
+        fetchpriority="high"
+      />
       <Hero />
       <Verticals />
       <FeaturedProducts />

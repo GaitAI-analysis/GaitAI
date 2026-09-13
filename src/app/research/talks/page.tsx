@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { DiagramField } from "@/components/visuals/DiagramField";
+import { HeroMotionBackground } from "@/components/sections/HeroMotionBackground";
 import { TalksConstellation } from "@/components/research/TalksConstellation";
 import { TalksTimeline } from "@/components/research/TalksTimeline";
 import {
@@ -76,10 +76,20 @@ export default function TalksPage() {
   return (
     <>
       {/* ─────────── HERO ─────────── */}
+      {/* THE HOME PAGE'S HERO BACKGROUND, BY REFERENCE. The midnight wash,
+          the ring grid and the walking figures with their trajectories are
+          `HeroMotionBackground` — the component the home page renders behind
+          "Intelligence in Motion." — so the two cannot drift. Only the layer
+          is shared; the copy here is the Talks copy. The content sits in a
+          `relative z-10` wrapper because the scene layer is positioned. */}
       <section className="site-page-intro relative overflow-hidden pb-10">
-        <DiagramField variant="archive" gridMask="maskRight" className="-z-10" />
+        {/* A little larger than on the home page: this hero is shorter, so at
+            1:1 the composition read as a strip; at 1.12 the paths and figures
+            fill the width and height the way they do at home, still behind
+            the title and still at the same opacity. */}
+        <HeroMotionBackground scale={1.12} />
 
-        <div className="container-wide">
+        <div className="container-wide relative z-10">
           <div className="max-w-3xl">
             <span className="eyebrow">
               <span className="h-1 w-6 rounded-full bg-gradient-brand" />

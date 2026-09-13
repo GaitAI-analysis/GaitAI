@@ -79,7 +79,7 @@ const dimensions: Dimension[] = [
     tone: "cyan",
     eyebrow: "01 · Platform state",
     title: "Where we are",
-    desc: `A movement-intelligence platform with two verticals and ${productCount} modular products, built on a peer-reviewed gait research record and a granted Indian patent.`,
+    desc: `A movement-intelligence platform with two verticals and ${productCount} product modules, built on a peer-reviewed gait research record and a granted Indian patent.`,
     icon: <IconPosition />,
   },
   {

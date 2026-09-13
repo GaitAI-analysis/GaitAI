@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test:firebase": "node scripts/test-firebase.mjs",
-    "predev": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run build:knowledge && node scripts/write-ask-config.mjs",
-    "prebuild": "node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run validate:gaitai && npm run build:knowledge && node scripts/write-ask-config.mjs",
+    "predev": "npm run build:facts && node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run build:knowledge && node scripts/write-ask-config.mjs",
+    "prebuild": "npm run build:facts && node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run validate:gaitai && npm run build:knowledge && node scripts/write-ask-config.mjs",
     "typecheck": "tsc --noEmit",
     "validate:gaitai": "tsx scripts/validate-gaitai.mjs",
     "rules:login": "npx -y firebase-tools@13 login",
@@ -33,7 +33,10 @@
     "worker:typecheck": "npm run build:knowledge && npm --prefix worker run typecheck",
     "worker:test": "npm run build:knowledge && npm --prefix worker test",
     "worker:check": "npm run build:knowledge && npm --prefix worker run check",
-    "test:insights": "tsx scripts/test-insights-scaling.ts"
+    "test:insights": "tsx scripts/test-insights-scaling.ts",
+    "build:facts": "tsx scripts/build-site-facts.ts",
+    "check:facts": "tsx scripts/build-site-facts.ts --check",
+    "audit:source": "node scripts/audit-source.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",

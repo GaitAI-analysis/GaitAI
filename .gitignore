@@ -53,3 +53,7 @@ public/firebase-config.js
 # Ask GaitAI runtime config: written per build by scripts/write-ask-config.mjs
 # (the endpoint differs per machine; the build id per build)
 public/ask/config.json
+
+# Browser-audit screenshots and partial runs (278 MB per full run); results.json/issues.json stay tracked
+docs/audit/browser/*.png
+docs/audit/browser/results.partial.json

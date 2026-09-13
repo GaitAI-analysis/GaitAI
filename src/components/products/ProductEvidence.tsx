@@ -31,7 +31,7 @@ export function ProductEvidence({
   const publications = new Map(
     evidence.flatMap((entry) =>
       entry.areas.flatMap((area) =>
-        area.publications.map((publication) => [publication.id, publication] as const)
+        area.publications.filter(publication => publication.publicationStatus !== "publisher-unverified").map((publication) => [publication.id, publication] as const)
       )
     )
   );
@@ -62,9 +62,7 @@ export function ProductEvidence({
 
       <div className="mt-6 border-t border-white/[0.06] pt-5">
         <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-soft-mute">
-          {publications.size === 1
-            ? "Research foundation · 1 record"
-            : `Research foundation · ${publications.size} records`}
+          {`Research foundation · ${publications.size} ${publications.size === 1 ? "record" : "records"}`}
         </div>
         <ul className="mt-3 space-y-2.5">
           {Array.from(publications.values())

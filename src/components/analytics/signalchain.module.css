@@ -298,6 +298,16 @@ a.node:focus-visible {
 :global(.light) .moduleSecure {
   color: #5b21b6;
 }
+:global(.light) .chain,
+:global(.light) .famCare {
+  --sc-accent: #0e7490;
+}
+:global(.light) .famSecure {
+  --sc-accent: #6d28d9;
+}
+:global(.light) .headCell {
+  color: rgb(51 65 85);
+}
 
 @keyframes scIn {
   from {

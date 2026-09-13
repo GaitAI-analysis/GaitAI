@@ -1,3 +1,4 @@
+import siteFacts from "@/data/generated/site-facts.json";
 /**
  * PAGE AWARENESS
  * =============================================================================
@@ -7,7 +8,7 @@
  * WHY THE TITLE COMES FROM `document.title`
  * The opening line on a module page names the module — "Questions about
  * FallRisk?" — which needs the record's display name. Importing products.ts to
- * get it would pull the whole 23-module catalogue and its lucide icons into
+ * get it would pull the whole product-module catalogue and its lucide icons into
  * every route's bundle, for one string. Next already writes the exact name into
  * the document title on every route, so it is read from there: correct by
  * construction, free, and it cannot drift from the page.
@@ -166,7 +167,7 @@ export function openingFor(context: PageContext): Opening {
 
     case "products":
       return {
-        lead: "24 modules, two families.",
+        lead: `${siteFacts.counts.productModules} product modules, ${siteFacts.counts.verticals} families.`,
         detail: "Describe your environment and I'll narrow it down.",
         prompts: [
           "Which product fits my environment?",
@@ -215,7 +216,7 @@ export function openingFor(context: PageContext): Opening {
 
     case "publications":
       return {
-        lead: "Eight peer-reviewed papers and one granted patent.",
+        lead: `${siteFacts.counts.publications} surfaced academic papers and ${siteFacts.counts.patents} granted patent; research foundation, not product validation.`,
         detail: "Ask about any of them, or about what they do and don't establish.",
         prompts: [
           "Which publications support gait biometrics?",

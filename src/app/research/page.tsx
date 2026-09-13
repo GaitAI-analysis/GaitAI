@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import siteFacts from "@/data/generated/site-facts.json";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
 import { ResearchHero } from "@/components/research/ResearchHero";
@@ -27,7 +28,7 @@ import styles from "@/components/research/observatory.module.css";
 
 export const metadata: Metadata = {
   title: "Research — The evidence behind GaitAI movement intelligence",
-  description: `A traceable research foundation: ${papers.length} peer-reviewed papers and granted Indian patent ${patent.patentNumber} across gait biometrics, pose-based movement analysis, privacy-aware gait data and edge intelligence — mapped to the capabilities and products each one informs.`,
+  description: `A traceable research foundation: ${papers.length} surfaced academic papers and granted Indian patent ${patent.patentNumber} across gait biometrics, pose-based movement analysis, privacy-aware gait data and edge intelligence — mapped to the capabilities and products each one informs.`,
   alternates: { canonical: "/research" },
 };
 
@@ -218,8 +219,8 @@ const labAreas: LabArea[] = researchAreas.map((area) => ({
 }));
 
 const telemetry = [
-  { value: papers.length, label: "Peer-reviewed papers", pad: true },
-  { value: 1, label: "Granted patent", pad: true },
+  { value: papers.length, label: "Surfaced academic papers", pad: true },
+  { value: siteFacts.counts.patents, label: "Granted patents", pad: true },
   { value: researchAreas.length, label: "Research pillars", pad: true },
   { value: productCount, label: "Connected product modules" },
 ];
@@ -407,7 +408,7 @@ export default function ResearchPage() {
                 Selected research record
               </h2>
               <p className="mt-3 max-w-xl text-[13.5px] leading-relaxed text-soft-mute">
-                Peer-reviewed papers and the granted patent, as published.
+                Surfaced academic papers and the granted patent, as published.
               </p>
             </div>
           </div>

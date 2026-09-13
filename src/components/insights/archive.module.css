@@ -47,7 +47,7 @@
 }
 
 :global(.light) .archive {
-  --jr-cyan: #108fc0;
+  --jr-cyan: #0e7490;
   --jr-royal: #1b4ed9;
   --jr-violet: #5f25bf;
   --jr-teal: #0d9488;
@@ -123,7 +123,7 @@
    ground with air around it, the way a magazine's contents line does. */
 .utilities {
   display: flex;
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-margin-top: var(--header-clearance);
   flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
@@ -561,7 +561,7 @@
 }
 
 .latestSection {
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-margin-top: var(--header-clearance);
   margin-top: 1.5rem;
 }
 

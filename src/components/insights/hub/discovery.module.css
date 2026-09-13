@@ -11,7 +11,7 @@
 .section {
   padding: clamp(2rem, 4vw, 3rem) 0 clamp(2rem, 4vw, 3rem);
   border-top: 1px solid var(--jr-line);
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-margin-top: var(--header-clearance);
 }
 .grid {
   display: grid;
@@ -258,7 +258,7 @@
   padding: clamp(2rem, 4vw, 3rem) 0 0;
   margin-bottom: -3rem;
   border-top: 1px solid var(--jr-line);
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-margin-top: var(--header-clearance);
 }
 .footerSignal {
   display: block;

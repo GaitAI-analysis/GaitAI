@@ -3,6 +3,7 @@
 import { productCount } from "@/data/products";
 import { TryGaitAI } from "@/components/home/TryGaitAI";
 import { HeroSlider, type HeroFrame } from "./HeroSlider";
+import styles from "./heroSlider.module.css";
 
 /**
  * THE HOMEPAGE HERO — three approved frames behind live copy.
@@ -24,14 +25,28 @@ const FRAMES: HeroFrame[] = [
     image: "gaitai-hero-01",
     width: 2172,
     height: 193,
-    pos: "49% 50%",
+    /* 39%, from 42%: the central walker stood at x≈990 of 1440, shoulder to
+       shoulder with the end of the headline's first line. Three points shift
+       the window ~100px so he walks in the clear space to the right of the
+       copy. The window's left edge lands at ~27.4% of the band, just past the
+       painted CTA (which ends at ~27.3%), and the left vignette covers the
+       first 7% of the viewport anyway. Narrow screens keep their own crop. */
+    pos: "39% 50%",
     posNarrow: "49% 50%",
+    /* The walker stood a little large at the default strip; ~12% shorter
+       shows ~30% of the band instead of ~26%, so he is smaller in frame and
+       the 193px source is upscaled ~2.2× instead of ~2.5× — the same pixels,
+       fewer screen pixels each, nothing blurred. */
+    strip: "clamp(52%, 30vw, 100%)",
     alt: "",
     short: "GaitAI",
     eyebrow: "Human movement intelligence",
     title: (
       <>
-        What can movement tell us <em>before</em> we can see it?
+        <span className={styles.line}>What can movement tell us</span>
+        <span className={styles.line}>
+          <em>before</em> we can see it?
+        </span>
       </>
     ),
     sub: "GaitAI turns everyday movement into intelligence for health, safety and identity.",
@@ -44,7 +59,7 @@ const FRAMES: HeroFrame[] = [
     image: "gaitai-hero-02-mobilitycare",
     width: 2172,
     height: 193,
-    pos: "45% 50%",
+    pos: "38% 50%",
     posNarrow: "44% 50%",
     alt: "",
     short: "MobilityCare",
@@ -62,6 +77,7 @@ const FRAMES: HeroFrame[] = [
   {
     id: "securevision",
     image: "gaitai-hero-03-securevision",
+    overlay: "securevision-event-overlay.svg",
     width: 2172,
     height: 194,
     pos: "52% 50%",
@@ -92,7 +108,7 @@ export function Hero() {
     >
       <HeroSlider frames={FRAMES}>
         <TryGaitAI />
-        <p className="basis-full pt-1 text-[13px] leading-relaxed text-slate-300/75 sm:text-sm">
+        <p className="basis-full pt-1 text-[13px] leading-relaxed text-slate-200/70 sm:text-sm">
           Clinical mobility and privacy-aware public safety, on one platform —
           MobilityCare and SecureVision, {productCount} connected modules.
         </p>

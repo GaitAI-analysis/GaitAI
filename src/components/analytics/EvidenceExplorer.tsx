@@ -629,7 +629,14 @@ function AreaChain({ area }: { area: ExplorerArea }) {
         {area.boundary && (
           <div className="mt-4">
             <span className={styles.label}>{area.boundary.controlsLabel}</span>
-            <div className={`${styles.chips} mt-2`}>
+            {/* The strip scrolls sideways on phones and holds only text chips,
+                so it is itself focusable for keyboard scrolling. */}
+            <div
+              className={`${styles.chips} mt-2`}
+              role="group"
+              aria-label={area.boundary.controlsLabel}
+              tabIndex={0}
+            >
               {area.boundary.controls.map((control) => (
                 <span key={control} className={styles.chip}>
                   {control}

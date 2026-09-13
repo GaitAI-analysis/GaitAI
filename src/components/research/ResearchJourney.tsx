@@ -3,7 +3,8 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import styles from "./observatory.module.css";
-import { productCount } from "@/data/products";
+import siteFacts from "@/data/generated/site-facts.json";
+import { patent } from "@/data/publications";
 
 /**
  * The research journey, drawn on a stride path.
@@ -46,14 +47,14 @@ const milestones: Milestone[] = [
     year: "2022–24",
     label: "Published record",
     detail:
-      "Eight peer-reviewed papers with Springer, Elsevier and Wiley · IET, plus granted Indian patent 402202 covering the edge-analytics pipeline.",
+      `${siteFacts.counts.publications} surfaced academic papers with Springer, Elsevier and Wiley · IET, plus granted Indian patent ${patent.patentNumber}, informing research into edge gait analytics.`,
     gold: true,
   },
   {
     year: "Today",
     label: "GaitAI platform",
     detail:
-      `Two verticals and  modular products on one Movement Intelligence Platform, built on that research foundation.`,
+      `${siteFacts.counts.productModules} product modules across ${siteFacts.counts.verticals} families on one movement-intelligence platform. Product-specific validation is separate from the academic record.`,
   },
 ];
 
@@ -92,7 +93,7 @@ export function ResearchJourney() {
   const drawn = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <div ref={ref} className={`${styles.journeyStage} ${styles.diagramScroll}`}>
+    <div ref={ref} className={`${styles.journeyStage} ${styles.diagramScroll}`} tabIndex={0} role="region" aria-label="Founder research journey; scroll to explore">
       <svg
         aria-hidden="true"
         viewBox={`0 0 ${W} ${H}`}

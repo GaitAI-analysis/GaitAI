@@ -1,3 +1,5 @@
+import { ctas } from "./content";
+import { productGuardrails } from "./responsible-use";
 import type { ProductDetail } from "./product-details";
 import { RESPONSIBLE_USE_SECURE } from "./responsible-use";
 
@@ -16,7 +18,7 @@ import { RESPONSIBLE_USE_SECURE } from "./responsible-use";
 /** Canonical responsible-use statement — see src/data/responsible-use.ts. */
 const SECURE_PRIVACY = RESPONSIBLE_USE_SECURE;
 
-export const secureProductDetails: ProductDetail[] = [
+const secureDetailRecords: ProductDetail[] = [
   // ==========================================================================
   // 01 — SUSPICIOUSMOTION
   // ==========================================================================
@@ -51,10 +53,10 @@ export const secureProductDetails: ProductDetail[] = [
       "Event timeline",
     ],
     whyItMatters:
-      "Movement-defined events surface for operator review instead of being found hours later in recorded footage — and initial processing works without identifying anyone.",
+      "Movement-defined events surface for operator review instead of being found hours later in recorded footage — and initial processing works with identity matching optional and governed.",
     workflow: [
       "Cameras stream into the movement pipeline",
-      "People are tracked as non-identifying trajectories",
+      "People are tracked as appearance-reduced trajectories",
       "Behaviour analysis compares movement against configured rules and norms",
       "Anomalous events post to the operator timeline",
       "Operator reviews and responds",
@@ -104,7 +106,7 @@ export const secureProductDetails: ProductDetail[] = [
       outputSchema: [
         { field: "event_type", desc: "loitering | running | zone | tailgating | perimeter" },
         { field: "zone_id", desc: "Configured zone reference" },
-        { field: "track_ref", desc: "Anonymous trajectory reference" },
+        { field: "track_ref", desc: "Pseudonymous trajectory reference" },
         { field: "severity", desc: "Configured severity level" },
         { field: "timeline_entry", desc: "Event with clip reference" },
       ],
@@ -123,12 +125,12 @@ export const secureProductDetails: ProductDetail[] = [
       limitations: [
         "Detects movement patterns, not intent — operator review is required",
         "Coverage and lighting constrain tracking quality",
-        "Initial detection is identity-free by design",
+        "Initial detection is privacy-aware by design",
       ],
     },
     privacy: SECURE_PRIVACY,
     related: ["campusshield", "crowdsense", "forensicsearch"],
-    ctaLabel: "Explore SuspiciousMotion",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -242,7 +244,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["eventshield", "retailguard", "suspiciousmotion"],
-    ctaLabel: "Explore CrowdSense",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -356,7 +358,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["suspiciousmotion", "privacyguard", "crowdsense"],
-    ctaLabel: "Explore IndustrialSafety",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -466,7 +468,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["suspiciousmotion", "crowdsense", "forensicsearch"],
-    ctaLabel: "Explore PrivacyGuard",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -576,7 +578,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["accessmotion", "suspiciousmotion", "privacyguard"],
-    ctaLabel: "Explore CampusShield",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -686,7 +688,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["reid", "suspiciousmotion", "privacyguard"],
-    ctaLabel: "Explore ForensicSearch",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -797,7 +799,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["forensicsearch", "watchlist", "suspiciousmotion"],
-    ctaLabel: "Explore ReID",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -905,7 +907,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["campusshield", "watchlist", "reid"],
-    ctaLabel: "Explore AccessMotion",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1016,7 +1018,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["crowdsense", "suspiciousmotion", "privacyguard"],
-    ctaLabel: "Explore EventShield",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1126,7 +1128,7 @@ export const secureProductDetails: ProductDetail[] = [
     },
     privacy: SECURE_PRIVACY,
     related: ["crowdsense", "suspiciousmotion", "privacyguard"],
-    ctaLabel: "Explore RetailGuard",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1237,7 +1239,7 @@ export const secureProductDetails: ProductDetail[] = [
       "Responsible deployment: Watchlist is restricted to deployments with lawful authority, governed lists, mandatory human adjudication and auditability. It is not offered for general-public surveillance, and its outputs must never be treated as unrestricted identification. " +
       SECURE_PRIVACY,
     related: ["reid", "accessmotion", "privacyguard"],
-    ctaLabel: "Discuss an authorized deployment",
+    ctaLabel: ctas.pilot.label,
   },
 
   // ==========================================================================
@@ -1260,7 +1262,7 @@ export const secureProductDetails: ProductDetail[] = [
     problem:
       "Defence organisations look after large numbers of people whose movement matters — for readiness, for recovery after injury, for safety on busy installations and for who is entering controlled areas — across environments as different as a training area, a dockyard and a flight line, and with a duty of care to the personnel being observed.",
     solution:
-      "One movement pipeline serves three service modes. Consent-based readiness and rehabilitation profiles follow a service member's own movement over time; movement-first event awareness surfaces falls, restricted-zone entry and abnormal movement on installations for operator review; and a gait-consistency signal adds a non-identifying check to existing access credentials. Each mode names the environments, personnel programmes and access points it is configured for.",
+      "One movement pipeline serves three service modes. Consent-based readiness and rehabilitation profiles follow a service member's own movement over time; movement-first event awareness surfaces falls, restricted-zone entry and abnormal movement on installations for operator review; and a gait-consistency signal adds a appearance-reduced consistency check to existing access credentials. Each mode names the environments, personnel programmes and access points it is configured for.",
     whoFor: [
       "Army: land installations, training areas and depots",
       "Navy: shore establishments, dockyards and vessel spaces",
@@ -1278,7 +1280,7 @@ export const secureProductDetails: ProductDetail[] = [
       "Privacy and audit record",
     ],
     whyItMatters:
-      "Readiness and recovery become observable trends rather than one-off assessments, safety events on large installations surface for review without identifying anyone first, and access decisions gain a movement signal that never replaces a credential — all under one privacy architecture instead of three separate systems.",
+      "Readiness and recovery become observable trends rather than one-off assessments, safety events on large installations surface for review without identity matching as a prerequisite, and access decisions gain a movement signal that never replaces a credential — all under one privacy architecture instead of three separate systems.",
     workflow: [
       "A service selects its mode and configures environments, programmes and access points",
       "Camera feeds (and, where a programme provides them, wearable signals) enter the movement pipeline",
@@ -1303,7 +1305,7 @@ export const secureProductDetails: ProductDetail[] = [
       "Every output is decision support for a qualified person. A readiness profile or rehabilitation trend is a movement observation for a clinician or programme lead, not a fitness verdict; a facility event is a prompt for operator review, not a finding; an access indicator is one consistency signal beside a credential, never an identification or a denial on its own.",
     tech: {
       systemOverview:
-        "A single movement pipeline with three configuration profiles. Person detection and pose tracking produce non-identifying trajectories and gait features; a longitudinal layer builds personal baselines for enrolled, consenting personnel; a behaviour layer compares facility movement against configured norms; an access layer scores movement consistency at credentialed points. Mode selection sets which layers run, where, and with what thresholds.",
+        "A single movement pipeline with three configuration profiles. Person detection and pose tracking produce appearance-reduced trajectories and gait features; a longitudinal layer builds personal baselines for enrolled, consenting personnel; a behaviour layer compares facility movement against configured norms; an access layer scores movement consistency at credentialed points. Mode selection sets which layers run, where, and with what thresholds.",
       inputs: [
         "Fixed and access-point camera feeds inside the installation network",
         "Optional wearable sensor signals where a readiness or rehabilitation programme provides them",
@@ -1335,7 +1337,7 @@ export const secureProductDetails: ProductDetail[] = [
         { field: "mode", desc: "army | navy | airforce" },
         { field: "readiness_profile", desc: "Movement profile against the person's own baseline (illustrative)" },
         { field: "rehab_trend", desc: "Direction and stability of recovery indicators over time" },
-        { field: "facility_event", desc: "Event type, zone reference and anonymous track reference" },
+        { field: "facility_event", desc: "Event type, zone reference and pseudonymous track reference" },
         { field: "access_consistency", desc: "Consistency indicator with confidence band" },
         { field: "audit_entry", desc: "Who saw what, when, under which policy" },
       ],
@@ -1406,9 +1408,14 @@ export const secureProductDetails: ProductDetail[] = [
       },
     ],
     privacy:
-      "Designed for governed, human-supervised defence applications involving personnel safety, readiness, rehabilitation and authorized facility operations. Not designed for autonomous targeting or lethal decision-making. Readiness and rehabilitation modes operate only for enrolled personnel with consent and a named programme owner; facility mode is movement-first and identity-free by default; access mode supplements existing credentials for enrolled personnel and never identifies or denies on its own. Outputs are decision support for qualified teams. " +
+      "Designed for governed, human-supervised defence applications involving personnel safety, readiness, rehabilitation and authorized facility operations. Not designed for autonomous targeting or lethal decision-making. Readiness and rehabilitation modes operate only for enrolled personnel with consent and a named programme owner; facility mode is movement-first and privacy-aware by default; access mode supplements existing credentials for enrolled personnel and never identifies or denies on its own. Outputs are decision support for qualified teams. " +
       SECURE_PRIVACY,
     related: ["accessmotion", "industrialsafety", "privacyguard"],
-    ctaLabel: "Discuss DefenceMotion",
+    ctaLabel: ctas.pilot.label,
   },
 ];
+
+export const secureProductDetails = secureDetailRecords.map((record) => ({
+  ...record,
+  privacy: [record.privacy, productGuardrails(record.slug)].filter(Boolean).join(" "),
+}));

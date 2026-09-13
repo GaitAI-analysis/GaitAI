@@ -1,0 +1,3840 @@
+[
+  {
+    "route": "/investors/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--1920--dark.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--secure",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--1920--dark.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--1920--dark.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--1440--dark.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--1280--dark.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--secure",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--1440--dark.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--1440--dark.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--1024--dark.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--secure",
+      "SPAN.block",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--1280--dark.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "FIGURE.journal_pull__SYMfP",
+      "BLOCKQUOTE.",
+      "P.journal_pullText__flRS0",
+      "FIGURE.experience_root__hY5Wf experience_figure__7MCV9 experience_figureWide__solnv ",
+      "DIV.experience_figureHead__jHPNO",
+      "SPAN.experience_figureEyebrow__pjwFr",
+      "DIV.experience_figureStage__UAJM0",
+      "DIV.mt-2 flex flex-wrap items-center justify-center gap-3"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--1280--dark.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[520px] w-[960px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--768--dark.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--secure",
+      "SPAN.block",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--1024--dark.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "FIGURE.journal_pull__SYMfP",
+      "BLOCKQUOTE.",
+      "P.journal_pullText__flRS0",
+      "FIGURE.experience_root__hY5Wf experience_figure__7MCV9 experience_figureWide__solnv ",
+      "DIV.experience_figureHead__jHPNO",
+      "DIV.experience_figureStage__UAJM0",
+      "DIV.experience_figureFoot__dXG3m",
+      "FIGURE.journal_figure__l8K1x journal_figureWide__8PP0U"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--1024--dark.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[520px] w-[960px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--430--dark.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--care",
+      "SPAN.block",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--768--dark.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[520px] w-[960px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--375--dark.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-16%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 ",
+      "A.journal_railMobileItem__MiC_W "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--768--dark.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--1920--dark.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--1440--dark.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-16%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--430--dark.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--care",
+      "SPAN.block",
+      "SPAN.block"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--430--dark.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--1280--dark.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--1024--dark.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--care",
+      "SPAN.block",
+      "SPAN.block"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--375--dark.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-16%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--375--dark.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--768--dark.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--1920--dark.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--1920--dark.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--430--dark.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--375--dark.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--1440--dark.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--1440--dark.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--1280--dark.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--1920--dark.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--1280--dark.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--1024--dark.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--1024--dark.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--768--dark.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--1440--dark.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--768--dark.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--1280--dark.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--430--dark.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--1024--dark.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--375--dark.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--430--dark.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[8%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--768--dark.png"
+  },
+  {
+    "route": "/products/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(",
+      "DIV.absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradien"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--1920--dark.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--375--dark.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--1920--dark.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[8%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP analytics_chipOn__Kf931 ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--430--dark.png"
+  },
+  {
+    "route": "/products/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(",
+      "DIV.absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradien"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--1440--dark.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--1440--dark.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[8%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "BUTTON.analytics_chip__RBOMP analytics_chipOn__Kf931 ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP analytics_chipOn__Kf931 ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--375--dark.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--1280--dark.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--1920--dark.png"
+  },
+  {
+    "route": "/products/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(",
+      "DIV.absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradien",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--1280--dark.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--1024--dark.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-20%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--768--dark.png"
+  },
+  {
+    "route": "/products/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-g",
+      "DIV.absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(",
+      "DIV.absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradien",
+      "TABLE.analytics_matrix__NC_Vj",
+      "THEAD.",
+      "TR.",
+      "TH.",
+      "SPAN.analytics_colHead__4Pkc7 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--1024--dark.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--1440--dark.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--1280--dark.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-20%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--430--dark.png"
+  },
+  {
+    "route": "/products/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-g",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--768--dark.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--1024--dark.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-20%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--375--dark.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--768--dark.png"
+  },
+  {
+    "route": "/research/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--1920--dark.png"
+  },
+  {
+    "route": "/products/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-g",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--430--dark.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--430--dark.png"
+  },
+  {
+    "route": "/research/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--1440--dark.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--375--dark.png"
+  },
+  {
+    "route": "/products/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-g",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--375--dark.png"
+  },
+  {
+    "route": "/research/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--1280--dark.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--1920--dark.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 1920,
+    "theme": "dark",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--1920--dark.png"
+  },
+  {
+    "route": "/research/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--1024--dark.png"
+  },
+  {
+    "route": "/research/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "P.ix-hint mb-3",
+      "DIV.observatory_emapIndex__pqIlR",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.min-w-0",
+      "SPAN.observatory_emapTabTitle__6tdHT",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.observatory_emapTabIndex__JUYSN"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--768--dark.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--1440--dark.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 1440,
+    "theme": "dark",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--1440--dark.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--1280--dark.png"
+  },
+  {
+    "route": "/research/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "P.ix-hint mb-3",
+      "DIV.observatory_emapIndex__pqIlR",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.min-w-0",
+      "SPAN.observatory_emapTabTitle__6tdHT",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.observatory_emapTabIndex__JUYSN"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--430--dark.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 1280,
+    "theme": "dark",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "DIV.pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--1280--dark.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--1024--dark.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 1024,
+    "theme": "dark",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "DIV.pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--1024--dark.png"
+  },
+  {
+    "route": "/research/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "P.ix-hint mb-3",
+      "DIV.observatory_emapIndex__pqIlR",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.min-w-0",
+      "SPAN.observatory_emapTabTitle__6tdHT",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.observatory_emapTabIndex__JUYSN"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--375--dark.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--768--dark.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 768,
+    "theme": "dark",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--768--dark.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "DIV.flex max-w-3xl flex-col gap-5 items-start text-left",
+      "H2.font-display text-balance text-display-xl",
+      "SPAN.text-gradient-secure",
+      "P.max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:text-lg",
+      "DIV.xray_xray__1r0LU xray_famSecure__nnKw8",
+      "BUTTON.xray_exploreButton__M6S_g",
+      "SPAN."
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--430--dark.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 430,
+    "theme": "dark",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--430--dark.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "DIV.flex max-w-3xl flex-col gap-5 items-start text-left",
+      "H2.font-display text-balance text-display-xl",
+      "SPAN.text-gradient-secure",
+      "P.max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:text-lg",
+      "DIV.xray_xray__1r0LU xray_famSecure__nnKw8",
+      "BUTTON.xray_exploreButton__M6S_g",
+      "SPAN."
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--375--dark.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 375,
+    "theme": "dark",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "BUTTON.usecases_familyTab__z643H ",
+      "SPAN.usecases_familyCount__m98St",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b dark",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--375--dark.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--1920--light.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--secure",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--1920--light.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--1920--light.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--1440--light.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--1280--light.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--secure",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--1440--light.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--1440--light.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--1024--light.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--secure",
+      "SPAN.block",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--1280--light.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[520px] w-[960px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--768--light.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "FIGURE.journal_pull__SYMfP",
+      "BLOCKQUOTE.",
+      "P.journal_pullText__flRS0",
+      "FIGURE.experience_root__hY5Wf experience_figure__7MCV9 experience_figureWide__solnv ",
+      "DIV.experience_figureHead__jHPNO",
+      "SPAN.experience_figureEyebrow__pjwFr",
+      "DIV.experience_figureStage__UAJM0",
+      "DIV.mt-2 flex flex-wrap items-center justify-center gap-3"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--1280--light.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--secure",
+      "SPAN.block",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--1024--light.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "FIGURE.journal_pull__SYMfP",
+      "BLOCKQUOTE.",
+      "P.journal_pullText__flRS0",
+      "FIGURE.experience_root__hY5Wf experience_figure__7MCV9 experience_figureWide__solnv ",
+      "DIV.experience_figureHead__jHPNO",
+      "DIV.experience_figureStage__UAJM0",
+      "DIV.experience_figureFoot__dXG3m",
+      "FIGURE.journal_figure__l8K1x journal_figureWide__8PP0U"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--1024--light.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[520px] w-[960px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--430--light.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--care",
+      "SPAN.block",
+      "SPAN.block",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--768--light.png"
+  },
+  {
+    "route": "/investors/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "Investors & collaboration | GaitAI",
+    "h1": [
+      "A research vision becoming a movement platform."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[520px] w-[960px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "DIV.inv-ambient inv-ambient--cyan",
+      "DIV.inv-ambient inv-ambient--violet"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "investors--375--light.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-16%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 ",
+      "A.journal_railMobileItem__MiC_W "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--768--light.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--1920--light.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--1440--light.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-16%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--430--light.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--care",
+      "SPAN.block",
+      "SPAN.block"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--430--light.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--1280--light.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--1024--light.png"
+  },
+  {
+    "route": "/gaitscape/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitScape — Human Movement Intelligence Landscape | GaitAI",
+    "h1": [
+      "Explore the Human Movement Intelligence landscape."
+    ],
+    "overflow": false,
+    "wide": [
+      "TABLE.w-full min-w-max border-separate border-spacing-0 text-left",
+      "THEAD.",
+      "TR.",
+      "TH.capmatrix-sticky sticky top-0 z-20 min-w-[60px] border-b px-1.5 pb-2.5 pt-3 text-center al",
+      "SPAN.mx-auto mb-1.5 block h-1.5 w-1.5 rounded-full",
+      "SPAN.block text-[10px] font-semibold leading-[1.25] tracking-[0.01em] capmatrix-prod--care",
+      "SPAN.block",
+      "SPAN.block"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "gaitscape--375--light.png"
+  },
+  {
+    "route": "/insights/from-walking-video-to-movement-intelligence/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "From Walking Video to Movement Intelligence: What Actually Happens Inside GaitAI | GaitAI",
+    "h1": [
+      "From Walking Video to Movement Intelligence"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-16%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W ",
+      "A.journal_railMobileItem__MiC_W "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "insights--from-walking-video-to-movement-intelligence--375--light.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--768--light.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--1920--light.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--1920--light.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--430--light.png"
+  },
+  {
+    "route": "/labs/dataset/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "Gait Dataset — GaitAI Labs | GaitAI",
+    "h1": [
+      "Gait Dataset"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "labs--dataset--375--light.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--1440--light.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--1440--light.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--1920--light.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--1280--light.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--1280--light.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--1024--light.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--1024--light.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--768--light.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--1440--light.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--768--light.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--1280--light.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--430--light.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--1024--light.png"
+  },
+  {
+    "route": "/mobilitycare/fallrisk/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "GaitAI FallRisk — Surface mobility deterioration and fall-risk indicators for earlier review. | GaitAI",
+    "h1": [
+      "GaitAI FallRisk"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--fallrisk--375--light.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--430--light.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[8%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--768--light.png"
+  },
+  {
+    "route": "/products/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(",
+      "DIV.absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradien"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--1920--light.png"
+  },
+  {
+    "route": "/mobilitycare/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "MobilityCare — Clinical movement intelligence | GaitAI",
+    "h1": [
+      "Movement intelligence for assessment, recovery and longitudinal care."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "mobilitycare--375--light.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--1920--light.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[8%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP analytics_chipOn__Kf931 ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--430--light.png"
+  },
+  {
+    "route": "/products/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(",
+      "DIV.absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradien"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--1440--light.png"
+  },
+  {
+    "route": "/movement-lab/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "Movement Intelligence Lab — See movement become intelligence | GaitAI",
+    "h1": [
+      "See movement become intelligence."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[8%] h-[560px] w-[1000px] -translate-x-1/2 rounded-full bg-radial-gl",
+      "BUTTON.analytics_chip__RBOMP analytics_chipOn__Kf931 ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP analytics_chipOn__Kf931 ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "movement-lab--375--light.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--1440--light.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--1280--light.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--1920--light.png"
+  },
+  {
+    "route": "/products/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(",
+      "DIV.absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradien",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--1280--light.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--1024--light.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-20%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--768--light.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--1440--light.png"
+  },
+  {
+    "route": "/products/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-g",
+      "DIV.absolute right-[-6%] top-[6%] hidden h-[560px] w-[720px] rounded-full bg-[radial-gradient(",
+      "DIV.absolute right-[-10%] top-[34%] hidden h-[420px] w-[520px] rounded-full bg-[radial-gradien",
+      "TABLE.analytics_matrix__NC_Vj",
+      "THEAD.",
+      "TR.",
+      "TH.",
+      "SPAN.analytics_colHead__4Pkc7 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--1024--light.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--1280--light.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-20%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--430--light.png"
+  },
+  {
+    "route": "/products/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-g",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--768--light.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--1024--light.png"
+  },
+  {
+    "route": "/publications/prl-2023/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches — GaitAI Research | GaitAI",
+    "h1": [
+      "Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches"
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[-20%] h-[480px] w-[900px] -translate-x-1/2 rounded-full opacity-40 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "publications--prl-2023--375--light.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--768--light.png"
+  },
+  {
+    "route": "/research/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--1920--light.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--430--light.png"
+  },
+  {
+    "route": "/products/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-g",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--430--light.png"
+  },
+  {
+    "route": "/research/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--1440--light.png"
+  },
+  {
+    "route": "/research/evidence/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "Full evidence record — every paper mapped to every capability | GaitAI",
+    "h1": [
+      "The full evidence record."
+    ],
+    "overflow": false,
+    "wide": [
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "SPAN.analytics_chipCount__ODDE2",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--evidence--375--light.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--1920--light.png"
+  },
+  {
+    "route": "/research/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--1280--light.png"
+  },
+  {
+    "route": "/products/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "All Products — 24 modular movement-intelligence products | GaitAI",
+    "h1": [
+      "Find the right GaitAI product mix."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.absolute left-1/2 top-[10%] h-[640px] w-[1100px] -translate-x-1/2 rounded-full bg-radial-g",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  ",
+      "BUTTON.analytics_chip__RBOMP  "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "products--375--light.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 1920,
+    "theme": "light",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--1920--light.png"
+  },
+  {
+    "route": "/research/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--1024--light.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--1440--light.png"
+  },
+  {
+    "route": "/research/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "P.ix-hint mb-3",
+      "DIV.observatory_emapIndex__pqIlR",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.min-w-0",
+      "SPAN.observatory_emapTabTitle__6tdHT",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.observatory_emapTabIndex__JUYSN"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--768--light.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--1280--light.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 1440,
+    "theme": "light",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--1440--light.png"
+  },
+  {
+    "route": "/research/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "P.ix-hint mb-3",
+      "DIV.observatory_emapIndex__pqIlR",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.min-w-0",
+      "SPAN.observatory_emapTabTitle__6tdHT",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.observatory_emapTabIndex__JUYSN"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--430--light.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--1024--light.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 1280,
+    "theme": "light",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "DIV.pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--1280--light.png"
+  },
+  {
+    "route": "/research/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "Research — The evidence behind GaitAI movement intelligence | GaitAI",
+    "h1": [
+      "Built on apublished research record."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "P.ix-hint mb-3",
+      "DIV.observatory_emapIndex__pqIlR",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.min-w-0",
+      "SPAN.observatory_emapTabTitle__6tdHT",
+      "BUTTON.observatory_emapTab__ASyWa",
+      "SPAN.observatory_emapTabIndex__JUYSN"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "research--375--light.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full opacity-0 transition",
+      "DIV.pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full opacity-40 blur-3xl"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--768--light.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 1024,
+    "theme": "light",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "DIV.pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-radial-cyan opaci"
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--1024--light.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 768,
+    "theme": "light",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--768--light.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "DIV.flex max-w-3xl flex-col gap-5 items-start text-left",
+      "H2.font-display text-balance text-display-xl",
+      "SPAN.text-gradient-secure",
+      "P.max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:text-lg",
+      "DIV.xray_xray__1r0LU xray_famSecure__nnKw8",
+      "BUTTON.xray_exploreButton__M6S_g",
+      "SPAN."
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--430--light.png"
+  },
+  {
+    "route": "/securevision/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "SecureVision — Privacy-aware movement intelligence | GaitAI",
+    "h1": [
+      "Privacy-aware movement intelligence for safer public spaces."
+    ],
+    "overflow": false,
+    "wide": [
+      "DIV.",
+      "DIV.flex max-w-3xl flex-col gap-5 items-start text-left",
+      "H2.font-display text-balance text-display-xl",
+      "SPAN.text-gradient-secure",
+      "P.max-w-2xl text-balance text-base leading-relaxed text-soft-gray sm:text-lg",
+      "DIV.xray_xray__1r0LU xray_famSecure__nnKw8",
+      "BUTTON.xray_exploreButton__M6S_g",
+      "SPAN."
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "securevision--375--light.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 430,
+    "theme": "light",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--430--light.png"
+  },
+  {
+    "route": "/use-cases/",
+    "width": 375,
+    "theme": "light",
+    "status": 200,
+    "title": "Use Cases — Which movement problem are you solving? | GaitAI",
+    "h1": [
+      "18 environments, each with its own question."
+    ],
+    "overflow": false,
+    "wide": [
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_light__xdy30",
+      "SPAN.field_grid__3b3pb field_maskRight__m1mlF",
+      "BUTTON.usecases_familyTab__z643H ",
+      "SPAN.usecases_familyCount__m98St",
+      "BUTTON.usecases_facetChip__uBsY3 ",
+      "BUTTON.usecases_facetChip__uBsY3 "
+    ],
+    "brokenImages": [],
+    "themeClass": "__variable_f367f3 __variable_dd5b2f __variable_3c557b light",
+    "axe": [],
+    "pageErrors": [],
+    "screenshot": "use-cases--375--light.png"
+  }
+]

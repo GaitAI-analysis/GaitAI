@@ -79,7 +79,7 @@ export function ResearchLineage({
           {yearFrom} → {yearTo}
         </text>
         <text className={styles.lnMeta} x={CX - 22} y={100} textAnchor="end">
-          {papers} peer-reviewed papers
+          {papers} surfaced academic papers
         </text>
 
         {/* The one milestone that carries the champagne accent */}
@@ -159,7 +159,7 @@ export function ResearchLineage({
         <circle className={styles.lnNode} cx={CX} cy={386} r={9} />
         <circle className={styles.lnNodeDot} cx={CX} cy={386} r={3} />
         <text className={styles.lnLabel} x={CX} y={415} textAnchor="middle">
-          {moduleCount} modular products
+          {moduleCount} product modules
         </text>
       </svg>
       </div>
@@ -167,7 +167,7 @@ export function ResearchLineage({
 
       {/* The distinction, in the same words the page has always used. */}
       <p className={styles.provenanceNote}>
-        {papers} peer-reviewed papers and Patent {patentNumber}, authored by{" "}
+        {papers} surfaced academic papers and Patent {patentNumber}, authored by{" "}
         {founder} with academic co-authors, constitute the research foundation.
         GaitAI product modules are subsequent platform implementations.{" "}
         <Link

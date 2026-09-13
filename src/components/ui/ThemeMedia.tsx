@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { assetPath } from "@/lib/paths";
 import { cn } from "@/lib/utils";
@@ -130,18 +130,38 @@ export function ThemeVideo({
     ) : null;
   }
 
+  return <ViewportVideo src={assetPath(src)} poster={poster ? assetPath(poster) : undefined} className={className} label={posterAlt}/>;
+}
+
+function ViewportVideo({src,poster,className,label}:{src:string;poster?:string;className?:string;label:string}) {
+  const ref=useRef<HTMLVideoElement>(null);
+  const [loaded,setLoaded]=useState(false);
+  useEffect(()=>{
+    const node=ref.current;
+    if(!node)return;
+    const observer=new IntersectionObserver(entries=>{
+      if(entries.some(e=>e.isIntersecting)){setLoaded(true);observer.disconnect();}
+    },{rootMargin:"150px"});
+    observer.observe(node);
+    return ()=>observer.disconnect();
+  },[]);
+  useEffect(() => { if (loaded) ref.current?.load(); }, [loaded, src]);
   return (
-    <video
+    <video ref={ref}
       key={src}
       className={cn("transition-opacity duration-200", className)}
       autoPlay
       muted
       loop
       playsInline
-      preload="metadata"
-      poster={poster ? assetPath(poster) : undefined}
+      preload="none"
+      width={1280}
+      height={720}
+      poster={poster}
+      aria-label={label || undefined}
+      aria-hidden={!label}
     >
-      <source src={assetPath(src)} type="video/mp4" />
+      {loaded && <source src={src} type="video/mp4" />}
     </video>
   );
 }

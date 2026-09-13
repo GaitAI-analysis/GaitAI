@@ -1,0 +1,339 @@
+{
+  "counts": {
+    "productModules": 24,
+    "mobilitycare": 12,
+    "securevision": 12,
+    "verticals": 2,
+    "environments": 18,
+    "publications": 8,
+    "patents": 1,
+    "researchRecords": 9,
+    "researchAreas": 4,
+    "productValidationStudies": 0,
+    "talksAndPresentations": 21,
+    "talkKinds": {
+      "invitedTalks": 10,
+      "presentations": 2,
+      "posters": 1,
+      "paperPresentations": 8
+    },
+    "gaitscapeNodes": 92,
+    "gaitscapeRelationships": 320,
+    "capabilities": 13
+  },
+  "terminology": {
+    "product": "A named GaitAI offering; a product page describes intended scope, not release or validation status.",
+    "module": "A modular offering on the shared movement-intelligence platform.",
+    "productModule": "The canonical catalogue unit. Product and module refer to the same registry entry and are not added together.",
+    "researchRecord": "A surfaced academic paper or patent informing the research foundation; not a product validation study.",
+    "publication": "A surfaced academic paper. The wider founder academic record is separate from this curated selection.",
+    "patent": "A granted intellectual-property record; not evidence of implementation or validated product performance.",
+    "environment": "A setting in the canonical environment registry.",
+    "useCase": "An intended workflow within an environment; not a deployment or a separately counted environment.",
+    "capability": "A named analysis function in the GaitScape graph; not a separately shipped product."
+  },
+  "founderAcademicRecord": {
+    "name": "Anubha Parashar",
+    "source": "https://anubhaparashar.github.io/",
+    "researchSince": 2014,
+    "scope": "The founder academic record spans work with academic co-authors. This website surfaces a curated selection; the wider publication record is maintained on the founder portfolio and Scholar profile. It is separate from GaitAI product-specific validation and company-assigned IP."
+  },
+  "products": [
+    {
+      "id": "walkscan",
+      "label": "WalkScan",
+      "href": "/mobilitycare/walkscan/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "fallrisk",
+      "label": "FallRisk",
+      "href": "/mobilitycare/fallrisk/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "rehabtrack",
+      "label": "RehabTrack",
+      "href": "/mobilitycare/rehabtrack/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "sportsmotion",
+      "label": "SportsMotion",
+      "href": "/mobilitycare/sportsmotion/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "watchcare",
+      "label": "WatchCare",
+      "href": "/mobilitycare/watchcare/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "neuromotion",
+      "label": "NeuroMotion",
+      "href": "/mobilitycare/neuromotion/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "orthomotion",
+      "label": "OrthoMotion",
+      "href": "/mobilitycare/orthomotion/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "seniorcare",
+      "label": "SeniorCare",
+      "href": "/mobilitycare/seniorcare/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "pediatricmotion",
+      "label": "PediatricMotion",
+      "href": "/mobilitycare/pediatricmotion/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "prostheticfit",
+      "label": "ProstheticFit",
+      "href": "/mobilitycare/prostheticfit/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "remotecare",
+      "label": "RemoteCare",
+      "href": "/mobilitycare/remotecare/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "clinicaltrials",
+      "label": "ClinicalTrials",
+      "href": "/mobilitycare/clinicaltrials/",
+      "vertical": "mobilitycare",
+      "navigation": false
+    },
+    {
+      "id": "suspiciousmotion",
+      "label": "SuspiciousMotion",
+      "href": "/securevision/suspiciousmotion/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "crowdsense",
+      "label": "CrowdSense",
+      "href": "/securevision/crowdsense/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "industrialsafety",
+      "label": "IndustrialSafety",
+      "href": "/securevision/industrialsafety/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "privacyguard",
+      "label": "PrivacyGuard",
+      "href": "/securevision/privacyguard/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "campusshield",
+      "label": "CampusShield",
+      "href": "/securevision/campusshield/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "forensicsearch",
+      "label": "ForensicSearch",
+      "href": "/securevision/forensicsearch/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "reid",
+      "label": "ReID",
+      "href": "/securevision/reid/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "accessmotion",
+      "label": "AccessMotion",
+      "href": "/securevision/accessmotion/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "eventshield",
+      "label": "EventShield",
+      "href": "/securevision/eventshield/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "retailguard",
+      "label": "RetailGuard",
+      "href": "/securevision/retailguard/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "watchlist",
+      "label": "Watchlist",
+      "href": "/securevision/watchlist/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "defencemotion",
+      "label": "DefenceMotion",
+      "href": "/securevision/defencemotion/",
+      "vertical": "securevision",
+      "navigation": true
+    }
+  ],
+  "environments": [
+    {
+      "id": "physio",
+      "label": "Physiotherapy clinics",
+      "href": "/use-cases/physiotherapy-clinics",
+      "vertical": "mobilitycare",
+      "footer": false
+    },
+    {
+      "id": "hospitals",
+      "label": "Hospitals",
+      "href": "/use-cases/hospitals",
+      "vertical": "mobilitycare",
+      "footer": true
+    },
+    {
+      "id": "sports",
+      "label": "Sports academies",
+      "href": "/use-cases/sports-academies",
+      "vertical": "mobilitycare",
+      "footer": true
+    },
+    {
+      "id": "elderly",
+      "label": "Elderly-care centers",
+      "href": "/use-cases/elderly-care-centers",
+      "vertical": "mobilitycare",
+      "footer": true
+    },
+    {
+      "id": "neuro",
+      "label": "Neurology clinics",
+      "href": "/use-cases/neurology-clinics",
+      "vertical": "mobilitycare",
+      "footer": false
+    },
+    {
+      "id": "homecare",
+      "label": "Home care & telehealth",
+      "href": "/use-cases/home-care-telehealth",
+      "vertical": "mobilitycare",
+      "footer": false
+    },
+    {
+      "id": "airports",
+      "label": "Airports, metro & rail",
+      "href": "/use-cases/airports-metro-rail",
+      "vertical": "securevision",
+      "footer": false
+    },
+    {
+      "id": "smartcities",
+      "label": "Smart cities",
+      "href": "/use-cases/smart-cities",
+      "vertical": "securevision",
+      "footer": true
+    },
+    {
+      "id": "campuses",
+      "label": "Corporate & university campuses",
+      "href": "/use-cases/corporate-university-campuses",
+      "vertical": "securevision",
+      "footer": false
+    },
+    {
+      "id": "factories",
+      "label": "Factories & warehouses",
+      "href": "/use-cases/factories-warehouses",
+      "vertical": "securevision",
+      "footer": false
+    },
+    {
+      "id": "retail",
+      "label": "Malls & retail",
+      "href": "/use-cases/malls-retail",
+      "vertical": "securevision",
+      "footer": false
+    },
+    {
+      "id": "events",
+      "label": "Large events & stadiums",
+      "href": "/use-cases/large-events-stadiums",
+      "vertical": "securevision",
+      "footer": false
+    },
+    {
+      "id": "fitness",
+      "label": "Fitness centers & wellness",
+      "href": "/use-cases/fitness-wellness",
+      "vertical": "mobilitycare",
+      "footer": false
+    },
+    {
+      "id": "schools",
+      "label": "Schools & academies",
+      "href": "/use-cases/schools-academies",
+      "vertical": "mobilitycare",
+      "footer": false
+    },
+    {
+      "id": "prosthetics",
+      "label": "Prosthetic & orthotic clinics",
+      "href": "/use-cases/prosthetic-orthotic-clinics",
+      "vertical": "mobilitycare",
+      "footer": false
+    },
+    {
+      "id": "insurance",
+      "label": "Insurance & wellness programs",
+      "href": "/use-cases/insurance-wellness",
+      "vertical": "mobilitycare",
+      "footer": false
+    },
+    {
+      "id": "trials",
+      "label": "Research & clinical trials",
+      "href": "/use-cases/research-clinical-trials",
+      "vertical": "mobilitycare",
+      "footer": false
+    },
+    {
+      "id": "defence",
+      "label": "Defence & Armed Forces",
+      "href": "/use-cases/defence-armed-forces",
+      "vertical": "securevision",
+      "footer": true
+    }
+  ]
+}

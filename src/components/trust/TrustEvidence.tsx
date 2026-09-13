@@ -32,7 +32,7 @@ export function TrustEvidence({
     {
       value: `${records}`,
       label: "Research records",
-      note: `${papers} peer-reviewed papers · patent ${patentNumber}`,
+      note: `${papers} surfaced academic papers · patent ${patentNumber}`,
     },
     {
       value: `${areas}`,

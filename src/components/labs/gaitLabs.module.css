@@ -30,8 +30,8 @@
 }
 
 :global(.light) .root {
-  --g-cyan: #0e8ab8;
-  --g-cyan-soft: rgb(14 138 184 / 0.55);
+  --g-cyan: #0e7490;
+  --g-cyan-soft: rgb(14 116 144 / 0.55);
   --g-violet: #6d34c9;
   --g-violet-soft: rgb(109 52 201 / 0.5);
   --g-line: rgb(71 85 105 / 0.2);

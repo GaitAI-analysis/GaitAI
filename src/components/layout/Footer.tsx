@@ -1,3 +1,4 @@
+import siteFacts from "@/data/generated/site-facts.json";
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { Github, Linkedin, Mail } from "lucide-react";
@@ -20,6 +21,7 @@ const footerLinks = [
       { label: "Product overview", href: "/products" },
       { label: "MobilityCare", href: "/mobilitycare" },
       { label: "SecureVision", href: "/securevision" },
+      ...siteFacts.products.filter((p) => p.navigation),
       { label: "GaitScape", href: "/gaitscape" },
       { label: "How it works", href: "/#how" },
     ],
@@ -34,10 +36,7 @@ const footerLinks = [
        `usecase-details.ts`. */
     items: [
       { label: "Use cases", href: "/use-cases" },
-      { label: "Hospitals", href: "/use-cases/hospitals" },
-      { label: "Sports academies", href: "/use-cases/sports-academies" },
-      { label: "Elderly care", href: "/use-cases/elderly-care-centers" },
-      { label: "Smart cities", href: "/use-cases/smart-cities" },
+      ...siteFacts.environments.filter((environment) => environment.footer),
     ],
   },
   {
@@ -46,7 +45,7 @@ const footerLinks = [
       { label: "Research", href: "/research" },
       { label: "Publications", href: "/publications" },
       { label: "Talks & presentations", href: "/research/talks" },
-      { label: "Blog & Updates", href: "/insights" },
+      { label: "Blog", href: "/insights" },
       { label: "Responsible AI", href: "/legal/responsible-ai" },
     ],
   },
@@ -120,7 +119,7 @@ export function Footer() {
               GaitAI is intelligence in motion — a Human Movement Intelligence
               Platform that turns walking videos, wearable signals and crowd
               movement into healthcare, sports, elderly-care and safety
-              insight. Built on 10+ years of founder research experience in
+              insight. Built on founder research since {siteFacts.founderAcademicRecord.researchSince} in
               gait and human movement.
             </p>
             <div className="mt-6 flex items-center gap-2">

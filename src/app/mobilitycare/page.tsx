@@ -66,7 +66,7 @@ export default function MobilityCarePage() {
             eyebrow="MobilityCare · Product suite"
             title={
               <>
-                {mobilityProducts.length} modular products on{" "}
+                {mobilityProducts.length} product modules on{" "}
                 <span className="text-gradient">
                   one Movement Intelligence Platform.
                 </span>
@@ -158,24 +158,24 @@ export default function MobilityCarePage() {
                     <span className="text-gradient">what the model reads.</span>
                   </>
                 }
-                description="One stride, sampled at five gait events. Switch the view and the body becomes the channels a MobilityCare module actually works from."
+                description="Five illustrative walking moments. Switch from recorded input to its estimated keypoints and an explanation of the same source."
                 align="left"
               />
             </div>
             <MovementXRay
               family="mobilitycare"
-              humanCaption="Five moments in one stride. A clinician watching this sees a person walking, and reads it with an experienced eye — which is exactly the assessment GaitAI is built to make repeatable."
-              aiCaption="The same five moments as the pipeline holds them: a pose skeleton with its landmarks, ground contacts where the data says the foot is loaded, the paths the ankle and wrist trace across the stride, and two of the temporal channels those paths become."
+
+
               reads={[
                 {
                   label: "Pose landmarks",
                   detail:
-                    "Body keypoints per frame. Every downstream measure is computed from these rather than from the image.",
+                    "Estimated body keypoints per frame. Visibility and capture quality limit the features that can be derived.",
                 },
                 {
                   label: "Ground contact",
                   detail:
-                    "Where the foot loads and leaves. This is what divides a stride into stance and swing.",
+                    "Illustrative contact and lift-off annotations. Actual gait-event estimates require timed footage and validation.",
                 },
                 {
                   label: "Joint trajectories",

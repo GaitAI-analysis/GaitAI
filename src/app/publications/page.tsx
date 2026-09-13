@@ -22,7 +22,7 @@ import { ctas } from "@/data/content";
 export const metadata: Metadata = {
   title: "Publications — The founder research record behind GaitAI",
   description:
-    "The research record GaitAI is built on: peer-reviewed papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.",
+    "The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.",
   alternates: { canonical: "/publications" },
 };
 
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 // the patent is not a publication.
 const summary = [
   { value: `${papers.length + 1}`, label: "Research outputs" },
-  { value: `${papers.length}`, label: "Peer-reviewed papers" },
+  { value: `${papers.length}`, label: "Surfaced academic papers" },
   { value: "1", label: "Granted patent" },
   {
     value: `${allYears[allYears.length - 1]}–${allYears[0]}`,
@@ -65,7 +65,7 @@ export default function PublicationsPage() {
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray">
-                Peer-reviewed papers and a granted patent spanning gait
+                Surfaced academic papers and a granted patent spanning gait
                 recognition, computer vision, biometrics, pose estimation,
                 machine learning and privacy-preserving movement analysis —
                 authored by founder {FOUNDER_NAME} with academic co-authors,

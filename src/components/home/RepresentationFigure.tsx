@@ -1,53 +1,11 @@
+import { SequenceFrame, SEQUENCE_CAPTION } from "@/components/visuals/SequenceFrame";
 import { assetPath } from "@/lib/paths";
 import { smoothPath } from "@/components/research/PoseFrame";
 import type { Pt } from "@/components/visuals/gait-phases";
 import styles from "./representations.module.css";
 
-/**
- * THE FIVE REPRESENTATIONS, DRAWN AS THE THINGS THEY ACTUALLY ARE.
- * =============================================================================
- * Every drawing here is authored from scratch for GaitAI — geometry in this
- * file, painted with the section's own tokens. Nothing is traced from, or
- * derived from, any third-party image, dataset frame or model output; the
- * published work these are recognisable AS was used only as a description of
- * what each representation contains.
- *
- * WHY THIS REPLACED THE SHARED GAIT KEYFRAMES. `visuals/gait-phases` is a
- * five-keyframe stick figure: a head circle, a spine and four limb polylines.
- * It is the right asset for the research pages, where it is a diagram of a
- * gait cycle. In this section it was wrong, because this section's whole
- * argument is that the five representations are DIFFERENT KINDS OF DATA — and
- * three of them were rendering as the same mannequin at three opacities.
- * A visitor could see the label change and not the thing.
- *
- * So the five are now built to be recognisable on sight:
- *
- *   CAMERA VIDEO  a tonal figure in a real scene inside camera furniture —
- *                 corner brackets, REC, a timestamp, scanlines, vignette.
- *                 It should read as a frame off a CCTV stream.
- *   SILHOUETTE    the same body as ONE flat mask. No face, no internal
- *                 geometry, no scene — a foreground segmentation, which is
- *                 exactly what the word means.
- *   POSE          landmarks and bones at the joints a pose estimator
- *                 actually returns: nose, shoulders, elbows, wrists, hips,
- *                 knees, ankles, heels, foot index — near side bright, far
- *                 side dim, the way every pose overlay distinguishes them.
- *   TRAJECTORY    the hip centroid over time. Ghosts of where the body was,
- *                 a fading path, sampled time dots — the body is incidental
- *                 and the PATH is the subject.
- *   SENSOR        no person at all. Three accelerometer traces over a time
- *                 axis with heel-strike markers, and a watch as a caption.
- *
- * ONE BODY, FIVE VIEWS. The camera figure, the mask, the skeleton, the
- * trajectory ghosts and the pose inside the trajectory are all the same
- * `L` landmark set below. That is what makes the section's claim legible:
- * the visitor is watching one walk lose information, not five drawings.
- *
- * THE POSE IS A REAL INSTANT OF GAIT — right heel strike, left toe off, the
- * moment of maximum stride separation, with the arms in the contralateral
- * swing a walk actually has (right leg forward, right arm back). Proportions
- * are a 7-head adult figure. Nothing is placed by transform.
- */
+/** The first three cards share one recorded frame and its model output.
+ * Trajectory and IMU cards are labelled conceptual diagrams. */
 
 /* The box. Matches the card figure area the section already reserves. */
 /**
@@ -328,6 +286,14 @@ export function RepresentationFigure({
   label: string;
   className?: string;
 }) {
+  if (draw === "frame" || draw === "silhouette" || draw === "pose") {
+    const view = draw === "frame" ? "source" : draw === "silhouette" ? "mask" : "pose";
+    return <div role="img" aria-label={`${label}. ${SEQUENCE_CAPTION}`} className={className}>
+      <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg} data-draw={draw} aria-hidden="true">
+        <SequenceFrame index={0} x={0} y={0} width={W} height={H} view={view}/>
+      </svg>
+    </div>;
+  }
   return (
     <div role="img" aria-label={label} className={className}>
       <svg
@@ -446,188 +412,6 @@ export function RepresentationFigure({
             travel faster), and the whole plate carries the vignette, sensor
             grain, compression blocking and scanlines that no drawing has.
             Set CCTV_PLATE to swap the drawing for a licensed still. */}
-        {draw === "frame" && (
-          <g clipPath="url(#gai-frame)">
-            <rect x="0" y="0" width={W} height={H} className={styles.camGround} />
-
-            {CCTV_PLATE ? (
-              <image
-                href={assetPath(CCTV_PLATE)}
-                x="0"
-                y="0"
-                width={W}
-                height={H}
-                preserveAspectRatio="xMidYMid slice"
-                className={styles.camPlate}
-              />
-            ) : (
-              <>
-                {/* ── The room, behind the plane of focus ── */}
-                <g filter="url(#gai-dof)">
-                  <rect x="-4" y="-4" width={W + 8} height={82} fill="url(#gai-wall)" />
-                  <rect x="-4" y="74" width={W + 8} height={H - 70} fill="url(#gai-floor)" />
-
-                  {/* The floor recedes to a vanishing point on the horizon.
-                      Spacing tightens with distance — that is perspective, and
-                      it is what evenly spaced lines were failing to be. */}
-                  <g className={styles.camPerspective}>
-                    {[-70, -28, 6, 40, 78, 120, 168, 220].map((x) => (
-                      <path key={x} d={`M${x} ${H + 6}L${VP[0]} ${VP[1]}`} />
-                    ))}
-                    {[0.1, 0.24, 0.42, 0.64, 0.88].map((f) => {
-                      const y = VP[1] + (H + 6 - VP[1]) * f * f;
-                      return <path key={f} d={`M-4 ${y}H${W + 4}`} />;
-                    })}
-                  </g>
-
-                  {/* Where the wall meets the floor, and the skirting under it. */}
-                  <path d={`M-4 74H${W + 4}`} className={styles.camEdge} />
-                  <path d={`M-4 77.4H${W + 4}`} className={styles.camSkirt} />
-
-                  {/* A doorway, and the light it puts on the floor. */}
-                  <rect x="14" y="34" width="24" height="40" className={styles.camDoor} />
-                  <path
-                    d="M14 74 L38 74 L52 162 L-6 162 Z"
-                    fill="url(#gai-spill)"
-                    className={styles.camSpill}
-                  />
-                  {/* Ceiling luminaire and the pool it throws. */}
-                  <ellipse cx="104" cy="10" rx="21" ry="4.2" className={styles.camLamp} />
-                  <ellipse cx="96" cy="112" rx="52" ry="20" className={styles.camPool} />
-                </g>
-
-                {/* ── The person, on the plane of focus ──
-                    Trunk and head take the light; the limbs carry the smear.
-                    The tonal wash over the top is what stops the fills reading
-                    as flat colour. */}
-                <g className={styles.camShadowWrap}>
-                  <ellipse cx="76" cy={GROUND + 1} rx="27" ry="3.4" className={styles.camShadow} />
-                </g>
-                <g filter="url(#gai-motion)">
-                  <Body tone className={styles.camBody} />
-                </g>
-                <g filter="url(#gai-motion-limb)" className={styles.camSmear}>
-                  <Body tone className={styles.camBody} />
-                </g>
-                <g className={styles.camModel} clipPath="url(#gai-frame)">
-                  <rect x="40" y="20" width="76" height={GROUND - 18} fill="url(#gai-lit)" />
-                </g>
-              </>
-            )}
-
-            {/* ── The recording itself ── */}
-            <rect x="0" y="0" width={W} height={H} fill="url(#gai-vignette)" />
-            {/* Macroblocking: the artifact every compressed camera stream has
-                and no drawing does. Faint, irregular, and only in the dark. */}
-            <g className={styles.camBlocks}>
-              {[
-                [8, 88], [24, 88], [8, 104], [112, 40], [128, 40], [120, 128],
-                [40, 136], [56, 136], [96, 16], [136, 96],
-              ].map(([x, y]) => (
-                <rect key={`${x}-${y}`} x={x} y={y} width="8" height="8" />
-              ))}
-            </g>
-            <rect
-              x="0"
-              y="0"
-              width={W}
-              height={H}
-              filter="url(#gai-grain)"
-              className={styles.camGrain}
-            />
-            <g className={styles.scanlines}>
-              {Array.from({ length: 26 }, (_, i) => (
-                <path key={i} d={`M0 ${i * 6 + 2}H${W}`} />
-              ))}
-            </g>
-            <g className={styles.camBracket}>
-              {[
-                [8, 8, 1, 1],
-                [W - 8, 8, -1, 1],
-                [8, H - 8, 1, -1],
-                [W - 8, H - 8, -1, -1],
-              ].map(([x, y, dx, dy]) => (
-                <path key={`${x}-${y}`} d={`M${x} ${y + dy * 9}L${x} ${y}L${x + dx * 9} ${y}`} />
-              ))}
-            </g>
-            <circle cx="15" cy="15" r="2.6" className={styles.camRec} />
-            <text x="21" y="17.4" className={styles.camText}>
-              REC
-            </text>
-            <text x={W - 10} y="17.4" textAnchor="end" className={styles.camText}>
-              CAM 03
-            </text>
-            <text x="10" y={H - 9} className={styles.camStamp}>
-              2026-09-12 09:41:07
-            </text>
-            <text x={W - 10} y={H - 9} textAnchor="end" className={styles.camStamp}>
-              30 FPS
-            </text>
-          </g>
-        )}
-
-        {/* ═══ SILHOUETTE ═════════════════════════════════════════════════
-            The foreground, and nothing else. The chequer behind it is the
-            convention for "background removed" — it is not a scene. */}
-        {draw === "silhouette" && (
-          <g>
-            <g className={styles.checker}>
-              {Array.from({ length: 13 }, (_, r) =>
-                Array.from({ length: 13 }, (_, c) =>
-                  (r + c) % 2 === 0 ? (
-                    <rect key={`${r}-${c}`} x={c * 12} y={r * 12} width="12" height="12" />
-                  ) : null,
-                ),
-              )}
-            </g>
-            <g filter="url(#gai-seg)">
-              <Body className={styles.mask} />
-              {/* The fragment a segmenter leaves near the trailing foot, where
-                  shoe and shadow are the same few pixels. One, small, and on
-                  the ground line — an artifact, not decoration. */}
-              <ellipse cx="44" cy={GROUND - 3} rx="3.1" ry="1.7" className={styles.maskFleck} />
-            </g>
-            <text x={W / 2} y={H - 8} textAnchor="middle" className={styles.maskLabel}>
-              FOREGROUND MASK
-            </text>
-          </g>
-        )}
-
-        {/* ═══ POSE SKELETON ══════════════════════════════════════════════ */}
-        {draw === "pose" && (
-          <g>
-            <g className={styles.poseFar}>
-              {BONES_FAR.map(([a, b]) => (
-                <path key={`${a}-${b}`} d={line(a, b)} />
-              ))}
-              {JOINTS_FAR.map((p) => (
-                <circle key={String(p)} cx={p[0]} cy={p[1]} r="2.1" />
-              ))}
-            </g>
-            <g className={styles.poseNear}>
-              {BONES_NEAR.map(([a, b]) => (
-                <path key={`${a}-${b}`} d={line(a, b)} />
-              ))}
-            </g>
-            <g className={styles.poseJoint}>
-              {JOINTS_NEAR.map((p) => (
-                <circle key={String(p)} cx={p[0]} cy={p[1]} r="2.6" />
-              ))}
-            </g>
-            {/* The detection box every pose estimator reports alongside the
-                landmarks, with its confidence. */}
-            <rect x="42" y="10" width="70" height={GROUND - 10 + 4} rx="2" className={styles.poseBox} />
-            <text x="42" y="7" className={styles.poseTag}>
-              PERSON 0.97
-            </text>
-            <text x={W / 2} y={H - 8} textAnchor="middle" className={styles.poseCount}>
-              {JOINTS_NEAR.length + JOINTS_FAR.length} LANDMARKS
-            </text>
-          </g>
-        )}
-
-        {/* ═══ TRAJECTORY ═════════════════════════════════════════════════
-            The path is the subject; the body is where the path has got to. */}
         {draw === "trajectory" && (
           <g>
             {/* The floor the path is drawn on, in perspective — a trajectory

@@ -44,6 +44,8 @@
   ],
   "exclude": [
     "node_modules",
-    "worker"
+    "worker",
+    "tmp",
+    "out"
   ]
 }

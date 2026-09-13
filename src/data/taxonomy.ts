@@ -69,7 +69,11 @@ function verticalNodeTitles(
     if (rel.type !== relationType) continue;
     if (!productIds.has(rel.source)) continue;
     const target = nodeById.get(rel.target);
-    if (target) titles.add(target.title);
+    // Keep clinical signals in their own vertical's general vocabulary.
+    // Mixed-use products still expose them in their contextual product chain.
+    if (target && (!target.vertical || target.vertical === vertical)) {
+      titles.add(target.title);
+    }
   }
   return Array.from(titles);
 }

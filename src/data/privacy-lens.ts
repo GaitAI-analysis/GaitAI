@@ -17,7 +17,7 @@
 //   · IT IS NOT ONE PATH FOR ALL 11 SECUREVISION MODULES. The identity and
 //     investigation group exists, is governed separately, and by design does
 //     retain identity-bearing information. `APPLIES_TO` says so in as many
-//     words, and the lens is explicitly scoped to the identity-free group
+//     words, and the lens is explicitly scoped to the privacy-aware group
 //   · IT IS NOT A CERTIFICATION. No compliance standard, no audit, no
 //     guarantee. PrivacyGuard is described on the product page as
 //     privacy-aware architecture, and this stays inside that description
@@ -72,27 +72,27 @@ export const privacyStages: PrivacyStage[] = [
       "Body pose and position",
       "Movement over time",
     ],
-    drops: ["Facial appearance", "Clothing, colour and build"],
+    drops: ["Facial appearance detail", "Clothing texture and colour"],
     render: "body",
     retained: 1,
   },
   {
     id: "transformed",
     label: "Privacy transformed",
-    lead: "Appearance is minimised at the edge; geometry is what continues.",
+    lead: "In this illustrative workflow, appearance detail is reduced; geometry continues.",
     carries: [
       "Body pose as keypoints",
       "Position and direction",
       "Movement over time",
     ],
-    drops: ["Static body geometry", "Absolute position"],
+    drops: ["Detailed joint configuration"],
     render: "skeleton",
     retained: 0.45,
   },
   {
     id: "intelligence",
     label: "Movement intelligence",
-    lead: "Only the movement signal reaches the module that reads it.",
+    lead: "Task-relevant movement features continue; paths and timing can still be identifying.",
     carries: [
       "Trajectory and dwell",
       "Timing and rhythm",
@@ -114,11 +114,11 @@ export const PRIVACY_LENS_BOUNDARY =
  * SecureVision module follows it, and the identity group does not.
  */
 export const PRIVACY_LENS_APPLIES_TO =
-  "This path describes the identity-free group — anomaly detection, crowd flow, worker safety, campus and access monitoring. SecureVision's identity and investigation modules are a separate, governed group that does retain identity-bearing information by design, and they do not run this path.";
+  "This path describes the privacy-aware group — anomaly detection, crowd flow, worker safety, campus and access monitoring. SecureVision's identity and investigation modules are a separate, governed group that does retain identity-bearing information by design, and they do not run this path.";
 
 export const PRIVACY_LENS_TITLE = "Privacy Lens";
 export const PRIVACY_LENS_STRAP =
-  "Watch identity leave the frame, one step at a time.";
+  "Reduce appearance detail, one step at a time.";
 
 /**
  * What happens AFTER the three processing steps: governance, not processing.

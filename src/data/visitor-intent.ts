@@ -1,3 +1,4 @@
+import { ctas } from "./content";
 import type { CaptureSource } from "@/data/gaitscape/graph";
 
 /**
@@ -46,7 +47,7 @@ export const visitorIntentPaths: readonly VisitorIntentPath[] = [
     research: { label: "Peer-reviewed publications", href: "/publications/" },
     storyId: "rehabilitation",
     useCase: { label: "Physiotherapy clinics", href: "/use-cases/physiotherapy-clinics/" },
-    cta: { label: "Request a demo", href: "/#contact" },
+    cta: ctas.demo,
   },
   {
     id: "researcher",
@@ -71,7 +72,7 @@ export const visitorIntentPaths: readonly VisitorIntentPath[] = [
     research: { label: "Peer-reviewed publications", href: "/publications/" },
     storyId: "rehabilitation",
     useCase: { label: "Hospitals", href: "/use-cases/hospitals/" },
-    cta: { label: "Request a demo", href: "/#contact" },
+    cta: ctas.demo,
   },
   {
     id: "sports",
@@ -85,7 +86,7 @@ export const visitorIntentPaths: readonly VisitorIntentPath[] = [
     research: { label: "Peer-reviewed publications", href: "/publications/" },
     storyId: "motion-dna",
     useCase: { label: "Sports academies", href: "/use-cases/sports-academies/" },
-    cta: { label: "Request a demo", href: "/#contact" },
+    cta: ctas.demo,
   },
   {
     id: "public-safety",
@@ -99,7 +100,7 @@ export const visitorIntentPaths: readonly VisitorIntentPath[] = [
     research: { label: "Peer-reviewed publications", href: "/publications/" },
     storyId: "privacy",
     useCase: { label: "Smart cities", href: "/use-cases/smart-cities/" },
-    cta: { label: "Request a demo", href: "/#contact" },
+    cta: ctas.demo,
   },
   {
     id: "industrial-safety",
@@ -113,7 +114,7 @@ export const visitorIntentPaths: readonly VisitorIntentPath[] = [
     research: { label: "Peer-reviewed publications", href: "/publications/" },
     storyId: "privacy",
     useCase: { label: "Factories & warehouses", href: "/use-cases/factories-warehouses/" },
-    cta: { label: "Request a demo", href: "/#contact" },
+    cta: ctas.demo,
   },
   {
     id: "technology-partner",
@@ -124,7 +125,7 @@ export const visitorIntentPaths: readonly VisitorIntentPath[] = [
     evidence: { label: "Trust Center and what is not claimed", href: "/trust/" },
     research: { label: "GaitScape: the whole landscape as a graph", href: "/gaitscape/" },
     useCase: { label: "Security and deployment controls", href: "/legal/security/" },
-    cta: { label: "Discuss an integration", href: "/#contact" },
+    cta: ctas.pilot,
   },
 ];
 

@@ -90,7 +90,7 @@
 
 /* A step whose input is not usable yet reads back rather than looking broken. */
 .stepWaiting {
-  opacity: 0.55;
+  opacity: 0.85;
 }
 
 .stepDone .stepIndex {
@@ -602,3 +602,5 @@
   line-height: 1.55;
   color: var(--an-mute);
 }
+
+:global(.light) .stepWaiting { opacity: 1; }

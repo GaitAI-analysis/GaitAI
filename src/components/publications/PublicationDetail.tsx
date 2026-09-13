@@ -1,3 +1,4 @@
+import { publicationLinkLabel } from "@/data/publications";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -107,7 +108,7 @@ export function PublicationDetail({
               className="inline-flex items-center gap-2 rounded-full border border-cyan-300/40 bg-cyan-300/10 px-4 py-2 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-300/60 hover:bg-cyan-300/15"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              {isPatent ? "Patent record" : "Read paper"}
+              {publicationLinkLabel(publication)}
             </a>
             {publication.doi && (
               <a
@@ -134,6 +135,7 @@ export function PublicationDetail({
       </header>
 
       <div className="container-wide">
+        {publication.verificationNote && <p className="mb-8 rounded-xl border border-white/10 p-4 text-sm text-soft-gray" role="note">{publication.verificationNote}</p>}
         <div className="grid gap-10 lg:grid-cols-[1fr_1.35fr] lg:gap-14">
           {/* Figure — full page shown, never cropped, on a neutral canvas */}
           <figure className="lg:sticky lg:top-28 lg:self-start">
@@ -192,7 +194,7 @@ export function PublicationDetail({
                 {isPatent && publication.jurisdiction && (
                   <RecordField
                     label="Jurisdiction"
-                    value={`${publication.jurisdiction} · valid ${publication.validityYears} years from filing`}
+                    value={`${publication.jurisdiction} · certificate term ${publication.validityYears} years from filing; current legal status requires registry verification`}
                   />
                 )}
               </dl>

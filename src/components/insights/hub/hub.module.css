@@ -78,7 +78,7 @@
    composition component — so the grid is intentional at every count. */
 .composition {
   display: grid;
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-margin-top: var(--header-clearance);
   gap: 1.1rem;
   grid-template-columns: minmax(0, 1fr);
   margin-top: 1.25rem;
@@ -104,7 +104,7 @@
 /* ── The Foundations explorer: index on the left, live preview on the right ── */
 .explorer {
   display: grid;
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-margin-top: var(--header-clearance);
   gap: 1.5rem;
   align-items: center;
 }
@@ -126,7 +126,7 @@
    drive; the whole row is the target and it is never shorter than 44px. */
 .explorerRow {
   position: relative;
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-margin-top: var(--header-clearance);
   display: grid;
   grid-template-columns: 1.1rem 2rem minmax(0, 1fr);
   align-items: center;
@@ -429,7 +429,7 @@
    more; it arrives where the pointer is (edgeLight) and along the top edge. */
 .physical {
   border-color: var(--jr-line-mid);
-  scroll-margin-top: calc(var(--site-header-height) + var(--site-anchor-gap));
+  scroll-margin-top: var(--header-clearance);
 }
 .physical[data-pointer="true"] {
   border-color: color-mix(in srgb, var(--jr-accent, #4fd1ff) 30%, var(--jr-line-mid));

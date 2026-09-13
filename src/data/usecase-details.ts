@@ -1,3 +1,4 @@
+import { environmentGuardrails } from "./responsible-use";
 // ============================================================================
 // USE-CASE DETAIL CONTENT
 // ----------------------------------------------------------------------------
@@ -50,7 +51,7 @@ const CARE_PRIVACY = RESPONSIBLE_USE_CARE;
 
 const SECURE_PRIVACY_UC = RESPONSIBLE_USE_SECURE;
 
-export const useCaseDetails: UseCaseDetail[] = [
+const environmentDetailRecords: UseCaseDetail[] = [
   // ==========================================================================
   // MOBILITYCARE DEPLOYMENTS
   // ==========================================================================
@@ -449,7 +450,7 @@ export const useCaseDetails: UseCaseDetail[] = [
     shortfall:
       "Manual monitoring can't track flow and movement events across hundreds of cameras, and post-incident review means scrubbing hours of footage by hand.",
     together:
-      "CrowdSense keeps operators ahead of density and queue problems; SuspiciousMotion surfaces movement-defined events identity-free; ReID supports authorized investigations that need cross-camera continuity.",
+      "CrowdSense keeps operators ahead of density and queue problems; SuspiciousMotion surfaces movement-defined events privacy-aware; ReID supports authorized investigations that need cross-camera continuity.",
     workflow: [
       "Zones and flows configured across the hub",
       "Continuous density and queue analytics reach the control room",
@@ -679,6 +680,11 @@ export const useCaseDetails: UseCaseDetail[] = [
     related: ["corporate-university-campuses", "factories-warehouses", "airports-metro-rail"],
   },
 ];
+
+export const useCaseDetails = environmentDetailRecords.map((record) => ({
+  ...record,
+  privacy: [record.privacy, environmentGuardrails(record.caseId)].filter(Boolean).join(" "),
+}));
 
 /**
  * The route for an industry use-case id.

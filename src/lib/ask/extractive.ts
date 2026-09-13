@@ -116,7 +116,7 @@ function leadText(doc: KnowledgeDoc, maxChars: number): string {
     .trim();
   if (!body || LABEL.test(body)) return summary;
   let extra = brief({ ...doc, summary: "", content: body }, room);
-  /* Whole sentences only: a trailing fragment ("24 modular products") is cut. */
+  /* Whole sentences only: a trailing fragment ("24 product modules") is cut. */
   if (extra && !/[.!?]$/.test(extra)) {
     const stop = Math.max(extra.lastIndexOf(". "), extra.lastIndexOf("? "), extra.lastIndexOf("! "));
     extra = stop > 0 ? extra.slice(0, stop + 1) : "";

@@ -1,3 +1,4 @@
+import { IDENTITY_GUARDRAIL, DEFENCE_GUARDRAIL, INSURANCE_GUARDRAIL, CHILDREN_GUARDRAIL } from "@/data/responsible-use";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { contact, mailto, CONTACT_FORM_HREF } from "@/data/contact";
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/legal/responsible-ai" },
   title: "Responsible AI",
   description:
-    "How GaitAI governs movement intelligence: identity-free capabilities by default, lawful authority for biometric and watchlist use, explainable outputs and no overclaiming.",
+    "How GaitAI governs movement intelligence: privacy-aware capabilities by default, lawful authority for biometric and watchlist use, explainable outputs and no overclaiming.",
 };
 
 export default function ResponsibleAIPage() {
@@ -58,8 +59,7 @@ export default function ResponsibleAIPage() {
           <span className="font-semibold text-soft-white">
             Explainable by construction.
           </span>{" "}
-          Every score is built from named movement features, so the person
-          acting on it can see what moved the number.
+          The intended workflow links outputs to named movement features so a reviewer can inspect their basis. Product-specific implementation and validation remain separately documented.
         </li>
         <li>
           <span className="font-semibold text-soft-white">
@@ -87,6 +87,10 @@ export default function ResponsibleAIPage() {
         </li>
       </ul>
 
+      <h2 className="mt-12 font-display text-xl text-soft-white">Sensitive workflows</h2>
+      <ul className="mt-5 space-y-3 text-[13.5px] leading-relaxed text-soft-gray">
+        {[IDENTITY_GUARDRAIL, DEFENCE_GUARDRAIL, INSURANCE_GUARDRAIL, CHILDREN_GUARDRAIL].map(text => <li key={text}>{text}</li>)}
+      </ul>
       <p className="mt-10 text-soft-gray">
         The control-by-control documentation lives on the{" "}
         <Link

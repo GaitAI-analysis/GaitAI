@@ -27,7 +27,7 @@
 import { readdirSync, readFileSync, existsSync, statSync } from "node:fs";
 import path from "node:path";
 
-const OUT = path.join(process.cwd(), "out");
+const OUT = path.resolve(process.env.GAITAI_AUDIT_OUT || "out");
 
 if (!existsSync(OUT)) {
   console.error("out/ not found — run `npm run build` first.");

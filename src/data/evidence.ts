@@ -5,7 +5,7 @@
 // products and research areas — entirely by DERIVING from data that already
 // exists in the repository:
 //
-//   publications.ts ......... the 8 peer-reviewed papers + 1 granted patent
+//   publications.ts ......... the 8 surfaced academic papers + 1 granted patent
 //   gaitscape/graph.ts ...... research nodes (with real publicationIds),
 //                             RESEARCH_MAP (research → capability) and the
 //                             product → capability relationships
@@ -158,7 +158,7 @@ const productToCapabilities = (() => {
  *
  * The split is derived, not asserted: a capability used by more than a third
  * of the portfolio is treated as broad platform infrastructure. On the current
- * data that marks exactly one — Gait analysis, used by 11 of 23 products —
+ * data that marks exactly one — Gait analysis, used by well over a third of the catalogue —
  * and leaves the identity, pose, privacy and edge capabilities specific.
  * Nothing is hand-listed, so adding a product or a research node re-derives
  * the tiers automatically.

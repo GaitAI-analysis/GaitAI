@@ -378,7 +378,7 @@ export default function PrivacyPage() {
           Control-by-control documentation
         </div>
         <p className="mt-2.5 text-[13.5px] leading-relaxed text-soft-gray">
-          Processing location, non-identifying mode, face blur, raw-video
+          Processing location, identity-not-required workflow, face blur, raw-video
           handling, retention, access model, audit logs, consent, biometric
           governance and training-data handling are each documented — along
           with what GaitAI explicitly does not claim — on the{" "}

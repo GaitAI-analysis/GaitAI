@@ -55,7 +55,7 @@ export type Vertical = "mobilitycare" | "securevision";
  *
  * DELIBERATELY UNSET on every record. The repository contains no deployment
  * record, pilot log, validation study or release note that would establish
- * maturity for any of the 23 modules, and maturity must never be inferred
+ * maturity for any of the registered product modules, and maturity must never be inferred
  * from how much detail a product page happens to carry. The field exists so
  * that when real evidence lands it has one canonical home — and so that no
  * page has to imply maturity in prose.
@@ -82,6 +82,7 @@ export interface GaitProduct {
   vertical: Vertical;
   featured: boolean; // surface on the homepage strip
   flagship: boolean; // earns a dedicated visual block
+  navigation?: boolean; // surface this module in shared navigation and footer
   accent: "teal" | "blue" | "violet" | "cyan" | "gold" | "emerald";
   /** Maturity — see ProductStatus. Unset until evidence exists. */
   status?: ProductStatus;
@@ -450,7 +451,7 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI SuspiciousMotion",
     short: "SuspiciousMotion",
     label: "Suspicious movement & anomaly detection",
-    headline: "Anomalies surfaced — without identifying anyone first.",
+    headline: "Anomalies surfaced — without identity matching as a prerequisite.",
     description:
       "Surfaces candidate movement events — loitering, running, restricted-zone entry, tailgating-like patterns and perimeter events — for operator review, without requiring identity recognition.",
     users: [
@@ -539,7 +540,7 @@ export const secureProducts: GaitProduct[] = [
     name: "GaitAI PrivacyGuard",
     short: "PrivacyGuard",
     label: "Privacy-preserving movement analytics",
-    headline: "Movement intelligence — without invasive surveillance.",
+    headline: "Movement intelligence — with task-relevant movement representations.",
     description:
       "The architectural privacy layer for GaitAI: designed to support skeleton-only analytics, face blur, role-based access, configurable retention and audit logs in privacy-sensitive environments.",
     users: ["All security customers", "Enterprises", "Public-sector deployments"],
@@ -739,6 +740,7 @@ export const secureProducts: GaitProduct[] = [
   },
   {
     id: "defencemotion",
+    navigation: true,
     name: "GaitAI DefenceMotion",
     short: "DefenceMotion",
     label: "Defence personnel readiness, rehabilitation, facility safety & secure access",
@@ -789,19 +791,19 @@ export const productById = (id: string) =>
 // ----------------------------------------------------------------------------
 // One place to phrase "how many products, and what kind". The count is always
 // derived from the arrays above, and the wording describes the architecture —
-// modular products on one Movement Intelligence Platform — without implying that all
+// product modules on one Movement Intelligence Platform — without implying that all
 // of them are equally mature, shipped or deployed. See ProductStatus.
 // ----------------------------------------------------------------------------
 
 export const productCount = allProducts.length;
 
-/** e.g. "23 modular movement-intelligence products" */
+/** Canonical catalogue proposition, with no release-status implication. */
 export const productProposition =
-  `${productCount} modular movement-intelligence products`;
+  `${productCount} product modules on one movement-intelligence platform`;
 
-/** e.g. "23 modular products across two verticals" */
+/** Compact catalogue label. */
 export const productPropositionShort =
-  `${productCount} modular products across two verticals`;
+  `${productCount} product modules across ${new Set(allProducts.map((p) => p.vertical)).size} product families`;
 
 // ============================================================================
 // INDUSTRY USE CASES (cross-vertical map)
@@ -809,6 +811,7 @@ export const productPropositionShort =
 
 export interface UseCaseEntry {
   id: string;
+  footer?: boolean;
   industry: string;
   /** A lucide icon, or one of the site's own pictograms (CapabilityIcons). */
   icon: LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
@@ -847,6 +850,7 @@ export const industryUseCases: UseCaseEntry[] = [
   },
   {
     id: "hospitals",
+    footer: true,
     industry: "Hospitals",
     icon: Hospital,
     vertical: "mobilitycare",
@@ -859,6 +863,7 @@ export const industryUseCases: UseCaseEntry[] = [
   },
   {
     id: "sports",
+    footer: true,
     industry: "Sports academies",
     icon: Trophy,
     vertical: "mobilitycare",
@@ -871,6 +876,7 @@ export const industryUseCases: UseCaseEntry[] = [
   },
   {
     id: "elderly",
+    footer: true,
     industry: "Elderly-care centers",
     icon: Heart,
     vertical: "mobilitycare",
@@ -911,7 +917,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: Plane,
     vertical: "securevision",
     problem:
-      "Crowded transport hubs need anomaly + flow intelligence — without invasive identification.",
+      "Crowded transport hubs need anomaly + flow intelligence — without requiring identity matching for flow analysis.",
     productIds: ["crowdsense", "reid", "suspiciousmotion"],
     outcome:
       "Passenger-flow indicators, authorized post-event cross-camera investigation support and candidate movement-event alerts.",
@@ -919,6 +925,7 @@ export const industryUseCases: UseCaseEntry[] = [
   },
   {
     id: "smartcities",
+    footer: true,
     industry: "Smart cities",
     icon: Building2,
     vertical: "securevision",
@@ -959,7 +966,7 @@ export const industryUseCases: UseCaseEntry[] = [
     icon: ShoppingBag,
     vertical: "securevision",
     problem:
-      "Loss-prevention, queue management and staff safety on one floor — without invasive cameras.",
+      "Loss-prevention, queue management and staff safety on one floor — with appearance-reduced movement analysis.",
     productIds: ["retailguard", "crowdsense", "suspiciousmotion"],
     outcome:
       "Loitering alerts, queue analytics, emergency flow, staff safety, crowd heatmaps.",
@@ -1039,6 +1046,7 @@ export const industryUseCases: UseCaseEntry[] = [
   },
   {
     id: "defence",
+    footer: true,
     industry: "Defence & Armed Forces",
     icon: DefenceMotionIcon,
     vertical: "securevision",
@@ -1103,7 +1111,7 @@ export const aiPipeline = [
     id: "anomaly",
     icon: RadioTower,
     title: "Anomaly Detection",
-    desc: "Surfaces unusual movement patterns — loitering, falls, tailgating — without identifying anyone first.",
+    desc: "Surfaces unusual movement patterns — loitering, falls, tailgating — without identity matching as a prerequisite.",
   },
   {
     id: "report",

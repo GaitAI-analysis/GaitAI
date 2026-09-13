@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
+import { SequenceFrame, sequenceFrames, sequencePoint, SEQUENCE_CAPTION } from "@/components/visuals/SequenceFrame";
 import { GAIT_HEAD, GAIT_PHASES, type Pt } from "@/components/visuals/gait-phases";
 import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
 import { assetPath } from "@/lib/paths";
@@ -14,26 +15,7 @@ import type { FigureProps } from "../registry";
 import { trackInsightEvent } from "@/lib/insight-events";
 import fig from "../figures.module.css";
 
-/**
- * FROM WALKING VIDEO TO MOVEMENT INTELLIGENCE — the flagship hero.
- *
- *   RAW VIDEO → PERSON → POSE → SKELETON → TEMPORAL TRAJECTORY
- *             → MOVEMENT SIGNALS → CONTEXT → DECISION SUPPORT
- *
- * One walking figure, drawn from the project's gait keyframes and WALKING
- * (interpolated between real poses), stays on the left the whole way. What
- * changes with the stage is what the system holds of it: pixels, then a
- * box, then landmarks, then bones, then the trail those bones leave through
- * time, then the signals read off the trail, then the context those signals
- * are placed in, then the form a decision-maker sees.
- *
- * Drag the track, tap a stage name, or use the arrow keys. In a Visual Story
- * moment the same drawing renders at a fixed stage with no control.
- *
- * NOTHING HERE IS A MEASUREMENT: no axis carries a unit, the channel names
- * are names, and the context panel's history is a shape, not data. The
- * figure says so on its face.
- */
+/** One recorded sequence, its extracted model output and explanatory channels. */
 
 const STAGES: Stage[] = [
   { id: "raw", label: "Raw", name: "Raw video" },
@@ -62,21 +44,22 @@ const GROUND = FY + 48 * S;
  * photograph, at "Pose" the landmarks replace it. Which is the story the figure
  * tells - appearance leaves, geometry stays - now shown on a real frame.
  */
-const PLATE = "/assets/images/capture/cctv-walk-frame.jpg";
+
 
 const CLASSES = { bone: fig.bone, boneFar: fig.boneFar, joint: fig.joint, head: fig.head, contact: fig.contact };
 
 const DESCRIPTION = `An eight-stage progression, one walking figure throughout.
-Raw video: a camera frame of a person walking past a wall.
+Raw video: recorded frames from the same recorded walking sequence.
 Person: a detection box around the walker, tracked across frames.
 Pose: a small set of landmarks — head, shoulders, hips, knees, ankles, wrists — replaces appearance.
 Skeleton: the landmarks joined into bones; geometry only.
 Temporal trajectory: earlier poses ghosted behind the walker and the paths the ankle and wrist trace through time.
-Movement signals: four channels read off those paths — cadence, stride rhythm, left/right symmetry, variability — drawn as waveforms with no units.
+Movement features: normalized image-space ankle, wrist and hip positions from the same frames. No cadence or symmetry is measured.
 Context: the same signal set beside an illustrative personal baseline and history, with a capture-quality note.
 Decision support: a report for review, marked as decision support and not a diagnosis.`;
 
 export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) {
+  const clipId = useId();
   const shared = useSharedFigureState("video-to-intelligence");
   const [stage, setStage] = useState(() =>
     typeof presentation?.stage === "number" ? presentation.stage : 3,
@@ -111,7 +94,6 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
 
   /* Reduced motion: hold a legible mid-stride pose rather than freezing at
      whatever frame the cycle stopped on. */
-  const phase = reduced || presentation ? GAIT_PHASES[0] : phaseAt(t);
 
   /* Layer weights per stage. */
   const pixels = stage === 0 ? 1 : stage === 1 ? 0.35 : 0;
@@ -125,36 +107,16 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
   const decision = stage === 7 ? 1 : 0;
   const figureDim = stage >= 5 ? 0.55 : 1;
 
-  /* Trajectories through the five keyframes, laid out as a trail behind the
-     walker — where the ankle and the wrist have been. */
-  const trails = useMemo(() => {
-    const step = 30;
-    const pts = (pick: (p: (typeof GAIT_PHASES)[number]) => Pt) =>
-      GAIT_PHASES.map((p, i) => [FX - (4 - i) * step + pick(p)[0] * S * 0.45, FY - p.lift * S + pick(p)[1] * S] as Pt);
-    return {
-      ankle: smoothPath(pts((p) => p.nearLeg[2])),
-      wrist: smoothPath(pts((p) => p.nearArm[2])),
-      hip: smoothPath(pts((p) => p.nearLeg[0])),
-    };
-  }, []);
-
-  const channels = useMemo(
-    () => [
-      { name: "Cadence", cls: fig.trace, pts: gaitWave(330, 600, 74, 9, 3, 0) },
-      { name: "Stride rhythm", cls: `${fig.trace} ${fig.traceRoyal}`, pts: gaitWave(330, 600, 132, 8, 2, 0.6) },
-      {
-        name: "Left / right symmetry",
-        cls: `${fig.trace} ${fig.traceViolet}`,
-        pts: gaitWave(330, 600, 190, 7, 2, 0).map(([x, y], i) => [x, y + (i % 2 ? 1.5 : -1.5)] as Pt),
-      },
-      {
-        name: "Variability",
-        cls: `${fig.trace} ${fig.traceTeal}`,
-        pts: gaitWave(330, 600, 248, 6, 4, 1.2).map(([x, y], i) => [x, y + Math.sin(i * 1.7) * 2.2] as Pt),
-      },
-    ],
-    [],
-  );
+  const channels = useMemo(() => [
+    {name:"Ankle height · image space", joint:28, axis:"y" as const,cls:fig.trace},
+    {name:"Wrist position · image space", joint:16, axis:"x" as const,cls:`${fig.trace} ${fig.traceRoyal}`},
+    {name:"Left ankle · image space", joint:27, axis:"y" as const,cls:`${fig.trace} ${fig.traceViolet}`},
+    {name:"Hip position · image space", joint:24, axis:"x" as const,cls:`${fig.trace} ${fig.traceTeal}`},
+  ].map((channel,index)=>{
+    const values=sequenceFrames.map(f=>f.landmarks[channel.joint][channel.axis]);
+    const min=Math.min(...values),span=Math.max(...values)-min||1;
+    return {...channel,pts:values.map((v,i)=>[330+i*67.5,74+index*58-(v-min)/span*18] as Pt)};
+  }), []);
 
   /* The cursor of "now" moving along the signal panel with the walk. */
   const cursorX = 330 + (presentation ? 0.62 : t) * 270;
@@ -172,78 +134,17 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
       style={{ maxHeight: presentation ? 320 : stacked ? undefined : 400, margin: "0 auto" }}
     >
       <defs>
-        <clipPath id="v2i-frame">
+        <clipPath id={clipId}>
           <rect x={30} y={22} width={240} height={290} rx={4} />
         </clipPath>
       </defs>
 
       {/* ── the capture frame ── */}
       <rect className={fig.frame} x={30} y={22} width={240} height={290} rx={4} />
-      <g clipPath="url(#v2i-frame)">
-        <g className={fig.fade} style={{ opacity: pixels }}>
-          <image
-            href={assetPath(PLATE)}
-            x={30}
-            y={22}
-            width={240}
-            height={290}
-            preserveAspectRatio="xMidYMid slice"
-            className={fig.plate}
-          />
-        </g>
-        <line className={fig.ground} x1={40} y1={GROUND} x2={260} y2={GROUND} />
-
-        {/* the trail of where the body has been */}
-        <g className={fig.fade} style={{ opacity: trail }}>
-          {GAIT_PHASES.map((p, i) =>
-            i === 4 ? null : (
-              <g
-                key={p.id}
-                className={fig.ghost}
-                transform={`translate(${FX - (4 - i) * 30} ${FY - p.lift * S})`}
-              >
-                <PoseFrame phase={p} s={S * 0.45} classes={CLASSES} showFar={false} />
-              </g>
-            ),
-          )}
-          <path className={fig.trace} d={trails.ankle} />
-          <path className={`${fig.trace} ${fig.traceViolet}`} d={trails.wrist} />
-          <path className={`${fig.trace} ${fig.traceRoyal} ${fig.traceThin}`} d={trails.hip} />
-        </g>
-
-        {/* the walker */}
-        <g className={fig.fade} style={{ opacity: figureDim }}>
-          <g className={fig.fade} style={{ opacity: mass }} transform={`translate(${FX} ${FY - phase.lift * S})`}>
-            <BodyMass phaseLift={0} />
-          </g>
-          <rect
-            className={`${fig.frame} ${fig.frameAccent} ${fig.fade}`}
-            style={{ opacity: box }}
-            x={FX - 30 * S * 0.6}
-            y={FY - 52 * S}
-            width={60 * S * 0.6}
-            height={102 * S}
-            rx={3}
-          />
-          <text
-            className={`${fig.label} ${fig.labelAccent} ${fig.labelSmall} ${fig.fade}`}
-            style={{ opacity: box }}
-            x={FX - 30 * S * 0.6}
-            y={FY - 52 * S - 6}
-          >
-            track 01
-          </text>
-          <g transform={`translate(${FX} ${FY - phase.lift * S})`}>
-            <g className={fig.fade} style={{ opacity: bones }}>
-              <PoseFrame phase={phase} s={S} classes={CLASSES} showContacts={stage >= 3 && stage <= 4} />
-            </g>
-            <g className={fig.fade} style={{ opacity: joints * (1 - bones) }}>
-              {[...phase.nearArm, ...phase.nearLeg, ...phase.farLeg.slice(1), GAIT_HEAD].map(([jx, jy], i) => (
-                <circle key={i} className={fig.joint} cx={jx * S} cy={jy * S} r={3.2} />
-              ))}
-            </g>
-          </g>
-        </g>
+      <g clipPath={`url(#${clipId})`}>
+        <SequenceFrame index={Math.min(sequenceFrames.length-1,Math.floor(t*sequenceFrames.length))} x={30} y={22} width={240} height={290} view={stage<2?"source":stage===2?"keypoints":"pose"} overlay={stage===2 || stage>=6}/>
+        {stage===1 && <rect className={fig.frameAccent} x={67} y={46} width={166} height={228} rx={3} fill="none"/>}
+        {stage>=4 && <path className={fig.trace} d={smoothPath(sequenceFrames.map((frame,i)=>sequencePoint(i,28,{x:30,y:22,width:240,height:290})))}/>}
       </g>
 
       {/* stage name inside the frame */}
@@ -388,9 +289,7 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
         description={DESCRIPTION}
         caption={
           <>
-            Stage {String(stage + 1).padStart(2, "0")} of 08 · {STAGES[stage].name}. The walker is
-            interpolated between GaitAI&apos;s five gait keyframes; the channels and the history are shapes,
-            not measurements.
+            Stage {String(stage + 1).padStart(2, "0")} of 08 · {STAGES[stage].name}. {SEQUENCE_CAPTION} The baseline and report panels are conceptual examples.
           </>
         }
         actions={
@@ -419,26 +318,6 @@ export function VideoToIntelligence({ articleSlug, presentation }: FigureProps) 
         </div>
       </InteractiveFigure>
     </div>
-  );
-}
-
-/** The body before there is a skeleton: a soft mass around mid-stance. */
-function BodyMass({ phaseLift }: { phaseLift: number }) {
-  const s = S;
-  const y = -phaseLift;
-  const d = [
-    `M${-9 * s} ${y - 33 * s}`,
-    `C${-11 * s} ${y - 20 * s} ${-8 * s} ${y - 6 * s} ${-7 * s} ${y + 4 * s}`,
-    `L${-10 * s} ${y + 44 * s} L${-2 * s} ${y + 46 * s} L0 ${y + 14 * s}`,
-    `L${3 * s} ${y + 46 * s} L${11 * s} ${y + 45 * s} L${7 * s} ${y + 4 * s}`,
-    `C${9 * s} ${y - 6 * s} ${12 * s} ${y - 20 * s} ${9 * s} ${y - 33 * s}`,
-    `C${6 * s} ${y - 36 * s} ${-6 * s} ${y - 36 * s} ${-9 * s} ${y - 33 * s} Z`,
-  ].join(" ");
-  return (
-    <g className={fig.mass}>
-      <path d={d} />
-      <circle cx={1 * s} cy={y - 43 * s} r={6.5 * s} />
-    </g>
   );
 }
 

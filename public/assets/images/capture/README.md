@@ -14,8 +14,8 @@ after replacing a source.
 
 | File | Used by | Source |
 |---|---|---|
-| `cctv-walk-frame.jpg` / `.webp` | Home · privacy pipeline · Camera Video card; `/securevision/` · Privacy Lens steps 1–2 | Phone inset of `insights/01-walking-video-to-movement-intelligence.jpg`, portrait cut, camera grade |
-| `capture-walk-wide.jpg` / `.webp` | Home · workflow · Stage 01 Capture Movement | Same inset, full width, warmer/higher-contrast grade |
+| `cctv-walk-frame.jpg` / `.webp` | Home · privacy pipeline · Camera Video card; `/securevision/` · Privacy Lens steps 1–2 and Movement X-Ray human view; `/insights/from-walking-video-…` · Raw video stage | Phone inset of `insights/01-walking-video-to-movement-intelligence.jpg`, portrait cut, camera grade |
+| `capture-walk-wide.jpg` / `.webp` | Home · workflow · Stage 01; `/mobilitycare/` + `/movement-lab/` · Movement X-Ray human view and Raw-video step | Same inset, full width, warmer/higher-contrast grade |
 
 ## What is still needed — the asset family
 
@@ -28,6 +28,8 @@ the asset, drop it at the path, and the treatment already applies.
 
 | Slot | Path | Scene | Framing | Ratio | Notes |
 |---|---|---|---|---|---|
+| **Movement X-Ray · MobilityCare human view** | `xray-clinic-01.jpg` … `xray-clinic-05.jpg` | Clinic corridor or gait lab, one person, side view | Five consecutive frames of ONE stride from ONE fixed camera: heel strike, loading, mid-stance, toe-off, swing; same clothes, scale and perspective | 116:175 each (portrait) | Wire via `XRAY_STRIP.mobilitycare` in `components/visuals/MovementXRay.tsx`; the AI view's five keypoint figures then sit over five real frames |
+| **Movement X-Ray · SecureVision human view** | `xray-concourse-01.jpg` … `-05.jpg` | Station, concourse or public corridor, CCTV viewpoint | Same five-instant rule; a different person and place from the clinic strip | 116:175 each | `XRAY_STRIP.securevision` |
 | Workflow Stage 01 (replace interim wide cut) | `capture-walk-wide.jpg` | Any everyday indoor space, one person walking | Fixed camera, chest height, side-on, full body, room for the stride | 4:3 → shown `cover` | Replaces the shared source; the pipeline card keeps `cctv-walk-frame` |
 | Movement X-Ray / Movement Analyzer sample clip | `/assets/videos/samples/mobility-walk-demo.mp4` + `-poster.jpg` | Clinic corridor or gait lab, one person, side view | 6–8 s, 720p, steady camera, the whole body in frame throughout | 16:9 | **Must be video**: the analyzer runs a pose model on it in the browser, so the person has to be detectable. The current clip is a rendered figure and is labelled as such. |
 | MobilityCare · clinic capture | `clinic-corridor-walk.jpg` | Hospital or physio corridor | Side-on, full body | 4:3 | For WalkScan / FallRisk / SeniorCare contexts if a capture frame is ever shown there (today these cards are text-only — do not add one just to have one) |

@@ -1,0 +1,53 @@
+/* ==========================================================================
+   THE HOMEPAGE HERO — one banner, whole
+   --------------------------------------------------------------------------
+   The artwork is the hero. This file only decides how big it is and how a
+   phone reaches all of it; it never crops, masks, tints or overlays it.
+   ========================================================================== */
+
+.hero {
+  background: var(--bg);
+}
+
+.frame {
+  display: block;
+  width: 100%;
+}
+
+/* Full width, natural height. The aspect ratio is declared per theme so the
+   box exists before the image does — the two files are separate artworks a
+   few pixels apart (1916×821 dark, 1899×828 light). */
+.img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1916 / 821;
+}
+
+:global(.light) .img {
+  aspect-ratio: 1899 / 828;
+}
+
+/* PHONES: a readable banner you pan, not a shrunken one you squint at.
+   Below 768px the full composition would be ~160px tall. It keeps a 960px
+   width instead — about 410px tall — inside a horizontal pan that snaps to
+   the panel boundaries. Nothing is cut away; the page itself never scrolls
+   sideways. */
+@media (max-width: 767px) {
+  .frame {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .frame::-webkit-scrollbar {
+    display: none;
+  }
+  .img {
+    width: 960px;
+    max-width: none;
+    scroll-snap-align: start;
+  }
+}

@@ -6,13 +6,23 @@
    tints, stretches or overlays the artwork.
 
    THE PICTURE is 1774×887 — exactly 2:1 — in both themes. The hero is that
-   ratio wherever the width allows (1440 → 720px tall, 1280 → 640px), and on
-   wider screens it stops growing at 820px: the picture then keeps its ratio
-   and the frame crops the slack, cover-fashion, biased towards the top
-   (72/28) so the pills at the foot keep their breathing room and the
-   headline keeps its headroom. Measured on the light file, the tighter of
-   the two, nothing painted is lost below ~1980px wide; past that the frame
-   follows 41.5vw so the cut never reaches the text.
+   ratio wherever the screen allows (1440×900 → 720px tall, uncropped), and it
+   is bounded three ways:
+
+     · 820px, so a wide monitor does not get a hero taller than the copy needs;
+     · the room under the navbar — 100svh minus the header minus a reserve for
+       the floating Ask GaitAI launcher — so on a laptop the whole lower row
+       (GaitAI, MobilityCare, SecureVision and their three buttons) is on
+       screen before the fold, and the launcher rests below the picture, not
+       on it (1366×768 → 598px, 1536×864 → 694px, 1920×1080 → 820px);
+     · a floor of 40vw, which is the most the picture can lose before the
+       cut reaches the headline or the pills.
+
+   Whenever the frame is shorter than the picture, the picture keeps its
+   ratio and the frame crops the slack cover-fashion, biased towards the top
+   (72/28): the ceiling glass gives way first, the floor under the pills
+   last. Measured on the light file, the tighter of the two, the 40vw floor
+   keeps 41px (of 887) above the headline and 15px under the pills.
 
    Below 1024px the ratio would make the hero a strip (768 → 384px), so the
    canvas keeps a real height instead and pans sideways — the same treatment
@@ -23,6 +33,15 @@
 
 .hero {
   background: var(--bg);
+  /* The room under the navbar, less a reserve for the Ask GaitAI launcher: a
+     ~40px pill sitting 16–28px off the bottom edge. This much of the viewport
+     stays under the hero, so at rest the launcher floats over the hand-off
+     gap, never over SecureVision. `svh` is the small viewport, so a phone's
+     retracting toolbar never makes the hero taller than the screen it first
+     paints on. */
+  --hero-launcher-reserve: 5rem;
+  --hero-room: calc(100vh - var(--site-header-height) - var(--hero-launcher-reserve));
+  --hero-room: calc(100svh - var(--site-header-height) - var(--hero-launcher-reserve));
 }
 
 /* THE HAND-OFF TO THE NEXT SECTION. The section under the hero opens with
@@ -49,15 +68,15 @@
   scroll-margin-top: var(--header-clearance);
 }
 
-/* THE FRAME is the hero's visible box: the picture's own 2:1 up to 820px
-   tall, then a cover crop. `min-height` only bites past ~1980px, where it
-   keeps the crop shallow enough to spare the text. */
+/* THE FRAME is the hero's visible box: the picture's own 2:1, capped by the
+   room under the navbar (less the launcher's corner) and by 820px, floored
+   at 40vw. */
 .frame {
   position: relative;
   width: 100%;
   aspect-ratio: 1774 / 887;
-  max-height: 820px;
-  min-height: 41.5vw;
+  max-height: min(820px, var(--hero-room));
+  min-height: 40vw;
   overflow: hidden;
 }
 
@@ -82,6 +101,26 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* LIGHT MODE, THE LOWER ROW. The light artwork is bright by design, and
+   under the three messages that brightness is busy — a suitcase, a rail,
+   a reflective floor. A band over the lower 45% of the canvas nudges the
+   local contrast of whatever is behind it (a backdrop filter, not a tint:
+   whites stay white, the navy type gets a shade darker, the blue pills a
+   touch more saturated) and fades in across the band's upper half, so it
+   begins above the eyebrows and never reads as an edge. Dark mode does not
+   need it; the dark file already carries its own weight there. */
+:global(.light) .canvas::after {
+  content: "";
+  position: absolute;
+  inset: 55% 0 0 0;
+  z-index: 1;
+  pointer-events: none;
+  -webkit-backdrop-filter: contrast(1.1) saturate(1.05);
+  backdrop-filter: contrast(1.1) saturate(1.05);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 45%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 45%, #000 100%);
 }
 
 /* ── The three calls to action ──────────────────────────────────────────────
@@ -195,7 +234,9 @@
    scrolls sideways. */
 @media (max-width: 1023px) {
   .hero {
-    --hero-h: 540px;
+    /* 540px, or the room under the navbar if a landscape phone has less,
+       never under 360px (below that the pills would be under 20px tall). */
+    --hero-h: max(360px, min(540px, var(--hero-room)));
   }
   .frame {
     aspect-ratio: auto;
@@ -227,6 +268,6 @@
 
 @media (max-width: 767px) {
   .hero {
-    --hero-h: clamp(460px, 125vw, 540px);
+    --hero-h: max(360px, min(clamp(460px, 125vw, 540px), var(--hero-room)));
   }
 }

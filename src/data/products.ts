@@ -1,6 +1,6 @@
 import type { ComponentType, SVGProps } from "react";
 import type { LucideIcon } from "lucide-react";
-import { DefenceMotionIcon } from "@/components/icons/CapabilityIcons";
+import { DefenceIcon } from "@/components/icons/CapabilityIcons";
 import type { CaptureSource } from "./capture-sources";
 import {
   Activity,
@@ -26,7 +26,6 @@ import {
   Lock,
   Microscope,
   Plane,
-  Radar,
   RadioTower,
   Route,
   Search,
@@ -738,37 +737,6 @@ export const secureProducts: GaitProduct[] = [
     flagship: false,
     accent: "blue",
   },
-  {
-    id: "defencemotion",
-    navigation: true,
-    name: "GaitAI DefenceMotion",
-    short: "DefenceMotion",
-    label: "Defence personnel readiness, rehabilitation, facility safety & secure access",
-    headline: "Movement intelligence for Army, Navy and Air Force.",
-    description:
-      "Privacy-aware gait and movement intelligence for defence personnel readiness, rehabilitation, facility safety and secure access.",
-    users: [
-      "Army",
-      "Navy",
-      "Air Force",
-      "Defence and military medical & rehabilitation teams",
-      "Installation safety teams",
-      "Authorised access teams",
-    ],
-    outputs: [
-      "Readiness movement profile",
-      "Rehabilitation progress trend",
-      "Facility movement-event alert",
-      "Access consistency indicator",
-      "Service-mode summary",
-    ],
-    icon: Radar,
-    vertical: "securevision",
-    featured: false,
-    flagship: false,
-    accent: "violet",
-    supportingSources: ["wearable"],
-  },
 ];
 
 // ----------------------------------------------------------------------------
@@ -825,13 +793,6 @@ export interface UseCaseEntry {
    * environment, so the copy must not imply one.
    */
   outcome: string;
-  /**
-   * Where the homepage environment card sends a visitor, when that is not the
-   * environment's own /use-cases page: an environment that IS one product
-   * (Defence & Armed Forces → DefenceMotion) lands on the product. The
-   * /use-cases explorer still links the environment page.
-   */
-  landing?: string;
   accent: "teal" | "blue" | "gold" | "cyan" | "violet" | "emerald";
 }
 
@@ -1048,15 +1009,14 @@ export const industryUseCases: UseCaseEntry[] = [
     id: "defence",
     footer: true,
     industry: "Defence & Armed Forces",
-    icon: DefenceMotionIcon,
+    icon: DefenceIcon,
     vertical: "securevision",
     problem:
-      "Defence and military organisations need readiness, rehabilitation, facility-safety and access intelligence for personnel across very different installations — without identity-first monitoring of the people they have a duty of care to.",
-    productIds: ["defencemotion", "accessmotion", "suspiciousmotion"],
+      "Defence and military organisations need facility-safety and access intelligence for personnel across very different installations — without identity-first monitoring of the people they have a duty of care to.",
+    productIds: ["suspiciousmotion", "accessmotion"],
     outcome:
-      "Privacy-aware movement intelligence for personnel readiness, rehabilitation, facility safety and secure access across Army, Navy and Air Force.",
+      "Privacy-aware facility movement-event alerts, access consistency indicators and a privacy and audit record across defence installations.",
     accent: "blue",
-    landing: "/securevision/defencemotion/",
   },
 ];
 

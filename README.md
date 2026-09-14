@@ -52,7 +52,7 @@
 
 GaitAI is a production-grade, research-led marketing and publication platform for the **GaitAI** brand — a Human Movement Intelligence Platform built on **10+ years of founder-led research** in gait recognition, computer vision, biometrics and movement AI.
 
-The platform organises everything around two verticals and 24 modular products:
+The platform organises everything around two verticals and 23 modular products:
 
 | Vertical | Focus |
 | --- | --- |
@@ -447,6 +447,7 @@ Typography scale: `text-display-2xl` (hero) → `text-display-md` (sub-headings)
 - Every design token has a `:root.light` override — colors, surfaces, glass tints, shadows, grid lines and noise opacity all retune.
 - `ThemeToggle` is hydration-safe with an animated sun/moon morph; `viewport.themeColor` is media-query-aware for mobile status bars.
 - `<Logo />` swaps themed PNG artwork (`wordmark` / `icon` / `stacked` variants, three sizes, locked aspect ratios) with a mounted guard to prevent hydration flash.
+- **Theme media.** Every film and themed diagram is registered in `src/lib/theme-media.ts` as a dark/light *pair* (`name.mp4` + `name-light.mp4`, posters likewise) or a dark *island* with a stated reason. `<ThemeVideo />` / `<ThemeImage />` (`src/components/ui/ThemeMedia.tsx`) pick one file before first paint and keep the playhead across a theme switch. Light companions are pre-rendered once from the same frames by `scripts/theme-media/` — never at runtime — and `npm run check:media` fails the build on an unregistered video or a missing companion.
 
 ---
 

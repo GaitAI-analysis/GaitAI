@@ -103,8 +103,8 @@ export const privacyControls: PrivacyControl[] = [
   {
     topic: "Defence and other high-assurance uses",
     support:
-      "DefenceMotion is designed for governed, human-supervised defence applications involving personnel safety, readiness, rehabilitation and authorised facility operations. It is not designed for autonomous targeting or lethal decision-making. Readiness and rehabilitation modes run only for enrolled personnel with consent; access mode supplements existing credentials and never identifies or denies on its own. No defence deployment, customer or clearance is documented.",
-    source: "DefenceMotion product record · Responsible-deployment policy",
+      "Defence & Armed Forces is documented as a SecureVision deployment environment, not a product: SuspiciousMotion, AccessMotion and PrivacyGuard configured for governed, human-supervised facility safety and authorised access. GaitAI is not designed for autonomous targeting or lethal decision-making; an access signal supplements existing credentials and never identifies or denies on its own. No defence deployment, customer or clearance is documented.",
+    source: "Defence & Armed Forces environment record · Responsible-deployment policy",
   },
   {
     topic: "Training data",

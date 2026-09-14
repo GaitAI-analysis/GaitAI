@@ -307,8 +307,7 @@ export function documentedEnvironments(
 
 /**
  * The product records among the selected ones that the site documents as
- * DEDICATED to the domain (`productIds` in the domain vocabulary — DefenceMotion
- * for defence). Deterministic, from the selected canonical records only, like
+ * DEDICATED to the domain (`productIds` in the domain vocabulary). Deterministic, from the selected canonical records only, like
  * `documentedEnvironments`.
  */
 export function documentedProducts(
@@ -348,8 +347,7 @@ export function applicationLine(
   const who = understanding.entity.title;
 
   if (!environments.length && dedicated.length) {
-    /* A product the site documents as dedicated to the domain — DefenceMotion
-       for defence. A documented PRODUCT is not a documented deployment: the
+    /* A product the site documents as dedicated to the domain. A documented PRODUCT is not a documented deployment: the
        boundary about customers, pilots and clearances stands unchanged. */
     const names = dedicated.map((product) => `"${product.title}"`).join(", ");
     const shape =
@@ -363,8 +361,7 @@ export function applicationLine(
 
   if (environments.length) {
     const names = environments.map((environment) => `"${environment.title}"`).join(", ");
-    /* A product the site documents as dedicated to the domain (DefenceMotion for
-       defence) is named beside the environment — a documented product, never a
+    /* A product the site documents as dedicated to the domain is named beside the environment — a documented product, never a
        documented deployment. */
     const productNames = dedicated.map((product) => `"${product.title}"`).join(", ");
     const dedicatedNote = dedicated.length ? `, and documents ${productNames} as a product dedicated to it` : "";

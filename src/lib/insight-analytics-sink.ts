@@ -76,7 +76,6 @@ const DIMENSION: Partial<Record<InsightEventName, string>> = {
   system_component_failed: "component",
   baseline_mode_changed: "mode",
   article_helpful_reason: "reason",
-  product_mode_selected: "mode",
   product_related_opened: "destination",
   product_demo_clicked: "placement",
   term_inspected: "term",

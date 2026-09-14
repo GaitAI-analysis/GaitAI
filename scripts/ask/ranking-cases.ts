@@ -204,7 +204,6 @@ export const RANKING_CASES: RankingCase[] = [
     answerHas: [
       "What GaitAI could contribute for military",
       "Defence & Armed Forces",
-      "DefenceMotion",
       "Relevant capabilities:",
       "Important boundary",
     ],
@@ -214,7 +213,7 @@ export const RANKING_CASES: RankingCase[] = [
     q: "What can GaitAI do for defence?",
     intent: "DOMAIN_APPLICATION",
     notTopTypes: ["person", "talk", "insight", "publication", "research"],
-    answerHas: ["Defence & Armed Forces", "DefenceMotion", "Important boundary"],
+    answerHas: ["Defence & Armed Forces", "Important boundary"],
     answerLacks: ["Anubha", "Talks and presentations"],
   },
   {

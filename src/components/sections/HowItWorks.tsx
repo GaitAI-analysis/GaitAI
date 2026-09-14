@@ -15,8 +15,9 @@ import { workflowStages } from "@/data/products";
 import { allPublications, papers } from "@/data/publications";
 import { useAutoDemonstrate } from "@/lib/useAutoDemonstrate";
 import { useDisclosureReveal } from "@/lib/useDisclosureReveal";
-import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import { assetPath } from "@/lib/paths";
+import { ThemeVideo } from "@/components/ui/ThemeMedia";
+import type { ThemeMediaKey } from "@/lib/theme-media";
 import disclosure from "@/components/ui/disclosure.module.css";
 import styles from "./howitworks.module.css";
 
@@ -406,22 +407,16 @@ export function HowItWorks() {
 }
 
 /* One animation per workflow stage, from gaitai_poster_animations.zip.
-   Order matches workflowStages: capture → analyze → report → act. */
-const STAGE_VIDEOS = [
-  "/assets/videos/workflow/stage-01-capture.mp4",
-  "/assets/videos/workflow/stage-02-analyze.mp4",
-  "/assets/videos/workflow/stage-03-report.mp4",
-  "/assets/videos/workflow/stage-04-output.mp4",
+   Order matches workflowStages: capture → analyze → report → act. Each key
+   names a dark film and its light companion in `lib/theme-media.ts`; the
+   theme picks one. */
+const STAGE_KEYS: ThemeMediaKey[] = [
+  "workflowCapture",
+  "workflowAnalyze",
+  "workflowReport",
+  "workflowOutput",
 ];
 
-/**
- * First frame of each stage video, extracted from the video itself, so the
- * card shows its own opening frame rather than nothing.
- *
- * These four videos had no poster at all: the comment below claimed "the
- * poster frame stays" when a play() was rejected, but with no poster there was
- * nothing to stay. Together they are ~140 KB against 5.0 MB of video.
- */
 /**
  * STAGE 01 IS A PHOTOGRAPH, NOT A FILM.
  * The capture stage's render was an infographic — a glowing wireframe walker
@@ -439,12 +434,6 @@ const STAGE_STILL: (string | null)[] = [
   null,
 ];
 
-const STAGE_POSTERS = [
-  "/assets/videos/workflow/stage-01-capture-poster.jpg",
-  "/assets/videos/workflow/stage-02-analyze-poster.jpg",
-  "/assets/videos/workflow/stage-03-report-poster.jpg",
-  "/assets/videos/workflow/stage-04-output-poster.jpg",
-];
 
 function StageVisual({
   index,
@@ -454,11 +443,7 @@ function StageVisual({
   index: number;
   revealed: boolean;
 }) {
-  /* Hydration-safe: the <source> below exists only without reduced motion,
-     so the first client render has to agree with the server (see the hook). */
-  const reduceMotion = usePrefersReducedMotion();
   const wrapRef = useRef<HTMLDivElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const still = STAGE_STILL[index];
   /**
    * Four looping renders sit in this section. Autoplaying all of them on mount
@@ -485,22 +470,6 @@ function StageVisual({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || reduceMotion) return;
-    /* A collapsed panel is zero-height but still intersects the observer's
-       200px margin, so "in view" alone would autoplay all four films behind
-       a closed disclosure — downloaded, decoded and invisible. Revealed is
-       the other half of the condition. */
-    if (inView && revealed) {
-      // A rejected play() (autoplay policy, detached element) is not an error
-      // worth surfacing — the poster frame stays.
-      void video.play().catch(() => {});
-    } else {
-      video.pause();
-    }
-  }, [inView, revealed, reduceMotion]);
-
   if (still) {
     return (
       <div className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72">
@@ -526,25 +495,16 @@ function StageVisual({
       ref={wrapRef}
       className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72"
     >
-      {/* Reduced-motion users get the poster and never fetch the video:
-          `preload="auto"` here used to download the full clip — 5.0 MB across
-          the four cards — purely to display a still frame the poster now
-          provides for ~35 KB. */}
-      <video
-        key={reduceMotion ? "still" : "loop"}
-        ref={videoRef}
+      {/* The theme's own film, chosen before first paint; reduced-motion
+          visitors get its poster and never fetch the clip. A collapsed panel
+          is zero-height but still intersects the observer's 200px margin, so
+          "in view" alone would autoplay all four films behind a closed
+          disclosure — `revealed` is the other half of the gate. */}
+      <ThemeVideo
+        mediaKey={STAGE_KEYS[index]}
         className="workflow-stage-video"
-        muted
-        loop
-        playsInline
-        poster={assetPath(STAGE_POSTERS[index])}
-        preload={reduceMotion ? "none" : "metadata"}
-        aria-hidden="true"
-      >
-        {!reduceMotion && (
-          <source src={assetPath(STAGE_VIDEOS[index])} type="video/mp4" />
-        )}
-      </video>
+        active={inView && revealed}
+      />
       <div className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
         <span>stage_0{index + 1}</span>
       </div>

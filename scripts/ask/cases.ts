@@ -202,14 +202,16 @@ export const CASES: Case[] = [
   // that kind is documented. Never a person, a talk, an essay or a paper.
   {
     q: "What can GaitAI do for military?",
-    expect: ["product:defencemotion", "product:suspiciousmotion", "product:accessmotion", "page:/securevision"],
-    anyOf: ["product:watchlist", "product:campusshield", "product:reid"],
+    /* The environment record anchors the answer, as Hospitals does for a
+       hospital question; the family page is welcome beside it, not required. */
+    expect: ["use-case:defence", "product:suspiciousmotion", "product:accessmotion"],
+    anyOf: ["page:/securevision", "product:watchlist", "product:campusshield", "product:reid", "product:privacyguard"],
     check:
-      "MUST name DefenceMotion as the documented defence product (Army, Navy and Air Force modes) AND say no dedicated military deployment, customer, pilot or clearance is documented; other capabilities labelled as potentially relevant. Nothing invented.",
+      "MUST name Defence & Armed Forces as the documented SecureVision environment with its module mix AND say no dedicated military deployment, customer, pilot or clearance is documented; other capabilities labelled as potentially relevant. No dedicated defence product exists. Nothing invented.",
   },
   {
     q: "What can GaitAI do for defence?",
-    expect: ["product:defencemotion", "product:suspiciousmotion", "product:accessmotion", "page:/securevision"],
+    expect: ["use-case:defence", "product:suspiciousmotion", "product:accessmotion"],
     check: "Same boundary as the military question.",
   },
   { q: "What can GaitAI do for a hospital?", expect: ["use-case:hospitals", "product:fallrisk"] },

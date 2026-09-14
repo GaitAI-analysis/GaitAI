@@ -234,19 +234,6 @@
 
 /* ── Service-mode chips (Defence only) ── */
 
-.contexts {
-  margin-top: 1.25rem;
-  padding: 0.9rem 1rem;
-  border: 1px dashed var(--border-subtle);
-  border-radius: 0.9rem;
-}
-
-.contextsHead {
-  font-size: 0.75rem;
-  line-height: 1.65;
-  color: var(--text-muted);
-}
-
 .chips {
   display: flex;
   flex-wrap: wrap;

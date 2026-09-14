@@ -320,7 +320,7 @@ export function IntelligenceSearch() {
         {/* THE RESULT COUNT, ANNOUNCED.
             `aria-activedescendant` already announces the row under the arrow
             keys, but nothing announced the LIST changing shape: typing a
-            letter that narrowed twenty-four rows to two, or to none, was
+            letter that narrowed twenty-three rows to two, or to none, was
             silent. A sighted user sees the list collapse; a screen-reader user
             had to arrow through it to discover what had happened. The
             listbox itself cannot carry `aria-live` — every option would be

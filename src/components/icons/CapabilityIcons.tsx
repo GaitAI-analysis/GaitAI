@@ -231,16 +231,16 @@ export const capabilityIconById = {
   crowdsense: CrowdSenseIcon,
   industrialsafety: IndustrialSafetyIcon,
   privacyguard: PrivacyGuardIcon,
-  defencemotion: DefenceMotionIcon,
 } as const;
 
 /**
- * DefenceMotion — a protected perimeter around a moving person. A shield
- * outline, a small pose figure inside it and three short signal branches
- * leaving the shoulder: the three service modes reading one movement. No
- * weapon, no vehicle, no camouflage: the same line language as the rest.
+ * Defence & Armed Forces — the environment's pictogram: a protected perimeter
+ * around a moving person. A shield outline, a small pose figure inside it and
+ * three short signal branches leaving the shoulder — movement read inside a
+ * governed perimeter. No weapon, no vehicle, no camouflage: the same line
+ * language as the rest.
  */
-export function DefenceMotionIcon(props: IconProps) {
+export function DefenceIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>
       <path d="M12 2.8 L19.2 5.6 V11.4 C19.2 15.9 16.2 19.6 12 21.2 C7.8 19.6 4.8 15.9 4.8 11.4 V5.6 Z" />

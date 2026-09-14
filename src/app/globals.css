@@ -3253,33 +3253,56 @@ body {
   }
 }
 
-/* Light mode: the MobilityCare hero is a cinematic dark-media section and
-   must look the same dark hero in BOTH themes — only the navbar and the
-   sections below it follow the global light theme. Every rule here is
-   scoped under .light so the default/dark hero styles stay byte-for-byte
-   untouched: re-pin the dark theme's color tokens inside the hero subtree
-   so light-mode variable flips can't darken the copy, CTAs or chips
-   sitting on the video. */
-.light .mobilitycare-hero {
-  color-scheme: dark;
-  --c-obsidian: 7 11 20;
-  --c-soft-white: 248 250 252;
-  --c-soft-gray: 203 213 225;
-  --c-soft-mute: 148 163 184;
+/* Light mode: the MobilityCare hero plays the LIGHT companion of its film
+   (lib/theme-media.ts — same frames, re-inked for paper), so the copy, CTAs
+   and chips follow the light theme like every other section. Only the layers
+   that were painted dark by hand get a light edition here: the readability
+   shade and the capability chips. Everything above stays byte-for-byte the
+   dark hero. The shade's colour is the light film's own ground (#eef4fb). */
+.light .mobilitycare-hero__overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(238, 244, 251, 0.94) 0%,
+    rgba(238, 244, 251, 0.84) 30%,
+    rgba(238, 244, 251, 0.52) 54%,
+    rgba(238, 244, 251, 0.16) 74%,
+    rgba(238, 244, 251, 0.05) 100%
+  );
 }
 
-/* Keep the "health and identity." accent on the dark-theme cyan/teal
-   gradient instead of the light-theme darkened variant. */
-.light .mobilitycare-hero .text-gradient-mobility {
-  background-image: linear-gradient(135deg, #bdf9ff 0%, #4fd1ff 42%, #0fa3b1 100%);
+@media (max-width: 1023px) {
+  .light .mobilitycare-hero__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(238, 244, 251, 0.9) 0%,
+      rgba(238, 244, 251, 0.74) 55%,
+      rgba(238, 244, 251, 0.86) 100%
+    );
+  }
 }
 
-/* "Explore products" keeps its dark translucent teal treatment. */
-.light .mobilitycare-hero .hero-product-link--care {
-  color: #bdf9f1;
-  border-color: rgb(94 234 212 / 0.35);
-  background: rgb(94 234 212 / 0.1);
+/* Pale frosted chips with a cool hairline: the light art direction's answer
+   to the dark translucent pill. Scoped to this hero — the SecureVision hero
+   keeps its dark film and its dark chips. */
+.light .mobilitycare-hero .securevision-capability-chip {
+  color: #0b1220;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(238, 244, 251, 0.88));
+  border: 1px solid rgba(14, 116, 144, 0.32);
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
+
+.light .mobilitycare-hero .securevision-capability-chip:hover,
+.light .mobilitycare-hero .securevision-capability-chip:focus-visible {
+  border-color: rgba(14, 116, 144, 0.6);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(238, 244, 251, 0.96));
+  box-shadow:
+    0 10px 28px rgba(15, 23, 42, 0.1),
+    0 0 0 2px rgba(14, 116, 144, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
 
 /* =========================================================================
    LIGHT-MODE OVERRIDES for utilities that hard-code white-alpha
@@ -3505,7 +3528,6 @@ body {
 
    Nothing here touches the base rules; light mode simply stops overriding
    them. That is what keeps dark frozen. */
-.light .product-visual-shell,
 .light .dark-media-island {
   color-scheme: dark;
   --c-obsidian: 7 11 20;
@@ -3519,13 +3541,33 @@ body {
 /* The token pin above reaches anything that reads a `--c-*` colour, which is
    most of what is drawn over these films. It cannot reach the light theme's
    overrides of the hard-coded white-alpha utilities, because those set a
-   literal colour rather than reading a token — so the two that appear INSIDE
-   a media island (the console's corner tag, the Movement Studio figure's
-   hairline) are handed their dark values back. Without this the tag's border
-   was the one part of the console that changed with the theme: a 1px outline,
-   and the only pixels in the whole panel that differed. */
-.light .product-visual-shell .border-white\/10 {
-  border-color: rgb(255 255 255 / 0.1);
+   literal colour rather than reading a token — so the one that appears INSIDE
+   a media island (the Movement Studio figure's hairline, below) is handed its
+   dark value back. */
+
+/* The homepage console shells play the LIGHT companion of their film in
+   light mode (lib/theme-media.ts), so the shell is a light instrument on a
+   light page: the film's own ground as the surface, a cool hairline, and the
+   light tokens for the label and the "Demo" tag. */
+.light .product-visual-shell {
+  border-color: rgb(var(--visual-accent) / 0.22);
+  background:
+    radial-gradient(ellipse 62% 70% at 50% 54%, rgb(var(--visual-accent) / 0.08), transparent 73%),
+    linear-gradient(180deg, #eef4fb, #f6f8fc);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    inset 0 0 36px rgb(var(--visual-accent) / 0.05);
+}
+
+.light .product-visual-shell::after {
+  box-shadow: inset 0 0 24px rgb(var(--visual-accent) / 0.06);
+}
+
+/* The four workflow films letterbox with `contain`; in light mode the card
+   is the light film's ground so the frame and the footage meet seamlessly. */
+.light .workflow-stage-card {
+  background: linear-gradient(180deg, #eef4fb, #f3f6fb);
+  border-color: rgba(30, 58, 95, 0.16);
 }
 
 .light .dark-media-island.border-white\/\[0\.07\] {
@@ -6561,6 +6603,12 @@ body {
     background-image: url("/assets/videos/mobilitycare/mobilitycare-hero-v2-poster.jpg");
     background-size: cover;
     background-position: center 42%;
+  }
+
+  /* The light film's own first frame, so a light visitor is not shown the
+     dark still. Only the matched rule's image is fetched. */
+  .light .mobilitycare-hero__media {
+    background-image: url("/assets/videos/mobilitycare/mobilitycare-hero-v2-poster-light.jpg");
   }
 
   .securevision-hero {

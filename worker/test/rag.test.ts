@@ -510,16 +510,18 @@ describe("the browser selects, the Worker decides", () => {
     expect(types).not.toContain("publication");
     expect(selectedRecordIds).toContain("product:suspiciousmotion");
     expect(selectedRecordIds).toContain("product:accessmotion");
-    expect(selectedRecordIds).toContain("page:/securevision");
+    /* The documented environment anchors the answer, as it does for every other domain. */
+    expect(selectedRecordIds).toContain("use-case:defence");
     /* The Worker resolved them and told the model, from ITS canonical records, that no military
        environment is documented and how to answer. */
     expect(response.status).toBe(200);
     expect(body!.grounding.recordIds).toEqual(selectedRecordIds);
     expect(prompt).toContain('Application: this question is about "military" (potential question');
     /* The Worker resolved, from ITS canonical records, that Defence & Armed Forces IS a documented
-       environment with DefenceMotion as its dedicated product — and that nothing beyond the records
+       environment — with no product dedicated to it — and that nothing beyond the records
        (no customer, pilot, result or certification) may be stated. */
-    expect(prompt).toContain('documents the deployment environment "Defence & Armed Forces" for it, and documents "DefenceMotion" as a product dedicated to it');
+    expect(prompt).toContain('documents the deployment environment "Defence & Armed Forces" for it');
+    expect(prompt).not.toContain("as a product dedicated to it");
     expect(prompt).toContain("Still state nothing the records do not: no customers, pilots, results or certifications");
     expect(system).toContain("WHAT GAITAI CAN DO FOR A DOMAIN");
     /* Nothing in the RECORDS claims a military customer or deployment — the
@@ -559,7 +561,7 @@ describe("the browser selects, the Worker decides", () => {
 
   it("understands 'does it do military' — pronoun to GaitAI, elliptical domain, capabilities with the boundary", async () => {
     ensureCorpus();
-    reply = "GaitAI documents [DefenceMotion](/securevision/defencemotion/) as its defence product, with Army, Navy and Air Force modes; no military deployment, customer or clearance is documented. Other SecureVision capabilities may be relevant: [SuspiciousMotion](/securevision/suspiciousmotion/) surfaces restricted-zone and perimeter events.";
+    reply = "GaitAI documents [Defence & Armed Forces](/use-cases/defence-armed-forces/) as a SecureVision deployment environment; no military deployment, customer or clearance is documented. Relevant modules: [SuspiciousMotion](/securevision/suspiciousmotion/) surfaces restricted-zone and perimeter events.";
     const { retrieval, selectedRecordIds, response, body, prompt } = await rag("does it do military");
     const u = retrieval.understanding;
     expect(u.intent).toBe("DOMAIN_APPLICATION");
@@ -579,8 +581,8 @@ describe("the browser selects, the Worker decides", () => {
     expect(body!.grounding.recordIds).toEqual(selectedRecordIds);
     /* The Worker read the same understanding from question + history and told the model. */
     expect(prompt).toContain('Application: this question is about "military" (potential question');
-    /* DefenceMotion is a documented PRODUCT for the domain; a deployment, customer or clearance is still not. */
-    expect(prompt).toContain('documents "DefenceMotion" as a product dedicated to it');
+    /* Defence & Armed Forces is a documented ENVIRONMENT; a deployment, customer or clearance is still not. */
+    expect(prompt).toContain('documents the deployment environment "Defence & Armed Forces"');
     expect(prompt).toContain("Still state nothing the records do not");
     expect(prompt).toContain('Reference: "it" refers to GaitAI');
     expect(body!.sources.every((source) => source.kind !== "Person" && source.kind !== "Talk")).toBe(true);
@@ -596,7 +598,7 @@ describe("the browser selects, the Worker decides", () => {
     expect(potential.prompt).toContain("describe that environment and its recommended modules");
     const exists = await rag("Does GaitAI have a military product?");
     expect(exists.retrieval.understanding.askType).toBe("product-exists");
-    expect(exists.prompt).toContain('"DefenceMotion" is documented as specific to it');
+    expect(exists.prompt).toContain("say whether any is specific to it");
     for (const run of [relationship, potential, exists]) {
       expect(run.retrieval.intent).toBe("DOMAIN_APPLICATION");
       expect(run.retrieval.docs.map((d) => d.doc.type)).not.toContain("person");

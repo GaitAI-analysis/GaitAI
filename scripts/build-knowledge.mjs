@@ -311,14 +311,14 @@ async function main() {
     id: "page:canonical-inventory", type: "page", title: "GaitAI catalogue terminology and evidence inventory", url: "/products/", family: "platform", category: "Platform inventory", slug: "canonical-inventory",
     summary: `${registry.siteCounts.productModules} product modules on one movement-intelligence platform across ${registry.siteCounts.environments} environments.`,
     content: [
-      `${registry.siteCounts.mobilitycare} MobilityCare modules and ${registry.siteCounts.securevision} SecureVision modules, including DefenceMotion. Army, Navy and Air Force are service modes of that single module.`,
+      `${registry.siteCounts.mobilitycare} MobilityCare modules and ${registry.siteCounts.securevision} SecureVision modules.`,
       `${registry.siteCounts.publications} surfaced academic papers and ${registry.siteCounts.patents} granted patent form ${registry.siteCounts.researchRecords} research records across ${registry.siteCounts.researchAreas} research areas. Product-specific validation studies published: ${registry.siteCounts.productValidationStudies}.`,
       `${registry.siteCounts.talksAndPresentations} talks and presentations: ${registry.siteCounts.talkKinds.invitedTalks} invited talks, ${registry.siteCounts.talkKinds.presentations} presentations, ${registry.siteCounts.talkKinds.paperPresentations} conference paper presentations, ${registry.siteCounts.talkKinds.posters} poster.`,
       publications.FOUNDER_ACADEMIC_RECORD.scope,
       ...Object.entries(registry.terminology).map(([term,definition])=>`${term}: ${definition}`),
       responsible.RESPONSIBLE_USE_CONTROLS,
     ].join("\n"),
-    keywords: ["count", "how many", "product modules", "environments", "terminology", "DefenceMotion", "research records", "founder academic record", "validation"],
+    keywords: ["count", "how many", "product modules", "environments", "terminology", "research records", "founder academic record", "validation"],
   }];
 
   // ── ENTITIES ─────────────────────────────────────────────────────────────

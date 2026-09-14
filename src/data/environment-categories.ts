@@ -25,12 +25,6 @@
 //                 environments' `vertical`, never from a second hand-written
 //                 assertion that can drift.
 //
-// DEFENCE IS ONE PRODUCT, NOT FOUR. Army, Navy and Air Force are service modes
-// of GaitAI DefenceMotion — configurations of one movement pipeline and one set
-// of privacy controls. They are rendered as contexts of the single Defence
-// environment card, from `productDetailBySlug("defencemotion").modes`, and
-// never as separate environments or separate products. See ServiceModes on the
-// product page, which is the same three modes in full.
 // ============================================================================
 
 import { industryUseCases, type Vertical } from "./products";
@@ -85,7 +79,7 @@ export const environmentCategories: EnvironmentCategory[] = [
     id: "defence",
     label: "Defence",
     blurb:
-      "One product, three service modes — personnel readiness, rehabilitation, facility safety and authorised access.",
+      "Installations with a duty of care to the people moving through them: facility safety and authorised access without identity-first monitoring.",
     environmentIds: ["defence"],
   },
   {

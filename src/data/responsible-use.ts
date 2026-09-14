@@ -34,7 +34,7 @@ export const IDENTITY_GUARDRAIL =
   "Watchlist, ReID, AccessMotion and ForensicSearch require documented lawful authority, consent where applicable, purpose-limited access, audit logs and human review. Candidate associations are not proof of identity and must not trigger automatic denial, enforcement or adverse decisions.";
 
 export const DEFENCE_GUARDRAIL =
-  "DefenceMotion requires an authorized programme owner, consent for enrolled personnel, purpose-limited retention, audit and qualified human review. It is not for autonomous targeting or lethal decisions, or for automated fitness-for-duty, disciplinary, promotion or personnel decisions. Any separately governed personnel process must establish its own legal basis, evidence and human decision-making.";
+  "Defence and armed-forces deployments require an authorized programme owner, consent for enrolled personnel, purpose-limited retention, audit and qualified human review. It is not for autonomous targeting or lethal decisions, or for automated fitness-for-duty, disciplinary, promotion or personnel decisions. Any separately governed personnel process must establish its own legal basis, evidence and human decision-making.";
 
 export const INSURANCE_GUARDRAIL =
   "Insurance and wellness workflows are not for automated underwriting, eligibility, coverage or premium decisions. Any such use requires separate explicit governance and a documented legal basis; the published evidence does not establish support for those decisions.";
@@ -45,7 +45,6 @@ export const CHILDREN_GUARDRAIL =
 /** Applicability is declared centrally, so cards, detail pages and the corpus
  * inherit the same constraints without maintaining copies of the wording. */
 export function productGuardrails(id: string): string {
-  if (id === "defencemotion") return `${IDENTITY_GUARDRAIL} ${DEFENCE_GUARDRAIL}`;
   if (["watchlist", "reid", "accessmotion", "forensicsearch"].includes(id)) return IDENTITY_GUARDRAIL;
   if (id === "pediatricmotion" || id === "campusshield") return CHILDREN_GUARDRAIL;
   if (id === "watchcare") return INSURANCE_GUARDRAIL;

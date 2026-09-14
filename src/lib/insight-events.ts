@@ -102,7 +102,6 @@ export interface InsightEventMap {
   baseline_mode_changed: Article & { mode: string };
   /* ── product pages (aggregate, like everything else: no reader, no session) ── */
   product_page_open: { product: string; family: string };
-  product_mode_selected: { product: string; mode: string };
   product_related_opened: { product: string; destination: string };
   product_demo_clicked: { product: string; placement: "hero" | "pilot" };
   /* ── feedback ── */

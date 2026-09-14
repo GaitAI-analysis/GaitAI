@@ -269,7 +269,7 @@ export interface ApplicationContext {
   concepts: DomainConcept[];
   /** `use-case:<id>` record ids the site documents for the domain. */
   documentedEnvironmentIds: string[];
-  /** `product:<id>` records the site documents as dedicated to the domain (DefenceMotion for defence). */
+  /** `product:<id>` records the site documents as dedicated to the domain. */
   documentedProductIds: string[];
   family: Family | null;
 }

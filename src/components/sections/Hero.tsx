@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeImage } from "@/components/ui/ThemeMedia";
+import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import styles from "./hero.module.css";
 
 /**
@@ -76,6 +77,9 @@ export function Hero() {
       </div>
       {/* The `/#overview` target — see .anchor in hero.module.css. */}
       <span id="overview" aria-hidden="true" className={styles.anchor} />
+      {/* Keeps the floating Ask GaitAI launcher off the SecureVision copy in
+          short windows — see HeroLauncherGuard. */}
+      <HeroLauncherGuard />
     </section>
   );
 }

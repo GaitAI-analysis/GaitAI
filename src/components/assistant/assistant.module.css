@@ -124,6 +124,18 @@
   transform: translateY(1px);
 }
 
+/* THE HOMEPAGE HERO'S SAFE ZONE. When the hero reports that this corner sits
+   over its SecureVision copy (a short laptop window — see
+   sections/HeroLauncherGuard), the label folds away and the ✦ mark stays:
+   50px wide, clear of the copy at every desktop width. The control is
+   unchanged otherwise — same place, same target, same label for assistive
+   technology. */
+:global(html[data-hero-guard="true"]) .launcher .launcherLabel {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
 /* Out of the way while the panel occupies the same corner. Kept in the DOM,
    and kept focusable, so focus can return to it on close. */
 .launcher[data-hidden="true"] {

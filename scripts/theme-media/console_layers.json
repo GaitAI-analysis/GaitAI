@@ -1,0 +1,55 @@
+{
+  "mobilitycare-intelligence": {
+    "panels": [
+      [
+        915,
+        82,
+        1249,
+        621
+      ]
+    ],
+    "radius": 14,
+    "horizon": 0.74,
+    "person_lift": 0.8,
+    "person_gain": 1.0,
+    "person_cast": 0.2
+  },
+  "securevision-intelligence": {
+    "panels": [
+      [
+        16,
+        385,
+        216,
+        544
+      ],
+      [
+        958,
+        50,
+        1292,
+        210
+      ],
+      [
+        958,
+        219,
+        1292,
+        355
+      ],
+      [
+        958,
+        360,
+        1292,
+        520
+      ],
+      [
+        958,
+        527,
+        1292,
+        700
+      ]
+    ],
+    "radius": 12,
+    "horizon": 0.72,
+    "person_lift": 0.62,
+    "person_gain": 1.08
+  }
+}

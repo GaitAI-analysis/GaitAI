@@ -88,9 +88,9 @@ import styles from "./thread.module.css";
  * `reads` describes the measurement in the same capability language the
  * product records use; `family` and `href` point at the surface that owns it.
  *
- * READINESS is the fifth, and it is here because DefenceMotion made it real:
- * movement change across a programme or under load, against a personal
- * baseline. It is not a fitness verdict and the copy must not imply one.
+ * READINESS is the fifth: movement change across a programme or under load,
+ * against a personal baseline — what RehabTrack and SportsMotion read. It is
+ * not a fitness verdict and the copy must not imply one.
  */
 export const READINGS = [
   {
@@ -135,8 +135,8 @@ export const READINGS = [
     note: "how movement holds up under load",
     reads:
       "Movement change across a programme or under load, read against a personal baseline. Movement, never a fitness verdict.",
-    family: "SecureVision",
-    href: "/securevision/defencemotion/",
+    family: "MobilityCare",
+    href: "/mobilitycare/",
   },
 ] as const;
 

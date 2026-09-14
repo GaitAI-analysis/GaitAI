@@ -1,6 +1,5 @@
-import Image from "next/image";
 import type { Publication } from "@/data/publications";
-import { assetPath } from "@/lib/paths";
+import { ThemeImage } from "@/components/ui/ThemeMedia";
 import { PublicationCoverArt } from "./PublicationCoverArt";
 import { topicsFor } from "./topics";
 import styles from "./plate.module.css";
@@ -84,8 +83,12 @@ export function PublicationPlate({
     <div className={`${styles.plate} ${ACCENT_CLASS[accent]}`}>
       <div className={styles.well}>
         {publication.artwork ? (
-          <Image
-            src={assetPath(publication.artwork)}
+          /* The data names the dark artwork; the registry pairs it with a
+             companion re-inked for paper, and `ThemeImage` fetches only the
+             theme's one — chosen before first paint, no flash, no double
+             download. See lib/theme-media.ts. */
+          <ThemeImage
+            darkSrc={publication.artwork}
             alt=""
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"

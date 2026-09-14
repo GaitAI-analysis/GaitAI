@@ -6,7 +6,9 @@ import {
   DEMO_LABEL,
   IllustrativeBadge,
 } from "@/components/ui/IllustrativeBadge";
-import { assetPath } from "@/lib/paths";
+import { cn } from "@/lib/utils";
+import { ThemeVideo } from "@/components/ui/ThemeMedia";
+import { themeMedia, type ThemeMediaKey } from "@/lib/theme-media";
 import {
   MOBILITY_EXPLAIN,
   MOBILITY_LAYERS,
@@ -319,24 +321,21 @@ export function MovementLab() {
    MOBILITYCARE STAGES
    ========================================================================== */
 
-function StageVideo({ src, poster }: { src: string; poster?: string }) {
+function StageVideo({ mediaKey }: { mediaKey: ThemeMediaKey }) {
+  /* A `pair` has a light companion rendered from the same frames, so the
+     figure follows the page theme. An `island` is one dark film shown in
+     both themes on purpose (the registry says why); `dark-media-island`
+     re-pins the dark tokens inside the panel in light mode so the hairline
+     and anything drawn over the film stay legible. See globals.css. */
+  const island = themeMedia[mediaKey].kind === "island";
   return (
-    /* `dark-media-island`: the footage is the product's own screen, shown
-       as-is in both themes — same file, same poster, same contrast, no
-       filter. The class re-pins the dark tokens inside the panel in light
-       mode so the hairline and anything drawn over the film stay light.
-       See globals.css. */
-    <figure className="dark-media-island relative overflow-hidden rounded-xl border border-white/[0.07]">
-      <video
-        className="block h-auto w-full"
-        src={assetPath(src)}
-        poster={poster ? assetPath(poster) : undefined}
-        muted
-        loop
-        playsInline
-        autoPlay
-        preload="none"
-      />
+    <figure
+      className={cn(
+        "relative overflow-hidden rounded-xl border border-white/[0.07]",
+        island && "dark-media-island",
+      )}
+    >
+      <ThemeVideo mediaKey={mediaKey} className="block h-auto w-full" />
       <IllustrativeBadge
         variant="overlay"
         className="absolute bottom-3 left-3"
@@ -359,7 +358,7 @@ function MobilityStage({
   if (stage === "video") {
     return (
       <div>
-        <StageVideo src="/assets/videos/samples/recorded-walk.mp4" poster="/assets/images/capture/sequence/poster.webp" />
+        <StageVideo mediaKey="recordedWalkSample" />
         <ResultColumns count={2}>
           <ResultColumn
             title="What enters the pipeline"
@@ -636,7 +635,7 @@ function SecureStage({
   if (stage === "video") {
     return (
       <div>
-        <StageVideo src="/assets/videos/platform/securevision-intelligence.mp4" />
+        <StageVideo mediaKey="secureVisionHome" />
         <ResultColumns count={2}>
           <ResultColumn
             title="What enters the pipeline"

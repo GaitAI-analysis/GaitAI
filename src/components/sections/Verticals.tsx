@@ -223,28 +223,21 @@ function FlagshipPanel({
           <div className="absolute right-5 top-4 z-10 rounded-md border border-white/10 bg-obsidian/70 px-2.5 py-1 font-mono text-[9px] text-soft-gray shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:right-7 sm:top-5 sm:text-[10px]">
             {consoleTag}
           </div>
-          {/* The console surface: one cinematic render, both themes.
+          {/* The console surface: the same cinematic render in both themes,
+              as two files. Dark plays the original; light plays the
+              companion rendered from the same frames — same walker, same
+              overlays, same timing — re-inked for paper (see
+              `lib/theme-media.ts`). `ThemeVideo` picks one before first paint
+              and keeps the playhead across a theme switch. The shell follows
+              the theme too (`.light .product-visual-shell`), so the panel is
+              a light instrument on a light page, not a dark hole in it.
 
-              Light mode briefly drew a vector console in its place. The
-              footage IS what is being shown here — its navy, its cyan, its
-              overlays and its contrast are the product's own console — so a
-              theme may change the page around it and must not restage it.
-              The shell keeps its dark tokens in light mode (see
-              `.light .product-visual-shell`), which is the same treatment the
-              two product heroes already use, so the panel reads as a screen
-              being shown rather than as a hole in a white page.
-
-              Reduced motion gets this film's own poster frame.
+              Reduced motion gets the chosen film's own poster frame.
 
               The disclosure is unchanged: the tag above says "Demo", and the
               sr-only line below states in full that this is illustrative
               footage with example values. */}
-          <ThemeVideo
-            mediaKey={consoleKey}
-            className="platform-console-video"
-            reduceMotion={reduceMotion}
-            sizes="(max-width: 1024px) 100vw, 640px"
-          />
+          <ThemeVideo mediaKey={consoleKey} className="platform-console-video" />
         </div>
         <p className="sr-only">
           The console above is illustrative demo footage with example values,

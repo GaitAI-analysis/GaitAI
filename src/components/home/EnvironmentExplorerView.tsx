@@ -14,12 +14,6 @@ export interface ExplorerCard {
   href: string;
 }
 
-export interface ExplorerContext {
-  id: string;
-  name: string;
-  href: string;
-}
-
 export interface ExplorerCategory {
   id: string;
   label: string;
@@ -29,15 +23,6 @@ export interface ExplorerCategory {
   familyHref: string;
   familyLabel: string;
   cards: ExplorerCard[];
-  /**
-   * Configurations of a single product, not further environments. Only
-   * Defence has them: Army, Navy and Air Force are service modes of
-   * DefenceMotion, and rendering them as three more cards would claim three
-   * more products. They are chips under the card, all pointing at the one
-   * product page that documents them.
-   */
-  contexts?: ExplorerContext[];
-  contextNote?: string;
 }
 
 /**
@@ -224,23 +209,6 @@ export function EnvironmentExplorerView({
                 </li>
               ))}
             </ul>
-
-            {category.contexts && category.contexts.length > 0 && (
-              <div className={styles.contexts}>
-                <p className={styles.contextsHead}>
-                  {category.contextNote}
-                </p>
-                <ul className={styles.chips}>
-                  {category.contexts.map((context) => (
-                    <li key={context.id}>
-                      <Link href={context.href} className={styles.chip}>
-                        {context.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
 
             <div className={styles.panelFoot}>
               <Link href={category.familyHref} className={styles.footLink}>

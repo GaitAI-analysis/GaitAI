@@ -181,8 +181,7 @@ function composeApplicationAnswer(result: RetrievalResult): string {
   const environments = application.documentedEnvironmentIds
     .map((id) => byId.get(id))
     .filter((item): item is RetrievedDoc => Boolean(item));
-  /* A product the site documents as dedicated to the domain (DefenceMotion for
-     defence) is named first, as a documented PRODUCT — still not a deployment,
+  /* A product the site documents as dedicated to the domain is named first, as a documented PRODUCT — still not a deployment,
      customer, pilot or clearance, which no record establishes. */
   const dedicatedIds = new Set(application.documentedProductIds);
   const dedicated = application.documentedProductIds

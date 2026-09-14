@@ -24,7 +24,6 @@ import { ContextLimitations } from "@/components/trust/ContextLimitations";
 import { SampleOutputViewer } from "@/components/analytics/SampleOutputViewer";
 import { hasSampleOutput } from "@/data/sample-outputs";
 import { cn } from "@/lib/utils";
-import { ServiceModes } from "@/components/products/ServiceModes";
 import { trackInsightEvent } from "@/lib/insight-events";
 
 const familyConfig = {
@@ -278,7 +277,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
         { id: "problem", label: "Problem" },
         { id: "solution", label: "What GaitAI does" },
         { id: "who", label: "Who it's for" },
-        ...(detail.modes?.length ? [{ id: "modes", label: "Service modes" }] : []),
         { id: "outputs", label: "Outputs" },
         { id: "why", label: "Why it matters" },
         { id: "workflow", label: "Workflow" },
@@ -577,12 +575,6 @@ export function ProductDetailView({ slug }: { slug: string }) {
                 <SectionBlock id="who" index={sectionIndex("who")} title="Who uses it">
                   <BulletList items={detail.whoFor} dot={a.dot} />
                 </SectionBlock>
-
-                {detail.modes && detail.modes.length > 0 && (
-                  <SectionBlock id="modes" index={sectionIndex("modes")} title="Service modes">
-                    <ServiceModes modes={detail.modes} productId={product.id} accent={a} />
-                  </SectionBlock>
-                )}
 
                 <SectionBlock
                   id="outputs"

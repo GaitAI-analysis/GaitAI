@@ -648,31 +648,30 @@ const environmentDetailRecords: UseCaseDetail[] = [
     slug: "defence-armed-forces",
     caseId: "defence",
     family: "securevision",
-    valueProp: "One movement platform for personnel, installations and access.",
+    valueProp: "Facility safety and authorised access for installations with a duty of care.",
     overview:
-      "For defence organisations, GaitAI can run DefenceMotion as one product with Army, Navy and Air Force modes — readiness and rehabilitation movement profiles for enrolled personnel, movement-first facility events, and a gait-consistency signal at authorised access points — with AccessMotion and SuspiciousMotion covering controlled entries and perimeter events on the same camera estate.",
+      "For defence organisations, GaitAI configures SecureVision for the installation: SuspiciousMotion surfaces restricted-zone entry and perimeter events for operator review, AccessMotion adds a gait-consistency signal beside existing credentials at authorised access points, and PrivacyGuard governs retention, roles and audit across the same camera estate — identity not required by default.",
     shortfall:
-      "Readiness and recovery are judged from one-off assessments, safety events on large installations are found after the fact, and access relies on credentials alone — while the people being observed are owed a duty of care that identity-first monitoring does not respect.",
+      "Safety events on large installations are found after the fact and access relies on credentials alone — while the people being observed are owed a duty of care that identity-first monitoring does not respect.",
     together:
-      "DefenceMotion carries the personnel programmes (readiness, rehabilitation) and the installation's movement-event awareness in the mode a service selects; AccessMotion adds a passive consistency signal at controlled doors and compartments; SuspiciousMotion surfaces restricted-zone entry and perimeter events for operator review. PrivacyGuard controls apply to all of it.",
+      "SuspiciousMotion carries the installation's movement-event awareness — restricted-zone entry, perimeter events, tailgating-like patterns — for operator review; AccessMotion adds a passive consistency signal at controlled doors and compartments; PrivacyGuard controls — retention, roles, audit logs and skeleton-only processing — apply to all of it.",
     workflow: [
-      "A service selects its mode and configures installations, programmes and access points",
-      "Enrolled personnel build consent-based readiness and rehabilitation baselines over time",
+      "The installation's zones, perimeters and access points are configured under the programme owner's policy",
       "Facility movement events surface on the operator timeline",
-      "Controlled entries receive a gait-consistency indicator beside existing credentials",
-      "Medical, safety and access teams review and decide under service procedures",
+      "Controlled entries receive a gait-consistency indicator beside existing credentials, for enrolled personnel only",
+      "Safety and access teams review and decide under service procedures; PrivacyGuard records the audit trail",
     ],
     outcome:
-      "Readiness and rehabilitation movement profiles, facility movement-event alerts, access consistency indicators and a privacy and audit record — across Army, Navy and Air Force.",
+      "Facility movement-event alerts, access consistency indicators and a privacy and audit record across defence installations.",
     signals: [
-      "Readiness movement profile and rehabilitation trend",
       "Facility movement-event alerts",
+      "Perimeter and restricted-zone events",
       "Access consistency indicators",
-      "Service-mode summary with audit record",
+      "Privacy and audit record",
     ],
     deployment: [
       "On-premise or edge processing inside the installation's own network",
-      "Consent-based enrolment for readiness, rehabilitation and access signals",
+      "Consent-based enrolment wherever an access signal is used",
       "Human review before any indicator becomes an action",
       "Not designed for autonomous targeting or lethal decision-making",
     ],

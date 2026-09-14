@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { assetPath } from "@/lib/paths";
+import { ThemeVideo } from "@/components/ui/ThemeMedia";
 import { ctas } from "@/data/content";
 
 /**
@@ -21,31 +21,22 @@ export function MobilityCareHero() {
     >
       {/* Background media layer */}
       <div className="mobilitycare-hero__media" aria-hidden="true">
-        {/* `poster` is the extracted first frame: it paints immediately, so
-            the hero has no blank interval before the first decoded frame and
-            no shift when one arrives. `preload="metadata"` replaces "auto" —
-            the browser no longer pulls the whole 0.6 MB file before it needs
-            to, and autoplay still starts from the buffered head.
+        {/* Two files, one chosen before first paint: dark plays the original
+            film, light plays the companion rendered from the same frames
+            (see lib/theme-media.ts). `eager` means the source is set while
+            the HTML parses with `preload="metadata"`, so the hero starts as
+            early as it always did and a light-mode visitor never sees the
+            dark film flash first. The poster follows the same choice.
 
             Reduced motion is handled in CSS (see .mobilitycare-hero__video):
-            the video is hidden and the poster stays as the layer's background,
-            so this stays a Server Component with no JS. */}
-        <video
+            the video is hidden and the layer keeps the theme's poster as its
+            background, so this stays a Server Component with no JS of its
+            own. */}
+        <ThemeVideo
+          mediaKey="mobilityCareHero"
+          eager
           className="mobilitycare-hero__video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={assetPath(
-            "/assets/videos/mobilitycare/mobilitycare-hero-v2-poster.jpg",
-          )}
-        >
-          <source
-            src={assetPath("/assets/videos/mobilitycare/mobilitycare-hero-v2.mp4")}
-            type="video/mp4"
-          />
-        </video>
+        />
       </div>
 
       {/* Left readability shade — fades out so the dashboard stays bright */}

@@ -17,8 +17,8 @@ import styles from "./hero.module.css";
  * anchors, positioned as PERCENTAGES of the canvas (see hero.module.css), so
  * they track the picture at every width instead of drifting with a pixel
  * offset. They render no text of their own — the artwork already carries it
- * — and expose it through `aria-label`; the focus ring is drawn on the pill's
- * own outline. Their targets:
+ * — and expose it through `aria-label`; each carries one decorative span, the
+ * glass surface that lights and lifts on hover. Their targets:
  *
  *   Explore GaitAI        → /#overview  (an anchor at the foot of the hero)
  *   Explore MobilityCare  → /mobilitycare/
@@ -70,7 +70,13 @@ export function Hero() {
                 aria-label={cta.label}
                 data-cta={cta.id}
                 className={styles.cta}
-              />
+              >
+                {/* The button surface. The pill is painted into the artwork,
+                    so the interaction is a sheet of glass laid exactly over
+                    it — see `.skin` in hero.module.css. Decorative: the
+                    link's name is its aria-label. */}
+                <span aria-hidden="true" className={styles.skin} />
+              </Link>
             ))}
           </nav>
         </div>

@@ -148,6 +148,20 @@
   --cta-s-width: 15.73%;
   --cta-s-height: 6.54%;
 
+  /* The hit area carries ~3px of margin around the painted pill (above).
+     Measured against the artwork, that is ~1.2% of the box across and ~5.1%
+     down in dark, ~6.2% down in light — so a surface inset by this much has
+     its edge ON the painted outline instead of a few pixels outside it.
+     Every lit edge below is drawn INSET from there, over the painted ink, so
+     the outline brightens rather than acquiring a second ring beside it. */
+  --cta-skin-x: 1.2%;
+  --cta-skin-y: 5.1%;
+
+  /* The resting gloss, the glare's brightness, and how long it travels. */
+  --cta-gloss: 0.1;
+  --cta-glare: 0.22;
+  --cta-sweep: 720ms;
+
   position: absolute;
   inset: 0;
   z-index: 2;
@@ -155,6 +169,8 @@
 }
 
 :global(.light) .ctas {
+  --cta-skin-y: 6.2%;
+
   --cta-g-top: 86.3%;
   --cta-g-width: 13.1%;
   --cta-g-height: 6.7%;
@@ -177,10 +193,11 @@
   cursor: pointer;
   border-radius: 999px;
   outline: none;
-  /* Transparent at rest: the artwork IS the button. Hover lifts the pill's
-     own outline a touch; focus draws a real ring on it. */
+  /* The hit area itself stays transparent and never moves: the artwork is
+     the button, and a focus ring belongs around the whole control. The
+     visible state lives on `.skin` below. */
   box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
-  transition: box-shadow 200ms ease;
+  transition: box-shadow var(--motion-ui) var(--ease-out);
 }
 .cta[data-cta="gaitai"] {
   left: var(--cta-g-left);
@@ -193,6 +210,11 @@
   top: var(--cta-m-top);
   width: var(--cta-m-width);
   height: var(--cta-m-height);
+  /* The panel this pass was asked to make more noticeable. The delta is
+     deliberately small — a shade more gloss, a brighter glare — so the three
+     still read as one family, with one of them a touch more polished. */
+  --cta-gloss: 0.13;
+  --cta-glare: 0.26;
 }
 .cta[data-cta="securevision"] {
   left: var(--cta-s-left);
@@ -201,19 +223,179 @@
   height: var(--cta-s-height);
 }
 
-@media (hover: hover) {
-  .cta:hover {
-    box-shadow:
-      0 0 0 1.5px rgb(79 209 255 / 0.7),
-      0 0 18px rgb(79 209 255 / 0.35);
+/* ── THE BUTTON SURFACE ────────────────────────────────────────────────────
+   A sheet of glass sized to the painted pill. At rest it is a whisper: a
+   single top-lit gloss, no more. That is enough to make the two OUTLINE
+   pills — MobilityCare and SecureVision — read as objects with a surface
+   rather than as a drawn hairline, while the solid GaitAI pill, which needs
+   less help, takes less from the same treatment. One language, three
+   buttons, no special case.
+
+   Hover does four things at once, inside 220ms: the pill rises 1px, its
+   painted outline brightens into a ring that sits exactly on itself, the
+   painted label and arrow behind the glass gain a little contrast and
+   saturation (a backdrop filter — the artwork is never tinted, only read
+   more sharply), and a single glare travels across the surface.
+
+   The arrow is painted into the approved artwork, so it cannot slide right
+   on hover without drawing a second arrow over the first and misregistering
+   at some widths. The lift, the ring and the glare carry the gesture. */
+.skin {
+  position: absolute;
+  inset: var(--cta-skin-y) var(--cta-skin-x);
+  border-radius: 999px;
+  overflow: hidden;
+  pointer-events: none;
+  background: linear-gradient(
+    176deg,
+    rgb(255 255 255 / var(--cta-gloss)) 0%,
+    rgb(255 255 255 / calc(var(--cta-gloss) * 0.3)) 40%,
+    rgb(255 255 255 / 0) 64%
+  );
+  /* No hairline at rest. A 1px specular along the top is the usual way to
+     say "glass", but the pill already has a drawn outline exactly there, and
+     the two together read as a double border. The gradient does the work. */
+  box-shadow: 0 0 0 0 rgb(0 0 0 / 0);
+  /* Identity at rest, so the hover values interpolate instead of snapping. */
+  -webkit-backdrop-filter: saturate(1) contrast(1);
+  backdrop-filter: saturate(1) contrast(1);
+  transition:
+    transform var(--motion-ui) var(--ease-out),
+    box-shadow var(--motion-ui) var(--ease-out),
+    background var(--motion-ui) var(--ease-out),
+    -webkit-backdrop-filter var(--motion-ui) var(--ease-out),
+    backdrop-filter var(--motion-ui) var(--ease-out);
+}
+
+/* The glare: one narrow skewed band, clipped to the pill. It rests off the
+   left edge at zero opacity and ends off the right edge at zero opacity, so
+   a hover that ends mid-sweep has nothing to snap back from. */
+.skin::after {
+  content: "";
+  position: absolute;
+  top: -25%;
+  bottom: -25%;
+  left: 0;
+  width: 34%;
+  transform: translateX(-130%) skewX(-18deg);
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0) 0%,
+    rgb(255 255 255 / var(--cta-glare)) 50%,
+    rgb(255 255 255 / 0) 100%
+  );
+  opacity: 0;
+}
+
+/* The band is off the left edge at 0% and off the right edge at 100%; it is
+   crossing the pill for the middle two thirds, which is exactly where the
+   opacity envelope holds it open. Getting those two windows to agree is the
+   whole trick — an accelerating curve finishes the travel while the band is
+   still fading up, and the sweep reads as a vague brightening rather than as
+   a light passing over glass. The travel is linear for the same reason a
+   real specular is: a light crossing a flat surface has no reason to
+   accelerate, and an eased one spends its time at the two edges where the
+   band is off the pill and cannot be seen. */
+@keyframes ctaGlare {
+  from {
+    transform: translateX(-130%) skewX(-18deg);
+    opacity: 0;
   }
-  :global(.light) .cta:hover {
-    box-shadow:
-      0 0 0 1.5px rgb(26 92 255 / 0.75),
-      0 0 16px rgb(26 92 255 / 0.25);
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(270%) skewX(-18deg);
+    opacity: 0;
   }
 }
 
+@media (hover: hover) {
+  .cta:hover .skin {
+    transform: translateY(-1px);
+    background: linear-gradient(
+      176deg,
+      rgb(255 255 255 / calc(var(--cta-gloss) + 0.08)) 0%,
+      rgb(255 255 255 / calc(var(--cta-gloss) * 0.55)) 40%,
+      rgb(255 255 255 / 0) 64%
+    );
+    box-shadow:
+      inset 0 0 0 1.5px rgb(125 240 255 / 0.5),
+      0 0 18px rgb(34 211 238 / 0.26),
+      0 5px 16px rgb(2 10 24 / 0.34);
+    -webkit-backdrop-filter: saturate(1.14) contrast(1.1) brightness(1.04);
+    backdrop-filter: saturate(1.14) contrast(1.1) brightness(1.04);
+  }
+  .cta:hover .skin::after {
+    animation: ctaGlare var(--cta-sweep) linear 40ms both;
+  }
+  /* A press settles the pill back onto the artwork. */
+  .cta:active .skin {
+    transform: translateY(0);
+    transition-duration: var(--motion-fast);
+  }
+}
+
+/* LIGHT MODE. The pills sit on a pale reflective floor, which is where an
+   outline pill is easiest to lose, so the resting surface deepens the
+   artwork's own ink and sets the pill down on a one-pixel contact shadow.
+   The glare is tinted blue before it turns white, because a white sweep
+   across a near-white pill is no sweep at all. */
+:global(.light) .skin {
+  background: linear-gradient(
+    176deg,
+    rgb(255 255 255 / calc(var(--cta-gloss) * 3)) 0%,
+    rgb(255 255 255 / var(--cta-gloss)) 42%,
+    rgb(214 228 255 / 0.04) 100%
+  );
+  /* "A stronger border" on paper is not a second line drawn beside the
+     first: it is the painted outline and label read more deeply. A resting
+     backdrop filter does that with the artwork's own ink, and a one-pixel
+     contact shadow sets the pill on the floor. */
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+  -webkit-backdrop-filter: saturate(1.16) contrast(1.06);
+  backdrop-filter: saturate(1.16) contrast(1.06);
+}
+
+/* The light glare leads with blue and answers with white, because the two
+   pill fills need opposite things: over the near-white outline pills only a
+   tinted band registers at all, and over the solid blue GaitAI pill only the
+   white core does. One band serves both. */
+:global(.light) .skin::after {
+  width: 44%;
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0) 0%,
+    rgb(96 156 255 / calc(var(--cta-glare) * 1.15)) 34%,
+    rgb(120 174 255 / calc(var(--cta-glare) * 1.35)) 46%,
+    rgb(255 255 255 / calc(var(--cta-glare) * 1.6)) 58%,
+    rgb(150 192 255 / calc(var(--cta-glare) * 0.8)) 72%,
+    rgb(255 255 255 / 0) 100%
+  );
+}
+
+@media (hover: hover) {
+  :global(.light) .cta:hover .skin {
+    background: linear-gradient(
+      176deg,
+      rgb(255 255 255 / calc(var(--cta-gloss) * 4.4)) 0%,
+      rgb(255 255 255 / calc(var(--cta-gloss) * 1.6)) 42%,
+      rgb(208 226 255 / 0.08) 100%
+    );
+    box-shadow:
+      inset 0 0 0 1.5px rgb(37 99 255 / 0.38),
+      0 0 16px rgb(56 132 255 / 0.18),
+      0 5px 14px rgb(15 23 42 / 0.14);
+    -webkit-backdrop-filter: saturate(1.3) contrast(1.12);
+    backdrop-filter: saturate(1.3) contrast(1.12);
+  }
+}
+
+/* The focus ring stays on the hit area, around the whole control, where a
+   focus indicator belongs — not on the surface. */
 .cta:focus-visible {
   box-shadow:
     0 0 0 2px rgb(255 255 255 / 0.95),
@@ -225,6 +407,19 @@
     0 0 0 2px rgb(255 255 255 / 1),
     0 0 0 4px rgb(26 92 255 / 1),
     0 0 18px rgb(26 92 255 / 0.3);
+}
+
+/* Reduced motion: the state still CHANGES — the ring, the gloss and the
+   contrast are information about what is interactive — but nothing travels
+   and nothing lifts. */
+@media (prefers-reduced-motion: reduce) {
+  .skin,
+  .cta:hover .skin {
+    transform: none;
+  }
+  .cta:hover .skin::after {
+    animation: none;
+  }
 }
 
 /* TABLETS AND PHONES. The canvas keeps a hero's height — 540px on tablets,

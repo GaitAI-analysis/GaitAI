@@ -143,6 +143,18 @@ export default function SecureVisionPage() {
         </div>
       </section>
 
+      {/* SIGNALS — directly under the hero, so the first thing after the
+          footage is the vocabulary the footage was demonstrating: what
+          SecureVision reads from every movement. The list is the canonical
+          taxonomy, not a local copy. */}
+      <MovementIntelligenceSection
+        id="securevision-intelligence-title"
+        eyebrow="SECUREVISION INTELLIGENCE"
+        emphasis="every movement."
+        description="From gait identity and movement patterns to unusual behaviour and safety events — SecureVision turns human-motion signals into privacy-aware, actionable insight."
+        rowOne={secureSignals}
+      />
+
       {/* GOVERNANCE NOTE */}
       <section className="border-y border-white/[0.06] bg-obsidian-300/40 py-6">
         <div className="container-wide">
@@ -476,13 +488,6 @@ export default function SecureVisionPage() {
         </div>
       </section>
 
-      <MovementIntelligenceSection
-        id="securevision-intelligence-title"
-        eyebrow="SECUREVISION INTELLIGENCE"
-        emphasis="every movement."
-        description="From gait identity and movement patterns to unusual behaviour and safety events — SecureVision turns human-motion signals into privacy-aware, actionable insight."
-        rowOne={secureSignals}
-      />
     </>
   );
 }

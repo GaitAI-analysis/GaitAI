@@ -1654,3 +1654,39 @@
   margin-top: 0;
   min-height: 0;
 }
+
+/* =========================================================================
+   LIGHT EDITION — the stage scrub as an instrument rail (journal cards only)
+   ========================================================================= */
+:global(.light .journal-card) .scrubLine {
+  height: 1.5px;
+  background: rgb(30 58 95 / 0.3);
+}
+:global(.light .journal-card) .scrubFill {
+  height: 2.5px;
+  background: linear-gradient(90deg, #0b6b86, #1b4ed9);
+}
+:global(.light .journal-card) .scrubTick {
+  background: rgb(30 58 95 / 0.32);
+}
+:global(.light .journal-card) .scrubTickOn {
+  background: #0b6b86;
+}
+:global(.light .journal-card) .scrubKnob {
+  background: #ffffff;
+  border: 2px solid #0b6b86;
+  box-shadow:
+    0 0 0 4px rgb(11 107 134 / 0.16),
+    0 2px 6px -1px rgb(15 23 42 / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 1);
+}
+:global(.light .journal-card) .scrubTrack:focus-visible {
+  box-shadow: 0 0 0 2px #0b6b86;
+}
+:global(.light .journal-card) .scrubLabel {
+  color: #3b4f68;
+}
+:global(.light .journal-card) .scrubLabel:hover,
+:global(.light .journal-card) .scrubLabelOn {
+  color: #0b1220;
+}

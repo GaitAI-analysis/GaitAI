@@ -40,8 +40,8 @@ const MARGIN = 8;
 /* The copy above the pill, as multiples of the pill's own box: the eyebrow
    sits about 1.8–1.9 pill-heights above the pill, and the longest line
    ("Privacy-aware intelligence.") ends about 1.2 pill-widths from its left
-   edge, in both themes. */
-const COPY_WIDTH_FACTOR = 1.3;
+   edge, in both themes. Both factors carry a margin. */
+const COPY_WIDTH_FACTOR = 1.4;
 const COPY_ABOVE_FACTOR = 2.1;
 
 function launcherOffset(viewportWidth: number) {

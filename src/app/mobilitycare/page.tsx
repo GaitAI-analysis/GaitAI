@@ -59,6 +59,16 @@ export default function MobilityCarePage() {
       {/* HERO — full-viewport canvas, same visual language as the homepage */}
       <MobilityCareHero />
 
+      {/* SIGNALS — directly under the hero: what MobilityCare reads from
+          every step, from the canonical taxonomy. */}
+      <MovementIntelligenceSection
+        id="mobilitycare-intelligence-title"
+        eyebrow="MOBILITYCARE INTELLIGENCE"
+        emphasis="every step."
+        description="From gait, balance and mobility change to rehabilitation progress and fall-risk insight — MobilityCare turns human-movement signals into clinically useful, actionable intelligence."
+        rowOne={mobilitySignals}
+      />
+
       {/* PRODUCT GRID */}
       <section id="products" className="section bg-obsidian-300/40">
         <div className="container-wide">
@@ -439,13 +449,6 @@ export default function MobilityCarePage() {
         </div>
       </section>
 
-      <MovementIntelligenceSection
-        id="mobilitycare-intelligence-title"
-        eyebrow="MOBILITYCARE INTELLIGENCE"
-        emphasis="every step."
-        description="From gait, balance and mobility change to rehabilitation progress and fall-risk insight — MobilityCare turns human-movement signals into clinically useful, actionable intelligence."
-        rowOne={mobilitySignals}
-      />
     </>
   );
 }

@@ -103,9 +103,11 @@ export function MovementIntelligenceSection({
   return (
     <section
       aria-labelledby={id}
-      className="relative overflow-hidden border-y border-white/5 bg-obsidian-300/40 py-16 sm:py-20 lg:py-24"
+      /* Sits directly under each product hero, so the padding is a beat, not a
+         section break: the hero's edge is the divider. */
+      className="relative overflow-hidden border-y border-white/5 bg-obsidian-300/40 py-12 sm:py-14 lg:py-16"
     >
-      <div className="container-wide mb-8 text-center">
+      <div className="container-wide mb-7 text-center">
         <span className="eyebrow inline-flex items-center gap-2">
           <span className="h-1 w-6 rounded-full bg-gradient-brand" />
           {eyebrow}

@@ -62,7 +62,20 @@ python scripts/theme-media/render_light.py --only stage-02
 
 `render_light.py` refuses a light film whose dimensions, frame count, frame rate
 or duration differ from the dark one. Posters are the first frame of the light
-film.
+film, cut to the dark poster's exact pixel size (`--posters-only` re-cuts them).
+
+## Proving parity
+
+```
+python scripts/theme-media/verify_parity.py
+```
+
+Samples every pair at 0 / 25 / 50 / 75 / 100 % of the timeline, compares
+Sobel edge maps (edge IoU and edge correlation — geometry) against raw
+luminance correlation (palette), and fails if a pair's geometry or timing
+differs or its edge IoU drops below 0.6. Current pairs score 0.73–0.95 edge
+IoU with 0.95–0.99 edge correlation and strongly negative luminance
+correlation: same drawing, opposite palette.
 
 ## Adding a new video
 

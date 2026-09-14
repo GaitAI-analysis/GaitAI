@@ -57,3 +57,6 @@ public/ask/config.json
 # Browser-audit screenshots and partial runs (278 MB per full run); results.json/issues.json stay tracked
 docs/audit/browser/*.png
 docs/audit/browser/results.partial.json
+
+# Python bytecode from scripts/theme-media
+__pycache__/

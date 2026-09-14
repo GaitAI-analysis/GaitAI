@@ -138,15 +138,22 @@ def render_video(job: dict, work: Path, root: Path):
     if not same:
         raise SystemExit(1)
 
-    poster = job.get("poster")
-    if poster:
-        poster_dark = root / poster
-        poster_light = light_path(poster_dark)
-        subprocess.run(
-            ["ffmpeg", "-v", "error", "-y", "-i", str(light), "-frames:v", "1", "-q:v", "2", str(poster_light)],
-            check=True,
-        )
-        print(f"  {poster_light.name}: first frame of the light film, {poster_light.stat().st_size // 1024} KB")
+    if job.get("poster"):
+        render_poster(job, light, root)
+
+
+def render_poster(job: dict, light: Path, root: Path):
+    """The light poster is the light film's first frame at the DARK poster's
+    exact pixel size, so the two posters are the same image in two palettes."""
+    poster_dark = root / job["poster"]
+    poster_light = light_path(poster_dark)
+    w, h = Image.open(poster_dark).size
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-y", "-i", str(light), "-frames:v", "1",
+         "-vf", f"scale={w}:{h}:flags=lanczos", "-q:v", "2", str(poster_light)],
+        check=True,
+    )
+    print(f"  {poster_light.name}: first light frame at {w}x{h} (the dark poster's size), {poster_light.stat().st_size // 1024} KB")
 
 
 def render_image(job: dict, work: Path, root: Path):
@@ -168,6 +175,7 @@ def main():
     ap.add_argument("--only", default=None, help="substring of the dark path")
     ap.add_argument("--images-only", action="store_true")
     ap.add_argument("--videos-only", action="store_true")
+    ap.add_argument("--posters-only", action="store_true", help="re-cut posters from existing light films")
     args = ap.parse_args()
 
     if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
@@ -177,6 +185,11 @@ def main():
     jobs = json.loads(Path(args.jobs).read_text(encoding="utf-8"))
 
     sel = lambda j: (args.only is None) or (args.only in j["dark"])  # noqa: E731
+    if args.posters_only:
+        for job in filter(sel, jobs.get("videos", [])):
+            if job.get("poster"):
+                render_poster(job, light_path(ROOT / job["dark"]), ROOT)
+        return
     if not args.images_only:
         for job in filter(sel, jobs.get("videos", [])):
             render_video(job, work, ROOT)

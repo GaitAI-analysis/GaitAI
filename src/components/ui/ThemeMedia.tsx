@@ -178,10 +178,19 @@ export function ThemeVideo(props: ThemeVideoProps) {
       node.load();
       return;
     }
+    /* Everything the visitor could perceive about playback survives the
+       swap: playhead, playing/paused, muted, rate and loop. `load()` resets
+       the rate to the default, so it is put back explicitly. */
     const resumeAt = node.currentTime;
     const wasPlaying = current !== "" && !node.paused && !node.ended;
+    const rate = node.playbackRate;
+    const muted = node.muted;
+    const loop = node.loop;
     node.setAttribute("src", target);
     node.load();
+    node.muted = muted;
+    node.loop = loop;
+    node.playbackRate = rate;
     if (resumeAt > 0 || wasPlaying) {
       /* Seek as soon as the duration is known. A host without Range support
          clamps that seek to what is buffered, so check again once the file

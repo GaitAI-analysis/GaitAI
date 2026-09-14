@@ -111,6 +111,12 @@
   height: 100%;
   object-fit: cover;
   object-position: var(--pos-narrow, 50% 50%);
+  /* A 4% zoom on the media alone: the strip, its fade edges, the copy and
+     the controls do not move. Scaled about the same point the crop is
+     positioned on, so the subject stays where the frame's `pos` put them.
+     Sits between the earlier full-height crop and the wide one. */
+  transform: scale(1.04);
+  transform-origin: var(--pos-narrow, 50% 50%);
 }
 
 /* Match the image's cover crop exactly, including narrow-screen positioning.
@@ -124,6 +130,7 @@
 @media (min-width: 768px) {
   .img {
     object-position: var(--pos, 50% 50%);
+    transform-origin: var(--pos, 50% 50%);
   }
 }
 

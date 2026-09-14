@@ -210,21 +210,20 @@ export const themeMedia = {
     height: 540,
   },
 
-  /* ── Homepage hero: one finished banner per theme ───────────────────────
-     Two hand-finished compositions from the site owner — GaitAI |
-     MobilityCare | SecureVision in one frame, each carrying its own
-     headline, panels and calls to action — shown whole, never cropped or
-     re-graded. The light file is not a re-ink of the dark one; it is its
-     own artwork, so the two differ by a few pixels in size (1916×821 vs
-     1899×828) and the hero reserves each theme's own aspect ratio. The
-     retained PNG masters live in design-references/hero-source/. */
+  /* ── Homepage hero: the approved final artwork, one file per theme ─────
+     GaitAI | MobilityCare | SecureVision as three panels in a 2160×364
+     strip, headline, sublines and the three calls to action set inside the
+     picture. Used exactly as supplied (PNG, no recompression); the same
+     dimensions in both themes, so one aspect ratio serves both. The three
+     buttons in the artwork are made real by positioned links in
+     `sections/Hero.tsx`, placed as percentages of this canvas. */
   platformHero: {
     kind: "pair",
     type: "image",
-    dark: "/images/hero/gaitai-platform-dark.webp",
-    light: "/images/hero/gaitai-platform-light.webp",
-    width: 1916,
-    height: 821,
+    dark: "/images/home/gaitai-hero-dark.png",
+    light: "/images/home/gaitai-hero-light.png",
+    width: 2160,
+    height: 364,
   },
 
   /* ── Product wordmarks ──────────────────────────────────────────────────── */

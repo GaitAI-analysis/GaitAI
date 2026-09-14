@@ -1,33 +1,39 @@
+import Link from "next/link";
 import { ThemeImage } from "@/components/ui/ThemeMedia";
 import styles from "./hero.module.css";
 
 /**
- * THE HOMEPAGE HERO — one finished banner, shown whole.
+ * THE HOMEPAGE HERO — the approved artwork, with its three buttons made real.
  * =============================================================================
- * The site owner supplied two hand-finished compositions, one per theme:
- * GaitAI | MobilityCare | SecureVision as three panels in a single frame,
- * with the platform headline, the product questions and the three calls to
- * action already set inside the artwork. Nothing is drawn over it — no second
- * headline, no CTA, no pose graphics — and the artwork is never cropped,
- * re-graded or regenerated. The only thing above it is the global navbar.
+ * One 2160×364 composition per theme: GaitAI | MobilityCare | SecureVision as
+ * three panels, headline, sublines and three calls to action all set inside
+ * the picture. It is shown whole and unaltered — no crop, no zoom, no second
+ * headline, no logo or navigation of its own; the global navbar above it is
+ * the only chrome. `ThemeImage` picks the theme's file before first paint and
+ * swaps it on the toggle without a reload.
  *
- * ONE HERO, TWO FILES. `ThemeImage` resolves the theme's file before paint
- * (an inline bootstrap reads `html.light`), swaps it on the theme toggle
- * without a reload, and requests exactly one image. The three-frame slider,
- * its arrows, dots, autoplay control and per-frame assets are gone.
+ * THE BUTTONS ARE LINKS. The three pills in the artwork are covered by real
+ * anchors, positioned as PERCENTAGES of the canvas (see hero.module.css), so
+ * they track the picture at every width instead of drifting with a pixel
+ * offset. They render no text of their own — the artwork already carries it
+ * — and expose it through `aria-label`; the focus ring is drawn on the pill's
+ * own outline. Their targets:
  *
- * SIZING. Full available width, `height: auto`, and the theme's own aspect
- * ratio reserved in CSS so the box is laid out before the bytes arrive (no
- * CLS). No `cover`: every panel carries meaning, so the composition is never
- * cut. Below 768px the whole banner would shrink to ~160px tall and its type
- * to a few pixels, so there it keeps a readable width inside a horizontal
- * pan that snaps to the three panels — nothing is cropped away, and the page
- * itself never scrolls sideways (`overscroll-behavior-x: contain`).
+ *   Explore GaitAI        → /#overview
+ *   Explore MobilityCare  → /mobilitycare/
+ *   Explore SecureVision  → /securevision/
  *
- * THE HEADLINE IS IN THE PICTURE, so the document keeps a real `<h1>` that
- * says the same words for assistive technology and for search, visually
- * hidden. The image's own alt names the three panels.
+ * ACCESSIBILITY. The copy lives in the pixels, so the document keeps a real,
+ * visually hidden heading and subline saying the same thing. The image itself
+ * is marked decorative (`alt=""`) so the headline is announced once, not
+ * twice; the pose points and scene are not described — they are decoration.
  */
+const CTAS = [
+  { id: "gaitai", href: "/#overview", label: "Explore GaitAI" },
+  { id: "mobilitycare", href: "/mobilitycare/", label: "Explore MobilityCare" },
+  { id: "securevision", href: "/securevision/", label: "Explore SecureVision" },
+] as const;
+
 export function Hero() {
   return (
     <section
@@ -36,17 +42,37 @@ export function Hero() {
       className={`relative w-full ${styles.hero}`}
     >
       <h1 id="home-hero-title" className="sr-only">
-        One movement intelligence platform for health, safety and identity —
+        One movement intelligence platform for health, safety and identity.
         GaitAI, MobilityCare and SecureVision.
       </h1>
+      <p className="sr-only">
+        From everyday movement to meaningful insight — GaitAI: movement,
+        understood. MobilityCare: better movement, better care. SecureVision:
+        safer spaces, privacy-aware intelligence.
+      </p>
+
       <div className={styles.frame}>
-        <ThemeImage
-          mediaKey="platformHero"
-          alt="GaitAI movement intelligence platform: three panels — GaitAI, asking what movement can tell us before we can see it; MobilityCare, earlier insight and healthier tomorrows; SecureVision, safer spaces and more human tomorrows."
-          priority
-          sizes="100vw"
-          className={styles.img}
-        />
+        <div className={styles.canvas}>
+          <ThemeImage
+            mediaKey="platformHero"
+            alt=""
+            priority
+            sizes="100vw"
+            className={styles.img}
+          />
+          {/* The three calls to action, over the pills in the picture. */}
+          <nav aria-label="Explore the platform" className={styles.ctas}>
+            {CTAS.map((cta) => (
+              <Link
+                key={cta.id}
+                href={cta.href}
+                aria-label={cta.label}
+                data-cta={cta.id}
+                className={styles.cta}
+              />
+            ))}
+          </nav>
+        </div>
       </div>
     </section>
   );

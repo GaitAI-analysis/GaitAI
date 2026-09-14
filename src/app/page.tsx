@@ -147,8 +147,8 @@ export default function HomePage() {
       <link
         rel="preload"
         as="image"
-        href="/images/hero/gaitai-platform-dark.webp"
-        type="image/webp"
+        href="/images/home/gaitai-hero-dark.png"
+        type="image/png"
         // @ts-expect-error React 18 types lack fetchPriority on <link>
         fetchpriority="high"
       />

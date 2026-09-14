@@ -1,8 +1,9 @@
 /* ==========================================================================
-   THE HOMEPAGE HERO — one banner, whole
+   THE HOMEPAGE HERO — the approved artwork, whole, with real buttons
    --------------------------------------------------------------------------
-   The artwork is the hero. This file only decides how big it is and how a
-   phone reaches all of it; it never crops, masks, tints or overlays it.
+   This file decides two things only: how big the picture is, and where the
+   three links sit over the pills painted into it. It never crops, masks,
+   tints, zooms or overlays the artwork.
    ========================================================================== */
 
 .hero {
@@ -14,25 +15,122 @@
   width: 100%;
 }
 
-/* Full width, natural height. The aspect ratio is declared per theme so the
-   box exists before the image does — the two files are separate artworks a
-   few pixels apart (1916×821 dark, 1899×828 light). */
+/* THE CANVAS is the picture's own box. The links are positioned as
+   percentages of it, so whatever width the picture takes — 1920 or a panned
+   960 on a phone — the hit areas land on the same painted pixels. */
+.canvas {
+  position: relative;
+  width: 100%;
+}
+
+/* Full width, natural height, one aspect ratio for both themes (the two
+   files are 2160×364). Declared so the box exists before the bytes do. */
 .img {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1916 / 821;
+  aspect-ratio: 2160 / 364;
 }
 
-:global(.light) .img {
-  aspect-ratio: 1899 / 828;
+/* ── The three calls to action ──────────────────────────────────────────────
+   Each anchor is a transparent pill over the painted one. Its geometry is a
+   percentage of the canvas, measured from the artwork: the two themes place
+   the pills a few pixels apart, so light carries its own values. The box is
+   the pill plus a hair of margin, so the focus ring reads as the button's own
+   outline lit up. */
+.ctas {
+  --cta-g-left: 3.3%;
+  --cta-g-top: 73%;
+  --cta-g-width: 9.9%;
+  --cta-g-height: 18.5%;
+
+  --cta-m-left: 37.2%;
+  --cta-m-top: 78.6%;
+  --cta-m-width: 11%;
+  --cta-m-height: 15%;
+
+  --cta-s-left: 68.3%;
+  --cta-s-top: 78.6%;
+  --cta-s-width: 11.2%;
+  --cta-s-height: 15%;
+
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
-/* PHONES: a readable banner you pan, not a shrunken one you squint at.
-   Below 768px the full composition would be ~160px tall. It keeps a 960px
-   width instead — about 410px tall — inside a horizontal pan that snaps to
-   the panel boundaries. Nothing is cut away; the page itself never scrolls
-   sideways. */
+:global(.light) .ctas {
+  --cta-g-top: 74.1%;
+  --cta-g-width: 9.7%;
+  --cta-m-top: 77.5%;
+  --cta-m-height: 16.2%;
+  --cta-s-top: 77.5%;
+  --cta-s-height: 16.2%;
+}
+
+.cta {
+  position: absolute;
+  display: block;
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 999px;
+  outline: none;
+  /* Transparent at rest: the artwork IS the button. Hover lifts the pill's
+     own outline a touch; focus draws a real ring on it. */
+  box-shadow: 0 0 0 0 rgb(79 209 255 / 0);
+  transition: box-shadow 200ms ease;
+}
+.cta[data-cta="gaitai"] {
+  left: var(--cta-g-left);
+  top: var(--cta-g-top);
+  width: var(--cta-g-width);
+  height: var(--cta-g-height);
+}
+.cta[data-cta="mobilitycare"] {
+  left: var(--cta-m-left);
+  top: var(--cta-m-top);
+  width: var(--cta-m-width);
+  height: var(--cta-m-height);
+}
+.cta[data-cta="securevision"] {
+  left: var(--cta-s-left);
+  top: var(--cta-s-top);
+  width: var(--cta-s-width);
+  height: var(--cta-s-height);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    box-shadow:
+      0 0 0 1.5px rgb(79 209 255 / 0.7),
+      0 0 18px rgb(79 209 255 / 0.35);
+  }
+  :global(.light) .cta:hover {
+    box-shadow:
+      0 0 0 1.5px rgb(14 116 144 / 0.75),
+      0 0 16px rgb(14 116 144 / 0.25);
+  }
+}
+
+.cta:focus-visible {
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 0.95),
+    0 0 0 4px rgb(79 209 255 / 0.95),
+    0 0 22px rgb(79 209 255 / 0.45);
+}
+:global(.light) .cta:focus-visible {
+  box-shadow:
+    0 0 0 2px rgb(255 255 255 / 1),
+    0 0 0 4px rgb(14 116 144 / 1),
+    0 0 18px rgb(14 116 144 / 0.3);
+}
+
+/* PHONES. At full width the 5.9:1 strip would be ~60px tall and its pills a
+   few pixels high. Below 768px the canvas keeps a 960px width — roughly 160px
+   tall, pills ~26px — inside a horizontal pan that snaps to the three panels.
+   The links pan with the canvas, so they stay on their pills; the page itself
+   never scrolls sideways. */
 @media (max-width: 767px) {
   .frame {
     overflow-x: auto;
@@ -45,9 +143,11 @@
   .frame::-webkit-scrollbar {
     display: none;
   }
-  .img {
+  .canvas {
     width: 960px;
     max-width: none;
+  }
+  .img {
     scroll-snap-align: start;
   }
 }

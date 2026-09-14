@@ -21,8 +21,8 @@
    Whenever the frame is shorter than the picture, the picture keeps its
    ratio and the frame crops the slack cover-fashion, biased towards the top
    (72/28): the ceiling glass gives way first, the floor under the pills
-   last. Measured on the light file, the tighter of the two, the 40vw floor
-   keeps 41px (of 887) above the headline and 15px under the pills.
+   last. At the 40vw floor the cut keeps 31px (of 887) above the dark
+   headline, 41px above the light one, and 15–23px under the pills.
 
    Below 1024px the ratio would make the hero a strip (768 → 384px), so the
    canvas keeps a real height instead and pans sideways — the same treatment
@@ -126,27 +126,27 @@
 /* ── The three calls to action ──────────────────────────────────────────────
    Each anchor is a transparent pill over the painted one. Its geometry is a
    percentage of the canvas, measured from the artwork (px of 1774×887, plus
-   ~3px of margin): the two themes place the pills a different height up the
-   picture, so light carries its own values. The box is the pill plus a hair
+   ~3px of margin): the two themes place the pills a few pixels apart, so
+   light carries its own values. The box is the pill plus a hair
    of margin, so the focus ring reads as the button's own outline lit up.
 
-     dark   GaitAI 63,689–305,750  MobilityCare 687,717–964,772  SecureVision 1252,718–1534,774
+     dark   GaitAI 63,760–293,814  MobilityCare 667,761–949,813  SecureVision 1225,762–1498,814
      light  GaitAI 63,769–289,822  MobilityCare 607,770–883,822  SecureVision 1190,770–1473,822 */
 .ctas {
   --cta-g-left: 3.38%;
-  --cta-g-top: 77.3%;
-  --cta-g-width: 13.85%;
-  --cta-g-height: 7.6%;
+  --cta-g-top: 85.35%;
+  --cta-g-width: 13.3%;
+  --cta-g-height: 6.76%;
 
-  --cta-m-left: 38.55%;
-  --cta-m-top: 80.5%;
-  --cta-m-width: 15.95%;
-  --cta-m-height: 6.9%;
+  --cta-m-left: 37.43%;
+  --cta-m-top: 85.46%;
+  --cta-m-width: 16.23%;
+  --cta-m-height: 6.54%;
 
-  --cta-s-left: 70.4%;
-  --cta-s-top: 80.6%;
-  --cta-s-width: 16.25%;
-  --cta-s-height: 7%;
+  --cta-s-left: 68.88%;
+  --cta-s-top: 85.57%;
+  --cta-s-width: 15.73%;
+  --cta-s-height: 6.54%;
 
   position: absolute;
   inset: 0;

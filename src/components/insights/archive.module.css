@@ -943,3 +943,43 @@
   color: var(--jr-body);
   letter-spacing: 0.18em;
 }
+
+/* =========================================================================
+   LIGHT EDITION — masthead and utilities as printed instrument chrome
+   ========================================================================= */
+:global(.light) .archive {
+  --jr-ink: var(--light-graphite, #0b1220);
+  --jr-body: var(--light-slate, #2b3a4f);
+  --jr-mute: var(--light-meta, #4a5f7a);
+  --jr-line: rgb(30 58 95 / 0.14);
+  --jr-line-mid: rgb(30 58 95 / 0.24);
+}
+:global(.light) .mastheadAccent {
+  background: linear-gradient(135deg, #0e7490 0%, #1b4ed9 52%, #5f25bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+:global(.light) .featuredLabel {
+  color: var(--light-meta, #4a5f7a);
+}
+/* Search and the topics button: ceramic fields with an inner highlight, a
+   blue-grey optical border and a sapphire focus ring. */
+:global(.light) .search,
+:global(.light) .menuButton {
+  background: linear-gradient(180deg, #ffffff, #f8fafc);
+  border-color: var(--light-optical-border, rgba(30, 58, 95, 0.16));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 1px 2px rgb(15 23 42 / 0.05);
+  color: var(--light-graphite, #0b1220);
+}
+:global(.light) .search:hover,
+:global(.light) .menuButton:hover {
+  border-color: var(--light-optical-border-strong, rgba(30, 58, 95, 0.26));
+}
+:global(.light) .search:focus {
+  border-color: var(--light-cyan, #0e7490);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 0 0 3px rgb(14 116 144 / 0.18);
+}
+:global(.light) .menuPanel {
+  border-color: var(--light-optical-border, rgba(30, 58, 95, 0.16));
+  box-shadow: var(--light-shadow-lift);
+}

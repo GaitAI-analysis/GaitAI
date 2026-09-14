@@ -6593,3 +6593,96 @@ body {
 .light .featured-tabs { background: rgba(10, 18, 40, 0.92); }
 .light .env-more-button { color: #0e7490; }
 .light .env-column--secure .env-more-button { color: #1d4ed8; }
+
+/* =========================================================================
+   LIGHT THEME — "LUMINOUS MOVEMENT LABORATORY" TOKENS
+   -------------------------------------------------------------------------
+   A second visual architecture, not the dark one with the colours swapped.
+   Everything in this block is scoped to `:root.light`; nothing here can reach
+   a dark render. Dark's motion tokens (--motion-*) and its glow/shine system
+   are untouched and remain the only thing dark reads.
+
+   Surface language: pearl and polished ceramic with a thin optical border,
+   a cool sapphire depth shadow, a faint cyan reflection along the top edge
+   and a warm specular pin-highlight. Depth is always present; hover adds a
+   glass glare sweep, an edge refraction and a 2px lift — never the dark
+   travelling neon.
+   ========================================================================= */
+:root.light {
+  /* Fields */
+  --light-pearl: #f7f8fb;
+  --light-pearl-deep: #eef2f8;
+  --light-ceramic: #ffffff;
+  --light-glass: rgba(255, 255, 255, 0.74);
+
+  /* Ink */
+  --light-graphite: #0b1220;
+  --light-slate: #2b3a4f;
+  --light-meta: #4a5f7a;
+
+  /* Accents */
+  --light-cyan: #0e7490;
+  --light-cyan-deep: #0b5f75;
+  --light-sapphire: #1b4ed9;
+  --light-violet: #5f25bf;
+  --light-gold: #8a6320;
+
+  /* Optics */
+  --light-optical-border: rgba(30, 58, 95, 0.16);
+  --light-optical-border-strong: rgba(30, 58, 95, 0.26);
+  --light-edge-reflection: rgba(14, 116, 144, 0.55);
+  --light-specular: rgba(255, 255, 255, 0.85);
+  --light-warm-glint: rgba(255, 244, 222, 0.9);
+
+  /* Shadow system: an inner ceramic highlight, a sapphire depth shadow and a
+     tight contact shadow. Rest is already dimensional; lift deepens it. */
+  --light-shadow-rest:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    0 12px 30px -18px rgba(27, 78, 217, 0.22),
+    0 2px 6px -2px rgba(15, 23, 42, 0.08);
+  --light-shadow-lift:
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+    0 24px 48px -24px rgba(27, 78, 217, 0.32),
+    0 8px 16px -8px rgba(15, 23, 42, 0.14);
+  --light-shadow-nav:
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    0 12px 32px -20px rgba(27, 78, 217, 0.28),
+    0 1px 2px 0 rgba(15, 23, 42, 0.06);
+
+  /* Motion — independent of the dark tokens by design. */
+  --light-motion-specular: 560ms;
+  --light-motion-depth: 380ms;
+  --light-motion-refraction: 420ms;
+  --light-motion-highlight: 300ms;
+  --light-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root.light {
+    --light-motion-specular: 1ms;
+    --light-motion-depth: 1ms;
+    --light-motion-refraction: 1ms;
+    --light-motion-highlight: 1ms;
+  }
+}
+
+/* ── Navigation, light edition (Insights first) ──
+   The dark pill is frozen. On the journal the light pill becomes polished
+   ceramic: near-opaque pearl, a blue-grey optical border, a ceramic inner
+   highlight and a soft sapphire shadow beneath. The active underline and the
+   hover underline are re-inked to the light accents; their geometry and
+   timing are the shared ones. Scoped to the hub and article pages until the
+   light architecture rolls out. */
+:root.light body:has(.insights-hub, .insights-page) .site-header .glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(247, 249, 252, 0.9));
+  border-color: var(--light-optical-border);
+  box-shadow: var(--light-shadow-nav);
+}
+:root.light body:has(.insights-hub, .insights-page) .site-header .bg-gradient-to-r {
+  background-image: linear-gradient(90deg, var(--light-cyan), var(--light-sapphire), var(--light-violet));
+}
+:root.light body:has(.insights-hub, .insights-page) .site-header a[aria-current="page"] {
+  color: var(--light-graphite);
+}

@@ -495,3 +495,74 @@
 .ghostHead {
   display: none;
 }
+
+/* =========================================================================
+   LIGHT EDITION — figure inks on the journal's cards
+   -------------------------------------------------------------------------
+   Scoped to `.journal-card` (the hub's cover story and listing cards), so the
+   article-page figures are not changed in this pass. Printed-instrument
+   contrast: graphite bones, deep-cyan joints and traces, ink labels — never
+   ghosted. Dark inks are untouched.
+   ========================================================================= */
+:global(.light .journal-card) .bone {
+  stroke: #111a2b;
+}
+:global(.light .journal-card) .boneFar {
+  opacity: 0.5;
+}
+:global(.light .journal-card) .head {
+  stroke: #111a2b;
+}
+:global(.light .journal-card) .joint {
+  fill: #0b6b86;
+  stroke: #ffffff;
+  stroke-width: 1.2;
+}
+:global(.light .journal-card) .contact {
+  fill: #0b6b86;
+  opacity: 0.35;
+}
+:global(.light .journal-card) .trace {
+  stroke: #0b6b86;
+  stroke-width: 1.6;
+}
+:global(.light .journal-card) .traceViolet {
+  stroke: #5b21b6;
+}
+:global(.light .journal-card) .traceRoyal {
+  stroke: #1b4ed9;
+}
+:global(.light .journal-card) .traceTeal {
+  stroke: #0f766e;
+}
+:global(.light .journal-card) .ghost {
+  opacity: 0.32;
+}
+:global(.light .journal-card) .ground {
+  stroke: rgb(30 58 95 / 0.32);
+}
+:global(.light .journal-card) .frame {
+  stroke: rgb(30 58 95 / 0.3);
+}
+:global(.light .journal-card) .frameAccent {
+  stroke: #0b6b86;
+}
+:global(.light .journal-card) .node {
+  stroke: #0b6b86;
+}
+:global(.light .journal-card) .nodeFill {
+  fill: #0b6b86;
+}
+:global(.light .journal-card) .label {
+  fill: #3b4f68;
+}
+:global(.light .journal-card) .labelInk {
+  fill: #0b1220;
+}
+:global(.light .journal-card) .labelAccent {
+  fill: #0b6b86;
+}
+:global(.light .journal-card) .mass {
+  fill: rgb(30 58 95 / 0.14);
+  stroke: rgb(30 58 95 / 0.4);
+}

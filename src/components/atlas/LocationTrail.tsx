@@ -109,10 +109,14 @@ export function LocationTrail() {
     };
   }, [pathname]);
 
-  /* The two places the strip would be noise rather than orientation: the
-     admin console, which is not part of the public site, and a 404, which has
-     no location by definition. */
+  /* The places the strip would be noise rather than orientation: the admin
+     console, which is not part of the public site; a 404, which has no
+     location by definition; and the homepage, where the trail is the single
+     root node — "GaitAI, you are here" under the GaitAI navbar says nothing,
+     and the row it occupied held the hero 27px off the header. The Atlas is
+     still one click away there through the navbar's own button. */
   if (pathname.startsWith("/admin-controlpanel")) return null;
+  if (pathname === "/") return null;
 
   const trail = atlasTrail(pathname);
   const current = trail[trail.length - 1];

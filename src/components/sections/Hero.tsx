@@ -19,7 +19,7 @@ import styles from "./hero.module.css";
  * — and expose it through `aria-label`; the focus ring is drawn on the pill's
  * own outline. Their targets:
  *
- *   Explore GaitAI        → /#overview
+ *   Explore GaitAI        → /#overview  (an anchor at the foot of the hero)
  *   Explore MobilityCare  → /mobilitycare/
  *   Explore SecureVision  → /securevision/
  *
@@ -74,6 +74,8 @@ export function Hero() {
           </nav>
         </div>
       </div>
+      {/* The `/#overview` target — see .anchor in hero.module.css. */}
+      <span id="overview" aria-hidden="true" className={styles.anchor} />
     </section>
   );
 }

@@ -10,6 +10,30 @@
   background: var(--bg);
 }
 
+/* THE HAND-OFF TO THE NEXT SECTION. The section under the hero opens with
+   the "Building the future of human movement intelligence." pill, and it
+   carries the page's standard top padding (80/96/112px). Under a picture
+   that already reads as a complete statement that read as the page
+   stopping, so the hero closes the gap to 48–72px itself — a sibling rule
+   here, scoped to the one section that follows it, rather than a change to
+   that section's own layout. The id outranks the utility classes. */
+.hero + :global(#platform-verticals) {
+  padding-top: clamp(3rem, 5vw, 4.5rem);
+}
+
+/* `/#overview` lands here: the foot of the hero, so the page scrolls to the
+   line where the next section begins. The old wrapper that carried this id
+   was retired with the section rail; the link in the artwork still names
+   it, so the hero provides it. */
+.anchor {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  scroll-margin-top: var(--header-clearance);
+}
+
 .frame {
   display: block;
   width: 100%;

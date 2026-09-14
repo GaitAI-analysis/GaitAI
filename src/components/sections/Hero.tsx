@@ -1,118 +1,53 @@
-"use client";
-
-import { productCount } from "@/data/products";
-import { TryGaitAI } from "@/components/home/TryGaitAI";
-import { HeroSlider, type HeroFrame } from "./HeroSlider";
-import styles from "./heroSlider.module.css";
+import { ThemeImage } from "@/components/ui/ThemeMedia";
+import styles from "./hero.module.css";
 
 /**
- * THE HOMEPAGE HERO — three approved frames behind live copy.
+ * THE HOMEPAGE HERO — one finished banner, shown whole.
+ * =============================================================================
+ * The site owner supplied two hand-finished compositions, one per theme:
+ * GaitAI | MobilityCare | SecureVision as three panels in a single frame,
+ * with the platform headline, the product questions and the three calls to
+ * action already set inside the artwork. Nothing is drawn over it — no second
+ * headline, no CTA, no pose graphics — and the artwork is never cropped,
+ * re-graded or regenerated. The only thing above it is the global navbar.
  *
- * The background is `HeroSlider`, cycling the three bands cut from the
- * approved artwork in `public/images/hero/`. Everything a visitor reads here
- * is HTML: the three frames' copy lives in `FRAMES` below and is what to edit
- * when the words change. `HeroMotionBackground` — the WebGL walk this section
- * carried before — is untouched and still renders behind /research/talks.
+ * ONE HERO, TWO FILES. `ThemeImage` resolves the theme's file before paint
+ * (an inline bootstrap reads `html.light`), swaps it on the theme toggle
+ * without a reload, and requests exactly one image. The three-frame slider,
+ * its arrows, dots, autoplay control and per-frame assets are gone.
  *
- * The frames' copy is the copy painted into the approved artwork, made live:
- * the same eyebrow, headline (with its one accented phrase), sub-line and CTA
- * per frame. The demo and the evidence line are constant across frames and
- * are passed in beneath the CTA.
+ * SIZING. Full available width, `height: auto`, and the theme's own aspect
+ * ratio reserved in CSS so the box is laid out before the bytes arrive (no
+ * CLS). No `cover`: every panel carries meaning, so the composition is never
+ * cut. Below 768px the whole banner would shrink to ~160px tall and its type
+ * to a few pixels, so there it keeps a readable width inside a horizontal
+ * pan that snaps to the three panels — nothing is cropped away, and the page
+ * itself never scrolls sideways (`overscroll-behavior-x: contain`).
+ *
+ * THE HEADLINE IS IN THE PICTURE, so the document keeps a real `<h1>` that
+ * says the same words for assistive technology and for search, visually
+ * hidden. The image's own alt names the three panels.
  */
-const FRAMES: HeroFrame[] = [
-  {
-    id: "gaitai",
-    image: "gaitai-hero-01",
-    width: 2172,
-    height: 193,
-    /* 39%, from 42%: the central walker stood at x≈990 of 1440, shoulder to
-       shoulder with the end of the headline's first line. Three points shift
-       the window ~100px so he walks in the clear space to the right of the
-       copy. The window's left edge lands at ~27.4% of the band, just past the
-       painted CTA (which ends at ~27.3%), and the left vignette covers the
-       first 7% of the viewport anyway. Narrow screens keep their own crop. */
-    pos: "39% 50%",
-    posNarrow: "49% 50%",
-    /* The walker stood a little large at the default strip; ~12% shorter
-       shows ~30% of the band instead of ~26%, so he is smaller in frame and
-       the 193px source is upscaled ~2.2× instead of ~2.5× — the same pixels,
-       fewer screen pixels each, nothing blurred. */
-    strip: "clamp(52%, 30vw, 100%)",
-    alt: "",
-    short: "GaitAI",
-    eyebrow: "Human movement intelligence",
-    title: (
-      <>
-        <span className={styles.line}>What can movement tell us</span>
-        <span className={styles.line}>
-          <em>before</em> we can see it?
-        </span>
-      </>
-    ),
-    sub: "GaitAI turns everyday movement into intelligence for health, safety and identity.",
-    cta: { label: "Explore GaitAI", href: "/products/" },
-    words: ["Movement", "People", "Health", "Safety", "Identity", "A more inclusive world"],
-    tagline: "Every step holds a brighter tomorrow.",
-  },
-  {
-    id: "mobilitycare",
-    image: "gaitai-hero-02-mobilitycare",
-    width: 2172,
-    height: 193,
-    pos: "38% 50%",
-    posNarrow: "44% 50%",
-    alt: "",
-    short: "MobilityCare",
-    eyebrow: "MobilityCare · Health-first",
-    title: (
-      <>
-        What if walking could signal risk <em>before a fall happens?</em>
-      </>
-    ),
-    sub: "MobilityCare turns movement into actionable insights for early detection, rehabilitation and better outcomes.",
-    cta: { label: "Explore MobilityCare", href: "/mobilitycare/" },
-    words: ["Predict", "Prevent", "Support", "Rehabilitate", "Empower", "Healthier tomorrows"],
-    tagline: "Movement for a better quality of life.",
-  },
-  {
-    id: "securevision",
-    image: "gaitai-hero-03-securevision",
-    overlay: "securevision-event-overlay.svg",
-    width: 2172,
-    height: 194,
-    pos: "52% 50%",
-    posNarrow: "53% 50%",
-    alt: "",
-    short: "SecureVision",
-    eyebrow: "SecureVision · Privacy-first",
-    title: (
-      <>
-        Can movement make physical spaces <em>safer?</em>
-      </>
-    ),
-    sub: "SecureVision brings privacy-aware movement intelligence for public and operational environments.",
-    cta: { label: "Explore SecureVision", href: "/securevision/" },
-    words: ["Detect", "Alert", "Protect", "Respect privacy", "Enable safer spaces", "People-centric AI"],
-    tagline: "Safer spaces for stronger communities.",
-  },
-];
-
 export function Hero() {
   return (
     <section
       id="platform"
       aria-labelledby="home-hero-title"
-      /* No padding here: the slider paints the artwork over the whole section
-         and carries the copy's vertical breathing room itself. */
-      className="site-viewport-section relative w-full overflow-hidden"
+      className={`relative w-full ${styles.hero}`}
     >
-      <HeroSlider frames={FRAMES}>
-        <TryGaitAI />
-        <p className="basis-full pt-1 text-[13px] leading-relaxed text-slate-200/70 sm:text-sm">
-          Clinical mobility and privacy-aware public safety, on one platform —
-          MobilityCare and SecureVision, {productCount} connected modules.
-        </p>
-      </HeroSlider>
+      <h1 id="home-hero-title" className="sr-only">
+        One movement intelligence platform for health, safety and identity —
+        GaitAI, MobilityCare and SecureVision.
+      </h1>
+      <div className={styles.frame}>
+        <ThemeImage
+          mediaKey="platformHero"
+          alt="GaitAI movement intelligence platform: three panels — GaitAI, asking what movement can tell us before we can see it; MobilityCare, earlier insight and healthier tomorrows; SecureVision, safer spaces and more human tomorrows."
+          priority
+          sizes="100vw"
+          className={styles.img}
+        />
+      </div>
     </section>
   );
 }

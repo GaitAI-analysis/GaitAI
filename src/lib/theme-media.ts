@@ -118,6 +118,19 @@ export const themeMedia = {
     island: "Letterboxed inside a card that is dark in both themes.",
   },
 
+  /* ── Homepage hero: one finished banner per theme ───────────────────────
+     Two hand-finished compositions from the site owner — GaitAI |
+     MobilityCare | SecureVision in one frame, each carrying its own
+     headline, panels and calls to action — shown whole, never cropped or
+     re-graded. The light file is its own artwork, a few pixels off the dark
+     one (1916×821 vs 1899×828); the hero reserves each theme's aspect ratio
+     in CSS. PNG masters live in design-references/hero-source/. */
+  platformHero: {
+    kind: "pair",
+    dark: "/images/hero/gaitai-platform-dark.webp",
+    light: "/images/hero/gaitai-platform-light.webp",
+  },
+
   /** Product wordmarks: real pairs, and the one case that already had both. */
   mobilityCareWordmark: {
     kind: "pair",

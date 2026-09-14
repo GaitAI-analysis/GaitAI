@@ -211,19 +211,19 @@ export const themeMedia = {
   },
 
   /* ── Homepage hero: the approved final artwork, one file per theme ─────
-     GaitAI | MobilityCare | SecureVision as three panels in a 2160×364
-     strip, headline, sublines and the three calls to action set inside the
-     picture. Used exactly as supplied (PNG, no recompression); the same
-     dimensions in both themes, so one aspect ratio serves both. The three
-     buttons in the artwork are made real by positioned links in
+     GaitAI | MobilityCare | SecureVision as three panels in a 1774×887
+     (2:1) composition, headline, sublines and the three calls to action set
+     inside the picture. Used exactly as supplied (PNG, no recompression);
+     the same dimensions in both themes, so one aspect ratio serves both.
+     The three buttons in the artwork are made real by positioned links in
      `sections/Hero.tsx`, placed as percentages of this canvas. */
   platformHero: {
     kind: "pair",
     type: "image",
-    dark: "/images/home/gaitai-hero-dark.png",
-    light: "/images/home/gaitai-hero-light.png",
-    width: 2160,
-    height: 364,
+    dark: "/images/hero/gaitai-hero-dark-main.png",
+    light: "/images/hero/gaitai-hero-light-main.png",
+    width: 1774,
+    height: 887,
   },
 
   /* ── Product wordmarks ──────────────────────────────────────────────────── */

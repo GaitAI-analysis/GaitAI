@@ -1,9 +1,24 @@
 /* ==========================================================================
    THE HOMEPAGE HERO — the approved artwork, whole, with real buttons
    --------------------------------------------------------------------------
-   This file decides two things only: how big the picture is, and where the
-   three links sit over the pills painted into it. It never crops, masks,
-   tints, zooms or overlays the artwork.
+   This file decides two things only: how the picture fills the hero, and
+   where the three links sit over the pills painted into it. It never masks,
+   tints, stretches or overlays the artwork.
+
+   THE PICTURE is 1774×887 — exactly 2:1 — in both themes. The hero is that
+   ratio wherever the width allows (1440 → 720px tall, 1280 → 640px), and on
+   wider screens it stops growing at 820px: the picture then keeps its ratio
+   and the frame crops the slack, cover-fashion, biased towards the top
+   (72/28) so the pills at the foot keep their breathing room and the
+   headline keeps its headroom. Measured on the light file, the tighter of
+   the two, nothing painted is lost below ~1980px wide; past that the frame
+   follows 41.5vw so the cut never reaches the text.
+
+   Below 1024px the ratio would make the hero a strip (768 → 384px), so the
+   canvas keeps a real height instead and pans sideways — the same treatment
+   the previous banner used — snapping to the three panels. Every pixel of
+   the picture is still there; the visitor swipes to the second and third
+   panel. The page itself never scrolls sideways.
    ========================================================================== */
 
 .hero {
@@ -34,49 +49,65 @@
   scroll-margin-top: var(--header-clearance);
 }
 
+/* THE FRAME is the hero's visible box: the picture's own 2:1 up to 820px
+   tall, then a cover crop. `min-height` only bites past ~1980px, where it
+   keeps the crop shallow enough to spare the text. */
 .frame {
-  display: block;
-  width: 100%;
-}
-
-/* THE CANVAS is the picture's own box. The links are positioned as
-   percentages of it, so whatever width the picture takes — 1920 or a panned
-   960 on a phone — the hit areas land on the same painted pixels. */
-.canvas {
   position: relative;
   width: 100%;
+  aspect-ratio: 1774 / 887;
+  max-height: 820px;
+  min-height: 41.5vw;
+  overflow: hidden;
 }
 
-/* Full width, natural height, one aspect ratio for both themes (the two
-   files are 2160×364). Declared so the box exists before the bytes do. */
+/* THE CANVAS is the picture's own box, always 2:1, and the links are
+   positioned as percentages of it — so however the frame crops or pans, the
+   hit areas land on the same painted pixels. `top: 72%` with a -72%
+   translate places 72% of any slack above the frame and 28% below it; when
+   frame and canvas are the same height, that is zero. */
+.canvas {
+  position: absolute;
+  left: 0;
+  top: 72%;
+  width: 100%;
+  aspect-ratio: 1774 / 887;
+  transform: translateY(-72%);
+}
+
+/* The picture fills its canvas exactly — no fit, no position: the canvas IS
+   the picture's box, so nothing is ever stretched. Declared so the box
+   exists before the bytes do. */
 .img {
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 2160 / 364;
+  height: 100%;
 }
 
 /* ── The three calls to action ──────────────────────────────────────────────
    Each anchor is a transparent pill over the painted one. Its geometry is a
-   percentage of the canvas, measured from the artwork: the two themes place
-   the pills a few pixels apart, so light carries its own values. The box is
-   the pill plus a hair of margin, so the focus ring reads as the button's own
-   outline lit up. */
+   percentage of the canvas, measured from the artwork (px of 1774×887, plus
+   ~3px of margin): the two themes place the pills a different height up the
+   picture, so light carries its own values. The box is the pill plus a hair
+   of margin, so the focus ring reads as the button's own outline lit up.
+
+     dark   GaitAI 63,689–305,750  MobilityCare 687,717–964,772  SecureVision 1252,718–1534,774
+     light  GaitAI 63,769–289,822  MobilityCare 607,770–883,822  SecureVision 1190,770–1473,822 */
 .ctas {
-  --cta-g-left: 3.3%;
-  --cta-g-top: 73%;
-  --cta-g-width: 9.9%;
-  --cta-g-height: 18.5%;
+  --cta-g-left: 3.38%;
+  --cta-g-top: 77.3%;
+  --cta-g-width: 13.85%;
+  --cta-g-height: 7.6%;
 
-  --cta-m-left: 37.2%;
-  --cta-m-top: 78.6%;
-  --cta-m-width: 11%;
-  --cta-m-height: 15%;
+  --cta-m-left: 38.55%;
+  --cta-m-top: 80.5%;
+  --cta-m-width: 15.95%;
+  --cta-m-height: 6.9%;
 
-  --cta-s-left: 68.3%;
-  --cta-s-top: 78.6%;
-  --cta-s-width: 11.2%;
-  --cta-s-height: 15%;
+  --cta-s-left: 70.4%;
+  --cta-s-top: 80.6%;
+  --cta-s-width: 16.25%;
+  --cta-s-height: 7%;
 
   position: absolute;
   inset: 0;
@@ -85,12 +116,19 @@
 }
 
 :global(.light) .ctas {
-  --cta-g-top: 74.1%;
-  --cta-g-width: 9.7%;
-  --cta-m-top: 77.5%;
-  --cta-m-height: 16.2%;
-  --cta-s-top: 77.5%;
-  --cta-s-height: 16.2%;
+  --cta-g-top: 86.3%;
+  --cta-g-width: 13.1%;
+  --cta-g-height: 6.7%;
+
+  --cta-m-left: 34.05%;
+  --cta-m-top: 86.45%;
+  --cta-m-width: 15.9%;
+  --cta-m-height: 6.55%;
+
+  --cta-s-left: 66.9%;
+  --cta-s-top: 86.45%;
+  --cta-s-width: 16.3%;
+  --cta-s-height: 6.55%;
 }
 
 .cta {
@@ -132,8 +170,8 @@
   }
   :global(.light) .cta:hover {
     box-shadow:
-      0 0 0 1.5px rgb(14 116 144 / 0.75),
-      0 0 16px rgb(14 116 144 / 0.25);
+      0 0 0 1.5px rgb(26 92 255 / 0.75),
+      0 0 16px rgb(26 92 255 / 0.25);
   }
 }
 
@@ -146,17 +184,24 @@
 :global(.light) .cta:focus-visible {
   box-shadow:
     0 0 0 2px rgb(255 255 255 / 1),
-    0 0 0 4px rgb(14 116 144 / 1),
-    0 0 18px rgb(14 116 144 / 0.3);
+    0 0 0 4px rgb(26 92 255 / 1),
+    0 0 18px rgb(26 92 255 / 0.3);
 }
 
-/* PHONES. At full width the 5.9:1 strip would be ~60px tall and its pills a
-   few pixels high. Below 768px the canvas keeps a 960px width — roughly 160px
-   tall, pills ~26px — inside a horizontal pan that snaps to the three panels.
-   The links pan with the canvas, so they stay on their pills; the page itself
-   never scrolls sideways. */
-@media (max-width: 767px) {
+/* TABLETS AND PHONES. The canvas keeps a hero's height — 540px on tablets,
+   460–540px on phones — which at 2:1 makes it wider than the screen, so it
+   sits in a horizontal pan that snaps to the three panels. The links pan
+   with the canvas, so they stay on their pills; the page itself never
+   scrolls sideways. */
+@media (max-width: 1023px) {
+  .hero {
+    --hero-h: 540px;
+  }
   .frame {
+    aspect-ratio: auto;
+    height: var(--hero-h);
+    max-height: none;
+    min-height: 0;
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
@@ -168,10 +213,20 @@
     display: none;
   }
   .canvas {
-    width: 960px;
-    max-width: none;
+    position: relative;
+    top: auto;
+    transform: none;
+    width: calc(var(--hero-h) * 2);
+    height: var(--hero-h);
+    aspect-ratio: auto;
   }
   .img {
     scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero {
+    --hero-h: clamp(460px, 125vw, 540px);
   }
 }

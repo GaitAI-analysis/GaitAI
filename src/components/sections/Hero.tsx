@@ -5,11 +5,11 @@ import styles from "./hero.module.css";
 /**
  * THE HOMEPAGE HERO — the approved artwork, with its three buttons made real.
  * =============================================================================
- * One 2160×364 composition per theme: GaitAI | MobilityCare | SecureVision as
+ * One 1774×887 composition per theme: GaitAI | MobilityCare | SecureVision as
  * three panels, headline, sublines and three calls to action all set inside
- * the picture. It is shown whole and unaltered — no crop, no zoom, no second
- * headline, no logo or navigation of its own; the global navbar above it is
- * the only chrome. `ThemeImage` picks the theme's file before first paint and
+ * the picture. It is shown whole and unaltered — no zoom, no second headline,
+ * no logo or navigation of its own; the global navbar above it is the only
+ * chrome. How it fills the hero at each width is hero.module.css's business. `ThemeImage` picks the theme's file before first paint and
  * swaps it on the toggle without a reload.
  *
  * THE BUTTONS ARE LINKS. The three pills in the artwork are covered by real

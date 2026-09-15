@@ -150,7 +150,14 @@ export function Navbar() {
               <Logo variant="wordmark" size="md" priority />
             </Link>
 
-            <nav className="hidden items-center gap-0 xl:flex 2xl:gap-1">
+            {/* THE DESKTOP NAV APPEARS AT 1040, NOT 1280. It was `xl:flex`,
+                which put every laptop between 1024 and 1279 behind the
+                hamburger — a 1280 window with a scrollbar included — even
+                though the row fits there with room to spare. `navbar` is a
+                measured breakpoint, not a guess: see tailwind.config.ts. The
+                hamburger keeps everything below it, which is tablet portrait
+                and landscape (1024) and every phone. */}
+            <nav className="hidden items-center gap-0 navbar:flex 2xl:gap-1">
               {navLinks.map((link) => {
                 const active = itemIsActive(link);
 
@@ -178,7 +185,7 @@ export function Navbar() {
                         aria-expanded={menuOpen}
                         aria-current={isUnder(link.href) ? "page" : undefined}
                         className={cn(
-                          "group/link relative flex items-center gap-1 rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
+                          "group/link relative flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
                           active || menuOpen
                             ? "text-soft-white"
                             : "text-soft-gray hover:text-soft-white"
@@ -284,7 +291,7 @@ export function Navbar() {
                     title={isHome ? "Home" : undefined}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "group relative rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
+                      "group relative whitespace-nowrap rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
                       isHome && "flex items-center",
                       active
                         ? "text-soft-white"
@@ -321,7 +328,7 @@ export function Navbar() {
               <ThemeToggle />
               <Link
                 href="/#contact"
-                className="hidden items-center gap-1.5 rounded-full bg-white/5 px-4 py-2 text-sm font-medium text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-white/20 sm:inline-flex"
+                className="hidden items-center gap-1.5 whitespace-nowrap rounded-full bg-white/5 px-4 py-2 text-sm font-medium text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-white/20 sm:inline-flex"
               >
                 Request demo
                 <ArrowUpRight className="h-3.5 w-3.5" />
@@ -333,7 +340,7 @@ export function Navbar() {
                 onClick={() => setOpen(true)}
                 aria-label="Open menu"
                 aria-expanded={open}
-                className="ix-hit-box grid h-9 w-9 place-items-center rounded-full glass transition-colors hover:border-white/20 active:scale-95 xl:hidden"
+                className="ix-hit-box grid h-9 w-9 place-items-center rounded-full glass transition-colors hover:border-white/20 active:scale-95 navbar:hidden"
               >
                 <Menu className="h-4 w-4" />
               </button>
@@ -353,7 +360,7 @@ export function Navbar() {
             role="dialog"
             aria-modal="true"
             aria-label="Site navigation"
-            className="fixed inset-0 z-[60] overflow-y-auto bg-obsidian/95 backdrop-blur-xl xl:hidden"
+            className="fixed inset-0 z-[60] overflow-y-auto bg-obsidian/95 backdrop-blur-xl navbar:hidden"
           >
             <div className="container-wide flex items-center justify-between py-5">
               <Logo variant="wordmark" size="md" />

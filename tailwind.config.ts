@@ -53,6 +53,19 @@ const config: Config = {
       },
     },
     extend: {
+      screens: {
+        /* WHERE THE DESKTOP NAVBAR FITS.
+           The header row is logo + Home + four dropdowns + Search + Atlas +
+           theme + Request demo, and measured with its real font and no
+           wrapping it needs 934px; `container-wide` takes 96px of padding
+           either side of it, so the least viewport that holds the whole row on
+           one line is 1030. `lg` (1024) is six pixels short and wraps
+           "Research & IP" and "Request demo" onto second lines, and `xl`
+           (1280) — what the navbar used before — sent every laptop between
+           1024 and 1279 to the hamburger even though the row fits there
+           comfortably. 1040 is the measurement plus a small margin. */
+        navbar: "1040px",
+      },
       colors: {
         obsidian: {
           DEFAULT: "rgb(var(--c-obsidian) / <alpha-value>)",

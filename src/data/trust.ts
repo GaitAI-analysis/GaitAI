@@ -102,9 +102,16 @@ export const privacyControls: PrivacyControl[] = [
   },
   {
     topic: "Defence and other high-assurance uses",
+    /* Two records, two things, and the distinction is the point: DefenceMotion
+       is a SecureVision product module (Army, Navy and Air Force modes of it),
+       and Defence & Armed Forces is the deployment environment that combines
+       it with AccessMotion, PrivacyGuard and SuspiciousMotion. This entry used
+       to say defence was "an environment, not a product", which is no longer
+       true of the catalogue — but every governance limit it stated still
+       holds, and none of them have been softened here. */
     support:
-      "Defence & Armed Forces is documented as a SecureVision deployment environment, not a product: SuspiciousMotion, AccessMotion and PrivacyGuard configured for governed, human-supervised facility safety and authorised access. GaitAI is not designed for autonomous targeting or lethal decision-making; an access signal supplements existing credentials and never identifies or denies on its own. No defence deployment, customer or clearance is documented.",
-    source: "Defence & Armed Forces environment record · Responsible-deployment policy",
+      "DefenceMotion is a SecureVision product module, configurable in Army, Navy and Air Force modes; Defence & Armed Forces is the documented deployment environment, which combines it with AccessMotion, PrivacyGuard and SuspiciousMotion for governed, human-supervised facility safety and authorised access. GaitAI is not designed for autonomous targeting or lethal decision-making; an access signal supplements existing credentials and never identifies or denies on its own. Modes are configurations of one module, not separate products. No defence deployment, customer or clearance is documented.",
+    source: "DefenceMotion product record · Defence & Armed Forces environment record · Responsible-deployment policy",
   },
   {
     topic: "Training data",

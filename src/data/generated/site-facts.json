@@ -1,8 +1,8 @@
 {
   "counts": {
-    "productModules": 23,
+    "productModules": 24,
     "mobilitycare": 12,
-    "securevision": 11,
+    "securevision": 12,
     "verticals": 2,
     "environments": 18,
     "publications": 8,
@@ -17,8 +17,8 @@
       "posters": 1,
       "paperPresentations": 8
     },
-    "gaitscapeNodes": 91,
-    "gaitscapeRelationships": 303,
+    "gaitscapeNodes": 92,
+    "gaitscapeRelationships": 307,
     "capabilities": 13
   },
   "terminology": {
@@ -197,6 +197,13 @@
       "id": "watchlist",
       "label": "Watchlist",
       "href": "/securevision/watchlist/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "defencemotion",
+      "label": "DefenceMotion",
+      "href": "/securevision/defencemotion/",
       "vertical": "securevision",
       "navigation": false
     }

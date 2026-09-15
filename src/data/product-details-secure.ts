@@ -1241,6 +1241,156 @@ const secureDetailRecords: ProductDetail[] = [
     related: ["reid", "accessmotion", "privacyguard"],
     ctaLabel: ctas.pilot.label,
   },
+
+  // ==========================================================================
+  // 12 — DEFENCEMOTION
+  // --------------------------------------------------------------------------
+  // ONE MODULE, THREE MODES. Army, Navy and Air Force are configurations of
+  // this product — see `modes` below — not three products and not three
+  // environments. The catalogue counts DefenceMotion once.
+  //
+  // The DEFENCE & ARMED FORCES environment is a separate record
+  // (industryUseCases "defence", /use-cases/defence-armed-forces/) and
+  // combines this module with AccessMotion, PrivacyGuard and
+  // SuspiciousMotion. Product and environment, not two names for one thing.
+  // ==========================================================================
+  {
+    slug: "defencemotion",
+    overview:
+      "DefenceMotion configures SecureVision for defence installations: facility movement events for operator review, a gait-consistency signal beside existing credentials at controlled access points, and governed retention and audit across the same camera estate. It ships in Army, Navy and Air Force modes, which differ in the installation they are configured for rather than in what they claim.",
+    glance: {
+      input: "Installation cameras",
+      analysis: "Movement + access",
+      output: "Events & indicators",
+      user: "Installation safety team",
+    },
+    problem:
+      "Large installations find safety events after the fact, and controlled access rests on credentials alone — while the personnel being observed are owed a duty of care that identity-first monitoring does not respect.",
+    solution:
+      "Movement-first processing surfaces restricted-zone, perimeter and tailgating-like events on an operator timeline, and adds a passive gait-consistency indicator beside existing credentials for enrolled personnel only. Retention, roles, audit and skeleton-only processing are governed across all of it.",
+    whoFor: [
+      "Installation safety teams",
+      "Base access control",
+      "Programme and policy owners",
+      "Oversight and audit functions",
+    ],
+    receives: [
+      "Facility movement events",
+      "Restricted-zone and perimeter events",
+      "Access consistency indicator",
+      "Privacy and audit record",
+      "Operator timeline",
+    ],
+    whyItMatters:
+      "An installation's safety picture and its access picture are both movement questions, and answering them without identity-first monitoring is what makes them answerable at all in an environment with a duty of care to the people in frame.",
+    workflow: [
+      "Zones, perimeters and access points are configured under the programme owner's policy",
+      "Facility movement events surface on the operator timeline",
+      "Controlled entries receive a consistency indicator beside existing credentials, for enrolled personnel only",
+      "Safety and access teams review and decide under service procedures",
+      "Every indicator, review and access is recorded in the audit trail",
+    ],
+    deployment: [
+      "On-premise or edge processing inside the installation's own network",
+      "Consent-based enrolment wherever an access signal is used",
+      "Human review before any indicator becomes an action",
+      "Not designed for autonomous targeting or lethal decision-making",
+    ],
+    metrics: [
+      { value: "Movement-first", label: "Detection basis" },
+      { value: "3", label: "Configuration modes" },
+      { value: "Human review", label: "Mandatory step" },
+      { value: "Auditable", label: "Oversight trail" },
+    ],
+    interpretation:
+      "Events are indicators for a trained operator to review, and an access signal supplements existing credentials — it never identifies, admits or denies on its own. Escalation is a human decision under service procedure.",
+    /*
+     * THE THREE MODES. Configurations of this one module: same pipeline, same
+     * governance, same outputs — what differs is the installation each is set
+     * up for. Rendered by ProductDetailView as a named set under the module,
+     * never as product cards, and counted by nothing.
+     */
+    modes: [
+      {
+        name: "Army Mode",
+        setting: "Land installations, barracks and vehicle depots",
+        description:
+          "Perimeters, restricted compounds and vehicle movement areas, with controlled entry at stores and armouries.",
+      },
+      {
+        name: "Navy Mode",
+        setting: "Naval bases, dockyards and shore establishments",
+        description:
+          "Jetty and dockside zones, compartment access aboard alongside vessels, and gangway entry points.",
+      },
+      {
+        name: "Air Force Mode",
+        setting: "Airbases, hangars and flight-line areas",
+        description:
+          "Flight-line and apron boundaries, hangar and technical-area entry, and runway-adjacent restricted zones.",
+      },
+    ],
+    tech: {
+      systemOverview:
+        "One pipeline serving both questions: person detection and pose tracking produce appearance-reduced trajectories; trajectory and temporal features drive zone and behaviour rules for the operator timeline, while a gait-consistency comparison runs at enrolled access points. A policy layer governs retention, roles and audit across both paths. A mode is a configuration of zones, access points and thresholds over this same system.",
+      inputs: [
+        "Existing fixed installation cameras",
+        "Zone, perimeter and access-point configuration",
+        "Consent-based enrolment records for access signalling",
+        "Policy configuration and authority records",
+      ],
+      pipeline: [
+        "Installation camera streams",
+        "Person detection and pose tracking",
+        "Appearance-reduced trajectories",
+        "Zone and behaviour rules → operator timeline",
+        "Gait-consistency comparison at enrolled access points",
+        "Policy, retention and audit layer",
+      ],
+      features: [
+        "Restricted-zone and perimeter crossing",
+        "Loitering and tailgating-like patterns",
+        "Gait-consistency band for enrolled personnel",
+        "Per-zone and per-mode rule configuration",
+      ],
+      models: [
+        "Pose and trajectory tracking shared with SuspiciousMotion",
+        "Movement-consistency comparison shared with AccessMotion",
+        "Policy engine enforcing scope, retention and review requirements",
+      ],
+      outputSchema: [
+        { field: "event", desc: "Facility movement event type" },
+        { field: "zone", desc: "Configured zone or perimeter" },
+        { field: "consistency", desc: "Access consistency band, enrolled only" },
+        { field: "mode", desc: "Army / Navy / Air Force configuration in force" },
+        { field: "audit_history", desc: "Complete access, review and event log" },
+      ],
+      longitudinal:
+        "Audit history supports internal oversight and periodic review of zone scope, thresholds and system behaviour.",
+      quality: [
+        "Thresholds set under the programme owner's policy, not convenience",
+        "Capture-quality flags on every event and indicator",
+        "Human review before any indicator becomes an action",
+      ],
+      integration: [
+        "SuspiciousMotion event core",
+        "AccessMotion consistency core",
+        "PrivacyGuard policy, retention and audit layers",
+        "Existing access control and incident procedures",
+      ],
+      limitations: [
+        "Indicators are not identity proof and are not admission decisions",
+        "Access signalling requires consent-based enrolment and covers enrolled personnel only",
+        "Not designed for autonomous targeting or lethal decision-making",
+        "No defence deployment, customer or clearance is documented",
+      ],
+    },
+    privacy:
+      "Responsible deployment: DefenceMotion is human-supervised throughout. It is not designed for autonomous targeting or lethal decision-making; an access signal supplements existing credentials and never identifies or denies on its own. No defence deployment, customer or clearance is documented. " +
+      SECURE_PRIVACY,
+    related: ["suspiciousmotion", "accessmotion", "privacyguard"],
+    ctaLabel: ctas.pilot.label,
+  },
 ];
 
 export const secureProductDetails = secureDetailRecords.map((record) => ({

@@ -79,6 +79,28 @@ export interface ProductDetail {
 
   /** Privacy & responsible-use note */
   privacy: string;
+  /**
+   * OPERATING MODES — configurations of ONE module, never separate products.
+   *
+   * Optional, and set on exactly one record today: DefenceMotion, whose Army,
+   * Navy and Air Force modes are three deployments of one product. The field
+   * exists so that hierarchy is expressed in the data rather than implied by
+   * prose or, worse, by registering three catalogue entries — which would
+   * make the platform read as 26 modules and claim three products where
+   * there is one.
+   *
+   * A mode is not a product, not an environment and not separately counted:
+   * nothing derives a count from this list, and `ProductDetailView` renders
+   * it as a named set belonging to the module above it.
+   */
+  modes?: {
+    /** e.g. "Army Mode" */
+    name: string;
+    /** The installation kind this configuration is for. */
+    setting: string;
+    /** What differs in this configuration — one sentence. */
+    description: string;
+  }[];
   /** Exactly three related product ids */
   related: [string, string, string];
   ctaLabel: string;

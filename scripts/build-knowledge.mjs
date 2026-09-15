@@ -366,7 +366,9 @@ async function main() {
   );
 
   // ── PRODUCTS ─────────────────────────────────────────────────────────────
-  // The 23 modules. Each doc carries the whole answerable surface of the
+  // Every registered module — the count comes from the registry, so this
+  // comment does not have to be corrected when one is added. Each doc carries
+  // the whole answerable surface of the
   // module page: what it takes in, what it emits, how it is deployed, what it
   // explicitly does not establish, and which research reaches it.
   /* Inverted from the canonical environment→product mix, once, so every

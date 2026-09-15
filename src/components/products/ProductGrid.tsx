@@ -59,7 +59,12 @@ const secureFilters: FilterDef[] = [
   {
     id: "anomaly",
     label: "Anomaly",
-    productIds: ["suspiciousmotion", "industrialsafety", "campusshield"],
+    productIds: [
+      "suspiciousmotion",
+      "industrialsafety",
+      "campusshield",
+      "defencemotion",
+    ],
   },
   {
     id: "crowd",
@@ -71,7 +76,11 @@ const secureFilters: FilterDef[] = [
     label: "Investigation",
     productIds: ["forensicsearch", "reid"],
   },
-  { id: "access", label: "Access", productIds: ["accessmotion", "watchlist"] },
+  {
+    id: "access",
+    label: "Access",
+    productIds: ["accessmotion", "watchlist", "defencemotion"],
+  },
   { id: "privacy", label: "Privacy", productIds: ["privacyguard"] },
 ];
 
@@ -113,6 +122,7 @@ const allFilters: FilterDef[] = [
       "reid",
       "accessmotion",
       "watchlist",
+      "defencemotion",
     ],
   },
   {

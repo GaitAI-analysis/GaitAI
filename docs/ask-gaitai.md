@@ -485,12 +485,17 @@ Worker build. **Nothing is edited by hand: a new article in `insights.ts`, a
 new paper, a new module, a new environment or a newly verified post enters the
 corpus with the next build.**
 
-### Coverage (331 records, 82 routes, 2026-09-09)
+### Coverage (399 records, 91 routes, 2026-09-16)
+
+<!-- A SNAPSHOT, not a derived figure: `npm run build:knowledge` prints the
+     current per-type counts. The `product` and `use-case` rows below are the
+     canonical registry's own numbers (24 modules, 18 environments); the other
+     rows' prose counts are from earlier surveys and may lag. -->
 
 | type | records | what |
 |---|---|---|
-| `product` | 115 | 23 modules, each a parent + 4 facet sections (how it works · deployment · limits & privacy · signals, research & evidence) |
-| `use-case` | 34 | 17 environments, each a parent + a deployment / responsible-use section |
+| `product` | 120 | 24 modules, each a parent + 4 facet sections (how it works · deployment · limits & privacy · signals, research & evidence) |
+| `use-case` | 36 | 18 environments, each a parent + a deployment / responsible-use section |
 | `insight` | 41 | 5 GaitAI Insights articles, each a parent + one record per section (plus verified newsroom posts, chunked by heading) |
 | `page` | 61 | home, Products, MobilityCare, SecureVision, Use Cases, Research, full evidence record, Talks, Publications, Insights hub, topics and per-topic pages, GaitScape, Movement Intelligence Lab, GaitAI Labs, Gait Dataset, Gait Biometrics Lab, Start here, Archive, Investors, Contact, 4 product comparisons, Trust Center and the 4 `/legal` pages — legal/Trust pages as a parent + one record per `<h2>` section |
 | `talk` | 21 | every documented appearance in `talks.ts` |

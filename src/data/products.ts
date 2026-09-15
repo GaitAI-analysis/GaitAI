@@ -26,6 +26,7 @@ import {
   Lock,
   Microscope,
   Plane,
+  Radar,
   RadioTower,
   Route,
   Search,
@@ -737,6 +738,50 @@ export const secureProducts: GaitProduct[] = [
     flagship: false,
     accent: "blue",
   },
+  /*
+   * DEFENCEMOTION IS A PRODUCT MODULE. "Defence & Armed Forces" is an
+   * ENVIRONMENT, and the two are different things that share a subject:
+   *
+   *   product      DefenceMotion          — this record, /securevision/defencemotion/
+   *   environment  Defence & Armed Forces — `industryUseCases` id "defence",
+   *                                         /use-cases/defence-armed-forces/
+   *
+   * The environment combines DefenceMotion with other SecureVision modules
+   * (AccessMotion, PrivacyGuard, SuspiciousMotion); the product is the module
+   * that environment is built around. Neither is a restatement of the other,
+   * and the catalogue counts the product exactly once, here.
+   *
+   * ARMY, NAVY AND AIR FORCE ARE MODES, NOT PRODUCTS. They are three
+   * configurations of this one module — see `modes` on its detail record in
+   * product-details-secure.ts — and must never be registered as separate
+   * entries. Doing so would make the catalogue 26 and imply three products
+   * where there is one.
+   */
+  {
+    id: "defencemotion",
+    name: "GaitAI DefenceMotion",
+    short: "DefenceMotion",
+    label: "Movement intelligence for defence environments",
+    headline: "Movement intelligence for defence environments.",
+    description:
+      "Facility-safety and authorised-access movement intelligence configured for defence installations, in Army, Navy and Air Force modes. Human-supervised throughout: an indicator supplements existing procedure and never acts on its own.",
+    users: [
+      "Installation safety teams",
+      "Base access control",
+      "Programme and policy owners",
+    ],
+    outputs: [
+      "Facility movement events",
+      "Restricted-zone and perimeter events",
+      "Access consistency indicators",
+      "Privacy and audit record",
+    ],
+    icon: Radar,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "blue",
+  },
 ];
 
 // ----------------------------------------------------------------------------
@@ -1013,7 +1058,17 @@ export const industryUseCases: UseCaseEntry[] = [
     vertical: "securevision",
     problem:
       "Defence and military organisations need facility-safety and access intelligence for personnel across very different installations — without identity-first monitoring of the people they have a duty of care to.",
-    productIds: ["suspiciousmotion", "accessmotion"],
+    /* The environment's mix, DefenceMotion first: it is the module this
+       environment is built around, and the other three are the SecureVision
+       capabilities it is configured alongside. This is the canonical
+       product-to-environment mapping — the use-case page's prose is written
+       from it, not beside it. */
+    productIds: [
+      "defencemotion",
+      "suspiciousmotion",
+      "accessmotion",
+      "privacyguard",
+    ],
     outcome:
       "Privacy-aware facility movement-event alerts, access consistency indicators and a privacy and audit record across defence installations.",
     accent: "blue",

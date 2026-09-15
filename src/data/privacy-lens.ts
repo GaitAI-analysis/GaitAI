@@ -14,7 +14,7 @@
 //     themselves potentially identifying — that is the subject of this
 //     company's own research — and a lens that implied otherwise would
 //     contradict the research pages three clicks away
-//   · IT IS NOT ONE PATH FOR ALL 11 SECUREVISION MODULES. The identity and
+//   · IT IS NOT ONE PATH FOR ALL 12 SECUREVISION MODULES. The identity and
 //     investigation group exists, is governed separately, and by design does
 //     retain identity-bearing information. `APPLIES_TO` says so in as many
 //     words, and the lens is explicitly scoped to the privacy-aware group

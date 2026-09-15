@@ -649,13 +649,21 @@ const environmentDetailRecords: UseCaseDetail[] = [
     caseId: "defence",
     family: "securevision",
     valueProp: "Facility safety and authorised access for installations with a duty of care.",
+    /* THIS IS THE ENVIRONMENT PAGE. The product is DefenceMotion, which has
+       its own record and route (/securevision/defencemotion/); this page is
+       the installation it is deployed into, and the module mix it is deployed
+       alongside. The copy below names DefenceMotion first for that reason and
+       no longer says defence "is an environment, not a product" — both exist,
+       and they are different things. The mix here is written from the
+       canonical `productIds` in products.ts, not beside it. */
     overview:
-      "For defence organisations, GaitAI configures SecureVision for the installation: SuspiciousMotion surfaces restricted-zone entry and perimeter events for operator review, AccessMotion adds a gait-consistency signal beside existing credentials at authorised access points, and PrivacyGuard governs retention, roles and audit across the same camera estate — identity not required by default.",
+      "For defence organisations, GaitAI configures SecureVision for the installation around DefenceMotion — the module built for defence environments, in Army, Navy and Air Force modes. Alongside it, SuspiciousMotion surfaces restricted-zone entry and perimeter events for operator review, AccessMotion adds a gait-consistency signal beside existing credentials at authorised access points, and PrivacyGuard governs retention, roles and audit across the same camera estate — identity not required by default.",
     shortfall:
       "Safety events on large installations are found after the fact and access relies on credentials alone — while the people being observed are owed a duty of care that identity-first monitoring does not respect.",
     together:
-      "SuspiciousMotion carries the installation's movement-event awareness — restricted-zone entry, perimeter events, tailgating-like patterns — for operator review; AccessMotion adds a passive consistency signal at controlled doors and compartments; PrivacyGuard controls — retention, roles, audit logs and skeleton-only processing — apply to all of it.",
+      "DefenceMotion is the module the installation is configured around, in the Army, Navy or Air Force mode that matches it. SuspiciousMotion carries the wider movement-event awareness — restricted-zone entry, perimeter events, tailgating-like patterns — for operator review; AccessMotion adds a passive consistency signal at controlled doors and compartments; PrivacyGuard controls — retention, roles, audit logs and skeleton-only processing — apply to all of it.",
     workflow: [
+      "DefenceMotion is configured in the mode that matches the installation — Army, Navy or Air Force",
       "The installation's zones, perimeters and access points are configured under the programme owner's policy",
       "Facility movement events surface on the operator timeline",
       "Controlled entries receive a gait-consistency indicator beside existing credentials, for enrolled personnel only",

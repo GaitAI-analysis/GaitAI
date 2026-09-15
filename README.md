@@ -52,7 +52,7 @@
 
 GaitAI is a production-grade, research-led marketing and publication platform for the **GaitAI** brand — a Human Movement Intelligence Platform built on **10+ years of founder-led research** in gait recognition, computer vision, biometrics and movement AI.
 
-The platform organises everything around two verticals and 23 modular products:
+The platform organises everything around two verticals and 24 modular products:
 
 | Vertical | Focus |
 | --- | --- |
@@ -65,7 +65,9 @@ Beyond the marketing site, the codebase now ships a **community layer** (a Fireb
 
 ## The platform at a glance
 
-- **23 products** across two verticals (12 MobilityCare + 11 SecureVision).
+- **24 products** across two verticals (12 MobilityCare + 12 SecureVision).
+  Counts are derived from `src/data/products.ts` (`siteCounts` in
+  `src/data/registry.ts`) and are never written by hand in a component.
 - **17 industry use cases** mapped to product mixes and concrete outcomes.
 - **A 10-module AI pipeline** (pose, gait features, sensor fusion, fall-risk model, rehab model, sports-injury model, WatchCare sensor model, anomaly detection, clinical report generator, privacy layer).
 - **A complete site map** — Home, About, MobilityCare, SecureVision, Products, Use Cases, Research, Publications, Insights, Admin Control Panel, plus legal stubs.
@@ -188,7 +190,7 @@ GaitAI_Fr_Version1_Claude/
 │   │   ├── three/HeroScene.tsx      # R3F WebGL hero
 │   │   └── ui/                      # Logo, SectionHeading, Reveal, …
 │   ├── data/
-│   │   ├── products.ts              # 23 products + 17 use cases + pipeline
+│   │   ├── products.ts              # 24 products + 18 use cases + pipeline
 │   │   ├── content.ts               # nav links + hero stats
 │   │   └── publications.ts          # publications metadata
 │   ├── lib/
@@ -228,7 +230,7 @@ GaitAI_Fr_Version1_Claude/
 /about                   Mission, founder story, journey, portfolio, audiences, values.
 /mobilitycare            12-product grid + flagship blocks + clinical use cases.
 /securevision            11-product grid + PrivacyGuard deep block + governance ribbon.
-/products                All 23 products with cross-vertical category filters.
+/products                All 24 products with cross-vertical category filters.
 /use-cases               All 17 industries split by vertical, deep-linked anchors.
 /research                Research hero, timeline, domains, AI pipeline, responsible AI.
 /insights                Newsroom feed — every post, newest first.

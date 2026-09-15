@@ -270,12 +270,18 @@ export function ProductDetailView({ slug }: { slug: string }) {
     const sampleItem: NavItem[] = hasSample
       ? [{ id: "sample", label: "Sample output" }]
       : [];
+    /* Only the module that actually has configurations gets the section, so
+       the other twenty-three pages are unchanged. */
+    const modesItem: NavItem[] = detail.modes?.length
+      ? [{ id: "modes", label: "Operating modes" }]
+      : [];
 
     if (view === "executive") {
       return [
         { id: "overview", label: "Overview" },
         { id: "problem", label: "Problem" },
         { id: "solution", label: "What GaitAI does" },
+        ...modesItem,
         { id: "who", label: "Who it's for" },
         { id: "outputs", label: "Outputs" },
         { id: "why", label: "Why it matters" },
@@ -571,6 +577,79 @@ export function ProductDetailView({ slug }: { slug: string }) {
                     {detail.solution}
                   </p>
                 </SectionBlock>
+
+                {/* OPERATING MODES — one module, several configurations.
+                    Deliberately NOT product cards: the module's own name sits
+                    at the head of a single bordered object and the modes hang
+                    off one rail beneath it, so the hierarchy is the first
+                    thing read. Three cards in a row would say "three
+                    products", which is the misreading this section exists to
+                    prevent. Rendered only when a module declares modes. */}
+                {detail.modes && detail.modes.length > 0 && (
+                  <SectionBlock
+                    id="modes"
+                    index={sectionIndex("modes")}
+                    title="Operating modes"
+                  >
+                    <p className="text-sm leading-relaxed text-soft-gray sm:text-base">
+                      {product.short} is one module with{" "}
+                      {detail.modes.length} configurations. They differ in the
+                      installation they are set up for — the pipeline, the
+                      governance and the outputs are the same.
+                    </p>
+                    <div className="mt-5 overflow-hidden rounded-xl border border-white/8 bg-white/[0.02]">
+                      <div className="flex items-center gap-2.5 border-b border-white/8 px-4 py-3">
+                        <span
+                          className={cn("h-1.5 w-1.5 rounded-full", a.dot)}
+                          aria-hidden="true"
+                        />
+                        <span className="font-display text-sm font-semibold text-soft-white">
+                          {product.short}
+                        </span>
+                        <span className="text-[11px] text-soft-mute">
+                          {detail.modes.length} modes of one product
+                        </span>
+                      </div>
+                      <ul className="divide-y divide-white/5">
+                        {detail.modes.map((mode) => (
+                          <li
+                            key={mode.name}
+                            className="flex gap-3 px-4 py-3.5 pl-5 sm:pl-7"
+                          >
+                            {/* The connector: this mode belongs to the module
+                                named above, not beside it. */}
+                            <span
+                              className="mt-1.5 h-px w-4 shrink-0 bg-white/15 sm:w-5"
+                              aria-hidden="true"
+                            />
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                                <span
+                                  className={cn(
+                                    "font-display text-sm font-semibold",
+                                    a.text
+                                  )}
+                                >
+                                  {mode.name}
+                                </span>
+                                <span className="text-[11px] text-soft-mute">
+                                  {mode.setting}
+                                </span>
+                              </div>
+                              <p className="mt-1 text-sm leading-relaxed text-soft-gray">
+                                {mode.description}
+                              </p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <p className="mt-2 text-[11px] text-soft-mute">
+                      A mode is a configuration, not a separate product — the
+                      catalogue counts {product.short} once.
+                    </p>
+                  </SectionBlock>
+                )}
 
                 <SectionBlock id="who" index={sectionIndex("who")} title="Who uses it">
                   <BulletList items={detail.whoFor} dot={a.dot} />

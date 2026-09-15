@@ -60,3 +60,10 @@ docs/audit/browser/results.partial.json
 
 # Python bytecode from scripts/theme-media
 __pycache__/
+
+# Hero panel ORIGINALS. The encoder's inputs, not its outputs: full-resolution
+# photographs, one per panel per theme, which can be tens of megabytes each.
+# What ships is public/images/hero/panels/ (committed) plus the committed
+# manifest src/data/hero-panels.generated.json, so a build never needs to run
+# the encoder. See docs/hero-panels.md.
+assets/hero/src/

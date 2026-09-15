@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Hero } from "@/components/sections/Hero";
+import { heroPanelById, heroPanelSrcSet } from "@/lib/hero-panels";
 import { MissionVision } from "@/components/sections/about/MissionVision";
 import { MovementMeanings } from "@/components/home/MovementMeanings";
 import { Verticals } from "@/components/sections/Verticals";
@@ -140,17 +141,38 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <>
-      {/* The hero banner is the page's LCP image. `ThemeImage` sets its src
-          from an inline bootstrap, which the preload scanner cannot see, so
-          the default-theme file is preloaded here in the initial HTML. Light
-          mode requests its own file the moment the bootstrap runs. */}
+      {/* THE LCP PRELOAD. The hero's GaitAI panel is the largest thing in the
+          first viewport. `ThemePicture` sets its `srcset` from an inline
+          bootstrap, which the preload scanner cannot see, so the default
+          theme's set is preloaded here in the initial HTML — as the whole
+          RESPONSIVE SET, not one file, so the browser still resolves it
+          against the screen it is on and a phone does not fetch a 2400px
+          photograph. `imageSizes` and `type` must stay identical to what the
+          hero's own <source> carries, or the preload lands beside the real
+          request instead of satisfying it; both come from the same registry so
+          they cannot drift. A browser without AVIF skips this entirely, on the
+          strength of `type`, and takes the WebP from the picture.
+
+          Only this one panel is preloaded. The other two are ordinary
+          low-priority image requests — see ThemePicture.
+
+          AND IT IS GATED ON A DARK SYSTEM PREFERENCE. A static export cannot
+          know the visitor's stored theme, so an ungated preload of the default
+          theme's file makes every LIGHT visitor download a dark photograph
+          they never see — measured: four panel requests instead of three. The
+          `media` gate makes that impossible. What it gives up is the preload
+          for someone running a light OS who is seeing the site's dark default;
+          they still get the right file from the bootstrap, just without the
+          head start (measured at ~50ms here). One wasted image on the LCP path
+          is the worse of the two. */}
       <link
         rel="preload"
         as="image"
-        href="/images/hero/gaitai-hero-dark-main.png"
-        type="image/png"
-        // @ts-expect-error React 18 types lack fetchPriority on <link>
-        fetchpriority="high"
+        type="image/avif"
+        media="(prefers-color-scheme: dark)"
+        imageSrcSet={heroPanelSrcSet(heroPanelById.gaitai, "dark", "avif")}
+        imageSizes={heroPanelById.gaitai.sizes}
+        fetchPriority="high"
       />
       <Hero />
       <Verticals />

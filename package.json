@@ -37,7 +37,8 @@
     "test:insights": "tsx scripts/test-insights-scaling.ts",
     "build:facts": "tsx scripts/build-site-facts.ts",
     "check:facts": "tsx scripts/build-site-facts.ts --check",
-    "audit:source": "node scripts/audit-source.mjs"
+    "audit:source": "node scripts/audit-source.mjs",
+    "hero:panels": "node scripts/hero-panels.mjs"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",

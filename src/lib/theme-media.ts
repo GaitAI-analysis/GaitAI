@@ -210,21 +210,25 @@ export const themeMedia = {
     height: 540,
   },
 
-  /* ── Homepage hero: the approved final artwork, one file per theme ─────
-     GaitAI | MobilityCare | SecureVision as three panels in a 1774×887
-     (2:1) composition, headline, sublines and the three calls to action set
-     inside the picture. Used exactly as supplied (PNG, no recompression);
-     the same dimensions in both themes, so one aspect ratio serves both.
-     The three buttons in the artwork are made real by positioned links in
-     `sections/Hero.tsx`, placed as percentages of this canvas. */
-  platformHero: {
-    kind: "pair",
-    type: "image",
-    dark: "/images/hero/gaitai-hero-dark-main.png",
-    light: "/images/hero/gaitai-hero-light-main.png",
-    width: 1774,
-    height: 887,
-  },
+  /* ── Homepage hero ──────────────────────────────────────────────────────
+     NOT HERE ANY MORE. The hero used to be one flattened 1774×887 PNG per
+     theme registered as `platformHero`, with the headline, the three pills,
+     the diagonals and the pose points all inside the picture — which is why
+     it was soft on a Retina screen and why there were two files that had to
+     agree about a layout.
+
+     It is now assembled: type, buttons, dividers and pose overlays are DOM
+     and SVG, and the only raster left is three photographs, one per panel.
+     Those need a responsive `srcset` across two formats, which is more than
+     a `pair` can express, so they have their own registry and their own
+     theme-aware component:
+
+         src/lib/hero-panels.ts          the boxes, the ladder, the srcsets
+         src/components/ui/ThemePicture  <picture>, resolved before first paint
+         scripts/hero-panels.mjs         the encoder  (npm run hero:panels)
+
+     The rule this file exists to enforce still holds there: exactly one
+     file per panel is ever fetched, and the theme picks it before paint. */
 
   /* ── Product wordmarks ──────────────────────────────────────────────────── */
 

@@ -56,4 +56,6 @@ Status: incomplete source set. The supplied folder has 78 files (76 unique), but
 
 Provide the folder containing the missing 17 dedicated sets, or explicit source mappings for review. DefenceMotion currently has only a branded poster with embedded copy and no dedicated light hero/card; it remains a first-class product and its Army/Navy/Air Force modes are unchanged.
 
-The current deployment branch auto-publishes on push. This incomplete-source integration is saved on `feat/product-images-source-audit` for review rather than published to the live site.
+Publication of the seven verified product sets was explicitly authorized after the source audit. The integration is included in `v1/feature/insights`, which publishes through the existing GitHub Pages workflow. The source audit remains on `feat/product-images-source-audit`; the remaining 17 sets (51 primary assets) still require matching source files.
+
+Before publication, the complete `npm run verify` deployment gate also passed, including strict theme-media checks and the Ask GaitAI retrieval, ranking and paraphrase suites (267/267 phrasings).

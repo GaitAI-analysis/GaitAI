@@ -1,3 +1,4 @@
+import { imagesForProduct, type ProductImages } from "./product-images";
 import type { ComponentType, SVGProps } from "react";
 import type { LucideIcon } from "lucide-react";
 import { DefenceIcon } from "@/components/icons/CapabilityIcons";
@@ -70,6 +71,7 @@ export type ProductStatus =
   | "in-development";
 
 export interface GaitProduct {
+  images: ProductImages | null;
   id: string;
   name: string; // e.g. "GaitAI WalkScan"
   short: string; // e.g. "WalkScan"
@@ -114,6 +116,7 @@ export interface GaitProduct {
 export const mobilityProducts: GaitProduct[] = [
   {
     id: "walkscan",
+    images: imagesForProduct("walkscan"),
     name: "GaitAI WalkScan",
     short: "WalkScan",
     label: "Camera-based gait assessment report",
@@ -145,6 +148,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "fallrisk",
+    images: imagesForProduct("fallrisk"),
     name: "GaitAI FallRisk",
     short: "FallRisk",
     label: "Fall-risk screening & mobility intelligence",
@@ -174,6 +178,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "rehabtrack",
+    images: imagesForProduct("rehabtrack"),
     name: "GaitAI RehabTrack",
     short: "RehabTrack",
     label: "Rehabilitation progress monitoring",
@@ -202,6 +207,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "sportsmotion",
+    images: imagesForProduct("sportsmotion"),
     name: "GaitAI SportsMotion",
     short: "SportsMotion",
     label: "Sports gait, running & injury-risk analytics",
@@ -233,6 +239,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "watchcare",
+    images: imagesForProduct("watchcare"),
     name: "GaitAI WatchCare",
     short: "WatchCare",
     label: "Smartwatch & wearable-based mobility monitoring",
@@ -263,6 +270,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "neuromotion",
+    images: imagesForProduct("neuromotion"),
     name: "GaitAI NeuroMotion",
     short: "NeuroMotion",
     label: "Neurological gait monitoring",
@@ -287,6 +295,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "orthomotion",
+    images: imagesForProduct("orthomotion"),
     name: "GaitAI OrthoMotion",
     short: "OrthoMotion",
     label: "Orthopedic & musculoskeletal gait analysis",
@@ -314,6 +323,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "seniorcare",
+    images: imagesForProduct("seniorcare"),
     name: "GaitAI SeniorCare",
     short: "SeniorCare",
     label: "Elderly mobility & frailty monitoring",
@@ -342,6 +352,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "pediatricmotion",
+    images: imagesForProduct("pediatricmotion"),
     name: "GaitAI PediatricMotion",
     short: "PediatricMotion",
     label: "Pediatric gait & developmental movement support",
@@ -368,6 +379,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "prostheticfit",
+    images: imagesForProduct("prostheticfit"),
     name: "GaitAI ProstheticFit",
     short: "ProstheticFit",
     label: "Prosthetic & orthotic fitting intelligence",
@@ -393,6 +405,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "remotecare",
+    images: imagesForProduct("remotecare"),
     name: "GaitAI RemoteCare",
     short: "RemoteCare",
     label: "Home-based remote gait monitoring",
@@ -419,6 +432,7 @@ export const mobilityProducts: GaitProduct[] = [
   },
   {
     id: "clinicaltrials",
+    images: imagesForProduct("clinicaltrials"),
     name: "GaitAI ClinicalTrials",
     short: "ClinicalTrials",
     label: "Digital gait measures for research",
@@ -448,6 +462,7 @@ export const mobilityProducts: GaitProduct[] = [
 export const secureProducts: GaitProduct[] = [
   {
     id: "suspiciousmotion",
+    images: imagesForProduct("suspiciousmotion"),
     name: "GaitAI SuspiciousMotion",
     short: "SuspiciousMotion",
     label: "Suspicious movement & anomaly detection",
@@ -478,6 +493,7 @@ export const secureProducts: GaitProduct[] = [
   },
   {
     id: "crowdsense",
+    images: imagesForProduct("crowdsense"),
     name: "GaitAI CrowdSense",
     short: "CrowdSense",
     label: "Crowd flow, density, queue & public-space analytics",
@@ -508,6 +524,7 @@ export const secureProducts: GaitProduct[] = [
   },
   {
     id: "industrialsafety",
+    images: imagesForProduct("industrialsafety"),
     name: "GaitAI IndustrialSafety",
     short: "IndustrialSafety",
     label: "Worker movement & fall/slip safety analytics",
@@ -537,6 +554,7 @@ export const secureProducts: GaitProduct[] = [
   },
   {
     id: "privacyguard",
+    images: imagesForProduct("privacyguard"),
     name: "GaitAI PrivacyGuard",
     short: "PrivacyGuard",
     label: "Privacy-preserving movement analytics",
@@ -558,6 +576,7 @@ export const secureProducts: GaitProduct[] = [
   },
   {
     id: "campusshield",
+    images: imagesForProduct("campusshield"),
     name: "GaitAI CampusShield",
     short: "CampusShield",
     label: "Campus & workplace movement safety",
@@ -584,87 +603,8 @@ export const secureProducts: GaitProduct[] = [
     accent: "blue",
   },
   {
-    id: "forensicsearch",
-    name: "GaitAI ForensicSearch",
-    short: "ForensicSearch",
-    label: "Post-event video investigation",
-    headline: "Search recorded CCTV by movement, timeline and event path.",
-    description:
-      "Searches uploaded CCTV footage for a person, movement pattern, timeline, or event path after an incident.",
-    users: [
-      "Security agencies",
-      "Enterprise security teams",
-      "Campuses",
-      "Malls",
-      "Transport hubs",
-    ],
-    outputs: [
-      "Search results",
-      "Incident timeline",
-      "Camera-wise movement trail",
-      "Evidence review pack",
-    ],
-    icon: Search,
-    vertical: "securevision",
-    featured: true,
-    flagship: false,
-    accent: "violet",
-  },
-  {
-    id: "reid",
-    name: "GaitAI ReID",
-    short: "ReID",
-    label: "Person re-identification across cameras",
-    headline: "Cross-camera movement correspondence, by gait.",
-    description:
-      "Produces confidence-based candidate matches across multiple camera feeds using movement and body-level signatures rather than face-only matching. Candidates are for trained review — never proof of identity.",
-    users: [
-      "Airports",
-      "Railway stations",
-      "Campuses",
-      "Large enterprises",
-      "Investigation teams",
-    ],
-    outputs: [
-      "Cross-camera trail",
-      "Confidence score",
-      "Timeline",
-      "Path reconstruction",
-    ],
-    icon: Route,
-    vertical: "securevision",
-    featured: false,
-    flagship: false,
-    accent: "blue",
-  },
-  {
-    id: "accessmotion",
-    name: "GaitAI AccessMotion",
-    short: "AccessMotion",
-    label: "Gait-enhanced access control",
-    headline: "A passive second factor — your walk.",
-    description:
-      "Contributes a passive gait-consistency signal alongside card, face or mobile authentication in high-security spaces. It supports an existing credential rather than replacing it.",
-    users: [
-      "Data centers",
-      "R&D labs",
-      "Defense campuses",
-      "High-security offices",
-    ],
-    outputs: [
-      "Access confidence",
-      "Identity consistency signal",
-      "Tailgating alert",
-      "Access audit log",
-    ],
-    icon: KeyRound,
-    vertical: "securevision",
-    featured: false,
-    flagship: false,
-    accent: "blue",
-  },
-  {
     id: "eventshield",
+    images: imagesForProduct("eventshield"),
     name: "GaitAI EventShield",
     short: "EventShield",
     label: "Large-event movement & crowd-risk intelligence",
@@ -693,6 +633,7 @@ export const secureProducts: GaitProduct[] = [
   },
   {
     id: "retailguard",
+    images: imagesForProduct("retailguard"),
     name: "GaitAI RetailGuard",
     short: "RetailGuard",
     label: "Retail movement & loss-prevention support",
@@ -714,7 +655,91 @@ export const secureProducts: GaitProduct[] = [
     accent: "violet",
   },
   {
+    id: "forensicsearch",
+    images: imagesForProduct("forensicsearch"),
+    name: "GaitAI ForensicSearch",
+    short: "ForensicSearch",
+    label: "Post-event video investigation",
+    headline: "Search recorded CCTV by movement, timeline and event path.",
+    description:
+      "Searches uploaded CCTV footage for a person, movement pattern, timeline, or event path after an incident.",
+    users: [
+      "Security agencies",
+      "Enterprise security teams",
+      "Campuses",
+      "Malls",
+      "Transport hubs",
+    ],
+    outputs: [
+      "Search results",
+      "Incident timeline",
+      "Camera-wise movement trail",
+      "Evidence review pack",
+    ],
+    icon: Search,
+    vertical: "securevision",
+    featured: true,
+    flagship: false,
+    accent: "violet",
+  },
+  {
+    id: "reid",
+    images: imagesForProduct("reid"),
+    name: "GaitAI ReID",
+    short: "ReID",
+    label: "Person re-identification across cameras",
+    headline: "Cross-camera movement correspondence, by gait.",
+    description:
+      "Produces confidence-based candidate matches across multiple camera feeds using movement and body-level signatures rather than face-only matching. Candidates are for trained review — never proof of identity.",
+    users: [
+      "Airports",
+      "Railway stations",
+      "Campuses",
+      "Large enterprises",
+      "Investigation teams",
+    ],
+    outputs: [
+      "Cross-camera trail",
+      "Confidence score",
+      "Timeline",
+      "Path reconstruction",
+    ],
+    icon: Route,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "blue",
+  },
+  {
+    id: "accessmotion",
+    images: imagesForProduct("accessmotion"),
+    name: "GaitAI AccessMotion",
+    short: "AccessMotion",
+    label: "Gait-enhanced access control",
+    headline: "A passive second factor — your walk.",
+    description:
+      "Contributes a passive gait-consistency signal alongside card, face or mobile authentication in high-security spaces. It supports an existing credential rather than replacing it.",
+    users: [
+      "Data centers",
+      "R&D labs",
+      "Defense campuses",
+      "High-security offices",
+    ],
+    outputs: [
+      "Access confidence",
+      "Identity consistency signal",
+      "Tailgating alert",
+      "Access audit log",
+    ],
+    icon: KeyRound,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "blue",
+  },
+  {
     id: "watchlist",
+    images: imagesForProduct("watchlist"),
     name: "GaitAI Watchlist",
     short: "Watchlist",
     label: "Policy-governed watchlist matching for authorized deployments",
@@ -759,6 +784,7 @@ export const secureProducts: GaitProduct[] = [
    */
   {
     id: "defencemotion",
+    images: imagesForProduct("defencemotion"),
     name: "GaitAI DefenceMotion",
     short: "DefenceMotion",
     label: "Movement intelligence for defence environments",

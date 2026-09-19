@@ -18,6 +18,7 @@ import {
 } from "@/data/comparisons";
 import { Reveal } from "@/components/ui/Reveal";
 import { ProductCard } from "@/components/products/ProductCard";
+import { ProductHeroImage } from "@/components/products/ProductImagery";
 import { ProductEvidence } from "@/components/products/ProductEvidence";
 import { EvidenceStatus } from "@/components/analytics/EvidenceStatus";
 import { ContextLimitations } from "@/components/trust/ContextLimitations";
@@ -399,70 +400,77 @@ export function ProductDetailView({ slug }: { slug: string }) {
         <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-obsidian/30 via-obsidian/60 to-obsidian" />
         <div className="container-wide relative">
-          {/* The page's own breadcrumb went when the Atlas arrived. The
-              location trail under the header already says
-              GaitAI > Products > MobilityCare > WalkScan, with every ancestor
-              a link, so this row was the same journey stated twice — two
-              location indicators stacked 40px apart. */}
-          <div className={cn("eyebrow", a.text)}>
-            <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-            GaitAI · {family.label}
-          </div>
+          <div
+            className={product.images ? "grid items-start gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10" : undefined}
+          >
+            <div>
+              {/* The page's own breadcrumb went when the Atlas arrived. The
+                  location trail under the header already says
+                  GaitAI > Products > MobilityCare > WalkScan, with every ancestor
+                  a link, so this row was the same journey stated twice — two
+                  location indicators stacked 40px apart. */}
+              <div className={cn("eyebrow", a.text)}>
+                <span className="h-1 w-6 rounded-full bg-gradient-brand" />
+                GaitAI · {family.label}
+              </div>
 
-          <h1 className="mt-4 max-w-4xl font-display text-display-xl text-balance text-soft-white">
-            {product.name}
-          </h1>
-          <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-soft-gray sm:text-2xl">
-            {productValueProp(detail.slug)}
-          </p>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
-            {detail.overview}
-          </p>
+              <h1 className="mt-4 max-w-4xl font-display text-display-xl text-balance text-soft-white">
+                {product.name}
+              </h1>
+              <p className="mt-4 max-w-2xl font-display text-xl leading-snug text-soft-gray sm:text-2xl">
+                {productValueProp(detail.slug)}
+              </p>
+              <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
+                {detail.overview}
+              </p>
 
-          {/* ── DOCUMENTED ENVIRONMENTS ──
-              Canonical, and linked. These were hand-written tags that
-              contradicted the environment records for eleven of the
-              twenty-three modules — see the note where the field used to be
-              declared in product-details.ts. They are now the environments
-              whose own documented product mix names this module, which means
-              the hero cannot disagree with /use-cases or with the stack
-              configurator, and each pill goes somewhere.
+              {/* ── DOCUMENTED ENVIRONMENTS ──
+                  Canonical, and linked. These were hand-written tags that
+                  contradicted the environment records for eleven of the
+                  twenty-three modules — see the note where the field used to be
+                  declared in product-details.ts. They are now the environments
+                  whose own documented product mix names this module, which means
+                  the hero cannot disagree with /use-cases or with the stack
+                  configurator, and each pill goes somewhere.
 
-              A module in no documented environment renders none. That is
-              Watchlist, and showing nothing is the honest rendering of a
-              module scoped to authorised deployments that no environment
-              record lists. */}
-          {environments.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-1.5">
-              {environments.map((env) => (
-                <Link
-                  key={env.slug}
-                  href={`/use-cases/${env.slug}/`}
-                  className={cn(
-                    "rounded-full border px-2.5 py-1 text-[10.5px] font-medium transition-colors hover:text-soft-white",
-                    a.pill
-                  )}
-                >
-                  {env.industry}
+                  A module in no documented environment renders none. That is
+                  Watchlist, and showing nothing is the honest rendering of a
+                  module scoped to authorised deployments that no environment
+                  record lists. */}
+              {environments.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-1.5">
+                  {environments.map((env) => (
+                    <Link
+                      key={env.slug}
+                      href={`/use-cases/${env.slug}/`}
+                      className={cn(
+                        "rounded-full border px-2.5 py-1 text-[10.5px] font-medium transition-colors hover:text-soft-white",
+                        a.pill
+                      )}
+                    >
+                      {env.industry}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-9 flex flex-wrap gap-3">
+                <Link href="/#contact" className="btn-primary" onClick={() => trackInsightEvent("product_demo_clicked", { product: product.id, placement: "hero" })}>
+                  Request a pilot
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
-              ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    changeView(view === "technical" ? "executive" : "technical")
+                  }
+                  className="btn-ghost"
+                >
+                  {view === "technical" ? "Executive view" : "Technical view"}
+                </button>
+              </div>
             </div>
-          )}
-
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/#contact" className="btn-primary" onClick={() => trackInsightEvent("product_demo_clicked", { product: product.id, placement: "hero" })}>
-              Request a pilot
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <button
-              type="button"
-              onClick={() =>
-                changeView(view === "technical" ? "executive" : "technical")
-              }
-              className="btn-ghost"
-            >
-              {view === "technical" ? "Executive view" : "Technical view"}
-            </button>
+            {product.images && <ProductHeroImage images={product.images} />}
           </div>
 
           {/* At a glance */}

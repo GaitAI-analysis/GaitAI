@@ -1,0 +1,786 @@
+{
+  "walkscan": {
+    "alt": "Adult walking along a marked gait-assessment lane in a clinical movement lab.",
+    "heroPosition": "76% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/walkscan/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 38086,
+            "sha256": "33d51980d151530de7936a77fbfbf2672a78988c46ad60a286201fa29a5dbd02"
+          },
+          {
+            "src": "/images/products/walkscan/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 77196,
+            "sha256": "d590f55c2f128489b8f53026f5e7b1b145cecebf3ff1c64f5d3469df7bcd804c"
+          },
+          {
+            "src": "/images/products/walkscan/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 116128,
+            "sha256": "b3d1f1033c53ae6d0229e08a7275dcb26de0c588f4280591a4bf48d0f91e374d"
+          },
+          {
+            "src": "/images/products/walkscan/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 223436,
+            "sha256": "1740eee065adde017da8a6a63767e0c3525d0081200b14f308b6164bb3061578"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/walkscan/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 34262,
+            "sha256": "f529892f03947db2a403fbd3164eb4da53994257b7c80bc9f0012a64071d1a8c"
+          },
+          {
+            "src": "/images/products/walkscan/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 66362,
+            "sha256": "9e9fbbf723b726db28d96a74bf999a3b23635f62a239d2a30a71447f279c93ca"
+          },
+          {
+            "src": "/images/products/walkscan/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 96988,
+            "sha256": "771e13cda3a9d57bae870fc85248af77498a70148154ebf64aafb536cfb6982d"
+          },
+          {
+            "src": "/images/products/walkscan/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 185562,
+            "sha256": "12f003a9423cfd7f34afda429f7d6d5e5ee9364b455a63155e94a82d44f323e1"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/walkscan/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 27092,
+            "sha256": "7e82eaf8c0166e6cc0b58a2fa74b03eca6a9f38523f6b37e8607da67cd0dff6a"
+          },
+          {
+            "src": "/images/products/walkscan/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 71526,
+            "sha256": "4d6c4622b185769a21e5ea9bb8732ad59785295e4fac7a4d1dd21f7e0c04e9b3"
+          },
+          {
+            "src": "/images/products/walkscan/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 128742,
+            "sha256": "55c484a78051c4e4b7c5e23e0f86f2220c7807977d6359d7165e9fbf43f7f0da"
+          },
+          {
+            "src": "/images/products/walkscan/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 220958,
+            "sha256": "80ba45b6a1e7f92e8b31e2833ab73498c26b64a33ee4d7ece04ba200b3898a8f"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/walkscan/dark-hero.webp",
+    "heroLight": "/images/products/walkscan/light-hero.webp",
+    "card": "/images/products/walkscan/card.webp"
+  },
+  "fallrisk": {
+    "alt": "Older woman walking with clinician support and visible balance and gait tracking markers.",
+    "heroPosition": "95% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/fallrisk/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 30246,
+            "sha256": "52d0389cd8e0e8bfc1e3b21e9a5d76bcb3cba48b641d1d04f488afdffe4dd053"
+          },
+          {
+            "src": "/images/products/fallrisk/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 59134,
+            "sha256": "0f028e72163cd559434e82cb45ca1cf9c9fdba36c31451edffdcf745773fdcc1"
+          },
+          {
+            "src": "/images/products/fallrisk/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 92204,
+            "sha256": "64a676ce3779bb0604c8272b6e9f16200eb62b5b5b3737774fe5adc3d874e3b9"
+          },
+          {
+            "src": "/images/products/fallrisk/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 170400,
+            "sha256": "4954ed640494b6a107e039f3d210f8a824212a7b65ee8f9006c4b594f503a621"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/fallrisk/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 38156,
+            "sha256": "b6c4b25b08c0a10afdaebcafb42a13ebd1924bc7b9f4fbc1f79a15309ec5bda0"
+          },
+          {
+            "src": "/images/products/fallrisk/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 73094,
+            "sha256": "d3c5bf56b048cac979223a7a4f5b0c05fc4ec1ad10062543d7787357f1782b89"
+          },
+          {
+            "src": "/images/products/fallrisk/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 110552,
+            "sha256": "da17bbcc8350b9ca6ad9c52616010384b4931107bc355eac080d39b49380e1a5"
+          },
+          {
+            "src": "/images/products/fallrisk/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 204354,
+            "sha256": "0ff7b399d8b40e8a79bb9710944e36ef1752c194cf2726573533f0c7ff4db2e1"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/fallrisk/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 24910,
+            "sha256": "52be782a2cbb0e8976b3d5796d1e35a6d4361d5dc86487dff076655e993d6956"
+          },
+          {
+            "src": "/images/products/fallrisk/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 66938,
+            "sha256": "5b50a170c39302d40223b529484942b2ed7a92aaa86401990fc078e699905e07"
+          },
+          {
+            "src": "/images/products/fallrisk/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 116802,
+            "sha256": "cb5883f3c1192f9b72bbdaf3aaa414b1dd4c810a123f1ff9c8a0da371e045ea9"
+          },
+          {
+            "src": "/images/products/fallrisk/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 208760,
+            "sha256": "1eddfbd6f5f9fe6969f60fc6a860a0adb2f16b6ceb9bb346e4ac776bbe30a2e5"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/fallrisk/dark-hero.webp",
+    "heroLight": "/images/products/fallrisk/light-hero.webp",
+    "card": "/images/products/fallrisk/card.webp"
+  },
+  "rehabtrack": {
+    "alt": "Patient practicing walking between rehabilitation parallel bars with a physiotherapist.",
+    "heroPosition": "100% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1774,
+        "height": 887,
+        "variants": [
+          {
+            "src": "/images/products/rehabtrack/dark-hero-480.webp",
+            "width": 480,
+            "height": 240,
+            "bytes": 25358,
+            "sha256": "b9e7c03fa7a2b4b07325084316817025f9e96c8ec2e3632f45b180c714b9c715"
+          },
+          {
+            "src": "/images/products/rehabtrack/dark-hero-768.webp",
+            "width": 768,
+            "height": 384,
+            "bytes": 49032,
+            "sha256": "0eb4956d6fb03fa474b37ab28472cb38b223fdda838ec290285d30e0c7cb6578"
+          },
+          {
+            "src": "/images/products/rehabtrack/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 512,
+            "bytes": 68282,
+            "sha256": "576da1d2178ec8ec1c2db0eef0fa299326b252d97f522d1741085fe2cd53d7c0"
+          },
+          {
+            "src": "/images/products/rehabtrack/dark-hero.webp",
+            "width": 1774,
+            "height": 887,
+            "bytes": 144874,
+            "sha256": "0089b958a98656abb2588d06f5a1252d8d22e91b42f3151540cb9e124b9a639b"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1774,
+        "height": 887,
+        "variants": [
+          {
+            "src": "/images/products/rehabtrack/light-hero-480.webp",
+            "width": 480,
+            "height": 240,
+            "bytes": 32248,
+            "sha256": "5a58702e6eaff8a14ca83b58c3c5892779a8701077bf8f23cefa5e5b382eac37"
+          },
+          {
+            "src": "/images/products/rehabtrack/light-hero-768.webp",
+            "width": 768,
+            "height": 384,
+            "bytes": 63602,
+            "sha256": "9bf4d9efdb6acb984bb11868a309a525a267eabc82be4e10f896be9d25fb04a6"
+          },
+          {
+            "src": "/images/products/rehabtrack/light-hero-1024.webp",
+            "width": 1024,
+            "height": 512,
+            "bytes": 91724,
+            "sha256": "9a3c1636b1e6a31e1550a6063a86a49ad0ac7400940fecb69cc0b3b1dbaa2f61"
+          },
+          {
+            "src": "/images/products/rehabtrack/light-hero.webp",
+            "width": 1774,
+            "height": 887,
+            "bytes": 175460,
+            "sha256": "db676d9339fe2254713381019f2b94594324082c95b98225a9035f9f00f3b551"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/rehabtrack/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 27822,
+            "sha256": "97e24ae4813db573469613327815e93bd5129f28075799f3bbce7a27260b1164"
+          },
+          {
+            "src": "/images/products/rehabtrack/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 74982,
+            "sha256": "252840aa2ba6381bc156842b9f0bdb1cc020fe56380e937f3e56bc99a453af75"
+          },
+          {
+            "src": "/images/products/rehabtrack/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 128160,
+            "sha256": "c38d25197467f212086601ef3181a635b9fca5344419f0c7e1ac53bf97f03d0d"
+          },
+          {
+            "src": "/images/products/rehabtrack/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 220400,
+            "sha256": "8fcd5b41c3b9f8564a7df75a2df08895b3935a67d138265f9de646f1168088d5"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/rehabtrack/dark-hero.webp",
+    "heroLight": "/images/products/rehabtrack/light-hero.webp",
+    "card": "/images/products/rehabtrack/card.webp"
+  },
+  "sportsmotion": {
+    "alt": "Athlete accelerating between training cones in a sports biomechanics lab.",
+    "heroPosition": "90% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/sportsmotion/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 32780,
+            "sha256": "6ccf9d4107bf06cc73189b31e5bb97d8dcfd469e93d3d58c14a8ccad25475c5f"
+          },
+          {
+            "src": "/images/products/sportsmotion/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 64156,
+            "sha256": "39a7269dbadee5c2cfec67c548c79ceaaec5458339fbbb659d94059eafe64175"
+          },
+          {
+            "src": "/images/products/sportsmotion/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 95972,
+            "sha256": "415dbfe8469a561694dc4c2066e19ea445fbf4d4104cbdd4a2ca4e559ccc03e3"
+          },
+          {
+            "src": "/images/products/sportsmotion/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 190724,
+            "sha256": "c05475698880570c8188a653bf451da98b24afbfe3b696cc2dc87fd765047a9e"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/sportsmotion/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 41072,
+            "sha256": "8002ac3c2634edb1408229c201b4efc0a04a42ee55e55ae86f6bda4ab1115d01"
+          },
+          {
+            "src": "/images/products/sportsmotion/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 77104,
+            "sha256": "e05e2a5fbf247637468b265a6bc004817ae382f66ca14b13d03ac170a15b0bd2"
+          },
+          {
+            "src": "/images/products/sportsmotion/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 111776,
+            "sha256": "28f85b47289df57d1cdb51147d0ea6e1f540f8a376f155d2e652a3b2fa867548"
+          },
+          {
+            "src": "/images/products/sportsmotion/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 204108,
+            "sha256": "abf0dd20662d43f7b5e9914dcaceb51ed175ec69795bb896d2e32ca091b8ffa1"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/sportsmotion/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 28348,
+            "sha256": "a76afb5607b4e646a298fed5928d146589491ed1d01f900379989fe91e83e32f"
+          },
+          {
+            "src": "/images/products/sportsmotion/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 73624,
+            "sha256": "376dc0c9ac9a6e4a9b4a1748f93a028a75da47f6fa46bcc9f3a58de2287a2a8b"
+          },
+          {
+            "src": "/images/products/sportsmotion/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 124450,
+            "sha256": "966c5a56a2f1eda1aa587f0d1295f849db641d710a7c36c2f88a696ba9340f3b"
+          },
+          {
+            "src": "/images/products/sportsmotion/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 215102,
+            "sha256": "b9e490301303862abdef9f0c712c46cd9cfb6b8e88e83fded17dec6670a5b48b"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/sportsmotion/dark-hero.webp",
+    "heroLight": "/images/products/sportsmotion/light-hero.webp",
+    "card": "/images/products/sportsmotion/card.webp"
+  },
+  "seniorcare": {
+    "alt": "Older woman receiving walking support from a caregiver in a residential care setting.",
+    "heroPosition": "90% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/seniorcare/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 29556,
+            "sha256": "4fd1cf4aab27809620e47fcc33bd87f7795a33233f73999d2b5a5e0263e5b44a"
+          },
+          {
+            "src": "/images/products/seniorcare/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 57856,
+            "sha256": "5151a8ccb4166095239649ca03ed2ddc2d2aadaed6b6cd55775efe0a923154c7"
+          },
+          {
+            "src": "/images/products/seniorcare/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 83952,
+            "sha256": "d4c3250a745aca2ccbebcf48f5a8b269d8f4c38c0a76734f0025f87937bbd240"
+          },
+          {
+            "src": "/images/products/seniorcare/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 176232,
+            "sha256": "fe540089f3989c66bbc03679313b05b6c29bca80977fa141ee8ac974e93bfef2"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/seniorcare/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 32336,
+            "sha256": "008755b2dabb279ef0abe59d9ae1cdc7c15e05922da4163c6549698ea4f0dd12"
+          },
+          {
+            "src": "/images/products/seniorcare/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 62362,
+            "sha256": "01a8fdadbe6027f5e42f8e61c93286e953eb0438a81d37a3f505ee107a7bf2a3"
+          },
+          {
+            "src": "/images/products/seniorcare/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 91010,
+            "sha256": "afa28db06b0dc2116d74151760d3337d9cb609096e203234f9cf1707f322e0ff"
+          },
+          {
+            "src": "/images/products/seniorcare/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 172394,
+            "sha256": "2749b8a865f1a7861d00d082905cfaf57572d407f2fd7f618808167d94fc4c0d"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/seniorcare/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 30364,
+            "sha256": "8c3a7fc1296dcb72f085fcbc91955194a14b5da767b8900d52c7119987fd27f8"
+          },
+          {
+            "src": "/images/products/seniorcare/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 90228,
+            "sha256": "12a912a2036117e7ff26bee618b8707b8b9fb78000e8e03f98528690935f821c"
+          },
+          {
+            "src": "/images/products/seniorcare/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 162274,
+            "sha256": "d6e44ebe31c9c526a037380e877c6e42335586c62758191d34764372a639d8d3"
+          },
+          {
+            "src": "/images/products/seniorcare/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 296084,
+            "sha256": "be6926c6782f2e32dc94a59f20e5dcb567f39e75930e05a9d77065bf9b64e5c1"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/seniorcare/dark-hero.webp",
+    "heroLight": "/images/products/seniorcare/light-hero.webp",
+    "card": "/images/products/seniorcare/card.webp"
+  },
+  "industrialsafety": {
+    "alt": "Warehouse workers with movement tracking, showing walking and safe lifting in an industrial environment.",
+    "heroPosition": "76% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/industrialsafety/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 37706,
+            "sha256": "88cab4040513418706acf9e1cd3c5aed550330043f867b53b94760530e355b1a"
+          },
+          {
+            "src": "/images/products/industrialsafety/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 73074,
+            "sha256": "5c24890295df8cc2cf2e5bb9ed6a6300bafe0a56deb088a773a6023e6f5345a5"
+          },
+          {
+            "src": "/images/products/industrialsafety/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 109390,
+            "sha256": "07bb2993a789bc78fb93fc801d6a5d3bb38e1ea5cfc53c642514d5a11444f37a"
+          },
+          {
+            "src": "/images/products/industrialsafety/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 202894,
+            "sha256": "99723ccd5a0b2e5dbe1a9be04971dab8a6ac99f7d46d7cf0f8102cc39e35cc1b"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/industrialsafety/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 41804,
+            "sha256": "3defc70860aa9d44ad69bac4209db0de2b4476414caa4362de3ad6b21ada5944"
+          },
+          {
+            "src": "/images/products/industrialsafety/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 80654,
+            "sha256": "587340a8125d09fd0ffe2ca877ce1c299de629fa192501b4e13279c3ffc18661"
+          },
+          {
+            "src": "/images/products/industrialsafety/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 121374,
+            "sha256": "f52f282a3a3f73958fc20ee5b70f442989465c9fc814501d5e715803614aa622"
+          },
+          {
+            "src": "/images/products/industrialsafety/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 227400,
+            "sha256": "15352ca9c6983d1158152bd033587215e99ef0bef81ff8f140806a7539e31616"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/industrialsafety/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 30738,
+            "sha256": "fdef0777dcbecc6df6afcd91184a9a4f67b6d4b9ffecc288c1c10d40612d9eb7"
+          },
+          {
+            "src": "/images/products/industrialsafety/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 84206,
+            "sha256": "a99fbced29e36ac489276ac36d80b37c74ab019e409e13539839c8e85135293b"
+          },
+          {
+            "src": "/images/products/industrialsafety/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 149572,
+            "sha256": "0f8626f79041f081b18d138130d0718edf53d032108aa8d3142dc9d1dc242cff"
+          },
+          {
+            "src": "/images/products/industrialsafety/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 267082,
+            "sha256": "80b4932c5a43804d0bb1a8a04f0380a12cdd06390a69dc840392a5a971a56ead"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/industrialsafety/dark-hero.webp",
+    "heroLight": "/images/products/industrialsafety/light-hero.webp",
+    "card": "/images/products/industrialsafety/card.webp"
+  },
+  "retailguard": {
+    "alt": "Shopper movement tracking in a retail shopping centre.",
+    "heroPosition": "76% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/retailguard/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 41112,
+            "sha256": "d64dbe80a6d7581974605071d31b09068a66619d0a200c1480ce3d9effa6c47c"
+          },
+          {
+            "src": "/images/products/retailguard/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 78542,
+            "sha256": "39fcdce9abe53f7bc39b8fc78869761f2e4baceaba574109f189763a43bf5430"
+          },
+          {
+            "src": "/images/products/retailguard/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 117858,
+            "sha256": "b45551f49f03b889d3415b95fccc3ddd3801e4ab164c5b7a776322e4b774762a"
+          },
+          {
+            "src": "/images/products/retailguard/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 203162,
+            "sha256": "dfad137364dbc544e8b9a2b856362be356669a38486cb46a729a7fccc64ee43c"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/retailguard/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 43132,
+            "sha256": "c3fc526f0414e572cd28614c7529343472b03489499951176f9f75a88d3489b8"
+          },
+          {
+            "src": "/images/products/retailguard/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 81158,
+            "sha256": "0f242c955e84bb27734aedaa6bc4021581701ae0d5f47f39bcb6bd78885a284a"
+          },
+          {
+            "src": "/images/products/retailguard/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 118724,
+            "sha256": "2c1b73c38e2602e672491dfa40c6adc77c6f222f1d3f4660b13a8edeea3e5714"
+          },
+          {
+            "src": "/images/products/retailguard/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 230566,
+            "sha256": "2ff56c5fa8b2b8cd6ce78f80f31c9da87f99fa27537e1af6c89a1c21a36991cd"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/retailguard/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 31452,
+            "sha256": "f27f773a4207f64dd4be9d68ab418eb162e37b7398703849dd2f047fb7ccd9c3"
+          },
+          {
+            "src": "/images/products/retailguard/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 83406,
+            "sha256": "de1bba84dacf25f409412a99272625446c9ac74d40f609802cfe291af434e7c5"
+          },
+          {
+            "src": "/images/products/retailguard/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 147176,
+            "sha256": "b86bdf55780b13b3c0352e25bebf08d3bc7ac569411ad544dbb1a26346a42b17"
+          },
+          {
+            "src": "/images/products/retailguard/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 247224,
+            "sha256": "8166fa7078910265c99438a084111c43c0c348cec9830b5cb0ed08592d9c8b0b"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/retailguard/dark-hero.webp",
+    "heroLight": "/images/products/retailguard/light-hero.webp",
+    "card": "/images/products/retailguard/card.webp"
+  }
+}

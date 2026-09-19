@@ -159,6 +159,20 @@
       "navigation": false
     },
     {
+      "id": "eventshield",
+      "label": "EventShield",
+      "href": "/securevision/eventshield/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
+      "id": "retailguard",
+      "label": "RetailGuard",
+      "href": "/securevision/retailguard/",
+      "vertical": "securevision",
+      "navigation": false
+    },
+    {
       "id": "forensicsearch",
       "label": "ForensicSearch",
       "href": "/securevision/forensicsearch/",
@@ -176,20 +190,6 @@
       "id": "accessmotion",
       "label": "AccessMotion",
       "href": "/securevision/accessmotion/",
-      "vertical": "securevision",
-      "navigation": false
-    },
-    {
-      "id": "eventshield",
-      "label": "EventShield",
-      "href": "/securevision/eventshield/",
-      "vertical": "securevision",
-      "navigation": false
-    },
-    {
-      "id": "retailguard",
-      "label": "RetailGuard",
-      "href": "/securevision/retailguard/",
       "vertical": "securevision",
       "navigation": false
     },

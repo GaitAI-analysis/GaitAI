@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-15",
+  "generatedAt": "2026-09-19",
   "counts": {
     "page": 66,
     "product": 120,
@@ -4518,6 +4518,428 @@
       "parentId": "product:campusshield"
     },
     {
+      "id": "product:eventshield",
+      "type": "product",
+      "title": "EventShield",
+      "slug": "eventshield",
+      "url": "/securevision/eventshield/",
+      "family": "securevision",
+      "category": "Large-event movement & crowd-risk intelligence",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
+      "content": "Full name: GaitAI EventShield\nProduct family: SecureVision\nWhat it is: Large-event movement & crowd-risk intelligence\nHeadline: Stadium, concert, conference — crowd-movement indicators.\nDescription: Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.\nOverview: EventShield aggregates crowd movement into operational safety indicators for high-density venues — entry/exit flow, density-risk indicators, bottlenecks, abnormal crowd-motion indicators and evacuation summaries.\nAt a glance: input — Venue cameras; analysis — Crowd-risk analytics; output — Ops safety indicators; user — Event operations\nProblem it addresses: Large events create rapidly changing crowd density and entry/exit conditions.\nHow it works: Event-tuned crowd analytics track flow and density against venue capacity, flagging bottlenecks and abnormal crowd-motion indicators for the operations team. Real-time-oriented monitoring where the deployment is configured for it.\nWho it is for: Event organizers · Stadiums · Police · Civic bodies · Conference centers\nWhat the user receives: Entry / exit flow · Density risk · Bottleneck indicator · Abnormal crowd-motion indicator · Evacuation movement summary\nOutputs: Entry / exit flow · Density risk · Sudden-dispersal movement alert · Queue overload · Evacuation support\nInputs accepted: Venue camera streams · Zone / gate / capacity configuration · Event schedule\nPrimary capture sources: CCTV / fixed camera\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.\nFurther sections of this module's record: How it works and what it needs · Deployment and integration · Limits, interpretation and privacy · Signals, capabilities, research and evidence",
+      "keywords": [
+        "eventshield",
+        "gaitai eventshield",
+        "large-event movement & crowd-risk intelligence",
+        "event organizers",
+        "stadiums",
+        "police",
+        "civic bodies",
+        "conference centers",
+        "entry / exit flow",
+        "density risk",
+        "sudden-dispersal movement alert",
+        "queue overload",
+        "evacuation support",
+        "large events & stadiums",
+        "venue camera streams",
+        "zone / gate / capacity configuration",
+        "event schedule",
+        "cctv / fixed camera",
+        "venue cameras",
+        "ops safety indicators"
+      ],
+      "entityId": "eventshield",
+      "aliases": [
+        "eventshield",
+        "gaitai eventshield"
+      ]
+    },
+    {
+      "id": "product:eventshield#how-it-works",
+      "type": "product",
+      "title": "EventShield",
+      "sectionTitle": "How it works and what it needs",
+      "slug": "eventshield",
+      "url": "/securevision/eventshield/",
+      "family": "securevision",
+      "category": "Large-event movement & crowd-risk intelligence",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "EventShield — how it works and what it needs. Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
+      "content": "Module: EventShield (GaitAI EventShield) — Large-event movement & crowd-risk intelligence\nSection: How it works and what it needs\nInputs accepted: Venue camera streams · Zone / gate / capacity configuration · Event schedule\nPrimary capture sources: CCTV / fixed camera\nAlso documented as usable, where available: Nothing beyond the primary capture sources above.\nProcessing pipeline: Venue cameras · Trajectory aggregation · Capacity-aware analytics · Risk indicators · Ops dashboard · Post-event report\nMovement features used: Gate entry/exit flow rates · Zone density vs capacity · Sudden-dispersal (panic-like) movement descriptors · Evacuation-flow aggregates\nModels: Event-tuned density estimation · Flow-rate tracking per gate · Sudden-dispersal movement descriptors over aggregate motion\nQuality requirements: Pre-event coverage validation per zone · Threshold rehearsal against venue plans · Indicator confidence flags during degraded coverage",
+      "keywords": [
+        "eventshield",
+        "gaitai eventshield",
+        "how it works and what it needs",
+        "how does it work",
+        "pipeline",
+        "inputs",
+        "input data",
+        "models",
+        "features",
+        "capture",
+        "quality",
+        "venue camera streams",
+        "zone / gate / capacity configuration",
+        "event schedule",
+        "cctv / fixed camera"
+      ],
+      "parentId": "product:eventshield"
+    },
+    {
+      "id": "product:eventshield#deployment",
+      "type": "product",
+      "title": "EventShield",
+      "sectionTitle": "Deployment and integration",
+      "slug": "eventshield",
+      "url": "/securevision/eventshield/",
+      "family": "securevision",
+      "category": "Large-event movement & crowd-risk intelligence",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "EventShield — deployment and integration. Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
+      "content": "Module: EventShield (GaitAI EventShield) — Large-event movement & crowd-risk intelligence\nSection: Deployment and integration\nWorkflow: Venue zones and capacities are configured pre-event · Live flow and density track against thresholds · Bottleneck and abnormal crowd-motion indicators reach operations · Teams adjust gates, routes and announcements · Post-event summaries feed the next event plan\nDeployment: Pre-event zone and capacity configuration · Event-day operations dashboard · Aggregate-only crowd analytics · Post-event review reports\nDocumented deployment environments: Large events & stadiums\nIntegration: Event control-room dashboards · CrowdSense shared analytics core · Alert routing to operations channels",
+      "keywords": [
+        "eventshield",
+        "gaitai eventshield",
+        "deployment and integration",
+        "deployment",
+        "deploy",
+        "integration",
+        "integrate",
+        "workflow",
+        "environments",
+        "where is it used",
+        "api",
+        "rollout",
+        "large events & stadiums"
+      ],
+      "parentId": "product:eventshield"
+    },
+    {
+      "id": "product:eventshield#limits-and-privacy",
+      "type": "product",
+      "title": "EventShield",
+      "sectionTitle": "Limits, interpretation and privacy",
+      "slug": "eventshield",
+      "url": "/securevision/eventshield/",
+      "family": "securevision",
+      "category": "Large-event movement & crowd-risk intelligence",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "EventShield — limits, interpretation and privacy. Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
+      "content": "Module: EventShield (GaitAI EventShield) — Large-event movement & crowd-risk intelligence\nSection: Limits, interpretation and privacy\nDocumented limitations: Aggregate indicators — not individual tracking · Coverage and camera placement bound accuracy · Crowd-management decisions remain with the venue\nInterpretation of outputs: Indicators describe crowd state relative to the venue plan. Operations teams read them alongside radio traffic and stewarding reports — the dashboard informs the decision, people make it.\nResponsible use and privacy: Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
+      "keywords": [
+        "eventshield",
+        "gaitai eventshield",
+        "limits, interpretation and privacy",
+        "limitations",
+        "limits",
+        "interpretation",
+        "interpret",
+        "privacy",
+        "responsible use",
+        "consent",
+        "anonymisation",
+        "does not diagnose",
+        "decision support"
+      ],
+      "parentId": "product:eventshield"
+    },
+    {
+      "id": "product:eventshield#evidence",
+      "type": "product",
+      "title": "EventShield",
+      "sectionTitle": "Signals, capabilities, research and evidence",
+      "slug": "eventshield",
+      "url": "/securevision/eventshield/",
+      "family": "securevision",
+      "category": "Large-event movement & crowd-risk intelligence",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "EventShield — signals, capabilities, research and evidence. Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
+      "content": "Module: EventShield (GaitAI EventShield) — Large-event movement & crowd-risk intelligence\nSection: Signals, capabilities, research and evidence\nPublished research reaching this module: No publication in the GaitAI record addresses this module specifically.\nEvidence status: Research foundation — Not yet published · Architectural research relationship — Not yet published · Product specification — Available · Product implementation evidence — Not yet published · Interactive demo — Not yet published · Benchmark validation — Not yet published · Product-specific validation — Not yet published · Pilot & deployment evidence — Not yet published · Product-specific clinical validation — Not yet published · Regulatory clearance — Not claimed\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.",
+      "keywords": [
+        "eventshield",
+        "gaitai eventshield",
+        "signals, capabilities, research and evidence",
+        "evidence",
+        "validation",
+        "validated",
+        "accuracy",
+        "research",
+        "papers",
+        "maturity",
+        "signals",
+        "capabilities",
+        "sample output"
+      ],
+      "parentId": "product:eventshield"
+    },
+    {
+      "id": "product:retailguard",
+      "type": "product",
+      "title": "RetailGuard",
+      "slug": "retailguard",
+      "url": "/securevision/retailguard/",
+      "family": "securevision",
+      "category": "Retail movement & loss-prevention support",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
+      "content": "Full name: GaitAI RetailGuard\nProduct family: SecureVision\nWhat it is: Retail movement & loss-prevention support\nHeadline: Movement intelligence for the modern retail floor.\nDescription: Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.\nOverview: RetailGuard provides movement-aware operational analytics across retail zones — loitering alerts, queue analytics, emergency flow, staff-safety events and crowd heatmaps.\nAt a glance: input — Store cameras; analysis — Retail movement analytics; output — Floor ops insights; user — Store operations\nProblem it addresses: Retail environments combine queue management, staff safety, emergency flow and unusual-movement monitoring.\nHow it works: One movement layer serves all four: queue and flow analytics for operations, loitering and unusual-movement events for security, and staff-safety alerts for duty managers.\nWho it is for: Retail chains · Malls · Big-box stores\nWhat the user receives: Loitering alert · Queue analytics · Emergency flow · Staff-safety event · Crowd heatmap\nOutputs: Loitering alert · Queue analytics · Emergency flow · Staff safety · Crowd heatmaps\nInputs accepted: Store camera streams · Zone configuration (queues, aisles, service areas) · Store schedule\nPrimary capture sources: CCTV / fixed camera\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.\nFurther sections of this module's record: How it works and what it needs · Deployment and integration · Limits, interpretation and privacy · Signals, capabilities, research and evidence",
+      "keywords": [
+        "retailguard",
+        "gaitai retailguard",
+        "retail movement & loss-prevention support",
+        "retail chains",
+        "malls",
+        "big-box stores",
+        "loitering alert",
+        "queue analytics",
+        "emergency flow",
+        "staff safety",
+        "crowd heatmaps",
+        "malls & retail",
+        "store camera streams",
+        "zone configuration (queues, aisles, service areas)",
+        "store schedule",
+        "cctv / fixed camera",
+        "store cameras",
+        "floor ops insights"
+      ],
+      "entityId": "retailguard",
+      "aliases": [
+        "retailguard",
+        "gaitai retailguard"
+      ]
+    },
+    {
+      "id": "product:retailguard#how-it-works",
+      "type": "product",
+      "title": "RetailGuard",
+      "sectionTitle": "How it works and what it needs",
+      "slug": "retailguard",
+      "url": "/securevision/retailguard/",
+      "family": "securevision",
+      "category": "Retail movement & loss-prevention support",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "RetailGuard — how it works and what it needs. Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
+      "content": "Module: RetailGuard (GaitAI RetailGuard) — Retail movement & loss-prevention support\nSection: How it works and what it needs\nInputs accepted: Store camera streams · Zone configuration (queues, aisles, service areas) · Store schedule\nPrimary capture sources: CCTV / fixed camera\nAlso documented as usable, where available: Nothing beyond the primary capture sources above.\nProcessing pipeline: Store cameras · Movement tracking · Zone analytics · Events + queue insights · Store dashboard · Chain aggregation\nMovement features used: Queue length and wait descriptors · Dwell / loitering descriptors · Emergency-flow aggregates · Staff-zone safety events\nModels: Queue analytics over configured lines · Dwell-pattern detection · Shared event pipeline with SuspiciousMotion\nQuality requirements: Zone-coverage validation per store · Queue-calibration checks · Event confidence flags for triage",
+      "keywords": [
+        "retailguard",
+        "gaitai retailguard",
+        "how it works and what it needs",
+        "how does it work",
+        "pipeline",
+        "inputs",
+        "input data",
+        "models",
+        "features",
+        "capture",
+        "quality",
+        "store camera streams",
+        "zone configuration (queues, aisles, service areas)",
+        "store schedule",
+        "cctv / fixed camera"
+      ],
+      "parentId": "product:retailguard"
+    },
+    {
+      "id": "product:retailguard#deployment",
+      "type": "product",
+      "title": "RetailGuard",
+      "sectionTitle": "Deployment and integration",
+      "slug": "retailguard",
+      "url": "/securevision/retailguard/",
+      "family": "securevision",
+      "category": "Retail movement & loss-prevention support",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "RetailGuard — deployment and integration. Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
+      "content": "Module: RetailGuard (GaitAI RetailGuard) — Retail movement & loss-prevention support\nSection: Deployment and integration\nWorkflow: Store zones (queues, aisles, backrooms) are configured · Movement analytics run across the floor · Queue and density insights reach operations · Movement events reach security / duty managers · Heatmaps inform layout and staffing decisions\nDeployment: Per-store zone configuration · Chain-level and store-level dashboards · Aggregate heatmaps for layout planning · PrivacyGuard controls throughout\nDocumented deployment environments: Malls & retail\nIntegration: Store operations dashboards · CrowdSense analytics core · Alert routing to duty managers",
+      "keywords": [
+        "retailguard",
+        "gaitai retailguard",
+        "deployment and integration",
+        "deployment",
+        "deploy",
+        "integration",
+        "integrate",
+        "workflow",
+        "environments",
+        "where is it used",
+        "api",
+        "rollout",
+        "malls & retail"
+      ],
+      "parentId": "product:retailguard"
+    },
+    {
+      "id": "product:retailguard#limits-and-privacy",
+      "type": "product",
+      "title": "RetailGuard",
+      "sectionTitle": "Limits, interpretation and privacy",
+      "slug": "retailguard",
+      "url": "/securevision/retailguard/",
+      "family": "securevision",
+      "category": "Retail movement & loss-prevention support",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "RetailGuard — limits, interpretation and privacy. Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
+      "content": "Module: RetailGuard (GaitAI RetailGuard) — Retail movement & loss-prevention support\nSection: Limits, interpretation and privacy\nDocumented limitations: Movement-defined events — human review before any action · Coverage varies with store camera layouts · Loss-prevention use must follow policy and law\nInterpretation of outputs: Operational reads: a queue alert means open a till; a loitering event means send a colleague to assist or check; heatmaps show where the floor actually works. Movement events are prompts, not accusations.\nResponsible use and privacy: Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
+      "keywords": [
+        "retailguard",
+        "gaitai retailguard",
+        "limits, interpretation and privacy",
+        "limitations",
+        "limits",
+        "interpretation",
+        "interpret",
+        "privacy",
+        "responsible use",
+        "consent",
+        "anonymisation",
+        "does not diagnose",
+        "decision support"
+      ],
+      "parentId": "product:retailguard"
+    },
+    {
+      "id": "product:retailguard#evidence",
+      "type": "product",
+      "title": "RetailGuard",
+      "sectionTitle": "Signals, capabilities, research and evidence",
+      "slug": "retailguard",
+      "url": "/securevision/retailguard/",
+      "family": "securevision",
+      "category": "Retail movement & loss-prevention support",
+      "relatedProducts": [
+        "crowdsense",
+        "suspiciousmotion",
+        "privacyguard"
+      ],
+      "relatedResearch": [],
+      "tags": [
+        "securevision"
+      ],
+      "topics": [
+        "SecureVision"
+      ],
+      "summary": "RetailGuard — signals, capabilities, research and evidence. Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
+      "content": "Module: RetailGuard (GaitAI RetailGuard) — Retail movement & loss-prevention support\nSection: Signals, capabilities, research and evidence\nPublished research reaching this module: No publication in the GaitAI record addresses this module specifically.\nEvidence status: Research foundation — Not yet published · Architectural research relationship — Not yet published · Product specification — Available · Product implementation evidence — Not yet published · Interactive demo — Not yet published · Benchmark validation — Not yet published · Product-specific validation — Not yet published · Pilot & deployment evidence — Not yet published · Product-specific clinical validation — Not yet published · Regulatory clearance — Not claimed\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.",
+      "keywords": [
+        "retailguard",
+        "gaitai retailguard",
+        "signals, capabilities, research and evidence",
+        "evidence",
+        "validation",
+        "validated",
+        "accuracy",
+        "research",
+        "papers",
+        "maturity",
+        "signals",
+        "capabilities",
+        "sample output"
+      ],
+      "parentId": "product:retailguard"
+    },
+    {
       "id": "product:forensicsearch",
       "type": "product",
       "title": "ForensicSearch",
@@ -5264,428 +5686,6 @@
         "sample output"
       ],
       "parentId": "product:accessmotion"
-    },
-    {
-      "id": "product:eventshield",
-      "type": "product",
-      "title": "EventShield",
-      "slug": "eventshield",
-      "url": "/securevision/eventshield/",
-      "family": "securevision",
-      "category": "Large-event movement & crowd-risk intelligence",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
-      "content": "Full name: GaitAI EventShield\nProduct family: SecureVision\nWhat it is: Large-event movement & crowd-risk intelligence\nHeadline: Stadium, concert, conference — crowd-movement indicators.\nDescription: Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.\nOverview: EventShield aggregates crowd movement into operational safety indicators for high-density venues — entry/exit flow, density-risk indicators, bottlenecks, abnormal crowd-motion indicators and evacuation summaries.\nAt a glance: input — Venue cameras; analysis — Crowd-risk analytics; output — Ops safety indicators; user — Event operations\nProblem it addresses: Large events create rapidly changing crowd density and entry/exit conditions.\nHow it works: Event-tuned crowd analytics track flow and density against venue capacity, flagging bottlenecks and abnormal crowd-motion indicators for the operations team. Real-time-oriented monitoring where the deployment is configured for it.\nWho it is for: Event organizers · Stadiums · Police · Civic bodies · Conference centers\nWhat the user receives: Entry / exit flow · Density risk · Bottleneck indicator · Abnormal crowd-motion indicator · Evacuation movement summary\nOutputs: Entry / exit flow · Density risk · Sudden-dispersal movement alert · Queue overload · Evacuation support\nInputs accepted: Venue camera streams · Zone / gate / capacity configuration · Event schedule\nPrimary capture sources: CCTV / fixed camera\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.\nFurther sections of this module's record: How it works and what it needs · Deployment and integration · Limits, interpretation and privacy · Signals, capabilities, research and evidence",
-      "keywords": [
-        "eventshield",
-        "gaitai eventshield",
-        "large-event movement & crowd-risk intelligence",
-        "event organizers",
-        "stadiums",
-        "police",
-        "civic bodies",
-        "conference centers",
-        "entry / exit flow",
-        "density risk",
-        "sudden-dispersal movement alert",
-        "queue overload",
-        "evacuation support",
-        "large events & stadiums",
-        "venue camera streams",
-        "zone / gate / capacity configuration",
-        "event schedule",
-        "cctv / fixed camera",
-        "venue cameras",
-        "ops safety indicators"
-      ],
-      "entityId": "eventshield",
-      "aliases": [
-        "eventshield",
-        "gaitai eventshield"
-      ]
-    },
-    {
-      "id": "product:eventshield#how-it-works",
-      "type": "product",
-      "title": "EventShield",
-      "sectionTitle": "How it works and what it needs",
-      "slug": "eventshield",
-      "url": "/securevision/eventshield/",
-      "family": "securevision",
-      "category": "Large-event movement & crowd-risk intelligence",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "EventShield — how it works and what it needs. Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
-      "content": "Module: EventShield (GaitAI EventShield) — Large-event movement & crowd-risk intelligence\nSection: How it works and what it needs\nInputs accepted: Venue camera streams · Zone / gate / capacity configuration · Event schedule\nPrimary capture sources: CCTV / fixed camera\nAlso documented as usable, where available: Nothing beyond the primary capture sources above.\nProcessing pipeline: Venue cameras · Trajectory aggregation · Capacity-aware analytics · Risk indicators · Ops dashboard · Post-event report\nMovement features used: Gate entry/exit flow rates · Zone density vs capacity · Sudden-dispersal (panic-like) movement descriptors · Evacuation-flow aggregates\nModels: Event-tuned density estimation · Flow-rate tracking per gate · Sudden-dispersal movement descriptors over aggregate motion\nQuality requirements: Pre-event coverage validation per zone · Threshold rehearsal against venue plans · Indicator confidence flags during degraded coverage",
-      "keywords": [
-        "eventshield",
-        "gaitai eventshield",
-        "how it works and what it needs",
-        "how does it work",
-        "pipeline",
-        "inputs",
-        "input data",
-        "models",
-        "features",
-        "capture",
-        "quality",
-        "venue camera streams",
-        "zone / gate / capacity configuration",
-        "event schedule",
-        "cctv / fixed camera"
-      ],
-      "parentId": "product:eventshield"
-    },
-    {
-      "id": "product:eventshield#deployment",
-      "type": "product",
-      "title": "EventShield",
-      "sectionTitle": "Deployment and integration",
-      "slug": "eventshield",
-      "url": "/securevision/eventshield/",
-      "family": "securevision",
-      "category": "Large-event movement & crowd-risk intelligence",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "EventShield — deployment and integration. Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
-      "content": "Module: EventShield (GaitAI EventShield) — Large-event movement & crowd-risk intelligence\nSection: Deployment and integration\nWorkflow: Venue zones and capacities are configured pre-event · Live flow and density track against thresholds · Bottleneck and abnormal crowd-motion indicators reach operations · Teams adjust gates, routes and announcements · Post-event summaries feed the next event plan\nDeployment: Pre-event zone and capacity configuration · Event-day operations dashboard · Aggregate-only crowd analytics · Post-event review reports\nDocumented deployment environments: Large events & stadiums\nIntegration: Event control-room dashboards · CrowdSense shared analytics core · Alert routing to operations channels",
-      "keywords": [
-        "eventshield",
-        "gaitai eventshield",
-        "deployment and integration",
-        "deployment",
-        "deploy",
-        "integration",
-        "integrate",
-        "workflow",
-        "environments",
-        "where is it used",
-        "api",
-        "rollout",
-        "large events & stadiums"
-      ],
-      "parentId": "product:eventshield"
-    },
-    {
-      "id": "product:eventshield#limits-and-privacy",
-      "type": "product",
-      "title": "EventShield",
-      "sectionTitle": "Limits, interpretation and privacy",
-      "slug": "eventshield",
-      "url": "/securevision/eventshield/",
-      "family": "securevision",
-      "category": "Large-event movement & crowd-risk intelligence",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "EventShield — limits, interpretation and privacy. Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
-      "content": "Module: EventShield (GaitAI EventShield) — Large-event movement & crowd-risk intelligence\nSection: Limits, interpretation and privacy\nDocumented limitations: Aggregate indicators — not individual tracking · Coverage and camera placement bound accuracy · Crowd-management decisions remain with the venue\nInterpretation of outputs: Indicators describe crowd state relative to the venue plan. Operations teams read them alongside radio traffic and stewarding reports — the dashboard informs the decision, people make it.\nResponsible use and privacy: Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
-      "keywords": [
-        "eventshield",
-        "gaitai eventshield",
-        "limits, interpretation and privacy",
-        "limitations",
-        "limits",
-        "interpretation",
-        "interpret",
-        "privacy",
-        "responsible use",
-        "consent",
-        "anonymisation",
-        "does not diagnose",
-        "decision support"
-      ],
-      "parentId": "product:eventshield"
-    },
-    {
-      "id": "product:eventshield#evidence",
-      "type": "product",
-      "title": "EventShield",
-      "sectionTitle": "Signals, capabilities, research and evidence",
-      "slug": "eventshield",
-      "url": "/securevision/eventshield/",
-      "family": "securevision",
-      "category": "Large-event movement & crowd-risk intelligence",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "EventShield — signals, capabilities, research and evidence. Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
-      "content": "Module: EventShield (GaitAI EventShield) — Large-event movement & crowd-risk intelligence\nSection: Signals, capabilities, research and evidence\nPublished research reaching this module: No publication in the GaitAI record addresses this module specifically.\nEvidence status: Research foundation — Not yet published · Architectural research relationship — Not yet published · Product specification — Available · Product implementation evidence — Not yet published · Interactive demo — Not yet published · Benchmark validation — Not yet published · Product-specific validation — Not yet published · Pilot & deployment evidence — Not yet published · Product-specific clinical validation — Not yet published · Regulatory clearance — Not claimed\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.",
-      "keywords": [
-        "eventshield",
-        "gaitai eventshield",
-        "signals, capabilities, research and evidence",
-        "evidence",
-        "validation",
-        "validated",
-        "accuracy",
-        "research",
-        "papers",
-        "maturity",
-        "signals",
-        "capabilities",
-        "sample output"
-      ],
-      "parentId": "product:eventshield"
-    },
-    {
-      "id": "product:retailguard",
-      "type": "product",
-      "title": "RetailGuard",
-      "slug": "retailguard",
-      "url": "/securevision/retailguard/",
-      "family": "securevision",
-      "category": "Retail movement & loss-prevention support",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
-      "content": "Full name: GaitAI RetailGuard\nProduct family: SecureVision\nWhat it is: Retail movement & loss-prevention support\nHeadline: Movement intelligence for the modern retail floor.\nDescription: Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.\nOverview: RetailGuard provides movement-aware operational analytics across retail zones — loitering alerts, queue analytics, emergency flow, staff-safety events and crowd heatmaps.\nAt a glance: input — Store cameras; analysis — Retail movement analytics; output — Floor ops insights; user — Store operations\nProblem it addresses: Retail environments combine queue management, staff safety, emergency flow and unusual-movement monitoring.\nHow it works: One movement layer serves all four: queue and flow analytics for operations, loitering and unusual-movement events for security, and staff-safety alerts for duty managers.\nWho it is for: Retail chains · Malls · Big-box stores\nWhat the user receives: Loitering alert · Queue analytics · Emergency flow · Staff-safety event · Crowd heatmap\nOutputs: Loitering alert · Queue analytics · Emergency flow · Staff safety · Crowd heatmaps\nInputs accepted: Store camera streams · Zone configuration (queues, aisles, service areas) · Store schedule\nPrimary capture sources: CCTV / fixed camera\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.\nFurther sections of this module's record: How it works and what it needs · Deployment and integration · Limits, interpretation and privacy · Signals, capabilities, research and evidence",
-      "keywords": [
-        "retailguard",
-        "gaitai retailguard",
-        "retail movement & loss-prevention support",
-        "retail chains",
-        "malls",
-        "big-box stores",
-        "loitering alert",
-        "queue analytics",
-        "emergency flow",
-        "staff safety",
-        "crowd heatmaps",
-        "malls & retail",
-        "store camera streams",
-        "zone configuration (queues, aisles, service areas)",
-        "store schedule",
-        "cctv / fixed camera",
-        "store cameras",
-        "floor ops insights"
-      ],
-      "entityId": "retailguard",
-      "aliases": [
-        "retailguard",
-        "gaitai retailguard"
-      ]
-    },
-    {
-      "id": "product:retailguard#how-it-works",
-      "type": "product",
-      "title": "RetailGuard",
-      "sectionTitle": "How it works and what it needs",
-      "slug": "retailguard",
-      "url": "/securevision/retailguard/",
-      "family": "securevision",
-      "category": "Retail movement & loss-prevention support",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "RetailGuard — how it works and what it needs. Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
-      "content": "Module: RetailGuard (GaitAI RetailGuard) — Retail movement & loss-prevention support\nSection: How it works and what it needs\nInputs accepted: Store camera streams · Zone configuration (queues, aisles, service areas) · Store schedule\nPrimary capture sources: CCTV / fixed camera\nAlso documented as usable, where available: Nothing beyond the primary capture sources above.\nProcessing pipeline: Store cameras · Movement tracking · Zone analytics · Events + queue insights · Store dashboard · Chain aggregation\nMovement features used: Queue length and wait descriptors · Dwell / loitering descriptors · Emergency-flow aggregates · Staff-zone safety events\nModels: Queue analytics over configured lines · Dwell-pattern detection · Shared event pipeline with SuspiciousMotion\nQuality requirements: Zone-coverage validation per store · Queue-calibration checks · Event confidence flags for triage",
-      "keywords": [
-        "retailguard",
-        "gaitai retailguard",
-        "how it works and what it needs",
-        "how does it work",
-        "pipeline",
-        "inputs",
-        "input data",
-        "models",
-        "features",
-        "capture",
-        "quality",
-        "store camera streams",
-        "zone configuration (queues, aisles, service areas)",
-        "store schedule",
-        "cctv / fixed camera"
-      ],
-      "parentId": "product:retailguard"
-    },
-    {
-      "id": "product:retailguard#deployment",
-      "type": "product",
-      "title": "RetailGuard",
-      "sectionTitle": "Deployment and integration",
-      "slug": "retailguard",
-      "url": "/securevision/retailguard/",
-      "family": "securevision",
-      "category": "Retail movement & loss-prevention support",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "RetailGuard — deployment and integration. Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
-      "content": "Module: RetailGuard (GaitAI RetailGuard) — Retail movement & loss-prevention support\nSection: Deployment and integration\nWorkflow: Store zones (queues, aisles, backrooms) are configured · Movement analytics run across the floor · Queue and density insights reach operations · Movement events reach security / duty managers · Heatmaps inform layout and staffing decisions\nDeployment: Per-store zone configuration · Chain-level and store-level dashboards · Aggregate heatmaps for layout planning · PrivacyGuard controls throughout\nDocumented deployment environments: Malls & retail\nIntegration: Store operations dashboards · CrowdSense analytics core · Alert routing to duty managers",
-      "keywords": [
-        "retailguard",
-        "gaitai retailguard",
-        "deployment and integration",
-        "deployment",
-        "deploy",
-        "integration",
-        "integrate",
-        "workflow",
-        "environments",
-        "where is it used",
-        "api",
-        "rollout",
-        "malls & retail"
-      ],
-      "parentId": "product:retailguard"
-    },
-    {
-      "id": "product:retailguard#limits-and-privacy",
-      "type": "product",
-      "title": "RetailGuard",
-      "sectionTitle": "Limits, interpretation and privacy",
-      "slug": "retailguard",
-      "url": "/securevision/retailguard/",
-      "family": "securevision",
-      "category": "Retail movement & loss-prevention support",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "RetailGuard — limits, interpretation and privacy. Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
-      "content": "Module: RetailGuard (GaitAI RetailGuard) — Retail movement & loss-prevention support\nSection: Limits, interpretation and privacy\nDocumented limitations: Movement-defined events — human review before any action · Coverage varies with store camera layouts · Loss-prevention use must follow policy and law\nInterpretation of outputs: Operational reads: a queue alert means open a till; a loitering event means send a colleague to assist or check; heatmaps show where the floor actually works. Movement events are prompts, not accusations.\nResponsible use and privacy: Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
-      "keywords": [
-        "retailguard",
-        "gaitai retailguard",
-        "limits, interpretation and privacy",
-        "limitations",
-        "limits",
-        "interpretation",
-        "interpret",
-        "privacy",
-        "responsible use",
-        "consent",
-        "anonymisation",
-        "does not diagnose",
-        "decision support"
-      ],
-      "parentId": "product:retailguard"
-    },
-    {
-      "id": "product:retailguard#evidence",
-      "type": "product",
-      "title": "RetailGuard",
-      "sectionTitle": "Signals, capabilities, research and evidence",
-      "slug": "retailguard",
-      "url": "/securevision/retailguard/",
-      "family": "securevision",
-      "category": "Retail movement & loss-prevention support",
-      "relatedProducts": [
-        "crowdsense",
-        "suspiciousmotion",
-        "privacyguard"
-      ],
-      "relatedResearch": [],
-      "tags": [
-        "securevision"
-      ],
-      "topics": [
-        "SecureVision"
-      ],
-      "summary": "RetailGuard — signals, capabilities, research and evidence. Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
-      "content": "Module: RetailGuard (GaitAI RetailGuard) — Retail movement & loss-prevention support\nSection: Signals, capabilities, research and evidence\nPublished research reaching this module: No publication in the GaitAI record addresses this module specifically.\nEvidence status: Research foundation — Not yet published · Architectural research relationship — Not yet published · Product specification — Available · Product implementation evidence — Not yet published · Interactive demo — Not yet published · Benchmark validation — Not yet published · Product-specific validation — Not yet published · Pilot & deployment evidence — Not yet published · Product-specific clinical validation — Not yet published · Regulatory clearance — Not claimed\nMaturity: Not stated. The GaitAI record documents no deployment, pilot or validation study establishing maturity for this module.",
-      "keywords": [
-        "retailguard",
-        "gaitai retailguard",
-        "signals, capabilities, research and evidence",
-        "evidence",
-        "validation",
-        "validated",
-        "accuracy",
-        "research",
-        "papers",
-        "maturity",
-        "signals",
-        "capabilities",
-        "sample output"
-      ],
-      "parentId": "product:retailguard"
     },
     {
       "id": "product:watchlist",
@@ -12422,7 +12422,7 @@
       "family": "platform",
       "category": "Movement signal",
       "summary": "Where people move — paths, zones and timelines across space.",
-      "content": "Movement signal: Trajectory & path\nDescription: Where people move — paths, zones and timelines across space.\nModules that sense it: SuspiciousMotion (securevision) · CrowdSense (securevision) · IndustrialSafety (securevision) · CampusShield (securevision) · ForensicSearch (securevision) · ReID (securevision) · EventShield (securevision) · RetailGuard (securevision)",
+      "content": "Movement signal: Trajectory & path\nDescription: Where people move — paths, zones and timelines across space.\nModules that sense it: SuspiciousMotion (securevision) · CrowdSense (securevision) · IndustrialSafety (securevision) · CampusShield (securevision) · EventShield (securevision) · RetailGuard (securevision) · ForensicSearch (securevision) · ReID (securevision)",
       "keywords": [
         "trajectory & path",
         "where people move — paths, zones and timelines across space."
@@ -12432,10 +12432,10 @@
         "crowdsense",
         "industrialsafety",
         "campusshield",
-        "forensicsearch",
-        "reid",
         "eventshield",
-        "retailguard"
+        "retailguard",
+        "forensicsearch",
+        "reid"
       ],
       "relatedResearch": []
     },
@@ -12448,7 +12448,7 @@
       "family": "platform",
       "category": "Movement signal",
       "summary": "Movement events such as loitering, running or tailgating.",
-      "content": "Movement signal: Behaviour patterns\nDescription: Movement events such as loitering, running or tailgating.\nModules that sense it: SuspiciousMotion (securevision) · IndustrialSafety (securevision) · CampusShield (securevision) · ForensicSearch (securevision) · EventShield (securevision) · RetailGuard (securevision)",
+      "content": "Movement signal: Behaviour patterns\nDescription: Movement events such as loitering, running or tailgating.\nModules that sense it: SuspiciousMotion (securevision) · IndustrialSafety (securevision) · CampusShield (securevision) · EventShield (securevision) · RetailGuard (securevision) · ForensicSearch (securevision)",
       "keywords": [
         "behaviour patterns",
         "movement events such as loitering, running or tailgating."
@@ -12457,9 +12457,9 @@
         "suspiciousmotion",
         "industrialsafety",
         "campusshield",
-        "forensicsearch",
         "eventshield",
-        "retailguard"
+        "retailguard",
+        "forensicsearch"
       ],
       "relatedResearch": []
     },
@@ -12638,15 +12638,15 @@
       "family": "platform",
       "category": "AI capability",
       "summary": "Modelling paths, flow and spatial movement over time.",
-      "content": "AI capability: Trajectory analysis\nDescription: Modelling paths, flow and spatial movement over time.\nModules built on it: CrowdSense (securevision) · ForensicSearch (securevision) · EventShield (securevision)",
+      "content": "AI capability: Trajectory analysis\nDescription: Modelling paths, flow and spatial movement over time.\nModules built on it: CrowdSense (securevision) · EventShield (securevision) · ForensicSearch (securevision)",
       "keywords": [
         "trajectory analysis",
         "modelling paths, flow and spatial movement over time."
       ],
       "relatedProducts": [
         "crowdsense",
-        "forensicsearch",
-        "eventshield"
+        "eventshield",
+        "forensicsearch"
       ],
       "relatedResearch": []
     },
@@ -13989,7 +13989,7 @@
       "family": "platform",
       "category": "Products",
       "summary": "All 24 GaitAI modules across both families.",
-      "content": "MobilityCare modules: WalkScan — Camera-based gait assessment report · FallRisk — Fall-risk screening & mobility intelligence · RehabTrack — Rehabilitation progress monitoring · SportsMotion — Sports gait, running & injury-risk analytics · WatchCare — Smartwatch & wearable-based mobility monitoring · NeuroMotion — Neurological gait monitoring · OrthoMotion — Orthopedic & musculoskeletal gait analysis · SeniorCare — Elderly mobility & frailty monitoring · PediatricMotion — Pediatric gait & developmental movement support · ProstheticFit — Prosthetic & orthotic fitting intelligence · RemoteCare — Home-based remote gait monitoring · ClinicalTrials — Digital gait measures for research\nSecureVision modules: SuspiciousMotion — Suspicious movement & anomaly detection · CrowdSense — Crowd flow, density, queue & public-space analytics · IndustrialSafety — Worker movement & fall/slip safety analytics · PrivacyGuard — Privacy-preserving movement analytics · CampusShield — Campus & workplace movement safety · ForensicSearch — Post-event video investigation · ReID — Person re-identification across cameras · AccessMotion — Gait-enhanced access control · EventShield — Large-event movement & crowd-risk intelligence · RetailGuard — Retail movement & loss-prevention support · Watchlist — Policy-governed watchlist matching for authorized deployments · DefenceMotion — Movement intelligence for defence environments",
+      "content": "MobilityCare modules: WalkScan — Camera-based gait assessment report · FallRisk — Fall-risk screening & mobility intelligence · RehabTrack — Rehabilitation progress monitoring · SportsMotion — Sports gait, running & injury-risk analytics · WatchCare — Smartwatch & wearable-based mobility monitoring · NeuroMotion — Neurological gait monitoring · OrthoMotion — Orthopedic & musculoskeletal gait analysis · SeniorCare — Elderly mobility & frailty monitoring · PediatricMotion — Pediatric gait & developmental movement support · ProstheticFit — Prosthetic & orthotic fitting intelligence · RemoteCare — Home-based remote gait monitoring · ClinicalTrials — Digital gait measures for research\nSecureVision modules: SuspiciousMotion — Suspicious movement & anomaly detection · CrowdSense — Crowd flow, density, queue & public-space analytics · IndustrialSafety — Worker movement & fall/slip safety analytics · PrivacyGuard — Privacy-preserving movement analytics · CampusShield — Campus & workplace movement safety · EventShield — Large-event movement & crowd-risk intelligence · RetailGuard — Retail movement & loss-prevention support · ForensicSearch — Post-event video investigation · ReID — Person re-identification across cameras · AccessMotion — Gait-enhanced access control · Watchlist — Policy-governed watchlist matching for authorized deployments · DefenceMotion — Movement intelligence for defence environments",
       "keywords": [
         "products",
         "all products",
@@ -14049,7 +14049,7 @@
       "family": "platform",
       "category": "Product family",
       "summary": "Privacy-aware movement intelligence for security and safety — 12 modules.",
-      "content": "SecureVision is the GaitAI family for privacy-aware security, safety and operations movement intelligence, built around existing camera and CCTV feeds. 12 modules.\nModules: SuspiciousMotion — Suspicious movement & anomaly detection · CrowdSense — Crowd flow, density, queue & public-space analytics · IndustrialSafety — Worker movement & fall/slip safety analytics · PrivacyGuard — Privacy-preserving movement analytics · CampusShield — Campus & workplace movement safety · ForensicSearch — Post-event video investigation · ReID — Person re-identification across cameras · AccessMotion — Gait-enhanced access control · EventShield — Large-event movement & crowd-risk intelligence · RetailGuard — Retail movement & loss-prevention support · Watchlist — Policy-governed watchlist matching for authorized deployments · DefenceMotion — Movement intelligence for defence environments\nBoundary: Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
+      "content": "SecureVision is the GaitAI family for privacy-aware security, safety and operations movement intelligence, built around existing camera and CCTV feeds. 12 modules.\nModules: SuspiciousMotion — Suspicious movement & anomaly detection · CrowdSense — Crowd flow, density, queue & public-space analytics · IndustrialSafety — Worker movement & fall/slip safety analytics · PrivacyGuard — Privacy-preserving movement analytics · CampusShield — Campus & workplace movement safety · EventShield — Large-event movement & crowd-risk intelligence · RetailGuard — Retail movement & loss-prevention support · ForensicSearch — Post-event video investigation · ReID — Person re-identification across cameras · AccessMotion — Gait-enhanced access control · Watchlist — Policy-governed watchlist matching for authorized deployments · DefenceMotion — Movement intelligence for defence environments\nBoundary: Designed to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information. Movement analytics are designed to run without identifying individuals unless a deployment lawfully and explicitly requires it, and identity-related capabilities are intended only for lawful, authorized deployments with appropriate governance, access control and auditability. Outputs are decision support for trained operators — not autonomous enforcement.",
       "keywords": [
         "securevision",
         "security",
@@ -14063,11 +14063,11 @@
         "industrialsafety",
         "privacyguard",
         "campusshield",
+        "eventshield",
+        "retailguard",
         "forensicsearch",
         "reid",
         "accessmotion",
-        "eventshield",
-        "retailguard",
         "watchlist",
         "defencemotion"
       ],

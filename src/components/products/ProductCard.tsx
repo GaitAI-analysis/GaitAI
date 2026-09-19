@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import type { GaitProduct } from "@/data/products";
+import { ProductCardImage } from "./ProductImagery";
 
 /**
  * One class per product family, and the colour comes from tokens behind it.
@@ -112,6 +113,8 @@ export function ProductCard({
       >
         <span className="sr-only">View product: {product.name}</span>
       </Link>
+
+      {product.images && <ProductCardImage images={product.images} />}
 
       {/* Glow on hover */}
       <div

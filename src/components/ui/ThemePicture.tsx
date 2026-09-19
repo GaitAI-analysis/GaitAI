@@ -101,7 +101,7 @@ export function ThemePicture({
      the two can never disagree about which file is showing. */
   useEffect(() => {
     const picture = ref.current;
-    if (!picture) return;
+    if (!picture || !resolvedTheme) return;
     const light = resolvedTheme === "light";
     for (const source of Array.from(picture.querySelectorAll("source"))) {
       const next = light ? source.dataset.lightSrcset : source.dataset.darkSrcset;
@@ -114,7 +114,7 @@ export function ThemePicture({
       const next = light ? img.dataset.lightSrc : img.dataset.darkSrc;
       if (next && img.getAttribute("src") !== next) img.setAttribute("src", next);
     }
-  }, [resolvedTheme]);
+  }, [resolvedTheme, sources, darkSrc, lightSrc]);
 
   return (
     <>

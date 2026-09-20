@@ -29,7 +29,12 @@ import { serve } from "./audit-server.mjs";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("../tmp/qa/node_modules/playwright");
-const { server, base } = await serve();
+/* NAV_CHECK_BASE=https://gaitai.in runs the same checks against a deployed
+   site instead of the served export. */
+const live = process.env.NAV_CHECK_BASE;
+const { server, base } = live
+  ? { server: { close() {} }, base: live.replace(/\/$/, "") }
+  : await serve();
 const browser = await chromium.launch({
   headless: true,
   executablePath: process.env.QA_CHROMIUM,
@@ -116,16 +121,25 @@ async function expectClosed(page, label, baseline, trigger) {
   );
   const shot = await page.screenshot({ clip: REGION, animations: "disabled" });
   const d = await diffRegion(page, baseline, shot);
-  if (d.pct > 0)
+  /* A ghost is not subtle to this test. A panel at even 5% opacity over the
+     photograph moves ~30% of the region's pixels; a hairline hover underline
+     moved 77. Two live pages in a real compositor can differ by a handful of
+     pixels at Δ<30 (image decode, subpixel AA) with nothing on screen — seen
+     once on gaitai.in, 14 px — so the bar is one tenth of one percent, and
+     any noise under it is printed rather than hidden. */
+  if (d.pct >= 0.1)
     fs.writeFileSync(
       `${directory}/FAIL-${label.replace(/[^a-z0-9]+/gi, "-")}.png`,
       shot,
     );
-  assert.equal(
-    d.changed,
-    0,
-    `${label}: ${d.pct.toFixed(3)}% of the panel region differs from never-opened (max Δ${d.max})`,
+  assert.ok(
+    d.pct < 0.1,
+    `${label}: ${d.pct.toFixed(3)}% of the panel region differs from never-opened (${d.changed} px, max Δ${d.max})`,
   );
+  if (d.changed)
+    console.log(
+      `  (${label}: ${d.changed} px of decode noise, max Δ${d.max} — under the 0.1% bar)`,
+    );
   checks += 1;
 }
 

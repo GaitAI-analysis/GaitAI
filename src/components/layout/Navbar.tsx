@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
 import {
   ArrowUpRight,
   ChevronDown,
@@ -34,6 +35,8 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const pathname = usePathname();
+  const desktopNav = useRef<HTMLElement>(null);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -63,6 +66,53 @@ export function Navbar() {
     const el = document.activeElement;
     if (el instanceof HTMLElement && el.closest("header")) el.blur();
   }, [pathname]);
+
+  /* A desktop dropdown closes on every signal that the visitor has moved on,
+     not only the pointer leaving its box. The wrapper's own handlers cover
+     hover-out and focus-out; these cover what they cannot see:
+
+       pointerdown outside the nav  — a click on the hero, the theme toggle,
+                                      the search trigger, anywhere.
+       Escape, anywhere              — the wrapper's onKeyDown only hears it
+                                      while focus is INSIDE the menu; a
+                                      pointer-opened menu has no focus there.
+       the window losing focus       — alt-tab with a menu down.
+
+     Listeners are attached only while a menu is open, so a closed header
+     costs nothing. Belt and braces: the panel is unmounted when closed, so
+     nothing here is what hides it — it is what makes sure it is closed. */
+  useEffect(() => {
+    if (openMenu === null) return;
+    const close = () => setOpenMenu(null);
+    const onPointerDown = (event: PointerEvent) => {
+      const nav = desktopNav.current;
+      if (
+        !nav ||
+        !(event.target instanceof Node) ||
+        !nav.contains(event.target)
+      )
+        close();
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+    window.addEventListener("pointerdown", onPointerDown, true);
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("blur", close);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown, true);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("blur", close);
+    };
+  }, [openMenu]);
+
+  /* A theme change repaints every surface under the menu; a panel left open
+     across it would be the one thing that did not repaint with the page. The
+     toggle is outside the nav, so pointerdown above already closes it — this
+     also covers System following the OS, where no click happens. */
+  useEffect(() => {
+    setOpenMenu(null);
+  }, [resolvedTheme]);
 
   /**
    * Does this route sit under `href`?
@@ -112,7 +162,9 @@ export function Navbar() {
         : isUnder(item.href)
           ? item.href.length
           : -1,
-      ...(item.owns ?? []).map((prefix) => (isUnder(prefix) ? prefix.length : -1)),
+      ...(item.owns ?? []).map((prefix) =>
+        isUnder(prefix) ? prefix.length : -1,
+      ),
     ];
     return Math.max(...scores);
   };
@@ -120,7 +172,9 @@ export function Navbar() {
   const childIsActive = (child: NavItem, siblings: readonly NavItem[]) => {
     const score = claimScore(child);
     if (score < 0) return false;
-    return !siblings.some((other) => other !== child && claimScore(other) > score);
+    return !siblings.some(
+      (other) => other !== child && claimScore(other) > score,
+    );
   };
 
   const itemIsActive = (item: (typeof navLinks)[number]) =>
@@ -134,7 +188,7 @@ export function Navbar() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
         className={cn(
           "site-header fixed inset-x-0 top-0 z-50 transition-all duration-500",
-          scrolled ? "py-3" : "py-5"
+          scrolled ? "py-3" : "py-5",
         )}
       >
         <div className="container-wide">
@@ -143,10 +197,14 @@ export function Navbar() {
               "relative flex items-center justify-between rounded-full transition-all duration-500",
               scrolled
                 ? "glass px-4 py-2 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)]"
-                : "px-1 py-1"
+                : "px-1 py-1",
             )}
           >
-            <Link href="/" aria-label="GaitAI" className="flex items-center pl-2">
+            <Link
+              href="/"
+              aria-label="GaitAI"
+              className="flex items-center pl-2"
+            >
               <Logo variant="wordmark" size="md" priority />
             </Link>
 
@@ -157,7 +215,10 @@ export function Navbar() {
                 measured breakpoint, not a guess: see tailwind.config.ts. The
                 hamburger keeps everything below it, which is tablet portrait
                 and landscape (1024) and every phone. */}
-            <nav className="hidden items-center gap-0 navbar:flex 2xl:gap-1">
+            <nav
+              ref={desktopNav}
+              className="hidden items-center gap-0 navbar:flex 2xl:gap-1"
+            >
               {navLinks.map((link) => {
                 const active = itemIsActive(link);
 
@@ -171,7 +232,9 @@ export function Navbar() {
                       onMouseLeave={() => setOpenMenu(null)}
                       onFocus={() => setOpenMenu(link.href)}
                       onBlur={(event) => {
-                        if (!event.currentTarget.contains(event.relatedTarget)) {
+                        if (
+                          !event.currentTarget.contains(event.relatedTarget)
+                        ) {
                           setOpenMenu(null);
                         }
                       }}
@@ -188,7 +251,7 @@ export function Navbar() {
                           "group/link relative flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-2 text-sm outline-none transition-colors duration-300 focus-visible:ring-1 focus-visible:ring-cyan-300/60 2xl:px-3.5",
                           active || menuOpen
                             ? "text-soft-white"
-                            : "text-soft-gray hover:text-soft-white"
+                            : "text-soft-gray hover:text-soft-white",
                         )}
                       >
                         {link.label}
@@ -199,7 +262,7 @@ export function Navbar() {
                           aria-hidden="true"
                           className={cn(
                             "h-3.5 w-3.5 transition-[transform,color] duration-300",
-                            menuOpen && "rotate-180 text-cyan-300"
+                            menuOpen && "rotate-180 text-cyan-300",
                           )}
                         />
                         {/* Open is a state, not just a hover: the underline
@@ -211,7 +274,7 @@ export function Navbar() {
                             "pointer-events-none absolute inset-x-2.5 -bottom-0.5 h-px origin-center rounded-full bg-gradient-to-r from-cyan-300/80 via-royal-400/80 to-violet-400/80 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] 2xl:inset-x-3.5",
                             active || menuOpen
                               ? "scale-x-100 opacity-100"
-                              : "scale-x-0 opacity-0 group-hover/link:scale-x-100 group-hover/link:opacity-100"
+                              : "scale-x-0 opacity-0 group-hover/link:scale-x-100 group-hover/link:opacity-100",
                           )}
                           style={{
                             boxShadow: "0 0 8px rgba(79,209,255,0.3)",
@@ -222,25 +285,49 @@ export function Navbar() {
                       <AnimatePresence>
                         {menuOpen && (
                           <motion.div
-                            initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 4, scale: 0.98 }}
-                            transition={{ duration: 0.18 }}
+                            data-nav-menu={link.href}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{
+                              opacity: 1,
+                              y: 0,
+                              pointerEvents: "auto",
+                            }}
+                            /* `pointerEvents: none` is set the instant the exit
+                               starts: a panel fading out must not catch the
+                               pointer and reopen itself, and must never be the
+                               thing under a click meant for the hero. */
+                            exit={{ opacity: 0, y: 4, pointerEvents: "none" }}
+                            transition={{ duration: 0.12 }}
                             className="absolute left-1/2 top-full z-20 w-72 -translate-x-1/2 pt-2"
                           >
-                            <div className="overflow-hidden rounded-2xl border border-[var(--dropdown-border)] bg-[var(--dropdown-bg)] p-2 shadow-[var(--shadow-dropdown)] backdrop-blur-2xl">
+                            {/* An OPAQUE surface, and no backdrop-filter. The
+                                panel used to blur what was behind it; a
+                                blurred, translucent layer animating out over a
+                                bright photograph is exactly the kind of layer a
+                                compositor can leave a ghost of, and in the
+                                light theme the surface is white on white, so
+                                the blur bought nothing anyone could see. The
+                                panel is its own stacking context (`isolate`),
+                                so nothing inside it can paint above the header
+                                chrome. */}
+                            <div className="isolate overflow-hidden rounded-2xl border border-[var(--dropdown-border)] bg-[var(--dropdown-bg)] p-2 shadow-[var(--shadow-dropdown)]">
                               {link.children.map((child) => {
-                                const childActive = childIsActive(child, link.children ?? []);
+                                const childActive = childIsActive(
+                                  child,
+                                  link.children ?? [],
+                                );
                                 return (
                                   <Link
                                     key={child.href}
                                     href={child.href}
-                                    aria-current={childActive ? "page" : undefined}
+                                    aria-current={
+                                      childActive ? "page" : undefined
+                                    }
                                     className={cn(
                                       "menu-card px-3 py-2 text-sm",
                                       childActive
                                         ? "menu-card-on text-cyan-300"
-                                        : "text-soft-gray hover:text-soft-white"
+                                        : "text-soft-gray hover:text-soft-white",
                                     )}
                                   >
                                     <span className="min-w-0">
@@ -255,7 +342,7 @@ export function Navbar() {
                                             "menu-card-sub mt-0.5 block text-[11px] leading-snug",
                                             childActive
                                               ? "text-soft-gray"
-                                              : "text-soft-mute"
+                                              : "text-soft-mute",
                                           )}
                                         >
                                           {child.description}
@@ -295,7 +382,7 @@ export function Navbar() {
                       isHome && "flex items-center",
                       active
                         ? "text-soft-white"
-                        : "text-soft-gray hover:text-soft-white"
+                        : "text-soft-gray hover:text-soft-white",
                     )}
                   >
                     {isHome ? <Home className="h-4 w-4" /> : link.label}
@@ -307,7 +394,7 @@ export function Navbar() {
                         "pointer-events-none absolute inset-x-2.5 -bottom-0.5 h-px origin-center rounded-full bg-gradient-to-r from-cyan-300/80 via-royal-400/80 to-violet-400/80 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] 2xl:inset-x-3.5",
                         active
                           ? "scale-x-100 opacity-100"
-                          : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
+                          : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100",
                       )}
                       style={{
                         boxShadow: "0 0 8px rgba(79,209,255,0.3)",
@@ -409,7 +496,7 @@ export function Navbar() {
                       className={cn(
                         "block py-5 font-display text-3xl",
                         !link.children && "border-b border-white/5",
-                        active ? "text-soft-white" : "text-soft-gray"
+                        active ? "text-soft-white" : "text-soft-gray",
                       )}
                     >
                       {link.href === "/" ? (
@@ -422,7 +509,10 @@ export function Navbar() {
                     {link.children && (
                       <div className="border-b border-white/5 pb-4 pl-4">
                         {link.children.map((child) => {
-                          const childActive = childIsActive(child, link.children ?? []);
+                          const childActive = childIsActive(
+                            child,
+                            link.children ?? [],
+                          );
                           return (
                             <Link
                               key={child.href}
@@ -433,7 +523,7 @@ export function Navbar() {
                                 "menu-card px-3 py-2.5 text-lg",
                                 childActive
                                   ? "menu-card-on text-cyan-300"
-                                  : "text-soft-mute hover:text-soft-white"
+                                  : "text-soft-mute hover:text-soft-white",
                               )}
                             >
                               <span className="min-w-0">

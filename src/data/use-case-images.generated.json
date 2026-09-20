@@ -1,0 +1,1345 @@
+{
+  "physio": {
+    "alt": "Physiotherapist walks beside a patient along a sunlit clinic gait lane; parallel bars, treatment plinth and exercise balls.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/physio/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 25238,
+            "sha256": "4744253898329c5edff82b763049b04ca9643b3b434cc699bcb1f12d78e7b9a3"
+          },
+          {
+            "src": "/images/use-cases/physio/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 47786,
+            "sha256": "9c0c7f4911cc9d9eb441cf80f2221b37e3cbf89f36427a071f1e0655a0aa1012"
+          },
+          {
+            "src": "/images/use-cases/physio/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 72588,
+            "sha256": "dc58c4fc4dfde42978e1cfdd07449a28a2680062d84b62797d9af2976168538d"
+          },
+          {
+            "src": "/images/use-cases/physio/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 139364,
+            "sha256": "34b9ff8f7fc4dc744fbc82bb85421c8e202e3d66428fd040d22af145ed9aa9b7"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/physio/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 33968,
+            "sha256": "d757ef9e980ae85d78b6126767e74a8347b140cbb4f9a7b44a65718540c15969"
+          },
+          {
+            "src": "/images/use-cases/physio/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 66726,
+            "sha256": "f0afaeaec3216841ec529599eba29bc69a660fe24316555324840f5e896058f3"
+          },
+          {
+            "src": "/images/use-cases/physio/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 98250,
+            "sha256": "5e207cbd77be0ee9e010da83618f90ce89279f82199910c5f8123011eaca2bc0"
+          },
+          {
+            "src": "/images/use-cases/physio/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 180682,
+            "sha256": "d9184f367368fcded9ea8a275d089c4534de58c172d0c285c893fda7f1474701"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/physio/dark.webp",
+    "light": "/images/use-cases/physio/light.webp"
+  },
+  "hospitals": {
+    "alt": "Nurse walks a patient in a gown along a bright hospital ward corridor past a bed and IV stand.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/hospitals/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 28802,
+            "sha256": "4a49aeaf9f08a9c63485f97d027916f73beecd1b28f0bee3a28f513575dc60da"
+          },
+          {
+            "src": "/images/use-cases/hospitals/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 57650,
+            "sha256": "8f40585d9b3cc3b67839a964cddc2c80af0c13b2b9d8d65c16bc967943c7e1cc"
+          },
+          {
+            "src": "/images/use-cases/hospitals/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 88296,
+            "sha256": "e0017f154c6d3576a542a2edf92d66277b568da3b0506d469214c7596ee0de8d"
+          },
+          {
+            "src": "/images/use-cases/hospitals/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 165654,
+            "sha256": "1a994cc8b9ecaa3e1625f319e243683d94892d93a5b9055132f4ef8b9d54efc9"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/hospitals/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 35728,
+            "sha256": "36832948f9ed059a97f52b5c4a04e3d16ed0b4b8cfcc23a4935b3be156665166"
+          },
+          {
+            "src": "/images/use-cases/hospitals/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 73896,
+            "sha256": "f252b3dadd0c3899c90ba395fe8b3be76b526404d94b0fb50a1ae1031a1c7455"
+          },
+          {
+            "src": "/images/use-cases/hospitals/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 111126,
+            "sha256": "fd56e95cedc8887d160cf26c8147ca3e58864bf75c0d86a6b797203538a24fa9"
+          },
+          {
+            "src": "/images/use-cases/hospitals/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 213206,
+            "sha256": "0c4bae975298e8ebd9da10f9049ca4a0297114b34abc8f9132d89226401421e8"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/hospitals/dark.webp",
+    "light": "/images/use-cases/hospitals/light.webp"
+  },
+  "sports": {
+    "alt": "Athlete walks a marked assessment lane in a daylit performance gym while a coach records on a tablet.",
+    "objectPosition": {
+      "dark": "45% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/sports/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 23822,
+            "sha256": "fd399d42d5171c2d37a6e930abcddc70ce08a2897ddebeebdcde5a5d34790e90"
+          },
+          {
+            "src": "/images/use-cases/sports/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 46340,
+            "sha256": "03408175e69a406a42c356ccc41a8c695c32a5fcb5faa5c5751a654bc129f7ca"
+          },
+          {
+            "src": "/images/use-cases/sports/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 70770,
+            "sha256": "2ba77b4068f64641c62912221b88d3573af5e86e5d903b82eb779d9cb60b0216"
+          },
+          {
+            "src": "/images/use-cases/sports/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 143368,
+            "sha256": "ee386c51356ebaf0468fab452d3490531d3ede1b744bc21a208751333fedf3e7"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/sports/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 35216,
+            "sha256": "3ffafb8efd9a97809315ed867ef839f83d6835c8ba33faa031cbb8fda98cd300"
+          },
+          {
+            "src": "/images/use-cases/sports/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 68822,
+            "sha256": "d4b25e8a5500761f614216f6734b8e3e006b5ac08c18c9952d77a353a1729985"
+          },
+          {
+            "src": "/images/use-cases/sports/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 102014,
+            "sha256": "5505f9c6f42c8f2775e21664b678022415a7fc1591eb9a9c6b0269464e7c4525"
+          },
+          {
+            "src": "/images/use-cases/sports/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 179640,
+            "sha256": "36fcf779116315beafe86a29308d6a04f8efe99ae98156d1c17705f833bce139"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/sports/dark.webp",
+    "light": "/images/use-cases/sports/light.webp"
+  },
+  "elderly": {
+    "alt": "Carer walks beside an elderly resident using a cane along a sunlit care-home corridor.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/elderly/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 30996,
+            "sha256": "4bd0f7e9e61a46c6830642147f511a4f7d1942f2cbe41931df5e4cff92d36ac2"
+          },
+          {
+            "src": "/images/use-cases/elderly/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 62996,
+            "sha256": "fcfb24605dbf726fece6f4dca6aa9b5296573c70a8cdc445164d9ae969760994"
+          },
+          {
+            "src": "/images/use-cases/elderly/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 94882,
+            "sha256": "0400a6817d534004b76829ed1e34886a15b1b41fbfd4cd4db02503a3fc509bc1"
+          },
+          {
+            "src": "/images/use-cases/elderly/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 188748,
+            "sha256": "b33437d2dd4f85d83d15445dbe52c09ff19ee8c1cd2100d7bed42498d8cc5b05"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/elderly/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 39680,
+            "sha256": "b42aff9e7778d57d7cf04b3d84ac574f31972ffdc9a8cf65244aeb94131b2d18"
+          },
+          {
+            "src": "/images/use-cases/elderly/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 78148,
+            "sha256": "2d6ac21cde52af2afa895d95e8055f5a29afa1b403ec501d9d1854d519cb24af"
+          },
+          {
+            "src": "/images/use-cases/elderly/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 117602,
+            "sha256": "a6c258002a0bbeb21c88278daf0f4edeb6cc91e1e438f9336060eed1b3179c2f"
+          },
+          {
+            "src": "/images/use-cases/elderly/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 227894,
+            "sha256": "3c4455c0f6f97e9fcad956a4221055af40b6e10b04920bad7e42ab31c8e0db4e"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/elderly/dark.webp",
+    "light": "/images/use-cases/elderly/light.webp"
+  },
+  "neuro": {
+    "alt": "Patient walks a bright neurology clinic while a clinician records on a tablet; brain anatomy chart behind.",
+    "objectPosition": {
+      "dark": "85% 50%",
+      "light": "40% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/neuro/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 29794,
+            "sha256": "320af07ac23f8c35cf6010d23151d435c1884b1fd61e06a414527385629e7b6f"
+          },
+          {
+            "src": "/images/use-cases/neuro/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 57062,
+            "sha256": "f019d9e589a3f097155551182f975d1152e2bf59a9bb88a727ecdede372999a1"
+          },
+          {
+            "src": "/images/use-cases/neuro/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 86468,
+            "sha256": "43cd8866b263de259f95af24f5287e5d8fa714570192f9a6594381880bd49a0c"
+          },
+          {
+            "src": "/images/use-cases/neuro/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 172360,
+            "sha256": "bb70b5a94d22375079e595a69a8f7a9cb0aff2a02f3a569de83ce66dfc21b9b6"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/neuro/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 30500,
+            "sha256": "c1695ea079e2eff15589751d3626c0544222ff77160cff43767b18025bcc07cb"
+          },
+          {
+            "src": "/images/use-cases/neuro/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 59402,
+            "sha256": "a65eed0e60119e773647f6264f6d652f81b1d80bc6f9a9730cf07a03fa09f666"
+          },
+          {
+            "src": "/images/use-cases/neuro/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 88342,
+            "sha256": "4bebb1b30f242b47ff12a95e7d2c29736b2f9074c7edd2dea52fbc796690a092"
+          },
+          {
+            "src": "/images/use-cases/neuro/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 160332,
+            "sha256": "eddd9192a21589cc0792cc0099847711e376eb788ed476145b934aa42355f364"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/neuro/dark.webp",
+    "light": "/images/use-cases/neuro/light.webp"
+  },
+  "homecare": {
+    "alt": "Older adult walks a sunlit living room under a pose overlay while a carer reviews a tablet.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/homecare/dark-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 47182,
+            "sha256": "ba32e97869c15c40dec713e42cc300563cec11807b782e9f9dede78cf9d8915b"
+          },
+          {
+            "src": "/images/use-cases/homecare/dark-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 96556,
+            "sha256": "ca29c4170ec4e0f3cb3bfac4df054e0d3078189342395abeec304a8234d6f1db"
+          },
+          {
+            "src": "/images/use-cases/homecare/dark-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 146762,
+            "sha256": "b392f023d9fa7b820cdcfd41f6e242cbd1c90d92646b398dc4a404b3a9a75a8f"
+          },
+          {
+            "src": "/images/use-cases/homecare/dark.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 237642,
+            "sha256": "a6ea215d4080523c705fcb1755f205edbdefa8faf7214b5491ea7734d415c58b"
+          }
+        ]
+      },
+      "light": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/homecare/light-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 51554,
+            "sha256": "d5006e7cf8e884f1602ec8f8858db912b6db5e5446ee782b89578906f8bf1706"
+          },
+          {
+            "src": "/images/use-cases/homecare/light-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 104514,
+            "sha256": "495254281d7e14f2a91abeda8e3c94ed4ff3d84bdd78c543076c8ea097d32570"
+          },
+          {
+            "src": "/images/use-cases/homecare/light-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 157414,
+            "sha256": "88f99ca7fc6fc2c3c65e61d82980e1161c972526dc57429e60ec9ea533c1b451"
+          },
+          {
+            "src": "/images/use-cases/homecare/light.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 257364,
+            "sha256": "dcb8228ec10c161141c3b3282dc41c46d83daacc4a8bf6440b9db441bc4ebeaa"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/homecare/dark.webp",
+    "light": "/images/use-cases/homecare/light.webp"
+  },
+  "fitness": {
+    "alt": "Trainer coaches a gym member through a lunge under a pose overlay in a daylit studio.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/fitness/dark-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 53032,
+            "sha256": "f50f3f2a5e05213022e1857af25551ee6f435435f9b132386d0e6ab5afc7b785"
+          },
+          {
+            "src": "/images/use-cases/fitness/dark-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 104588,
+            "sha256": "50a6d5438a6341d813bca8eabf2eaaf77f8a7bdcede6fafba98798ed98eca013"
+          },
+          {
+            "src": "/images/use-cases/fitness/dark-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 154076,
+            "sha256": "14982c886e9e7c46a2d7b92ddd42de366449370a9fbdabba12abcd885ed8cf38"
+          },
+          {
+            "src": "/images/use-cases/fitness/dark.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 243344,
+            "sha256": "b1cd54f48f5a0a3ceccaf447a5209c14e4e8f72719974447c0301d50993645da"
+          }
+        ]
+      },
+      "light": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/fitness/light-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 54508,
+            "sha256": "43c21c32fd7279ea4271463ebde6e2ec0b5b793cbb3d3ba51ba6982d4ad218cb"
+          },
+          {
+            "src": "/images/use-cases/fitness/light-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 108740,
+            "sha256": "e5ceed226f2c8790d130f386caa2ff42178590ac7be3c82d293458d42bea6d76"
+          },
+          {
+            "src": "/images/use-cases/fitness/light-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 157382,
+            "sha256": "54d874951a7d2dd27977a41dad3e60ec3877fc7ca0d1367133e217a0e1f3beb6"
+          },
+          {
+            "src": "/images/use-cases/fitness/light.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 245040,
+            "sha256": "11347076eebd7188328dfd0adabc674732a7d81d31595e86fce8c8b34b6a3e45"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/fitness/dark.webp",
+    "light": "/images/use-cases/fitness/light.webp"
+  },
+  "schools": {
+    "alt": "Students walk a sunlit university campus path between academic buildings and lawn.",
+    "objectPosition": {
+      "dark": "70% 50%",
+      "light": "60% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/schools/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 47072,
+            "sha256": "8d05ceadbff902cfa78ab0d30b921e0a3300f96355116ca1abf8910a88c6d4ed"
+          },
+          {
+            "src": "/images/use-cases/schools/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 108350,
+            "sha256": "d5c54abeb61f80f19b8b333b5b8fdfb33b856a9e838be7c67e04f350bac7af22"
+          },
+          {
+            "src": "/images/use-cases/schools/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 169758,
+            "sha256": "f12da6a99f335c470dea08597cb1470c8a17efe0d29648192e4e7624c576c36b"
+          },
+          {
+            "src": "/images/use-cases/schools/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 362902,
+            "sha256": "a79218dcd7d7974f16b65b2bbc17a7104c9975d76ebfe63fa1db737a8ca20885"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/schools/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 53618,
+            "sha256": "92b1ca979ef278ea3e2c397e3455cfb6e1f77cab2affaa3cc08e89af0e4ca91d"
+          },
+          {
+            "src": "/images/use-cases/schools/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 119246,
+            "sha256": "a3faab3264fef741b27878ac80a080118ed172233b2c6f579c23c7f1976593a2"
+          },
+          {
+            "src": "/images/use-cases/schools/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 194246,
+            "sha256": "161b43a2d44ed944181001f2e057c0d9b53cc6105c5a37817aad5f2e10ff7476"
+          },
+          {
+            "src": "/images/use-cases/schools/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 415866,
+            "sha256": "0d72df26787e93b7841f5f3172de11559b909e2da7512f9e87cd470548f1cf35"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/schools/dark.webp",
+    "light": "/images/use-cases/schools/light.webp"
+  },
+  "prosthetics": {
+    "alt": "Clinician checks the gait of a man walking on a transtibial prosthesis in a bright fitting room.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/prosthetics/dark-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 46234,
+            "sha256": "1a5a04eb18f2ef521db84fb268634480d86ecc2989c3002f910b288bbcdbc861"
+          },
+          {
+            "src": "/images/use-cases/prosthetics/dark-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 85136,
+            "sha256": "456729fcf673c183670c10f7b0f17932c5ad7905bc57a80e7f310b953963cf70"
+          },
+          {
+            "src": "/images/use-cases/prosthetics/dark-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 129422,
+            "sha256": "cbe73600413e6002da505ba222eda9d767c75418696e1fd177690d877c36205a"
+          },
+          {
+            "src": "/images/use-cases/prosthetics/dark.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 196884,
+            "sha256": "804635c7ce01150f07c4910e26ac3699ad361abe2cf3ea3062ca813e031364c4"
+          }
+        ]
+      },
+      "light": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/prosthetics/light-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 44634,
+            "sha256": "cea13bf60ba6f900382fdcaeaecc072e2e6764c2b5a7f4a28146aed6aefb06a1"
+          },
+          {
+            "src": "/images/use-cases/prosthetics/light-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 85244,
+            "sha256": "798b7cb86330a904ab95be69d1c496c19e4e0f034aa2405c00bb5fb1559dd12c"
+          },
+          {
+            "src": "/images/use-cases/prosthetics/light-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 123432,
+            "sha256": "adeb16cd767c9c63621fa0d640ad9f992edb22dcf05e3c25caff7fdd70cbe46f"
+          },
+          {
+            "src": "/images/use-cases/prosthetics/light.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 193156,
+            "sha256": "f71570d77fced039f30d769b2a50f570e60a239f6eda018f246c1e3adbd3b6e9"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/prosthetics/dark.webp",
+    "light": "/images/use-cases/prosthetics/light.webp"
+  },
+  "insurance": {
+    "alt": "Professional walks a bright wellness-centre lobby under a pose overlay past reception and treadmills.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/insurance/dark-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 50060,
+            "sha256": "78f5d3a2c947afc201f7758d492376f352cdac2dab4bdefa260d9f3f5ac9242d"
+          },
+          {
+            "src": "/images/use-cases/insurance/dark-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 100552,
+            "sha256": "c1ddaf2c5efcb4132b9393b441904d815c96a393e17622f50330e8e9a590774e"
+          },
+          {
+            "src": "/images/use-cases/insurance/dark-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 147434,
+            "sha256": "c7f6cf406814a4de56efc807b2288bc06429e899165c338476068fd9cc29cf3e"
+          },
+          {
+            "src": "/images/use-cases/insurance/dark.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 226476,
+            "sha256": "52c51b13569e940a076cded128078cea2aa3061238ffe0ac9e47c38ca6fade5e"
+          }
+        ]
+      },
+      "light": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/insurance/light-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 47336,
+            "sha256": "ac598222bf8acd0cb056c90010ff2d83ec173703425c57706cc24a4f87ca1c4d"
+          },
+          {
+            "src": "/images/use-cases/insurance/light-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 90590,
+            "sha256": "8dbbeb2f9fe8fba4673783e388d3d119d1fc6e2a8da84231fe9f9c3e36eed533"
+          },
+          {
+            "src": "/images/use-cases/insurance/light-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 131672,
+            "sha256": "e077de7c9e855b16356b529a480e9afc3cf5065c49f6fbc558b964747dde6587"
+          },
+          {
+            "src": "/images/use-cases/insurance/light.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 208598,
+            "sha256": "8d43d71250a50ac80a780fdde487d8d751fecc608ca7d5550fac08de2e942627"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/insurance/dark.webp",
+    "light": "/images/use-cases/insurance/light.webp"
+  },
+  "trials": {
+    "alt": "Participant walks an instrumented gait lab walkway in daylight between motion-capture cameras and two researchers.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/trials/dark-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 39622,
+            "sha256": "e141d17313836d769ee5025c12230e3680809bad4eedab07447c104882d90ba4"
+          },
+          {
+            "src": "/images/use-cases/trials/dark-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 73276,
+            "sha256": "587d3153d9214dfcfa1c43477a62ee722398b5ae516beeb28f275d37ac896fe6"
+          },
+          {
+            "src": "/images/use-cases/trials/dark-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 110568,
+            "sha256": "4d0043fb5922540e795331b6880d70bfa182ac6f032a856e3abca5e83d5ff55d"
+          },
+          {
+            "src": "/images/use-cases/trials/dark.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 162104,
+            "sha256": "fc92bdfc36463a7b7bbd55b258122dfac24fb79a49d018cfdce1679883d82417"
+          }
+        ]
+      },
+      "light": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/use-cases/trials/light-480.webp",
+            "width": 480,
+            "height": 360,
+            "bytes": 50768,
+            "sha256": "fba0a31b7f7adacb5a607be95b95c8a90401ec852c0e83afa3bdd2ad1f2e1fc0"
+          },
+          {
+            "src": "/images/use-cases/trials/light-768.webp",
+            "width": 768,
+            "height": 576,
+            "bytes": 96308,
+            "sha256": "dd5dd66de38f94f7aeb2dc98912436af87eb3497816b7c97747af4baf893346c"
+          },
+          {
+            "src": "/images/use-cases/trials/light-1024.webp",
+            "width": 1024,
+            "height": 768,
+            "bytes": 141226,
+            "sha256": "1878ad5720796da22fa6d929376cbdbc8fabbbfb147facd70989a6417e6a2300"
+          },
+          {
+            "src": "/images/use-cases/trials/light.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 207296,
+            "sha256": "6b8f247122bea3e5623acd5bb6c65f37041d2f0ae20f0e8006aee221e0d6ab45"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/trials/dark.webp",
+    "light": "/images/use-cases/trials/light.webp"
+  },
+  "airports": {
+    "alt": "Traveller walks a sunlit airport terminal concourse with luggage; aircraft on stand beyond the glass.",
+    "objectPosition": {
+      "dark": "60% 50%",
+      "light": "60% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/airports/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 34562,
+            "sha256": "0b407938716800efe69a6479c0692358099bf89fd263ccf4ce9156be7e108fb0"
+          },
+          {
+            "src": "/images/use-cases/airports/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 66556,
+            "sha256": "602b90cae41cde3e71f4dc1416d37d7b09e157d124a64b98b3ee8886c3ba96a2"
+          },
+          {
+            "src": "/images/use-cases/airports/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 98160,
+            "sha256": "90193fcdba138105c0ecb1c9fb4bfea0e9d76801aabdd66bd53fe10e11930fd6"
+          },
+          {
+            "src": "/images/use-cases/airports/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 195434,
+            "sha256": "67be45bdfcaa4b4fcc3a0b5c3e1d3d77055d5f9656d7482d1f8b45dbb774b16c"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/airports/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 36538,
+            "sha256": "6ad331deed4126899f6d7eaeef3ce7586eec5dc5adf1db50ca50a6cd2e8dc0df"
+          },
+          {
+            "src": "/images/use-cases/airports/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 74604,
+            "sha256": "0b19179fb48482f3f997dd888d6d45cae2298349c15e42a7dab033974e11214c"
+          },
+          {
+            "src": "/images/use-cases/airports/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 112852,
+            "sha256": "49c6136899393e12570e5a55521b5495cccc74f1e7b0a3ea4615cba481b5149d"
+          },
+          {
+            "src": "/images/use-cases/airports/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 200544,
+            "sha256": "587d92f49e5f7a6fbb055edb4c684aa2bd1f6bf6a842e1ea31afaf3ec4c4338a"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/airports/dark.webp",
+    "light": "/images/use-cases/airports/light.webp"
+  },
+  "smartcities": {
+    "alt": "Pedestrians cross a sunlit city plaza under pose overlays between office towers.",
+    "objectPosition": {
+      "dark": "30% 50%",
+      "light": "45% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/smartcities/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 63366,
+            "sha256": "dc6095f2b4114273ce6d8de17da1e32fa30e3655ff09cf221e4694f6412af8e2"
+          },
+          {
+            "src": "/images/use-cases/smartcities/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 144938,
+            "sha256": "5bd13d679f04ab2c13762f19592b2b43091e0a2870203052e8578035c05f43e0"
+          },
+          {
+            "src": "/images/use-cases/smartcities/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 238046,
+            "sha256": "b6e78cac5e87110c14d1365a56269d650a33029178d096d1d991adb086c47ce4"
+          },
+          {
+            "src": "/images/use-cases/smartcities/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 514844,
+            "sha256": "80d1a67ccd73f1627ee6d9acdf7913a04bd46078c7c0df979360cc94d457fdca"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/smartcities/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 60662,
+            "sha256": "debf65387c93336c2371ad98edae66cdd1de41f5437a989fa654ea0912a7108b"
+          },
+          {
+            "src": "/images/use-cases/smartcities/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 131326,
+            "sha256": "118323de19b439a20d1b0ff02e0d89d09b5675120b51c813be08f81e25da9509"
+          },
+          {
+            "src": "/images/use-cases/smartcities/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 202718,
+            "sha256": "adca6589f5f3be65fcf56911b923d5852cbbe6d77b0e56492fa1a128551d00ac"
+          },
+          {
+            "src": "/images/use-cases/smartcities/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 401742,
+            "sha256": "cf5830c819f1c64c6e2bbe9730a3931b6d54e9126ef21c63c2f725beda80c7b5"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/smartcities/dark.webp",
+    "light": "/images/use-cases/smartcities/light.webp"
+  },
+  "campuses": {
+    "alt": "Professionals cross a bright corporate lobby past the revolving entrance and reception desk.",
+    "objectPosition": {
+      "dark": "70% 50%",
+      "light": "80% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/campuses/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 35128,
+            "sha256": "fca8cb3fddd74a8cda4b522c38f196e1dfc5291cf38ea24510dfd8d8e3f36427"
+          },
+          {
+            "src": "/images/use-cases/campuses/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 77784,
+            "sha256": "2e067ba2c1be4dd0fadd8d0f346d775a41c98de2c084af4dd8db4e0d365ba845"
+          },
+          {
+            "src": "/images/use-cases/campuses/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 126320,
+            "sha256": "47afe2997112c0fde80f28da64bc65ac16937da75022a13f5ec6e8f6707fb75f"
+          },
+          {
+            "src": "/images/use-cases/campuses/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 255150,
+            "sha256": "767a7585f60717502dda3c2e67cf977d34239072ecc802145bf31e12d1adaed7"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/campuses/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 46604,
+            "sha256": "bb3fd88697eacc7fe989b5cdc973c67313def1319d44ffee8b059853b75763ca"
+          },
+          {
+            "src": "/images/use-cases/campuses/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 99374,
+            "sha256": "86a9bcd0a95af80bedd2f94618895c1a3a068b2a07b51cf3bf18521f472f124f"
+          },
+          {
+            "src": "/images/use-cases/campuses/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 161174,
+            "sha256": "84d644c88fbc57fd044732e439fcec574515d57a56210c542044cc73cd7ebf71"
+          },
+          {
+            "src": "/images/use-cases/campuses/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 336798,
+            "sha256": "bc79e1f9fb2fe6c8b850c92f1301cd8b2692079ef73a5cb73b2d96494de690d8"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/campuses/dark.webp",
+    "light": "/images/use-cases/campuses/light.webp"
+  },
+  "factories": {
+    "alt": "Worker in hi-vis and a hard hat walks a daylit warehouse aisle past racking and a forklift.",
+    "objectPosition": {
+      "dark": "65% 50%",
+      "light": "60% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/factories/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 30978,
+            "sha256": "99d629bb7bf00012b89a66d02cea11f6538cf11de06904992f1e50cb91bd6ed8"
+          },
+          {
+            "src": "/images/use-cases/factories/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 65962,
+            "sha256": "6e2e11575ec77bcf3d00947a9cfd773a71a1537438391ef745369e8a1b7d417f"
+          },
+          {
+            "src": "/images/use-cases/factories/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 101684,
+            "sha256": "906380def1eb638e1df25da7f8052e68b08986c40d7cb8dc566dddc78d38725d"
+          },
+          {
+            "src": "/images/use-cases/factories/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 201216,
+            "sha256": "7d9cf1dad00311a962606d7b9c52d51ff396b0036ae26e09d023647c46e0b927"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/factories/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 35224,
+            "sha256": "a85b0eb1dc119fc74344b7ddddff71b0b2dc195a2fb19c4d6cc254b8da28ca23"
+          },
+          {
+            "src": "/images/use-cases/factories/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 70980,
+            "sha256": "db53d2d144d5dfdeb622219e7a0f938dd79c433af913f80cfae1b82c603b9448"
+          },
+          {
+            "src": "/images/use-cases/factories/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 106264,
+            "sha256": "122d50b0cc5989305650c5a4ed7afa0644b6636b7bc06f64b6e9ead08ef57379"
+          },
+          {
+            "src": "/images/use-cases/factories/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 198010,
+            "sha256": "17acf3e808f4ee2daaea3641d9b794ea918e7d42374f48f3a7e405af6430999d"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/factories/dark.webp",
+    "light": "/images/use-cases/factories/light.webp"
+  },
+  "retail": {
+    "alt": "Shoppers walk a bright mall arcade under pose overlays past storefronts.",
+    "objectPosition": {
+      "dark": "45% 50%",
+      "light": "55% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/retail/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 50690,
+            "sha256": "e451eb24326aa8e7786947a4affd7f79e5dd225cdbc2abdecd83676830b016f3"
+          },
+          {
+            "src": "/images/use-cases/retail/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 106406,
+            "sha256": "92e736618b7100c191b764a1922bda243e6bdc025b0b196f070580677bfacc32"
+          },
+          {
+            "src": "/images/use-cases/retail/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 164064,
+            "sha256": "da7d21759dcd2023d92b12ece16c07e742aa46022c9fd01f587f9cd71f5fb5e6"
+          },
+          {
+            "src": "/images/use-cases/retail/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 321416,
+            "sha256": "2a62de617ef89a881d9a8dba7fff96d2e3982f2a300ad052a4c3c7a23c8bacdd"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/retail/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 56466,
+            "sha256": "9f7bdee540d725636991c45d928ae230e20f2bac17b6516a4cf07423628c1139"
+          },
+          {
+            "src": "/images/use-cases/retail/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 119158,
+            "sha256": "1dfc5610ba815203fda5f0541c47e78672a39d0c54f86b7c4ff8bc1f8c9938d2"
+          },
+          {
+            "src": "/images/use-cases/retail/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 178782,
+            "sha256": "679f2216919be938d8f7d2f1263432f62f310387c1e29edeb09d576fa09d4b08"
+          },
+          {
+            "src": "/images/use-cases/retail/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 342668,
+            "sha256": "f71ad52bd17e3580250a31ec7329cd587d82a63e48ed29472f041424ac2e8a3a"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/retail/dark.webp",
+    "light": "/images/use-cases/retail/light.webp"
+  },
+  "events": {
+    "alt": "Crowd moves through a daylit stadium concourse under pose overlays past wayfinding signage.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/events/dark-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 49548,
+            "sha256": "c1c44853c74818accf468c5ebe98fa9bc3c4e7667dd37a175af764c7d643b4e4"
+          },
+          {
+            "src": "/images/use-cases/events/dark-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 103800,
+            "sha256": "f1370a4769747e2cf32887ab2694405d7a0782a7ddff9a05e62be68554bea57e"
+          },
+          {
+            "src": "/images/use-cases/events/dark-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 159098,
+            "sha256": "f43ba78842b40579f122946311aaaccf8ae6223cc9ca161ab4f80261b7d82d7a"
+          },
+          {
+            "src": "/images/use-cases/events/dark.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 298960,
+            "sha256": "da3f13e646f0643f754449b8cf5398cd536e95fea99a851b4c10a4464023590f"
+          }
+        ]
+      },
+      "light": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/use-cases/events/light-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 53314,
+            "sha256": "c1278de5249db2ecb5cc73381656060c7d0f33f6f7eaae5b29e4dc1c18408c9a"
+          },
+          {
+            "src": "/images/use-cases/events/light-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 107736,
+            "sha256": "0097181adad8f0441893a124aae76a11c38b4403efd6c4d286a814b6da8215c4"
+          },
+          {
+            "src": "/images/use-cases/events/light-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 162912,
+            "sha256": "4a6dd6df8af7c434003c8719108a255d2a941c45f4dea7e1d7f843074fe75474"
+          },
+          {
+            "src": "/images/use-cases/events/light.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 307380,
+            "sha256": "66e37a57c14ab783da158e5097c1ee664d433d8d4928cbae632e8bb6760ba19c"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/events/dark.webp",
+    "light": "/images/use-cases/events/light.webp"
+  }
+}

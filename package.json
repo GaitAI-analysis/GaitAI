@@ -9,7 +9,7 @@
     "lint": "next lint",
     "test:firebase": "node scripts/test-firebase.mjs",
     "predev": "npm run build:facts && node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run build:knowledge && node scripts/write-ask-config.mjs",
-    "prebuild": "npm run build:facts && node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run validate:gaitai && npm run check:media && npm run check:product-audit && npm run check:product-images && npm run build:knowledge && node scripts/write-ask-config.mjs",
+    "prebuild": "npm run build:facts && node scripts/generate-firebase-config.mjs && node scripts/sync-posts.mjs && npm run validate:gaitai && npm run check:media && npm run check:product-audit && npm run check:product-images && npm run check:use-case-images && npm run build:knowledge && node scripts/write-ask-config.mjs",
     "typecheck": "tsc --noEmit",
     "validate:gaitai": "tsx scripts/validate-gaitai.mjs",
     "check:media": "tsx scripts/check-theme-media.mjs",
@@ -40,6 +40,8 @@
     "audit:source": "node scripts/audit-source.mjs",
     "hero:panels": "node scripts/hero-panels.mjs",
     "check:product-images": "tsx scripts/check-product-images.mjs",
+    "check:use-case-images": "tsx scripts/check-use-case-images.mjs",
+    "check:use-case-images:browser": "tsx scripts/check-use-case-images-browser.mjs",
     "check:product-images:browser": "tsx scripts/check-product-images-browser.mjs",
     "check:product-audit": "node scripts/check-product-image-audit.mjs"
   },

@@ -1,4 +1,5 @@
 import { imagesForProduct, type ProductImages } from "./product-images";
+import { imagesForUseCase, type UseCaseImages } from "./use-case-images";
 import type { ComponentType, SVGProps } from "react";
 import type { LucideIcon } from "lucide-react";
 import { DefenceIcon } from "@/components/icons/CapabilityIcons";
@@ -865,9 +866,17 @@ export interface UseCaseEntry {
    */
   outcome: string;
   accent: "teal" | "blue" | "gold" | "cyan" | "violet" | "emerald";
+  /**
+   * The reviewed dark/light environment pair, or `null` where none is cleared
+   * for production. Attached below from the id rather than written into each
+   * record: an environment cannot end up pointing at another environment's
+   * photograph by a copy-paste, and a record can never disagree with the
+   * generated registry about which pair it owns.
+   */
+  images: UseCaseImages | null;
 }
 
-export const industryUseCases: UseCaseEntry[] = [
+const industryUseCaseRecords: Omit<UseCaseEntry, "images">[] = [
   {
     id: "physio",
     industry: "Physiotherapy clinics",
@@ -1100,6 +1109,13 @@ export const industryUseCases: UseCaseEntry[] = [
     accent: "blue",
   },
 ];
+
+/* One place where an environment and its photography meet. `imagesForUseCase`
+   returns null for an environment with no cleared pair, and every surface is
+   written to render that case. */
+export const industryUseCases: UseCaseEntry[] = industryUseCaseRecords.map(
+  (entry) => ({ ...entry, images: imagesForUseCase(entry.id) }),
+);
 
 // ============================================================================
 // AI PIPELINE (modular intelligence architecture)

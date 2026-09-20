@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { industryUseCases, productById } from "@/data/products";
 import { useCaseDetails } from "@/data/usecase-details";
 import { facetsFor, outputChipsFor } from "@/data/usecase-facets";
+import { UseCaseMedia } from "./UseCaseMedia";
 import styles from "./usecases.module.css";
 
 /**
@@ -78,7 +79,11 @@ export function UseCaseCard({
      panel picks up where the summary leaves off. */
   const sections = detail
     ? [
-        { n: "01", title: "Why current workflows fall short", body: detail.shortfall },
+        {
+          n: "01",
+          title: "Why current workflows fall short",
+          body: detail.shortfall,
+        },
         { n: "02", title: "The GaitAI approach", body: detail.together },
         { n: "04", title: "Why this matters", body: detail.outcome },
       ]
@@ -99,46 +104,64 @@ export function UseCaseCard({
           className="card-hit"
         />
       )}
-      {/* ── Collapsed head ──
+      {/* ── The environment ──
+          A photograph of the place, above the name. It sits under the
+          stretched link rather than inside it (`.card-hit` is z-index 1, the
+          band is not raised), so the whole surface still opens the use case
+          and nothing is nested inside a link. An environment with no reviewed
+          pair — Defence & Armed Forces today — renders the card exactly as it
+          was before this band existed; the imagery is an addition to the card,
+          never a requirement of it.
+
+          The wrapper is `display: contents` while collapsed and a
+          photograph-beside-head grid when open and wide — see `.top` in the
+          stylesheet. `expanded` lets the picture describe the box it is
+          actually in, so the browser fetches the right rung for a tile
+          rather than a band. */}
+      <div className={styles.top}>
+        {base.images && <UseCaseMedia images={base.images} expanded={open} />}
+
+        {/* ── Collapsed head ──
           No glyph. The card used to open with a 44px drawn environment glyph
           in an accent tile; the family label carries that accent as type, and
           a hairline accent rule under the head keeps the per-environment
           colour without a decorative marker. EnvironmentGlyph itself is
           untouched — other surfaces still draw it. */}
-      <div className={styles.cardHead}>
-        <span className={styles.family}>{family}</span>
-        <h3 className={styles.title}>{base.industry}</h3>
-      </div>
-
-      <p className={styles.problem}>{base.problem}</p>
-
-      <div className={`${styles.meta} card-raise`}>
-        <span className={styles.metaLabel}>Products</span>
-        <div className={styles.chipRow}>
-          {products.map((p) => (
-            <Link
-              key={p.id}
-              href={`/${p.vertical}/${p.id}/`}
-              className={styles.productChip}
-            >
-              {p.short}
-            </Link>
-          ))}
+        <div className={styles.cardHead}>
+          <span className={styles.family}>{family}</span>
+          <h3 className={styles.title}>{base.industry}</h3>
         </div>
-      </div>
 
-      {chips.length > 0 && (
-        <div className={styles.meta}>
-          <span className={styles.metaLabel}>Outputs</span>
+        <p className={styles.problem}>{base.problem}</p>
+
+        <div className={`${styles.meta} card-raise`}>
+          <span className={styles.metaLabel}>Products</span>
           <div className={styles.chipRow}>
-            {chips.map((c) => (
-              <span key={c} className={styles.outputChip}>
-                {c}
-              </span>
+            {products.map((p) => (
+              <Link
+                key={p.id}
+                href={`/${p.vertical}/${p.id}/`}
+                className={styles.productChip}
+              >
+                {p.short}
+              </Link>
             ))}
           </div>
         </div>
-      )}
+
+        {chips.length > 0 && (
+          <div className={styles.meta}>
+            <span className={styles.metaLabel}>Outputs</span>
+            <div className={styles.chipRow}>
+              {chips.map((c) => (
+                <span key={c} className={styles.outputChip}>
+                  {c}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ── Expanded detail ── */}
       <div

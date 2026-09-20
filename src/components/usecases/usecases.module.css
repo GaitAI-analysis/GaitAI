@@ -151,6 +151,119 @@
   transform: none;
 }
 
+/* ── The environment photograph ──
+   One reviewed photograph of the place. Collapsed, it is a full-bleed 4:3 band
+   across the top of the card: it cancels the card's 1.35rem padding with a
+   negative margin and rounds only its top corners to the card's radius less
+   the 1px border — otherwise a hairline of card background shows outside the
+   image corners.
+
+   4:3 is the product-card ratio, so the two catalogues read as one system, and
+   it is the ratio that shows a standing person whole. Five of the seventeen
+   sources are 4:3 full-body scenes and are not cropped at all; the twelve 16:9
+   scenes give up width, which is the forgiving axis, with a per-theme
+   `object-position` (below) keeping every foreground figure in the crop.
+
+   The ratio is declared on the frame, so the card's height is known before
+   any photograph decodes and the grid never reflows as the images arrive. */
+.media {
+  position: relative;
+  margin: -1.35rem -1.35rem 1.15rem;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: calc(1.25rem - 1px) calc(1.25rem - 1px) 0 0;
+  /* Holds the band's colour for the moment before a lazy image decodes. */
+  background: rgb(var(--uc) / 0.08);
+}
+
+.mediaPicture {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.mediaPicture > img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: var(--uc-media-position, 50% 50%);
+}
+
+/* The two frames are different photographs with their subjects in different
+   places, so the crop moves with the theme — on the same `.light` class the
+   picture itself switches on, so the two can never be out of step. */
+:global(.light) .mediaPicture > img {
+  object-position: var(--uc-media-position-light, var(--uc-media-position, 50% 50%));
+}
+
+/* The same 1.025 the product cards use, and only where motion is welcome. */
+@media (prefers-reduced-motion: no-preference) {
+  .mediaPicture > img {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card:hover .mediaPicture > img {
+    transform: scale(1.025);
+  }
+}
+
+/* The photograph meets the card instead of stopping at a hard edge: a wash to
+   the card's own background at the foot of the band, plus a trace of the
+   environment's accent. Never a dimming layer over the whole image — the two
+   themes are separate photographs, and darkening the light one would undo
+   that. */
+.mediaVeil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 58%, rgb(var(--uc) / 0.1) 100%),
+    linear-gradient(180deg, transparent 72%, rgb(var(--c-ink) / 0.55) 100%);
+}
+
+:global(.light) .mediaVeil {
+  background:
+    linear-gradient(180deg, transparent 58%, rgb(var(--uc) / 0.12) 100%),
+    linear-gradient(180deg, transparent 74%, rgb(255 255 255 / 0.5) 100%);
+}
+
+/* ── The top block: photograph, head, problem, chips ──
+   `display: contents` while the card is collapsed, so wrapping these in one
+   element changes nothing about the collapsed card — they stay direct flex
+   children of `.card`, and the band's negative margins bleed exactly as before.
+
+   An OPEN card spans the whole row. A full-row 4:3 photograph would be over
+   900px tall on a desktop, above several paragraphs of reading, so from 900px
+   — the width at which the detail panel itself goes to two columns — the top
+   block becomes a grid: the photograph is a rounded 4:3 tile in a two-fifths
+   column and the head, problem and chips stack beside it. That is the product
+   detail page's own image-beside-text shape, at card scale. Below 900px an
+   open card stacks like a closed one. */
+.top {
+  display: contents;
+}
+
+@media (min-width: 900px) {
+  .cardOpen .top {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    column-gap: 2rem;
+    align-items: start;
+    margin-bottom: 0.25rem;
+  }
+
+  .cardOpen .top > .media {
+    grid-row: 1 / span 4;
+    margin: 0;
+    border-radius: 1rem;
+    border: 1px solid rgb(var(--uc) / 0.18);
+  }
+
+  .cardOpen .top > .media :global(img) {
+    border-radius: inherit;
+  }
+}
+
 /* The head no longer hosts a glyph tile, so it is a block rather than a
    flex row with a gap reserved for one. The hairline underneath carries the
    environment's accent — a border, not a marker — which is what the tinted

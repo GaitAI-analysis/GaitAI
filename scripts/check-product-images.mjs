@@ -28,13 +28,19 @@ assert.deepEqual(readdirSync("public/images/products").sort(), Object.keys(gener
 for (const product of allProducts) {
   const record = manifest.products.find((p) => p.slug === product.id);
   assert.equal(record.vertical, product.vertical);
+  const completeCleanSet = Object.keys(roles).every((role) => record.sources[role] && record.roleReview[role].status === "selected-clean");
+  if (completeCleanSet) assert.ok(product.images, `${product.short}: complete reviewed set must be integrated`);
   if (!product.images) {
-    assert.equal(record.status, "missing-source-set");
-    assert.ok(Object.values(record.sources).every((source) => source === null));
+    // Incomplete sets keep the existing fallback. Complete clean sets are
+    // required above, so a newly reviewed set cannot silently remain pending.
+    const selected = Object.values(record.sources).filter(Boolean).length;
+    assert.equal(record.status, selected === 3 ? "reviewed" : selected ? "partial-source-set" : "missing-source-set");
     missing.push(product.short);
     continue;
   }
   assert.equal(record.status, "reviewed");
+  assert.ok(completeCleanSet, `${product.short}: production requires three clean reviewed images`);
+  assert.equal(record.deploymentStatus, "integrated");
   assert.deepEqual(product.images, generated[product.id]);
   const expectedFiles = [];
   for (const [role, basename] of Object.entries(roles)) {
@@ -45,6 +51,8 @@ for (const product of allProducts) {
     usedPaths.add(url);
     const source = inventory.get(record.sources[role]);
     assert.ok(source, `Source provenance missing: ${product.id}/${role}`);
+    assert.equal(source.sourceKind, "clean-photograph", `Poster cannot be a clean hero: ${url}`);
+    assert.deepEqual(source.selectedFor, { product: product.short, role });
     assert.ok(!usedSourceHashes.has(source.sha256), `Source assigned twice: ${record.sources[role]}`);
     usedSourceHashes.add(source.sha256);
     assert.equal(asset.width, source.width, `Source width was lost: ${url}`);
@@ -72,9 +80,16 @@ for (const product of allProducts) {
   assert.deepEqual(readdirSync(`public/images/products/${product.id}`).sort(), expectedFiles.sort(), `Unregistered files: ${product.id}`);
 }
 
-console.log(`Registry: ${allProducts.length}/24 products; dark heroes: ${totals.heroDark}/24; light heroes: ${totals.heroLight}/24; cards: ${totals.card}/24.`);
+console.log(`Current registry: ${allProducts.length}/24 products; dark heroes: ${totals.heroDark}/24; light heroes: ${totals.heroLight}/24; cards: ${totals.card}/24.`);
 console.log(`Verified ${usedPaths.size}/72 primary assignments and ${usedOutputHashes.size} encoded files: paths, case, hashes, uniqueness, dimensions, srcset ladders and provenance.`);
+assert.equal(manifest.audit.summary.currentlyIntegratedProductSets, Object.keys(generated).length);
+assert.equal(manifest.audit.summary.currentlyIntegratedPrimaryAssets, usedPaths.size);
 if (missing.length) {
-  console.warn(`MISSING SOURCE SETS: ${missing.join(", ")}.`);
-  if (!process.argv.includes("--allow-incomplete")) process.exitCode = 1;
+  for (const item of manifest.missingCleanAssets) {
+    const heldPoster = manifest.products.find((p) => p.slug === item.slug).roleReview[item.role].status === "selected-poster";
+    console.warn(`${item.product} — ${item.roleLabel} missing${heldPoster ? " (poster held; clean replacement required)" : ""}.`);
+  }
+  console.log(`Clean coverage: ${manifest.audit.summary.selectedCleanAssets}/72; ${manifest.missingCleanAssets.length} missing clean roles. ${manifest.audit.summary.selectedPosterAssets} flagged poster excluded from clean coverage.`);
+  // Full-catalogue readiness is an optional report, not the integration gate.
+  if (process.argv.includes("--require-complete")) process.exitCode = 1;
 }

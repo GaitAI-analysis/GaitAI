@@ -1,6 +1,6 @@
 {
   "walkscan": {
-    "alt": "Adult walking along a marked gait-assessment lane in a clinical movement lab.",
+    "alt": "Adult walks along a marked gait-assessment lane in a movement lab.",
     "heroPosition": "76% 50%",
     "cardPosition": "50% 50%",
     "assets": {
@@ -112,7 +112,7 @@
     "card": "/images/products/walkscan/card.webp"
   },
   "fallrisk": {
-    "alt": "Older woman walking with clinician support and visible balance and gait tracking markers.",
+    "alt": "Older woman walks with clinician support and visible balance/gait tracking markers.",
     "heroPosition": "95% 50%",
     "cardPosition": "50% 50%",
     "assets": {
@@ -224,7 +224,7 @@
     "card": "/images/products/fallrisk/card.webp"
   },
   "rehabtrack": {
-    "alt": "Patient practicing walking between rehabilitation parallel bars with a physiotherapist.",
+    "alt": "Patient practices walking between parallel bars with physiotherapist support.",
     "heroPosition": "100% 50%",
     "cardPosition": "50% 50%",
     "assets": {
@@ -336,7 +336,7 @@
     "card": "/images/products/rehabtrack/card.webp"
   },
   "sportsmotion": {
-    "alt": "Athlete accelerating between training cones in a sports biomechanics lab.",
+    "alt": "Athlete accelerates between training cones in a sports biomechanics lab.",
     "heroPosition": "90% 50%",
     "cardPosition": "50% 50%",
     "assets": {
@@ -448,7 +448,7 @@
     "card": "/images/products/sportsmotion/card.webp"
   },
   "seniorcare": {
-    "alt": "Older woman receiving walking support from a caregiver in a residential care setting.",
+    "alt": "Older woman receives walking support from a caregiver in residential care.",
     "heroPosition": "90% 50%",
     "cardPosition": "50% 50%",
     "assets": {
@@ -560,7 +560,7 @@
     "card": "/images/products/seniorcare/card.webp"
   },
   "industrialsafety": {
-    "alt": "Warehouse workers with movement tracking, showing walking and safe lifting in an industrial environment.",
+    "alt": "Movement tracking around warehouse walking, cart handling and lifting.",
     "heroPosition": "76% 50%",
     "cardPosition": "50% 50%",
     "assets": {
@@ -782,5 +782,341 @@
     "heroDark": "/images/products/retailguard/dark-hero.webp",
     "heroLight": "/images/products/retailguard/light-hero.webp",
     "card": "/images/products/retailguard/card.webp"
+  },
+  "watchcare": {
+    "alt": "Older adult wearing a smartwatch walks with a companion at home.",
+    "heroPosition": "95% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/watchcare/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 31048,
+            "sha256": "64c3436e59622dbbbdf1af570ca99fecc30242864486900845e6fb37a7122d73"
+          },
+          {
+            "src": "/images/products/watchcare/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 58326,
+            "sha256": "e3abb2ab5a4bb092cabec8903bad75418a6ef5a6adbe911a5ef818f8cbfa1b8b"
+          },
+          {
+            "src": "/images/products/watchcare/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 86732,
+            "sha256": "cfb6e51d38eb3d6e920582cdaa161d5bec3bbcf55a66189c820cbca0ad7391c1"
+          },
+          {
+            "src": "/images/products/watchcare/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 163842,
+            "sha256": "09fcda8e42dc771018d7307e52ce0d81fd28f65167d59f7d4e6cdbf1b933b33c"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/watchcare/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 40696,
+            "sha256": "f40f0ee48bb618998cd854d4585ff1b0ac9367aa380be87d84c6b82859f72be6"
+          },
+          {
+            "src": "/images/products/watchcare/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 80938,
+            "sha256": "93f52524fbedb6bcfd6e31d8893d902b0f8b8c7103450ed3dba42056287b16b4"
+          },
+          {
+            "src": "/images/products/watchcare/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 121598,
+            "sha256": "3b7321aedc75eeb7f17512251f8c684054232133bb977499a14e92daa588fe90"
+          },
+          {
+            "src": "/images/products/watchcare/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 227444,
+            "sha256": "efe1981762847da150d94437ac9ace715ba95fc147ea830c484ee1baf7ac079c"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/watchcare/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 23590,
+            "sha256": "dd63aed998b1b4fe5aa3b7c1eef93d1571369ec60acdce83b8ff9a8cd8b54ff6"
+          },
+          {
+            "src": "/images/products/watchcare/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 63996,
+            "sha256": "394d88d59f199443f0bf9a5b436dbe406e1c65cf93b956a84d174b64c299124a"
+          },
+          {
+            "src": "/images/products/watchcare/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 116454,
+            "sha256": "efae65c9447d201fb283d2d9937c714344f2bb6a01e426ec4f11affedce95dc9"
+          },
+          {
+            "src": "/images/products/watchcare/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 192398,
+            "sha256": "3997a4d77ea39e85a6959fa58f89d92c2dbbcd734e1ab028f237ee5c044c4cd7"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/watchcare/dark-hero.webp",
+    "heroLight": "/images/products/watchcare/light-hero.webp",
+    "card": "/images/products/watchcare/card.webp"
+  },
+  "neuromotion": {
+    "alt": "Clinician observes a walking assessment with brain-scan monitors in the background.",
+    "heroPosition": "84% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/neuromotion/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 28330,
+            "sha256": "f4b8dcf3413b79111390ef700c66ddf391db2302a533a5ceff0acfe297097db1"
+          },
+          {
+            "src": "/images/products/neuromotion/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 54532,
+            "sha256": "fd520af0b042940c54c4a1b12ed0b2d60bdafb0ab3cd459ff4cd5a1251a528f8"
+          },
+          {
+            "src": "/images/products/neuromotion/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 82060,
+            "sha256": "fe4404c64906626b93f460810828d302e438e8d1aa8c584f5ba74a1356023481"
+          },
+          {
+            "src": "/images/products/neuromotion/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 161856,
+            "sha256": "5c18a2edd175ab786a4ee1442323614efd037531651026bf782a748fc5651c15"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/neuromotion/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 32774,
+            "sha256": "a4d83e3b43a6fd4cc872b084f7ddfdfbf0de8f3a3a8cf9cf1f86d0c374336367"
+          },
+          {
+            "src": "/images/products/neuromotion/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 64076,
+            "sha256": "ede890b17106fb91d371e8c2495d3d0235a6a9a2cf3a700e4ec8bbaff0d06259"
+          },
+          {
+            "src": "/images/products/neuromotion/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 93658,
+            "sha256": "66348670389f29af2f414d7ae8069f5fccf7e6a0cbc3099b49e491fe94d1dbe0"
+          },
+          {
+            "src": "/images/products/neuromotion/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 172314,
+            "sha256": "0949886002a86019f291afb958b1c2e3ebd10b0ae778dcc762e30c2bcf1983bd"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/neuromotion/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 25496,
+            "sha256": "01ef47e48d08ae846508c2740e0b18b508808292a3c8eabb8ee56b8c304ed2e3"
+          },
+          {
+            "src": "/images/products/neuromotion/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 68554,
+            "sha256": "d4fd8ccae3f218408bf1331e92d91d926f462aadd47db4e76309fbf7bb605fc6"
+          },
+          {
+            "src": "/images/products/neuromotion/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 123186,
+            "sha256": "6286d011962e08e4263581afe73a017e43eab2a783ccf2b05c127fa39c4c070c"
+          },
+          {
+            "src": "/images/products/neuromotion/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 211650,
+            "sha256": "37a21f0fcda331e1eda4feab1e617e05bd0da0f3ea938bf6c802f82736e1f9b4"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/neuromotion/dark-hero.webp",
+    "heroLight": "/images/products/neuromotion/light-hero.webp",
+    "card": "/images/products/neuromotion/card.webp"
+  },
+  "orthomotion": {
+    "alt": "Woman wearing a knee brace practices walking between parallel bars with a physiotherapist.",
+    "heroPosition": "95% 50%",
+    "cardPosition": "50% 50%",
+    "assets": {
+      "heroDark": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/orthomotion/dark-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 24860,
+            "sha256": "d10e7d6b9ed023c68bd310a758208c57359d5057c3fdc84d62700828650f35f6"
+          },
+          {
+            "src": "/images/products/orthomotion/dark-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 47822,
+            "sha256": "d4268be142b66bcb7a27fb4590b234f14348e72ad3da72d077b1e539c727b19a"
+          },
+          {
+            "src": "/images/products/orthomotion/dark-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 73850,
+            "sha256": "77d7d7776dddedeef74243903a1822bd346cae55b5c0ee1703830596a8a79e92"
+          },
+          {
+            "src": "/images/products/orthomotion/dark-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 148062,
+            "sha256": "ec839870f87423937936142f78b6ff1447eff00de08adfbb3a1b7dd201f6f7db"
+          }
+        ]
+      },
+      "heroLight": {
+        "width": 1672,
+        "height": 941,
+        "variants": [
+          {
+            "src": "/images/products/orthomotion/light-hero-480.webp",
+            "width": 480,
+            "height": 270,
+            "bytes": 32268,
+            "sha256": "baaaf421d7c0ed5f90ac5919810c7593603aa67bcf5550d6b8657f5a1091d11c"
+          },
+          {
+            "src": "/images/products/orthomotion/light-hero-768.webp",
+            "width": 768,
+            "height": 432,
+            "bytes": 65784,
+            "sha256": "ffc40aca5cb4f71663b3aae59936cf6b3413680f44c679e66b87e9a526262d84"
+          },
+          {
+            "src": "/images/products/orthomotion/light-hero-1024.webp",
+            "width": 1024,
+            "height": 576,
+            "bytes": 98638,
+            "sha256": "5acba354438c9ac373aa8c9b472ac4470e4ab06864d021117e55fba09f421754"
+          },
+          {
+            "src": "/images/products/orthomotion/light-hero.webp",
+            "width": 1672,
+            "height": 941,
+            "bytes": 188808,
+            "sha256": "65426a6ce12940cc53861394a70a06f9f91a611da74024622fd104302066d2b7"
+          }
+        ]
+      },
+      "card": {
+        "width": 1448,
+        "height": 1086,
+        "variants": [
+          {
+            "src": "/images/products/orthomotion/card-320.webp",
+            "width": 320,
+            "height": 240,
+            "bytes": 24754,
+            "sha256": "500aee392ae084572e6b081106d5779d39c8451f058b6925cf099324577cc777"
+          },
+          {
+            "src": "/images/products/orthomotion/card-640.webp",
+            "width": 640,
+            "height": 480,
+            "bytes": 67320,
+            "sha256": "60ed348590553a56ecc7e7e4ae974de8cb353c719295a7377bb4ae51b36671ea"
+          },
+          {
+            "src": "/images/products/orthomotion/card-960.webp",
+            "width": 960,
+            "height": 720,
+            "bytes": 119508,
+            "sha256": "99514a19844b8eeafca486943131e9f6146b419fbfad77daa03a451194786180"
+          },
+          {
+            "src": "/images/products/orthomotion/card.webp",
+            "width": 1448,
+            "height": 1086,
+            "bytes": 197270,
+            "sha256": "9195b6c4af832a66deb77dc8189717b533db1646a8b409d18a6dc601426f78f4"
+          }
+        ]
+      }
+    },
+    "heroDark": "/images/products/orthomotion/dark-hero.webp",
+    "heroLight": "/images/products/orthomotion/light-hero.webp",
+    "card": "/images/products/orthomotion/card.webp"
   }
 }

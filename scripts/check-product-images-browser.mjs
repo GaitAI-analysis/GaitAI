@@ -123,9 +123,10 @@ try {
   // Exercise client navigation rather than only independent full page loads.
   await page.goto(`${base}/products/`, { waitUntil: "networkidle" });
   await theme("light");
-  for (const id of ["walkscan", "fallrisk"]) {
-    await page.getByRole("link", { name: `View product: GaitAI ${id === "walkscan" ? "WalkScan" : "FallRisk"}`, exact: true }).click();
-    await checkHero(allProducts.find((product) => product.id === id), "light");
+  for (const id of ["walkscan", "fallrisk", "watchcare", "neuromotion", "orthomotion"]) {
+    const product = allProducts.find((product) => product.id === id);
+    await page.getByRole("link", { name: `View product: ${product.name}`, exact: true }).click();
+    await checkHero(product, "light");
     await page.goBack({ waitUntil: "networkidle" });
   }
   assert.deepEqual(errors, [], "Browser/image/hydration errors");

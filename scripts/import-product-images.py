@@ -27,22 +27,44 @@ def main():
     source_root = args.source_dir.resolve(strict=True)
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     inventory = {item["source"]: item for item in manifest["inventory"]}
-    generated = {}
+    registry = ROOT / "src/data/product-images.generated.json"
+    # Keep existing imagery for incomplete products. Completeness is per product,
+    # never a gate on all 72 roles across the catalogue.
+    generated = json.loads(registry.read_text(encoding="utf-8")) if registry.exists() else {}
+    ready = []
+    selected_hashes = set()
     for product in manifest["products"]:
         if product["status"] != "reviewed":
+            continue
+        if not all(product["sources"].get(role) and
+                   product["roleReview"][role]["status"] == "selected-clean" for role in ROLES):
             continue
         slug = product["slug"]
         if not slug.isascii() or not slug.isalnum() or slug != slug.lower():
             raise ValueError(f"Invalid product slug: {slug}")
+        # Preflight the entire selection before writing any production files.
+        for role in ROLES:
+            filename = product["sources"][role]
+            reviewed = inventory[filename]
+            if (reviewed["sourceKind"] != "clean-photograph" or
+                    reviewed["selectedFor"] != {"product": product["product"], "role": role}):
+                raise ValueError(f"Source is not a reviewed clean {slug}/{role}: {filename}")
+            source = (source_root / filename).resolve(strict=True)
+            if not source.is_relative_to(source_root):
+                raise ValueError(f"Source escapes selected folder: {filename}")
+            if digest(source) != reviewed["sha256"]:
+                raise ValueError(f"Source changed since visual review: {filename}")
+            if reviewed["sha256"] in selected_hashes:
+                raise ValueError(f"Source assigned more than once: {filename}")
+            selected_hashes.add(reviewed["sha256"])
+        ready.append(product)
+    for product in ready:
+        slug = product["slug"]
         images = {"alt": product["visualDescription"], "heroPosition": product["heroPosition"],
                   "cardPosition": product["cardPosition"], "assets": {}}
         for role, basename in ROLES.items():
             filename = product["sources"][role]
             source = (source_root / filename).resolve(strict=True)
-            if not source.is_relative_to(source_root):
-                raise ValueError(f"Source escapes selected folder: {filename}")
-            if digest(source) != inventory[filename]["sha256"]:
-                raise ValueError(f"Source changed since visual review: {filename}")
             directory = ROOT / "public" / "images" / "products" / slug
             directory.mkdir(parents=True, exist_ok=True)
             with Image.open(source) as original:
@@ -62,7 +84,10 @@ def main():
                 images["assets"][role] = {"width": photograph.width, "height": photograph.height, "variants": variants}
         generated[slug] = images
         product["outputs"] = images["assets"]
-    (ROOT / "src/data/product-images.generated.json").write_text(json.dumps(generated, indent=2) + "\n", encoding="utf-8")
+        product["deploymentStatus"] = "integrated"
+    manifest["audit"]["summary"]["currentlyIntegratedProductSets"] = len(generated)
+    manifest["audit"]["summary"]["currentlyIntegratedPrimaryAssets"] = len(generated) * 3
+    registry.write_text(json.dumps(generated, indent=2) + "\n", encoding="utf-8")
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     print(f"Encoded {len(generated)} reviewed products / {len(generated) * 3} primary assets (plus responsive derivatives).")
 

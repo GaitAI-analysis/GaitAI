@@ -1,57 +1,67 @@
 # Product image integration
 
-The canonical registry is `src/data/products.ts`. Its `images` field supplies both
-the shared catalogue card and the shared individual product hero. DefenceMotion
-remains one of the twelve SecureVision products; its service modes are unchanged.
+`product-image-manifest.json` is the source of truth for reviewed source selections,
+visual rationale, native dimensions, SHA-256, perceptual similarity, warnings and
+output provenance. `src/data/products.ts` exposes the generated image records to
+both shared catalogue cards and the shared individual product hero.
 
-## Source audit — incomplete
+## Current integration
 
-All 78 files in `C:\Users\Anubha\Downloads\New folder (7)` were visually inspected.
-There are 76 distinct files: two exact duplicates, several multi-panel contact
-sheets, automotive posters, homepage composites and alternative versions of the
-same scenes. The contact sheet headed “24 Products” depicts a different lineup,
-including VINPlate OCR, ChassisVision and PaintSense.
+Ten complete clean sets are integrated: WalkScan, FallRisk, RehabTrack,
+SportsMotion, WatchCare, NeuroMotion, OrthoMotion, SeniorCare, IndustrialSafety
+and RetailGuard. That is 10 dark heroes, 10 light heroes and 10 cards (30/72
+primary assets; 120 files including responsive derivatives).
 
-Seven complete, visually relevant sets are available: WalkScan, FallRisk,
-RehabTrack, SportsMotion, SeniorCare, IndustrialSafety and RetailGuard. The other
-17 products have explicit `null` image records, pending matching source files.
-No unrelated image, repeated photograph, synthesized theme or enlarged contact
-sheet panel is used to fill those gaps. DefenceMotion has only a branded poster
-with embedded copy, not a clean three-image set.
+Integration is per product: every complete reviewed clean three-image set is
+integrated immediately. Incomplete products retain their existing imagery or
+fallback. No product borrows another product's assets, and all-72 completeness
+is not a build or publication gate.
 
-`product-image-manifest.json` records the full inventory, dimensions, SHA-256
-hashes, selected source filenames, visual rationale, rejected alternatives,
-duplicate files, focal points and encoded outputs. Source PNGs remain untouched
-in the Downloads folder. Keep that folder as the original backup; the manifest
-and full-resolution WebP masters are in this repository.
+DefenceMotion remains a first-class SecureVision product. Its dark poster has
+embedded text/UI and is held until a clean dark replacement exists, even if
+a light hero and card become available. It does not count as a clean hero.
+Army, Navy and Air Force remain modes of DefenceMotion.
+
+See [the 92-file audit and individual missing roles](product-image-coverage.md).
+There are 42 missing clean roles: 41 roles without a selected source and the
+DefenceMotion dark role requiring a clean replacement. The manifest preserves
+the poster candidate and warning separately from clean coverage.
+
+Original PNGs remain untouched in the supplied directory. Historical manifests,
+including the original 78-file audit and the fresh 92-file pre-integration audit,
+are retained byte-for-byte in `docs/audits/product-images/history/` and checked
+against their stored hashes.
 
 ## Replacing an image
 
-1. Inspect the actual image and confirm the product, role and theme. Update its
-   inventory record and the explicit `sources` entry in the manifest. A complete
-   reviewed set needs `heroDark`, `heroLight`, `card`, `visualDescription`,
-   `heroPosition`, `cardPosition` and `status: "reviewed"`.
+1. Visually inspect the source, confirm its product and role, then update its
+   inventory record and explicit `sources` entry in the manifest. A complete
+   set requires three `selected-clean` role reviews and `status: "reviewed"`,
+   with a concise `visualDescription`, `heroPosition` and `cardPosition`.
 2. Run `python scripts/import-product-images.py --source-dir "path/to/originals"`
-   with Pillow installed. The importer verifies the original hashes and encodes
-   WebP at quality 94, preserving native dimensions without upscaling. It also
-   writes smaller responsive derivatives and `src/data/product-images.generated.json`.
-   Production components do not need source filenames or individual path edits.
-3. Run `npm run check:product-images`, `npm run lint`, `npm run build` and the
-   browser check below. The strict image check fails until all 72 assignments
-   exist; `--allow-incomplete` audits present assets while explicitly reporting gaps.
+   with Pillow installed. The importer preflights hashes, product/role ownership
+   and clean-image eligibility. It preserves incomplete products' existing
+   imagery, encodes quality-94 WebP at native resolution without upscaling, and
+   writes responsive derivatives plus `src/data/product-images.generated.json`.
+3. Run `npm run check:product-audit -- --source-dir "path/to/originals"`,
+   `npm run check:product-images`, `npm run lint`, `npm run build` and the browser
+   check below. The default check requires every complete reviewed set to be
+   integrated and validates actual assets. It reports incomplete roles without
+   blocking publication. Optional `--require-complete` checks full 72-role
+   readiness; the build does not use that flag.
 
-The existing `ThemePicture` handles the actual next-themes class before first
-paint and follows theme switches and client-side product navigation. This site
-is a static export with `images.unoptimized`, so native `picture`/`srcset` use
-pre-encoded local files instead of a nonexistent Next image optimization server.
-Cards load lazily at 4:3; heroes load eagerly at high priority. Fixed aspect-ratio
-containers reserve space before loading. Desktop heroes crop the intentional
-empty left area using recorded focal positions; mobile uses a landscape frame.
+The existing `ThemePicture` follows the actual theme before first paint,
+theme switches, persisted preferences and client navigation. Static export has
+`images.unoptimized`, so native `picture`/`srcset` selects pre-encoded files.
+Cards load lazily in a 4:3 frame; heroes load eagerly at high priority. Fixed
+aspect ratios reserve space. Both use `object-fit: cover`; manifest focal
+positions retain the important subjects in the desktop portrait frame, while
+mobile uses a landscape frame. No separate light/dark page implementation exists.
 
 ## Browser verification
 
-The repo's existing browser-audit dependency is Playwright in
-`tmp/qa/node_modules/playwright`. After building, run:
+After building, use the existing Playwright install in
+`tmp/qa/node_modules/playwright`:
 
 ```powershell
 $env:GAITAI_AUDIT_OUT = 'out'
@@ -59,6 +69,8 @@ $env:QA_CHROMIUM = 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe
 npm run check:product-images:browser
 ```
 
-Screenshots and the machine-readable results are saved in the ignored
-`tmp/product-image-audit/browser` directory. This is an integration check of
-available imagery, not certification that the missing 17 sets exist.
+The check covers all 24 routes and three catalogues, both themes, six viewport
+widths, persisted light-mode reload and client navigation into the newly
+integrated products. Screenshots and JSON results are stored in the ignored
+`tmp/product-image-audit/browser` directory. See
+[verification results](product-image-verification.md).

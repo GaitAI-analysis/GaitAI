@@ -32,7 +32,8 @@ def main():
     # never a gate on all 72 roles across the catalogue.
     generated = json.loads(registry.read_text(encoding="utf-8")) if registry.exists() else {}
     ready = []
-    selected_hashes = set()
+    selected_hashes = {}
+    products_by_name = {p["product"]: p for p in manifest["products"]}
     for product in manifest["products"]:
         if product["status"] != "reviewed":
             continue
@@ -46,22 +47,34 @@ def main():
         for role in ROLES:
             filename = product["sources"][role]
             reviewed = inventory[filename]
+            review = product["roleReview"][role]
+            owner = review.get("sharedFrom", {"product": product["product"], "role": role})
             if (reviewed["sourceKind"] != "clean-photograph" or
-                    reviewed["selectedFor"] != {"product": product["product"], "role": role}):
+                    not reviewed["eligibleForMapping"] or reviewed["selection"] != "selected" or
+                    reviewed["selectedFor"] != owner):
                 raise ValueError(f"Source is not a reviewed clean {slug}/{role}: {filename}")
+            if "sharedFrom" in review:
+                primary = products_by_name[owner["product"]]
+                if (not manifest.get("semanticSharingPolicy", {}).get("enabled") or
+                        not review.get("reason") or not product.get("mappingNote") or
+                        primary["sources"][owner["role"]] != filename or
+                        "sharedFrom" in primary["roleReview"][owner["role"]]):
+                    raise ValueError(f"Undeclared semantic sharing: {slug}/{role}")
             source = (source_root / filename).resolve(strict=True)
             if not source.is_relative_to(source_root):
                 raise ValueError(f"Source escapes selected folder: {filename}")
             if digest(source) != reviewed["sha256"]:
                 raise ValueError(f"Source changed since visual review: {filename}")
-            if reviewed["sha256"] in selected_hashes:
-                raise ValueError(f"Source assigned more than once: {filename}")
-            selected_hashes.add(reviewed["sha256"])
+            if selected_hashes.get(reviewed["sha256"], filename) != filename:
+                raise ValueError(f"Duplicate export selected as another source: {filename}")
+            selected_hashes[reviewed["sha256"]] = filename
         ready.append(product)
     for product in ready:
         slug = product["slug"]
         images = {"alt": product["visualDescription"], "heroPosition": product["heroPosition"],
                   "cardPosition": product["cardPosition"], "assets": {}}
+        if product.get("heroWide"):
+            images["heroWide"] = True
         for role, basename in ROLES.items():
             filename = product["sources"][role]
             source = (source_root / filename).resolve(strict=True)

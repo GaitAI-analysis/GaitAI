@@ -1,60 +1,42 @@
 # Product imagery verification
 
-Current integration: **10/24 complete clean product sets**, including WatchCare, NeuroMotion and OrthoMotion. The canonical registry still contains exactly 24 products. All incomplete products retain their existing imagery/fallback.
+All **24/24 products** now have card, dark-hero and light-hero mappings. Product names, copy, canonical order, routes and page/card structure remain unchanged. The existing ten dedicated sets are retained.
 
-| Product | Dark Hero | Light Hero | Card |
-|---|---|---|---|
-| WalkScan | Yes | Yes | Yes |
-| FallRisk | Yes | Yes | Yes |
-| RehabTrack | Yes | Yes | Yes |
-| SportsMotion | Yes | Yes | Yes |
-| WatchCare | Yes | Yes | Yes |
-| NeuroMotion | Yes | Yes | Yes |
-| OrthoMotion | Yes | Yes | Yes |
-| SeniorCare | Yes | Yes | Yes |
-| PediatricMotion | Missing | Missing | Missing |
-| ProstheticFit | Missing | Missing | Missing |
-| RemoteCare | Missing | Missing | Missing |
-| ClinicalTrials | Missing | Missing | Missing |
-| SuspiciousMotion | Missing | Missing | Missing |
-| CrowdSense | Missing | Missing | Missing |
-| IndustrialSafety | Yes | Yes | Yes |
-| PrivacyGuard | Missing | Missing | Missing |
-| CampusShield | Missing | Missing | Missing |
-| EventShield | Missing | Missing | Missing |
-| RetailGuard | Yes | Yes | Yes |
-| ForensicSearch | Missing | Missing | Missing |
-| ReID | Missing | Missing | Missing |
-| AccessMotion | Missing | Missing | Missing |
-| Watchlist | Missing | Missing | Missing |
-| DefenceMotion | Missing | Missing | Missing |
+[The assignment report](product-image-assignments.md) lists all 24 products with every exact source filename, role and semantic exception. `product-image-manifest.json` is the source of truth.
 
-- Clean dark heroes: **10/24**.
-- Clean light heroes: **10/24**.
-- Cards: **10/24**.
-- Primary assets integrated: **30/72**.
-- Responsive files: **120** (36 newly added files for the three new sets).
-- Missing clean roles: **42**, individually recorded in `missingCleanAssets` in the manifest and [the coverage report](product-image-coverage.md).
+## Coverage
 
-DefenceMotion dark is a held text/UI poster candidate, not a clean hero. Its warning remains in the manifest until a clean replacement is supplied. It is excluded from the totals above. Army/Navy/Air Force remain modes of the single DefenceMotion product.
+- Cards: **24/24**, with **24 distinct card source photographs**.
+- Dark heroes: **24/24**.
+- Light heroes: **24/24**.
+- Primary role assignments: **72/72**, from **63 distinct source photographs**.
+- Dedicated product sets: **21/24**; documented closest-fit shared sets: **3/24**.
+- Missing rendered roles: **0**; absent dedicated roles: **9**, individually recorded in `missingDedicatedAssets`.
+- Encoded files: **288**, including responsive derivatives; **261 unique encoded contents** because shared source/size pairs intentionally repeat.
 
-## Verification results
+ForensicSearch uses terminal camera viewpoints shared with ReID; AccessMotion uses atrium/entrance flow shared with PrivacyGuard and EventShield; Watchlist uses highlighted terminal movement shared with SuspiciousMotion. These are contextual matches, not dedicated feature illustrations. PrivacyGuard imagery is also contextual and does not establish anonymization. None of these notes change product copy.
 
-- Full image inventory rerun: **92 files**, **2 exact duplicate extra copies**, **22 collages/mockups**, **4 unrelated posters**, **66 standalone candidates** (63 photographs plus 3 flagged canonical posters). Nine similarity pairs remain visually reviewed as distinct images; all recomputed hashes, dimensions, pixel hashes, pHashes and dHashes match the audit.
-- `npm run check:product-audit -- --source-dir "C:\Users\Anubha\Downloads\New folder (7)"`: passed for all 92 sources and both preserved historical manifests.
-- `npm run check:product-images`: passed for all 30 primary assets and 120 derivatives. Verifies canonical order, uniqueness, product/role ownership, case-sensitive URLs, file hashes, native dimensions, responsive ladders and complete-set integration.
-- All 120 WebP files decode with their recorded dimensions. Native masters remain unchanged in resolution; no images were upscaled.
-- `npm run lint`: passed without warnings or errors.
-- `npm run verify`: passed, including type checking, strict theme media checks, all 24 evidence modules, retrieval/ranking suites and **267/267** paraphrase checks. The existing Watchlist environment-association warning remains; no integrity errors.
-- `npm run build`: passed; **106/106** static pages generated.
+DefenceMotion has clean N044/N045/N046 dark/light/card images. The earlier F074 poster is excluded and its warning remains in historical provenance. Army/Navy/Air Force remain modes of one product.
+
+## Checks completed
+
+- Nested-folder audit: **46 files**, **9 duplicate extra copies**, **4 collages**, **33 unique standalone photographs** in 11 dedicated sets. All unique standalone photographs are used.
+- Combined source audit: **138 files**, all filenames and SHA-256 hashes checked; existing 92-file metadata rechecked and preserved. All ten similarity candidate pairs retain visual reviews. Historical manifest hashes pass.
+- `npm run check:product-images -- --require-complete`: passed for 72 assignments and 288 responsive files; checks canonical order, ownership, declared sharing, distinct cards, case-sensitive URLs, hashes, dimensions and srcsets.
+- Every WebP decoded successfully with its recorded dimensions; no master was upscaled.
+- Negative selection checks reject undeclared sharing, wrong ownership, duplicate-export substitution, the excluded poster and dark/light reversal.
+- `npm run verify`: passed, including type checking, `npm run lint` with no lint warnings/errors, strict media checks, 24 evidence modules, retrieval/ranking and **267/267** paraphrases. The existing Watchlist environment-association warning remains.
+- `npm run build`: passed before browser review and again after the final crop corrections; **106/106** static pages generated.
 - `npm run check:links`: passed for **102 pages and 5,547 internal links**.
-- `npm run check:product-images:browser`: passed for **24 product routes**, **three catalogues** and **165 hero checks** at 1920, 1440, 1280, 768, 390 and 375-pixel widths. Covers real dark/light toggles, persisted light-mode reload, image loading and client navigation into all three new products. No broken product images, hydration errors or product-hero horizontal overflow.
-- Visual review of the new desktop and mobile screenshots confirms appropriate focal cropping: visible smartwatch, neurological assessment context and orthopedic knee-brace/parallel-bar context.
-
-The all-72 integration gate has been removed. Default validation requires every complete clean reviewed set to be integrated, while incomplete roles are reported without blocking publication. `--require-complete` is an optional readiness check, not used by the build.
+- Full browser pass: **24 routes**, **three catalogues**, **408 hero checks**, both themes at **1920, 1440, 1280, 768, 390 and 375** pixels, persisted light-theme reload and client navigation to every product.
+- Final crop recheck: **18 additional hero checks** for PediatricMotion and ClinicalTrials at desktop/mobile sizes, plus all three catalogues. All 24 card images were captured for visual review.
+- No broken product images, hydration/next-image errors or hero horizontal overflow. Fixed image aspect ratios and cover behavior preserve proportions.
+- Visual review corrected PediatricMotion to retain the child and clinician. Wider desktop image framing retains context for RemoteCare, ClinicalTrials, ForensicSearch and DefenceMotion. Mobile retains the existing landscape frame.
 
 ## Provenance and publication
 
-The manifest remains authoritative. Original PNGs are untouched; previous 78-file and fresh 92-file pre-integration manifests remain byte-for-byte in `docs/audits/product-images/history/`. `.gitattributes` preserves their bytes across Windows and Linux so archived SHA-256 checks remain portable.
+Original PNGs remain untouched. Prior manifests and the ten-product reports are preserved in `docs/audits/product-images/history/`. Archived manifest bytes are protected from line-ending conversion.
 
-The prior seven-product verification is preserved in [the history archive](audits/product-images/history/verification-seven-products.md). This change is published by pushing to `v1/feature/insights`, through the existing [GitHub Pages workflow](https://github.com/GaitAI-analysis/GaitAI/actions/workflows/deploy.yml), serving [gaitai.in](https://gaitai.in).
+The default build validates every reviewed mapping without restoring the old all-72 gate. It distinguishes populated roles from distinct source coverage.
+
+Publishing uses `v1/feature/insights` and the existing [GitHub Pages workflow](https://github.com/GaitAI-analysis/GaitAI/actions/workflows/deploy.yml), serving [gaitai.in](https://gaitai.in).

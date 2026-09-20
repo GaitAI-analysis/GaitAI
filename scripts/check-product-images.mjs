@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { reviewedSource } from "./product-image-selection.mjs";
 
 const { allProducts, mobilityProducts, secureProducts } = await import(pathToFileURL(path.resolve("src/data/products.ts")).href);
 
@@ -11,11 +12,12 @@ const generated = JSON.parse(readFileSync("src/data/product-images.generated.jso
 const names = "WalkScan FallRisk RehabTrack SportsMotion WatchCare NeuroMotion OrthoMotion SeniorCare PediatricMotion ProstheticFit RemoteCare ClinicalTrials SuspiciousMotion CrowdSense IndustrialSafety PrivacyGuard CampusShield EventShield RetailGuard ForensicSearch ReID AccessMotion Watchlist DefenceMotion".split(" ");
 const roles = { heroDark: "dark-hero", heroLight: "light-hero", card: "card" };
 const usedPaths = new Set();
-const usedSourceHashes = new Set();
-const usedOutputHashes = new Set();
+const usedSourceHashes = new Map();
+const cardSourceHashes = new Set();
+const usedOutputHashes = new Map();
+let encodedFiles = 0;
 const missing = [];
 const totals = { heroDark: 0, heroLight: 0, card: 0 };
-const inventory = new Map(manifest.inventory.map((item) => [item.source, item]));
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 assert.deepEqual(allProducts.map((p) => p.short), names, "Canonical 24-product order");
@@ -42,6 +44,9 @@ for (const product of allProducts) {
   assert.ok(completeCleanSet, `${product.short}: production requires three clean reviewed images`);
   assert.equal(record.deploymentStatus, "integrated");
   assert.deepEqual(product.images, generated[product.id]);
+  assert.equal(Boolean(product.images.heroWide), Boolean(record.heroWide));
+  assert.equal(product.images.heroPosition, record.heroPosition);
+  assert.equal(product.images.cardPosition, record.cardPosition);
   const expectedFiles = [];
   for (const [role, basename] of Object.entries(roles)) {
     const url = product.images[role];
@@ -49,12 +54,14 @@ for (const product of allProducts) {
     assert.equal(url, `/images/products/${product.id}/${basename}.webp`);
     assert.ok(!usedPaths.has(url), `Duplicate assignment: ${url}`);
     usedPaths.add(url);
-    const source = inventory.get(record.sources[role]);
-    assert.ok(source, `Source provenance missing: ${product.id}/${role}`);
+    const source = reviewedSource(manifest, record, role);
     assert.equal(source.sourceKind, "clean-photograph", `Poster cannot be a clean hero: ${url}`);
-    assert.deepEqual(source.selectedFor, { product: product.short, role });
-    assert.ok(!usedSourceHashes.has(source.sha256), `Source assigned twice: ${record.sources[role]}`);
-    usedSourceHashes.add(source.sha256);
+    if (usedSourceHashes.has(source.sha256)) assert.equal(usedSourceHashes.get(source.sha256), source.source, "Duplicate exports cannot be separate selections");
+    usedSourceHashes.set(source.sha256, source.source);
+    if (role === "card") {
+      assert.ok(!cardSourceHashes.has(source.sha256), `Two catalogue cards use the same photograph: ${url}`);
+      cardSourceHashes.add(source.sha256);
+    }
     assert.equal(asset.width, source.width, `Source width was lost: ${url}`);
     assert.equal(asset.height, source.height, `Source height was lost: ${url}`);
     assert.ok(asset.width >= 1440 && asset.height >= 800, `Undersized master: ${url}`);
@@ -71,8 +78,10 @@ for (const product of allProducts) {
       assert.equal(bytes.toString("ascii", 8, 12), "WEBP");
       assert.equal(bytes.length, variant.bytes);
       assert.equal(hash(bytes), variant.sha256, `Changed file: ${variant.src}`);
-      assert.ok(!usedOutputHashes.has(variant.sha256), `Duplicate encoded image: ${variant.src}`);
-      usedOutputHashes.add(variant.sha256);
+      const origin = { source: source.sha256, width: variant.width, height: variant.height };
+      if (usedOutputHashes.has(variant.sha256)) assert.deepEqual(usedOutputHashes.get(variant.sha256), origin, `Unexpected duplicate output: ${variant.src}`);
+      usedOutputHashes.set(variant.sha256, origin);
+      encodedFiles++;
       expectedFiles.push(path.basename(variant.src));
     }
     totals[role]++;
@@ -81,9 +90,10 @@ for (const product of allProducts) {
 }
 
 console.log(`Current registry: ${allProducts.length}/24 products; dark heroes: ${totals.heroDark}/24; light heroes: ${totals.heroLight}/24; cards: ${totals.card}/24.`);
-console.log(`Verified ${usedPaths.size}/72 primary assignments and ${usedOutputHashes.size} encoded files: paths, case, hashes, uniqueness, dimensions, srcset ladders and provenance.`);
+console.log(`Verified ${usedPaths.size}/72 primary assignments from ${usedSourceHashes.size} distinct sources and ${encodedFiles} encoded files (${usedOutputHashes.size} unique contents): paths, case, hashes, reviewed ownership, dimensions, srcsets and provenance.`);
 assert.equal(manifest.audit.summary.currentlyIntegratedProductSets, Object.keys(generated).length);
 assert.equal(manifest.audit.summary.currentlyIntegratedPrimaryAssets, usedPaths.size);
+for (const record of manifest.products.filter((p) => p.mappingNote)) console.log(`${record.product}: ${record.mappingNote}`);
 if (missing.length) {
   for (const item of manifest.missingCleanAssets) {
     const heldPoster = manifest.products.find((p) => p.slug === item.slug).roleReview[item.role].status === "selected-poster";

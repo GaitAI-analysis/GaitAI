@@ -7,39 +7,44 @@ both shared catalogue cards and the shared individual product hero.
 
 ## Current integration
 
-Ten complete clean sets are integrated: WalkScan, FallRisk, RehabTrack,
-SportsMotion, WatchCare, NeuroMotion, OrthoMotion, SeniorCare, IndustrialSafety
-and RetailGuard. That is 10 dark heroes, 10 light heroes and 10 cards (30/72
-primary assets; 120 files including responsive derivatives).
+All 24 canonical products have card, dark-hero and light-hero images: 72 role
+assignments from 63 distinct source photographs, encoded into 288 responsive
+WebP files. All 24 card source photographs are distinct. The ten previously
+published sets are retained; 11 dedicated sets come from the newly supplied
+nested folder. ForensicSearch, AccessMotion and Watchlist use explicitly
+reviewed closest-fit sharing, following the latest placement instruction.
 
-Integration is per product: every complete reviewed clean three-image set is
-integrated immediately. Incomplete products retain their existing imagery or
-fallback. No product borrows another product's assets, and all-72 completeness
-is not a build or publication gate.
+See [all 24 assignments and exact source filenames](product-image-assignments.md)
+and [the current coverage audit](product-image-coverage.md). `sharedFrom` in each
+relevant role review identifies the primary source owner; `mappingNote` records
+the ambiguity. Validators reject undeclared sharing and duplicate-export
+selections. Sharing never increases the count of distinct source images.
 
-DefenceMotion remains a first-class SecureVision product. Its dark poster has
-embedded text/UI and is held until a clean dark replacement exists, even if
-a light hero and card become available. It does not count as a clean hero.
-Army, Navy and Air Force remain modes of DefenceMotion.
+DefenceMotion now has clean N044/N045/N046 imagery. The old F074 poster stays
+excluded; its warning and replacement resolution remain in historical provenance.
+Army, Navy and Air Force remain modes of one DefenceMotion product.
 
-See [the 92-file audit and individual missing roles](product-image-coverage.md).
-There are 42 missing clean roles: 41 roles without a selected source and the
-DefenceMotion dark role requiring a clean replacement. The manifest preserves
-the poster candidate and warning separately from clean coverage.
+There are no missing rendered roles. Nine dedicated roles are absent for the
+three shared-match products, individually listed in `missingDedicatedAssets`.
+Integration remains per product, without an all-72 publication gate.
 
-Original PNGs remain untouched in the supplied directory. Historical manifests,
-including the original 78-file audit and the fresh 92-file pre-integration audit,
-are retained byte-for-byte in `docs/audits/product-images/history/` and checked
-against their stored hashes.
+Original PNGs remain untouched. The manifest includes the old 92 files and all
+46 nested-folder files, with dimensions, hashes, perceptual similarity results,
+review rationale, exclusions and generated output hashes. Prior manifests and
+reports remain in `docs/audits/product-images/history/`; archived manifest bytes
+are preserved across platforms and checked by SHA-256.
 
 ## Replacing an image
 
 1. Visually inspect the source, confirm its product and role, then update its
    inventory record and explicit `sources` entry in the manifest. A complete
    set requires three `selected-clean` role reviews and `status: "reviewed"`,
-   with a concise `visualDescription`, `heroPosition` and `cardPosition`.
+   with `visualDescription`, `heroPosition` and `cardPosition`. Reuse existing product
+   names for image alt text when no new page text is requested. Shared semantic
+   selections also require `sharedFrom`, a reason and a product `mappingNote`.
 2. Run `python scripts/import-product-images.py --source-dir "path/to/originals"`
-   with Pillow installed. The importer preflights hashes, product/role ownership
+   with Pillow installed. Use the common parent directory for the current combined manifest. The importer
+   preflights hashes, product/role ownership
    and clean-image eligibility. It preserves incomplete products' existing
    imagery, encodes quality-94 WebP at native resolution without upscaling, and
    writes responsive derivatives plus `src/data/product-images.generated.json`.
@@ -48,15 +53,18 @@ against their stored hashes.
    check below. The default check requires every complete reviewed set to be
    integrated and validates actual assets. It reports incomplete roles without
    blocking publication. Optional `--require-complete` checks full 72-role
-   readiness; the build does not use that flag.
+   role readiness; the build does not use that flag. Distinct-source coverage
+   is reported separately from populated slots.
 
 The existing `ThemePicture` follows the actual theme before first paint,
 theme switches, persisted preferences and client navigation. Static export has
 `images.unoptimized`, so native `picture`/`srcset` selects pre-encoded files.
 Cards load lazily in a 4:3 frame; heroes load eagerly at high priority. Fixed
 aspect ratios reserve space. Both use `object-fit: cover`; manifest focal
-positions retain the important subjects in the desktop portrait frame, while
-mobile uses a landscape frame. No separate light/dark page implementation exists.
+positions retain important subjects. RemoteCare, ClinicalTrials, ForensicSearch and DefenceMotion
+use a wider desktop image frame to preserve context spanning both sides of the
+photograph; mobile keeps the existing landscape frame. Wide card sources receive
+accurate cover-adjusted `sizes`. No separate light/dark page implementation exists.
 
 ## Browser verification
 
@@ -70,7 +78,7 @@ npm run check:product-images:browser
 ```
 
 The check covers all 24 routes and three catalogues, both themes, six viewport
-widths, persisted light-mode reload and client navigation into the newly
-integrated products. Screenshots and JSON results are stored in the ignored
+widths, persisted light-mode reload and client navigation into every mapped
+product. Screenshots and JSON results are stored in the ignored
 `tmp/product-image-audit/browser` directory. See
 [verification results](product-image-verification.md).

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { reviewedSource } from "./product-image-selection.mjs";
 
 const manifest = JSON.parse(readFileSync("product-image-manifest.json", "utf8"));
 const { inventory, products, audit } = manifest;
@@ -37,12 +38,12 @@ for (const pair of audit.similarityCandidates) {
   assert.ok(pair.reviewResult && pair.reviewNote);
 }
 
-const selected = new Set();
+const selected = new Map();
 const counts = { heroDark: 0, heroLight: 0, card: 0 };
 const missing = [];
 const missingClean = [];
 const cleanCounts = { heroDark: 0, heroLight: 0, card: 0 };
-let clean = 0, posters = 0, complete = 0;
+let clean = 0, posters = 0, complete = 0, shared = 0;
 for (const product of products) {
   let assigned = 0;
   for (const role of roles) {
@@ -53,15 +54,10 @@ for (const product of products) {
       missingClean.push(`${product.slug}:${role}`);
       continue;
     }
-    const record = byName.get(source);
-    assert.ok(record?.eligibleForMapping, `Ineligible source: ${source}`);
-    assert.equal(record.selection, "selected");
-    assert.equal(record.candidateRole, role);
-    assert.ok(record.candidateProducts.includes(product.product));
-    assert.equal(record.selectedFor.product, product.product);
-    assert.equal(record.selectedFor.role, role);
-    assert.ok(!selected.has(record.sha256), `Duplicate selected source: ${source}`);
-    selected.add(record.sha256);
+    const record = reviewedSource(manifest, product, role);
+    if (selected.has(record.sha256)) assert.equal(selected.get(record.sha256), source, "Duplicate exports cannot be counted separately");
+    selected.set(record.sha256, source);
+    if (product.roleReview[role].sharedFrom) shared++;
     if (record.sourceKind === "single-product-poster") {
       assert.equal(product.roleReview[role].status, "selected-poster");
       assert.ok(product.warnings?.[role]?.length, "Selected poster must retain its warning");
@@ -83,12 +79,15 @@ assert.deepEqual(missing, manifest.missingAssets.map((item) => `${item.slug}:${i
 assert.deepEqual(missingClean, manifest.missingCleanAssets.map((item) => `${item.slug}:${item.role}`));
 assert.equal(clean + missingClean.length, 72);
 for (const role of roles) assert.equal(counts[role], audit.summary[role]);
-assert.equal(selected.size, audit.summary.totalValidMapped);
+assert.equal(clean + posters, audit.summary.totalValidMapped);
+assert.equal(selected.size, audit.summary.uniqueSelectedSourceAssets);
+assert.equal(shared, audit.summary.sharedSourceAssignments);
 assert.equal(clean, audit.summary.selectedCleanAssets);
 assert.equal(posters, audit.summary.selectedPosterAssets);
 assert.equal(complete, audit.summary.completeProductSets);
 assert.equal(missing.length, audit.summary.missingAssets);
-assert.equal(selected.size + missing.length, 72);
+assert.equal(clean + posters + missing.length, 72);
+assert.deepEqual(manifest.missingDedicatedAssets.map((item) => `${item.slug}:${item.role}`), products.flatMap((p) => roles.filter((role) => p.roleReview[role].sharedFrom || !p.sources[role]).map((role) => `${p.slug}:${role}`)));
 const kinds = { "contact-sheet-or-collage": "contactSheetsCollages", "unrelated-rejected": "unrelatedRejected", "single-product-poster": "singleProductPosters", "clean-photograph": "validStandalonePhotographicCandidates" };
 for (const [kind, metric] of Object.entries(kinds)) assert.equal(inventory.filter((r) => r.sourceKind === kind).length, audit.summary[metric]);
 assert.equal(audit.summary.validStandaloneCandidates, audit.summary.validStandalonePhotographicCandidates + audit.summary.singleProductPosters);
@@ -105,5 +104,6 @@ if (sourceIndex >= 0) {
   console.log(`All ${inventory.length} current source files match the audited SHA-256 hashes.`);
 }
 console.log(`AUDIT PASS: ${inventory.length} files; ${duplicateGroups.length} exact duplicate groups / ${audit.summary.exactDuplicateExtraFiles} extra copies; ${audit.similarityCandidates.length} similarity pairs visually reviewed.`);
-console.log(`Source coverage: Dark ${counts.heroDark}/24, Light ${counts.heroLight}/24, Card ${counts.card}/24 = ${selected.size}/72 (${clean} clean + ${posters} flagged poster); ${missing.length} missing roles.`);
+console.log(`Role coverage: Dark ${counts.heroDark}/24, Light ${counts.heroLight}/24, Card ${counts.card}/24 = ${clean + posters}/72 (${clean} clean + ${posters} flagged poster); ${missing.length} missing roles.`);
+console.log(`Distinct selected sources: ${selected.size}; explicitly shared semantic assignments: ${shared}; missing dedicated roles: ${manifest.missingDedicatedAssets.length}.`);
 console.log(`Clean coverage: Dark ${cleanCounts.heroDark}/24, Light ${cleanCounts.heroLight}/24, Card ${cleanCounts.card}/24 = ${clean}/72; ${missingClean.length} missing clean roles. Posters do not qualify for integration.`);

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "sourceDirectoryHint": "C:\\Users\\Anubha\\Downloads\\New folder (7)",
-  "reviewStatus": "incomplete-source-set",
+  "reviewStatus": "reviewed-with-semantic-matches",
   "expectedProducts": 24,
   "expectedPrimaryAssets": 72,
   "encoding": {
@@ -12,38 +12,42 @@
     "originals": "Preserved unchanged in source directory; SHA-256 and dimensions recorded below."
   },
   "audit": {
-    "id": "fresh-92-file-audit",
-    "reviewedAtUtc": "2026-09-19T21:07:10.213046+00:00",
-    "scope": "Every current file re-inventoried, hashed and visually reviewed. Selections rebuilt independently of the previous manifest.",
-    "selectionAuthority": "products is the current source selection; history is archival. Audit mappings and deployed assets are reported separately.",
-    "countingPolicy": "Contact/collage count includes the two duplicate copies. The 22 collages + 4 unrelated posters + 3 canonical single-product posters + 63 clean standalone photographs partition all 92 files. Exact duplicate count means extra copies, not every member. Posters may be selected as standalone source candidates but are flagged and never disguised as clean photography.",
+    "id": "nested-folder-integration",
+    "reviewedAtUtc": "2026-09-20T12:49:20.578927+00:00",
+    "scope": "All 46 nested-folder files visually reviewed. Original 92 records retained after recomputing every hash and image dimension across the combined 138-file tree.",
+    "selectionAuthority": "products is authoritative; original ten production sets retained. New closest-fit shared mappings explicitly identify their primary source owner.",
+    "countingPolicy": "138 files = 26 collages + 4 unrelated posters + 3 canonical posters + 105 photographs, including 11 duplicate extra copies. Production assigns 72 roles from 63 distinct sources. Nine explicitly shared role assignments are not nine new images.",
     "similarityMethod": "63-bit DCT pHash, 64-bit dHash and grayscale SSIM at 128x128. Candidate pairs: pHash <= 12 OR dHash <= 10; human review decides duplication. Theme variants and similar subjects are not automatically duplicates.",
     "summary": {
-      "filesInspected": 92,
-      "uniqueFileHashes": 90,
-      "exactDuplicateGroups": 2,
-      "exactDuplicateExtraFiles": 2,
-      "nearDuplicatePairsFlagged": 9,
+      "filesInspected": 138,
+      "uniqueFileHashes": 127,
+      "exactDuplicateGroups": 11,
+      "exactDuplicateExtraFiles": 11,
+      "nearDuplicatePairsFlagged": 10,
       "additionalNearDuplicateExportsConfirmed": 0,
-      "contactSheetsCollages": 22,
-      "uniqueContactSheetsCollages": 20,
+      "contactSheetsCollages": 26,
+      "uniqueContactSheetsCollages": 24,
       "unrelatedRejected": 4,
       "singleProductPosters": 3,
-      "validStandalonePhotographicCandidates": 63,
-      "unambiguousPhotographicCandidates": 54,
+      "validStandalonePhotographicCandidates": 105,
+      "unambiguousPhotographicCandidates": 96,
       "ambiguousPhotographicCandidates": 9,
-      "selectedCleanAssets": 30,
-      "selectedPosterAssets": 1,
-      "heroDark": 11,
-      "heroLight": 10,
-      "card": 10,
-      "totalValidMapped": 31,
-      "missingAssets": 41,
-      "completeProductSets": 10,
-      "productsWithAnySelection": 11,
-      "currentlyIntegratedPrimaryAssets": 30,
-      "currentlyIntegratedProductSets": 10,
-      "validStandaloneCandidates": 66
+      "selectedCleanAssets": 72,
+      "selectedPosterAssets": 0,
+      "heroDark": 24,
+      "heroLight": 24,
+      "card": 24,
+      "totalValidMapped": 72,
+      "missingAssets": 0,
+      "completeProductSets": 24,
+      "productsWithAnySelection": 24,
+      "currentlyIntegratedPrimaryAssets": 72,
+      "currentlyIntegratedProductSets": 24,
+      "validStandaloneCandidates": 108,
+      "uniqueSelectedSourceAssets": 63,
+      "sharedSourceAssignments": 9,
+      "dedicatedProductSets": 21,
+      "semanticFallbackProductSets": 3
     },
     "exactDuplicateGroups": [
       [
@@ -53,6 +57,42 @@
       [
         "F060",
         "F061"
+      ],
+      [
+        "N023",
+        "N032"
+      ],
+      [
+        "N024",
+        "N033"
+      ],
+      [
+        "N025",
+        "N034"
+      ],
+      [
+        "N026",
+        "N035"
+      ],
+      [
+        "N027",
+        "N036"
+      ],
+      [
+        "N028",
+        "N037"
+      ],
+      [
+        "N029",
+        "N038"
+      ],
+      [
+        "N030",
+        "N039"
+      ],
+      [
+        "N031",
+        "N040"
       ]
     ],
     "similarityCandidates": [
@@ -75,6 +115,16 @@
         "sameDecodedPixels": false,
         "reviewResult": "distinct-images",
         "reviewNote": "Different photograph: the latter adds a caregiver and changes the walking pose."
+      },
+      {
+        "a": "N014",
+        "b": "N015",
+        "phashDistance": 10,
+        "dhashDistance": 19,
+        "ssim128": 0.199721,
+        "sameDecodedPixels": false,
+        "reviewResult": "distinct-images",
+        "reviewNote": "Native-size review confirms distinct dark/night and light/day airport photographs; scene lighting and travelers differ. Not duplicate exports."
       },
       {
         "a": "F071",
@@ -146,7 +196,33 @@
         "reviewResult": "distinct-images",
         "reviewNote": "Different automotive contact sheets; both excluded."
       }
-    ]
+    ],
+    "latestBatch": {
+      "directory": "New folder",
+      "filesInspected": 46,
+      "uniqueFileHashes": 37,
+      "exactDuplicateExtraFiles": 9,
+      "contactSheetsCollages": 4,
+      "uniqueStandalonePhotographs": 33,
+      "dedicatedProductSetsAdded": 11,
+      "duplicateReviewIds": [
+        "N032",
+        "N033",
+        "N034",
+        "N035",
+        "N036",
+        "N037",
+        "N038",
+        "N039",
+        "N040"
+      ],
+      "collageReviewIds": [
+        "N001",
+        "N020",
+        "N021",
+        "N022"
+      ]
+    }
   },
   "products": [
     {
@@ -1241,157 +1317,819 @@
       "product": "PediatricMotion",
       "slug": "pediatricmotion",
       "vertical": "mobilitycare",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_12_46 PM (1).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_12_46 PM (2).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_12_47 PM (3).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N002",
+          "reason": "Child wearing lower-leg supports walks with a clinician in a pediatric therapy room."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N003",
+          "reason": "Child wearing lower-leg supports walks with a clinician in a pediatric therapy room."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N004",
+          "reason": "Child wearing lower-leg supports walks with a clinician in a pediatric therapy room."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI PediatricMotion",
+      "heroPosition": "60% 50%",
+      "cardPosition": "50% 50%",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/pediatricmotion/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 32974,
+              "sha256": "3941da2cf1d86862b9521ee97bb7004c1a2c63c70ee1742fb4cb367f57d0cee8"
+            },
+            {
+              "src": "/images/products/pediatricmotion/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 62824,
+              "sha256": "b1af2e174c37412a72cc4b15b28ad57172f5596861c6f0210e5bfe1f9abb7377"
+            },
+            {
+              "src": "/images/products/pediatricmotion/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 90666,
+              "sha256": "a514ce112b48472e085a3ddc80828d24abb03e89e58aac5ff736d4b345e3b8b9"
+            },
+            {
+              "src": "/images/products/pediatricmotion/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 172070,
+              "sha256": "939046d91908bd32da3035fa7223d9d6b5f0df8f0ea377dbd58128e83e09b0be"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/pediatricmotion/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 43562,
+              "sha256": "138771333bb73460c677e72a185d0cf588bed57e80f21ab2f84f0957f34c4225"
+            },
+            {
+              "src": "/images/products/pediatricmotion/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 86162,
+              "sha256": "65ea7483526d804377beb115354a95463b40278f02040e072abe0cda3ef72edb"
+            },
+            {
+              "src": "/images/products/pediatricmotion/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 126484,
+              "sha256": "4af38b22e728caa037429d8374879c8a904e00cae173dbc45af971cf572967c9"
+            },
+            {
+              "src": "/images/products/pediatricmotion/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 235846,
+              "sha256": "859ed340f529eb93115060b3f351e4d99693a6c34b6b21f43cfb8480def2e351"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/pediatricmotion/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 25418,
+              "sha256": "e795f985a1d8ab0441119a7097d8c787a9744d21a2e7762b6a62701c45ac0608"
+            },
+            {
+              "src": "/images/products/pediatricmotion/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 67112,
+              "sha256": "6cae3618b5e80ba536a2bc1538492cb687609fb763166969a3e2683f4b83186b"
+            },
+            {
+              "src": "/images/products/pediatricmotion/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 115752,
+              "sha256": "25639923a12683b14c750b8dfe337ed2724ff1af7b8c509099c70522754f2504"
+            },
+            {
+              "src": "/images/products/pediatricmotion/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 194574,
+              "sha256": "675f7a710aa444cd5d5991ba12030ea3ab0747a11c5e98e6c8e3c81e725a8929"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "ProstheticFit",
       "slug": "prostheticfit",
       "vertical": "mobilitycare",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_12_48 PM (4).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_12_48 PM (5).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_12_49 PM (6).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N005",
+          "reason": "Adult with a visible below-knee prosthetic limb walks in a gait lab while a clinician observes the fitting."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N006",
+          "reason": "Adult with a visible below-knee prosthetic limb walks in a gait lab while a clinician observes the fitting."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N007",
+          "reason": "Adult with a visible below-knee prosthetic limb walks in a gait lab while a clinician observes the fitting."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI ProstheticFit",
+      "heroPosition": "95% 50%",
+      "cardPosition": "50% 50%",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/prostheticfit/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 23292,
+              "sha256": "f48e766957eac79d5ff85c838ada43e0b9c16c512fcffcaab8e164e1f54bef75"
+            },
+            {
+              "src": "/images/products/prostheticfit/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 44424,
+              "sha256": "0b47c5c88e987fcbb6dc9f185d0b78a8c25e83a5175cf200061397c59bec9ddf"
+            },
+            {
+              "src": "/images/products/prostheticfit/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 66894,
+              "sha256": "546ade4a19dc55ae99532379a2262eeaa3159d08e048e7c0c2bd90d48a7f1a19"
+            },
+            {
+              "src": "/images/products/prostheticfit/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 135222,
+              "sha256": "6a7934be0564946b069061db2de06581ae11c7eba30e7dba8b74cad17972227f"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/prostheticfit/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 38186,
+              "sha256": "1b3fd0e75d7f6fe395faf270755f9fda1dd91e1fe3acf02360d4bda764932c6b"
+            },
+            {
+              "src": "/images/products/prostheticfit/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 73018,
+              "sha256": "c7ac6432da71cb81825c3c73c98ecf7e4f56a85463de57c0c29fd339bf9b3b59"
+            },
+            {
+              "src": "/images/products/prostheticfit/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 106758,
+              "sha256": "efef726e9bbd7008a4174c52ba17b06927d6064cc645e322fff5cb65f4a04b5f"
+            },
+            {
+              "src": "/images/products/prostheticfit/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 194862,
+              "sha256": "e25aaec7009af9bcf04e9c6d5c7bc4b1d90ae7f17b258cad18536b9bd8a84c78"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/prostheticfit/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 21376,
+              "sha256": "bb1e31652f5800e0f457f675c6390733d073715c1eb009869c9cbaa16a9e6a8d"
+            },
+            {
+              "src": "/images/products/prostheticfit/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 56388,
+              "sha256": "7425c91f9a4f1fc457e170a47001edc9c18a8f4c1d5d7e06719348bb7509a90e"
+            },
+            {
+              "src": "/images/products/prostheticfit/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 93402,
+              "sha256": "ec1949c8960448bf7b1ba9b503d0972bf4d33f16a31a814b527075135d27d0e7"
+            },
+            {
+              "src": "/images/products/prostheticfit/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 153034,
+              "sha256": "d9628c957b8e2aac8c5ef2fa820175ca96434abaca7f09e82dbd6ddf2dae35a3"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "RemoteCare",
       "slug": "remotecare",
       "vertical": "mobilitycare",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_12_50 PM (7).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_12_50 PM (8).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_12_50 PM (9).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N008",
+          "reason": "Older adult follows a remote exercise session on a laptop at home."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N009",
+          "reason": "Older adult follows a remote exercise session on a laptop at home."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N010",
+          "reason": "Older adult follows a remote exercise session on a laptop at home."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI RemoteCare",
+      "heroPosition": "40% 50%",
+      "cardPosition": "50% 50%",
+      "heroWide": true,
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/remotecare/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 31876,
+              "sha256": "8d9e15f0303f5a90399115efe0321c978de21f1a2485262cea0b2414cfcc71df"
+            },
+            {
+              "src": "/images/products/remotecare/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 66380,
+              "sha256": "daec97147fcb1af99db6ab0fc29446563620559e6912d67677a6a66fe2798b54"
+            },
+            {
+              "src": "/images/products/remotecare/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 100738,
+              "sha256": "f012ca4212fb14d60d27f92f6942c8db11a460521941b2a93769fd2fa660679f"
+            },
+            {
+              "src": "/images/products/remotecare/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 204360,
+              "sha256": "bebebadcb3f73dcd29cc862ebbde7033117e5f87dd6bce954db7d506dc3a8a70"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/remotecare/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 49422,
+              "sha256": "63a19f8fef338eaf8af6a4bc86d09b3dffd33cfc9c9c6d3b9e5726365c883345"
+            },
+            {
+              "src": "/images/products/remotecare/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 99692,
+              "sha256": "3fe5da55306f51c364b4c07603e9e0c5e8202e3bede6226e0477bbb8ab69d83b"
+            },
+            {
+              "src": "/images/products/remotecare/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 150834,
+              "sha256": "5b08487076b67746f99ed9d3df2e8c493c34e290bdc22a03edc8f448000da580"
+            },
+            {
+              "src": "/images/products/remotecare/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 302924,
+              "sha256": "3516998001eaca17766da7c82df4b720876e56944175239af0e77e0aabad9076"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/remotecare/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 22870,
+              "sha256": "551fff1e01b7c8aa844bce45423cc32600f3457df1405a09d6c8c7bf17cbf59a"
+            },
+            {
+              "src": "/images/products/remotecare/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 62240,
+              "sha256": "5fef13f8fddc7e8ec78d7fe46712c4048759263e118191952525f21fede62733"
+            },
+            {
+              "src": "/images/products/remotecare/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 109202,
+              "sha256": "b76d8aa3390c3ebb55ade93b7b5ae60e0e08c2ad7d46b5f3c118a1897f05ea55"
+            },
+            {
+              "src": "/images/products/remotecare/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 202128,
+              "sha256": "e3326dd51ca7e9fb188c4f476599fb8ee816fd16e8c9fc1dddd678e06056d26d"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "ClinicalTrials",
       "slug": "clinicaltrials",
       "vertical": "mobilitycare",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_19_08 PM (1).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_19_09 PM (2).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_19_09 PM (3).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N011",
+          "reason": "Instrumented walking assessment with a participant, research clinician, camera and monitoring workstation."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N012",
+          "reason": "Instrumented walking assessment with a participant, research clinician, camera and monitoring workstation."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N013",
+          "reason": "Instrumented walking assessment with a participant, research clinician, camera and monitoring workstation."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI ClinicalTrials",
+      "heroPosition": "50% 50%",
+      "cardPosition": "50% 50%",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/clinicaltrials/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 29840,
+              "sha256": "ba3650941c0b658afda00abbd1537bd9af0b6fe8f21c0840e8c575e81c2f12f7"
+            },
+            {
+              "src": "/images/products/clinicaltrials/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 58344,
+              "sha256": "afab2b7bb36485101702b2e6d5b43fee49ebc5ea26c5cc2be60c0a745a8c8822"
+            },
+            {
+              "src": "/images/products/clinicaltrials/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 83224,
+              "sha256": "8294d3466c2424a8b27d6aa7046d5fe267c66d96803bc446a185c250390f3d48"
+            },
+            {
+              "src": "/images/products/clinicaltrials/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 160182,
+              "sha256": "4e36312a23e40e0e333efc8b55a75943c6407f8a628da53bfad64a74537c1ec6"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/clinicaltrials/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 43650,
+              "sha256": "87c89a1dcb0ecef62c82e084b38e80dd9d450880180a6c7881e50254ffc71266"
+            },
+            {
+              "src": "/images/products/clinicaltrials/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 83412,
+              "sha256": "e45c65d9d38ce88db4748980e56a740d8d6237738b4f224c7cdf83ba0d1fdffd"
+            },
+            {
+              "src": "/images/products/clinicaltrials/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 125912,
+              "sha256": "96295c6918008bb15057c0846e3ad561e15325c31123c64b0eadbf9a4b9cb45a"
+            },
+            {
+              "src": "/images/products/clinicaltrials/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 233648,
+              "sha256": "5fc738133c1077c1080f276e9698f7480119a9a473df7f9cf60d431684f4f02d"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/clinicaltrials/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 24760,
+              "sha256": "169e56a0bcb428dd15b155e1a5d884e4bb2e8adc5549707a639e9eff571bbc29"
+            },
+            {
+              "src": "/images/products/clinicaltrials/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 66714,
+              "sha256": "d5195293d8b109fa89764bf6613ec888dd5871f595557ecc6530f7355e77c749"
+            },
+            {
+              "src": "/images/products/clinicaltrials/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 120334,
+              "sha256": "bf0532691f6914deddcaf808050fd44ab38cb94f3e4867fb8ef3f801d3543526"
+            },
+            {
+              "src": "/images/products/clinicaltrials/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 207098,
+              "sha256": "936bf9475e0c6728d88e09452864c9279855bde4989d6ecae844152c50ebb010"
+            }
+          ]
+        }
+      },
+      "heroWide": true
     },
     {
       "product": "SuspiciousMotion",
       "slug": "suspiciousmotion",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_19_10 PM (4).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_19_11 PM (5).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_19_12 PM (6).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N014",
+          "reason": "Airport concourse with one highlighted movement track among travelers; scene does not establish wrongdoing."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N015",
+          "reason": "Airport concourse with one highlighted movement track among travelers; scene does not establish wrongdoing."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N016",
+          "reason": "Airport concourse with one highlighted movement track among travelers; scene does not establish wrongdoing."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI SuspiciousMotion",
+      "heroPosition": "76% 50%",
+      "cardPosition": "50% 50%",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/suspiciousmotion/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 38008,
+              "sha256": "d159071a023d81a059290b9597d4118cad64de85a2e4836ccfb2fbd284f978fa"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 76372,
+              "sha256": "5074251b27f9d4e3beb3f2274a94f0c355855bfd8fb15bfadb3a25dcb94dbc83"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 107850,
+              "sha256": "d806db5eb0c5adc2257e62d6981fc7366ce855797e39605d2656c6672b0aaa82"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 201980,
+              "sha256": "1fc69e660930f16ce2ced393643bd42f102192dc31cae6c42d92791e687cedd3"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/suspiciousmotion/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 52052,
+              "sha256": "85fc706bbbf9885b466c2158d5276915def5a24efaa864f84e83fb667518e50f"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 104074,
+              "sha256": "fc7965759b7b0a5357c239309342b90487b370d51213bf144d3792f5f0e77df5"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 150666,
+              "sha256": "3a5a3d183969985d641689cc151735be331af75da315aff59b082f92de9b8e85"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 285038,
+              "sha256": "f914a8119a5b8a9a5592ee2651c33002c7f896d89f0a93593bf44718efa39830"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/suspiciousmotion/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 27726,
+              "sha256": "1d2b2bf63f91ec38fa9c527161c0bdceb9fc4487ffbf0008328fd5e7850d339d"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 73636,
+              "sha256": "195929ce4f5602f8e46791a0ad34283a9f6b7672f8d9d0c8204f80f8e4d96352"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 122256,
+              "sha256": "70f3414511a777f657f41f2fdf6de575a2a4dfde2ead7513f1d10b3913a76d1c"
+            },
+            {
+              "src": "/images/products/suspiciousmotion/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 195638,
+              "sha256": "e644dffd8fc92c9f40551c3cfdf774fe92a3effd13bae271f84939cef4aa7f06"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "CrowdSense",
       "slug": "crowdsense",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_19_12 PM (7).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_19_13 PM (8).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_19_14 PM (9).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N017",
+          "reason": "Elevated view of dense terminal pedestrian flow and multiple movement paths."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N018",
+          "reason": "Elevated view of dense terminal pedestrian flow and multiple movement paths."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N019",
+          "reason": "Elevated view of dense terminal pedestrian flow and multiple movement paths."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI CrowdSense",
+      "heroPosition": "65% 50%",
+      "cardPosition": "50% 50%",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/crowdsense/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 57812,
+              "sha256": "9bff5c4b4eda9a8c9131f95437f6ecbde8cddd9851c82f7f5e55cef2bda0eaea"
+            },
+            {
+              "src": "/images/products/crowdsense/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 125754,
+              "sha256": "11a2309527024548a1c50658cbac34f6abab7dde77695dd3579baacccd0b0508"
+            },
+            {
+              "src": "/images/products/crowdsense/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 199744,
+              "sha256": "14a07068ddb68db2aec294f68d6e1612cb010ef9dca305ebb03e948dcc4d0fda"
+            },
+            {
+              "src": "/images/products/crowdsense/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 416240,
+              "sha256": "27e65e19e259763417f87aa8daf8e46299aaf29929108e4aa318369bd005daff"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/crowdsense/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 76092,
+              "sha256": "35870967b2a9d02be027288b2e33cf089b8ca0a507db5867db41758b61dfd09a"
+            },
+            {
+              "src": "/images/products/crowdsense/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 168176,
+              "sha256": "6cb1f22b8df9e448f219041a898efd7a9da4cc2787e7337dbc32b35b616b7e6b"
+            },
+            {
+              "src": "/images/products/crowdsense/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 271078,
+              "sha256": "a3750df65eb80207c88df74916b7d6c5fbfcd944913c6eabd4ea50299662d289"
+            },
+            {
+              "src": "/images/products/crowdsense/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 557032,
+              "sha256": "0f6a4abb9871c25f6cb99a992de923a4c643cbcf3bd6f87fa516e5bf15a80226"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/crowdsense/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 37678,
+              "sha256": "1616d337c6aef2ec872c4ecf7c09da68fd89c63db309b4377eea11cc1470a0b6"
+            },
+            {
+              "src": "/images/products/crowdsense/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 114424,
+              "sha256": "f3827cf7c60a84bea830ebfe81f8e939b53d281253c746fc70444389309141d7"
+            },
+            {
+              "src": "/images/products/crowdsense/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 204394,
+              "sha256": "e17d6155506927adbdb0f8782fe5cb35439a131a5439475be47f7ddff57724a6"
+            },
+            {
+              "src": "/images/products/crowdsense/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 349980,
+              "sha256": "3dea31f4dc8eeff6d9bfa89adf20f72a326fbe9b26095b0a3500077144d4a397"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "IndustrialSafety",
@@ -1533,79 +2271,410 @@
       "product": "PrivacyGuard",
       "slug": "privacyguard",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_49_51 PM (1).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_49_52 PM (2).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_49_52 PM (3).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N023",
+          "reason": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N024",
+          "reason": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N025",
+          "reason": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI PrivacyGuard",
+      "heroPosition": "88% 50%",
+      "cardPosition": "50% 50%",
+      "mappingNote": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization.",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/privacyguard/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 33318,
+              "sha256": "ab3e3c559a931e098c881c95340034d0af3a1c8b0da2490897b58f154f2b4f9b"
+            },
+            {
+              "src": "/images/products/privacyguard/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 71740,
+              "sha256": "1475758f21b9ca621e08b1b9f9dd3fb3ce5c5db0477bc9880250bb763d6e59da"
+            },
+            {
+              "src": "/images/products/privacyguard/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 116916,
+              "sha256": "52b8ea13f1d6bc24c01984ce5e28f7a0bb98c8c8830a099a3e6b21a0f372e1b1"
+            },
+            {
+              "src": "/images/products/privacyguard/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 233942,
+              "sha256": "bacfd73e73591dc8ba71f073efa881b9b3dfd0f0862d663306c1c0b1e15f0221"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/privacyguard/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 33920,
+              "sha256": "bc9808c4265fed24220dc24bbdf2ea1c656582fa941b5e73a0fbefed97f23db1"
+            },
+            {
+              "src": "/images/products/privacyguard/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 70430,
+              "sha256": "23cd01e89cec1622e57f2191b9f56eff1392f080c00dd910ebba4fc8ea5ec61e"
+            },
+            {
+              "src": "/images/products/privacyguard/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 110270,
+              "sha256": "08c7ae2e47bfd1f19515f017be5ec521838654145d193ee771c0026d59241612"
+            },
+            {
+              "src": "/images/products/privacyguard/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 217634,
+              "sha256": "600786706f34e295fd983e4c2867cd30b9b55eb4945428b341d56e024346548b"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/privacyguard/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 28734,
+              "sha256": "d14f8dc4cd4151bf0faa48e651594fe95df5e07c67032c7968b8e2c189ce45e6"
+            },
+            {
+              "src": "/images/products/privacyguard/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 84990,
+              "sha256": "fec4a94376b9b5b8c969a48742af7da772a984d2750260b29a36465505d6d4ff"
+            },
+            {
+              "src": "/images/products/privacyguard/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 150832,
+              "sha256": "270aa56002d5aef333033503e784fa3dcf6dc571a0fa5727419c519b9d5f7f3f"
+            },
+            {
+              "src": "/images/products/privacyguard/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 246892,
+              "sha256": "52358af67b6d1121c946e055a27f8c7e63f30ad206d756e87bfce129a4038661"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "CampusShield",
       "slug": "campusshield",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_49_53 PM (4).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_49_53 PM (5).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_49_54 PM (6).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N026",
+          "reason": "Students and pedestrians follow monitored paths across a landscaped university campus."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N027",
+          "reason": "Students and pedestrians follow monitored paths across a landscaped university campus."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N028",
+          "reason": "Students and pedestrians follow monitored paths across a landscaped university campus."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI CampusShield",
+      "heroPosition": "85% 50%",
+      "cardPosition": "50% 50%",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/campusshield/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 47182,
+              "sha256": "f46eab2b4724ac9d40c35654ca7007fa5f043ee1df7378641f268311e667b4e3"
+            },
+            {
+              "src": "/images/products/campusshield/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 99802,
+              "sha256": "b422ddf48f8ea32e3a4443c24906011ade76e328c7d315d5b60c94535e3aa6ce"
+            },
+            {
+              "src": "/images/products/campusshield/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 155448,
+              "sha256": "5c068c54273978b15bd7a82af401db8b6b3e24827191ac34598e9213e720e47d"
+            },
+            {
+              "src": "/images/products/campusshield/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 309652,
+              "sha256": "3b9475c1dbe072012688f690786cc7a3a0f37e388fc182c60dbb82f9a82ffa7a"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/campusshield/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 63518,
+              "sha256": "84335255798a9310cf0b107136b4b4da62a8ee2bcf09afd8a3c64e88fc15fefb"
+            },
+            {
+              "src": "/images/products/campusshield/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 144956,
+              "sha256": "faa45bf21cd13ea7b780aec66aab1441b479f5f4b6a5e3d555d95b8f68a858ff"
+            },
+            {
+              "src": "/images/products/campusshield/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 231694,
+              "sha256": "7df573d7ec77635894cbd203013c224e660e6aadf9a5091edfd419bf8cbf838b"
+            },
+            {
+              "src": "/images/products/campusshield/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 488032,
+              "sha256": "c9e15718784e9ba7354fd3e1aedce3a56dfc93d7032c604dd0fb7d7c8aa743b9"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/campusshield/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 38966,
+              "sha256": "84951072efbc465a8fbb1658aafe78ae465f176ae9c66fa9814e45972099a1f4"
+            },
+            {
+              "src": "/images/products/campusshield/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 121892,
+              "sha256": "d2ce034ac52462b0b36f5c38c3669b86ada31936a37aacc9155077afe1451e57"
+            },
+            {
+              "src": "/images/products/campusshield/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 226512,
+              "sha256": "60928785a215f66b5daec1c0d2f508267385e0168c5df2630c7d397028468dc1"
+            },
+            {
+              "src": "/images/products/campusshield/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 385966,
+              "sha256": "880f57aa259e0398662466466e6f34227d169ec8952ca3ecbb881dcff113e8fe"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "EventShield",
       "slug": "eventshield",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_49_54 PM (7).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_49_54 PM (8).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_49_55 PM (9).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N029",
+          "reason": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N030",
+          "reason": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N031",
+          "reason": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI EventShield",
+      "heroPosition": "90% 50%",
+      "cardPosition": "50% 50%",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/eventshield/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 42358,
+              "sha256": "6c68a8f8a0482e4285d9bac35a79d178a32d0817ac24439464a3be9d57f1ec73"
+            },
+            {
+              "src": "/images/products/eventshield/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 93352,
+              "sha256": "e682bbe9531840f842a6a36133ac453438dc7013b6ec8152bbda922e3c63e1ff"
+            },
+            {
+              "src": "/images/products/eventshield/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 146276,
+              "sha256": "f24f437217227799d9b5dc740fbe0635a28fbc45b30cf20c49404eae868ac401"
+            },
+            {
+              "src": "/images/products/eventshield/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 288568,
+              "sha256": "2247b72f02a69b7aa1ee53b3005225ea31614e9bf7b243f54ac645dfe14a30d8"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/eventshield/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 58456,
+              "sha256": "606b9ad29b1a01328061cc7ca52c41fd17a31c87a4e80b9b1613362352c1a75d"
+            },
+            {
+              "src": "/images/products/eventshield/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 130674,
+              "sha256": "948acc28ca5c7882bf914c2c90b1c6d8ddf8a42836404175d7acea7bd482383b"
+            },
+            {
+              "src": "/images/products/eventshield/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 202772,
+              "sha256": "db0ff3b5b9b10e7a800d2edbb69c91e59a590bffa748adca081a78da05ab05ee"
+            },
+            {
+              "src": "/images/products/eventshield/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 421258,
+              "sha256": "2bf3c8eb217bb9b8678c20c6874520ce98cb41ed4812b713149dbc3ec052078a"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/eventshield/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 38194,
+              "sha256": "7a0123b2f8d585d39424af4c93bf2dd42476b3f5680d1885c7281bade2a2a7d7"
+            },
+            {
+              "src": "/images/products/eventshield/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 113224,
+              "sha256": "9d89728cb17e27f60b68e0b91e41be27898a19f989c56d9052eb15b7fe9685c6"
+            },
+            {
+              "src": "/images/products/eventshield/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 200794,
+              "sha256": "c591bc0afb6df49a3e23af86ebd3c20bcfb14532bc5a62244332b14feacfbec8"
+            },
+            {
+              "src": "/images/products/eventshield/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 351478,
+              "sha256": "4e786911aa84213f3d4eb09112c473c0aad2b59fd7bc9d9fa1044aff1f2fee76"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "RetailGuard",
@@ -1747,433 +2816,736 @@
       "product": "ForensicSearch",
       "slug": "forensicsearch",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_58_10 PM (1).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_58_11 PM (2).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_58_10 PM (1).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N041",
+          "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present.",
+          "sharedFrom": {
+            "product": "ReID",
+            "role": "heroDark"
+          }
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N042",
+          "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present.",
+          "sharedFrom": {
+            "product": "ReID",
+            "role": "heroLight"
+          }
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N041",
+          "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present.",
+          "sharedFrom": {
+            "product": "ReID",
+            "role": "heroDark"
+          }
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI ForensicSearch",
+      "heroPosition": "76% 50%",
+      "cardPosition": "70% 50%",
+      "mappingNote": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present.",
+      "heroWide": true,
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/forensicsearch/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 32818,
+              "sha256": "4d4b5eb0fa8e0de338caf1531eddca0ef5f96d85490e75735669d29e75f76742"
+            },
+            {
+              "src": "/images/products/forensicsearch/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 68776,
+              "sha256": "59df345b3f30557ebd338f3b9b4f54efdc232eb309984192a1767b34a7f79e79"
+            },
+            {
+              "src": "/images/products/forensicsearch/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 106114,
+              "sha256": "317df68cf89863d333db2af79cd1d45073e31aed887577ad428b7aa6a1721c02"
+            },
+            {
+              "src": "/images/products/forensicsearch/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 201152,
+              "sha256": "5ec07cebab19eae1024b51b844f0642c83efa42a66ac9cf96ff65f64df823f9b"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/forensicsearch/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 42964,
+              "sha256": "dcfff293709db0642cdab22701353913217ebcce89c3efd1f256917aefd75da8"
+            },
+            {
+              "src": "/images/products/forensicsearch/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 82362,
+              "sha256": "8375dc5ce3312ed5e149013b7f9bdcdd1ec2de47864758f5fc52051ca8b2e8cd"
+            },
+            {
+              "src": "/images/products/forensicsearch/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 120554,
+              "sha256": "b5b76023f8ba962a18410d423c313bdedf6af7cacd6401be113d71aac2942e42"
+            },
+            {
+              "src": "/images/products/forensicsearch/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 223482,
+              "sha256": "7feec87051ccaea63547e8e599dc66905a4f5cc7a217a6e5e3368deaa9bda6b9"
+            }
+          ]
+        },
+        "card": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/forensicsearch/card-320.webp",
+              "width": 320,
+              "height": 180,
+              "bytes": 16726,
+              "sha256": "ba5433b59882640cb014e955f7427bb19bf0cb480e996839c765aec66389ca1e"
+            },
+            {
+              "src": "/images/products/forensicsearch/card-640.webp",
+              "width": 640,
+              "height": 360,
+              "bytes": 52420,
+              "sha256": "2b1b31d23fabb69431854f46e7ffbbac52542ccca1b0ec6f57a8328ac0153d51"
+            },
+            {
+              "src": "/images/products/forensicsearch/card-960.webp",
+              "width": 960,
+              "height": 540,
+              "bytes": 96404,
+              "sha256": "bfbfcbd741eada6dbcad974350fca56c4811df08e11175a23cef1f84208a9dd0"
+            },
+            {
+              "src": "/images/products/forensicsearch/card.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 201152,
+              "sha256": "5ec07cebab19eae1024b51b844f0642c83efa42a66ac9cf96ff65f64df823f9b"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "ReID",
       "slug": "reid",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_58_10 PM (1).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_58_11 PM (2).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_58_11 PM (3).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N041",
+          "reason": "Backpack-wearing traveler shown with body-level tracking in different terminal camera views; no claim of a verified identity match."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N042",
+          "reason": "Backpack-wearing traveler shown with body-level tracking in different terminal camera views; no claim of a verified identity match."
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N043",
+          "reason": "Backpack-wearing traveler shown with body-level tracking in different terminal camera views; no claim of a verified identity match."
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI ReID",
+      "heroPosition": "76% 50%",
+      "cardPosition": "50% 50%",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/reid/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 32818,
+              "sha256": "4d4b5eb0fa8e0de338caf1531eddca0ef5f96d85490e75735669d29e75f76742"
+            },
+            {
+              "src": "/images/products/reid/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 68776,
+              "sha256": "59df345b3f30557ebd338f3b9b4f54efdc232eb309984192a1767b34a7f79e79"
+            },
+            {
+              "src": "/images/products/reid/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 106114,
+              "sha256": "317df68cf89863d333db2af79cd1d45073e31aed887577ad428b7aa6a1721c02"
+            },
+            {
+              "src": "/images/products/reid/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 201152,
+              "sha256": "5ec07cebab19eae1024b51b844f0642c83efa42a66ac9cf96ff65f64df823f9b"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/reid/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 42964,
+              "sha256": "dcfff293709db0642cdab22701353913217ebcce89c3efd1f256917aefd75da8"
+            },
+            {
+              "src": "/images/products/reid/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 82362,
+              "sha256": "8375dc5ce3312ed5e149013b7f9bdcdd1ec2de47864758f5fc52051ca8b2e8cd"
+            },
+            {
+              "src": "/images/products/reid/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 120554,
+              "sha256": "b5b76023f8ba962a18410d423c313bdedf6af7cacd6401be113d71aac2942e42"
+            },
+            {
+              "src": "/images/products/reid/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 223482,
+              "sha256": "7feec87051ccaea63547e8e599dc66905a4f5cc7a217a6e5e3368deaa9bda6b9"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/reid/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 21450,
+              "sha256": "3eb2c2837c560934ef63626a851bc7fa69922e7771286e3d695a948b57e7ba35"
+            },
+            {
+              "src": "/images/products/reid/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 55824,
+              "sha256": "1508e82ea523e38a8552d1a7fb6bfe4526711bc62ade5a14c36c5e4ab82a1030"
+            },
+            {
+              "src": "/images/products/reid/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 95698,
+              "sha256": "ccfaf6d4e19989c25c24c63488e42e161919fa0cfbd5762864f8189879c1b41f"
+            },
+            {
+              "src": "/images/products/reid/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 164234,
+              "sha256": "377764b271b8cab3ee7b0319d9dbb788d2b5946c0e52c7cd928be7eae7c54bcb"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "AccessMotion",
       "slug": "accessmotion",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_49_51 PM (1).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_49_52 PM (2).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_49_54 PM (8).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N023",
+          "reason": "Closest semantic fit: pedestrian entrance/atrium flow, shared with PrivacyGuard and EventShield. No dedicated credential or turnstile scene is present.",
+          "sharedFrom": {
+            "product": "PrivacyGuard",
+            "role": "heroDark"
+          }
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N024",
+          "reason": "Closest semantic fit: pedestrian entrance/atrium flow, shared with PrivacyGuard and EventShield. No dedicated credential or turnstile scene is present.",
+          "sharedFrom": {
+            "product": "PrivacyGuard",
+            "role": "heroLight"
+          }
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N030",
+          "reason": "Closest semantic fit: pedestrian entrance/atrium flow, shared with PrivacyGuard and EventShield. No dedicated credential or turnstile scene is present.",
+          "sharedFrom": {
+            "product": "EventShield",
+            "role": "heroLight"
+          }
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI AccessMotion",
+      "heroPosition": "88% 50%",
+      "cardPosition": "85% 50%",
+      "mappingNote": "Closest semantic fit: pedestrian entrance/atrium flow, shared with PrivacyGuard and EventShield. No dedicated credential or turnstile scene is present.",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/accessmotion/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 33318,
+              "sha256": "ab3e3c559a931e098c881c95340034d0af3a1c8b0da2490897b58f154f2b4f9b"
+            },
+            {
+              "src": "/images/products/accessmotion/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 71740,
+              "sha256": "1475758f21b9ca621e08b1b9f9dd3fb3ce5c5db0477bc9880250bb763d6e59da"
+            },
+            {
+              "src": "/images/products/accessmotion/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 116916,
+              "sha256": "52b8ea13f1d6bc24c01984ce5e28f7a0bb98c8c8830a099a3e6b21a0f372e1b1"
+            },
+            {
+              "src": "/images/products/accessmotion/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 233942,
+              "sha256": "bacfd73e73591dc8ba71f073efa881b9b3dfd0f0862d663306c1c0b1e15f0221"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/accessmotion/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 33920,
+              "sha256": "bc9808c4265fed24220dc24bbdf2ea1c656582fa941b5e73a0fbefed97f23db1"
+            },
+            {
+              "src": "/images/products/accessmotion/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 70430,
+              "sha256": "23cd01e89cec1622e57f2191b9f56eff1392f080c00dd910ebba4fc8ea5ec61e"
+            },
+            {
+              "src": "/images/products/accessmotion/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 110270,
+              "sha256": "08c7ae2e47bfd1f19515f017be5ec521838654145d193ee771c0026d59241612"
+            },
+            {
+              "src": "/images/products/accessmotion/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 217634,
+              "sha256": "600786706f34e295fd983e4c2867cd30b9b55eb4945428b341d56e024346548b"
+            }
+          ]
+        },
+        "card": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/accessmotion/card-320.webp",
+              "width": 320,
+              "height": 180,
+              "bytes": 28668,
+              "sha256": "1b889feddcd37028dcaa167049ced9c38e0a8b572043f213f09ed0fcf078b751"
+            },
+            {
+              "src": "/images/products/accessmotion/card-640.webp",
+              "width": 640,
+              "height": 360,
+              "bytes": 96698,
+              "sha256": "273b11f3309c226f4f7ce53a62d6522bccb3d8332e76834ee9027145e9b2872b"
+            },
+            {
+              "src": "/images/products/accessmotion/card-960.webp",
+              "width": 960,
+              "height": 540,
+              "bytes": 183860,
+              "sha256": "5d7e957947396c88cd6257e639598b124cf539403b1455dfb2778998869b8f45"
+            },
+            {
+              "src": "/images/products/accessmotion/card.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 421258,
+              "sha256": "2bf3c8eb217bb9b8678c20c6874520ce98cb41ed4812b713149dbc3ec052078a"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "Watchlist",
       "slug": "watchlist",
       "vertical": "securevision",
-      "status": "missing-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": null,
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_19_10 PM (4).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_19_11 PM (5).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_19_11 PM (5).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N014",
+          "reason": "Closest semantic fit: highlighted candidate in an airport concourse, shared with SuspiciousMotion. The photograph does not depict or establish authorized-list membership.",
+          "sharedFrom": {
+            "product": "SuspiciousMotion",
+            "role": "heroDark"
+          }
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N015",
+          "reason": "Closest semantic fit: highlighted candidate in an airport concourse, shared with SuspiciousMotion. The photograph does not depict or establish authorized-list membership.",
+          "sharedFrom": {
+            "product": "SuspiciousMotion",
+            "role": "heroLight"
+          }
         },
         "card": {
-          "status": "missing",
-          "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+          "status": "selected-clean",
+          "reviewId": "N015",
+          "reason": "Closest semantic fit: highlighted candidate in an airport concourse, shared with SuspiciousMotion. The photograph does not depict or establish authorized-list membership.",
+          "sharedFrom": {
+            "product": "SuspiciousMotion",
+            "role": "heroLight"
+          }
         }
       },
-      "deploymentStatus": "not-integrated"
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI Watchlist",
+      "heroPosition": "76% 50%",
+      "cardPosition": "90% 50%",
+      "mappingNote": "Closest semantic fit: highlighted candidate in an airport concourse, shared with SuspiciousMotion. The photograph does not depict or establish authorized-list membership.",
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/watchlist/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 38008,
+              "sha256": "d159071a023d81a059290b9597d4118cad64de85a2e4836ccfb2fbd284f978fa"
+            },
+            {
+              "src": "/images/products/watchlist/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 76372,
+              "sha256": "5074251b27f9d4e3beb3f2274a94f0c355855bfd8fb15bfadb3a25dcb94dbc83"
+            },
+            {
+              "src": "/images/products/watchlist/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 107850,
+              "sha256": "d806db5eb0c5adc2257e62d6981fc7366ce855797e39605d2656c6672b0aaa82"
+            },
+            {
+              "src": "/images/products/watchlist/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 201980,
+              "sha256": "1fc69e660930f16ce2ced393643bd42f102192dc31cae6c42d92791e687cedd3"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/watchlist/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 52052,
+              "sha256": "85fc706bbbf9885b466c2158d5276915def5a24efaa864f84e83fb667518e50f"
+            },
+            {
+              "src": "/images/products/watchlist/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 104074,
+              "sha256": "fc7965759b7b0a5357c239309342b90487b370d51213bf144d3792f5f0e77df5"
+            },
+            {
+              "src": "/images/products/watchlist/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 150666,
+              "sha256": "3a5a3d183969985d641689cc151735be331af75da315aff59b082f92de9b8e85"
+            },
+            {
+              "src": "/images/products/watchlist/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 285038,
+              "sha256": "f914a8119a5b8a9a5592ee2651c33002c7f896d89f0a93593bf44718efa39830"
+            }
+          ]
+        },
+        "card": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/watchlist/card-320.webp",
+              "width": 320,
+              "height": 180,
+              "bytes": 26870,
+              "sha256": "abf0cf29d712e271ef5877b6379bab517380437100c1aa02723fd03aeaa48cd3"
+            },
+            {
+              "src": "/images/products/watchlist/card-640.webp",
+              "width": 640,
+              "height": 360,
+              "bytes": 79448,
+              "sha256": "ee714ace639159d977711ed13bed5878ec345a4813cc5b14c0f901bfc2b9af1f"
+            },
+            {
+              "src": "/images/products/watchlist/card-960.webp",
+              "width": 960,
+              "height": 540,
+              "bytes": 141044,
+              "sha256": "85cfc5bf2289b56fe462c2f8b580c0be5f294c6e801f39395c1b8548a7b156ff"
+            },
+            {
+              "src": "/images/products/watchlist/card.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 285038,
+              "sha256": "f914a8119a5b8a9a5592ee2651c33002c7f896d89f0a93593bf44718efa39830"
+            }
+          ]
+        }
+      }
     },
     {
       "product": "DefenceMotion",
       "slug": "defencemotion",
       "vertical": "securevision",
-      "status": "partial-source-set",
+      "status": "reviewed",
       "sources": {
-        "heroDark": "ChatGPT Image Sep 20, 2026, 01_48_46 AM (1).png",
-        "heroLight": null,
-        "card": null
+        "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_58_12 PM (4).png",
+        "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_58_13 PM (5).png",
+        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_58_13 PM (6).png"
       },
       "roleReview": {
         "heroDark": {
-          "status": "selected-poster",
-          "reviewId": "F074",
-          "reason": "Standalone DefenceMotion dark poster with embedded heading, marketing copy and interface overlays. Must be displayed full-frame; never silently treat as a clean photograph."
+          "status": "selected-clean",
+          "reviewId": "N044",
+          "reason": "Military airfield and installation patrol in the heroes; guarded facility perimeter in the card. Clean photographs with movement overlays, no embedded product poster copy."
         },
         "heroLight": {
-          "status": "missing",
-          "reason": "The folder contains one standalone dark DefenceMotion poster only; no standalone Light Hero counterpart."
+          "status": "selected-clean",
+          "reviewId": "N045",
+          "reason": "Military airfield and installation patrol in the heroes; guarded facility perimeter in the card. Clean photographs with movement overlays, no embedded product poster copy."
         },
         "card": {
-          "status": "missing",
-          "reason": "The folder contains one standalone dark DefenceMotion poster only; no standalone Card counterpart."
+          "status": "selected-clean",
+          "reviewId": "N046",
+          "reason": "Military airfield and installation patrol in the heroes; guarded facility perimeter in the card. Clean photographs with movement overlays, no embedded product poster copy."
         }
       },
-      "deploymentStatus": "held-incomplete-set",
-      "visualDescription": "Standalone DefenceMotion dark poster with embedded heading, marketing copy and interface overlays. Must be displayed full-frame; never silently treat as a clean photograph.",
+      "deploymentStatus": "integrated",
+      "visualDescription": "GaitAI DefenceMotion",
       "heroPosition": "50% 50%",
       "cardPosition": "50% 50%",
-      "warnings": {
-        "heroDark": [
-          "Standalone poster, not a clean photograph.",
-          "Embedded text/UI; unsuitable for the clean product hero.",
-          "Held until a clean dark hero replacement is supplied, even if light hero and card become available."
-        ]
+      "historicalWarnings": {
+        "heroDark": {
+          "source": "ChatGPT Image Sep 20, 2026, 01_48_46 AM (1).png",
+          "warnings": [
+            "Standalone poster, not a clean photograph.",
+            "Embedded text/UI; unsuitable for the clean product hero.",
+            "Held until a clean dark hero replacement is supplied, even if light hero and card become available."
+          ],
+          "resolution": "Clean replacement N044 supplied and reviewed in the nested folder; old poster stays excluded."
+        }
+      },
+      "heroWide": true,
+      "outputs": {
+        "heroDark": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/defencemotion/dark-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 40664,
+              "sha256": "3c577431c1ddf30464ab29dce213e8db785dcacc3310f3d704e64f3db277ffab"
+            },
+            {
+              "src": "/images/products/defencemotion/dark-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 80078,
+              "sha256": "c9be0c5877bbc2197f306a0702a3217725a6665cae7a1ade23a469145c275d72"
+            },
+            {
+              "src": "/images/products/defencemotion/dark-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 120804,
+              "sha256": "8353e4a0f3940904beb7cbef4eb299403e6a8d92e3b3052bf3cf767f5c461348"
+            },
+            {
+              "src": "/images/products/defencemotion/dark-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 227202,
+              "sha256": "0288331afc8e8801499a064e8dc1a82d23f23ced52d116d265cda60df6da7cec"
+            }
+          ]
+        },
+        "heroLight": {
+          "width": 1672,
+          "height": 941,
+          "variants": [
+            {
+              "src": "/images/products/defencemotion/light-hero-480.webp",
+              "width": 480,
+              "height": 270,
+              "bytes": 43994,
+              "sha256": "ecbd041de79480c59d0cb4aaccd349caa94a47a1d06207f725c563bcc8dbd2d4"
+            },
+            {
+              "src": "/images/products/defencemotion/light-hero-768.webp",
+              "width": 768,
+              "height": 432,
+              "bytes": 98604,
+              "sha256": "9c867911ea5ced7357aff4e33f1ccc49069b55a0efd0f67aef4585f6c1fe14bf"
+            },
+            {
+              "src": "/images/products/defencemotion/light-hero-1024.webp",
+              "width": 1024,
+              "height": 576,
+              "bytes": 152790,
+              "sha256": "07c426a4548a42600dfbb7847123b6428412c5836cc2b275880ae286bf9639e1"
+            },
+            {
+              "src": "/images/products/defencemotion/light-hero.webp",
+              "width": 1672,
+              "height": 941,
+              "bytes": 322114,
+              "sha256": "67fc8027748906cebbbe20944ce953173ee08fb30f226cce347312b887100c93"
+            }
+          ]
+        },
+        "card": {
+          "width": 1448,
+          "height": 1086,
+          "variants": [
+            {
+              "src": "/images/products/defencemotion/card-320.webp",
+              "width": 320,
+              "height": 240,
+              "bytes": 27102,
+              "sha256": "fc2a8786ac7718caaf9524e9b48e86b2894927d8a5163ab32956146aa17538f5"
+            },
+            {
+              "src": "/images/products/defencemotion/card-640.webp",
+              "width": 640,
+              "height": 480,
+              "bytes": 80980,
+              "sha256": "aca04c054f1ff47a48abe687514d28fe2f88d65fc6f4bf1149eef4252672c603"
+            },
+            {
+              "src": "/images/products/defencemotion/card-960.webp",
+              "width": 960,
+              "height": 720,
+              "bytes": 150058,
+              "sha256": "43347c216a427281e2136d2e08b5c06e0590121fa3d36a21b75240e1b405ba71"
+            },
+            {
+              "src": "/images/products/defencemotion/card.webp",
+              "width": 1448,
+              "height": 1086,
+              "bytes": 262664,
+              "sha256": "3f7b387ad1acc1df480dcbe4e4a13e06126f1b932c67536d11c1c64e59ce6cc4"
+            }
+          ]
+        }
       }
     }
   ],
-  "missingAssets": [
-    {
-      "product": "PediatricMotion",
-      "slug": "pediatricmotion",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PediatricMotion",
-      "slug": "pediatricmotion",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PediatricMotion",
-      "slug": "pediatricmotion",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ProstheticFit",
-      "slug": "prostheticfit",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ProstheticFit",
-      "slug": "prostheticfit",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ProstheticFit",
-      "slug": "prostheticfit",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "RemoteCare",
-      "slug": "remotecare",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "RemoteCare",
-      "slug": "remotecare",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "RemoteCare",
-      "slug": "remotecare",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ClinicalTrials",
-      "slug": "clinicaltrials",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ClinicalTrials",
-      "slug": "clinicaltrials",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ClinicalTrials",
-      "slug": "clinicaltrials",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "SuspiciousMotion",
-      "slug": "suspiciousmotion",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "SuspiciousMotion",
-      "slug": "suspiciousmotion",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "SuspiciousMotion",
-      "slug": "suspiciousmotion",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CrowdSense",
-      "slug": "crowdsense",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CrowdSense",
-      "slug": "crowdsense",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CrowdSense",
-      "slug": "crowdsense",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PrivacyGuard",
-      "slug": "privacyguard",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PrivacyGuard",
-      "slug": "privacyguard",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PrivacyGuard",
-      "slug": "privacyguard",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CampusShield",
-      "slug": "campusshield",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CampusShield",
-      "slug": "campusshield",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CampusShield",
-      "slug": "campusshield",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "EventShield",
-      "slug": "eventshield",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "EventShield",
-      "slug": "eventshield",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "EventShield",
-      "slug": "eventshield",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ForensicSearch",
-      "slug": "forensicsearch",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ForensicSearch",
-      "slug": "forensicsearch",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ForensicSearch",
-      "slug": "forensicsearch",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ReID",
-      "slug": "reid",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ReID",
-      "slug": "reid",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ReID",
-      "slug": "reid",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "AccessMotion",
-      "slug": "accessmotion",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "AccessMotion",
-      "slug": "accessmotion",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "AccessMotion",
-      "slug": "accessmotion",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "Watchlist",
-      "slug": "watchlist",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "Watchlist",
-      "slug": "watchlist",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "Watchlist",
-      "slug": "watchlist",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "DefenceMotion",
-      "slug": "defencemotion",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "The folder contains one standalone dark DefenceMotion poster only; no standalone Light Hero counterpart."
-    },
-    {
-      "product": "DefenceMotion",
-      "slug": "defencemotion",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "The folder contains one standalone dark DefenceMotion poster only; no standalone Card counterpart."
-    }
-  ],
+  "missingAssets": [],
   "inventory": [
     {
       "reviewId": "F001",
@@ -4010,17 +5382,13 @@
       "candidateRole": "heroDark",
       "confidence": "high",
       "visualNote": "Standalone DefenceMotion dark poster with embedded heading, marketing copy and interface overlays. Must be displayed full-frame; never silently treat as a clean photograph.",
-      "selection": "selected",
-      "eligibleForMapping": true,
+      "selection": "superseded-poster",
+      "eligibleForMapping": false,
       "warnings": [
         "embedded-product-text",
         "embedded-ui",
         "full-frame-rendering-required"
-      ],
-      "selectedFor": {
-        "product": "DefenceMotion",
-        "role": "heroDark"
-      }
+      ]
     },
     {
       "reviewId": "F075",
@@ -4485,6 +5853,1296 @@
       "visualNote": "Three-panel platform/MobilityCare/SecureVision homepage composition with embedded copy and buttons; multiple products, excluded.",
       "selection": "rejected",
       "eligibleForMapping": false
+    },
+    {
+      "reviewId": "N001",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 02_29_05 AM.png",
+      "bytes": 1721284,
+      "sha256": "9acbfe018a32593537735eaa646e67f23dff7fafaccb219848607a42845d98af",
+      "width": 2172,
+      "height": 724,
+      "aspectRatio": 3.0,
+      "aspectRatioFraction": "3:1",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "4fc898678759a25a",
+      "dhash": "f130b26a6a6a70f9",
+      "pixelSha256": "c51b11691469035fafd6586ac3d25716b166c2eaf30943115c0beb10f0f92c3b",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "contact-sheet-or-collage",
+      "candidateProducts": [],
+      "candidateRole": null,
+      "confidence": "excluded",
+      "visualNote": "Three-panel wearable/watch concept sheet; existing standalone WatchCare set retained.",
+      "selection": "rejected",
+      "eligibleForMapping": false
+    },
+    {
+      "reviewId": "N002",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_46 PM (1).png",
+      "bytes": 1711552,
+      "sha256": "ebed1791648df2ef159abbc623ddeee0dcbfa11d62b859fa419bea71b24231af",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "5c706263efcc04a7",
+      "dhash": "0694b43032b3b065",
+      "pixelSha256": "781dc7fbad93e3fef438a772c9bbc17c4325f99df066c1027807201dd76bf4e4",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PediatricMotion"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Child wearing lower-leg supports walks with a clinician in a pediatric therapy room.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "PediatricMotion",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N003",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_46 PM (2).png",
+      "bytes": 1891830,
+      "sha256": "db471ff566b06b221a6dd8e414558b5741318ddbe52214fe0bc64709a7f0e1df",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "6d24f25b96d24895",
+      "dhash": "0786a6b622a38293",
+      "pixelSha256": "1045719c57c502c04e8ed14db9a6fbc34ff992f8b9f96cbbf54eeaeecf39c40a",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PediatricMotion"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Child wearing lower-leg supports walks with a clinician in a pediatric therapy room.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "PediatricMotion",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N004",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_47 PM (3).png",
+      "bytes": 1848059,
+      "sha256": "4396861e037aa9310cb68d69bebcb5417c1d061857c781c741c360c2a2d478ce",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "4c7e7333abc444a8",
+      "dhash": "0222363273b27262",
+      "pixelSha256": "523159404c8b1de56d3ee8d70ebd8d95d038858bc9a9234cac559058f5c0a56c",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PediatricMotion"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Child wearing lower-leg supports walks with a clinician in a pediatric therapy room.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "PediatricMotion",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N005",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_48 PM (4).png",
+      "bytes": 1602464,
+      "sha256": "64de1c08e2066ddae8b81cc2a3fc1a1190ec92006e9b34dc660fb17115a4d687",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "1e6d93622f926532",
+      "dhash": "eae2f2f3ebf8fdf8",
+      "pixelSha256": "c5c3c5dada29933b2fdc371a24b001b8c8e2da5e80da5bbaa37630998c655a9b",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ProstheticFit"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Adult with a visible below-knee prosthetic limb walks in a gait lab while a clinician observes the fitting.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ProstheticFit",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N006",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_48 PM (5).png",
+      "bytes": 1739745,
+      "sha256": "d0d26cbd81f3436ce7a5c46fc8b3a5047e765d25282dcc23bae8c633190e1994",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "44ad9f52260ab3ad",
+      "dhash": "466662a68c88e505",
+      "pixelSha256": "eb33ed76019f850d2c67a0ea6932deb34aed896c7878d15ed311de40bb6e8941",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ProstheticFit"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Adult with a visible below-knee prosthetic limb walks in a gait lab while a clinician observes the fitting.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ProstheticFit",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N007",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_49 PM (6).png",
+      "bytes": 1700467,
+      "sha256": "4b44f1cebfff7edeb6dcafd38284dca152c1330e063b924f0a8a1434bf8a6196",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "4635d979bcc27418",
+      "dhash": "9696e4edbde0e9e9",
+      "pixelSha256": "29c0199a972fcb33ac22a010ec6f64f0435358cc364e22aa04c0543afa34fe86",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ProstheticFit"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Adult with a visible below-knee prosthetic limb walks in a gait lab while a clinician observes the fitting.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ProstheticFit",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N008",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_50 PM (7).png",
+      "bytes": 1836206,
+      "sha256": "f81556057c389bdfc3f82000823d8fa55c5a80a05b2e2eeece42e23f13de3049",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "70f29269f9840dad",
+      "dhash": "8c8cacba13f2ec78",
+      "pixelSha256": "c80d5764e4dbfe3946f766de27f0cdbb41018f167e5f9cdbbe91403cae19725b",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "RemoteCare"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Older adult follows a remote exercise session on a laptop at home.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "RemoteCare",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N009",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_50 PM (8).png",
+      "bytes": 2145320,
+      "sha256": "435094cbb217f790d75c8bec877e0c8505c299d22d83f256978b166c5bc05b4c",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "49f396435a94ed28",
+      "dhash": "989aab2b53d3a370",
+      "pixelSha256": "a03ac2b200ca7fa02cf4d1d32f1b885405fe0219ac596235be4c24ca537a8b68",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "RemoteCare"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Older adult follows a remote exercise session on a laptop at home.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "RemoteCare",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N010",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_12_50 PM (9).png",
+      "bytes": 1849337,
+      "sha256": "c091b6b082a8284819959ef595b5a780eebec17343abc7d84a3ee93aa94d5170",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "3ab2066af8c9658e",
+      "dhash": "09e86c3a11c161be",
+      "pixelSha256": "8fb2bffbba4abf18ef9a59527566273b288ade3b5582dfd20d56a45dfe5c8550",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "RemoteCare"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Older adult follows a remote exercise session on a laptop at home.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "RemoteCare",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N011",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_08 PM (1).png",
+      "bytes": 1655715,
+      "sha256": "8b7cc4d3c646f325ebae0843461643115edb31beb9c7d16c4f410dac621f37d8",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "791fe22e619a60d8",
+      "dhash": "1b6b391b1085898b",
+      "pixelSha256": "312703c0bdb17a0f2da383aed5fa58219dbaa690fa5c829cb84fe7706eca7279",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ClinicalTrials"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Instrumented walking assessment with a participant, research clinician, camera and monitoring workstation.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ClinicalTrials",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N012",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_09 PM (2).png",
+      "bytes": 1839913,
+      "sha256": "145430d5338f32155445da67efc937a67d9f14cdc37f3663a89f4beacf426774",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "7099af86619b4276",
+      "dhash": "da94919894c53d8f",
+      "pixelSha256": "b6e7ab2b6141c6291dbc2f316eeb804cf33ca02f113bb8cc08cbc7f8da74a236",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ClinicalTrials"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Instrumented walking assessment with a participant, research clinician, camera and monitoring workstation.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ClinicalTrials",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N013",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_09 PM (3).png",
+      "bytes": 1803243,
+      "sha256": "f75fb908a5365dd9c2d33f56c08244a1c1d09c50ee087b4768e05c55b2ac9091",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "5b1be62e71816992",
+      "dhash": "2929199a9887e58d",
+      "pixelSha256": "72a32b43b618bc6e9d275836ba2c459b08d5ff1231f9a1f2662b6509f3c04d17",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ClinicalTrials"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Instrumented walking assessment with a participant, research clinician, camera and monitoring workstation.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ClinicalTrials",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N014",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_10 PM (4).png",
+      "bytes": 1768533,
+      "sha256": "001b476dccad1763fc9dd48362f4e1805a6da85e6ffca15baf463c000c6598f3",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "138c6c919d64f39a",
+      "dhash": "fee4ecc8d8c84a4a",
+      "pixelSha256": "54331451940b7b9a0c17807be5b13b0c2fc266afb109c6922b9cc6797127358f",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "SuspiciousMotion",
+        "Watchlist"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Airport concourse with one highlighted movement track among travelers; scene does not establish wrongdoing.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "SuspiciousMotion",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N015",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_11 PM (5).png",
+      "bytes": 2022395,
+      "sha256": "ef6f9e7a3adbaac32e23300cbd3c599bd9ba8f9036092a5e05853deb22e553ed",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "738cee919574318a",
+      "dhash": "4145498cd88a0a4a",
+      "pixelSha256": "d058f7105222c470e85225132204c9465c2bffbf287338b18848e9bdf6334879",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "SuspiciousMotion",
+        "Watchlist"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Airport concourse with one highlighted movement track among travelers; scene does not establish wrongdoing.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "SuspiciousMotion",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N016",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_12 PM (6).png",
+      "bytes": 1745350,
+      "sha256": "97a195f8ad2879a8432b782b783d2dede064d31ab23f613e34c970e44af6959d",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "13a7298f66496ec8",
+      "dhash": "5fdc18545451d898",
+      "pixelSha256": "aecdbf2503f84f239d8037760a820426bed1a2735b704d3171ef5b545f8fe4ad",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "SuspiciousMotion"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Airport concourse with one highlighted movement track among travelers; scene does not establish wrongdoing.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "SuspiciousMotion",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N017",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_12 PM (7).png",
+      "bytes": 2363197,
+      "sha256": "aa96f7ee7c4712b3a7cbf04211662fd612bd842d5b1eb57194fd24a6a922f5fa",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "50432f5e72bd68a1",
+      "dhash": "e0e0d0d88cb83072",
+      "pixelSha256": "f23682e5e66d314e1fc2eb16afb6962cbc5d9e25b0f6b599d680b11a45785aa6",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CrowdSense"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Elevated view of dense terminal pedestrian flow and multiple movement paths.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "CrowdSense",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N018",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_13 PM (8).png",
+      "bytes": 2708654,
+      "sha256": "f7a456c9015651669341d0e87cb6d26db0dbe61e62ab7d5fb6068909240061e7",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "00afadd003bf52e3",
+      "dhash": "e3f6069f9db8b69a",
+      "pixelSha256": "fca2a5c90e383b0566c8a67a466fda7bffd9fb79264a7bf14dd5b379d18d5d8b",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CrowdSense"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Elevated view of dense terminal pedestrian flow and multiple movement paths.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "CrowdSense",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N019",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_19_14 PM (9).png",
+      "bytes": 2230857,
+      "sha256": "837dd5f5061cb7991e93ea6fe902f1432a8dea7d55121bd5a5374b9580e74a8e",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "5e4180bad75cd952",
+      "dhash": "8d8d906a2925352c",
+      "pixelSha256": "a168cd04f991aecb22c92110492898a2cb90b6856200f1a85cfcc01d2613ef07",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CrowdSense"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Elevated view of dense terminal pedestrian flow and multiple movement paths.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "CrowdSense",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N020",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_23_41 PM (1).png",
+      "bytes": 1953915,
+      "sha256": "95defd6e8e21abadf960a0be1ee0bd4b361b83cc460975f95b5ccfb0427fd36a",
+      "width": 1536,
+      "height": 1024,
+      "aspectRatio": 1.5,
+      "aspectRatioFraction": "3:2",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "1ece0c990bba9b64",
+      "dhash": "65f5ededfdbdbdfd",
+      "pixelSha256": "0051dde42133532f2c90d45a88c34c0c189f92123c468ddd5057eadc74d0dea1",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "contact-sheet-or-collage",
+      "candidateProducts": [],
+      "candidateRole": null,
+      "confidence": "excluded",
+      "visualNote": "Nine-panel PediatricMotion/ProstheticFit/RemoteCare overview; no panel extraction.",
+      "selection": "rejected",
+      "eligibleForMapping": false
+    },
+    {
+      "reviewId": "N021",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_23_42 PM (2).png",
+      "bytes": 1974589,
+      "sha256": "d82d65e9eddfd911413e34319e1999cfac1fce10959c363d3e87631b70394769",
+      "width": 1536,
+      "height": 1024,
+      "aspectRatio": 1.5,
+      "aspectRatioFraction": "3:2",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "0c9e879a2f92a563",
+      "dhash": "bdb5b4b7b7bfbff7",
+      "pixelSha256": "3410031a850c44646d835ce5ee918360cfb5daa8919ed03764331f3dc13e9300",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "contact-sheet-or-collage",
+      "candidateProducts": [],
+      "candidateRole": null,
+      "confidence": "excluded",
+      "visualNote": "Nine-panel child/prosthetic/remote-care concept overview; no panel extraction.",
+      "selection": "rejected",
+      "eligibleForMapping": false
+    },
+    {
+      "reviewId": "N022",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_23_43 PM (3).png",
+      "bytes": 1834901,
+      "sha256": "822326afe348f67ac1bc77dfe22178a23dd8c50789b37db1a9a0551e671602a5",
+      "width": 2172,
+      "height": 724,
+      "aspectRatio": 3.0,
+      "aspectRatioFraction": "3:1",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "49092ecbebaa5a1c",
+      "dhash": "7bb29ad9d2d94d45",
+      "pixelSha256": "17dd91476e2223be1acc34ae922612f948c605f6b032b579625165ccf15f9ec5",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "contact-sheet-or-collage",
+      "candidateProducts": [],
+      "candidateRole": null,
+      "confidence": "excluded",
+      "visualNote": "Multi-row pediatric/prosthetic/remote exercise overview; not a standalone product image.",
+      "selection": "rejected",
+      "eligibleForMapping": false
+    },
+    {
+      "reviewId": "N023",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_51 PM (1).png",
+      "bytes": 1921758,
+      "sha256": "ac10508607b28812a9e27ad8f40018f8df76c86757f87d6f3348b5c4de5af42f",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "34a963f04999f44e",
+      "dhash": "9ffffefdb4bcbc9f",
+      "pixelSha256": "a3e7df76848304823c29a84ca7ed559fdecb7a5246982d26b0f9b0c3481a916e",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PrivacyGuard",
+        "AccessMotion"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "contextual",
+      "visualNote": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "PrivacyGuard",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N024",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_52 PM (2).png",
+      "bytes": 1792304,
+      "sha256": "71de4790ffd63162a943e36f68bd50cf7fc49c079f434f1a6c36b88b907f1e58",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "44abb9f46a919546",
+      "dhash": "8fe5e6e1e4a4a4f4",
+      "pixelSha256": "7f20699a67569ea15c0a9b4ad12c6a6998cbf254b5a61a1b27d63b2bd7f3e167",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PrivacyGuard",
+        "AccessMotion"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "contextual",
+      "visualNote": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "PrivacyGuard",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N025",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_52 PM (3).png",
+      "bytes": 2015527,
+      "sha256": "0ce6b33dd105f0f1c4b7c5b5c99c52f66d6fe2e4834bbc7bc059ceca00814e00",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "234019be720badf5",
+      "dhash": "aba9eaadad6beb6b",
+      "pixelSha256": "64abee292a161dd0f12cb941d37c55ee9572c20b8eff9da83f506e64bbaa84a3",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PrivacyGuard"
+      ],
+      "candidateRole": "card",
+      "confidence": "contextual",
+      "visualNote": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "PrivacyGuard",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N026",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_53 PM (4).png",
+      "bytes": 2072619,
+      "sha256": "7912d79d7e97ee9a93428d7b67226676be4bf73bb95da19628f8901e6a3b38e7",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "18b491dd69ae6463",
+      "dhash": "767d7df7faf27b3b",
+      "pixelSha256": "475c7b542e72ba2a9cc1e87b81207482defb1a24468ae52ad50fd06a8df4b65f",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CampusShield"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Students and pedestrians follow monitored paths across a landscaped university campus.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "CampusShield",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N027",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_53 PM (5).png",
+      "bytes": 2557028,
+      "sha256": "3fefc607507f42cb0cab31e2ae45647c34eab6904b4d4c1228914534af97804d",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "1f169d9960a02f6e",
+      "dhash": "727c6ccfea6abb3a",
+      "pixelSha256": "636d826a23787a28f1cdc30b68a57df12d326fac912a21c95b41e692f819ac11",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CampusShield"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Students and pedestrians follow monitored paths across a landscaped university campus.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "CampusShield",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N028",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_54 PM (6).png",
+      "bytes": 2289451,
+      "sha256": "e5c3e7789e8dbe02f307f1bc21cd4a33093cfd1ae921303bd1050293ca6b1b77",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "021b8fdc06e4553f",
+      "dhash": "f4f9d9d5b595d5c5",
+      "pixelSha256": "5e1df056889d6cc2dc29b67f030434cdd0f87d4d91ec7b10baa1c60ce2347564",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CampusShield"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Students and pedestrians follow monitored paths across a landscaped university campus.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "CampusShield",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N029",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_54 PM (7).png",
+      "bytes": 1991757,
+      "sha256": "65164cbe72dede23f57264f7af77f170247a666f5816e3b095eb0b69e8c91e00",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "37a4364b49ab4a5a",
+      "dhash": "cf5e5c5e5a6a4e4e",
+      "pixelSha256": "00d80773f376f6401dae848f77c49f3b371256ee8b004675dded1bc4a0c0df8b",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "EventShield"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "EventShield",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N030",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_54 PM (8).png",
+      "bytes": 2392077,
+      "sha256": "40909a41f2a21f6040a649ad12bd48a18f6083eb05affbe168b9acdd898f2269",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "418aae7f7890067b",
+      "dhash": "c3e6c090826292e2",
+      "pixelSha256": "c8cd3492f3169f16db26730ab71e6f01758430ec21ef07e291aaab241291d9aa",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "EventShield",
+        "AccessMotion"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "EventShield",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N031",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_49_55 PM (9).png",
+      "bytes": 2244877,
+      "sha256": "8f435e205d31387a0c3d03cf05e223566f72d931bf538a5552177f63cf6b17d3",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "3493996077b6245e",
+      "dhash": "fcf87e6eaaabab3e",
+      "pixelSha256": "238a15f521ddd36b4946e647dd42bca24f490e3afb2692d20af35a7baed45986",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "EventShield"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "EventShield",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N032",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (1).png",
+      "bytes": 1921758,
+      "sha256": "ac10508607b28812a9e27ad8f40018f8df76c86757f87d6f3348b5c4de5af42f",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "34a963f04999f44e",
+      "dhash": "9ffffefdb4bcbc9f",
+      "pixelSha256": "a3e7df76848304823c29a84ca7ed559fdecb7a5246982d26b0f9b0c3481a916e",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PrivacyGuard"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "contextual",
+      "visualNote": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N023"
+    },
+    {
+      "reviewId": "N033",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (2).png",
+      "bytes": 1792304,
+      "sha256": "71de4790ffd63162a943e36f68bd50cf7fc49c079f434f1a6c36b88b907f1e58",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "44abb9f46a919546",
+      "dhash": "8fe5e6e1e4a4a4f4",
+      "pixelSha256": "7f20699a67569ea15c0a9b4ad12c6a6998cbf254b5a61a1b27d63b2bd7f3e167",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PrivacyGuard"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "contextual",
+      "visualNote": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N024"
+    },
+    {
+      "reviewId": "N034",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (3).png",
+      "bytes": 2015527,
+      "sha256": "0ce6b33dd105f0f1c4b7c5b5c99c52f66d6fe2e4834bbc7bc059ceca00814e00",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "234019be720badf5",
+      "dhash": "aba9eaadad6beb6b",
+      "pixelSha256": "64abee292a161dd0f12cb941d37c55ee9572c20b8eff9da83f506e64bbaa84a3",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "PrivacyGuard"
+      ],
+      "candidateRole": "card",
+      "confidence": "contextual",
+      "visualNote": "Rear-view pedestrian scene with body-joint overlays in a public atrium; contextual privacy-layer illustration, not proof of anonymization. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N025"
+    },
+    {
+      "reviewId": "N035",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (4).png",
+      "bytes": 2072619,
+      "sha256": "7912d79d7e97ee9a93428d7b67226676be4bf73bb95da19628f8901e6a3b38e7",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "18b491dd69ae6463",
+      "dhash": "767d7df7faf27b3b",
+      "pixelSha256": "475c7b542e72ba2a9cc1e87b81207482defb1a24468ae52ad50fd06a8df4b65f",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CampusShield"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Students and pedestrians follow monitored paths across a landscaped university campus. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N026"
+    },
+    {
+      "reviewId": "N036",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (5).png",
+      "bytes": 2557028,
+      "sha256": "3fefc607507f42cb0cab31e2ae45647c34eab6904b4d4c1228914534af97804d",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "1f169d9960a02f6e",
+      "dhash": "727c6ccfea6abb3a",
+      "pixelSha256": "636d826a23787a28f1cdc30b68a57df12d326fac912a21c95b41e692f819ac11",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CampusShield"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Students and pedestrians follow monitored paths across a landscaped university campus. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N027"
+    },
+    {
+      "reviewId": "N037",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (6).png",
+      "bytes": 2289451,
+      "sha256": "e5c3e7789e8dbe02f307f1bc21cd4a33093cfd1ae921303bd1050293ca6b1b77",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "021b8fdc06e4553f",
+      "dhash": "f4f9d9d5b595d5c5",
+      "pixelSha256": "5e1df056889d6cc2dc29b67f030434cdd0f87d4d91ec7b10baa1c60ce2347564",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "CampusShield"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Students and pedestrians follow monitored paths across a landscaped university campus. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N028"
+    },
+    {
+      "reviewId": "N038",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (7).png",
+      "bytes": 1991757,
+      "sha256": "65164cbe72dede23f57264f7af77f170247a666f5816e3b095eb0b69e8c91e00",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "37a4364b49ab4a5a",
+      "dhash": "cf5e5c5e5a6a4e4e",
+      "pixelSha256": "00d80773f376f6401dae848f77c49f3b371256ee8b004675dded1bc4a0c0df8b",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "EventShield"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N029"
+    },
+    {
+      "reviewId": "N039",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (8).png",
+      "bytes": 2392077,
+      "sha256": "40909a41f2a21f6040a649ad12bd48a18f6083eb05affbe168b9acdd898f2269",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "418aae7f7890067b",
+      "dhash": "c3e6c090826292e2",
+      "pixelSha256": "c8cd3492f3169f16db26730ab71e6f01758430ec21ef07e291aaab241291d9aa",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "EventShield"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N030"
+    },
+    {
+      "reviewId": "N040",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_55_02 PM (9).png",
+      "bytes": 2244877,
+      "sha256": "8f435e205d31387a0c3d03cf05e223566f72d931bf538a5552177f63cf6b17d3",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "3493996077b6245e",
+      "dhash": "fcf87e6eaaabab3e",
+      "pixelSha256": "238a15f521ddd36b4946e647dd42bca24f490e3afb2692d20af35a7baed45986",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "EventShield"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Crowds enter a large illuminated event venue with an upper-level audience and tracked movement paths. Exact SHA-256 duplicate of the earlier selected file; not an additional image.",
+      "selection": "duplicate-not-selected",
+      "eligibleForMapping": false,
+      "duplicateOf": "N031"
+    },
+    {
+      "reviewId": "N041",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_58_10 PM (1).png",
+      "bytes": 1840940,
+      "sha256": "62592c4db9d47f2e150625c42dedf9be24264bc511aaf5fa8e5e86278f7fe0dd",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "1ba662998df431a9",
+      "dhash": "dcd9faf8fa78f1f1",
+      "pixelSha256": "628a95c14ba2d604ca7f230f16d1a61f0dfcf4b60f9d5f23ae72f96ae19f5249",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ReID",
+        "ForensicSearch"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Backpack-wearing traveler shown with body-level tracking in different terminal camera views; no claim of a verified identity match.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ReID",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N042",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_58_11 PM (2).png",
+      "bytes": 1826377,
+      "sha256": "7e35529042a503ecc5498e90cd50d9db53e4c2567b470c3d9d78839fd4decd2f",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "00eb81dc6a7c968f",
+      "dhash": "fbdbf5b5b5b4b4f5",
+      "pixelSha256": "35182cee39ad1ea3a7b5f3cf009caf00cf2e75004b0872108af84d670c1292da",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ReID",
+        "ForensicSearch"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Backpack-wearing traveler shown with body-level tracking in different terminal camera views; no claim of a verified identity match.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ReID",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N043",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_58_11 PM (3).png",
+      "bytes": 1766439,
+      "sha256": "4b0f9b728791586143b62089f908f3fe8efb833f9b9be2c4b229e84ae33cf006",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "17b68589e9696398",
+      "dhash": "f86c2c2878d8f8f8",
+      "pixelSha256": "0afe6279aacc2940dd0f5907128c79a1f8bbdd36a1510772212dda13713f68c7",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ReID"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Backpack-wearing traveler shown with body-level tracking in different terminal camera views; no claim of a verified identity match.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ReID",
+        "role": "card"
+      }
+    },
+    {
+      "reviewId": "N044",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_58_12 PM (4).png",
+      "bytes": 1870655,
+      "sha256": "ddab3b326eafa6f5c10994b5a6990bcf0d325ccf664f54e79e7b7f81442d3aa4",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "7feab2820a0a9bd2",
+      "dhash": "c90b0263c94a6e7e",
+      "pixelSha256": "c0056b5fffdee3cc1220be430f32b7902e34d766a9610bdd51cb591f91a8f44c",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "DefenceMotion"
+      ],
+      "candidateRole": "heroDark",
+      "confidence": "high",
+      "visualNote": "Military airfield and installation patrol in the heroes; guarded facility perimeter in the card. Clean photographs with movement overlays, no embedded product poster copy.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "DefenceMotion",
+        "role": "heroDark"
+      }
+    },
+    {
+      "reviewId": "N045",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_58_13 PM (5).png",
+      "bytes": 2117214,
+      "sha256": "cd9aa49c83755a4a3ab9be17f47fc40002f1d39a17ace771218ccbb17877fd34",
+      "width": 1672,
+      "height": 941,
+      "aspectRatio": 1.776833,
+      "aspectRatioFraction": "1672:941",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "5e8fa0d029129ecf",
+      "dhash": "fd7c7c2e2564600f",
+      "pixelSha256": "cf2ddd968fee68c5c9b82ae29bf162cce33531cbdbcfbf314c1c3a7919c985b5",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "DefenceMotion"
+      ],
+      "candidateRole": "heroLight",
+      "confidence": "high",
+      "visualNote": "Military airfield and installation patrol in the heroes; guarded facility perimeter in the card. Clean photographs with movement overlays, no embedded product poster copy.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "DefenceMotion",
+        "role": "heroLight"
+      }
+    },
+    {
+      "reviewId": "N046",
+      "source": "New folder/ChatGPT Image Sep 20, 2026, 05_58_13 PM (6).png",
+      "bytes": 2032422,
+      "sha256": "a1cbab8cc64537a3cc33dc4a42c11682efbac769b7a10192a80b603939b5056d",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "11b58f42665b3175",
+      "dhash": "d8da1a9898d8d0d2",
+      "pixelSha256": "35a856438cd705343daab49cef5c278f93ad6300cc1dcfe64314f8180b9de523",
+      "sourceBatch": "nested-folder",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "DefenceMotion"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Military airfield and installation patrol in the heroes; guarded facility perimeter in the card. Clean photographs with movement overlays, no embedded product poster copy.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "DefenceMotion",
+        "role": "card"
+      }
     }
   ],
   "history": [
@@ -4501,303 +7159,89 @@
       "sourceFileCount": 92,
       "mappedAssets": 31,
       "description": "Fresh 92-file audit before incremental integration; includes 30 clean selections and one held poster candidate."
+    },
+    {
+      "snapshot": "docs/audits/product-images/history/manifest-cb0bd0ddcbd1.json",
+      "sha256": "cb0bd0ddcbd15fcc96bf908414792b92ba929b028ec0bfb71cebbe93ea56d8dd",
+      "sourceFileCount": 92,
+      "mappedAssets": 30,
+      "description": "Published ten-set manifest before reviewing the nested folder; includes historical poster warning and all source/output provenance."
     }
   ],
-  "integrationPolicy": "Integrate each complete reviewed three-image clean product set immediately. Preserve existing imagery/fallback for incomplete sets. Never use another product's assets or count a poster as a clean hero.",
-  "missingCleanAssets": [
-    {
-      "product": "PediatricMotion",
-      "slug": "pediatricmotion",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PediatricMotion",
-      "slug": "pediatricmotion",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PediatricMotion",
-      "slug": "pediatricmotion",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ProstheticFit",
-      "slug": "prostheticfit",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ProstheticFit",
-      "slug": "prostheticfit",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ProstheticFit",
-      "slug": "prostheticfit",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "RemoteCare",
-      "slug": "remotecare",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "RemoteCare",
-      "slug": "remotecare",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "RemoteCare",
-      "slug": "remotecare",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ClinicalTrials",
-      "slug": "clinicaltrials",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ClinicalTrials",
-      "slug": "clinicaltrials",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ClinicalTrials",
-      "slug": "clinicaltrials",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "SuspiciousMotion",
-      "slug": "suspiciousmotion",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "SuspiciousMotion",
-      "slug": "suspiciousmotion",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "SuspiciousMotion",
-      "slug": "suspiciousmotion",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CrowdSense",
-      "slug": "crowdsense",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CrowdSense",
-      "slug": "crowdsense",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CrowdSense",
-      "slug": "crowdsense",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PrivacyGuard",
-      "slug": "privacyguard",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PrivacyGuard",
-      "slug": "privacyguard",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "PrivacyGuard",
-      "slug": "privacyguard",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CampusShield",
-      "slug": "campusshield",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CampusShield",
-      "slug": "campusshield",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "CampusShield",
-      "slug": "campusshield",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "EventShield",
-      "slug": "eventshield",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "EventShield",
-      "slug": "eventshield",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "EventShield",
-      "slug": "eventshield",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
+  "integrationPolicy": "Integrate reviewed product mappings from supplied files. Preserve prior ten dedicated sets. Use clearly documented semantic sharing for the three products without a dedicated nested-folder set; reject collages, duplicate exports and the superseded DefenceMotion poster.",
+  "missingCleanAssets": [],
+  "semanticSharingPolicy": {
+    "enabled": true,
+    "basis": "Latest instruction: if a product has no obvious match, choose the closest semantic fit and leave a short comment in code/summary. Shared selections are explicit and never reported as distinct source assets.",
+    "products": [
+      "ForensicSearch",
+      "AccessMotion",
+      "Watchlist"
+    ]
+  },
+  "missingDedicatedAssets": [
     {
       "product": "ForensicSearch",
       "slug": "forensicsearch",
       "role": "heroDark",
       "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+      "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present."
     },
     {
       "product": "ForensicSearch",
       "slug": "forensicsearch",
       "role": "heroLight",
       "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+      "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present."
     },
     {
       "product": "ForensicSearch",
       "slug": "forensicsearch",
       "role": "card",
       "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ReID",
-      "slug": "reid",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ReID",
-      "slug": "reid",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "ReID",
-      "slug": "reid",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+      "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present."
     },
     {
       "product": "AccessMotion",
       "slug": "accessmotion",
       "role": "heroDark",
       "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+      "reason": "Closest semantic fit: pedestrian entrance/atrium flow, shared with PrivacyGuard and EventShield. No dedicated credential or turnstile scene is present."
     },
     {
       "product": "AccessMotion",
       "slug": "accessmotion",
       "role": "heroLight",
       "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+      "reason": "Closest semantic fit: pedestrian entrance/atrium flow, shared with PrivacyGuard and EventShield. No dedicated credential or turnstile scene is present."
     },
     {
       "product": "AccessMotion",
       "slug": "accessmotion",
       "role": "card",
       "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+      "reason": "Closest semantic fit: pedestrian entrance/atrium flow, shared with PrivacyGuard and EventShield. No dedicated credential or turnstile scene is present."
     },
     {
       "product": "Watchlist",
       "slug": "watchlist",
       "role": "heroDark",
       "roleLabel": "Dark Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+      "reason": "Closest semantic fit: highlighted candidate in an airport concourse, shared with SuspiciousMotion. The photograph does not depict or establish authorized-list membership."
     },
     {
       "product": "Watchlist",
       "slug": "watchlist",
       "role": "heroLight",
       "roleLabel": "Light Hero",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
+      "reason": "Closest semantic fit: highlighted candidate in an airport concourse, shared with SuspiciousMotion. The photograph does not depict or establish authorized-list membership."
     },
     {
       "product": "Watchlist",
       "slug": "watchlist",
       "role": "card",
       "roleLabel": "Card",
-      "reason": "No unambiguous standalone source for this product and role; small panels in overview sheets are not assets."
-    },
-    {
-      "product": "DefenceMotion",
-      "slug": "defencemotion",
-      "role": "heroDark",
-      "roleLabel": "Dark Hero",
-      "reason": "Only a text/UI poster exists; a clean Dark Hero replacement is missing. The poster warning must remain until replacement."
-    },
-    {
-      "product": "DefenceMotion",
-      "slug": "defencemotion",
-      "role": "heroLight",
-      "roleLabel": "Light Hero",
-      "reason": "The folder contains one standalone dark DefenceMotion poster only; no standalone Light Hero counterpart."
-    },
-    {
-      "product": "DefenceMotion",
-      "slug": "defencemotion",
-      "role": "card",
-      "roleLabel": "Card",
-      "reason": "The folder contains one standalone dark DefenceMotion poster only; no standalone Card counterpart."
+      "reason": "Closest semantic fit: highlighted candidate in an airport concourse, shared with SuspiciousMotion. The photograph does not depict or establish authorized-list membership."
     }
   ]
 }

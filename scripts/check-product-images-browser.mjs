@@ -58,6 +58,8 @@ async function checkHero(product, mode) {
   assert.equal(state.priority, "high");
   assert.ok(!state.overflow, `${product.short}: horizontal overflow`);
   assert.ok(state.width > 0 && state.height > 0);
+  const expectedRatio = page.viewportSize().width < 1024 ? 16 / 9 : product.images.heroWide ? 4 / 3 : 4 / 5;
+  assert.ok(Math.abs(state.width / state.height - expectedRatio) < 0.02, `${product.short}: hero frame ratio`);
   results.push({ product: product.short, theme: mode, viewport: page.viewportSize(), ...state });
 }
 
@@ -114,6 +116,7 @@ try {
       assert.equal(state.loading, "lazy");
       assert.equal(state.fit, "cover");
       assert.ok(Math.abs(state.ratio - 4 / 3) < 0.01);
+      if (vertical === "all") await card.locator("[data-product-card-image]").screenshot({ path: `${directory}/${product.id}-card.png`, animations: "disabled" });
     }
     console.log(`Catalogue: /${route}/ — ${products.length} product cards, ${products.filter((p) => p.images).length} reviewed images.`);
     await cards.first().scrollIntoViewIfNeeded();
@@ -123,8 +126,7 @@ try {
   // Exercise client navigation rather than only independent full page loads.
   await page.goto(`${base}/products/`, { waitUntil: "networkidle" });
   await theme("light");
-  for (const id of ["walkscan", "fallrisk", "watchcare", "neuromotion", "orthomotion"]) {
-    const product = allProducts.find((product) => product.id === id);
+  for (const product of checkedProducts.filter((p) => p.images)) {
     await page.getByRole("link", { name: `View product: ${product.name}`, exact: true }).click();
     await checkHero(product, "light");
     await page.goBack({ waitUntil: "networkidle" });

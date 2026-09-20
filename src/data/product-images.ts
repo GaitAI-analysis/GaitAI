@@ -20,13 +20,15 @@ export interface ProductImages {
   card: string;
   alt: string;
   heroPosition: string;
+  /** Broader framing when context spans both sides of the photograph. */
+  heroWide?: boolean;
   cardPosition: string;
   assets: Record<"heroDark" | "heroLight" | "card", ProductImageAsset>;
 }
 
 const productImages: Readonly<Record<string, ProductImages>> = generated;
 
-/** Missing source sets remain explicit; never substitute another product's image. */
+/** Source ownership and any closest-fit sharing are reviewed in the manifest. */
 export function imagesForProduct(id: string): ProductImages | null {
   return productImages[id] ?? null;
 }

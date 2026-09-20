@@ -96,6 +96,11 @@ DEFAULT_GRADE = {
     "body_sig_L": 0.50, "body_sig_chroma": 1.25,
     "person_edge_lo": 0.45, "person_edge_hi": 0.8,           # mask tightening
     "person_offset": 0.03, "person_contrast": 0.14,
+    # A final S-curve on lightness for the whole frame (1 = none). Applied last,
+    # about `contrast_pivot`, so a bright scene keeps its brightness while the
+    # shadows, the subject and the drawn signals gain definition. Panel fills
+    # simply clip at white; ink and signals get darker, which is the point.
+    "contrast": 1.0, "contrast_pivot": 0.72,
 }
 
 
@@ -265,6 +270,11 @@ def relight(rgb: np.ndarray, person: np.ndarray, cfg: dict) -> np.ndarray:
     out_L = lerp(out_L, pL, person)
     out_a = lerp(out_a, pa, person)
     out_b = lerp(out_b, pb, person)
+
+    # ── CONTRAST: the frame as a whole, last ────────────────────────────────
+    if g["contrast"] != 1.0:
+        pv = g["contrast_pivot"]
+        out_L = np.clip(pv + (out_L - pv) * g["contrast"], 0.0, 0.985)
 
     out = np.stack([out_L, out_a, out_b], axis=-1)
     lin = oklab_to_linear(out)

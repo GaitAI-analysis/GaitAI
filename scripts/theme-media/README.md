@@ -90,7 +90,9 @@ grey aura around the walker. The 2026-09-21 grade keeps the room's structure
 inverted mid-scale structure, a deeper polished floor, stronger reflection),
 gives panels a 2px border and a real shadow, deepens ink and signals
 (`sig_*`, `soft_*`, `halo_*`, `body_sig_*`) and re-exposes the person
-(`person_*`). Tune on one frame with a JSON override before touching the
+(`person_*`), and finishes with a whole-frame contrast S-curve (`contrast`
+1.18 about `contrast_pivot` 0.72) — the first pass without it still read as
+foggy on the page. Tune on one frame with a JSON override before touching the
 config; `render_light.py` refuses a light film whose geometry or timing
 differs from the dark one.
 

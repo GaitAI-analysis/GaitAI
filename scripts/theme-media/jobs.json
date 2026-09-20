@@ -14,7 +14,9 @@
       "lut": {
         "black_toe": 0.1
       },
-      "personMask": true
+      "personMask": true,
+      "pipeline": "console",
+      "crf": 20
     },
     {
       "dark": "public/assets/videos/platform/securevision-intelligence.mp4",
@@ -22,7 +24,9 @@
       "lut": {
         "black_toe": 0.09
       },
-      "personMask": true
+      "personMask": true,
+      "pipeline": "console",
+      "crf": 20
     },
     {
       "dark": "public/assets/videos/workflow/stage-01-capture.mp4",

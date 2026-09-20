@@ -75,6 +75,29 @@ DIVIDER = (0.86, -0.006, -0.020)
 INK = (0.22, -0.004, -0.032)            # navy text
 SLATE = (0.48, -0.006, -0.028)          # secondary text
 
+# ── The grade ─────────────────────────────────────────────────────────────────
+# Every tonal decision below is a named number. The defaults are the first
+# (2026-09-14) edition, which read as washed out on the page: a near-white room
+# with no structure, a hairline panel that vanished into it, thin pale signals
+# and a walker with a grey aura. A film overrides them under "grade" in
+# console_layers.json; the shipped consoles use the deeper values there.
+DEFAULT_GRADE = {
+    "env_top": 0.975, "env_mid": 0.945, "env_floor": 0.885,   # OKLab L of the room's gradient
+    "env_detail": 0.15, "env_detail_clip": 0.06,             # the room's own fine texture
+    "env_structure": 0.0,                                    # inverted mid-scale structure (glow → depth)
+    "env_refl": 1.0,                                         # cyan floor reflection strength
+    "env_vignette": 0.03, "env_tint": 0.0,                   # extra OKLab -b (blue) on the room
+    "foot_shadow": 0.12, "panel_shadow": 0.10,
+    "panel_fill": 0.985, "panel_border": 0.80, "panel_border_px": 1.2, "panel_detail": 0.15,
+    "ink": 0.22, "slate": 0.48,
+    "sig_L_hi": 0.58, "sig_L_range": 0.26, "sig_chroma_lo": 1.3, "sig_chroma_hi": 1.5,
+    "soft_L": 0.62, "soft_chroma": 1.8,
+    "halo_L": 0.04, "halo_chroma": 0.3,
+    "body_sig_L": 0.50, "body_sig_chroma": 1.25,
+    "person_edge_lo": 0.45, "person_edge_hi": 0.8,           # mask tightening
+    "person_offset": 0.03, "person_contrast": 0.14,
+}
+
 
 def rounded_rect_mask(h, w, rect, radius, feather=0.8):
     x0, y0, x1, y1 = rect
@@ -86,24 +109,25 @@ def rounded_rect_mask(h, w, rect, radius, feather=0.8):
     return 1.0 - smoothstep(d, -feather, feather)
 
 
-def env_gradient(h, w, horizon):
+def env_gradient(h, w, horizon, g=DEFAULT_GRADE):
     """Pearl above the horizon, a deeper polished floor below it, with a soft
     lateral falloff so the ground is not a flat wash."""
     y = np.linspace(0, 1, h)[:, None]
     x = np.linspace(-1, 1, w)[None, :]
     t_top = smoothstep(y, 0.0, horizon)                # top → horizon
     t_floor = smoothstep(y, horizon, 1.0)              # horizon → bottom
-    L = lerp(PEARL_TOP[0], PEARL_MID[0], t_top)
-    L = lerp(L, FLOOR[0], t_floor)
-    L = L - 0.03 * (x ** 2) * (0.4 + 0.6 * y)          # gentle vignette, stronger low
+    L = lerp(g["env_top"], g["env_mid"], t_top)
+    L = lerp(L, g["env_floor"], t_floor)
+    L = L - g["env_vignette"] * (x ** 2) * (0.4 + 0.6 * y)   # gentle vignette, stronger low
     a = lerp(PEARL_TOP[1], FLOOR[1], t_floor)
-    b = lerp(PEARL_TOP[2], FLOOR[2], t_floor)
+    b = lerp(PEARL_TOP[2], FLOOR[2], t_floor) + g["env_tint"] * (0.6 + 0.4 * t_floor)   # cooler toward the floor
     return L, a * np.ones_like(L), b * np.ones_like(L)
 
 
 def relight(rgb: np.ndarray, person: np.ndarray, cfg: dict) -> np.ndarray:
     """rgb float (h,w,3) in 0..1, person float (h,w) 0..1 → light frame 0..1."""
     h, w, _ = rgb.shape
+    g = {**DEFAULT_GRADE, **cfg.get("grade", {})}
     lab = linear_to_oklab(srgb_to_linear(rgb))
     L, a, b = lab[..., 0], lab[..., 1], lab[..., 2]
     C = np.hypot(a, b)
@@ -118,7 +142,8 @@ def relight(rgb: np.ndarray, person: np.ndarray, cfg: dict) -> np.ndarray:
         r = cfg.get("radius", 12)
         m = rounded_rect_mask(h, w, rect, r)
         panel = np.maximum(panel, m)
-        inner = rounded_rect_mask(h, w, (rect[0] + 1.2, rect[1] + 1.2, rect[2] - 1.2, rect[3] - 1.2), max(1, r - 1.2))
+        bw = g["panel_border_px"]
+        inner = rounded_rect_mask(h, w, (rect[0] + bw, rect[1] + bw, rect[2] - bw, rect[3] - bw), max(1, r - bw))
         panel_edge = np.maximum(panel_edge, np.clip(m - inner, 0, 1))
         # the dark film's own hairline sits within a few px of the edge; it is
         # replaced by ours, so type/divider detection is muted in that zone
@@ -129,7 +154,7 @@ def relight(rgb: np.ndarray, person: np.ndarray, cfg: dict) -> np.ndarray:
         shadow = np.maximum(shadow, gaussian_filter(sh, 9) * (1 - m))
     # the pose mask is soft; tighten it so the dark room's edge pixels do not
     # ride along the silhouette as a grey aura
-    person = smoothstep(np.clip(person, 0, 1), 0.45, 0.8)
+    person = smoothstep(np.clip(person, 0, 1), g["person_edge_lo"], g["person_edge_hi"])
     person = np.minimum(person, gaussian_filter(person, 0.7))
 
     # pixel classes (soft), from the ORIGINAL colours
@@ -151,30 +176,36 @@ def relight(rgb: np.ndarray, person: np.ndarray, cfg: dict) -> np.ndarray:
     dim_text = (1 - sat) * smoothstep(L, 0.28, 0.5) * (1 - bright) * (1 - edge_zone) * thin  # secondary grey type / dividers (thin strokes only)
 
     # ── ENVIRONMENT: designed base + the room's own detail ───────────────────
-    gL, ga, gb = env_gradient(h, w, cfg.get("horizon", 0.72))
+    gL, ga, gb = env_gradient(h, w, cfg.get("horizon", 0.72), g)
     detail = L - gaussian_filter(L, 10)
-    env_L = gL + 0.15 * np.clip(detail, -0.06, 0.06)
+    env_L = gL + g["env_detail"] * np.clip(detail, -g["env_detail_clip"], g["env_detail_clip"])
+    # the room's mid-scale structure, inverted: what GLOWED in the dark room
+    # (floor light, screens) becomes the slightly deeper, reflective part of
+    # the light room, and what was black becomes the lit wall. This is what
+    # keeps depth — without it the room is a white void.
+    structure = gaussian_filter(L, 10) - gaussian_filter(L, 40)
+    env_L = env_L - g["env_structure"] * np.clip(structure, -0.15, 0.15)
     # the dark film's floor light becomes a cyan reflection on the polished floor
-    refl = gaussian_filter(sat * smoothstep(L, 0.2, 0.6) * (1 - person), 6)
+    refl = gaussian_filter(sat * smoothstep(L, 0.2, 0.6) * (1 - person), 6) * g["env_refl"]
     env_a = ga + (-0.020) * refl
     env_b = gb + (-0.035) * refl
     env_L = env_L - 0.03 * refl
     # contact shadow beneath the subject
     foot = gaussian_filter(np.roll(person, 6, axis=0), 7) * (1 - person)
-    env_L = env_L - 0.12 * foot * smoothstep(np.linspace(0, 1, h)[:, None] * np.ones((1, w)), 0.55, 0.8)
+    env_L = env_L - g["foot_shadow"] * foot * smoothstep(np.linspace(0, 1, h)[:, None] * np.ones((1, w)), 0.55, 0.8)
     # panel drop shadow
-    env_L = env_L - 0.10 * shadow
+    env_L = env_L - g["panel_shadow"] * shadow
     env_a = env_a - 0.004 * shadow
     env_b = env_b - 0.012 * shadow
 
     # ── PANELS: light-native fill ────────────────────────────────────────────
-    pan_L = np.full((h, w), PANEL_FILL[0])
+    pan_L = np.full((h, w), g["panel_fill"])
     pan_a = np.full((h, w), PANEL_FILL[1])
     pan_b = np.full((h, w), PANEL_FILL[2])
     # keep the panel's own interior structure faintly (rows, sub-cards)
-    pan_L = pan_L - 0.15 * np.clip(detail, -0.06, 0.06) * (1 - sat)
+    pan_L = pan_L - g["panel_detail"] * np.clip(detail, -0.06, 0.06) * (1 - sat)
     # hairline border
-    pan_L = lerp(pan_L, PANEL_BORDER[0], panel_edge)
+    pan_L = lerp(pan_L, g["panel_border"], panel_edge)
     pan_b = lerp(pan_b, PANEL_BORDER[2], panel_edge)
 
     # base surface = env or panel, by region
@@ -183,37 +214,37 @@ def relight(rgb: np.ndarray, person: np.ndarray, cfg: dict) -> np.ndarray:
     base_b = lerp(env_b, pan_b, panel)
 
     # ── TEXT and hairlines → ink ─────────────────────────────────────────────
-    ink_L = lerp(INK[0], SLATE[0], 1 - smoothstep(L, 0.6, 0.95))   # whiter → darker
+    ink_L = lerp(g["ink"], g["slate"], 1 - smoothstep(L, 0.6, 0.95))   # whiter → darker
     out_L = lerp(base_L, ink_L, text)
     out_a = lerp(base_a, INK[1], text)
     out_b = lerp(base_b, INK[2], text)
     # secondary grey type and dividers
-    out_L = lerp(out_L, SLATE[0], dim_text)
+    out_L = lerp(out_L, g["slate"], dim_text)
     out_a = lerp(out_a, SLATE[1], dim_text)
     out_b = lerp(out_b, SLATE[2], dim_text)
 
     # ── SIGNALS: deepen, keep hue; bloom → controlled halo ───────────────────
-    sig_L = 0.58 - 0.26 * smoothstep(L, 0.3, 0.95)        # brighter core → deeper line
+    sig_L = g["sig_L_hi"] - g["sig_L_range"] * smoothstep(L, 0.3, 0.95)   # brighter core → deeper line
     gold = smoothstep(hue, 50, 75) * (1 - smoothstep(hue, 100, 120))
     sig_L = lerp(sig_L, 0.60, gold)                        # gold stays lighter, champagne
-    chroma_gain = lerp(1.3, 1.5, smoothstep(L, 0.4, 0.9))
+    chroma_gain = lerp(g["sig_chroma_lo"], g["sig_chroma_hi"], smoothstep(L, 0.4, 0.9))
     out_L = lerp(out_L, sig_L, signal)
     out_a = lerp(out_a, a * chroma_gain, signal)
     out_b = lerp(out_b, b * chroma_gain, signal)
-    out_L = lerp(out_L, 0.62, soft_signal)
-    out_a = lerp(out_a, a * 1.8, soft_signal)
-    out_b = lerp(out_b, b * 1.8, soft_signal)
+    out_L = lerp(out_L, g["soft_L"], soft_signal)
+    out_a = lerp(out_a, a * g["soft_chroma"], soft_signal)
+    out_b = lerp(out_b, b * g["soft_chroma"], soft_signal)
     halo = bloom * (1 - person) * smoothstep(L, 0.12, 0.4)
-    out_L = lerp(out_L, out_L - 0.04, halo)
-    out_a = lerp(out_a, out_a + 0.3 * a, halo)
-    out_b = lerp(out_b, out_b + 0.3 * b, halo)
+    out_L = lerp(out_L, out_L - g["halo_L"], halo)
+    out_a = lerp(out_a, out_a + g["halo_chroma"] * a, halo)
+    out_b = lerp(out_b, out_b + g["halo_chroma"] * b, halo)
 
     # ── PERSON: re-lit, not recoloured ───────────────────────────────────────
     p_lift = cfg.get("person_lift", 0.62)
     pL = np.clip(L, 0, 1) ** p_lift                        # shadow lift
-    pL = np.clip(pL * cfg.get("person_gain", 1.08) + 0.03, 0, 0.97)
+    pL = np.clip(pL * cfg.get("person_gain", 1.08) + g["person_offset"], 0, 0.97)
     # restore local contrast the lift flattened (gentle S around the midtones)
-    pL = pL + 0.14 * (pL - 0.5) * (1 - np.abs(pL - 0.5) * 2)
+    pL = pL + g["person_contrast"] * (pL - 0.5) * (1 - np.abs(pL - 0.5) * 2)
     # pull the scene's cyan cast back toward neutral for low-chroma pixels
     cast = (1 - smoothstep(C, 0.05, 0.12)) * cfg.get("person_cast", 0.3)
     pa = a * (1 - cast)
@@ -224,9 +255,9 @@ def relight(rgb: np.ndarray, person: np.ndarray, cfg: dict) -> np.ndarray:
     pb = pb * (1 + 0.15 * skin)
     # tracking drawn over the body: clean, deeper cyan on the lit body
     body_sig = sat * smoothstep(L, 0.45, 0.8)
-    pL = lerp(pL, 0.50, body_sig)
-    pa = lerp(pa, a * 1.25, body_sig)
-    pb = lerp(pb, b * 1.25, body_sig)
+    pL = lerp(pL, g["body_sig_L"], body_sig)
+    pa = lerp(pa, a * g["body_sig_chroma"], body_sig)
+    pb = lerp(pb, b * g["body_sig_chroma"], body_sig)
     body_bloom = sat * (1 - smoothstep(L, 0.3, 0.55))
     pa = lerp(pa, pa * 0.55, body_bloom)
     pb = lerp(pb, pb * 0.55, body_bloom)

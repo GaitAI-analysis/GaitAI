@@ -93,7 +93,40 @@ def soften_masks(src_dir: Path, dst_dir: Path, dilate=3, sigma=1.2):
     return n
 
 
+def render_console(job: dict, work: Path, root: Path):
+    """Layer-aware light master (relight_console.py): frames → masks → re-lit
+    frames → H.264 with the dark film's exact geometry and timing."""
+    dark = root / job["dark"]
+    light = light_path(dark)
+    stem = dark.stem
+    info = probe(dark)
+    frames, masks, out = work / stem / "frames", work / stem / "masks", work / stem / "light"
+    print(f"\n> {dark.relative_to(root)}  {info['width']}x{info['height']} {info['frames']}f {info['fps']}fps {info['duration']:.2f}s  [console pipeline]")
+    if len(list(frames.glob("*.png"))) != info["frames"]:
+        frames.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(dark), str(frames / "%04d.png")], check=True)
+    if len(list(masks.glob("*.png"))) != info["frames"]:
+        raise SystemExit(f"{stem}: run segment_person.mjs first ({masks} has {len(list(masks.glob('*.png')))} masks for {info['frames']} frames)")
+    if len(list(out.glob("*.png"))) != info["frames"]:
+        subprocess.run([sys.executable, str(HERE / "relight_console.py"), "--video", stem, "--batch", str(frames), str(masks), str(out),
+                        "--workers", str(job.get("workers", 3))], check=True)
+    cmd = ["ffmpeg", "-v", "error", "-y", "-framerate", info["fps"], "-i", str(out / "%04d.png"),
+           "-frames:v", str(info["frames"]), "-an", "-c:v", "libx264", "-crf", str(job.get("crf", 18)), "-preset", "slow",
+           "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(light)]
+    subprocess.run(cmd, check=True)
+    res = probe(light)
+    same = all(res[k] == info[k] for k in ("width", "height", "frames", "fps")) and abs(res["duration"] - info["duration"]) < 0.05
+    status = "OK identical geometry and timing" if same else "FAIL GEOMETRY/TIMING MISMATCH"
+    print(f"  {light.name}: {res['width']}x{res['height']} {res['frames']}f {res['duration']:.2f}s  {light.stat().st_size // 1024} KB  {status}")
+    if not same:
+        raise SystemExit(1)
+    if job.get("poster"):
+        render_poster(job, light, root)
+
+
 def render_video(job: dict, work: Path, root: Path):
+    if job.get("pipeline") == "console":
+        return render_console(job, work, root)
     dark = root / job["dark"]
     light = light_path(dark)
     params = lut.params(json.dumps(job.get("lut", {})))

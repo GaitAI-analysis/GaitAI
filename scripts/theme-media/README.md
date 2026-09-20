@@ -64,6 +64,36 @@ python scripts/theme-media/render_light.py --only stage-02
 or duration differ from the dark one. Posters are the first frame of the light
 film, cut to the dark poster's exact pixel size (`--posters-only` re-cuts them).
 
+## The two console films (`pipeline: "console"`)
+
+`platform/mobilitycare-intelligence.mp4` and `platform/securevision-intelligence.mp4`
+are flattened renders — a photographic walker, a room, HUD panels and drawn
+signals in one file — and a global LUT cannot light them (it inverts the
+person and flattens the hierarchy). They go through `relight_console.py`
+instead: per-frame pose masks, then every frame is re-lit by region (room,
+panels, type, signals, person) with ONE deterministic grade for the whole
+sequence, so nothing flickers and no motion is redrawn — every bar, waveform,
+skeleton line and trajectory is the dark film's own pixels, recoloured.
+
+```
+ffmpeg -i public/assets/videos/platform/mobilitycare-intelligence.mp4 tmp/theme-media/mobilitycare-intelligence/frames/%04d.png
+node scripts/theme-media/segment_person.mjs tmp/theme-media/mobilitycare-intelligence/frames tmp/theme-media/mobilitycare-intelligence/masks
+python scripts/theme-media/render_light.py --only intelligence     # relight --batch, then H.264 at the dark film's geometry
+```
+
+The grade lives in `console_layers.json` under each film's `grade` and
+overrides `DEFAULT_GRADE` in `relight_console.py`. The defaults are the first
+(2026-09-14) edition, which read as washed out: a near-white room with no
+structure, hairline panels that vanished into it, thin pale signals and a
+grey aura around the walker. The 2026-09-21 grade keeps the room's structure
+(`env_*`: an icy, cool-tinted gradient with the dark room's own detail and
+inverted mid-scale structure, a deeper polished floor, stronger reflection),
+gives panels a 2px border and a real shadow, deepens ink and signals
+(`sig_*`, `soft_*`, `halo_*`, `body_sig_*`) and re-exposes the person
+(`person_*`). Tune on one frame with a JSON override before touching the
+config; `render_light.py` refuses a light film whose geometry or timing
+differs from the dark one.
+
 ## Proving parity
 
 ```

@@ -25,7 +25,7 @@ const errors = [];
 //              names the theme's own file, at every width checked.
 //   toggle     dark → light → dark on one loaded page, without a reload,
 //              moves currentSrc each time.
-const ledger = new Map(allProducts.map((p) => [p.id, { product: p.short, distinct: null, dark: null, light: null, toggle: null }]));
+const ledger = new Map(allProducts.map((p) => [p.id, { product: p.short, distinct: null, dark: null, light: null, toggle: null, cardDark: null, cardLight: null }]));
 const sha256 = (file) => createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 for (const product of allProducts.filter((p) => p.images)) {
   const row = ledger.get(product.id);
@@ -153,22 +153,50 @@ try {
     const products = allProducts.filter((p) => vertical === "all" || p.vertical === vertical);
     const cards = page.locator("article").filter({ has: page.locator('a[aria-label^="View product:"]') });
     assert.equal(await cards.count(), products.length);
-    for (const product of products) {
-      const card = cards.filter({ has: page.getByRole("link", { name: `View product: ${product.name}`, exact: true }) });
-      const image = card.locator("[data-product-card-image] img");
-      assert.equal(await image.count(), product.images ? 1 : 0);
-      if (!product.images) continue;
-      await image.scrollIntoViewIfNeeded();
-      await image.evaluate((img) => img.decode());
-      const state = await image.evaluate((img) => ({ src: img.currentSrc, loading: img.loading, fit: getComputedStyle(img).objectFit,
-        ratio: img.getBoundingClientRect().width / img.getBoundingClientRect().height }));
-      assert.ok(state.src.includes(`/images/products/${product.id}/card`));
-      assert.equal(state.loading, "lazy");
-      assert.equal(state.fit, "cover");
-      assert.ok(Math.abs(state.ratio - 4 / 3) < 0.01);
-      if (vertical === "all") await card.locator("[data-product-card-image]").screenshot({ path: `${directory}/${product.id}-card.png`, animations: "disabled" });
+    // Cards are the theme's hero cropped to 4:3: light-hero in light, dark-hero
+    // in dark, re-selected on a live toggle. Dark → light → dark on one load.
+    for (const mode of ["dark", "light", "dark"]) {
+      await theme(mode);
+      const other = mode === "dark" ? "light" : "dark";
+      for (const product of products) {
+        const card = cards.filter({ has: page.getByRole("link", { name: `View product: ${product.name}`, exact: true }) });
+        const image = card.locator("[data-product-card-image] img");
+        assert.equal(await image.count(), product.images ? 1 : 0);
+        if (!product.images) continue;
+        await image.scrollIntoViewIfNeeded();
+        await image.evaluate((img) => img.decode());
+        await page.waitForFunction(({ id, mode, name }) => {
+          const img = document.querySelector(`article:has(a[aria-label="View product: ${name}"]) [data-product-card-image] img`);
+          return img?.complete && img.naturalWidth > 0 && img.currentSrc.includes(`/images/products/${id}/${mode}-hero`);
+        }, { id: product.id, mode, name: product.name });
+        const state = await image.evaluate((img) => ({ src: img.currentSrc, loading: img.loading, fit: getComputedStyle(img).objectFit,
+          position: getComputedStyle(img).objectPosition, pictureTheme: img.closest("picture")?.dataset.theme ?? null,
+          markup: [img.getAttribute("src") ?? "", ...Array.from(img.closest("picture")?.querySelectorAll("source") ?? []).map((s) => s.getAttribute("srcset") ?? "")].join(" "),
+          ratio: img.getBoundingClientRect().width / img.getBoundingClientRect().height }));
+        assert.ok(state.src.includes(`/images/products/${product.id}/${mode}-hero`), `${product.short} card in ${mode}: ${state.src}`);
+        assert.ok(!state.markup.includes(`${other}-hero`) && !state.markup.includes("/card"), `${product.short} card in ${mode} still references ${other}-hero or card.webp`);
+        assert.equal(state.pictureTheme, mode, `${product.short} card: <picture data-theme> lags ${mode}`);
+        assert.equal(state.loading, "lazy");
+        assert.equal(state.fit, "cover");
+        assert.equal(state.position, product.images.heroPosition, `${product.short} card: object-position must anchor the reviewed subject`);
+        assert.ok(Math.abs(state.ratio - 4 / 3) < 0.01);
+        ledger.get(product.id)[mode === "dark" ? "cardDark" : "cardLight"] = true;
+        if (vertical === "all") await card.locator("[data-product-card-image]").screenshot({ path: `${directory}/${product.id}-card-${mode}.png`, animations: "disabled" });
+      }
     }
-    console.log(`Catalogue: /${route}/ — ${products.length} product cards, ${products.filter((p) => p.images).length} reviewed images.`);
+    // Reload while light: the persisted theme's card must be the first paint.
+    await theme("light");
+    await page.reload({ waitUntil: "networkidle" });
+    for (const product of products.filter((p) => p.images)) {
+      const image = cards.filter({ has: page.getByRole("link", { name: `View product: ${product.name}`, exact: true }) }).locator("[data-product-card-image] img");
+      await image.scrollIntoViewIfNeeded();
+      await page.waitForFunction(({ id, name }) => {
+        const img = document.querySelector(`article:has(a[aria-label="View product: ${name}"]) [data-product-card-image] img`);
+        return img?.complete && img.naturalWidth > 0 && img.currentSrc.includes(`/images/products/${id}/light-hero`);
+      }, { id: product.id, name: product.name });
+    }
+    await theme("dark");
+    console.log(`Catalogue: /${route}/ — ${products.length} product cards, ${products.filter((p) => p.images).length} theme-aware images (dark → light → dark, light reload).`);
     await cards.first().scrollIntoViewIfNeeded();
     await page.screenshot({ path: `${directory}/${route}-catalogue.png`, animations: "disabled" });
   }
@@ -186,8 +214,8 @@ try {
   const rows = [...ledger.values()].filter((row) => checkedProducts.some((p) => p.short === row.product));
   const mark = (v) => (v === true ? "\u2713" : v === null ? "\u2014" : "\u2717");
   const pad = (text, n) => String(text).padEnd(n);
-  console.log(`\n${pad("Product", 18)}${pad("Dark hash != Light hash", 26)}${pad("Dark currentSrc", 18)}${pad("Light currentSrc", 18)}Live toggle`);
-  for (const row of rows) console.log(`${pad(row.product, 18)}${pad(mark(row.distinct), 26)}${pad(mark(row.dark), 18)}${pad(mark(row.light), 18)}${mark(row.toggle)}`);
+  console.log(`\n${pad("Product", 18)}${pad("Dark hash != Light hash", 26)}${pad("Dark currentSrc", 18)}${pad("Light currentSrc", 18)}${pad("Live toggle", 14)}${pad("Card dark", 12)}Card light`);
+  for (const row of rows) console.log(`${pad(row.product, 18)}${pad(mark(row.distinct), 26)}${pad(mark(row.dark), 18)}${pad(mark(row.light), 18)}${pad(mark(row.toggle), 14)}${pad(mark(row.cardDark), 12)}${mark(row.cardLight)}`);
   const count = (key) => rows.filter((row) => row[key] === true).length;
   const folders = allProducts.filter((p) => fs.existsSync(path.join("public/images/products", p.id, "dark-hero.webp")) && fs.existsSync(path.join("public/images/products", p.id, "light-hero.webp"))).length;
   console.log(`\nPhysical product folders: ${folders}/${allProducts.length}`);
@@ -195,7 +223,9 @@ try {
   console.log(`Dark theme correct: ${count("dark")}/${rows.length}`);
   console.log(`Light theme correct: ${count("light")}/${rows.length}`);
   console.log(`Live theme toggles correct: ${count("toggle")}/${rows.length}`);
-  for (const key of ["distinct", "dark", "light", "toggle"]) {
+  console.log(`Catalogue cards dark correct: ${count("cardDark")}/${rows.length}`);
+  console.log(`Catalogue cards light correct: ${count("cardLight")}/${rows.length}`);
+  for (const key of ["distinct", "dark", "light", "toggle", "cardDark", "cardLight"]) {
     const expected = rows.filter((row) => allProducts.find((p) => p.short === row.product).images).length;
     assert.equal(count(key), expected, `${key}: ${count(key)}/${expected} products with a reviewed set passed`);
   }

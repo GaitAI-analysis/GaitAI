@@ -160,8 +160,10 @@ export function ThemeVideo(props: ThemeVideoProps) {
     return () => observer.disconnect();
   }, []);
 
-  /* Source and poster follow the theme. A swap keeps the playhead: both files
-     have identical timing, so the same second means the same frame. */
+  /* Source and poster follow the theme. A swap keeps the playhead: a
+     re-graded companion has identical timing, so the same second means the
+     same frame; a light film with its own length (`timing: "own"` in the
+     registry) resumes at the same second modulo its duration. */
   useEffect(() => {
     const node = ref.current;
     if (!node || isDark === null) return;

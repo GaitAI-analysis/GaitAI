@@ -59,6 +59,14 @@ export interface ThemeMediaPair {
   poster?: ThemePosterPair;
   /** Optional narrow-screen variants. None exist today; the shape is here so they can. */
   mobile?: { dark: string; light: string };
+  /**
+   * `"own"` when the light film is a SEPARATE edit with its own length rather
+   * than a re-grade of the dark frames: `check:media` then requires the same
+   * dimensions but not the same frame count, and `ThemeVideo` resumes a swap
+   * at the same second modulo the new film's duration. Default: identical
+   * timing, frame for frame.
+   */
+  timing?: "own";
   /** Intrinsic size, for layout stability. */
   width?: number;
   height?: number;
@@ -119,16 +127,24 @@ export const themeMedia = {
 
   /* ── Homepage family consoles (Verticals) and the Movement Lab ────────── */
 
-  /** One photographic walker, masked and composited back untouched; the scene is re-inked. */
+  /* The light console films are the founder's own approved edits
+     (2026-09-21, `*-light-no-overlap.mp4`): the same console, designed for
+     paper, 5 s loops beside the dark films' 10 s — hence `timing: "own"`.
+     They were supplied as MPEG-4 Part 2, which no Chromium or Firefox
+     decodes, so what ships is the same frames transcoded to H.264 at the
+     same 1280x720 / 24 fps / 120 frames (SSIM 0.999 to the supplied files);
+     nothing was cropped, scaled, graded or regenerated. The dark films are
+     untouched. The earlier re-graded companions are retired. */
   mobilityCareHome: {
     kind: "pair",
     type: "video",
     dark: "/assets/videos/platform/mobilitycare-intelligence.mp4",
-    light: "/assets/videos/platform/mobilitycare-intelligence-light.mp4",
+    light: "/assets/videos/platform/mobilitycare-light-no-overlap.mp4",
     poster: {
       dark: "/assets/videos/platform/mobilitycare-intelligence-poster.jpg",
-      light: "/assets/videos/platform/mobilitycare-intelligence-poster-light.jpg",
+      light: "/assets/videos/platform/mobilitycare-light-no-overlap-poster.jpg",
     },
+    timing: "own",
     width: 1280,
     height: 720,
   },
@@ -136,11 +152,12 @@ export const themeMedia = {
     kind: "pair",
     type: "video",
     dark: "/assets/videos/platform/securevision-intelligence.mp4",
-    light: "/assets/videos/platform/securevision-intelligence-light.mp4",
+    light: "/assets/videos/platform/securevision-light-no-overlap.mp4",
     poster: {
       dark: "/assets/videos/platform/securevision-intelligence-poster.jpg",
-      light: "/assets/videos/platform/securevision-intelligence-poster-light.jpg",
+      light: "/assets/videos/platform/securevision-light-no-overlap-poster.jpg",
     },
+    timing: "own",
     width: 1280,
     height: 720,
   },

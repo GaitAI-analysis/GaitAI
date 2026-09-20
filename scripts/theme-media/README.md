@@ -64,7 +64,22 @@ python scripts/theme-media/render_light.py --only stage-02
 or duration differ from the dark one. Posters are the first frame of the light
 film, cut to the dark poster's exact pixel size (`--posters-only` re-cuts them).
 
-## The two console films (`pipeline: "console"`)
+## The two console films — supplied light editions
+
+Since 2026-09-21 the homepage console films' light editions are the founder's
+own approved films, not re-grades: `platform/mobilitycare-light-no-overlap.mp4`
+and `platform/securevision-light-no-overlap.mp4`, registered with
+`timing: "own"` because they are 5 s loops beside the dark films' 10 s
+(`check:media` then checks frame size only; `ThemeVideo` resumes a theme
+swap modulo duration). They were supplied as MPEG-4 Part 2, which Chromium
+and Firefox refuse to demux, so what ships is a straight H.264 transcode at
+the same 1280x720 / 24 fps / 120 frames (SSIM 0.999 to the supplied files) —
+no crop, scale, grade or regeneration; the posters are their first frames.
+To replace them, drop in new files under the same names and re-cut the
+posters. The re-light pipeline below is kept for the record and for any
+future film that needs it.
+
+## The console re-light pipeline (`pipeline: "console"`, retired for the consoles)
 
 `platform/mobilitycare-intelligence.mp4` and `platform/securevision-intelligence.mp4`
 are flattened renders — a photographic walker, a room, HUD panels and drawn

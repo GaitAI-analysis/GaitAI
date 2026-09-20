@@ -1,5 +1,5 @@
 {
-  "$comment": "Every asset that gets a light companion, with its colour-transform overrides. `black_toe` is the OKLab lightness of that render's ground (measure with the 10th percentile of a frame); everything at or below it becomes the off-white. `personMask` films need masks from segment_person.mjs. See README.md.",
+  "$comment": "Every asset that gets a light companion, with its colour-transform overrides. `black_toe` is the OKLab lightness of that render's ground (measure with the 10th percentile of a frame); everything at or below it becomes the off-white. `personMask` films need masks from segment_person.mjs. See README.md. The two homepage console films are NOT here any more: their light editions are the founder's own supplied films (platform/*-light-no-overlap.mp4, registry entries mobilityCareHome / secureVisionHome, timing: \"own\"); the console re-light pipeline (relight_console.py, pipeline: \"console\") stays available but renders nothing by default.",
   "videos": [
     {
       "dark": "public/assets/videos/mobilitycare/mobilitycare-hero-v2.mp4",
@@ -7,26 +7,6 @@
       "lut": {
         "black_toe": 0.085
       }
-    },
-    {
-      "dark": "public/assets/videos/platform/mobilitycare-intelligence.mp4",
-      "poster": "public/assets/videos/platform/mobilitycare-intelligence-poster.jpg",
-      "lut": {
-        "black_toe": 0.1
-      },
-      "personMask": true,
-      "pipeline": "console",
-      "crf": 20
-    },
-    {
-      "dark": "public/assets/videos/platform/securevision-intelligence.mp4",
-      "poster": "public/assets/videos/platform/securevision-intelligence-poster.jpg",
-      "lut": {
-        "black_toe": 0.09
-      },
-      "personMask": true,
-      "pipeline": "console",
-      "crf": 20
     },
     {
       "dark": "public/assets/videos/workflow/stage-01-capture.mp4",

@@ -106,10 +106,14 @@ async function main() {
       const a = probe(entry.dark);
       const b = probe(entry.light);
       if (a && b) {
-        const same = a.width === b.width && a.height === b.height && a.frames === b.frames && Math.abs(a.duration - b.duration) < 0.05;
-        if (!same) {
+        // A pair with `timing: "own"` is a separate light edit: same frame
+        // size (the layout depends on it), its own length (ThemeVideo resumes
+        // modulo duration). Everything else must match frame for frame.
+        const sameBox = a.width === b.width && a.height === b.height;
+        const sameTiming = a.frames === b.frames && Math.abs(a.duration - b.duration) < 0.05;
+        if (!sameBox || (!sameTiming && entry.timing !== "own")) {
           err(
-            `${key}: light companion does not match the dark film — dark ${a.width}x${a.height} ${a.frames}f ${a.duration.toFixed(2)}s, light ${b.width}x${b.height} ${b.frames}f ${b.duration.toFixed(2)}s`,
+            `${key}: light companion does not match the dark film — dark ${a.width}x${a.height} ${a.frames}f ${a.duration.toFixed(2)}s, light ${b.width}x${b.height} ${b.frames}f ${b.duration.toFixed(2)}s${sameBox ? ' (set timing: "own" on the entry if the light film is a separate edit)' : ""}`,
           );
         }
       }
@@ -137,7 +141,10 @@ async function main() {
   const orphanLight = [];
   for (const abs of videoFiles) {
     const rel = "/" + path.relative(PUBLIC, abs).split(path.sep).join("/");
-    const isLight = /-light\.[a-z0-9]+$/i.test(rel);
+    // A light file is one an entry names as its light companion — usually
+    // the `-light` convention, but a supplied edit may keep its own name
+    // (the console films' `*-light-no-overlap.mp4`).
+    const isLight = registeredLight.has(rel) || /-light\.[a-z0-9]+$/i.test(rel);
     if (isLight) {
       if (!registeredLight.has(rel)) orphanLight.push(rel);
     } else if (!registeredDark.has(rel)) {
@@ -153,7 +160,10 @@ async function main() {
   for (const rel of orphanLight) warn(`Light file on disk that no entry references: ${rel}`);
 
   /* Report. */
-  const videos = videoFiles.filter((f) => !/-light\.[a-z0-9]+$/i.test(f)).length;
+  const videos = videoFiles.filter((f) => {
+    const rel = "/" + path.relative(PUBLIC, f).split(path.sep).join("/");
+    return !registeredLight.has(rel) && !/-light\.[a-z0-9]+$/i.test(rel);
+  }).length;
   console.log(`theme-media: ${entries.length} entries (${pairs} pairs, ${islands} islands), ${videos} dark videos on disk${hasFfprobe ? ", ffprobe geometry check on" : ", ffprobe not found — geometry check skipped"}`);
   for (const w of warnings) console.log(`\n  WARNING  ${w}`);
   for (const e of errors) console.log(`\n  ERROR    ${e}`);

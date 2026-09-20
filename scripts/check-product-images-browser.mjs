@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -14,6 +15,33 @@ const directory = "tmp/product-image-audit/browser";
 fs.mkdirSync(directory, { recursive: true });
 const results = [];
 const errors = [];
+
+// THEME LEDGER. One row per product; every cell is asserted below and the
+// table at the end is printed from these rows, so a pass is never implicit.
+//   distinct   dark-hero.webp and light-hero.webp are different files (and so
+//              is every rung of their srcset ladders) — a light theme cannot
+//              show the dark photograph by way of a duplicated export.
+//   dark/light img.currentSrc — what the browser is actually painting —
+//              names the theme's own file, at every width checked.
+//   toggle     dark → light → dark on one loaded page, without a reload,
+//              moves currentSrc each time.
+const ledger = new Map(allProducts.map((p) => [p.id, { product: p.short, distinct: null, dark: null, light: null, toggle: null }]));
+const sha256 = (file) => createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+for (const product of allProducts.filter((p) => p.images)) {
+  const row = ledger.get(product.id);
+  const dark = sha256(path.join("public", product.images.heroDark));
+  const light = sha256(path.join("public", product.images.heroLight));
+  assert.notEqual(dark, light, `${product.short}: dark-hero.webp and light-hero.webp are the same file`);
+  const darkRungs = new Set(product.images.assets.heroDark.variants.map((v) => v.sha256));
+  for (const variant of product.images.assets.heroLight.variants) {
+    assert.ok(!darkRungs.has(variant.sha256), `${product.short}: light rung ${variant.src} is a dark-hero derivative`);
+    assert.ok(variant.src.includes("/light-hero"), `${product.short}: heroLight variant is not a light-hero file: ${variant.src}`);
+  }
+  for (const variant of product.images.assets.heroDark.variants) {
+    assert.ok(variant.src.includes("/dark-hero"), `${product.short}: heroDark variant is not a dark-hero file: ${variant.src}`);
+  }
+  row.distinct = true;
+}
 const context = await browser.newContext({ colorScheme: "dark", reducedMotion: "reduce", deviceScaleFactor: 1 });
 await context.addInitScript(() => {
   if (!localStorage.getItem("theme")) localStorage.setItem("theme", "dark");
@@ -49,10 +77,25 @@ async function checkHero(product, mode) {
   const state = await page.locator(selector).evaluate((img) => {
     const box = img.getBoundingClientRect();
     const style = getComputedStyle(img);
+    const picture = img.closest("picture");
+    const sources = Array.from(picture?.querySelectorAll("source") ?? []);
     return { src: img.currentSrc, width: box.width, height: box.height, naturalWidth: img.naturalWidth,
       objectFit: style.objectFit, objectPosition: style.objectPosition, loading: img.loading,
-      priority: img.fetchPriority, overflow: document.documentElement.scrollWidth > innerWidth + 1 };
+      priority: img.fetchPriority, overflow: document.documentElement.scrollWidth > innerWidth + 1,
+      pictureTheme: picture?.dataset.theme ?? null,
+      candidates: sources.flatMap((s) => (s.getAttribute("srcset") ?? "").split(",").map((c) => c.trim().split(/\s+/)[0]).filter(Boolean)),
+      attributes: [img.getAttribute("src") ?? "", ...sources.map((s) => s.getAttribute("srcset") ?? "")].join(" ") };
   });
+  // The key check. currentSrc is the file the browser chose and is painting:
+  // it must be THIS theme's photograph, and nothing of the other theme may be
+  // left in the <picture> for any engine to pick instead.
+  const other = mode === "dark" ? "light" : "dark";
+  assert.ok(state.src.includes(`/images/products/${product.id}/${mode}-hero`), `${product.short}: ${mode} theme paints ${state.src}`);
+  assert.ok(!state.src.includes(`/${other}-hero`), `${product.short}: ${mode} theme paints the ${other} photograph`);
+  assert.equal(state.pictureTheme, mode, `${product.short}: <picture data-theme> lags the ${mode} theme`);
+  assert.ok(state.candidates.length > 0 && state.candidates.every((url) => url.includes(`/${mode}-hero`)), `${product.short}: ${mode} <source srcset> carries ${state.candidates.join(", ")}`);
+  assert.ok(!state.attributes.includes(`${other}-hero`), `${product.short}: ${other}-hero still referenced in ${mode} theme markup`);
+  ledger.get(product.id)[mode] = true;
   assert.equal(state.objectFit, "cover");
   assert.equal(state.loading, "eager");
   assert.equal(state.priority, "high");
@@ -72,11 +115,18 @@ try {
     const response = await page.goto(`${base}/${product.vertical}/${product.id}/`, { waitUntil: "networkidle" });
     assert.equal(response.status(), 200);
     assert.equal(await page.locator("h1").textContent(), product.name);
+    // Live toggle on one loaded page, no reload: dark → light → dark. Each
+    // step waits for currentSrc to name the new theme's file and asserts it.
+    const toggled = [];
     for (const mode of ["dark", "light", "dark"]) {
       await theme(mode);
       await checkHero(product, mode);
+      if (product.images) toggled.push(await page.locator("[data-product-hero-image] img").evaluate((img) => img.currentSrc));
     }
     if (product.images) {
+      assert.ok(toggled[0].includes("/dark-hero") && toggled[1].includes("/light-hero") && toggled[2].includes("/dark-hero"), `${product.short}: live toggle sequence ${toggled.join(" → ")}`);
+      assert.notEqual(toggled[0], toggled[1], `${product.short}: theme toggle did not change currentSrc`);
+      ledger.get(product.id).toggle = true;
       // Also verify a persisted light theme on reload, before user interaction.
       await theme("light");
       await page.reload({ waitUntil: "networkidle" });
@@ -132,7 +182,24 @@ try {
     await page.goBack({ waitUntil: "networkidle" });
   }
   assert.deepEqual(errors, [], "Browser/image/hydration errors");
-  fs.writeFileSync(`${directory}/${selectedIds ? "focused-results" : "results"}.json`, JSON.stringify({ routes: checkedProducts.length, reviewedSets: allProducts.filter((p) => p.images).length, results, errors }, null, 2));
+
+  const rows = [...ledger.values()].filter((row) => checkedProducts.some((p) => p.short === row.product));
+  const mark = (v) => (v === true ? "\u2713" : v === null ? "\u2014" : "\u2717");
+  const pad = (text, n) => String(text).padEnd(n);
+  console.log(`\n${pad("Product", 18)}${pad("Dark hash != Light hash", 26)}${pad("Dark currentSrc", 18)}${pad("Light currentSrc", 18)}Live toggle`);
+  for (const row of rows) console.log(`${pad(row.product, 18)}${pad(mark(row.distinct), 26)}${pad(mark(row.dark), 18)}${pad(mark(row.light), 18)}${mark(row.toggle)}`);
+  const count = (key) => rows.filter((row) => row[key] === true).length;
+  const folders = allProducts.filter((p) => fs.existsSync(path.join("public/images/products", p.id, "dark-hero.webp")) && fs.existsSync(path.join("public/images/products", p.id, "light-hero.webp"))).length;
+  console.log(`\nPhysical product folders: ${folders}/${allProducts.length}`);
+  console.log(`Dark/light distinct: ${count("distinct")}/${rows.length}`);
+  console.log(`Dark theme correct: ${count("dark")}/${rows.length}`);
+  console.log(`Light theme correct: ${count("light")}/${rows.length}`);
+  console.log(`Live theme toggles correct: ${count("toggle")}/${rows.length}`);
+  for (const key of ["distinct", "dark", "light", "toggle"]) {
+    const expected = rows.filter((row) => allProducts.find((p) => p.short === row.product).images).length;
+    assert.equal(count(key), expected, `${key}: ${count(key)}/${expected} products with a reviewed set passed`);
+  }
+  fs.writeFileSync(`${directory}/${selectedIds ? "focused-results" : "results"}.json`, JSON.stringify({ routes: checkedProducts.length, reviewedSets: allProducts.filter((p) => p.images).length, themeLedger: rows, results, errors }, null, 2));
   console.log(`PASS: ${checkedProducts.length} routes, three catalogues, client navigation, ${results.length} hero checks; no image or hydration errors. Source coverage remains ${allProducts.filter((p) => p.images).length}/24.`);
 } finally {
   await browser.close();

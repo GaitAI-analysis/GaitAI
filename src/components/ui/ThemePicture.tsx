@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { assetPath } from "@/lib/paths";
 
@@ -15,22 +15,41 @@ import { assetPath } from "@/lib/paths";
  * documents: `display: none` does not cancel a request, so rendering both
  * themes and hiding one would download the hero twice.
  *
- * ── WHY THE INLINE SCRIPT ─────────────────────────────────────────────────
- * The theme lives in a class on <html> that next-themes writes before the body
- * renders. The server cannot read it, and waiting for hydration means either an
- * empty hero — this is the LCP element — or the dark photograph flashing for a
- * light visitor. So the markup carries both candidate srcsets in `data-*`
- * attributes and NO `srcset`/`src` at all, and one tiny classic script directly
- * after the `</picture>` sets them while the HTML is still parsing. The
- * preload scanner has already gone past, but the parser has not: the fetch
- * still starts during parsing, ahead of stylesheets and scripts further down.
+ * The theme is the site's own — the `light` / `dark` class next-themes keeps
+ * on <html> — never `prefers-color-scheme`. A `<source media>` query would
+ * follow the operating system and ignore the visitor's toggle.
  *
- * React never owns `srcset` or `src` — they are never passed as props — and the
- * two elements the script writes to carry `suppressHydrationWarning`, which is
- * how you tell React that an attribute appearing between render and hydration
- * is the plan rather than a bug. Without it every render logs "Extra attributes
- * from the server: srcset". An effect then keeps them in step when the visitor
- * toggles the theme, without a reload and without a second component tree.
+ * ── TWO PHASES, ONE ELEMENT ───────────────────────────────────────────────
+ * 1. FIRST PAINT (server HTML, hydration). The server cannot read the theme,
+ *    and waiting for hydration means either an empty hero — this is the LCP
+ *    element — or the dark photograph flashing for a light visitor. So the
+ *    markup carries both candidate srcsets in `data-*` attributes and NO
+ *    `srcset`/`src` at all, and one tiny classic script directly after the
+ *    `</picture>` sets them while the HTML is still parsing. The preload
+ *    scanner has already gone past, but the parser has not: the fetch still
+ *    starts during parsing, ahead of stylesheets and scripts further down.
+ *    React never sees those attributes at hydration — the two elements the
+ *    script writes to carry `suppressHydrationWarning`, which is how you tell
+ *    React that an attribute appearing between render and hydration is the
+ *    plan rather than a bug.
+ *
+ * 2. MOUNTED (every render after that). `resolvedTheme` alone decides which
+ *    `srcset` and `src` are rendered — React owns them from here, and ONLY the
+ *    active theme's candidates are ever in the DOM, so there is nothing for a
+ *    browser to mis-select. The `<picture>` is keyed by theme: a toggle mounts
+ *    a fresh element with the other theme's candidates rather than mutating
+ *    `<source srcset>` in place and trusting each engine to re-run its
+ *    selection algorithm. The mount itself does NOT remount: the key for the
+ *    theme the bootstrap chose is the boot key, so React takes over the very
+ *    element that is already loading and sets the same URLs on it — an
+ *    identical `src` is not a new request in any engine.
+ *
+ * A theme is only trusted once mounted. next-themes reads localStorage inside
+ * a state initialiser, so `resolvedTheme` is ALREADY the stored theme on the
+ * first client render while the server rendered without one; branching on it
+ * before mount would fail hydration (React #418). `useResolvedTheme` returns
+ * null through hydration and the real theme one render later, the same
+ * contract `useResolvedDark` keeps in ThemeMedia.tsx.
  *
  * ── NO LAYOUT SHIFT ───────────────────────────────────────────────────────
  * `width` and `height` are required and are the PHOTOGRAPH's intrinsic box, so
@@ -64,9 +83,12 @@ export interface ThemePictureProps {
   readonly style?: React.CSSProperties;
 }
 
+type Theme = "light" | "dark";
+
 /* The bootstrap. A classic script, so `document.currentScript` is this tag and
    `previousElementSibling` is the <picture> it belongs to. It runs once per
-   element, inline, and is deliberately tiny. */
+   element, inline, and is deliberately tiny. It reads the same signal the
+   mounted phase does — the theme class on <html> — never the OS preference. */
 const BOOTSTRAP =
   "(function(){var s=document.currentScript;if(!s)return;" +
   "var p=s.previousElementSibling;if(!p)return;" +
@@ -81,6 +103,15 @@ function Bootstrap() {
   return <script dangerouslySetInnerHTML={{ __html: BOOTSTRAP }} />;
 }
 
+/** The site theme once mounted; null while the server HTML is authoritative. */
+function useResolvedTheme(): Theme | null {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return resolvedTheme === "light" ? "light" : "dark";
+}
+
 export function ThemePicture({
   sources,
   darkSrc,
@@ -93,63 +124,84 @@ export function ThemePicture({
   className,
   style,
 }: ThemePictureProps) {
-  const ref = useRef<HTMLPictureElement>(null);
-  const { resolvedTheme } = useTheme();
+  const theme = useResolvedTheme();
 
-  /* After hydration, follow the toggle. The bootstrap above owns the FIRST
-     paint; this owns every change after it, and sets the same attributes, so
-     the two can never disagree about which file is showing. */
-  useEffect(() => {
-    const picture = ref.current;
-    if (!picture || !resolvedTheme) return;
-    const light = resolvedTheme === "light";
-    for (const source of Array.from(picture.querySelectorAll("source"))) {
-      const next = light ? source.dataset.lightSrcset : source.dataset.darkSrcset;
-      if (next && source.getAttribute("srcset") !== next) {
-        source.setAttribute("srcset", next);
-      }
-    }
-    const img = picture.querySelector("img");
-    if (img) {
-      const next = light ? img.dataset.lightSrc : img.dataset.darkSrc;
-      if (next && img.getAttribute("src") !== next) img.setAttribute("src", next);
-    }
-  }, [resolvedTheme, sources, darkSrc, lightSrc]);
+  /* The theme React first sees after mount is the one the bootstrap already
+     painted. Remember it so that state keeps the boot key and React adopts the
+     loading element instead of replacing it. Lazy ref initialisation — written
+     at most once, when the value first exists. */
+  const bootTheme = useRef<Theme | null>(null);
+  if (theme !== null && bootTheme.current === null) bootTheme.current = theme;
 
+  const imgProps = {
+    width,
+    height,
+    sizes,
+    decoding: priority ? "sync" : "async",
+    loading: priority ? "eager" : "lazy",
+    fetchPriority: priority ? "high" : "low",
+  } as const;
+
+  if (theme === null) {
+    return (
+      <>
+        <picture key="boot" className={className} style={style}>
+          {sources.map((source) => (
+            <source
+              key={source.type}
+              type={source.type}
+              sizes={sizes}
+              /* The bootstrap adds `srcset` before hydration, by design — tell
+                 React so, or every render logs "Extra attributes from the
+                 server: srcset". */
+              suppressHydrationWarning
+              data-dark-srcset={assetSrcSet(source.darkSrcSet)}
+              data-light-srcset={assetSrcSet(source.lightSrcSet)}
+            />
+          ))}
+          {/* eslint-disable-next-line @next/next/no-img-element -- the static
+              export runs with `images.unoptimized`, so next/image adds nothing
+              here and cannot express a theme-swapped srcset without fetching
+              both. This is the whole point of the component. */}
+          <img
+            {...imgProps}
+            alt={alt}
+            suppressHydrationWarning
+            data-dark-src={assetPath(darkSrc)}
+            data-light-src={assetPath(lightSrc)}
+          />
+        </picture>
+        <Bootstrap />
+      </>
+    );
+  }
+
+  /* Mounted: the theme is the single input. Only its candidates are rendered,
+     and a change of theme is a change of key — a new <picture>, selected from
+     scratch — except the boot theme, whose key is the boot picture's, so React
+     adopts that element. Both phases return the same fragment shape for the
+     same reason; the bootstrap script simply leaves after hydration. */
+  const light = theme === "light";
+  const activeSrc = assetPath(light ? lightSrc : darkSrc);
   return (
     <>
-      <picture ref={ref} className={className} style={style}>
+      <picture
+        key={theme === bootTheme.current ? "boot" : theme}
+        className={className}
+        style={style}
+        data-theme={theme}
+      >
         {sources.map((source) => (
           <source
             key={source.type}
             type={source.type}
             sizes={sizes}
-            /* The bootstrap adds `srcset` before hydration, by design — tell
-               React so, or every render logs "Extra attributes from the
-               server: srcset". */
-            suppressHydrationWarning
-            data-dark-srcset={assetSrcSet(source.darkSrcSet)}
-            data-light-srcset={assetSrcSet(source.lightSrcSet)}
+            srcSet={assetSrcSet(light ? source.lightSrcSet : source.darkSrcSet)}
           />
         ))}
-        {/* eslint-disable-next-line @next/next/no-img-element -- the static
-            export runs with `images.unoptimized`, so next/image adds nothing
-            here and cannot express a theme-swapped srcset without fetching
-            both. This is the whole point of the component. */}
-        <img
-          alt={alt}
-          suppressHydrationWarning
-          width={width}
-          height={height}
-          sizes={sizes}
-          decoding={priority ? "sync" : "async"}
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : "low"}
-          data-dark-src={assetPath(darkSrc)}
-          data-light-src={assetPath(lightSrc)}
-        />
+        {/* eslint-disable-next-line @next/next/no-img-element -- see above. */}
+        <img {...imgProps} alt={alt} src={activeSrc} />
       </picture>
-      <Bootstrap />
     </>
   );
 }

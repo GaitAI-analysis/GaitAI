@@ -13,6 +13,7 @@ import {
 import { ThemePicture } from "@/components/ui/ThemePicture";
 import { HeroCta } from "./HeroCta";
 import { HeroPose } from "./HeroPose";
+import { HeroLightBanner } from "./HeroLightBanner";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import styles from "./hero.module.css";
 
@@ -74,6 +75,9 @@ export function Hero() {
       className={`relative w-full ${styles.hero}`}
     >
       <div className={styles.frame}>
+        {/* Light theme, panoramic layout only: the supplied banner replaces
+            the native stage below — see HeroLightBanner and `.banner`. */}
+        <HeroLightBanner />
         <div className={styles.canvas}>
           <div className={styles.stage}>
             {HERO_PANELS.map((panel, index) => {

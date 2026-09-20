@@ -928,3 +928,54 @@
     --hero-pose-joint: 2.8;
   }
 }
+
+/* ── The light-theme banner ───────────────────────────────────────────────
+   One supplied picture stands in for the whole native stage — but only in the
+   LIGHT theme and only on the panoramic layout; see HeroLightBanner. It is
+   laid into the frame exactly as the canvas is (full width, 72% of any slack
+   above), so the hero's height and crop behaviour do not change; the picture
+   is 1736:906 against the canvas's 1774:887, so it crops ~2% more top and
+   bottom under the same rule. Off by default, and off on phones. */
+.banner {
+  display: none;
+}
+@media (min-width: 1024px) {
+  :global(.light) .banner {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 72%;
+    width: 100%;
+    aspect-ratio: 1736 / 906;
+    transform: translateY(-72%);
+    z-index: 3;
+  }
+  /* The native stage keeps its box (the frame's height comes from it) but is
+     neither seen, focusable nor read while the banner carries the words. */
+  :global(.light) .canvas {
+    visibility: hidden;
+  }
+}
+.bannerPhoto {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+.bannerPhoto img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+/* Transparent links over the three painted pills. */
+.bannerHit {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  outline: none;
+}
+.bannerHit:focus-visible {
+  outline: 2px solid var(--hero-accent);
+  outline-offset: 3px;
+}

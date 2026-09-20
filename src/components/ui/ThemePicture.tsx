@@ -60,13 +60,28 @@ import { assetPath } from "@/lib/paths";
 export interface ThemePictureSource {
   /** MIME type for the `<source>`, e.g. `image/avif`. Best first. */
   readonly type: string;
+  /**
+   * A layout gate, e.g. `(min-width: 1024px)`. The `<source>` is taken only
+   * where it matches; combined with an empty fallback `src` that means the
+   * file is not fetched at all on the other layouts — a picture CSS hides
+   * would otherwise still download. Never a colour-scheme query: the theme
+   * is the site's class, not the OS preference.
+   */
+  readonly media?: string;
+  /** Empty = no candidates in that theme. */
   readonly darkSrcSet: string;
   readonly lightSrcSet: string;
 }
 
 export interface ThemePictureProps {
   readonly sources: readonly ThemePictureSource[];
-  /** The `<img>` fallback, for a browser that takes none of the sources. */
+  /**
+   * The `<img>` fallback, for a browser that takes none of the sources.
+   * An EMPTY string means "no photograph in this theme": nothing is fetched
+   * and the `<img>` is left without a source, for a picture that exists in
+   * one theme only (the light homepage banner). Hide it with CSS in that
+   * theme — `display: none` alone would still download an `<img src>`.
+   */
   readonly darkSrc: string;
   readonly lightSrc: string;
   readonly sizes: string;
@@ -150,13 +165,14 @@ export function ThemePicture({
             <source
               key={source.type}
               type={source.type}
+              media={source.media}
               sizes={sizes}
               /* The bootstrap adds `srcset` before hydration, by design — tell
                  React so, or every render logs "Extra attributes from the
                  server: srcset". */
               suppressHydrationWarning
-              data-dark-srcset={assetSrcSet(source.darkSrcSet)}
-              data-light-srcset={assetSrcSet(source.lightSrcSet)}
+              data-dark-srcset={source.darkSrcSet ? assetSrcSet(source.darkSrcSet) : undefined}
+              data-light-srcset={source.lightSrcSet ? assetSrcSet(source.lightSrcSet) : undefined}
             />
           ))}
           {/* eslint-disable-next-line @next/next/no-img-element -- the static
@@ -167,8 +183,8 @@ export function ThemePicture({
             {...imgProps}
             alt={alt}
             suppressHydrationWarning
-            data-dark-src={assetPath(darkSrc)}
-            data-light-src={assetPath(lightSrc)}
+            data-dark-src={darkSrc ? assetPath(darkSrc) : undefined}
+            data-light-src={lightSrc ? assetPath(lightSrc) : undefined}
           />
         </picture>
         <Bootstrap />
@@ -182,7 +198,9 @@ export function ThemePicture({
      adopts that element. Both phases return the same fragment shape for the
      same reason; the bootstrap script simply leaves after hydration. */
   const light = theme === "light";
-  const activeSrc = assetPath(light ? lightSrc : darkSrc);
+  const rawSrc = light ? lightSrc : darkSrc;
+  /* No source in this theme (see `darkSrc`): render the shell, fetch nothing. */
+  const activeSrc = rawSrc ? assetPath(rawSrc) : undefined;
   return (
     <>
       <picture
@@ -191,14 +209,19 @@ export function ThemePicture({
         style={style}
         data-theme={theme}
       >
-        {sources.map((source) => (
-          <source
-            key={source.type}
-            type={source.type}
-            sizes={sizes}
-            srcSet={assetSrcSet(light ? source.lightSrcSet : source.darkSrcSet)}
-          />
-        ))}
+        {sources.map((source) => {
+          const srcSet = light ? source.lightSrcSet : source.darkSrcSet;
+          if (!srcSet) return null; /* no candidates in this theme */
+          return (
+            <source
+              key={source.type}
+              type={source.type}
+              media={source.media}
+              sizes={sizes}
+              srcSet={assetSrcSet(srcSet)}
+            />
+          );
+        })}
         {/* eslint-disable-next-line @next/next/no-img-element -- see above. */}
         <img {...imgProps} alt={alt} src={activeSrc} />
       </picture>

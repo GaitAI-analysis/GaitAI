@@ -69,6 +69,13 @@ export type PoseJoint =
 export interface PoseFigure {
   /** Why this person carries an overlay, for the next person reading this. */
   readonly note: string;
+  /**
+   * `"far"` for a background subject: the overlay draws them with smaller
+   * joints, a thinner bone and lower opacity than the panel's main subject,
+   * the way a tracker's confidence and a picture's depth both fall off with
+   * distance. Omitted = the main subject.
+   */
+  readonly depth?: "far";
   readonly joints: Partial<Record<PoseJoint, readonly [number, number]>>;
 }
 
@@ -159,6 +166,7 @@ export const HERO_PANELS: readonly HeroPanel[] = [
     pose: [
       {
         note: "A pedestrian mid-stride, left of the officer.",
+        depth: "far",
         joints: {
           head: [256, 390], neck: [256, 400], chest: [256, 412], pelvis: [256, 448],
           shoulderL: [245, 409], shoulderR: [267, 410],
@@ -171,6 +179,7 @@ export const HERO_PANELS: readonly HeroPanel[] = [
       },
       {
         note: "A second pedestrian, right of the officer, arm swinging clear of the body.",
+        depth: "far",
         joints: {
           head: [601, 386], neck: [603, 400], chest: [603, 424], pelvis: [603, 453],
           shoulderL: [590, 414], shoulderR: [615, 414],

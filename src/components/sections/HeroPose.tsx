@@ -28,7 +28,11 @@ import styles from "./hero.module.css";
  * Thin bones, small joints, well under full opacity, one accent colour. This is
  * a measurement laid over a photograph, not a neon skeleton: the brief asks for
  * anatomically plausible and subtle, and the weights live in hero.module.css so
- * they can be judged against the picture rather than guessed at here.
+ * they can be judged against the picture rather than guessed at here. A figure
+ * marked `depth: "far"` in the data is drawn lighter still — smaller joints, a
+ * thinner bone, lower opacity — so the panel's main subject stays the one the
+ * eye lands on, and the overlay reads as a computer-vision layer whose
+ * confidence falls off with distance rather than as a row of blue beads.
  */
 export function HeroPose({ panel }: { panel: HeroPanel }) {
   if (panel.pose.length === 0) return null;
@@ -50,7 +54,7 @@ export function HeroPose({ panel }: { panel: HeroPanel }) {
           readonly [number, number],
         ][];
         return (
-          <g key={index}>
+          <g key={index} className={styles.poseFigure} data-depth={figure.depth ?? "near"}>
             {/* Bones first, so every joint disc sits on top of its lines. */}
             {POSE_EDGES.map(([from, to]) => {
               const a = figure.joints[from];

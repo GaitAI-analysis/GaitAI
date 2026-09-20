@@ -96,11 +96,24 @@
   --hero-divider-core: #f2f8fb;
 
   /* The pose overlay's weights. Thin, subtle, and tuned against the
-     photograph rather than against a blank ground — see HeroPose. */
-  --hero-pose-stroke: 1.4;
-  --hero-pose-joint: 4;
-  --hero-pose-line-opacity: 0.6;
-  --hero-pose-joint-opacity: 0.92;
+     photograph rather than against a blank ground — see HeroPose.
+
+     Units are the photograph's pixels; at a 1440px viewport a panel renders
+     at ~0.81 CSS px per photograph px, so joint 2.4 is a ~3.9px disc and
+     stroke 1.5 a ~1.2px line. The first cut was joint 4 / opacity 0.92 in
+     the pill's own cyan, which read as large saturated beads rather than a
+     tracker. The colour is the pose's own: softer than the pill accent, a
+     royal-cyan in the dark and a deep royal blue on paper, and it is not
+     shared with the pills so the two can be tuned apart. `--hero-pose-far`
+     scales a `depth: "far"` figure (see HeroPose) below the main subject. */
+  --hero-pose-ink: #5ec6f3;
+  --hero-pose-stroke: 1.5;
+  --hero-pose-joint: 2.4;
+  --hero-pose-line-opacity: 0.5;
+  --hero-pose-joint-opacity: 0.78;
+  --hero-pose-far: 0.72;
+  /* Dark: a restrained glow, one soft halo the width of the disc. */
+  --hero-pose-glow: drop-shadow(0 0 1.6px rgb(94 198 243 / 0.45));
 }
 
 :global(.light) .hero {
@@ -112,8 +125,13 @@
   --hero-on-accent: #ffffff;
   --hero-scrim: 255 255 255;
   --hero-divider-core: #ffffff;
-  --hero-pose-line-opacity: 0.72;
-  --hero-pose-joint-opacity: 1;
+  /* Light: darker blue, quieter, tiny markers, no glow — a measurement on a
+     bright photograph must not read as neon. */
+  --hero-pose-ink: #0b4fc0;
+  --hero-pose-joint: 2.1;
+  --hero-pose-line-opacity: 0.55;
+  --hero-pose-joint-opacity: 0.7;
+  --hero-pose-glow: none;
 }
 
 /* THE HAND-OFF TO THE NEXT SECTION. The section under the hero opens with the
@@ -305,17 +323,28 @@
   width: 100%;
   height: 100%;
 }
+.poseFigure {
+  /* 1 for the main subject; a far figure's joints, bone and opacity scale
+     by --hero-pose-far. The multiplier is a custom property so the two
+     depths share one rule set. */
+  --pose-scale: 1;
+  filter: var(--hero-pose-glow);
+}
+.poseFigure[data-depth="far"] {
+  --pose-scale: var(--hero-pose-far);
+}
 .poseBone {
   fill: none;
-  stroke: var(--hero-accent);
-  stroke-width: var(--hero-pose-stroke);
+  stroke: var(--hero-pose-ink);
+  /* `* 1px` turns the unitless weight into a length in the SVG's own units. */
+  stroke-width: calc(var(--hero-pose-stroke) * 1px * (0.5 + 0.5 * var(--pose-scale)));
   stroke-linecap: round;
-  opacity: var(--hero-pose-line-opacity);
+  opacity: calc(var(--hero-pose-line-opacity) * var(--pose-scale));
 }
 .poseJoint {
-  r: var(--hero-pose-joint);
-  fill: var(--hero-accent);
-  opacity: var(--hero-pose-joint-opacity);
+  r: calc(var(--hero-pose-joint) * 1px * var(--pose-scale));
+  fill: var(--hero-pose-ink);
+  opacity: calc(var(--hero-pose-joint-opacity) * var(--pose-scale));
 }
 
 /* ── The two lit diagonals ────────────────────────────────────────────────
@@ -893,7 +922,9 @@
      the joints read as beads on a shrunken figure rather than as a
      measurement. */
   .hero {
-    --hero-pose-stroke: 1.8;
-    --hero-pose-joint: 4.6;
+    /* ~0.49 CSS px per photograph px on a 390px phone: stroke 1.9 is a
+       ~0.95px line, joint 2.8 a ~2.8px disc. */
+    --hero-pose-stroke: 1.9;
+    --hero-pose-joint: 2.8;
   }
 }

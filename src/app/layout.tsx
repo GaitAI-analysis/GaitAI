@@ -8,12 +8,16 @@ import "./globals.css";
    it is one system read by every card, tile, row and menu item — see
    interactions.css. */
 import "./interactions.css";
+/* The light visual system. Scoped to `:root.light`; loaded last so it settles
+   ties with globals.css and interactions.css. */
+import "./light-theme.css";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { IntelligenceSearch } from "@/components/search/IntelligenceSearch";
 import { LocationTrail } from "@/components/atlas/LocationTrail";
 import { AtlasOverlay } from "@/components/atlas/AtlasOverlay";
 import { Footer } from "@/components/layout/Footer";
+import { LightPointerSpot } from "@/components/layout/LightPointerSpot";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { AskGaitAI } from "@/components/assistant/AskGaitAI";
 import { assetPath } from "@/lib/paths";
@@ -171,6 +175,10 @@ export default function RootLayout({
             <Navbar />
             <ScrollClearance />
             <MotionBudget />
+            {/* Light mode's pointer highlight: one passive listener that writes
+                two custom properties on the card under the pointer. Renders
+                nothing. */}
+            <LightPointerSpot />
             {/* Cmd/Ctrl + K over the whole site. Mounted once at the root and
                 renders nothing until opened, so it costs one keydown listener
                 and no markup on any route. */}

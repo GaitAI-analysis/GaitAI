@@ -23,7 +23,9 @@
   --t-line: rgb(15 23 42 / 0.1);
   --t-line-mid: rgb(15 23 42 / 0.18);
   --t-accent: #0e7490;
-  --t-surface: rgb(15 23 42 / 0.015);
+  /* Polished white, not a 1.5% tint: on the lattice a translucent pillar
+     shows the page through it and reads as unfinished. */
+  --t-surface: #ffffff;
 }
 
 .eyebrow {
@@ -266,4 +268,13 @@
   .cta {
     padding: 3rem 3.25rem;
   }
+}
+
+/* Light: the pillars sit as instrument panels — lit top edge, crisp border,
+   soft cool shadow — from the light surface system in app/light-theme.css. */
+:global(.light) .pillar {
+  border-color: var(--light-border);
+  border-top-color: var(--light-edge);
+  background: linear-gradient(180deg, #ffffff 0%, #fafcfe 100%);
+  box-shadow: var(--light-highlight), var(--light-shadow);
 }

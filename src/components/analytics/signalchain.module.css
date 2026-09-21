@@ -289,8 +289,13 @@ a.node:focus-visible {
   border-color: rgb(15 23 42 / 0.14);
 }
 :global(.light) .input {
-  border-color: rgb(15 23 42 / 0.12);
-  background: rgb(15 23 42 / 0.02);
+  border-color: var(--light-border);
+  border-top-color: var(--light-edge);
+  background: linear-gradient(180deg, #ffffff 0%, #fafcfe 100%);
+  box-shadow: var(--light-highlight), var(--light-shadow);
+}
+:global(.light) .input:hover {
+  border-color: var(--light-refraction);
 }
 :global(.light) .moduleCare {
   color: #0e6f95;

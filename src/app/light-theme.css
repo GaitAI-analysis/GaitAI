@@ -1,0 +1,628 @@
+/* =========================================================================
+   THE LIGHT VISUAL SYSTEM — luminous movement intelligence
+   -------------------------------------------------------------------------
+   Everything in this file is scoped to `:root.light`. The dark branch is
+   frozen and cannot be reached from here.
+
+   Light is not designed from dark. It is its own object: polished ceramic
+   and optical glass under daylight, graphite type, measurement lines drawn
+   in ink, and a technical accent of cyan and sapphire that reads as a
+   calibrated instrument rather than as a glow. Depth comes from a surface
+   stack — pearl ground, ceramic bands, white cards with a lit top edge — and
+   from soft, cool shadow; never from darkness.
+
+   Nothing in this file touches content, structure or routes. It re-points
+   the light branch of the semantic tokens that every component already
+   reads, and adds a light-only interaction language on the six clickable
+   classes that interactions.css defines. Loaded from `layout.tsx` after
+   interactions.css so it settles ties.
+
+   Layers, top to bottom of this file:
+     1 · tokens (the palette, and the semantic tokens re-pointed to it)
+     2 · the page — a layered scientific field, not a flat white
+     3 · surfaces — polished, ceramic, featured
+     4 · the light-only interaction language — glare, refraction, lift, spot
+     5 · navigation as an object
+     6 · buttons
+     7 · type
+     8 · technical drawing — lines, dots, grids that read as ink
+     9 · section separation and the footer
+    10 · reduced motion
+   ========================================================================= */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1 · TOKENS
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light {
+  /* The palette. Pearl ground, warm-white surfaces, graphite ink. */
+  --light-bg: #f3f6fa;
+  --light-bg-deep: #e9eef6;
+  --light-surface: #ffffff;
+  --light-surface-warm: #fdfcfa;
+  --light-surface-ceramic: #eef2f8;
+  --light-surface-elevated: #ffffff;
+
+  --light-text: #0b1220;
+  --light-text-body: #243247;
+  --light-muted: #4a5b78;
+  --light-faint: #6b7a94;
+
+  --light-cyan: #0891b2;
+  --light-cyan-ink: #0e7490;
+  --light-teal: #0f766e;
+  --light-sapphire: #1b4ed9;
+  --light-sapphire-ink: #1438a8;
+  --light-violet: #6d28d9;
+  --light-champagne: #9a7418;
+
+  /* Lines. Crisp 1px optical borders — never a soft grey. */
+  --light-border: rgb(15 23 42 / 0.12);
+  --light-border-strong: rgb(15 23 42 / 0.2);
+  --light-edge: rgb(8 145 178 / 0.45); /* the cyan top-edge reflection */
+  --light-edge-on: rgb(8 145 178 / 0.85);
+  --light-refraction: rgb(27 78 217 / 0.55);
+
+  /* Elevation. A cool, blue-grey shadow with a hairline contact shadow, and
+     a white inner highlight along the top edge — polished ceramic. */
+  --light-highlight: inset 0 1px 0 rgb(255 255 255 / 0.95);
+  --light-shadow:
+    0 1px 2px rgb(15 23 42 / 0.05), 0 14px 34px -22px rgb(30 58 138 / 0.28);
+  --light-shadow-raised:
+    0 1px 2px rgb(15 23 42 / 0.06), 0 24px 48px -24px rgb(30 58 138 / 0.34),
+    0 0 0 1px rgb(27 78 217 / 0.06);
+  --light-shadow-featured:
+    0 2px 4px rgb(15 23 42 / 0.05), 0 36px 80px -40px rgb(30 58 138 / 0.4);
+
+  /* The glare: a soft diagonal daylight reflection that sweeps a premium
+     card on hover. */
+  --light-glare: linear-gradient(
+    112deg,
+    transparent 38%,
+    rgb(255 255 255 / 0.62) 49%,
+    rgb(255 255 255 / 0.28) 52%,
+    transparent 62%
+  );
+
+  /* ── Semantic tokens, re-pointed ───────────────────────────────────────
+     Every component reads these. Changing them here reaches the whole site
+     without touching a component. */
+  --page-bg: var(--light-bg);
+  --surface-primary: var(--light-surface);
+  --surface-secondary: rgb(15 23 42 / 0.04);
+  --surface-elevated: var(--light-surface-elevated);
+
+  --text-primary: var(--light-text);
+  --text-secondary: var(--light-text-body);
+  --text-muted: var(--light-muted);
+
+  --border-subtle: var(--light-border);
+  --border-strong: var(--light-border-strong);
+
+  --shadow-soft: var(--light-highlight), var(--light-shadow);
+  --shadow-dropdown:
+    0 1px 2px rgb(15 23 42 / 0.06), 0 24px 60px -24px rgb(30 58 138 / 0.34);
+
+  /* Technical drawing on paper reads as ink, not as haze. */
+  --research-line: rgb(15 23 42 / 0.22);
+  --technical-grid: rgb(30 58 138 / 0.1);
+  --trajectory: var(--light-cyan);
+  --chart-grid: rgb(15 23 42 / 0.1);
+
+  /* The palette's Tailwind-side aliases (rgb triples). Body copy is a dark
+     slate, metadata a medium blue-grey — neither is a pale grey. */
+  --c-soft-white: 11 18 32;
+  --c-soft-gray: 36 50 71;
+  --c-soft-mute: 74 91 120;
+
+  /* Ceramic bands and the nav's glass. */
+  --c-obsidian-300: 238 242 248;
+  --glass-bg-a: rgb(255 255 255 / 0.9);
+  --glass-bg-b: rgb(246 248 252 / 0.82);
+  --card-bg-a: #ffffff;
+  --card-bg-b: #f9fbfe;
+  --card-glow-hover:
+    inset 0 1px 0 rgb(255 255 255 / 1), 0 24px 56px -24px rgb(27 78 217 / 0.26),
+    0 0 0 1px rgb(27 78 217 / 0.08);
+  --divider: linear-gradient(
+    90deg,
+    transparent,
+    rgb(15 23 42 / 0.16),
+    transparent
+  );
+  --noise-opacity: 0.018;
+
+  /* Suite and product accents step up to instrument values. */
+  --mobility-accent: var(--light-teal);
+  --secure-accent: var(--light-violet);
+  --suite-care-accent: var(--light-cyan-ink);
+  --suite-secure-accent: var(--light-violet);
+
+  /* Clickable-surface language (interactions.css reads these). Sapphire
+     edge, blue-grey lift, cyan-ink cue. */
+  --hit-line: rgb(27 78 217 / 0.5);
+  --hit-line-soft: rgb(15 23 42 / 0.18);
+  --hit-tint: rgb(27 78 217 / 0.035);
+  --hit-shadow: var(--light-shadow-raised);
+  --hit-ring: rgb(27 78 217 / 0.7);
+  --hit-cue: var(--light-sapphire-ink);
+  --hit-cue-on: var(--light-sapphire);
+  --hit-row: rgb(27 78 217 / 0.04);
+  --hit-row-strong: rgb(27 78 217 / 0.07);
+
+  /* Controls: chips, filters, tabs. */
+  --interactive-border: rgb(15 23 42 / 0.16);
+  --interactive-bg: rgb(255 255 255 / 0.8);
+  --interactive-hover-bg: rgb(255 255 255 / 1);
+  --interactive-hover-border: rgb(27 78 217 / 0.42);
+  --interactive-selected-bg: rgb(8 145 178 / 0.1);
+  --interactive-selected-border: rgb(8 145 178 / 0.6);
+  --interactive-selected-ink: #063a48;
+  --interactive-focus-ring: rgb(27 78 217 / 0.85);
+  --interactive-focus-ring-soft: rgb(27 78 217 / 0.22);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2 · THE PAGE — a layered scientific field
+   Pearl ground, a soft cyan illumination high on the left, a sapphire/violet
+   optical haze low on the right, and under it a faint measurement lattice:
+   hairlines every 96px and a technical dot every 32px, at an opacity that is
+   felt rather than seen. All of it is background layers on <body> — no
+   canvas, no extra element, no paint cost beyond the ground itself.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light body {
+  background-color: var(--light-bg);
+  background-image:
+    /* the dot lattice */
+    radial-gradient(
+      circle at 1px 1px,
+      rgb(30 58 138 / 0.045) 1px,
+      transparent 1.5px
+    ),
+    /* measurement hairlines */
+    linear-gradient(rgb(30 58 138 / 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(30 58 138 / 0.02) 1px, transparent 1px),
+    /* cyan illumination, high left */
+    radial-gradient(
+        ellipse 70% 42% at 12% -6%,
+        rgb(8 145 178 / 0.11),
+        transparent 62%
+      ),
+    /* sapphire / violet haze, low right */
+    radial-gradient(
+        ellipse 60% 44% at 92% 86%,
+        rgb(109 40 217 / 0.06),
+        transparent 64%
+      ),
+    radial-gradient(
+      ellipse 54% 40% at 78% 42%,
+      rgb(27 78 217 / 0.05),
+      transparent 64%
+    ),
+    /* pearl to pale cool grey */
+    linear-gradient(180deg, #f6f8fc 0%, var(--light-bg) 40%, #eef2f8 100%);
+  background-size:
+    32px 32px,
+    96px 96px,
+    96px 96px,
+    100% 1400px,
+    100% 1600px,
+    100% 1600px,
+    100% 100%;
+  background-repeat:
+    repeat, repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-attachment: scroll;
+}
+
+/* The lattice must not compete with the type: it fades under the first
+   screen and leaves the reading column alone. */
+:root.light .site-main {
+  position: relative;
+}
+
+:root.light .site-main::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgb(243 246 250 / 0.55) 0%,
+    rgb(243 246 250 / 0) 28rem,
+    rgb(243 246 250 / 0) calc(100% - 20rem),
+    rgb(243 246 250 / 0.6) 100%
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3 · SURFACES
+   Primary: polished white, a white inner highlight along the top, a crisp
+   1px border, a soft cool shadow, and a selective cyan reflection on the top
+   edge. Secondary: ceramic, flatter. Featured: the strongest optical
+   treatment. Applied through the classes components already carry.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light .card-surface,
+:root.light .card-link,
+:root.light .surface,
+:root.light .flagship-panel {
+  background-color: var(--light-surface);
+  background-image: linear-gradient(180deg, #ffffff 0%, #fafcfe 100%);
+  border-color: var(--light-border);
+  border-top-color: var(--light-edge);
+  box-shadow: var(--light-highlight), var(--light-shadow);
+}
+
+/* Secondary — ceramic. A quieter tone one step off the ground, no shadow. */
+:root.light .surface-ceramic,
+:root.light .bg-obsidian-300\/40,
+:root.light .bg-obsidian-300\/30,
+:root.light .bg-obsidian-300\/25 {
+  background-color: var(--light-surface-ceramic);
+  background-image: linear-gradient(180deg, #f0f3f9 0%, #eaeff6 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    inset 0 -1px 0 rgb(15 23 42 / 0.05);
+}
+
+/* Featured — hero and flagship panels: a deeper shadow, an edge reflection
+   that runs the whole top, and a faint refraction along the leading edge. */
+:root.light .flagship-panel {
+  box-shadow: var(--light-highlight), var(--light-shadow-featured);
+  border-top-color: var(--light-edge-on);
+}
+
+/* Glass: the nav, the search trigger, small round controls. Ceramic white
+   with real translucency and a lit top edge. */
+:root.light .glass {
+  background: linear-gradient(
+    180deg,
+    var(--glass-bg-a) 0%,
+    var(--glass-bg-b) 100%
+  );
+  border-color: var(--light-border);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+/* Pills and chips: white on pearl, an ink hairline, dark-slate label. */
+:root.light .pill {
+  background: linear-gradient(180deg, #ffffff, #f7f9fc);
+  border-color: var(--light-border);
+  color: var(--light-muted);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4 · THE LIGHT-ONLY INTERACTION LANGUAGE
+   Four signals on a premium card, none of them a bounce:
+     A · specular glare — a diagonal daylight reflection sweeps across
+     B · edge refraction — the top edge and border brighten to cyan/sapphire
+     C · depth lift — the 2px from interactions.css, with a deeper shadow
+     D · pointer highlight — a soft radial that follows the pointer, driven
+         by two custom properties a 40-line client component writes
+   All of it lives in the ::before layer interactions.css already reserves
+   for the hover tint, so no card needs new markup. Opacity and
+   background-position only; the compositor does the work.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light .card-surface::before,
+:root.light .card-link::before {
+  background-image:
+    radial-gradient(
+      260px circle at var(--lx, 50%) var(--ly, 40%),
+      rgb(27 78 217 / 0.09),
+      rgb(8 145 178 / 0.03) 40%,
+      transparent 68%
+    ),
+    var(--light-glare), linear-gradient(var(--hit-tint), var(--hit-tint));
+  background-size:
+    100% 100%,
+    240% 100%,
+    100% 100%;
+  background-position:
+    0 0,
+    118% 0,
+    0 0;
+  background-repeat: no-repeat;
+  transition:
+    opacity var(--hit-speed) var(--hit-ease),
+    background-position 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root.light .card-surface:hover::before,
+:root.light .card-surface:focus-within::before,
+:root.light .card-link:hover::before,
+:root.light .card-link:focus-visible::before {
+  opacity: 1;
+  background-position:
+    0 0,
+    -22% 0,
+    0 0;
+}
+
+/* B · edge refraction. */
+:root.light .card-surface:hover,
+:root.light .card-surface:focus-within,
+:root.light .card-link:hover,
+:root.light .card-link:focus-visible,
+:root.light .flagship-panel:hover,
+:root.light .flagship-panel:focus-within {
+  border-color: var(--light-refraction);
+  border-top-color: var(--light-edge-on);
+  box-shadow: var(--light-highlight), var(--light-shadow-raised);
+}
+
+/* Rows do not glare or lift; they wash and brighten. */
+:root.light .row-link:hover,
+:root.light .row-link:focus-visible,
+:root.light .row-link:focus-within {
+  background-color: var(--hit-row-strong);
+  box-shadow: inset 2px 0 0 var(--light-sapphire);
+}
+
+/* Menu items in the dropdown: a ceramic wash and a sapphire edge. */
+:root.light .menu-card:hover,
+:root.light .menu-card:focus-visible {
+  background-color: rgb(27 78 217 / 0.05);
+  box-shadow: inset 2px 0 0 var(--light-sapphire);
+}
+
+/* Focus is the same state as hover, and it is always visible. */
+:root.light
+  :where(
+    a,
+    button,
+    input,
+    select,
+    textarea,
+    summary,
+    [tabindex]
+  ):focus-visible {
+  outline-color: var(--light-sapphire);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5 · NAVIGATION AS AN OBJECT
+   Ceramic white with real translucency, a lit top edge, a crisp border, a
+   cool depth shadow. Graphite type, a sapphire→cyan active underline, a
+   ceramic search field, and a solid graphite "Request demo".
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light .site-header .glass {
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.92) 0%,
+    rgb(246 248 252 / 0.86) 100%
+  );
+  border-color: rgb(15 23 42 / 0.13);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    inset 0 -1px 0 rgb(15 23 42 / 0.03),
+    0 1px 2px rgb(15 23 42 / 0.05),
+    0 18px 40px -22px rgb(30 58 138 / 0.32) !important;
+}
+
+:root.light .site-header nav a {
+  color: var(--light-text-body);
+}
+
+:root.light .site-header nav a:hover,
+:root.light .site-header nav a[aria-current="page"],
+:root.light .site-header nav a[aria-expanded="true"] {
+  color: var(--light-text);
+}
+
+/* The active underline: sapphire to cyan, solid enough to read as a rule. */
+:root.light .site-header .from-cyan-300\/80 {
+  --tw-gradient-from: var(--light-sapphire) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(27 78 217 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+:root.light .site-header .via-royal-400\/80 {
+  --tw-gradient-to: rgb(8 145 178 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops:
+    var(--tw-gradient-from), var(--light-cyan) var(--tw-gradient-via-position),
+    var(--tw-gradient-to);
+}
+
+:root.light .site-header .to-violet-400\/80 {
+  --tw-gradient-to: var(--light-cyan) var(--tw-gradient-to-position);
+}
+
+/* Request demo: the one solid object in the header. */
+:root.light .site-header a[href="/#contact"] {
+  background: linear-gradient(180deg, #16223a 0%, #0b1220 100%);
+  color: #ffffff;
+  --tw-ring-color: rgb(11 18 32 / 0.9);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 10px 24px -14px rgb(11 18 32 / 0.55);
+}
+
+:root.light .site-header a[href="/#contact"]:hover {
+  background: linear-gradient(180deg, #1d2d4d 0%, #101a30 100%);
+  --tw-ring-color: rgb(27 78 217 / 0.6);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 14px 30px -14px rgb(27 78 217 / 0.5);
+}
+
+/* The dropdown panel: opaque white, lit edge, cool depth. */
+:root.light [data-nav-menu] > div {
+  border-color: rgb(15 23 42 / 0.12);
+  border-top-color: var(--light-edge);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    var(--shadow-dropdown);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6 · BUTTONS
+   Primary: sapphire into cyan, an optical reflection along the top, a cool
+   shadow. Ghost: ceramic white with an ink hairline. Both respond with a
+   border change and a brighter reflection — no bounce.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light .btn-primary {
+  background: linear-gradient(135deg, #1b4ed9 0%, #1f6fe0 55%, #0891b2 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.32),
+    0 1px 2px rgb(15 23 42 / 0.08),
+    0 14px 30px -14px rgb(27 78 217 / 0.55);
+}
+
+:root.light .btn-primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.4),
+    0 1px 2px rgb(15 23 42 / 0.08),
+    0 18px 38px -14px rgb(27 78 217 / 0.6),
+    0 0 0 1px rgb(8 145 178 / 0.35);
+}
+
+:root.light .btn-ghost {
+  background: linear-gradient(180deg, #ffffff 0%, #f6f8fc 100%);
+  border-color: rgb(15 23 42 / 0.16);
+  color: var(--light-text);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    0 1px 2px rgb(15 23 42 / 0.05),
+    0 10px 24px -18px rgb(30 58 138 / 0.3);
+}
+
+:root.light .btn-ghost:hover {
+  border-color: var(--light-refraction);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 1),
+    0 1px 2px rgb(15 23 42 / 0.05),
+    0 14px 30px -18px rgb(27 78 217 / 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7 · TYPE
+   Headings graphite, body dark slate, metadata medium blue-grey, technical
+   labels sapphire or cyan ink. Nothing pale.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light .eyebrow {
+  color: var(--light-sapphire-ink);
+}
+
+:root.light .text-cyan-300 {
+  color: var(--light-cyan-ink);
+}
+
+:root.light .text-royal-300 {
+  color: var(--light-sapphire);
+}
+
+:root.light .text-soft-mute {
+  color: var(--light-muted);
+}
+
+:root.light .text-soft-gray {
+  color: var(--light-text-body);
+}
+
+:root.light .card-cue {
+  color: var(--light-sapphire-ink);
+}
+
+/* Selection follows the accent. */
+:root.light ::selection {
+  background: rgb(8 145 178 / 0.22);
+  color: var(--light-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8 · TECHNICAL DRAWING
+   Lines, dots, grids, skeletons, trajectories: ink, cyan, sapphire, teal and
+   a restrained violet. Utilities that draw hairlines at white-alpha or at a
+   pastel shade get ink values here; the module stylesheets read the tokens
+   raised in section 1.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light .ring-grid {
+  --grid-line: rgb(30 58 138 / 0.1);
+}
+
+:root.light .divider {
+  background: var(--divider);
+}
+
+:root.light .border-white\/5,
+:root.light .border-white\/\[0\.06\],
+:root.light .border-white\/\[0\.07\],
+:root.light .border-white\/\[0\.08\],
+:root.light .border-white\/8,
+:root.light .border-white\/10 {
+  border-color: var(--light-border);
+}
+
+:root.light .border-white\/20,
+:root.light .hover\:border-white\/20:hover {
+  border-color: var(--light-border-strong);
+}
+
+:root.light .bg-white\/5,
+:root.light .bg-white\/\[0\.02\],
+:root.light .bg-white\/\[0\.03\],
+:root.light .bg-white\/\[0\.04\] {
+  background-color: rgb(255 255 255 / 0.85);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1);
+}
+
+:root.light .bg-white\/10,
+:root.light .bg-white\/\[0\.06\] {
+  background-color: rgb(255 255 255 / 1);
+}
+
+:root.light .hover\:bg-white\/10:hover,
+:root.light .hover\:bg-white\/\[0\.04\]:hover {
+  background-color: rgb(27 78 217 / 0.05);
+}
+
+/* SVG hairlines written as white-alpha strokes. */
+:root.light svg [stroke="rgba(255,255,255,0.08)"],
+:root.light svg [stroke="rgba(255,255,255,0.1)"],
+:root.light svg [stroke="rgba(255,255,255,0.12)"] {
+  stroke: rgb(15 23 42 / 0.22);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9 · SECTION SEPARATION AND THE FOOTER
+   Large sections change tone rather than sit in boxes: a ceramic band gets
+   a lit top edge and a hairline foot, so two adjoining sections never melt.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light .border-white\/\[0\.06\].border-y,
+:root.light .border-y.border-white\/\[0\.06\] {
+  border-color: rgb(15 23 42 / 0.1);
+}
+
+:root.light footer {
+  background: linear-gradient(180deg, #eef2f8 0%, #e7ecf5 100%);
+  border-top-color: rgb(15 23 42 / 0.1);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1);
+}
+
+:root.light footer .from-transparent.via-royal-400\/40 {
+  --tw-gradient-stops:
+    var(--tw-gradient-from),
+    rgb(27 78 217 / 0.45) var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+
+:root.light footer a:hover {
+  color: var(--light-text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   10 · REDUCED MOTION
+   The glare does not sweep and the spot does not follow; the states are
+   still reached, instantly.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  :root.light .card-surface::before,
+  :root.light .card-link::before {
+    transition: opacity 0s;
+    background-position:
+      0 0,
+      -22% 0,
+      0 0;
+  }
+}

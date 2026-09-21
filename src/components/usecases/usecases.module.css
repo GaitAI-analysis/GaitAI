@@ -35,6 +35,28 @@
   --uc: 52 211 153;
 }
 
+/* Light: the six accents are lights FOR A DARK GROUND — pastels on paper. Each
+   drops to the value that holds ~4.5:1 on white, so the family label, the
+   product chips and the card's accent edge all read as ink. */
+:global(.light) .aTeal {
+  --uc: 15 118 110;
+}
+:global(.light) .aBlue {
+  --uc: 27 78 217;
+}
+:global(.light) .aCyan {
+  --uc: 14 116 144;
+}
+:global(.light) .aViolet {
+  --uc: 109 40 217;
+}
+:global(.light) .aGold {
+  --uc: 154 100 20;
+}
+:global(.light) .aEmerald {
+  --uc: 4 120 87;
+}
+
 /* ── Group sections ── */
 .group {
   padding-block: clamp(3.5rem, 7vw, 6rem);
@@ -149,6 +171,25 @@
 
 .cardOpen:hover {
   transform: none;
+}
+
+/* Light: the card's ground is a 3.5% wash of the text colour — navy on paper,
+   so a grey card. Collapsed cards inherit the light surface system through
+   `.card-surface`; an OPEN card drops that class (no stretched link while
+   reading), so it is given the same polished white here, with the accent
+   carried by the top edge rather than by a tint. */
+:global(.light) .card {
+  border-color: var(--light-border);
+  border-top-color: var(--light-edge);
+  background: linear-gradient(180deg, #ffffff 0%, #fafcfe 100%);
+  box-shadow: var(--light-highlight), var(--light-shadow);
+}
+
+:global(.light) .cardOpen {
+  border-color: rgb(var(--uc) / 0.45);
+  border-top-color: rgb(var(--uc) / 0.7);
+  background: linear-gradient(180deg, rgb(var(--uc) / 0.04) 0%, #ffffff 9rem);
+  box-shadow: var(--light-highlight), var(--light-shadow-featured);
 }
 
 /* ── The environment photograph ──
@@ -1012,6 +1053,21 @@
    that does not exist. */
 .audienceCard:hover {
   border-color: var(--interactive-hover-border);
+}
+
+/* Light: the sheen above is a 3% wash of the TEXT colour, which on paper is a
+   3% wash of navy — a grey card. A described audience sits on polished white
+   like everything else that is not clickable, with a lit top edge and the
+   soft cool shadow of the light surface system. */
+:global(.light) .audienceCard {
+  border-color: var(--light-border);
+  border-top-color: var(--light-edge);
+  background: linear-gradient(180deg, #ffffff 0%, #fafcfe 100%);
+  box-shadow: var(--light-highlight), var(--light-shadow);
+}
+
+:global(.light) .audienceCard:hover {
+  border-color: var(--light-border-strong);
 }
 
 /* No icon tile: the title is the card's first element, so it carries no

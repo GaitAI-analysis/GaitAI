@@ -1,62 +1,131 @@
-/* The daylight intelligence layer. Two inks and one label colour:
-     cyan  #35C8F3  live marks — skeletons, joints, trail dots
-     royal #1b4ed9  flow ribbon, anomaly ring, privacy ring
-     navy  #0b1220  the two tiny labels
-   Everything is a hairline in a 1600-unit frame and sits well under full
-   opacity, so the film stays the picture and these stay the annotation. */
+/* The daylight intelligence layer — the night HUD, re-inked for paper.
 
-/* No `display` here: the page's global `.securevision-daylight-layer` rules
-   own visibility (none in dark, block in light). A module-level `display:
-   block` sits at the same specificity and later in the cascade, and would
-   show the layer over the night film. */
+     navy   #09182a  type, the check, the shield
+     slate  #4a5b74  secondary labels and rules
+     royal  #1b4ed9  regions, trajectories, the flow, the sparkline's base
+     cyan   #159fe7  live marks: skeletons, joints, the sparkline's live line
+     amber  #b45309  the anomaly, and nothing else
+     green  #15803d  identity match, privacy on
+
+   Panels are frosted white (0.88) with a cool hairline and a soft navy
+   shadow, so they sit ABOVE the daylight plate the way the night panel's
+   dark glass sits above the night crowd. Type is set in the film's own units
+   (a 12.5-unit label is ~11px on a 1440 screen, the night HUD's size).
+
+   No `display` on `.layer`: the page's global `.securevision-daylight-layer`
+   rules own visibility (none in dark, block in light). */
+
 .layer {
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: visible;
+  pointer-events: none;
 }
 
-/* ── Crowd flow ── */
+/* One drawing, two viewports. Desktop letterboxes with the contained film;
+   the phone slices with the covered film and inherits the desktop-only
+   marks away (custom properties inherit into <use> instances). */
+.desktop {
+  --hud-desktop-only: inline;
+}
+.phone {
+  display: none;
+  --hud-desktop-only: none;
+}
+@media (max-width: 1023px) {
+  .desktop {
+    display: none;
+  }
+  .phone {
+    display: block;
+  }
+}
+.desktopOnly {
+  display: var(--hud-desktop-only, inline);
+}
+
+.hud {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+
+/* ── Floor ── */
 .flow {
-  opacity: 0.85;
+  opacity: 0.9;
 }
-
 .flowRibbon {
   fill: none;
   stroke: #1b4ed9;
   stroke-width: 9;
   stroke-linecap: round;
-  opacity: 0.07;
+  opacity: 0.08;
 }
-
 .flowCore {
+  fill: none;
+  stroke: #1b4ed9;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 0.012 0.018;
+  opacity: 0.55;
+  animation: flowDrift 18s linear infinite;
+}
+.flowDot {
+  fill: #1b4ed9;
+  opacity: 0.7;
+}
+.ambient {
   fill: none;
   stroke: #1b4ed9;
   stroke-width: 1.3;
   stroke-linecap: round;
-  stroke-dasharray: 0.012 0.018;
-  opacity: 0.42;
-  animation: flowDrift 18s linear infinite;
+  stroke-dasharray: 0.01 0.016;
+  opacity: 0.32;
+  animation: flowDrift 26s linear infinite;
+  animation-delay: calc(var(--i, 0) * -7s);
 }
-
-.flowDot {
-  fill: #1b4ed9;
-  opacity: 0.55;
-}
-
-/* ── Trajectories ── */
 .trail {
   fill: none;
-  stroke: #35c8f3;
-  stroke-width: 1.4;
+  stroke: #1b4ed9;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-dasharray: 1 1;
-  stroke-dashoffset: 0;
-  opacity: 0.55;
+  opacity: 0.6;
   animation: trailDraw 9s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   animation-delay: var(--delay, 0s);
 }
-
 .trailDot {
-  fill: #35c8f3;
-  opacity: 0.8;
+  fill: #159fe7;
+  opacity: 0.9;
+}
+
+/* ── Detection regions ── */
+.region {
+  fill: rgb(27 78 217 / 0.03);
+  stroke: rgb(27 78 217 / 0.42);
+  stroke-width: 1.2;
+}
+.ticks {
+  fill: none;
+  stroke: #159fe7;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.connector {
+  stroke: #1b4ed9;
+  stroke-width: 1.4;
+  stroke-dasharray: 4 4;
+  opacity: 0.6;
+}
+.connectorDot {
+  fill: #ffffff;
+  stroke: #1b4ed9;
+  stroke-width: 1.6;
 }
 
 /* ── Skeletons ── */
@@ -64,154 +133,314 @@
   animation: skeletonBreathe 4.8s ease-in-out infinite;
   animation-delay: var(--delay, 0s);
 }
-
 .bones {
   fill: none;
-  stroke: #35c8f3;
-  stroke-width: calc(1.25 + 0.4 * var(--scale, 1));
+  stroke: #159fe7;
+  stroke-width: calc(1.3 + 0.5 * var(--scale, 1));
   stroke-linecap: round;
   stroke-linejoin: round;
-  opacity: 0.86;
+  opacity: 0.92;
 }
-
 .joint {
   fill: #ffffff;
-  stroke: #35c8f3;
-  stroke-width: 1.1;
-  opacity: 0.95;
+  stroke: #159fe7;
+  stroke-width: 1.2;
+  opacity: 0.96;
 }
 
-/* ── Anomaly cue ── */
-.anomalyRing {
+/* ── Tags: navy mono on frosted white ── */
+.tagGlass {
+  fill: rgb(255 255 255 / 0.86);
+  stroke: rgb(20 65 110 / 0.16);
+  stroke-width: 1;
+}
+.tag {
+  fill: #09182a;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.chevrons {
   fill: none;
   stroke: #1b4ed9;
   stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   opacity: 0.7;
+  animation: chevronStep 1.8s steps(3) infinite;
 }
 
+/* ── The anomaly ── */
+.anomalyRing {
+  fill: none;
+  stroke: #b45309;
+  stroke-width: 1.4;
+  opacity: 0.75;
+}
 .anomalyPulse {
   fill: none;
-  stroke: #1b4ed9;
+  stroke: #b45309;
   stroke-width: 1;
   opacity: 0;
   transform-origin: center;
   transform-box: fill-box;
   animation: anomalyBreathe 3.6s ease-out infinite;
 }
-
 .anomalyDot {
-  fill: #1b4ed9;
-  opacity: 0.85;
+  fill: #b45309;
+  opacity: 0.9;
+}
+.anomalyLead {
+  stroke: #b45309;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.45;
+}
+.card {
+  fill: rgb(255 255 255 / 0.88);
+  stroke: rgb(20 65 110 / 0.15);
+  stroke-width: 1;
+  filter: url(#sv-daylight-panel-shadow);
+}
+.cardAccent {
+  fill: #b45309;
+  opacity: 0.9;
+}
+.warnIcon {
+  fill: rgb(180 83 9 / 0.12);
+  stroke: #b45309;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.warnIconInk {
+  fill: #b45309;
+}
+.cardTitle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.cardLine {
+  fill: #09182a;
+  font-size: 13px;
+  letter-spacing: 0.06em;
 }
 
 /* ── Privacy indicator ── */
 .privacyBlur {
   fill: #ffffff;
-  opacity: 0.55;
+  opacity: 0.6;
 }
-
 .privacyRing {
   fill: none;
   stroke: #1b4ed9;
   stroke-width: 1.1;
   stroke-dasharray: 2.5 3;
-  opacity: 0.55;
+  opacity: 0.6;
   transform-origin: center;
   transform-box: fill-box;
   animation: privacyTurn 22s linear infinite;
 }
 
-/* ── The two labels: navy type on a whisper of white glass ── */
-.tagGlass {
-  fill: rgba(255, 255, 255, 0.55);
-  stroke: rgba(27, 78, 217, 0.18);
+/* ── The analytics panel ── */
+.panel {
+  fill: rgb(255 255 255 / 0.88);
+  stroke: rgb(20 65 110 / 0.15);
   stroke-width: 1;
 }
-
-.tag {
-  fill: #0b1220;
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12.5px;
-  letter-spacing: 0.06em;
-  opacity: 0.86;
+.panelTop {
+  fill: #159fe7;
+  opacity: 0.55;
+}
+.rule {
+  stroke: rgb(20 65 110 / 0.14);
+  stroke-width: 1;
+}
+.grid {
+  stroke: rgb(20 65 110 / 0.08);
+  stroke-width: 1;
+}
+.label {
+  fill: #4a5b74;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+.id {
+  fill: #09182a;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.confidence {
+  fill: #1b4ed9;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.rowLabel {
+  fill: #09182a;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+.rowValue {
+  fill: #09182a;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.footer {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+.check {
+  fill: none;
+  stroke: #15803d;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.shield {
+  fill: rgb(27 78 217 / 0.1);
+  stroke: #1b4ed9;
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+}
+.liveDot {
+  fill: #15803d;
+  animation: livePulse 2.4s ease-in-out infinite;
+}
+.miniBones {
+  fill: none;
+  stroke: #159fe7;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.miniGround {
+  stroke: #b45309;
+  stroke-width: 1.2;
+  opacity: 0.6;
+}
+.sparkRoyal {
+  fill: none;
+  stroke: #1b4ed9;
+  stroke-width: 1.3;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+.sparkCyan {
+  fill: none;
+  stroke: #159fe7;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 1;
+  animation: trailDraw 12s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.sparkEnd {
+  fill: #159fe7;
+  animation: livePulse 2.4s ease-in-out infinite;
 }
 
-/* Below the desktop grid the annotations would sit under the copy, so only
-   the subject's skeleton and the flow ribbon remain; labels go. */
-@media (max-width: 1023px) {
-  .skeleton:not([data-walker="subject"]),
-  .trails,
-  .anomaly,
-  .privacy {
-    display: none;
-  }
+/* ── Tones ── */
+.amber {
+  fill: #b45309;
+}
+.green {
+  fill: #15803d;
+}
+.royal {
+  fill: #1b4ed9;
+}
+.muted {
+  opacity: 0.7;
 }
 
+/* ── Motion ── */
 @keyframes flowDrift {
   to {
     stroke-dashoffset: -1;
   }
 }
-
 @keyframes trailDraw {
   0% {
     stroke-dashoffset: 1;
     opacity: 0;
   }
   12% {
-    opacity: 0.55;
+    opacity: 0.6;
   }
   70% {
     stroke-dashoffset: 0;
-    opacity: 0.55;
+    opacity: 0.6;
   }
   100% {
     stroke-dashoffset: 0;
     opacity: 0;
   }
 }
-
 @keyframes skeletonBreathe {
   0%,
   100% {
-    opacity: 0.78;
+    opacity: 0.86;
   }
   50% {
     opacity: 1;
   }
 }
-
 @keyframes anomalyBreathe {
   0% {
     transform: scale(1);
-    opacity: 0.5;
+    opacity: 0.55;
   }
   100% {
-    transform: scale(1.9);
+    transform: scale(2.1);
     opacity: 0;
   }
 }
-
 @keyframes privacyTurn {
   to {
     transform: rotate(360deg);
   }
 }
+@keyframes chevronStep {
+  0% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0.8;
+  }
+}
+@keyframes livePulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .flowCore,
+  .ambient,
   .trail,
   .skeleton,
   .anomalyPulse,
-  .privacyRing {
+  .privacyRing,
+  .chevrons,
+  .liveDot,
+  .sparkCyan,
+  .sparkEnd {
     animation: none;
   }
-
-  .trail {
+  .trail,
+  .sparkCyan {
     stroke-dashoffset: 0;
-    opacity: 0.55;
+    opacity: 0.6;
   }
-
   .anomalyPulse {
     opacity: 0;
   }

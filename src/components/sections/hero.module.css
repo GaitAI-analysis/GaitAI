@@ -40,6 +40,10 @@
    Whenever the frame is shorter than the canvas the canvas keeps its ratio
    and the frame crops the slack cover-fashion, biased towards the top
    (72/28): the ceiling glass gives way first, the floor under the pills last.
+   Whenever the frame is TALLER (a tall viewport, up to 1.12x) the canvas
+   extends downward instead: same width, same x geometry, more photograph
+   under the pills, the stories pinned to the new bottom — never a stretched
+   picture and never a dark band under it.
 
    ── THE LAYERS, AND WHY ──────────────────────────────────────────────────
    A clip path clips text. So the photography is clipped and the words are
@@ -164,34 +168,50 @@
   scroll-margin-top: var(--header-clearance);
 }
 
-/* THE FRAME is the hero's visible box. The 860px ceiling (was 820) is what a
-   1920x1080 screen gets: its 2:1 canvas would be 960px, so the frame still
-   crops it and simply shows 40px more of the picture. */
+/* THE FRAME is the hero's visible box. Its height is the room under the
+   navbar (less the launcher reserve), capped three ways: 860px so a wide
+   monitor does not get a hero taller than the copy needs; 40vw as the floor;
+   and 1.12x the canvas's own 2:1 height, so on a tall viewport the frame may
+   run up to 12% taller than the picture's native box — the canvas then
+   EXTENDS downward (see below) rather than the hero ending early with a dark
+   band under it. On 1440x900 that is 770px instead of 720; on 1920x1080 and
+   the common 16:9 laptops the room or the ceiling binds first and the frame
+   still crops the canvas, as before. `container-type: size` is what lets the
+   canvas and the banner measure the frame (cqh) to place themselves. */
 .frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 1774 / 887;
-  max-height: min(860px, var(--hero-room));
+  height: min(860px, var(--hero-room), calc(100vw * 887 / 1774 * 1.12));
   min-height: 40vw;
   overflow: hidden;
+  container-type: size;
 }
 
-/* THE CANVAS is the approved picture's own box, always 1774:887, and the
-   coordinate system for everything inside it. `top: 72%` with a -72%
-   translate places 72% of any slack above the frame and 28% below it; when
-   frame and canvas are the same height that is zero.
+/* THE CANVAS is the approved picture's own box, 1774:887 wide, and the
+   coordinate system for everything inside it. It is never shorter than the
+   frame: `min-height: 100%` lets it grow past 2:1 when the frame is taller,
+   and because `--px` is measured off the WIDTH every x, every type size and
+   every top-anchored y stays exactly where the artwork put it — the extra
+   height is more photograph under the pills (the wedges are percentages,
+   the photographs cover, the pose overlays slice, the stories pin to the
+   bottom, and the dividers compute their own angle from the height).
 
-   It is also the CONTAINER that `--px` measures, which is why the whole
-   composition tracks the canvas and not the frame — the two differ on
-   phones, where the canvas is the one that matters. */
+   When the canvas is the taller of the two, `top` places 72% of the slack
+   above the frame and 28% below (the ceiling glass gives way first, the
+   floor under the pills last); when the frame is the taller, `top` is 0.
+
+   It is also the CONTAINER that `--px` measures (cqw) and that the dividers
+   measure their height from (cqh), which is why the whole composition tracks
+   the canvas and not the frame — the two differ on phones, where the canvas
+   is the one that matters. */
 .canvas {
   position: absolute;
   left: 0;
-  top: 72%;
+  top: min(0px, calc(0.72 * (100cqh - 50cqw)));
   width: 100%;
   aspect-ratio: 1774 / 887;
-  transform: translateY(-72%);
-  container-type: inline-size;
+  min-height: 100%;
+  container-type: size;
 }
 
 .stage {
@@ -380,9 +400,17 @@
   top: 50%;
   left: 0;
   width: calc(var(--divider-weight, 2.2) * var(--px));
-  height: calc(var(--divider-len) * var(--px));
+  /* The bar spans the canvas corner to corner: its length is the hypotenuse
+     of the horizontal run (artwork pixels) and the canvas's actual height
+     (100cqh — the canvas is a size container), and its angle the arctangent
+     of the same two. On a 2:1 canvas these come out at the measured 923.3
+     units and 16.13deg; on a taller canvas the wedges (percent-based) grow
+     steeper and the bar follows them exactly instead of drifting off the
+     seam. */
+  --divider-run-px: calc(var(--divider-run) * var(--px));
+  height: hypot(var(--divider-run-px), 100cqh);
   transform: translate(calc(var(--divider-mid) * var(--px) - 50%), -50%)
-    rotate(var(--divider-angle));
+    rotate(atan2(var(--divider-run-px), 100cqh));
   background: var(--hero-divider-core);
   /* In the dark artwork the line is a ~2px near-white core whose bloom is
      ASYMMETRIC: it spills LEFT, into the space the diagonal is opening away
@@ -395,14 +423,14 @@
     0 0 calc(34 * var(--px)) rgb(56 152 226 / 0.2);
 }
 .divider[data-divider="1"] {
+  /* x 809.4 -> 553.0: run 256.4; on the 2:1 canvas that is 923.3 long at 16.13deg */
   --divider-mid: 681.2;
-  --divider-len: 923.3;
-  --divider-angle: 16.13deg;
+  --divider-run: 256.4;
 }
 .divider[data-divider="2"] {
+  /* x 1357.4 -> 1106.0: run 251.4; 921.9 long at 15.84deg on the 2:1 canvas */
   --divider-mid: 1231.7;
-  --divider-len: 921.9;
-  --divider-angle: 15.84deg;
+  --divider-run: 251.4;
 }
 /* In light mode the boundary is not a lit edge but a soft white seam: wider,
    softer, no cyan in it. Same geometry, different character. */
@@ -430,11 +458,17 @@
      message line box top    687   (cap tops 693 and 725, 32px apart)
      pill                    760 -> 813   (53px tall)
 
-   story top 661, height 152 (= 813 - 661), pill pinned to the bottom. */
+   story top 661, height 152 (= 813 - 661), pill pinned to the bottom.
+
+   Anchored to the canvas's BOTTOM (887 - 813 = 74 under the pill) rather
+   than its top: on a 2:1 canvas the two are the same line, and on a taller
+   canvas the story rides down with the floor so the pills keep the
+   artwork's own clearance from the bottom edge instead of floating mid-air
+   over extra photograph. */
 .story {
   position: absolute;
   z-index: 3;
-  top: calc(661 * var(--px));
+  bottom: calc(74 * var(--px));
   height: calc(152 * var(--px));
   font-family: var(--font-inter), system-ui, sans-serif;
 }
@@ -707,16 +741,18 @@
     --hero-slant-angle: -2.2919deg;
   }
   .frame {
-    aspect-ratio: auto;
+    height: auto;
     max-height: none;
     min-height: 0;
     overflow: visible;
+    container-type: normal;
   }
   .canvas {
     position: static;
+    top: auto;
     width: auto;
     aspect-ratio: auto;
-    transform: none;
+    min-height: 0;
     /* Still the container, so anything left on `--px` keeps working. */
     container-type: inline-size;
   }
@@ -954,11 +990,19 @@
     display: block;
     position: absolute;
     left: 0;
-    top: 72%;
+    /* Same placement rule as the canvas: when the picture is taller than
+       the frame, 72% of the slack goes above; when the frame is the taller
+       (a tall viewport), the picture sits at the top and the frame's own
+       light ground — the banner's floor colour — carries the last few
+       pixels, so nothing is stretched and no dark band appears. The box
+       keeps the picture's exact ratio so the pill hit areas stay true. */
+    top: min(0px, calc(0.72 * (100cqh - 100cqw * 906 / 1736)));
     width: 100%;
     aspect-ratio: 1736 / 906;
-    transform: translateY(-72%);
     z-index: 3;
+  }
+  :global(.light) .frame {
+    background: #f6f9fc;
   }
   /* The native stage keeps its box (the frame's height comes from it) but is
      neither seen, focusable nor read while the banner carries the words. */

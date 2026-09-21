@@ -30,7 +30,7 @@
    and verified. The hero is 1774:887 wherever the screen allows, bounded
    three ways:
 
-     · 860px, so a wide monitor does not get a hero taller than the copy needs;
+     · 1.22x the canvas's own height, so a small landscape tablet is not all hero;
      · the room under the navbar — 100svh minus the header minus a reserve for
        the floating Ask GaitAI launcher — so the whole lower row is on screen
        before the fold and the launcher rests below the picture, not on it;
@@ -80,14 +80,11 @@
      retracting toolbar never makes the hero taller than the screen it first
      painted on.
 
-     Was 5rem (80px), which on the common laptop screens — 1536x864, 1440x800,
-     1366x768 — left the hero ending 150px above the fold with a dark band
-     under it while the picture itself was cropped by 50-90px. 2.5rem gives
-     those 40px back to the picture: the frame is taller and the crop is
-     smaller, nothing is stretched. The launcher then overlaps the hero's
-     bottom edge by ~20px at rest, which is floor under the pills (the pills
-     keep ≥50px of clearance) and never the walkers or the words. */
-  --hero-launcher-reserve: 2.5rem;
+     Was 5rem (80px), then 2.5rem; now 0.75rem, so the hero runs to within
+     12px of the fold and the first screen IS the hero. The launcher rests
+     over the hero's bottom edge — floor under the pills, which keep ≥60px of
+     clearance above that edge — never over the walkers or the words. */
+  --hero-launcher-reserve: 0.75rem;
   --hero-room: calc(100vh - var(--site-header-height) - var(--hero-launcher-reserve));
   --hero-room: calc(100svh - var(--site-header-height) - var(--hero-launcher-reserve));
 
@@ -168,20 +165,22 @@
   scroll-margin-top: var(--header-clearance);
 }
 
-/* THE FRAME is the hero's visible box. Its height is the room under the
-   navbar (less the launcher reserve), capped three ways: 860px so a wide
-   monitor does not get a hero taller than the copy needs; 40vw as the floor;
-   and 1.12x the canvas's own 2:1 height, so on a tall viewport the frame may
-   run up to 12% taller than the picture's native box — the canvas then
-   EXTENDS downward (see below) rather than the hero ending early with a dark
-   band under it. On 1440x900 that is 770px instead of 720; on 1920x1080 and
-   the common 16:9 laptops the room or the ceiling binds first and the frame
-   still crops the canvas, as before. `container-type: size` is what lets the
-   canvas and the banner measure the frame (cqh) to place themselves. */
+/* THE FRAME is the hero's visible box: the whole first screen. Its height
+   is the room under the navbar (less a 12px reserve), floored at 40vw and
+   capped at 1.22x the canvas's own 2:1 height — so on a tall viewport the
+   frame may run up to 22% taller than the picture's native box, and the
+   canvas then EXTENDS downward (see below) rather than the hero ending early
+   with a dark band under it. There is no pixel ceiling any more: a 1920x1080
+   screen gets a 978px hero (its 960px canvas extended by 2%), 1440x900 gets
+   798px (720 extended by 11%), the 16:9 laptops fill their room and still
+   crop the canvas a little, and 1024x768 stops at the 22% cap (625px) so a
+   small landscape tablet is not all hero. `container-type: size` is what
+   lets the canvas and the banner measure the frame (cqh) to place
+   themselves. */
 .frame {
   position: relative;
   width: 100%;
-  height: min(860px, var(--hero-room), calc(100vw * 887 / 1774 * 1.12));
+  height: min(var(--hero-room), calc(100vw * 887 / 1774 * 1.22));
   min-height: 40vw;
   overflow: hidden;
   container-type: size;
@@ -529,7 +528,12 @@
   position: absolute;
   z-index: 3;
   left: calc(63 * var(--px));
-  top: calc(155.6 * var(--px));
+  /* The artwork's y on a 2:1 canvas. When the canvas is taller than 2:1
+     (see .canvas), 35% of the extra height goes above the headline and 65%
+     between it and the stories pinned to the bottom, so the block settles
+     into the taller picture instead of clinging to the top edge. On a 2:1 or
+     cropped canvas the second term is 0 and nothing moves. */
+  top: calc(155.6 * var(--px) + 0.35 * max(0px, 100cqh - 50cqw));
   width: calc(560 * var(--px));
   font-family: var(--font-inter), system-ui, sans-serif;
 }

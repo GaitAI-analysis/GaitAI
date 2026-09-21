@@ -30,7 +30,7 @@
    and verified. The hero is 1774:887 wherever the screen allows, bounded
    three ways:
 
-     · 1.22x the canvas's own height, so a small landscape tablet is not all hero;
+     · 1.3x the canvas's own height, so a small landscape tablet is not all hero;
      · the room under the navbar — 100svh minus the header minus a reserve for
        the floating Ask GaitAI launcher — so the whole lower row is on screen
        before the fold and the launcher rests below the picture, not on it;
@@ -40,10 +40,10 @@
    Whenever the frame is shorter than the canvas the canvas keeps its ratio
    and the frame crops the slack cover-fashion, biased towards the top
    (72/28): the ceiling glass gives way first, the floor under the pills last.
-   Whenever the frame is TALLER (a tall viewport, up to 1.12x) the canvas
-   extends downward instead: same width, same x geometry, more photograph
-   under the pills, the stories pinned to the new bottom — never a stretched
-   picture and never a dark band under it.
+   Whenever the frame is TALLER (up to 1.3x) the canvas extends instead:
+   same width, same x geometry, the headline-to-pills block centred with
+   more photograph above and below it — never a stretched picture and never
+   a dark band under it.
 
    ── THE LAYERS, AND WHY ──────────────────────────────────────────────────
    A clip path clips text. So the photography is clipped and the words are
@@ -167,7 +167,7 @@
 
 /* THE FRAME is the hero's visible box: the whole first screen. Its height
    is the room under the navbar (less a 12px reserve), floored at 40vw and
-   capped at 1.22x the canvas's own 2:1 height — so on a tall viewport the
+   capped at 1.3x the canvas's own 2:1 height — so on a tall viewport the
    frame may run up to 22% taller than the picture's native box, and the
    canvas then EXTENDS downward (see below) rather than the hero ending early
    with a dark band under it. There is no pixel ceiling any more: a 1920x1080
@@ -180,7 +180,11 @@
 .frame {
   position: relative;
   width: 100%;
-  height: min(var(--hero-room), calc(100vw * 887 / 1774 * 1.22));
+  /* 50px past the room under the navbar: the hero runs a little under the
+     fold on purpose, so the picture has air above the headline and below the
+     pills (the added height is split evenly — see .headline and .story).
+     Capped at 1.3x the canvas's own 2:1 height. */
+  height: min(calc(var(--hero-room) + 50px), calc(100vw * 887 / 1774 * 1.3));
   min-height: 40vw;
   overflow: hidden;
   container-type: size;
@@ -467,7 +471,9 @@
 .story {
   position: absolute;
   z-index: 3;
-  bottom: calc(74 * var(--px));
+  /* Half of any height the canvas has beyond 2:1 goes under the pills (the
+     other half goes above the headline), so the composition stays centred. */
+  bottom: calc(74 * var(--px) + 0.5 * max(0px, 100cqh - 50cqw));
   height: calc(152 * var(--px));
   font-family: var(--font-inter), system-ui, sans-serif;
 }
@@ -529,11 +535,11 @@
   z-index: 3;
   left: calc(63 * var(--px));
   /* The artwork's y on a 2:1 canvas. When the canvas is taller than 2:1
-     (see .canvas), 35% of the extra height goes above the headline and 65%
-     between it and the stories pinned to the bottom, so the block settles
-     into the taller picture instead of clinging to the top edge. On a 2:1 or
-     cropped canvas the second term is 0 and nothing moves. */
-  top: calc(155.6 * var(--px) + 0.35 * max(0px, 100cqh - 50cqw));
+     (see .canvas), half of the extra height goes above the headline and the
+     other half under the pills (see .story), so the composition keeps its
+     own spacing and gains air on both sides. On a 2:1 or cropped canvas the
+     second term is 0 and nothing moves. */
+  top: calc(155.6 * var(--px) + 0.5 * max(0px, 100cqh - 50cqw));
   width: calc(560 * var(--px));
   font-family: var(--font-inter), system-ui, sans-serif;
 }
@@ -1000,13 +1006,18 @@
        light ground — the banner's floor colour — carries the last few
        pixels, so nothing is stretched and no dark band appears. The box
        keeps the picture's exact ratio so the pill hit areas stay true. */
-    top: min(0px, calc(0.72 * (100cqh - 100cqw * 906 / 1736)));
+    /* Taller than the frame: 72% of the slack above (crop bias). Shorter
+       than the frame: centred, so the frame's ground shows evenly above and
+       below — the same "air on both sides" the native canvas gets. */
+    top: min(calc(0.72 * (100cqh - 100cqw * 906 / 1736)), calc(0.5 * (100cqh - 100cqw * 906 / 1736)));
     width: 100%;
     aspect-ratio: 1736 / 906;
     z-index: 3;
   }
   :global(.light) .frame {
-    background: #f6f9fc;
+    /* The banner's own top edge (ceiling) to its bottom edge (floor), so any
+       ground showing above or below it continues the picture. */
+    background: linear-gradient(180deg, #e2e6ea, #f6f8fc);
   }
   /* The native stage keeps its box (the frame's height comes from it) but is
      neither seen, focusable nor read while the banner carries the words. */

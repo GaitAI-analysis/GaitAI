@@ -123,5 +123,74 @@
       "contrast_pivot": 0.72
     }
   },
-  "$comment": "Region geometry per console film plus its grade. `grade` overrides DEFAULT_GRADE in relight_console.py. 2026-09-21 second pass (the first read as foggy on the page): a whole-frame contrast S-curve (contrast 1.18 about L 0.72), a deeper structured icy room (env_*), 2px bordered panels with a real shadow, darker ink, deeper cyan/blue/violet signals, and walkers re-exposed with more local contrast (person_*); the MobilityCare film tones down the body overlay's chroma so the bloom at the walker's silhouette does not read as an aura. The script defaults are the washed-out 2026-09-14 edition."
+  "$comment": "Region geometry per console film plus its grade. `grade` overrides DEFAULT_GRADE in relight_console.py. 2026-09-21 second pass (the first read as foggy on the page): a whole-frame contrast S-curve (contrast 1.18 about L 0.72), a deeper structured icy room (env_*), 2px bordered panels with a real shadow, darker ink, deeper cyan/blue/violet signals, and walkers re-exposed with more local contrast (person_*); the MobilityCare film tones down the body overlay's chroma so the bloom at the walker's silhouette does not read as an aura. The script defaults are the washed-out 2026-09-14 edition.",
+  "mobilitycare-hero-v2": {
+    "$comment": "/mobilitycare/ hero film (1672x942). No photographic person: the walker is a drawn wireframe, so masks are blank and it is graded as a signal. Panels measured from frame 1: the clinical gait report, fall-risk, early-decline and parkinsonian cards.",
+    "panels": [
+      [
+        1100,
+        92,
+        1614,
+        700
+      ],
+      [
+        848,
+        190,
+        1058,
+        305
+      ],
+      [
+        848,
+        352,
+        1058,
+        522
+      ],
+      [
+        848,
+        706,
+        1086,
+        874
+      ]
+    ],
+    "radius": 10,
+    "horizon": 0.7,
+    "person_lift": 0.8,
+    "person_gain": 1.0,
+    "person_cast": 0.2,
+    "grade": {
+      "env_top": 0.985,
+      "env_mid": 0.95,
+      "env_floor": 0.86,
+      "env_tint": -0.006,
+      "env_detail": 0.6,
+      "env_detail_clip": 0.12,
+      "env_structure": 0.9,
+      "env_refl": 2.4,
+      "env_vignette": 0.06,
+      "foot_shadow": 0.26,
+      "panel_shadow": 0.22,
+      "panel_fill": 0.995,
+      "panel_border": 0.55,
+      "panel_border_px": 2.0,
+      "panel_detail": 0.28,
+      "ink": 0.14,
+      "slate": 0.36,
+      "sig_L_hi": 0.42,
+      "sig_L_range": 0.2,
+      "sig_chroma_lo": 2.1,
+      "sig_chroma_hi": 2.4,
+      "soft_L": 0.44,
+      "soft_chroma": 2.6,
+      "halo_L": 0.06,
+      "halo_chroma": 0.45,
+      "body_sig_L": 0.47,
+      "body_sig_chroma": 1.4,
+      "person_edge_lo": 0.74,
+      "person_edge_hi": 0.96,
+      "person_offset": 0.07,
+      "person_contrast": 0.34,
+      "contrast": 1.2,
+      "contrast_pivot": 0.74
+    }
+  }
 }

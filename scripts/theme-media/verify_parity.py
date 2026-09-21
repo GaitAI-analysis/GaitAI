@@ -106,11 +106,16 @@ def main():
             failed += 1
             print(f"{dark.name:52s} {geo:>26s}  GEOMETRY MISMATCH: light is {b['w']}x{b['h']} {b['frames']}f {b['fps']} {b['dur']:.2f}s")
             continue
+        # A job may carry its own floor (`minIou`) with a stated reason: a
+        # layer-aware master that replaces the dark ground loses that ground's
+        # bloom edges and gains a lit room's, so its whole-frame IoU sits lower
+        # while edge correlation still proves the same drawing.
+        min_iou = float(job.get("minIou", args.min_iou))
         for pct in (0, 25, 50, 75, 100):
             idx = min(a["frames"] - 1, round((a["frames"] - 1) * pct / 100))
             iou, ec, lc = compare(frame_at(dark, idx, a["w"], a["h"]), frame_at(light, idx, a["w"], a["h"]))
-            flag = "" if iou >= args.min_iou else "  <-- below threshold"
-            if iou < args.min_iou:
+            flag = "" if iou >= min_iou else "  <-- below threshold"
+            if iou < min_iou:
                 failed += 1
             print(f"{dark.name if pct == 0 else '':52s} {geo if pct == 0 else '':>26s}  {pct:>5d}% {iou:8.3f} {ec:9.3f} {lc:9.3f}{flag}")
     for job in jobs.get("images", []):

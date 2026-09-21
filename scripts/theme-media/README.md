@@ -79,7 +79,21 @@ To replace them, drop in new files under the same names and re-cut the
 posters. The re-light pipeline below is kept for the record and for any
 future film that needs it.
 
-## The console re-light pipeline (`pipeline: "console"`, retired for the consoles)
+## The MobilityCare hero film (`pipeline: "console"`)
+
+`mobilitycare/mobilitycare-hero-v2.mp4` — the /mobilitycare/ hero — is a
+drawn scene with no photographic person (a wireframe walker, dotted
+trajectories, a clinical report and three cards). Its first light companion
+came from the plain LUT and read as pale-blue fog with a ghosted walker; it is
+now graded by the layer-aware pipeline below with BLANK masks (the walker is
+a drawn signal, not a person): white / very light grey architecture with the
+room's own structure, crisp bordered panels with a shadow, navy type, deep
+cyan and royal signals, and a contrast S-curve. Its panel rectangles and
+grade are `mobilitycare-hero-v2` in `console_layers.json`. The light-mode
+readability shade over the hero (globals.css) stops at the copy column so it
+never fogs the picture.
+
+## The console re-light pipeline (`pipeline: "console"`)
 
 `platform/mobilitycare-intelligence.mp4` and `platform/securevision-intelligence.mp4`
 are flattened renders — a photographic walker, a room, HUD panels and drawn

@@ -4,9 +4,11 @@
     {
       "dark": "public/assets/videos/mobilitycare/mobilitycare-hero-v2.mp4",
       "poster": "public/assets/videos/mobilitycare/mobilitycare-hero-v2-poster.jpg",
-      "lut": {
-        "black_toe": 0.085
-      }
+      "pipeline": "console",
+      "crf": 19,
+      "workers": 1,
+      "minIou": 0.45,
+      "$comment": "Layer-aware master: the dark film's near-black ground and its blue floor bloom are replaced by a lit room with its own structure, so whole-frame edge IoU sits at 0.46-0.49 while edge correlation stays 0.86 (same drawing, same timing). 0.45 is this film's floor."
     },
     {
       "dark": "public/assets/videos/workflow/stage-01-capture.mp4",

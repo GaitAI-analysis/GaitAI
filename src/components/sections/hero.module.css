@@ -30,7 +30,7 @@
    and verified. The hero is 1774:887 wherever the screen allows, bounded
    three ways:
 
-     · 820px, so a wide monitor does not get a hero taller than the copy needs;
+     · 860px, so a wide monitor does not get a hero taller than the copy needs;
      · the room under the navbar — 100svh minus the header minus a reserve for
        the floating Ask GaitAI launcher — so the whole lower row is on screen
        before the fold and the launcher rests below the picture, not on it;
@@ -74,8 +74,16 @@
      stays under the hero, so at rest the launcher floats over the hand-off
      gap, never over SecureVision. `svh` is the small viewport, so a phone's
      retracting toolbar never makes the hero taller than the screen it first
-     painted on. */
-  --hero-launcher-reserve: 5rem;
+     painted on.
+
+     Was 5rem (80px), which on the common laptop screens — 1536x864, 1440x800,
+     1366x768 — left the hero ending 150px above the fold with a dark band
+     under it while the picture itself was cropped by 50-90px. 2.5rem gives
+     those 40px back to the picture: the frame is taller and the crop is
+     smaller, nothing is stretched. The launcher then overlaps the hero's
+     bottom edge by ~20px at rest, which is floor under the pills (the pills
+     keep ≥50px of clearance) and never the walkers or the words. */
+  --hero-launcher-reserve: 2.5rem;
   --hero-room: calc(100vh - var(--site-header-height) - var(--hero-launcher-reserve));
   --hero-room: calc(100svh - var(--site-header-height) - var(--hero-launcher-reserve));
 
@@ -156,12 +164,14 @@
   scroll-margin-top: var(--header-clearance);
 }
 
-/* THE FRAME is the hero's visible box. */
+/* THE FRAME is the hero's visible box. The 860px ceiling (was 820) is what a
+   1920x1080 screen gets: its 2:1 canvas would be 960px, so the frame still
+   crops it and simply shows 40px more of the picture. */
 .frame {
   position: relative;
   width: 100%;
   aspect-ratio: 1774 / 887;
-  max-height: min(820px, var(--hero-room));
+  max-height: min(860px, var(--hero-room));
   min-height: 40vw;
   overflow: hidden;
 }

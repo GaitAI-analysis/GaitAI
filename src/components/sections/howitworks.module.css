@@ -198,8 +198,12 @@
   transition: opacity 0.45s var(--wf-ease);
 }
 
-.row[data-dim="true"] {
-  opacity: 0.38;
+/* Dimming used to take the whole row to 38%, films included — which is why
+   three of the four visuals were always washed out. Now only the copy
+   quietens, and only a little; the pictures are the story and stay at full
+   strength. The node carries the active state instead. */
+.row[data-dim="true"] .copy {
+  opacity: 0.74;
 }
 
 /* The centre node on the rail between rows. Static — the pulsing halo that
@@ -574,5 +578,361 @@
   .panel,
   .panel[data-open="true"] {
     transition: none;
+  }
+}
+
+/* ==========================================================================
+   THE JOURNEY — four stages down one line
+   --------------------------------------------------------------------------
+   Layout, timeline, cards and entrance choreography for the zigzag. The
+   rows alternate copy and visual around a continuous centre line on desktop
+   and stack beside a left-edge line on a phone. Spacing is roughly 40%
+   tighter than the space-y-28 it replaces, so the stages read as one
+   sequence rather than four screens.
+   ========================================================================== */
+
+.journey {
+  --wf-cyan: #4fd1ff;
+  --wf-royal: #2563ff;
+  --wf-violet: #a78bfa;
+  --wf-line: rgb(148 163 184 / 0.2);
+  --wf-ground: rgb(var(--c-obsidian-400));
+  --wf-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --wf-rail-x: 0.5rem;
+  /* Where a row's node sits: the rail is in the journey's left padding on a
+     phone, 1.75rem outside the row's own box; on desktop it is the centre. */
+  --wf-node-x: calc(0.5rem - 2.25rem);
+  position: relative;
+  margin-top: 2.5rem;
+  padding-left: 2.25rem;
+}
+
+:global(.light) .journey {
+  --wf-cyan: #0891b2;
+  --wf-royal: #1b4ed9;
+  --wf-violet: #6d28d9;
+  --wf-line: rgb(15 23 42 / 0.14);
+  --wf-ground: #f3f6fa;
+}
+
+@media (min-width: 1024px) {
+  .journey {
+    --wf-rail-x: 50%;
+    --wf-node-x: 50%;
+    margin-top: 3rem;
+    padding-left: 0;
+  }
+}
+
+/* The line. A faint track the whole height, and the gradient fill the scroll
+   draws down it — cyan at the first stage, royal through the middle, violet
+   by the last. */
+.track,
+.trackFill {
+  position: absolute;
+  top: 0;
+  left: var(--wf-rail-x);
+  width: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  border-radius: 999px;
+}
+
+.track {
+  height: 100%;
+  background: var(--wf-line);
+}
+
+.trackFill {
+  background: linear-gradient(
+    180deg,
+    var(--wf-cyan) 0%,
+    var(--wf-royal) 52%,
+    var(--wf-violet) 100%
+  );
+  box-shadow: 0 0 18px rgb(37 99 255 / 0.35);
+}
+
+:global(.light) .trackFill {
+  box-shadow: 0 0 14px rgb(27 78 217 / 0.22);
+}
+
+.rows {
+  display: grid;
+  row-gap: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .rows {
+    row-gap: 4.25rem;
+  }
+}
+
+/* ── One row ── */
+.row {
+  position: relative;
+  display: grid;
+  gap: 1.1rem;
+}
+
+@media (min-width: 1024px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 5.5rem;
+    align-items: center;
+  }
+
+  .rowLeft .copy {
+    grid-column: 1;
+    justify-self: end;
+    text-align: right;
+  }
+
+  .rowLeft .visualWrap {
+    grid-column: 2;
+  }
+
+  .rowRight .copy {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .rowRight .visualWrap {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+/* ── The copy ── */
+.copy {
+  max-width: 34ch;
+  transition: opacity 0.45s var(--wf-ease);
+}
+
+.stageLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+:global(.light) .stageLabel {
+  color: #1438a8;
+}
+
+.stageTitle {
+  margin-top: 0.7rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.85rem, 1.3rem + 1.6vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+  color: rgb(var(--c-soft-white));
+}
+
+.stageBody {
+  margin-top: 0.85rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-gray));
+}
+
+@media (min-width: 640px) {
+  .stageBody {
+    font-size: 1rem;
+  }
+}
+
+/* ── The node ── */
+.nodeWrap {
+  position: absolute;
+  left: var(--wf-node-x);
+  top: 0.55rem;
+  display: grid;
+  justify-items: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .nodeWrap {
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.journeyNode {
+  display: block;
+  height: 14px;
+  width: 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--wf-line);
+  background: var(--wf-ground);
+  box-shadow: 0 0 0 4px var(--wf-ground);
+  transition:
+    border-color 0.4s var(--wf-ease),
+    background-color 0.4s var(--wf-ease),
+    box-shadow 0.4s var(--wf-ease);
+}
+
+.row[data-active="true"] .journeyNode {
+  border-color: var(--wf-cyan);
+  background: var(--wf-cyan);
+  box-shadow:
+    0 0 0 4px var(--wf-ground),
+    0 0 0 6px rgb(79 209 255 / 0.28),
+    0 0 22px rgb(79 209 255 / 0.45);
+}
+
+:global(.light) .row[data-active="true"] .journeyNode {
+  box-shadow:
+    0 0 0 4px var(--wf-ground),
+    0 0 0 6px rgb(8 145 178 / 0.26),
+    0 0 18px rgb(8 145 178 / 0.3);
+}
+
+.nodeVerb {
+  display: none;
+  margin-top: 0.45rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--wf-ground);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+  transition: color 0.4s var(--wf-ease);
+}
+
+@media (min-width: 1024px) {
+  .nodeVerb {
+    display: block;
+  }
+}
+
+.row[data-active="true"] .nodeVerb {
+  color: var(--wf-cyan);
+}
+
+/* ── The visual ── */
+.visualWrap {
+  min-width: 0;
+}
+
+/* The card. Dark keeps the section's deep slab; light is the optical-glass
+   card the light system uses at its most restrained — 22px radius, a cool
+   hairline, translucent white, a soft blue-grey shadow and a 12px blur, so
+   the pearl ground reads faintly through the margins. */
+.visual {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--wf-aspect, 1.1);
+  border-radius: 22px;
+  border: 1px solid rgb(148 163 184 / 0.16);
+  background: linear-gradient(180deg, rgb(8 14 26 / 0.98), rgb(4 8 15 / 1));
+  box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.7);
+  transition:
+    border-color 0.45s var(--wf-ease),
+    box-shadow 0.45s var(--wf-ease);
+}
+
+:global(.light) .visual {
+  border-color: rgba(40, 80, 130, 0.12);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 50px rgba(20, 45, 80, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.row[data-active="true"] .visual {
+  border-color: rgb(79 209 255 / 0.35);
+}
+
+:global(.light) .row[data-active="true"] .visual {
+  border-color: rgba(27, 78, 217, 0.32);
+  box-shadow:
+    0 18px 50px rgba(20, 45, 80, 0.09),
+    0 0 0 1px rgba(8, 145, 178, 0.1);
+}
+
+/* The film or photograph fills the card. `cover`, not the letterbox the old
+   dark slab used — the films are near-square and the cards now are too, so
+   nothing is lost and nothing floats. Resting media is the file as encoded;
+   the hover adds a whisper of scale and lifts the markers a touch. */
+.media,
+.media > img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+  transition:
+    transform 0.6s var(--wf-ease),
+    filter 0.6s var(--wf-ease);
+}
+
+.mediaStill > img {
+  object-position: var(--wf-still-position, 50% 42%);
+}
+
+:global(.light) .mediaStill > img {
+  object-position: var(--wf-still-position-light, var(--wf-still-position, 50% 42%));
+}
+
+@media (hover: hover) {
+  .visual:hover .media,
+  .visual:hover .media > img {
+    transform: scale(1.015);
+    filter: saturate(1.1) contrast(1.03);
+  }
+}
+
+/* The stage tag, bottom-left: a small mono chip on glass. */
+.tag {
+  position: absolute;
+  left: 0.85rem;
+  bottom: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(6 10 20 / 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(203 213 225 / 0.9);
+  pointer-events: none;
+}
+
+:global(.light) .tag {
+  border-color: rgba(40, 80, 130, 0.14);
+  background: rgba(255, 255, 255, 0.8);
+  color: #1438a8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy,
+  .journeyNode,
+  .nodeVerb,
+  .visual,
+  .media,
+  .media > img {
+    transition: none;
+  }
+
+  .visual:hover .media,
+  .visual:hover .media > img {
+    transform: none;
+    filter: none;
   }
 }

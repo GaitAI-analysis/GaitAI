@@ -17,7 +17,14 @@ import { useAutoDemonstrate } from "@/lib/useAutoDemonstrate";
 import { useDisclosureReveal } from "@/lib/useDisclosureReveal";
 import { assetPath } from "@/lib/paths";
 import { ThemeVideo } from "@/components/ui/ThemeMedia";
-import type { ThemeMediaKey } from "@/lib/theme-media";
+import { ThemePicture } from "@/components/ui/ThemePicture";
+import {
+  themeMedia,
+  type ThemeMediaEntry,
+  type ThemeMediaKey,
+} from "@/lib/theme-media";
+import { imagesForProduct } from "@/data/product-images";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import disclosure from "@/components/ui/disclosure.module.css";
 import styles from "./howitworks.module.css";
 
@@ -133,6 +140,10 @@ export function HowItWorks() {
 
   const release = demo.stop;
   const active = preview ?? locked ?? demo.index ?? scrollStage;
+  /* The entrance choreography below (visual, then copy 100ms later, node
+     scaling in) is decorative; under reduced motion every element is simply
+     present. `initial={false}` is how framer is told to start at the end. */
+  const reduce = usePrefersReducedMotion();
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent, index: number) => {
@@ -159,7 +170,10 @@ export function HowItWorks() {
   );
 
   return (
-    <section id="technology" className="home-section section bg-obsidian-300/40">
+    <section
+      id="technology"
+      className="home-section section bg-obsidian-300/40"
+    >
       <div className="container-wide">
         <SectionHeading
           eyebrow="The GaitAI workflow"
@@ -262,7 +276,6 @@ export function HowItWorks() {
           </button>
         </div>
 
-
         <div
           ref={panelRef}
           id={panelId}
@@ -272,54 +285,94 @@ export function HowItWorks() {
           className={styles.panel}
         >
           <div className={styles.panelInner}>
-            <div ref={ref} className="relative mt-14">
-              {/* central rail (desktop) */}
-              <div className="pointer-events-none absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-white/8 lg:block" />
+            {/* ── THE JOURNEY ──────────────────────────────────────────
+                One story in four stages, told down a single line. The
+                timeline is continuous — cyan into royal into violet, from
+                the first node to the last — and the scroll fills it, so
+                where the reader is on the page and where they are in the
+                pipeline are the same thing. Each stage sits on the line as
+                a node; the node states the active stage and scales in as
+                its row arrives. Rows alternate copy and visual around the
+                line — an editorial spread rather than four cards — and the
+                visual nearly fills its half, because the films ARE the
+                stage. On a phone the line moves to the left edge and the
+                rows stack. Nothing in the copy or the stage order changed. */}
+            <div ref={ref} className={styles.journey}>
+              <div aria-hidden="true" className={styles.track} />
               <motion.div
+                aria-hidden="true"
                 style={{ height: lineHeight }}
-                className="pointer-events-none absolute left-1/2 top-0 hidden w-px -translate-x-1/2 bg-gradient-to-b from-cyan-300 via-royal-400 to-violet-400 shadow-[0_0_20px_rgba(79,209,255,0.6)] lg:block"
+                className={styles.trackFill}
               />
 
-              <div className="space-y-16 lg:space-y-28">
+              <div className={styles.rows}>
                 {workflowStages.map((s, i) => {
                   const isLeft = i % 2 === 0;
                   return (
-                    <motion.div
+                    <div
                       key={s.step}
-                      initial={{ opacity: 0, y: 40 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-120px" }}
-                      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                       data-active={active === i}
                       data-dim={active !== i}
-                      className={`${styles.row} relative grid items-center gap-8 lg:grid-cols-2`}
+                      className={`${styles.row} ${isLeft ? styles.rowLeft : styles.rowRight}`}
                     >
-                      {/* Left content (or stays left on mobile) */}
-                      <div className={isLeft ? "lg:pr-16 lg:text-right" : "lg:order-2 lg:pl-16"}>
-                        <div className="font-mono text-xs uppercase tracking-[0.2em] text-soft-mute">
-                          Stage {s.step}
-                        </div>
-                        <h3 className="mt-3 font-display text-3xl text-soft-white sm:text-4xl">
-                          {s.title}
-                        </h3>
-                        <p className="mt-3 max-w-md text-sm leading-relaxed text-soft-gray sm:text-base lg:max-w-md lg:ml-auto">
-                          {isLeft ? <span className="lg:inline-block">{s.desc}</span> : s.desc}
-                        </p>
+                      {/* The copy follows the visual in by 100ms, so the eye
+                          lands on the picture and then reads the caption. */}
+                      <motion.div
+                        className={styles.copy}
+                        initial={reduce ? false : { opacity: 0, y: 18 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-12% 0px" }}
+                        transition={{
+                          duration: 0.7,
+                          delay: 0.1,
+                          ease: [0.16, 1, 0.3, 1],
+                        }}
+                      >
+                        <div className={styles.stageLabel}>Stage {s.step}</div>
+                        <h3 className={styles.stageTitle}>{s.title}</h3>
+                        <p className={styles.stageBody}>{s.desc}</p>
+                      </motion.div>
+
+                      {/* The node on the line. Hollow until its row arrives,
+                          filled while it is the stage being read, with the
+                          one-word verb of the stage under it — the four
+                          together read Capture → Understand → Predict → Act
+                          down the timeline. Decorative: the stage title
+                          carries the meaning. */}
+                      <div aria-hidden="true" className={styles.nodeWrap}>
+                        <motion.span
+                          className={styles.journeyNode}
+                          initial={reduce ? false : { scale: 0.4, opacity: 0 }}
+                          whileInView={{ scale: 1, opacity: 1 }}
+                          viewport={{ once: true, margin: "-20% 0px" }}
+                          transition={{
+                            duration: 0.55,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                        />
+                        <span className={styles.nodeVerb}>
+                          {STAGE_VERBS[i]}
+                        </span>
                       </div>
 
-                      {/* Center node (desktop) */}
-                      {/* The node states which stage is being read. It used to be
-                          a lit dot with a ping animating behind it, forever, on
-                          all four rows at once. */}
-                      <div className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
-                        <div aria-hidden="true" className={styles.rowNode} />
-                      </div>
-
-                      {/* Right visual */}
-                      <div className={isLeft ? "" : "lg:order-1"}>
+                      {/* Hovering the visual previews the stage on the rail
+                          and lights its node — the same preview the rail's
+                          own buttons give. One active index, read everywhere. */}
+                      <motion.div
+                        className={styles.visualWrap}
+                        initial={reduce ? false : { opacity: 0, y: 28 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-12% 0px" }}
+                        transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                        onPointerEnter={() => {
+                          release();
+                          setPreview(i);
+                        }}
+                        onPointerLeave={() => setPreview(null)}
+                      >
                         <StageVisual index={i} revealed={open} />
-                      </div>
-                    </motion.div>
+                      </motion.div>
+                    </div>
                   );
                 })}
               </div>
@@ -337,11 +390,14 @@ export function HowItWorks() {
           <span aria-hidden="true" className={styles.recordDot}>
             ·
           </span>{" "}
-          {PAPER_COUNT}{"\u00a0"}papers{"\u00a0"}
+          {PAPER_COUNT}
+          {"\u00a0"}papers{"\u00a0"}
           <span aria-hidden="true" className={styles.recordDot}>
             ·
           </span>{" "}
-          {PATENT_COUNT}{"\u00a0"}granted{"\u00a0"}patent{PATENT_COUNT === 1 ? "" : "s"}{"\u00a0"}
+          {PATENT_COUNT}
+          {"\u00a0"}granted{"\u00a0"}patent{PATENT_COUNT === 1 ? "" : "s"}
+          {"\u00a0"}
           <span aria-hidden="true" className={styles.recordDot}>
             ·
           </span>{" "}
@@ -417,23 +473,81 @@ const STAGE_KEYS: ThemeMediaKey[] = [
   "workflowOutput",
 ];
 
+/* The one-word verb under each node. Presentation only — the stage titles
+   above carry the meaning; these let the timeline be read at a glance as
+   Capture → Understand → Predict → Act. */
+const STAGE_VERBS = ["Capture", "Understand", "Predict", "Act"];
+
 /**
- * STAGE 01 IS A PHOTOGRAPH, NOT A FILM.
+ * STAGE 01 IS A PHOTOGRAPH, NOT A FILM — AND IT IS A THEME PAIR.
  * The capture stage's render was an infographic — a glowing wireframe walker
  * between three input icons — in the one card whose copy says "a short
  * walking video, CCTV feed or smartwatch signal". A rendered figure cannot
- * stand in for footage there, so this stage shows a real frame instead: the
- * wide cut of the site's capture plate (scripts/build-capture-plate.py). The
- * other three stages keep their films; they depict outputs, which the renders
- * are honest about. Null here would restore the film.
+ * stand in for footage there, so this stage shows a real frame instead.
+ *
+ * Two frames, one per theme, because a photograph cannot be re-lit by CSS:
+ * the night-blue CCTV plate (scripts/build-capture-plate.py) belongs to the
+ * dark page it was cut for, and on the light page it read as a grey slab in
+ * a row of white cards. Light shows the reviewed daylight capture scene from
+ * the FallRisk set (product-image-manifest.json): a bright clinic corridor, a
+ * person walking, restrained cyan joint markers and a floor trajectory —
+ * capture with a hint of tracking, which is what stage 01 says and what
+ * stage 02 then develops. It is read from the same registry the product
+ * pages use, so the frame is the reviewed one and no file is named by hand.
  */
-const STAGE_STILL: (string | null)[] = [
-  "/assets/images/capture/capture-walk-wide.jpg",
-  null,
-  null,
-  null,
-];
+const CAPTURE_DARK = "/assets/images/capture/capture-walk-wide.jpg";
+const CAPTURE_LIGHT = imagesForProduct("fallrisk");
 
+/* The photograph is 16:9 and the card is not, so it is cropped — and the two
+   frames are cropped differently, because the people stand in different
+   places. Dark keeps the walker centred; light keeps both women, who stand
+   right of centre. */
+const CAPTURE_ASPECT = 1.25;
+const CAPTURE_POSITION = { dark: "50% 42%", light: "60% 50%" };
+
+/* Each card is exactly its film's shape, read from the registry, so `cover`
+   is a perfect fit: nothing cropped, nothing letterboxed, no film floating in
+   a card of another proportion. */
+function stageAspect(index: number): number {
+  if (index === 0) return CAPTURE_ASPECT;
+  /* The registry is `as const`, so one entry without a size narrows the
+     union; the shared entry type says width/height are optional. */
+  const entry = themeMedia[STAGE_KEYS[index]] as ThemeMediaEntry;
+  return entry.width && entry.height ? entry.width / entry.height : 1.1;
+}
+
+function CaptureStill() {
+  const light = CAPTURE_LIGHT?.assets.heroLight;
+  const lightSrcSet = light
+    ? light.variants
+        .map(({ src, width }) => `${assetPath(src)} ${width}w`)
+        .join(", ")
+    : `${assetPath(CAPTURE_DARK)} 1200w`;
+  return (
+    <ThemePicture
+      sources={[
+        {
+          type: "image/webp",
+          darkSrcSet: `${assetPath(CAPTURE_DARK)} 1200w`,
+          lightSrcSet,
+        },
+      ]}
+      darkSrc={CAPTURE_DARK}
+      lightSrc={CAPTURE_LIGHT?.heroLight ?? CAPTURE_DARK}
+      sizes="(min-width: 1024px) 46vw, calc(100vw - 40px)"
+      alt="A camera frame of a person walking — the short walking video or CCTV clip the pipeline starts from, with the first pose markers picked out."
+      width={light?.width ?? 1200}
+      height={light?.height ?? 675}
+      className={`${styles.media} ${styles.mediaStill}`}
+      style={
+        {
+          "--wf-still-position": CAPTURE_POSITION.dark,
+          "--wf-still-position-light": CAPTURE_POSITION.light,
+        } as React.CSSProperties
+      }
+    />
+  );
+}
 
 function StageVisual({
   index,
@@ -444,7 +558,6 @@ function StageVisual({
   revealed: boolean;
 }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
-  const still = STAGE_STILL[index];
   /**
    * Four looping renders sit in this section. Autoplaying all of them on mount
    * downloaded and decoded every one the moment the home page loaded, whether
@@ -470,44 +583,29 @@ function StageVisual({
     return () => observer.disconnect();
   }, []);
 
-  if (still) {
-    return (
-      <div className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72">
-        {/* eslint-disable-next-line @next/next/no-img-element -- a fixed
-            photographic plate inside a sized card; next/image's layout
-            machinery buys nothing here and its wrapper fights the card. */}
-        <img
-          src={assetPath(still)}
-          alt="A camera frame of a person walking past a concrete wall — the kind of short walking video or CCTV clip the pipeline starts from."
-          loading="lazy"
-          decoding="async"
-          className="workflow-stage-video workflow-stage-still"
-        />
-        <div className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
-          <span>stage_0{index + 1}</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       ref={wrapRef}
-      className="card workflow-stage-card relative h-64 overflow-hidden sm:h-72"
+      className={styles.visual}
+      style={{ "--wf-aspect": stageAspect(index) } as React.CSSProperties}
     >
-      {/* The theme's own film, chosen before first paint; reduced-motion
-          visitors get its poster and never fetch the clip. A collapsed panel
-          is zero-height but still intersects the observer's 200px margin, so
-          "in view" alone would autoplay all four films behind a closed
-          disclosure — `revealed` is the other half of the gate. */}
-      <ThemeVideo
-        mediaKey={STAGE_KEYS[index]}
-        className="workflow-stage-video"
-        active={inView && revealed}
-      />
-      <div className="absolute bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.18em] text-soft-mute">
-        <span>stage_0{index + 1}</span>
-      </div>
+      {index === 0 ? (
+        <CaptureStill />
+      ) : (
+        /* The theme's own film, chosen before first paint; reduced-motion
+           visitors get its poster and never fetch the clip. A collapsed panel
+           is zero-height but still intersects the observer's 200px margin, so
+           "in view" alone would autoplay all four films behind a closed
+           disclosure — `revealed` is the other half of the gate. */
+        <ThemeVideo
+          mediaKey={STAGE_KEYS[index]}
+          className={styles.media}
+          active={inView && revealed}
+        />
+      )}
+      <span aria-hidden="true" className={styles.tag}>
+        stage_0{index + 1}
+      </span>
     </div>
   );
 }

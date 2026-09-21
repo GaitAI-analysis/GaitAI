@@ -43,6 +43,7 @@
     "check:use-case-images": "tsx scripts/check-use-case-images.mjs",
     "check:use-case-images:browser": "tsx scripts/check-use-case-images-browser.mjs",
     "check:nav-menu:browser": "tsx scripts/check-nav-menu-browser.mjs",
+    "check:securevision-hero:browser": "tsx scripts/check-securevision-hero-browser.mjs",
     "check:product-images:browser": "tsx scripts/check-product-images-browser.mjs",
     "check:product-audit": "node scripts/check-product-image-audit.mjs"
   },

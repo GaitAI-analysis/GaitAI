@@ -2164,9 +2164,35 @@ body {
   object-position: center center;
   z-index: 0;
   pointer-events: none;
-  /* The footage is naturally dark on its left third — lift it slightly so
-     the left side reads as moving video, not an empty black strip. */
+}
+
+/* The NIGHT footage is naturally dark on its left third — lift it slightly so
+   the left side reads as moving video, not an empty black strip. Dark only:
+   the daylight film is its own grade and is never filtered. */
+:root:not(.light) .securevision-hero-video,
+:root:not(.light) .securevision-hero-labels {
   filter: brightness(1.18) saturate(1.05);
+}
+
+/* The daylight intelligence layer: thin cyan/royal lines drawn over the light
+   film. It exists only in light mode; the night film carries its own HUD. */
+.securevision-daylight-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: none;
+}
+
+.light .securevision-daylight-layer {
+  display: block;
+}
+
+/* The night film's label corrections have nothing to correct in daylight. */
+.light .securevision-hero-labels {
+  display: none;
 }
 
 .securevision-video-shade {
@@ -2287,19 +2313,75 @@ body {
   }
 }
 
-/* Light mode: the SecureVision hero is a cinematic dark-media section and has
-   to stay a dark hero in BOTH themes, exactly like .mobilitycare-hero below.
-   Without this, `text-soft-white` / `text-soft-gray` / `text-soft-mute` flip to
-   their light-theme near-black values and the headline, body copy and the
-   capability chips become unreadable over the dark footage. Only the navbar
-   and the sections beneath the hero follow the global light theme. */
+/* LIGHT MODE IS ITS OWN HERO. The section used to force dark tokens in both
+   themes because the night footage was shown in both. It now has a daylight
+   film, so the type follows the light theme: deep navy headline and body,
+   the secure gradient's light variant on the accent words, and no dark
+   glass anywhere. True whites come from the film itself — nothing here lays
+   a white wash over a dark plate or dims a light one. */
 .light .securevision-hero {
-  color-scheme: dark;
-  --c-obsidian: 7 11 20;
-  --c-obsidian-200: 14 19 34;
-  --c-soft-white: 248 250 252;
-  --c-soft-gray: 203 213 225;
-  --c-soft-mute: 148 163 184;
+  color-scheme: light;
+  --c-soft-white: 11 18 32;
+  --c-soft-gray: 51 65 85;
+  --c-soft-mute: 100 116 139;
+}
+
+@media (min-width: 1024px) {
+  .light .securevision-hero {
+    background: #eef4fb;
+  }
+}
+
+/* Readability on the left third: the daylight film is bright, so the copy
+   needs the gentlest possible frosted lift — translucent white glass that
+   fades to nothing well before the subject. Far below the opacity that would
+   read as fog, and it touches only the left third. */
+.light .securevision-video-shade {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.62) 0%,
+    rgba(255, 255, 255, 0.46) 18%,
+    rgba(255, 255, 255, 0.22) 36%,
+    rgba(255, 255, 255, 0.06) 52%,
+    rgba(255, 255, 255, 0) 66%
+  );
+}
+
+/* Below the desktop grid the copy stacks over the middle of the film rather
+   than beside it, so the lift runs top to bottom and stays frosted under the
+   whole text block, thinning out toward the CTAs. Still white glass, still
+   nothing over the film itself once the copy ends. */
+@media (max-width: 1023px) {
+  .light .securevision-video-shade {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.82) 0%,
+      rgba(255, 255, 255, 0.74) 46%,
+      rgba(255, 255, 255, 0.5) 72%,
+      rgba(255, 255, 255, 0.18) 100%
+    );
+  }
+}
+
+/* The eyebrow pill: royal on a royal tint in dark, royal on white glass in light. */
+.securevision-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.375rem 0.75rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid rgb(147 197 253 / 0.3);
+  background: rgb(147 197 253 / 0.08);
+  color: rgb(147 197 253);
+}
+
+.light .securevision-eyebrow {
+  border-color: rgba(27, 78, 217, 0.28);
+  background: rgba(255, 255, 255, 0.72);
+  color: #1b4ed9;
 }
 
 /* =========================================================================
@@ -6617,6 +6699,11 @@ body {
     background-image: url("/assets/videos/securevision/securevision-hero-poster.jpg");
     background-size: cover;
     background-position: center center;
+  }
+
+  /* The daylight film's own first frame for a light visitor. */
+  .light .securevision-hero {
+    background-image: url("/assets/videos/securevision/securevision-hero-poster-light.jpg");
   }
 
   .securevision-hero-labels {

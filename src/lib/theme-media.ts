@@ -85,9 +85,6 @@ export interface ThemeMediaIsland {
 
 export type ThemeMediaEntry = ThemeMediaPair | ThemeMediaIsland;
 
-const CROWD_ISLAND =
-  "Photographic night crowd. The colour transform would turn the people into negatives and the pose model cannot segment a crowd, so the cinematic dark band stays in both themes until a light plate is rendered. Drop one in as securevision-hero-light.mp4 and switch this entry to a pair.";
-
 export const themeMedia = {
   /* ── Product heroes ─────────────────────────────────────────────────────── */
 
@@ -106,21 +103,39 @@ export const themeMedia = {
   },
 
   /** /securevision/ — concourse crowd with tracking HUD. */
+  /**
+   * /securevision/ — the night concourse film in dark; a SEPARATE daylight
+   * film in light, never a re-grade of the night frames (a photographic crowd
+   * cannot be relit, and the light hero is its own design brief: white and
+   * warm-grey architecture, glass, side daylight, an officer in the right
+   * third, quiet negative space on the left).
+   *
+   * `timing: "own"` because the two films are different edits with different
+   * lengths. INTERIM PLATE: until the commissioned daylight film lands, the
+   * light file is a fixed-camera, slow-parallax render of the reviewed
+   * daylight airport photograph (use-case-image-manifest.json U015) — native
+   * daylight, no filter, seamless 12s loop. Replace the two `-light` files and
+   * nothing else needs to change.
+   */
   secureVisionHero: {
-    kind: "island",
+    kind: "pair",
     type: "video",
     dark: "/assets/videos/securevision/securevision-hero.mp4",
-    darkPoster: "/assets/videos/securevision/securevision-hero-poster.jpg",
-    island: CROWD_ISLAND,
+    light: "/assets/videos/securevision/securevision-hero-light.mp4",
+    poster: {
+      dark: "/assets/videos/securevision/securevision-hero-poster.jpg",
+      light: "/assets/videos/securevision/securevision-hero-poster-light.jpg",
+    },
+    timing: "own",
     width: 1280,
     height: 720,
   },
-  /** The text-correction overlay drawn over that hero; it follows the hero. */
+  /** Text corrections for labels baked into the NIGHT film only. The daylight film has its own intelligence layer (SecureVisionDaylightIntelligence); this is display:none in light. */
   secureVisionHeroLabels: {
     kind: "island",
     type: "image",
     dark: "/images/hero/securevision-operations-overlay.svg",
-    island: "Light type painted over the dark SecureVision hero; it follows the hero's island decision.",
+    island: "White type that corrects labels baked into the night footage. Hidden in light mode by CSS, where the daylight film carries no baked labels to correct.",
     width: 1600,
     height: 900,
   },

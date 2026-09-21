@@ -11,6 +11,8 @@ import { privacyGovernance } from "@/data/privacy-lens";
 import { industryUseCases, productById, secureProducts } from "@/data/products";
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { assetPath } from "@/lib/paths";
+import { ThemeVideo } from "@/components/ui/ThemeMedia";
+import { SecureVisionDaylightIntelligence } from "@/components/visuals/SecureVisionDaylightIntelligence";
 import { ctas } from "@/data/content";
 import { productOverview } from "@/data/product-details";
 
@@ -22,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 const secureUseCases = industryUseCases.filter(
-  (u) => u.vertical === "securevision"
+  (u) => u.vertical === "securevision",
 );
 
 /**
@@ -50,26 +52,26 @@ export default function SecureVisionPage() {
             video decodes; `preload="metadata"` instead of "auto" so the file
             is not fetched in full up front. Reduced motion is a CSS concern —
             see .securevision-hero-video. */}
-        <video
+        {/* Two independent films, one fetched: the night concourse in dark,
+            a separate daylight film in light. ThemeVideo resolves the theme
+            in an inline script before first paint, so a light visitor never
+            sees the night footage flash, and swaps the file without a reload
+            when the theme changes. Registered as `secureVisionHero` in
+            lib/theme-media.ts, which is also where the interim daylight plate
+            is documented. */}
+        <ThemeVideo
+          mediaKey="secureVisionHero"
+          eager
           className="securevision-hero-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster={assetPath(
-            "/assets/videos/securevision/securevision-hero-poster.jpg",
-          )}
-          aria-hidden="true"
-        >
-          <source
-            src={assetPath("/assets/videos/securevision/securevision-hero.mp4")}
-            type="video/mp4"
-          />
-        </video>
+        />
 
-        {/* Text-only corrections share the footage's crop and the reduced-motion
-            poster's crop. The video and poster themselves remain unchanged. */}
+        {/* Daylight intelligence — thin skeletons on a few walkers, floor
+            trajectories, one flow ribbon, one anomaly cue, one privacy
+            indicator. Light only (CSS): the night film carries its own HUD. */}
+        <SecureVisionDaylightIntelligence className="securevision-daylight-layer" />
+
+        {/* Text-only corrections for labels baked into the NIGHT footage; they
+            share its crop. Hidden in light mode — see .securevision-hero-labels. */}
         <img
           className="securevision-hero-labels"
           src={assetPath("/images/hero/securevision-operations-overlay.svg")}
@@ -85,60 +87,48 @@ export default function SecureVisionPage() {
 
         <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:h-full lg:min-h-0">
           <div className="w-full max-w-[680px]">
-              <div className="inline-flex items-center rounded-full border border-royal-300/30 bg-royal-300/8 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-royal-300">
-                GaitAI SecureVision · Privacy-first
-              </div>
-              <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white lg:mt-5">
-                Privacy-aware{" "}
-                <span className="text-gradient-secure">movement intelligence</span>{" "}
-                for safer public spaces.
-              </h1>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg lg:mt-5 lg:text-base">
-                {secureProducts.length} product modules built around safety
-                analytics, crowd flow, anomaly detection and post-event
-                investigation — grounded in{" "}
-                <span className="text-soft-white">
-                  a decade of founder research in gait and human movement
-                </span>
-                , with PrivacyGuard defining the default design posture and
-                auditability by design.
-              </p>
+            <div className="securevision-eyebrow">
+              GaitAI SecureVision · Privacy-first
+            </div>
+            <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white lg:mt-5">
+              Privacy-aware{" "}
+              <span className="text-gradient-secure">
+                movement intelligence
+              </span>{" "}
+              for safer public spaces.
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg lg:mt-5 lg:text-base">
+              {secureProducts.length} product modules built around safety
+              analytics, crowd flow, anomaly detection and post-event
+              investigation — grounded in{" "}
+              <span className="text-soft-white">
+                a decade of founder research in gait and human movement
+              </span>
+              , with PrivacyGuard defining the default design posture and
+              auditability by design.
+            </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-6">
-                <Link href="#products" className="btn-primary">
-                  See all {secureProducts.length} products
-                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
-                </Link>
-                <Link href="/#contact" className="btn-ghost">
-                  Request enterprise consultation
-                </Link>
-              </div>
+            <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-6">
+              <Link href="#products" className="btn-primary">
+                See all {secureProducts.length} products
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+              <Link href="/#contact" className="btn-ghost">
+                Request enterprise consultation
+              </Link>
+            </div>
 
-              {/* The illustrative-values pill that used to sit here — between the
-                  CTAs and the capability chips, on top of the hero footage —
-                  is gone, along with its twin on the MobilityCare hero and the
-                  two on the home page's console visuals. One badge repeated on
-                  every product visual reads as chrome, not as disclosure.
-                  Nothing replaces it: the capability grid carries its own 3rem
-                  top margin, so the column closes up rather than leaving a gap
-                  where the badge was. */}
+            {/* The illustrative-values pill that used to sit under the CTAs, on
+                  top of the hero footage, is gone, along with its twin on the
+                  MobilityCare hero and the two on the home page's console
+                  visuals. One badge repeated on every product visual reads as
+                  chrome, not as disclosure. Nothing replaces it. */}
 
-              {/* Capability chips — text-only, two rows, each chip snug around
-                  its own label so they stay readable over the moving video */}
-              <div className="securevision-capability-grid">
-                {[
-                  ["Anomaly alerts", "Crowd analytics"],
-                  ["Worker safety", "Privacy-first"],
-                ].map((row) => (
-                  <div key={row[0]} className="securevision-capability-row">
-                    {row.map((label) => (
-                      <div key={label} className="securevision-capability-chip">
-                        {label}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
+            {/* The four capability chips ("Anomaly alerts", "Crowd analytics",
+                  "Worker safety", "Privacy-first") that sat here on top of the
+                  film are gone. The signals section directly below the hero
+                  names every capability from the canonical taxonomy, so the
+                  hero carries one scene and one claim and nothing else. */}
           </div>
         </div>
       </section>
@@ -217,7 +207,6 @@ export default function SecureVisionPage() {
             <MovementXRay
               family="securevision"
 
-
               reads={[
                 {
                   label: "Pose geometry",
@@ -255,7 +244,9 @@ export default function SecureVisionPage() {
             title={
               <>
                 {secureProducts.length} product modules,{" "}
-                <span className="text-gradient-secure">two governance tiers.</span>
+                <span className="text-gradient-secure">
+                  two governance tiers.
+                </span>
               </>
             }
             description="Each group carries its own governance requirements, and the two are never interchangeable."
@@ -307,8 +298,8 @@ export default function SecureVisionPage() {
 
                 <p className="mt-6 max-w-md text-[12.5px] leading-relaxed text-soft-mute">
                   PrivacyGuard is privacy-aware architecture — it minimises
-                  identifiable data and governs access. It is not a guarantee
-                  of anonymity, and no compliance certification is claimed.
+                  identifiable data and governs access. It is not a guarantee of
+                  anonymity, and no compliance certification is claimed.
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2">
@@ -343,8 +334,8 @@ export default function SecureVisionPage() {
                     Governing the output
                   </h3>
                   <p className="mt-3 text-[12.5px] leading-relaxed text-soft-mute">
-                    Separate from the processing path below — these are
-                    controls over who may see what the last step produces.
+                    Separate from the processing path below — these are controls
+                    over who may see what the last step produces.
                   </p>
                   <ul className="mt-5 space-y-2.5">
                     {privacyGovernance.map((control) => (
@@ -475,10 +466,7 @@ export default function SecureVisionPage() {
                   {ctas.demo.label}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link
-                  href="#privacyguard"
-                  className="btn-ghost"
-                >
+                <Link href="#privacyguard" className="btn-ghost">
                   See PrivacyGuard
                   <ArrowUpRight className="h-3.5 w-3.5" />
                 </Link>
@@ -487,7 +475,6 @@ export default function SecureVisionPage() {
           </div>
         </div>
       </section>
-
     </>
   );
 }

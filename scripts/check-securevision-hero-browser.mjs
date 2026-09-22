@@ -11,6 +11,9 @@ import { serve } from "./audit-server.mjs";
  *
  *   - the <video> playing in light is the DAYLIGHT file, in dark the NIGHT
  *     file; a light visit never requests the night file and vice versa
+ *   - the theme's own still is on the wire BEFORE load (it is the LCP
+ *     image) and the other theme's still never is — it is prefetched at
+ *     idle afterwards, so that a theme toggle has a picture to show
  *   - the light film carries no CSS filter (it is its own grade); the night
  *     film keeps its lift
  *   - the daylight intelligence layer is present only in light; the night
@@ -250,6 +253,14 @@ try {
     }, start);
     const page = await context.newPage();
     const requests = [];
+    /* Whether the load event had fired when each request went out. The
+       other theme's still is PREFETCHED at idle after load (HeroSlider,
+       "THE OTHER THEME'S STILL"), so its presence is expected — what must
+       never happen is that file competing with the LCP image before load. */
+    let loaded = false;
+    page.on("load", () => {
+      loaded = true;
+    });
     page.on("pageerror", (e) => errors.push(`${start}: ${e.message}`));
     page.on("console", (m) => {
       if (
@@ -260,7 +271,7 @@ try {
     });
     page.on("request", (r) => {
       if (r.url().includes("/assets/videos/securevision/") || r.url().includes("securevision-hero-") && r.url().includes("-premium"))
-        requests.push(new URL(r.url()).pathname);
+        requests.push({ path: new URL(r.url()).pathname, afterLoad: loaded });
     });
     page.on("response", (r) => {
       if (r.url().includes("/assets/videos/securevision/") && r.status() >= 400)
@@ -272,18 +283,18 @@ try {
     const first = await expectHero(page, start, `${start} first visit`);
     const otherFile = start === "light" ? NIGHT : DAY;
     assert.ok(
-      !requests.some((p) => p.endsWith(otherFile.split("/").pop())),
-      `${start}: fetched the other theme's film: ${requests.join(", ")}`,
+      !requests.some((r) => r.path.endsWith(otherFile.split("/").pop())),
+      `${start}: fetched the other theme's film: ${requests.map((r) => r.path).join(", ")}`,
     );
     const ownStill = STILLS[start].split("/").pop();
     const otherStill = STILLS[other].split("/").pop();
     assert.ok(
-      requests.some((p) => p.endsWith(ownStill)),
-      `${start}: the ${start} still was not requested`,
+      requests.some((r) => r.path.endsWith(ownStill) && !r.afterLoad),
+      `${start}: the ${start} still was not requested before load`,
     );
     assert.ok(
-      !requests.some((p) => p.endsWith(otherStill)),
-      `${start}: fetched the other theme's still ${otherStill}`,
+      !requests.some((r) => r.path.endsWith(otherStill) && !r.afterLoad),
+      `${start}: the ${other} still was fetched BEFORE load, against the LCP image`,
     );
     await page.screenshot({
       path: `${directory}/securevision-hero-${start}-1440.png`,
@@ -313,16 +324,17 @@ try {
 
     /* Persisted theme, reload: right film first, other file never on the wire. */
     requests.length = 0;
+    loaded = false;
     await page.reload({ waitUntil: "networkidle" });
     await expectHero(page, other, `${other} reload`);
     const wrong = other === "light" ? NIGHT : DAY;
     assert.ok(
-      !requests.some((p) => p.endsWith(wrong.split("/").pop())),
+      !requests.some((r) => r.path.endsWith(wrong.split("/").pop())),
       `${other} reload fetched ${wrong}`,
     );
     assert.ok(
-      !requests.some((p) => p.endsWith(ownStill)),
-      `${other} reload fetched the ${start} still`,
+      !requests.some((r) => r.path.endsWith(ownStill) && !r.afterLoad),
+      `${other} reload fetched the ${start} still before load`,
     );
 
     /* Tablet and phone. */

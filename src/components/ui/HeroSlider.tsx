@@ -11,6 +11,7 @@ import { useTheme } from "next-themes";
 import { ThemePicture } from "@/components/ui/ThemePicture";
 import { ThemeVideo } from "@/components/ui/ThemeMedia";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
+import { assetPath } from "@/lib/paths";
 import type { ThemeMediaKey } from "@/lib/theme-media";
 
 /**
@@ -34,9 +35,11 @@ import type { ThemeMediaKey } from "@/lib/theme-media";
  * — and that choice is made by the site's own theme-aware media, not here:
  * the still is one `ThemePicture` with a dark and a light candidate, the
  * film is the registered `ThemeVideo` pair. Both resolve the theme in the
- * inline bootstrap before first paint (a dark visitor never downloads the
- * light picture, and there is no flash of the other theme's art) and swap
- * their file in place when the theme toggles. A toggle also restarts the
+ * inline bootstrap before first paint — nothing of the other theme is on
+ * the critical path, and there is no flash of the other theme's art — and
+ * swap their file in place when the theme toggles. The other theme's still
+ * is then fetched at idle, once the page has loaded, so that swap has
+ * something to show (see "THE OTHER THEME'S STILL" below). A toggle also restarts the
  * slider on slide 0 — the new theme's still is introduced first, exactly as
  * on a fresh load — and a back/forward-cache restore does the same, so a
  * reader never opens the page on the old film because they left it there.
@@ -221,6 +224,76 @@ export function HeroSlider({
     }
     seenTheme.current = theme;
   }, [theme]);
+
+  /* THE OTHER THEME'S STILL, FETCHED WHEN NOTHING ELSE NEEDS THE NETWORK.
+     ==========================================================================
+     Every theme-dependent asset here is fetched only when its theme becomes
+     active, which keeps the other theme's artwork off the critical path. The
+     cost is that a theme toggle has nothing to show: the slider restarts on
+     the new theme's still (above), that picture has never been downloaded,
+     and the hero paints bare ground colour until it lands. Measured on the
+     live site at 1440x900, per animation frame: 0.1-0.2 s on a fast
+     connection and 2.9-3.6 s at 4 Mbps, at full opacity, on both pages in
+     both directions. Nothing can cover that gap — the film and its poster
+     are equally uncached, and holding the outgoing picture would show dark
+     art in light — so the only fix is to have the file already.
+
+     One file per hero is enough: because a toggle always restarts on slide
+     0, the still is always the blocking asset, and the film loads behind it
+     while the reader looks at the picture. So this fetches exactly the
+     other theme's still, and only once the page has finished loading and
+     the main thread is idle, at low priority — never in competition with
+     the LCP image, which is this hero's own still. A reader who asked their
+     browser to save data, or who is on a 2G-class connection, is left alone
+     and keeps the transient. */
+  useEffect(() => {
+    if (theme === null) return;
+    const connection = (
+      navigator as Navigator & {
+        connection?: { saveData?: boolean; effectiveType?: string };
+      }
+    ).connection;
+    if (connection?.saveData) return;
+    if (connection?.effectiveType && /2g$/.test(connection.effectiveType)) {
+      return;
+    }
+
+    const url = assetPath(
+      theme === "light" ? stills.dark.src : stills.light.src,
+    );
+    let cancelled = false;
+    let idleHandle: number | undefined;
+    let timer: number | undefined;
+
+    const fetchIt = () => {
+      if (cancelled) return;
+      const image = new window.Image();
+      /* An attribute, not the property: the property is newer than the DOM
+         types this project builds against, and the hint is advisory. */
+      image.setAttribute("fetchpriority", "low");
+      image.decoding = "async";
+      image.src = url;
+    };
+    const schedule = () => {
+      if (cancelled) return;
+      const idle = window.requestIdleCallback;
+      if (typeof idle === "function") {
+        idleHandle = idle(fetchIt, { timeout: 4000 });
+      } else {
+        timer = window.setTimeout(fetchIt, 1500);
+      }
+    };
+
+    if (document.readyState === "complete") schedule();
+    else window.addEventListener("load", schedule, { once: true });
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener("load", schedule);
+      if (idleHandle !== undefined) window.cancelIdleCallback?.(idleHandle);
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [theme, stills]);
 
   /* The clock runs in both themes once the theme is known. */
   const running =

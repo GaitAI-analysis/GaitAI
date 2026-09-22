@@ -32,6 +32,7 @@ def digest(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-dir", type=Path, required=True)
+    parser.add_argument("--only", default=None, help="comma-separated caseIds to (re)encode; others keep their outputs")
     args = parser.parse_args()
     source_root = args.source_dir.resolve(strict=True)
 
@@ -41,10 +42,13 @@ def main():
     # case, never a gate on all 34 roles across the page.
     generated = json.loads(REGISTRY.read_text(encoding="utf-8")) if REGISTRY.exists() else {}
 
+    only = set(args.only.split(",")) if args.only else None
     ready = []
     selected_hashes = {}
     for record in manifest["useCases"]:
         if record["status"] != "reviewed":
+            continue
+        if only is not None and record["caseId"] not in only:
             continue
         if not all(record["sources"].get(role) and
                    record["roleReview"][role]["status"] == "selected-clean" for role in ROLES):
@@ -56,7 +60,9 @@ def main():
         for role in ROLES:
             filename = record["sources"][role]
             reviewed = inventory[filename]
-            expected = {"caseId": case_id, "role": role}
+            # A record marked `singlePhotograph` (one reviewed frame for both
+            # themes, with the reason stated) claims its source for "both".
+            expected = {"caseId": case_id, "role": "both" if record.get("singlePhotograph") else role}
             if (reviewed["sourceKind"] != "clean-photograph" or
                     not reviewed["eligibleForMapping"] or
                     reviewed["selection"] != "selected" or
@@ -70,6 +76,8 @@ def main():
             if selected_hashes.get(reviewed["sha256"], filename) != filename:
                 raise ValueError(f"Duplicate export selected as another source: {filename}")
             selected_hashes[reviewed["sha256"]] = filename
+        if record.get("singlePhotograph") and len(record["singlePhotograph"].get("reason", "")) < 40:
+            raise ValueError(f"A single photograph for both themes needs a stated reason: {case_id}")
         ready.append(record)
 
     for record in ready:

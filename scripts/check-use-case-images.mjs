@@ -143,14 +143,27 @@ for (const record of manifest.useCases) {
       source.eligibleForMapping,
       `${record.caseId}/${role}: ineligible source`,
     );
+    /* A record may declare ONE photograph for both themes (`singlePhotograph`,
+       with the reason stated): its source is claimed for "both", and the two
+       roles legitimately share the file. Everything else about the ladder is
+       still checked per role. */
+    const single = Boolean(record.singlePhotograph);
+    if (single)
+      assert.ok(
+        (record.singlePhotograph.reason ?? "").length >= 40,
+        `${record.caseId}: a single photograph for both themes needs a stated reason`,
+      );
     assert.deepEqual(
       source.selectedFor,
-      { caseId: record.caseId, role },
+      { caseId: record.caseId, role: single ? "both" : role },
       `${record.caseId}/${role}: the inventory assigns this file elsewhere`,
     );
     assert.equal(record.roleReview[role].reviewId, source.reviewId);
     const claimed = usedSources.get(source.sha256);
-    assert.ok(!claimed, `Source reused: ${filename} already serves ${claimed}`);
+    assert.ok(
+      !claimed || (single && claimed.startsWith(`${record.caseId}/`)),
+      `Source reused: ${filename} already serves ${claimed}`,
+    );
     usedSources.set(source.sha256, `${record.caseId}/${role}`);
     sources[role] = source;
 
@@ -210,7 +223,9 @@ for (const record of manifest.useCases) {
     }
   }
 
-  /* Two real photographs, not one photograph twice. */
+  /* Two real photographs, not one photograph twice — unless the record says
+     so and why (`singlePhotograph`). */
+  if (record.singlePhotograph) continue;
   assert.notEqual(
     sources.dark.sha256,
     sources.light.sha256,
@@ -295,7 +310,12 @@ assert.equal(
   summary.currentlyIntegratedPrimaryAssets,
   integrated.length * roles.length,
 );
-assert.equal(summary.selected, integrated.length * roles.length);
+/* `selected` counts inventory FILES; a single-photograph record uses one file
+   for two roles. */
+const singleFiles = manifest.useCases.filter(
+  (record) => record.singlePhotograph && integrated.includes(record.caseId),
+).length;
+assert.equal(summary.selected, integrated.length * roles.length - singleFiles);
 assert.equal(summary.rejected, manifest.rejections.length);
 assert.equal(
   summary.useCasesWithoutImagery,

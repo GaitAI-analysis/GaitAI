@@ -1341,5 +1341,84 @@
     },
     "dark": "/images/use-cases/events/dark.webp",
     "light": "/images/use-cases/events/light.webp"
+  },
+  "defence": {
+    "alt": "Personnel pass through a monitored gate at a secure installation at dusk: access checks, a vehicle approval and a perimeter alert shown as overlays; no weapons in frame.",
+    "objectPosition": {
+      "dark": "50% 50%",
+      "light": "50% 50%"
+    },
+    "assets": {
+      "dark": {
+        "width": 1536,
+        "height": 1024,
+        "variants": [
+          {
+            "src": "/images/use-cases/defence/dark-480.webp",
+            "width": 480,
+            "height": 320,
+            "bytes": 65532,
+            "sha256": "82d2b64d9465547ce79e947d70763040d1a708e5b1942a982328d8edb94e9826"
+          },
+          {
+            "src": "/images/use-cases/defence/dark-768.webp",
+            "width": 768,
+            "height": 512,
+            "bytes": 141312,
+            "sha256": "acb1c82a0c65874a9a0e0a6ee4898c8eb9c827e858087fd6874622f2f3020688"
+          },
+          {
+            "src": "/images/use-cases/defence/dark-1024.webp",
+            "width": 1024,
+            "height": 683,
+            "bytes": 221296,
+            "sha256": "a2eabb78d3d589b042a3d3842ffcd5174156c51da83f841e37caeb16b95ddc31"
+          },
+          {
+            "src": "/images/use-cases/defence/dark.webp",
+            "width": 1536,
+            "height": 1024,
+            "bytes": 403366,
+            "sha256": "7c34e69e9e31fbe8a6f46276f2f2351709713ed2255943fc086874f7fae173e7"
+          }
+        ]
+      },
+      "light": {
+        "width": 1536,
+        "height": 1024,
+        "variants": [
+          {
+            "src": "/images/use-cases/defence/light-480.webp",
+            "width": 480,
+            "height": 320,
+            "bytes": 65532,
+            "sha256": "82d2b64d9465547ce79e947d70763040d1a708e5b1942a982328d8edb94e9826"
+          },
+          {
+            "src": "/images/use-cases/defence/light-768.webp",
+            "width": 768,
+            "height": 512,
+            "bytes": 141312,
+            "sha256": "acb1c82a0c65874a9a0e0a6ee4898c8eb9c827e858087fd6874622f2f3020688"
+          },
+          {
+            "src": "/images/use-cases/defence/light-1024.webp",
+            "width": 1024,
+            "height": 683,
+            "bytes": 221296,
+            "sha256": "a2eabb78d3d589b042a3d3842ffcd5174156c51da83f841e37caeb16b95ddc31"
+          },
+          {
+            "src": "/images/use-cases/defence/light.webp",
+            "width": 1536,
+            "height": 1024,
+            "bytes": 403366,
+            "sha256": "7c34e69e9e31fbe8a6f46276f2f2351709713ed2255943fc086874f7fae173e7"
+          }
+        ]
+      }
+    },
+    "dark": "/images/use-cases/defence/dark.webp",
+    "light": "/images/use-cases/defence/light.webp"
   }
 }

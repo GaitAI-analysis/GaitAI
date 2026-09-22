@@ -21,15 +21,15 @@
   "audit": {
     "reviewedAt": "2026-09-20",
     "summary": {
-      "sourceFilesInspected": 38,
-      "selected": 34,
+      "sourceFilesInspected": 39,
+      "selected": 35,
       "rejected": 4,
       "exactDuplicates": 0,
       "pixelIdenticalGroups": 0,
-      "useCasesWithCompletePair": 17,
-      "useCasesWithoutImagery": 1,
-      "currentlyIntegratedUseCaseSets": 17,
-      "currentlyIntegratedPrimaryAssets": 34
+      "useCasesWithCompletePair": 18,
+      "useCasesWithoutImagery": 0,
+      "currentlyIntegratedUseCaseSets": 18,
+      "currentlyIntegratedPrimaryAssets": 36
     }
   },
   "useCases": [
@@ -1699,21 +1699,110 @@
           ]
         }
       }
-    }
-  ],
-  "missingDedicatedAssets": [
+    },
     {
       "caseId": "defence",
       "industry": "Defence & Armed Forces",
       "vertical": "securevision",
-      "reason": "The only defence photographs in this batch (U014, U022) show an armed soldier on patrol. The site's defence imagery rule forbids weapons and combat imagery, and the integration brief excluded military imagery, so both were rejected and this environment ships without a photograph.",
-      "candidatesRejected": [
-        "U014",
-        "U022"
-      ],
-      "resolution": "Commission a non-weapons defence pair \u2014 a base pedestrian environment such as a gate or perimeter walkway with no visible firearm."
+      "status": "reviewed",
+      "sources": {
+        "dark": "Sep 22/ChatGPT Image Sep 22, 2026, 10_48_25 AM.png",
+        "light": "Sep 22/ChatGPT Image Sep 22, 2026, 10_48_25 AM.png"
+      },
+      "roleReview": {
+        "dark": {
+          "status": "selected-clean",
+          "reviewId": "U039",
+          "reason": "Personnel pass through a monitored gate at a secure installation at dusk: access checks, a vehicle approval and a perimeter alert shown as overlays; no weapons in frame."
+        },
+        "light": {
+          "status": "selected-clean",
+          "reviewId": "U039",
+          "reason": "Personnel pass through a monitored gate at a secure installation at dusk: access checks, a vehicle approval and a perimeter alert shown as overlays; no weapons in frame."
+        }
+      },
+      "singlePhotograph": {
+        "reason": "The founder supplied one defence photograph and asked for it on the card. It is a dusk frame (mean luma 120) that sits between the site's night and day pairs, and it is the first defence image that meets the no-weapons rule, so it serves both themes until a genuine day/night pair is commissioned."
+      },
+      "visualDescription": "Personnel pass through a monitored gate at a secure installation at dusk: access checks, a vehicle approval and a perimeter alert shown as overlays; no weapons in frame.",
+      "objectPosition": {
+        "dark": "50% 50%",
+        "light": "50% 50%"
+      },
+      "deploymentStatus": "integrated",
+      "outputs": {
+        "dark": {
+          "width": 1536,
+          "height": 1024,
+          "variants": [
+            {
+              "src": "/images/use-cases/defence/dark-480.webp",
+              "width": 480,
+              "height": 320,
+              "bytes": 65532,
+              "sha256": "82d2b64d9465547ce79e947d70763040d1a708e5b1942a982328d8edb94e9826"
+            },
+            {
+              "src": "/images/use-cases/defence/dark-768.webp",
+              "width": 768,
+              "height": 512,
+              "bytes": 141312,
+              "sha256": "acb1c82a0c65874a9a0e0a6ee4898c8eb9c827e858087fd6874622f2f3020688"
+            },
+            {
+              "src": "/images/use-cases/defence/dark-1024.webp",
+              "width": 1024,
+              "height": 683,
+              "bytes": 221296,
+              "sha256": "a2eabb78d3d589b042a3d3842ffcd5174156c51da83f841e37caeb16b95ddc31"
+            },
+            {
+              "src": "/images/use-cases/defence/dark.webp",
+              "width": 1536,
+              "height": 1024,
+              "bytes": 403366,
+              "sha256": "7c34e69e9e31fbe8a6f46276f2f2351709713ed2255943fc086874f7fae173e7"
+            }
+          ]
+        },
+        "light": {
+          "width": 1536,
+          "height": 1024,
+          "variants": [
+            {
+              "src": "/images/use-cases/defence/light-480.webp",
+              "width": 480,
+              "height": 320,
+              "bytes": 65532,
+              "sha256": "82d2b64d9465547ce79e947d70763040d1a708e5b1942a982328d8edb94e9826"
+            },
+            {
+              "src": "/images/use-cases/defence/light-768.webp",
+              "width": 768,
+              "height": 512,
+              "bytes": 141312,
+              "sha256": "acb1c82a0c65874a9a0e0a6ee4898c8eb9c827e858087fd6874622f2f3020688"
+            },
+            {
+              "src": "/images/use-cases/defence/light-1024.webp",
+              "width": 1024,
+              "height": 683,
+              "bytes": 221296,
+              "sha256": "a2eabb78d3d589b042a3d3842ffcd5174156c51da83f841e37caeb16b95ddc31"
+            },
+            {
+              "src": "/images/use-cases/defence/light.webp",
+              "width": 1536,
+              "height": 1024,
+              "bytes": 403366,
+              "sha256": "7c34e69e9e31fbe8a6f46276f2f2351709713ed2255943fc086874f7fae173e7"
+            }
+          ]
+        }
+      }
     }
   ],
+  "missingDedicatedAssets": [],
   "rejections": [
     {
       "reviewId": "U011",
@@ -2602,7 +2691,48 @@
         "role": "light"
       },
       "eligibleForMapping": true
+    },
+    {
+      "reviewId": "U039",
+      "source": "Sep 22/ChatGPT Image Sep 22, 2026, 10_48_25 AM.png",
+      "bytes": 2428759,
+      "sha256": "0dd538ec42ffc27c4262fb83a25177ebd758a9ff768fefe3df9a9c23651d88f7",
+      "pixelSha256": "8579b763a469dad1c00cca7c76d2210caa5664782486278cbdf886317d6c9199",
+      "width": 1536,
+      "height": 1024,
+      "aspectRatio": 1.5,
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "03b59a6f52e39528",
+      "meanLuma": 120.4,
+      "medianLuma": 119,
+      "sourceKind": "clean-photograph",
+      "visualNote": "Personnel pass through a monitored gate at a secure installation at dusk: access checks, a vehicle approval and a perimeter alert shown as overlays; no weapons in frame.",
+      "selection": "selected",
+      "selectedFor": {
+        "caseId": "defence",
+        "role": "both"
+      },
+      "eligibleForMapping": true,
+      "supplied": "2026-09-22, founder's Downloads. One photograph for both themes (see the defence record's singlePhotograph)."
     }
   ],
-  "bandNote": "4:3, the product-card ratio. Thirteen sources are 16:9 and lose 25% of their width to the band, which is the safe axis for scenes of standing people; the five 4:3 sources are shown whole. The position is per theme because the two frames of a pair are separate photographs with their subjects in different places."
+  "bandNote": "4:3, the product-card ratio. Thirteen sources are 16:9 and lose 25% of their width to the band, which is the safe axis for scenes of standing people; the five 4:3 sources are shown whole. The position is per theme because the two frames of a pair are separate photographs with their subjects in different places.",
+  "resolvedWithSinglePhotograph": [
+    {
+      "caseId": "defence",
+      "reviewId": "U039",
+      "previously": {
+        "caseId": "defence",
+        "industry": "Defence & Armed Forces",
+        "vertical": "securevision",
+        "reason": "The only defence photographs in this batch (U014, U022) show an armed soldier on patrol. The site's defence imagery rule forbids weapons and combat imagery, and the integration brief excluded military imagery, so both were rejected and this environment ships without a photograph.",
+        "candidatesRejected": [
+          "U014",
+          "U022"
+        ],
+        "resolution": "Commission a non-weapons defence pair \u2014 a base pedestrian environment such as a gate or perimeter walkway with no visible firearm."
+      }
+    }
+  ]
 }

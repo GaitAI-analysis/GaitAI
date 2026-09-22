@@ -64,8 +64,12 @@ export default function SecureVisionPage() {
           selector's specificity. It reads `min-height`, never `height`: the
           hero fills the screen below the navbar when the content fits and
           grows when it does not — a fixed height used to clip the last
-          capability row outright on a wide, short window. */}
-      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 lg:min-h-[max(600px,calc(100svh_-_var(--site-header-height)))] lg:pb-14 lg:pt-0">
+          capability row outright on a wide, short window. The third term is
+          the still's own height at this width (1672x941): the hero is never
+          shorter than its picture, so `cover` never crops the product strip
+          painted across the picture's foot; on a short, wide screen the hero
+          runs past the fold and the page scrolls to the strip. */}
+      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 lg:min-h-[max(600px,calc(100svh_-_var(--site-header-height)),calc(100vw_*_941_/_1672))] lg:pb-14 lg:pt-0">
         {/* Extracted first frame as the poster, so the hero paints before the
             video decodes; `preload="metadata"` instead of "auto" so the file
             is not fetched in full up front. Reduced motion is a CSS concern —

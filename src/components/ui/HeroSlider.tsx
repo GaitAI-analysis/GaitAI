@@ -157,11 +157,15 @@ export function HeroSlider({
   /* Where the copy ends. The readability shade is the copy column's, not
      the picture's: on laptops and up the CSS masks it off below the copy so
      the product strip painted across the bottom of every still shows in
-     full. The copy's height depends on the viewport (the headline wraps to
-     more lines as it scales), so the mask reads `--hero-copy-bottom`, the
-     copy block's bottom edge as a percentage of the hero, measured here and
-     kept current by a ResizeObserver. Until it is measured the CSS falls
-     back to the full-height shade, so nothing the copy sits on is ever bare. */
+     full, and the MobilityCare hero grows so that strip starts below the
+     copy. The copy's height depends on the viewport (the headline wraps to
+     more lines as it scales), so both read `--hero-copy-bottom-px`, the copy
+     block's bottom edge in pixels from the hero's top, measured here on the
+     hero and kept current by a ResizeObserver. It is a length, not a share
+     of the hero, so a hero that grows because of it does not move it (the
+     copy is anchored to the top where the growth rule applies). Until it is
+     measured the CSS falls back to the full-height shade and the plain
+     viewport height, so nothing the copy sits on is ever bare. */
   useEffect(() => {
     const root = rootRef.current;
     const hero = root?.parentElement;
@@ -171,8 +175,8 @@ export function HeroSlider({
       const h = hero.getBoundingClientRect();
       const c = copy.getBoundingClientRect();
       if (h.height <= 0) return;
-      const pct = Math.min(100, Math.max(0, ((c.bottom - h.top) / h.height) * 100));
-      root.style.setProperty("--hero-copy-bottom", `${pct.toFixed(1)}%`);
+      const px = Math.max(0, Math.round(c.bottom - h.top));
+      hero.style.setProperty("--hero-copy-bottom-px", `${px}px`);
     };
     measure();
     const observer = new ResizeObserver(measure);

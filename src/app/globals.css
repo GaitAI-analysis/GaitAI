@@ -3297,7 +3297,27 @@ body {
    */
   .mobilitycare-hero {
     min-height: max(620px, calc(100vh - var(--site-header-height)));
-    min-height: max(620px, calc(100svh - var(--site-header-height)));
+    /* Two more floors since the stills (2026-09-22): the still's own height
+       at this width (1672x941, so `cover` never has to crop its bottom — the
+       product strip painted there stays whole), and the height at which
+       that strip's first row starts below the copy — the strip's rings begin
+       63.8% down the picture, the copy's bottom edge is `--hero-copy-bottom-px`
+       (HeroSlider measures it; the copy is top-anchored here, so growing the
+       hero does not move it), plus a rem of air — capped at 4% over the
+       picture's own height, because every pixel of hero above that height
+       is `cover` cropping the picture's sides, and the strip's outermost
+       rings sit 2% from each edge. When one of these wins over the viewport
+       the hero is taller than the screen and the page scrolls to the strip,
+       which is the brief: the strip is content, not trim. */
+    min-height: max(
+      620px,
+      calc(100svh - var(--site-header-height)),
+      calc(100vw * 941 / 1672),
+      min(
+        calc((var(--hero-copy-bottom-px, 0px) + 1rem) / 0.638),
+        calc(100vw * 941 / 1672 * 1.04)
+      )
+    );
     /* The content layer owns the top offset (see its `padding-top`); this is
        the breathing room after the last chip row, which `padding: 0` had
        removed entirely. */
@@ -3439,6 +3459,10 @@ body {
 .hero-slider__dots {
   position: absolute;
   left: 50%;
+  /* Below 1024 the pill sits a little in from the edge; on laptops and up it
+     drops to the bottom rim so it clears the last text row of the product
+     strip painted at the foot of the stills (which end 4-5% short of the
+     picture's bottom edge). */
   bottom: 1.15rem;
   z-index: 3;
   display: flex;
@@ -3494,6 +3518,12 @@ body {
   outline-offset: 4px;
 }
 
+@media (min-width: 1024px) {
+  .hero-slider__dots {
+    bottom: 0.3rem;
+  }
+}
+
 /* Dark: the same pill in the night heroes' own glass — a dark backing with
    pale dots, so it does not read as a bright tab on the picture. */
 :root:not(.light) .hero-slider__dots {
@@ -3534,94 +3564,87 @@ body {
 
 /* ── MobilityCare's still ──────────────────────────────────────────────────
    The picture carries its own wordmark, title and tagline in its left third;
-   the page's headline says the same things in the same place. On laptops and
-   up the picture's box starts 10% in and is framed from its left edge, so
-   that painted panel sits exactly under the copy column and its firm shade,
-   while the clinic, the gait-analysis panel, the walker and the progress
-   panel stay clear to the right. Below that the whole width is the picture,
-   framed on the walker. Nothing is stretched: `cover` from a 16:9 source. */
+   the page's headline says the same things in the same place, so that panel
+   (the picture's left third) sits under the copy column and its firm shade.
+   On laptops and up the picture's box is the whole hero and the hero is at
+   least the picture's own height (see .mobilitycare-hero's min-height), so
+   `cover` shows the picture whole — including the product strip painted
+   across its foot — and crops, centred, only the little that a taller hero
+   asks for. Below that the whole width is the picture, framed on the walker.
+   Nothing is stretched: `cover` from a 16:9 source. */
 .mobilitycare-hero .hero-slider__still {
   --hero-still-position: 58% 38%;
 }
 
 @media (min-width: 1024px) {
   .mobilitycare-hero .hero-slider__still {
-    --hero-still-inset-left: 10%;
-    --hero-still-position: 0% 40%;
+    /* 53%, not 50%: the strip's last ring sits 6px closer to its edge than
+       the first, so what little a taller hero crops comes off the left. */
+    --hero-still-position: 53% 40%;
   }
 }
 
 /* The still's shade. The picture paints its own wordmark, title and tagline
    in the region the page's headline occupies; at anything short of opaque
    they ghost through behind the real headline. So the shade is opaque over
-   exactly that panel (it ends near 43.5% of the hero with the inset above)
-   and is gone by 50%, before the gait-analysis panel at 47% has more than
-   its edge under it — the picture is not faded, it begins there — and the
-   walker, the progress panel and the product strip right of the copy are
-   untouched. */
+   exactly that panel (it ends 33% into the picture) and is gone by 42%,
+   with only the gait-analysis panel's left edge (from 37%) under its tail —
+   the picture is not faded, it begins there — and the walker, the progress
+   panel and the product strip are untouched. */
 .light .hero-slider__slide--still .mobilitycare-hero__overlay {
   /* Three layers, top to bottom: a hairline of specular white at the panel's
      edge; a cool blue-grey drop just past it, so the panel stands a little in
      front of the picture; and the surface itself — pearl at the left edge
-     running to cool white where it meets the picture, opaque to 43.5% (the
-     painted title panel must not ghost through), then the same fast
-     dissolve as before. */
+     running to cool white where it meets the picture, opaque to 34% (the
+     painted title panel, which ends 33% into the picture, must not ghost
+     through), then the same fast dissolve as before. */
   background:
     linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0) 43.1%,
-      rgba(255, 255, 255, 0.85) 43.5%,
-      rgba(255, 255, 255, 0) 44%
+      rgba(255, 255, 255, 0) 33.6%,
+      rgba(255, 255, 255, 0.85) 34%,
+      rgba(255, 255, 255, 0) 34.5%
     ),
     linear-gradient(
       90deg,
-      rgba(30, 58, 138, 0) 42.5%,
-      rgba(30, 58, 138, 0.075) 44.5%,
-      rgba(30, 58, 138, 0.03) 47%,
-      rgba(30, 58, 138, 0) 50%
+      rgba(30, 58, 138, 0) 33%,
+      rgba(30, 58, 138, 0.075) 35%,
+      rgba(30, 58, 138, 0.03) 37.5%,
+      rgba(30, 58, 138, 0) 40.5%
     ),
     linear-gradient(
       90deg,
       #fbfcfe 0%,
-      #f8fbfe 26%,
-      #f2f7fc 43.5%,
-      rgba(242, 247, 252, 0.6) 45.5%,
-      rgba(242, 247, 252, 0.2) 47.5%,
-      rgba(242, 247, 252, 0) 50%
+      #f8fbfe 20%,
+      #f2f7fc 34%,
+      rgba(242, 247, 252, 0.6) 36.5%,
+      rgba(242, 247, 252, 0.2) 39%,
+      rgba(242, 247, 252, 0) 42%
     );
 }
 
 /* And, as for SecureVision below, the shade is the copy column's only: on
-   laptops and up two unioned mask layers keep it down to just under the
-   copy (`--hero-copy-bottom`, the copy block's bottom edge as a percentage
-   of the hero, measured by HeroSlider; the stills' painted icon row ends
-   above the CTAs at every width) and along a band at the hero's left edge
-   (the still's box starts 10% in; the band also covers the WalkScan ring
-   cut on that edge), and let it go everywhere else — so the product strip
-   painted across the bottom of both stills (FallRisk … ClinicalTrials)
-   shows in full. Where the copy runs tall (a wide screen wraps the headline
-   to more lines) the shade simply follows it down. Until the measurement
+   laptops and up a mask ends it just under the copy (`--hero-copy-bottom-px`,
+   the copy block's bottom edge measured by HeroSlider; the stills' painted
+   icon row ends above the CTAs at every width) — so the product strip
+   painted across the bottom of both stills (WalkScan … ClinicalTrials) shows
+   in full. The hero's min-height keeps that strip's first row below the
+   copy, so the mask's tail never lands on a ring. Until the measurement
    lands the fallback is the full-height shade. Both themes. */
 @media (min-width: 1024px) {
   .mobilitycare-hero .hero-slider__slide--still .mobilitycare-hero__overlay {
-    -webkit-mask-image:
-      linear-gradient(
-        180deg,
-        #000 0%,
-        #000 calc(var(--hero-copy-bottom, 100%) + 1%),
-        transparent calc(var(--hero-copy-bottom, 100%) + 5%)
-      ),
-      linear-gradient(90deg, #000 0%, #000 18.5%, transparent 21%);
-    -webkit-mask-composite: source-over;
-    mask-image:
-      linear-gradient(
-        180deg,
-        #000 0%,
-        #000 calc(var(--hero-copy-bottom, 100%) + 1%),
-        transparent calc(var(--hero-copy-bottom, 100%) + 5%)
-      ),
-      linear-gradient(90deg, #000 0%, #000 18.5%, transparent 21%);
-    mask-composite: add;
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 calc(var(--hero-copy-bottom-px, 100%) + 4px),
+      transparent calc(var(--hero-copy-bottom-px, 100%) + 20px)
+    );
+    mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 calc(var(--hero-copy-bottom-px, 100%) + 4px),
+      transparent calc(var(--hero-copy-bottom-px, 100%) + 20px)
+    );
   }
 }
 
@@ -3645,15 +3668,14 @@ body {
    walker on the lit track a little right of centre, the gait-analysis and
    progress panels either side — so it gets the same kind of framing with
    its own numbers: framed a touch lower (its panels sit lower in the frame)
-   and, on laptops and up, the same 10% inset from its own left edge. */
+   and the same whole-hero box. */
 :root:not(.light) .mobilitycare-hero .hero-slider__still {
   --hero-still-position: 60% 42%;
 }
 
 @media (min-width: 1024px) {
   :root:not(.light) .mobilitycare-hero .hero-slider__still {
-    --hero-still-inset-left: 10%;
-    --hero-still-position: 0% 42%;
+    --hero-still-position: 53% 42%;
   }
 }
 
@@ -3670,10 +3692,10 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 20, 1) 0%,
-    rgba(3, 8, 20, 1) 43.5%,
-    rgba(3, 8, 20, 0.6) 45.5%,
-    rgba(3, 8, 20, 0.2) 47.5%,
-    rgba(3, 8, 20, 0) 50%
+    rgba(3, 8, 20, 1) 34%,
+    rgba(3, 8, 20, 0.6) 36.5%,
+    rgba(3, 8, 20, 0.2) 39%,
+    rgba(3, 8, 20, 0) 42%
   );
 }
 
@@ -3728,13 +3750,13 @@ body {
 
 @media (min-width: 1024px) {
   .light .mobilitycare-hero .hero-slider__slide--still::after {
-    -webkit-mask-image: linear-gradient(90deg, transparent 43%, #000 52%);
-    mask-image: linear-gradient(90deg, transparent 43%, #000 52%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 34%, #000 44%);
+    mask-image: linear-gradient(90deg, transparent 34%, #000 44%);
   }
 
   .light .securevision-hero-slider .hero-slider__slide--still::after {
-    -webkit-mask-image: linear-gradient(90deg, transparent 36%, #000 48%);
-    mask-image: linear-gradient(90deg, transparent 36%, #000 48%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 34%, #000 46%);
+    mask-image: linear-gradient(90deg, transparent 34%, #000 46%);
   }
 }
 
@@ -3745,46 +3767,48 @@ body {
 }
 
 /* ── SecureVision's still ──────────────────────────────────────────────────
-   Same idea, its own numbers: a 6% inset (the watchlist cue sits close to
-   the picture's right edge, so less of that edge may go), framed a little
-   left of centre so the traveller, the anomaly cue and the crowd-flow panel
-   hold the middle. Below laptops, the whole width, framed on the traveller. */
+   Same idea: the box is the whole hero and the hero is at least the
+   picture's own height (the `lg:min-h-[…]` utility on the section), so on
+   laptops and up the picture — traveller, cues, slogans and the product
+   strip at its foot — shows whole, cropped centred only by what a taller
+   hero asks for. Below laptops, framed on the traveller. */
 .securevision-hero-slider .hero-slider__still {
   --hero-still-position: 50% 35%;
 }
 
 @media (min-width: 1024px) {
   .securevision-hero-slider .hero-slider__still {
-    --hero-still-inset-left: 6%;
-    --hero-still-position: 40% 35%;
+    --hero-still-position: 50% 35%;
   }
 }
 
 .light .hero-slider__slide--still .securevision-video-shade {
   /* As on MobilityCare: specular hairline, cool drop, pearl-to-cool-white
-     surface — opaque to 36% here, then the dissolve as before. */
+     surface — opaque to 34% here (the painted title ends 33% into the
+     picture, and the box is now the whole hero), then the dissolve as
+     before, gone where the headline ends. */
   background:
     linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0) 35.6%,
-      rgba(255, 255, 255, 0.85) 36%,
-      rgba(255, 255, 255, 0) 36.5%
+      rgba(255, 255, 255, 0) 33.6%,
+      rgba(255, 255, 255, 0.85) 34%,
+      rgba(255, 255, 255, 0) 34.5%
     ),
     linear-gradient(
       90deg,
-      rgba(30, 58, 138, 0) 35%,
-      rgba(30, 58, 138, 0.075) 37.5%,
-      rgba(30, 58, 138, 0.03) 42%,
-      rgba(30, 58, 138, 0) 48%
+      rgba(30, 58, 138, 0) 33%,
+      rgba(30, 58, 138, 0.075) 35.5%,
+      rgba(30, 58, 138, 0.03) 40%,
+      rgba(30, 58, 138, 0) 46%
     ),
     linear-gradient(
       90deg,
       #fbfcfe 0%,
-      #f8fbfe 22%,
-      #f2f7fc 36%,
-      rgba(242, 247, 252, 0.75) 39%,
-      rgba(242, 247, 252, 0.4) 42%,
-      rgba(242, 247, 252, 0.15) 45.5%,
+      #f8fbfe 20%,
+      #f2f7fc 34%,
+      rgba(242, 247, 252, 0.75) 37.5%,
+      rgba(242, 247, 252, 0.4) 41%,
+      rgba(242, 247, 252, 0.15) 45%,
       rgba(242, 247, 252, 0) 49%
     );
 }
@@ -3792,37 +3816,32 @@ body {
 /* The shade is the copy column's, not the picture's: on laptops and up it is
    masked to the copy, so the product strip painted across the bottom of both
    SecureVision stills (SuspiciousMotion … Watchlist) shows in full, with only
-   the pagination pill floating over it. Two mask layers, unioned: the first
-   keeps the shade down to just below the copy (`--hero-copy-bottom`, the
-   copy block's bottom edge as a percentage of the hero, measured by
-   HeroSlider) — a little further here than on MobilityCare, because this
-   still's painted icon row and its labels reach a few percent past the
-   CTAs — and lets it go before the strip; the second keeps a narrow band
-   along the hero's left edge, because the still's box starts 6% in (see
-   above) and its edge — and the half ring on it — would otherwise show
-   under the strip. So the strip emerges from the copy column at CrowdSense.
-   Where the copy runs tall the shade follows it down; until the measurement
-   lands the fallback is the full-height shade. Both themes. */
+   the pagination pill floating over it. The mask keeps the shade down to
+   just below the copy (`--hero-copy-bottom-px`, the copy block's bottom edge
+   measured by HeroSlider) — a good deal further here than on MobilityCare
+   (80px, fading out by 105px), because this still's painted icon row and
+   its "Safer spaces / Stronger communities / A safer tomorrow" labels reach
+   up to ~100px past the CTAs at laptop widths and would otherwise show as
+   stray text under the buttons — and lets it go before the strip, whose
+   header row is never nearer than ~95px below the copy. Where the copy runs tall (a
+   wide screen wraps the headline to more lines; this copy is vertically
+   centred, so the hero cannot simply grow under it) the shade follows it
+   down over the strip's left rings; until the measurement lands the
+   fallback is the full-height shade. Both themes. */
 @media (min-width: 1024px) {
   .securevision-hero-slider .hero-slider__slide--still .securevision-video-shade {
-    -webkit-mask-image:
-      linear-gradient(
-        180deg,
-        #000 0%,
-        #000 calc(var(--hero-copy-bottom, 100%) + 4%),
-        transparent calc(var(--hero-copy-bottom, 100%) + 9%)
-      ),
-      linear-gradient(90deg, #000 0%, #000 13.5%, transparent 16%);
-    -webkit-mask-composite: source-over;
-    mask-image:
-      linear-gradient(
-        180deg,
-        #000 0%,
-        #000 calc(var(--hero-copy-bottom, 100%) + 4%),
-        transparent calc(var(--hero-copy-bottom, 100%) + 9%)
-      ),
-      linear-gradient(90deg, #000 0%, #000 13.5%, transparent 16%);
-    mask-composite: add;
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 calc(var(--hero-copy-bottom-px, 100%) + 80px),
+      transparent calc(var(--hero-copy-bottom-px, 100%) + 105px)
+    );
+    mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 calc(var(--hero-copy-bottom-px, 100%) + 80px),
+      transparent calc(var(--hero-copy-bottom-px, 100%) + 105px)
+    );
   }
 }
 
@@ -3844,17 +3863,16 @@ body {
 /* The DARK still (2026-09-22). Same composition as its light companion —
    painted title left, the traveller with the case dead centre, the
    authorised-access and watchlist cues right — so: framed on the traveller
-   below laptops, and on laptops and up the same 6% inset from its own left
-   edge, framed a little lower than the light one (its cues and the crowd-flow
-   panel sit lower in the frame). */
+   below laptops, and on laptops and up the same whole-hero box, framed a
+   little lower than the light one (its cues and the crowd-flow panel sit
+   lower in the frame). */
 :root:not(.light) .securevision-hero-slider .hero-slider__still {
   --hero-still-position: 50% 40%;
 }
 
 @media (min-width: 1024px) {
   :root:not(.light) .securevision-hero-slider .hero-slider__still {
-    --hero-still-inset-left: 6%;
-    --hero-still-position: 40% 40%;
+    --hero-still-position: 50% 40%;
   }
 }
 
@@ -3865,10 +3883,10 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 18, 1) 0%,
-    rgba(3, 8, 18, 1) 36%,
-    rgba(3, 8, 18, 0.75) 39%,
-    rgba(3, 8, 18, 0.4) 42%,
-    rgba(3, 8, 18, 0.15) 45.5%,
+    rgba(3, 8, 18, 1) 34%,
+    rgba(3, 8, 18, 0.75) 37.5%,
+    rgba(3, 8, 18, 0.4) 41%,
+    rgba(3, 8, 18, 0.15) 45%,
     rgba(3, 8, 18, 0) 49%
   );
 }
@@ -6892,19 +6910,6 @@ body {
     display: block;
   }
 
-  .env-copy {
-    min-width: 0;
-    flex: 1 1 auto;
-  }
-  .env-name {
-    display: block;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: rgb(var(--c-soft-white));
-  }
-  .env-outcome {
-    display: block;
-    margin-top: 0.25rem;
   /* LIGHT: the environment's rendered picture (data/environment-icons.ts) in
      a pearl tile — a slightly larger square than the glyph's, so a 44px
      picture reads: white-to-pearl gradient, a blue-grey hairline with a cyan
@@ -6989,6 +6994,19 @@ body {
     object-fit: contain;
   }
 
+  .env-copy {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .env-name {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(var(--c-soft-white));
+  }
+  .env-outcome {
+    display: block;
+    margin-top: 0.25rem;
     font-size: 12.5px;
     line-height: 1.65;
     color: rgb(var(--c-soft-mute));

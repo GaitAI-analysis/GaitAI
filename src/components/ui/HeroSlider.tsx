@@ -154,6 +154,33 @@ export function HeroSlider({
     return () => observer.disconnect();
   }, []);
 
+  /* Where the copy ends. The readability shade is the copy column's, not
+     the picture's: on laptops and up the CSS masks it off below the copy so
+     the product strip painted across the bottom of every still shows in
+     full. The copy's height depends on the viewport (the headline wraps to
+     more lines as it scales), so the mask reads `--hero-copy-bottom`, the
+     copy block's bottom edge as a percentage of the hero, measured here and
+     kept current by a ResizeObserver. Until it is measured the CSS falls
+     back to the full-height shade, so nothing the copy sits on is ever bare. */
+  useEffect(() => {
+    const root = rootRef.current;
+    const hero = root?.parentElement;
+    const copy = hero?.querySelector("h1")?.parentElement;
+    if (!root || !hero || !copy || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const h = hero.getBoundingClientRect();
+      const c = copy.getBoundingClientRect();
+      if (h.height <= 0) return;
+      const pct = Math.min(100, Math.max(0, ((c.bottom - h.top) / h.height) * 100));
+      root.style.setProperty("--hero-copy-bottom", `${pct.toFixed(1)}%`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(hero);
+    observer.observe(copy);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const onVisibility = () => setTabVisible(!document.hidden);
     onVisibility();

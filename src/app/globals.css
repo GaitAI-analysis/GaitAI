@@ -3554,20 +3554,54 @@ body {
 /* The still's shade. The picture paints its own wordmark, title and tagline
    in the region the page's headline occupies; at anything short of opaque
    they ghost through behind the real headline. So the shade is opaque over
-   exactly that panel (it ends near 42% of the hero with the inset above) and
-   dissolves fast after it — the picture is not faded, it begins there — and
-   the gait-analysis panel, the walker and the progress panel are untouched. */
+   exactly that panel (it ends near 43.5% of the hero with the inset above)
+   and is gone by 50%, before the gait-analysis panel at 47% has more than
+   its edge under it — the picture is not faded, it begins there — and the
+   walker, the progress panel and the product strip right of the copy are
+   untouched. */
 .light .hero-slider__slide--still .mobilitycare-hero__overlay {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 40%,
-    rgba(255, 255, 255, 0.96) 43%,
-    rgba(255, 255, 255, 0.6) 48%,
-    rgba(255, 255, 255, 0.2) 53%,
-    rgba(255, 255, 255, 0.05) 56%,
-    rgba(255, 255, 255, 0) 59%
+    rgba(255, 255, 255, 1) 43.5%,
+    rgba(255, 255, 255, 0.6) 45.5%,
+    rgba(255, 255, 255, 0.2) 47.5%,
+    rgba(255, 255, 255, 0) 50%
   );
+}
+
+/* And, as for SecureVision below, the shade is the copy column's only: on
+   laptops and up two unioned mask layers keep it down to just under the
+   copy (`--hero-copy-bottom`, the copy block's bottom edge as a percentage
+   of the hero, measured by HeroSlider; the stills' painted icon row ends
+   above the CTAs at every width) and along a band at the hero's left edge
+   (the still's box starts 10% in; the band also covers the WalkScan ring
+   cut on that edge), and let it go everywhere else — so the product strip
+   painted across the bottom of both stills (FallRisk … ClinicalTrials)
+   shows in full. Where the copy runs tall (a wide screen wraps the headline
+   to more lines) the shade simply follows it down. Until the measurement
+   lands the fallback is the full-height shade. Both themes. */
+@media (min-width: 1024px) {
+  .mobilitycare-hero .hero-slider__slide--still .mobilitycare-hero__overlay {
+    -webkit-mask-image:
+      linear-gradient(
+        180deg,
+        #000 0%,
+        #000 calc(var(--hero-copy-bottom, 100%) + 1%),
+        transparent calc(var(--hero-copy-bottom, 100%) + 5%)
+      ),
+      linear-gradient(90deg, #000 0%, #000 18.5%, transparent 21%);
+    -webkit-mask-composite: source-over;
+    mask-image:
+      linear-gradient(
+        180deg,
+        #000 0%,
+        #000 calc(var(--hero-copy-bottom, 100%) + 1%),
+        transparent calc(var(--hero-copy-bottom, 100%) + 5%)
+      ),
+      linear-gradient(90deg, #000 0%, #000 18.5%, transparent 21%);
+    mask-composite: add;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -3615,11 +3649,10 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 20, 1) 0%,
-    rgba(3, 8, 20, 1) 41%,
-    rgba(3, 8, 20, 0.9) 43.5%,
-    rgba(3, 8, 20, 0.5) 46%,
-    rgba(3, 8, 20, 0.15) 49%,
-    rgba(3, 8, 20, 0) 53%
+    rgba(3, 8, 20, 1) 43.5%,
+    rgba(3, 8, 20, 0.6) 45.5%,
+    rgba(3, 8, 20, 0.2) 47.5%,
+    rgba(3, 8, 20, 0) 50%
   );
 }
 
@@ -3658,13 +3691,49 @@ body {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 35%,
-    rgba(255, 255, 255, 0.96) 38%,
-    rgba(255, 255, 255, 0.6) 43%,
-    rgba(255, 255, 255, 0.2) 48%,
-    rgba(255, 255, 255, 0.05) 51%,
-    rgba(255, 255, 255, 0) 54%
+    rgba(255, 255, 255, 1) 36%,
+    rgba(255, 255, 255, 0.75) 39%,
+    rgba(255, 255, 255, 0.4) 42%,
+    rgba(255, 255, 255, 0.15) 45.5%,
+    rgba(255, 255, 255, 0) 49%
   );
+}
+
+/* The shade is the copy column's, not the picture's: on laptops and up it is
+   masked to the copy, so the product strip painted across the bottom of both
+   SecureVision stills (SuspiciousMotion … Watchlist) shows in full, with only
+   the pagination pill floating over it. Two mask layers, unioned: the first
+   keeps the shade down to just below the copy (`--hero-copy-bottom`, the
+   copy block's bottom edge as a percentage of the hero, measured by
+   HeroSlider) — a little further here than on MobilityCare, because this
+   still's painted icon row and its labels reach a few percent past the
+   CTAs — and lets it go before the strip; the second keeps a narrow band
+   along the hero's left edge, because the still's box starts 6% in (see
+   above) and its edge — and the half ring on it — would otherwise show
+   under the strip. So the strip emerges from the copy column at CrowdSense.
+   Where the copy runs tall the shade follows it down; until the measurement
+   lands the fallback is the full-height shade. Both themes. */
+@media (min-width: 1024px) {
+  .securevision-hero-slider .hero-slider__slide--still .securevision-video-shade {
+    -webkit-mask-image:
+      linear-gradient(
+        180deg,
+        #000 0%,
+        #000 calc(var(--hero-copy-bottom, 100%) + 4%),
+        transparent calc(var(--hero-copy-bottom, 100%) + 9%)
+      ),
+      linear-gradient(90deg, #000 0%, #000 13.5%, transparent 16%);
+    -webkit-mask-composite: source-over;
+    mask-image:
+      linear-gradient(
+        180deg,
+        #000 0%,
+        #000 calc(var(--hero-copy-bottom, 100%) + 4%),
+        transparent calc(var(--hero-copy-bottom, 100%) + 9%)
+      ),
+      linear-gradient(90deg, #000 0%, #000 13.5%, transparent 16%);
+    mask-composite: add;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -3707,10 +3776,10 @@ body {
     90deg,
     rgba(3, 8, 18, 1) 0%,
     rgba(3, 8, 18, 1) 36%,
-    rgba(3, 8, 18, 0.9) 39%,
-    rgba(3, 8, 18, 0.5) 43%,
-    rgba(3, 8, 18, 0.15) 47%,
-    rgba(3, 8, 18, 0) 51%
+    rgba(3, 8, 18, 0.75) 39%,
+    rgba(3, 8, 18, 0.4) 42%,
+    rgba(3, 8, 18, 0.15) 45.5%,
+    rgba(3, 8, 18, 0) 49%
   );
 }
 

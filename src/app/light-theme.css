@@ -43,9 +43,9 @@
   --light-surface-elevated: #ffffff;
 
   --light-text: #0b1220;
-  --light-text-body: #243247;
-  --light-muted: #4a5b78;
-  --light-faint: #6b7a94;
+  --light-text-body: #1c2940;
+  --light-muted: #3b4c69;
+  --light-faint: #526283;
 
   --light-cyan: #0891b2;
   --light-cyan-ink: #0e7490;
@@ -56,8 +56,8 @@
   --light-champagne: #9a7418;
 
   /* Lines. Crisp 1px optical borders — never a soft grey. */
-  --light-border: rgb(15 23 42 / 0.12);
-  --light-border-strong: rgb(15 23 42 / 0.2);
+  --light-border: rgb(15 23 42 / 0.17);
+  --light-border-strong: rgb(15 23 42 / 0.28);
   --light-edge: rgb(8 145 178 / 0.45); /* the cyan top-edge reflection */
   --light-edge-on: rgb(8 145 178 / 0.85);
   --light-refraction: rgb(27 78 217 / 0.55);
@@ -103,16 +103,16 @@
     0 1px 2px rgb(15 23 42 / 0.06), 0 24px 60px -24px rgb(30 58 138 / 0.34);
 
   /* Technical drawing on paper reads as ink, not as haze. */
-  --research-line: rgb(15 23 42 / 0.22);
-  --technical-grid: rgb(30 58 138 / 0.1);
+  --research-line: rgb(15 23 42 / 0.3);
+  --technical-grid: rgb(30 58 138 / 0.14);
   --trajectory: var(--light-cyan);
-  --chart-grid: rgb(15 23 42 / 0.1);
+  --chart-grid: rgb(15 23 42 / 0.14);
 
   /* The palette's Tailwind-side aliases (rgb triples). Body copy is a dark
      slate, metadata a medium blue-grey — neither is a pale grey. */
   --c-soft-white: 11 18 32;
-  --c-soft-gray: 36 50 71;
-  --c-soft-mute: 74 91 120;
+  --c-soft-gray: 28 41 64;
+  --c-soft-mute: 59 76 105;
 
   /* Ceramic bands and the nav's glass. */
   --c-obsidian-300: 238 242 248;
@@ -140,7 +140,7 @@
   /* Clickable-surface language (interactions.css reads these). Sapphire
      edge, blue-grey lift, cyan-ink cue. */
   --hit-line: rgb(27 78 217 / 0.5);
-  --hit-line-soft: rgb(15 23 42 / 0.18);
+  --hit-line-soft: rgb(15 23 42 / 0.24);
   --hit-tint: rgb(27 78 217 / 0.035);
   --hit-shadow: var(--light-shadow-raised);
   --hit-ring: rgb(27 78 217 / 0.7);
@@ -150,8 +150,8 @@
   --hit-row-strong: rgb(27 78 217 / 0.07);
 
   /* Controls: chips, filters, tabs. */
-  --interactive-border: rgb(15 23 42 / 0.16);
-  --interactive-bg: rgb(255 255 255 / 0.8);
+  --interactive-border: rgb(15 23 42 / 0.22);
+  --interactive-bg: rgb(255 255 255 / 0.96);
   --interactive-hover-bg: rgb(255 255 255 / 1);
   --interactive-hover-border: rgb(27 78 217 / 0.42);
   --interactive-selected-bg: rgb(8 145 178 / 0.1);
@@ -159,6 +159,9 @@
   --interactive-selected-ink: #063a48;
   --interactive-focus-ring: rgb(27 78 217 / 0.85);
   --interactive-focus-ring-soft: rgb(27 78 217 / 0.22);
+  /* A disabled control on paper must still be legible: 40% read as a
+     faded page, not as a state. */
+  --interactive-disabled-opacity: 0.55;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -184,18 +187,18 @@
     /* cyan illumination, high left */
     radial-gradient(
         ellipse 70% 42% at 12% -6%,
-        rgb(8 145 178 / 0.11),
+        rgb(8 145 178 / 0.05),
         transparent 62%
       ),
     /* sapphire / violet haze, low right */
     radial-gradient(
         ellipse 60% 44% at 92% 86%,
-        rgb(109 40 217 / 0.06),
+        rgb(109 40 217 / 0.03),
         transparent 64%
       ),
     radial-gradient(
       ellipse 54% 40% at 78% 42%,
-      rgb(27 78 217 / 0.05),
+      rgb(27 78 217 / 0.025),
       transparent 64%
     ),
     /* pearl to pale cool grey */
@@ -288,8 +291,8 @@
 /* Pills and chips: white on pearl, an ink hairline, dark-slate label. */
 :root.light .pill {
   background: linear-gradient(180deg, #ffffff, #f7f9fc);
-  border-color: var(--light-border);
-  color: var(--light-muted);
+  border-color: var(--light-border-strong);
+  color: var(--light-text-body);
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 1);
 }
 
@@ -390,10 +393,10 @@
 :root.light .site-header .glass {
   background: linear-gradient(
     180deg,
-    rgb(255 255 255 / 0.92) 0%,
-    rgb(246 248 252 / 0.86) 100%
+    rgb(255 255 255 / 0.97) 0%,
+    rgb(248 250 253 / 0.95) 100%
   );
-  border-color: rgb(15 23 42 / 0.13);
+  border-color: rgb(15 23 42 / 0.18);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 1),
     inset 0 -1px 0 rgb(15 23 42 / 0.03),
@@ -466,6 +469,7 @@
   background: linear-gradient(135deg, #1b4ed9 0%, #1f6fe0 55%, #0891b2 100%);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.32),
+    0 0 0 1px rgb(20 55 160 / 0.45),
     0 1px 2px rgb(15 23 42 / 0.08),
     0 14px 30px -14px rgb(27 78 217 / 0.55);
 }
@@ -480,11 +484,11 @@
 
 :root.light .btn-ghost {
   background: linear-gradient(180deg, #ffffff 0%, #f6f8fc 100%);
-  border-color: rgb(15 23 42 / 0.16);
+  border-color: rgb(15 23 42 / 0.26);
   color: var(--light-text);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 1),
-    0 1px 2px rgb(15 23 42 / 0.05),
+    0 1px 2px rgb(15 23 42 / 0.06),
     0 10px 24px -18px rgb(30 58 138 / 0.3);
 }
 
@@ -539,7 +543,7 @@
    raised in section 1.
    ═══════════════════════════════════════════════════════════════════════════ */
 :root.light .ring-grid {
-  --grid-line: rgb(30 58 138 / 0.1);
+  --grid-line: rgb(30 58 138 / 0.13);
 }
 
 :root.light .divider {
@@ -547,11 +551,16 @@
 }
 
 :root.light .border-white\/5,
+:root.light .border-white\/\[0\.05\],
 :root.light .border-white\/\[0\.06\],
 :root.light .border-white\/\[0\.07\],
 :root.light .border-white\/\[0\.08\],
 :root.light .border-white\/8,
-:root.light .border-white\/10 {
+:root.light .border-white\/10,
+:root.light .border-white\/\[0\.1\],
+:root.light .border-white\/12,
+:root.light .border-white\/\[0\.12\],
+:root.light .border-white\/15 {
   border-color: var(--light-border);
 }
 
@@ -561,10 +570,13 @@
 }
 
 :root.light .bg-white\/5,
+:root.light .bg-white\/\[0\.015\],
 :root.light .bg-white\/\[0\.02\],
+:root.light .bg-white\/\[0\.025\],
 :root.light .bg-white\/\[0\.03\],
-:root.light .bg-white\/\[0\.04\] {
-  background-color: rgb(255 255 255 / 0.85);
+:root.light .bg-white\/\[0\.04\],
+:root.light .bg-white\/\[0\.05\] {
+  background-color: #ffffff;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 1);
 }
 
@@ -582,7 +594,30 @@
 :root.light svg [stroke="rgba(255,255,255,0.08)"],
 :root.light svg [stroke="rgba(255,255,255,0.1)"],
 :root.light svg [stroke="rgba(255,255,255,0.12)"] {
-  stroke: rgb(15 23 42 / 0.22);
+  stroke: rgb(15 23 42 / 0.3);
+}
+
+/* Faded utilities on words, links, controls and icons: on paper a 40%
+   element reads as disabled, so text-bearing elements and icons keep more of
+   their ink. Decorative layers (grids, blurred blobs) are divs and keep the
+   opacity they asked for. */
+:root.light :is(a, button, p, span, li, label, small, time, h1, h2, h3, h4, dt, dd, svg).opacity-25 {
+  opacity: 0.6;
+}
+:root.light :is(a, button, p, span, li, label, small, time, h1, h2, h3, h4, dt, dd, svg).opacity-30 {
+  opacity: 0.65;
+}
+:root.light :is(a, button, p, span, li, label, small, time, h1, h2, h3, h4, dt, dd, svg).opacity-40 {
+  opacity: 0.72;
+}
+:root.light :is(a, button, p, span, li, label, small, time, h1, h2, h3, h4, dt, dd, svg).opacity-50 {
+  opacity: 0.78;
+}
+:root.light :is(a, button, p, span, li, label, small, time, h1, h2, h3, h4, dt, dd, svg).opacity-60 {
+  opacity: 0.85;
+}
+:root.light :is(a, button, p, span, li, label, small, time, h1, h2, h3, h4, dt, dd, svg).opacity-70 {
+  opacity: 0.9;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

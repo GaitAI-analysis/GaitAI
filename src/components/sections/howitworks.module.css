@@ -841,12 +841,18 @@
     box-shadow 0.45s var(--wf-ease);
 }
 
+/* Light: a product diagram on a clean white card — opaque white, a cool
+   grey hairline, one soft shadow. The translucent, blurred fill it had made
+   the film behind it read as overexposed glass; the film is graded for paper
+   now (console_layers.json) and sits on solid white. */
 :global(.light) .visual {
-  border-color: rgba(40, 80, 130, 0.12);
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 18px 50px rgba(20, 45, 80, 0.07);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  border-color: rgba(20, 65, 110, 0.14);
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(12, 38, 65, 0.05),
+    0 18px 50px rgba(12, 38, 65, 0.09);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .row[data-active="true"] .visual {

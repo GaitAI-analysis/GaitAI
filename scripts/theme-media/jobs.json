@@ -20,23 +20,26 @@
     {
       "dark": "public/assets/videos/workflow/stage-02-analyze.mp4",
       "poster": "public/assets/videos/workflow/stage-02-analyze-poster.jpg",
-      "lut": {
-        "black_toe": 0.1
-      }
+      "pipeline": "console",
+      "crf": 18,
+      "workers": 1,
+      "minIou": 0.45
     },
     {
       "dark": "public/assets/videos/workflow/stage-03-report.mp4",
       "poster": "public/assets/videos/workflow/stage-03-report-poster.jpg",
-      "lut": {
-        "black_toe": 0.1
-      }
+      "pipeline": "console",
+      "crf": 18,
+      "workers": 1,
+      "minIou": 0.45
     },
     {
       "dark": "public/assets/videos/workflow/stage-04-output.mp4",
       "poster": "public/assets/videos/workflow/stage-04-output-poster.jpg",
-      "lut": {
-        "black_toe": 0.1
-      }
+      "pipeline": "console",
+      "crf": 18,
+      "workers": 1,
+      "minIou": 0.45
     }
   ],
   "images": [

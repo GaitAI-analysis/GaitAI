@@ -88,16 +88,28 @@ export type ThemeMediaEntry = ThemeMediaPair | ThemeMediaIsland;
 export const themeMedia = {
   /* ── Product heroes ─────────────────────────────────────────────────────── */
 
-  /** /mobilitycare/ — clinical gait report film. Wireframe walkers, no photographic people. */
+  /**
+   * /mobilitycare/ — dark: the clinical gait report film (wireframe walkers,
+   * no photographic people), frozen. Light: the founder's OWN daylight film
+   * (2026-09-22, `gaitai_mobilitycare_hero_loop.mp4`, shipped byte for byte:
+   * 1920×1080, 30 fps, 6 s, H.264 High, faststart), never a re-grade of the
+   * dark frames — the earlier re-lit companion is retired. `timing: "own"`
+   * because it is a separate edit: its own length and its own frame size at
+   * the same 16:9 (check:media compares aspect, not box, for "own" pairs;
+   * ThemeVideo resumes a swap modulo its duration). The poster is its first
+   * frame. `width`/`height` stay the dark film's — they size the element's
+   * box for layout, and both films fill it with `cover`.
+   */
   mobilityCareHero: {
     kind: "pair",
     type: "video",
     dark: "/assets/videos/mobilitycare/mobilitycare-hero-v2.mp4",
-    light: "/assets/videos/mobilitycare/mobilitycare-hero-v2-light.mp4",
+    light: "/assets/videos/mobilitycare/mobilitycare-hero-light.mp4",
     poster: {
       dark: "/assets/videos/mobilitycare/mobilitycare-hero-v2-poster.jpg",
-      light: "/assets/videos/mobilitycare/mobilitycare-hero-v2-poster-light.jpg",
+      light: "/assets/videos/mobilitycare/mobilitycare-hero-light-poster.jpg",
     },
+    timing: "own",
     width: 1672,
     height: 942,
   },

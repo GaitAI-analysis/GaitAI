@@ -12,7 +12,8 @@
  *     - a registered dark file, poster or light file that does not exist
  *     - a video under public/assets/videos that is not registered at all
  *     - a pair whose light file has different dimensions / frame count /
- *       duration from the dark one (only when ffprobe is on PATH)
+ *       duration from the dark one (only when ffprobe is on PATH); a pair
+ *       marked `timing: "own"` need only keep the dark film's aspect ratio
  *   WARNINGS (exit 0 unless --strict)
  *     - a pair whose light companion is missing: the page falls back to the
  *       dark file, and this is the loud notice the fallback is supposed to
@@ -106,14 +107,19 @@ async function main() {
       const a = probe(entry.dark);
       const b = probe(entry.light);
       if (a && b) {
-        // A pair with `timing: "own"` is a separate light edit: same frame
-        // size (the layout depends on it), its own length (ThemeVideo resumes
-        // modulo duration). Everything else must match frame for frame.
+        // A pair with `timing: "own"` is a separate light edit: its own
+        // length (ThemeVideo resumes modulo duration) and its own frame size,
+        // as long as the ASPECT matches within 0.5% — the registry's
+        // width/height size the element's box and both films fill it with
+        // `cover`, so a same-shape film at another resolution lays out
+        // identically. Everything else must match frame for frame.
         const sameBox = a.width === b.width && a.height === b.height;
+        const sameAspect = Math.abs(a.width / a.height - b.width / b.height) / (a.width / a.height) < 0.005;
         const sameTiming = a.frames === b.frames && Math.abs(a.duration - b.duration) < 0.05;
-        if (!sameBox || (!sameTiming && entry.timing !== "own")) {
+        const ok = entry.timing === "own" ? sameAspect : sameBox && sameTiming;
+        if (!ok) {
           err(
-            `${key}: light companion does not match the dark film — dark ${a.width}x${a.height} ${a.frames}f ${a.duration.toFixed(2)}s, light ${b.width}x${b.height} ${b.frames}f ${b.duration.toFixed(2)}s${sameBox ? ' (set timing: "own" on the entry if the light film is a separate edit)' : ""}`,
+            `${key}: light companion does not match the dark film — dark ${a.width}x${a.height} ${a.frames}f ${a.duration.toFixed(2)}s, light ${b.width}x${b.height} ${b.frames}f ${b.duration.toFixed(2)}s${sameBox && entry.timing !== "own" ? ' (set timing: "own" on the entry if the light film is a separate edit)' : ""}${entry.timing === "own" && !sameAspect ? " (an \"own\" edit must keep the dark film's aspect ratio)" : ""}`,
           );
         }
       }

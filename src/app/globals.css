@@ -7028,7 +7028,7 @@ body {
   /* The light film's own first frame, so a light visitor is not shown the
      dark still. Only the matched rule's image is fetched. */
   .light .mobilitycare-hero__media {
-    background-image: url("/assets/videos/mobilitycare/mobilitycare-hero-v2-poster-light.jpg");
+    background-image: url("/assets/videos/mobilitycare/mobilitycare-hero-light-poster.jpg");
   }
 
   .securevision-hero {

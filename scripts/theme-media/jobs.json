@@ -1,15 +1,6 @@
 {
-  "$comment": "Every asset that gets a light companion, with its colour-transform overrides. `black_toe` is the OKLab lightness of that render's ground (measure with the 10th percentile of a frame); everything at or below it becomes the off-white. `personMask` films need masks from segment_person.mjs. See README.md. The two homepage console films are NOT here any more: their light editions are the founder's own supplied films (platform/*-light-no-overlap.mp4, registry entries mobilityCareHome / secureVisionHome, timing: \"own\"); the console re-light pipeline (relight_console.py, pipeline: \"console\") stays available but renders nothing by default.",
+  "$comment": "Every asset that gets a light companion, with its colour-transform overrides. `black_toe` is the OKLab lightness of that render's ground (measure with the 10th percentile of a frame); everything at or below it becomes the off-white. `personMask` films need masks from segment_person.mjs. See README.md. The two homepage console films are NOT here any more: their light editions are the founder's own supplied films (platform/*-light-no-overlap.mp4, registry entries mobilityCareHome / secureVisionHome, timing: \"own\"); the console re-light pipeline (relight_console.py, pipeline: \"console\") stays available but renders nothing by default. The MobilityCare hero (mobilitycare/mobilitycare-hero-v2.mp4) left this list on 2026-09-22 for the same reason: its light edition is the founder's own film, mobilitycare/mobilitycare-hero-light.mp4 (registry mobilityCareHero, timing: \"own\"), so it must not be re-rendered.",
   "videos": [
-    {
-      "dark": "public/assets/videos/mobilitycare/mobilitycare-hero-v2.mp4",
-      "poster": "public/assets/videos/mobilitycare/mobilitycare-hero-v2-poster.jpg",
-      "pipeline": "console",
-      "crf": 19,
-      "workers": 1,
-      "minIou": 0.45,
-      "$comment": "Layer-aware master: the dark film's near-black ground and its blue floor bloom are replaced by a lit room with its own structure, so whole-frame edge IoU sits at 0.46-0.49 while edge correlation stays 0.86 (same drawing, same timing). 0.45 is this film's floor."
-    },
     {
       "dark": "public/assets/videos/workflow/stage-01-capture.mp4",
       "poster": "public/assets/videos/workflow/stage-01-capture-poster.jpg",

@@ -445,3 +445,90 @@
   stroke: rgb(var(--pp-accent));
   stroke-width: 1;
 }
+
+/* ═══ THE PRIVACY LAYER ══════════════════════════════════════════════════
+   The same segmentation as a SHAPE, painted here: a soft neutral body with
+   a crisp cyan contour, a pixel grid over the head, fragments dissolving off
+   the face, and a dashed ground line for the movement that stays. Never
+   white-on-white — the fill is a slate blue on both grounds, and the contour
+   is the section's accent. */
+
+.pf {
+  overflow: visible;
+}
+
+/* The contour's ink. `flood-color` is a CSS property, so it reads the
+   section's accent here rather than as an attribute the filter cannot
+   resolve a variable from. */
+.pfInk {
+  flood-color: rgb(var(--pp-accent));
+}
+
+/* The body. Light: cool slate over the white card. Dark: a lifted slate
+   that reads as a solid object on the deep card, not as a glow. */
+.pfFillTop {
+  stop-color: #c3d3e6;
+}
+
+.pfFillBottom {
+  stop-color: #8fa8c4;
+}
+
+:global(.light) .pfFillTop {
+  stop-color: #d3dfee;
+}
+
+:global(.light) .pfFillBottom {
+  stop-color: #9fb5cf;
+}
+
+/* The pixel grid: two tones so it reads as blocks, not as a tint. */
+.pfPixA {
+  fill: rgb(var(--pp-accent) / 0.62);
+}
+
+.pfPixB {
+  fill: rgb(15 23 42 / 0.42);
+}
+
+:global(.light) .pfPixA {
+  fill: rgb(var(--pp-accent) / 0.58);
+}
+
+:global(.light) .pfPixB {
+  fill: rgb(15 23 42 / 0.32);
+}
+
+/* Fragments leaving the face — the accent, each at its own opacity. */
+.pfFragments rect {
+  fill: rgb(var(--pp-accent));
+}
+
+/* The ground line and the direction of travel. */
+.pfGround path {
+  fill: none;
+  stroke: rgb(var(--pp-accent) / 0.75);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 2.4;
+  stroke-linecap: round;
+}
+
+.pfGround .pfChevron {
+  stroke-dasharray: none;
+  stroke-width: 1.4;
+  stroke: rgb(var(--pp-accent));
+}
+
+.pfGround .pfTick {
+  stroke-dasharray: none;
+  stroke-width: 1.2;
+  stroke: rgb(var(--pp-accent));
+}
+
+.pfTag {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 5.6px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  fill: rgb(var(--pp-accent) / 0.85);
+}

@@ -1,4 +1,11 @@
-import { SequenceFrame, SEQUENCE_CAPTION } from "@/components/visuals/SequenceFrame";
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  SequenceFrame,
+  SEQUENCE_CAPTION,
+  sequenceFrames,
+} from "@/components/visuals/SequenceFrame";
 import { assetPath } from "@/lib/paths";
 import { smoothPath } from "@/components/research/PoseFrame";
 import type { Pt } from "@/components/visuals/gait-phases";
@@ -113,12 +120,30 @@ function Body({
     <g className={className}>
       {/* Far limbs first, so the near side overlaps them the way a body
           occludes itself. */}
-      <path className={legs} d={poly(P.hipL, P.kneeL) && line(P.hipL, P.kneeL)} strokeWidth={13} />
+      <path
+        className={legs}
+        d={poly(P.hipL, P.kneeL) && line(P.hipL, P.kneeL)}
+        strokeWidth={13}
+      />
       <path className={legs} d={line(P.kneeL, P.ankleL)} strokeWidth={9} />
-      <path className={shoe} d={`M${P.heelL[0]} ${P.heelL[1]}L${P.ankleL[0]} ${P.ankleL[1]}L${P.toeL[0]} ${P.toeL[1]}`} strokeWidth={5.5} />
-      <path className={wear} d={line(P.shoulderL, P.elbowL)} strokeWidth={7.5} />
+      <path
+        className={shoe}
+        d={`M${P.heelL[0]} ${P.heelL[1]}L${P.ankleL[0]} ${P.ankleL[1]}L${P.toeL[0]} ${P.toeL[1]}`}
+        strokeWidth={5.5}
+      />
+      <path
+        className={wear}
+        d={line(P.shoulderL, P.elbowL)}
+        strokeWidth={7.5}
+      />
       <path className={skin} d={line(P.elbowL, P.wristL)} strokeWidth={6} />
-      <circle className={skin} cx={P.wristL[0]} cy={P.wristL[1]} r={3} strokeWidth={0} />
+      <circle
+        className={skin}
+        cx={P.wristL[0]}
+        cy={P.wristL[1]}
+        r={3}
+        strokeWidth={0}
+      />
 
       {/* Torso. One closed path from the shoulder line to the hips. */}
       <path
@@ -140,10 +165,20 @@ function Body({
       {/* Near limbs. */}
       <path className={legs} d={line(P.hipR, P.kneeR)} strokeWidth={14} />
       <path className={legs} d={line(P.kneeR, P.ankleR)} strokeWidth={9.5} />
-      <path className={shoe} d={`M${P.heelR[0]} ${P.heelR[1]}L${P.ankleR[0]} ${P.ankleR[1]}L${P.toeR[0]} ${P.toeR[1]}`} strokeWidth={5.5} />
+      <path
+        className={shoe}
+        d={`M${P.heelR[0]} ${P.heelR[1]}L${P.ankleR[0]} ${P.ankleR[1]}L${P.toeR[0]} ${P.toeR[1]}`}
+        strokeWidth={5.5}
+      />
       <path className={wear} d={line(P.shoulderR, P.elbowR)} strokeWidth={8} />
       <path className={skin} d={line(P.elbowR, P.wristR)} strokeWidth={6.5} />
-      <circle className={skin} cx={P.wristR[0]} cy={P.wristR[1]} r={3.2} strokeWidth={0} />
+      <circle
+        className={skin}
+        cx={P.wristR[0]}
+        cy={P.wristR[1]}
+        r={3.2}
+        strokeWidth={0}
+      />
     </g>
   );
 }
@@ -174,8 +209,29 @@ const BONES_NEAR: [Pt, Pt][] = [
   [P.heelR, P.toeR],
 ];
 
-const JOINTS_FAR: Pt[] = [P.shoulderL, P.elbowL, P.wristL, P.hipL, P.kneeL, P.ankleL, P.heelL, P.toeL];
-const JOINTS_NEAR: Pt[] = [P.ear, P.eye, P.nose, P.shoulderR, P.elbowR, P.wristR, P.hipR, P.kneeR, P.ankleR, P.heelR, P.toeR];
+const JOINTS_FAR: Pt[] = [
+  P.shoulderL,
+  P.elbowL,
+  P.wristL,
+  P.hipL,
+  P.kneeL,
+  P.ankleL,
+  P.heelL,
+  P.toeL,
+];
+const JOINTS_NEAR: Pt[] = [
+  P.ear,
+  P.eye,
+  P.nose,
+  P.shoulderR,
+  P.elbowR,
+  P.wristR,
+  P.hipR,
+  P.kneeR,
+  P.ankleR,
+  P.heelR,
+  P.toeR,
+];
 
 /**
  * The centroid path: where the hip went, over the last few strides.
@@ -254,21 +310,21 @@ const ACC_Y = channel(
   15,
 );
 /** Anteroposterior: one cycle per stride, braking then propulsion. */
-const ACC_X = channel((t) => Math.sin(phase(t)) * 0.8 + Math.sin(phase(t) * 3) * 0.12, 95, 9);
+const ACC_X = channel(
+  (t) => Math.sin(phase(t)) * 0.8 + Math.sin(phase(t) * 3) * 0.12,
+  95,
+  9,
+);
 /** Mediolateral: half the rate — one sway per stride pair. */
 const ACC_Z = channel((t) => Math.sin(phase(t) / 2 + 0.6) * 0.7, 113, 6);
 
 /** Where each initial contact lands on the time axis. */
-const CONTACTS = Array.from({ length: Math.floor(CYCLES) + 1 }, (_, k) => at(k / CYCLES)).filter(
-  (x) => x <= W - PAD_X,
-);
+const CONTACTS = Array.from({ length: Math.floor(CYCLES) + 1 }, (_, k) =>
+  at(k / CYCLES),
+).filter((x) => x <= W - PAD_X);
 
 export type RepresentationDraw =
-  | "frame"
-  | "silhouette"
-  | "pose"
-  | "trajectory"
-  | "sensor";
+  "frame" | "silhouette" | "pose" | "trajectory" | "sensor";
 
 /**
  * One representation, at card scale.
@@ -286,13 +342,42 @@ export function RepresentationFigure({
   label: string;
   className?: string;
 }) {
-  if (draw === "frame" || draw === "silhouette" || draw === "pose") {
-    const view = draw === "frame" ? "source" : draw === "silhouette" ? "mask" : "pose";
-    return <div role="img" aria-label={`${label}. ${SEQUENCE_CAPTION}`} className={className}>
-      <svg viewBox={`0 0 ${W} ${H}`} className={styles.svg} data-draw={draw} aria-hidden="true">
-        <SequenceFrame index={0} x={0} y={0} width={W} height={H} view={view}/>
-      </svg>
-    </div>;
+  if (draw === "silhouette") {
+    return (
+      <div
+        role="img"
+        aria-label={`${label}. ${SEQUENCE_CAPTION}`}
+        className={className}
+      >
+        <PrivacyFigure />
+      </div>
+    );
+  }
+  if (draw === "frame" || draw === "pose") {
+    const view = draw === "frame" ? "source" : "pose";
+    return (
+      <div
+        role="img"
+        aria-label={`${label}. ${SEQUENCE_CAPTION}`}
+        className={className}
+      >
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className={styles.svg}
+          data-draw={draw}
+          aria-hidden="true"
+        >
+          <SequenceFrame
+            index={0}
+            x={0}
+            y={0}
+            width={W}
+            height={H}
+            view={view}
+          />
+        </svg>
+      </div>
+    );
   }
   return (
     <div role="img" aria-label={label} className={className}>
@@ -365,7 +450,12 @@ export function RepresentationFigure({
               stitchTiles="stitch"
               result="noise"
             />
-            <feColorMatrix in="noise" type="saturate" values="0" result="mono" />
+            <feColorMatrix
+              in="noise"
+              type="saturate"
+              values="0"
+              result="mono"
+            />
             <feComponentTransfer in="mono">
               <feFuncA type="linear" slope="0.5" intercept="-0.16" />
             </feComponentTransfer>
@@ -381,7 +471,13 @@ export function RepresentationFigure({
           <filter id="gai-motion" x="-14%" y="-8%" width="128%" height="116%">
             <feGaussianBlur stdDeviation="0.85 0.22" />
           </filter>
-          <filter id="gai-motion-limb" x="-24%" y="-10%" width="148%" height="120%">
+          <filter
+            id="gai-motion-limb"
+            x="-24%"
+            y="-10%"
+            width="148%"
+            height="120%"
+          >
             <feGaussianBlur stdDeviation="1.9 0.3" />
           </filter>
 
@@ -445,9 +541,22 @@ export function RepresentationFigure({
               const [x, y] = TRAIL[i];
               const last = k === TRAIL_TICKS.length - 1;
               return (
-                <g key={i} style={{ opacity: 0.3 + (k / (TRAIL_TICKS.length - 1)) * 0.7 }}>
-                  <path d={`M${x} ${y - 3.4}V${y + 3.4}`} className={styles.trailTick} />
-                  <circle cx={x} cy={y} r={last ? 2.2 : 1.5} className={styles.trailDot} />
+                <g
+                  key={i}
+                  style={{
+                    opacity: 0.3 + (k / (TRAIL_TICKS.length - 1)) * 0.7,
+                  }}
+                >
+                  <path
+                    d={`M${x} ${y - 3.4}V${y + 3.4}`}
+                    className={styles.trailTick}
+                  />
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={last ? 2.2 : 1.5}
+                    className={styles.trailDot}
+                  />
                 </g>
               );
             })}
@@ -459,11 +568,30 @@ export function RepresentationFigure({
               const [x, y] = TRAIL[TRAIL.length - 1];
               return (
                 <g>
-                  <path d={`M${x} ${y}V${GROUND - 2}`} className={styles.trajDrop} />
-                  <ellipse cx={x} cy={GROUND - 1} rx="7" ry="2.2" className={styles.trajFoot} />
-                  <circle cx={x} cy={y} r="7.5" className={styles.centroidHalo} />
+                  <path
+                    d={`M${x} ${y}V${GROUND - 2}`}
+                    className={styles.trajDrop}
+                  />
+                  <ellipse
+                    cx={x}
+                    cy={GROUND - 1}
+                    rx="7"
+                    ry="2.2"
+                    className={styles.trajFoot}
+                  />
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="7.5"
+                    className={styles.centroidHalo}
+                  />
                   <circle cx={x} cy={y} r="3.4" className={styles.centroid} />
-                  <text x={x - 7} y={y - 8} textAnchor="end" className={styles.trajTag}>
+                  <text
+                    x={x - 7}
+                    y={y - 8}
+                    textAnchor="end"
+                    className={styles.trajTag}
+                  >
                     CENTROID
                   </text>
                 </g>
@@ -473,7 +601,12 @@ export function RepresentationFigure({
             <text x="8" y={H - 8} className={styles.trajTag}>
               t − 3.0 s
             </text>
-            <text x={W - 8} y={H - 8} textAnchor="end" className={styles.trajTag}>
+            <text
+              x={W - 8}
+              y={H - 8}
+              textAnchor="end"
+              className={styles.trajTag}
+            >
               now
             </text>
           </g>
@@ -500,19 +633,40 @@ export function RepresentationFigure({
             <path d={ACC_Z} className={styles.accZ} />
 
             {CONTACTS.map((x) => (
-              <circle key={x} cx={x} cy={66 - 0.8 * 15} r="2" className={styles.strikeDot} />
+              <circle
+                key={x}
+                cx={x}
+                cy={66 - 0.8 * 15}
+                r="2"
+                className={styles.strikeDot}
+              />
             ))}
 
             <text x={PAD_X} y="30" className={styles.sensorTag}>
               ACCEL · 100 Hz
             </text>
-            <text x={W - PAD_X} y="30" textAnchor="end" className={styles.sensorLegendY}>
+            <text
+              x={W - PAD_X}
+              y="30"
+              textAnchor="end"
+              className={styles.sensorLegendY}
+            >
               Y
             </text>
-            <text x={W - PAD_X - 12} y="30" textAnchor="end" className={styles.sensorLegendX}>
+            <text
+              x={W - PAD_X - 12}
+              y="30"
+              textAnchor="end"
+              className={styles.sensorLegendX}
+            >
               X
             </text>
-            <text x={W - PAD_X - 22} y="30" textAnchor="end" className={styles.sensorLegendZ}>
+            <text
+              x={W - PAD_X - 22}
+              y="30"
+              textAnchor="end"
+              className={styles.sensorLegendZ}
+            >
               Z
             </text>
             <text x={PAD_X} y={H - 8} className={styles.sensorTag}>
@@ -520,15 +674,268 @@ export function RepresentationFigure({
             </text>
 
             {/* The device, as a caption rather than as the subject. */}
-            <g className={styles.watch} transform={`translate(${W - 30} ${H - 30})`}>
+            <g
+              className={styles.watch}
+              transform={`translate(${W - 30} ${H - 30})`}
+            >
               <rect x="-7" y="-11" width="14" height="4" rx="1.6" />
               <rect x="-7" y="7" width="14" height="4" rx="1.6" />
-              <rect x="-9.5" y="-8" width="19" height="16" rx="4" className={styles.watchFace} />
-              <path d="M-4.5 0h3l1.5 -3 1.5 5 1.5 -2h2" className={styles.watchTrace} />
+              <rect
+                x="-9.5"
+                y="-8"
+                width="19"
+                height="16"
+                rx="4"
+                className={styles.watchFace}
+              />
+              <path
+                d="M-4.5 0h3l1.5 -3 1.5 5 1.5 -2h2"
+                className={styles.watchTrace}
+              />
             </g>
           </g>
         )}
       </svg>
     </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE PRIVACY LAYER — the same walker, identity reduced, movement kept
+   ---------------------------------------------------------------------------
+   The card used to paint the frame's segmentation mask as the raw PNG it is:
+   a white silhouette. Right on the dark card; on the light card it was white
+   on white, and the stage read as an image that had failed to load.
+
+   This is an illustration drawn here, in the SVG, with the segmentation used
+   only as a SHAPE. The mask PNG is the model's own foreground cut-out of the
+   very frame the Capture card shows and the Pose card draws landmarks over,
+   so the three stages are visibly one person losing information — which is
+   the section's argument. Everything painted is inline: a soft neutral fill
+   with a little dimension, a crisp cyan contour (the mask dilated by a
+   filter, with the fill painted over its interior), a pixel grid over the
+   head and shoulders fading out by the chest, a few pixel fragments
+   dissolving off the face, and a dashed ground line with a direction chevron
+   under the feet — identity reduced above, movement retained below.
+
+   IF THE MASK EVER FAILS TO LOAD the shape falls back to the vector body
+   below (`Body`, built from the same landmark set), so the card can never be
+   blank: the image's `onError` swaps the shape source and nothing else.
+
+   Colours live in representations.module.css, both themes side by side.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The frame's box inside the 150×156 card, exactly as SequenceFrame places
+   it, so the shape lands where Capture's frame and Pose's landmarks land. */
+const PF_FRAME = sequenceFrames[0];
+const PF_SCALE = Math.min(W / PF_FRAME.width, H / PF_FRAME.height);
+const PF_W = PF_FRAME.width * PF_SCALE;
+const PF_H = PF_FRAME.height * PF_SCALE;
+const PF_X = (W - PF_W) / 2;
+const PF_Y = (H - PF_H) / 2;
+const pfAt = (i: number): Pt => [
+  PF_X + PF_FRAME.landmarks[i].x * PF_W,
+  PF_Y + PF_FRAME.landmarks[i].y * PF_H,
+];
+
+/* Landmarks the illustration is anchored to: the nose (the head), the far
+   shoulder (where the pixel grid gives out) and the two ankles (the ground). */
+const PF_NOSE = pfAt(0);
+const PF_SHOULDER = pfAt(12);
+const PF_ANKLE_BACK = pfAt(27);
+const PF_ANKLE_FRONT = pfAt(28);
+
+/* Pixel fragments leaving the head — identity dissolving off the face. In
+   front of the walker (he faces right), smaller and fainter the further they
+   have travelled. Deterministic, so the server and the browser agree. */
+const PF_FRAGMENTS: { dx: number; dy: number; s: number; o: number }[] = [
+  { dx: 9, dy: -9, s: 3.2, o: 0.85 },
+  { dx: 15, dy: -14, s: 2.6, o: 0.7 },
+  { dx: 20, dy: -6, s: 2.4, o: 0.6 },
+  { dx: 25, dy: -17, s: 2, o: 0.5 },
+  { dx: 13, dy: 4, s: 2.2, o: 0.55 },
+  { dx: 30, dy: -10, s: 1.6, o: 0.38 },
+  { dx: 22, dy: 3, s: 1.6, o: 0.34 },
+  { dx: 35, dy: -2, s: 1.3, o: 0.25 },
+  { dx: -11, dy: 6, s: 2, o: 0.45 },
+  { dx: -16, dy: 12, s: 1.5, o: 0.3 },
+];
+
+function PrivacyFigure() {
+  const [fallback, setFallback] = useState(false);
+
+  /* The <image> is server-rendered, so a load failure fires before React has
+     attached any handler to it. Probe the file once on mount instead: a
+     cached hit resolves instantly, a miss swaps the shape to the vector body. */
+  useEffect(() => {
+    const probe = new window.Image();
+    probe.onerror = () => setFallback(true);
+    probe.src = assetPath(PF_FRAME.mask);
+  }, []);
+
+  /* The shape source, painted white for the mask and filtered for the
+     contour: the segmentation PNG, or the vector body if it fails. */
+  const shape = fallback ? (
+    <g fill="#fff" stroke="#fff" color="#fff">
+      <Body />
+    </g>
+  ) : (
+    <image
+      href={assetPath(PF_FRAME.mask)}
+      x={PF_X}
+      y={PF_Y}
+      width={PF_W}
+      height={PF_H}
+    />
+  );
+
+  const fadeTop = PF_Y + PF_H * 0.1;
+  const fadeEnd = PF_SHOULDER[1] + 14;
+  const groundY = Math.max(PF_ANKLE_BACK[1], PF_ANKLE_FRONT[1]) + 6;
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className={`${styles.svg} ${styles.pf}`}
+      data-draw="silhouette"
+      aria-hidden="true"
+    >
+      <defs>
+        {/* The body as a mask: where the segmentation is white, paint shows. */}
+        <mask
+          id="pf-shape"
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width={W}
+          height={H}
+        >
+          {shape}
+        </mask>
+
+        {/* The contour. Dilate the shape and flood it cyan; the fill painted
+            afterwards covers the interior, leaving a ring the width of the
+            dilation. A filter rather than a stroke, because a bitmap has no
+            stroke. */}
+        <filter id="pf-contour" x="-12%" y="-8%" width="124%" height="116%">
+          <feMorphology
+            in="SourceAlpha"
+            operator="dilate"
+            radius="1.7"
+            result="fat"
+          />
+          <feFlood className={styles.pfInk} result="ink" />
+          <feComposite in="ink" in2="fat" operator="in" />
+        </filter>
+
+        {/* Soft neutral fill with a little dimension: lighter at the top and
+            the leading edge, deeper toward the back and the feet. */}
+        <linearGradient id="pf-fill" x1="0.15" y1="0" x2="0.85" y2="1">
+          <stop offset="0" className={styles.pfFillTop} />
+          <stop offset="1" className={styles.pfFillBottom} />
+        </linearGradient>
+        <radialGradient id="pf-shade" cx="0.42" cy="0.38" r="0.7">
+          <stop offset="0.45" stopColor="#000" stopOpacity="0" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.16" />
+        </radialGradient>
+
+        {/* The pixel grid over the head and shoulders. */}
+        <pattern id="pf-pix" width="5" height="5" patternUnits="userSpaceOnUse">
+          <rect
+            x="0"
+            y="0"
+            width="2.5"
+            height="2.5"
+            className={styles.pfPixA}
+          />
+          <rect
+            x="2.5"
+            y="2.5"
+            width="2.5"
+            height="2.5"
+            className={styles.pfPixB}
+          />
+        </pattern>
+        {/* …which gives out by the chest: opaque over the head, gone below
+            the shoulder line. */}
+        <linearGradient
+          id="pf-fade"
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="1"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset={fadeTop / H} stopColor="#fff" />
+          <stop offset={(fadeEnd - 10) / H} stopColor="#fff" />
+          <stop offset={fadeEnd / H} stopColor="#000" />
+        </linearGradient>
+        <mask
+          id="pf-head"
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width={W}
+          height={H}
+        >
+          <g mask="url(#pf-shape)">
+            <rect x="0" y="0" width={W} height={H} fill="url(#pf-fade)" />
+          </g>
+        </mask>
+      </defs>
+
+      {/* The ground the walker is on — a dashed line, so it reads as a
+          measurement rather than a floor; a tick where each foot meets it,
+          which is where a stride is read; and a chevron for the direction of
+          travel. Movement retained, said with marks rather than a caption. */}
+      <g className={styles.pfGround}>
+        <path d={`M${PF_X + 4} ${groundY}H${PF_X + PF_W + 8}`} />
+        {[PF_ANKLE_BACK, PF_ANKLE_FRONT].map(([x], i) => (
+          <path
+            key={i}
+            d={`M${x} ${groundY - 3}V${groundY + 3}`}
+            className={styles.pfTick}
+          />
+        ))}
+        <path
+          d={`M${PF_X + PF_W + 3} ${groundY - 3.5}L${PF_X + PF_W + 8} ${groundY}L${PF_X + PF_W + 3} ${groundY + 3.5}`}
+          className={styles.pfChevron}
+        />
+      </g>
+
+      {/* 1 · The contour: the dilated, flooded shape. */}
+      <g filter="url(#pf-contour)">{shape}</g>
+
+      {/* 2 · The fill, over the contour's interior. */}
+      <g mask="url(#pf-shape)">
+        <rect x="0" y="0" width={W} height={H} fill="url(#pf-fill)" />
+        <rect x="0" y="0" width={W} height={H} fill="url(#pf-shade)" />
+      </g>
+
+      {/* 3 · Pixelation over the head and shoulders. */}
+      <g mask="url(#pf-head)">
+        <rect x="0" y="0" width={W} height={H} fill="url(#pf-pix)" />
+      </g>
+
+      {/* 4 · Fragments dissolving off the face. */}
+      <g className={styles.pfFragments}>
+        {PF_FRAGMENTS.map((f, i) => (
+          <rect
+            key={i}
+            x={PF_NOSE[0] + f.dx - f.s / 2}
+            y={PF_NOSE[1] + f.dy - f.s / 2}
+            width={f.s}
+            height={f.s}
+            rx="0.4"
+            style={{ opacity: f.o }}
+          />
+        ))}
+      </g>
+
+      {/* 5 · One label, in the section's own mono voice. */}
+      <text x={W - 4} y="9" textAnchor="end" className={styles.pfTag}>
+        IDENTITY REDUCED
+      </text>
+    </svg>
   );
 }

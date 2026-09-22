@@ -20,6 +20,8 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { ThemePicture } from "@/components/ui/ThemePicture";
+import { environmentIcon } from "@/data/environment-icons";
 
 /**
  * ONE ICON PER ENVIRONMENT — a real icon family, used as one.
@@ -95,13 +97,35 @@ const ICONS: Record<string, LucideIcon> = {
  */
 export function EnvironmentScene({ id }: { id: string }) {
   const Icon = ICONS[id] ?? MapPin;
+  const still = environmentIcon(id);
   return (
-    <Icon
-      aria-hidden="true"
-      className="env-scene-art"
-      size={20}
-      strokeWidth={1.6}
-      absoluteStrokeWidth
-    />
+    <>
+      <Icon
+        aria-hidden="true"
+        className="env-scene-art"
+        size={20}
+        strokeWidth={1.6}
+        absoluteStrokeWidth
+      />
+      {/* LIGHT: the environment's rendered picture (data/environment-icons.ts)
+          in place of the glyph. Both are in the markup; CSS shows one per
+          theme (`.env-scene-art` / `.env-scene-still`). The glyph is inline
+          SVG, so hiding it costs nothing; the picture has no dark candidate,
+          so a dark visitor never fetches it. */}
+      {still && (
+        <ThemePicture
+          className="env-scene-still"
+          sources={[
+            { type: "image/webp", darkSrcSet: "", lightSrcSet: still.srcSet },
+          ]}
+          darkSrc=""
+          lightSrc={still.src128}
+          sizes="44px"
+          alt=""
+          width={512}
+          height={512}
+        />
+      )}
+    </>
   );
 }

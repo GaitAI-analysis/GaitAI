@@ -1,4 +1,6 @@
 import styles from "./usecases.module.css";
+import { ThemePicture } from "@/components/ui/ThemePicture";
+import { environmentIcon } from "@/data/environment-icons";
 
 /**
  * Environment glyphs for the use-case cards.
@@ -309,14 +311,34 @@ export function EnvironmentGlyph({
 }) {
   const Glyph = GLYPHS[caseId];
   if (!Glyph) return null;
+  const still = environmentIcon(caseId);
 
   return (
-    <svg
-      aria-hidden="true"
-      viewBox={`0 0 ${V} ${V}`}
-      className={`${styles.glyph} ${className ?? ""}`}
-    >
-      <Glyph />
-    </svg>
+    <>
+      <svg
+        aria-hidden="true"
+        viewBox={`0 0 ${V} ${V}`}
+        className={`${styles.glyph} ${className ?? ""}`}
+      >
+        <Glyph />
+      </svg>
+      {/* LIGHT: the rendered environment picture (data/environment-icons.ts)
+          replaces the drawn glyph; CSS shows one per theme. No dark candidate,
+          so a dark visitor never fetches it. */}
+      {still && (
+        <ThemePicture
+          className={styles.glyphStill}
+          sources={[
+            { type: "image/webp", darkSrcSet: "", lightSrcSet: still.srcSet },
+          ]}
+          darkSrc=""
+          lightSrc={still.src128}
+          sizes="36px"
+          alt=""
+          width={512}
+          height={512}
+        />
+      )}
+    </>
   );
 }

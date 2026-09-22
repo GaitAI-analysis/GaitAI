@@ -1865,3 +1865,27 @@
 :global(.light) .groupLabel { color: var(--mobility-accent); }
 :global(.light) :global(#secure) .groupLabel { color: #1d4ed8; }
 :global(.light) .familyCount { color: #0e7490; }
+
+/* ── The rendered environment picture, light only ─────────────────────────
+   EnvironmentGlyph draws its glyph in dark and shows the light icon family
+   (data/environment-icons.ts) in light; one of the two is displayed. */
+.glyphStill {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+
+.glyphStill img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+:global(.light) .glyphStill {
+  display: block;
+}
+
+:global(.light) .glyph {
+  display: none;
+}

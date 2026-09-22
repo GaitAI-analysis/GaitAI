@@ -178,6 +178,11 @@ export const themeMedia = {
   },
 
   /* ── The four workflow films (HowItWorks) ───────────────────────────────── */
+  /* Dark plays all four. Light plays only stage 01's pair via `CaptureStill`;
+     stages 02–04 show the founder's supplied stills in light
+     (public/assets/images/workflow/stage-0N-*-light.webp, wired in
+     HowItWorks `STAGE_LIGHT_STILLS`), so their light companions below are
+     registered and on disk but no longer rendered. */
 
   workflowCapture: {
     kind: "pair",

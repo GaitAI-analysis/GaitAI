@@ -7,6 +7,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -108,6 +109,21 @@ export function HowItWorks() {
 
   const [locked, setLocked] = useState<number | null>(null);
   const [preview, setPreview] = useState<number | null>(null);
+
+  /* Which visuals have arrived on screen. The light card's one-time sheen
+     (howitworks.module.css, `.visualWrap[data-shine]`) is keyed off this, so
+     it plays exactly once, as the card fades in, and never on a re-render. */
+  const [shone, setShone] = useState<boolean[]>(() =>
+    workflowStages.map(() => false),
+  );
+  const markShone = useCallback((index: number) => {
+    setShone((current) => {
+      if (current[index]) return current;
+      const next = [...current];
+      next[index] = true;
+      return next;
+    });
+  }, []);
 
   /* The whole zigzag, behind one control. See the note above the button. */
   const [open, setOpen] = useState(false);
@@ -360,9 +376,11 @@ export function HowItWorks() {
                           own buttons give. One active index, read everywhere. */}
                       <motion.div
                         className={styles.visualWrap}
+                        data-shine={shone[i]}
                         initial={reduce ? false : { opacity: 0, y: 28 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true, margin: "-12% 0px" }}
+                        onViewportEnter={() => markShone(i)}
                         transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
                         onPointerEnter={() => {
                           release();
@@ -464,14 +482,93 @@ export function HowItWorks() {
 
 /* One animation per workflow stage, from gaitai_poster_animations.zip.
    Order matches workflowStages: capture → analyze → report → act. Each key
-   names a dark film and its light companion in `lib/theme-media.ts`; the
-   theme picks one. */
+   names a dark film and its light companion in `lib/theme-media.ts`. Dark
+   plays the film; light shows the still below for stages 02–04 (stage 01 is
+   the photograph pair in `CaptureStill`). */
 const STAGE_KEYS: ThemeMediaKey[] = [
   "workflowCapture",
   "workflowAnalyze",
   "workflowReport",
   "workflowOutput",
 ];
+
+/**
+ * STAGES 02–04 IN LIGHT ARE STILLS, NOT FILMS.
+ * The light companions of the three stage films are re-grades of dark
+ * renders, and on the white card they read faded — thin lines, washed
+ * accents, a haze where the dark film had bloom. The founder supplied three
+ * visuals designed for paper instead (2026-09-22, gaitai-stage-02-03-04-
+ * images.zip): the multimodal-input → gait-analysis board, the SecureVision
+ * dashboard, and the trusted-action hub. They are shown as supplied — no
+ * crop, no grade — and the card takes each one's own aspect
+ * (`--wf-aspect-light`), so `cover` is an exact fit.
+ *
+ * Two encodes per still: the file at its native size, lossless, and a 2x
+ * Lanczos upscale for retina cards, where a browser's own bilinear upscale
+ * of a ~550px file goes soft. `sizes` is the card's real width, so a phone
+ * at 1x fetches the small one. The dark films are untouched, and their light
+ * companions stay registered in `lib/theme-media.ts` — they are simply not
+ * rendered here any more.
+ */
+interface StageStill {
+  src: string;
+  src2x: string;
+  width: number;
+  height: number;
+  alt: string;
+}
+
+const STAGE_LIGHT_STILLS: Partial<Record<number, StageStill>> = {
+  1: {
+    src: "/assets/images/workflow/stage-02-analyze-light.webp",
+    src2x: "/assets/images/workflow/stage-02-analyze-light@2x.webp",
+    width: 532,
+    height: 388,
+    alt: "A person walking with pose markers over their joints, between a list of multimodal inputs — video, depth, wearables, thermal, environment — and a panel of gait and activity measures: pose estimation, stride length, cadence and gait symmetry.",
+  },
+  2: {
+    src: "/assets/images/workflow/stage-03-report-light.webp",
+    src2x: "/assets/images/workflow/stage-03-report-light@2x.webp",
+    width: 591,
+    height: 459,
+    alt: "A SecureVision operator dashboard: people analysed, risk alerts, cameras online and uptime, a movement-activity trend, a risk-distribution ring, top insights and a downloadable report.",
+  },
+  3: {
+    src: "/assets/images/workflow/stage-04-output-light.webp",
+    src2x: "/assets/images/workflow/stage-04-output-light@2x.webp",
+    width: 553,
+    height: 405,
+    alt: "AI signals from movement, wearables, CCTV, sensors and the environment flow into a trusted action hub and out to the doctor, therapist, caregiver and security operator who act on them.",
+  },
+};
+
+/** The site theme once mounted; null while the server HTML is authoritative. */
+function useLightTheme(): boolean | null {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return resolvedTheme === "light";
+}
+
+function StageStillImage({ still }: { still: StageStill }) {
+  return (
+    /* eslint-disable-next-line @next/next/no-img-element -- static export
+       with `images.unoptimized`; the two encodes are already what next/image
+       would produce, and it cannot be told the theme. */
+    <img
+      src={assetPath(still.src)}
+      srcSet={`${assetPath(still.src)} ${still.width}w, ${assetPath(still.src2x)} ${still.width * 2}w`}
+      sizes="(min-width: 1024px) min(46vw, 570px), calc(100vw - 40px)"
+      width={still.width}
+      height={still.height}
+      alt={still.alt}
+      loading="lazy"
+      decoding="async"
+      className={styles.media}
+    />
+  );
+}
 
 /* The one-word verb under each node. Presentation only — the stage titles
    above carry the meaning; these let the timeline be read at a glance as
@@ -565,6 +662,12 @@ function StageVisual({
    * into view and pause when it leaves, so the cost follows attention.
    */
   const [inView, setInView] = useState(false);
+  /* Light stages 02–04 show a still and never fetch the film. The theme is
+     only trusted once mounted (see `useLightTheme`); until then the slot is
+     empty — the panel is collapsed and invisible at load, so nothing is lost,
+     and neither theme's file is requested before the right one is known. */
+  const light = useLightTheme();
+  const still = STAGE_LIGHT_STILLS[index];
 
   useEffect(() => {
     const node = wrapRef.current;
@@ -587,16 +690,26 @@ function StageVisual({
     <div
       ref={wrapRef}
       className={styles.visual}
-      style={{ "--wf-aspect": stageAspect(index) } as React.CSSProperties}
+      /* The supplied stills carry their own stage chip (02, 04) or fill the
+         corner with content (03): the card's chip is dropped for them. */
+      data-still={light === true && still !== undefined ? "true" : undefined}
+      style={
+        {
+          "--wf-aspect": stageAspect(index),
+          "--wf-aspect-light": still ? still.width / still.height : undefined,
+        } as React.CSSProperties
+      }
     >
       {index === 0 ? (
         <CaptureStill />
+      ) : light === null ? null : light && still ? (
+        <StageStillImage still={still} />
       ) : (
-        /* The theme's own film, chosen before first paint; reduced-motion
-           visitors get its poster and never fetch the clip. A collapsed panel
-           is zero-height but still intersects the observer's 200px margin, so
-           "in view" alone would autoplay all four films behind a closed
-           disclosure — `revealed` is the other half of the gate. */
+        /* The dark film; reduced-motion visitors get its poster and never
+           fetch the clip. A collapsed panel is zero-height but still
+           intersects the observer's 200px margin, so "in view" alone would
+           autoplay all four films behind a closed disclosure — `revealed` is
+           the other half of the gate. */
         <ThemeVideo
           mediaKey={STAGE_KEYS[index]}
           className={styles.media}

@@ -846,6 +846,10 @@
    the film behind it read as overexposed glass; the film is graded for paper
    now (console_layers.json) and sits on solid white. */
 :global(.light) .visual {
+  /* Stages 02–04 show a still in light (HowItWorks `STAGE_LIGHT_STILLS`),
+     and the card takes the still's own shape so nothing is cropped. Stage 01
+     sets no light aspect and keeps the photograph's. */
+  aspect-ratio: var(--wf-aspect-light, var(--wf-aspect, 1.1));
   border-color: rgba(20, 65, 110, 0.14);
   background: #ffffff;
   box-shadow:
@@ -853,6 +857,10 @@
     0 18px 50px rgba(12, 38, 65, 0.09);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+  transition:
+    transform 0.55s var(--wf-ease),
+    border-color 0.45s var(--wf-ease),
+    box-shadow 0.55s var(--wf-ease);
 }
 
 .row[data-active="true"] .visual {
@@ -901,6 +909,98 @@
   }
 }
 
+/* ── The light card's sheen ─────────────────────────────────────────────
+   Light only; dark keeps its slab. Two glass reflections on one card:
+
+     ::after   ONE sweep as the card arrives. `.visualWrap[data-shine]` is set
+               the moment the wrap enters the viewport (HowItWorks
+               `markShone`), once, so the sweep rides the fade-up and never
+               replays on a re-render or a theme change.
+     ::before  the hover sheen. Rests off the left edge; on hover it crosses
+               the card once over 1.1s, and on leave it fades where it is and
+               resets off screen — no reverse sweep, which is the one thing
+               that would make glass look like a wiper.
+
+   Both are the same band: a soft blue-white highlight, brightest at its
+   centre, skewed the way daylight crosses a tilted pane. It is white over a
+   white ground and so reads only on the graphics — which is what a glare
+   does. The card clips it (`overflow: hidden`, rounded), and it sits above
+   the media (z-index 1) and below nothing that matters. */
+:global(.light) .visual::before,
+:global(.light) .visual::after {
+  content: "";
+  position: absolute;
+  top: -12%;
+  bottom: -12%;
+  left: 0;
+  width: 46%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0) 0%,
+    rgb(214 234 255 / 0.26) 32%,
+    rgb(255 255 255 / 0.6) 50%,
+    rgb(214 234 255 / 0.26) 68%,
+    rgb(255 255 255 / 0) 100%
+  );
+  transform: translateX(-170%) skewX(-14deg);
+  opacity: 0;
+}
+
+/* Rest: opacity fades where it is, then the band resets off screen. */
+:global(.light) .visual::before {
+  transition:
+    opacity 0.35s ease,
+    transform 0s linear 0.35s;
+}
+
+@keyframes wfSheenSweep {
+  0% {
+    transform: translateX(-170%) skewX(-14deg);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  84% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(330%) skewX(-14deg);
+    opacity: 0;
+  }
+}
+
+/* Entrance: the band crosses once, starting a beat into the fade-up. */
+:global(.light) .visualWrap[data-shine="true"] .visual::after {
+  animation: wfSheenSweep 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.35s 1 both;
+}
+
+@media (hover: hover) {
+  /* Lift 4px, a deeper cool shadow, a sapphire hairline and a faint cyan
+     glow — the light system's raised state, on the card the still sits in.
+     `.row` is in the selector so this outweighs the active-row border above:
+     a hovered card is always the active one, and the hover has to win. */
+  :global(.light) .row .visual:hover {
+    transform: translateY(-4px);
+    border-color: rgba(27, 78, 217, 0.36);
+    box-shadow:
+      0 2px 4px rgba(12, 38, 65, 0.05),
+      0 30px 64px -22px rgba(30, 58, 138, 0.3),
+      0 0 0 1px rgba(8, 145, 178, 0.12),
+      0 0 30px rgba(8, 145, 178, 0.16);
+  }
+
+  :global(.light) .visual:hover::before {
+    transform: translateX(330%) skewX(-14deg);
+    opacity: 1;
+    transition:
+      transform 1.1s cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 0.3s ease;
+  }
+}
+
 /* The stage tag, bottom-left: a small mono chip on glass. */
 .tag {
   position: absolute;
@@ -926,6 +1026,12 @@
   color: #1438a8;
 }
 
+/* A light still card has no chip: stages 02 and 04 print their own
+   "STAGE_0N" pill in that corner, and 03 has the risk ring there. */
+.visual[data-still="true"] .tag {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .copy,
   .journeyNode,
@@ -940,5 +1046,19 @@
   .visual:hover .media > img {
     transform: none;
     filter: none;
+  }
+
+  /* No sweep and no lift; the border and shadow still answer the hover. */
+  :global(.light) .visual::before,
+  :global(.light) .visual::after,
+  :global(.light) .row .visual:hover::before,
+  :global(.light) .visualWrap[data-shine="true"] .visual::after {
+    animation: none;
+    transition: none;
+    opacity: 0;
+  }
+
+  :global(.light) .row .visual:hover {
+    transform: none;
   }
 }

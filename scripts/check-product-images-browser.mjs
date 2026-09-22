@@ -165,20 +165,28 @@ try {
         if (!product.images) continue;
         await image.scrollIntoViewIfNeeded();
         await image.evaluate((img) => img.decode());
-        await page.waitForFunction(({ id, mode, name }) => {
+        // A product with its own card photograph shows it in both themes.
+        const cardFile = product.images.cardDedicated ? "card" : `${mode}-hero`;
+        await page.waitForFunction(({ id, cardFile, name }) => {
           const img = document.querySelector(`article:has(a[aria-label="View product: ${name}"]) [data-product-card-image] img`);
-          return img?.complete && img.naturalWidth > 0 && img.currentSrc.includes(`/images/products/${id}/${mode}-hero`);
-        }, { id: product.id, mode, name: product.name });
+          return img?.complete && img.naturalWidth > 0 && img.currentSrc.includes(`/images/products/${id}/${cardFile}`);
+        }, { id: product.id, cardFile, name: product.name });
         const state = await image.evaluate((img) => ({ src: img.currentSrc, loading: img.loading, fit: getComputedStyle(img).objectFit,
           position: getComputedStyle(img).objectPosition, pictureTheme: img.closest("picture")?.dataset.theme ?? null,
           markup: [img.getAttribute("src") ?? "", ...Array.from(img.closest("picture")?.querySelectorAll("source") ?? []).map((s) => s.getAttribute("srcset") ?? "")].join(" "),
           ratio: img.getBoundingClientRect().width / img.getBoundingClientRect().height }));
-        assert.ok(state.src.includes(`/images/products/${product.id}/${mode}-hero`), `${product.short} card in ${mode}: ${state.src}`);
-        assert.ok(!state.markup.includes(`${other}-hero`) && !state.markup.includes("/card"), `${product.short} card in ${mode} still references ${other}-hero or card.webp`);
-        assert.equal(state.pictureTheme, mode, `${product.short} card: <picture data-theme> lags ${mode}`);
+        if (product.images.cardDedicated) {
+          assert.ok(state.src.includes(`/images/products/${product.id}/card`), `${product.short} dedicated card in ${mode}: ${state.src}`);
+          assert.ok(!state.markup.includes("-hero"), `${product.short} dedicated card must not reference a hero file`);
+          assert.equal(state.position, product.images.cardPosition, `${product.short} card: object-position must be the reviewed cardPosition`);
+        } else {
+          assert.ok(state.src.includes(`/images/products/${product.id}/${mode}-hero`), `${product.short} card in ${mode}: ${state.src}`);
+          assert.ok(!state.markup.includes(`${other}-hero`) && !state.markup.includes("/card"), `${product.short} card in ${mode} still references ${other}-hero or card.webp`);
+          assert.equal(state.pictureTheme, mode, `${product.short} card: <picture data-theme> lags ${mode}`);
+          assert.equal(state.position, product.images.heroPosition, `${product.short} card: object-position must anchor the reviewed subject`);
+        }
         assert.equal(state.loading, "lazy");
         assert.equal(state.fit, "cover");
-        assert.equal(state.position, product.images.heroPosition, `${product.short} card: object-position must anchor the reviewed subject`);
         assert.ok(Math.abs(state.ratio - 4 / 3) < 0.01);
         ledger.get(product.id)[mode === "dark" ? "cardDark" : "cardLight"] = true;
         if (vertical === "all") await card.locator("[data-product-card-image]").screenshot({ path: `${directory}/${product.id}-card-${mode}.png`, animations: "disabled" });
@@ -190,10 +198,11 @@ try {
     for (const product of products.filter((p) => p.images)) {
       const image = cards.filter({ has: page.getByRole("link", { name: `View product: ${product.name}`, exact: true }) }).locator("[data-product-card-image] img");
       await image.scrollIntoViewIfNeeded();
-      await page.waitForFunction(({ id, name }) => {
+      const file = product.images.cardDedicated ? "card" : "light-hero";
+      await page.waitForFunction(({ id, name, file }) => {
         const img = document.querySelector(`article:has(a[aria-label="View product: ${name}"]) [data-product-card-image] img`);
-        return img?.complete && img.naturalWidth > 0 && img.currentSrc.includes(`/images/products/${id}/light-hero`);
-      }, { id: product.id, name: product.name });
+        return img?.complete && img.naturalWidth > 0 && img.currentSrc.includes(`/images/products/${id}/${file}`);
+      }, { id: product.id, name: product.name, file });
     }
     await theme("dark");
     console.log(`Catalogue: /${route}/ — ${products.length} product cards, ${products.filter((p) => p.images).length} theme-aware images (dark → light → dark, light reload).`);

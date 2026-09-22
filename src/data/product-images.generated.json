@@ -752,33 +752,34 @@
             "src": "/images/products/retailguard/card-320.webp",
             "width": 320,
             "height": 240,
-            "bytes": 31452,
-            "sha256": "f27f773a4207f64dd4be9d68ab418eb162e37b7398703849dd2f047fb7ccd9c3"
+            "bytes": 34022,
+            "sha256": "46c1eb3251f865e294c1305634350c32f60e2882c0664991a593f28fd701231b"
           },
           {
             "src": "/images/products/retailguard/card-640.webp",
             "width": 640,
             "height": 480,
-            "bytes": 83406,
-            "sha256": "de1bba84dacf25f409412a99272625446c9ac74d40f609802cfe291af434e7c5"
+            "bytes": 99760,
+            "sha256": "ab27deaf248ca8b6ce98ce952749aeef4780cad6214ef8c306fd3940fa9e09ce"
           },
           {
             "src": "/images/products/retailguard/card-960.webp",
             "width": 960,
             "height": 720,
-            "bytes": 147176,
-            "sha256": "b86bdf55780b13b3c0352e25bebf08d3bc7ac569411ad544dbb1a26346a42b17"
+            "bytes": 173950,
+            "sha256": "f1bc7b3dc2aac5129214f736ab02c4c67cbffe6d3ae5bb2f3eb8630224cbe8e3"
           },
           {
             "src": "/images/products/retailguard/card.webp",
             "width": 1448,
             "height": 1086,
-            "bytes": 247224,
-            "sha256": "8166fa7078910265c99438a084111c43c0c348cec9830b5cb0ed08592d9c8b0b"
+            "bytes": 1490154,
+            "sha256": "1811186f99d51562622594a30c8616f350bb1e08ff09b0ecc49560a1acbd7c5a"
           }
         ]
       }
     },
+    "cardDedicated": true,
     "heroDark": "/images/products/retailguard/dark-hero.webp",
     "heroLight": "/images/products/retailguard/light-hero.webp",
     "card": "/images/products/retailguard/card.webp"
@@ -2203,41 +2204,42 @@
         ]
       },
       "card": {
-        "width": 1672,
-        "height": 941,
+        "width": 1448,
+        "height": 1086,
         "variants": [
           {
             "src": "/images/products/forensicsearch/card-320.webp",
             "width": 320,
-            "height": 180,
-            "bytes": 16726,
-            "sha256": "ba5433b59882640cb014e955f7427bb19bf0cb480e996839c765aec66389ca1e"
+            "height": 240,
+            "bytes": 32832,
+            "sha256": "b85bc2d34e744ce0e9522c962cf688b9587809f0a795fdc479544965d9904c55"
           },
           {
             "src": "/images/products/forensicsearch/card-640.webp",
             "width": 640,
-            "height": 360,
-            "bytes": 52420,
-            "sha256": "2b1b31d23fabb69431854f46e7ffbbac52542ccca1b0ec6f57a8328ac0153d51"
+            "height": 480,
+            "bytes": 95684,
+            "sha256": "abad0bb81327a0933040b13033728cffa37c26507c4cfb7d6193ceedf6c88ba0"
           },
           {
             "src": "/images/products/forensicsearch/card-960.webp",
             "width": 960,
-            "height": 540,
-            "bytes": 96404,
-            "sha256": "bfbfcbd741eada6dbcad974350fca56c4811df08e11175a23cef1f84208a9dd0"
+            "height": 720,
+            "bytes": 165862,
+            "sha256": "5567e3a1b5e72f3f80388bccce7a6cd19901b80d90ced4d5fc654045b8c1eba9"
           },
           {
             "src": "/images/products/forensicsearch/card.webp",
-            "width": 1672,
-            "height": 941,
-            "bytes": 201152,
-            "sha256": "5ec07cebab19eae1024b51b844f0642c83efa42a66ac9cf96ff65f64df823f9b"
+            "width": 1448,
+            "height": 1086,
+            "bytes": 1429278,
+            "sha256": "809c57cf7f81e59860908b0ca975d233bd82a9cdec9b6cb3b31da69c495ad053"
           }
         ]
       }
     },
     "heroWide": true,
+    "cardDedicated": true,
     "heroDark": "/images/products/forensicsearch/dark-hero.webp",
     "heroLight": "/images/products/forensicsearch/light-hero.webp",
     "card": "/images/products/forensicsearch/card.webp"
@@ -2323,33 +2325,34 @@
             "src": "/images/products/reid/card-320.webp",
             "width": 320,
             "height": 240,
-            "bytes": 21450,
-            "sha256": "3eb2c2837c560934ef63626a851bc7fa69922e7771286e3d695a948b57e7ba35"
+            "bytes": 33806,
+            "sha256": "6f7dee8dd00d808b91ab95a6334ef96590295133b5663b384f798451189f93a3"
           },
           {
             "src": "/images/products/reid/card-640.webp",
             "width": 640,
             "height": 480,
-            "bytes": 55824,
-            "sha256": "1508e82ea523e38a8552d1a7fb6bfe4526711bc62ade5a14c36c5e4ab82a1030"
+            "bytes": 92704,
+            "sha256": "96892bb7ba29ef629b57d89b7d003ec14ce506cac657e7565d13ae5dd3a7d652"
           },
           {
             "src": "/images/products/reid/card-960.webp",
             "width": 960,
             "height": 720,
-            "bytes": 95698,
-            "sha256": "ccfaf6d4e19989c25c24c63488e42e161919fa0cfbd5762864f8189879c1b41f"
+            "bytes": 160348,
+            "sha256": "fe20e62d31c40874a10da161643ab5b055561b2a499bee510a9aa11653cb4922"
           },
           {
             "src": "/images/products/reid/card.webp",
             "width": 1448,
             "height": 1086,
-            "bytes": 164234,
-            "sha256": "377764b271b8cab3ee7b0319d9dbb788d2b5946c0e52c7cd928be7eae7c54bcb"
+            "bytes": 1429546,
+            "sha256": "ee82ea855ce6d094e5e98981892e3fad1f197cdeee5ba1afd4d63c8d33a981dc"
           }
         ]
       }
     },
+    "cardDedicated": true,
     "heroDark": "/images/products/reid/dark-hero.webp",
     "heroLight": "/images/products/reid/light-hero.webp",
     "card": "/images/products/reid/card.webp"

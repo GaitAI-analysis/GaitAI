@@ -33,6 +33,32 @@ function srcSet(asset: ProductImageAsset): string {
  * never the full hero for a card.
  */
 export function ProductCardImage({ images }: { images: ProductImages }) {
+  /* A product with a card photograph of its own (`cardDedicated`, set from
+     the manifest) shows it in both themes: the same 4:3 tile, cover-fitted
+     and anchored by its reviewed cardPosition, lazy, with the same hover
+     lift. Everything else on the card is untouched. */
+  if (images.cardDedicated) {
+    const card = images.assets.card;
+    const cardScale = Math.max(1, (card.width / card.height) / (4 / 3));
+    return (
+      <div className="relative aspect-[4/3] overflow-hidden rounded-t-2xl" data-product-card-image data-card-dedicated>
+        {/* eslint-disable-next-line @next/next/no-img-element -- static export, pre-encoded srcset */}
+        <img
+          src={assetPath(images.card)}
+          srcSet={srcSet(card)}
+          sizes={`(min-width: 1320px) ${Math.ceil(400 * cardScale)}px, (min-width: 1024px) calc((100vw - 128px) / 3 * ${cardScale}), (min-width: 640px) calc((100vw - 80px) / 2 * ${cardScale}), calc((100vw - 40px) * ${cardScale})`}
+          alt={images.alt}
+          width={card.width}
+          height={card.height}
+          loading="lazy"
+          decoding="async"
+          className="block h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.025]"
+          style={{ objectPosition: images.cardPosition }}
+        />
+      </div>
+    );
+  }
+
   const hero = images.assets.heroDark;
   // A wide source needs extra pixels when it fills a 4:3 tile with object-cover.
   const coverScale = Math.max(1, (hero.width / hero.height) / (4 / 3));

@@ -19,8 +19,8 @@
     "countingPolicy": "138 files = 26 collages + 4 unrelated posters + 3 canonical posters + 105 photographs, including 11 duplicate extra copies. Production assigns 72 roles from 63 distinct sources. Nine explicitly shared role assignments are not nine new images.",
     "similarityMethod": "63-bit DCT pHash, 64-bit dHash and grayscale SSIM at 128x128. Candidate pairs: pHash <= 12 OR dHash <= 10; human review decides duplication. Theme variants and similar subjects are not automatically duplicates.",
     "summary": {
-      "filesInspected": 138,
-      "uniqueFileHashes": 127,
+      "filesInspected": 141,
+      "uniqueFileHashes": 130,
       "exactDuplicateGroups": 11,
       "exactDuplicateExtraFiles": 11,
       "nearDuplicatePairsFlagged": 10,
@@ -29,8 +29,8 @@
       "uniqueContactSheetsCollages": 24,
       "unrelatedRejected": 4,
       "singleProductPosters": 3,
-      "validStandalonePhotographicCandidates": 105,
-      "unambiguousPhotographicCandidates": 96,
+      "validStandalonePhotographicCandidates": 108,
+      "unambiguousPhotographicCandidates": 99,
       "ambiguousPhotographicCandidates": 9,
       "selectedCleanAssets": 72,
       "selectedPosterAssets": 0,
@@ -43,11 +43,11 @@
       "productsWithAnySelection": 24,
       "currentlyIntegratedPrimaryAssets": 72,
       "currentlyIntegratedProductSets": 24,
-      "validStandaloneCandidates": 108,
-      "uniqueSelectedSourceAssets": 63,
-      "sharedSourceAssignments": 9,
-      "dedicatedProductSets": 21,
-      "semanticFallbackProductSets": 3
+      "validStandaloneCandidates": 111,
+      "uniqueSelectedSourceAssets": 64,
+      "sharedSourceAssignments": 8,
+      "dedicatedProductSets": 22,
+      "semanticFallbackProductSets": 2
     },
     "exactDuplicateGroups": [
       [
@@ -2684,7 +2684,7 @@
       "sources": {
         "heroDark": "ChatGPT Image Sep 16, 2026, 02_20_59 AM (7).png",
         "heroLight": "ChatGPT Image Sep 16, 2026, 02_20_59 AM (8).png",
-        "card": "ChatGPT Image Sep 16, 2026, 02_21_00 AM (9).png"
+        "card": "Sep 22 cards/ChatGPT Image Sep 22, 2026, 10_32_57 AM (1).png"
       },
       "roleReview": {
         "heroDark": {
@@ -2699,8 +2699,8 @@
         },
         "card": {
           "status": "selected-clean",
-          "reviewId": "F070",
-          "reason": "Shopper movement tracking in a retail shopping centre."
+          "reviewId": "S001",
+          "reason": "Shopper with bags tracked through a bright mall concourse; footfall paths and a queue line marked."
         }
       },
       "deploymentStatus": "integrated",
@@ -2784,33 +2784,34 @@
               "src": "/images/products/retailguard/card-320.webp",
               "width": 320,
               "height": 240,
-              "bytes": 31452,
-              "sha256": "f27f773a4207f64dd4be9d68ab418eb162e37b7398703849dd2f047fb7ccd9c3"
+              "bytes": 34022,
+              "sha256": "46c1eb3251f865e294c1305634350c32f60e2882c0664991a593f28fd701231b"
             },
             {
               "src": "/images/products/retailguard/card-640.webp",
               "width": 640,
               "height": 480,
-              "bytes": 83406,
-              "sha256": "de1bba84dacf25f409412a99272625446c9ac74d40f609802cfe291af434e7c5"
+              "bytes": 99760,
+              "sha256": "ab27deaf248ca8b6ce98ce952749aeef4780cad6214ef8c306fd3940fa9e09ce"
             },
             {
               "src": "/images/products/retailguard/card-960.webp",
               "width": 960,
               "height": 720,
-              "bytes": 147176,
-              "sha256": "b86bdf55780b13b3c0352e25bebf08d3bc7ac569411ad544dbb1a26346a42b17"
+              "bytes": 173950,
+              "sha256": "f1bc7b3dc2aac5129214f736ab02c4c67cbffe6d3ae5bb2f3eb8630224cbe8e3"
             },
             {
               "src": "/images/products/retailguard/card.webp",
               "width": 1448,
               "height": 1086,
-              "bytes": 247224,
-              "sha256": "8166fa7078910265c99438a084111c43c0c348cec9830b5cb0ed08592d9c8b0b"
+              "bytes": 1490154,
+              "sha256": "1811186f99d51562622594a30c8616f350bb1e08ff09b0ecc49560a1acbd7c5a"
             }
           ]
         }
-      }
+      },
+      "cardDedicated": true
     },
     {
       "product": "ForensicSearch",
@@ -2820,7 +2821,7 @@
       "sources": {
         "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_58_10 PM (1).png",
         "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_58_11 PM (2).png",
-        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_58_10 PM (1).png"
+        "card": "Sep 22 cards/ChatGPT Image Sep 22, 2026, 10_32_58 AM (2).png"
       },
       "roleReview": {
         "heroDark": {
@@ -2843,19 +2844,14 @@
         },
         "card": {
           "status": "selected-clean",
-          "reviewId": "N041",
-          "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present.",
-          "sharedFrom": {
-            "product": "ReID",
-            "role": "heroDark"
-          }
+          "reviewId": "S002",
+          "reason": "One traveller found across terminal CCTV views, with a search timeline, a route map and matched clips."
         }
       },
       "deploymentStatus": "integrated",
       "visualDescription": "GaitAI ForensicSearch",
       "heroPosition": "76% 50%",
       "cardPosition": "70% 50%",
-      "mappingNote": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present.",
       "heroWide": true,
       "outputs": {
         "heroDark": {
@@ -2927,40 +2923,42 @@
           ]
         },
         "card": {
-          "width": 1672,
-          "height": 941,
+          "width": 1448,
+          "height": 1086,
           "variants": [
             {
               "src": "/images/products/forensicsearch/card-320.webp",
               "width": 320,
-              "height": 180,
-              "bytes": 16726,
-              "sha256": "ba5433b59882640cb014e955f7427bb19bf0cb480e996839c765aec66389ca1e"
+              "height": 240,
+              "bytes": 32832,
+              "sha256": "b85bc2d34e744ce0e9522c962cf688b9587809f0a795fdc479544965d9904c55"
             },
             {
               "src": "/images/products/forensicsearch/card-640.webp",
               "width": 640,
-              "height": 360,
-              "bytes": 52420,
-              "sha256": "2b1b31d23fabb69431854f46e7ffbbac52542ccca1b0ec6f57a8328ac0153d51"
+              "height": 480,
+              "bytes": 95684,
+              "sha256": "abad0bb81327a0933040b13033728cffa37c26507c4cfb7d6193ceedf6c88ba0"
             },
             {
               "src": "/images/products/forensicsearch/card-960.webp",
               "width": 960,
-              "height": 540,
-              "bytes": 96404,
-              "sha256": "bfbfcbd741eada6dbcad974350fca56c4811df08e11175a23cef1f84208a9dd0"
+              "height": 720,
+              "bytes": 165862,
+              "sha256": "5567e3a1b5e72f3f80388bccce7a6cd19901b80d90ced4d5fc654045b8c1eba9"
             },
             {
               "src": "/images/products/forensicsearch/card.webp",
-              "width": 1672,
-              "height": 941,
-              "bytes": 201152,
-              "sha256": "5ec07cebab19eae1024b51b844f0642c83efa42a66ac9cf96ff65f64df823f9b"
+              "width": 1448,
+              "height": 1086,
+              "bytes": 1429278,
+              "sha256": "809c57cf7f81e59860908b0ca975d233bd82a9cdec9b6cb3b31da69c495ad053"
             }
           ]
         }
-      }
+      },
+      "cardDedicated": true,
+      "mappingNote": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present. The card is now ForensicSearch's own photograph (S002); only the two heroes still share ReID's."
     },
     {
       "product": "ReID",
@@ -2970,7 +2968,7 @@
       "sources": {
         "heroDark": "New folder/ChatGPT Image Sep 20, 2026, 05_58_10 PM (1).png",
         "heroLight": "New folder/ChatGPT Image Sep 20, 2026, 05_58_11 PM (2).png",
-        "card": "New folder/ChatGPT Image Sep 20, 2026, 05_58_11 PM (3).png"
+        "card": "Sep 22 cards/ChatGPT Image Sep 22, 2026, 10_32_59 AM (3).png"
       },
       "roleReview": {
         "heroDark": {
@@ -2985,8 +2983,8 @@
         },
         "card": {
           "status": "selected-clean",
-          "reviewId": "N043",
-          "reason": "Backpack-wearing traveler shown with body-level tracking in different terminal camera views; no claim of a verified identity match."
+          "reviewId": "S003",
+          "reason": "The same traveller matched across four terminal cameras by body and movement; no face used."
         }
       },
       "deploymentStatus": "integrated",
@@ -3070,33 +3068,34 @@
               "src": "/images/products/reid/card-320.webp",
               "width": 320,
               "height": 240,
-              "bytes": 21450,
-              "sha256": "3eb2c2837c560934ef63626a851bc7fa69922e7771286e3d695a948b57e7ba35"
+              "bytes": 33806,
+              "sha256": "6f7dee8dd00d808b91ab95a6334ef96590295133b5663b384f798451189f93a3"
             },
             {
               "src": "/images/products/reid/card-640.webp",
               "width": 640,
               "height": 480,
-              "bytes": 55824,
-              "sha256": "1508e82ea523e38a8552d1a7fb6bfe4526711bc62ade5a14c36c5e4ab82a1030"
+              "bytes": 92704,
+              "sha256": "96892bb7ba29ef629b57d89b7d003ec14ce506cac657e7565d13ae5dd3a7d652"
             },
             {
               "src": "/images/products/reid/card-960.webp",
               "width": 960,
               "height": 720,
-              "bytes": 95698,
-              "sha256": "ccfaf6d4e19989c25c24c63488e42e161919fa0cfbd5762864f8189879c1b41f"
+              "bytes": 160348,
+              "sha256": "fe20e62d31c40874a10da161643ab5b055561b2a499bee510a9aa11653cb4922"
             },
             {
               "src": "/images/products/reid/card.webp",
               "width": 1448,
               "height": 1086,
-              "bytes": 164234,
-              "sha256": "377764b271b8cab3ee7b0319d9dbb788d2b5946c0e52c7cd928be7eae7c54bcb"
+              "bytes": 1429546,
+              "sha256": "ee82ea855ce6d094e5e98981892e3fad1f197cdeee5ba1afd4d63c8d33a981dc"
             }
           ]
         }
-      }
+      },
+      "cardDedicated": true
     },
     {
       "product": "AccessMotion",
@@ -5288,12 +5287,10 @@
       "candidateRole": "card",
       "confidence": "high",
       "visualNote": "Shopper movement tracking in a retail shopping centre.",
-      "selection": "selected",
+      "selection": "superseded",
       "eligibleForMapping": true,
-      "selectedFor": {
-        "product": "RetailGuard",
-        "role": "card"
-      }
+      "selectedFor": null,
+      "supersededBy": "S001"
     },
     {
       "reviewId": "F071",
@@ -7050,12 +7047,10 @@
       "candidateRole": "card",
       "confidence": "high",
       "visualNote": "Backpack-wearing traveler shown with body-level tracking in different terminal camera views; no claim of a verified identity match.",
-      "selection": "selected",
+      "selection": "superseded",
       "eligibleForMapping": true,
-      "selectedFor": {
-        "product": "ReID",
-        "role": "card"
-      }
+      "selectedFor": null,
+      "supersededBy": "S003"
     },
     {
       "reviewId": "N044",
@@ -7143,6 +7138,96 @@
         "product": "DefenceMotion",
         "role": "card"
       }
+    },
+    {
+      "reviewId": "S001",
+      "source": "Sep 22 cards/ChatGPT Image Sep 22, 2026, 10_32_57 AM (1).png",
+      "bytes": 2027208,
+      "sha256": "0c2fa0dd33a6352a967739991d6736dde663ff67e408adbc6c864c3e7756e7f1",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "4a44b5f6030ffca1",
+      "dhash": "8698a1e1e9a99b9b",
+      "pixelSha256": "48b8ce023c2e6668284ba53a85e2dbad7d9c2f5c8db8864161975c690e92d489",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "RetailGuard"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "Shopper with bags tracked through a bright mall concourse; footfall paths and a queue line marked.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "RetailGuard",
+        "role": "card"
+      },
+      "losslessMaster": true,
+      "supplied": "2026-09-22, founder's Downloads; the master card.webp is a lossless encode of this file"
+    },
+    {
+      "reviewId": "S002",
+      "source": "Sep 22 cards/ChatGPT Image Sep 22, 2026, 10_32_58 AM (2).png",
+      "bytes": 1965354,
+      "sha256": "7d791c9dfb81022d07d2892c9fbdb88dc9da4a4f4037bb339c738e2e4dc4eeef",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "07708e8670739ecd",
+      "dhash": "f1af569ef2706beb",
+      "pixelSha256": "3e38f377ff556dcc25cbd5235b7c50554e01abf6137f0db9e4d17c2580787111",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ForensicSearch"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "One traveller found across terminal CCTV views, with a search timeline, a route map and matched clips.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ForensicSearch",
+        "role": "card"
+      },
+      "losslessMaster": true,
+      "supplied": "2026-09-22, founder's Downloads; the master card.webp is a lossless encode of this file"
+    },
+    {
+      "reviewId": "S003",
+      "source": "Sep 22 cards/ChatGPT Image Sep 22, 2026, 10_32_59 AM (3).png",
+      "bytes": 1978957,
+      "sha256": "4f0c99ea199e36755a039bd5c067cf94372879bb7d23ca4e087819cc1e8b833c",
+      "width": 1448,
+      "height": 1086,
+      "aspectRatio": 1.333333,
+      "aspectRatioFraction": "4:3",
+      "format": "PNG",
+      "mode": "RGB",
+      "phash": "6e1b8f4c59e4b038",
+      "dhash": "61698d8d33272666",
+      "pixelSha256": "659c62003637ace47636e553197fca4dbd43a43a068e1e74052b6cd0e70f5426",
+      "sourceKind": "clean-photograph",
+      "candidateProducts": [
+        "ReID"
+      ],
+      "candidateRole": "card",
+      "confidence": "high",
+      "visualNote": "The same traveller matched across four terminal cameras by body and movement; no face used.",
+      "selection": "selected",
+      "eligibleForMapping": true,
+      "selectedFor": {
+        "product": "ReID",
+        "role": "card"
+      },
+      "losslessMaster": true,
+      "supplied": "2026-09-22, founder's Downloads; the master card.webp is a lossless encode of this file"
     }
   ],
   "history": [
@@ -7192,13 +7277,6 @@
       "slug": "forensicsearch",
       "role": "heroLight",
       "roleLabel": "Light Hero",
-      "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present."
-    },
-    {
-      "product": "ForensicSearch",
-      "slug": "forensicsearch",
-      "role": "card",
-      "roleLabel": "Card",
       "reason": "Closest semantic fit: terminal CCTV viewpoints and tracked paths, shared with ReID. No dedicated forensic-search interface is present."
     },
     {

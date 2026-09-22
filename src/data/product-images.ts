@@ -22,6 +22,12 @@ export interface ProductImages {
   heroPosition: string;
   /** Broader framing when context spans both sides of the photograph. */
   heroWide?: boolean;
+  /**
+   * The catalogue card shows this product's OWN card photograph (the `card`
+   * asset) in both themes, instead of the theme hero crop. Set by the
+   * importer from the manifest's `cardDedicated` flag.
+   */
+  cardDedicated?: boolean;
   cardPosition: string;
   assets: Record<"heroDark" | "heroLight" | "card", ProductImageAsset>;
 }

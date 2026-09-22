@@ -23,7 +23,9 @@ def digest(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-dir", type=Path, required=True)
+    parser.add_argument("--only", default=None, help="comma-separated slugs to (re)encode; others keep their outputs")
     args = parser.parse_args()
+    only = set(args.only.split(",")) if args.only else None
     source_root = args.source_dir.resolve(strict=True)
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     inventory = {item["source"]: item for item in manifest["inventory"]}
@@ -36,6 +38,8 @@ def main():
     products_by_name = {p["product"]: p for p in manifest["products"]}
     for product in manifest["products"]:
         if product["status"] != "reviewed":
+            continue
+        if only is not None and product["slug"] not in only:
             continue
         if not all(product["sources"].get(role) and
                    product["roleReview"][role]["status"] == "selected-clean" for role in ROLES):
@@ -75,6 +79,10 @@ def main():
                   "cardPosition": product["cardPosition"], "assets": {}}
         if product.get("heroWide"):
             images["heroWide"] = True
+        if product.get("cardDedicated"):
+            # This product has a card photograph of its own; the catalogue shows it
+            # instead of the theme hero crop (see ProductCardImage).
+            images["cardDedicated"] = True
         for role, basename in ROLES.items():
             filename = product["sources"][role]
             source = (source_root / filename).resolve(strict=True)
@@ -90,7 +98,12 @@ def main():
                     output = directory / name
                     height = round(photograph.height * width / photograph.width)
                     resized = photograph if width == photograph.width else photograph.resize((width, height), Image.Resampling.LANCZOS)
-                    resized.save(output, "WEBP", quality=94, method=6)
+                    if width == photograph.width and inventory[filename].get("losslessMaster"):
+                        # A supplied file the founder asked to use exactly: the
+                        # master is a lossless encode, pixel-identical to the source.
+                        resized.save(output, "WEBP", lossless=True, quality=100, method=6)
+                    else:
+                        resized.save(output, "WEBP", quality=94, method=6)
                     variants.append({"src": f"/images/products/{slug}/{name}", "width": width,
                                      "height": height, "bytes": output.stat().st_size, "sha256": digest(output)})
                 images[role] = variants[-1]["src"]

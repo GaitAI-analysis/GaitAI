@@ -127,7 +127,7 @@ export default function SecureVisionPage() {
         />
 
         <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:h-[var(--hero-copy-space)] lg:min-h-0">
-          <div className="w-full max-w-[680px]">
+          <div className="w-full max-w-[680px] lg:max-w-[480px]">
             <div className="securevision-eyebrow">
               GaitAI SecureVision · Privacy-first
             </div>

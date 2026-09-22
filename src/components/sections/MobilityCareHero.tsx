@@ -68,14 +68,14 @@ export function MobilityCareHero() {
 
       {/* Content layer */}
       <div className="mobilitycare-hero__content container-wide">
-        <div className="w-full max-w-[640px]">
+        <div className="w-full max-w-[640px] lg:max-w-[470px]">
           <div className="inline-flex items-center rounded-full border border-teal-300/30 bg-teal-300/[0.08] px-4 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-teal-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs">
             GAITAI MOBILITYCARE · MOVEMENT INTELLIGENCE
           </div>
 
           <h1
             id="mobilitycare-hero-title"
-            className="mt-6 text-balance font-display text-[clamp(2.3rem,8vw,3.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-soft-white lg:text-[clamp(2.7rem,min(3.9vw,6svh),4.6rem)]"
+            className="mt-6 text-balance font-display text-[clamp(2.3rem,8vw,3.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-soft-white lg:text-[clamp(2rem,min(2.85vw,4.4svh),3.5rem)]"
           >
             Movement intelligence for assessment, recovery and{" "}
             <span className="text-gradient-mobility">longitudinal care.</span>

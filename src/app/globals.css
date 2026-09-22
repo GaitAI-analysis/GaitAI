@@ -2205,6 +2205,12 @@ body {
   .securevision-hero-inner {
     box-sizing: border-box;
     padding-top: clamp(28px, 4.5svh, 64px);
+    /* The layer's height already ends just above the picture's painted
+       product strip; this is the clearance between the CTA row and that
+       first ring row. The copy is flex-centred, so padding here lifts the
+       whole block by half of it — the hero does not grow, and the eyebrow
+       keeps its room under the navbar. */
+    padding-bottom: clamp(34px, 5.5svh, 76px);
   }
 }
 
@@ -2296,9 +2302,12 @@ body {
 
   /* The display-2xl token (7vw) oversizes the headline on laptops; keep its
      character but let the whole content block fit one screen. */
+  /* The copy column is roughly a third of the hero (see the wrapper's
+     `lg:max-w-[480px]`), so the display size comes down with it — the
+     headline still sets in three lines, and the artwork keeps the rest. */
   .securevision-hero h1 {
-    font-size: clamp(3rem, 4.1vw, 5.75rem);
-    line-height: 1.05;
+    font-size: clamp(2.25rem, min(3vw, 4.6svh), 3.9rem);
+    line-height: 1.06;
   }
 
   .securevision-capability-grid {
@@ -3347,8 +3356,11 @@ body {
     height: calc(var(--hero-pic-top) + var(--hero-pic-h) * 0.638 - 8px);
     /* A touch more than the SecureVision copy needs: this layer is shorter
        (the rail sits higher in the MobilityCare picture), so the same air
-       above the eyebrow comes from a slightly larger clamp floor. */
+       above the eyebrow comes from a slightly larger clamp floor. The
+       bottom padding is the clearance over the picture's painted strip —
+       see the SecureVision copy layer for why it lifts rather than grows. */
     padding-top: clamp(28px, 4.5svh, 64px);
+    padding-bottom: clamp(34px, 5.5svh, 76px);
   }
 }
 
@@ -3516,6 +3528,19 @@ body {
     object-position: 50% 50%;
   }
 
+  /* AND THE DRIFT STOPS HERE. Scaling the slide 1.03x is a fine Ken Burns
+     move on a `cover` picture, but from here up the picture is CONTAINED and
+     sized to the hero, so 3% pushes its top and bottom past the hero's edges
+     — measured 9px below the fold at 1366x768 — and the product strip
+     painted across its foot is what goes over the edge. The picture's own
+     edges are the composition at these sizes, so the still rests. The
+     cross-fade between the slides is untouched. */
+  .hero-slider__slide--still,
+  .hero-slider__slide--still[data-active="true"] {
+    transform: none;
+    transition: opacity var(--hero-fade-ms) var(--hero-fade-ease);
+  }
+
   /* The ground around the contained picture: the hero's own colour, per
      theme, so the bands read as the page and not as a frame. */
   .hero-slider__slide--still {
@@ -3546,8 +3571,8 @@ body {
   z-index: 3;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.75rem;
+  gap: 0.5rem;
+  padding: 0.3rem 0.55rem;
   border-radius: 999px;
   border: 1px solid rgba(11, 18, 32, 0.08);
   background: rgba(255, 255, 255, 0.55);
@@ -3604,7 +3629,7 @@ body {
 
 @media (min-width: 1024px) {
   .hero-slider__dots {
-    bottom: 0.3rem;
+    bottom: 0.15rem;
   }
 }
 
@@ -3764,10 +3789,11 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 20, 1) 0%,
-    rgba(3, 8, 20, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
-    rgba(3, 8, 20, 0.6) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.365),
-    rgba(3, 8, 20, 0.2) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.39),
-    rgba(3, 8, 20, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.42)
+    rgba(3, 8, 20, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.395),
+    rgba(3, 8, 20, 0.78) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.435),
+    rgba(3, 8, 20, 0.42) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.48),
+    rgba(3, 8, 20, 0.15) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.52),
+    rgba(3, 8, 20, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.56)
   );
 }
 
@@ -3961,11 +3987,11 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 18, 1) 0%,
-    rgba(3, 8, 18, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
-    rgba(3, 8, 18, 0.75) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.375),
-    rgba(3, 8, 18, 0.4) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.41),
-    rgba(3, 8, 18, 0.15) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.45),
-    rgba(3, 8, 18, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.49)
+    rgba(3, 8, 18, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.405),
+    rgba(3, 8, 18, 0.82) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.45),
+    rgba(3, 8, 18, 0.45) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.5),
+    rgba(3, 8, 18, 0.16) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.545),
+    rgba(3, 8, 18, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.59)
   );
 }
 

@@ -3560,14 +3560,35 @@ body {
    walker, the progress panel and the product strip right of the copy are
    untouched. */
 .light .hero-slider__slide--still .mobilitycare-hero__overlay {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 43.5%,
-    rgba(255, 255, 255, 0.6) 45.5%,
-    rgba(255, 255, 255, 0.2) 47.5%,
-    rgba(255, 255, 255, 0) 50%
-  );
+  /* Three layers, top to bottom: a hairline of specular white at the panel's
+     edge; a cool blue-grey drop just past it, so the panel stands a little in
+     front of the picture; and the surface itself — pearl at the left edge
+     running to cool white where it meets the picture, opaque to 43.5% (the
+     painted title panel must not ghost through), then the same fast
+     dissolve as before. */
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 43.1%,
+      rgba(255, 255, 255, 0.85) 43.5%,
+      rgba(255, 255, 255, 0) 44%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(30, 58, 138, 0) 42.5%,
+      rgba(30, 58, 138, 0.075) 44.5%,
+      rgba(30, 58, 138, 0.03) 47%,
+      rgba(30, 58, 138, 0) 50%
+    ),
+    linear-gradient(
+      90deg,
+      #fbfcfe 0%,
+      #f8fbfe 26%,
+      #f2f7fc 43.5%,
+      rgba(242, 247, 252, 0.6) 45.5%,
+      rgba(242, 247, 252, 0.2) 47.5%,
+      rgba(242, 247, 252, 0) 50%
+    );
 }
 
 /* And, as for SecureVision below, the shade is the copy column's only: on
@@ -3608,13 +3629,13 @@ body {
   .light .hero-slider__slide--still .mobilitycare-hero__overlay {
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.42) 0%,
-      rgba(255, 255, 255, 0.9) 16%,
-      rgba(255, 255, 255, 0.93) 56%,
-      rgba(255, 255, 255, 0.72) 66%,
-      rgba(255, 255, 255, 0.38) 74%,
-      rgba(255, 255, 255, 0.14) 84%,
-      rgba(255, 255, 255, 0.1) 100%
+      rgba(247, 250, 253, 0.42) 0%,
+      rgba(247, 250, 253, 0.9) 16%,
+      rgba(247, 250, 253, 0.93) 56%,
+      rgba(247, 250, 253, 0.72) 66%,
+      rgba(247, 250, 253, 0.38) 74%,
+      rgba(247, 250, 253, 0.14) 84%,
+      rgba(247, 250, 253, 0.1) 100%
     );
   }
 }
@@ -3671,6 +3692,58 @@ body {
   }
 }
 
+/* ── LIGHT POLISH — the still slides' picture side ──────────────────────
+   Light only; dark is frozen. (1) The cyan tracking lines, the red alert
+   cues and the glass panels in the daylight stills read a little thin on a
+   bright ground, so the still gets a small lift in chroma and contrast —
+   small enough that skin and clothing stay natural and the bright interiors
+   do not clip. (2) One atmospheric layer over the picture side: a soft
+   blue-grey vignette from the far right and a faint cool band along the
+   bottom, so the scene has depth and the painted product strip separates
+   from the white; both are masked off the copy column, which keeps its
+   pearl. No glow, no neon, no gradient heavier than 7%. */
+.light .hero-slider__slide--still .hero-slider__still img {
+  filter: saturate(1.08) contrast(1.03);
+}
+
+.light .hero-slider__slide--still::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      110% 95% at 82% 38%,
+      rgba(30, 58, 138, 0) 52%,
+      rgba(30, 58, 138, 0.045) 80%,
+      rgba(30, 58, 138, 0.07) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(30, 58, 138, 0) 58%,
+      rgba(30, 58, 138, 0.035) 78%,
+      rgba(30, 58, 138, 0.06) 100%
+    );
+}
+
+@media (min-width: 1024px) {
+  .light .mobilitycare-hero .hero-slider__slide--still::after {
+    -webkit-mask-image: linear-gradient(90deg, transparent 43%, #000 52%);
+    mask-image: linear-gradient(90deg, transparent 43%, #000 52%);
+  }
+
+  .light .securevision-hero-slider .hero-slider__slide--still::after {
+    -webkit-mask-image: linear-gradient(90deg, transparent 36%, #000 48%);
+    mask-image: linear-gradient(90deg, transparent 36%, #000 48%);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .light .hero-slider__slide--still .hero-slider__still img {
+    transition: filter 0.6s ease;
+  }
+}
+
 /* ── SecureVision's still ──────────────────────────────────────────────────
    Same idea, its own numbers: a 6% inset (the watchlist cue sits close to
    the picture's right edge, so less of that edge may go), framed a little
@@ -3688,15 +3761,32 @@ body {
 }
 
 .light .hero-slider__slide--still .securevision-video-shade {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) 36%,
-    rgba(255, 255, 255, 0.75) 39%,
-    rgba(255, 255, 255, 0.4) 42%,
-    rgba(255, 255, 255, 0.15) 45.5%,
-    rgba(255, 255, 255, 0) 49%
-  );
+  /* As on MobilityCare: specular hairline, cool drop, pearl-to-cool-white
+     surface — opaque to 36% here, then the dissolve as before. */
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 35.6%,
+      rgba(255, 255, 255, 0.85) 36%,
+      rgba(255, 255, 255, 0) 36.5%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(30, 58, 138, 0) 35%,
+      rgba(30, 58, 138, 0.075) 37.5%,
+      rgba(30, 58, 138, 0.03) 42%,
+      rgba(30, 58, 138, 0) 48%
+    ),
+    linear-gradient(
+      90deg,
+      #fbfcfe 0%,
+      #f8fbfe 22%,
+      #f2f7fc 36%,
+      rgba(242, 247, 252, 0.75) 39%,
+      rgba(242, 247, 252, 0.4) 42%,
+      rgba(242, 247, 252, 0.15) 45.5%,
+      rgba(242, 247, 252, 0) 49%
+    );
 }
 
 /* The shade is the copy column's, not the picture's: on laptops and up it is
@@ -3740,13 +3830,13 @@ body {
   .light .hero-slider__slide--still .securevision-video-shade {
     background: linear-gradient(
       180deg,
-      rgba(255, 255, 255, 0.42) 0%,
-      rgba(255, 255, 255, 0.9) 16%,
-      rgba(255, 255, 255, 0.93) 56%,
-      rgba(255, 255, 255, 0.72) 66%,
-      rgba(255, 255, 255, 0.38) 74%,
-      rgba(255, 255, 255, 0.14) 84%,
-      rgba(255, 255, 255, 0.1) 100%
+      rgba(247, 250, 253, 0.42) 0%,
+      rgba(247, 250, 253, 0.9) 16%,
+      rgba(247, 250, 253, 0.93) 56%,
+      rgba(247, 250, 253, 0.72) 66%,
+      rgba(247, 250, 253, 0.38) 74%,
+      rgba(247, 250, 253, 0.14) 84%,
+      rgba(247, 250, 253, 0.1) 100%
     );
   }
 }

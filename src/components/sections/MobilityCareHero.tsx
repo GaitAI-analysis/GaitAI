@@ -113,35 +113,14 @@ export function MobilityCareHero() {
             </Link>
           </div>
 
-          {/* The illustrative-values pill that used to sit here — between the CTAs
-              and the capability chips, on top of the hero footage — is gone.
-              It was the same badge repeated over every product visual on the
-              site, and in the hero it read as a fifth control in the button
-              stack rather than as a caption on the footage behind it. Nothing
-              takes its place: the capability grid carries its own 3rem top
-              margin, so the column closes up instead of leaving a gap.
-
-              The claim it guarded is still made, in prose rather than as
-              chrome: the hero's dashboard numbers are decorative, and every
-              module page states what is and is not measured in its evidence
-              panel. */}
-
-          {/* Capability pills — same component style as the SecureVision hero
-              chips so both product pages read as one family */}
-          <div className="securevision-capability-grid">
-            {[
-              ["Clinical gait", "Fall-risk"],
-              ["Rehabilitation", "Elderly mobility"],
-            ].map((row) => (
-              <div key={row[0]} className="securevision-capability-row">
-                {row.map((label) => (
-                  <div key={label} className="securevision-capability-chip">
-                    {label}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
+          {/* Nothing sits under the CTAs. Two things used to: an illustrative-
+              values pill, and a 2×2 grid of capability chips (Clinical gait,
+              Fall-risk, Rehabilitation, Elderly mobility). Both read as extra
+              controls in the button stack rather than as content, and the
+              twelve module cards directly below name every capability the
+              chips did. The hero is the eyebrow, the headline, one paragraph
+              and two buttons; the content block is vertically centred in the
+              hero, so the column simply closes up — no reserved height. */}
         </div>
       </div>
     </section>

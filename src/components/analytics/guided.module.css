@@ -322,6 +322,11 @@
   cursor: not-allowed;
   border-style: dashed;
 }
+/* On paper a 40% option reads as a faded page rather than as "not this
+   one": keep it clearly secondary but legible. */
+:global(.light) .optOff {
+  opacity: 0.62;
+}
 
 .env:focus-visible,
 .opt:focus-visible {

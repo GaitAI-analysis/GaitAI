@@ -36,11 +36,13 @@ import type { ThemeMediaKey } from "@/lib/theme-media";
  * film is the registered `ThemeVideo` pair. Both resolve the theme in the
  * inline bootstrap before first paint (a dark visitor never downloads the
  * light picture, and there is no flash of the other theme's art) and swap
- * their file in place when the theme toggles. The clock is untouched by a
- * toggle: the slide index carries on and only the pictures change, so a
- * reader who toggles mid-fade sees the same slide in the other theme. The
- * still is slide 0 and paints first in both themes, so it is the LCP
- * candidate and there is no flash of film before it.
+ * their file in place when the theme toggles. A toggle also restarts the
+ * slider on slide 0 — the new theme's still is introduced first, exactly as
+ * on a fresh load — and a back/forward-cache restore does the same, so a
+ * reader never opens the page on the old film because they left it there.
+ * Nothing about the slide is persisted anywhere. The still is slide 0 and
+ * paints first in both themes, so it is the LCP candidate and there is no
+ * flash of film before it.
  *
  * Framing is per theme AND per hero: each still has its own focal point and
  * left inset in globals.css (four pictures, four sets of numbers), and each
@@ -192,9 +194,35 @@ export function HeroSlider({
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  /* The clock runs in both themes once the theme is known; a theme change
-     does not touch it — the same slide index carries on with the other
-     theme's pictures. */
+  /* EVERY FRESH VIEW STARTS ON THE STILL. The index is plain component state
+     — nothing is written to localStorage, sessionStorage, the URL or the
+     theme store — so a new navigation always mounts on slide 0. Two paths
+     resurrect an OLD state and are reset here: a back/forward-cache restore
+     (`pageshow` with `persisted`), which brings the page back frozen on
+     whatever slide it left on, and a theme change, which swaps the whole
+     asset collection — the new theme's still is the one to introduce first.
+     The manual hold is released with it, so the clock runs again. */
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (!event.persisted) return;
+      setChosen(false);
+      setIndex(0);
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+  const seenTheme = useRef<"light" | "dark" | null>(null);
+  useEffect(() => {
+    if (theme === null) return;
+    if (seenTheme.current !== null && seenTheme.current !== theme) {
+      setChosen(false);
+      setIndex(0);
+    }
+    seenTheme.current = theme;
+  }, [theme]);
+
+  /* The clock runs in both themes once the theme is known. */
   const running =
     theme !== null && !reduce && !chosen && inView && tabVisible && !resting;
 

@@ -2195,6 +2195,19 @@ body {
   z-index: 2;
 }
 
+/* On laptops and up the copy is centred in a fixed-height layer that starts
+   at the hero's top edge, and its eyebrow pill landed against the trail and
+   the navbar. A little top padding moves the whole copy block's centre down
+   by half of it — the eyebrow clears the nav, the hero itself is no taller,
+   and the copy's bottom stays above the picture's product strip (the layer's
+   height is that limit; see `--hero-copy-space`). */
+@media (min-width: 1024px) {
+  .securevision-hero-inner {
+    box-sizing: border-box;
+    padding-top: clamp(28px, 4.5svh, 64px);
+  }
+}
+
 /* Capability chips: text-only 2×2 grid, sitting a little clear of the CTAs.
    Dark glass fill keeps them readable over the moving footage without
    dimming the analytics on the right of the video. */
@@ -3332,7 +3345,10 @@ body {
     align-items: center;
     box-sizing: border-box;
     height: calc(var(--hero-pic-top) + var(--hero-pic-h) * 0.638 - 8px);
-    padding-top: clamp(16px, 3svh, 48px);
+    /* A touch more than the SecureVision copy needs: this layer is shorter
+       (the rail sits higher in the MobilityCare picture), so the same air
+       above the eyebrow comes from a slightly larger clamp floor. */
+    padding-top: clamp(28px, 4.5svh, 64px);
   }
 }
 
@@ -3541,6 +3557,9 @@ body {
   transform: translateX(-50%);
 }
 
+/* Light: the two states must be unmistakable — the inactive dot is a subtle
+   light grey, the active one a firm navy-to-sapphire pill with a whisper of
+   depth. Minimal, no glow. */
 .hero-slider__dot {
   position: relative;
   width: 0.4rem;
@@ -3548,11 +3567,12 @@ body {
   padding: 0;
   border: 0;
   border-radius: 999px;
-  background: rgba(11, 18, 32, 0.28);
+  background: rgba(15, 23, 42, 0.18);
   cursor: pointer;
   transition:
     width 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    background-color 320ms ease;
+    background-color 320ms ease,
+    box-shadow 320ms ease;
 }
 
 .hero-slider__dot::after {
@@ -3563,16 +3583,17 @@ body {
 
 .hero-slider__dot[data-active="true"] {
   width: 1.5rem;
-  background: rgba(11, 18, 32, 0.82);
+  background: linear-gradient(90deg, #0b1220, #1b4ed9);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
 }
 
 @media (hover: hover) {
   .hero-slider__dot:hover {
-    background: rgba(11, 18, 32, 0.55);
+    background: rgba(15, 23, 42, 0.38);
   }
 
   .hero-slider__dot[data-active="true"]:hover {
-    background: rgba(11, 18, 32, 0.82);
+    background: linear-gradient(90deg, #0b1220, #1b4ed9);
   }
 }
 

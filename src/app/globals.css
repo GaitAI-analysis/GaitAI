@@ -9,6 +9,10 @@
 :root {
   /* Fixed site chrome. Keep this in sync with the deterministic header box. */
   --site-header-height: 5.625rem;
+  /* The location trail (components/atlas/LocationTrail, atlas.module.css
+     `.trail`: 26px min-height + 0.15rem padding each side) sits between the
+     navbar and a page's first section; a one-screen hero subtracts it too. */
+  --site-trail-height: 1.7rem;
   --site-anchor-gap: 1.5rem;
   --header-clearance: calc(var(--site-header-height) + var(--site-anchor-gap));
 
@@ -3296,40 +3300,39 @@ body {
    * composition either.
    */
   .mobilitycare-hero {
-    min-height: max(620px, calc(100vh - var(--site-header-height)));
-    /* Two more floors since the stills (2026-09-22): the still's own height
-       at this width (1672x941, so `cover` never has to crop its bottom — the
-       product strip painted there stays whole), and the height at which
-       that strip's first row starts below the copy — the strip's rings begin
-       63.8% down the picture, the copy's bottom edge is `--hero-copy-bottom-px`
-       (HeroSlider measures it; the copy is top-anchored here, so growing the
-       hero does not move it), plus a rem of air — capped at 4% over the
-       picture's own height, because every pixel of hero above that height
-       is `cover` cropping the picture's sides, and the strip's outermost
-       rings sit 2% from each edge. When one of these wins over the viewport
-       the hero is taller than the screen and the page scrolls to the strip,
-       which is the brief: the strip is content, not trim. */
-    min-height: max(
+    /* One screen: the hero IS the viewport below the navbar — `height`, not
+       `min-height`, because the hero is a size container (see "LAPTOPS AND
+       UP" under the hero slider) and Chrome resolves a size container's
+       block size from `height`, treating a min-height-only box as 0 for
+       `cqh`. The still is CONTAINED in that height, so the product strip
+       painted across its foot is always whole, and the copy is laid out in
+       the room above that strip (its layer's `height`, below) — content can
+       no longer grow the hero, which is the brief. No padding: the copy
+       layer and the picture are sized from the same box. */
+    min-height: 0;
+    height: max(
       620px,
-      calc(100svh - var(--site-header-height)),
-      calc(100vw * 941 / 1672),
-      min(
-        calc((var(--hero-copy-bottom-px, 0px) + 1rem) / 0.638),
-        calc(100vw * 941 / 1672 * 1.04)
-      )
+      calc(100vh - var(--site-header-height) - var(--site-trail-height))
     );
-    /* The content layer owns the top offset (see its `padding-top`); this is
-       the breathing room after the last chip row, which `padding: 0` had
-       removed entirely. */
-    padding: 0 0 clamp(3rem, 5vh, 4.5rem);
+    height: max(
+      620px,
+      calc(100svh - var(--site-header-height) - var(--site-trail-height))
+    );
+    padding: 0;
     align-items: flex-start;
   }
 
   .mobilitycare-hero__content {
     align-self: flex-start;
-    /* Tuned so the badge lands at ~the same y as the SecureVision badge
-       across 1366×768 → 1920×1080. */
-    padding-top: clamp(80px, 12vh, 132px);
+    /* The copy's room is the hero above the picture's product strip (whose
+       first ring row is 63.8% down the picture, wherever the contained
+       picture sits — see the hero slider's "LAPTOPS AND UP" block); the copy
+       is centred in it, a little off the navbar. */
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: calc(var(--hero-pic-top) + var(--hero-pic-h) * 0.638 - 8px);
+    padding-top: clamp(16px, 3svh, 48px);
   }
 }
 
@@ -3451,6 +3454,66 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: var(--hero-still-position, 50% 50%);
+}
+
+/* ── LAPTOPS AND UP: THE PICTURE IS CONTAINED, NOT COVERED ─────────────────
+   The founder's brief (2026-09-22, late): the hero and the product strip
+   painted across the foot of every still must fit in ONE screen, the strip
+   whole, its first and last rings never cut, in both themes. A `cover`
+   picture cannot do that on a 16:10 or short screen — the hero is the
+   viewport below the navbar, the picture is 16:9, so something is cropped.
+   So the still's box is the picture's own shape, sized to the hero: as wide
+   as the hero, or as tall, whichever binds — and no wider than the content
+   system wants (1375px is the 1320px content column plus the 2% margin the
+   rings keep inside the picture, so at 1440–1536 the first and last rings
+   sit exactly on the content column's edges; on wider screens it may take
+   90% of the hero). It is centred; the rest of the hero is the hero's own
+   ground (the still slide paints it, so the film's poster never peeks out).
+   The hero is a size container so the picture's geometry is one set of
+   custom properties every layer reads: the still box, the copy column's
+   shade (its plateau ends where the PICTURE's painted title ends, wherever
+   the picture sits), and the copy itself, which is laid out in the space
+   above the strip's first row (63.8% down the MobilityCare picture, 73.3%
+   down SecureVision's) so the buttons never land on a ring. */
+@media (min-width: 1024px) {
+  .securevision-hero,
+  .mobilitycare-hero {
+    container-type: size;
+    --hero-pic-w: min(100cqw, 100cqh * 1672 / 941, max(1375px, 90cqw));
+    --hero-pic-h: calc(var(--hero-pic-w) * 941 / 1672);
+    --hero-pic-left: calc((100cqw - var(--hero-pic-w)) / 2);
+    --hero-pic-top: calc((100cqh - var(--hero-pic-h)) / 2);
+  }
+
+  .securevision-hero {
+    --hero-copy-space: calc(var(--hero-pic-top) + var(--hero-pic-h) * 0.733 - 8px);
+  }
+
+  .hero-slider__still {
+    inset: var(--hero-pic-top) var(--hero-pic-left);
+    width: var(--hero-pic-w);
+    height: var(--hero-pic-h);
+  }
+
+  /* The box is the picture's shape, so `cover` crops nothing; centre it. */
+  .hero-slider__still img {
+    object-position: 50% 50%;
+  }
+
+  /* The ground around the contained picture: the hero's own colour, per
+     theme, so the bands read as the page and not as a frame. */
+  .hero-slider__slide--still {
+    background: #030812;
+  }
+
+  .mobilitycare-hero .hero-slider__slide--still {
+    background: #020617;
+  }
+
+  .light .hero-slider__slide--still,
+  .light .mobilitycare-hero {
+    background: #eef4fb;
+  }
 }
 
 /* Pagination: two small dots, bottom centre, above the content layer. The
@@ -3576,13 +3639,6 @@ body {
   --hero-still-position: 58% 38%;
 }
 
-@media (min-width: 1024px) {
-  .mobilitycare-hero .hero-slider__still {
-    /* 53%, not 50%: the strip's last ring sits 6px closer to its edge than
-       the first, so what little a taller hero crops comes off the left. */
-    --hero-still-position: 53% 40%;
-  }
-}
 
 /* The still's shade. The picture paints its own wordmark, title and tagline
    in the region the page's headline occupies; at anything short of opaque
@@ -3601,25 +3657,25 @@ body {
   background:
     linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0) 33.6%,
-      rgba(255, 255, 255, 0.85) 34%,
-      rgba(255, 255, 255, 0) 34.5%
+      rgba(255, 255, 255, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.336),
+      rgba(255, 255, 255, 0.85) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+      rgba(255, 255, 255, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.345)
     ),
     linear-gradient(
       90deg,
-      rgba(30, 58, 138, 0) 33%,
-      rgba(30, 58, 138, 0.075) 35%,
-      rgba(30, 58, 138, 0.03) 37.5%,
-      rgba(30, 58, 138, 0) 40.5%
+      rgba(30, 58, 138, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.33),
+      rgba(30, 58, 138, 0.075) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.35),
+      rgba(30, 58, 138, 0.03) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.375),
+      rgba(30, 58, 138, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.405)
     ),
     linear-gradient(
       90deg,
       #fbfcfe 0%,
-      #f8fbfe 20%,
-      #f2f7fc 34%,
-      rgba(242, 247, 252, 0.6) 36.5%,
-      rgba(242, 247, 252, 0.2) 39%,
-      rgba(242, 247, 252, 0) 42%
+      #f8fbfe calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.2),
+      #f2f7fc calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+      rgba(242, 247, 252, 0.6) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.365),
+      rgba(242, 247, 252, 0.2) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.39),
+      rgba(242, 247, 252, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.42)
     );
 }
 
@@ -3673,11 +3729,6 @@ body {
   --hero-still-position: 60% 42%;
 }
 
-@media (min-width: 1024px) {
-  :root:not(.light) .mobilitycare-hero .hero-slider__still {
-    --hero-still-position: 53% 42%;
-  }
-}
 
 /* The dark still's shade is the SAME KIND of thing as the light one — a
    gradient localised to the copy column — in the hero's own navy. It is
@@ -3692,10 +3743,10 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 20, 1) 0%,
-    rgba(3, 8, 20, 1) 34%,
-    rgba(3, 8, 20, 0.6) 36.5%,
-    rgba(3, 8, 20, 0.2) 39%,
-    rgba(3, 8, 20, 0) 42%
+    rgba(3, 8, 20, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+    rgba(3, 8, 20, 0.6) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.365),
+    rgba(3, 8, 20, 0.2) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.39),
+    rgba(3, 8, 20, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.42)
   );
 }
 
@@ -3750,13 +3801,29 @@ body {
 
 @media (min-width: 1024px) {
   .light .mobilitycare-hero .hero-slider__slide--still::after {
-    -webkit-mask-image: linear-gradient(90deg, transparent 34%, #000 44%);
-    mask-image: linear-gradient(90deg, transparent 34%, #000 44%);
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+      #000 calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.44)
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+      #000 calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.44)
+    );
   }
 
   .light .securevision-hero-slider .hero-slider__slide--still::after {
-    -webkit-mask-image: linear-gradient(90deg, transparent 34%, #000 46%);
-    mask-image: linear-gradient(90deg, transparent 34%, #000 46%);
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+      #000 calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.46)
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+      #000 calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.46)
+    );
   }
 }
 
@@ -3776,11 +3843,6 @@ body {
   --hero-still-position: 50% 35%;
 }
 
-@media (min-width: 1024px) {
-  .securevision-hero-slider .hero-slider__still {
-    --hero-still-position: 50% 35%;
-  }
-}
 
 .light .hero-slider__slide--still .securevision-video-shade {
   /* As on MobilityCare: specular hairline, cool drop, pearl-to-cool-white
@@ -3790,26 +3852,26 @@ body {
   background:
     linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0) 33.6%,
-      rgba(255, 255, 255, 0.85) 34%,
-      rgba(255, 255, 255, 0) 34.5%
+      rgba(255, 255, 255, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.336),
+      rgba(255, 255, 255, 0.85) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+      rgba(255, 255, 255, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.345)
     ),
     linear-gradient(
       90deg,
-      rgba(30, 58, 138, 0) 33%,
-      rgba(30, 58, 138, 0.075) 35.5%,
-      rgba(30, 58, 138, 0.03) 40%,
-      rgba(30, 58, 138, 0) 46%
+      rgba(30, 58, 138, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.33),
+      rgba(30, 58, 138, 0.075) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.355),
+      rgba(30, 58, 138, 0.03) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.4),
+      rgba(30, 58, 138, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.46)
     ),
     linear-gradient(
       90deg,
       #fbfcfe 0%,
-      #f8fbfe 20%,
-      #f2f7fc 34%,
-      rgba(242, 247, 252, 0.75) 37.5%,
-      rgba(242, 247, 252, 0.4) 41%,
-      rgba(242, 247, 252, 0.15) 45%,
-      rgba(242, 247, 252, 0) 49%
+      #f8fbfe calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.2),
+      #f2f7fc calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+      rgba(242, 247, 252, 0.75) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.375),
+      rgba(242, 247, 252, 0.4) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.41),
+      rgba(242, 247, 252, 0.15) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.45),
+      rgba(242, 247, 252, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.49)
     );
 }
 
@@ -3818,12 +3880,12 @@ body {
    SecureVision stills (SuspiciousMotion … Watchlist) shows in full, with only
    the pagination pill floating over it. The mask keeps the shade down to
    just below the copy (`--hero-copy-bottom-px`, the copy block's bottom edge
-   measured by HeroSlider) — a good deal further here than on MobilityCare
-   (80px, fading out by 105px), because this still's painted icon row and
-   its "Safer spaces / Stronger communities / A safer tomorrow" labels reach
-   up to ~100px past the CTAs at laptop widths and would otherwise show as
-   stray text under the buttons — and lets it go before the strip, whose
-   header row is never nearer than ~95px below the copy. Where the copy runs tall (a
+   measured by HeroSlider) and lets it go within 24px, before the strip's
+   first ring row, which the copy layer's height (`--hero-copy-space`) keeps
+   at least ~30px below the copy. The still's painted icon row and its
+   "Safer spaces / Stronger communities / A safer tomorrow" labels end above
+   the copy's bottom at every laptop width now that the picture is contained,
+   so they need no extra tail. Where the copy runs tall (a
    wide screen wraps the headline to more lines; this copy is vertically
    centred, so the hero cannot simply grow under it) the shade follows it
    down over the strip's left rings; until the measurement lands the
@@ -3833,14 +3895,14 @@ body {
     -webkit-mask-image: linear-gradient(
       180deg,
       #000 0%,
-      #000 calc(var(--hero-copy-bottom-px, 100%) + 80px),
-      transparent calc(var(--hero-copy-bottom-px, 100%) + 105px)
+      #000 calc(var(--hero-copy-bottom-px, 100%) + 4px),
+      transparent calc(var(--hero-copy-bottom-px, 100%) + 24px)
     );
     mask-image: linear-gradient(
       180deg,
       #000 0%,
-      #000 calc(var(--hero-copy-bottom-px, 100%) + 80px),
-      transparent calc(var(--hero-copy-bottom-px, 100%) + 105px)
+      #000 calc(var(--hero-copy-bottom-px, 100%) + 4px),
+      transparent calc(var(--hero-copy-bottom-px, 100%) + 24px)
     );
   }
 }
@@ -3870,11 +3932,6 @@ body {
   --hero-still-position: 50% 40%;
 }
 
-@media (min-width: 1024px) {
-  :root:not(.light) .securevision-hero-slider .hero-slider__still {
-    --hero-still-position: 50% 40%;
-  }
-}
 
 /* Localised, as in light: opaque over the painted title panel only (short
    of opaque, the painted title ghosts through the headline), gone before
@@ -3883,11 +3940,11 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 18, 1) 0%,
-    rgba(3, 8, 18, 1) 34%,
-    rgba(3, 8, 18, 0.75) 37.5%,
-    rgba(3, 8, 18, 0.4) 41%,
-    rgba(3, 8, 18, 0.15) 45%,
-    rgba(3, 8, 18, 0) 49%
+    rgba(3, 8, 18, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
+    rgba(3, 8, 18, 0.75) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.375),
+    rgba(3, 8, 18, 0.4) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.41),
+    rgba(3, 8, 18, 0.15) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.45),
+    rgba(3, 8, 18, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.49)
   );
 }
 
@@ -7409,6 +7466,30 @@ body {
    hover underline are re-inked to the light accents; their geometry and
    timing are the shared ones. Scoped to the hub and article pages until the
    light architecture rolls out. */
+/* ── The hub's ground, light edition ──
+   The site's pearl (#f3f6fa) read as a pale blue-grey milk under this page's
+   white cards and its cyan drawing. On /insights/ only, the ground moves to a
+   clean warm off-white and the lattice keeps its rhythm with less of the
+   cyan/violet haze; the backdrop's scrim token (obsidian-400 in light) follows
+   the ground so the trajectory band dissolves into the page rather than
+   sitting on it as a cooler strip. Gold goes a shade richer, still bronze,
+   never yellow; body and meta inks a step darker so copy does not read faded. */
+:root.light body:has(.insights-hub) {
+  --light-bg: #fbfbf9;
+  --light-bg-deep: #f3f4f1;
+  --c-obsidian-400: 251 251 249;
+  --light-gold: #a1701a;
+  --light-slate: #1f2d44;
+  --light-meta: #3a4d68;
+  background-color: #fbfbf9;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgb(30 58 138 / 0.04) 1px, transparent 1.5px),
+    linear-gradient(rgb(30 58 138 / 0.016) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(30 58 138 / 0.016) 1px, transparent 1px),
+    radial-gradient(ellipse 70% 42% at 12% -6%, rgb(8 145 178 / 0.03), transparent 62%),
+    radial-gradient(ellipse 60% 44% at 92% 86%, rgb(109 40 217 / 0.018), transparent 64%);
+}
+
 :root.light body:has(.insights-hub, .insights-page) .site-header .glass {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(247, 249, 252, 0.9));
   border-color: var(--light-optical-border);

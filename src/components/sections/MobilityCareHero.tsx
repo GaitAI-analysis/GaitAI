@@ -75,7 +75,7 @@ export function MobilityCareHero() {
 
           <h1
             id="mobilitycare-hero-title"
-            className="mt-6 text-balance font-display text-[clamp(2.3rem,8vw,3.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-soft-white lg:text-[clamp(2.7rem,3.9vw,4.6rem)]"
+            className="mt-6 text-balance font-display text-[clamp(2.3rem,8vw,3.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-soft-white lg:text-[clamp(2.7rem,min(3.9vw,6svh),4.6rem)]"
           >
             Movement intelligence for assessment, recovery and{" "}
             <span className="text-gradient-mobility">longitudinal care.</span>

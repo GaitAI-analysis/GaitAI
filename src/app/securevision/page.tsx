@@ -61,15 +61,16 @@ export default function SecureVisionPage() {
       {/* The desktop min-height is a utility rather than a rule in
           globals.css because Tailwind's `utilities` layer wins over the
           `components` layer that holds `.securevision-hero`, whatever the
-          selector's specificity. It reads `min-height`, never `height`: the
-          hero fills the screen below the navbar when the content fits and
-          grows when it does not — a fixed height used to clip the last
-          capability row outright on a wide, short window. The third term is
-          the still's own height at this width (1672x941): the hero is never
-          shorter than its picture, so `cover` never crops the product strip
-          painted across the picture's foot; on a short, wide screen the hero
-          runs past the fold and the page scrolls to the strip. */}
-      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 lg:min-h-[max(600px,calc(100svh_-_var(--site-header-height)),calc(100vw_*_941_/_1672))] lg:pb-14 lg:pt-0">
+          selector's specificity. On laptops and up it is a fixed `height`
+          again (it was `min-height` for a while, when a fixed height clipped
+          the capability chips on a wide, short window — the chips are gone):
+          the hero is exactly one screen, a size container, and the still is
+          CONTAINED in it (globals.css, "LAPTOPS AND UP" under the hero
+          slider), so the product strip painted across the picture's foot is
+          whole and the copy is laid out in the room above it
+          (`--hero-copy-space` on the inner). Chrome resolves a size
+          container's `cqh` from `height`, not `min-height`. */}
+      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 lg:h-[max(600px,calc(100svh_-_var(--site-header-height)_-_var(--site-trail-height)))] lg:min-h-0 lg:pb-0 lg:pt-0">
         {/* Extracted first frame as the poster, so the hero paints before the
             video decodes; `preload="metadata"` instead of "auto" so the file
             is not fetched in full up front. Reduced motion is a CSS concern —
@@ -125,7 +126,7 @@ export default function SecureVisionPage() {
           filmName="the concourse film"
         />
 
-        <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:h-full lg:min-h-0">
+        <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:h-[var(--hero-copy-space)] lg:min-h-0">
           <div className="w-full max-w-[680px]">
             <div className="securevision-eyebrow">
               GaitAI SecureVision · Privacy-first

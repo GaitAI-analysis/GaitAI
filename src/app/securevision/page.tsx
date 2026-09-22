@@ -11,7 +11,7 @@ import { privacyGovernance } from "@/data/privacy-lens";
 import { industryUseCases, productById, secureProducts } from "@/data/products";
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { assetPath } from "@/lib/paths";
-import { ThemeVideo } from "@/components/ui/ThemeMedia";
+import { HeroSlider } from "@/components/ui/HeroSlider";
 import { SecureVisionDaylightIntelligence } from "@/components/visuals/SecureVisionDaylightIntelligence";
 import { ctas } from "@/data/content";
 import { productOverview } from "@/data/product-details";
@@ -33,6 +33,24 @@ const secureUseCases = industryUseCases.filter(
  */
 const secureSignals = intelligenceVocabularyFor("securevision");
 
+/* The supplied stills for the hero's first slide, one per theme — each the
+   picture as delivered (2026-09-22), no crop, no grade. The theme picks the
+   file (see HeroSlider); the framing per file is in globals.css. */
+const SECURE_STILLS = {
+  light: {
+    src: "/images/hero/securevision-hero-light-premium.webp",
+    width: 1672,
+    height: 941,
+    name: "the SecureVision concourse picture",
+  },
+  dark: {
+    src: "/images/hero/securevision-hero-dark-premium.webp",
+    width: 1672,
+    height: 941,
+    name: "the SecureVision night concourse picture",
+  },
+} as const;
+
 export default function SecureVisionPage() {
   const privacy = productById("privacyguard");
 
@@ -52,38 +70,56 @@ export default function SecureVisionPage() {
             video decodes; `preload="metadata"` instead of "auto" so the file
             is not fetched in full up front. Reduced motion is a CSS concern —
             see .securevision-hero-video. */}
-        {/* Two independent films, one fetched: the night concourse in dark,
-            a separate daylight film in light. ThemeVideo resolves the theme
-            in an inline script before first paint, so a light visitor never
-            sees the night footage flash, and swaps the file without a reload
-            when the theme changes. Registered as `secureVisionHero` in
-            lib/theme-media.ts, which is also where the interim daylight plate
-            is documented. */}
-        <ThemeVideo
+        {/* THE BACKGROUND IS TWO SLIDES (components/ui/HeroSlider.tsx), in
+            both themes: the founder's premium concourse picture for the
+            theme (2026-09-22, a light and a dark one) shows first and the
+            theme's film — daylight in light, the night concourse in dark —
+            is the second slide, cross-faded on a slow clock.
+
+            The film: two independent files, one fetched — the night
+            concourse in dark, a separate daylight film in light. ThemeVideo
+            resolves the theme in an inline script before first paint, so a
+            light visitor never sees the night footage flash, and swaps the
+            file without a reload when the theme changes. Registered as
+            `secureVisionHero` in lib/theme-media.ts, which is also where the
+            interim daylight plate is documented.
+
+            The daylight intelligence — thin skeletons on a few walkers,
+            floor trajectories, one flow ribbon, one anomaly cue, one privacy
+            indicator — is registered to the film's frames, so it rides
+            inside the film slide and fades with it. Light only (CSS): the
+            night film carries its own HUD.
+
+            The left-side readability gradient (`.securevision-video-shade`)
+            is rendered by the slider inside each slide, so it fades with its
+            picture; it still fades to transparent so the tracking visuals
+            and analytics panel stay bright. */}
+        <HeroSlider
+          className="securevision-hero-slider"
+          stills={SECURE_STILLS}
           mediaKey="secureVisionHero"
           eager
-          className="securevision-hero-video"
+          videoClassName="securevision-hero-video"
+          filmOverlay={
+            <>
+              <SecureVisionDaylightIntelligence className="securevision-daylight-layer" />
+              {/* Text-only corrections for labels baked into the NIGHT
+                  footage; they share its crop, so they ride inside the film
+                  slide and fade with it — never over the still. Hidden in
+                  light mode — see .securevision-hero-labels. */}
+              <img
+                className="securevision-hero-labels"
+                src={assetPath("/images/hero/securevision-operations-overlay.svg")}
+                width={1600}
+                height={900}
+                alt=""
+                aria-hidden="true"
+              />
+            </>
+          }
+          shadeClassName="securevision-video-shade"
+          filmName="the concourse film"
         />
-
-        {/* Daylight intelligence — thin skeletons on a few walkers, floor
-            trajectories, one flow ribbon, one anomaly cue, one privacy
-            indicator. Light only (CSS): the night film carries its own HUD. */}
-        <SecureVisionDaylightIntelligence className="securevision-daylight-layer" />
-
-        {/* Text-only corrections for labels baked into the NIGHT footage; they
-            share its crop. Hidden in light mode — see .securevision-hero-labels. */}
-        <img
-          className="securevision-hero-labels"
-          src={assetPath("/images/hero/securevision-operations-overlay.svg")}
-          width={1600}
-          height={900}
-          alt=""
-          aria-hidden="true"
-        />
-
-        {/* Left-side readability gradient — fades to transparent so the
-            tracking visuals and analytics panel stay bright */}
-        <div className="securevision-video-shade" aria-hidden="true" />
 
         <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:h-full lg:min-h-0">
           <div className="w-full max-w-[680px]">

@@ -2136,7 +2136,9 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: center center;
-  z-index: 0;
+  /* Inside the film slide (HeroSlider's filmOverlay) the labels sit above
+     that slide's shade, as they did above the old single-layer shade. */
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -3367,6 +3369,365 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
+
+/* =========================================================================
+   HERO SLIDER — a supplied still first, the existing film second
+   components/ui/HeroSlider.tsx. The box is the caller's background layer
+   (`.mobilitycare-hero__media`, `.securevision-hero-slider`); this adds the
+   clip, two stacked slides, the cross-fade, the still's drift and the
+   pagination. The same slider runs in both themes; the theme picks the
+   still's file (ThemePicture) and the film's file (ThemeVideo), and the
+   per-hero rules below give each of the four stills its own framing and
+   its own localised shade.
+   ========================================================================= */
+.hero-slider {
+  --hero-fade-ms: 1400ms;
+  --hero-fade-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-slider__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(1);
+  /* The outgoing slide keeps its scale until it has faded; then it resets
+     off screen, instantly, ready for its next entrance. */
+  transition:
+    opacity var(--hero-fade-ms) var(--hero-fade-ease),
+    transform 0s linear var(--hero-fade-ms);
+}
+
+.hero-slider__slide[data-active="true"] {
+  opacity: 1;
+  transition: opacity var(--hero-fade-ms) var(--hero-fade-ease);
+}
+
+/* The still drifts to 1.03x over its whole stay — the only motion on it.
+   The film slide only fades: its framing, and the daylight cues registered
+   to it, do not move. */
+.hero-slider__slide--still[data-active="true"] {
+  transform: scale(1.03);
+  transition:
+    opacity var(--hero-fade-ms) var(--hero-fade-ease),
+    transform calc(var(--hero-slide-ms, 7000ms) + var(--hero-fade-ms)) linear;
+}
+
+/* The still. `cover`, framed per hero by two custom properties: where the
+   picture's box starts (a left inset lets the copy column own the left edge
+   while the picture keeps its full height) and its focal point. */
+.hero-slider__still {
+  display: block;
+  position: absolute;
+  inset: 0 0 0 var(--hero-still-inset-left, 0%);
+}
+
+.hero-slider__still img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: var(--hero-still-position, 50% 50%);
+}
+
+/* Pagination: two small dots, bottom centre, above the content layer. The
+   active one stretches to a short bar. Each button carries a 44px hit area
+   through its ::after, so the dots can stay small. */
+.hero-slider__dots {
+  position: absolute;
+  left: 50%;
+  bottom: 1.15rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(11, 18, 32, 0.08);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 6px 20px -10px rgba(15, 23, 42, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transform: translateX(-50%);
+}
+
+.hero-slider__dot {
+  position: relative;
+  width: 0.4rem;
+  height: 0.4rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(11, 18, 32, 0.28);
+  cursor: pointer;
+  transition:
+    width 320ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    background-color 320ms ease;
+}
+
+.hero-slider__dot::after {
+  content: "";
+  position: absolute;
+  inset: -1rem -0.4rem;
+}
+
+.hero-slider__dot[data-active="true"] {
+  width: 1.5rem;
+  background: rgba(11, 18, 32, 0.82);
+}
+
+@media (hover: hover) {
+  .hero-slider__dot:hover {
+    background: rgba(11, 18, 32, 0.55);
+  }
+
+  .hero-slider__dot[data-active="true"]:hover {
+    background: rgba(11, 18, 32, 0.82);
+  }
+}
+
+.hero-slider__dot:focus-visible {
+  outline: 2px solid #0e7490;
+  outline-offset: 4px;
+}
+
+/* Dark: the same pill in the night heroes' own glass — a dark backing with
+   pale dots, so it does not read as a bright tab on the picture. */
+:root:not(.light) .hero-slider__dots {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(6, 12, 24, 0.55);
+  box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.6);
+}
+
+:root:not(.light) .hero-slider__dot {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+:root:not(.light) .hero-slider__dot[data-active="true"] {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+@media (hover: hover) {
+  :root:not(.light) .hero-slider__dot:hover {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  :root:not(.light) .hero-slider__dot[data-active="true"]:hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
+}
+
+:root:not(.light) .hero-slider__dot:focus-visible {
+  outline-color: #67e8f9;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-slider__slide,
+  .hero-slider__slide--still[data-active="true"] {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ── MobilityCare's still ──────────────────────────────────────────────────
+   The picture carries its own wordmark, title and tagline in its left third;
+   the page's headline says the same things in the same place. On laptops and
+   up the picture's box starts 10% in and is framed from its left edge, so
+   that painted panel sits exactly under the copy column and its firm shade,
+   while the clinic, the gait-analysis panel, the walker and the progress
+   panel stay clear to the right. Below that the whole width is the picture,
+   framed on the walker. Nothing is stretched: `cover` from a 16:9 source. */
+.mobilitycare-hero .hero-slider__still {
+  --hero-still-position: 58% 38%;
+}
+
+@media (min-width: 1024px) {
+  .mobilitycare-hero .hero-slider__still {
+    --hero-still-inset-left: 10%;
+    --hero-still-position: 0% 40%;
+  }
+}
+
+/* The still's shade. The picture paints its own wordmark, title and tagline
+   in the region the page's headline occupies; at anything short of opaque
+   they ghost through behind the real headline. So the shade is opaque over
+   exactly that panel (it ends near 42% of the hero with the inset above) and
+   dissolves fast after it — the picture is not faded, it begins there — and
+   the gait-analysis panel, the walker and the progress panel are untouched. */
+.light .hero-slider__slide--still .mobilitycare-hero__overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 40%,
+    rgba(255, 255, 255, 0.96) 43%,
+    rgba(255, 255, 255, 0.6) 48%,
+    rgba(255, 255, 255, 0.2) 53%,
+    rgba(255, 255, 255, 0.05) 56%,
+    rgba(255, 255, 255, 0) 59%
+  );
+}
+
+@media (max-width: 1023px) {
+  .light .hero-slider__slide--still .mobilitycare-hero__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.42) 0%,
+      rgba(255, 255, 255, 0.9) 16%,
+      rgba(255, 255, 255, 0.93) 56%,
+      rgba(255, 255, 255, 0.72) 66%,
+      rgba(255, 255, 255, 0.38) 74%,
+      rgba(255, 255, 255, 0.14) 84%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+  }
+}
+
+/* The DARK still (2026-09-22, the light picture's night companion) shares
+   the composition — wordmark, title and tagline in the left third, the
+   walker on the lit track a little right of centre, the gait-analysis and
+   progress panels either side — so it gets the same kind of framing with
+   its own numbers: framed a touch lower (its panels sit lower in the frame)
+   and, on laptops and up, the same 10% inset from its own left edge. */
+:root:not(.light) .mobilitycare-hero .hero-slider__still {
+  --hero-still-position: 60% 42%;
+}
+
+@media (min-width: 1024px) {
+  :root:not(.light) .mobilitycare-hero .hero-slider__still {
+    --hero-still-inset-left: 10%;
+    --hero-still-position: 0% 42%;
+  }
+}
+
+/* The dark still's shade is the SAME KIND of thing as the light one — a
+   gradient localised to the copy column — in the hero's own navy. It is
+   opaque over exactly the painted wordmark/title panel (the page's headline
+   sits there; at anything short of opaque — 0.97 was tried — the painted
+   title ghosts through it — the painted panel ends near 43.5% of the hero
+   with the inset above) and is gone before the gait-analysis panel at 47%;
+   from there the picture is untouched: no wash, no
+   veil, its blacks, navy and cyan as delivered. Note the film slide keeps
+   its own, softer `.mobilitycare-hero__overlay` above. */
+:root:not(.light) .hero-slider__slide--still .mobilitycare-hero__overlay {
+  background: linear-gradient(
+    90deg,
+    rgba(3, 8, 20, 1) 0%,
+    rgba(3, 8, 20, 1) 41%,
+    rgba(3, 8, 20, 0.9) 43.5%,
+    rgba(3, 8, 20, 0.5) 46%,
+    rgba(3, 8, 20, 0.15) 49%,
+    rgba(3, 8, 20, 0) 53%
+  );
+}
+
+@media (max-width: 1023px) {
+  :root:not(.light) .hero-slider__slide--still .mobilitycare-hero__overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(3, 8, 20, 0.5) 0%,
+      rgba(3, 8, 20, 0.93) 16%,
+      rgba(3, 8, 20, 0.95) 56%,
+      rgba(3, 8, 20, 0.7) 66%,
+      rgba(3, 8, 20, 0.36) 74%,
+      rgba(3, 8, 20, 0.14) 84%,
+      rgba(3, 8, 20, 0.1) 100%
+    );
+  }
+}
+
+/* ── SecureVision's still ──────────────────────────────────────────────────
+   Same idea, its own numbers: a 6% inset (the watchlist cue sits close to
+   the picture's right edge, so less of that edge may go), framed a little
+   left of centre so the traveller, the anomaly cue and the crowd-flow panel
+   hold the middle. Below laptops, the whole width, framed on the traveller. */
+.securevision-hero-slider .hero-slider__still {
+  --hero-still-position: 50% 35%;
+}
+
+@media (min-width: 1024px) {
+  .securevision-hero-slider .hero-slider__still {
+    --hero-still-inset-left: 6%;
+    --hero-still-position: 40% 35%;
+  }
+}
+
+.light .hero-slider__slide--still .securevision-video-shade {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 35%,
+    rgba(255, 255, 255, 0.96) 38%,
+    rgba(255, 255, 255, 0.6) 43%,
+    rgba(255, 255, 255, 0.2) 48%,
+    rgba(255, 255, 255, 0.05) 51%,
+    rgba(255, 255, 255, 0) 54%
+  );
+}
+
+@media (max-width: 1023px) {
+  .light .hero-slider__slide--still .securevision-video-shade {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.42) 0%,
+      rgba(255, 255, 255, 0.9) 16%,
+      rgba(255, 255, 255, 0.93) 56%,
+      rgba(255, 255, 255, 0.72) 66%,
+      rgba(255, 255, 255, 0.38) 74%,
+      rgba(255, 255, 255, 0.14) 84%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+  }
+}
+
+/* The DARK still (2026-09-22). Same composition as its light companion —
+   painted title left, the traveller with the case dead centre, the
+   authorised-access and watchlist cues right — so: framed on the traveller
+   below laptops, and on laptops and up the same 6% inset from its own left
+   edge, framed a little lower than the light one (its cues and the crowd-flow
+   panel sit lower in the frame). */
+:root:not(.light) .securevision-hero-slider .hero-slider__still {
+  --hero-still-position: 50% 40%;
+}
+
+@media (min-width: 1024px) {
+  :root:not(.light) .securevision-hero-slider .hero-slider__still {
+    --hero-still-inset-left: 6%;
+    --hero-still-position: 40% 40%;
+  }
+}
+
+/* Localised, as in light: opaque over the painted title panel only (short
+   of opaque, the painted title ghosts through the headline), gone before
+   the anomaly cue; the concourse keeps its night. */
+:root:not(.light) .hero-slider__slide--still .securevision-video-shade {
+  background: linear-gradient(
+    90deg,
+    rgba(3, 8, 18, 1) 0%,
+    rgba(3, 8, 18, 1) 36%,
+    rgba(3, 8, 18, 0.9) 39%,
+    rgba(3, 8, 18, 0.5) 43%,
+    rgba(3, 8, 18, 0.15) 47%,
+    rgba(3, 8, 18, 0) 51%
+  );
+}
+
+@media (max-width: 1023px) {
+  :root:not(.light) .hero-slider__slide--still .securevision-video-shade {
+    background: linear-gradient(
+      180deg,
+      rgba(3, 8, 18, 0.5) 0%,
+      rgba(3, 8, 18, 0.93) 16%,
+      rgba(3, 8, 18, 0.95) 56%,
+      rgba(3, 8, 18, 0.7) 66%,
+      rgba(3, 8, 18, 0.36) 74%,
+      rgba(3, 8, 18, 0.14) 84%,
+      rgba(3, 8, 18, 0.1) 100%
+    );
+  }
+}
 
 /* =========================================================================
    LIGHT-MODE OVERRIDES for utilities that hard-code white-alpha

@@ -23,6 +23,13 @@ import { serve } from "./audit-server.mjs";
  *   - the theme toggle swaps the film in place without a reload; the
  *     persisted-light reload paints the daylight poster/film first
  *
+ * SINCE THE TWO-SLIDE HERO (components/ui/HeroSlider.tsx): in both themes
+ * the founder's premium still for the theme is slide 0 and the theme's film
+ * is slide 1, so every visit first asserts the theme's still is showing (and
+ * the other theme's still was never requested) and the film is held, then
+ * brings the film slide forward through its pagination dot before the film
+ * assertions run.
+ *
  *   QA_CHROMIUM=<chromium executable> GAITAI_AUDIT_OUT=out \
  *     npx tsx scripts/check-securevision-hero-browser.mjs
  *   SV_CHECK_BASE=https://gaitai.in … runs against the deployed site.
@@ -64,6 +71,46 @@ async function setTheme(page, target) {
   assert.ok(await themeIs(page, target), `could not reach theme ${target}`);
 }
 
+const STILLS = {
+  light: "/images/hero/securevision-hero-light-premium.webp",
+  dark: "/images/hero/securevision-hero-dark-premium.webp",
+};
+
+/* Both themes: the theme's still shows first (and is the LCP image), the
+   film is held. Assert that, then choose the film slide by its dot and wait
+   out the fade. */
+async function showFilmSlide(page, label) {
+  const theme = (await themeIs(page, "light")) ? "light" : "dark";
+  const STILL = STILLS[theme];
+  const dots = page.locator(".hero-slider__dots .hero-slider__dot");
+  assert.equal(await dots.count(), 2, `${label}: two pagination dots`);
+  const state = await page.evaluate(() => {
+    const still = document.querySelector(".securevision-hero .hero-slider__slide--still");
+    const img = still?.querySelector("img");
+    const video = document.querySelector("video.securevision-hero-video");
+    return {
+      stillActive: still?.getAttribute("data-active"),
+      stillSrc: img?.currentSrc || img?.getAttribute("src") || "",
+      stillLoaded: !!img && img.complete && img.naturalWidth > 0,
+      filmPaused: !!video && video.paused,
+      dotsVisible: getComputedStyle(document.querySelector(".hero-slider__dots")).display !== "none",
+    };
+  });
+  if (state.stillActive === "true") {
+    assert.ok(state.stillSrc.endsWith(STILL.split("/").pop()), `${label}: still is ${state.stillSrc}`);
+    assert.ok(state.stillLoaded, `${label}: the still has not loaded`);
+    assert.ok(state.dotsVisible, `${label}: pagination hidden in ${theme}`);
+  }
+  await dots.nth(1).click();
+  await page.waitForFunction(
+    () => document.querySelector(".securevision-hero .hero-slider__slide--film")?.getAttribute("data-active") === "true",
+    null,
+    { timeout: 5000 },
+  );
+  await page.waitForTimeout(1600);
+  checks += 1;
+}
+
 async function heroState(page) {
   return page.evaluate(() => {
     const hero = document.querySelector(".securevision-hero");
@@ -102,6 +149,7 @@ function luma(rgb) {
 }
 
 async function expectHero(page, mode, label) {
+  await showFilmSlide(page, label);
   await page.waitForFunction(
     (want) => {
       const v = document.querySelector("video.securevision-hero-video");
@@ -211,7 +259,7 @@ try {
         errors.push(`${start}: ${m.text()}`);
     });
     page.on("request", (r) => {
-      if (r.url().includes("/assets/videos/securevision/"))
+      if (r.url().includes("/assets/videos/securevision/") || r.url().includes("securevision-hero-") && r.url().includes("-premium"))
         requests.push(new URL(r.url()).pathname);
     });
     page.on("response", (r) => {
@@ -226,6 +274,16 @@ try {
     assert.ok(
       !requests.some((p) => p.endsWith(otherFile.split("/").pop())),
       `${start}: fetched the other theme's film: ${requests.join(", ")}`,
+    );
+    const ownStill = STILLS[start].split("/").pop();
+    const otherStill = STILLS[other].split("/").pop();
+    assert.ok(
+      requests.some((p) => p.endsWith(ownStill)),
+      `${start}: the ${start} still was not requested`,
+    );
+    assert.ok(
+      !requests.some((p) => p.endsWith(otherStill)),
+      `${start}: fetched the other theme's still ${otherStill}`,
     );
     await page.screenshot({
       path: `${directory}/securevision-hero-${start}-1440.png`,
@@ -262,6 +320,10 @@ try {
       !requests.some((p) => p.endsWith(wrong.split("/").pop())),
       `${other} reload fetched ${wrong}`,
     );
+    assert.ok(
+      !requests.some((p) => p.endsWith(ownStill)),
+      `${other} reload fetched the ${start} still`,
+    );
 
     /* Tablet and phone. */
     for (const [w, h] of [
@@ -282,7 +344,7 @@ try {
 
   assert.deepEqual(errors, [], "page / media / hydration errors");
   console.log(
-    `PASS: ${checks} hero checks — two films, one per theme, no filter on daylight, layer/labels per theme, chips gone, copy and CTAs unchanged, no errors.`,
+    `PASS: ${checks} hero checks — the theme's still first then its film in both themes, two stills and two films, one per theme, no filter on daylight, layer/labels per theme, chips gone, copy and CTAs unchanged, no errors.`,
   );
 } finally {
   await browser.close();

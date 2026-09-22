@@ -1,46 +1,70 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { ThemeVideo } from "@/components/ui/ThemeMedia";
+import { HeroSlider } from "@/components/ui/HeroSlider";
 import { ctas } from "@/data/content";
 
 /**
  * Hero for /mobilitycare/ — same composition pattern as the SecureVision
- * hero: the clinical-dashboard film fills the hero as a background layer,
- * a left-biased dark shade keeps copy readable, and the text/CTA content
- * sits on top, vertically centered. The footage's key elements (walking
- * figures, center subject, Clinical Gait Report) stay visible on the right.
+ * hero: the background layer fills the hero, a left-biased shade keeps copy
+ * readable, and the text/CTA content sits on top, vertically centered.
  *
- * Deliberately a Server Component with no animation state: the <video>
- * can never be re-rendered (and restarted) by client updates.
+ * THE BACKGROUND IS TWO SLIDES (components/ui/HeroSlider.tsx), in both
+ * themes: the founder's premium clinic picture for the theme (2026-09-22, a
+ * light and a dark one) shows first and the theme's clinical-dashboard film
+ * is the second slide, cross-faded on a slow clock. The footage's key
+ * elements (walking figures, center subject, Clinical Gait Report) stay
+ * visible on the right in both.
+ *
+ * The section itself stays a Server Component; only the slider is client
+ * code, and the <video> lives inside it so no re-render here can restart it.
  */
+
+/** The supplied stills, one per theme — each the picture as delivered, no
+ *  crop, no grade. The theme picks the file (see HeroSlider); the framing
+ *  per file is in globals.css. */
+const STILLS = {
+  light: {
+    src: "/images/hero/mobilitycare-hero-light-premium.webp",
+    width: 1672,
+    height: 941,
+    name: "the MobilityCare clinic picture",
+  },
+  dark: {
+    src: "/images/hero/mobilitycare-hero-dark-premium.webp",
+    width: 1672,
+    height: 941,
+    name: "the MobilityCare evening clinic picture",
+  },
+} as const;
+
 export function MobilityCareHero() {
   return (
     <section
       aria-labelledby="mobilitycare-hero-title"
       className="mobilitycare-hero"
     >
-      {/* Background media layer */}
-      <div className="mobilitycare-hero__media" aria-hidden="true">
-        {/* Two files, one chosen before first paint: dark plays the original
-            film, light plays the companion rendered from the same frames
-            (see lib/theme-media.ts). `eager` means the source is set while
-            the HTML parses with `preload="metadata"`, so the hero starts as
-            early as it always did and a light-mode visitor never sees the
-            dark film flash first. The poster follows the same choice.
+      {/* Background media layer: still, then film. `eager` means the film's
+          source is set while the HTML parses with `preload="metadata"`, so
+          in dark the hero starts as early as it always did and a light-mode
+          visitor never sees the dark film flash first. The poster follows the
+          same choice.
 
-            Reduced motion is handled in CSS (see .mobilitycare-hero__video):
-            the video is hidden and the layer keeps the theme's poster as its
-            background, so this stays a Server Component with no JS of its
-            own. */}
-        <ThemeVideo
-          mediaKey="mobilityCareHero"
-          eager
-          className="mobilitycare-hero__video"
-        />
-      </div>
+          Reduced motion is handled in CSS (see .mobilitycare-hero__video):
+          the video is hidden and the layer keeps the theme's poster as its
+          background; the slider's clock stops and the still simply stays.
 
-      {/* Left readability shade — fades out so the dashboard stays bright */}
-      <div className="mobilitycare-hero__overlay" aria-hidden="true" />
+          The left readability shade is rendered by the slider inside each
+          slide (so it fades with its picture) — `.mobilitycare-hero__overlay`
+          is still the class it wears. */}
+      <HeroSlider
+        className="mobilitycare-hero__media"
+        stills={STILLS}
+        mediaKey="mobilityCareHero"
+        eager
+        videoClassName="mobilitycare-hero__video"
+        shadeClassName="mobilitycare-hero__overlay"
+        filmName="the clinical gait film"
+      />
 
       {/* Content layer */}
       <div className="mobilitycare-hero__content container-wide">

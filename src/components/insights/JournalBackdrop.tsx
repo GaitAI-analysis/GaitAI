@@ -65,12 +65,14 @@ export function JournalBackdrop({ quiet = false }: { quiet?: boolean } = {}) {
      at ~1.14:1 — so the composition carries identical weight in both themes.
      Alpha is not the thing being held constant here and cannot be: the same
      number against a darker ink would make the light theme the louder of the
-     two. The contrast figures are what match. */
+     two. The contrast figures are what match. (2026-09-22: the light alphas
+     took a further +15% — 0.46/0.31/0.21/0.14 — for the hub's cleaner
+     off-white ground, where the earlier values read as haze.) */
   const traces = [
-    { d: "M-40 132 C180 96 330 168 520 138 C700 110 860 158 1060 128", o: 0.22, lo: 0.4 },
-    { d: "M-40 196 C210 240 360 168 560 206 C740 240 900 196 1060 218", o: 0.17, lo: 0.27 },
-    { d: "M-40 268 C160 300 340 246 540 282 C720 314 880 268 1060 292", o: 0.12, lo: 0.18 },
-    { d: "M-40 344 C220 320 380 372 580 340 C760 312 900 350 1060 330", o: 0.085, lo: 0.12 },
+    { d: "M-40 132 C180 96 330 168 520 138 C700 110 860 158 1060 128", o: 0.22, lo: 0.46 },
+    { d: "M-40 196 C210 240 360 168 560 206 C740 240 900 196 1060 218", o: 0.17, lo: 0.31 },
+    { d: "M-40 268 C160 300 340 246 540 282 C720 314 880 268 1060 292", o: 0.12, lo: 0.21 },
+    { d: "M-40 344 C220 320 380 372 580 340 C760 312 900 350 1060 330", o: 0.085, lo: 0.14 },
   ];
 
   /*

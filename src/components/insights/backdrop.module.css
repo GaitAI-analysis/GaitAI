@@ -87,12 +87,12 @@
 }
 
 :global(.light) .trace {
-  stroke: #108fc0;
+  stroke: #0e86b8;
   stroke-opacity: var(--jb-o-light);
 }
 :global(.light) .mark {
-  fill: #108fc0;
-  fill-opacity: 0.6;
+  fill: #0e86b8;
+  fill-opacity: 0.72;
 }
 
 .packet {
@@ -150,7 +150,7 @@
   stroke: var(--jb-hue-light);
 }
 :global(.light) .glow {
-  stroke-opacity: 0.26;
+  stroke-opacity: 0.3;
 }
 
 /*

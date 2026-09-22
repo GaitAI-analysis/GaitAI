@@ -949,31 +949,53 @@
    ========================================================================= */
 :global(.light) .archive {
   --jr-ink: var(--light-graphite, #0b1220);
-  --jr-body: var(--light-slate, #2b3a4f);
-  --jr-mute: var(--light-meta, #4a5f7a);
-  --jr-line: rgb(30 58 95 / 0.14);
-  --jr-line-mid: rgb(30 58 95 / 0.24);
+  --jr-body: var(--light-slate, #1f2d44);
+  --jr-mute: var(--light-meta, #3a4d68);
+  --jr-gold: var(--light-gold, #a1701a);
+  --jr-line: rgb(15 23 42 / 0.16);
+  --jr-line-mid: rgb(15 23 42 / 0.26);
 }
 :global(.light) .mastheadAccent {
   background: linear-gradient(135deg, #0e7490 0%, #1b4ed9 52%, #5f25bf 100%);
   -webkit-background-clip: text;
   background-clip: text;
 }
+/* "Cover story" keeps its gold in light — a shade richer than the dark
+   champagne, still bronze on white. */
 :global(.light) .featuredLabel {
-  color: var(--light-meta, #4a5f7a);
+  color: var(--jr-gold);
 }
 /* Search and the topics button: ceramic fields with an inner highlight, a
    blue-grey optical border and a sapphire focus ring. */
+/* Clean white fields with a graphite hairline — not grey on grey. */
 :global(.light) .search,
 :global(.light) .menuButton {
-  background: linear-gradient(180deg, #ffffff, #f8fafc);
-  border-color: var(--light-optical-border, rgba(30, 58, 95, 0.16));
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 1px 2px rgb(15 23 42 / 0.05);
+  background: #ffffff;
+  border-color: rgb(15 23 42 / 0.28);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 1px 2px rgb(15 23 42 / 0.06);
   color: var(--light-graphite, #0b1220);
+}
+:global(.light) .search::placeholder {
+  color: #4a5a72;
+}
+:global(.light) .searchIcon,
+:global(.light) .menuChevron {
+  color: #33445f;
 }
 :global(.light) .search:hover,
 :global(.light) .menuButton:hover {
-  border-color: var(--light-optical-border-strong, rgba(30, 58, 95, 0.26));
+  border-color: rgb(15 23 42 / 0.42);
+  background: #ffffff;
+}
+:global(.light) .topicChip {
+  background: #ffffff;
+  border-color: rgb(15 23 42 / 0.22);
+  color: var(--jr-body);
+}
+:global(.light) .topicChip:hover {
+  border-color: rgb(15 23 42 / 0.4);
+  background: #ffffff;
+  color: var(--jr-ink);
 }
 :global(.light) .search:focus {
   border-color: var(--light-cyan, #0e7490);
@@ -982,4 +1004,19 @@
 :global(.light) .menuPanel {
   border-color: var(--light-optical-border, rgba(30, 58, 95, 0.16));
   box-shadow: var(--light-shadow-lift);
+}
+
+/* The sort control ("Newest"), light: the same clean white field and graphite
+   hairline as the search and the topics button beside it. */
+:global(.light) .sort {
+  background: #ffffff;
+  border-color: rgb(15 23 42 / 0.28);
+  color: var(--light-graphite, #0b1220);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 1px 2px rgb(15 23 42 / 0.06);
+}
+:global(.light) .sort:hover {
+  border-color: rgb(15 23 42 / 0.42);
+}
+:global(.light) .sortLabel {
+  color: #33445f;
 }

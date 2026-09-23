@@ -26,12 +26,21 @@ import { serve } from "./audit-server.mjs";
  *   - the theme toggle swaps the film in place without a reload; the
  *     persisted-light reload paints the daylight poster/film first
  *
- * SINCE THE TWO-SLIDE HERO (components/ui/HeroSlider.tsx): in both themes
- * the founder's premium still for the theme is slide 0 and the theme's film
- * is slide 1, so every visit first asserts the theme's still is showing (and
- * the other theme's still was never requested) and the film is held, then
- * brings the film slide forward through its pagination dot before the film
- * assertions run.
+ * SINCE f12e664 THE TWO THEMES ARE DIFFERENT HEROES, so this splits:
+ *
+ *   dark  — the founder's night still is slide 0 and the night film is slide
+ *           1, two pagination dots, a clock. Every dark visit asserts the
+ *           still is showing and the film is held, then brings the film
+ *           forward through its dot before the film assertions run.
+ *   light — ONE permanent picture. No second slide, no dots, no <video> and
+ *           no film on the wire at all (ThemeVideo's `skipInLight`, which
+ *           stops the parse-time bootstrap pulling a film light never
+ *           shows). SecureVision's daylight cues went with it: they are
+ *           registered to the film's frames, and the light still paints its
+ *           own analytics.
+ *
+ * So the film assertions run in DARK only; light has its own, stricter in
+ * one way — it asserts no film byte is requested at all.
  *
  *   QA_CHROMIUM=<chromium executable> GAITAI_AUDIT_OUT=out \
  *     npx tsx scripts/check-securevision-hero-browser.mjs
@@ -79,11 +88,13 @@ const STILLS = {
   dark: "/images/hero/securevision-hero-dark-premium.webp",
 };
 
-/* Both themes: the theme's still shows first (and is the LCP image), the
-   film is held. Assert that, then choose the film slide by its dot and wait
-   out the fade. */
+/* DARK: the night still shows first (and is the LCP image), the film is
+   held. Assert that, then choose the film slide by its dot and wait out the
+   fade. In light there is no film slide to bring forward — see
+   `expectLightHero`. */
 async function showFilmSlide(page, label) {
-  const theme = (await themeIs(page, "light")) ? "light" : "dark";
+  if (await themeIs(page, "light")) return;
+  const theme = "dark";
   const STILL = STILLS[theme];
   const dots = page.locator(".hero-slider__dots .hero-slider__dot");
   assert.equal(await dots.count(), 2, `${label}: two pagination dots`);
@@ -151,7 +162,89 @@ function luma(rgb) {
   return m ? (0.2126 * m[1] + 0.7152 * m[2] + 0.0722 * m[3]) / 255 : NaN;
 }
 
+/* LIGHT: one permanent picture. Everything the old light path asserted
+   through the film is asserted here on the still instead, plus the two
+   things that only became true when the film was dropped: nothing to
+   rotate to, and no film byte on the wire. */
+async function expectLightHero(page, label) {
+  /* Arriving from dark, the light picture cross-fades in over the hero's
+     own ground (1.4s, --hero-fade-ms) because the film slide it used to
+     fade from is not rendered in light. Let that settle and assert the
+     RESTING state; a fade that never completes still fails below. */
+  await page
+    .waitForFunction(
+      () => {
+        const still = document.querySelector(
+          ".securevision-hero .hero-slider__slide--still",
+        );
+        return !!still && Number(getComputedStyle(still).opacity) > 0.99;
+      },
+      null,
+      { timeout: 4000 },
+    )
+    .catch(() => {});
+  const s = await page.evaluate(() => {
+    const hero = document.querySelector(".securevision-hero");
+    const still = hero.querySelector(".hero-slider__slide--still");
+    const img = still?.querySelector("img");
+    const day = hero.querySelector(".securevision-daylight-layer");
+    const labels = hero.querySelector(".securevision-hero-labels");
+    const h1 = hero.querySelector("h1");
+    return {
+      slides: hero.querySelectorAll(".hero-slider__slide").length,
+      hasFilmSlide: !!hero.querySelector(".hero-slider__slide--film"),
+      hasVideo: !!hero.querySelector("video.securevision-hero-video"),
+      dots: hero.querySelectorAll(".hero-slider__dot").length,
+      stillActive: still?.getAttribute("data-active"),
+      stillOpacity: still ? +getComputedStyle(still).opacity : 0,
+      stillSrc: img?.currentSrc || img?.getAttribute("src") || "",
+      stillLoaded: !!img && img.complete && img.naturalWidth > 0,
+      dayLayer: day ? getComputedStyle(day).display : "missing",
+      labels: labels ? getComputedStyle(labels).display : "missing",
+      chips: hero.querySelectorAll(".securevision-capability-chip").length,
+      h1Color: getComputedStyle(h1).color,
+      eyebrow: hero.querySelector(".securevision-eyebrow")?.textContent?.trim(),
+      heroHeight: hero.getBoundingClientRect().height,
+    };
+  });
+  assert.equal(s.slides, 1, `${label}: light should have ONE slide, found ${s.slides}`);
+  assert.equal(s.hasFilmSlide, false, `${label}: the film slide is still rendered in light`);
+  assert.equal(s.hasVideo, false, `${label}: a <video> is still in the light hero`);
+  assert.equal(s.dots, 0, `${label}: pagination is still rendered in light (${s.dots} dots)`);
+  assert.equal(s.stillActive, "true", `${label}: the light picture is not the active slide`);
+  assert.ok(s.stillOpacity > 0.99, `${label}: the light picture is at opacity ${s.stillOpacity}`);
+  assert.ok(
+    s.stillSrc.endsWith(STILLS.light.split("/").pop()),
+    `${label}: light picture is ${s.stillSrc}`,
+  );
+  assert.ok(s.stillLoaded, `${label}: the light picture has not loaded`);
+  /* The daylight cues rode on the film's frames, so they go with it. */
+  assert.ok(
+    s.dayLayer === "missing" || s.dayLayer === "none",
+    `${label}: daylight cue layer is ${s.dayLayer} with no film to register to`,
+  );
+  assert.ok(
+    s.labels === "missing" || s.labels === "none",
+    `${label}: night label overlay showing in light`,
+  );
+  assert.equal(s.chips, 0, `${label}: capability chips still on the hero`);
+  const l = luma(s.h1Color);
+  assert.ok(l < 0.25, `${label}: headline should be navy on daylight, got ${s.h1Color}`);
+  checks += 1;
+  /* Shaped like the dark path's return so the caller can log either. */
+  return {
+    src: s.stillSrc,
+    filter: "n/a — no film in light",
+    heroHeight: s.heroHeight,
+    dayLayer: s.dayLayer,
+    chips: s.chips,
+    eyebrow: s.eyebrow,
+    currentTime: 0,
+  };
+}
+
 async function expectHero(page, mode, label) {
+  if (mode === "light") return expectLightHero(page, label);
   await showFilmSlide(page, label);
   await page.waitForFunction(
     (want) => {
@@ -286,6 +379,16 @@ try {
       !requests.some((r) => r.path.endsWith(otherFile.split("/").pop())),
       `${start}: fetched the other theme's film: ${requests.map((r) => r.path).join(", ")}`,
     );
+    /* Light has no film at all now, so no film byte may be requested —
+       this is what `skipInLight` buys, and it is worth 1.0 MB here. */
+    if (start === "light") {
+      const films = requests.filter((r) => r.path.endsWith(".mp4"));
+      assert.equal(
+        films.length,
+        0,
+        `${start}: light fetched film bytes it never shows: ${films.map((r) => r.path).join(", ")}`,
+      );
+    }
     const ownStill = STILLS[start].split("/").pop();
     const otherStill = STILLS[other].split("/").pop();
     assert.ok(
@@ -356,7 +459,7 @@ try {
 
   assert.deepEqual(errors, [], "page / media / hydration errors");
   console.log(
-    `PASS: ${checks} hero checks — the theme's still first then its film in both themes, two stills and two films, one per theme, no filter on daylight, layer/labels per theme, chips gone, copy and CTAs unchanged, no errors.`,
+    `PASS: ${checks} hero checks — dark rotates still→film on two dots, light is one permanent picture with no film requested at all, one still per theme, the night film keeps its lift, labels per theme, chips gone, copy and CTAs unchanged, no errors.`,
   );
 } finally {
   await browser.close();

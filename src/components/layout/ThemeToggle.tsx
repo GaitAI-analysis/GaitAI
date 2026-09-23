@@ -29,9 +29,11 @@ import { MOTION, EASE_OUT, MOTION_NONE } from "@/lib/motion";
  * so the third mode is announced before it is reached, rather than being
  * something you have to click twice to find.
  *
- * `defaultTheme` stays dark in the provider on purpose. Dark is the GaitAI
- * identity and it is what a first-time visitor should see; System is a choice
- * available immediately, not the state everyone starts in.
+ * `defaultTheme` is LIGHT in the provider (2026-09-23). A first-time visitor
+ * opens the site in light, whatever their machine is set to; System stays a
+ * choice available immediately from this control, not the state everyone
+ * starts in. Once anything here is clicked it is stored and restored, so the
+ * default is only ever consulted before the first choice is made.
  */
 
 /** The cycle, in order. Each entry owns its icon, ink and wording. */

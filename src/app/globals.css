@@ -3503,68 +3503,118 @@ body {
   object-position: var(--hero-still-position, 50% 50%);
 }
 
-/* ── LAPTOPS AND UP: THE PICTURE IS CONTAINED, NOT COVERED ─────────────────
-   The founder's brief (2026-09-22, late): the hero and the product strip
-   painted across the foot of every still must fit in ONE screen, the strip
-   whole, its first and last rings never cut, in both themes. A `cover`
-   picture cannot do that on a 16:10 or short screen — the hero is the
-   viewport below the navbar, the picture is 16:9, so something is cropped.
-   So the still's box is the picture's own shape, sized to the hero: as wide
-   as the hero, or as tall, whichever binds — and no wider than the content
-   system wants (1375px is the 1320px content column plus the 2% margin the
-   rings keep inside the picture, so at 1440–1536 the first and last rings
-   sit exactly on the content column's edges; on wider screens it may take
-   90% of the hero). It is centred; the rest of the hero is the hero's own
-   ground (the still slide paints it, so the film's poster never peeks out).
-   The hero is a size container so the picture's geometry is one set of
-   custom properties every layer reads: the still box, the copy column's
-   shade (its plateau ends where the PICTURE's painted title ends, wherever
-   the picture sits), and the copy itself, which is laid out in the space
-   above the strip's first row (63.8% down the MobilityCare picture, 73.3%
-   down SecureVision's) so the buttons never land on a ring. */
+/* ── LAPTOPS AND UP: THE PICTURE COVERS THE HERO, CROPPED FROM THE TOP ─────
+   The founder's brief (2026-09-23): the heroes must read like the homepage
+   — edge to edge, near full viewport, the scene large enough that the
+   person dominates — and NOT like a picture placed on a page. Fitting the
+   whole 16:9 artwork inside a hero that is nearly 2:1 did the opposite: it
+   left bands of ground colour down both sides, and those bands are the
+   "boxed card" being objected to. So the still covers the hero again.
+
+   Something must be cropped, and the choice is the point: the product strip
+   painted across the FOOT of every still has to survive, so the picture is
+   anchored to its bottom edge (`object-position: 50% 100%`) and the overflow
+   comes off the TOP, which is ceiling, sky and empty concourse. Nothing goes
+   horizontally — the hero is wider in proportion than the picture, so
+   `cover` scales to the width and crops in one axis only, and the strip's
+   outermost rings keep the 2% margin the artwork gives them.
+
+   The same four custom properties still say where the picture's own
+   coordinates land in the hero, so every layer that reads them keeps
+   working — and the horizontal ones are now exact, because the picture
+   spans the full width: `--hero-pic-left` is 0 and `--hero-pic-w` is the
+   hero, so a stop at 0.33 of the picture is 33% of the screen.
+   `--hero-pic-top` is negative, and that is what carries the crop into the
+   copy layers' heights. The hero stays a size container for it. */
 @media (min-width: 1024px) {
   .securevision-hero,
   .mobilitycare-hero {
     container-type: size;
-    --hero-pic-w: min(100cqw, 100cqh * 1672 / 941, max(1375px, 90cqw));
+    --hero-pic-w: 100cqw;
     --hero-pic-h: calc(var(--hero-pic-w) * 941 / 1672);
-    /* RIGHT-ALIGNED, NOT CENTRED. Both artworks paint their own title
-       block in the left third and their analytics card immediately after it
-       (measured on the source files: the title ends at ~31% of the picture,
-       MobilityCare's GAIT ANALYSIS card frame starts at ~34% and its text at
-       37%, SecureVision's anomaly tag at 36%). Centred, the picture put that
-       card under the copy column and its readability gradient, so half of it
-       was lost. The picture is already narrower than the hero at every size,
-       so spending that spare width on the right moves the card clear of the
-       copy without cropping anything, shrinking the picture, or touching the
-       file. The left band it opens is hero ground, and the copy's own
-       gradient covers it. */
-    --hero-pic-left: calc(100cqw - var(--hero-pic-w));
-    --hero-pic-top: calc((100cqh - var(--hero-pic-h)) / 2);
+    /* No spare width to spend any more: the picture is the hero's width, so
+       the right-alignment that used to lift the artwork's analytics card out
+       from under the copy is now done by the copy's own gradient instead —
+       it has to clear the card while still covering the painted title, and
+       that budget is about 3% of the picture (title ends ~31%, MobilityCare's
+       GAIT ANALYSIS frame starts ~34%, SecureVision's anomaly tag ~36%). */
+    --hero-pic-left: 0px;
+    /* Negative: the picture's top edge is above the hero's by exactly what
+       the crop takes; its bottom edge IS the hero's bottom edge. */
+    --hero-pic-top: calc(100cqh - var(--hero-pic-h));
   }
 
   .securevision-hero {
     --hero-copy-space: calc(var(--hero-pic-top) + var(--hero-pic-h) * 0.733 - 8px);
   }
 
+  /* Edge to edge: the still's box IS the hero. */
   .hero-slider__still {
-    inset: var(--hero-pic-top) var(--hero-pic-left);
-    width: var(--hero-pic-w);
-    height: var(--hero-pic-h);
+    inset: 0;
+    width: auto;
+    height: auto;
   }
 
-  /* The box is the picture's shape, so `cover` crops nothing; centre it. */
-  .hero-slider__still img {
-    object-position: 50% 50%;
+  /* WHERE THE CROP FALLS, PER ARTWORK. The two pictures put different
+     things in the band that has to go, so they get different anchors —
+     this is the "crop intelligently with object-position" the brief asks
+     for, and it is the only per-page number in the geometry.
+
+     SecureVision: hard to the foot. Its top right carries a painted slogan
+     ("HUMAN MOVEMENT / A SAFER TOMORROW") and a half-cut slogan reads as a
+     mistake, so the crop takes as much of it as the viewport allows; the
+     top scrim below finishes the job at widths where a sliver survives.
+
+     MobilityCare: 78%, so about a fifth of the crop comes off the foot
+     instead. Its GAIT ANALYSIS card title sits ~11% down the picture and a
+     full-height top crop sliced it in half. The picture's own bottom margin
+     below the product strip is ~4% (40px at 1536), so spending a quarter of
+     that on the foot costs nothing the reader can see and buys the card
+     title back whole. */
+  .securevision-hero .hero-slider__still img {
+    object-position: 50% 100%;
   }
 
-  /* AND THE DRIFT STOPS HERE. Scaling the slide 1.03x is a fine Ken Burns
-     move on a `cover` picture, but from here up the picture is CONTAINED and
-     sized to the hero, so 3% pushes its top and bottom past the hero's edges
-     — measured 9px below the fold at 1366x768 — and the product strip
-     painted across its foot is what goes over the edge. The picture's own
-     edges are the composition at these sizes, so the still rests. The
-     cross-fade between the slides is untouched. */
+  .mobilitycare-hero .hero-slider__still img {
+    object-position: 50% 78%;
+  }
+
+  /* A short scrim where the picture meets the navbar. At most widths the
+     crop has already taken SecureVision's painted slogan; where the hero is
+     tall enough to leave a sliver of it, this covers that band and nothing
+     below it — it ends well above the concourse and the analytics cues, so
+     it is an edge treatment, not a veil over the scene. */
+  .securevision-hero .hero-slider__slide--still::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: calc(var(--hero-pic-top, 0px) + var(--hero-pic-h, 0px) * 0.175);
+    min-height: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(
+      180deg,
+      #030812 0%,
+      #030812 62%,
+      rgba(3, 8, 18, 0) 100%
+    );
+  }
+
+  .light .securevision-hero .hero-slider__slide--still::before {
+    background: linear-gradient(
+      180deg,
+      #eef4fb 0%,
+      #eef4fb 62%,
+      rgba(238, 244, 251, 0) 100%
+    );
+  }
+
+  /* THE DRIFT STAYS OFF. It was disabled when the picture was contained,
+     because 3% pushed its edges past the hero's and took the product strip
+     with them. Covering makes it safe vertically again, but the strip's
+     outermost rings sit only 2% inside the picture and a 1.03x scale eats
+     1.5% of each side, so re-enabling it would spend nearly all of that
+     margin for a motion nobody asked for. The still rests. */
   .hero-slider__slide--still,
   .hero-slider__slide--still[data-active="true"] {
     transform: none;
@@ -3661,6 +3711,16 @@ body {
   .hero-slider__dots {
     bottom: 0.15rem;
   }
+
+  /* MobilityCare spends a little of the picture's bottom margin on the foot
+     crop (see the object-position block), which brings the artwork's painted
+     tagline within a few pixels of the hero's edge — so the pill moves up
+     into the band between the product descriptions and that tagline, ~55-60px
+     of empty floor at every laptop width. SecureVision crops nothing off the
+     foot and keeps the rim. */
+  .mobilitycare-hero .hero-slider__dots {
+    bottom: 1.5rem;
+  }
 }
 
 /* Dark: the same pill in the night heroes' own glass — a dark backing with
@@ -3730,29 +3790,24 @@ body {
      running to cool white where it meets the picture, opaque to 34% (the
      painted title panel, which ends 33% into the picture, must not ghost
      through), then the same fast dissolve as before. */
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.336),
-      rgba(255, 255, 255, 0.85) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
-      rgba(255, 255, 255, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.345)
-    ),
-    linear-gradient(
-      90deg,
-      rgba(30, 58, 138, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.33),
-      rgba(30, 58, 138, 0.075) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.35),
-      rgba(30, 58, 138, 0.03) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.375),
-      rgba(30, 58, 138, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.405)
-    ),
-    linear-gradient(
-      90deg,
-      #fbfcfe 0%,
-      #f8fbfe calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.2),
-      #f2f7fc calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
-      rgba(242, 247, 252, 0.6) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.365),
-      rgba(242, 247, 252, 0.2) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.39),
-      rgba(242, 247, 252, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.42)
-    );
+  /* ONE soft fade, no panel. This carried a specular hairline and a cool
+     drop at its edge so the copy stood in front of the picture; the
+     2026-09-23 brief asks for "no obvious rectangular text panel", and
+     those two layers were exactly what drew the rectangle. What is left
+     is the surface alone, still opaque where the artwork paints its own
+     title (to 33% of the picture) but reaching the scene as a long
+     dissolve rather than an edge. The GAIT ANALYSIS frame at 34% therefore sits under the
+     dissolve's first quarter, not under the opaque part. */
+  background: linear-gradient(
+    90deg,
+    #fbfcfe 0%,
+    #f9fbfe calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.22),
+    #f4f8fd calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.33),
+    rgba(244, 248, 253, 0.8) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.385),
+    rgba(244, 248, 253, 0.5) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.45),
+    rgba(244, 248, 253, 0.22) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.51),
+    rgba(244, 248, 253, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.58)
+  );
 }
 
 /* And, as for SecureVision below, the shade is the copy column's only: on
@@ -3957,30 +4012,24 @@ body {
      surface — opaque to 34% here (the painted title ends 33% into the
      picture, and the box is now the whole hero), then the dissolve as
      before, gone where the headline ends. */
-  background:
-    linear-gradient(
-      90deg,
-      rgba(255, 255, 255, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.336),
-      rgba(255, 255, 255, 0.85) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
-      rgba(255, 255, 255, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.345)
-    ),
-    linear-gradient(
-      90deg,
-      rgba(30, 58, 138, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.33),
-      rgba(30, 58, 138, 0.075) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.355),
-      rgba(30, 58, 138, 0.03) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.4),
-      rgba(30, 58, 138, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.46)
-    ),
-    linear-gradient(
-      90deg,
-      #fbfcfe 0%,
-      #f8fbfe calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.2),
-      #f2f7fc calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.34),
-      rgba(242, 247, 252, 0.75) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.375),
-      rgba(242, 247, 252, 0.4) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.41),
-      rgba(242, 247, 252, 0.15) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.45),
-      rgba(242, 247, 252, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.49)
-    );
+  /* ONE soft fade, no panel. This carried a specular hairline and a cool
+     drop at its edge so the copy stood in front of the picture; the
+     2026-09-23 brief asks for "no obvious rectangular text panel", and
+     those two layers were exactly what drew the rectangle. What is left
+     is the surface alone, still opaque where the artwork paints its own
+     title (to 33% of the picture) but reaching the scene as a long
+     dissolve rather than an edge. SecureVision's anomaly tag at 36% sits in the same place in the
+     dissolve. */
+  background: linear-gradient(
+    90deg,
+    #fbfcfe 0%,
+    #f9fbfe calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.22),
+    #f4f8fd calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.33),
+    rgba(244, 248, 253, 0.8) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.385),
+    rgba(244, 248, 253, 0.5) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.45),
+    rgba(244, 248, 253, 0.22) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.51),
+    rgba(244, 248, 253, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.58)
+  );
 }
 
 /* The shade is the copy column's, not the picture's: on laptops and up it is

@@ -123,6 +123,16 @@
   --border: var(--border-subtle);
   --text: var(--text-primary);
   --text-mute: var(--text-muted);
+  /* THE LIGHT-THEME ACCENT FAMILY (founder, 2026-09-23). `--royal` below is
+     the dark theme's cobalt and stays as it is; on paper that hue read
+     electric, so light accents draw from these three instead: a premium
+     royal, a softer royal for the middle of a sweep, and a restrained cyan
+     to end one. Named here rather than in the hero so anything else that
+     needs the same blue on paper can reach for it. */
+  --gaitai-blue: #2563eb;
+  --gaitai-blue-soft: #2f5fea;
+  --gaitai-cyan: #38bdf8;
+
   --royal: #2563ff;
   --violet: #7c3aed;
   --cyan: #4fd1ff;

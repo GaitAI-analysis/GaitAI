@@ -34,6 +34,19 @@ import type { HeroPanelId } from "@/lib/hero-panels";
 export const HERO_CANVAS = { width: 1774, height: 887 } as const;
 
 /**
+ * The light hero's artwork (approved 2026-09-23): the three-panel composition
+ * with the people, the scenes, the diagonals and the painted gait dots, and
+ * NO type of any kind — every word in the light hero is DOM again. Its native
+ * size; a pixel-identical lossless master sits beside it as
+ * `home-hero-light-clean-master.webp`. See HeroLightBanner.
+ */
+export const HERO_LIGHT_BANNER = {
+  src: "/images/hero/home-hero-light-clean.webp",
+  width: 1672,
+  height: 941,
+} as const;
+
+/**
  * THE TWO DIAGONAL BOUNDARIES, as the x at which they cross the canvas's top
  * and bottom edges. Measured off the artwork by finding the lit ridge on rows
  * spread down the picture and fitting a line: both run 16.0 degrees off

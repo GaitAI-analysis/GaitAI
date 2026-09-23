@@ -663,12 +663,18 @@
   white-space: nowrap;
   text-decoration: none;
   outline: none;
+  /* The hero's three pills are the page's most deliberate control, and the
+     founder asked for a 300-500ms interaction rather than the site's
+     general 220ms `--motion-ui`. This is that, and it still collapses to
+     1ms under `prefers-reduced-motion`, because the token it multiplies is
+     the one the reduced-motion block rewrites. */
+  --hero-cta-motion: calc(var(--motion-ui) * 1.5);
   transition:
-    transform var(--motion-ui) var(--ease-out),
-    background-color var(--motion-ui) var(--ease-out),
-    border-color var(--motion-ui) var(--ease-out),
-    box-shadow var(--motion-ui) var(--ease-out),
-    color var(--motion-ui) var(--ease-out);
+    transform var(--hero-cta-motion) var(--ease-out),
+    background-color var(--hero-cta-motion) var(--ease-out),
+    border-color var(--hero-cta-motion) var(--ease-out),
+    box-shadow var(--hero-cta-motion) var(--ease-out),
+    color var(--hero-cta-motion) var(--ease-out);
 }
 .ctaLabel {
   display: block;
@@ -731,8 +737,15 @@
       0 0 calc(18 * var(--px)) rgb(56 103 235 / 0.26),
       0 calc(5 * var(--px)) calc(14 * var(--px)) rgb(15 23 42 / 0.18);
   }
+  /* LIGHT OUTLINE HOVER IS A TINT, NOT A FILL. In dark the outline pills
+     invert to a solid accent on hover, which is right over night footage.
+     On paper the founder asked for "a very light electric-blue fill or
+     subtle blue tint", so the light pills keep their cobalt type and take a
+     wash of the same blue instead of flipping to white-on-solid. */
   :global(.light) .cta[data-cta="mobilitycare"]:hover,
   :global(.light) .cta[data-cta="securevision"]:hover {
+    color: var(--hero-accent);
+    background: rgb(56 103 235 / 0.1);
     box-shadow:
       inset 0 0 0 calc(1.8 * var(--px)) var(--hero-accent),
       0 0 calc(16 * var(--px)) rgb(56 103 235 / 0.2),
@@ -957,6 +970,17 @@
     top: auto;
     width: auto;
     height: auto;
+    /* AND `bottom`, which this block used to forget. The panoramic `.story`
+       is pinned by `bottom: calc(74 * var(--px) + 0.5 * max(0px, 100cqh -
+       50cqw))`. Left set on a RELATIVE box that offset does not pin
+       anything — it shifts the story upward — and in this layout the canvas
+       is an `inline-size` container, so `100cqh` has no container to
+       resolve against and falls back to the small viewport height. At 390
+       that came to 340px of lift: every story climbed out of its own panel,
+       the GaitAI one into the navbar, and all three sat on top of the
+       headline and each other. Both themes, every width below 1024. */
+    bottom: auto;
+    right: auto;
   }
   .headline {
     max-width: 34rem;
@@ -1037,13 +1061,19 @@
   }
 }
 
-/* ── The light-theme banner ───────────────────────────────────────────────
-   One supplied picture stands in for the whole native stage — but only in the
-   LIGHT theme and only on the panoramic layout; see HeroLightBanner. It is
-   laid into the frame exactly as the canvas is (full width, 72% of any slack
-   above), so the hero's height and crop behaviour do not change; the picture
-   is 1736:906 against the canvas's 1774:887, so it crops ~2% more top and
-   bottom under the same rule. Off by default, and off on phones. */
+/* ── The light theme's artwork ────────────────────────────────────────────
+   One supplied picture stands in for the three panel photographs, their pose
+   overlays and the drawn dividers — but ONLY in light and ONLY on the
+   panoramic layout; see HeroLightBanner. It carries no type, so it sits
+   BEHIND everything the stage draws (z-index 0) and the hero's own words are
+   real DOM over it, exactly as in dark.
+
+   It covers the frame rather than being letterboxed into it: the approved
+   file is 16:9 and the frame is nearer 2:1, so `cover` crops in one axis,
+   and the anchor is the FOOT of the picture — the top is ceiling glass and
+   the bottom is where the traveller's, the patient's and the officer's feet
+   are. Off by default, and off below 1024 where the panels stack and the
+   native photographs take over. */
 .banner {
   display: none;
 }
@@ -1051,30 +1081,23 @@
   :global(.light) .banner {
     display: block;
     position: absolute;
-    left: 0;
-    /* Same placement rule as the canvas: when the picture is taller than
-       the frame, 72% of the slack goes above; when the frame is the taller
-       (a tall viewport), the picture sits at the top and the frame's own
-       light ground — the banner's floor colour — carries the last few
-       pixels, so nothing is stretched and no dark band appears. The box
-       keeps the picture's exact ratio so the pill hit areas stay true. */
-    /* Taller than the frame: 72% of the slack above (crop bias). Shorter
-       than the frame: centred, so the frame's ground shows evenly above and
-       below — the same "air on both sides" the native canvas gets. */
-    top: min(calc(0.72 * (100cqh - 100cqw * 906 / 1736)), calc(0.5 * (100cqh - 100cqw * 906 / 1736)));
-    width: 100%;
-    aspect-ratio: 1736 / 906;
-    z-index: 3;
+    inset: 0;
+    z-index: 0;
   }
+
+  /* A light ground under the picture, so the moment before it decodes is
+     the composition's own near-white rather than the frame's dark default. */
   :global(.light) .frame {
-    /* The banner's own top edge (ceiling) to its bottom edge (floor), so any
-       ground showing above or below it continues the picture. */
-    background: linear-gradient(180deg, #e2e6ea, #f6f8fc);
+    background: linear-gradient(180deg, #e8edf3, #f7f9fc);
   }
-  /* The native stage keeps its box (the frame's height comes from it) but is
-     neither seen, focusable nor read while the banner carries the words. */
-  :global(.light) .canvas {
-    visibility: hidden;
+
+  /* The picture already holds all three photographs, the pose dots it paints
+     and the diagonals, so the drawn ones step aside. `.art` itself stays:
+     its clipped scrims are what keep the type legible over the picture. */
+  :global(.light) .photo,
+  :global(.light) .pose,
+  :global(.light) .dividers {
+    display: none;
   }
 }
 .bannerPhoto {
@@ -1087,16 +1110,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
-}
-/* Transparent links over the three painted pills. */
-.bannerHit {
-  position: absolute;
-  display: block;
-  border-radius: 999px;
-  outline: none;
-}
-.bannerHit:focus-visible {
-  outline: 2px solid var(--hero-accent);
-  outline-offset: 3px;
+  /* The foot of the picture, not its centre: centring would crop the
+     officer's shoes, which sit within 5% of the bottom edge. */
+  object-position: 50% 100%;
 }

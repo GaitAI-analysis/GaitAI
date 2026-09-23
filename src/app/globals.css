@@ -3782,7 +3782,23 @@ body {
 
 @media (max-width: 1023px) {
   .light .hero-slider__slide--still .mobilitycare-hero__overlay {
-    background: linear-gradient(
+    /* The artwork paints its own title block down the left of the
+       picture. From 1024 up the picture is contained and the copy's
+       horizontal gradient covers it; below that the picture is `cover`, so
+       the crop leaves 15-26% of that column on screen depending on the
+       width and it reads as stray words under the copy. This first layer
+       masks that column and nothing else — opaque to 17%, gone by 31%,
+       which clears the product strip's first circle —
+       and the vertical layer below it is the readability shade, unchanged. */
+    background:
+      linear-gradient(
+        90deg,
+        rgba(247, 250, 253, 1) 0%,
+        rgba(247, 250, 253, 1) 17%,
+        rgba(247, 250, 253, 0.5) 23%,
+        rgba(247, 250, 253, 0) 31%
+      ),
+      linear-gradient(
       180deg,
       rgba(247, 250, 253, 0.42) 0%,
       rgba(247, 250, 253, 0.9) 16%,
@@ -3828,7 +3844,23 @@ body {
 
 @media (max-width: 1023px) {
   :root:not(.light) .hero-slider__slide--still .mobilitycare-hero__overlay {
-    background: linear-gradient(
+    /* The artwork paints its own title block down the left of the
+       picture. From 1024 up the picture is contained and the copy's
+       horizontal gradient covers it; below that the picture is `cover`, so
+       the crop leaves 15-26% of that column on screen depending on the
+       width and it reads as stray words under the copy. This first layer
+       masks that column and nothing else — opaque to 17%, gone by 31%,
+       which clears the product strip's first circle —
+       and the vertical layer below it is the readability shade, unchanged. */
+    background:
+      linear-gradient(
+        90deg,
+        rgba(3, 8, 20, 1) 0%,
+        rgba(3, 8, 20, 1) 17%,
+        rgba(3, 8, 20, 0.5) 23%,
+        rgba(3, 8, 20, 0) 31%
+      ),
+      linear-gradient(
       180deg,
       rgba(3, 8, 20, 0.5) 0%,
       rgba(3, 8, 20, 0.93) 16%,
@@ -3985,7 +4017,23 @@ body {
 
 @media (max-width: 1023px) {
   .light .hero-slider__slide--still .securevision-video-shade {
-    background: linear-gradient(
+    /* The artwork paints its own title block down the left of the
+       picture. From 1024 up the picture is contained and the copy's
+       horizontal gradient covers it; below that the picture is `cover`, so
+       the crop leaves 15-26% of that column on screen depending on the
+       width and it reads as stray words under the copy. This first layer
+       masks that column and nothing else — opaque to 17%, gone by 31%,
+       which clears the product strip's first circle —
+       and the vertical layer below it is the readability shade, unchanged. */
+    background:
+      linear-gradient(
+        90deg,
+        rgba(247, 250, 253, 1) 0%,
+        rgba(247, 250, 253, 1) 17%,
+        rgba(247, 250, 253, 0.5) 23%,
+        rgba(247, 250, 253, 0) 31%
+      ),
+      linear-gradient(
       180deg,
       rgba(247, 250, 253, 0.42) 0%,
       rgba(247, 250, 253, 0.9) 16%,
@@ -4025,7 +4073,23 @@ body {
 
 @media (max-width: 1023px) {
   :root:not(.light) .hero-slider__slide--still .securevision-video-shade {
-    background: linear-gradient(
+    /* The artwork paints its own title block down the left of the
+       picture. From 1024 up the picture is contained and the copy's
+       horizontal gradient covers it; below that the picture is `cover`, so
+       the crop leaves 15-26% of that column on screen depending on the
+       width and it reads as stray words under the copy. This first layer
+       masks that column and nothing else — opaque to 17%, gone by 31%,
+       which clears the product strip's first circle —
+       and the vertical layer below it is the readability shade, unchanged. */
+    background:
+      linear-gradient(
+        90deg,
+        rgba(3, 8, 18, 1) 0%,
+        rgba(3, 8, 18, 1) 17%,
+        rgba(3, 8, 18, 0.5) 23%,
+        rgba(3, 8, 18, 0) 31%
+      ),
+      linear-gradient(
       180deg,
       rgba(3, 8, 18, 0.5) 0%,
       rgba(3, 8, 18, 0.93) 16%,

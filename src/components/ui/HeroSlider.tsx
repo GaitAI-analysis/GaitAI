@@ -25,14 +25,28 @@ import type { ThemeMediaKey } from "@/lib/theme-media";
  * that: two absolutely positioned layers in one clipped box, cross-faded —
  * never cut — on a slow clock.
  *
- * ── ONE SLIDER, TWO THEMES ─────────────────────────────────────────────────
- * The slide order is the same in both themes: still, then film. What the
- * theme changes is the pair of files —
+ * ── DARK ROTATES; LIGHT IS ONE PERMANENT PICTURE ───────────────────────────
+ * The two themes no longer carry the same slide list:
  *
- *   light: [stills.light, the film's light companion]
- *   dark:  [stills.dark,  the film's dark original]
+ *   dark:  [stills.dark, the film's dark original]  cross-faded, two dots
+ *   light: [stills.light]                           one picture, no controls
  *
- * — and that choice is made by the site's own theme-aware media, not here:
+ * The founder's light artwork IS the light hero (2026-09-23), so in light
+ * there is no second slide and so no clock, no cross-fade, no pagination and
+ * nothing to rotate to. The film slide is not rendered at all in light, and
+ * `skipInLight` stops its parse-time bootstrap setting a source — without
+ * that the light page downloaded the whole light film (3.4 MB on
+ * MobilityCare, 1.0 MB on SecureVision, measured) for a slide it never
+ * shows, because the element is only dropped at hydration. Dropping it also
+ * takes SecureVision's daylight cues with it: they are registered to the
+ * film's frames, not the still's, and the light still carries its own
+ * analytics artwork.
+ *
+ * Dark is untouched — same two slides, same order, same clock, same dots,
+ * same parse-time source.
+ *
+ * Which FILES a slide uses is still the site's own theme-aware media rather
+ * than a second theme check here:
  * the still is one `ThemePicture` with a dark and a light candidate, the
  * film is the registered `ThemeVideo` pair. Both resolve the theme in the
  * inline bootstrap before first paint — nothing of the other theme is on
@@ -61,7 +75,8 @@ import type { ThemeMediaKey } from "@/lib/theme-media";
  * untouched. The film plays only while its slide is showing (`active`), so a
  * hidden film costs no decode.
  *
- * The clock stops when it should: while the tab is hidden, while the hero is
+ * The clock stops when it should: in light, where there is one slide and
+ * nothing to advance to, while the tab is hidden, while the hero is
  * scrolled out of view, while a pointer or focus rests on the pagination,
  * under `prefers-reduced-motion` (the still simply stays), and for good once
  * the reader has chosen a slide by hand — a slider that overrides a choice
@@ -295,9 +310,22 @@ export function HeroSlider({
     };
   }, [theme, stills]);
 
-  /* The clock runs in both themes once the theme is known. */
+  /* ── LIGHT HAS NO SECOND SLIDE ───────────────────────────────────────────
+     `showFilm` is false only once the theme is KNOWN to be light: the server
+     cannot read the theme, so its markup keeps the film and light drops it on
+     the first mounted render.
+
+     Everything below reads `activeIndex`, never `index`. A reader who toggles
+     dark → light while the film is showing would otherwise spend one render
+     with slide 1 gone and slide 0 not yet active — a frame of bare ground.
+     The state still resets to 0 in its own effect; this makes the render in
+     between correct too. */
+  const showFilm = theme !== "light";
+  const activeIndex: 0 | 1 = showFilm ? index : 0;
+
+  /* The clock runs only where there is a second slide to reach. */
   const running =
-    theme !== null && !reduce && !chosen && inView && tabVisible && !resting;
+    showFilm && theme !== null && !reduce && !chosen && inView && tabVisible && !resting;
 
   useEffect(() => {
     if (!running) return;
@@ -315,7 +343,7 @@ export function HeroSlider({
 
   /* Only the showing slide's film plays. Pre-mount: no gate, so the server
      markup is the plain hero's and the film can start as it always did. */
-  const filmActive = theme !== null ? index === 1 : undefined;
+  const filmActive = theme !== null ? activeIndex === 1 : undefined;
   const still = theme === "light" ? stills.light : stills.dark;
   const slides: readonly [string, string] = [still.name, filmName];
 
@@ -324,7 +352,10 @@ export function HeroSlider({
       <div
         ref={rootRef}
         className={`hero-slider ${className}`}
-        data-slide={index}
+        data-slide={activeIndex}
+        /* One slide: the CSS holds the still at the framing it was delivered
+           with, instead of drifting it towards a handover that never comes. */
+        data-single={!showFilm}
         aria-hidden="true"
         style={
           {
@@ -339,7 +370,7 @@ export function HeroSlider({
             in both themes. */}
         <div
           className="hero-slider__slide hero-slider__slide--still"
-          data-active={index === 0}
+          data-active={activeIndex === 0}
         >
           <ThemePicture
             className="hero-slider__still"
@@ -365,51 +396,60 @@ export function HeroSlider({
           <div className={shadeClassName} aria-hidden="true" />
         </div>
 
-        {/* Slide 1 — the film the hero always had, with its own overlay. */}
-        <div
-          className="hero-slider__slide hero-slider__slide--film"
-          data-active={index === 1}
-        >
-          <ThemeVideo
-            mediaKey={mediaKey}
-            eager={eager}
-            className={videoClassName}
-            active={filmActive}
-          />
-          {filmOverlay}
-          <div className={shadeClassName} aria-hidden="true" />
-        </div>
+        {/* Slide 1 — the film the hero always had, with its own overlay.
+            Dark only, plus the server's markup, which cannot know the theme;
+            `skipInLight` keeps the light page from fetching a film it drops
+            at hydration. */}
+        {showFilm && (
+          <div
+            className="hero-slider__slide hero-slider__slide--film"
+            data-active={activeIndex === 1}
+          >
+            <ThemeVideo
+              mediaKey={mediaKey}
+              eager={eager}
+              skipInLight
+              className={videoClassName}
+              active={filmActive}
+            />
+            {filmOverlay}
+            <div className={shadeClassName} aria-hidden="true" />
+          </div>
+        )}
       </div>
 
-      {/* Pagination. Two dots, bottom centre, above the content layer, in
-          both themes. */}
-      <div
-        className="hero-slider__dots"
-        role="group"
-        aria-label="Hero visuals"
-        onPointerEnter={() => setResting(true)}
-        onPointerLeave={() => setResting(false)}
-        onFocus={() => setResting(true)}
-        onBlur={(event) => {
-          if (
-            !event.currentTarget.contains(event.relatedTarget as Node | null)
-          ) {
-            setResting(false);
-          }
-        }}
-      >
-        {slides.map((name, i) => (
-          <button
-            key={name}
-            type="button"
-            className="hero-slider__dot"
-            aria-label={`Show ${name}`}
-            aria-pressed={index === i}
-            data-active={index === i}
-            onClick={() => choose(i as 0 | 1)}
-          />
-        ))}
-      </div>
+      {/* Pagination. Two dots, bottom centre, above the content layer — only
+          where there are two slides. A control that reaches the picture you
+          are already looking at is not a control. */}
+      {showFilm && (
+        <div
+          className="hero-slider__dots"
+          role="group"
+          aria-label="Hero visuals"
+          onPointerEnter={() => setResting(true)}
+          onPointerLeave={() => setResting(false)}
+          onFocus={() => setResting(true)}
+          onBlur={(event) => {
+            if (
+              !event.currentTarget.contains(event.relatedTarget as Node | null)
+            ) {
+              setResting(false);
+            }
+          }}
+        >
+          {slides.map((name, i) => (
+            <button
+              key={name}
+              type="button"
+              className="hero-slider__dot"
+              aria-label={`Show ${name}`}
+              aria-pressed={activeIndex === i}
+              data-active={activeIndex === i}
+              onClick={() => choose(i as 0 | 1)}
+            />
+          ))}
+        </div>
+      )}
     </>
   );
 }

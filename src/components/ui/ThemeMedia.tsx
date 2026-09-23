@@ -60,6 +60,12 @@ import {
 const BOOTSTRAP =
   "(function(){var s=document.currentScript;if(!s)return;var e=s.previousElementSibling;if(!e||!e.dataset)return;" +
   "var d=e.dataset,light=document.documentElement.classList.contains('light');" +
+  /* Opt-in: a film that does not exist in light at all (a hero whose light
+     theme is one still). Without this the eager branch below sets its src
+     at parse time and downloads a film the light page never shows — the
+     element is dropped at hydration, far too late to stop the fetch. Inert
+     for every caller that does not pass `skipInLight`, and inert in dark. */
+  "if(light&&d.lightSkip==='true')return;" +
   "var src=(light&&d.lightSrc)||d.darkSrc;" +
   "if(e.tagName==='VIDEO'){var p=(light&&d.lightPoster)||d.darkPoster;if(p)e.setAttribute('poster',p);e.muted=true;" +
   "var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;" +
@@ -99,6 +105,13 @@ interface ThemeVideoCommon {
   active?: boolean;
   /** Accessible name. Without one the film is decorative and hidden from assistive tech. */
   label?: string;
+  /**
+   * This film does not exist in light mode — the caller renders it only in
+   * dark (a hero whose light theme is a single still). Light then holds no
+   * source at all: not in the parse-time bootstrap, not in the effect.
+   * Defaults to false, so nothing that does not ask for it changes.
+   */
+  skipInLight?: boolean;
 }
 
 type ThemeVideoSource =
@@ -122,7 +135,7 @@ function videoEntry(props: ThemeVideoSource): ThemeMediaEntry {
 }
 
 export function ThemeVideo(props: ThemeVideoProps) {
-  const { className, style, eager = false, active, label } = props;
+  const { className, style, eager = false, active, label, skipInLight = false } = props;
   const entry = videoEntry(props);
   const dark = resolveThemeMediaEntry(entry, true);
   const light = resolveThemeMediaEntry(entry, false);
@@ -171,7 +184,11 @@ export function ThemeVideo(props: ThemeVideoProps) {
     const poster = useDark ? darkPoster : lightPoster;
     if (poster && node.getAttribute("poster") !== poster) node.setAttribute("poster", poster);
 
-    const target = near && !reduceMotion ? (useDark ? darkSrc : lightSrc) : "";
+    /* `skipInLight`: no light edition on this surface, so light holds no
+       source — the same answer the bootstrap gives at parse time, for the
+       case where the element is still mounted when light resolves. */
+    const skip = skipInLight && !useDark;
+    const target = near && !reduceMotion && !skip ? (useDark ? darkSrc : lightSrc) : "";
     const current = node.getAttribute("src") ?? "";
     if (current === target) return;
 
@@ -219,7 +236,7 @@ export function ThemeVideo(props: ThemeVideoProps) {
       node.addEventListener("loadedmetadata", onMeta);
       node.addEventListener("canplay", onCanPlay);
     }
-  }, [isDark, near, reduceMotion, lightFailed, darkSrc, lightSrc, darkPoster, lightPoster]);
+  }, [isDark, near, reduceMotion, skipInLight, lightFailed, darkSrc, lightSrc, darkPoster, lightPoster]);
 
   /* Play only what can be seen. `autoplay` covers the very first start; this
      covers scrolling away and back, and an external gate. */
@@ -250,6 +267,7 @@ export function ThemeVideo(props: ThemeVideoProps) {
         data-dark-poster={darkPoster}
         data-light-poster={lightPoster !== darkPoster ? lightPoster : undefined}
         data-eager={eager ? "true" : undefined}
+        data-light-skip={skipInLight ? "true" : undefined}
         autoPlay
         muted
         loop

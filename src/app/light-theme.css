@@ -661,3 +661,26 @@
       0 0;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   11 · THE LIGHT HERO IS ONE PERMANENT PICTURE
+   The product heroes (/mobilitycare/, /securevision/) rotate a still and a
+   film in dark. Light has one slide — the founder's artwork — so the slider
+   renders no film, no pagination and runs no clock (components/ui/HeroSlider).
+
+   What CSS has to answer for is the drift. globals.css gives the ACTIVE still
+   `transform: scale(1.03)` over its stay: a slow push belonging to a slide
+   that takes a turn and then hands over. A single slide never hands over, so
+   the same rule would creep the picture to 1.03× and leave it there — a
+   permanent 3% crop of artwork that was delivered framed. A hero with one
+   slide holds that framing exactly.
+
+   `[data-single]` is set by the slider, so the rule follows the slide count
+   rather than the theme; it is scoped to light here only because this file's
+   contract is that every selector is, and light is the only single-slide case
+   today. A single-slide dark hero would want the same line unscoped.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root.light .hero-slider[data-single="true"] .hero-slider__slide--still[data-active="true"] {
+  transform: none;
+  transition: opacity var(--hero-fade-ms) var(--hero-fade-ease);
+}

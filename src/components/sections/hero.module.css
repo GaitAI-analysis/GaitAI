@@ -141,32 +141,35 @@
 }
 
 :global(.light) .hero {
-  /* THE ELECTRIC RAMP, NOT A RESTRAINED ROYAL (founder, 2026-09-23, second
-     pass — they want the energy of "Act on intelligence.", not a quieter
-     blue). Supporting UI — the eyebrows, the solid pill, the outline rings
-     and their arrows — takes the MIDDLE value on its own, because a
-     gradient on every small element is what makes a palette look
-     decorated; the gradient is reserved for the headline. `-strong` is the
-     hover, and it is the ramp's own indigo end rather than a fourth
-     colour. */
-  --hero-accent: var(--electric-cobalt, #3867eb);
-  --hero-accent-strong: var(--electric-indigo, #4838d8);
-  /* THE HEADLINE'S RAMP: electric blue → cobalt → indigo, at the founder's
-     values and their angle (90deg, so both accent lines sweep the same way
-     left to right). Measured against this hero's scrim, rgb(245 249 252),
-     the three stops are 2.50 / 4.61 / 7.00:1. The first is below the 3:1
-     large text owes, and it is deliberate and theirs: they asked for the
-     vivid start and were told the number. It lands on the opening letters
-     of "movement", with the line deepening through every word after it. */
+  /* THREE IDENTITIES, NOT ONE ACCENT (founder, 2026-09-23, third pass).
+     This block sets GaitAI's — the page's own blue — and the two product
+     panels override it further down, so an eyebrow, a pill and a ring each
+     take the colour of the product they belong to without a single element
+     naming a colour itself. `-strong` is the filled pill's hover, a step
+     deeper on the same hue; `-tint` is the wash an OUTLINE pill takes on
+     hover, which is the same hue at a tenth. */
+  --hero-accent: var(--hero-blue, #2f6fed);
+  --hero-accent-strong: var(--hero-cobalt, #3157d5);
+  --hero-accent-tint: rgb(47 111 237 / 0.1);
+  /* THE HEADLINE'S RAMP: electric → blue → cobalt, at the founder's values
+     and their angle (90deg, so both accent lines sweep the same way left to
+     right). No indigo at the end any more, which is what had it reading
+     violet. Measured against this hero's scrim, rgb(245 249 252), the three
+     stops are 2.61 / 4.16 / 5.51:1; the first is under the 3:1 large text
+     owes and is deliberately theirs, and it lands on the opening letters of
+     "movement" with the line deepening through every word after it. */
   --hero-title-accent: linear-gradient(
     90deg,
-    var(--electric-blue, #43a5f5) 0%,
-    var(--electric-cobalt, #3867eb) 52%,
-    var(--electric-indigo, #4838d8) 100%
+    var(--hero-electric, #3fa9f5) 0%,
+    var(--hero-blue, #2f6fed) 48%,
+    var(--hero-cobalt, #3157d5) 100%
   );
-  --hero-ink: #0b1b3f;
-  --hero-ink-soft: rgb(11 27 63 / 0.94);
-  --hero-ink-quiet: rgb(11 27 63 / 0.82);
+  /* Ink and supporting copy at the founder's values: the deep navy for
+     everything that carries meaning, the muted grey under it. Neither has
+     any violet in it. */
+  --hero-ink: var(--hero-navy, #0b1739);
+  --hero-ink-soft: var(--hero-navy, #0b1739);
+  --hero-ink-quiet: var(--hero-muted, #475467);
   --hero-on-accent: #ffffff;
   --hero-scrim: 255 255 255;
   --hero-divider-core: #ffffff;
@@ -177,6 +180,23 @@
   --hero-pose-line-opacity: 0.55;
   --hero-pose-joint-opacity: 0.7;
   --hero-pose-glow: none;
+}
+
+/* ── THE TWO PRODUCT PANELS' OWN COLOURS (light) ──────────────────────────
+   Each panel re-declares the accent for everything inside it: its eyebrow,
+   its pill and that pill's ring and arrow. MobilityCare is teal and
+   SecureVision cobalt, so the three blocks along the foot read as three
+   related identities rather than one repeated blue. Dark keeps its single
+   artwork cyan, which is the composition it was drawn for. */
+:global(.light) .panel[data-panel="mobilitycare"] {
+  --hero-accent: var(--hero-teal, #1597a8);
+  --hero-accent-strong: #11808e;
+  --hero-accent-tint: rgb(21 151 168 / 0.1);
+}
+:global(.light) .panel[data-panel="securevision"] {
+  --hero-accent: var(--hero-cobalt, #3157d5);
+  --hero-accent-strong: #2846b4;
+  --hero-accent-tint: rgb(49 87 213 / 0.1);
 }
 
 /* THE HAND-OFF TO THE NEXT SECTION. The section under the hero opens with the
@@ -734,7 +754,7 @@
   }
   :global(.light) .cta[data-cta="gaitai"]:hover {
     box-shadow:
-      0 0 calc(18 * var(--px)) rgb(56 103 235 / 0.26),
+      0 0 calc(18 * var(--px)) rgb(47 111 237 / 0.26),
       0 calc(5 * var(--px)) calc(14 * var(--px)) rgb(15 23 42 / 0.18);
   }
   /* LIGHT OUTLINE HOVER IS A TINT, NOT A FILL. In dark the outline pills
@@ -745,10 +765,10 @@
   :global(.light) .cta[data-cta="mobilitycare"]:hover,
   :global(.light) .cta[data-cta="securevision"]:hover {
     color: var(--hero-accent);
-    background: rgb(56 103 235 / 0.1);
+    background: var(--hero-accent-tint);
     box-shadow:
       inset 0 0 0 calc(1.8 * var(--px)) var(--hero-accent),
-      0 0 calc(16 * var(--px)) rgb(56 103 235 / 0.2),
+      0 0 calc(16 * var(--px)) rgb(47 111 237 / 0.2),
       0 calc(5 * var(--px)) calc(12 * var(--px)) rgb(15 23 42 / 0.16);
   }
 }
@@ -778,7 +798,7 @@
   box-shadow:
     0 0 0 calc(2 * var(--px)) #fff,
     0 0 0 calc(4.5 * var(--px)) var(--hero-accent),
-    0 0 calc(18 * var(--px)) rgb(56 103 235 / 0.3);
+    0 0 calc(18 * var(--px)) rgb(47 111 237 / 0.3);
 }
 
 /* Reduced motion: the state still CHANGES — colour and the ring are

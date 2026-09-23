@@ -49,10 +49,20 @@ export function Logo({
     LogoVariant,
     Record<LogoSize, { w: number; h: number }>
   > = {
+    /* THE WORDMARK'S BOX IS THE ARTWORK'S OWN RATIO, 1522:427 (3.5644).
+       It used to be 138x42, a ratio of 3.286 against art of 3.159, so
+       `object-contain` fitted by height and left 5px of the box empty — and
+       the file itself carried 42px of transparent padding left and right and
+       41px top and bottom, so the ink inside that box stood only 35 of the
+       42 pixels tall. The mark was rendering about a tenth smaller than the
+       layout implied, which is what made its gold lattice and the walker
+       read soft. These are the same widths as before against the trimmed
+       art, so the header's horizontal rhythm is untouched and the mark
+       simply gets its own pixels back. */
     wordmark: {
-      sm: { w: 110, h: 34 },
-      md: { w: 138, h: 42 },
-      lg: { w: 180, h: 56 },
+      sm: { w: 110, h: 31 },
+      md: { w: 138, h: 39 },
+      lg: { w: 180, h: 51 },
     },
     icon: {
       sm: { w: 32, h: 32 },
@@ -72,8 +82,12 @@ export function Logo({
   // Use trimmed / transparent PNGs so the mark sits cleanly on any surface.
   const sources: Record<LogoVariant, { dark: string; light: string; alt: string }> = {
     wordmark: {
-      dark: "/brand/logo-horizontal-dark.png",
-      light: "/brand/logo-horizontal-transparent.png",
+      /* The official lockups with their transparent padding cropped away — a
+         lossless crop of the same files, verified pixel-for-pixel against
+         them, not a redraw and not a re-render. The gold in the mark and in
+         "AI" is the artwork's own. */
+      dark: "/brand/logo-horizontal-dark-trimmed.png",
+      light: "/brand/logo-horizontal-transparent-trimmed.png",
       alt: "GaitAI",
     },
     icon: {
@@ -113,8 +127,10 @@ export function Logo({
       <Image
         src={assetPath(src)}
         alt={sources[variant].alt}
-        width={w * 2}
-        height={h * 2}
+        /* Three times the display box, so a 2x or 3x screen downsamples
+           from a high-DPI-sized source rather than from the full master. */
+        width={w * 3}
+        height={h * 3}
         priority={priority}
         sizes={`${w}px`}
         className={cn(

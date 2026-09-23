@@ -618,6 +618,20 @@
   background-image: var(--hero-title-accent);
   -webkit-background-clip: text;
   background-clip: text;
+  /* AND THE DESCENDERS NEED A STRIP OF THAT BACKGROUND TO STAND ON.
+     `background-clip: text` paints only inside the element's own box, and
+     the accent spans fill with `transparent`, so any part of a glyph that
+     falls outside the box receives no paint at all and simply is not there.
+     This line-height is 44/48.4 — 0.909, tighter than the face's ink — so
+     the "g" of "intelligence" and the "p" of "platform." hung 5.2px below
+     the box at 1366, 5.8px at 1536 and 7.0px at 1920, and lost their tails
+     completely: the "g" read as a broken letter at every desktop width.
+     The padding gives the gradient that strip back. The matching negative
+     margin means the box the LAYOUT sees is unchanged, so the lede, the sub
+     and everything below them stay exactly where the composition puts them
+     — nothing moves, the letters are simply whole. */
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
 }
 /* The break after "movement" is the approved composition. Two block lines
    here; inline once stacked, where the space between them is what lets the

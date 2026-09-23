@@ -61,6 +61,22 @@ docs/audit/browser/results.partial.json
 # Python bytecode from scripts/theme-media
 __pycache__/
 
+# ── EVERY BUILD AND CACHE VARIANT ─────────────────────────────────────────
+# `.next`, `.next-*`, `out`, `build` and `dist` above already match at ANY
+# depth — a bare pattern with no slash does — so a nested worktree cannot
+# sneak one past them. These are the rest of the family, and one rule keyed
+# on the CONTENT rather than on the parent's name: the 322 MB this history
+# still carries arrived as a webpack cache inside a directory that had been
+# renamed out from under the `.next` rule, so anything under a
+# `cache/webpack/` path is now refused whatever it happens to sit in.
+**/cache/webpack/
+.cache/
+.turbo/
+.swc/
+coverage/
+playwright-report/
+test-results/
+
 # Hero panel ORIGINALS. The encoder's inputs, not its outputs: full-resolution
 # photographs, one per panel per theme, which can be tens of megabytes each.
 # What ships is public/images/hero/panels/ (committed) plus the committed

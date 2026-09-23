@@ -123,15 +123,16 @@
   --border: var(--border-subtle);
   --text: var(--text-primary);
   --text-mute: var(--text-muted);
-  /* THE LIGHT-THEME ACCENT FAMILY (founder, 2026-09-23). `--royal` below is
-     the dark theme's cobalt and stays as it is; on paper that hue read
-     electric, so light accents draw from these three instead: a premium
-     royal, a softer royal for the middle of a sweep, and a restrained cyan
-     to end one. Named here rather than in the hero so anything else that
-     needs the same blue on paper can reach for it. */
-  --gaitai-blue: #2563eb;
-  --gaitai-blue-soft: #2f5fea;
-  --gaitai-cyan: #38bdf8;
+  /* THE LIGHT-THEME ACCENT FAMILY (founder, 2026-09-23, second pass). The
+     first pass took this family down to a restrained royal; the founder
+     looked at it beside "Act on intelligence." and asked for the vivid ramp
+     back — bright electric blue, through cobalt, into indigo. These are
+     their values, unmodified. The gradient is for headline and accent TEXT;
+     supporting UI takes the middle cobalt on its own rather than a gradient
+     of its own. `--royal` below is the dark theme's and is untouched. */
+  --electric-blue: #43a5f5;
+  --electric-cobalt: #3867eb;
+  --electric-indigo: #4838d8;
 
   --royal: #2563ff;
   --violet: #7c3aed;

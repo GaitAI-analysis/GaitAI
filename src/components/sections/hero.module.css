@@ -141,32 +141,28 @@
 }
 
 :global(.light) .hero {
-  /* A PREMIUM ROYAL, NOT AN ELECTRIC COBALT (founder, 2026-09-23). The
-     accent was #0a62e0, sampled from the artwork; across the eyebrows, the
-     pill fills and the outline rings it read neon on paper. This is the
-     page's `--gaitai-blue`, one hue family, less saturated, still plainly
-     blue. `-strong` is the hover, a step deeper on the same hue rather than
-     a fourth colour. */
-  --hero-accent: var(--gaitai-blue, #2563eb);
-  --hero-accent-strong: #1d4ed8;
-  /* AND THE HEADLINE ENDS IN CYAN, NOT INDIGO. The old sweep ran azure →
-     blue-indigo, which is what made it read faintly violet; it now runs the
-     founder's royal → soft royal → restrained cyan.
-
-     The cyan is held back from the brief's #38bdf8 at the very end, and the
-     numbers are measured against this hero's own scrim, rgb(245 249 252):
-     #38bdf8 is 2.02:1 there, and the last word of a headline cannot sit
-     under the 3:1 that large text owes. On the brief's hue (198deg) the
-     lightest step clearing 3:1 is #0897d7 at 3.09:1 — too thin a margin
-     when the scrim runs to near-white over the brighter parts of the
-     photograph — so this is #0d92cf, 3.29:1, which keeps the cyan crisp
-     rather than dulling it toward grey. The three stops measure
-     4.88 / 5.03 / 3.29:1. */
+  /* THE ELECTRIC RAMP, NOT A RESTRAINED ROYAL (founder, 2026-09-23, second
+     pass — they want the energy of "Act on intelligence.", not a quieter
+     blue). Supporting UI — the eyebrows, the solid pill, the outline rings
+     and their arrows — takes the MIDDLE value on its own, because a
+     gradient on every small element is what makes a palette look
+     decorated; the gradient is reserved for the headline. `-strong` is the
+     hover, and it is the ramp's own indigo end rather than a fourth
+     colour. */
+  --hero-accent: var(--electric-cobalt, #3867eb);
+  --hero-accent-strong: var(--electric-indigo, #4838d8);
+  /* THE HEADLINE'S RAMP: electric blue → cobalt → indigo, at the founder's
+     values and their angle (90deg, so both accent lines sweep the same way
+     left to right). Measured against this hero's scrim, rgb(245 249 252),
+     the three stops are 2.50 / 4.61 / 7.00:1. The first is below the 3:1
+     large text owes, and it is deliberate and theirs: they asked for the
+     vivid start and were told the number. It lands on the opening letters
+     of "movement", with the line deepening through every word after it. */
   --hero-title-accent: linear-gradient(
-    135deg,
-    var(--gaitai-blue, #2563eb) 0%,
-    var(--gaitai-blue-soft, #2f5fea) 55%,
-    #0d92cf 100%
+    90deg,
+    var(--electric-blue, #43a5f5) 0%,
+    var(--electric-cobalt, #3867eb) 52%,
+    var(--electric-indigo, #4838d8) 100%
   );
   --hero-ink: #0b1b3f;
   --hero-ink-soft: rgb(11 27 63 / 0.94);
@@ -732,14 +728,14 @@
   }
   :global(.light) .cta[data-cta="gaitai"]:hover {
     box-shadow:
-      0 0 calc(18 * var(--px)) rgb(37 99 235 / 0.26),
+      0 0 calc(18 * var(--px)) rgb(56 103 235 / 0.26),
       0 calc(5 * var(--px)) calc(14 * var(--px)) rgb(15 23 42 / 0.18);
   }
   :global(.light) .cta[data-cta="mobilitycare"]:hover,
   :global(.light) .cta[data-cta="securevision"]:hover {
     box-shadow:
       inset 0 0 0 calc(1.8 * var(--px)) var(--hero-accent),
-      0 0 calc(16 * var(--px)) rgb(37 99 235 / 0.2),
+      0 0 calc(16 * var(--px)) rgb(56 103 235 / 0.2),
       0 calc(5 * var(--px)) calc(12 * var(--px)) rgb(15 23 42 / 0.16);
   }
 }
@@ -769,7 +765,7 @@
   box-shadow:
     0 0 0 calc(2 * var(--px)) #fff,
     0 0 0 calc(4.5 * var(--px)) var(--hero-accent),
-    0 0 calc(18 * var(--px)) rgb(37 99 235 / 0.3);
+    0 0 calc(18 * var(--px)) rgb(56 103 235 / 0.3);
 }
 
 /* Reduced motion: the state still CHANGES — colour and the ring are

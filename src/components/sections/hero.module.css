@@ -97,6 +97,21 @@
      navy, both deeper than the page's `--royal` and `--text-primary`. */
   --hero-accent: #11d6ff;
   --hero-accent-strong: #3fe0ff;
+  /* THE HEADLINE'S OWN ACCENT, and the one place it differs from the pills.
+     The accent above is the artwork's pill cyan; set as a solid across five
+     large words it read electric — a highlighter rather than a headline. The
+     accent words are cut from this gradient instead: a medium azure turning
+     through a blue-indigo, the same journey the page's `.text-gradient`
+     makes under "Act on intelligence." but stopped before the violet, which
+     is what keeps it premium rather than decorative. Deliberately NOT wired
+     to `--hero-accent`: the pills, their hovers and the panel eyebrows keep
+     the artwork's own colour, unchanged. */
+  --hero-title-accent: linear-gradient(
+    135deg,
+    #63b3ff 0%,
+    #5b8cff 52%,
+    #5568ff 100%
+  );
   --hero-ink: #ffffff;
   --hero-ink-soft: rgb(240 248 255 / 0.94);
   --hero-ink-quiet: rgb(233 244 255 / 0.88);
@@ -128,6 +143,17 @@
 :global(.light) .hero {
   --hero-accent: #0a62e0;
   --hero-accent-strong: #0b4fc0;
+  /* The same azure → indigo journey, carried a few steps deeper because it
+     is read on near-white: the mid-tones this gradient wants in dark sit at
+     2.2-2.4:1 on paper, under the 3:1 a headline owes even at this size.
+     These three run 4.0 / 5.0 / 6.2:1, so the word is softer and less
+     saturated than the solid #0a62e0 it replaces while reading better. */
+  --hero-title-accent: linear-gradient(
+    135deg,
+    #2a7fe4 0%,
+    #3566de 52%,
+    #4352d8 100%
+  );
   --hero-ink: #0b1b3f;
   --hero-ink-soft: rgb(11 27 63 / 0.94);
   --hero-ink-quiet: rgb(11 27 63 / 0.82);
@@ -551,6 +577,17 @@
   letter-spacing: -0.022em;
   color: var(--hero-ink);
   text-wrap: balance;
+  /* ONE GRADIENT ACROSS THE WHOLE HEADLINE, not one per accent word. The
+     background is painted on the h1's box and clipped to its text, so the
+     two accent runs — "movement" on the first line, "intelligence platform."
+     on the second — are two windows onto a single sweep and read as one
+     continuous colour. A gradient per span would restart at each line, which
+     is what makes two-tone headlines look assembled. "One" stays ink because
+     it keeps its own opaque fill and simply covers its share of the
+     background; only the accent spans open. */
+  background-image: var(--hero-title-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 /* The break after "movement" is the approved composition. Two block lines
    here; inline once stacked, where the space between them is what lets the
@@ -561,8 +598,13 @@
 .titleLead {
   color: var(--hero-ink);
 }
+/* The accent words open onto the headline's gradient. `color` is left set so
+   that a browser without `-webkit-text-fill-color` — the property every
+   engine has implemented for a decade, but the one this depends on — still
+   paints solid accent type rather than nothing at all. */
 .titleAccent {
   color: var(--hero-accent);
+  -webkit-text-fill-color: transparent;
 }
 /* Cap height 25 -> 34.4px, cap top 260. */
 .lede {

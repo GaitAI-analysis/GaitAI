@@ -2210,7 +2210,7 @@ body {
        first ring row. The copy is flex-centred, so padding here lifts the
        whole block by half of it — the hero does not grow, and the eyebrow
        keeps its room under the navbar. */
-    padding-bottom: clamp(34px, 5.5svh, 76px);
+    padding-bottom: clamp(70px, 9.5svh, 130px);
   }
 }
 
@@ -2308,6 +2308,25 @@ body {
   .securevision-hero h1 {
     font-size: clamp(2.25rem, min(3vw, 4.6svh), 3.9rem);
     line-height: 1.06;
+  }
+
+  /* The copy's internal rhythm, laptops and up. Set here rather than in the
+     utility classes so it can follow the viewport's HEIGHT: a 900px screen
+     gets the air, a 768px one keeps its margins tight, and the hero never
+     grows to pay for it. Both heroes, each on its own element. */
+  .securevision-hero-inner h1,
+  .mobilitycare-hero__content h1 {
+    margin-top: clamp(22px, 3.2svh, 34px);
+  }
+
+  .securevision-hero-inner h1 + p,
+  .mobilitycare-hero__content h1 + p {
+    margin-top: clamp(22px, 3.4svh, 36px);
+  }
+
+  .securevision-hero-inner p + div,
+  .mobilitycare-hero__content p + div {
+    margin-top: clamp(26px, 4.2svh, 44px);
   }
 
   .securevision-capability-grid {
@@ -3360,7 +3379,7 @@ body {
        bottom padding is the clearance over the picture's painted strip —
        see the SecureVision copy layer for why it lifts rather than grows. */
     padding-top: clamp(28px, 4.5svh, 64px);
-    padding-bottom: clamp(34px, 5.5svh, 76px);
+    padding-bottom: clamp(70px, 9.5svh, 130px);
   }
 }
 
@@ -3509,7 +3528,18 @@ body {
     container-type: size;
     --hero-pic-w: min(100cqw, 100cqh * 1672 / 941, max(1375px, 90cqw));
     --hero-pic-h: calc(var(--hero-pic-w) * 941 / 1672);
-    --hero-pic-left: calc((100cqw - var(--hero-pic-w)) / 2);
+    /* RIGHT-ALIGNED, NOT CENTRED. Both artworks paint their own title
+       block in the left third and their analytics card immediately after it
+       (measured on the source files: the title ends at ~31% of the picture,
+       MobilityCare's GAIT ANALYSIS card frame starts at ~34% and its text at
+       37%, SecureVision's anomaly tag at 36%). Centred, the picture put that
+       card under the copy column and its readability gradient, so half of it
+       was lost. The picture is already narrower than the hero at every size,
+       so spending that spare width on the right moves the card clear of the
+       copy without cropping anything, shrinking the picture, or touching the
+       file. The left band it opens is hero ground, and the copy's own
+       gradient covers it. */
+    --hero-pic-left: calc(100cqw - var(--hero-pic-w));
     --hero-pic-top: calc((100cqh - var(--hero-pic-h)) / 2);
   }
 
@@ -3789,11 +3819,10 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 20, 1) 0%,
-    rgba(3, 8, 20, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.395),
-    rgba(3, 8, 20, 0.78) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.435),
-    rgba(3, 8, 20, 0.42) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.48),
-    rgba(3, 8, 20, 0.15) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.52),
-    rgba(3, 8, 20, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.56)
+    rgba(3, 8, 20, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.32),
+    rgba(3, 8, 20, 0.72) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.336),
+    rgba(3, 8, 20, 0.34) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.351),
+    rgba(3, 8, 20, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.363)
   );
 }
 
@@ -3987,11 +4016,10 @@ body {
   background: linear-gradient(
     90deg,
     rgba(3, 8, 18, 1) 0%,
-    rgba(3, 8, 18, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.405),
-    rgba(3, 8, 18, 0.82) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.45),
-    rgba(3, 8, 18, 0.45) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.5),
-    rgba(3, 8, 18, 0.16) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.545),
-    rgba(3, 8, 18, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.59)
+    rgba(3, 8, 18, 1) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.33),
+    rgba(3, 8, 18, 0.74) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.344),
+    rgba(3, 8, 18, 0.35) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.357),
+    rgba(3, 8, 18, 0) calc(var(--hero-pic-left, 0px) + var(--hero-pic-w, 100%) * 0.37)
   );
 }
 

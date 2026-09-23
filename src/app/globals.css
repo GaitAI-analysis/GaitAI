@@ -3635,6 +3635,28 @@ body {
   .light .mobilitycare-hero {
     background: #eef4fb;
   }
+
+  /* ── THE COPY IS ANCHORED TO THE VIEWPORT, NOT THE CONTENT COLUMN ────────
+     Both heroes put their copy in `.container-wide`, the site's centred
+     1320px column, which on a 1536 screen starts its text 156px in — with a
+     full-bleed picture behind it that reads as copy drifting toward the
+     middle of the scene rather than holding the left edge. The founder's
+     2026-09-23 brief asks for a premium margin and nothing more, so inside
+     these two heroes the column is released: no max-width, no auto margins,
+     and one shared inset so all four heroes (both pages, both themes) sit on
+     the same line. Everything else about the column is untouched, the copy's
+     own max-width still governs its measure, and below 1024 the ordinary
+     container gutters apply as before.
+
+     The readability shade does not need retuning for this: it is opaque to
+     33% of the picture, which at every laptop width is wider than the copy's
+     new right edge, so the copy moved further INTO the covered band. */
+  .securevision-hero-inner,
+  .mobilitycare-hero__content {
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: clamp(24px, 3vw, 56px);
+  }
 }
 
 /* Pagination: two small dots, bottom centre, above the content layer. The

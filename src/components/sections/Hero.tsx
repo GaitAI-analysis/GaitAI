@@ -2,6 +2,7 @@ import { HERO_SCENE } from "@/data/home-hero";
 import { assetPath } from "@/lib/paths";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import { HeroOptions } from "./HeroOptions";
+import { HeroWalk } from "./HeroWalk";
 import styles from "./homehero.module.css";
 
 /**
@@ -56,6 +57,8 @@ export function Hero() {
           decoding="sync"
           fetchPriority="high"
         />
+        {/* Only the human in the Pose analysis panel moves — see HeroWalk. */}
+        <HeroWalk />
         <HeroOptions />
       </div>
 

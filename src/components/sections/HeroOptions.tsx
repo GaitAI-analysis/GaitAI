@@ -65,11 +65,32 @@ const PILLS_BACK_AT = 1800;
 /** 250ms after PILLS_BACK_AT: the dock has finished, the dots may breathe. */
 const PILLS_DOCKED_AT = 2050;
 
-/** How long a pill waits after the pointer leaves it or its dot. */
-const REACH_LINGER_MS = 450;
+/**
+ * How long an open card waits after the pointer leaves both it and its dot.
+ * Short enough to feel like a dismissal, long enough to cross the gap from
+ * the dot to the card it just opened — the card is what the pointer is
+ * travelling towards, so this must outlast that journey or the card closes
+ * under the cursor.
+ */
+const REACH_LINGER_MS = 220;
 
 /** Where hover can lead: a real pointer, and dots big enough to find. */
-const DOT_LED_QUERY = "(min-width: 1024px) and (hover: hover) and (pointer: fine)";
+const DOT_LED_QUERY =
+  "(min-width: 1024px) and (hover: hover) and (pointer: fine)";
+
+/**
+ * Where all three cards can be open AT ONCE, which only the introduction
+ * asks for. Each card hangs under its own pill, so the room between them is
+ * a share of the picture's width: measured on the built page, SecureVision
+ * runs into MobilityCare below about 1236px and MobilityCare into Pose
+ * below about 1247. 1280 is the first standard width clear of both.
+ *
+ * Narrower than that, the introduction is the one it was — the pills arrive
+ * and the cards wait to be asked for. Three cards in two cards' worth of
+ * room is not a reveal, it is a pile.
+ */
+const INTRO_CARDS_QUERY =
+  "(min-width: 1280px) and (hover: hover) and (pointer: fine)";
 
 /** The picture's own proportions, for converting heights to vw. */
 const ASPECT = 941 / 1672;
@@ -142,9 +163,15 @@ export function HeroOptions() {
   /* First render is `dots` on the server and in hydration alike, so no pill
      can flash before the introduction; a soft navigation back (the module
      already spent) mounts straight into `rest`. */
-  const [stage, setStage] = useState<Stage>(() => (introSpent ? "rest" : "dots"));
+  const [stage, setStage] = useState<Stage>(() =>
+    introSpent ? "rest" : "dots",
+  );
   /* Whether the dots may pulse: only once the pills have docked. */
   const [breathing, setBreathing] = useState(() => introSpent);
+  /* Whether this screen has room for all three cards at once. Decided when
+     the introduction runs and not revisited: it is an entrance, not a
+     responsive behaviour, and must not change halfway through. */
+  const [introCards, setIntroCards] = useState(false);
   /* False on touch and narrow screens, where a resting pill stays out. Read
      at mount only on a soft navigation back (no hydration to disagree with);
      on the first load `dots` hides every pill until the effect has run. */
@@ -156,7 +183,16 @@ export function HeroOptions() {
   /* Options the visitor is reaching for right now (hover, or a press on the
      dot), and the timers that let each one go. */
   const [reach, setReach] = useState<readonly HeroOptionId[]>([]);
+  /**
+   * A card opened by a PRESS is pinned: it stays when the pointer leaves.
+   * A card opened by hover is not, and docks again on the way out. Without
+   * the distinction, pressing a dot would open a card that vanished the
+   * moment the visitor moved to read it.
+   */
+  const [pinned, setPinned] = useState<HeroOptionId | null>(null);
   const lingers = useRef<Partial<Record<HeroOptionId, number>>>({});
+  /* Read by the hover handlers, which are built once. */
+  const live = useRef({ open, pinned, dotLed: false, resting: false });
   const buttons = useRef<
     Partial<Record<HeroOptionId, HTMLButtonElement | null>>
   >({});
@@ -165,9 +201,10 @@ export function HeroOptions() {
   );
   const timers = useRef<number[]>([]);
 
-  /* The readings only move while a panel is actually on screen. See
-     useHeroTelemetry. */
-  const readings = useHeroTelemetry(open !== null);
+  /* The readings only move while a panel is actually on screen: one card
+     open, or all three during the introduction. See useHeroTelemetry. */
+  const introShowing = stage === "out";
+  const readings = useHeroTelemetry(open !== null || introShowing);
 
   /**
    * Start a panel moving, having first measured where its pill actually is.
@@ -280,12 +317,31 @@ export function HeroOptions() {
       const lead = Math.min(Math.max(seen, 0), PILLS_OUT_AT - 250);
       const at = (ms: number) => ms - lead;
       const docks = window.matchMedia(DOT_LED_QUERY).matches;
+      const cards = window.matchMedia(INTRO_CARDS_QUERY).matches;
+      setIntroCards(cards);
       timers.current.push(
         window.setTimeout(() => setStage("out"), at(PILLS_OUT_AT)),
+        /* A beat after the cards are up, measure each one against its own
+           pill, so the dock at the end of the introduction is the same
+           measured journey a hover-close makes. Measuring at the moment of
+           folding would be too late: the panels must already be laid out. */
+        window.setTimeout(
+          () => {
+            if (cards) for (const option of HERO_OPTIONS) arm(option.id);
+          },
+          at(PILLS_OUT_AT) + 60,
+        ),
         // Without hover the pills stay out, so there is nothing to dock:
         // `rest` then shows all three, which is the same frame.
         window.setTimeout(
-          () => setStage("rest"),
+          () => {
+            /* Every card docks back into its own dot at once — the same
+             fold-compress-dock the close uses, so the introduction ends
+             with the gesture the visitor will make themselves. */
+            if (docks && cards) setClosing(HERO_OPTIONS.map((o) => o.id));
+            setStage("rest");
+            setIntroCards(false);
+          },
           at(docks ? PILLS_BACK_AT : PILLS_OUT_AT + 450),
         ),
         window.setTimeout(
@@ -319,7 +375,7 @@ export function HeroOptions() {
       timers.current.forEach(window.clearTimeout);
       timers.current = [];
     };
-  }, [endIntro]);
+  }, [endIntro, arm]);
 
   // Any real press or keystroke ends the introduction early. Capture phase, so
   // a press on a pill ends it and still opens that pill's panel.
@@ -334,19 +390,48 @@ export function HeroOptions() {
     };
   }, [stage, endIntro]);
 
-  /** The visitor reaches for an option: its pill comes out now. */
-  const reachFor = useCallback((id: HeroOptionId) => {
-    window.clearTimeout(lingers.current[id]);
-    setReach((list) => (list.includes(id) ? list : [...list, id]));
-  }, []);
+  /**
+   * The visitor reaches for an option — hovers its dot or its card, or
+   * focuses the pill from the keyboard — and the WHOLE card opens, not just
+   * the pill. Hover and press are the same gesture here, differing only in
+   * whether what they open is pinned.
+   *
+   * Only where hover can lead: on touch and below 1024px the pills are
+   * always out and there is nothing to hover, so a reach there does nothing
+   * and a tap does the opening.
+   */
+  const reachFor = useCallback(
+    (id: HeroOptionId) => {
+      window.clearTimeout(lingers.current[id]);
+      setReach((list) => (list.includes(id) ? list : [...list, id]));
+      const now = live.current;
+      if (now.dotLed && now.resting && now.open !== id) beginOpen(id);
+    },
+    [beginOpen],
+  );
 
-  /** ...and lets go: it docks after a short linger, unless reached again. */
-  const letGo = useCallback((id: HeroOptionId) => {
-    window.clearTimeout(lingers.current[id]);
-    lingers.current[id] = window.setTimeout(() => {
-      setReach((list) => list.filter((x) => x !== id));
-    }, REACH_LINGER_MS);
-  }, []);
+  /**
+   * ...and lets go. After a short linger the card docks back into its dot,
+   * unless the visitor reached for it again in the meantime, or pressed it,
+   * which pins it until it is pressed again, dismissed or escaped.
+   */
+  const letGo = useCallback(
+    (id: HeroOptionId) => {
+      window.clearTimeout(lingers.current[id]);
+      lingers.current[id] = window.setTimeout(() => {
+        setReach((list) => list.filter((x) => x !== id));
+        const now = live.current;
+        if (now.dotLed && now.open === id && now.pinned !== id) beginClose(id);
+      }, REACH_LINGER_MS);
+    },
+    [beginClose],
+  );
+
+  /* The hover handlers are built once, so they read the world through this
+     rather than through a closure that was right three renders ago. */
+  useEffect(() => {
+    live.current = { open, pinned, dotLed, resting: stage === "rest" };
+  }, [open, pinned, dotLed, stage]);
 
   useEffect(() => {
     const pending = lingers.current;
@@ -363,11 +448,17 @@ export function HeroOptions() {
    */
   const toggle = useCallback(
     (id: HeroOptionId) => {
-      reachFor(id);
-      if (open === id) beginClose(id);
-      else beginOpen(id);
+      window.clearTimeout(lingers.current[id]);
+      setReach((list) => (list.includes(id) ? list : [...list, id]));
+      if (open === id) {
+        setPinned((p) => (p === id ? null : p));
+        beginClose(id);
+      } else {
+        setPinned(id);
+        beginOpen(id);
+      }
     },
-    [open, reachFor, beginOpen, beginClose],
+    [open, beginOpen, beginClose],
   );
 
   /** Whether an option's pill is out of its dot. */
@@ -382,12 +473,16 @@ export function HeroOptions() {
       if (event.key !== "Escape") return;
       event.preventDefault();
       const button = buttons.current[open];
+      setPinned(null);
       beginClose(open);
       button?.focus();
     };
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Element | null;
-      if (!target?.closest?.("[data-hero-option]")) beginClose(open);
+      if (!target?.closest?.("[data-hero-option]")) {
+        setPinned(null);
+        beginClose(open);
+      }
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointerDown);
@@ -402,7 +497,12 @@ export function HeroOptions() {
       {HERO_OPTIONS.map((option, index) => {
         const [left, top, , height] = option.pill;
         const [dotX, dotY] = option.dot;
-        const expanded = open === option.id;
+        /* During the introduction every card is open at once: the founder
+           asked for the whole card, not its name, and for all three
+           together. Below the dot-led floor the cards would be three
+           stacked bottom sheets in one place, so there the introduction
+           stays as it was and the pills simply arrive. */
+        const expanded = (introShowing && introCards) || open === option.id;
         const folding = closing.includes(option.id);
         const out = pillOut(option.id);
         const panelId = `hero-option-${option.id}`;
@@ -490,6 +590,11 @@ export function HeroOptions() {
               }}
               data-open={expanded}
               data-closing={folding ? "true" : undefined}
+              /* Moving from the dot INTO the card keeps it open; leaving
+                 both starts the linger. Without this the card would dock
+                 the moment the pointer arrived to read it. */
+              onPointerEnter={() => reachFor(option.id)}
+              onPointerLeave={() => letGo(option.id)}
               aria-hidden={folding ? true : undefined}
               className={`${styles.panel} ${option.tier === "layer" ? styles.layer : ""}`}
               onAnimationEnd={(event) => {

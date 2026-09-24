@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { HERO_OPTIONS, type HeroOptionId } from "@/data/home-hero";
 import { HeroPanelBody } from "./HeroPanelBody";
 import { useHeroTelemetry } from "./useHeroTelemetry";
@@ -326,7 +327,7 @@ export function HeroOptions() {
   return (
     <>
       {HERO_OPTIONS.map((option) => {
-        const [left, top, width, height] = option.pill;
+        const [left, top, , height] = option.pill;
         const expanded = open === option.id;
         const folding = closing.includes(option.id);
         const panelId = `hero-option-${option.id}`;
@@ -339,19 +340,40 @@ export function HeroOptions() {
               type="button"
               data-hero-option=""
               className={styles.hotspot}
-              style={{
-                left: `${left * 100}%`,
-                top: `${top * 100}%`,
-                width: `${width * 100}%`,
-                height: `${height * 100}%`,
-              }}
+              style={
+                {
+                  left: `${left * 100}%`,
+                  /* The vertical centre of the pill that used to be painted
+                     here. The button sizes itself to its own words now, and
+                     the stylesheet hangs it from this line, so a smaller pill
+                     still sits exactly where the artwork put the old one. */
+                  "--pill-cy": `${(top + height / 2) * 100}%`,
+                } as CSSProperties
+              }
               aria-label={`${option.label} — ${expanded ? "hide" : "show"} details`}
               aria-expanded={expanded}
               aria-controls={panelId}
               onClick={() =>
                 expanded ? beginClose(option.id) : beginOpen(option.id)
               }
-            />
+            >
+              <span className={styles.pillLabel}>{option.label}</span>
+              <svg
+                className={styles.pillArrow}
+                viewBox="0 0 8 12"
+                fill="none"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <path
+                  d="M1.6 1.2 6.4 6l-4.8 4.8"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
             <div
               id={panelId}
               role="region"

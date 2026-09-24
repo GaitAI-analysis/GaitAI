@@ -3,9 +3,9 @@ import { publicationTopics, type PublicationStory } from "@/lib/publication";
 import styles from "./discovery.module.css";
 
 /**
- * BROWSE THE SIGNAL — the journal's index, set as type.
+ * THE JOURNAL'S INDEX, set as type.
  *
- *   By subject                        Everything published
+ *   Browse GaitAI insights            Explore the archive
  *   Movement intelligence ━━━━━━━━ 4  2026 ──●──●─●──●──●
  *   Responsible AI        ━━━━     2           JUL  AUG
  *   Mobility              ━━━━     2  View the archive →
@@ -51,8 +51,11 @@ export function BrowseSignal({ stories }: { stories: PublicationStory[] }) {
       <div className="container-wide">
         <div className={styles.grid}>
           <div>
-            <p className={styles.kicker}>Browse the signal</p>
-            <h2 className={styles.heading}>By subject</h2>
+            <p className={styles.kicker}>Explore by subject</p>
+            <h2 className={styles.heading}>Browse GaitAI insights</h2>
+            <p className={styles.archiveBody}>
+              Explore research, engineering, mobility and responsible AI by topic.
+            </p>
             <ul className={styles.subjects}>
               {topics.map((topic) => (
                 <li key={topic.slug}>
@@ -77,8 +80,8 @@ export function BrowseSignal({ stories }: { stories: PublicationStory[] }) {
           </div>
 
           <div>
-            <p className={styles.kicker}>Everything published</p>
-            <h2 className={styles.heading}>The archive, in time</h2>
+            <p className={styles.kicker}>Publication archive</p>
+            <h2 className={styles.heading}>Explore the archive</h2>
             {dated.length > 0 && (
               <svg
                 viewBox={`0 0 ${W} 64`}
@@ -108,7 +111,8 @@ export function BrowseSignal({ stories }: { stories: PublicationStory[] }) {
               </svg>
             )}
             <p className={styles.archiveBody}>
-              Every article, research note, product update and story, by year and month.
+              Browse every article, research note, product update and engineering
+              story by year and month.
             </p>
             <Link href="/insights/archive" className={styles.cta}>
               View the archive <span aria-hidden="true">→</span>

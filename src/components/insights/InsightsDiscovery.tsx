@@ -7,10 +7,10 @@ import styles from "./hub/discovery.module.css";
  * The foot of /insights (and of every paginated feed page): what a reader
  * does once the stories have run out.
  *
- *   1. Browse the signal — subjects as rows whose trajectory is their share
+ *   1. Explore by subject — subjects as rows whose trajectory is their share
  *      of the archive, and the archive itself drawn as movement through
  *      publication time. Type on the page ground, not boxes.
- *   2. Stay close to the signal — the subscription form, whose lane reacts
+ *   2. Stay informed — the subscription form, whose lane reacts
  *      to focus, to a valid address and to success.
  *   3. The signal flattens into the footer's rule: story → signal → platform.
  *

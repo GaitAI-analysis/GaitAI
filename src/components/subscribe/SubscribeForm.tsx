@@ -69,10 +69,11 @@ const COPY: Record<
   }
 > = {
   blog: {
-    title: "Stay close to the signal",
+    title: "Stay informed",
     blurb:
-      "Research notes, product updates, engineering stories and the latest from GaitAI.",
-    support: "No noise. Just meaningful updates from GaitAI.",
+      "Receive selected GaitAI research notes, product updates and engineering stories.",
+    support:
+      "Focused updates from GaitAI, sent only when there is something worth sharing.",
     cta: "Subscribe",
     source: "blog",
   },

@@ -1,6 +1,4 @@
-import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import { HERO_PANELS, HERO_SCENE } from "@/data/home-hero";
+import { HERO_SCENE } from "@/data/home-hero";
 import { ThemePicture } from "@/components/ui/ThemePicture";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import styles from "./homehero.module.css";
@@ -20,9 +18,9 @@ import styles from "./homehero.module.css";
  * the story and the words are code.
  *
  * So the composition here is deliberately small: the picture, a scrim only
- * under the words, the headline, the two supporting lines, and the three
- * product links. Nothing is drawn over the photograph, and nothing repeats
- * the site header that sits above it.
+ * under the words, the headline, the two supporting lines and a scroll cue.
+ * Nothing is drawn over the photograph, and nothing repeats the site header
+ * that sits above it.
  *
  * ── ONE FILE FETCHED, CHOSEN BEFORE PAINT ─────────────────────────────────
  * `ThemePicture` carries a dark and a light candidate and resolves the site's
@@ -33,13 +31,27 @@ import styles from "./homehero.module.css";
  * headline below it is real text, and giving the picture the same words
  * would have a screen reader announce the hero twice.
  *
- * ── THE THREE LINKS KEEP THEIR IDENTITIES ─────────────────────────────────
- * The brief specified a single accent ramp for the headline, but the three
- * products were separated into their own colours in an earlier pass —
- * GaitAI blue, MobilityCare teal, SecureVision cobalt — and flattening them
- * to one blue would undo that silently. They keep their tokens; only the
- * headline takes the ramp. Labels and hrefs still come from HERO_PANELS, so
- * the hero cannot drift from the rest of the site.
+ * ── THE FIRST VIEWPORT MAKES A STATEMENT, IT DOES NOT OFFER A MENU ────────
+ * The hero used to end in a row of three pills — Explore GaitAI, Explore
+ * MobilityCare, Explore SecureVision — which made the opening screen a
+ * chooser: three destinations competing with the sentence that was supposed
+ * to say what the company is. The founder removed the row (2026-09-24) and
+ * asked for nothing in its place.
+ *
+ * So there is no CTA in the hero at all, by design. MobilityCare and
+ * SecureVision are reached from their own sections and cards further down
+ * the page — `Verticals` and `FeaturedProducts` both carry the links, with
+ * the context a bare pill never had — and `/#overview`, which the first pill
+ * used to point at, is still the anchor at the foot of this section, so the
+ * header and any deep link that targets it land exactly where they did.
+ *
+ * What replaces the row is height, not another control: the copy keeps its
+ * vertical centring, so removing roughly five rems of pills closes the gap
+ * from both ends at once rather than leaving a hole under the last line, and
+ * the scroll cue at the foot tells the reader there is a page below without
+ * asking them to decide anything. The cue is decorative in the strict sense
+ * — `aria-hidden`, not a link, not focusable — because the section beneath
+ * it is the next thing in the document anyway.
  */
 export function Hero() {
   return (
@@ -78,22 +90,16 @@ export function Hero() {
           </h1>
           <p className={styles.lede}>{HERO_SCENE.lede}</p>
           <p className={styles.support}>{HERO_SCENE.support}</p>
-
-          <div className={styles.actions}>
-            {HERO_PANELS.map((panel, index) => (
-              <Link
-                key={panel.id}
-                href={panel.cta.href}
-                data-panel={panel.id}
-                data-primary={index === 0 ? "true" : undefined}
-                className={styles.action}
-              >
-                {panel.cta.label}
-                <ArrowUpRight aria-hidden="true" className={styles.arrow} />
-              </Link>
-            ))}
-          </div>
         </div>
+      </div>
+
+      {/* The scroll cue. It is a child of the SECTION, not of the centred
+          copy, so it sits at the foot of the hero however tall the window
+          is; `container-wide` inside it puts the hairline on the same left
+          edge as the headline, inside the scrim, where it reads in both
+          themes instead of fighting the photograph. */}
+      <div aria-hidden="true" className={`container-wide ${styles.cue}`}>
+        <span className={styles.cueTrack} />
       </div>
 
       {/* `/#overview` lands here: the foot of the hero, so the page scrolls

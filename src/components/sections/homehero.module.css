@@ -9,8 +9,14 @@
    live in code over it.
 
    So this file is small on purpose. A picture, a scrim only where the words
-   sit, a copy column and three product links. Nothing is drawn over the
-   photograph and nothing is repeated from the site header.
+   sit, a copy column and a scroll cue. Nothing is drawn over the photograph
+   and nothing is repeated from the site header.
+
+   THERE IS NO CTA HERE. The row of three pills came out on 2026-09-24: the
+   first screen states what the company is, and the product links live in the
+   sections below. Everything that styled them went with them — do not bring
+   `.action` back to re-space the column; the column is centred, so its own
+   height is the spacing.
 
    THE SCRIM IS LOCAL. It is a horizontal gradient that is opaque enough to
    read on at the left edge and completely gone by 62%, so the clinician,
@@ -26,7 +32,11 @@
   width: 100%;
   /* Tall enough to feel like a hero, never taller than the screen it opens
      on. The floor keeps it from collapsing on a short laptop. */
-  min-height: clamp(30rem, calc(100svh - var(--site-header-height, 4.5rem)), 54rem);
+  min-height: clamp(
+    30rem,
+    calc(100svh - var(--site-header-height, 4.5rem)),
+    54rem
+  );
   overflow: hidden;
   isolation: isolate;
   background: #05070f;
@@ -180,104 +190,92 @@
   color: #475467;
 }
 
-/* ── The three product links ──
-   Each keeps its own identity, as the founder asked: GaitAI blue,
-   MobilityCare teal, SecureVision cobalt. The first is solid because it is
-   the primary path; the other two are outlined at the same height and
-   padding so the row reads as one set. */
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: clamp(1.4rem, 3svh, 2.25rem);
+/* ── The scroll cue ──
+   A hairline at the foot of the hero with a light travelling down it. It is
+   not a control: no href, no focus, nothing to press. It exists so that a
+   first screen with no buttons still says there is more below.
+
+   It is pinned to the SECTION rather than flowing after the copy, which is
+   what makes it a cue about the page instead of a rule under the paragraph;
+   `container-wide` aligns it to the headline's left edge, inside the opaque
+   end of the scrim, so it never has to survive the photograph. */
+.cue {
+  position: absolute;
+  inset-inline: 0;
+  bottom: clamp(1.25rem, 3.5svh, 2.25rem);
+  z-index: 2;
+  pointer-events: none;
 }
 
-.action {
-  --action-accent: var(--hero-blue, #2f6fed);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2.875rem;
-  padding: 0 1.15rem;
-  border: 1px solid var(--action-accent);
-  border-radius: 999px;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: -0.006em;
-  white-space: nowrap;
-  transition:
-    background-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
-    color 260ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+.cueTrack {
+  /* `relative` so the travelling light positions against the track, and
+     `hidden` so it is clipped to the hairline instead of streaking past it. */
+  position: relative;
+  display: block;
+  width: 1px;
+  height: clamp(2rem, 5svh, 3rem);
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    rgb(220 230 245 / 0) 0%,
+    rgb(220 230 245 / 0.34) 35%,
+    rgb(220 230 245 / 0.34) 65%,
+    rgb(220 230 245 / 0) 100%
+  );
+  overflow: hidden;
 }
 
-.action[data-panel="mobilitycare"] {
-  --action-accent: var(--hero-teal, #1597a8);
+:global(.light) .cueTrack {
+  background: linear-gradient(
+    180deg,
+    rgb(11 23 57 / 0) 0%,
+    rgb(11 23 57 / 0.2) 35%,
+    rgb(11 23 57 / 0.2) 65%,
+    rgb(11 23 57 / 0) 100%
+  );
 }
 
-.action[data-panel="securevision"] {
-  --action-accent: var(--hero-cobalt, #3157d5);
+/* The travelling light. A pseudo-element rather than a second span: it is
+   pure decoration on a decoration. */
+.cueTrack::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 42%;
+  border-radius: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--hero-electric, #3fa9f5) 50%,
+    transparent 100%
+  );
+  animation: cue-travel 2600ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
-/* Solid: the primary way in. */
-.action[data-primary="true"] {
-  background: var(--action-accent);
-  color: #ffffff;
-}
-
-/* Outlined: same geometry, the accent as ink and edge. */
-.action:not([data-primary="true"]) {
-  background: rgb(8 14 26 / 0.42);
-  color: #dce6f5;
-  border-color: rgb(220 230 245 / 0.42);
-}
-
-:global(.light) .action:not([data-primary="true"]) {
-  background: rgb(255 255 255 / 0.9);
-  color: var(--action-accent);
-  border-color: color-mix(in srgb, var(--action-accent) 48%, transparent);
-}
-
-.arrow {
-  width: 1rem;
-  height: 1rem;
-  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-@media (hover: hover) {
-  .action:hover {
-    transform: translateY(-1px);
+@keyframes cue-travel {
+  0% {
+    transform: translateY(-110%);
+    opacity: 0;
   }
-  .action[data-primary="true"]:hover {
-    background: color-mix(in srgb, var(--action-accent) 84%, #000);
+  28% {
+    opacity: 0.95;
   }
-  .action:not([data-primary="true"]):hover {
-    border-color: var(--action-accent);
-    color: #ffffff;
-    background: color-mix(in srgb, var(--action-accent) 82%, transparent);
+  72% {
+    opacity: 0.95;
   }
-  :global(.light) .action:not([data-primary="true"]):hover {
-    color: #ffffff;
-    background: var(--action-accent);
-  }
-  .action:hover .arrow {
-    transform: translateX(2px);
+  100% {
+    transform: translateY(240%);
+    opacity: 0;
   }
 }
 
-.action:focus-visible {
-  outline: 2px solid var(--action-accent);
-  outline-offset: 3px;
-}
-
+/* Reduced motion keeps the cue and drops the travel: the hairline alone is
+   still a mark at the foot of the screen. */
 @media (prefers-reduced-motion: reduce) {
-  .action,
-  .arrow {
-    transition: none;
-  }
-  .action:hover {
-    transform: none;
+  .cueTrack::after {
+    animation: none;
+    opacity: 0.8;
+    transform: translateY(120%);
   }
 }
 

@@ -464,7 +464,8 @@
   opacity: 0.85;
 }
 
-/* The halo: a faint champagne ring that breathes out from the dot. */
+/* The halo: a faint champagne ring, held steady on hover and while the
+   dot's card is up. At rest it becomes the blue discovery ring (below). */
 .dot::after {
   width: 1.3vw;
   min-width: 14px;
@@ -528,9 +529,42 @@
       var(--dot-delay, 0s) infinite;
   }
 
+  /* THE DISCOVERY RING (the founder, 2026-09-25). The gold halo blended
+     into the artwork and visitors were not finding the dots, so the resting
+     ring is a thin electric-blue radar pulse instead -- the one place blue is
+     approved on the hero. Only this animated ring: the core stays gold, and
+     the hover and open states keep their steady gold ring. It starts at the
+     dot, expands and fades on the same 2s beat and stagger as the core, and
+     stops while the dot's card is up (`data-rest` is off then). A thin line,
+     no fill, a 10px shadow at most: a radar sweep, not a glow. */
   .dot[data-rest="true"]::after {
-    animation: heroDotHalo 2s cubic-bezier(0.45, 0, 0.55, 1)
+    border: 1.5px solid rgb(47 111 237 / 0.9);
+    background: none;
+    box-shadow:
+      0 0 0 1px rgb(63 169 245 / 0.12),
+      0 0 10px rgb(47 111 237 / 0.2);
+    animation: heroDotRing 2s cubic-bezier(0.22, 0.61, 0.36, 1)
       var(--dot-delay, 0s) infinite;
+  }
+}
+
+@keyframes heroDotRing {
+  0% {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+
+  18% {
+    opacity: 0.9;
+  }
+
+  70% {
+    opacity: 0.32;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.9);
   }
 }
 
@@ -548,27 +582,6 @@
   100% {
     opacity: 0.55;
     transform: scale(1.01);
-  }
-}
-
-/* The halo is the whole of the glow, and it only exists at the peak: a
-   ring that breathes out and is gone again. Nothing here is lit at rest,
-   which is what keeps three dots on a photograph restrained rather than
-   decorative. */
-@keyframes heroDotHalo {
-  0% {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-
-  50% {
-    opacity: 0.85;
-    transform: scale(1.08);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(0.9);
   }
 }
 

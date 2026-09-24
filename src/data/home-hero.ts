@@ -261,9 +261,66 @@ export interface HeroOption {
    * third product — its panel is deliberately smaller and quieter.
    */
   readonly tier: "product" | "layer";
-  readonly rows: readonly (readonly [string, string])[];
+  readonly metrics: readonly HeroMetric[];
   readonly footnote?: string;
 }
+
+/**
+ * ONE ROW OF A HERO PANEL.
+ *
+ * The panels report continuously rather than printing a specification, so a
+ * row is a definition of what may be read, not a fixed string. Three kinds,
+ * because there are exactly three sorts of thing in these panels:
+ *
+ *   `reading`  a measurement that moves — a resting value, the clinical band
+ *              it is allowed to wander inside, and the most one tick may move
+ *              it. `scale` adds the hairline track (the band the track draws
+ *              may be wider than the band the value walks: a mobility score
+ *              walks 80–84 but is read against 0–100). `spark` keeps a short
+ *              history and draws it.
+ *   `state`    a word that changes rarely — Normal / Moderate. `settle` is the
+ *              chance per tick of returning to the FIRST state, which is the
+ *              resting one, so calm is the overwhelming majority of readings.
+ *   `fixed`    a guarantee, not a measurement: privacy is active, access is
+ *              authorised. These never move, because a privacy mode that
+ *              flickered would be a different and much worse claim.
+ *
+ * The resting values are the founder's approved figures; the bands around
+ * them were set to be clinically plausible rather than eye-catching. See
+ * components/sections/useHeroTelemetry.ts for the walk itself.
+ */
+export type HeroMetric =
+  | {
+      readonly kind: "reading";
+      readonly label: string;
+      /** The approved value: printed on the server and returned to always. */
+      readonly base: number;
+      readonly min: number;
+      readonly max: number;
+      /** The largest change a single tick may make. */
+      readonly step: number;
+      readonly decimals: number;
+      readonly unit?: string;
+      /** Ends of the track, when the row draws one. */
+      readonly scale?: readonly [number, number];
+      readonly spark?: true;
+      /** A gentle push per tick, for a reading that should trend. */
+      readonly trend?: number;
+    }
+  | {
+      readonly kind: "state";
+      readonly label: string;
+      /** The first entry is the resting state. */
+      readonly states: readonly string[];
+      readonly settle: number;
+      readonly tone?: "gold";
+    }
+  | {
+      readonly kind: "fixed";
+      readonly label: string;
+      readonly value: string;
+      readonly tone?: "gold";
+    };
 
 export const HERO_OPTIONS: readonly HeroOption[] = [
   {
@@ -271,13 +328,29 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     label: "SecureVision",
     pill: [653 / 1672, 175.5 / 941, 193 / 1672, 50 / 941],
     tier: "product",
-    rows: [
-      ["Pedestrian flow", "12 people/min"],
-      ["Crowd flow", "Normal"],
-      ["Anomaly status", "None detected"],
-      ["Privacy mode", "Active"],
-      ["Identity matching", "Optional"],
-      ["Access status", "Authorised"],
+    metrics: [
+      {
+        kind: "reading",
+        label: "Pedestrian flow",
+        base: 12,
+        min: 9,
+        max: 16,
+        step: 0.9,
+        decimals: 0,
+        unit: "people/min",
+        scale: [0, 30],
+        spark: true,
+      },
+      {
+        kind: "state",
+        label: "Crowd flow",
+        states: ["Normal", "Moderate"],
+        settle: 0.72,
+      },
+      { kind: "fixed", label: "Anomaly status", value: "None detected" },
+      { kind: "fixed", label: "Privacy mode", value: "Active", tone: "gold" },
+      { kind: "fixed", label: "Identity matching", value: "Optional" },
+      { kind: "fixed", label: "Access status", value: "Authorised", tone: "gold" },
     ],
   },
   {
@@ -285,13 +358,67 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     label: "MobilityCare",
     pill: [999.5 / 1672, 175.5 / 941, 194.5 / 1672, 49 / 941],
     tier: "product",
-    rows: [
-      ["Mobility score", "82/100"],
-      ["Fall risk", "Low"],
-      ["Gait speed", "0.78 m/s"],
-      ["Step symmetry", "96%"],
-      ["Balance stability", "Stable"],
-      ["Recovery progress", "Improving"],
+    metrics: [
+      {
+        kind: "reading",
+        label: "Mobility score",
+        base: 82,
+        min: 80,
+        max: 84,
+        step: 0.8,
+        decimals: 0,
+        scale: [0, 100],
+        spark: true,
+      },
+      { kind: "fixed", label: "Fall risk", value: "Low" },
+      {
+        kind: "reading",
+        label: "Gait speed",
+        base: 0.78,
+        min: 0.74,
+        max: 0.86,
+        step: 0.03,
+        decimals: 2,
+        unit: "m/s",
+        scale: [0.4, 1.2],
+        spark: true,
+      },
+      {
+        kind: "reading",
+        label: "Step symmetry",
+        base: 96,
+        min: 94,
+        max: 98,
+        step: 0.8,
+        decimals: 0,
+        unit: "%",
+        scale: [80, 100],
+      },
+      {
+        kind: "state",
+        label: "Balance stability",
+        states: ["Stable", "Slight variation"],
+        settle: 0.78,
+      },
+      {
+        kind: "reading",
+        label: "Recovery progress",
+        base: 64,
+        min: 62,
+        max: 71,
+        /* Wider than the measurements' steps, and deliberately so: this is
+           the only whole-number reading with no decimal to show movement in,
+           so a step of 0.5 left it rounding to the same integer every tick
+           and printing a frozen "65 %" under a track that never moved. */
+        step: 1.2,
+        decimals: 0,
+        unit: "%",
+        scale: [0, 100],
+        /* The one reading with a bias: recovery should be seen to climb, so
+           it is pushed gently upward and capped, rather than drifting both
+           ways around a resting value like the measurements do. */
+        trend: 0.16,
+      },
     ],
   },
   {
@@ -299,13 +426,56 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     label: "Pose analysis",
     pill: [1379.5 / 1672, 176 / 941, 205.5 / 1672, 49.5 / 941],
     tier: "layer",
-    rows: [
-      ["Gait speed", "1.02 m/s"],
-      ["Cadence", "102 steps/min"],
-      ["Step symmetry", "96%"],
-      ["Balance stability", "Stable"],
-      ["Range of motion", "+22%"],
-      ["Identity", "Optional"],
+    metrics: [
+      {
+        kind: "reading",
+        label: "Gait speed",
+        base: 1.02,
+        min: 0.97,
+        max: 1.09,
+        step: 0.03,
+        decimals: 2,
+        unit: "m/s",
+        spark: true,
+      },
+      {
+        kind: "reading",
+        label: "Cadence",
+        base: 102,
+        min: 99,
+        max: 105,
+        step: 1.1,
+        decimals: 0,
+        unit: "steps/min",
+        spark: true,
+      },
+      {
+        kind: "reading",
+        label: "Step symmetry",
+        base: 96,
+        min: 94,
+        max: 98,
+        step: 0.8,
+        decimals: 0,
+        unit: "%",
+      },
+      {
+        kind: "state",
+        label: "Balance stability",
+        states: ["Stable", "Slight variation"],
+        settle: 0.8,
+      },
+      {
+        kind: "reading",
+        label: "Range of motion",
+        base: 22,
+        min: 20,
+        max: 25,
+        step: 0.7,
+        decimals: 0,
+        unit: "%",
+      },
+      { kind: "fixed", label: "Identity", value: "Optional" },
     ],
     footnote: "Privacy by design",
   },

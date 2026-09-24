@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { HERO_OPTIONS, type HeroOptionId } from "@/data/home-hero";
+import { HeroPanelBody } from "./HeroPanelBody";
+import { useHeroTelemetry } from "./useHeroTelemetry";
 import styles from "./homehero.module.css";
 
 /**
@@ -27,6 +29,10 @@ import styles from "./homehero.module.css";
 export function HeroOptions() {
   const [open, setOpen] = useState<HeroOptionId | null>(null);
   const buttons = useRef<Partial<Record<HeroOptionId, HTMLButtonElement | null>>>({});
+
+  /* The readings only move while a panel is actually on screen — there is
+     nothing to animate for a closed panel. See useHeroTelemetry. */
+  const readings = useHeroTelemetry(open !== null);
 
   useEffect(() => {
     if (!open) return;
@@ -87,14 +93,7 @@ export function HeroOptions() {
               <p id={`${panelId}-title`} className={styles.panelTitle}>
                 {option.label}
               </p>
-              <dl className={styles.rows}>
-                {option.rows.map(([label, value]) => (
-                  <div key={label} className={styles.row}>
-                    <dt>{label}</dt>
-                    <dd>{value}</dd>
-                  </div>
-                ))}
-              </dl>
+              <HeroPanelBody option={option} readings={readings[option.id]} />
               {option.footnote ? <p className={styles.footnote}>{option.footnote}</p> : null}
               <button type="button" className={styles.close} onClick={() => setOpen(null)}>
                 Close

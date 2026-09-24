@@ -40,6 +40,29 @@
   overflow: hidden;
   isolation: isolate;
   background: #05070f;
+
+  /* Where the copy sits inside the frame. Both are zero here so the phone
+     layout, where the words already own the whole width, is untouched. */
+  --pull: 0px;
+  --lift: 0px;
+}
+
+/* On the side-by-side widths the copy is a column beside a photograph, and
+   the centred 1320px container drops it further in than the composition
+   wants: at 1536 the headline starts 156px from the edge, out over the
+   brighter middle of the scene where the blurred figures are. These two
+   offsets walk it back toward the frame and up off the horizon.
+
+   `--pull` spends only the slack the centred container is already wasting —
+   nothing below 1320px, then a fifth of the growing auto margin, capped so a
+   wide screen keeps a generous left margin rather than pinning the words to
+   the glass. 43px at 1536, 64px from 1640 up. `--lift` is a fraction of the
+   viewport, so a short laptop lifts less than a tall desktop. */
+@media (min-width: 768px) {
+  .hero {
+    --pull: clamp(0px, (100vw - 1320px) * 0.2, 64px);
+    --lift: clamp(0px, 4svh, 44px);
+  }
 }
 
 :global(.light) .hero {
@@ -65,7 +88,13 @@
   object-position: 50% 62%;
 }
 
-/* ── The readability scrim, left only ── */
+/* ── The readability scrim, left only ──
+   The first two stops are the shade the copy's opening sits on and are
+   unchanged. Only the falloff moved: the longest line now ends at 47% of
+   the frame, where the old ramp had already dropped to 0.36, so the tail of
+   the headline was finishing on open photograph. Carrying the mid stop a
+   little further right lands it on 0.49 instead, and the picture is still
+   completely clear of shade from two thirds across. */
 .scrim {
   position: absolute;
   inset: 0;
@@ -75,9 +104,9 @@
     90deg,
     rgb(4 8 18 / 0.92) 0%,
     rgb(4 8 18 / 0.82) 26%,
-    rgb(4 8 18 / 0.45) 44%,
-    rgb(4 8 18 / 0.12) 55%,
-    rgb(4 8 18 / 0) 62%
+    rgb(4 8 18 / 0.52) 46%,
+    rgb(4 8 18 / 0.18) 58%,
+    rgb(4 8 18 / 0) 66%
   );
 }
 
@@ -86,9 +115,9 @@
     90deg,
     rgb(248 250 252 / 0.94) 0%,
     rgb(248 250 252 / 0.86) 26%,
-    rgb(248 250 252 / 0.52) 44%,
-    rgb(248 250 252 / 0.16) 55%,
-    rgb(248 250 252 / 0) 62%
+    rgb(248 250 252 / 0.58) 46%,
+    rgb(248 250 252 / 0.22) 58%,
+    rgb(248 250 252 / 0) 66%
   );
 }
 
@@ -121,6 +150,12 @@
   z-index: 2;
   width: 100%;
   padding-block: clamp(3rem, 8svh, 6rem);
+  /* Relative offsets, not a transform: the headline is painted through
+     `background-clip: text`, and a fractional translate would hand it to the
+     compositor to resample. Offsetting the box keeps the glyphs on the
+     ordinary text-rendering path, which is the whole point of the move. */
+  left: calc(-1 * var(--pull));
+  top: calc(-1 * var(--lift));
 }
 
 .copy {
@@ -205,6 +240,12 @@
   bottom: clamp(1.25rem, 3.5svh, 2.25rem);
   z-index: 2;
   pointer-events: none;
+  /* Same pull as the copy, so the hairline stays on the headline's left
+     edge. This one is a transform because the cue is absolutely positioned
+     and auto-centred, so a relative offset would only move it half as far —
+     and it is a 1px rule with no text to resample. The lift is deliberately
+     not applied: the cue belongs to the foot of the screen. */
+  translate: calc(-1 * var(--pull)) 0;
 }
 
 .cueTrack {

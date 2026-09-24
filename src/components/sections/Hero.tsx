@@ -23,8 +23,9 @@ import styles from "./homehero.module.css";
  * ── GEOMETRY ──────────────────────────────────────────────────────────────
  * The picture keeps its own 1672:941 box at every width — never stretched,
  * never cropped at the sides, so the three pills and the people are always
- * whole. On a short, wide window the section trims at most the bottom 12%
- * (floor, not faces or pills). The caption is placed in viewport-width
+ * whole. From 1024px the section frames 86% of its height: 10% off the top
+ * (sky), 4% off the bottom (floor), for a tighter composition; the picture
+ * is raised inside the frame, not edited. The caption is placed in viewport-width
  * units off the same box, so it sits where the artwork left room for it at
  * every desktop width. Below 1024px the caption moves above the picture,
  * where it can be read, and the picture follows at full width.

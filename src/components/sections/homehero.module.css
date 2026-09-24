@@ -13,7 +13,8 @@
 
    The caption is positioned in vw because the picture spans the viewport:
    one vw is one hundredth of the picture's width, so the numbers below are
-   the painted layout's own proportions (e.g. 3.11vw = 52px of 1672).
+   the painted layout's own proportions (e.g. 3.11vw = 52px of 1672),
+   measured from the top of the cropped frame.
    ========================================================================= */
 
 .hero {
@@ -23,9 +24,26 @@
   /* No isolation / z-index here: the bottom sheet (fixed, z 71) must
      rise above the sections that follow, not only above this one. */
   background: #eef2f7;
-  /* The picture is 56.28vw tall. A short, wide window may trim the floor,
-     but never more than 12% of it — pills and people stay whole. */
-  max-height: max(calc(100svh - var(--site-header-height, 4.5rem)), 49.53vw);
+}
+
+/* THE FRAME (2026-09-24, founder: "crop a little from the top"). On the
+   side-by-side widths the section shows 86% of the picture's height: 10%
+   comes off the top (sky and tower tops) and 4% off the bottom (floor),
+   so the composition sits tighter without losing the caption's haze, the
+   three pills (which start at 18.65%) or anyone's feet (the lowest, the
+   model figure's, end at 88%). The picture itself is untouched — still
+   `cover` in its own 1672:941 box, just raised inside the frame. Hotspots
+   and panels are placed in fractions of that box, so they move with it. */
+@media (min-width: 1024px) {
+  .hero {
+    aspect-ratio: 1672 / 809.3;
+  }
+
+  /* 10% of the picture's height, expressed as a share of its width
+     (margins resolve against width): 0.10 × 941 / 1672 = 5.628%. */
+  .stage {
+    margin-top: -5.628%;
+  }
 }
 
 /* ── The picture ── */
@@ -49,7 +67,10 @@
   position: absolute;
   z-index: 2;
   left: 3.11vw;
-  top: 16vw;
+  /* Sits in the haze, a touch above the frame's middle: the painted
+     layout's 16vw less the 5.6vw the frame takes off the top, lowered
+     slightly so the block balances in the tighter frame. */
+  top: 11.5vw;
   width: 30vw;
 }
 

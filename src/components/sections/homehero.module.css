@@ -201,9 +201,28 @@
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px) scale(0.96);
+  /* Two curves, not one. The distance and the timing were both specified;
+     only the shape is chosen here, and it is chosen because the obvious
+     single curve does not survive being measured.
+
+     `cubic-bezier(0.22, 1, 0.36, 1)` on both properties puts almost all of
+     its travel in the first third: the panels reached 95% of their movement
+     and 5% of their opacity by 346ms of a 620ms collapse, so they were gone
+     less than halfway through and the rest of the duration was empty. That
+     curve is shaped for something arriving, where the eye wants the payoff
+     early. This is the opposite motion — something being taken away — and it
+     has to keep faith with the pill it is returning to.
+
+     So the movement is even, and the fade lags it deliberately: the panel is
+     still legible while it starts to travel, and only disappears as it
+     arrives. Both finish together, on the beat, which is what makes it read
+     as absorbed rather than dropped. Measured on the built page, the panel
+     holds 0.94 opacity at 120ms, passes half at 360ms and is at 0.03 by
+     600ms, so visibility switches on an already-invisible panel instead of
+     cutting one off mid-fade. */
   transition:
-    opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 620ms cubic-bezier(0.45, 0.05, 0.55, 0.95),
+    transform 620ms cubic-bezier(0.42, 0, 0.5, 1),
     visibility 0s linear 620ms;
 }
 

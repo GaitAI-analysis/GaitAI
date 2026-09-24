@@ -247,6 +247,26 @@ export const HERO_SCENE = {
   accent: "For health, safety and identity.",
   support:
     "Turning human movement into meaningful insight — from clinical mobility to safer public spaces.",
+  /**
+   * DARK (2026-09-24): the founder's own night artwork, used as supplied
+   * (`Downloads/7d3b8da5-79b7-4b98-975c-ddb25a864fa0.png`, 1759x894 — not
+   * regenerated, recoloured or re-composed). It carries no painted pills and
+   * no painted caption, so dark shows the HTML caption with its own copy
+   * and two calls to action, and the pill hotspots are light-only.
+   */
+  dark: {
+    src: "/images/hero/home-hero-dark.webp",
+    narrowSrc: "/images/hero/home-hero-dark-1200.webp",
+    width: 1759,
+    height: 894,
+    eyebrow: "Human movement intelligence",
+    support: [
+      "Turning human movement into meaningful insight",
+      "for healthier lives, safer communities and a more open world.",
+    ],
+    primary: { href: "/#overview", label: "Explore GaitAI" },
+    secondary: { href: "/#technology", label: "See how it works" },
+  },
 } as const;
 
 export type HeroOptionId = "securevision" | "mobilitycare" | "pose";

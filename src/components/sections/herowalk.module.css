@@ -1882,3 +1882,9 @@
     transform: rotate(-43.031deg);
   }
 }
+
+/* The walking figure is cut from the DAYLIGHT picture; the night picture is
+   a different figure, so the overlay is light-only. */
+:global(.dark) .walk {
+  display: none;
+}

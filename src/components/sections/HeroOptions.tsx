@@ -86,7 +86,9 @@ export function HeroOptions() {
     // responsive behaviour, and it should not start halfway through a resize.
     if (
       !window.matchMedia("(min-width: 1600px)").matches ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      // The night picture has no painted pills to fold back into.
+      document.documentElement.classList.contains("dark")
     ) {
       introSpent = true;
       return;

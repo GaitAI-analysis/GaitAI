@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { HERO_SCENE } from "@/data/home-hero";
-import { assetPath } from "@/lib/paths";
+import { ThemePicture } from "@/components/ui/ThemePicture";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import { HeroOptions } from "./HeroOptions";
 import { HeroWalk } from "./HeroWalk";
@@ -34,28 +35,56 @@ import styles from "./homehero.module.css";
 export function Hero() {
   return (
     <section aria-labelledby="home-hero-title" className={styles.hero}>
+      {/* Dark only: a soft shade under the caption, over the lit city. */}
+      <div aria-hidden="true" className={styles.shade} />
+
+      {/* One caption for both themes. The eyebrow, the dark paragraph and the
+          two actions are dark-only (hidden by CSS in light, so the light hero
+          is exactly as approved); no branch in the markup, so nothing can
+          disagree between the server HTML and hydration. */}
       <div className={styles.caption}>
+        <p className={`${styles.eyebrow} ${styles.darkOnly}`}>{HERO_SCENE.dark.eyebrow}</p>
         <h1 id="home-hero-title" className={styles.title}>
           <span className={styles.lead}>{HERO_SCENE.title}</span>{" "}
           <span className={styles.accent}>{HERO_SCENE.accent}</span>
         </h1>
         <span aria-hidden="true" className={styles.rule} />
-        <p className={styles.support}>{HERO_SCENE.support}</p>
+        <p className={`${styles.support} ${styles.lightOnly}`}>{HERO_SCENE.support}</p>
+        <p className={`${styles.support} ${styles.darkOnly}`}>
+          {HERO_SCENE.dark.support.join(" ")}
+        </p>
+        <div className={`${styles.actions} ${styles.darkOnly}`}>
+          <Link href={HERO_SCENE.dark.primary.href} className={`${styles.btn} ${styles.primary}`}>
+            {HERO_SCENE.dark.primary.label}
+            <span aria-hidden="true" className={styles.arrow}>
+              →
+            </span>
+          </Link>
+          <Link href={HERO_SCENE.dark.secondary.href} className={`${styles.btn} ${styles.secondary}`}>
+            {HERO_SCENE.dark.secondary.label}
+          </Link>
+        </div>
       </div>
 
       <div className={styles.stage}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- static export; the file is pre-sized */}
-        <img
+        {/* One file per theme, chosen before first paint — a dark visitor
+            never downloads the daylight picture, and vice versa. */}
+        <ThemePicture
           className={styles.photo}
-          src={assetPath(HERO_SCENE.src)}
-          srcSet={`${assetPath(HERO_SCENE.narrowSrc)} 1200w, ${assetPath(HERO_SCENE.src)} ${HERO_SCENE.width}w`}
+          sources={[
+            {
+              type: "image/webp",
+              lightSrcSet: `${HERO_SCENE.narrowSrc} 1200w, ${HERO_SCENE.src} ${HERO_SCENE.width}w`,
+              darkSrcSet: `${HERO_SCENE.dark.narrowSrc} 1200w, ${HERO_SCENE.dark.src} ${HERO_SCENE.dark.width}w`,
+            },
+          ]}
+          lightSrc={HERO_SCENE.src}
+          darkSrc={HERO_SCENE.dark.src}
           sizes="100vw"
+          alt=""
           width={HERO_SCENE.width}
           height={HERO_SCENE.height}
-          alt=""
-          aria-hidden="true"
-          decoding="sync"
-          fetchPriority="high"
+          priority
         />
         {/* Only the human in the Pose analysis panel moves — see HeroWalk. */}
         <HeroWalk />

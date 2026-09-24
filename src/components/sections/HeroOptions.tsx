@@ -27,47 +27,52 @@ import styles from "./homehero.module.css";
  * Closed panels are `visibility: hidden`, so they are out of the tab order
  * and the accessibility tree while still animating out.
  *
+ * THE RESTING HERO IS DOT-LED.
+ * -----------------------------------------------------------------------------
+ * At rest the three options are the gold anchor dots painted at the foot of
+ * each arc, softly pulsing. A pill comes out of its dot when the visitor
+ * reaches for it — hovering the dot or the pill, focusing the pill from the
+ * keyboard — and stays out while its panel is open or folding back into it.
+ * Leaving starts a short linger, so the pointer can travel up the arc from
+ * the dot to the pill without the pill docking under it.
+ *
+ * Dot-led needs a real hover and a dot big enough to find: from 1024px, with
+ * a fine pointer. On touch, and on anything narrower, the pills come out once
+ * and stay out — a painted dot on a phone is three pixels across.
+ *
  * THE INTRODUCTION.
  * -----------------------------------------------------------------------------
- * On the first load all three panels are already open, hold for a moment, then
- * fold back into their pills. It is there so a first-time visitor learns what
- * the three pills contain without having to guess and click, and it costs the
- * hero nothing afterwards: what is left is the clean picture.
+ * Once per page load: dots only for a second, then all three pills emerge
+ * from their dots together, hold, and dock back in 250ms, leaving the dots
+ * pulsing. It teaches what the dots are without leaving anything open. The
+ * motion itself is CSS transitions (see "The anchor dots" in the stylesheet);
+ * this component only moves the pills between `hidden` and `shown`.
  *
- * It runs once per page load, not once per mount — `introSpent` is module
- * scope, so a soft navigation back to the homepage finds it spent while a
- * refresh gets a fresh module and a fresh introduction. Scrolling, re-entering
- * the viewport and opening panels by hand never restart it. The first real
- * press or keystroke ends it early and is honoured normally.
- *
- * Two conditions skip it outright and land straight on the clean hero:
- * `prefers-reduced-motion`, and any width below 1600px — below that every
- * panel is the same fixed bottom sheet at `left: 50%`, so three open at once
- * would be three sheets stacked in one place rather than three answers.
- *
- * While it plays the panels are decoration: `aria-hidden`, with the buttons
- * still reporting `aria-expanded="false"`, so assistive technology is not told
- * that three regions opened and closed inside a second. Nothing inside a panel
- * is focusable at this width — `.close` only exists on the bottom-sheet
- * layout — so there is nothing to trap.
+ * `introSpent` is module scope, so a soft navigation back to the homepage
+ * lands straight on the resting hero while a refresh plays it again.
+ * Scrolling, re-entering the viewport and hovering never restart it. The
+ * first real press or keystroke ends it early and is honoured normally.
+ * `prefers-reduced-motion` skips it: the dots are there, still, and a pill
+ * appears without travelling. The night picture has no dots and no pills.
  */
 
-/** How long all three stay open, and how long the fold back takes. */
-const INTRO_HOLD_MS = 400;
 /** Fold → compress → dock. Must match the keyframes in the stylesheet. */
 const CLOSE_MS = 780;
-const OPEN_MS = 560;
-/**
- * An extremely restrained stagger, left to right, so the three panels read
- * as one coordinated movement rather than three animations that happen to
- * overlap. Pose analysis, the quieter of the three, leaves last.
- */
-const INTRO_STAGGER: Record<HeroOptionId, number> = {
-  securevision: 0,
-  mobilitycare: 55,
-  pose: 110,
-};
-const INTRO_FOLD_MS = CLOSE_MS + INTRO_STAGGER.pose;
+
+/** The pills' introduction, in ms from the hero first being seen. */
+const PILLS_OUT_AT = 1000;
+const PILLS_BACK_AT = 1800;
+/** 250ms after PILLS_BACK_AT: the dock has finished, the dots may breathe. */
+const PILLS_DOCKED_AT = 2050;
+
+/** How long a pill waits after the pointer leaves it or its dot. */
+const REACH_LINGER_MS = 450;
+
+/** Where hover can lead: a real pointer, and dots big enough to find. */
+const DOT_LED_QUERY = "(min-width: 1024px) and (hover: hover) and (pointer: fine)";
+
+/** The picture's own proportions, for converting heights to vw. */
+const ASPECT = 941 / 1672;
 
 /**
  * Measure the real distance from a panel to its own pill and hand it to CSS.
@@ -113,7 +118,12 @@ function measureDock(panel: HTMLElement, pill: HTMLElement) {
   panel.style.setProperty("--fold-x", `${(fx * 100).toFixed(2)}%`);
 }
 
-type IntroPhase = "off" | "show" | "fold";
+/**
+ * `dots`  the first second: no pill anywhere.
+ * `out`   all three pills out of their dots.
+ * `rest`  dot-led: a pill is out only while it is reached for or in use.
+ */
+type Stage = "dots" | "out" | "rest";
 
 /**
  * Module scope on purpose: once per page load. Deliberately NOT set in the
@@ -129,7 +139,24 @@ export function HeroOptions() {
    * interaction, not the absence of one.
    */
   const [closing, setClosing] = useState<readonly HeroOptionId[]>([]);
-  const [intro, setIntro] = useState<IntroPhase>("off");
+  /* First render is `dots` on the server and in hydration alike, so no pill
+     can flash before the introduction; a soft navigation back (the module
+     already spent) mounts straight into `rest`. */
+  const [stage, setStage] = useState<Stage>(() => (introSpent ? "rest" : "dots"));
+  /* Whether the dots may pulse: only once the pills have docked. */
+  const [breathing, setBreathing] = useState(() => introSpent);
+  /* False on touch and narrow screens, where a resting pill stays out. Read
+     at mount only on a soft navigation back (no hydration to disagree with);
+     on the first load `dots` hides every pill until the effect has run. */
+  const [dotLed, setDotLed] = useState(() =>
+    introSpent && typeof window !== "undefined"
+      ? window.matchMedia(DOT_LED_QUERY).matches
+      : false,
+  );
+  /* Options the visitor is reaching for right now (hover, or a press on the
+     dot), and the timers that let each one go. */
+  const [reach, setReach] = useState<readonly HeroOptionId[]>([]);
+  const lingers = useRef<Partial<Record<HeroOptionId, number>>>({});
   const buttons = useRef<
     Partial<Record<HeroOptionId, HTMLButtonElement | null>>
   >({});
@@ -138,9 +165,9 @@ export function HeroOptions() {
   );
   const timers = useRef<number[]>([]);
 
-  /* The readings only move while a panel is actually on screen — one open, or
-     the introduction showing all three. See useHeroTelemetry. */
-  const readings = useHeroTelemetry(open !== null || intro !== "off");
+  /* The readings only move while a panel is actually on screen. See
+     useHeroTelemetry. */
+  const readings = useHeroTelemetry(open !== null);
 
   /**
    * Start a panel moving, having first measured where its pill actually is.
@@ -214,56 +241,60 @@ export function HeroOptions() {
     if (panel) delete panel.dataset.animating;
   }, []);
 
+  /** Straight to the resting hero: the introduction is over or skipped. */
   const endIntro = useCallback(() => {
     timers.current.forEach(window.clearTimeout);
     timers.current = [];
     introSpent = true;
-    setIntro("off");
+    setStage("rest");
+    setBreathing(true);
+  }, []);
+
+  /* Dot-led or not follows the device, live: a window dragged across 1024px
+     or a tablet gaining a mouse changes what the resting hero can offer. */
+  useEffect(() => {
+    const query = window.matchMedia(DOT_LED_QUERY);
+    const update = () => setDotLed(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
   }, []);
 
   useEffect(() => {
     if (introSpent) return;
-    // Both checks are read once, on load: this is an entrance, not a
-    // responsive behaviour, and it should not start halfway through a resize.
-    if (
-      !window.matchMedia("(min-width: 1600px)").matches ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-      // The night picture has no painted pills to fold back into.
-      document.documentElement.classList.contains("dark")
-    ) {
-      introSpent = true;
+    // Read once, on load: this is an entrance, not a responsive behaviour.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      endIntro();
       return;
     }
 
-    const run = () => {
-      setIntro("show");
+    /* The second of dots-only counts from when the hero was first painted,
+       not from hydration: the server markup already has every pill docked,
+       so the visitor has been looking at dots since first paint. Always at
+       least a quarter-second of dots after this runs, so a slow hydration
+       never makes the pills burst out the instant it lands. A tab opened in
+       the background counts from when it is actually looked at (`fresh`). */
+    const run = (fresh: boolean) => {
+      const paint = performance.getEntriesByName("first-contentful-paint")[0];
+      const seen = fresh || !paint ? 0 : performance.now() - paint.startTime;
+      const lead = Math.min(Math.max(seen, 0), PILLS_OUT_AT - 250);
+      const at = (ms: number) => ms - lead;
+      const docks = window.matchMedia(DOT_LED_QUERY).matches;
       timers.current.push(
-        window.setTimeout(() => {
-          // Measure all three against their own pills before any of them
-          // moves, so the stagger is the only thing separating them.
-          for (const option of HERO_OPTIONS) {
-            const panel = panels.current[option.id];
-            const pill = buttons.current[option.id];
-            if (!panel || !pill) continue;
-            measureDock(panel, pill);
-            panel.style.setProperty(
-              "--intro-delay",
-              `${INTRO_STAGGER[option.id]}ms`,
-            );
-            panel.dataset.animating = "true";
-          }
-          setIntro("fold");
-          timers.current.push(
-            window.setTimeout(() => {
-              introSpent = true;
-              setIntro("off");
-              for (const option of HERO_OPTIONS) {
-                const panel = panels.current[option.id];
-                if (panel) delete panel.dataset.animating;
-              }
-            }, INTRO_FOLD_MS),
-          );
-        }, INTRO_HOLD_MS),
+        window.setTimeout(() => setStage("out"), at(PILLS_OUT_AT)),
+        // Without hover the pills stay out, so there is nothing to dock:
+        // `rest` then shows all three, which is the same frame.
+        window.setTimeout(
+          () => setStage("rest"),
+          at(docks ? PILLS_BACK_AT : PILLS_OUT_AT + 450),
+        ),
+        window.setTimeout(
+          () => {
+            introSpent = true;
+            setBreathing(true);
+          },
+          at(docks ? PILLS_DOCKED_AT : PILLS_OUT_AT + 450),
+        ),
       );
     };
 
@@ -271,13 +302,13 @@ export function HeroOptions() {
     // actually looked at rather than while it is hidden.
     let onVisible: (() => void) | undefined;
     if (document.visibilityState === "visible") {
-      run();
+      run(false);
     } else {
       onVisible = () => {
         if (document.visibilityState !== "visible") return;
         document.removeEventListener("visibilitychange", onVisible!);
         onVisible = undefined;
-        run();
+        run(true);
       };
       document.addEventListener("visibilitychange", onVisible);
     }
@@ -288,12 +319,12 @@ export function HeroOptions() {
       timers.current.forEach(window.clearTimeout);
       timers.current = [];
     };
-  }, []);
+  }, [endIntro]);
 
   // Any real press or keystroke ends the introduction early. Capture phase, so
   // a press on a pill ends it and still opens that pill's panel.
   useEffect(() => {
-    if (intro === "off") return;
+    if (stage === "rest") return;
     const stop = () => endIntro();
     document.addEventListener("pointerdown", stop, true);
     document.addEventListener("keydown", stop, true);
@@ -301,7 +332,32 @@ export function HeroOptions() {
       document.removeEventListener("pointerdown", stop, true);
       document.removeEventListener("keydown", stop, true);
     };
-  }, [intro, endIntro]);
+  }, [stage, endIntro]);
+
+  /** The visitor reaches for an option: its pill comes out now. */
+  const reachFor = useCallback((id: HeroOptionId) => {
+    window.clearTimeout(lingers.current[id]);
+    setReach((list) => (list.includes(id) ? list : [...list, id]));
+  }, []);
+
+  /** ...and lets go: it docks after a short linger, unless reached again. */
+  const letGo = useCallback((id: HeroOptionId) => {
+    window.clearTimeout(lingers.current[id]);
+    lingers.current[id] = window.setTimeout(() => {
+      setReach((list) => list.filter((x) => x !== id));
+    }, REACH_LINGER_MS);
+  }, []);
+
+  useEffect(() => {
+    const pending = lingers.current;
+    return () => Object.values(pending).forEach(window.clearTimeout);
+  }, []);
+
+  /** Whether an option's pill is out of its dot. */
+  const pillOut = (id: HeroOptionId) =>
+    stage === "out" ||
+    (stage === "rest" &&
+      (!dotLed || reach.includes(id) || open === id || closing.includes(id)));
 
   useEffect(() => {
     if (!open) return;
@@ -328,17 +384,33 @@ export function HeroOptions() {
     <>
       {HERO_OPTIONS.map((option) => {
         const [left, top, , height] = option.pill;
+        const [dotX, dotY] = option.dot;
         const expanded = open === option.id;
         const folding = closing.includes(option.id);
+        const out = pillOut(option.id);
         const panelId = `hero-option-${option.id}`;
         return (
           <div key={option.id} className={styles.option}>
+            {/* The painted anchor, made live: a hover and tap target over the
+                dot, and the pulse. Decoration to assistive technology, which
+                has the pill button (focus brings a docked pill out). */}
+            <span
+              aria-hidden="true"
+              data-hero-option=""
+              className={styles.dot}
+              data-rest={breathing && dotLed && !out ? "true" : undefined}
+              style={{ left: `${dotX * 100}%`, top: `${dotY * 100}%` }}
+              onPointerEnter={() => reachFor(option.id)}
+              onPointerLeave={() => letGo(option.id)}
+              onClick={() => reachFor(option.id)}
+            />
             <button
               ref={(el) => {
                 buttons.current[option.id] = el;
               }}
               type="button"
               data-hero-option=""
+              data-pill={out ? "shown" : "hidden"}
               className={styles.hotspot}
               style={
                 {
@@ -348,11 +420,20 @@ export function HeroOptions() {
                      the stylesheet hangs it from this line, so a smaller pill
                      still sits exactly where the artwork put the old one. */
                   "--pill-cy": `${(top + height / 2) * 100}%`,
+                  /* The dot, from the pill's left edge and its centre line,
+                     in vw (the picture spans the viewport): the point the pill
+                     grows out of and docks back into. */
+                  "--dot-ox": `${((dotX - left) * 100).toFixed(3)}`,
+                  "--dot-oy": `${((dotY - (top + height / 2)) * ASPECT * 100).toFixed(3)}`,
                 } as CSSProperties
               }
               aria-label={`${option.label} — ${expanded ? "hide" : "show"} details`}
               aria-expanded={expanded}
               aria-controls={panelId}
+              onPointerEnter={() => reachFor(option.id)}
+              onPointerLeave={() => letGo(option.id)}
+              onFocus={() => reachFor(option.id)}
+              onBlur={() => letGo(option.id)}
               onClick={() =>
                 expanded ? beginClose(option.id) : beginOpen(option.id)
               }
@@ -385,10 +466,7 @@ export function HeroOptions() {
               }}
               data-open={expanded}
               data-closing={folding ? "true" : undefined}
-              data-intro={intro === "off" ? undefined : intro}
-              aria-hidden={
-                (intro !== "off" && !expanded) || folding ? true : undefined
-              }
+              aria-hidden={folding ? true : undefined}
               className={`${styles.panel} ${option.tier === "layer" ? styles.layer : ""}`}
               onAnimationEnd={(event) => {
                 // Only the panel's own animation, not a child's.

@@ -276,6 +276,12 @@ export interface HeroOption {
   /** The painted pill: left, top, width, height as fractions of the image. */
   readonly pill: readonly [number, number, number, number];
   /**
+   * The gold anchor dot painted at the foot of the pill's arc: x, y of its
+   * centre as fractions of the image, measured off the file. The resting
+   * hero is dot-led and each pill grows out of this point (HeroOptions).
+   */
+  readonly dot: readonly [number, number];
+  /**
    * Pose analysis is the shared analysis layer under both products, not a
    * third product — its panel is deliberately smaller and quieter.
    */
@@ -346,6 +352,7 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     id: "securevision",
     label: "SecureVision",
     pill: [653 / 1672, 175.5 / 941, 193 / 1672, 50 / 941],
+    dot: [620 / 1672, 287 / 941],
     tier: "product",
     metrics: [
       {
@@ -376,6 +383,7 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     id: "mobilitycare",
     label: "MobilityCare",
     pill: [999.5 / 1672, 175.5 / 941, 194.5 / 1672, 49 / 941],
+    dot: [969 / 1672, 288 / 941],
     tier: "product",
     metrics: [
       {
@@ -444,6 +452,7 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     id: "pose",
     label: "Pose analysis",
     pill: [1379.5 / 1672, 176 / 941, 205.5 / 1672, 49.5 / 941],
+    dot: [1352 / 1672, 286 / 941],
     tier: "layer",
     metrics: [
       {

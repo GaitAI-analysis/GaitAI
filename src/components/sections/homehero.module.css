@@ -290,6 +290,157 @@
   outline-offset: 3px;
 }
 
+/* ── The anchor dots, and the pills that come out of them ──
+   The resting hero is dot-led: each option is the small gold anchor painted
+   at the foot of its arc, and its pill comes out of that dot when the visitor
+   reaches for it (hover, focus, tap) or while its panel is open. On the first
+   load all three pills come out together and dock back, once, so the visitor
+   learns what the dots are:
+
+     0-1000ms      dots only
+     1000-1450ms   all three pills emerge from their dots
+     1450-1800ms   held
+     1800-2050ms   dock back (250ms)
+     then          dots, softly pulsing
+
+   HeroOptions drives it with `data-pill` on each pill and `data-rest` on
+   each dot; everything that moves is here, as transitions, so a hover that
+   arrives halfway through a reveal simply reverses it instead of queueing.
+
+   THE PILL GROWS FROM ITS DOT. `transform-origin` is the dot's position in
+   the pill's own box: the painted dot sits below and to the left of the
+   pill, at the other end of the arc, so scaling up about it makes the pill
+   travel out along the arc as it grows rather than swell in place. The
+   offsets are in vw because the picture spans the viewport (see .caption);
+   `--pill-h / 2` converts the dot's height above the pill's centre line into
+   a height above its top edge. Scale only: no layout property moves, so
+   there is no shift.
+
+   Where hover is not a thing (touch) and on anything narrower than 1024px,
+   where a painted dot is three pixels across, the pills come out once and
+   stay out: the idea survives, the dead end does not. */
+.hotspot {
+  transform-origin: calc(var(--dot-ox) * 1vw) calc(var(--dot-oy) * 1vw + var(--pill-h) / 2);
+  transition:
+    color 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    translate 220ms ease,
+    transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Docked into its dot: still in the tab order (focus brings it out, below),
+   never in the way of a press. The collapse is quicker than the reveal and
+   leaves on a crisper curve, so it reads as the pill being put away. */
+.hotspot[data-pill="hidden"] {
+  opacity: 0;
+  transform: scale(0.16);
+  pointer-events: none;
+  transition:
+    color 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease,
+    box-shadow 220ms ease,
+    translate 220ms ease,
+    transform 250ms cubic-bezier(0.5, 0, 0.3, 1),
+    opacity 180ms cubic-bezier(0.4, 0, 1, 1) 40ms;
+}
+
+/* A keyboard visitor reaches a docked pill by tabbing to it. */
+.hotspot[data-pill="hidden"]:focus-visible {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* The dot is an overlay on the painted one: the same warm ring, drawn
+   exactly over it, so the pulse is the artwork's own dot breathing rather
+   than a second dot beside it. The element itself is a comfortable hover
+   and tap target around the mark; it is decoration to assistive technology,
+   which is given the pill button instead. */
+.dot {
+  position: absolute;
+  z-index: 3;
+  width: clamp(1.75rem, 2.2vw, 2.5rem);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dot::before,
+.dot::after {
+  content: "";
+  grid-area: 1 / 1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* The core: the painted dot's own warm white centre and gold rim. */
+.dot::before {
+  width: 0.62vw;
+  min-width: 7px;
+  aspect-ratio: 1;
+  background: radial-gradient(
+    circle,
+    rgb(255 250 240 / 0.95) 0 34%,
+    rgb(233 205 150 / 0.9) 35% 62%,
+    rgb(214 180 118 / 0.55) 63% 100%
+  );
+  box-shadow: 0 0 0 1px rgb(201 170 110 / 0.35);
+  opacity: 0.85;
+}
+
+/* The halo: a faint champagne ring that breathes out from the dot. */
+.dot::after {
+  width: 1.3vw;
+  min-width: 14px;
+  aspect-ratio: 1;
+  border: 1px solid rgb(206 174 112 / 0.5);
+  background: radial-gradient(circle, rgb(236 212 162 / 0.18), rgb(236 212 162 / 0) 70%);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dot[data-rest="true"]::before {
+    animation: heroDotPulse 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+
+  .dot[data-rest="true"]::after {
+    animation: heroDotHalo 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+}
+
+@keyframes heroDotPulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes heroDotHalo {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+}
+
 /* ── Detail panels ── */
 .panel {
   box-sizing: border-box;
@@ -314,13 +465,11 @@
 /* Visible while it is open, and — the point of all this — for the whole
    780ms it spends folding back into its pill. */
 .panel[data-open="true"],
-.panel[data-closing="true"],
-.panel[data-intro] {
+.panel[data-closing="true"] {
   visibility: visible;
 }
 
-.panel[data-open="true"],
-.panel[data-intro="show"] {
+.panel[data-open="true"] {
   opacity: 1;
 }
 
@@ -377,18 +526,8 @@
    Only transform, clip-path and opacity animate. Nothing here touches
    width, height, top or left.
 
-   -- The introduction --
-   On the first load all three panels are already open, so the visitor sees
-   what each pill holds before deciding which to press. HeroOptions runs it
-   once per page load and only from 1600px up, where each panel sits beside
-   its own pill; below that they are all the same bottom sheet, so there is
-   nothing to show three of. `show` is a resting state, not an entrance, so
-   nothing races the photograph. The fold back is staggered left to right by
-   55ms a panel: far too little to read as three animations, just enough
-   that they do not all leave on the same frame. */
-.panel[data-intro="show"] {
-  animation: none;
-}
+   The page-load introduction is the PILLS' now, not the panels' -- see
+   "The anchor dots" below. */
 
 .panel {
   transform-origin: var(--fold-x, 50%) 0%;
@@ -404,24 +543,18 @@
       both;
   }
 
-  .panel[data-closing="true"],
-  .panel[data-intro="fold"] {
+  .panel[data-closing="true"] {
     animation: heroPanelDock 780ms both;
-    animation-delay: var(--intro-delay, 0ms);
   }
 
   .panel[data-closing="true"] .panelContent,
-  .panel[data-closing="true"] .close,
-  .panel[data-intro="fold"] .panelContent,
-  .panel[data-intro="fold"] .close {
-    animation: heroContentRetract 150ms cubic-bezier(0.4, 0, 0.2, 1)
-      var(--intro-delay, 0ms) both;
+  .panel[data-closing="true"] .close {
+    animation: heroContentRetract 150ms cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 
   /* Too far from its pill for the journey to read as a gesture -- the hero
      has been scrolled away. Fall back to the quiet version. */
-  .panel[data-dock="off"][data-closing="true"],
-  .panel[data-dock="off"][data-intro="fold"] {
+  .panel[data-dock="off"][data-closing="true"] {
     animation: heroPanelFade 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
   }
 
@@ -838,10 +971,6 @@
   }
 }
 
-/* The introduction never starts under reduced motion — HeroOptions checks
-   before it runs. These two rules are the belt: the selectors above are more
-   specific than the blanket reduced-motion rules below, so without them a
-   future change that let the intro through would animate anyway. */
 /* Reduced motion gets none of it: no page-load reveal (HeroOptions checks
    before it starts, and these rules are the belt), no fold, no travel, no
    morph. Opening and closing are a short opacity change and nothing else.
@@ -850,7 +979,6 @@
   .panel,
   .panel[data-open="true"],
   .panel[data-closing="true"],
-  .panel[data-intro],
   .panel .panelContent,
   .panel .close,
   .hotspot,
@@ -920,6 +1048,7 @@
 
 /* No pills are painted into the night picture: nothing to click. */
 :global(.dark) .hotspot,
+:global(.dark) .dot,
 :global(.dark) .panel,
 :global(.dark) .scrim {
   display: none;

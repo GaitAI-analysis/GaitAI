@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { HERO_SCENE } from "@/data/home-hero";
 import { ThemePicture } from "@/components/ui/ThemePicture";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
@@ -41,10 +40,11 @@ export function Hero() {
       {/* Dark only: blur, deeper ramp and fog behind the words — see herohaze. */}
       <div aria-hidden="true" className={haze.haze} />
 
-      {/* One caption for both themes. The eyebrow, the dark paragraph and the
-          two actions are dark-only (hidden by CSS in light, so the light hero
-          is exactly as approved); no branch in the markup, so nothing can
-          disagree between the server HTML and hydration. */}
+      {/* One caption for both themes. The eyebrow and the dark paragraph are
+          dark-only (hidden by CSS in light, so the light hero is exactly as
+          approved); no branch in the markup, so nothing can disagree between
+          the server HTML and hydration. The dark hero has no calls to action
+          by the founder's decision (2026-09-24) — do not add any back. */}
       <div className={styles.caption}>
         <p className={`${styles.eyebrow} ${styles.darkOnly}`}>{HERO_SCENE.dark.eyebrow}</p>
         <h1 id="home-hero-title" className={styles.title}>
@@ -56,17 +56,6 @@ export function Hero() {
         <p className={`${styles.support} ${styles.darkOnly}`}>
           {HERO_SCENE.dark.support.join(" ")}
         </p>
-        <div className={`${styles.actions} ${styles.darkOnly}`}>
-          <Link href={HERO_SCENE.dark.primary.href} className={`${styles.btn} ${styles.primary}`}>
-            {HERO_SCENE.dark.primary.label}
-            <span aria-hidden="true" className={styles.arrow}>
-              →
-            </span>
-          </Link>
-          <Link href={HERO_SCENE.dark.secondary.href} className={`${styles.btn} ${styles.secondary}`}>
-            {HERO_SCENE.dark.secondary.label}
-          </Link>
-        </div>
       </div>
 
       <div className={styles.stage}>

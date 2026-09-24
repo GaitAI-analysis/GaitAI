@@ -10,6 +10,9 @@
  *
  *   ERRORS  (exit 1)
  *     - a registered dark file, poster or light file that does not exist
+ *     - a light-only film (`lightOnlyMedia`) with a missing file or poster, no
+ *       stated dark-mode answer, or (with ffprobe) encodes that disagree with
+ *       each other or with the declared width/height
  *     - a video under public/assets/videos that is not registered at all
  *     - a pair whose light file has different dimensions / frame count /
  *       duration from the dark one (only when ffprobe is on PATH); a pair
@@ -74,7 +77,7 @@ const hasFfprobe = spawnSync("ffprobe", ["-version"], { encoding: "utf8" }).stat
 async function main() {
   const modPath = path.join(root, "src", "lib", "theme-media.ts");
   if (!existsSync(modPath)) throw new Error("missing src/lib/theme-media.ts");
-  const { themeMedia } = await import(pathToFileURL(modPath).href);
+  const { themeMedia, lightOnlyMedia = {} } = await import(pathToFileURL(modPath).href);
 
   const entries = Object.entries(themeMedia);
   const registeredDark = new Set();
@@ -141,6 +144,34 @@ async function main() {
     }
   }
 
+  /* Light-only films: no dark edition, so they are checked on their own terms. */
+  let lightOnly = 0;
+  for (const [key, entry] of Object.entries(lightOnlyMedia)) {
+    lightOnly++;
+    if (!entry.darkShows || entry.darkShows.trim().length < 20) err(`${key}: a light-only film must say what dark mode shows instead`);
+    const files = [entry.light, entry.lightAlt].filter(Boolean);
+    for (const f of files) {
+      registeredLight.add(f);
+      if (!onDisk(f)) err(`${key}: light-only film missing on disk: ${f}`);
+    }
+    registeredLight.add(entry.poster);
+    if (!onDisk(entry.poster)) err(`${key}: poster missing on disk: ${entry.poster}`);
+    if (hasFfprobe) {
+      const probes = files.filter(onDisk).map((f) => [f, probe(f)]);
+      for (const [f, pr] of probes) {
+        if (pr && (pr.width !== entry.width || pr.height !== entry.height)) {
+          err(`${key}: ${f} is ${pr.width}x${pr.height}, the entry declares ${entry.width}x${entry.height}`);
+        }
+      }
+      if (probes.length === 2 && probes[0][1] && probes[1][1]) {
+        const [a, b] = [probes[0][1], probes[1][1]];
+        if (a.frames !== b.frames || Math.abs(a.duration - b.duration) > 0.05) {
+          err(`${key}: the two encodes are not the same frames — ${a.frames}f ${a.duration.toFixed(2)}s vs ${b.frames}f ${b.duration.toFixed(2)}s`);
+        }
+      }
+    }
+  }
+
   /* Discovery: every video on disk must be accounted for. */
   const videoFiles = existsSync(VIDEO_ROOT) ? walk(VIDEO_ROOT).filter((f) => VIDEO_EXT.has(path.extname(f).toLowerCase())) : [];
   const unregistered = [];
@@ -170,7 +201,7 @@ async function main() {
     const rel = "/" + path.relative(PUBLIC, f).split(path.sep).join("/");
     return !registeredLight.has(rel) && !/-light\.[a-z0-9]+$/i.test(rel);
   }).length;
-  console.log(`theme-media: ${entries.length} entries (${pairs} pairs, ${islands} islands), ${videos} dark videos on disk${hasFfprobe ? ", ffprobe geometry check on" : ", ffprobe not found — geometry check skipped"}`);
+  console.log(`theme-media: ${entries.length} entries (${pairs} pairs, ${islands} islands) + ${lightOnly} light-only, ${videos} dark videos on disk${hasFfprobe ? ", ffprobe geometry check on" : ", ffprobe not found — geometry check skipped"}`);
   for (const w of warnings) console.log(`\n  WARNING  ${w}`);
   for (const e of errors) console.log(`\n  ERROR    ${e}`);
   const failing = errors.length + (STRICT ? warnings.length : 0);

@@ -323,6 +323,50 @@ function publicationArt(stem: string): ThemeMediaPair {
 
 export type ThemeMediaKey = keyof typeof themeMedia;
 
+/* ── LIGHT-ONLY FILMS ──────────────────────────────────────────────────────
+ * A film that exists ONLY in light mode, because dark shows something else
+ * entirely (not a dark edition of the same frames). It is not a `pair` — there
+ * is no dark film to pair it with — and not an `island` — it is not a dark
+ * asset shown in both themes. It gets its own list so every consumer of
+ * `themeMedia` can keep assuming each entry has a dark file, and
+ * `check:media` validates these too: files on disk, the reason filled in,
+ * and (with ffprobe) both encodes the declared size and the same frames. */
+
+export interface ThemeMediaLightOnly {
+  kind: "light-only";
+  type: "video";
+  /** H.264 — plays everywhere, Safari included. */
+  light: string;
+  /** Optional VP9 edition of the SAME frames, preferred where supported. */
+  lightAlt?: string;
+  /** The film's first frame, exactly, so the still and the film are interchangeable. */
+  poster: string;
+  /** What dark mode shows instead, and why the film has no dark edition. Required. */
+  darkShows: string;
+  width: number;
+  height: number;
+}
+
+export const lightOnlyMedia = {
+  /**
+   * The homepage hero loop (2026-09-24): the founder's three-zone artwork —
+   * SecureVision public space, MobilityCare clinic, the walking model figure —
+   * brought to life as an 8 s seamless loop. Played by `HeroMotion` over the
+   * poster (a 2403x770 still in images/hero, served through `ThemePicture`).
+   */
+  homeHeroMotion: {
+    kind: "light-only",
+    type: "video",
+    light: "/assets/videos/home/home-hero-motion-light.mp4",
+    lightAlt: "/assets/videos/home/home-hero-motion-light.webm",
+    poster: "/images/hero/home-hero-motion-light-poster.webp",
+    darkShows:
+      "Dark shows the night atrium photograph (home-hero-scene-dark.webp), a different scene; the daylight artwork has no night edition.",
+    width: 1920,
+    height: 616,
+  },
+} as const satisfies Record<string, ThemeMediaLightOnly>;
+
 /** Every entry, looked up by its dark path — for data that names a file rather than a key. */
 export const themeMediaByDarkPath: ReadonlyMap<string, ThemeMediaEntry> = new Map(
   Object.values(themeMedia as Record<string, ThemeMediaEntry>).map((entry) => [entry.dark, entry]),

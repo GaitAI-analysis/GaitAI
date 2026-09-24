@@ -12,11 +12,15 @@
    sit, a copy column and a scroll cue. Nothing is drawn over the photograph
    and nothing is repeated from the site header.
 
-   THERE IS NO CTA HERE. The row of three pills came out on 2026-09-24: the
-   first screen states what the company is, and the product links live in the
-   sections below. Everything that styled them went with them — do not bring
-   `.action` back to re-space the column; the column is centred, so its own
-   height is the spacing.
+   TWO ACTIONS, NOT A MENU. The three product pills came out on 2026-09-24;
+   later that day the founder asked for exactly two calls to action — Explore
+   GaitAI and See how it works — in the hero's soft indigo, never the
+   electric ramp. They are `.actions` below.
+
+   LIGHT IS A PANORAMA. From later on 2026-09-24 the light scene is a 3.12:1
+   animated artwork (see Hero.tsx), so light gets its own geometry at the end
+   of this file: the artwork's height on wide screens, anchored right, and a
+   stacked copy-then-strip layout below 1280px. Dark keeps its layout.
 
    THE SCRIM IS LOCAL. It is a horizontal gradient that is opaque enough to
    read on at the left edge and completely gone by 62%, so the clinician,
@@ -69,11 +73,16 @@
   background: #eef3f9;
 }
 
-/* ── The picture ── */
-.photo {
+/* ── The picture (and, in light, the film over it) ── */
+.media {
   position: absolute;
   inset: 0;
   z-index: 0;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
   display: block;
 }
 
@@ -184,37 +193,38 @@
    "intelligence" and the "p" of "platform." receive no paint at all and
    lose their tails. The padding gives the gradient that strip; the matching
    negative margin means the box the LAYOUT sees is unchanged, so nothing
-   below moves. Do not remove one without the other. */
+   below moves. Do not remove one without the other.
+
+   The accent is the headline's second sentence, on its own line, in a soft
+   indigo in both themes — the brief (2026-09-24) is "premium blue, never
+   electric". Dark lifts it to a periwinkle so it holds contrast on the
+   night scene; light's ramp is with the panorama rules at the end. */
 .accent {
+  display: block;
   padding-bottom: 0.2em;
   margin-bottom: -0.2em;
-  background-image: linear-gradient(
-    100deg,
-    var(--hero-electric, #3fa9f5) 0%,
-    var(--hero-blue, #2f6fed) 48%,
-    var(--hero-cobalt, #3157d5) 100%
-  );
+  background-image: linear-gradient(100deg, #9aaeea 0%, #aebcf0 60%, #c0caf3 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
 }
 
-.lede {
-  margin: clamp(0.9rem, 1.8svh, 1.4rem) 0 0;
-  font-size: clamp(1.125rem, 1.7vw, 1.6rem);
-  font-weight: 560;
-  line-height: 1.24;
-  letter-spacing: -0.022em;
-  color: #e3e9f2;
+.eyebrow {
+  margin: 0 0 clamp(0.75rem, 1.6svh, 1.25rem);
+  font-size: clamp(0.6875rem, 0.7vw, 0.8125rem);
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #aab6c9;
 }
 
-:global(.light) .lede {
-  color: #0b1739;
+:global(.light) .eyebrow {
+  color: #4a5875;
 }
 
 .support {
-  margin: clamp(0.7rem, 1.4svh, 1.1rem) 0 0;
+  margin: clamp(0.9rem, 1.8svh, 1.4rem) 0 0;
   max-width: 34rem;
   font-size: clamp(0.95rem, 1.05vw, 1.0625rem);
   line-height: 1.6;
@@ -223,6 +233,102 @@
 
 :global(.light) .support {
   color: #475467;
+}
+
+/* The paragraph's approved break applies only on the light panorama, where
+   the column is sized for it; everywhere else the text wraps freely. */
+.wideBreak {
+  display: none;
+}
+
+/* ── The two actions ──
+   Soft indigo, not the electric ramp: the brief for this hero is "premium
+   blue", and the primary is the only filled shape on the screen. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: clamp(1.25rem, 3svh, 2.1rem);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  border-radius: 999px;
+  font-size: 0.975rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #8fa3dc;
+  outline-offset: 3px;
+}
+
+.primary {
+  color: #ffffff;
+  background: linear-gradient(180deg, #4862b0 0%, #3a529c 100%);
+  box-shadow:
+    0 10px 24px rgb(58 82 156 / 0.26),
+    inset 0 1px 0 rgb(255 255 255 / 0.18);
+}
+
+.primary:hover {
+  background: linear-gradient(180deg, #506bb9 0%, #405aa6 100%);
+  box-shadow:
+    0 12px 28px rgb(58 82 156 / 0.32),
+    inset 0 1px 0 rgb(255 255 255 / 0.2);
+  transform: translateY(-1px);
+}
+
+.arrow {
+  transition: transform 160ms ease;
+}
+
+.primary:hover .arrow {
+  transform: translateX(3px);
+}
+
+.secondary {
+  color: #e3e9f2;
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.28);
+}
+
+.secondary:hover {
+  background: rgb(255 255 255 / 0.12);
+  border-color: rgb(255 255 255 / 0.42);
+}
+
+:global(.light) .secondary {
+  color: #22335a;
+  background: rgb(255 255 255 / 0.72);
+  border-color: rgb(58 82 156 / 0.28);
+}
+
+:global(.light) .secondary:hover {
+  background: rgb(255 255 255 / 0.92);
+  border-color: rgb(58 82 156 / 0.46);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .arrow {
+    transition: none;
+  }
+  .primary:hover,
+  .primary:hover .arrow {
+    transform: none;
+  }
 }
 
 /* ── The scroll cue ──
@@ -325,4 +431,163 @@
 .anchor {
   display: block;
   height: 0;
+}
+
+/* =========================================================================
+   LIGHT: THE ANIMATED PANORAMA
+   -------------------------------------------------------------------------
+   The light artwork is 2403x770 (3.12:1): a 360px haze band for the copy,
+   then public space, clinic and the walking model figure. It is never
+   cropped from the right — the model figure is the point — so the picture
+   and the film anchor to their right edge and a narrow window gives up the
+   haze band first.
+   ========================================================================= */
+
+/* The film sits exactly over the still (its first frame) and fades in only
+   once it is playing — see HeroMotion. It never exists in dark. */
+.motion {
+  position: absolute;
+  inset: 0;
+  display: none;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 100% 50%;
+  opacity: 0;
+  transition: opacity 600ms ease;
+  pointer-events: none;
+}
+
+:global(.light) .motion {
+  display: block;
+}
+
+:global(.light) .motion[data-playing="true"] {
+  opacity: 1;
+}
+
+:global(.light) .accent {
+  background-image: linear-gradient(100deg, #3a55a4 0%, #4c63b3 55%, #6a7cc2 100%);
+}
+
+/* Panoramic widths: the hero is the artwork's own height (32.05vw), with a
+   floor so the copy always fits; the copy hugs the haze band instead of the
+   centred container, and the scrim only has to cover that band. The layout
+   starts at 1280px because below that the floor forces a crop deep enough
+   to put the SecureVision walkers under the paragraph. */
+@media (min-width: 1280px) {
+  :global(.light) .hero {
+    min-height: 0;
+    height: clamp(26rem, 32.05vw, 52rem);
+    background: #f3f6fa;
+  }
+
+  :global(.light) .photo img {
+    object-position: 100% 50%;
+  }
+
+  /* A band for the paragraph and buttons, plus a soft ellipse that reaches
+     a little further along the headline's rows, so the end of "platform."
+     lands on washed foliage rather than on a tree. */
+  :global(.light) .scrim {
+    background:
+      radial-gradient(
+        ellipse 34% 30% at 26% 42%,
+        rgb(247 249 252 / 0.62) 0%,
+        rgb(247 249 252 / 0.3) 55%,
+        rgb(247 249 252 / 0) 100%
+      ),
+      linear-gradient(
+        90deg,
+        rgb(247 249 252 / 0.9) 0%,
+        rgb(247 249 252 / 0.78) 22%,
+        rgb(247 249 252 / 0.42) 34%,
+        rgb(247 249 252 / 0) 44%
+      );
+  }
+
+  :global(.light) .inner {
+    max-width: none;
+    margin: 0;
+    padding-block: 0;
+    padding-inline: clamp(1.75rem, 5.5vw, 8.25rem) 0;
+    left: 0;
+    top: 0;
+  }
+
+  :global(.light) .copy {
+    max-width: min(48vw, 56rem);
+  }
+
+  /* Four approved lines, so the longest ("intelligence platform.") is only
+     ~11em: the size can grow with the frame and still end left of the first
+     walker at every width from 1280 up. */
+  :global(.light) .title {
+    font-size: clamp(2.25rem, 2.75vw, 3.5rem);
+    line-height: 1.07;
+    letter-spacing: -0.032em;
+  }
+
+  /* Measured against the first walker: the paragraph's right edge stays
+     left of her at every width from 1280 up. Below 1600 that needs a
+     narrower measure (three lines); from 1600 the approved two-line break
+     fits, so it takes over. */
+  :global(.light) .support {
+    max-width: clamp(24rem, 30vw, 36rem);
+    font-size: clamp(0.95rem, 0.95vw, 1.1875rem);
+  }
+
+  :global(.light) .cue {
+    translate: none;
+    max-width: none;
+    margin: 0;
+    padding-inline-start: clamp(1.75rem, 5.5vw, 8.25rem);
+  }
+}
+
+@media (min-width: 1600px) {
+  :global(.light) .support {
+    max-width: none;
+  }
+
+  :global(.light) .wideBreak {
+    display: inline;
+  }
+}
+
+/* Narrow light screens: copy first, the artwork as a strip beneath it. The
+   strip is the supplied picture's own 2043:770 box, which `cover` anchored
+   right fills with exactly the part after the haze band. No scrim, no cue —
+   the words sit on the page's ground, not on the picture. */
+@media (max-width: 1279px) {
+  :global(.light) .hero {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    background: #f4f7fb;
+  }
+
+  :global(.light) .media {
+    position: relative;
+    inset: auto;
+    order: 2;
+    width: 100%;
+    aspect-ratio: 2043 / 770;
+  }
+
+  :global(.light) .photo img {
+    object-position: 100% 50%;
+  }
+
+  :global(.light) .scrim,
+  :global(.light) .cue {
+    display: none;
+  }
+
+  :global(.light) .inner {
+    order: 1;
+    left: 0;
+    top: 0;
+    padding-block: clamp(2.5rem, 7vw, 4rem) clamp(1.75rem, 5vw, 2.5rem);
+  }
 }

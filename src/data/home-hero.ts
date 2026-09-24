@@ -29,6 +29,7 @@
  */
 
 import type { HeroPanelId } from "@/lib/hero-panels";
+import { lightOnlyMedia } from "@/lib/theme-media";
 
 /** The approved artwork's canvas. The hero holds this ratio at every width. */
 export const HERO_CANVAS = { width: 1774, height: 887 } as const;
@@ -222,25 +223,44 @@ export const HERO_HEADLINE = {
 } as const;
 
 /**
- * THE HERO SCENE (2026-09-24). One approved photograph per theme — daylight
- * and night of the same atrium — with no type and no UI baked into either,
- * because the words are real text over them now. Replaces the flattened
- * light banner, and with it the three-panel composition's own artwork.
+ * THE HERO SCENE. Dark: the night atrium photograph (2026-09-24), unchanged.
+ * Light (2026-09-24, later): the founder's wide three-zone artwork — public
+ * space (SecureVision), clinic (MobilityCare), and the walking model figure —
+ * brought to life as an 8-second seamless loop. The still is the loop's first
+ * frame exactly, so the picture and the film are interchangeable: the still
+ * is the LCP element and the reduced-motion / narrow-screen answer, and the
+ * film fades in over it only when it is actually playing.
  *
- * The copy is the founder's, set here rather than in the component so the
- * words and the pictures stay in one place. `accent` is the run that takes
- * the electric ramp; the rest of the headline is the theme's ink.
+ * THE LIGHT ARTWORK IS WIDER THAN THE SUPPLIED FILE. The supplied picture is
+ * 2043x770; the scene is 2403x770 because a 360px band of the picture's own
+ * haze was extended to the left, so the copy has room without sitting on the
+ * people. The band is the first thing a narrow crop gives up: the hero
+ * anchors the picture to its RIGHT edge.
+ *
+ * Every word is real text (below); nothing is baked into the still or the film.
+ * The source pipeline (warp frames, 3D walker, boards) lives outside the repo;
+ * see Hero.tsx for what the film is and is not.
  */
 export const HERO_SCENE = {
-  lightSrc: "/images/hero/home-hero-scene-light.webp",
-  lightNarrowSrc: "/images/hero/home-hero-scene-light-1200.webp",
+  lightSrc: "/images/hero/home-hero-motion-light-poster.webp",
+  lightNarrowSrc: "/images/hero/home-hero-motion-light-poster-1200.webp",
   darkSrc: "/images/hero/home-hero-scene-dark.webp",
   darkNarrowSrc: "/images/hero/home-hero-scene-dark-1200.webp",
   width: 1672,
   height: 941,
-  lead: "One ",
-  accent: "movement intelligence platform.",
-  lede: "For health, safety and identity.",
-  support:
-    "Turning human movement into meaningful insight — from clinical mobility to safer public spaces.",
+  /** The light loop, registered in lib/theme-media.ts (`lightOnlyMedia`) so
+      check:media tracks it. First frame = `lightSrc`. */
+  lightMotion: lightOnlyMedia.homeHeroMotion,
+  eyebrow: "Human movement intelligence",
+  /* Each array is one sentence, one entry per approved line. The breaks are
+     the founder's, not the browser's. */
+  title: ["One movement", "intelligence platform."],
+  accent: ["For health, safety", "and identity."],
+  /* Two lines on the panoramic layout; free to wrap anywhere narrower. */
+  support: [
+    "Transforming human movement into actionable insight",
+    "for healthier lives, safer communities and a more open world.",
+  ],
+  primary: { href: "/#overview", label: "Explore GaitAI" },
+  secondary: { href: "/#technology", label: "See how it works" },
 } as const;

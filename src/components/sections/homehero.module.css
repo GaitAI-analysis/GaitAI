@@ -320,7 +320,13 @@
    where a painted dot is three pixels across, the pills come out once and
    stay out: the idea survives, the dead end does not. */
 .hotspot {
-  transform-origin: calc(var(--dot-ox) * 1vw) calc(var(--dot-oy) * 1vw + var(--pill-h) / 2);
+  /* Where the pill grows out of and docks back into: its own dot. The
+     vertical leg is a share of the picture's HEIGHT expressed in vw, so it
+     depends on the plate's aspect — 941/1672 by day, 894/1759 at night —
+     and the two are emitted separately. Use the wrong one and the pill
+     docks to a point a few percent above or below its dot. */
+  transform-origin: calc(var(--dot-ox) * 1vw)
+    calc(var(--dot-oy) * 1vw + var(--pill-h) / 2);
   transition:
     color 220ms ease,
     border-color 220ms ease,
@@ -398,10 +404,17 @@
   }
 }
 
-/* The night picture has no connectors painted or drawn: its hero is the
-   caption, and the dots and pills are light-only. */
-:global(.dark) .connectors {
-  display: none;
+/* The connectors serve both pictures: the paths are fractions in a unit
+   viewBox, so the stage stretches them onto whichever plate is showing.
+   Only the ink changes — champagne reads on the day plate, and on the night
+   one it needs to be a shade cooler and a shade brighter to sit on a dark
+   sky without glowing. */
+:global(.dark) .connector {
+  stroke: rgb(226 205 160 / 0.5);
+}
+
+:global(.dark) .connector[data-live="true"] {
+  stroke: rgb(238 220 180 / 0.78);
 }
 
 /* The dot is an overlay on the painted one: the same warm ring, drawn
@@ -457,63 +470,105 @@
   min-width: 14px;
   aspect-ratio: 1;
   border: 1px solid rgb(206 174 112 / 0.5);
-  background: radial-gradient(circle, rgb(236 212 162 / 0.18), rgb(236 212 162 / 0) 70%);
+  background: radial-gradient(
+    circle,
+    rgb(236 212 162 / 0.18),
+    rgb(236 212 162 / 0) 70%
+  );
   opacity: 0;
 }
 
-/* Reaching for a dot: the mark brightens and its halo comes up, so the hand
-   knows it has found something before the pill has finished arriving. The
-   pulse has already stopped by then — `data-rest` goes away as soon as a
-   pill is out — so these are the resting state, just warmer. */
+/* Reaching for a dot: the mark brightens and grows a little, and its halo
+   comes up, so the hand knows it has found something before the card has
+   finished arriving. */
 .dot:hover::before {
   opacity: 1;
-  box-shadow: 0 0 0 1px rgb(201 170 110 / 0.6);
+  transform: scale(1.14);
+  box-shadow: 0 0 0 1px rgb(201 170 110 / 0.65);
 }
 
 .dot:hover::after {
-  opacity: 0.45;
+  opacity: 0.5;
+  transform: scale(1.05);
+}
+
+/* ── ACTIVE: this dot's card is up ──
+   Steady, and a shade brighter than rest. Not a pulse: while the card is
+   open the dot is a statement of where it came from, and while the card is
+   folding back the dot is the thing it is folding INTO — a beat competing
+   with that is two animations arguing about one point. The pulse resumes
+   only once the card has landed. */
+.dot[data-active="true"]::before {
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 1px rgb(214 184 124 / 0.7);
+}
+
+.dot[data-active="true"]::after {
+  opacity: 0.4;
   transform: scale(1);
 }
 
-/* The resting breath. Both halves share one duration and one ease so the
-   core and its halo stay in step, and `--dot-delay` walks the three dots a
-   quarter-second apart: on one beat they read as a machine, offset they read
-   as three separate things that happen to be alive. */
+/* ── The resting breath ──
+   Both halves share one duration and one ease so the core and its halo stay
+   in step, and `--dot-delay` walks the three dots a quarter-second apart: on
+   one beat they read as a machine, offset they read as three separate things
+   that happen to be alive.
+
+   It runs on touch too. There is no hover on a phone to discover a dot
+   with, so the breath is the only thing saying it can be pressed.
+
+   The breath is asymmetric on purpose — it comes up to full and settles
+   back to a little above where it started (0.45 → 1 → 0.55) rather than
+   returning to its own floor. A symmetric fade reads as a blinking
+   indicator; this reads as something alive. */
 @media (prefers-reduced-motion: no-preference) {
   .dot[data-rest="true"]::before {
-    animation: heroDotPulse 1.8s cubic-bezier(0.45, 0, 0.55, 1) var(--dot-delay, 0s)
-      infinite;
+    animation: heroDotPulse 2s cubic-bezier(0.45, 0, 0.55, 1)
+      var(--dot-delay, 0s) infinite;
   }
 
   .dot[data-rest="true"]::after {
-    animation: heroDotHalo 1.8s cubic-bezier(0.45, 0, 0.55, 1) var(--dot-delay, 0s)
-      infinite;
+    animation: heroDotHalo 2s cubic-bezier(0.45, 0, 0.55, 1)
+      var(--dot-delay, 0s) infinite;
   }
 }
 
 @keyframes heroDotPulse {
-  0%,
-  100% {
-    opacity: 0.65;
+  0% {
+    opacity: 0.45;
     transform: scale(1);
   }
 
   50% {
     opacity: 1;
-    transform: scale(1.08);
+    transform: scale(1.12);
+  }
+
+  100% {
+    opacity: 0.55;
+    transform: scale(1.01);
   }
 }
 
+/* The halo is the whole of the glow, and it only exists at the peak: a
+   ring that breathes out and is gone again. Nothing here is lit at rest,
+   which is what keeps three dots on a photograph restrained rather than
+   decorative. */
 @keyframes heroDotHalo {
-  0%,
-  100% {
+  0% {
     opacity: 0;
     transform: scale(0.85);
   }
 
   50% {
-    opacity: 0.9;
-    transform: scale(1.05);
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(0.9);
   }
 }
 
@@ -1132,12 +1187,83 @@
   aspect-ratio: 1759 / 894;
 }
 
-/* No pills are painted into the night picture: nothing to click. */
-:global(.dark) .hotspot,
-:global(.dark) .dot,
-:global(.dark) .panel,
+/* ── THE NIGHT HERO GETS THE SAME LAYER ──
+   The dots, the pills and the cards were light-only because the day plate
+   had them painted in and the night one never did. Now that none of it is
+   painted — the pills became real elements and the arcs became paths — the
+   night hero can have the same interaction, and the founder asked for it:
+   the same one-second reveal, the same hover, the same dock.
+
+   What does NOT carry over is the palette. Everything below is the same
+   geometry in night dress: deep navy glass instead of pearl, a hairline of
+   warm gold instead of a grey rule, off-white text instead of ink. No
+   electric blue anywhere, and no glow — on a photograph this dark a lit
+   edge reads as a light source, and the only light sources in this picture
+   are the city and the windows.
+
+   The dot itself needs nothing: it is already a champagne mark, and it was
+   designed to sit on a photograph. It simply has more contrast here. */
+
+/* The pill: a slab of night glass, not a white chip. */
+:global(.dark) .hotspot {
+  transform-origin: calc(var(--dot-ox) * 1vw)
+    calc(var(--dot-oy-dark) * 1vw + var(--pill-h) / 2);
+  color: #eef2fa;
+  background: rgb(13 20 38 / 0.72);
+  border-color: rgb(226 205 160 / 0.34);
+  box-shadow:
+    0 10px 26px rgb(2 6 16 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.05);
+}
+
+:global(.dark) .hotspot:hover,
+:global(.dark) .hotspot[aria-expanded="true"] {
+  color: #ffffff;
+  background: rgb(18 27 50 / 0.86);
+  border-color: rgb(233 214 172 / 0.6);
+}
+
+:global(.dark) .pillArrow {
+  color: rgb(226 205 160 / 0.9);
+}
+
+/* The card. The day panel is pearl with a white edge; at night that same
+   card would be a lamp in the middle of a dark photograph, so it inverts:
+   navy glass, a warm hairline, and a shadow deep enough to lift it off a
+   picture that is already dark. */
+:global(.dark) .panel {
+  color: #e8eefb;
+  background: rgb(11 17 33 / 0.9);
+  border-color: rgb(226 205 160 / 0.22);
+  box-shadow:
+    0 26px 60px rgb(1 4 12 / 0.62),
+    0 2px 10px rgb(1 4 12 / 0.4),
+    inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+:global(.dark) .panelTitle {
+  color: #f4f7fd;
+}
+
+:global(.dark) .panelTitle::after {
+  background: linear-gradient(
+    90deg,
+    rgb(226 205 160 / 0.75),
+    rgb(226 205 160 / 0)
+  );
+}
+
+:global(.dark) .footnote {
+  color: rgb(198 209 230 / 0.72);
+}
+
+:global(.dark) .close {
+  color: #dbe4f5;
+  background: rgb(255 255 255 / 0.08);
+}
+
 :global(.dark) .scrim {
-  display: none;
+  background: rgb(2 5 14 / 0.52);
 }
 
 .eyebrow {

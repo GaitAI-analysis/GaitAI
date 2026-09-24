@@ -25,6 +25,28 @@
   --gold: #c9a667; /* warm gold — active assurances */
   --gold-deep: #8a7348;
   --rule: rgb(15 28 58 / 0.08);
+}
+
+/* ── THE SAME PANEL, AT NIGHT ──
+   One token block, inverted. The day palette is ink on pearl; the night
+   one is off-white on navy glass, and every value below is the same colour
+   RELATIONSHIP rather than a new palette: readings brightest, labels a
+   step back in cool grey, data marks in muted slate, gold for the two
+   assurances. Nothing is more saturated here than in daylight — a dark
+   ground makes colour shout, so the slate and the gold are lifted in
+   LIGHTNESS only, and there is still no electric blue anywhere.
+
+   Restating the tokens is the whole of it: every rule below already draws
+   through them, so the panel needs no second set of rules. */
+:global(.dark) .metrics {
+  --ink: #f2f6fd;
+  --ink-soft: #c6d2e8;
+  --label: #96a3bb;
+  --data: #8ea1cb;
+  --data-soft: rgb(255 255 255 / 0.13);
+  --gold: #dcc08a;
+  --gold-deep: #c0a674;
+  --rule: rgb(255 255 255 / 0.1);
 
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

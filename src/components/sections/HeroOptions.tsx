@@ -94,6 +94,8 @@ const INTRO_CARDS_QUERY =
 
 /** The picture's own proportions, for converting heights to vw. */
 const ASPECT = 941 / 1672;
+/** ...and the night picture's, which is a different shape. */
+const DARK_ASPECT = 894 / 1759;
 
 /**
  * Measure the real distance from a panel to its own pill and hand it to CSS.
@@ -245,7 +247,7 @@ export function HeroOptions() {
       setClosing((list) => (list.includes(id) ? list : [...list, id]));
       setOpen((current) => (current === id ? null : current));
       // animationend normally ends it. This is the belt: if the animation
-      // never fires one — interrupted, or the panel is display:none in dark
+      // never fires one — interrupted, or the panel never painted —
       // — the panel would sit there visible and its Close button would stay
       // in the tab order. It must go hidden either way.
       timers.current.push(
@@ -501,21 +503,25 @@ export function HeroOptions() {
           is the line that was always there — it is simply drawable now, which
           means it can thin out, fade, answer a hover and follow a theme.
 
-          The viewBox is the picture's own pixel box, and the stage carries the
-          same aspect ratio, so a path in picture coordinates lands exactly on
-          the picture. `non-scaling-stroke` keeps the line 1.2px at every
-          width instead of fattening with the photograph. */}
+          The viewBox is the unit square and the arcs are stored as
+          fractions, so the same three paths fit BOTH pictures: the day plate
+          is 1672x941 and the night one 1759x894, and a unit box stretched by
+          the stage lands on whichever is showing without a second set of
+          coordinates. `non-scaling-stroke` keeps the line 1.2px at every
+          width instead of fattening with the photograph, and it is what
+          makes the stretch invisible. */}
       <svg
         aria-hidden="true"
         focusable="false"
         className={styles.connectors}
-        viewBox={`0 0 ${HERO_SCENE.width} ${HERO_SCENE.height}`}
+        viewBox="0 0 1 1"
+        preserveAspectRatio="none"
         fill="none"
       >
         {HERO_OPTIONS.map((option) => {
           const [p0, c1, c2, p3] = option.arc;
           const px = ([x, y]: readonly [number, number]) =>
-            `${(x * HERO_SCENE.width).toFixed(2)},${(y * HERO_SCENE.height).toFixed(2)}`;
+            `${x.toFixed(5)},${y.toFixed(5)}`;
           return (
             <path
               key={option.id}
@@ -548,7 +554,24 @@ export function HeroOptions() {
               aria-hidden="true"
               data-hero-option=""
               className={styles.dot}
-              data-rest={breathing && dotLed && !out ? "true" : undefined}
+              /* Two states, and they are not opposites of the same thing.
+                 ACTIVE means this dot's card is up — open, or folding back
+                 into it — and then the dot holds a steady, slightly brighter
+                 mark: a card visibly docking into a pulsing dot is two
+                 animations arguing about one point. Otherwise it BREATHES,
+                 including on touch, where there is no hover to find it with
+                 and the pulse is the only thing saying it can be pressed. */
+              data-active={
+                open === option.id || folding || (introShowing && introCards)
+                  ? "true"
+                  : undefined
+              }
+              data-rest={
+                breathing &&
+                !(open === option.id || folding || (introShowing && introCards))
+                  ? "true"
+                  : undefined
+              }
               style={
                 {
                   left: `${dotX * 100}%`,
@@ -584,6 +607,12 @@ export function HeroOptions() {
                      grows out of and docks back into. */
                   "--dot-ox": `${((dotX - left) * 100).toFixed(3)}`,
                   "--dot-oy": `${((dotY - (top + height / 2)) * ASPECT * 100).toFixed(3)}`,
+                  /* The same leg on the night plate, which is a different
+                     shape (1759x894 against 1672x941). Emitted alongside
+                     rather than branched in the markup: a branch would have
+                     to agree between the server and hydration, and the
+                     stylesheet can simply pick under `.dark`. */
+                  "--dot-oy-dark": `${((dotY - (top + height / 2)) * DARK_ASPECT * 100).toFixed(3)}`,
                 } as CSSProperties
               }
               aria-label={`${option.label} — ${expanded ? "hide" : "show"} details`}

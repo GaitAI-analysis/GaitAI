@@ -347,25 +347,10 @@ export interface ThemeMediaLightOnly {
   height: number;
 }
 
-export const lightOnlyMedia = {
-  /**
-   * The homepage hero loop (2026-09-24): the founder's three-zone artwork —
-   * SecureVision public space, MobilityCare clinic, the walking model figure —
-   * brought to life as an 8 s seamless loop. Played by `HeroMotion` over the
-   * poster (a 2403x770 still in images/hero, served through `ThemePicture`).
-   */
-  homeHeroMotion: {
-    kind: "light-only",
-    type: "video",
-    light: "/assets/videos/home/home-hero-motion-light.mp4",
-    lightAlt: "/assets/videos/home/home-hero-motion-light.webm",
-    poster: "/images/hero/home-hero-motion-light-poster.webp",
-    darkShows:
-      "Dark shows the night atrium photograph (home-hero-scene-dark.webp), a different scene; the daylight artwork has no night edition.",
-    width: 1920,
-    height: 616,
-  },
-} as const satisfies Record<string, ThemeMediaLightOnly>;
+/* Empty since 2026-09-24: the homepage hero loop that introduced this kind
+   was replaced by the founder's final still. The kind and its check stay so
+   the next light-only film is registered, not special-cased. */
+export const lightOnlyMedia: Readonly<Record<string, ThemeMediaLightOnly>> = {};
 
 /** Every entry, looked up by its dark path — for data that names a file rather than a key. */
 export const themeMediaByDarkPath: ReadonlyMap<string, ThemeMediaEntry> = new Map(

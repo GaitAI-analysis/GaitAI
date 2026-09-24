@@ -29,7 +29,6 @@
  */
 
 import type { HeroPanelId } from "@/lib/hero-panels";
-import { lightOnlyMedia } from "@/lib/theme-media";
 
 /** The approved artwork's canvas. The hero holds this ratio at every width. */
 export const HERO_CANVAS = { width: 1774, height: 887 } as const;
@@ -223,44 +222,91 @@ export const HERO_HEADLINE = {
 } as const;
 
 /**
- * THE HERO SCENE. Dark: the night atrium photograph (2026-09-24), unchanged.
- * Light (2026-09-24, later): the founder's wide three-zone artwork — public
- * space (SecureVision), clinic (MobilityCare), and the walking model figure —
- * brought to life as an 8-second seamless loop. The still is the loop's first
- * frame exactly, so the picture and the film are interchangeable: the still
- * is the LCP element and the reduced-motion / narrow-screen answer, and the
- * film fades in over it only when it is actually playing.
+ * THE HERO SCENE (2026-09-24, final). ONE image in both themes: the
+ * founder's approved artwork — public space, clinic, the walking model
+ * figure — with its three option pills (SecureVision, MobilityCare, Pose
+ * analysis) painted into the picture. It is used as supplied: not
+ * regenerated, recoloured or re-cropped.
  *
- * THE LIGHT ARTWORK IS WIDER THAN THE SUPPLIED FILE. The supplied picture is
- * 2043x770; the scene is 2403x770 because a 360px band of the picture's own
- * haze was extended to the left, so the copy has room without sitting on the
- * people. The band is the first thing a narrow crop gives up: the hero
- * anchors the picture to its RIGHT edge.
+ * The one edit: the supplied file also had the caption painted into its
+ * left haze. The brief is that the caption is real HTML, so the painted
+ * words (and the gold rule under them) were inpainted out of the haze, and
+ * nothing else — every pixel outside those text lines is the supplied file's.
+ * The caption below is set in the same place, in the site's own type.
  *
- * Every word is real text (below); nothing is baked into the still or the film.
- * The source pipeline (warp frames, 3D walker, boards) lives outside the repo;
- * see Hero.tsx for what the film is and is not.
+ * `pills` are the painted pills' boxes as fractions of the image, measured
+ * off the file; the transparent hotspots sit exactly on them. Move a number
+ * only if the picture changes.
  */
 export const HERO_SCENE = {
-  lightSrc: "/images/hero/home-hero-motion-light-poster.webp",
-  lightNarrowSrc: "/images/hero/home-hero-motion-light-poster-1200.webp",
-  darkSrc: "/images/hero/home-hero-scene-dark.webp",
-  darkNarrowSrc: "/images/hero/home-hero-scene-dark-1200.webp",
+  src: "/images/hero/home-hero-gaitai.webp",
+  narrowSrc: "/images/hero/home-hero-gaitai-1200.webp",
   width: 1672,
   height: 941,
-  /** The light loop, registered in lib/theme-media.ts (`lightOnlyMedia`) so
-      check:media tracks it. First frame = `lightSrc`. */
-  lightMotion: lightOnlyMedia.homeHeroMotion,
-  eyebrow: "Human movement intelligence",
-  /* Each array is one sentence, one entry per approved line. The breaks are
-     the founder's, not the browser's. */
-  title: ["One movement", "intelligence platform."],
-  accent: ["For health, safety", "and identity."],
-  /* Two lines on the panoramic layout; free to wrap anywhere narrower. */
-  support: [
-    "Transforming human movement into actionable insight",
-    "for healthier lives, safer communities and a more open world.",
-  ],
-  primary: { href: "/#overview", label: "Explore GaitAI" },
-  secondary: { href: "/#technology", label: "See how it works" },
+  title: "One movement intelligence platform.",
+  accent: "For health, safety and identity.",
+  support:
+    "Turning human movement into meaningful insight — from clinical mobility to safer public spaces.",
 } as const;
+
+export type HeroOptionId = "securevision" | "mobilitycare" | "pose";
+
+export interface HeroOption {
+  readonly id: HeroOptionId;
+  readonly label: string;
+  /** The painted pill: left, top, width, height as fractions of the image. */
+  readonly pill: readonly [number, number, number, number];
+  /**
+   * Pose analysis is the shared analysis layer under both products, not a
+   * third product — its panel is deliberately smaller and quieter.
+   */
+  readonly tier: "product" | "layer";
+  readonly rows: readonly (readonly [string, string])[];
+  readonly footnote?: string;
+}
+
+export const HERO_OPTIONS: readonly HeroOption[] = [
+  {
+    id: "securevision",
+    label: "SecureVision",
+    pill: [653 / 1672, 175.5 / 941, 193 / 1672, 50 / 941],
+    tier: "product",
+    rows: [
+      ["Pedestrian flow", "12 people/min"],
+      ["Crowd flow", "Normal"],
+      ["Anomaly status", "None detected"],
+      ["Privacy mode", "Active"],
+      ["Identity matching", "Optional"],
+      ["Access status", "Authorised"],
+    ],
+  },
+  {
+    id: "mobilitycare",
+    label: "MobilityCare",
+    pill: [999.5 / 1672, 175.5 / 941, 194.5 / 1672, 49 / 941],
+    tier: "product",
+    rows: [
+      ["Mobility score", "82/100"],
+      ["Fall risk", "Low"],
+      ["Gait speed", "0.78 m/s"],
+      ["Step symmetry", "96%"],
+      ["Balance stability", "Stable"],
+      ["Recovery progress", "Improving"],
+    ],
+  },
+  {
+    id: "pose",
+    label: "Pose analysis",
+    pill: [1379.5 / 1672, 176 / 941, 205.5 / 1672, 49.5 / 941],
+    tier: "layer",
+    rows: [
+      ["Gait speed", "1.02 m/s"],
+      ["Cadence", "102 steps/min"],
+      ["Step symmetry", "96%"],
+      ["Balance stability", "Stable"],
+      ["Range of motion", "+22%"],
+      ["Identity", "Optional"],
+    ],
+    footnote: "Privacy by design",
+  },
+] as const;

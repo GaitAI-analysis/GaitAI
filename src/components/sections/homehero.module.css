@@ -1,593 +1,432 @@
 /* =========================================================================
-   THE HOMEPAGE HERO — one approved scene per theme, every word real
+   THE HOMEPAGE HERO — the founder's final artwork, as supplied
    -------------------------------------------------------------------------
-   The hero used to be a three-panel panoramic composition: two diagonals,
-   a drawn pose overlay, a per-panel eyebrow and message, and in light a
-   1.2 MB banner with the type baked into it. The founder replaced it
-   (2026-09-24) with one clean photograph per theme — daylight and night of
-   the same atrium, no baked type, no baked UI — and asked for the words to
-   live in code over it.
+   One picture in both themes, kept in its own 1672:941 box: never stretched,
+   never side-cropped. The only code over it is the caption (in the empty
+   haze on the left) and three transparent hotspots on the pills painted
+   into the picture. Detail panels appear only when a pill is pressed.
 
-   So this file is small on purpose. A picture, a scrim only where the words
-   sit, a copy column and a scroll cue. Nothing is drawn over the photograph
-   and nothing is repeated from the site header.
+   COLOUR RULE (founder, 2026-09-24): deep navy, off-white frosted glass,
+   cool grey and the picture's own restrained warm gold. No electric blue,
+   neon, cyan glow or saturated blue anywhere here — including hover and
+   focus states.
 
-   TWO ACTIONS, NOT A MENU. The three product pills came out on 2026-09-24;
-   later that day the founder asked for exactly two calls to action — Explore
-   GaitAI and See how it works — in the hero's soft indigo, never the
-   electric ramp. They are `.actions` below.
-
-   LIGHT IS A PANORAMA. From later on 2026-09-24 the light scene is a 3.12:1
-   animated artwork (see Hero.tsx), so light gets its own geometry at the end
-   of this file: the artwork's height on wide screens, anchored right, and a
-   stacked copy-then-strip layout below 1280px. Dark keeps its layout.
-
-   THE SCRIM IS LOCAL. It is a horizontal gradient that is opaque enough to
-   read on at the left edge and completely gone by 62%, so the clinician,
-   the patient, the officer and the movement trace — the reason the picture
-   exists — are never behind a veil. It is the theme's own ground colour,
-   not grey and not black.
+   The caption is positioned in vw because the picture spans the viewport:
+   one vw is one hundredth of the picture's width, so the numbers below are
+   the painted layout's own proportions (e.g. 3.11vw = 52px of 1672).
    ========================================================================= */
 
 .hero {
   position: relative;
-  display: flex;
-  align-items: center;
   width: 100%;
-  /* Tall enough to feel like a hero, never taller than the screen it opens
-     on. The floor keeps it from collapsing on a short laptop. */
-  min-height: clamp(
-    30rem,
-    calc(100svh - var(--site-header-height, 4.5rem)),
-    54rem
-  );
   overflow: hidden;
-  isolation: isolate;
-  background: #05070f;
-
-  /* Where the copy sits inside the frame. Both are zero here so the phone
-     layout, where the words already own the whole width, is untouched. */
-  --pull: 0px;
-  --lift: 0px;
+  /* No isolation / z-index here: the bottom sheet (fixed, z 71) must
+     rise above the sections that follow, not only above this one. */
+  background: #eef2f7;
+  /* The picture is 56.28vw tall. A short, wide window may trim the floor,
+     but never more than 12% of it — pills and people stay whole. */
+  max-height: max(calc(100svh - var(--site-header-height, 4.5rem)), 49.53vw);
 }
 
-/* On the side-by-side widths the copy is a column beside a photograph, and
-   the centred 1320px container drops it further in than the composition
-   wants: at 1536 the headline starts 156px from the edge, out over the
-   brighter middle of the scene where the blurred figures are. These two
-   offsets walk it back toward the frame and up off the horizon.
-
-   `--pull` spends only the slack the centred container is already wasting —
-   nothing below 1320px, then a fifth of the growing auto margin, capped so a
-   wide screen keeps a generous left margin rather than pinning the words to
-   the glass. 43px at 1536, 64px from 1640 up. `--lift` is a fraction of the
-   viewport, so a short laptop lifts less than a tall desktop. */
-@media (min-width: 768px) {
-  .hero {
-    --pull: clamp(0px, (100vw - 1320px) * 0.2, 64px);
-    --lift: clamp(0px, 4svh, 44px);
-  }
-}
-
-:global(.light) .hero {
-  background: #eef3f9;
-}
-
-/* ── The picture (and, in light, the film over it) ── */
-.media {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
+/* ── The picture ── */
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1672 / 941;
 }
 
 .photo {
   position: absolute;
   inset: 0;
   display: block;
-}
-
-.photo img {
-  display: block;
   width: 100%;
   height: 100%;
-  /* `cover`, anchored low: the artwork's top is ceiling glass and its foot
-     is the floor the people walk on, so a centred crop loses their feet
-     first. Both scenes share the composition, so both share the anchor. */
   object-fit: cover;
-  object-position: 50% 62%;
 }
 
-/* ── The readability scrim, left only ──
-   The first two stops are the shade the copy's opening sits on and are
-   unchanged. Only the falloff moved: the longest line now ends at 47% of
-   the frame, where the old ramp had already dropped to 0.36, so the tail of
-   the headline was finishing on open photograph. Carrying the mid stop a
-   little further right lands it on 0.49 instead, and the picture is still
-   completely clear of shade from two thirds across. */
-.scrim {
+/* ── The caption ── */
+.caption {
   position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    rgb(4 8 18 / 0.92) 0%,
-    rgb(4 8 18 / 0.82) 26%,
-    rgb(4 8 18 / 0.52) 46%,
-    rgb(4 8 18 / 0.18) 58%,
-    rgb(4 8 18 / 0) 66%
-  );
-}
-
-:global(.light) .scrim {
-  background: linear-gradient(
-    90deg,
-    rgb(248 250 252 / 0.94) 0%,
-    rgb(248 250 252 / 0.86) 26%,
-    rgb(248 250 252 / 0.58) 46%,
-    rgb(248 250 252 / 0.22) 58%,
-    rgb(248 250 252 / 0) 66%
-  );
-}
-
-/* Below the side-by-side widths the copy covers most of the frame, so the
-   scrim turns vertical and sits under the words rather than beside them. */
-@media (max-width: 767px) {
-  .scrim {
-    background: linear-gradient(
-      180deg,
-      rgb(4 8 18 / 0.88) 0%,
-      rgb(4 8 18 / 0.78) 46%,
-      rgb(4 8 18 / 0.45) 72%,
-      rgb(4 8 18 / 0.2) 100%
-    );
-  }
-  :global(.light) .scrim {
-    background: linear-gradient(
-      180deg,
-      rgb(248 250 252 / 0.92) 0%,
-      rgb(248 250 252 / 0.84) 46%,
-      rgb(248 250 252 / 0.5) 72%,
-      rgb(248 250 252 / 0.22) 100%
-    );
-  }
-}
-
-/* ── The copy ── */
-.inner {
-  position: relative;
   z-index: 2;
-  width: 100%;
-  padding-block: clamp(3rem, 8svh, 6rem);
-  /* Relative offsets, not a transform: the headline is painted through
-     `background-clip: text`, and a fractional translate would hand it to the
-     compositor to resample. Offsetting the box keeps the glyphs on the
-     ordinary text-rendering path, which is the whole point of the move. */
-  left: calc(-1 * var(--pull));
-  top: calc(-1 * var(--lift));
-}
-
-.copy {
-  max-width: 40rem;
+  left: 3.11vw;
+  top: 16vw;
+  width: 30vw;
 }
 
 .title {
   margin: 0;
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: clamp(2.25rem, 4.4vw, 4rem);
-  font-weight: 640;
-  line-height: 1.04;
-  letter-spacing: -0.035em;
-  text-wrap: balance;
-  color: #f5f8fc;
+  font-size: clamp(1.5rem, 2.42vw, 3.6rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.022em;
+  color: #0f1c3a;
 }
 
-:global(.light) .title {
-  color: #0b1739;
+/* "One movement / intelligence platform." — the break after "movement" is
+   the painted layout's; 11.5em lets exactly that break happen. */
+.lead {
+  display: block;
+  max-width: 11.5em;
 }
 
-/* THE ACCENT, AND WHY IT CARRIES PADDING.
-   `background-clip: text` paints only inside the element's own box, and the
-   span fills with `transparent`. The line-height here is tighter than the
-   face's ink, so without a strip of box below the baseline the "g" of
-   "intelligence" and the "p" of "platform." receive no paint at all and
-   lose their tails. The padding gives the gradient that strip; the matching
-   negative margin means the box the LAYOUT sees is unchanged, so nothing
-   below moves. Do not remove one without the other.
-
-   The accent is the headline's second sentence, on its own line, in a soft
-   indigo in both themes — the brief (2026-09-24) is "premium blue, never
-   electric". Dark lifts it to a periwinkle so it holds contrast on the
-   night scene; light's ramp is with the panorama rules at the end. */
+/* Refined but prominent: the same navy family at a lighter weight. */
 .accent {
   display: block;
-  padding-bottom: 0.2em;
-  margin-bottom: -0.2em;
-  background-image: linear-gradient(100deg, #9aaeea 0%, #aebcf0 60%, #c0caf3 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+  margin-top: 0.3em;
+  font-size: 0.84em;
+  font-weight: 400;
+  letter-spacing: -0.018em;
+  white-space: nowrap;
+  color: #1c2a4a;
 }
 
-.eyebrow {
-  margin: 0 0 clamp(0.75rem, 1.6svh, 1.25rem);
-  font-size: clamp(0.6875rem, 0.7vw, 0.8125rem);
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #aab6c9;
-}
-
-:global(.light) .eyebrow {
-  color: #4a5875;
+.rule {
+  display: block;
+  width: 11vw;
+  height: 1.5px;
+  margin: 1.1vw 0 1.8vw;
+  background: linear-gradient(90deg, #c9a667 0%, #dcc393 70%, rgb(220 195 147 / 0) 100%);
 }
 
 .support {
-  margin: clamp(0.9rem, 1.8svh, 1.4rem) 0 0;
-  max-width: 34rem;
-  font-size: clamp(0.95rem, 1.05vw, 1.0625rem);
+  margin: 0;
+  max-width: 22.5vw;
+  font-size: clamp(0.8125rem, 1.02vw, 1.2rem);
   line-height: 1.6;
-  color: #aab6c9;
+  color: #4a5468;
 }
 
-:global(.light) .support {
-  color: #475467;
+/* ── Hotspots on the painted pills ──
+   Transparent. The artwork is the button; the only drawn state is a thin
+   warm ring on the pill whose panel is open, and a navy focus ring. */
+.option {
+  display: contents;
 }
 
-/* The paragraph's approved break applies only on the light panorama, where
-   the column is sized for it; everywhere else the text wraps freely. */
-.wideBreak {
-  display: none;
-}
-
-/* ── The two actions ──
-   Soft indigo, not the electric ramp: the brief for this hero is "premium
-   blue", and the primary is the only filled shape on the screen. */
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: clamp(1.25rem, 3svh, 2.1rem);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 3rem;
-  padding: 0 1.5rem;
+.hotspot {
+  position: absolute;
+  z-index: 3;
+  margin: 0;
+  padding: 0;
+  border: 0;
   border-radius: 999px;
-  font-size: 0.975rem;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  text-decoration: none;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow 250ms ease;
 }
 
-.btn:focus-visible {
-  outline: 2px solid #8fa3dc;
+.hotspot[aria-expanded="true"] {
+  box-shadow: 0 0 0 1.5px rgb(201 166 103 / 0.8);
+}
+
+.hotspot:focus-visible {
+  outline: 2px solid rgb(15 28 58 / 0.72);
   outline-offset: 3px;
 }
 
-.primary {
-  color: #ffffff;
-  background: linear-gradient(180deg, #4862b0 0%, #3a529c 100%);
+/* ── Detail panels ── */
+.panel {
+  box-sizing: border-box;
+  color: #0f1c3a;
+  background: rgb(250 250 248 / 0.86);
+  -webkit-backdrop-filter: blur(18px) saturate(1.06);
+  backdrop-filter: blur(18px) saturate(1.06);
+  border: 1px solid rgb(255 255 255 / 0.75);
+  border-radius: 16px;
   box-shadow:
-    0 10px 24px rgb(58 82 156 / 0.26),
-    inset 0 1px 0 rgb(255 255 255 / 0.18);
+    0 22px 48px rgb(15 28 58 / 0.14),
+    0 2px 8px rgb(15 28 58 / 0.06);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 400ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 400ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    visibility 0s linear 400ms;
 }
 
-.primary:hover {
-  background: linear-gradient(180deg, #506bb9 0%, #405aa6 100%);
-  box-shadow:
-    0 12px 28px rgb(58 82 156 / 0.32),
-    inset 0 1px 0 rgb(255 255 255 / 0.2);
-  transform: translateY(-1px);
+.panel[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
 }
 
-.arrow {
-  transition: transform 160ms ease;
+.panelTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
 }
 
-.primary:hover .arrow {
-  transform: translateX(3px);
+.panelTitle::after {
+  content: "";
+  display: block;
+  width: 1.4rem;
+  height: 1.5px;
+  margin: 0.45rem 0 0.65rem;
+  background: #c9a667;
 }
 
-.secondary {
-  color: #e3e9f2;
-  background: rgb(255 255 255 / 0.06);
-  border: 1px solid rgb(255 255 255 / 0.28);
+.rows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem 1.25rem;
+  margin: 0;
 }
 
-.secondary:hover {
-  background: rgb(255 255 255 / 0.12);
-  border-color: rgb(255 255 255 / 0.42);
+.row dt {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #6b7385;
 }
 
-:global(.light) .secondary {
-  color: #22335a;
-  background: rgb(255 255 255 / 0.72);
-  border-color: rgb(58 82 156 / 0.28);
+.row dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
+  color: #0f1c3a;
 }
 
-:global(.light) .secondary:hover {
-  background: rgb(255 255 255 / 0.92);
-  border-color: rgb(58 82 156 / 0.46);
+/* Pose analysis is the shared analysis layer, not a product: smaller,
+   lighter, a single quiet column. */
+.layer {
+  background: rgb(250 250 248 / 0.8);
+}
+
+.layer .panelTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.layer .rows {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.layer .row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.36rem 0;
+  border-top: 1px solid rgb(15 28 58 / 0.07);
+}
+
+.layer .row dt {
+  font-size: 0.7rem;
+}
+
+.layer .row dd {
+  margin: 0;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.footnote {
+  margin: 0.6rem 0 0;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a7348;
+}
+
+.close {
+  display: none;
+}
+
+.scrim {
+  display: none;
+}
+
+/* Wide screens: the panel opens just under its pill, clear of the caption
+   and above the people's heads. The band between the pills and the heads
+   is 24% of the picture's height; from 1600px up the panel fits in it. */
+@media (min-width: 1600px) {
+  .panel {
+    position: absolute;
+    z-index: 4;
+    top: 25.4%;
+    width: clamp(19rem, 20vw, 23rem);
+    padding: 0.9rem 1.2rem 1rem;
+    transform: translateY(8px) scale(0.985);
+    transform-origin: top left;
+  }
+
+  .panel[data-open="true"] {
+    transform: none;
+  }
+
+  .panel[data-option="securevision"] {
+    left: 39.06%;
+  }
+
+  .panel[data-option="mobilitycare"] {
+    left: 59.78%;
+  }
+
+  /* Right-aligned beside the model figure, never over it. */
+  .panel[data-option="pose"] {
+    right: 1.8%;
+    width: clamp(13.5rem, 13.5vw, 16rem);
+    padding: 0.9rem 1rem 1rem;
+    transform-origin: top right;
+  }
+}
+
+/* Below 1600px there is no room beside the pills without covering the
+   people, so the same panel becomes a bottom sheet over a light scrim. */
+@media (max-width: 1599px) {
+  .panel {
+    position: fixed;
+    z-index: 71;
+    left: 50%;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    width: min(30rem, calc(100vw - 2rem));
+    padding: 1.15rem 1.25rem 1.25rem;
+    transform: translate(-50%, 16px);
+  }
+
+  .panel[data-open="true"] {
+    transform: translate(-50%, 0);
+  }
+
+  .layer {
+    width: min(24rem, calc(100vw - 2rem));
+  }
+
+  .close {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.85rem;
+    display: inline-flex;
+    padding: 0.35rem 0.8rem;
+    border: 0;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #33415f;
+    background: rgb(15 28 58 / 0.06);
+    cursor: pointer;
+  }
+
+  .close:focus-visible {
+    outline: 2px solid rgb(15 28 58 / 0.72);
+    outline-offset: 2px;
+  }
+
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: block;
+    background: rgb(15 23 42 / 0.18);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 400ms ease,
+      visibility 0s linear 400ms;
+  }
+
+  .scrim[data-open="true"] {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  /* Pills are small on a phone: widen each hotspot's hit area without
+     moving it (the pills are far enough apart not to collide). */
+  .hotspot::before {
+    content: "";
+    position: absolute;
+    inset: -12px -6px;
+  }
+}
+
+/* Below 1024px the caption moves above the picture, onto the page's own
+   ground, where it can be read at a real size. */
+@media (max-width: 1023px) {
+  .hero {
+    max-height: none;
+  }
+
+  .caption {
+    position: static;
+    width: auto;
+    padding: clamp(2rem, 7vw, 3.5rem) clamp(1.25rem, 5vw, 2.5rem) clamp(1.5rem, 5vw, 2.25rem);
+  }
+
+  .title {
+    font-size: clamp(1.85rem, 6.4vw, 2.75rem);
+  }
+
+  .rule {
+    width: 4.5rem;
+    margin: 1.1rem 0 1rem;
+  }
+
+  .support {
+    max-width: 34rem;
+    font-size: 1rem;
+  }
+
+  .accent {
+    white-space: normal;
+  }
+
+  :global(.dark) .hero {
+    background: #05070f;
+  }
+
+  :global(.dark) .title {
+    color: #f3f6fb;
+  }
+
+  :global(.dark) .accent {
+    color: #cfd6e4;
+  }
+
+  :global(.dark) .support {
+    color: #aab6c9;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn,
-  .arrow {
+  .panel,
+  .panel[data-open="true"],
+  .scrim {
+    transition:
+      opacity 150ms linear,
+      visibility 0s linear 150ms;
+  }
+
+  .panel[data-open="true"],
+  .scrim[data-open="true"] {
+    transition-delay: 0s;
+  }
+
+  .hotspot {
     transition: none;
   }
-  .primary:hover,
-  .primary:hover .arrow {
+}
+
+@media (prefers-reduced-motion: reduce) and (min-width: 1600px) {
+  .panel {
     transform: none;
   }
 }
 
-/* ── The scroll cue ──
-   A hairline at the foot of the hero with a light travelling down it. It is
-   not a control: no href, no focus, nothing to press. It exists so that a
-   first screen with no buttons still says there is more below.
-
-   It is pinned to the SECTION rather than flowing after the copy, which is
-   what makes it a cue about the page instead of a rule under the paragraph;
-   `container-wide` aligns it to the headline's left edge, inside the opaque
-   end of the scrim, so it never has to survive the photograph. */
-.cue {
-  position: absolute;
-  inset-inline: 0;
-  bottom: clamp(1.25rem, 3.5svh, 2.25rem);
-  z-index: 2;
-  pointer-events: none;
-  /* Same pull as the copy, so the hairline stays on the headline's left
-     edge. This one is a transform because the cue is absolutely positioned
-     and auto-centred, so a relative offset would only move it half as far —
-     and it is a 1px rule with no text to resample. The lift is deliberately
-     not applied: the cue belongs to the foot of the screen. */
-  translate: calc(-1 * var(--pull)) 0;
-}
-
-.cueTrack {
-  /* `relative` so the travelling light positions against the track, and
-     `hidden` so it is clipped to the hairline instead of streaking past it. */
-  position: relative;
-  display: block;
-  width: 1px;
-  height: clamp(2rem, 5svh, 3rem);
-  border-radius: 1px;
-  background: linear-gradient(
-    180deg,
-    rgb(220 230 245 / 0) 0%,
-    rgb(220 230 245 / 0.34) 35%,
-    rgb(220 230 245 / 0.34) 65%,
-    rgb(220 230 245 / 0) 100%
-  );
-  overflow: hidden;
-}
-
-:global(.light) .cueTrack {
-  background: linear-gradient(
-    180deg,
-    rgb(11 23 57 / 0) 0%,
-    rgb(11 23 57 / 0.2) 35%,
-    rgb(11 23 57 / 0.2) 65%,
-    rgb(11 23 57 / 0) 100%
-  );
-}
-
-/* The travelling light. A pseudo-element rather than a second span: it is
-   pure decoration on a decoration. */
-.cueTrack::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  height: 42%;
-  border-radius: 1px;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    var(--hero-electric, #3fa9f5) 50%,
-    transparent 100%
-  );
-  animation: cue-travel 2600ms cubic-bezier(0.45, 0, 0.55, 1) infinite;
-}
-
-@keyframes cue-travel {
-  0% {
-    transform: translateY(-110%);
-    opacity: 0;
-  }
-  28% {
-    opacity: 0.95;
-  }
-  72% {
-    opacity: 0.95;
-  }
-  100% {
-    transform: translateY(240%);
-    opacity: 0;
+@media (prefers-reduced-motion: reduce) and (max-width: 1599px) {
+  .panel {
+    transform: translate(-50%, 0);
   }
 }
 
-/* Reduced motion keeps the cue and drops the travel: the hairline alone is
-   still a mark at the foot of the screen. */
-@media (prefers-reduced-motion: reduce) {
-  .cueTrack::after {
-    animation: none;
-    opacity: 0.8;
-    transform: translateY(120%);
-  }
-}
-
-/* The `/#overview` target: the foot of the hero, so the page scrolls to
-   where the next section begins. */
+/* The `/#overview` target: the foot of the hero. */
 .anchor {
   display: block;
   height: 0;
-}
-
-/* =========================================================================
-   LIGHT: THE ANIMATED PANORAMA
-   -------------------------------------------------------------------------
-   The light artwork is 2403x770 (3.12:1): a 360px haze band for the copy,
-   then public space, clinic and the walking model figure. It is never
-   cropped from the right — the model figure is the point — so the picture
-   and the film anchor to their right edge and a narrow window gives up the
-   haze band first.
-   ========================================================================= */
-
-/* The film sits exactly over the still (its first frame) and fades in only
-   once it is playing — see HeroMotion. It never exists in dark. */
-.motion {
-  position: absolute;
-  inset: 0;
-  display: none;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 100% 50%;
-  opacity: 0;
-  transition: opacity 600ms ease;
-  pointer-events: none;
-}
-
-:global(.light) .motion {
-  display: block;
-}
-
-:global(.light) .motion[data-playing="true"] {
-  opacity: 1;
-}
-
-:global(.light) .accent {
-  background-image: linear-gradient(100deg, #3a55a4 0%, #4c63b3 55%, #6a7cc2 100%);
-}
-
-/* Panoramic widths: the hero is the artwork's own height (32.05vw), with a
-   floor so the copy always fits; the copy hugs the haze band instead of the
-   centred container, and the scrim only has to cover that band. The layout
-   starts at 1280px because below that the floor forces a crop deep enough
-   to put the SecureVision walkers under the paragraph. */
-@media (min-width: 1280px) {
-  :global(.light) .hero {
-    min-height: 0;
-    height: clamp(26rem, 32.05vw, 52rem);
-    background: #f3f6fa;
-  }
-
-  :global(.light) .photo img {
-    object-position: 100% 50%;
-  }
-
-  /* A band for the paragraph and buttons, plus a soft ellipse that reaches
-     a little further along the headline's rows, so the end of "platform."
-     lands on washed foliage rather than on a tree. */
-  :global(.light) .scrim {
-    background:
-      radial-gradient(
-        ellipse 34% 30% at 26% 42%,
-        rgb(247 249 252 / 0.62) 0%,
-        rgb(247 249 252 / 0.3) 55%,
-        rgb(247 249 252 / 0) 100%
-      ),
-      linear-gradient(
-        90deg,
-        rgb(247 249 252 / 0.9) 0%,
-        rgb(247 249 252 / 0.78) 22%,
-        rgb(247 249 252 / 0.42) 34%,
-        rgb(247 249 252 / 0) 44%
-      );
-  }
-
-  :global(.light) .inner {
-    max-width: none;
-    margin: 0;
-    padding-block: 0;
-    padding-inline: clamp(1.75rem, 5.5vw, 8.25rem) 0;
-    left: 0;
-    top: 0;
-  }
-
-  :global(.light) .copy {
-    max-width: min(48vw, 56rem);
-  }
-
-  /* Four approved lines, so the longest ("intelligence platform.") is only
-     ~11em: the size can grow with the frame and still end left of the first
-     walker at every width from 1280 up. */
-  :global(.light) .title {
-    font-size: clamp(2.25rem, 2.75vw, 3.5rem);
-    line-height: 1.07;
-    letter-spacing: -0.032em;
-  }
-
-  /* Measured against the first walker: the paragraph's right edge stays
-     left of her at every width from 1280 up. Below 1600 that needs a
-     narrower measure (three lines); from 1600 the approved two-line break
-     fits, so it takes over. */
-  :global(.light) .support {
-    max-width: clamp(24rem, 30vw, 36rem);
-    font-size: clamp(0.95rem, 0.95vw, 1.1875rem);
-  }
-
-  :global(.light) .cue {
-    translate: none;
-    max-width: none;
-    margin: 0;
-    padding-inline-start: clamp(1.75rem, 5.5vw, 8.25rem);
-  }
-}
-
-@media (min-width: 1600px) {
-  :global(.light) .support {
-    max-width: none;
-  }
-
-  :global(.light) .wideBreak {
-    display: inline;
-  }
-}
-
-/* Narrow light screens: copy first, the artwork as a strip beneath it. The
-   strip is the supplied picture's own 2043:770 box, which `cover` anchored
-   right fills with exactly the part after the haze band. No scrim, no cue —
-   the words sit on the page's ground, not on the picture. */
-@media (max-width: 1279px) {
-  :global(.light) .hero {
-    flex-direction: column;
-    align-items: stretch;
-    min-height: 0;
-    background: #f4f7fb;
-  }
-
-  :global(.light) .media {
-    position: relative;
-    inset: auto;
-    order: 2;
-    width: 100%;
-    aspect-ratio: 2043 / 770;
-  }
-
-  :global(.light) .photo img {
-    object-position: 100% 50%;
-  }
-
-  :global(.light) .scrim,
-  :global(.light) .cue {
-    display: none;
-  }
-
-  :global(.light) .inner {
-    order: 1;
-    left: 0;
-    top: 0;
-    padding-block: clamp(2.5rem, 7vw, 4rem) clamp(1.75rem, 5vw, 2.5rem);
-  }
 }

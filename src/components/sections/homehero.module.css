@@ -111,7 +111,12 @@
   width: 11vw;
   height: 1.5px;
   margin: 1.1vw 0 1.8vw;
-  background: linear-gradient(90deg, #c9a667 0%, #dcc393 70%, rgb(220 195 147 / 0) 100%);
+  background: linear-gradient(
+    90deg,
+    #c9a667 0%,
+    #dcc393 70%,
+    rgb(220 195 147 / 0) 100%
+  );
 }
 
 .support {
@@ -146,6 +151,73 @@
   box-shadow: 0 0 0 1.5px rgb(201 166 103 / 0.8);
 }
 
+/* THE PILL TAKES THE PANEL BACK.
+   Two things, both timed to the docking stage rather than to the press, so
+   they read as the pill receiving something rather than acknowledging a
+   click. A hair of compression -- 1.5%, no bounce, no overshoot -- and a
+   thread of warm gold drawn along the top edge, about a third of the pill
+   wide, for a fifth of a second. Champagne, not neon: this hero has no
+   electric blue in it and is not getting any here. */
+.hotspot[data-absorb="true"] {
+  animation: pillAbsorb 200ms cubic-bezier(0.32, 0.72, 0, 1) 470ms both;
+}
+
+.hotspot::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 1.5px;
+  border-radius: 1px;
+  background: linear-gradient(
+    90deg,
+    rgb(198 164 92 / 0) 0%,
+    rgb(198 164 92 / 0.38) 50%,
+    rgb(198 164 92 / 0) 100%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hotspot[data-absorb="true"]::after {
+  animation: pillSheen 180ms cubic-bezier(0.32, 0.72, 0, 1) 480ms both;
+}
+
+@keyframes pillAbsorb {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(0.985);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pillSheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-25%);
+  }
+
+  28% {
+    opacity: 1;
+  }
+
+  72% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(255%);
+  }
+}
+
 .hotspot:focus-visible {
   outline: 2px solid rgb(15 28 58 / 0.72);
   outline-offset: 3px;
@@ -165,70 +237,302 @@
     0 2px 8px rgb(15 28 58 / 0.06);
   opacity: 0;
   visibility: hidden;
-  transition:
-    opacity 400ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    transform 400ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    visibility 0s linear 400ms;
+  transform-style: preserve-3d;
+  /* Read by the keyframes so the fold can morph the corner radius all the
+     way to a pill without hard-coding the resting one twice. */
+  --panel-radius: 16px;
+  border-radius: var(--panel-radius);
 }
 
-.panel[data-open="true"] {
-  opacity: 1;
+/* Visible while it is open, and — the point of all this — for the whole
+   780ms it spends folding back into its pill. */
+.panel[data-open="true"],
+.panel[data-closing="true"],
+.panel[data-intro] {
   visibility: visible;
-  transition-delay: 0s;
 }
 
-/* ── The one-time introduction ──
-   On the first load all three panels are already open, so the visitor sees
-   what each pill holds before deciding which to press. HeroOptions runs this
-   once per page load and only from 1600px up, where each panel sits beside
-   its own pill; below that they are all the same bottom sheet, so there is
-   nothing to show three of.
-
-   `show` is a resting state, not an entrance: the panels are simply there
-   when the picture arrives, so nothing races the photograph for attention.
-   `fold` is the only animated step. Each panel lifts a little, shrinks a
-   little and fades, and because `transform-origin` is already the corner
-   nearest its own pill — top left for the two products, top right for Pose
-   analysis — it reads as the detail being drawn back into the pill it
-   belongs to rather than dropped down the page.
-
-   Visibility closes the way the ordinary panel closes, held until the fade
-   has finished, so the panels leave the accessibility tree at the end of the
-   movement instead of in the middle of it. */
+.panel[data-open="true"],
 .panel[data-intro="show"] {
   opacity: 1;
-  visibility: visible;
-  transform: none;
-  transition: none;
 }
 
-.panel[data-intro="fold"] {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px) scale(0.96);
-  /* Two curves, not one. The distance and the timing were both specified;
-     only the shape is chosen here, and it is chosen because the obvious
-     single curve does not survive being measured.
+/* Only while something is actually moving. HeroOptions sets this when it
+   starts an animation and removes it on animationend, so the compositor is
+   not asked to hold a layer for a panel that is just sitting there. */
+.panel[data-animating="true"] {
+  will-change: transform, clip-path, opacity;
+}
 
-     `cubic-bezier(0.22, 1, 0.36, 1)` on both properties puts almost all of
-     its travel in the first third: the panels reached 95% of their movement
-     and 5% of their opacity by 346ms of a 620ms collapse, so they were gone
-     less than halfway through and the rest of the duration was empty. That
-     curve is shaped for something arriving, where the eye wants the payoff
-     early. This is the opposite motion — something being taken away — and it
-     has to keep faith with the pill it is returning to.
+/* On its way out it is scenery, not a control: nothing in it should take a
+   press while it folds. */
+.panel[data-closing="true"] {
+  pointer-events: none;
+}
 
-     So the movement is even, and the fade lags it deliberately: the panel is
-     still legible while it starts to travel, and only disappears as it
-     arrives. Both finish together, on the beat, which is what makes it read
-     as absorbed rather than dropped. Measured on the built page, the panel
-     holds 0.94 opacity at 120ms, passes half at 360ms and is at 0.03 by
-     600ms, so visibility switches on an already-invisible panel instead of
-     cutting one off mid-fade. */
-  transition:
-    opacity 620ms cubic-bezier(0.45, 0.05, 0.55, 0.95),
-    transform 620ms cubic-bezier(0.42, 0, 0.5, 1),
-    visibility 0s linear 620ms;
+/* Everything the panel says, as one box, so it can draw itself in before
+   the shell starts folding. */
+.panelContent {
+  display: block;
+}
+
+/* -- FOLD -> COMPRESS -> DOCK --
+   Closing a panel is the interaction, not the end of one. A panel does not
+   fade; it packs itself away into the control that opened it, and it does
+   that in three movements.
+
+   1. RETRACT (0-150ms). The readings draw in and settle a few pixels toward
+      the pill while the card is still its full size. Nothing has moved yet:
+      the panel is getting ready to close.
+   2. FOLD (150-480ms). The shell hinges from its top edge, the edge nearest
+      its own pill, and gets progressively THINNER rather than smaller.
+      scaleY runs far ahead of scaleX, a few degrees of rotateX give the
+      hinge somewhere to be, and a clip-path eats the far edge so the card
+      reads as folded rather than squashed. The rotation stays under seven
+      degrees; more than that and it stops being a folding panel and starts
+      being a card flipping in space.
+   3. DOCK (480-780ms). What is left travels to its pill and takes its
+      shape, the corner radius morphing to a full round on the way. The last
+      eighty milliseconds fade it out as it arrives, so it merges into the
+      control rather than vanishing above it.
+
+   WHERE IT GOES IS MEASURED, NOT WRITTEN. `--dock-x`, `--dock-y`,
+   `--dock-sx`, `--dock-sy` and `--fold-x` are set by HeroOptions from the
+   live rectangles of the panel and its own pill, every time an animation
+   starts. That is what makes it survive 1920, a laptop, a tablet, a phone,
+   and the panel becoming a bottom sheet below 1600px: the geometry is
+   whatever the DOM says it is. `--fold-x` is the hinge AND the docking
+   point, which is what ties the two halves of the movement together.
+
+   Opening is the same geometry backwards -- dock, expand, unfold, content --
+   so the two directions read as one system rather than two effects.
+
+   Only transform, clip-path and opacity animate. Nothing here touches
+   width, height, top or left.
+
+   -- The introduction --
+   On the first load all three panels are already open, so the visitor sees
+   what each pill holds before deciding which to press. HeroOptions runs it
+   once per page load and only from 1600px up, where each panel sits beside
+   its own pill; below that they are all the same bottom sheet, so there is
+   nothing to show three of. `show` is a resting state, not an entrance, so
+   nothing races the photograph. The fold back is staggered left to right by
+   55ms a panel: far too little to read as three animations, just enough
+   that they do not all leave on the same frame. */
+.panel[data-intro="show"] {
+  animation: none;
+}
+
+.panel {
+  transform-origin: var(--fold-x, 50%) 0%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel[data-open="true"] {
+    animation: heroPanelUndock 560ms both;
+  }
+
+  .panel[data-open="true"] .panelContent {
+    animation: heroContentResolve 220ms cubic-bezier(0.22, 1, 0.36, 1) 250ms
+      both;
+  }
+
+  .panel[data-closing="true"],
+  .panel[data-intro="fold"] {
+    animation: heroPanelDock 780ms both;
+    animation-delay: var(--intro-delay, 0ms);
+  }
+
+  .panel[data-closing="true"] .panelContent,
+  .panel[data-closing="true"] .close,
+  .panel[data-intro="fold"] .panelContent,
+  .panel[data-intro="fold"] .close {
+    animation: heroContentRetract 150ms cubic-bezier(0.4, 0, 0.2, 1)
+      var(--intro-delay, 0ms) both;
+  }
+
+  /* Too far from its pill for the journey to read as a gesture -- the hero
+     has been scrolled away. Fall back to the quiet version. */
+  .panel[data-dock="off"][data-closing="true"],
+  .panel[data-dock="off"][data-intro="fold"] {
+    animation: heroPanelFade 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  .panel[data-dock="off"][data-open="true"] {
+    animation: heroPanelFade 260ms cubic-bezier(0.22, 1, 0.36, 1) reverse both;
+  }
+}
+
+/* The three movements as one animation, so the browser owns the timing and
+   there is no chain of JavaScript timers to drift. Each keyframe carries the
+   easing for the segment that follows it: an even, confident curve through
+   the fold, and a decisive one into the dock. */
+@keyframes heroPanelDock {
+  0%,
+  19.2% {
+    transform: perspective(1200px) translate3d(0, 0, 0) scale(1, 1)
+      rotateX(0deg);
+    clip-path: inset(0 0 0 0 round var(--panel-radius));
+    border-radius: var(--panel-radius);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  40% {
+    transform: perspective(1200px)
+      translate3d(
+        calc(var(--dock-x, 0px) * 0.05),
+        calc(var(--dock-y, 0px) * 0.05),
+        0
+      )
+      scale(calc(1 - (1 - var(--dock-sx, 0.6)) * 0.06), 0.84) rotateX(-4.5deg);
+    clip-path: inset(0 0 16% 0 round 19px);
+    border-radius: 19px;
+    opacity: 1;
+  }
+
+  61.5% {
+    transform: perspective(1200px)
+      translate3d(
+        calc(var(--dock-x, 0px) * 0.13),
+        calc(var(--dock-y, 0px) * 0.13),
+        0
+      )
+      scale(calc(1 - (1 - var(--dock-sx, 0.6)) * 0.17), 0.54) rotateX(-6.5deg);
+    clip-path: inset(0 0 38% 0 round 22px);
+    border-radius: 22px;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  90% {
+    transform: perspective(1200px)
+      translate3d(
+        calc(var(--dock-x, 0px) * 0.93),
+        calc(var(--dock-y, 0px) * 0.93),
+        0
+      )
+      scale(
+        calc(var(--dock-sx, 0.6) + (1 - var(--dock-sx, 0.6)) * 0.06),
+        calc(var(--dock-sy, 0.2) + (0.54 - var(--dock-sy, 0.2)) * 0.06)
+      )
+      rotateX(-1.5deg);
+    clip-path: inset(0 0 4% 0 round 999px);
+    border-radius: 999px;
+    opacity: 1;
+  }
+
+  100% {
+    transform: perspective(1200px)
+      translate3d(var(--dock-x, 0px), var(--dock-y, 0px), 0)
+      scale(calc(var(--dock-sx, 0.6) * 0.97), calc(var(--dock-sy, 0.2) * 0.94))
+      rotateX(0deg);
+    clip-path: inset(0 0 0 0 round 999px);
+    border-radius: 999px;
+    opacity: 0;
+  }
+}
+
+/* Opening: out of the pill, unfold, then the content resolves in. */
+@keyframes heroPanelUndock {
+  0% {
+    transform: perspective(1200px)
+      translate3d(var(--dock-x, 0px), var(--dock-y, 0px), 0)
+      scale(calc(var(--dock-sx, 0.6) * 0.97), calc(var(--dock-sy, 0.2) * 0.94))
+      rotateX(0deg);
+    clip-path: inset(0 0 0 0 round 999px);
+    border-radius: 999px;
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  14% {
+    transform: perspective(1200px)
+      translate3d(
+        calc(var(--dock-x, 0px) * 0.9),
+        calc(var(--dock-y, 0px) * 0.9),
+        0
+      )
+      scale(
+        calc(var(--dock-sx, 0.6) + (1 - var(--dock-sx, 0.6)) * 0.08),
+        calc(var(--dock-sy, 0.2) + (0.54 - var(--dock-sy, 0.2)) * 0.08)
+      )
+      rotateX(-2deg);
+    clip-path: inset(0 0 6% 0 round 999px);
+    border-radius: 999px;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  46% {
+    transform: perspective(1200px)
+      translate3d(
+        calc(var(--dock-x, 0px) * 0.13),
+        calc(var(--dock-y, 0px) * 0.13),
+        0
+      )
+      scale(calc(1 - (1 - var(--dock-sx, 0.6)) * 0.17), 0.54) rotateX(-6deg);
+    clip-path: inset(0 0 38% 0 round 22px);
+    border-radius: 22px;
+    opacity: 1;
+  }
+
+  74% {
+    transform: perspective(1200px)
+      translate3d(
+        calc(var(--dock-x, 0px) * 0.04),
+        calc(var(--dock-y, 0px) * 0.04),
+        0
+      )
+      scale(calc(1 - (1 - var(--dock-sx, 0.6)) * 0.05), 0.88) rotateX(-3deg);
+    clip-path: inset(0 0 12% 0 round 18px);
+    border-radius: 18px;
+    opacity: 1;
+  }
+
+  100% {
+    transform: perspective(1200px) translate3d(0, 0, 0) scale(1, 1)
+      rotateX(0deg);
+    clip-path: inset(0 0 0 0 round var(--panel-radius));
+    border-radius: var(--panel-radius);
+    opacity: 1;
+  }
+}
+
+@keyframes heroPanelFade {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+
+@keyframes heroContentRetract {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-5px) scale(0.985);
+  }
+}
+
+@keyframes heroContentResolve {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.99);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .panelTitle {
@@ -331,12 +635,6 @@
     top: 25.4%;
     width: clamp(19rem, 20vw, 23rem);
     padding: 0.9rem 1.2rem 1rem;
-    transform: translateY(8px) scale(0.985);
-    transform-origin: top left;
-  }
-
-  .panel[data-open="true"] {
-    transform: none;
   }
 
   .panel[data-option="securevision"] {
@@ -352,7 +650,6 @@
     right: 1.8%;
     width: clamp(13.5rem, 13.5vw, 16rem);
     padding: 0.9rem 1rem 1rem;
-    transform-origin: top right;
   }
 }
 
@@ -362,15 +659,15 @@
   .panel {
     position: fixed;
     z-index: 71;
-    left: 50%;
+    /* Centred by the box, not by a transform: the fold needs the transform
+       property to itself, and a translate(-50%) baked into the resting
+       state would have to be carried through every keyframe. */
+    left: 0;
+    right: 0;
+    margin-inline: auto;
     bottom: max(1rem, env(safe-area-inset-bottom));
     width: min(30rem, calc(100vw - 2rem));
     padding: 1.15rem 1.25rem 1.25rem;
-    transform: translate(-50%, 16px);
-  }
-
-  .panel[data-open="true"] {
-    transform: translate(-50%, 0);
   }
 
   .layer {
@@ -435,7 +732,8 @@
   .caption {
     position: static;
     width: auto;
-    padding: clamp(2rem, 7vw, 3.5rem) clamp(1.25rem, 5vw, 2.5rem) clamp(1.5rem, 5vw, 2.25rem);
+    padding: clamp(2rem, 7vw, 3.5rem) clamp(1.25rem, 5vw, 2.5rem)
+      clamp(1.5rem, 5vw, 2.25rem);
   }
 
   .title {
@@ -477,21 +775,28 @@
    before it runs. These two rules are the belt: the selectors above are more
    specific than the blanket reduced-motion rules below, so without them a
    future change that let the intro through would animate anyway. */
-@media (prefers-reduced-motion: reduce) {
-  .panel[data-intro="show"],
-  .panel[data-intro="fold"] {
-    transform: none;
-    transition: none;
-  }
-}
-
+/* Reduced motion gets none of it: no page-load reveal (HeroOptions checks
+   before it starts, and these rules are the belt), no fold, no travel, no
+   morph. Opening and closing are a short opacity change and nothing else.
+   The panel is still fully usable; it simply does not perform. */
 @media (prefers-reduced-motion: reduce) {
   .panel,
   .panel[data-open="true"],
+  .panel[data-closing="true"],
+  .panel[data-intro],
+  .panel .panelContent,
+  .panel .close,
+  .hotspot,
+  .hotspot::after {
+    animation: none !important;
+    transform: none;
+  }
+
+  .panel,
   .scrim {
     transition:
-      opacity 150ms linear,
-      visibility 0s linear 150ms;
+      opacity 120ms linear,
+      visibility 0s linear 120ms;
   }
 
   .panel[data-open="true"],
@@ -499,20 +804,12 @@
     transition-delay: 0s;
   }
 
+  .panel[data-closing="true"] {
+    opacity: 0;
+  }
+
   .hotspot {
     transition: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) and (min-width: 1600px) {
-  .panel {
-    transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) and (max-width: 1599px) {
-  .panel {
-    transform: translate(-50%, 0);
   }
 }
 
@@ -527,9 +824,9 @@
    -------------------------------------------------------------------------
    The night picture is 1759:894 — wider than the daylight one — and has no
    painted pills or caption. So in dark the stage takes the night picture's
-   own box, the HTML caption gains an eyebrow, its own paragraph and two
-   calls to action, a soft shade sits under the words, and the pill
-   hotspots (with their panels) are light-only. The light hero is untouched:
+   own box, the HTML caption gains an eyebrow and its own paragraph (no
+   calls to action, by the founder's decision), a soft shade sits under
+   the words, and the pill hotspots (with their panels) are light-only. The light hero is untouched:
    every rule here is scoped to `.dark`, and the dark-only copy is hidden
    in light by `.darkOnly`.
    ========================================================================= */
@@ -585,69 +882,6 @@
   color: #b8c1d2;
 }
 
-:global(.dark) .actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: clamp(1.1rem, 1.9vw, 2.1rem);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 3rem;
-  padding: 0 1.5rem;
-  border-radius: 999px;
-  font-size: 0.975rem;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  text-decoration: none;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 160ms ease;
-}
-
-.btn:focus-visible {
-  outline: 2px solid #b9c4ea;
-  outline-offset: 3px;
-}
-
-/* Soft indigo, never the electric ramp. */
-.primary {
-  color: #ffffff;
-  background: linear-gradient(180deg, #4b63ad 0%, #3c5196 100%);
-  box-shadow:
-    0 10px 24px rgb(8 12 30 / 0.45),
-    inset 0 1px 0 rgb(255 255 255 / 0.16);
-}
-
-.primary:hover {
-  background: linear-gradient(180deg, #546cb6 0%, #43599f 100%);
-  transform: translateY(-1px);
-}
-
-.arrow {
-  transition: transform 160ms ease;
-}
-
-.primary:hover .arrow {
-  transform: translateX(3px);
-}
-
-.secondary {
-  color: #e6ebf4;
-  background: rgb(255 255 255 / 0.06);
-  border: 1px solid rgb(255 255 255 / 0.3);
-}
-
-.secondary:hover {
-  background: rgb(255 255 255 / 0.12);
-  border-color: rgb(255 255 255 / 0.45);
-}
-
 @media (min-width: 1024px) {
   /* The night picture is framed like the day one: a little off the top
      (sky), a little off the bottom (floor). 6.5% of its height off the top,
@@ -658,9 +892,11 @@
 
   /* The night picture's walkers start at 27% of its width (the day
      picture's at 31%), so the paragraph keeps the column's own measure
-     and wraps rather than reaching toward them. */
+     and wraps rather than reaching toward them. With no calls to action
+     the block is shorter, so it sits lower: its middle stays a touch above
+     the frame's, where the taller block's used to be. */
   :global(.dark) .caption {
-    top: 8.6vw;
+    top: 11.2vw;
   }
 
   :global(.dark) .shade {
@@ -676,17 +912,5 @@
       rgb(4 8 20 / 0.28) 36%,
       rgb(4 8 20 / 0) 47%
     );
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .btn,
-  .arrow {
-    transition: none;
-  }
-
-  .primary:hover,
-  .primary:hover .arrow {
-    transform: none;
   }
 }

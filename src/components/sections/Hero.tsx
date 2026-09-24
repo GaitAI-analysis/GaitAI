@@ -2,7 +2,6 @@ import { HERO_SCENE } from "@/data/home-hero";
 import { ThemePicture } from "@/components/ui/ThemePicture";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import { HeroOptions } from "./HeroOptions";
-import { HeroWalk } from "./HeroWalk";
 import styles from "./homehero.module.css";
 import haze from "./herohaze.module.css";
 
@@ -78,8 +77,10 @@ export function Hero() {
           height={HERO_SCENE.height}
           priority
         />
-        {/* Only the human in the Pose analysis panel moves — see HeroWalk. */}
-        <HeroWalk />
+        {/* The digital human is the artwork's own still figure. The puppet
+            walk (HeroWalk, 680c4ad) was rejected by the founder on
+            2026-09-24 and removed; any motion for it is chosen from preview
+            options first, never shipped as an experiment. */}
         <HeroOptions />
       </div>
 

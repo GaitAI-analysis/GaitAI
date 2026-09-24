@@ -353,6 +353,23 @@ export function HeroOptions() {
     return () => Object.values(pending).forEach(window.clearTimeout);
   }, []);
 
+  /**
+   * A press on a dot or on its pill: the same card either way. The dot and
+   * the pill are two entry points to one panel, so a single press on the dot
+   * opens the full card -- the pill comes out and the card unfolds from it in
+   * one movement (the dock geometry is measured from the pill as it emerges)
+   * rather than stopping at the pill and waiting for a second press. Pressing
+   * the open option again closes it.
+   */
+  const toggle = useCallback(
+    (id: HeroOptionId) => {
+      reachFor(id);
+      if (open === id) beginClose(id);
+      else beginOpen(id);
+    },
+    [open, reachFor, beginOpen, beginClose],
+  );
+
   /** Whether an option's pill is out of its dot. */
   const pillOut = (id: HeroOptionId) =>
     stage === "out" ||
@@ -402,7 +419,7 @@ export function HeroOptions() {
               style={{ left: `${dotX * 100}%`, top: `${dotY * 100}%` }}
               onPointerEnter={() => reachFor(option.id)}
               onPointerLeave={() => letGo(option.id)}
-              onClick={() => reachFor(option.id)}
+              onClick={() => toggle(option.id)}
             />
             <button
               ref={(el) => {
@@ -434,9 +451,7 @@ export function HeroOptions() {
               onPointerLeave={() => letGo(option.id)}
               onFocus={() => reachFor(option.id)}
               onBlur={() => letGo(option.id)}
-              onClick={() =>
-                expanded ? beginClose(option.id) : beginOpen(option.id)
-              }
+              onClick={() => toggle(option.id)}
             >
               <span className={styles.pillLabel}>{option.label}</span>
               <svg

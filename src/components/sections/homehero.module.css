@@ -26,25 +26,23 @@
   background: #eef2f7;
 }
 
-/* THE FRAME (2026-09-24, founder: "crop a little from the top", then
-   "still a bit lengthy"). On the side-by-side widths the section shows
-   77% of the picture's height: 13% comes off the top (sky and tower tops)
-   and 10% off the bottom (floor and reflections), so the composition sits
-   tight without losing the caption's haze, the three pills (which start
-   at 18.65%) or anyone's feet (the lowest, the model figure's, end at
-   88%). Those two numbers are the limits — do not crop further.
+/* THE FRAME (2026-09-24). The founder tuned this by eye: 86% of the
+   picture's height was "a bit lengthy", 77% was "a little short", and 82%
+   is the fit — 11% off the top (sky and tower tops) and 7% off the bottom
+   (floor and reflections). The hard limits are 18.65% at the top (where
+   the pills start) and 88% at the bottom (the model figure's feet).
    The picture itself is untouched — still
    `cover` in its own 1672:941 box, just raised inside the frame. Hotspots
    and panels are placed in fractions of that box, so they move with it. */
 @media (min-width: 1024px) {
   .hero {
-    aspect-ratio: 1672 / 724.6;
+    aspect-ratio: 1672 / 771.6;
   }
 
-  /* 13% of the picture's height, expressed as a share of its width
-     (margins resolve against width): 0.13 × 941 / 1672 = 7.316%. */
+  /* 11% of the picture's height, expressed as a share of its width
+     (margins resolve against width): 0.11 × 941 / 1672 = 6.191%. */
   .stage {
-    margin-top: -7.316%;
+    margin-top: -6.191%;
   }
 }
 
@@ -70,8 +68,8 @@
   z-index: 2;
   left: 3.11vw;
   /* Sits in the haze, a touch above the frame's middle (the frame is
-     43.3vw tall, the block about 15.6vw). */
-  top: 10.5vw;
+     46.1vw tall, the block about 15.6vw). */
+  top: 11.5vw;
   width: 30vw;
 }
 

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { HERO_OPTIONS, type HeroOptionId } from "@/data/home-hero";
+import { HERO_OPTIONS, HERO_SCENE, type HeroOptionId } from "@/data/home-hero";
 import { HeroPanelBody } from "./HeroPanelBody";
 import { useHeroTelemetry } from "./useHeroTelemetry";
 import styles from "./homehero.module.css";
@@ -494,6 +494,39 @@ export function HeroOptions() {
 
   return (
     <>
+      {/* THE CONNECTORS.
+          One arc per option, from its dot up to where its pill begins. These
+          were painted into the photograph until now; they were traced off the
+          file, fitted and then removed from the artwork, so the line on screen
+          is the line that was always there — it is simply drawable now, which
+          means it can thin out, fade, answer a hover and follow a theme.
+
+          The viewBox is the picture's own pixel box, and the stage carries the
+          same aspect ratio, so a path in picture coordinates lands exactly on
+          the picture. `non-scaling-stroke` keeps the line 1.2px at every
+          width instead of fattening with the photograph. */}
+      <svg
+        aria-hidden="true"
+        focusable="false"
+        className={styles.connectors}
+        viewBox={`0 0 ${HERO_SCENE.width} ${HERO_SCENE.height}`}
+        fill="none"
+      >
+        {HERO_OPTIONS.map((option) => {
+          const [p0, c1, c2, p3] = option.arc;
+          const px = ([x, y]: readonly [number, number]) =>
+            `${(x * HERO_SCENE.width).toFixed(2)},${(y * HERO_SCENE.height).toFixed(2)}`;
+          return (
+            <path
+              key={option.id}
+              className={styles.connector}
+              data-live={pillOut(option.id) ? "true" : undefined}
+              d={`M${px(p0)} C${px(c1)} ${px(c2)} ${px(p3)}`}
+              vectorEffect="non-scaling-stroke"
+            />
+          );
+        })}
+      </svg>
       {HERO_OPTIONS.map((option, index) => {
         const [left, top, , height] = option.pill;
         const [dotX, dotY] = option.dot;

@@ -282,6 +282,20 @@ export interface HeroOption {
    */
   readonly dot: readonly [number, number];
   /**
+   * The connector, as a cubic Bezier: start, two controls, end, each x,y a
+   * fraction of the picture. It used to be painted into the photograph; the
+   * three arcs were traced off the file, fitted (rms 0.58 to 1.71px) and then
+   * removed from the artwork, so these numbers ARE the painted geometry and
+   * the composition did not move. Fractions rather than pixels so the same
+   * curve can be drawn over a differently sized stage.
+   */
+  readonly arc: readonly [
+    readonly [number, number],
+    readonly [number, number],
+    readonly [number, number],
+    readonly [number, number],
+  ];
+  /**
    * Pose analysis is the shared analysis layer under both products, not a
    * third product — its panel is deliberately smaller and quieter.
    */
@@ -356,6 +370,12 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     label: "SecureVision",
     pill: [653 / 1672, 175.5 / 941, 193 / 1672, 50 / 941],
     dot: [620 / 1672, 287 / 941],
+    arc: [
+      [620 / 1672, 287 / 941],
+      [591.16 / 1672, 248.01 / 941],
+      [617.23 / 1672, 198.57 / 941],
+      [653 / 1672, 200.5 / 941],
+    ],
     tier: "product",
     metrics: [
       {
@@ -391,6 +411,12 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     label: "MobilityCare",
     pill: [999.5 / 1672, 175.5 / 941, 194.5 / 1672, 49 / 941],
     dot: [969 / 1672, 288 / 941],
+    arc: [
+      [969 / 1672, 288 / 941],
+      [943.93 / 1672, 246.92 / 941],
+      [961.93 / 1672, 203.52 / 941],
+      [999.5 / 1672, 200 / 941],
+    ],
     tier: "product",
     metrics: [
       {
@@ -446,6 +472,12 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     label: "Pose analysis",
     pill: [1379.5 / 1672, 176 / 941, 205.5 / 1672, 49.5 / 941],
     dot: [1352 / 1672, 286 / 941],
+    arc: [
+      [1352 / 1672, 286 / 941],
+      [1317.42 / 1672, 246.95 / 941],
+      [1348.71 / 1672, 197.57 / 941],
+      [1379.5 / 1672, 200.75 / 941],
+    ],
     tier: "layer",
     metrics: [
       {

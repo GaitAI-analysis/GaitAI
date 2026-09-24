@@ -1,6 +1,7 @@
 "use client";
 
 import type { HeroOption } from "@/data/home-hero";
+import { assetPath } from "@/lib/paths";
 import { SPARK_POINTS, type Reading } from "./useHeroTelemetry";
 import styles from "./heropanels.module.css";
 
@@ -59,22 +60,36 @@ function Spark({ points }: { points: readonly number[] }) {
 }
 
 /**
- * SecureVision's live preview: an abstract plan view of people crossing a
- * concourse. Six marks on two lanes, each drifting at its own pace, fading in
- * and out at the edges so nothing pops. It is not a diagram of anything — it
- * is the movement itself, which is what the panel is measuring, and it is the
- * one thing that makes the security panel visibly busier than the clinical one
- * without adding a single icon.
+ * SecureVision's preview: the founder's own frame, at the top of the panel.
+ *
+ * This used to be an abstract plan view — six marks drifting along two lanes.
+ * The founder supplied a real one (2026-09-24) and asked for it exactly as
+ * saved, so the drawing is gone and the photograph is here instead: an aerial
+ * of a crossing with four pedestrians tracked.
+ *
+ * THE FRAME IS THEIRS; THE OVERLAY IS NOT. The reference draws its detection
+ * boxes in a saturated electric blue, which is the one colour this hero does
+ * not use. The photograph is untouched and nothing has been redrawn, but the
+ * overlay has been pulled onto the panel's own slate and periwinkle, so it
+ * belongs to the same palette as the rows beneath it. See
+ * scripts/hero-preview/.
+ *
+ * Decorative: everything it shows is stated in the rows below, so repeating
+ * it to a screen reader would be noise.
  */
 function FlowPreview() {
   return (
-    <div className={styles.preview} aria-hidden="true">
-      <span className={styles.previewLane} data-lane="near" />
-      <span className={styles.previewLane} data-lane="far" />
-      {[0, 1, 2, 3, 4, 5].map((i) => (
-        <span key={i} className={styles.walker} data-walker={i} />
-      ))}
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element -- static export; pre-sized
+    <img
+      className={styles.preview}
+      src={assetPath("/images/hero/securevision-preview.png")}
+      alt=""
+      aria-hidden="true"
+      width={225}
+      height={150}
+      decoding="async"
+      loading="lazy"
+    />
   );
 }
 

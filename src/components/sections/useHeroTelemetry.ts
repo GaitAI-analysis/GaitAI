@@ -131,7 +131,7 @@ function read(metric: HeroMetric, live: Live): Reading {
   }
   const [lo, hi] = metric.scale ?? [metric.min, metric.max];
   const span = hi - lo || 1;
-  const figure = live.value.toFixed(metric.decimals);
+  const figure = (metric.prefix ?? "") + live.value.toFixed(metric.decimals);
   return {
     text: join(figure, metric.unit),
     figure,

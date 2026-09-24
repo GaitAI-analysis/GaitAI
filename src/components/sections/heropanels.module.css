@@ -215,123 +215,33 @@
   height: 0.7rem;
 }
 
-/* ── SecureVision's flow preview ──
-   An abstract plan view of a concourse: two lanes and six marks crossing
-   them at their own speeds. Not a diagram and not an icon — the movement
-   itself, which is the thing being measured. */
+/* ── SecureVision's preview ──
+   The founder's own frame, shown as supplied. A 3:2 band across the top of
+   the panel, sized by the panel rather than by the file so it keeps its
+   proportion at every width; `cover` only ever trims a sliver of road,
+   never one of the four tracked pedestrians, who sit well inside the frame.
+
+   The hairline and the inner shadow are the panel's, not the picture's:
+   they seat it in the card so it reads as a view onto something rather than
+   a sticker on top of one. */
 .preview {
-  position: relative;
-  height: 2.1rem;
-  margin: 0 0 0.65rem;
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, rgb(15 28 58 / 0.045), rgb(15 28 58 / 0.015));
-  border: 1px solid rgb(15 28 58 / 0.06);
-  overflow: hidden;
-}
-
-/* The lanes fade at both ends, so the preview reads as a view INTO a
-   concourse rather than a box with two rules drawn across it. */
-.previewLane {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgb(15 28 58 / 0),
-    rgb(15 28 58 / 0.1) 18%,
-    rgb(15 28 58 / 0.1) 82%,
-    rgb(15 28 58 / 0)
-  );
-}
-
-.previewLane[data-lane="far"] {
-  top: 38%;
-}
-
-.previewLane[data-lane="near"] {
-  top: 72%;
-}
-
-/* Each mark is a short vertical stroke — a person seen from above, at the
-   level of abstraction the rest of the panel uses. */
-.walker {
-  position: absolute;
-  width: 2px;
-  border-radius: 1px;
-  background: #61729a;
-  opacity: 0;
-  animation-name: cross;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-}
-
-/* The far lane is smaller, paler and slower: perspective, stated with two
-   numbers rather than a gradient. */
-.walker[data-walker="0"],
-.walker[data-walker="1"],
-.walker[data-walker="2"] {
-  top: 30%;
-  height: 12%;
-  opacity: 0;
-  background: #8b96b2;
-}
-
-.walker[data-walker="3"],
-.walker[data-walker="4"],
-.walker[data-walker="5"] {
-  top: 60%;
-  height: 18%;
-}
-
-.walker[data-walker="0"] {
-  animation-duration: 9.5s;
-  animation-delay: -1.2s;
-}
-.walker[data-walker="1"] {
-  animation-duration: 11s;
-  animation-delay: -5.4s;
-}
-.walker[data-walker="2"] {
-  animation-duration: 8.4s;
-  animation-delay: -7.1s;
-}
-.walker[data-walker="3"] {
-  animation-duration: 7.2s;
-  animation-delay: -0.4s;
-}
-.walker[data-walker="4"] {
-  animation-duration: 8.8s;
-  animation-delay: -3.9s;
-}
-.walker[data-walker="5"] {
-  animation-duration: 6.6s;
-  animation-delay: -5.9s;
-}
-
-@keyframes cross {
-  0% {
-    left: -3%;
-    opacity: 0;
-  }
-  12% {
-    opacity: 0.55;
-  }
-  88% {
-    opacity: 0.55;
-  }
-  100% {
-    left: 101%;
-    opacity: 0;
-  }
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  height: auto;
+  margin: 0 0 0.7rem;
+  border-radius: 9px;
+  border: 1px solid rgb(15 28 58 / 0.08);
+  object-fit: cover;
+  object-position: 50% 45%;
+  background: rgb(15 28 58 / 0.03);
 }
 
 /* ── Reduced motion ──
    Everything that moves here is reporting, not decoration, so none of it is
-   removed: it is stilled. The hook stops updating the numbers, the roll and
-   the walkers stop, and the tracks land on their resting values with no
-   travel. What is left is the approved static read-out. */
+   removed: it is stilled. The hook stops updating the numbers, the roll
+   stops, and the tracks land on their resting values with no travel. What
+   is left is the approved static read-out. */
 @media (prefers-reduced-motion: reduce) {
   .roll {
     animation: none;
@@ -340,27 +250,5 @@
   .figure,
   .spark {
     transition: none;
-  }
-  .walker {
-    animation: none;
-    opacity: 0.45;
-  }
-  .walker[data-walker="0"] {
-    left: 14%;
-  }
-  .walker[data-walker="1"] {
-    left: 46%;
-  }
-  .walker[data-walker="2"] {
-    left: 77%;
-  }
-  .walker[data-walker="3"] {
-    left: 27%;
-  }
-  .walker[data-walker="4"] {
-    left: 58%;
-  }
-  .walker[data-walker="5"] {
-    left: 88%;
   }
 }

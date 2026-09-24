@@ -326,6 +326,9 @@ export type HeroMetric =
       readonly step: number;
       readonly decimals: number;
       readonly unit?: string;
+      /** Printed hard against the figure, for a reading that is a change
+          rather than a level: "+22%". */
+      readonly prefix?: string;
       /** Ends of the track, when the row draws one. */
       readonly scale?: readonly [number, number];
       readonly spark?: true;
@@ -377,6 +380,10 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
       { kind: "fixed", label: "Privacy mode", value: "Active", tone: "gold" },
       { kind: "fixed", label: "Identity matching", value: "Optional" },
       { kind: "fixed", label: "Access status", value: "Authorised", tone: "gold" },
+      /* Seventh row, added on the founder's brief (2026-09-24). Plain, not
+         gold: privacy and authorisation are the two assurances this panel
+         makes, and a third highlight would flatten both. */
+      { kind: "fixed", label: "Risk level", value: "Low" },
     ],
   },
   {
@@ -401,13 +408,13 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
       {
         kind: "reading",
         label: "Gait speed",
-        base: 0.78,
-        min: 0.74,
-        max: 0.86,
+        base: 1.02,
+        min: 0.97,
+        max: 1.09,
         step: 0.03,
         decimals: 2,
         unit: "m/s",
-        scale: [0.4, 1.2],
+        scale: [0.4, 1.4],
         spark: true,
       },
       {
@@ -427,25 +434,11 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
         states: ["Stable", "Slight variation"],
         settle: 0.78,
       },
-      {
-        kind: "reading",
-        label: "Recovery progress",
-        base: 64,
-        min: 62,
-        max: 71,
-        /* Wider than the measurements' steps, and deliberately so: this is
-           the only whole-number reading with no decimal to show movement in,
-           so a step of 0.5 left it rounding to the same integer every tick
-           and printing a frozen "65 %" under a track that never moved. */
-        step: 1.2,
-        decimals: 0,
-        unit: "%",
-        scale: [0, 100],
-        /* The one reading with a bias: recovery should be seen to climb, so
-           it is pushed gently upward and capped, rather than drifting both
-           ways around a resting value like the measurements do. */
-        trend: 0.16,
-      },
+      /* A direction, not a percentage. This was a climbing figure, which
+         makes a claim the panel cannot support — 64% of what? — and the
+         founder's brief and their reference both read "Improving". The one
+         row here that reports a trajectory rather than a measurement. */
+      { kind: "fixed", label: "Recovery progress", value: "Improving" },
     ],
   },
   {
@@ -502,6 +495,10 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
         step: 0.7,
         decimals: 0,
         unit: "%",
+        /* The sign is the reading: this is a gain against a baseline, not an
+           absolute range, and 22% of absolute range would be a catastrophe
+           rather than a result. */
+        prefix: "+",
       },
       { kind: "fixed", label: "Identity", value: "Optional" },
     ],

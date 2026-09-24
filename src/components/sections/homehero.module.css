@@ -26,23 +26,25 @@
   background: #eef2f7;
 }
 
-/* THE FRAME (2026-09-24, founder: "crop a little from the top"). On the
-   side-by-side widths the section shows 86% of the picture's height: 10%
-   comes off the top (sky and tower tops) and 4% off the bottom (floor),
-   so the composition sits tighter without losing the caption's haze, the
-   three pills (which start at 18.65%) or anyone's feet (the lowest, the
-   model figure's, end at 88%). The picture itself is untouched — still
+/* THE FRAME (2026-09-24, founder: "crop a little from the top", then
+   "still a bit lengthy"). On the side-by-side widths the section shows
+   77% of the picture's height: 13% comes off the top (sky and tower tops)
+   and 10% off the bottom (floor and reflections), so the composition sits
+   tight without losing the caption's haze, the three pills (which start
+   at 18.65%) or anyone's feet (the lowest, the model figure's, end at
+   88%). Those two numbers are the limits — do not crop further.
+   The picture itself is untouched — still
    `cover` in its own 1672:941 box, just raised inside the frame. Hotspots
    and panels are placed in fractions of that box, so they move with it. */
 @media (min-width: 1024px) {
   .hero {
-    aspect-ratio: 1672 / 809.3;
+    aspect-ratio: 1672 / 724.6;
   }
 
-  /* 10% of the picture's height, expressed as a share of its width
-     (margins resolve against width): 0.10 × 941 / 1672 = 5.628%. */
+  /* 13% of the picture's height, expressed as a share of its width
+     (margins resolve against width): 0.13 × 941 / 1672 = 7.316%. */
   .stage {
-    margin-top: -5.628%;
+    margin-top: -7.316%;
   }
 }
 
@@ -67,10 +69,9 @@
   position: absolute;
   z-index: 2;
   left: 3.11vw;
-  /* Sits in the haze, a touch above the frame's middle: the painted
-     layout's 16vw less the 5.6vw the frame takes off the top, lowered
-     slightly so the block balances in the tighter frame. */
-  top: 11.5vw;
+  /* Sits in the haze, a touch above the frame's middle (the frame is
+     43.3vw tall, the block about 15.6vw). */
+  top: 10.5vw;
   width: 30vw;
 }
 

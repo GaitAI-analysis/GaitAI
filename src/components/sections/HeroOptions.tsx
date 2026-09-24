@@ -16,7 +16,7 @@ import styles from "./homehero.module.css";
  * image), so what the visitor clicks is the artwork itself.
  *
  * Nothing is visible until a pill is pressed. Then one frosted panel opens —
- * beside its pill on wide screens, as a bottom sheet below 1600px, where
+ * under its pill from 1024px, as a bottom sheet below that, where
  * there is no room beside the pills without covering the people. One panel
  * at a time: pressing another pill switches, pressing the same pill again,
  * Escape, or any press outside the pills and panels closes it.
@@ -82,7 +82,7 @@ const ASPECT = 941 / 1672;
  * read off the live DOM every time the animation starts, so the panel docks
  * into its own control at 1920, on a laptop, on a tablet and on a phone
  * without a single hard-coded offset, and it survives the panel becoming a
- * bottom sheet below 1600px.
+ * bottom sheet below 1024px.
  *
  * The fold is anchored to the panel's top edge at the pill's horizontal
  * centre. That point is both the hinge the panel folds toward and the point

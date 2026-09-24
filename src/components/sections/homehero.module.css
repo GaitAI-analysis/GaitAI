@@ -516,7 +516,7 @@
    `--dock-sx`, `--dock-sy` and `--fold-x` are set by HeroOptions from the
    live rectangles of the panel and its own pill, every time an animation
    starts. That is what makes it survive 1920, a laptop, a tablet, a phone,
-   and the panel becoming a bottom sheet below 1600px: the geometry is
+   and the panel becoming a bottom sheet below 1024px: the geometry is
    whatever the DOM says it is. `--fold-x` is the hinge AND the docking
    point, which is what ties the two halves of the movement together.
 
@@ -737,7 +737,7 @@
 
 .panelTitle {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   font-weight: 650;
   letter-spacing: -0.01em;
 }
@@ -745,9 +745,9 @@
 .panelTitle::after {
   content: "";
   display: block;
-  width: 1.4rem;
+  width: 1.25rem;
   height: 1.5px;
-  margin: 0.45rem 0 0.65rem;
+  margin: 0.35rem 0 0.5rem;
   background: #c9a667;
 }
 
@@ -780,7 +780,7 @@
 }
 
 .layer .panelTitle {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
@@ -809,8 +809,8 @@
 }
 
 .footnote {
-  margin: 0.6rem 0 0;
-  font-size: 0.66rem;
+  margin: 0.45rem 0 0;
+  font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -825,37 +825,47 @@
   display: none;
 }
 
-/* Wide screens: the panel opens just under its pill, clear of the caption
-   and above the people's heads. The band between the pills and the heads
-   is 24% of the picture's height; from 1600px up the panel fits in it. */
-@media (min-width: 1600px) {
+/* From 1024px the panel opens directly under its own pill, left edges
+   aligned, a small clean gap below it. It is a compact overlay, not a
+   dashboard window: sized in vw so it keeps its place in the picture, with a
+   rem floor so it stays readable on a laptop and a rem ceiling so it never
+   grows to dominate a 1920 hero. SecureVision leads, MobilityCare is a step
+   smaller, and Pose analysis -- the shared analysis layer, not a third
+   product -- is the narrowest. All three pills hang from the same line of
+   the artwork (21.33% of the picture), so they share one `top`. */
+@media (min-width: 1024px) {
   .panel {
     position: absolute;
     z-index: 4;
-    top: 25.4%;
-    width: clamp(19rem, 20vw, 23rem);
-    padding: 0.9rem 1.2rem 1rem;
+    top: calc(21.33% + clamp(2rem, 2.29vw, 2.875rem) / 2 + 0.625rem);
+    padding: 0.7rem 0.95rem 0.8rem;
   }
 
   .panel[data-option="securevision"] {
     left: 39.06%;
+    width: clamp(16rem, 15.6vw, 18.75rem);
   }
 
   .panel[data-option="mobilitycare"] {
     left: 59.78%;
+    width: clamp(15rem, 14.8vw, 17.75rem);
   }
 
-  /* Right-aligned beside the model figure, never over it. */
+  /* Under its pill, but never past the picture's right edge: on a laptop
+     the floor width would otherwise run off the side, so it slides left
+     just far enough to keep a margin. */
   .panel[data-option="pose"] {
-    right: 1.8%;
-    width: clamp(13.5rem, 13.5vw, 16rem);
-    padding: 0.9rem 1rem 1rem;
+    --pose-w: clamp(12.5rem, 11.2vw, 13.5rem);
+    left: min(82.51%, calc(100% - var(--pose-w) - 1.5%));
+    width: var(--pose-w);
+    padding: 0.65rem 0.85rem 0.75rem;
   }
 }
 
-/* Below 1600px there is no room beside the pills without covering the
-   people, so the same panel becomes a bottom sheet over a light scrim. */
-@media (max-width: 1599px) {
+/* Below 1024px the picture is too small to hold a card beside the pills
+   without covering the people, so the same panel becomes a bottom sheet
+   over a light scrim. */
+@media (max-width: 1023px) {
   .panel {
     position: fixed;
     z-index: 71;

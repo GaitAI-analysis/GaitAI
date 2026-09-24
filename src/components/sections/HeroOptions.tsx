@@ -42,18 +42,28 @@ import styles from "./homehero.module.css";
  *
  * THE INTRODUCTION.
  * -----------------------------------------------------------------------------
- * Once per page load: dots only for a second, then all three pills emerge
- * from their dots together, hold, and dock back in 250ms, leaving the dots
- * pulsing. It teaches what the dots are without leaving anything open. The
- * motion itself is CSS transitions (see "The anchor dots" in the stylesheet);
- * this component only moves the pills between `hidden` and `shown`.
+ * Once per page load: dots only for a second, then all three options emerge
+ * from their dots together, hold, and dock back, leaving the dots pulsing.
+ * Where hover can lead, that demonstration plays THREE times (the founder,
+ * 2026-09-25), each one starting 2.5s after the previous one has completely
+ * docked, so they never overlap; then it stops for good. Every repeat is the
+ * same gesture at the same speed, and the dots breathe in the pauses. Touch
+ * and narrow screens keep their pills out, so there is nothing to repeat and
+ * they get the single one.
  *
- * `introSpent` is module scope, so a soft navigation back to the homepage
- * lands straight on the resting hero while a refresh plays it again.
- * Scrolling, re-entering the viewport and hovering never restart it. The
- * first real press or keystroke ends it early and is honoured normally.
- * `prefers-reduced-motion` skips it: the dots are there, still, and a pill
- * appears without travelling. The night picture has no dots and no pills.
+ * It is ONE sequence with one pending timer (`intro`), kept apart from the
+ * close timers so ending it never strands a folding card. The visitor always
+ * wins: a press or keystroke anywhere ends it on the spot, and reaching for
+ * an option (hover, keyboard focus) during a pause cancels the rest and
+ * opens that card normally; reaching mid-demonstration lets that one fold
+ * away and stops there. `prefers-reduced-motion` gets none of it.
+ *
+ * `introSpent` is module scope, set only once the LAST demonstration has
+ * docked (or the visitor ended it), so a soft navigation back to the
+ * homepage lands straight on the resting hero while a refresh plays it
+ * again. Scrolling, re-entering the viewport, a card closing, a theme switch
+ * or a re-render never restart it. The motion itself is CSS (see "The anchor
+ * dots" in the stylesheet); this component only moves the stage.
  */
 
 /** Fold → compress → dock. Must match the keyframes in the stylesheet. */
@@ -64,6 +74,11 @@ const PILLS_OUT_AT = 1000;
 const PILLS_BACK_AT = 1800;
 /** 250ms after PILLS_BACK_AT: the dock has finished, the dots may breathe. */
 const PILLS_DOCKED_AT = 2050;
+
+/** How many times the introduction demonstrates itself, where hover leads. */
+const INTRO_REVEALS = 3;
+/** Rest between demonstrations, counted from the previous one fully docking. */
+const INTRO_REPEAT_DELAY = 2500;
 
 /**
  * How long an open card waits after the pointer leaves both it and its dot.
@@ -193,8 +208,16 @@ export function HeroOptions() {
    */
   const [pinned, setPinned] = useState<HeroOptionId | null>(null);
   const lingers = useRef<Partial<Record<HeroOptionId, number>>>({});
+  /* Whether the introduction still has demonstrations to come. */
+  const [introLive, setIntroLive] = useState(() => !introSpent);
   /* Read by the hover handlers, which are built once. */
-  const live = useRef({ open, pinned, dotLed: false, resting: false });
+  const live = useRef({
+    open,
+    pinned,
+    dotLed: false,
+    resting: false,
+    introLive: !introSpent,
+  });
   const buttons = useRef<
     Partial<Record<HeroOptionId, HTMLButtonElement | null>>
   >({});
@@ -202,6 +225,12 @@ export function HeroOptions() {
     {},
   );
   const timers = useRef<number[]>([]);
+  /* The introduction's one pending step. Only ever one: each step schedules
+     the next, so cancelling is clearing this and nothing can fire late. */
+  const intro = useRef<number | null>(null);
+  /* Set when the visitor reaches for an option mid-demonstration: that one
+     is allowed to fold away, and no further one is scheduled. */
+  const introLast = useRef(false);
 
   /* The readings only move while a panel is actually on screen: one card
      open, or all three during the introduction. See useHeroTelemetry. */
@@ -280,11 +309,15 @@ export function HeroOptions() {
     if (panel) delete panel.dataset.animating;
   }, []);
 
-  /** Straight to the resting hero: the introduction is over or skipped. */
+  /** Straight to the resting hero: the introduction is over or skipped.
+      Clears only the introduction's own timer -- a card folding closed keeps
+      its fallback timers. */
   const endIntro = useCallback(() => {
-    timers.current.forEach(window.clearTimeout);
-    timers.current = [];
+    if (intro.current !== null) window.clearTimeout(intro.current);
+    intro.current = null;
     introSpent = true;
+    live.current.introLive = false;
+    setIntroLive(false);
     setStage("rest");
     setBreathing(true);
   }, []);
@@ -307,6 +340,19 @@ export function HeroOptions() {
       return;
     }
 
+    /* The one timer. Each step schedules the next; `stopped` guards a step
+       that was already queued when the effect was torn down. */
+    let stopped = false;
+    const step = (fn: () => void, ms: number) => {
+      intro.current = window.setTimeout(
+        () => {
+          intro.current = null;
+          if (!stopped) fn();
+        },
+        Math.max(ms, 0),
+      );
+    };
+
     /* The second of dots-only counts from when the hero was first painted,
        not from hydration: the server markup already has every pill docked,
        so the visitor has been looking at dots since first paint. Always at
@@ -317,43 +363,60 @@ export function HeroOptions() {
       const paint = performance.getEntriesByName("first-contentful-paint")[0];
       const seen = fresh || !paint ? 0 : performance.now() - paint.startTime;
       const lead = Math.min(Math.max(seen, 0), PILLS_OUT_AT - 250);
-      const at = (ms: number) => ms - lead;
       const docks = window.matchMedia(DOT_LED_QUERY).matches;
       const cards = window.matchMedia(INTRO_CARDS_QUERY).matches;
-      setIntroCards(cards);
-      timers.current.push(
-        window.setTimeout(() => setStage("out"), at(PILLS_OUT_AT)),
+      /* Without hover the pills stay out, so there is nothing to dock and
+         nothing to repeat: `rest` then shows all three, the same frame. */
+      const reveals = docks ? INTRO_REVEALS : 1;
+      const hold = docks ? PILLS_BACK_AT - PILLS_OUT_AT : 450;
+      /* Until the fold has FINISHED: cards take the full close, pills their
+         250ms dock. The repeat delay counts from here, so two
+         demonstrations never overlap. */
+      const docking = !docks
+        ? 0
+        : cards
+          ? CLOSE_MS
+          : PILLS_DOCKED_AT - PILLS_BACK_AT;
+
+      const reveal = (n: number) => {
+        /* A card must never be opening and folding at once (both rules set
+           the animation, and the fold's wins), so a demonstration starts
+           from an empty `closing`. The 2.5s rest has always let the last
+           fold settle by now; this makes it a guarantee. */
+        setClosing([]);
+        /* Cards again, every time: the fold clears it. */
+        setIntroCards(cards);
+        setStage("out");
         /* A beat after the cards are up, measure each one against its own
-           pill, so the dock at the end of the introduction is the same
-           measured journey a hover-close makes. Measuring at the moment of
-           folding would be too late: the panels must already be laid out. */
-        window.setTimeout(
-          () => {
-            if (cards) for (const option of HERO_OPTIONS) arm(option.id);
-          },
-          at(PILLS_OUT_AT) + 60,
-        ),
-        // Without hover the pills stay out, so there is nothing to dock:
-        // `rest` then shows all three, which is the same frame.
-        window.setTimeout(
-          () => {
-            /* Every card docks back into its own dot at once — the same
-             fold-compress-dock the close uses, so the introduction ends
-             with the gesture the visitor will make themselves. */
+           pill -- every demonstration, so a window resized in between docks
+           to where the pills are now. Measuring at the moment of folding
+           would be too late: the panels must already be laid out. */
+        step(() => {
+          if (cards) for (const option of HERO_OPTIONS) arm(option.id);
+          step(() => {
+            /* Every card docks back into its own dot at once -- the same
+               fold-compress-dock the close uses, so the introduction ends
+               with the gesture the visitor will make themselves. */
             if (docks && cards) setClosing(HERO_OPTIONS.map((o) => o.id));
             setStage("rest");
             setIntroCards(false);
-          },
-          at(docks ? PILLS_BACK_AT : PILLS_OUT_AT + 450),
-        ),
-        window.setTimeout(
-          () => {
-            introSpent = true;
-            setBreathing(true);
-          },
-          at(docks ? PILLS_DOCKED_AT : PILLS_OUT_AT + 450),
-        ),
-      );
+            step(() => {
+              /* Docked. The dots breathe in the pause: that resting state
+                 is what each demonstration is pointing at. */
+              setBreathing(true);
+              if (n < reveals && !introLast.current) {
+                step(() => reveal(n + 1), INTRO_REPEAT_DELAY);
+              } else {
+                introSpent = true;
+                live.current.introLive = false;
+                setIntroLive(false);
+              }
+            }, docking);
+          }, hold - 60);
+        }, 60);
+      };
+
+      step(() => reveal(1), PILLS_OUT_AT - lead);
     };
 
     // A tab opened in the background still gets its introduction, when it is
@@ -372,17 +435,25 @@ export function HeroOptions() {
     }
 
     return () => {
+      stopped = true;
       if (onVisible)
         document.removeEventListener("visibilitychange", onVisible);
-      timers.current.forEach(window.clearTimeout);
-      timers.current = [];
+      if (intro.current !== null) window.clearTimeout(intro.current);
+      intro.current = null;
     };
   }, [endIntro, arm]);
 
-  // Any real press or keystroke ends the introduction early. Capture phase, so
-  // a press on a pill ends it and still opens that pill's panel.
+  /* The close fallback timers go with the component. */
   useEffect(() => {
-    if (stage === "rest") return;
+    const pending = timers.current;
+    return () => pending.forEach(window.clearTimeout);
+  }, []);
+
+  // Any real press or keystroke ends the introduction -- mid-demonstration or
+  // in a pause between two. Capture phase, so a press on a dot or a pill ends
+  // it and still opens that card normally.
+  useEffect(() => {
+    if (!introLive) return;
     const stop = () => endIntro();
     document.addEventListener("pointerdown", stop, true);
     document.addEventListener("keydown", stop, true);
@@ -390,7 +461,7 @@ export function HeroOptions() {
       document.removeEventListener("pointerdown", stop, true);
       document.removeEventListener("keydown", stop, true);
     };
-  }, [stage, endIntro]);
+  }, [introLive, endIntro]);
 
   /**
    * The visitor reaches for an option — hovers its dot or its card, or
@@ -407,9 +478,16 @@ export function HeroOptions() {
       window.clearTimeout(lingers.current[id]);
       setReach((list) => (list.includes(id) ? list : [...list, id]));
       const now = live.current;
+      /* The visitor has found the options: no more demonstrations. In a
+         pause the rest are cancelled now and this card opens normally;
+         mid-demonstration, that one folds away first and is the last. */
+      if (now.introLive) {
+        if (now.resting) endIntro();
+        else introLast.current = true;
+      }
       if (now.dotLed && now.resting && now.open !== id) beginOpen(id);
     },
-    [beginOpen],
+    [beginOpen, endIntro],
   );
 
   /**
@@ -432,8 +510,14 @@ export function HeroOptions() {
   /* The hover handlers are built once, so they read the world through this
      rather than through a closure that was right three renders ago. */
   useEffect(() => {
-    live.current = { open, pinned, dotLed, resting: stage === "rest" };
-  }, [open, pinned, dotLed, stage]);
+    live.current = {
+      open,
+      pinned,
+      dotLed,
+      resting: stage === "rest",
+      introLive,
+    };
+  }, [open, pinned, dotLed, stage, introLive]);
 
   useEffect(() => {
     const pending = lingers.current;
@@ -445,22 +529,27 @@ export function HeroOptions() {
    * the pill are two entry points to one panel, so a single press on the dot
    * opens the full card -- the pill comes out and the card unfolds from it in
    * one movement (the dock geometry is measured from the pill as it emerges)
-   * rather than stopping at the pill and waiting for a second press. Pressing
-   * the open option again closes it.
+   * rather than stopping at the pill and waiting for a second press. A press on
+   * a card hover opened pins it; a press on a pinned card closes it.
    */
   const toggle = useCallback(
     (id: HeroOptionId) => {
       window.clearTimeout(lingers.current[id]);
       setReach((list) => (list.includes(id) ? list : [...list, id]));
-      if (open === id) {
-        setPinned((p) => (p === id ? null : p));
+      if (open === id && pinned !== id) {
+        /* Hover already opened it, so the press is the visitor choosing it:
+           pin it open. Closing here would make a dot press dismiss the very
+           card the pointer brought up on the way to it. */
+        setPinned(id);
+      } else if (open === id) {
+        setPinned(null);
         beginClose(id);
       } else {
         setPinned(id);
         beginOpen(id);
       }
     },
-    [open, beginOpen, beginClose],
+    [open, pinned, beginOpen, beginClose],
   );
 
   /** Whether an option's pill is out of its dot. */

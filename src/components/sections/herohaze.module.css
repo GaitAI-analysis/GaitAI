@@ -1,0 +1,73 @@
+/* =========================================================================
+   DARK HERO: THE TEXT-SUPPORT HAZE (2026-09-24)
+   -------------------------------------------------------------------------
+   The daylight artwork was painted with an empty, misty band on the left for
+   the caption to sit in. The night artwork has no such band: the lit towers
+   and trees behind "For health, safety and identity." and the first walker
+   behind the paragraph are busy and bright, and the flat `.shade` gradient
+   in homehero.module.css had faded out by then.
+
+   This is the dark equivalent of the painted mist, built in three layers so
+   no single one has to be strong enough to show as a shape:
+
+     1. a soft BLUR zone (backdrop-filter), masked so it is full behind the
+        words and gone well before the middle panel. Blur is what quietens
+        the lit windows and leaves; darkening alone just makes them dim
+        detail that the eye still reads through the type.
+     2. a deeper left-to-right GRADIENT carried further across than `.shade`,
+        so the accent line and the second button still have ground under
+        them. It never reaches the clinic panel.
+     3. a radial FOG centred on the headline block, the "breath" behind the
+        words, which is what keeps it from reading as a band.
+
+   Every stop is a soft ramp, and no layer ends on a hard edge. Dark only,
+   and wide screens only (below 1024px the caption sits above the picture on
+   the page's own ground). The picture itself is not touched: this is a
+   sibling layer between it and the caption.
+   ========================================================================= */
+
+.haze {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  :global(.dark) .haze {
+    position: absolute;
+    inset: 0;
+    /* Above the picture and `.shade` (z 1), below the caption (z 2). */
+    z-index: 1;
+    display: block;
+    pointer-events: none;
+    background:
+      /* 3. fog behind the headline block */
+      radial-gradient(
+        ellipse 30vw 22vw at 17vw 44%,
+        rgb(5 9 22 / 0.5) 0%,
+        rgb(5 9 22 / 0.32) 45%,
+        rgb(5 9 22 / 0) 100%
+      ),
+      /* 2. the deeper ramp */
+      linear-gradient(
+        90deg,
+        rgb(4 8 20 / 0.34) 0%,
+        rgb(4 8 20 / 0.3) 22%,
+        rgb(4 8 20 / 0.22) 32%,
+        rgb(4 8 20 / 0.1) 40%,
+        rgb(4 8 20 / 0) 48%
+      );
+  }
+
+  /* 1. the blur zone, on its own layer so its mask shapes only the blur */
+  :global(.dark) .haze::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    -webkit-backdrop-filter: blur(5px) saturate(0.82);
+    backdrop-filter: blur(5px) saturate(0.82);
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 24%, rgb(0 0 0 / 0.55) 33%, transparent 42%);
+    mask-image: linear-gradient(90deg, #000 0%, #000 24%, rgb(0 0 0 / 0.55) 33%, transparent 42%);
+  }
+}
+
+/* Browsers without backdrop-filter get the two tint layers alone, which is
+   still enough contrast: the blur is the refinement, not the fix. */

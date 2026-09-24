@@ -5,6 +5,7 @@ import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import { HeroOptions } from "./HeroOptions";
 import { HeroWalk } from "./HeroWalk";
 import styles from "./homehero.module.css";
+import haze from "./herohaze.module.css";
 
 /**
  * THE HOMEPAGE HERO — the founder's final artwork, as supplied.
@@ -37,6 +38,8 @@ export function Hero() {
     <section aria-labelledby="home-hero-title" className={styles.hero}>
       {/* Dark only: a soft shade under the caption, over the lit city. */}
       <div aria-hidden="true" className={styles.shade} />
+      {/* Dark only: blur, deeper ramp and fog behind the words — see herohaze. */}
+      <div aria-hidden="true" className={haze.haze} />
 
       {/* One caption for both themes. The eyebrow, the dark paragraph and the
           two actions are dark-only (hidden by CSS in light, so the light hero

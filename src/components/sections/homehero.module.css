@@ -378,6 +378,13 @@
   grid-area: 1 / 1;
   border-radius: 50%;
   pointer-events: none;
+  /* So reaching for a dot eases rather than steps. While the resting pulse
+     is running the animation owns these, and the transition takes over the
+     moment it stops. */
+  transition:
+    opacity 260ms cubic-bezier(0.45, 0, 0.55, 1),
+    transform 260ms cubic-bezier(0.45, 0, 0.55, 1),
+    box-shadow 260ms cubic-bezier(0.45, 0, 0.55, 1);
 }
 
 /* The core: the painted dot's own warm white centre and gold rim. */
@@ -405,13 +412,33 @@
   opacity: 0;
 }
 
+/* Reaching for a dot: the mark brightens and its halo comes up, so the hand
+   knows it has found something before the pill has finished arriving. The
+   pulse has already stopped by then — `data-rest` goes away as soon as a
+   pill is out — so these are the resting state, just warmer. */
+.dot:hover::before {
+  opacity: 1;
+  box-shadow: 0 0 0 1px rgb(201 170 110 / 0.6);
+}
+
+.dot:hover::after {
+  opacity: 0.45;
+  transform: scale(1);
+}
+
+/* The resting breath. Both halves share one duration and one ease so the
+   core and its halo stay in step, and `--dot-delay` walks the three dots a
+   quarter-second apart: on one beat they read as a machine, offset they read
+   as three separate things that happen to be alive. */
 @media (prefers-reduced-motion: no-preference) {
   .dot[data-rest="true"]::before {
-    animation: heroDotPulse 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation: heroDotPulse 1.8s cubic-bezier(0.45, 0, 0.55, 1) var(--dot-delay, 0s)
+      infinite;
   }
 
   .dot[data-rest="true"]::after {
-    animation: heroDotHalo 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation: heroDotHalo 1.8s cubic-bezier(0.45, 0, 0.55, 1) var(--dot-delay, 0s)
+      infinite;
   }
 }
 

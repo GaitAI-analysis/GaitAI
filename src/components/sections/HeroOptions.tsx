@@ -399,7 +399,7 @@ export function HeroOptions() {
 
   return (
     <>
-      {HERO_OPTIONS.map((option) => {
+      {HERO_OPTIONS.map((option, index) => {
         const [left, top, , height] = option.pill;
         const [dotX, dotY] = option.dot;
         const expanded = open === option.id;
@@ -416,7 +416,16 @@ export function HeroOptions() {
               data-hero-option=""
               className={styles.dot}
               data-rest={breathing && dotLed && !out ? "true" : undefined}
-              style={{ left: `${dotX * 100}%`, top: `${dotY * 100}%` }}
+              style={
+                {
+                  left: `${dotX * 100}%`,
+                  top: `${dotY * 100}%`,
+                  /* A quarter-second between them. Three dots breathing on
+                     the same beat read as a machine; offset, they read as
+                     three separate things that happen to be alive. */
+                  "--dot-delay": `${index * 0.25}s`,
+                } as CSSProperties
+              }
               onPointerEnter={() => reachFor(option.id)}
               onPointerLeave={() => letGo(option.id)}
               onClick={() => toggle(option.id)}

@@ -1,0 +1,289 @@
+/* =========================================================================
+   THE HOMEPAGE HERO — one approved scene per theme, every word real
+   -------------------------------------------------------------------------
+   The hero used to be a three-panel panoramic composition: two diagonals,
+   a drawn pose overlay, a per-panel eyebrow and message, and in light a
+   1.2 MB banner with the type baked into it. The founder replaced it
+   (2026-09-24) with one clean photograph per theme — daylight and night of
+   the same atrium, no baked type, no baked UI — and asked for the words to
+   live in code over it.
+
+   So this file is small on purpose. A picture, a scrim only where the words
+   sit, a copy column and three product links. Nothing is drawn over the
+   photograph and nothing is repeated from the site header.
+
+   THE SCRIM IS LOCAL. It is a horizontal gradient that is opaque enough to
+   read on at the left edge and completely gone by 62%, so the clinician,
+   the patient, the officer and the movement trace — the reason the picture
+   exists — are never behind a veil. It is the theme's own ground colour,
+   not grey and not black.
+   ========================================================================= */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  /* Tall enough to feel like a hero, never taller than the screen it opens
+     on. The floor keeps it from collapsing on a short laptop. */
+  min-height: clamp(30rem, calc(100svh - var(--site-header-height, 4.5rem)), 54rem);
+  overflow: hidden;
+  isolation: isolate;
+  background: #05070f;
+}
+
+:global(.light) .hero {
+  background: #eef3f9;
+}
+
+/* ── The picture ── */
+.photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* `cover`, anchored low: the artwork's top is ceiling glass and its foot
+     is the floor the people walk on, so a centred crop loses their feet
+     first. Both scenes share the composition, so both share the anchor. */
+  object-fit: cover;
+  object-position: 50% 62%;
+}
+
+/* ── The readability scrim, left only ── */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(4 8 18 / 0.92) 0%,
+    rgb(4 8 18 / 0.82) 26%,
+    rgb(4 8 18 / 0.45) 44%,
+    rgb(4 8 18 / 0.12) 55%,
+    rgb(4 8 18 / 0) 62%
+  );
+}
+
+:global(.light) .scrim {
+  background: linear-gradient(
+    90deg,
+    rgb(248 250 252 / 0.94) 0%,
+    rgb(248 250 252 / 0.86) 26%,
+    rgb(248 250 252 / 0.52) 44%,
+    rgb(248 250 252 / 0.16) 55%,
+    rgb(248 250 252 / 0) 62%
+  );
+}
+
+/* Below the side-by-side widths the copy covers most of the frame, so the
+   scrim turns vertical and sits under the words rather than beside them. */
+@media (max-width: 767px) {
+  .scrim {
+    background: linear-gradient(
+      180deg,
+      rgb(4 8 18 / 0.88) 0%,
+      rgb(4 8 18 / 0.78) 46%,
+      rgb(4 8 18 / 0.45) 72%,
+      rgb(4 8 18 / 0.2) 100%
+    );
+  }
+  :global(.light) .scrim {
+    background: linear-gradient(
+      180deg,
+      rgb(248 250 252 / 0.92) 0%,
+      rgb(248 250 252 / 0.84) 46%,
+      rgb(248 250 252 / 0.5) 72%,
+      rgb(248 250 252 / 0.22) 100%
+    );
+  }
+}
+
+/* ── The copy ── */
+.inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding-block: clamp(3rem, 8svh, 6rem);
+}
+
+.copy {
+  max-width: 40rem;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: clamp(2.25rem, 4.4vw, 4rem);
+  font-weight: 640;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  color: #f5f8fc;
+}
+
+:global(.light) .title {
+  color: #0b1739;
+}
+
+/* THE ACCENT, AND WHY IT CARRIES PADDING.
+   `background-clip: text` paints only inside the element's own box, and the
+   span fills with `transparent`. The line-height here is tighter than the
+   face's ink, so without a strip of box below the baseline the "g" of
+   "intelligence" and the "p" of "platform." receive no paint at all and
+   lose their tails. The padding gives the gradient that strip; the matching
+   negative margin means the box the LAYOUT sees is unchanged, so nothing
+   below moves. Do not remove one without the other. */
+.accent {
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
+  background-image: linear-gradient(
+    100deg,
+    var(--hero-electric, #3fa9f5) 0%,
+    var(--hero-blue, #2f6fed) 48%,
+    var(--hero-cobalt, #3157d5) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.lede {
+  margin: clamp(0.9rem, 1.8svh, 1.4rem) 0 0;
+  font-size: clamp(1.125rem, 1.7vw, 1.6rem);
+  font-weight: 560;
+  line-height: 1.24;
+  letter-spacing: -0.022em;
+  color: #e3e9f2;
+}
+
+:global(.light) .lede {
+  color: #0b1739;
+}
+
+.support {
+  margin: clamp(0.7rem, 1.4svh, 1.1rem) 0 0;
+  max-width: 34rem;
+  font-size: clamp(0.95rem, 1.05vw, 1.0625rem);
+  line-height: 1.6;
+  color: #aab6c9;
+}
+
+:global(.light) .support {
+  color: #475467;
+}
+
+/* ── The three product links ──
+   Each keeps its own identity, as the founder asked: GaitAI blue,
+   MobilityCare teal, SecureVision cobalt. The first is solid because it is
+   the primary path; the other two are outlined at the same height and
+   padding so the row reads as one set. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: clamp(1.4rem, 3svh, 2.25rem);
+}
+
+.action {
+  --action-accent: var(--hero-blue, #2f6fed);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.875rem;
+  padding: 0 1.15rem;
+  border: 1px solid var(--action-accent);
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.006em;
+  white-space: nowrap;
+  transition:
+    background-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.action[data-panel="mobilitycare"] {
+  --action-accent: var(--hero-teal, #1597a8);
+}
+
+.action[data-panel="securevision"] {
+  --action-accent: var(--hero-cobalt, #3157d5);
+}
+
+/* Solid: the primary way in. */
+.action[data-primary="true"] {
+  background: var(--action-accent);
+  color: #ffffff;
+}
+
+/* Outlined: same geometry, the accent as ink and edge. */
+.action:not([data-primary="true"]) {
+  background: rgb(8 14 26 / 0.42);
+  color: #dce6f5;
+  border-color: rgb(220 230 245 / 0.42);
+}
+
+:global(.light) .action:not([data-primary="true"]) {
+  background: rgb(255 255 255 / 0.9);
+  color: var(--action-accent);
+  border-color: color-mix(in srgb, var(--action-accent) 48%, transparent);
+}
+
+.arrow {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .action:hover {
+    transform: translateY(-1px);
+  }
+  .action[data-primary="true"]:hover {
+    background: color-mix(in srgb, var(--action-accent) 84%, #000);
+  }
+  .action:not([data-primary="true"]):hover {
+    border-color: var(--action-accent);
+    color: #ffffff;
+    background: color-mix(in srgb, var(--action-accent) 82%, transparent);
+  }
+  :global(.light) .action:not([data-primary="true"]):hover {
+    color: #ffffff;
+    background: var(--action-accent);
+  }
+  .action:hover .arrow {
+    transform: translateX(2px);
+  }
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--action-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .action,
+  .arrow {
+    transition: none;
+  }
+  .action:hover {
+    transform: none;
+  }
+}
+
+/* The `/#overview` target: the foot of the hero, so the page scrolls to
+   where the next section begins. */
+.anchor {
+  display: block;
+  height: 0;
+}

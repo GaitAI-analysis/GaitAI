@@ -1,182 +1,107 @@
-import {
-  HERO_CANVAS,
-  HERO_DIVIDERS,
-  HERO_HEADLINE,
-  HERO_PANELS,
-} from "@/data/home-hero";
-import {
-  HERO_PANEL_FORMATS,
-  heroPanelById,
-  heroPanelFallback,
-  heroPanelSrcSet,
-} from "@/lib/hero-panels";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { HERO_PANELS, HERO_SCENE } from "@/data/home-hero";
 import { ThemePicture } from "@/components/ui/ThemePicture";
-import { HeroCta } from "./HeroCta";
-import { HeroPose } from "./HeroPose";
-import { HeroLightBanner } from "./HeroLightBanner";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
-import styles from "./hero.module.css";
+import styles from "./homehero.module.css";
 
 /**
- * THE HOMEPAGE HERO — the approved composition, built rather than photographed.
+ * THE HOMEPAGE HERO — one approved scene per theme, every word real.
  * =============================================================================
- * GaitAI | MobilityCare | SecureVision as three panels of one panoramic
- * picture, cut by two diagonals, with the headline over the first and an
- * eyebrow, a message and a call to action over each.
+ * This was a three-panel panoramic composition: GaitAI | MobilityCare |
+ * SecureVision cut by two diagonals, a drawn pose overlay on each, an
+ * eyebrow and a message per panel, and — in light — a 1.2 MB banner with
+ * the headline, the pills and the diagonals painted into the pixels.
  *
- * ── WHAT CHANGED, AND WHAT DID NOT ────────────────────────────────────────
- * The design did not change. The hero used to be ONE FLATTENED 1774x887 PNG
- * per theme with everything inside it, so on a large or Retina screen the
- * headline, the pills, the diagonals and the cyan pose points were all
- * resampled photographs of type and vector art — visibly soft, and there was no
- * width at which they could be sharp. The composition is now assembled from its
- * parts:
+ * The founder replaced the artwork (2026-09-24) with ONE CLEAN PHOTOGRAPH
+ * PER THEME: the same atrium in daylight and at night, a clinician walking
+ * with a patient, an officer, a movement trace through the room, and no
+ * type or UI baked into either file. The brief was that the picture tells
+ * the story and the words are code.
  *
- *   headline, sublines, eyebrows, messages   HTML text
- *   the three calls to action                next/link anchors
- *   the diagonal dividers                    CSS gradients on a skewed line
- *   the pose keypoints                       SVG  (HeroPose)
- *   the scrims that make type legible        CSS gradients
- *   the three scenes                         photographs, and only these
+ * So the composition here is deliberately small: the picture, a scrim only
+ * under the words, the headline, the two supporting lines, and the three
+ * product links. Nothing is drawn over the photograph, and nothing repeats
+ * the site header that sits above it.
  *
- * Three photographs replace two flattened banners: one per panel, per theme, in
- * AVIF with a WebP fallback, at a ladder of widths behind `srcset`/`sizes`, so
- * a 2560 screen at 2x is served real pixels instead of an upscaled banner. See
- * lib/hero-panels.ts for the boxes and the ladder, and data/home-hero.ts for
- * the composition — every number in both is a pixel of the approved artwork's
- * own canvas, and hero.module.css turns one of those into one CSS length.
+ * ── ONE FILE FETCHED, CHOSEN BEFORE PAINT ─────────────────────────────────
+ * `ThemePicture` carries a dark and a light candidate and resolves the site's
+ * own theme class in an inline script while the HTML is still parsing, so a
+ * dark visitor never downloads the daylight scene and there is no flash of
+ * the other theme's art. The picture is `priority`: in both themes it is the
+ * LCP element. It is `aria-hidden` with an empty alt on purpose — the
+ * headline below it is real text, and giving the picture the same words
+ * would have a screen reader announce the hero twice.
  *
- * ── STRUCTURE ─────────────────────────────────────────────────────────────
- * `.frame` is the visible box and does the cropping; `.canvas` is the approved
- * picture's own 1774:887 box and is the coordinate system for everything
- * inside it. Within it there are exactly three layers, and the reason they are
- * separate is that CLIP PATHS CLIP TEXT:
- *
- *   .panel   x3   the photography, each clipped to its own wedge
- *   .dividers     the two lit diagonals
- *   .content      every word and every button, clipped by nothing
- *
- * So no headline can be shaved by the diagonal that happens to pass near it,
- * and no panel's photograph can bleed across a boundary. The pose overlays live
- * INSIDE their panel, because a skeleton belongs to the picture it is measuring
- * and should be cut by the same diagonal.
- *
- * ── THE LCP ───────────────────────────────────────────────────────────────
- * The GaitAI panel is the largest thing in the first viewport, so it is the
- * only photograph fetched eagerly at high priority; the other two follow at
- * low priority. Every picture declares its intrinsic box, so the hero has its
- * full geometry before any image arrives and nothing shifts on load.
+ * ── THE THREE LINKS KEEP THEIR IDENTITIES ─────────────────────────────────
+ * The brief specified a single accent ramp for the headline, but the three
+ * products were separated into their own colours in an earlier pass —
+ * GaitAI blue, MobilityCare teal, SecureVision cobalt — and flattening them
+ * to one blue would undo that silently. They keep their tokens; only the
+ * headline takes the ramp. Labels and hrefs still come from HERO_PANELS, so
+ * the hero cannot drift from the rest of the site.
  */
 export function Hero() {
   return (
     <section
-      id="platform"
       aria-labelledby="home-hero-title"
       className={`relative w-full ${styles.hero}`}
     >
-      <div className={styles.frame}>
-        {/* Light theme, panoramic layout only: the supplied banner replaces
-            the native stage below — see HeroLightBanner and `.banner`. */}
-        <HeroLightBanner />
-        <div className={styles.canvas}>
-          <div className={styles.stage}>
-            {HERO_PANELS.map((panel, index) => {
-              const asset = heroPanelById[panel.id];
-              return (
-                <div key={panel.id} className={styles.panel} data-panel={panel.id}>
-                  {/* `.art` is the CLIPPED layer: the photograph, its scrim and
-                      its pose overlay, cut to this panel's wedge. The story is
-                      its sibling and is clipped by nothing, because a clip path
-                      would shave the words the diagonal happens to pass near. */}
-                  <div className={styles.art}>
-                    <ThemePicture
-                      className={styles.photo}
-                      sources={HERO_PANEL_FORMATS.map((format) => ({
-                        type: format.type,
-                        darkSrcSet: heroPanelSrcSet(asset, "dark", format.ext),
-                        lightSrcSet: heroPanelSrcSet(asset, "light", format.ext),
-                      }))}
-                      darkSrc={heroPanelFallback(asset, "dark")}
-                      lightSrc={heroPanelFallback(asset, "light")}
-                      sizes={asset.sizes}
-                      alt={asset.alt}
-                      width={asset.box.x1 - asset.box.x0}
-                      height={HERO_CANVAS.height}
-                      priority={index === 0}
-                    />
-                    <HeroPose panel={panel} />
-                  </div>
+      <ThemePicture
+        className={styles.photo}
+        sources={[
+          {
+            type: "image/webp",
+            darkSrcSet: `${HERO_SCENE.darkNarrowSrc} 1200w, ${HERO_SCENE.darkSrc} ${HERO_SCENE.width}w`,
+            lightSrcSet: `${HERO_SCENE.lightNarrowSrc} 1200w, ${HERO_SCENE.lightSrc} ${HERO_SCENE.width}w`,
+          },
+        ]}
+        darkSrc={HERO_SCENE.darkSrc}
+        lightSrc={HERO_SCENE.lightSrc}
+        sizes="100vw"
+        alt=""
+        width={HERO_SCENE.width}
+        height={HERO_SCENE.height}
+        priority
+      />
 
-                  {/* The headline belongs to the GaitAI panel, which is where
-                      it sits in the composition — and putting it there is what
-                      lets the stacked layout carry it down with that panel's
-                      photograph instead of stranding it above all three. */}
-                  {index === 0 && (
-                    <div className={styles.headline}>
-                      {/* The break after "movement" is the approved
-                          composition, not a reflow the browser chose: two
-                          block lines on the panoramic layout, inline once
-                          stacked so the headline wraps to the phone's
-                          measure. */}
-                      <h1 id="home-hero-title" className={styles.title}>
-                        <span className={styles.titleLine}>
-                          <span className={styles.titleLead}>
-                            {HERO_HEADLINE.lead}
-                          </span>{" "}
-                          <span className={styles.titleAccent}>
-                            {HERO_HEADLINE.accentFirst}
-                          </span>
-                        </span>{" "}
-                        <span className={`${styles.titleLine} ${styles.titleAccent}`}>
-                          {HERO_HEADLINE.accentRest}
-                        </span>
-                      </h1>
-                      <p className={styles.lede}>{HERO_HEADLINE.lede}</p>
-                      <p className={styles.sub}>{HERO_HEADLINE.sub}</p>
-                    </div>
-                  )}
+      {/* Readability only, and only where the words are: a horizontal wash
+          that is gone by 62% of the width, so the people and the movement
+          trace are never behind it. See homehero.module.css. */}
+      <div aria-hidden="true" className={styles.scrim} />
 
-                  <div className={styles.story}>
-                    {/* Set in the data as the product's real name and
-                        uppercased by the stylesheet, so the tracked capitals
-                        are a display decision and a screen reader still says
-                        "GaitAI". */}
-                    <p className={styles.eyebrow}>{panel.eyebrow}</p>
-                    <p className={styles.message}>
-                      {panel.lines.map((line) => (
-                        <span key={line} className={styles.messageLine}>
-                          {line}
-                        </span>
-                      ))}
-                    </p>
-                    <HeroCta
-                      panel={panel.id}
-                      href={panel.cta.href}
-                      label={panel.cta.label}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+      <div className={`container-wide ${styles.inner}`}>
+        <div className={styles.copy}>
+          <h1 id="home-hero-title" className={styles.title}>
+            {HERO_SCENE.lead}
+            <span className={styles.accent}>{HERO_SCENE.accent}</span>
+          </h1>
+          <p className={styles.lede}>{HERO_SCENE.lede}</p>
+          <p className={styles.support}>{HERO_SCENE.support}</p>
 
-            {/* The two lit diagonals, over every photograph and under every
-                word. Their own layer, because they belong to the composition
-                rather than to any one panel. */}
-            <div className={styles.dividers} aria-hidden="true">
-              {HERO_DIVIDERS.map((_, index) => (
-                <span key={index} className={styles.divider} data-divider={index + 1} />
-              ))}
-            </div>
+          <div className={styles.actions}>
+            {HERO_PANELS.map((panel, index) => (
+              <Link
+                key={panel.id}
+                href={panel.cta.href}
+                data-panel={panel.id}
+                data-primary={index === 0 ? "true" : undefined}
+                className={styles.action}
+              >
+                {panel.cta.label}
+                <ArrowUpRight aria-hidden="true" className={styles.arrow} />
+              </Link>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* `/#overview` lands here: the foot of the hero, so the page scrolls to
-          the line where the next section begins. */}
+      {/* `/#overview` lands here: the foot of the hero, so the page scrolls
+          to the line where the next section begins. */}
       <span id="overview" aria-hidden="true" className={styles.anchor} />
 
-      {/* Keeps the floating Ask GaitAI launcher off the SecureVision copy in
-          short windows — see HeroLauncherGuard. */}
+      {/* Keeps the floating Ask GaitAI launcher off the copy in short
+          windows — see HeroLauncherGuard. */}
       <HeroLauncherGuard />
     </section>
   );

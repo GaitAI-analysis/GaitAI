@@ -220,3 +220,27 @@ export const HERO_HEADLINE = {
   lede: "For health, safety and identity.",
   sub: "From everyday movement to meaningful insight.",
 } as const;
+
+/**
+ * THE HERO SCENE (2026-09-24). One approved photograph per theme — daylight
+ * and night of the same atrium — with no type and no UI baked into either,
+ * because the words are real text over them now. Replaces the flattened
+ * light banner, and with it the three-panel composition's own artwork.
+ *
+ * The copy is the founder's, set here rather than in the component so the
+ * words and the pictures stay in one place. `accent` is the run that takes
+ * the electric ramp; the rest of the headline is the theme's ink.
+ */
+export const HERO_SCENE = {
+  lightSrc: "/images/hero/home-hero-scene-light.webp",
+  lightNarrowSrc: "/images/hero/home-hero-scene-light-1200.webp",
+  darkSrc: "/images/hero/home-hero-scene-dark.webp",
+  darkNarrowSrc: "/images/hero/home-hero-scene-dark-1200.webp",
+  width: 1672,
+  height: 941,
+  lead: "One ",
+  accent: "movement intelligence platform.",
+  lede: "For health, safety and identity.",
+  support:
+    "Turning human movement into meaningful insight — from clinical mobility to safer public spaces.",
+} as const;

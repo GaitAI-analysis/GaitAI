@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HERO_OPTIONS, type HeroOptionId } from "@/data/home-hero";
 import { HeroPanelBody } from "./HeroPanelBody";
 import { useHeroTelemetry } from "./useHeroTelemetry";
@@ -25,14 +25,122 @@ import styles from "./homehero.module.css";
  * straight after its button in the DOM so Tab walks into the open panel.
  * Closed panels are `visibility: hidden`, so they are out of the tab order
  * and the accessibility tree while still animating out.
+ *
+ * THE INTRODUCTION.
+ * -----------------------------------------------------------------------------
+ * On the first load all three panels are already open, hold for a moment, then
+ * fold back into their pills. It is there so a first-time visitor learns what
+ * the three pills contain without having to guess and click, and it costs the
+ * hero nothing afterwards: what is left is the clean picture.
+ *
+ * It runs once per page load, not once per mount — `introSpent` is module
+ * scope, so a soft navigation back to the homepage finds it spent while a
+ * refresh gets a fresh module and a fresh introduction. Scrolling, re-entering
+ * the viewport and opening panels by hand never restart it. The first real
+ * press or keystroke ends it early and is honoured normally.
+ *
+ * Two conditions skip it outright and land straight on the clean hero:
+ * `prefers-reduced-motion`, and any width below 1600px — below that every
+ * panel is the same fixed bottom sheet at `left: 50%`, so three open at once
+ * would be three sheets stacked in one place rather than three answers.
+ *
+ * While it plays the panels are decoration: `aria-hidden`, with the buttons
+ * still reporting `aria-expanded="false"`, so assistive technology is not told
+ * that three regions opened and closed inside a second. Nothing inside a panel
+ * is focusable at this width — `.close` only exists on the bottom-sheet
+ * layout — so there is nothing to trap.
  */
+
+/** How long all three stay open, and how long the fold back takes. */
+const INTRO_HOLD_MS = 400;
+const INTRO_FOLD_MS = 620;
+
+type IntroPhase = "off" | "show" | "fold";
+
+/**
+ * Module scope on purpose: once per page load. Deliberately NOT set in the
+ * effect's cleanup, so React's development double-mount does not swallow the
+ * introduction before anyone sees it.
+ */
+let introSpent = false;
 export function HeroOptions() {
   const [open, setOpen] = useState<HeroOptionId | null>(null);
+  const [intro, setIntro] = useState<IntroPhase>("off");
   const buttons = useRef<Partial<Record<HeroOptionId, HTMLButtonElement | null>>>({});
+  const timers = useRef<number[]>([]);
 
-  /* The readings only move while a panel is actually on screen — there is
-     nothing to animate for a closed panel. See useHeroTelemetry. */
-  const readings = useHeroTelemetry(open !== null);
+  /* The readings only move while a panel is actually on screen — one open, or
+     the introduction showing all three. See useHeroTelemetry. */
+  const readings = useHeroTelemetry(open !== null || intro !== "off");
+
+  const endIntro = useCallback(() => {
+    timers.current.forEach(window.clearTimeout);
+    timers.current = [];
+    introSpent = true;
+    setIntro("off");
+  }, []);
+
+  useEffect(() => {
+    if (introSpent) return;
+    // Both checks are read once, on load: this is an entrance, not a
+    // responsive behaviour, and it should not start halfway through a resize.
+    if (
+      !window.matchMedia("(min-width: 1600px)").matches ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      introSpent = true;
+      return;
+    }
+
+    const run = () => {
+      setIntro("show");
+      timers.current.push(
+        window.setTimeout(() => {
+          setIntro("fold");
+          timers.current.push(
+            window.setTimeout(() => {
+              introSpent = true;
+              setIntro("off");
+            }, INTRO_FOLD_MS),
+          );
+        }, INTRO_HOLD_MS),
+      );
+    };
+
+    // A tab opened in the background still gets its introduction, when it is
+    // actually looked at rather than while it is hidden.
+    let onVisible: (() => void) | undefined;
+    if (document.visibilityState === "visible") {
+      run();
+    } else {
+      onVisible = () => {
+        if (document.visibilityState !== "visible") return;
+        document.removeEventListener("visibilitychange", onVisible!);
+        onVisible = undefined;
+        run();
+      };
+      document.addEventListener("visibilitychange", onVisible);
+    }
+
+    return () => {
+      if (onVisible) document.removeEventListener("visibilitychange", onVisible);
+      timers.current.forEach(window.clearTimeout);
+      timers.current = [];
+    };
+  }, []);
+
+  // Any real press or keystroke ends the introduction early. Capture phase, so
+  // a press on a pill ends it and still opens that pill's panel.
+  useEffect(() => {
+    if (intro === "off") return;
+    const stop = () => endIntro();
+    document.addEventListener("pointerdown", stop, true);
+    document.addEventListener("keydown", stop, true);
+    return () => {
+      document.removeEventListener("pointerdown", stop, true);
+      document.removeEventListener("keydown", stop, true);
+    };
+  }, [intro, endIntro]);
 
   useEffect(() => {
     if (!open) return;
@@ -88,6 +196,8 @@ export function HeroOptions() {
               data-hero-option=""
               data-option={option.id}
               data-open={expanded}
+              data-intro={intro === "off" ? undefined : intro}
+              aria-hidden={intro !== "off" && !expanded ? true : undefined}
               className={`${styles.panel} ${option.tier === "layer" ? styles.layer : ""}`}
             >
               <p id={`${panelId}-title`} className={styles.panelTitle}>

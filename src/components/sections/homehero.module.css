@@ -174,6 +174,41 @@
   transition-delay: 0s;
 }
 
+/* ── The one-time introduction ──
+   On the first load all three panels are already open, so the visitor sees
+   what each pill holds before deciding which to press. HeroOptions runs this
+   once per page load and only from 1600px up, where each panel sits beside
+   its own pill; below that they are all the same bottom sheet, so there is
+   nothing to show three of.
+
+   `show` is a resting state, not an entrance: the panels are simply there
+   when the picture arrives, so nothing races the photograph for attention.
+   `fold` is the only animated step. Each panel lifts a little, shrinks a
+   little and fades, and because `transform-origin` is already the corner
+   nearest its own pill — top left for the two products, top right for Pose
+   analysis — it reads as the detail being drawn back into the pill it
+   belongs to rather than dropped down the page.
+
+   Visibility closes the way the ordinary panel closes, held until the fade
+   has finished, so the panels leave the accessibility tree at the end of the
+   movement instead of in the middle of it. */
+.panel[data-intro="show"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: none;
+}
+
+.panel[data-intro="fold"] {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.96);
+  transition:
+    opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 620ms;
+}
+
 .panelTitle {
   margin: 0;
   font-size: 0.95rem;
@@ -413,6 +448,18 @@
 
   :global(.dark) .support {
     color: #aab6c9;
+  }
+}
+
+/* The introduction never starts under reduced motion — HeroOptions checks
+   before it runs. These two rules are the belt: the selectors above are more
+   specific than the blanket reduced-motion rules below, so without them a
+   future change that let the intro through would animate anyway. */
+@media (prefers-reduced-motion: reduce) {
+  .panel[data-intro="show"],
+  .panel[data-intro="fold"] {
+    transform: none;
+    transition: none;
   }
 }
 

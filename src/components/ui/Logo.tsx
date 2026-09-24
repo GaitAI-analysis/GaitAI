@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { assetPath } from "@/lib/paths";
+import { ThemePicture } from "@/components/ui/ThemePicture";
 
 type LogoVariant = "wordmark" | "icon" | "stacked";
 type LogoSize = "sm" | "md" | "lg";
@@ -24,12 +25,16 @@ interface LogoProps {
 /**
  * Premium brand mark for GaitAI.
  *
- * Renders crisp PNG art assets sourced from `/public/brand/*` and seamlessly
- * swaps between the dark-theme and light-theme variants using `next-themes`.
+ * THE WORDMARK is the founder's approved light/dark pair (2026-09-25), each
+ * its own file -- never one logo recoloured or inverted for the other theme.
+ * They arrive with baked backgrounds; `scripts/brand/import-logos.py` removes
+ * only that background colour (colour-to-alpha, verified to recomposite onto
+ * the original) and trims the margin. It is a ThemePicture, so the theme's
+ * file is chosen from the class on <html> before first paint: no empty box
+ * until hydration and no flash of the other theme's logo.
  *
- * Hydration-safe: while next-themes resolves the active theme we render a
- * neutral placeholder of the exact final dimensions so the navbar / footer
- * never reflow.
+ * The icon and stacked variants still swap on `next-themes` after mount and
+ * render a same-size placeholder until then, so nothing reflows.
  */
 export function Logo({
   className,
@@ -49,20 +54,17 @@ export function Logo({
     LogoVariant,
     Record<LogoSize, { w: number; h: number }>
   > = {
-    /* THE WORDMARK'S BOX IS THE ARTWORK'S OWN RATIO, 1522:427 (3.5644).
-       It used to be 138x42, a ratio of 3.286 against art of 3.159, so
-       `object-contain` fitted by height and left 5px of the box empty — and
-       the file itself carried 42px of transparent padding left and right and
-       41px top and bottom, so the ink inside that box stood only 35 of the
-       42 pixels tall. The mark was rendering about a tenth smaller than the
-       layout implied, which is what made its gold lattice and the walker
-       read soft. These are the same widths as before against the trimmed
-       art, so the header's horizontal rhythm is untouched and the mark
-       simply gets its own pixels back. */
+    /* THE WORDMARK KEEPS ITS HEIGHTS (31 / 39 / 51), so the navbar and the
+       footer are exactly as tall as before; the width is the approved art's
+       own. The two files have slightly different proportions -- light
+       1214:423 (2.870), dark 1069:403 (2.653) -- so the box is the light
+       one's, the wider of the two, and each file is fitted to the box's
+       height and set against its left edge. A theme toggle therefore moves
+       nothing: the header does not re-flow when the logo changes. */
     wordmark: {
-      sm: { w: 110, h: 31 },
-      md: { w: 138, h: 39 },
-      lg: { w: 180, h: 51 },
+      sm: { w: 89, h: 31 },
+      md: { w: 112, h: 39 },
+      lg: { w: 146, h: 51 },
     },
     icon: {
       sm: { w: 32, h: 32 },
@@ -82,12 +84,9 @@ export function Logo({
   // Use trimmed / transparent PNGs so the mark sits cleanly on any surface.
   const sources: Record<LogoVariant, { dark: string; light: string; alt: string }> = {
     wordmark: {
-      /* The official lockups with their transparent padding cropped away — a
-         lossless crop of the same files, verified pixel-for-pixel against
-         them, not a redraw and not a re-render. The gold in the mark and in
-         "AI" is the artwork's own. */
-      dark: "/brand/logo-horizontal-dark-trimmed.png",
-      light: "/brand/logo-horizontal-transparent-trimmed.png",
+      /* Rendered by ThemePicture below; these are its fallback `src`s. */
+      dark: "/assets/brand/gaitai-logo-dark-640.png",
+      light: "/assets/brand/gaitai-logo-light-640.png",
       alt: "GaitAI",
     },
     icon: {
@@ -102,6 +101,40 @@ export function Logo({
       alt: "GaitAI — Intelligence in Motion",
     },
   };
+
+  if (variant === "wordmark") {
+    return (
+      <div
+        className={cn(
+          "relative inline-flex shrink-0 select-none items-center",
+          className
+        )}
+        style={{ width: w, height: h }}
+      >
+        <ThemePicture
+          className="block h-full w-full [&>img]:h-full [&>img]:w-full [&>img]:object-contain [&>img]:object-left"
+          sources={[
+            {
+              type: "image/png",
+              /* 640w covers the navbar at 1x-3x and the footer at 1x-2x; the
+                 full trim is there for a 3x footer. */
+              lightSrcSet:
+                "/assets/brand/gaitai-logo-light-640.png 640w, /assets/brand/gaitai-logo-light.png 1214w",
+              darkSrcSet:
+                "/assets/brand/gaitai-logo-dark-640.png 640w, /assets/brand/gaitai-logo-dark.png 1069w",
+            },
+          ]}
+          lightSrc={sources.wordmark.light}
+          darkSrc={sources.wordmark.dark}
+          sizes={`${w}px`}
+          alt={sources.wordmark.alt}
+          width={w}
+          height={h}
+          priority={priority}
+        />
+      </div>
+    );
+  }
 
   const src = isDark ? sources[variant].dark : sources[variant].light;
 

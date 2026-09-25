@@ -102,22 +102,19 @@ function FlowPreview() {
 const CATEGORY: Record<string, string> = {
   securevision: "Privacy-aware spatial intelligence",
   mobilitycare: "Clinical movement intelligence",
-  pose: "Shared analysis layer",
 };
 
 /**
  * The one or two readings each card leads with. Everything else falls into
  * the grid below at a smaller rank.
  *
- * Pose analysis leads with nothing on purpose: it is the layer underneath
- * the two products rather than a third product, and a card with no hero
- * block reads as quieter than one with a large number at the top, without
- * needing a single smaller font size to say so.
+ * Only two cards reach this component. Pose analysis stopped being a card
+ * in 57ed325 — it lights a rail beside the walking figure instead — so the
+ * "layer" tier it used to carry is gone from here with it.
  */
 const LEAD: Record<string, readonly string[]> = {
   securevision: ["Pedestrian flow"],
   mobilitycare: ["Mobility score", "Gait speed"],
-  pose: [],
 };
 
 export function HeroPanelBody({
@@ -127,7 +124,6 @@ export function HeroPanelBody({
   option: HeroOption;
   readings: readonly Reading[];
 }) {
-  const layer = option.tier === "layer";
   const lead = LEAD[option.id] ?? [];
   const rows = option.metrics
     .map((metric, i) => ({ metric, reading: readings[i] }))
@@ -171,7 +167,7 @@ export function HeroPanelBody({
 
       {/* THE SUPPORTING GRID. Two columns, label above value, hairlines
           between rows rather than boxes around them. */}
-      <dl className={styles.metrics} data-layer={layer ? "true" : undefined}>
+      <dl className={styles.metrics}>
         {rest.map(({ metric, reading }) => (
           <div
             key={metric.label}

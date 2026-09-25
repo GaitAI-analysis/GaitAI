@@ -138,12 +138,6 @@
   margin: 1.05rem 0 0;
 }
 
-/* Pose analysis: the same grid, quieter. Two columns still — one long
-   column of six was the list the founder asked us to stop making. */
-.metrics[data-layer="true"] {
-  margin-top: 0.9rem;
-}
-
 /* A rule between the lead and the grid: they are two groups, and without
    it the supporting values crowd the number they are supporting. */
 .lead + .metrics {

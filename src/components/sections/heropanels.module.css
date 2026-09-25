@@ -56,92 +56,155 @@
 
 /* Pose analysis is the shared analysis layer, not a product: one quiet
    column of technical rows, narrower and lighter than a product panel. */
-.metrics[data-layer="true"] {
-  grid-template-columns: 1fr;
-  gap: 0;
+/* ── THE CATEGORY LINE ──
+   Three words under the title saying what kind of card this is. Small,
+   letter-spaced and quiet, with a short gold rule under it: the rule is the
+   only ornament on the card, and it is what makes the header read as a
+   masthead rather than a first row of data. The gold rule itself belongs
+   to .panelTitle in homehero.module.css and already sits between the two
+   lines; a second one under the category read as a stutter. */
+.category {
+  margin: 0.15rem 0 0;
+  font-size: 0.6875rem;
+  font-weight: 560;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  color: var(--label);
 }
 
-.metric {
+/* ── THE LEAD ──
+   What the card is, at a size you read from across the room. One reading
+   for SecureVision, two for MobilityCare, none for Pose analysis — which is
+   how the layer card is made to sit below the two product cards without a
+   single smaller font size anywhere in it. */
+.lead {
+  display: grid;
+  gap: 0.75rem 1.1rem;
+  margin: 0.95rem 0 0;
+}
+
+.lead[data-count="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.leadItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
   min-width: 0;
 }
 
-.metrics[data-layer="true"] .metric {
-  padding: 0.24rem 0;
+.leadLabel {
+  font-size: 0.6875rem;
+  font-weight: 560;
+  letter-spacing: 0.04em;
+  color: var(--label);
+}
+
+.leadValue {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  min-width: 0;
+  font-size: 1.6rem;
+  font-weight: 640;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.leadUnit {
+  margin-left: 0.22em;
+  font-size: 0.44em;
+  font-weight: 560;
+  letter-spacing: 0;
+  color: var(--label);
+}
+
+.leadUnit[data-tight="true"] {
+  margin-left: 0.04em;
+}
+
+/* ── THE SUPPORTING GRID ──
+   Two columns, label above value. A hairline runs above each row rather
+   than a box around it: boxes would make six cells read as a table, and the
+   point of the grid is that the eye goes down the labels. */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1.1rem;
+  margin: 1.05rem 0 0;
+}
+
+/* Pose analysis: the same grid, quieter. Two columns still — one long
+   column of six was the list the founder asked us to stop making. */
+.metrics[data-layer="true"] {
+  margin-top: 0.9rem;
+}
+
+/* A rule between the lead and the grid: they are two groups, and without
+   it the supporting values crowd the number they are supporting. */
+.lead + .metrics {
+  margin-top: 1rem;
+  padding-top: 0.95rem;
   border-top: 1px solid var(--rule);
 }
 
-.metrics[data-layer="true"] .metric:first-child {
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  min-width: 0;
+  padding: 0.62rem 0 0.1rem;
+  border-top: 1px solid var(--rule);
+}
+
+/* The first row of each column carries no rule: the grid should begin with
+   air, not a line. */
+.metric:nth-child(1),
+.metric:nth-child(2) {
   border-top: 0;
+  padding-top: 0.15rem;
 }
 
 .label {
-  margin: 0;
-  font-size: 0.64rem;
-  font-weight: 500;
+  font-size: 0.72rem;
+  font-weight: 520;
   letter-spacing: 0.01em;
+  line-height: 1.3;
   color: var(--label);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .value {
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
-  margin: 0.1rem 0 0;
-  min-height: 1.15rem;
-}
-
-/* The layer panel puts label and value on one line: it is a read-out, and a
-   read-out is scanned across, not down. */
-.metrics[data-layer="true"] .metric {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.metrics[data-layer="true"] .value {
   margin: 0;
-  min-height: 0;
+  min-width: 0;
 }
 
 .figure {
-  /* The clip window for the roll: a value arrives from under this edge. */
-  position: relative;
-  flex: 0 0 auto;
-  display: inline-block;
-  overflow: hidden;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: -0.004em;
-  font-variant-numeric: tabular-nums;
+  font-size: 1.02rem;
+  font-weight: 620;
   line-height: 1.25;
-  white-space: nowrap;
+  letter-spacing: -0.014em;
+  font-variant-numeric: tabular-nums;
   color: var(--ink);
-  /* Tabular figures keep the row from reflowing as digits change; the
-     transition is on the wrapper so a width change eases rather than snaps. */
-  transition:
-    transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 300ms ease;
-}
-
-.metrics[data-layer="true"] .figure {
-  font-size: 0.74rem;
   white-space: nowrap;
 }
 
-/* A fixed value is a guarantee, not a measurement: it never rolls, and it
-   sits back half a step so the live numbers lead. */
+/* A word, not a measurement: set a touch smaller so a column of "None
+   detected" and "Authorised" does not shout over the numbers beside it. */
 .metric[data-fixed="true"] .figure {
-  font-weight: 560;
-  color: var(--ink-soft);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.008em;
 }
 
-/* The two assurances — privacy active, access authorised — are the only
-   warm marks in the read-out, and the only thing gold is spent on besides
-   the rules. */
+/* The two assurances. Gold on the value, and a small gold dot after the
+   label — the only colour used to mean anything on the card. */
 .metric[data-gold="true"] .figure {
   color: var(--gold-deep);
 }
@@ -149,97 +212,94 @@
 .metric[data-gold="true"] .label::after {
   content: "";
   display: inline-block;
-  width: 3px;
-  height: 3px;
-  margin-left: 0.4rem;
+  width: 0.3rem;
+  height: 0.3rem;
+  margin-left: 0.36rem;
   border-radius: 50%;
   background: var(--gold);
-  vertical-align: 0.12em;
+  vertical-align: 0.06em;
 }
 
 .roll {
   display: inline-block;
-  animation: roll 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: roll 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* The unit is a label, not a value: smaller, lighter, cool grey, so the eye
-   lands on the number first and reads the unit only when it needs it. */
 .unit {
-  margin-left: 0.24em;
-  font-size: 0.76em;
-  font-weight: 500;
+  margin-left: 0.22em;
+  font-size: 0.72em;
+  font-weight: 540;
+  letter-spacing: 0;
   color: var(--label);
 }
 
-/* A percent sign is punctuation, not a word — it sets against the figure. */
 .unit[data-tight="true"] {
-  margin-left: 0.03em;
+  margin-left: 0.02em;
 }
 
-/* Small on purpose: 0.34em of travel reads as the figure settling, where a
-   full line-height reads as a slot machine. */
 @keyframes roll {
-  from {
-    transform: translateY(0.34em);
+  0% {
     opacity: 0;
+    transform: translateY(0.42em);
   }
-  to {
-    transform: translateY(0);
+
+  100% {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* ── Tracks ──
-   A hairline, not a progress bar: it shows where a reading sits in its own
-   clinical range, so it is a position, not a percentage of a task. Scaling
-   a full-width fill (rather than animating `width`) keeps the change on the
-   compositor and off the layout. */
+/* ── The track ──
+   A hairline under a reading that has a scale. Thinner than it was, and
+   full-width of its cell, so six of them read as a rhythm rather than six
+   little gauges. */
 .track {
+  position: relative;
   height: 2px;
-  margin-top: 0.34rem;
+  margin-top: 0.42rem;
   border-radius: 2px;
   background: var(--data-soft);
   overflow: hidden;
 }
 
 .trackFill {
-  display: block;
-  height: 100%;
-  border-radius: 2px;
-  background: linear-gradient(90deg, rgb(97 114 154 / 0.55), var(--data));
+  position: absolute;
+  inset: 0;
   transform-origin: left center;
-  transition:
-    transform 600ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 300ms ease;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgb(97 114 154 / 0.5), var(--data));
+  transition: transform 620ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ── Sparklines ──
-   In a compact panel on a laptop the figure and its unit come first: the
-   sparkline is the part of the row that gives way, never the reading. */
+/* ── The sparkline ── */
 .spark {
-  flex: 0 1 auto;
-  min-width: 0;
-  width: 2.1rem;
-  height: 0.7rem;
-  opacity: 0.85;
-  transition: opacity 300ms ease;
+  width: 2.3rem;
+  height: 0.8rem;
+  flex: none;
+  opacity: 0.72;
 }
 
 .spark polyline {
   fill: none;
   stroke: var(--data);
-  stroke-width: 1;
+  stroke-width: 1.1px;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-/* Holds the space before enough samples exist, so the row does not jump
-   when the first sparkline appears. */
 .sparkHold {
-  flex: 0 1 auto;
-  min-width: 0;
-  width: 2.1rem;
-  height: 0.7rem;
+  display: inline-block;
+  width: 2.3rem;
+  height: 0.8rem;
+  flex: none;
+}
+
+/* The lead's own sparkline is larger, because it sits beside a 1.6rem
+   number and a 2.3rem line next to that reads as a crumb. */
+.leadValue .spark,
+.leadValue .sparkHold {
+  width: 3.1rem;
+  height: 1rem;
 }
 
 /* ── SecureVision's preview ──

@@ -879,11 +879,14 @@
   }
 }
 
+/* The masthead. Bigger than it was by a third: the card is headed by a
+   name, and at 0.875rem it was the same rank as the readings under it. */
 .panelTitle {
   margin: 0;
-  font-size: 0.875rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
+  font-size: 1.1875rem;
+  font-weight: 660;
+  letter-spacing: -0.021em;
+  line-height: 1.15;
 }
 
 .panelTitle::after {
@@ -952,13 +955,27 @@
   white-space: nowrap;
 }
 
+/* "Privacy by design" — a badge at the foot of the Pose card, not another
+   row. It is a promise about the whole layer rather than a reading, so it
+   is set apart from the grid by a rule and carried in a pill of its own. */
 .footnote {
-  margin: 0.45rem 0 0;
+  display: inline-block;
+  margin: 1rem 0 0;
+  padding: 0.28rem 0.6rem;
+  border: 1px solid rgb(201 166 103 / 0.34);
+  border-radius: 999px;
   font-size: 0.625rem;
-  font-weight: 600;
+  font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #8a7348;
+  background: rgb(201 166 103 / 0.07);
+}
+
+:global(.dark) .footnote {
+  color: #dcc08a;
+  border-color: rgb(226 205 160 / 0.3);
+  background: rgb(226 205 160 / 0.08);
 }
 
 .close {
@@ -982,27 +999,30 @@
     position: absolute;
     z-index: 4;
     top: calc(21.33% + clamp(2rem, 2.29vw, 2.875rem) / 2 + 0.625rem);
-    padding: 0.7rem 0.95rem 0.8rem;
+    /* Editorial margins. The card was tight enough that six labels and six
+       values touched its edges; the room is most of what makes it read as
+       finished rather than as a widget. */
+    padding: 1.05rem 1.15rem 1.15rem;
   }
 
   .panel[data-option="securevision"] {
     left: 39.06%;
-    width: clamp(16rem, 15.6vw, 18.75rem);
+    width: clamp(16rem, 18vw, 21.5rem);
   }
 
   .panel[data-option="mobilitycare"] {
     left: 59.78%;
-    width: clamp(15rem, 14.8vw, 17.75rem);
+    width: clamp(15rem, 17.2vw, 20.5rem);
   }
 
   /* Under its pill, but never past the picture's right edge: on a laptop
      the floor width would otherwise run off the side, so it slides left
      just far enough to keep a margin. */
   .panel[data-option="pose"] {
-    --pose-w: clamp(12.5rem, 11.2vw, 13.5rem);
+    --pose-w: clamp(12.5rem, 13vw, 15.5rem);
     left: min(82.51%, calc(100% - var(--pose-w) - 1.5%));
     width: var(--pose-w);
-    padding: 0.65rem 0.85rem 0.75rem;
+    padding: 0.95rem 1rem 1.05rem;
   }
 }
 

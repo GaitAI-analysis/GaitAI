@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { HERO_OPTIONS, HERO_SCENE, type HeroOptionId } from "@/data/home-hero";
 import { HeroPanelBody } from "./HeroPanelBody";
+import { PoseRail } from "./PoseRail";
+import railStyles from "./poserail.module.css";
 import { useHeroTelemetry } from "./useHeroTelemetry";
 import styles from "./homehero.module.css";
 
@@ -97,8 +99,10 @@ const DOT_LED_QUERY =
  * Where all three cards can be open AT ONCE, which only the introduction
  * asks for. Each card hangs under its own pill, so the room between them is
  * a share of the picture's width: measured on the built page, SecureVision
- * runs into MobilityCare below about 1236px and MobilityCare into Pose
- * below about 1247. 1280 is the first standard width clear of both.
+ * runs into MobilityCare below about 1236px. (Pose used to collide with
+ * MobilityCare below about 1247; it opens a slim rail at the picture's right
+ * edge now, which stays about 100px clear of MobilityCare at 1280.) 1280 is
+ * the first standard width clear of both.
  *
  * Narrower than that, the introduction is the one it was — the pills arrive
  * and the cards wait to be asked for. Three cards in two cards' worth of
@@ -747,7 +751,11 @@ export function HeroOptions() {
               onPointerEnter={() => reachFor(option.id)}
               onPointerLeave={() => letGo(option.id)}
               aria-hidden={folding ? true : undefined}
-              className={`${styles.panel} ${option.tier === "layer" ? styles.layer : ""}`}
+              /* Pose analysis is the analysis layer, not a third product: it
+                 lights a slim rail beside the digital human instead of opening
+                 a card over it (founder, 2026-09-25). Same wrapper, same open
+                 and closing states, so every way in and out still works. */
+              className={option.id === "pose" ? railStyles.rail : styles.panel}
               onAnimationEnd={(event) => {
                 // Only the panel's own animation, not a child's.
                 if (event.target !== event.currentTarget) return;
@@ -755,30 +763,37 @@ export function HeroOptions() {
                 else if (expanded) delete event.currentTarget.dataset.animating;
               }}
             >
-              {/* The content retracts before the shell folds: the readings
-                  draw in and settle a few pixels toward the pill while the
-                  card is still its full size, so the panel looks like it is
-                  putting itself away rather than being switched off. */}
-              <div className={styles.panelContent}>
-                <p id={`${panelId}-title`} className={styles.panelTitle}>
-                  {option.label}
-                </p>
-                <HeroPanelBody option={option} readings={readings[option.id]} />
-                {option.footnote ? (
-                  <p className={styles.footnote}>{option.footnote}</p>
-                ) : null}
-              </div>
-              {/* Outside the retracting wrapper on purpose: on the sheet
-                  layout it is positioned against the panel, and a
-                  transformed wrapper would become its containing block and
-                  jog it sideways the moment the fold began. */}
-              <button
-                type="button"
-                className={styles.close}
-                onClick={() => beginClose(option.id)}
-              >
-                Close
-              </button>
+              {option.id === "pose" ? (
+                <PoseRail titleId={`${panelId}-title`} />
+              ) : (
+                <>
+                  {/* The content retracts before the shell folds: the
+                      readings draw in and settle a few pixels toward the pill
+                      while the card is still its full size, so the panel
+                      looks like it is putting itself away rather than being
+                      switched off. */}
+                  <div className={styles.panelContent}>
+                    <p id={`${panelId}-title`} className={styles.panelTitle}>
+                      {option.label}
+                    </p>
+                    <HeroPanelBody option={option} readings={readings[option.id]} />
+                    {option.footnote ? (
+                      <p className={styles.footnote}>{option.footnote}</p>
+                    ) : null}
+                  </div>
+                  {/* Outside the retracting wrapper on purpose: on the sheet
+                      layout it is positioned against the panel, and a
+                      transformed wrapper would become its containing block
+                      and jog it sideways the moment the fold began. */}
+                  <button
+                    type="button"
+                    className={styles.close}
+                    onClick={() => beginClose(option.id)}
+                  >
+                    Close
+                  </button>
+                </>
+              )}
             </div>
           </div>
         );

@@ -537,3 +537,25 @@ export const HERO_OPTIONS: readonly HeroOption[] = [
     footnote: "Privacy by design",
   },
 ] as const;
+
+/**
+ * THE POSE-ANALYSIS RAIL (founder, 2026-09-25).
+ *
+ * Pose analysis does not open a card: its subject is the digital human in the
+ * third panel, and the rail beside it is a light, translucent read-out rather
+ * than another dashboard. The founder's exact figures, held STILL on purpose
+ * — the instruments beside them move (see PoseRail), the numbers do not.
+ * `instrument` names the small live indicator drawn with each row.
+ */
+export const POSE_RAIL = {
+  title: "Pose analysis",
+  rows: [
+    { label: "Gait speed", value: "1.02 m/s", instrument: "wave" },
+    { label: "Cadence", value: "102 steps/min", instrument: "steps" },
+    { label: "Step symmetry", value: "96%", instrument: "symmetry" },
+    { label: "Balance stability", value: "Stable", instrument: "level" },
+    { label: "Range of motion", value: "+22%", instrument: "gauge" },
+    { label: "Identity", value: "Optional", instrument: null },
+  ],
+  privacy: "Privacy by design",
+} as const;

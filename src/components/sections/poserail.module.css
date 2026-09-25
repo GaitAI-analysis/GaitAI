@@ -1,0 +1,435 @@
+/* =========================================================================
+   THE POSE-ANALYSIS RAIL
+   -------------------------------------------------------------------------
+   Not a card: a slim, translucent read-out standing in the ribbon field to
+   the right of the digital human, in the third panel. HeroOptions renders the
+   wrapper (`.rail`) with the same `data-open` / `data-closing` the product
+   cards use, so the introduction, the dot, hover, press, Escape and a press
+   outside all drive it exactly as they drive a card. Only its look and its
+   motion are its own, and both are here.
+
+   Palette: off-white glass, deep navy type, cool grey labels, warm champagne
+   accents, muted slate instruments. No electric blue, no neon, no cyan.
+   ========================================================================= */
+
+.rail {
+  --stride: 1176ms; /* one left + right step at 102 steps/min */
+  --rail-ink: #16203c;
+  --rail-label: #5d6679;
+  --rail-gold: #c4a468;
+  --rail-slate: #7f8ba3;
+  --rail-glass: rgb(250 250 246 / 0.5);
+  --rail-edge: rgb(201 176 122 / 0.38);
+
+  position: absolute;
+  z-index: 3;
+  right: 1.4%;
+  top: 29%;
+  width: clamp(9.75rem, 10.6vw, 12.75rem);
+  box-sizing: border-box;
+  padding: 0.7rem 0.8rem 0.65rem;
+  color: var(--rail-ink);
+  background: var(--rail-glass);
+  -webkit-backdrop-filter: blur(10px) saturate(1.04);
+  backdrop-filter: blur(10px) saturate(1.04);
+  border: 1px solid var(--rail-edge);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgb(15 28 58 / 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  pointer-events: none;
+  transition:
+    opacity 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 460ms;
+}
+
+.rail[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+/* Retracting: a named animation rather than a transition, because
+   HeroOptions settles a closing panel on its `animationend`. Timed to the
+   product cards' 780ms fold-and-dock, so the three leave as one gesture: it
+   holds while the cards' readings retract (0-150ms) and fades while they
+   fold and dock (150-710ms), gone just before they land. */
+.rail[data-closing="true"] {
+  visibility: visible;
+  animation: poseRailRetract 560ms cubic-bezier(0.4, 0, 0.2, 1) 150ms both;
+}
+
+@keyframes poseRailRetract {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+.inner {
+  display: block;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rail-ink);
+}
+
+/* "Live": a small champagne mark that breathes on the stride. */
+.liveDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rail-gold);
+  opacity: 0.55;
+}
+
+.rows {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  gap: 0.08rem;
+  padding-top: 0.42rem;
+  border-top: 1px solid rgb(201 176 122 / 0.22);
+}
+
+.row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--rail-label);
+}
+
+.value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
+  color: var(--rail-ink);
+  white-space: nowrap;
+}
+
+.privacy {
+  margin: 0.6rem 0 0;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgb(201 176 122 / 0.45);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a7c43;
+}
+
+/* ── The instruments ── all hairline, slate with champagne where it lives */
+
+.wave {
+  flex: none;
+  width: 2.6rem;
+  height: 0.75rem;
+  overflow: hidden;
+}
+
+.wave path {
+  fill: none;
+  stroke: var(--rail-slate);
+  stroke-width: 1.2;
+}
+
+.steps,
+.symmetry {
+  flex: none;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 0.75rem;
+}
+
+.steps span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rail-slate);
+  opacity: 0.35;
+}
+
+.symmetry span {
+  width: 3px;
+  height: 70%;
+  border-radius: 1px;
+  background: var(--rail-slate);
+  opacity: 0.6;
+  transform-origin: bottom;
+}
+
+.level {
+  flex: none;
+  position: relative;
+  width: 2.2rem;
+  height: 0.75rem;
+}
+
+.level span {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1.2px;
+  background: linear-gradient(90deg, rgb(127 139 163 / 0), var(--rail-slate) 20% 80%, rgb(127 139 163 / 0));
+}
+
+.level span::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--rail-gold);
+}
+
+.gauge {
+  flex: none;
+  width: 1.7rem;
+  height: 0.95rem;
+  overflow: visible;
+}
+
+.gaugeArc {
+  fill: none;
+  stroke: rgb(127 139 163 / 0.55);
+  stroke-width: 1.2;
+}
+
+.gaugeNeedle {
+  stroke: var(--rail-gold);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  transform-origin: 12px 12px;
+  transform: rotate(8deg);
+}
+
+/* ── Motion: only while open, never under reduced motion ── */
+@media (prefers-reduced-motion: no-preference) {
+  /* The rows arrive one after another, 45ms apart. */
+  .rail[data-open="true"] .row {
+    animation: poseRowIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(80ms + var(--i) * 45ms);
+  }
+
+  .rail[data-open="true"] .liveDot {
+    animation: poseLive var(--stride) ease-in-out infinite;
+  }
+
+  .rail[data-open="true"] .waveTrack {
+    animation: poseWave calc(var(--stride) * 2) linear infinite;
+  }
+
+  .rail[data-open="true"] .steps [data-foot] {
+    animation: poseFootfall var(--stride) ease-out infinite;
+  }
+
+  .rail[data-open="true"] .steps [data-foot="right"] {
+    animation-delay: calc(var(--stride) / 2);
+  }
+
+  .rail[data-open="true"] .symmetry [data-side] {
+    animation: poseSymmetry var(--stride) ease-in-out infinite;
+  }
+
+  .rail[data-open="true"] .symmetry [data-side="right"] {
+    animation-delay: calc(var(--stride) / 2);
+  }
+
+  .rail[data-open="true"] .level span {
+    animation: poseSway calc(var(--stride) * 2) ease-in-out infinite;
+  }
+
+  .rail[data-open="true"] .gaugeNeedle {
+    animation: poseRange var(--stride) ease-in-out infinite;
+  }
+}
+
+@keyframes poseRowIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes poseLive {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes poseWave {
+  to {
+    transform: translateX(-24px);
+  }
+}
+
+/* A foot lands: the tick fills to champagne and settles back. */
+@keyframes poseFootfall {
+  0% {
+    opacity: 1;
+    background: var(--rail-gold);
+  }
+
+  45%,
+  100% {
+    opacity: 0.35;
+    background: var(--rail-slate);
+  }
+}
+
+/* Left and right answer each other: 96%, so the swing is small. */
+@keyframes poseSymmetry {
+  0%,
+  100% {
+    transform: scaleY(0.82);
+  }
+
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes poseSway {
+  0%,
+  100% {
+    transform: rotate(-1.4deg);
+  }
+
+  50% {
+    transform: rotate(1.4deg);
+  }
+}
+
+@keyframes poseRange {
+  0%,
+  100% {
+    transform: rotate(-14deg);
+  }
+
+  50% {
+    transform: rotate(18deg);
+  }
+}
+
+/* ── Night ── the same rail in dark glass */
+:global(.dark) .rail {
+  --rail-ink: #eef1f7;
+  --rail-label: #a2adc2;
+  --rail-gold: #d2b47a;
+  --rail-slate: #93a0ba;
+  --rail-glass: rgb(9 14 30 / 0.52);
+  --rail-edge: rgb(210 180 122 / 0.32);
+
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.35);
+}
+
+:global(.dark) .privacy {
+  color: #d2b47a;
+}
+
+/* Below 1024px the picture is too small to stand anything beside the
+   figure, so the rail becomes a slim strip at the foot of the screen, the
+   same place the product cards open. Still glass, still no card chrome. */
+@media (max-width: 1023px) {
+  .rail {
+    position: fixed;
+    z-index: 72;
+    left: 50%;
+    right: auto;
+    top: auto;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    width: min(92vw, 24rem);
+    transform: translate(-50%, 10px);
+    background: rgb(250 250 246 / 0.88);
+  }
+
+  .rail[data-open="true"] {
+    transform: translateX(-50%);
+  }
+
+  .rows {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1rem;
+  }
+
+  .row:nth-child(2) {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  :global(.dark) .rail {
+    background: rgb(9 14 30 / 0.9);
+  }
+
+  @keyframes poseRailRetract {
+    from {
+      opacity: 1;
+      transform: translateX(-50%);
+    }
+
+    to {
+      opacity: 0;
+      transform: translate(-50%, 10px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No slide: opacity only. `transform` is left alone so the phone strip
+     stays centred; without a transition it simply does not travel. */
+  .rail,
+  .rail[data-open="true"] {
+    transition:
+      opacity 120ms linear,
+      visibility 0s linear 120ms;
+  }
+
+  .rail[data-closing="true"] {
+    animation-duration: 120ms;
+  }
+}

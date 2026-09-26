@@ -455,6 +455,9 @@
 
 .columns {
   display: grid;
+  /* One column that may shrink: an auto track takes its widest note's
+     min-content and ran past a phone's edge (648px in a 348px panel). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 1px;
   background: var(--an-line);
 }

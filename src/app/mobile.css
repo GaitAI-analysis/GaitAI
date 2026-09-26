@@ -1,0 +1,693 @@
+/* =========================================================================
+   THE MOBILE LAYER — phones (360–767) and tablets (768–1023)
+   -------------------------------------------------------------------------
+   Loaded last (after light-theme.css) and unlayered, so it settles ties with
+   the Tailwind utilities and the theme files it refines. Every rule here is
+   behind a max-width query: nothing in this file reaches a laptop.
+
+   The palette is the site's own — deep navy, off-white, cool grey and one
+   restrained warm gold. One motion curve, one radius family, 44px targets.
+   ========================================================================= */
+
+:root {
+  --m-gold: #c9a55d;
+  --m-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --m-gutter: 1.25rem;
+}
+
+:root.light {
+  --m-gold: #a9803f;
+}
+
+/* =========================================================================
+   THE MOBILE HEADER (phones and tablets, below 1024px)
+   One compact bar: logo, Request demo, menu. At the top of the page it is
+   bare; once the page scrolls it becomes a full-width frosted bar with a
+   hairline under it — never the floating desktop pill, whose rounded ends
+   let the page show above and beside it on a narrow screen.
+   ========================================================================= */
+@media (max-width: 1023.98px) {
+  :root {
+    --site-header-height: 4rem;
+  }
+
+  .site-header {
+    display: flex;
+    align-items: center;
+    transition:
+      background-color 300ms ease,
+      box-shadow 300ms ease,
+      backdrop-filter 300ms ease;
+  }
+
+  .site-header > .container-wide {
+    padding-inline: var(--m-gutter);
+  }
+
+  :root .site-header .site-header__bar,
+  :root.light .site-header .site-header__bar.glass {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .site-header.is-scrolled {
+    background: rgb(7 11 20 / 0.82);
+    box-shadow: 0 1px 0 rgb(148 163 184 / 0.14);
+    backdrop-filter: blur(16px) saturate(1.15);
+    -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  }
+
+  :root.light .site-header.is-scrolled {
+    background: rgb(247 249 252 / 0.86);
+    box-shadow: 0 1px 0 rgb(15 28 58 / 0.08);
+  }
+
+  /* Request demo: present, compact, never the loudest thing in the bar. */
+  .site-header .site-header__demo {
+    min-height: 2.25rem;
+  }
+
+  /* The journal's fading band under the floating pill is the pill's; the
+     bar carries its own ground once scrolled. */
+  body:has(.insights-hub, .insights-page) .site-header.is-scrolled::before {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   THE MENU SHEET (Navbar, below 1040px)
+   ========================================================================= */
+.mnav__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(3 7 18 / 0.42);
+}
+
+.mnav__panel {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--page-bg);
+  color: var(--text-primary);
+}
+
+@media (min-width: 640px) {
+  .mnav__panel {
+    max-width: 26rem;
+    border-left: 1px solid var(--border-subtle);
+    box-shadow: -30px 0 60px -30px rgb(0 0 0 / 0.45);
+  }
+}
+
+.mnav__top {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--site-header-height);
+  padding: 0 var(--m-gutter);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mnav__close {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: var(--surface-secondary);
+  transition: transform 200ms var(--m-ease);
+}
+
+.mnav__close:active {
+  transform: scale(0.95);
+}
+
+.mnav__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem var(--m-gutter) 1.5rem;
+}
+
+.mnav__search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.875rem;
+  background: var(--surface-secondary);
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  text-align: left;
+}
+
+.mnav__list {
+  margin-top: 0.5rem;
+}
+
+.mnav__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 550;
+  letter-spacing: -0.012em;
+  text-align: left;
+}
+
+.mnav__list > a.mnav__row,
+.mnav__group {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Where you are: a small gold mark after the family's name. */
+.mnav__row[data-active]::after {
+  content: "";
+  width: 0.375rem;
+  height: 0.375rem;
+  margin-right: auto;
+  margin-left: -0.5rem;
+  border-radius: 999px;
+  background: var(--m-gold);
+}
+
+.mnav__chevron {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--text-muted);
+  transition: transform 360ms var(--m-ease);
+}
+
+.mnav__group[data-open] .mnav__chevron {
+  transform: rotate(180deg);
+}
+
+.mnav__sub {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 360ms var(--m-ease);
+}
+
+.mnav__group[data-open] .mnav__sub {
+  grid-template-rows: 1fr;
+}
+
+.mnav__subInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mnav__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.25rem;
+  margin: 0 -0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.75rem;
+  transition: background-color 200ms ease;
+}
+
+.mnav__item:last-child {
+  margin-bottom: 0.75rem;
+}
+
+.mnav__item:active {
+  background: var(--surface-secondary);
+}
+
+.mnav__itemLabel {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.mnav__itemSub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+.mnav__item[data-active] {
+  background: var(--surface-secondary);
+  box-shadow: inset 2px 0 0 var(--m-gold);
+}
+
+.mnav__itemArrow {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--text-muted);
+}
+
+.mnav__atlas {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.875rem;
+  background: none;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.mnav__atlas svg {
+  margin-top: 0.2rem;
+}
+
+.mnav__foot {
+  display: grid;
+  flex: none;
+  gap: 0.75rem;
+  padding: 0.875rem var(--m-gutter) calc(0.875rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-subtle);
+  background: var(--page-bg);
+}
+
+.mnav__theme {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-secondary);
+}
+
+.mnav__theme button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition:
+    background-color 250ms ease,
+    color 250ms ease;
+}
+
+.mnav__theme button[data-on] {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  box-shadow:
+    0 0 0 1px var(--border-subtle),
+    0 4px 12px -6px rgb(0 0 0 / 0.35);
+}
+
+.mnav__demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3.25rem;
+  border-radius: 999px;
+  background: #f3f6fb;
+  color: #0b1426;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: transform 200ms var(--m-ease);
+}
+
+:root.light .mnav__demo {
+  background: #0f1c3a;
+  color: #fff;
+}
+
+.mnav__demo:active {
+  transform: scale(0.985);
+}
+
+.mnav button:focus-visible,
+.mnav a:focus-visible {
+  outline: 2px solid var(--m-gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mnav__sub,
+  .mnav__chevron {
+    transition: none;
+  }
+}
+
+/* =========================================================================
+   PRODUCT HEROES (SecureVision, MobilityCare) — below 1024px
+   The stills are posters: a painted wordmark and title in their left third
+   and a strip of product circles along their foot. Laid behind the copy on
+   a phone, both showed through — the circles sat under the buttons. So on
+   a phone the hero is two calm blocks: the copy on the page's own ground,
+   then the scene itself, framed, cut from the still between its painted
+   title and its strip. The film (dark, second slide) plays in the same
+   frame. Nothing about the artwork changes; only the window onto it.
+   ========================================================================= */
+@media (max-width: 1023px) {
+  .securevision-hero,
+  .mobilitycare-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    padding: 0 0 clamp(2.5rem, 9vw, 3.5rem);
+    background: transparent;
+  }
+
+  .securevision-hero-inner,
+  .mobilitycare-hero__content {
+    order: 1;
+    display: block;
+    min-height: 0;
+    padding-top: clamp(1.5rem, 6vw, 2.5rem);
+    padding-bottom: 1.75rem;
+  }
+
+  .securevision-hero-inner > div,
+  .mobilitycare-hero__content > div {
+    max-width: 36rem;
+  }
+
+  /* The picture, framed: a 16:10 window, inside the gutters. */
+  .securevision-hero > .hero-slider,
+  .mobilitycare-hero > .hero-slider {
+    order: 2;
+    position: relative;
+    inset: auto;
+    width: auto;
+    max-width: 36rem;
+    aspect-ratio: 1.6;
+    margin: 0 var(--m-gutter);
+    align-self: stretch;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: #0b1426;
+    box-shadow:
+      0 0 0 1px var(--border-subtle),
+      0 24px 48px -32px rgb(0 0 0 / 0.55);
+    isolation: isolate;
+  }
+
+  :root.light .securevision-hero > .hero-slider,
+  :root.light .mobilitycare-hero > .hero-slider {
+    background: #e8eef6;
+    box-shadow:
+      0 0 0 1px rgb(15 28 58 / 0.08),
+      0 24px 48px -30px rgb(15 28 58 / 0.4);
+  }
+
+  /* No readability shade and no vignette: nothing sits on the picture. */
+  .securevision-hero .securevision-video-shade,
+  .mobilitycare-hero .mobilitycare-hero__overlay,
+  .securevision-hero .hero-slider__slide::before,
+  .securevision-hero .hero-slider__slide::after,
+  .mobilitycare-hero .hero-slider__slide::before,
+  .mobilitycare-hero .hero-slider__slide::after {
+    display: none;
+  }
+
+  /* The window onto the still, in fractions of the picture: SecureVision
+     from its anomaly tag across the concourse (x 0.36–0.87, y 0.10–0.67),
+     MobilityCare from its gait-analysis card across the walker and the
+     progress card (x 0.36–0.84, y 0.03–0.56). */
+  .securevision-hero .hero-slider__still,
+  .mobilitycare-hero .hero-slider__still {
+    inset: 0;
+  }
+
+  .securevision-hero .hero-slider__still img,
+  .mobilitycare-hero .hero-slider__still img {
+    position: absolute;
+    max-width: none;
+    height: auto;
+    object-fit: fill;
+    width: calc(100% / var(--m-cw));
+    left: calc(-100% * var(--m-cx) / var(--m-cw));
+    top: calc(-100% * var(--m-cy) * 1.6 / (var(--m-cw) * 1.7768));
+  }
+
+  .securevision-hero .hero-slider__still {
+    --m-cx: 0.36;
+    --m-cw: 0.51;
+    --m-cy: 0.1;
+  }
+
+  .mobilitycare-hero .hero-slider__still {
+    --m-cx: 0.36;
+    --m-cw: 0.48;
+    --m-cy: 0.03;
+  }
+
+  .securevision-hero .hero-slider__slide--film video,
+  .mobilitycare-hero .hero-slider__slide--film video {
+    object-fit: cover;
+    object-position: 62% 45%;
+  }
+
+  /* Tablets: the frame starts on the copy's own left edge (the
+     container's 2rem gutter from 640px). */
+  @media (min-width: 640px) {
+    .securevision-hero > .hero-slider,
+    .mobilitycare-hero > .hero-slider {
+      margin-inline: 2rem;
+    }
+  }
+
+  /* The two dots under the frame, not over it. */
+  .securevision-hero > .hero-slider__dots,
+  .mobilitycare-hero > .hero-slider__dots {
+    order: 3;
+    position: relative;
+    left: auto;
+    bottom: auto;
+    align-self: center;
+    margin-top: 0.875rem;
+    transform: none;
+  }
+
+  /* The copy: an eyebrow as a line of type rather than a two-line pill, a
+     headline that sets in four lines at most, calm body, two stacked
+     buttons of equal width. */
+  .securevision-hero .securevision-eyebrow,
+  .mobilitycare-hero__content > div > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    letter-spacing: 0.16em;
+  }
+
+  .securevision-hero .securevision-eyebrow::before,
+  .mobilitycare-hero__content > div > div:first-child::before {
+    content: "";
+    flex: none;
+    width: 1.25rem;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  .securevision-hero h1,
+  .mobilitycare-hero__content h1 {
+    margin-top: 0.9rem;
+    font-size: clamp(2rem, 8.4vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .securevision-hero-inner h1 + p,
+  .mobilitycare-hero__content h1 + p {
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .securevision-hero-inner p + div,
+  .mobilitycare-hero__content p + div {
+    margin-top: 1.5rem;
+    gap: 0.625rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .securevision-hero-inner p + div > a,
+  .mobilitycare-hero__content p + div > a {
+    flex: 1 1 100%;
+    justify-content: center;
+    min-height: 3rem;
+  }
+}
+
+/* =========================================================================
+   TYPE AND RHYTHM ON A PHONE (< 640px)
+   The display scale was set for laptops and floors at sizes that turn a
+   section headline into five lines on a phone ("12 product modules on one
+   Movement Intelligence Platform." at 40px). These floors keep every
+   headline strong but within three or four lines, and a section's outer
+   air proportionate to a 390px screen.
+   ========================================================================= */
+@media (max-width: 639px) {
+  .text-display-2xl {
+    font-size: clamp(2.25rem, 9.2vw, 3rem);
+    line-height: 1.05;
+  }
+
+  .text-display-xl {
+    font-size: clamp(1.95rem, 8vw, 2.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.032em;
+  }
+
+  .text-display-lg {
+    font-size: clamp(1.7rem, 7vw, 2.1rem);
+    line-height: 1.12;
+  }
+
+  .text-display-md {
+    font-size: clamp(1.35rem, 5.6vw, 1.6rem);
+    line-height: 1.2;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  .section {
+    padding-top: 4.5rem;
+    padding-bottom: 4.5rem;
+  }
+
+  .home-section.section,
+  .home-band.section {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .container-wide {
+    padding-inline: var(--m-gutter);
+  }
+
+  .eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+  }
+}
+
+/* Touch: no sticky hover, a quiet press instead of the browser's flash. */
+@media (hover: none) {
+  a,
+  button,
+  [role="button"],
+  summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* =========================================================================
+   SWIPEABLE ROWS (< 640px)
+   A family of four product cards stacked one under another was 1,450px of
+   near-identical rectangles on a phone. As a row that snaps card by card,
+   with the next card peeking in at the edge, the section is one screen and
+   the peek says there is more. The same pattern everywhere it is used.
+   ========================================================================= */
+@media (max-width: 639px) {
+  .featured-grid {
+    display: flex;
+    gap: 0.75rem;
+    margin-inline: calc(-1 * var(--m-gutter));
+    padding: 0.25rem var(--m-gutter) 0.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--m-gutter);
+    scrollbar-width: none;
+  }
+
+  .featured-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .featured-grid > * {
+    flex: 0 0 82%;
+    scroll-snap-align: start;
+  }
+}
+
+/* =========================================================================
+   THE DEMO BLOCK (#contact) — one surface, not a card inside a card
+   ========================================================================= */
+@media (max-width: 639px) {
+  .contact-card {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  .contact-card > .ring-grid,
+  .contact-card > .noise {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   A LEGIBILITY FLOOR FOR SMALL LABELS (< 640px)
+   Eyebrows, chips and meta lines set at 9–10px on a laptop read as grain on
+   a phone held at arm's length. On phones they rise to 10.5–11px. Two
+   exclusions: decorative illustrations (aria-hidden), whose labels are laid
+   out against their own drawing, and the Blog, whose figures and labels
+   follow their own type system (insights/figures.module.css).
+   ========================================================================= */
+@media (max-width: 639px) {
+  :is(.text-\[9px\], .text-\[9\.5px\]):not([aria-hidden="true"] *, .insights-hub *, .insights-page *) {
+    font-size: 10.5px;
+  }
+
+  .text-\[10px\]:not([aria-hidden="true"] *, .insights-hub *, .insights-page *) {
+    font-size: 11px;
+  }
+}

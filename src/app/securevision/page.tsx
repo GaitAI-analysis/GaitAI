@@ -229,7 +229,7 @@ export default function SecureVisionPage() {
           questions, and adjacent they would read as one repeated visual. */}
       <section id="x-ray" className="section site-anchor-offset">
         <div className="container-wide">
-          <div className="grid gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,22rem)_1fr] lg:items-start">
+          <div className="grid grid-cols-[minmax(0,1fr)] gap-x-12 gap-y-8 lg:grid-cols-[minmax(0,22rem)_1fr] lg:items-start">
             <div>
               <SectionHeading
                 eyebrow="Movement X-Ray"

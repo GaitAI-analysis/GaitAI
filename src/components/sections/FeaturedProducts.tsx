@@ -172,7 +172,9 @@ export function FeaturedProducts() {
               tabIndex={0}
               className="mt-9 focus-visible:outline-none sm:mt-10"
             >
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* `featured-grid`: a swipeable row of cards on a phone
+                  (mobile.css), the grid from 640px. */}
+              <div className="featured-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {visible.map((product, i) => (
                   <ProductCard
                     key={product.id}

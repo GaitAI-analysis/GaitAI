@@ -3,6 +3,8 @@ import { ThemePicture } from "@/components/ui/ThemePicture";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import { HeroOptions } from "./HeroOptions";
 import { HeroSignals } from "./HeroSignals";
+import { HeroMobile } from "./HeroMobile";
+import { HERO_MOBILE } from "@/data/home-hero-mobile";
 import styles from "./homehero.module.css";
 import haze from "./herohaze.module.css";
 
@@ -58,6 +60,8 @@ export function Hero() {
         <p className={`${styles.support} ${styles.darkOnly}`}>
           {HERO_SCENE.dark.support.join(" ")}
         </p>
+        {/* Phones and tablets: one compact sentence, both themes. */}
+        <p className={`${styles.support} ${styles.mobileSupport}`}>{HERO_MOBILE.support}</p>
       </div>
 
       <div className={styles.stage}>
@@ -66,6 +70,16 @@ export function Hero() {
         <ThemePicture
           className={styles.photo}
           sources={[
+            /* Below 1024px this picture is hidden (the phone hero replaces
+               it) but an <img> still downloads under display:none — so there
+               it resolves to the one full-size file the phone hero's scene
+               tiles use, and the page fetches the plate once. */
+            {
+              type: "image/webp",
+              media: "(max-width: 1023px)",
+              lightSrcSet: `${HERO_SCENE.src} ${HERO_SCENE.width}w`,
+              darkSrcSet: `${HERO_SCENE.dark.src} ${HERO_SCENE.dark.width}w`,
+            },
             {
               type: "image/webp",
               lightSrcSet: `${HERO_SCENE.narrowSrc} 1200w, ${HERO_SCENE.src} ${HERO_SCENE.width}w`,
@@ -91,6 +105,9 @@ export function Hero() {
             dots, pills and rail (3). */}
         <HeroSignals />
       </div>
+
+      {/* Below 1024px: the hero recomposed for a phone (see HeroMobile). */}
+      <HeroMobile />
 
       {/* `/#overview` lands here: the foot of the hero, so the page scrolls
           to the line where the next section begins. */}

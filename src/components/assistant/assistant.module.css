@@ -124,6 +124,31 @@
   transform: translateY(1px);
 }
 
+/* PHONES: the mark alone, a 48px circle. The labelled pill sat over the
+   last line of whatever was scrolling past it — calls to action, card
+   links — on every screen of every page. The label stays for assistive
+   technology (aria-label), and the panel it opens is unchanged. */
+@media (max-width: 767px) {
+  .launcher {
+    justify-content: center;
+    gap: 0;
+    width: 3rem;
+    height: 3rem;
+    min-height: 3rem;
+    padding: 0;
+  }
+
+  .launcher[data-revealed] .launcherLabel {
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  .launcherMark {
+    font-size: 17px;
+  }
+}
+
 /* THE HOMEPAGE HERO'S SAFE ZONE. When the hero reports that this corner sits
    over its SecureVision copy (a short laptop window — see
    sections/HeroLauncherGuard), the label folds away and the ✦ mark stays:

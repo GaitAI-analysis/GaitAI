@@ -211,16 +211,16 @@ function FlagshipPanel({
 
         <div
           aria-hidden="true"
-          className={`product-visual-shell ${style.visual} relative -mx-5 mt-8 h-[21rem] overflow-hidden border-y sm:-mx-7 sm:mt-9 lg:-mx-8`}
+          className={`product-visual-shell ${style.visual} relative -mx-5 mt-8 h-[17rem] overflow-hidden border-y sm:-mx-7 sm:mt-9 sm:h-[21rem] lg:-mx-8`}
         >
           <div className="ring-grid absolute inset-0 opacity-25" />
           <div className="absolute left-5 top-5 z-10 inline-flex items-center gap-2 sm:left-7 sm:top-6">
             <span className={`h-1.5 w-1.5 rounded-full ${style.status}`} />
-            <span className="text-[9px] font-semibold uppercase tracking-[0.17em] text-soft-mute sm:text-[10px]">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-soft-mute">
               {visualLabel}
             </span>
           </div>
-          <div className="absolute right-5 top-4 z-10 rounded-md border border-white/10 bg-obsidian/70 px-2.5 py-1 font-mono text-[9px] text-soft-gray shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:right-7 sm:top-5 sm:text-[10px]">
+          <div className="absolute right-5 top-4 z-10 rounded-md border border-white/10 bg-obsidian/70 px-2.5 py-1 font-mono text-[10px] text-soft-gray shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:right-7 sm:top-5 sm:text-[10px]">
             {consoleTag}
           </div>
           {/* The console surface: the same cinematic render in both themes,
@@ -253,8 +253,12 @@ function FlagshipPanel({
               4 of {totalProducts} products
             </span>
           </div>
+          {/* Two columns at every width. On a phone each capability is its
+              icon and name only — the description returns from 640px — so
+              the list is a compact index; the product cards just below
+              carry the detail. */}
           <ul
-            className="grid sm:grid-cols-2"
+            className="grid grid-cols-2"
             aria-label={`${name} featured capabilities`}
           >
             {products.map((product) => {
@@ -268,7 +272,7 @@ function FlagshipPanel({
               return (
                 <li
                   key={product.id}
-                  className={`group/capability flex min-h-[5.25rem] items-start gap-3 border-b border-white/8 px-1 py-4 transition-colors duration-300 sm:odd:pr-4 sm:even:border-l sm:even:pl-4 ${style.capability}`}
+                  className={`group/capability flex min-h-[3.75rem] items-center gap-2.5 border-b border-white/8 px-1 py-3 transition-colors duration-300 odd:pr-3 even:border-l even:pl-3 sm:min-h-[5.25rem] sm:items-start sm:gap-3 sm:py-4 sm:odd:pr-4 sm:even:pl-4 ${style.capability}`}
                 >
                   <span
                     className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border transition-colors duration-300 ${style.capabilityIcon}`}
@@ -280,10 +284,10 @@ function FlagshipPanel({
                     )}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-soft-white">
+                    <span className="block break-words text-[13px] font-semibold text-soft-white sm:text-sm">
                       {product.short}
                     </span>
-                    <span className="mt-1 block text-xs leading-5 text-soft-mute">
+                    <span className="mt-1 hidden text-xs leading-5 text-soft-mute sm:block">
                       {product.label}
                     </span>
                   </span>
@@ -313,12 +317,12 @@ export function Verticals() {
   return (
     <section
       id="platform-verticals"
-      className="relative w-full pb-28 pt-20 sm:pb-32 sm:pt-24 lg:pb-40 lg:pt-28"
+      className="relative w-full pb-16 pt-12 sm:pb-32 sm:pt-24 lg:pb-40 lg:pt-28"
     >
       <div className="container-wide">
         {/* Eyebrow pill — same badge language as the hero pill in Hero.tsx */}
         <div className="mb-8 flex justify-center sm:mb-10">
-          <span className="inline-flex max-w-[calc(100vw-3rem)] items-center rounded-full border border-cyan-300/20 bg-obsidian/55 px-4 py-1.5 text-center text-[10px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs">
+          <span className="inline-flex max-w-[calc(100vw-3rem)] items-center rounded-full border border-cyan-300/20 bg-obsidian/55 px-4 py-1.5 text-center text-[11px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs">
             Building the future of human movement intelligence.
           </span>
         </div>

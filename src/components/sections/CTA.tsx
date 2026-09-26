@@ -80,7 +80,7 @@ export function CTA() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-7 sm:p-10 lg:p-12"
+          className="contact-card relative overflow-hidden rounded-[2rem] border border-white/8 bg-gradient-to-b from-white/[0.04] to-transparent p-7 sm:p-10 lg:p-12"
         >
           <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
           <div className="noise" />

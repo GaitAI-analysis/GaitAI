@@ -111,7 +111,7 @@ export function Footer() {
   return (
     <footer className="relative mt-12 border-t border-white/5 bg-obsidian-200">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-royal-400/40 to-transparent" />
-      <div className="container-wide py-20">
+      <div className="container-wide py-14 sm:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_2.4fr]">
           <div>
             <Logo variant="wordmark" size="lg" />
@@ -145,7 +145,7 @@ export function Footer() {
             </div>
           </div>
 
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:gap-10 lg:grid-cols-4">
             {footerLinks.map((col) => (
               <div key={col.heading}>
                 {/* h2, not h4: these sit at the same level as the page's own

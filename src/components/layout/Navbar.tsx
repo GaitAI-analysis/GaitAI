@@ -10,18 +10,66 @@ import {
   ChevronDown,
   ChevronRight,
   Home,
+  Map as MapIcon,
   Menu,
+  Monitor,
+  Moon,
   Search,
+  Sun,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { SearchTrigger } from "@/components/search/SearchTrigger";
 import { AtlasTrigger } from "@/components/atlas/AtlasTrigger";
+import { openAtlas } from "@/components/atlas/atlas-event";
 import { SEARCH_EVENT } from "@/components/search/IntelligenceSearch";
 import { navLinks, type NavItem } from "@/data/content";
 import { cn } from "@/lib/utils";
 import { assetPath } from "@/lib/paths";
+
+/** Whether `pathname` sits under `href` (the menu sheet's opening family). */
+function isUnderPath(pathname: string | null, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || !!pathname?.startsWith(`${href}/`);
+}
+
+const THEME_CHOICES = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Monitor },
+] as const;
+
+/**
+ * The theme, as three named choices at the foot of the menu sheet. The
+ * header's one-button cycle (ThemeToggle) suits a mouse beside it; on a
+ * phone, where the control lives in the sheet, a segmented choice says what
+ * each option is and which one is on without cycling through all three.
+ */
+function ThemeChoice() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return (
+    <div role="group" aria-label="Theme" className="mnav__theme">
+      {THEME_CHOICES.map(({ value, label, icon: Icon }) => {
+        const on = mounted && theme === value;
+        return (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={on}
+            data-on={on ? "true" : undefined}
+            onClick={() => setTheme(value)}
+          >
+            <Icon aria-hidden="true" className="h-3.5 w-3.5" />
+            {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 /**
  * Shared desktop/mobile Navbar.
@@ -36,6 +84,10 @@ export function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const pathname = usePathname();
   const desktopNav = useRef<HTMLElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  /* The menu sheet's open family: the one the current route is in. */
+  const [section, setSection] = useState<string | null>(null);
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -44,6 +96,37 @@ export function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  /* The sheet opens on the family you are in, holds the page still behind
+     it, takes focus to its close button and hands it back to the menu
+     button when it closes. */
+  useEffect(() => {
+    if (!open) return;
+    const here = navLinks.find(
+      (link) =>
+        link.children &&
+        (isUnderPath(pathname, link.href) ||
+          link.children.some((child) => isUnderPath(pathname, child.href))),
+    );
+    setSection(here ? here.href : null);
+    const body = document.body;
+    const before = body.style.overflow;
+    body.style.overflow = "hidden";
+    const focus = window.requestAnimationFrame(() =>
+      closeButton.current?.focus(),
+    );
+    const trigger = menuButton.current;
+    return () => {
+      body.style.overflow = before;
+      window.cancelAnimationFrame(focus);
+      /* Only when focus was in the sheet (Escape, the close button): a link
+         that navigated away takes focus with it to the new page. */
+      const active = document.activeElement;
+      if (!active || active === document.body || active.closest(".mnav")) {
+        trigger?.focus({ preventScroll: true });
+      }
+    };
+  }, [open, pathname]);
 
   // Escape closes the mobile drawer — it covers the whole viewport, so a
   // keyboard user needs a way out that isn't hunting for the close button.
@@ -188,13 +271,16 @@ export function Navbar() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
         className={cn(
           "site-header fixed inset-x-0 top-0 z-50 transition-all duration-500",
-          scrolled ? "py-3" : "py-5",
+          /* Phones and tablets: one compact bar at every scroll position
+             (see "THE MOBILE HEADER" in mobile.css); the floating pill is
+             the desktop's. */
+          scrolled ? "is-scrolled py-2.5 lg:py-3" : "py-2.5 lg:py-5",
         )}
       >
         <div className="container-wide">
           <div
             className={cn(
-              "relative flex items-center justify-between rounded-full transition-all duration-500",
+              "site-header__bar relative flex items-center justify-between rounded-full transition-all duration-500",
               scrolled
                 ? "glass px-4 py-2 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6)]"
                 : "px-1 py-1",
@@ -406,161 +492,231 @@ export function Navbar() {
             </nav>
 
             <div className="flex items-center gap-2">
-              {/* Opens the Cmd/Ctrl + K palette. md and up only — the
-                  shortcut has no meaning on a phone. */}
-              <SearchTrigger />
-              {/* The Atlas, one glyph wide. See AtlasTrigger for why this is
-                  not a seventh nav tab. */}
-              <AtlasTrigger />
-              <ThemeToggle />
+              {/* Search, the Atlas and the theme are desktop controls in the
+                  bar. On phones and tablets (below 1024px) all three live in
+                  the menu sheet instead, so a phone's header holds only the logo,
+                  Request demo and the menu — `contents` leaves the desktop
+                  row exactly as it was. */}
+              <span className="hidden lg:contents">
+                {/* Opens the Cmd/Ctrl + K palette. */}
+                <SearchTrigger />
+                {/* The Atlas, one glyph wide. See AtlasTrigger for why this
+                    is not a seventh nav tab. */}
+                <AtlasTrigger />
+                <ThemeToggle />
+              </span>
               <Link
                 href="/#contact"
-                className="hidden items-center gap-1.5 whitespace-nowrap rounded-full bg-white/5 px-4 py-2 text-sm font-medium text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-white/20 sm:inline-flex"
+                className="site-header__demo inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/5 px-3.5 py-2 text-[13px] font-medium text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-white/20 sm:px-4 sm:text-sm"
               >
                 Request demo
-                <ArrowUpRight className="h-3.5 w-3.5" />
+                <ArrowUpRight className="hidden h-3.5 w-3.5 sm:block" />
               </Link>
               {/* The one control that has to be reachable one-handed: 36px on
                   a mouse, 44px where there is a thumb. */}
               <button
+                ref={menuButton}
                 type="button"
                 onClick={() => setOpen(true)}
                 aria-label="Open menu"
                 aria-expanded={open}
-                className="ix-hit-box grid h-9 w-9 place-items-center rounded-full glass transition-colors hover:border-white/20 active:scale-95 navbar:hidden"
+                className="site-header__menu grid h-11 w-11 place-items-center lg:h-9 lg:w-9 rounded-full glass transition-colors hover:border-white/20 active:scale-95 navbar:hidden"
               >
-                <Menu className="h-4 w-4" />
+                <Menu className="h-[18px] w-[18px]" />
               </button>
             </div>
           </div>
         </div>
       </motion.header>
 
-      {/* Mobile drawer */}
+      {/* THE MENU SHEET (below the navbar breakpoint). A full-height sheet
+          that slides in from the right: the search row, Home, then the four
+          families as an accordion — one open at a time, the one you are in
+          open on arrival — and, pinned to the foot where a thumb rests, the
+          theme and Request demo. Escape, the close button, the scrim (on a
+          tablet, where the sheet is narrower than the screen) and any route
+          change close it. Styles: "THE MENU SHEET" in mobile.css. */}
       <AnimatePresence>
         {open && (
           <motion.div
+            key="mobile-nav"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.22 }}
             role="dialog"
             aria-modal="true"
             aria-label="Site navigation"
-            className="fixed inset-0 z-[60] overflow-y-auto bg-obsidian/95 backdrop-blur-xl navbar:hidden"
+            className="mnav fixed inset-0 z-[60] navbar:hidden"
           >
-            <div className="container-wide flex items-center justify-between py-5">
-              <Logo variant="wordmark" size="md" />
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close menu"
-                className="ix-hit-box grid h-9 w-9 place-items-center rounded-full glass transition-colors hover:border-white/20 active:scale-95"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <nav className="container-wide mt-10 flex flex-col gap-1 pb-16">
-              {/* The palette was desktop-only: the navbar trigger is hidden
-                  below md because a ⌘K key cap means nothing on a phone, and
-                  the drawer offered no other way in — so search simply did not
-                  exist on mobile. Here it is a real row, worded as an action,
-                  with no shortcut to misrepresent. */}
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  window.dispatchEvent(new CustomEvent(SEARCH_EVENT));
-                }}
-                className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5 text-left text-[15px] text-soft-gray transition-colors hover:border-white/20 hover:bg-white/[0.06] hover:text-soft-white active:scale-[0.99]"
-              >
-                <Search aria-hidden="true" className="h-4 w-4 shrink-0" />
-                Search products, research and stories
-              </button>
+            <div
+              aria-hidden="true"
+              className="mnav__scrim"
+              onClick={() => setOpen(false)}
+            />
+            <motion.div
+              className="mnav__panel"
+              initial={{ x: 28, opacity: 0.6 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 20, opacity: 0 }}
+              transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="mnav__top">
+                <Link
+                  href="/"
+                  aria-label="GaitAI home"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center"
+                >
+                  <Logo variant="wordmark" size="md" />
+                </Link>
+                <button
+                  type="button"
+                  ref={closeButton}
+                  onClick={() => setOpen(false)}
+                  aria-label="Close menu"
+                  className="mnav__close"
+                >
+                  <X className="h-[18px] w-[18px]" />
+                </button>
+              </div>
 
-              {navLinks.map((link, i) => {
-                const active = itemIsActive(link);
-                return (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.05 * i, duration: 0.4 }}
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={() => setOpen(false)}
-                      aria-label={link.href === "/" ? "Home" : undefined}
-                      title={link.href === "/" ? "Home" : undefined}
-                      aria-current={isUnder(link.href) ? "page" : undefined}
-                      className={cn(
-                        "block py-5 font-display text-3xl",
-                        !link.children && "border-b border-white/5",
-                        active ? "text-soft-white" : "text-soft-gray",
-                      )}
-                    >
-                      {link.href === "/" ? (
-                        <Home className="h-8 w-8" />
-                      ) : (
-                        link.label
-                      )}
-                    </Link>
+              <div className="mnav__scroll">
+                {/* Search on a phone: a real row, worded as an action — the
+                    header's ⌘K trigger means nothing without a keyboard. */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    window.dispatchEvent(new CustomEvent(SEARCH_EVENT));
+                  }}
+                  className="mnav__search"
+                >
+                  <Search aria-hidden="true" className="h-4 w-4 shrink-0" />
+                  Search products, research and stories
+                </button>
 
-                    {link.children && (
-                      <div className="border-b border-white/5 pb-4 pl-4">
-                        {link.children.map((child) => {
-                          const childActive = childIsActive(
-                            child,
-                            link.children ?? [],
-                          );
-                          return (
-                            <Link
-                              key={child.href}
-                              href={child.href}
-                              onClick={() => setOpen(false)}
-                              aria-current={childActive ? "page" : undefined}
-                              className={cn(
-                                "menu-card px-3 py-2.5 text-lg",
-                                childActive
-                                  ? "menu-card-on text-cyan-300"
-                                  : "text-soft-mute hover:text-soft-white",
-                              )}
-                            >
-                              <span className="min-w-0">
-                                {child.label}
-                                {child.description && (
-                                  <span className="menu-card-sub mt-0.5 block text-[12px] leading-snug text-soft-mute">
-                                    {child.description}
+                <nav aria-label="Primary" className="mnav__list">
+                  {navLinks.map((link) => {
+                    const active = itemIsActive(link);
+                    if (!link.children) {
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setOpen(false)}
+                          aria-current={isUnder(link.href) ? "page" : undefined}
+                          className="mnav__row"
+                          data-active={active ? "true" : undefined}
+                        >
+                          {link.label}
+                        </Link>
+                      );
+                    }
+                    const expanded = section === link.href;
+                    const panelId = `mnav-${link.href.replace(/\W+/g, "")}`;
+                    return (
+                      <div
+                        key={link.href}
+                        className="mnav__group"
+                        data-open={expanded ? "true" : undefined}
+                      >
+                        <button
+                          type="button"
+                          className="mnav__row"
+                          data-active={active ? "true" : undefined}
+                          aria-expanded={expanded}
+                          aria-controls={panelId}
+                          onClick={() =>
+                            setSection((current) =>
+                              current === link.href ? null : link.href,
+                            )
+                          }
+                        >
+                          {link.label}
+                          <ChevronDown
+                            aria-hidden="true"
+                            className="mnav__chevron"
+                          />
+                        </button>
+                        <div
+                          id={panelId}
+                          className="mnav__sub"
+                          /* A closed family is out of the tab order and
+                             the accessibility tree while it folds. */
+                          ref={(el) => {
+                            if (el) el.inert = !expanded;
+                          }}
+                        >
+                          <div className="mnav__subInner">
+                            {link.children.map((child) => {
+                              const childActive = childIsActive(
+                                child,
+                                link.children ?? [],
+                              );
+                              return (
+                                <Link
+                                  key={child.href}
+                                  href={child.href}
+                                  onClick={() => setOpen(false)}
+                                  aria-current={
+                                    childActive ? "page" : undefined
+                                  }
+                                  className="mnav__item"
+                                  data-active={childActive ? "true" : undefined}
+                                >
+                                  <span className="min-w-0">
+                                    <span className="mnav__itemLabel">
+                                      {child.label}
+                                    </span>
+                                    {child.description && (
+                                      <span className="mnav__itemSub">
+                                        {child.description}
+                                      </span>
+                                    )}
                                   </span>
-                                )}
-                              </span>
-                              {/* On a phone there is no hover to reveal it,
-                                  so the chevron is simply present — see the
-                                  `(hover: none)` block in interactions.css. */}
-                              <ChevronRight
-                                aria-hidden="true"
-                                className="menu-card-arrow h-4 w-4"
-                              />
-                            </Link>
-                          );
-                        })}
+                                  <ChevronRight
+                                    aria-hidden="true"
+                                    className="mnav__itemArrow"
+                                  />
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </motion.div>
-                );
-              })}
-              <motion.a
-                href={assetPath("/#contact")}
-                onClick={() => setOpen(false)}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.4 }}
-                className="btn-primary mt-8 self-start"
-              >
-                Request demo
-                <ArrowUpRight className="h-4 w-4" />
-              </motion.a>
-            </nav>
+                    );
+                  })}
+                </nav>
+
+                <button
+                  type="button"
+                  className="mnav__atlas"
+                  onClick={() => {
+                    setOpen(false);
+                    openAtlas();
+                  }}
+                >
+                  <MapIcon aria-hidden="true" className="h-4 w-4 shrink-0" />
+                  <span>
+                    <span className="mnav__itemLabel">GaitAI Atlas</span>
+                    <span className="mnav__itemSub">The whole site as a map</span>
+                  </span>
+                </button>
+              </div>
+
+              <div className="mnav__foot">
+                <ThemeChoice />
+                <a
+                  href={assetPath("/#contact")}
+                  onClick={() => setOpen(false)}
+                  className="mnav__demo"
+                >
+                  Request demo
+                  <ArrowUpRight className="h-4 w-4" />
+                </a>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

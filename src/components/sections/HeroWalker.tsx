@@ -103,16 +103,23 @@ function wantsHi(t: WalkTheme) {
 /* Starts the fetch while the HTML is still being parsed, for the theme the
    page is actually in, so he is walking in the first view rather than
    arriving a few seconds into it. */
-const PREFETCH = (() => {
+const prefetch = (framed: boolean) => {
   const pick = (t: WalkTheme) =>
     JSON.stringify({ r: t.figH / t.plate[0], hi: assetPath(t.scales.hi.src), lo: assetPath(t.scales.lo.src), b: assetPath(t.backdrop.src), g: assetPath(t.grain.src) });
+  /* Each walker fetches only on the layout that shows it: the picture's from
+     1024px, the phone hero's framed one below that, and that one always
+     takes the low set (see the loading effect). */
+  const gate = framed ? "(max-width: 1023px)" : "(min-width: 1024px)";
+  const hi = framed ? "false" : "innerWidth*t.r*(window.devicePixelRatio||1)>360";
   return (
-    "(function(){try{var L=" + pick(HERO_WALK.light) + ",D=" + pick(HERO_WALK.dark) + ";" +
+    "(function(){try{if(!matchMedia('" + gate + "').matches)return;var L=" + pick(HERO_WALK.light) + ",D=" + pick(HERO_WALK.dark) + ";" +
     "var t=document.documentElement.classList.contains('light')?L:D;" +
-    "var h=innerWidth*t.r*(window.devicePixelRatio||1)>360;" +
+    "var h=" + hi + ";" +
     "[h?t.hi:t.lo,t.b,t.g].forEach(function(u){var i=new Image();i.src=u;});}catch(e){}})();"
   );
-})();
+};
+const PREFETCH = prefetch(false);
+const PREFETCH_FRAMED = prefetch(true);
 
 function currentTheme(): Theme {
   return document.documentElement.classList.contains("light") ? "light" : "dark";
@@ -384,9 +391,55 @@ function analysis(
   ctx.textAlign = "left";
 }
 
+/* ── FRAMED: THE SAME SHOT IN A WINDOW OF ITS OWN ─────────────────────────
+   The phone hero (HeroMobile) shows the walker in a tall tile of its own
+   rather than over the whole picture. `frame` names, per theme, the plate
+   rectangle that tile looks at (left, right and top edge; the tile's aspect
+   decides how far down it reaches) and how far to the right of the painted
+   figure's place he walks (`shift`), so the tile holds only the ribbon field
+   and never the clinic beyond the divider. Everything else — the capture,
+   the ground speed, the backdrop passes, the analysis layer — is the same
+   code on the same tables. Without `frame` nothing here changes. */
+export type WalkFrame = {
+  x0: number;
+  x1: number;
+  y0: number;
+  shift: number;
+  /** Mirror the shot (he walks left). Safe only because the framed walker
+      never draws its text read-out: no hover, no pin, no words. */
+  mirror?: boolean;
+};
+type Frames = Record<Theme, WalkFrame>;
+const MIRROR: CSSProperties = { transform: "scaleX(-1)" };
+
+function framedTable(th: Theme, frame?: Frames): WalkTheme {
+  const t = HERO_WALK[th];
+  if (!frame) return t;
+  const f = frame[th];
+  return { ...t, hipX: t.hipX + f.shift, box: [f.x0, f.y0, f.x1, t.plate[1]] };
+}
+
+/** The framed poster: plate px as shares of the tile's WIDTH (margin-top
+    resolves against width too), so it needs no height to be placed. */
+function framedPosterStyle(t: WalkTheme): CSSProperties {
+  const [x0, y0, x1] = t.box;
+  const k = t.figH / t.bodyH / t.framePpm;
+  const left = t.hipX - t.frameHipX * k + t.poster.x * k;
+  const top = t.feetY - t.frameFloorY * k + t.poster.y * k;
+  const pct = (v: number) => `${((v / (x1 - x0)) * 100).toFixed(3)}%`;
+  return {
+    position: "absolute",
+    top: 0,
+    left: pct(left - x0),
+    marginTop: pct(top - y0),
+    width: pct(t.poster.w * k),
+    height: "auto",
+  };
+}
+
 /** Draw one frame of the shot at `tau` ms of walking. */
-function paint(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, a: Assets, tau: number, level = 0, detail = 0) {
-  const t = HERO_WALK[a.theme];
+function paint(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, a: Assets, tau: number, level = 0, detail = 0, table?: WalkTheme) {
+  const t = table ?? HERO_WALK[a.theme];
   const scale = a.hi ? t.scales.hi : t.scales.lo;
   const N = scale.frames.length;
   const START = t.strikes.right;
@@ -457,7 +510,14 @@ function paint(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, a: Asse
   publishGait({ i, f: f % N });
 }
 
-export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
+export function HeroWalker({
+  analysis: open = false,
+  frame: walkFrame,
+}: {
+  analysis?: boolean;
+  /** Framed mode (the phone hero): see `WalkFrame`. */
+  frame?: Frames;
+}) {
   const reduced = usePrefersReducedMotion();
   /* The detailed read-out: hovered (a real pointer over him) or pinned (a
      click, tap or Enter), until a second press, a press elsewhere or Esc. */
@@ -502,11 +562,27 @@ export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
   }, []);
 
   /* This theme's frames, straight away — he is part of the first view. */
+  /* ...but only while he can be seen. The page carries two walkers — the
+     picture's (1024px and up) and the phone hero's framed one — and CSS
+     hides the one that does not fit the screen; a hidden canvas has no
+     width, so it waits (and re-checks on resize) instead of downloading a
+     frame set nobody will see. The framed walker always takes the low set:
+     it is the set the phone layout already shares, and it keeps the phone
+     hero light. */
+  const [shown, setShown] = useState(false);
   useEffect(() => {
-    if (!theme || assets?.theme === theme) return;
+    const check = () =>
+      setShown([light.current, dark.current].some((el) => !!el && el.getClientRects().length > 0));
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [theme]);
+
+  useEffect(() => {
+    if (!theme || !shown || assets?.theme === theme) return;
     let gone = false;
     const t = HERO_WALK[theme];
-    const hi = wantsHi(t);
+    const hi = walkFrame ? false : wantsHi(t);
     Promise.all([load((hi ? t.scales.hi : t.scales.lo).src), load(t.backdrop.src), load(t.grain.src)])
       .then(([atlas, backdrop, grain]) => {
         if (!gone) setAssets({ theme, atlas, backdrop, grain, hi });
@@ -515,7 +591,7 @@ export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
     return () => {
       gone = true;
     };
-  }, [theme, assets]);
+  }, [theme, assets, shown, walkFrame]);
 
   const ready = !!assets && assets.theme === theme;
 
@@ -526,9 +602,10 @@ export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
     const canvas = (assets.theme === "light" ? light : dark).current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
+    const table = framedTable(assets.theme, walkFrame);
 
     if (reduced) {
-      const still = () => paint(ctx, canvas, assets, 0, want.current, wantDetail.current);
+      const still = () => paint(ctx, canvas, assets, 0, want.current, wantDetail.current, framedTable(assets.theme, walkFrame));
       still();
       repaint.current = still;
       const onResize = still;
@@ -553,7 +630,7 @@ export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
       level += (want.current - level) * Math.min(1, dt / 300);
       // The detailed read-out arrives and leaves in ~200ms.
       detail += (wantDetail.current - detail) * Math.min(1, dt / 80);
-      paint(ctx, canvas, assets, walked, level, detail);
+      paint(ctx, canvas, assets, walked, level, detail, table);
       raf = requestAnimationFrame(frame);
     };
     const run = () => {
@@ -578,7 +655,70 @@ export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
       document.removeEventListener("visibilitychange", run);
       cancelAnimationFrame(raf);
     };
-  }, [ready, assets, reduced]);
+  }, [ready, assets, reduced, walkFrame]);
+
+  if (walkFrame) {
+    /* Framed: the tile is the box. The backdrop and the start frame hold the
+       tile from the first paint until the walking canvas fades in over them;
+       the tile itself is the control, so there is no hit button here. Lazy,
+       so the theme that is hidden never downloads its still. */
+    return (
+      <>
+        <script dangerouslySetInnerHTML={{ __html: PREFETCH_FRAMED }} />
+        {(["light", "dark"] as const).map((th) => {
+          const t = framedTable(th, walkFrame);
+          const [x0, y0, x1] = t.box;
+          const pct = (v: number) => `${((v / (x1 - x0)) * 100).toFixed(3)}%`;
+          return (
+            <div
+              key={th}
+              aria-hidden="true"
+              className={`${styles.poster} ${styles.framedPoster} ${styles[th]}`}
+              style={walkFrame[th].mirror ? MIRROR : undefined}
+              data-gone={ready && theme === th ? "true" : undefined}
+            >
+              <img
+                src={assetPath(t.backdrop.src)}
+                alt=""
+                decoding="async"
+                loading="lazy"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: pct(t.backdrop.x0 - x0),
+                  marginTop: pct(-y0),
+                  width: pct(t.backdrop.w),
+                  height: "auto",
+                  maxWidth: "none",
+                }}
+              />
+              <img
+                src={assetPath(t.poster.src)}
+                alt=""
+                decoding="async"
+                loading="lazy"
+                style={{ ...framedPosterStyle(t), maxWidth: "none" }}
+              />
+            </div>
+          );
+        })}
+        <canvas
+          ref={light}
+          aria-hidden="true"
+          className={`${styles.walker} ${styles.framed} ${styles.light}`}
+          style={walkFrame.light.mirror ? MIRROR : undefined}
+          data-show={ready && theme === "light" ? "true" : undefined}
+        />
+        <canvas
+          ref={dark}
+          aria-hidden="true"
+          className={`${styles.walker} ${styles.framed} ${styles.dark}`}
+          style={walkFrame.dark.mirror ? MIRROR : undefined}
+          data-show={ready && theme === "dark" ? "true" : undefined}
+        />
+      </>
+    );
+  }
 
   return (
     <>

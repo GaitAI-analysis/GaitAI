@@ -11,6 +11,9 @@ import "./interactions.css";
 /* The light visual system. Scoped to `:root.light`; loaded last so it settles
    ties with globals.css and interactions.css. */
 import "./light-theme.css";
+/* The phone and tablet layer: every rule behind a max-width query, loaded
+   last so it settles ties with everything above. See mobile.css. */
+import "./mobile.css";
 import { Providers } from "./providers";
 import { Navbar } from "@/components/layout/Navbar";
 import { IntelligenceSearch } from "@/components/search/IntelligenceSearch";

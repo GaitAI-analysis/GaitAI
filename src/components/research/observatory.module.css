@@ -460,6 +460,9 @@
 
 .emap {
   display: grid;
+  /* Shrinkable single column below 1024: an auto track sized itself to the
+     panel's widest line (1,241px on a 390px phone) and clipped it. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
 }
 @media (min-width: 1024px) {

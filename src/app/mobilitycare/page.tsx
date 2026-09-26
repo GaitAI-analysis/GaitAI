@@ -1,4 +1,5 @@
 ﻿import type { Metadata } from "next";
+import { assetPath } from "@/lib/paths";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -25,6 +26,14 @@ import { productOverview } from "@/data/product-details";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/mobilitycare" },
+  /* This route is also the start URL of the GaitAI MobilityCare Android app
+     (a Trusted Web Activity, see docs/android-apps.md). It publishes its own
+     web manifest and app icon so an install from here, or the app itself,
+     carries the product identity; the rest of the site keeps the GaitAI
+     manifest declared in the root layout. */
+  manifest: assetPath("/manifests/mobilitycare.webmanifest"),
+  icons: { apple: [{ url: assetPath("/app-icons/mobilitycare/icon-192.png"), sizes: "192x192", type: "image/png" }] },
+  appleWebApp: { capable: true, title: "GaitAI MobilityCare", statusBarStyle: "black-translucent" },
   title: "MobilityCare — Clinical movement intelligence",
   description:
     "GaitAI MobilityCare — AI-powered clinical gait, sports movement, rehabilitation, elderly mobility and WatchCare wearable intelligence.",

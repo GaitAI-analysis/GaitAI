@@ -93,3 +93,26 @@ assets/design-references/
 *.log
 Thumbs.db
 temp/
+
+# ── ANDROID (android-apps/*, Trusted Web Activities) ─────────────────────
+# Gradle and Android build outputs, local SDK pointers, emulator state.
+android-apps/*/build/
+android-apps/*/app/build/
+android-apps/*/.gradle/
+android-apps/*/.idea/
+android-apps/*/local.properties
+android-apps/*/*.iml
+android-apps/*/captures/
+android-apps/*/.cxx/
+# Signing material — never committed, not even the test keystores.
+android-apps/*/keys/
+*.jks
+*.keystore
+*.pepk
+*-signing.properties
+play-service-account*.json
+# Built packages live in android-builds/ as local artifacts only.
+android-builds/*.apk
+android-builds/*.aab
+android-builds/*.idsig
+!android-builds/.gitkeep

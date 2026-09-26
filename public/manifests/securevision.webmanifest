@@ -1,0 +1,62 @@
+{
+  "name": "GaitAI SecureVision",
+  "short_name": "SecureVision",
+  "description": "Privacy-aware movement intelligence for safer public spaces, workplaces and spatial understanding, from GaitAI.",
+  "id": "/securevision/",
+  "start_url": "/securevision/",
+  "scope": "/securevision/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "background_color": "#000d21",
+  "theme_color": "#000d21",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/app-icons/securevision/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icons/securevision/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/app-icons/securevision/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/app-icons/securevision/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/app-icons/securevision/monochrome-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "monochrome"
+    }
+  ],
+  "screenshots": [],
+  "categories": [
+    "business",
+    "utilities"
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "in.gaitai.securevision"
+    }
+  ],
+  "prefer_related_applications": false
+}

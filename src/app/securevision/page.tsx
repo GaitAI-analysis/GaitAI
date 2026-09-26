@@ -18,6 +18,14 @@ import { productOverview } from "@/data/product-details";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/securevision" },
+  /* This route is also the start URL of the GaitAI SecureVision Android app
+     (a Trusted Web Activity, see docs/android-apps.md). It publishes its own
+     web manifest and app icon so an install from here, or the app itself,
+     carries the product identity; the rest of the site keeps the GaitAI
+     manifest declared in the root layout. */
+  manifest: assetPath("/manifests/securevision.webmanifest"),
+  icons: { apple: [{ url: assetPath("/app-icons/securevision/icon-192.png"), sizes: "192x192", type: "image/png" }] },
+  appleWebApp: { capable: true, title: "GaitAI SecureVision", statusBarStyle: "black-translucent" },
   title: "SecureVision — Privacy-aware movement intelligence",
   description:
     "GaitAI SecureVision — Privacy-aware movement intelligence for safer campuses, transport hubs, factories, events and public spaces.",

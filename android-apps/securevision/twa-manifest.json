@@ -1,0 +1,47 @@
+{
+  "host": "gaitai.in",
+  "display": "standalone",
+  "orientation": "portrait",
+  "enableNotifications": false,
+  "splashScreenFadeOutDuration": 300,
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 21,
+  "shortcuts": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "features": {
+    "locationDelegation": {
+      "enabled": false
+    },
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "packageId": "in.gaitai.securevision",
+  "name": "GaitAI SecureVision",
+  "launcherName": "SecureVision",
+  "themeColor": "#000d21",
+  "themeColorDark": "#000d21",
+  "navigationColor": "#000d21",
+  "navigationColorDark": "#000d21",
+  "navigationDividerColor": "#000d21",
+  "navigationDividerColorDark": "#000d21",
+  "backgroundColor": "#000d21",
+  "startUrl": "/securevision/",
+  "webManifestUrl": "http://localhost:3011/manifests/securevision.webmanifest",
+  "fullScopeUrl": "https://gaitai.in/securevision/",
+  "iconUrl": "http://localhost:3011/app-icons/securevision/icon-512.png",
+  "maskableIconUrl": "http://localhost:3011/app-icons/securevision/maskable-512.png",
+  "monochromeIconUrl": "http://localhost:3011/app-icons/securevision/monochrome-512.png",
+  "signingKey": {
+    "path": "./keys/securevision-test.keystore",
+    "alias": "securevision-test"
+  },
+  "fingerprints": []
+}

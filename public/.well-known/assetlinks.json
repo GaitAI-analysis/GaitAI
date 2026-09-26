@@ -1,0 +1,26 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.gaitai.mobilitycare",
+      "sha256_cert_fingerprints": [
+        "4E:1C:8F:81:C9:29:21:F9:81:68:FF:42:1B:80:EE:1B:4C:85:17:73:1D:BD:49:87:6A:45:8F:FE:BB:8F:5A:9B"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "in.gaitai.securevision",
+      "sha256_cert_fingerprints": [
+        "E1:59:B2:02:35:7F:8C:23:92:BF:6D:BD:A0:59:83:5D:0F:6F:BD:FD:E4:BC:91:A3:AD:40:48:7B:4A:14:40:5B"
+      ]
+    }
+  }
+]

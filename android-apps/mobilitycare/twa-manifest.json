@@ -1,0 +1,47 @@
+{
+  "host": "gaitai.in",
+  "display": "standalone",
+  "orientation": "portrait",
+  "enableNotifications": false,
+  "splashScreenFadeOutDuration": 300,
+  "appVersionCode": 1,
+  "appVersionName": "1.0.0",
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 21,
+  "shortcuts": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "features": {
+    "locationDelegation": {
+      "enabled": false
+    },
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "packageId": "in.gaitai.mobilitycare",
+  "name": "GaitAI MobilityCare",
+  "launcherName": "MobilityCare",
+  "themeColor": "#020e22",
+  "themeColorDark": "#020e22",
+  "navigationColor": "#020e22",
+  "navigationColorDark": "#020e22",
+  "navigationDividerColor": "#020e22",
+  "navigationDividerColorDark": "#020e22",
+  "backgroundColor": "#020e22",
+  "startUrl": "/mobilitycare/",
+  "webManifestUrl": "http://localhost:3011/manifests/mobilitycare.webmanifest",
+  "fullScopeUrl": "https://gaitai.in/mobilitycare/",
+  "iconUrl": "http://localhost:3011/app-icons/mobilitycare/icon-512.png",
+  "maskableIconUrl": "http://localhost:3011/app-icons/mobilitycare/maskable-512.png",
+  "monochromeIconUrl": "http://localhost:3011/app-icons/mobilitycare/monochrome-512.png",
+  "signingKey": {
+    "path": "./keys/mobilitycare-test.keystore",
+    "alias": "mobilitycare-test"
+  },
+  "fingerprints": []
+}

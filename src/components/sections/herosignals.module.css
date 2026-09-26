@@ -218,3 +218,104 @@
     --sig-edge: rgb(255 255 255 / 0.14);
   }
 }
+
+/* Foot to foot (HeroSignals): the two floor connectors into the walking
+   model, the connectors' dotted warm gold at a finer weight, with a barely
+   there warm bloom; small anchor rings at the sources and, at the
+   mannequin, a contact ring inside a soft halo. */
+.floorLink {
+  stroke: var(--sig-ink);
+  stroke-width: 1.5px;
+  stroke-dasharray: 1.1 4.4;
+  stroke-linecap: round;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 1.5px var(--sig-glow));
+}
+
+.floorAnchor {
+  stroke: var(--sig-node);
+  stroke-width: 1.1px;
+  opacity: 0.8;
+}
+
+.footMark {
+  stroke: var(--sig-node);
+  stroke-width: 1.3px;
+  opacity: 0.95;
+}
+
+.footHalo {
+  fill: var(--sig-glow) !important;
+  stroke: none;
+  opacity: 0.28;
+}
+
+/* ── DAY LEGIBILITY (founder, 2026-09-26) ──
+   By day the hairlines above sank into the bright plate: champagne on a
+   pale sky and a reflective floor. Light theme only, and still hairlines:
+   a deeper warm-gold ink, a little more weight and opacity, and a
+   two-layer edge — a pearl outline that lifts the line off busy detail,
+   and a faint navy shadow that separates it from white. No glow, no blue
+   beyond the pose skeletons' existing muted cobalt. Night is untouched.
+   SOFTENED the same day (founder: "a little too dark"): ink halfway back
+   to the original champagne, the navy separation cut to a whisper so no
+   line carries a dark outline, and each stroke a shade finer. */
+@media (min-width: 1024px) {
+  :global(.light) .signals {
+    --sig-ink: #9b7b41;
+    --sig-node: #b3904e;
+    --sig-glow: rgb(214 184 122 / 0.5);
+    --sig-pose: rgb(74 108 164);
+  }
+
+  :global(.light) .svg {
+    filter: drop-shadow(0 0 0.8px rgb(255 255 255 / 0.9))
+      drop-shadow(0 0.5px 1px rgb(15 28 58 / 0.12));
+  }
+
+  :global(.light) .ink {
+    stroke-width: 1.3px;
+    opacity: 0.92;
+  }
+
+  :global(.light) .link {
+    stroke-width: 1.9px;
+    stroke-dasharray: 1.2 4.6;
+    opacity: 0.9;
+  }
+
+  :global(.light) .linkEnd {
+    stroke-width: 1.6px;
+  }
+
+  /* The patient's ring: firm enough to read as an analysis mark on the
+     floor at a glance. */
+  :global(.light) .ring {
+    stroke-width: 1.5px;
+    opacity: 0.95;
+  }
+
+  :global(.light) .ringSweep {
+    stroke-width: 1.8px;
+    opacity: 0.95;
+  }
+
+  :global(.light) .poseBone {
+    stroke-width: 1.2px;
+    opacity: 0.85;
+  }
+
+  :global(.light) .poseNode {
+    opacity: 0.9;
+  }
+
+  :global(.light) .alertStroke,
+  :global(.light) .alertArrow,
+  :global(.light) .alertAhead {
+    stroke-width: 1.4px;
+  }
+
+  :global(.light) .floorLink {
+    stroke-width: 1.7px;
+  }
+}

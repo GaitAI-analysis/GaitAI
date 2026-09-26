@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { HERO_SIGNALS, type Pose, type SignalTheme, type XY } from "@/data/hero-signals";
+import { HERO_WALK } from "@/data/hero-walk";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import styles from "./herosignals.module.css";
 
@@ -23,19 +24,23 @@ import styles from "./herosignals.module.css";
  *   Pose analysis  the engine: the walker's own analysis layer (HeroWalker)
  *                  and the rail, labelled "Core engine"
  *
- * SIGNALS FLOW INTO ONE ENGINE (founder, 2026-09-26). The hero carries no
- * always-visible SecureVision or MobilityCare read-out any more: the only
+ * TWO KINDS OF CONNECTION, TWO JOBS (founder, 2026-09-26). The only
  * permanent analytics card is Pose analysis (the rail beside the walker).
- * Two fine dotted connectors carry each application's signal INTO that card:
  *
- *   SecureVision   from the tracked walker's detection box -> Pose analysis
- *   MobilityCare   from the clinician's tablet -> Pose analysis
+ *   DATA FLOW (upper)   two fine dotted lines carry each application's
+ *                       signal INTO that card: SecureVision from the tracked
+ *                       walker's detection box, MobilityCare from the
+ *                       clinician's tablet. They end on the card, never on
+ *                       the walker's body; the card's left edge is MEASURED
+ *                       (ResizeObserver + MutationObserver) and the paths
+ *                       are drawn to it.
+ *   GAIT MAPPING (floor) two low lines run along the floor from real
+ *                       people's ground contact (the tracked walker's feet,
+ *                       the patient's gait ring) to the mannequin's, so
+ *                       captured movement visibly lands in the shared model.
  *
- * They end on the card, never on the walker's body, and a slow pulse travels
- * each one toward it: application -> shared intelligence. The card is a
- * fixed-size HTML element, so where it stands in plate px depends on the
- * window; its left edge is MEASURED (ResizeObserver on the stage and the
- * card) and the paths are drawn to it.
+ * Neither replaces the other. A slow pulse travels each line toward the
+ * engine.
  *
  * POSE OVERLAYS ARE WHOLE OR ABSENT (founder, 2026-09-26). No partial
  * hip-and-feet points on anyone. The crowd keeps only its detection
@@ -151,6 +156,29 @@ function Layer({ name, t, reduced }: { name: "light" | "dark"; t: SignalTheme; r
   const svPath = end && `M${svg(svFrom)} C${svg([svFrom[0] + (end[0] - svFrom[0]) * 0.3, svFrom[1] - 60])} ${svg([end[0] - (end[0] - svFrom[0]) * 0.3, end[1] + 60])} ${svg(end)}`;
   const mcPath = end && `M${svg(mcFrom)} C${svg([mcFrom[0] + (end[0] - mcFrom[0]) * 0.08, mcFrom[1] - 190])} ${svg([end[0] - (end[0] - mcFrom[0]) * 0.3, end[1] + 60])} ${svg(end)}`;
 
+  /* FOOT TO FOOT, ALONG THE FLOOR (founder, 2026-09-26, final). Both
+     applications' movement reaches the shared walking model where gait
+     actually happens: the ground. Two low connectors, each from a real
+     person's ground contact to the mannequin's, travelling near the floor
+     plane and never through the air or across a body:
+
+       MobilityCare   the patient's gait ring (his ground contact) -> him
+       SecureVision   the main tracked walker's feet -> him, dipping a little
+                      lower so it passes beneath the patient's ring
+
+     The mannequin's end is between his feet at floor level (HERO_WALK's own
+     placement, the same plate px as everything here), where a small contact
+     ring with a soft halo terminates both lines. A slow pulse on each runs
+     toward him: captured movement -> the shared model. */
+  const walk = HERO_WALK[name];
+  const target: XY = [walk.hipX, walk.feetY + 2];
+  const svFoot = mid(lead.feet[0], lead.feet[1]);
+  const mcFoot: XY = [care.ring[0], care.ring[1]];
+  const dx = (a: XY) => target[0] - a[0];
+  const mcFloor = `M${svg(mcFoot)} C${svg([mcFoot[0] + dx(mcFoot) * 0.35, mcFoot[1] + 22])} ${svg([target[0] - dx(mcFoot) * 0.3, target[1] + 16])} ${svg(target)}`;
+  const svFloor = `M${svg(svFoot)} C${svg([svFoot[0] + dx(svFoot) * 0.3, svFoot[1] + 95])} ${svg([target[0] - dx(svFoot) * 0.28, target[1] + 45])} ${svg(target)}`;
+  const markR = walk.figH * 0.055;
+
   return (
     <div ref={layer} className={`${styles.layer} ${styles[name]}`}>
       <svg className={styles.svg} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
@@ -177,6 +205,23 @@ function Layer({ name, t, reduced }: { name: "light" | "dark"; t: SignalTheme; r
               ))}
           </>
         ) : null}
+
+        {/* ── Foot to foot: both applications feed the shared walking model ── */}
+        <path d={svFloor} className={styles.floorLink} />
+        <path d={mcFloor} className={styles.floorLink} />
+        <ellipse className={styles.floorAnchor} cx={svFoot[0]} cy={svFoot[1] + 1} rx={markR * 0.55} ry={markR * 0.14} />
+        <circle cx={svFoot[0]} cy={svFoot[1] + 1} r="2" className={styles.linkEnd} />
+        <circle cx={mcFoot[0]} cy={mcFoot[1]} r="2" className={styles.linkEnd} />
+        <ellipse className={styles.footHalo} cx={target[0]} cy={target[1]} rx={markR * 1.45} ry={markR * 0.3} />
+        <ellipse className={styles.footMark} cx={target[0]} cy={target[1]} rx={markR} ry={markR * 0.2} />
+        <circle cx={target[0]} cy={target[1]} r="2.4" className={styles.linkEnd} />
+        {!reduced &&
+          [svFloor, mcFloor].map((d, i) => (
+            <circle key={i} r="2.2" className={styles.pulse}>
+              <animateMotion dur={i ? "4.2s" : "5.2s"} begin={`${i * 1.4}s`} repeatCount="indefinite" path={d} />
+              <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.1;0.88;1" dur={i ? "4.2s" : "5.2s"} begin={`${i * 1.4}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
 
         {/* ── SecureVision: tracks, flow, one flagged path ── */}
         {secure.people.map((p, k) => {

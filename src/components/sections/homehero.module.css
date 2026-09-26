@@ -441,6 +441,26 @@
    Only the ink changes — champagne reads on the day plate, and on the night
    one it needs to be a shade cooler and a shade brighter to sit on a dark
    sky without glowing. */
+/* By day (founder, 2026-09-26): a deeper champagne, a little more weight,
+   and the pearl edge paired with a whisper of navy shadow so the arc reads
+   on the bright sky and glass without a dark outline. Night keeps its own
+   rules below. */
+:global(.light) .connectors {
+  filter: drop-shadow(0 0 0.8px rgb(255 255 255 / 0.9))
+    drop-shadow(0 0.5px 1px rgb(15 28 58 / 0.12));
+}
+
+:global(.light) .connector {
+  stroke: #9c7c42;
+  stroke-width: 1.6px;
+  opacity: 0.92;
+}
+
+:global(.light) .connector[data-live="true"] {
+  stroke-width: 1.95px;
+  opacity: 1;
+}
+
 :global(.dark) .connectors {
   /* Softly luminous at night: a faint warm bloom, never a neon tube. */
   filter: drop-shadow(0 0 2px rgb(236 214 168 / 0.45))

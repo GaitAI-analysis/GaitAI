@@ -83,3 +83,13 @@ test-results/
 # manifest src/data/hero-panels.generated.json, so a build never needs to run
 # the encoder. See docs/hero-panels.md.
 assets/hero/src/
+
+# Brand and design SOURCE material (logo packs, brand sheets, reference
+# screenshots, hero masters): kept on disk for future brand work, never
+# served and never imported, so it does not belong in the repository.
+assets/brand-source/
+assets/design-references/
+# Logs, OS thumbnails and stray temp folders.
+*.log
+Thumbs.db
+temp/

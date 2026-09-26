@@ -781,6 +781,33 @@
   .button {
     justify-content: center;
   }
+
+  /* THE PHONE BUTTON SAYS WHAT IT DOES. The compact "[ ∘ → ]" of the contact
+     variant is a 24rem-wide desktop row's economy; stacked under the field
+     on a phone it was a wide, mostly empty box with a dot and an arrow in
+     it, which read as broken. Here it is a full-width 48px button with the
+     word on it. */
+  .contact .button {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 1rem;
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+  }
+
+  .contact .buttonLabel {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: nowrap;
+  }
+
+  .contact .node {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

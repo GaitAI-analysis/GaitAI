@@ -1002,3 +1002,128 @@
     display: none;
   }
 }
+
+/* === PHONES (< 640px) ======================================================
+   The short lead, a two-column selector, and the stage row as a deliberate
+   snap carousel with dots under it. Nothing here reaches a tablet. */
+
+.leadShort {
+  display: none;
+}
+
+.flowDots {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .eyebrow {
+    letter-spacing: 0.12em;
+  }
+
+  .title {
+    font-size: clamp(1.7rem, 7.4vw, 2.1rem);
+  }
+
+  .lead {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .leadFull {
+    display: none;
+  }
+
+  .leadShort {
+    display: block;
+  }
+
+  .selectorRow {
+    gap: 0.7rem;
+    margin-top: 1.4rem;
+  }
+
+  /* Five options as a 2 x 3 grid, the odd one across the bottom: every
+     option is on screen and a 44px target. The scrolling rail this
+     replaces cut the third, fourth and fifth options off the right edge
+     with nothing to say they were there. */
+  .selector {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-columns: auto;
+    gap: 0.35rem;
+    padding: 0.35rem;
+    overflow: visible;
+    border-radius: 1rem;
+  }
+
+  .option {
+    min-height: 2.75rem;
+    padding: 0 0.6rem;
+    font-size: 0.8rem;
+    border-color: rgb(var(--pp-line) / calc(var(--pp-line-a) * 0.8));
+  }
+
+  .option + .option {
+    box-shadow: none;
+  }
+
+  .option:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .option[data-on="true"] {
+    border-color: rgb(var(--pp-accent) / 0.55);
+  }
+
+  .flow > .stage {
+    flex: 0 0 82%;
+  }
+
+  /* The illustration is sized like an illustration, not a poster. */
+  .figureWrap {
+    max-height: 13.5rem;
+    min-height: 8rem;
+  }
+
+  .flowDots {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.15rem;
+  }
+
+  .flowDot {
+    display: block;
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 999px;
+    background: rgb(var(--pp-line) / calc(var(--pp-line-a) * 2.2));
+    transition:
+      width 300ms ease,
+      background-color 300ms ease;
+  }
+
+  .flowDot[data-on="true"] {
+    width: 1.1rem;
+    background: rgb(var(--pp-accent));
+  }
+}
+
+/* === TABLETS (640-1023px) ==================================================
+   Five stacked cards were 3,600px of section on a 768px screen. Two columns,
+   the outcomes card across the bottom, and the illustrations held to card
+   scale. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+
+  .flow > .stage:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .figureWrap {
+    max-height: 14rem;
+  }
+}

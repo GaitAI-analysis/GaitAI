@@ -226,6 +226,41 @@
   .links a { min-height: 44px; }
 }
 
+/* Phones: the seven chips as a two-column grid rather than a wrapped row,
+   which left an orphan on its own line and a ragged right edge. The last
+   chip spans both columns when the count is odd, so nothing is stranded.
+   Each stays a 44px target. */
+@media (max-width: 639px) {
+  .eyebrow {
+    letter-spacing: 0.12em;
+  }
+
+  .lead {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.6rem;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  .chip:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .chip,
   .links a {

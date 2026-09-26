@@ -44,6 +44,10 @@ interface FlagshipPanelProps {
   headline: string;
   headlineAccent: string;
   description: string;
+  /** The description a phone shows instead (below 640px): one sentence, so
+   *  the panel is logo, headline, one line, console, capabilities. The full
+   *  description stays for tablets and desktops and on the product page. */
+  shortDescription: string;
   href: string;
   /** Key into `lib/theme-media.ts` for the product wordmark. */
   brandKey: ThemeMediaKey;
@@ -86,7 +90,7 @@ const tones = {
 function PlatformSplit() {
   return (
     <div
-      className="relative mx-auto h-[12.25rem] max-w-5xl sm:h-[13.25rem]"
+      className="platform-split relative mx-auto h-[12.25rem] max-w-5xl sm:h-[13.25rem]"
       role="img"
       aria-label="One shared GaitAI intelligence layer powers both product systems"
     >
@@ -104,7 +108,7 @@ function PlatformSplit() {
 
       <svg
         aria-hidden="true"
-        className="absolute inset-x-0 top-[4.75rem] h-28 w-full overflow-visible sm:top-[5.75rem]"
+        className="platform-split-lines absolute inset-x-0 top-[4.75rem] h-28 w-full overflow-visible sm:top-[5.75rem]"
         viewBox="0 0 1000 112"
         fill="none"
         preserveAspectRatio="none"
@@ -146,6 +150,7 @@ function FlagshipPanel({
   headline,
   headlineAccent,
   description,
+  shortDescription,
   href,
   brandKey,
   consoleKey,
@@ -204,8 +209,11 @@ function FlagshipPanel({
               {headlineAccent}
             </span>
           </h3>
-          <p className="mt-4 max-w-xl text-sm leading-[1.4] text-soft-gray sm:text-[15px]">
+          <p className="mt-4 hidden max-w-xl text-sm leading-[1.4] text-soft-gray sm:block sm:text-[15px]">
             {description}
+          </p>
+          <p className="flagship-short mt-3 max-w-xl text-[15px] leading-[1.5] text-soft-gray sm:hidden">
+            {shortDescription}
           </p>
         </div>
 
@@ -258,7 +266,7 @@ function FlagshipPanel({
               the list is a compact index; the product cards just below
               carry the detail. */}
           <ul
-            className="grid grid-cols-2"
+            className="flagship-capabilities grid grid-cols-2"
             aria-label={`${name} featured capabilities`}
           >
             {products.map((product) => {
@@ -272,7 +280,7 @@ function FlagshipPanel({
               return (
                 <li
                   key={product.id}
-                  className={`group/capability flex min-h-[3.75rem] items-center gap-2.5 border-b border-white/8 px-1 py-3 transition-colors duration-300 odd:pr-3 even:border-l even:pl-3 sm:min-h-[5.25rem] sm:items-start sm:gap-3 sm:py-4 sm:odd:pr-4 sm:even:pl-4 ${style.capability}`}
+                  className={`flagship-capability group/capability flex min-h-[3.75rem] items-center gap-2.5 border-b border-white/8 px-1 py-3 transition-colors duration-300 odd:pr-3 even:border-l even:pl-3 sm:min-h-[5.25rem] sm:items-start sm:gap-3 sm:py-4 sm:odd:pr-4 sm:even:pl-4 ${style.capability}`}
                 >
                   <span
                     className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border transition-colors duration-300 ${style.capabilityIcon}`}
@@ -284,7 +292,11 @@ function FlagshipPanel({
                     )}
                   </span>
                   <span className="min-w-0">
-                    <span className="block break-words text-[13px] font-semibold text-soft-white sm:text-sm">
+                    {/* Product names are single words (IndustrialSafety,
+                        PrivacyGuard) and must never break inside: the layout
+                        gives them room instead — one column below 640px,
+                        see "THE FLAGSHIP PANELS" in mobile.css. */}
+                    <span className="flagship-capability-name block text-[13px] font-semibold text-soft-white sm:text-sm">
                       {product.short}
                     </span>
                     <span className="mt-1 hidden text-xs leading-5 text-soft-mute sm:block">
@@ -321,7 +333,7 @@ export function Verticals() {
     >
       <div className="container-wide">
         {/* Eyebrow pill — same badge language as the hero pill in Hero.tsx */}
-        <div className="mb-8 flex justify-center sm:mb-10">
+        <div className="platform-eyebrow mb-8 flex justify-center sm:mb-10">
           <span className="inline-flex max-w-[calc(100vw-3rem)] items-center rounded-full border border-cyan-300/20 bg-obsidian/55 px-4 py-1.5 text-center text-[11px] font-semibold tracking-[0.14em] text-cyan-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs">
             Building the future of human movement intelligence.
           </span>
@@ -342,6 +354,7 @@ export function Verticals() {
             // relationship nothing in the repository documents. What is true
             // is the design constraint: clinician-reviewable outputs.
             description="Camera-based gait assessment, rehabilitation tracking, fall-risk screening, sports movement analytics and smartwatch monitoring — every output structured for a clinician to review, not a black-box score."
+            shortDescription="Gait assessment, rehab tracking and fall-risk screening — every output structured for a clinician to review."
             href="/mobilitycare"
             brandKey="mobilityCareWordmark"
             consoleKey="mobilityCareHome"
@@ -361,6 +374,7 @@ export function Verticals() {
             headline="Privacy-aware"
             headlineAccent="movement intelligence."
             description="Movement anomaly detection, crowd flow analytics, worker safety and post-event investigation — designed around privacy-first architecture, lawful deployment and auditability."
+            shortDescription="Anomaly detection, crowd flow and worker safety — privacy-first by design, lawful and auditable."
             href="/securevision"
             brandKey="secureVisionWordmark"
             consoleKey="secureVisionHome"

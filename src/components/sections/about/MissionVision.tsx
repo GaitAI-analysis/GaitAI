@@ -659,8 +659,15 @@ function GaitMissionVision({
         </div>
       </Reveal>
 
-      <div className="relative z-10 mx-auto w-full max-w-[1520px] px-5 sm:px-8 lg:px-10">
-        <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1.8fr)_minmax(0,0.62fr)_minmax(0,1.8fr)_minmax(0,1.12fr)] lg:gap-5 xl:gap-6">
+      {/* THE PHONE ORDER. Below 640px `.mv-cards` and `.mv-controls` both
+          become `display: contents` and this wrapper becomes the grid (see
+          "MISSION AND VISION" in mobile.css), so each Explore control can
+          sit directly under its own card — Mission, its control, the walking
+          capture, the Motion DNA connector, Vision, its control — instead of
+          both controls arriving several hundred pixels after the cards they
+          open. Nothing changes from 640px up. */}
+      <div className="mv-row relative z-10 mx-auto w-full max-w-[1520px] px-5 sm:px-8 lg:px-10">
+        <div className="mv-cards grid items-center gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1.8fr)_minmax(0,0.62fr)_minmax(0,1.8fr)_minmax(0,1.12fr)] lg:gap-5 xl:gap-6">
           {/* LEFT: cyan walking capture (desktop) */}
           <Reveal className="hidden lg:block lg:order-1">
             <MocapWalker
@@ -670,7 +677,7 @@ function GaitMissionVision({
           </Reveal>
 
           {/* MISSION */}
-          <Reveal delay={0.08} className="order-1 lg:order-2 lg:self-stretch">
+          <Reveal delay={0.08} className="mv-mission order-1 lg:order-2 lg:self-stretch">
             <GaitCard tone="cyan" title="Mission">
               To turn human movement into actionable intelligence that improves
               mobility, performance, safety and security.
@@ -678,12 +685,12 @@ function GaitMissionVision({
           </Reveal>
 
           {/* Mobile: compact cyan walking capture */}
-          <Reveal delay={0.12} className="order-2 lg:hidden">
+          <Reveal delay={0.12} className="mv-walker mv-walker--cyan order-2 lg:hidden">
             <MocapWalker variant="cyan" compact className="mx-auto max-w-[300px]" />
           </Reveal>
 
           {/* CENTER: Motion DNA label (+ compact signal on mobile) */}
-          <Reveal delay={0.16} className="order-3 lg:order-3">
+          <Reveal delay={0.16} className="mv-dna order-3 lg:order-3">
             <div className="flex flex-col items-center text-center lg:-translate-y-12">
               {/* Soft dark pocket (no box) keeps the label readable where the
                   signal is strongest. */}
@@ -735,7 +742,7 @@ function GaitMissionVision({
           </Reveal>
 
           {/* VISION */}
-          <Reveal delay={0.16} className="order-4 lg:order-4 lg:self-stretch">
+          <Reveal delay={0.16} className="mv-vision order-4 lg:order-4 lg:self-stretch">
             <GaitCard tone="violet" title="Vision">
               To make movement intelligence a trusted layer of{" "}
               <span className="whitespace-nowrap">decision-making</span> across
@@ -746,7 +753,7 @@ function GaitMissionVision({
           </Reveal>
 
           {/* Mobile: compact violet walking capture */}
-          <Reveal delay={0.2} className="order-5 lg:hidden">
+          <Reveal delay={0.2} className="mv-walker mv-walker--violet order-5 lg:hidden">
             <MocapWalker variant="violet" compact className="mx-auto max-w-[300px]" />
           </Reveal>
 
@@ -770,7 +777,7 @@ function GaitMissionVision({
         {hasStories ? (
           <Reveal
             delay={0.24}
-            className="mt-7 grid gap-3 lg:mt-5 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1.8fr)_minmax(0,0.62fr)_minmax(0,1.8fr)_minmax(0,1.12fr)] lg:gap-5 xl:gap-6"
+            className="mv-controls mt-7 grid gap-3 lg:mt-5 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,1.8fr)_minmax(0,0.62fr)_minmax(0,1.8fr)_minmax(0,1.12fr)] lg:gap-5 xl:gap-6"
           >
             {/* Same five-column template as the row above, so on desktop each
                 control starts on its own card's left edge and there is no
@@ -778,10 +785,10 @@ function GaitMissionVision({
                 Vision's in column 4, the Motion DNA column between them left
                 empty exactly as it is above. Centred and stacked on mobile,
                 where the row is a single column anyway. */}
-            <span className="flex justify-center lg:col-start-2 lg:justify-start">
+            <span className="mv-control mv-control--mission flex justify-center lg:col-start-2 lg:justify-start">
               {missionStory ? <CardStoryTrigger story="mission" /> : null}
             </span>
-            <span className="flex justify-center lg:col-start-4 lg:justify-start">
+            <span className="mv-control mv-control--vision flex justify-center lg:col-start-4 lg:justify-start">
               {visionStory ? <CardStoryTrigger story="vision" /> : null}
             </span>
           </Reveal>

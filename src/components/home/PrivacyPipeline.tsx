@@ -193,6 +193,27 @@ export function PrivacyPipeline() {
     [move],
   );
 
+  /* Which stage card the phone row has snapped to (the dots under it). The
+     row is a plain CSS scroll-snap container; this only reads its position. */
+  const flowRef = useRef<HTMLDivElement>(null);
+  const [flowIndex, setFlowIndex] = useState(0);
+  const flowFrame = useRef(0);
+  const onFlowScroll = useCallback(() => {
+    if (flowFrame.current) return;
+    flowFrame.current = window.requestAnimationFrame(() => {
+      flowFrame.current = 0;
+      const row = flowRef.current;
+      if (!row) return;
+      const cards = Array.from(row.children).filter(
+        (el) => (el as HTMLElement).dataset.live !== undefined,
+      ) as HTMLElement[];
+      if (!cards.length) return;
+      const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : 1;
+      const next = Math.max(0, Math.min(cards.length - 1, Math.round(row.scrollLeft / step)));
+      setFlowIndex((current) => (current === next ? current : next));
+    });
+  }, []);
+
   const stage = (i: number) => captureStages[i];
 
   /** A card, so the five share one shape and one set of spacings. */
@@ -243,12 +264,21 @@ export function PrivacyPipeline() {
             Capture movement.{" "}
             <span className="text-gradient">Protect identity.</span>
           </h2>
-          <p className={styles.lead}>
+          {/* Two lengths of the same statement. The full paragraph is the
+              desktop's; a phone reads the approved short form — the claim,
+              then what it keeps — because five lines of body copy before
+              the control is the wrong ratio on a 390px screen. */}
+          <p className={`${styles.lead} ${styles.leadFull}`}>
             GaitAI does not always need the full visual identity of a person.
             Depending on the task, movement can be interpreted through
             privacy-aware representations such as silhouettes, pose structure,
             trajectories or wearable signals — preserving what the system needs
             while reducing what it does not.
+          </p>
+          <p className={`${styles.lead} ${styles.leadShort}`}>
+            GaitAI can understand movement without seeing a person&apos;s full
+            identity, using pose, silhouettes, trajectories or wearable
+            signals. It keeps only the information needed for the task.
           </p>
         </div>
 
@@ -295,7 +325,12 @@ export function PrivacyPipeline() {
         </div>
 
         {/* ═══ 3 · THE FIVE STAGES ═════════════════════════════════════ */}
-        <div className={styles.flow} data-rep={active}>
+        <div
+          ref={flowRef}
+          className={styles.flow}
+          data-rep={active}
+          onScroll={onFlowScroll}
+        >
           {/* 1 · CAPTURE */}
           <Stage
             at={0}
@@ -390,6 +425,20 @@ export function PrivacyPipeline() {
               })}
             </ul>
           </Stage>
+        </div>
+
+        {/* Phones only (see `.flowDots`): the five stages are a row that
+            snaps card by card, and these say which card is showing and
+            that there are more. Decorative — the cards themselves are in
+            reading order for assistive technology. */}
+        <div aria-hidden="true" className={styles.flowDots}>
+          {captureStages.map((s, i) => (
+            <span
+              key={s.step}
+              className={styles.flowDot}
+              data-on={i === flowIndex ? "true" : undefined}
+            />
+          ))}
         </div>
 
         {/* ═══ 4 · THE LOWER ROW, BEHIND ONE DISCLOSURE ════════════════ */}

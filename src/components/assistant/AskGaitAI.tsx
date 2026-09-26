@@ -25,6 +25,95 @@ const ChatPanel = dynamic(
 );
 
 /**
+ * THE PHONE LAUNCHER STEPS ASIDE WHILE THE PAGE IS BEING READ.
+ * =============================================================================
+ * A fixed circle in the bottom-right corner of a 390px screen sits over the
+ * last line of whatever is scrolling past it — a call to action, the end of
+ * a paragraph, a card's link. Tested on a real phone, it covered something
+ * on nearly every screen of the home page. So below 1024px (phones, and
+ * tablets, where the pill has no margin of its own either) it behaves like a
+ * well-mannered FAB:
+ *
+ *   - reading down the page (scrolling down) parks it off the bottom edge;
+ *   - a scroll back up, however small, brings it back;
+ *   - it stays parked while the demo form or the footer is on screen, which
+ *     are the two places where covering a control does the most damage;
+ *   - it is parked on the first screen, where the home hero's calls to
+ *     action sit in this very corner, and never parked while the panel is
+ *     open. The menu sheet carries Ask GaitAI as a row of its own, so the
+ *     assistant is always one tap away whatever the launcher is doing.
+ *
+ * Desktop is untouched: the pill there sits in a margin the layout leaves
+ * for it. Returns `false` from 1024px.
+ */
+function useLauncherParked(open: boolean, pathname: string | null) {
+  const [parked, setParked] = useState(false);
+
+  useEffect(() => {
+    const phone = window.matchMedia("(max-width: 1023px)");
+    setParked(false);
+    if (!phone.matches) return;
+
+    let lastY = window.scrollY;
+    let down = false;
+    let footerNear = false;
+    let frame = 0;
+
+    const apply = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const delta = y - lastY;
+      /* Ignore sub-pixel jitter and rubber-banding at the very top. */
+      if (Math.abs(delta) > 6) {
+        down = delta > 0;
+        lastY = y;
+      }
+      /* The first screen is parked too: on the home page the hero's calls
+         to action sit exactly in this corner at rest, and every other
+         route opens on a heading. The launcher arrives with the first
+         scroll back up, wherever that is. */
+      const atTop = y < 160;
+      setParked(atTop || down || footerNear);
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(apply);
+    };
+
+    /* The footer and the demo form: while either is in view the launcher
+       stays out of the way regardless of scroll direction. */
+    const guarded = [
+      document.querySelector("footer"),
+      document.querySelector("#contact form"),
+    ].filter((node): node is Element => Boolean(node));
+    const seen = new Set<Element>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) seen.add(entry.target);
+          else seen.delete(entry.target);
+        }
+        footerNear = seen.size > 0;
+        onScroll();
+      },
+      { rootMargin: "0px 0px -20% 0px", threshold: 0 },
+    );
+    guarded.forEach((node) => observer.observe(node));
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    apply();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      observer.disconnect();
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+    /* Re-bound per route: the form and the footer are found by query, and a
+       client-side navigation swaps the page under this root-level mount. */
+  }, [pathname]);
+
+  return parked && !open;
+}
+
+/**
  * ASK GAITAI — the mount point.
  * =============================================================================
  * One instance, at the app root, over every route. It OVERLAYS the page: it
@@ -114,10 +203,12 @@ export function AskGaitAI() {
     setOpen(false);
   }, []);
 
+  const parked = useLauncherParked(open, pathname);
+
   if (!ASSISTANT_ENABLED) return null;
 
   return (
-    <div className={styles.root} data-open={open}>
+    <div className={styles.root} data-open={open} data-parked={parked}>
       {open ? (
         <ChatPanel
           page={page}

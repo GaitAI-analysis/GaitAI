@@ -24,6 +24,7 @@ import { SearchTrigger } from "@/components/search/SearchTrigger";
 import { AtlasTrigger } from "@/components/atlas/AtlasTrigger";
 import { openAtlas } from "@/components/atlas/atlas-event";
 import { SEARCH_EVENT } from "@/components/search/IntelligenceSearch";
+import { ASK_EVENT } from "@/components/assistant/config";
 import { navLinks, type NavItem } from "@/data/content";
 import { cn } from "@/lib/utils";
 import { assetPath } from "@/lib/paths";
@@ -289,7 +290,7 @@ export function Navbar() {
             <Link
               href="/"
               aria-label="GaitAI"
-              className="flex items-center pl-2"
+              className="site-header__logo flex items-center pl-2"
             >
               <Logo variant="wordmark" size="md" priority />
             </Link>
@@ -688,6 +689,30 @@ export function Navbar() {
                     );
                   })}
                 </nav>
+
+                {/* Ask GaitAI as a row of its own. On a phone the floating
+                    launcher steps aside while the page is being read (see
+                    AskGaitAI), so the sheet is the place the assistant can
+                    always be found. Opens the same panel by the same event
+                    the search palette uses. */}
+                <button
+                  type="button"
+                  className="mnav__atlas mnav__ask"
+                  onClick={() => {
+                    setOpen(false);
+                    window.dispatchEvent(new CustomEvent(ASK_EVENT));
+                  }}
+                >
+                  <span aria-hidden="true" className="mnav__askMark">
+                    ✦
+                  </span>
+                  <span>
+                    <span className="mnav__itemLabel">Ask GaitAI</span>
+                    <span className="mnav__itemSub">
+                      Questions about products, research or deployment
+                    </span>
+                  </span>
+                </button>
 
                 <button
                   type="button"

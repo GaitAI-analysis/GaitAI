@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import { Github, Linkedin, Mail } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { FooterGroup } from "./FooterGroup";
 import { ctas } from "@/data/content";
 import { contact, mailto, socialProfiles } from "@/data/contact";
 
@@ -114,13 +115,20 @@ export function Footer() {
       <div className="container-wide py-14 sm:py-20">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_2.4fr]">
           <div>
-            <Logo variant="wordmark" size="lg" />
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-soft-mute">
+            <Logo variant="wordmark" size="lg" className="footer-logo" />
+            <p className="mt-5 hidden max-w-sm text-sm leading-relaxed text-soft-mute sm:block">
               GaitAI is intelligence in motion — a Human Movement Intelligence
               Platform that turns walking videos, wearable signals and crowd
               movement into healthcare, sports, elderly-care and safety
               insight. Built on founder research since {siteFacts.founderAcademicRecord.researchSince} in
               gait and human movement.
+            </p>
+            {/* The same statement at footer length for a phone: what the
+                platform does and what it stands on, in two lines rather than
+                the home page's proposition told a second time. */}
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-soft-mute sm:hidden">
+              Movement intelligence for healthcare, sports and public safety —
+              built on gait research since {siteFacts.founderAcademicRecord.researchSince}.
             </p>
             <div className="mt-6 flex items-center gap-2">
               {socials.map(({ icon: Icon, href, label }) => (
@@ -147,14 +155,8 @@ export function Footer() {
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:gap-10 lg:grid-cols-4">
             {footerLinks.map((col) => (
-              <div key={col.heading}>
-                {/* h2, not h4: these sit at the same level as the page's own
-                    sections, and jumping h1 → h4 leaves a gap for anyone
-                    navigating by headings. */}
-                <h2 className="text-[11px] font-semibold uppercase tracking-[0.2em] text-soft-white">
-                  {col.heading}
-                </h2>
-                <ul className="mt-5 space-y-3">
+              <FooterGroup key={col.heading} heading={col.heading}>
+                <ul className="footer-group__list mt-5 space-y-3">
                   {col.items.map((item) => (
                     <li key={item.label}>
                       <Link
@@ -166,7 +168,7 @@ export function Footer() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </FooterGroup>
             ))}
           </div>
         </div>

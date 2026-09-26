@@ -85,8 +85,17 @@ export function CTA() {
           <div className="ring-grid pointer-events-none absolute inset-0 opacity-40" />
           <div className="noise" />
 
-          <div className="relative grid gap-10 lg:grid-cols-[43fr_57fr] lg:gap-12">
-            <div className="min-w-0">
+          {/* THE PHONE ORDER. Below 640px the left column dissolves
+              (`display: contents`, mobile.css "THE DEMO BLOCK") so its
+              pieces join this grid and can be re-ordered: intro, then the
+              demo form, then the pilot card, then the signup. Read top to
+              bottom that is the task — ask for a demo — followed by the
+              supporting facts, with the smaller ask last, where it no longer
+              interrupts someone filling in the form. The desktop columns are
+              exactly as they were. */}
+          <div className="contact-grid relative grid gap-10 lg:grid-cols-[43fr_57fr] lg:gap-12">
+            <div className="contact-column min-w-0">
+              <div className="contact-intro">
               <span className="eyebrow">
                 <span className="h-1 w-6 rounded-full bg-gradient-brand" />
                 {ctas.demo.label} · {ctas.pilot.label} · {ctas.research.label}
@@ -99,6 +108,7 @@ export function CTA() {
                 Tell us about the environment and the outcome that matters
                 there, and we&apos;ll map the right product mix.
               </p>
+              </div>
 
               {/* THE ORDER: signup first, pilot card second.
 
@@ -108,7 +118,7 @@ export function CTA() {
                   the smaller ask opens the column and the pilot card closes
                   it. Neither block changed; only their order and the gap
                   between them. */}
-              <SubscribeForm variant="contact" className="mt-8" />
+              <SubscribeForm variant="contact" className="contact-subscribe mt-8" />
 
               {/* Previously "Trusted by pioneers in healthcare, security and
                   smart-infrastructure", next to three avatar circles. There is
@@ -119,7 +129,7 @@ export function CTA() {
                   mt-6, not mt-8: this now follows the signup's own small print
                   rather than a paragraph of body copy, and the wider gap read
                   as a hole between two blocks that are meant to stack. */}
-              <div className="mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5">
+              <div className="contact-deploy mt-6 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-5">
                 <div className="text-sm font-semibold text-soft-white">
                   Built for healthcare, mobility and public-safety environments
                 </div>
@@ -147,7 +157,7 @@ export function CTA() {
               action="https://formspree.io/f/xzebbzed"
               method="POST"
               onSubmit={handleSubmit}
-              className="relative w-full min-w-0 rounded-2xl border border-white/8 bg-obsidian-200/70 p-6 backdrop-blur-xl sm:p-8"
+              className="contact-form relative w-full min-w-0 rounded-2xl border border-white/8 bg-obsidian-200/70 p-6 backdrop-blur-xl sm:p-8"
             >
               <div className="grid gap-2">
                 <label

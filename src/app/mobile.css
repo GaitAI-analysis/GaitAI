@@ -27,17 +27,39 @@
    let the page show above and beside it on a narrow screen.
    ========================================================================= */
 @media (max-width: 1023.98px) {
+  /* 56px: a 42px menu button with 7px above and below. It was 64px, which
+     with the location trail under it took a fifth of a 360x640 screen
+     before any content. Every anchor offset reads this one variable
+     (`--header-clearance`, ScrollClearance), so headings land under the
+     bar and never behind it. */
   :root {
-    --site-header-height: 4rem;
+    --site-header-height: 3.5rem;
   }
 
   .site-header {
     display: flex;
     align-items: center;
+    padding-block: 0.4375rem;
     transition:
       background-color 300ms ease,
       box-shadow 300ms ease,
       backdrop-filter 300ms ease;
+  }
+
+  /* The wordmark at 98 x 34 (the desktop's 112 x 39 in a smaller bar). The
+     Logo sizes its box inline, hence the override. */
+  .site-header__logo {
+    padding-left: 0.125rem;
+  }
+
+  .site-header__logo > div {
+    width: 6.125rem !important;
+    height: 2.125rem !important;
+  }
+
+  .site-header__menu {
+    width: 2.625rem;
+    height: 2.625rem;
   }
 
   .site-header > .container-wide {
@@ -50,7 +72,10 @@
     border: 0;
     border-radius: 0;
     background: none;
-    box-shadow: none;
+    /* `!important` because the light theme's `.glass` shadow is declared
+       that way (light-theme.css, "NAVIGATION AS AN OBJECT"); without it
+       the desktop pill's shadow drew a floating slab across a phone. */
+    box-shadow: none !important;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
@@ -70,6 +95,8 @@
   /* Request demo: present, compact, never the loudest thing in the bar. */
   .site-header .site-header__demo {
     min-height: 2.25rem;
+    padding: 0 0.8rem;
+    font-size: 12.5px;
   }
 
   /* The journal's fading band under the floating pill is the pill's; the
@@ -281,6 +308,24 @@
 
 .mnav__atlas svg {
   margin-top: 0.2rem;
+}
+
+.mnav__ask + .mnav__atlas {
+  margin-top: 0.625rem;
+}
+
+.mnav__askMark {
+  flex: none;
+  width: 1rem;
+  margin-top: 0.1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  color: #4fd1ff;
+}
+
+:root.light .mnav__askMark {
+  color: #0e7490;
 }
 
 .mnav__foot {
@@ -569,13 +614,13 @@
   }
 
   .text-display-xl {
-    font-size: clamp(1.95rem, 8vw, 2.5rem);
+    font-size: clamp(1.85rem, 7.6vw, 2.35rem);
     line-height: 1.08;
     letter-spacing: -0.032em;
   }
 
   .text-display-lg {
-    font-size: clamp(1.7rem, 7vw, 2.1rem);
+    font-size: clamp(1.6rem, 6.6vw, 2rem);
     line-height: 1.12;
   }
 
@@ -595,24 +640,45 @@
     text-wrap: pretty;
   }
 
+  /* THE RHYTHM. A major section is 64px of its own air top and bottom, a
+     home section 52px (two meet across every boundary, so the travel
+     between two sections' content is ~104px), and the blocks inside a
+     section sit 16-24px apart. Nothing inherits the desktop's 144px. */
   .section {
-    padding-top: 4.5rem;
-    padding-bottom: 4.5rem;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 
   .home-section.section,
   .home-band.section {
-    padding-top: 3.5rem;
-    padding-bottom: 3.5rem;
+    padding-top: 3.25rem;
+    padding-bottom: 3.25rem;
   }
 
   .container-wide {
     padding-inline: var(--m-gutter);
   }
 
+  /* Eyebrows: a label, not a second heading. 0.16-0.22em of tracking on
+     an all-caps line made "FEATURED · MOVEMENT INTELLIGENCE PRODUCTS" two
+     full lines above its own heading. */
   .eyebrow {
     font-size: 0.6875rem;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.1em;
+  }
+
+  main [class*="tracking-[0.1"],
+  main [class*="tracking-[0.2"],
+  footer [class*="tracking-[0.1"],
+  footer [class*="tracking-[0.2"] {
+    letter-spacing: 0.09em;
+  }
+
+  /* Section lead paragraphs read as body copy, not display copy. */
+  .section-lead,
+  #contact .contact-intro p {
+    font-size: 1rem;
+    line-height: 1.6;
   }
 }
 
@@ -627,32 +693,83 @@
 }
 
 /* =========================================================================
-   SWIPEABLE ROWS (< 640px)
-   A family of four product cards stacked one under another was 1,450px of
-   near-identical rectangles on a phone. As a row that snaps card by card,
-   with the next card peeking in at the edge, the section is one screen and
-   the peek says there is more. The same pattern everywhere it is used.
+   THE PRODUCT LIST (FeaturedProducts, < 640px)
+   Four cards in a row that snapped with the next card peeking in was the
+   first thing built here; on a real phone the peek read as a clipped card,
+   and its text was cut mid-word at the edge. So on a phone the four are a
+   list of row cards — picture on the left, name and promise on the right,
+   the whole card one tap — with all four on screen and nothing clipped.
+   The grid returns at 640px.
    ========================================================================= */
 @media (max-width: 639px) {
   .featured-grid {
-    display: flex;
-    gap: 0.75rem;
-    margin-inline: calc(-1 * var(--m-gutter));
-    padding: 0.25rem var(--m-gutter) 0.75rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--m-gutter);
-    scrollbar-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.625rem;
   }
 
-  .featured-grid::-webkit-scrollbar {
+  .featured-grid > article {
+    display: grid;
+    grid-template-columns: 6.75rem minmax(0, 1fr);
+    align-items: stretch;
+    border-radius: 1rem;
+  }
+
+  .featured-grid [data-product-card-image] {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 6.5rem;
+    border-radius: 1rem 0 0 1rem;
+  }
+
+  .featured-grid > article > div.relative {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0.8rem 0.9rem 0.85rem;
+  }
+
+  .featured-grid > article .pa-ink {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+  }
+
+  .featured-grid > article h3 {
+    margin-top: 0.35rem;
+    font-size: 0.9375rem;
+    line-height: 1.35;
+  }
+
+  /* The hover glow has no hover to wait for. */
+  .featured-grid > article > .pointer-events-none {
     display: none;
   }
 
-  .featured-grid > * {
-    flex: 0 0 82%;
-    scroll-snap-align: start;
+  #products .container-wide > .flex {
+    gap: 1.25rem;
+  }
+
+  #products [role="tabpanel"] {
+    margin-top: 1.5rem;
+  }
+
+  .featured-foot {
+    gap: 0.875rem;
+  }
+
+  .featured-count {
+    letter-spacing: 0.1em;
+  }
+
+  .featured-actions {
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .featured-actions > a {
+    width: 100%;
+    justify-content: center;
+    min-height: 3rem;
   }
 }
 
@@ -672,6 +789,40 @@
   .contact-card > .noise {
     display: none;
   }
+
+  /* THE ORDER: intro, the demo form, the pilot card, then the signup. The
+     left column dissolves so its pieces are items of the grid (CTA.tsx). */
+  .contact-grid {
+    gap: 1.5rem;
+  }
+
+  .contact-column {
+    display: contents;
+  }
+
+  .contact-intro {
+    order: 0;
+  }
+
+  .contact-form {
+    order: 1;
+    padding: 1.25rem;
+  }
+
+  .contact-deploy {
+    order: 2;
+    margin-top: 0;
+  }
+
+  .contact-subscribe {
+    order: 3;
+    margin-top: 0;
+  }
+
+  #contact {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
 }
 
 /* =========================================================================
@@ -689,5 +840,376 @@
 
   .text-\[10px\]:not([aria-hidden="true"] *, .insights-hub *, .insights-page *) {
     font-size: 11px;
+  }
+}
+
+/* =========================================================================
+   GAITAI CORE AND THE FLAGSHIP PANELS (Verticals, < 640px)
+   The hierarchy stays — Core above, the two families under it on their two
+   lines — with the lines shorter and the panels recomposed: wordmark,
+   headline, one sentence, the console, the capabilities as a single column
+   (so IndustrialSafety and PrivacyGuard are never broken mid-word), the way
+   in. The full description returns from 640px.
+   ========================================================================= */
+@media (max-width: 639px) {
+  #platform-verticals {
+    padding-top: 1.5rem;
+    padding-bottom: 2.75rem;
+  }
+
+  .platform-eyebrow {
+    margin-bottom: 1.5rem;
+  }
+
+  .platform-eyebrow > span {
+    padding: 0.45rem 1rem;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+  }
+
+  .platform-split {
+    height: 9.5rem;
+  }
+
+  .platform-split-lines {
+    top: 4.6rem;
+    height: 4.5rem;
+  }
+
+  .platform-core-node {
+    min-height: 5.5rem;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+  }
+
+  #platform-verticals .container-wide > .grid {
+    gap: 1.25rem;
+  }
+
+  .flagship-panel {
+    padding: 1.125rem;
+  }
+
+  .flagship-panel > header {
+    min-height: 0;
+  }
+
+  .flagship-panel > header > div {
+    height: 3.25rem;
+    max-width: 12rem;
+  }
+
+  .flagship-panel h3.font-display {
+    font-size: 1.75rem;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+
+  .flagship-panel .mt-8 {
+    margin-top: 1.25rem;
+  }
+
+  .flagship-panel .product-visual-shell {
+    height: 12.25rem;
+    margin-top: 1.25rem;
+    margin-inline: -1.125rem;
+  }
+
+  .flagship-capabilities {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .flagship-capability {
+    min-height: 3rem;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .flagship-capability:nth-child(odd) {
+    padding-right: 0.25rem;
+  }
+
+  .flagship-capability:nth-child(even) {
+    padding-left: 0.25rem;
+    border-left: 0;
+  }
+
+  .flagship-capability-name {
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+
+  .flagship-panel > a {
+    min-height: 3.25rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+}
+
+/* =========================================================================
+   THE ENVIRONMENT BRANCHES (EnvironmentStrip, < 640px)
+   Kept as the two branches from one hub — MobilityCare's line on the left,
+   SecureVision's on the right, the two sides of the platform. Each row is
+   an icon, the environment, two lines at most of outcome, and the arrow;
+   the detail is on the environment's own page.
+   ========================================================================= */
+@media (max-width: 639px) {
+  .env-hub-stage {
+    margin-top: 1.5rem;
+  }
+
+  .env-panel {
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.7rem 0.6rem;
+  }
+
+  .env-scene {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .env-name {
+    font-size: 0.9375rem;
+  }
+
+  .env-outcome {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    margin-top: 0.15rem;
+    line-height: 1.5;
+  }
+
+  .env-arrow {
+    margin-top: 0;
+  }
+
+  .env-item::before {
+    top: 1.55rem;
+  }
+
+  .env-item::after {
+    top: calc(1.55rem + 3px);
+  }
+
+  .env-column-title,
+  .env-more-button {
+    letter-spacing: 0.1em;
+  }
+
+  #use-cases .container-wide > .mt-12 {
+    margin-top: 2rem;
+  }
+}
+
+/* =========================================================================
+   MISSION AND VISION (< 640px)
+   Mission, its control, one walking capture, the Motion DNA connector
+   turned vertical, Vision, its control. The two grids that hold the cards
+   and the controls dissolve into the row (MissionVision.tsx), so each
+   control follows its own card. The second walking capture is the
+   tablet's; a phone has one.
+   ========================================================================= */
+@media (max-width: 639px) {
+  .mv-row {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .mv-cards,
+  .mv-controls {
+    display: contents;
+  }
+
+  .mv-mission {
+    order: 1;
+  }
+
+  .mv-control--mission {
+    order: 2;
+  }
+
+  .mv-walker--cyan {
+    order: 3;
+  }
+
+  .mv-dna {
+    order: 4;
+  }
+
+  .mv-vision {
+    order: 5;
+  }
+
+  .mv-control--vision {
+    order: 6;
+  }
+
+  .mv-walker--violet {
+    display: none;
+  }
+
+  .mv-control {
+    justify-content: flex-start;
+    margin-top: -0.25rem;
+  }
+
+  .mv-walker--cyan > div {
+    max-width: 240px;
+  }
+
+  #mission-vision {
+    padding-top: 2.75rem;
+    padding-bottom: 2.75rem;
+  }
+}
+
+/* =========================================================================
+   THE FOOTER (< 640px)
+   The four link groups fold (FooterGroup): a 48px row each, open on tap,
+   closed by default. Above them the wordmark, one line of what GaitAI is,
+   the four profiles; under them the legal line. ~1,250px becomes ~640px.
+   ========================================================================= */
+@media (max-width: 639px) {
+  footer.mt-12 {
+    margin-top: 0;
+  }
+
+  footer > .container-wide {
+    padding-top: 2.75rem;
+    padding-bottom: 1.75rem;
+  }
+
+  footer .container-wide > .grid {
+    gap: 1.75rem;
+  }
+
+  footer .container-wide > .grid > .grid {
+    display: block;
+  }
+
+  .footer-logo {
+    width: 7rem !important;
+    height: 2.45rem !important;
+  }
+
+  .footer-group {
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .footer-group:last-child {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .footer-group__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3rem;
+    list-style: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .footer-group__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .footer-group__summary h2 {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+  }
+
+  .footer-group__chevron {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    color: var(--text-muted);
+    transition: transform 300ms var(--m-ease);
+  }
+
+  .footer-group[open] .footer-group__chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Before the client has decided (FooterGroup mounts and reads the width)
+     the list is not shown, so a phone's first paint is the folded row. */
+  .footer-group:not([data-ready]) .footer-group__list {
+    display: none;
+  }
+
+  .footer-group__list {
+    margin: 0 0 0.5rem;
+  }
+
+  .footer-group__list > li + li {
+    margin-top: 0;
+  }
+
+  .footer-group__list a {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0;
+    font-size: 0.9375rem;
+  }
+
+  footer .divider {
+    margin-top: 1.75rem;
+  }
+
+  footer .divider + div {
+    margin-top: 1.25rem;
+    gap: 0.75rem;
+  }
+}
+
+/* From 640px the footer groups are the columns they always were: open,
+   with no marker and no toggle. */
+@media (min-width: 640px) {
+  .footer-group__summary {
+    display: block;
+    list-style: none;
+    pointer-events: none;
+  }
+
+  .footer-group__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .footer-group__chevron {
+    display: none;
+  }
+}
+
+/* The console's corner label ("Clinical mobility console") and its Demo tag
+   share one line on a laptop; on a phone-wide panel they collided. The tag
+   is the disclosure that matters, so the label steps aside below 640px. */
+@media (max-width: 639px) {
+  .flagship-panel .product-visual-shell > .absolute.left-5 {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   TABLET RHYTHM (640-1023px)
+   The desktop's outer air, scaled for a 768px screen: two home sections
+   meet across ~128px rather than ~208px.
+   ========================================================================= */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .home-section.section,
+  .home-band.section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  #platform-verticals {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
   }
 }

@@ -172,8 +172,11 @@ export function FeaturedProducts() {
               tabIndex={0}
               className="mt-9 focus-visible:outline-none sm:mt-10"
             >
-              {/* `featured-grid`: a swipeable row of cards on a phone
-                  (mobile.css), the grid from 640px. */}
+              {/* `featured-grid`: on a phone a vertical list of compact
+                  row cards — picture left, name and promise right, whole
+                  card tappable — so all four products are on screen with
+                  nothing clipped (mobile.css, "THE PRODUCT LIST"); the grid
+                  from 640px. */}
               <div className="featured-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {visible.map((product, i) => (
                   <ProductCard
@@ -205,12 +208,20 @@ export function FeaturedProducts() {
                   The middle group is the one that gives: it tightens its own
                   gap before anything wraps, and the labels never break mid
                   phrase. */}
-              <div className="mt-7 flex flex-col items-start gap-4 border-t border-white/[0.07] pt-5 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-x-6 md:gap-y-4">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-soft-mute">
-                  Showing {visible.length} of {view.total} {view.label} products
+              <div className="featured-foot mt-7 flex flex-col items-start gap-4 border-t border-white/[0.07] pt-5 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-x-6 md:gap-y-4">
+                {/* One fact, two lengths. The full sentence overflowed a
+                    360px screen at 0.16em tracking, so a phone reads the
+                    compact form; both say the same thing. */}
+                <p className="featured-count text-[11px] uppercase tracking-[0.16em] text-soft-mute">
+                  <span className="sm:hidden">
+                    {visible.length} of {view.total} · {view.label}
+                  </span>
+                  <span className="hidden sm:inline">
+                    Showing {visible.length} of {view.total} {view.label} products
+                  </span>
                 </p>
 
-                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center md:min-w-0 md:gap-2 lg:gap-3">
+                <div className="featured-actions flex flex-col items-start gap-3 sm:flex-row sm:items-center md:min-w-0 md:gap-2 lg:gap-3">
                   <Link href="/products" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-white/10 bg-white/[0.02] px-5 py-2.5 text-sm font-medium text-soft-white transition-all hover:border-cyan-300/40 hover:bg-cyan-300/[0.05]">
                     Browse all {productCount} products
                     <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />

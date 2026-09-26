@@ -1,8 +1,8 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { HERO_OPTIONS } from "@/data/home-hero";
-import { HERO_SIGNALS, HERO_SIGNAL_COPY, type SignalTheme, type XY } from "@/data/hero-signals";
+import { HERO_SIGNALS, type Pose, type SignalTheme, type XY } from "@/data/hero-signals";
 import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
 import styles from "./herosignals.module.css";
 
@@ -23,24 +23,38 @@ import styles from "./herosignals.module.css";
  *   Pose analysis  the engine: the walker's own analysis layer (HeroWalker)
  *                  and the rail, labelled "Core engine"
  *
- * One gold THREAD runs along the floor from the walker's feet, through the
- * patient's gait ring, to the pedestrians' feet, and pulses travel along it
- * from the engine outward: analysis -> application. The markers (small gold
- * nodes, thin lines) are the engine's own vocabulary, repeated on every
- * person, so the relationship is visible without a sentence.
+ * SIGNALS FLOW INTO ONE ENGINE (founder, 2026-09-26). The hero carries no
+ * always-visible SecureVision or MobilityCare read-out any more: the only
+ * permanent analytics card is Pose analysis (the rail beside the walker).
+ * Two fine dotted connectors carry each application's signal INTO that card:
  *
- * Restraint is the brief too: thin strokes, three short tags, two compact
- * read-outs, no dashboard. Everything is decorative (aria-hidden) and ignores
- * the pointer, so the dots, pills, cards and rail work exactly as before. It
- * sits at z-index 1, under the connectors (2) and the dots and rail (3).
+ *   SecureVision   from the tracked walker's detection box -> Pose analysis
+ *   MobilityCare   from the clinician's tablet -> Pose analysis
+ *
+ * They end on the card, never on the walker's body, and a slow pulse travels
+ * each one toward it: application -> shared intelligence. The card is a
+ * fixed-size HTML element, so where it stands in plate px depends on the
+ * window; its left edge is MEASURED (ResizeObserver on the stage and the
+ * card) and the paths are drawn to it.
+ *
+ * POSE OVERLAYS ARE WHOLE OR ABSENT (founder, 2026-09-26). No partial
+ * hip-and-feet points on anyone. The crowd keeps only its detection
+ * corners (the flagged walker keeps its arrow). Exactly two real people
+ * carry a pose, and it is a full-body skeleton: the primary tracked
+ * pedestrian in SecureVision and the patient in MobilityCare. Thin lines,
+ * very small joints, no glow, and no node at the pelvis centre; muted cobalt
+ * by day, soft ivory by night. The walker carries the fullest structure
+ * (HeroWalker).
+ *
+ * Everything is decorative (aria-hidden) and ignores the pointer, so the
+ * dots, pills, cards and rail work exactly as before. It sits at z-index 1,
+ * under the connectors (2) and the dots and rail (3).
  *
  * Geometry: one SVG per theme in its plate's own pixels (data/hero-signals.ts),
  * stretched onto the stage, which always has that plate's aspect. Strokes are
  * non-scaling. The tags and read-outs are HTML placed in plate fractions, so
  * their type stays real type at every width.
  */
-
-const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`;
 
 /** A smooth path through points (Catmull-Rom as cubic Beziers). */
 function smooth(pts: readonly XY[]) {
@@ -54,26 +68,91 @@ function smooth(pts: readonly XY[]) {
   return d;
 }
 
+const svg = (p: XY) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+
 const lerp = (a: XY, b: XY, t: number): XY => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
 const mid = (a: XY, b: XY): XY => lerp(a, b, 0.5);
 
 const BONES = [
   ["head", "neck"], ["neck", "shoulderL"], ["neck", "shoulderR"], ["shoulderL", "elbowL"], ["elbowL", "wristL"],
-  ["shoulderR", "elbowR"], ["elbowR", "wristR"], ["neck", "pelvis"], ["hipL", "hipR"], ["hipL", "kneeL"],
-  ["kneeL", "ankleL"], ["hipR", "kneeR"], ["kneeR", "ankleR"],
+  ["shoulderR", "elbowR"], ["elbowR", "wristR"], ["shoulderL", "hipL"], ["shoulderR", "hipR"], ["hipL", "hipR"],
+  ["hipL", "kneeL"], ["kneeL", "ankleL"], ["hipR", "kneeR"], ["kneeR", "ankleR"],
 ] as const;
-const NODES = ["shoulderL", "shoulderR", "elbowL", "elbowR", "wristL", "wristR", "pelvis", "kneeL", "kneeR", "ankleL", "ankleR"] as const;
+/* The standard keypoints, minus the pelvis centre and the neck. */
+const NODES = ["head", "shoulderL", "shoulderR", "elbowL", "elbowR", "wristL", "wristR", "hipL", "hipR", "kneeL", "kneeR", "ankleL", "ankleR"] as const;
+
+/** A full-body pose skeleton: thin bones, very small joints. */
+function Skeleton({ pose }: { pose: Pose }) {
+  return (
+    <g className={styles.pose}>
+      {BONES.map(([a, b]) => (
+        <line key={a + b} className={styles.poseBone} x1={pose[a][0]} y1={pose[a][1]} x2={pose[b][0]} y2={pose[b][1]} />
+      ))}
+      {NODES.map((n) => (
+        <circle key={n} cx={pose[n][0]} cy={pose[n][1]} r={n === "head" ? 2.2 : 1.6} className={styles.poseNode} />
+      ))}
+    </g>
+  );
+}
 
 function Layer({ name, t, reduced }: { name: "light" | "dark"; t: SignalTheme; reduced: boolean }) {
   const [W, H] = t.plate;
-  const thread = smooth(t.thread);
   const { secure, care } = t;
   const J = care.joints;
   const tick = 9;
-  const copy = HERO_SIGNAL_COPY;
+  const layer = useRef<HTMLDivElement>(null);
+  /* The Pose analysis card's left edge (a little below its title), in this
+     plate's px; null until measured, or while this theme's layer is hidden. */
+  const [end, setEnd] = useState<XY | null>(null);
+
+  useEffect(() => {
+    const el = layer.current;
+    if (!el) return;
+    let raf = 0;
+    const measure = () => {
+      raf = 0;
+      const card = document.getElementById("hero-option-pose");
+      const l = el.getBoundingClientRect();
+      const r = card?.getBoundingClientRect();
+      if (!r || !l.width || !r.width) return setEnd(null);
+      const x = ((r.left - l.left) / l.width) * W;
+      const y = ((r.top + Math.min(r.height / 2, 44) - l.top) / l.height) * H;
+      setEnd((e) => (e && Math.abs(e[0] - x) < 0.5 && Math.abs(e[1] - y) < 0.5 ? e : [x, y]));
+    };
+    const later = () => {
+      if (!raf) raf = requestAnimationFrame(measure);
+    };
+    const ro = new ResizeObserver(later);
+    ro.observe(el);
+    const card = document.getElementById("hero-option-pose");
+    if (card) ro.observe(card);
+    // The rail's `top` is set by its own fit pass (inline style), which a
+    // ResizeObserver does not see; watch that attribute too.
+    const mo = new MutationObserver(later);
+    if (card) mo.observe(card, { attributes: true, attributeFilter: ["style", "data-open", "data-fit"] });
+    const settle = window.setTimeout(later, 1600);
+    later();
+    return () => {
+      ro.disconnect();
+      mo.disconnect();
+      window.clearTimeout(settle);
+      cancelAnimationFrame(raf);
+    };
+  }, [W, H]);
+
+  /* SecureVision: from the top-right corner of the main tracked walker's
+     detection box. MobilityCare: from the clinician's tablet. */
+  const lead = secure.people.reduce((a, b) => (b.box[3] - b.box[1] > a.box[3] - a.box[1] ? b : a));
+  const svFrom: XY = [lead.box[2], lead.box[1]];
+  const mcFrom: XY = care.tablet;
+  /* Both arrive at the card from a little below-left, so they merge just
+     before it and pass under the Pose anchor dot rather than through it.
+     MobilityCare first rises steeply, clearing the clinician's head. */
+  const svPath = end && `M${svg(svFrom)} C${svg([svFrom[0] + (end[0] - svFrom[0]) * 0.3, svFrom[1] - 60])} ${svg([end[0] - (end[0] - svFrom[0]) * 0.3, end[1] + 60])} ${svg(end)}`;
+  const mcPath = end && `M${svg(mcFrom)} C${svg([mcFrom[0] + (end[0] - mcFrom[0]) * 0.08, mcFrom[1] - 190])} ${svg([end[0] - (end[0] - mcFrom[0]) * 0.3, end[1] + 60])} ${svg(end)}`;
 
   return (
-    <div className={`${styles.layer} ${styles[name]}`}>
+    <div ref={layer} className={`${styles.layer} ${styles[name]}`}>
       <svg className={styles.svg} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
         <defs>
           <marker id={`sig-arrow-${name}`} viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -81,22 +160,23 @@ function Layer({ name, t, reduced }: { name: "light" | "dark"; t: SignalTheme; r
           </marker>
         </defs>
 
-        {/* ── The thread: engine -> applications ── */}
-        <path d={thread} className={styles.thread} />
-        <path d={thread} className={styles.threadGlow} />
-        {/* Direction, readable without motion: chevrons where the thread enters each application. */}
-        {t.chevrons.map((i) => {
-          const a = t.thread[i - 1], b = t.thread[i + 1], p = t.thread[i];
-          const deg = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
-          return <path key={i} className={styles.chevron} d="M-5,-4.5 L1,0 L-5,4.5" transform={`translate(${p[0]} ${p[1]}) rotate(${deg.toFixed(1)})`} />;
-        })}
-        {!reduced &&
-          [0, 1, 2].map((i) => (
-            <circle key={i} r="3.2" className={styles.pulse}>
-              <animateMotion dur="5.4s" begin={`${i * 1.8}s`} repeatCount="indefinite" path={thread} />
-              <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.85;1" dur="5.4s" begin={`${i * 1.8}s`} repeatCount="indefinite" />
-            </circle>
-          ))}
+        {/* ── The connectors: each application feeds Pose analysis ── */}
+        {svPath && mcPath && end ? (
+          <>
+            <path d={svPath} className={styles.link} />
+            <path d={mcPath} className={styles.link} />
+            <circle cx={svFrom[0]} cy={svFrom[1]} r="2.4" className={styles.linkEnd} />
+            <circle cx={mcFrom[0]} cy={mcFrom[1]} r="2.4" className={styles.linkEnd} />
+            <circle cx={end[0]} cy={end[1]} r="2.6" className={styles.linkEnd} />
+            {!reduced &&
+              [svPath, mcPath].map((d, i) => (
+                <circle key={i} r="2.4" className={styles.pulse}>
+                  <animateMotion dur={i ? "4.6s" : "5.4s"} begin={`${i * 1.6}s`} repeatCount="indefinite" path={d} />
+                  <animate attributeName="opacity" values="0;0.9;0.9;0" keyTimes="0;0.1;0.85;1" dur={i ? "4.6s" : "5.4s"} begin={`${i * 1.6}s`} repeatCount="indefinite" />
+                </circle>
+              ))}
+          </>
+        ) : null}
 
         {/* ── SecureVision: tracks, flow, one flagged path ── */}
         {secure.people.map((p, k) => {
@@ -104,115 +184,27 @@ function Layer({ name, t, reduced }: { name: "light" | "dark"; t: SignalTheme; r
           const f = mid(p.feet[0], p.feet[1]);
           const alert = p.flow === "against";
           const cls = alert ? styles.alertStroke : styles.ink;
-          // Behind the walker: where they have been. Ahead: where the track predicts.
-          const back = (s: number) => (alert ? lerp(f, secure.vp, s) : lerp(f, [2 * f[0] - secure.vp[0], 2 * f[1] - secure.vp[1]], s));
-          const ahead = alert ? lerp(f, [2 * f[0] - secure.vp[0], 2 * f[1] - secure.vp[1]], 0.22) : lerp(f, secure.vp, 0.42);
+          const ahead = lerp(f, [2 * f[0] - secure.vp[0], 2 * f[1] - secure.vp[1]], 0.22);
           return (
             <g key={k} className={styles.track} style={{ ["--k" as string]: k } as CSSProperties}>
               {/* corner ticks on the painted box, in the engine's gold */}
               <path className={cls} d={`M${x0},${y0 + tick} V${y0} H${x0 + tick} M${x1 - tick},${y0} H${x1} V${y0 + tick} M${x1},${y1 - tick} V${y1} H${x1 - tick} M${x0 + tick},${y1} H${x0} V${y1 - tick}`} />
-              {/* the same markers as on the walker: pelvis and both feet */}
-              <line className={`${cls} ${styles.faint}`} x1={p.pelvis[0]} y1={p.pelvis[1]} x2={p.feet[0][0]} y2={p.feet[0][1]} />
-              <line className={`${cls} ${styles.faint}`} x1={p.pelvis[0]} y1={p.pelvis[1]} x2={p.feet[1][0]} y2={p.feet[1][1]} />
-              {[p.pelvis, ...p.feet].map((q, i) => (
-                <circle key={i} cx={q[0]} cy={q[1]} r={i ? 2.2 : 2.6} className={alert ? styles.alertNode : styles.node} />
-              ))}
-              {/* footfall history */}
-              {[0.1, 0.21, 0.33].map((s, i) => {
-                const q = back(s);
-                return <circle key={i} cx={q[0] + (i % 2 ? 3 : -3)} cy={q[1]} r="1.9" className={`${alert ? styles.alertNode : styles.node} ${styles.fall}`} style={{ ["--i" as string]: i } as CSSProperties} />;
-              })}
-              {/* predicted path */}
-              <path className={alert ? styles.alertAhead : styles.ahead} d={`M${f[0]},${f[1]} L${ahead[0].toFixed(1)},${ahead[1].toFixed(1)}`} markerEnd={alert ? `url(#sig-arrow-${name})` : undefined} />
+              {/* the primary tracked subject only: a full-body pose */}
+              {p.pose ? <Skeleton pose={p.pose} /> : null}
+              {/* the flagged walker's heading: what "Direction alert" counts */}
+              {alert ? <path className={styles.alertAhead} d={`M${f[0]},${f[1]} L${ahead[0].toFixed(1)},${ahead[1].toFixed(1)}`} markerEnd={`url(#sig-arrow-${name})`} /> : null}
             </g>
           );
         })}
 
         {/* ── MobilityCare: the assessment ── */}
         <g className={styles.care}>
-          {BONES.map(([a, b]) => (
-            <line key={a + b} className={`${styles.ink} ${styles.bone}`} x1={J[a][0]} y1={J[a][1]} x2={J[b][0]} y2={J[b][1]} />
-          ))}
-          {NODES.map((n) => (
-            <circle key={n} cx={J[n][0]} cy={J[n][1]} r="2.4" className={styles.node} />
-          ))}
+          <Skeleton pose={J} />
           <ellipse className={styles.ring} cx={care.ring[0]} cy={care.ring[1]} rx={care.ring[2]} ry={care.ring[3]} />
           <ellipse className={styles.ringSweep} cx={care.ring[0]} cy={care.ring[1]} rx={care.ring[2] * 0.72} ry={care.ring[3] * 0.72} />
-          {care.steps.map((q, i) => (
-            <ellipse key={i} className={styles.step} style={{ ["--i" as string]: i } as CSSProperties} cx={q[0]} cy={q[1]} rx="8" ry="3" />
-          ))}
-          {/* the read-out is tied to the patient and to the clinician's tablet */}
-          <path className={`${styles.ink} ${styles.leader}`} d={`M${care.chip[0] + 28},${care.chip[1] + 2} L${J.head[0] - 6},${J.head[1] - 20}`} />
-          <path className={`${styles.ink} ${styles.leader}`} d={`M${care.tablet[0]},${care.tablet[1] - 4} L${care.chip[0] + 92},${care.chip[1] + 2}`} />
-          <circle cx={care.tablet[0]} cy={care.tablet[1] - 4} r="2" className={styles.node} />
         </g>
       </svg>
 
-      {/* ── Role tags, hung from the anchor dots ── */}
-      {HERO_OPTIONS.map((o) => {
-        const role = o.id === "pose" ? copy.core : o.id === "securevision" ? copy.secure : copy.care;
-        return (
-          <span key={o.id} className={styles.tag} data-core={o.id === "pose" || undefined} style={{ left: `calc(${(o.dot[0] * 100).toFixed(3)}% - 0.4rem)`, top: `${(o.dot[1] * 100).toFixed(3)}%` }}>
-            <span className={styles.tagRole}>{role.role}</span>
-            <span className={styles.tagPlace}>{role.place}</span>
-          </span>
-        );
-      })}
-
-      {/* ── SecureVision: track labels and the read-out ── */}
-      {secure.people.map((p, k) => p.label !== false && (
-        <span key={k} className={styles.trackTag} data-alert={p.flow === "against" || undefined} style={{ left: pct(p.box[0], W), top: pct(p.box[1], H), ["--k" as string]: k } as CSSProperties}>
-          {p.flow === "against" ? (
-            <>
-              <b>{copy.secure.flag.title}</b> {copy.secure.flag.note}
-            </>
-          ) : (
-            <>
-              {p.id} · {p.speed}
-            </>
-          )}
-        </span>
-      ))}
-      <div className={`${styles.chip} ${styles.chipSecure}`} style={{ left: pct(secure.chip[0], W), top: pct(secure.chip[1], H) }}>
-        <p className={styles.chipTitle}>
-          <i className={styles.live} /> {copy.secure.title}
-        </p>
-        {copy.secure.rows.map((r) => (
-          <p key={r.label} className={styles.row} data-tone={"tone" in r ? r.tone : undefined}>
-            <span>{r.label}</span>
-            <b>
-              {"meter" in r && (
-                <i className={styles.meter}>
-                  <i style={{ width: `${r.meter * 100}%` }} />
-                </i>
-              )}
-              {r.value}
-            </b>
-          </p>
-        ))}
-      </div>
-
-      {/* ── MobilityCare: the read-out ── */}
-      <div className={`${styles.chip} ${styles.chipCare}`} style={{ left: pct(care.chip[0], W), bottom: pct(H - care.chip[1], H) }}>
-        <p className={styles.chipTitle}>
-          <i className={styles.live} /> {copy.care.title}
-        </p>
-        {copy.care.rows.map((r) => (
-          <p key={r.label} className={styles.row}>
-            <span>{r.label}</span>
-            <b>{r.value}</b>
-          </p>
-        ))}
-        <p className={styles.row}>
-          <span>{copy.care.trend.label}</span>
-          <b>
-            <svg className={styles.spark} viewBox="0 0 70 18" preserveAspectRatio="none">
-              <polyline points={copy.care.trend.points.map((v, i) => `${(i / (copy.care.trend.points.length - 1)) * 68 + 1},${17 - v * 16}`).join(" ")} />
-            </svg>
-            {copy.care.trend.value}
-          </b>
-        </p>
-      </div>
     </div>
   );
 }

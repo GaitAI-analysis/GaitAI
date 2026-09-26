@@ -51,7 +51,17 @@ import styles from "./herowalker.module.css";
  * One stride is 1176ms, the rail's `--stride` (102 steps/min). The clock
  * only runs while the hero is visible and the tab is in front, and resumes
  * where it stopped. Reduced motion shows him standing mid-stride, still.
- * Decorative: `aria-hidden`, no pointer events.
+ * The canvas is decorative: `aria-hidden`, no pointer events.
+ *
+ * ── THE DETAILED READ-OUT IS ASKED FOR, NOT SHOWN ─────────────────────────
+ * At rest he walks with only the quiet analysis on him: skeleton, joint
+ * markers and the foot-contact trace (founder, 2026-09-26: "the resting
+ * walking model should remain clean"). The biomechanics TEXT, the joint
+ * angles block and the gait-event words (heel strike, toe off...), appears
+ * only when the visitor asks: pointer over him, or a click / tap / Enter on
+ * the invisible button laid over his figure, which pins it open until a
+ * second press, a press elsewhere or Escape. It eases in over ~200ms with a
+ * 4px rise and eases out the same way (`detail`, separate from `level`).
  */
 
 const STRIDE_MS = 1176;
@@ -106,6 +116,20 @@ const PREFETCH = (() => {
 
 function currentTheme(): Theme {
   return document.documentElement.classList.contains("light") ? "light" : "dark";
+}
+
+/** The walker's hit area, in plate fractions: his figure from crown to
+    soles, and as wide as he drifts. */
+function hitStyle(t: WalkTheme): CSSProperties {
+  const [W, H] = t.plate;
+  const half = t.figH * 0.2 + t.drift;
+  const top = t.feetY - t.figH * 1.04;
+  return {
+    left: `${((t.hipX - half) / W) * 100}%`,
+    top: `${(top / H) * 100}%`,
+    width: `${((half * 2) / W) * 100}%`,
+    height: `${((t.feetY + 10 - top) / H) * 100}%`,
+  };
 }
 
 /** The canvas box: the whole panel, with its left edge along the divider. */
@@ -169,7 +193,9 @@ const BONES: readonly (readonly [JointName, JointName, boolean])[] = [
   ["Hips", "RightUpLeg", true], ["RightUpLeg", "RightLeg", true], ["RightLeg", "RightFoot", true], ["RightFoot", "RightToeBase", true],
   ["Hips", "LeftUpLeg", false], ["LeftUpLeg", "LeftLeg", false], ["LeftLeg", "LeftFoot", false], ["LeftFoot", "LeftToeBase", false],
 ];
-const NODES: readonly JointName[] = ["RightArm", "LeftArm", "RightForeArm", "LeftForeArm", "RightHand", "LeftHand", "Hips", "RightUpLeg", "LeftUpLeg", "RightLeg", "LeftLeg", "RightFoot", "LeftFoot"];
+/* The standard keypoints: head, shoulders, elbows, wrists, hips, knees,
+   ankles. Never a node at the pelvis centre (founder, 2026-09-26). */
+const NODES: readonly JointName[] = ["Head", "RightArm", "LeftArm", "RightForeArm", "LeftForeArm", "RightHand", "LeftHand", "RightUpLeg", "LeftUpLeg", "RightLeg", "LeftLeg", "RightFoot", "LeftFoot"];
 const ANGLES = [
   ["Hip flexion", "RightUpLeg", 3],
   ["Knee flexion", "RightLeg", 4],
@@ -186,17 +212,21 @@ function analysis(
   place: { fx: number; fy: number; k: number },
   px: number,
   L: number,
+  D: number,
 ) {
   const N = t.joints.length;
-  // Deep bronze on the pale day plate, warm champagne on the night one: both
-  // hold ~4.5:1 against their ribbon field, so the read-outs never dissolve.
-  const rgb = theme === "light" ? "112,80,26" : "242,224,184";
+  // Muted cobalt on the pale day plate, warm ivory-champagne on the night one
+  // (founder, 2026-09-26): both hold against their ribbon field.
+  const rgb = theme === "light" ? "44,70,122" : "242,224,184";
   const ink = (a: number) => `rgba(${rgb},${Math.max(0, Math.min(1, a)).toFixed(3)})`;
   // Type sits on a soft halo of the plate's own tone (pearl by day, deep navy
   // by night) so it stays legible over the ribbons and the body alike.
   const halo = theme === "light" ? "rgba(250,248,242,0.95)" : "rgba(5,9,22,0.9)";
   // shadowBlur ignores the transform: it is in device pixels.
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  // Type sizes, CSS px. Night reads at 11px minimum (founder, 2026-09-26: "no tiny
+  // dashboard text" on the dark hero); day keeps the sizes it was approved at.
+  const T = theme === "dark" ? { label: 11.5, value: 15, event: 11, step: 38 } : { label: 9.5, value: 13, event: 10, step: 33 };
   const text = (s: string, x: number, y: number) => {
     ctx.save();
     ctx.shadowColor = halo;
@@ -216,13 +246,16 @@ function analysis(
   const cur = t.joints[i];
   const frameMs = STRIDE_MS / N;
 
-  // Joints: the near side full, the far side dimmer.
+  // The skeleton. At rest a faint structure only (thin, low, no glow); asked
+  // for (D) or with Pose open (L) it firms into the full pose. The near side
+  // is always stronger than the far one.
+  const E = Math.max(L, D);
   ctx.lineCap = "round";
-  ctx.lineWidth = px * (1.2 + 0.2 * L);
+  ctx.lineWidth = px * (0.9 + 0.4 * E);
   for (const [p, q, near] of BONES) {
     const [x0, y0] = at(cur, p);
     const [x1, y1] = at(cur, q);
-    ctx.strokeStyle = ink(near ? 0.62 + 0.3 * L : 0.34 + 0.24 * L);
+    ctx.strokeStyle = ink(near ? 0.3 + 0.55 * E : 0.16 + 0.34 * E);
     ctx.beginPath();
     ctx.moveTo(x0, y0);
     ctx.lineTo(x1, y1);
@@ -231,16 +264,19 @@ function analysis(
   for (const n of NODES) {
     const [x, y] = at(cur, n);
     const near = !n.startsWith("Left");
-    const dim = near ? 1 : 0.55;
-    const r = px * (near ? 2.1 + 0.7 * L : 1.5 + 0.4 * L);
-    const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 3.2);
-    halo.addColorStop(0, ink((0.46 + 0.3 * L) * dim));
-    halo.addColorStop(1, ink(0));
-    ctx.fillStyle = halo;
-    ctx.beginPath();
-    ctx.arc(x, y, r * 3.2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = theme === "light" ? ink(dim) : `rgba(255,246,226,${((0.9 + 0.1 * L) * dim).toFixed(3)})`;
+    const dim = (near ? 1 : 0.55) * (0.45 + 0.55 * E);
+    const r = px * (near ? 1.3 + 0.7 * E : 1 + 0.4 * E);
+    // A soft halo only once the detail is asked for, never at rest.
+    if (E > 0.05) {
+      const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 2.6);
+      halo.addColorStop(0, ink(0.35 * E * dim));
+      halo.addColorStop(1, ink(0));
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 2.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = theme === "light" ? ink(dim) : `rgba(255,246,226,${(0.9 * dim).toFixed(3)})`;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
@@ -255,14 +291,14 @@ function analysis(
     const y0 = Math.max(hy, ty) + 1.5 * px;
     const px0 = hx + (tx - hx) * c;
     const near = side === "Right";
-    ctx.strokeStyle = ink((near ? 0.75 : 0.5) * (0.75 + 0.25 * L));
+    ctx.strokeStyle = ink((near ? 0.75 : 0.5) * (0.45 + 0.55 * E));
     ctx.lineWidth = px * 1.6;
     ctx.beginPath();
     ctx.moveTo(hx, y0);
     ctx.lineTo(px0, y0);
     ctx.stroke();
     const g = ctx.createRadialGradient(px0, y0, 0, px0, y0, 6 * px);
-    g.addColorStop(0, ink(0.9 * (0.8 + 0.2 * L)));
+    g.addColorStop(0, ink(0.9 * (0.5 + 0.5 * E)));
     g.addColorStop(1, ink(0));
     ctx.fillStyle = g;
     ctx.beginPath();
@@ -272,7 +308,7 @@ function analysis(
 
   // Events: a word beside the foot when it happens, then fading; the landing
   // heel also rings once.
-  ctx.font = `600 ${(10 * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
+  ctx.font = `600 ${(T.event * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
   ctx.textAlign = "left";
   // One word per foot: the newest event replaces the one before it, so two
   // readings never print over each other in the same place.
@@ -281,6 +317,9 @@ function analysis(
     const ago = (((f - e) % N) + N) % N;
     newest[s] = Math.min(newest[s] ?? Infinity, ago);
   }
+  // The words and the angles are the detailed read-out: drawn only as far as
+  // it has been asked for (D), rising 4px into place as it arrives.
+  const rise = (1 - D) * 4 * px;
   for (const [e, s, type] of HERO_GAIT.events) {
     const ago = (((f - e) % N) + N) % N; // frames since this event last happened
     const ms = ago * frameMs;
@@ -289,9 +328,11 @@ function analysis(
     const a = (1 - ms / EVENT_MS) ** 1.4;
     const [ax, ay] = at(cur, `${side}Foot`);
     const lift = (ms / EVENT_MS) * 6 * px;
-    const y = ay - (s === "l" ? 30 : 18) * px - lift;
-    ctx.fillStyle = ink((0.88 + 0.12 * L) * a);
-    text(`${s.toUpperCase()}  ${type.toUpperCase()}`, ax + 10 * px, y);
+    const y = ay - (s === "l" ? 30 : 18) * px - lift + rise;
+    if (D > 0.01) {
+      ctx.fillStyle = ink((0.88 + 0.12 * L) * a * D);
+      text(`${s.toUpperCase()}  ${type.toUpperCase()}`, ax + 10 * px, y);
+    }
     if (type === "Heel strike" && ms < 360) {
       const g = ms / 360;
       const [hx, hy] = at(t.joints[e], `${side}Heel`);
@@ -304,14 +345,15 @@ function analysis(
   }
 
   // Angles of the near leg: a small fixed block behind his hips, a leader
-  // from each reading to its joint.
+  // from each reading to its joint. Only while the read-out is asked for.
+  if (D <= 0.01) return;
   const A = HERO_GAIT.angles[i];
-  const al = 0.86 + 0.14 * L;
-  const by = t.feetY - t.figH * 0.52;
-  const step = 33 * px;
+  const al = (0.86 + 0.14 * L) * D;
+  const by = t.feetY - t.figH * 0.52 + rise;
+  const step = T.step * px;
   // The block's right edge, pushed right only as far as it takes for the
   // widest label to clear the panel's divider (the canvas is clipped there).
-  ctx.font = `600 ${(9.5 * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
+  ctx.font = `600 ${(T.label * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
   const widest = Math.max(...ANGLES.map(([label]) => ctx.measureText(label.toUpperCase()).width));
   const edge = (y: number) => t.divider.b + t.divider.m * y + 3;
   const clear = Math.max(edge(by - 20 * px), edge(by + 2 * step + 5 * px)) + 10 * px;
@@ -332,10 +374,10 @@ function analysis(
     ctx.arc(x - 4 * px, jy, 1.6 * px, 0, Math.PI * 2);
     ctx.fillStyle = ink(al * 0.8);
     ctx.fill();
-    ctx.font = `600 ${(9.5 * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
+    ctx.font = `600 ${(T.label * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
     ctx.fillStyle = ink(al * 0.85);
-    text(label.toUpperCase(), bx, y - 11 * px);
-    ctx.font = `700 ${(13 * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
+    text(label.toUpperCase(), bx, y - (T.label + 1.5) * px);
+    ctx.font = `700 ${(T.value * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
     ctx.fillStyle = ink(al);
     text(`${A[idx]}°`, bx, y + 3 * px);
   });
@@ -343,7 +385,7 @@ function analysis(
 }
 
 /** Draw one frame of the shot at `tau` ms of walking. */
-function paint(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, a: Assets, tau: number, level = 0) {
+function paint(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, a: Assets, tau: number, level = 0, detail = 0) {
   const t = HERO_WALK[a.theme];
   const scale = a.hi ? t.scales.hi : t.scales.lo;
   const N = scale.frames.length;
@@ -411,16 +453,41 @@ function paint(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, a: Asse
   ctx.drawImage(a.atlas, ax, ay, aw, ah, fx + ox * q, fy + oy * q, aw * q, ah * q);
 
   // 4. The analysis layer over him; `dpr / s` is one CSS pixel in plate px.
-  analysis(ctx, t, a.theme, i, f % N, { fx, fy, k }, dpr / s, level);
+  analysis(ctx, t, a.theme, i, f % N, { fx, fy, k }, dpr / s, level, detail);
   publishGait({ i, f: f % N });
 }
 
 export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
   const reduced = usePrefersReducedMotion();
+  /* The detailed read-out: hovered (a real pointer over him) or pinned (a
+     click, tap or Enter), until a second press, a press elsewhere or Esc. */
+  const [hover, setHover] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const detailed = hover || pinned;
   const want = useRef(open ? 1 : 0);
+  const wantDetail = useRef(0);
+  const repaint = useRef<(() => void) | null>(null);
   useEffect(() => {
-    want.current = open ? 1 : 0;
-  }, [open]);
+    want.current = open || detailed ? 1 : 0;
+    wantDetail.current = detailed ? 1 : 0;
+    repaint.current?.();
+  }, [open, detailed]);
+
+  useEffect(() => {
+    if (!pinned) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPinned(false);
+    };
+    const onDown = (e: PointerEvent) => {
+      if (!(e.target as Element | null)?.closest?.("[data-walker-hit]")) setPinned(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, [pinned]);
   const light = useRef<HTMLCanvasElement>(null);
   const dark = useRef<HTMLCanvasElement>(null);
   const [assets, setAssets] = useState<Assets | null>(null);
@@ -461,11 +528,15 @@ export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
     if (!canvas || !ctx) return;
 
     if (reduced) {
-      const still = () => paint(ctx, canvas, assets, 0, want.current);
+      const still = () => paint(ctx, canvas, assets, 0, want.current, wantDetail.current);
       still();
+      repaint.current = still;
       const onResize = still;
       window.addEventListener("resize", onResize);
-      return () => window.removeEventListener("resize", onResize);
+      return () => {
+        repaint.current = null;
+        window.removeEventListener("resize", onResize);
+      };
     }
 
     let raf = 0;
@@ -473,13 +544,16 @@ export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
     let last = 0;
     let seen = true;
     let level = want.current;
+    let detail = wantDetail.current;
     const frame = (now: number) => {
       const dt = last ? Math.min(now - last, 100) : 0;
       walked += dt;
       last = now;
       // The analysis layer eases between quiet and prominent in ~300ms.
       level += (want.current - level) * Math.min(1, dt / 300);
-      paint(ctx, canvas, assets, walked, level);
+      // The detailed read-out arrives and leaves in ~200ms.
+      detail += (wantDetail.current - detail) * Math.min(1, dt / 80);
+      paint(ctx, canvas, assets, walked, level, detail);
       raf = requestAnimationFrame(frame);
     };
     const run = () => {
@@ -542,6 +616,27 @@ export function HeroWalker({ analysis: open = false }: { analysis?: boolean }) {
         style={boxStyle(HERO_WALK.dark)}
         data-show={ready && theme === "dark" ? "true" : undefined}
       />
+      {/* The way in to the detailed read-out: an invisible button over his
+          figure (and the width he drifts through), one per theme. Hover is
+          only a shortcut; press, tap and keyboard all reach it. */}
+      {(["light", "dark"] as const).map((th) => (
+        <button
+          key={th}
+          type="button"
+          data-walker-hit=""
+          className={`${styles.hit} ${styles[th]}`}
+          style={hitStyle(HERO_WALK[th])}
+          aria-pressed={pinned}
+          aria-label="Show how this walk is analysed: joint angles and gait events"
+          onPointerEnter={(e) => {
+            if (e.pointerType === "mouse") setHover(true);
+          }}
+          onPointerLeave={(e) => {
+            if (e.pointerType === "mouse") setHover(false);
+          }}
+          onClick={() => setPinned((v) => !v)}
+        />
+      ))}
     </>
   );
 }

@@ -20,11 +20,11 @@
 }
 
 :global(.dark) .body {
-  --ink: #f2f6fd;
-  --label: #a3aec3;
-  --gold: #dcc08a;
-  --gold-deep: #dcc08a;
-  --rule: rgb(255 255 255 / 0.1);
+  --ink: #f7f8fb;
+  --label: rgb(235 240 248 / 0.72);
+  --gold: #c9a55d;
+  --gold-deep: #d9bb7c;
+  --rule: rgb(255 255 255 / 0.14);
 }
 
 .category {

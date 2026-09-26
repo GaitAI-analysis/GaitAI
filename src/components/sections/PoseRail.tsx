@@ -179,6 +179,50 @@ function drawWave(c: HTMLCanvasElement, f: number, labels: boolean) {
   ctx.fillRect(w - 3 * dpr, top, 1 * dpr, bottom - top);
 }
 
+/**
+ * THE QUIET TAG (founder, 2026-09-26). At rest the rail is a small telemetry
+ * tag like the two beside the other scenes: its title and four readings
+ * (gait speed, cadence, symmetry, balance), nothing more. These are the
+ * shorter wordings a 160px tag needs; the open rail shows every row in full.
+ */
+const TAG: Record<string, { label?: string; value?: string }> = {
+  Cadence: { value: "102/min" },
+  "Step symmetry": { label: "Symmetry" },
+  "Balance stability": { label: "Balance" },
+};
+
+/**
+ * JOINT METRICS (founder, 2026-09-26). The near leg's hip, knee and ankle
+ * angles, the same numbers the walker's detailed read-out prints beside his
+ * joints, so they are not lost when that read-out is closed. Live from the
+ * capture (HERO_GAIT.angles, columns 3-5), each with a hairline meter on
+ * its own clinical range: a cool-grey track, a zero tick, and a warm-gold
+ * fill from zero to the reading.
+ */
+const JOINTS = [
+  { label: "Hip flexion", col: 3, min: -30, max: 45 },
+  { label: "Knee flexion", col: 4, min: 0, max: 75 },
+  { label: "Ankle angle", col: 5, min: -20, max: 30 },
+] as const;
+
+const span = (j: (typeof JOINTS)[number], v: number) => {
+  const at = (x: number) => ((Math.max(j.min, Math.min(j.max, x)) - j.min) / (j.max - j.min)) * 100;
+  const z = at(0), a = at(v);
+  return { zero: z, left: Math.min(z, a), width: Math.abs(a - z) };
+};
+
+/** The full wording for the open rail, the short one for the quiet tag;
+    CSS shows one or the other. */
+function Both({ full, short }: { full: string; short?: string }) {
+  if (!short || short === full) return <>{full}</>;
+  return (
+    <>
+      <span className={styles.full}>{full}</span>
+      <span className={styles.short}>{short}</span>
+    </>
+  );
+}
+
 export function PoseRail({ titleId }: { titleId: string }) {
   const root = useRef<HTMLDivElement>(null);
 
@@ -204,6 +248,8 @@ export function PoseRail({ titleId }: { titleId: string }) {
     const tickL = q("tick-l"), tickR = q("tick-r"), barL = q<HTMLElement>("bar-l"), barR = q<HTMLElement>("bar-r");
     const level = q<HTMLElement>("level"), needle = q<SVGElement>("needle");
     const waves = [q<HTMLCanvasElement>("wave-mini"), q<HTMLCanvasElement>("wave")];
+    const fills: Record<number, HTMLElement | null> = {};
+    for (const j of JOINTS) fills[j.col] = q<HTMLElement>(`fill-${j.col}`);
 
     const onTick = ({ i, f }: GaitTick) => {
       const [pl, pr] = HERO_GAIT.phase[i];
@@ -227,8 +273,21 @@ export function PoseRail({ titleId }: { titleId: string }) {
       setAttr(barL, "bl", "data-on", String(sl === 1));
       setAttr(barR, "br", "data-on", String(sr === 1));
       if (level) level.style.transform = `rotate(${(-HERO_GAIT.obliq[i]).toFixed(1)}deg)`;
+      for (const j of JOINTS) {
+        const v = HERO_GAIT.angles[i][j.col];
+        setText(`joint-${j.col}`, `${v}°`);
+        const fill = fills[j.col];
+        if (fill) {
+          const m = span(j, v);
+          fill.style.left = `${m.left.toFixed(1)}%`;
+          fill.style.width = `${m.width.toFixed(1)}%`;
+        }
+      }
       if (needle) needle.style.transform = `rotate(${(-40 + (HERO_GAIT.angles[i][4] / 70) * 80).toFixed(1)}deg)`;
-      for (const c of waves) if (c && c.clientWidth) drawWave(c, f, c.dataset.g === "wave");
+      // At night the 7px L/R letters under the strikes are dropped (founder, 2026-09-26: no
+      // micro-text on the dark hero); the gold strike marks stay, and the lanes above name L and R.
+      const night = document.documentElement.classList.contains("dark");
+      for (const c of waves) if (c && c.clientWidth) drawWave(c, f, c.dataset.g === "wave" && !night);
     };
     return subscribeGait(onTick);
   }, []);
@@ -328,17 +387,50 @@ export function PoseRail({ titleId }: { titleId: string }) {
         <span className={styles.liveDot} aria-hidden="true" />
       </p>
       <dl className={styles.rows}>
-        {POSE_RAIL.rows.map((row, i) => (
-          <div key={row.label} className={styles.row} style={{ ["--i" as string]: i }}>
-            <dt className={styles.label}>{row.label}</dt>
-            <dd className={styles.value}>
-              <span>{row.value}</span>
-              {row.instrument ? <Instrument kind={row.instrument} /> : null}
-            </dd>
-          </div>
-        ))}
+        {POSE_RAIL.rows.map((row, i) => {
+          const tag = TAG[row.label];
+          return (
+            <div key={row.label} className={styles.row} data-tag={tag ? "" : undefined} style={{ ["--i" as string]: i }}>
+              <dt className={styles.label}>
+                <Both full={row.label} short={tag?.label} />
+              </dt>
+              <dd className={styles.value}>
+                <span>
+                  <Both full={row.value} short={tag?.value} />
+                </span>
+                {row.instrument ? <Instrument kind={row.instrument} /> : null}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
       <p className={styles.privacy}>{POSE_RAIL.privacy}</p>
+
+      <div className={styles.joints}>
+        <p className={styles.jointsTitle}>Joint metrics</p>
+        <dl className={styles.jointList}>
+          {JOINTS.map((j) => {
+            const v = HERO_GAIT.angles[0][j.col];
+            const m = span(j, v);
+            return (
+              <div key={j.col} className={styles.joint}>
+                <dt className={styles.jointLabel}>{j.label}</dt>
+                <dd className={styles.jointValue} data-g={`joint-${j.col}`}>
+                  {v}°
+                </dd>
+                <span className={styles.meter} aria-hidden="true">
+                  <span className={styles.meterZero} style={{ left: `${m.zero.toFixed(1)}%` }} />
+                  <span
+                    className={styles.meterFill}
+                    data-g={`fill-${j.col}`}
+                    style={{ left: `${m.left.toFixed(1)}%`, width: `${m.width.toFixed(1)}%` }}
+                  />
+                </span>
+              </div>
+            );
+          })}
+        </dl>
+      </div>
 
       <div className={styles.gait} aria-hidden="true">
         <p className={styles.gaitTitle}>

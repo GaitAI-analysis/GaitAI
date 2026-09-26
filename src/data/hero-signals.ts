@@ -21,6 +21,13 @@
 
 export type XY = readonly [number, number];
 
+/** A full-body pose: the major keypoints of a standard pose estimate. */
+export type Pose = Readonly<Record<
+  | "head" | "neck" | "shoulderL" | "shoulderR" | "elbowL" | "elbowR" | "wristL" | "wristR"
+  | "pelvis" | "hipL" | "hipR" | "kneeL" | "kneeR" | "ankleL" | "ankleR",
+  XY
+>>;
+
 export type Pedestrian = {
   /** The tracking box painted into the plate: x0, y0, x1, y1. */
   box: readonly [number, number, number, number];
@@ -34,6 +41,10 @@ export type Pedestrian = {
   flow: "with" | "against";
   /** false: no label above the box (where it would run into the caption). */
   label?: boolean;
+  /** The one primary tracked subject carries a full-body pose (founder,
+      2026-09-26: never partial lower-body points, never on everyone).
+      Keypoints read off the plate at 3x, seen from behind. */
+  pose?: Pose;
 };
 
 export type SignalTheme = {
@@ -46,11 +57,7 @@ export type SignalTheme = {
   };
   care: {
     /** Named joints of the patient, for the same skeleton the engine draws. */
-    joints: Readonly<Record<
-      | "head" | "neck" | "shoulderL" | "shoulderR" | "elbowL" | "elbowR" | "wristL" | "wristR"
-      | "pelvis" | "hipL" | "hipR" | "kneeL" | "kneeR" | "ankleL" | "ankleR",
-      XY
-    >>;
+    joints: Pose;
     /** The gait ring on the floor under the patient: centre and radii. */
     ring: readonly [number, number, number, number];
     /** His last two footfalls, behind him (nearer the camera). */
@@ -73,7 +80,15 @@ export const HERO_SIGNALS: Record<"light" | "dark", SignalTheme> = {
       vp: [700, 592],
       people: [
         { box: [519, 491, 589, 660], id: "Person 14", speed: "1.2 m/s", pelvis: [554, 585], feet: [[548, 656], [560, 651]], flow: "with" },
-        { box: [625, 449, 721, 721], id: "Person 09", speed: "1.4 m/s", pelvis: [672, 598], feet: [[660, 709], [679, 714]], flow: "with" },
+        {
+          box: [625, 449, 721, 721], id: "Person 09", speed: "1.4 m/s", pelvis: [672, 598], feet: [[660, 709], [679, 714]], flow: "with",
+          pose: {
+            head: [677, 477], neck: [676, 497], shoulderL: [644, 508], shoulderR: [707, 510],
+            elbowL: [635, 552], elbowR: [713, 552], wristL: [633, 593], wristR: [711, 595],
+            pelvis: [675, 597], hipL: [658, 597], hipR: [692, 597],
+            kneeL: [658, 643], kneeR: [687, 643], ankleL: [663, 687], ankleR: [677, 693],
+          },
+        },
         { box: [753, 497, 819, 657], id: "Person 21", speed: "0.9 m/s", pelvis: [782, 580], feet: [[775, 649], [790, 646]], flow: "against" },
       ],
       chip: [318, 626],
@@ -99,7 +114,15 @@ export const HERO_SIGNALS: Record<"light" | "dark", SignalTheme> = {
       vp: [700, 562],
       people: [
         { box: [466, 444, 552, 665], id: "Person 14", speed: "1.2 m/s", pelvis: [510, 565], feet: [[504, 661], [517, 657]], flow: "with", label: false },
-        { box: [622, 402, 729, 696], id: "Person 09", speed: "1.4 m/s", pelvis: [675, 580], feet: [[659, 689], [679, 691]], flow: "with" },
+        {
+          box: [622, 402, 729, 696], id: "Person 09", speed: "1.4 m/s", pelvis: [675, 580], feet: [[659, 689], [679, 691]], flow: "with",
+          pose: {
+            head: [676, 433], neck: [676, 455], shoulderL: [637, 468], shoulderR: [713, 468],
+            elbowL: [628, 518], elbowR: [720, 518], wristL: [631, 567], wristR: [717, 568],
+            pelvis: [676, 573], hipL: [655, 573], hipR: [697, 573],
+            kneeL: [657, 625], kneeR: [687, 625], ankleL: [660, 672], ankleR: [678, 682],
+          },
+        },
         { box: [766, 460, 838, 636], id: "Person 21", speed: "0.9 m/s", pelvis: [802, 560], feet: [[795, 632], [808, 629]], flow: "against" },
       ],
       chip: [300, 628],
@@ -121,34 +144,3 @@ export const HERO_SIGNALS: Record<"light" | "dark", SignalTheme> = {
     chevrons: [4, 8],
   },
 };
-
-/** The read-outs. They carry what the cards do NOT show live (the cards own gait
-    speed, symmetry and pedestrian flow, which tick), so nothing here can
-    disagree with a number beside it. */
-export const HERO_SIGNAL_COPY = {
-  secure: {
-    role: "Application",
-    place: "Public spaces",
-    title: "SecureVision",
-    rows: [
-      { label: "Tracks", value: "3 anonymised" },
-      { label: "Crowd density", value: "Low", meter: 0.3 },
-      { label: "Flagged path", value: "1 counter-flow", tone: "alert" },
-    ],
-    flag: { title: "Counter-flow", note: "" },
-  },
-  care: {
-    role: "Application",
-    place: "Clinical care",
-    title: "MobilityCare",
-    rows: [
-      { label: "Cadence", value: "94 /min" },
-      { label: "Fall risk", value: "Low" },
-    ],
-    trend: { label: "Recovery", value: "6 weeks", points: [0.18, 0.22, 0.2, 0.34, 0.42, 0.47, 0.58, 0.66] },
-  },
-  core: {
-    role: "Core engine",
-    place: "Powers both",
-  },
-} as const;

@@ -47,3 +47,22 @@
 :global(.dark) .dark {
   display: block;
 }
+
+/* The way in to the detailed read-out (HeroWalker's invisible button over
+   the figure). Above the canvas, under the dots, pills and rail. A quiet
+   gold focus ring for the keyboard; nothing visible otherwise. */
+.hit {
+  position: absolute;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hit:focus-visible {
+  outline: 1.5px solid rgb(201 166 103 / 0.8);
+  outline-offset: 4px;
+}

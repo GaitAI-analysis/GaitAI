@@ -236,6 +236,111 @@
   color: #9a7c43;
 }
 
+/* ── Joint metrics ──
+   The near leg's hip, knee and ankle, live. A label and a reading on one
+   line, and under them a hairline meter on the joint's clinical range: a
+   cool-grey track, a small zero tick, and a warm-gold fill from zero to the
+   reading. The fill moves with the stride; nothing else on it does. */
+.joints {
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgb(201 176 122 / 0.28);
+}
+
+.jointsTitle {
+  margin: 0 0 0.45rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rail-label);
+}
+
+.jointList {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.joint {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  row-gap: 0.28rem;
+}
+
+.jointLabel {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--rail-label);
+}
+
+.jointValue {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--rail-ink);
+  text-align: right;
+}
+
+.meter {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 3px;
+  border-radius: 3px;
+  background: rgb(127 139 163 / 0.22);
+}
+
+.meterZero {
+  position: absolute;
+  top: -2px;
+  width: 1px;
+  height: 7px;
+  background: rgb(127 139 163 / 0.6);
+}
+
+.meterFill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgb(179 144 82 / 0.55), var(--rail-gold));
+}
+
+:global(.dark) .joints {
+  border-top-color: rgb(255 255 255 / 0.14);
+}
+
+:global(.dark) .meter {
+  background: rgb(255 255 255 / 0.14);
+}
+
+:global(.dark) .meterZero {
+  background: rgb(255 255 255 / 0.45);
+}
+
+@media (min-width: 1024px) {
+  :global(.dark) .jointsTitle,
+  :global(.dark) .jointLabel {
+    font-size: 0.6875rem;
+  }
+
+  :global(.dark) .jointValue {
+    font-size: 0.875rem;
+  }
+
+  .rail[data-fit="dense"] .joints {
+    margin-top: 0.35rem;
+    padding-top: 0.3rem;
+  }
+
+  .rail[data-fit="dense"] .jointList {
+    gap: 0.22rem;
+  }
+}
+
 /* ── The instruments ── all hairline, slate with champagne where it lives */
 
 .wave {
@@ -777,5 +882,253 @@
 
   .rail[data-closing="true"] {
     animation-duration: 120ms;
+  }
+}
+
+/* ── NIGHT LEGIBILITY (founder, 2026-09-26) ──
+   On the dark picture the rail was dense and dark. At night, from 1024px:
+   the same navy glass as the cards (a 10px blur of its own), a little more
+   width and air, the three primary readings at 17px over 12.5px labels,
+   and the gait cycle set back as secondary: smaller, in the secondary tone,
+   nothing under 11px. */
+@media (min-width: 1024px) {
+  :global(.dark) .rail,
+  :global(.dark) .rail[data-open="true"] {
+    --rail-ink: #f7f8fb;
+    --rail-label: rgb(235 240 248 / 0.72);
+    --rail-gold: #c9a55d;
+    --rail-glass: rgb(8 17 35 / 0.86);
+    --rail-edge: rgb(255 255 255 / 0.14);
+
+    width: clamp(11.5rem, 11vw, 13.25rem);
+    padding: 0.95rem 1rem 0.9rem;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  :global(.dark) .rail {
+    opacity: 1;
+  }
+
+  :global(.dark) .title {
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  /* Rows are spaced by their own margin, not the grid gap: the quiet rail's
+     collapsed rows (4-6) must take no room at all. */
+  :global(.dark) .rows {
+    gap: 0;
+  }
+
+  :global(.dark) .row + .row {
+    margin-top: 0.6rem;
+  }
+
+  :global(.dark) .rail:not([data-open="true"]) .row:nth-child(n + 4) {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  :global(.dark) .cursor {
+    opacity: 0.5;
+  }
+
+  :global(.dark) .row {
+    gap: 0.2rem;
+    padding-top: 0.6rem;
+    border-top-color: rgb(255 255 255 / 0.14);
+  }
+
+  :global(.dark) .row:first-child {
+    padding-top: 0;
+  }
+
+  :global(.dark) .rail[data-open="true"] .row:nth-child(n + 4) {
+    padding-top: 0.6rem;
+    border-top-color: rgb(255 255 255 / 0.14);
+  }
+
+  :global(.dark) .label {
+    font-size: 0.78125rem;
+    letter-spacing: 0.01em;
+  }
+
+  :global(.dark) .value {
+    font-size: 1.0625rem;
+  }
+
+  :global(.dark) .privacy {
+    font-size: 0.6875rem;
+    border-top-color: rgb(255 255 255 / 0.14);
+  }
+
+  :global(.dark) .gait {
+    margin-top: 0.85rem;
+    padding-top: 0.7rem;
+    border-top-color: rgb(255 255 255 / 0.14);
+  }
+
+  :global(.dark) .gaitTitle {
+    margin-bottom: 0.45rem;
+    font-size: 0.6875rem;
+    color: var(--rail-label);
+  }
+
+  :global(.dark) .gaitTitle span {
+    color: var(--rail-label);
+  }
+
+  :global(.dark) .timeline {
+    gap: 0.4rem;
+  }
+
+  :global(.dark) .laneSide {
+    font-size: 0.6875rem;
+  }
+
+  :global(.dark) .lanePhase {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--rail-label);
+  }
+
+  :global(.dark) .track {
+    height: 3px;
+  }
+
+  :global(.dark) .signal {
+    height: 1.2rem;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+  }
+
+  :global(.dark) .legend,
+  :global(.dark) .signals dt,
+  :global(.dark) .phases li {
+    font-size: 0.6875rem;
+  }
+
+  :global(.dark) .signals dd {
+    font-size: 0.75rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .value {
+    font-size: 0.9375rem;
+  }
+}
+
+/* ── THE QUIET TAG (founder, 2026-09-26) ──
+   At rest the rail is a small always-visible telemetry tag, the same size
+   and voice as the SecureVision and MobilityCare tags beside the other
+   scenes (herosignals.module.css): 160px, 9px padding, an 11.5px title led
+   by the live dot, then Gait speed, Cadence, Symmetry and Balance at
+   9.5/10px. No instruments, no joint metrics, no gait cycle, no privacy
+   line. The same in both themes.
+   Opening it (dot, pill, introduction) is untouched: every rule here is
+   scoped to the rail while it is NOT open, so the full read-out comes back
+   exactly as it was. The night variants restate a few rules only to outrank
+   the night-legibility block above. */
+.short {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .rail:not([data-open="true"]) {
+    --rail-glass: rgb(250 249 245 / 0.74);
+    --rail-edge: rgb(168 137 79 / 0.34);
+
+    width: 10rem;
+    padding: 0.5rem 0.6rem 0.45rem;
+    border-radius: 8px;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgb(15 28 58 / 0.06);
+    opacity: 1;
+  }
+
+  :global(.dark) .rail:not([data-open="true"]) {
+    --rail-glass: rgb(8 17 35 / 0.86);
+    --rail-edge: rgb(255 255 255 / 0.14);
+
+    width: 10rem;
+    padding: 0.5rem 0.6rem 0.45rem;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgb(1 4 12 / 0.3);
+  }
+
+  .rail:not([data-open="true"]) .title,
+  :global(.dark) .rail:not([data-open="true"]) .title {
+    gap: 0.35rem;
+    margin: 0 0 0.3rem;
+    font-size: 0.71875rem;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+    text-transform: none;
+  }
+
+  .rail:not([data-open="true"]) .liveDot {
+    order: -1;
+    flex: none;
+    width: 0.3rem;
+    height: 0.3rem;
+  }
+
+  .rail:not([data-open="true"]) .rows {
+    gap: 0;
+  }
+
+  .rail:not([data-open="true"]) .row,
+  :global(.dark) .rail:not([data-open="true"]) .row,
+  :global(.dark) .rail:not([data-open="true"]) .row + .row,
+  :global(.dark) .rail:not([data-open="true"]) .row:nth-child(4) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.12rem 0;
+    border-top: 0;
+    line-height: 1.25;
+  }
+
+  .rail:not([data-open="true"]) .row:nth-child(4) {
+    max-height: none;
+    overflow: visible;
+    opacity: 1;
+  }
+
+  .rail:not([data-open="true"]) .label,
+  :global(.dark) .rail:not([data-open="true"]) .label {
+    font-size: 0.59375rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .rail:not([data-open="true"]) .value,
+  :global(.dark) .rail:not([data-open="true"]) .value {
+    font-size: 0.625rem;
+    font-weight: 600;
+  }
+
+  .rail:not([data-open="true"]) .full {
+    display: none;
+  }
+
+  .rail:not([data-open="true"]) .short {
+    display: inline;
+  }
+
+  /* Rows 1-4 only; row 4 is normally folded away at rest. Last, and with
+     a night twin, so the flex rule above can never bring a row back. */
+  .rail:not([data-open="true"]) .row:nth-child(n + 5),
+  :global(.dark) .rail:not([data-open="true"]) .row:nth-child(n + 5),
+  .rail:not([data-open="true"]) .joints,
+  .rail:not([data-open="true"]) .privacy,
+  .rail:not([data-open="true"]) .gait,
+  .rail:not([data-open="true"]) .value > :not(:first-child) {
+    display: none;
   }
 }

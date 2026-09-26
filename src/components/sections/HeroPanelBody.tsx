@@ -2,80 +2,72 @@
 
 import type { HeroOption } from "@/data/home-hero";
 import { assetPath } from "@/lib/paths";
-import { SPARK_POINTS, type Reading } from "./useHeroTelemetry";
+import type { Reading } from "./useHeroTelemetry";
 import styles from "./heropanels.module.css";
 
 /**
- * THE INSIDE OF A HERO PANEL — a telemetry read-out, not a specification.
+ * THE INSIDE OF A HERO PANEL — a technical annotation, not a product card.
  * =============================================================================
- * A parameter row is three things stacked, never a two-column table: the label
- * in small cool grey, the reading in deep navy, and — where the metric has a
- * scale — a hairline track under both. The eye reads down the labels, and the
- * tracks give the panel its second, quieter rhythm.
+ * The founder rejected the card concept outright (2026-09-26): the expanded
+ * state is a ~220px label floating beside the scene, written in the same
+ * small technical type as the read-out chips already in the hero
+ * (HeroSignals). A title, a one-line descriptor, SecureVision's preview
+ * frame as a small 16:9 strip (restored on the founder's correction the
+ * same day: smaller, never removed), then five or six "label  value" rows.
+ * No display-size numbers, no tracks, no sparklines, no icons.
  *
- * NO ICONS, anywhere in here, by instruction and because they would be the
- * only cartoon element on an otherwise photographic hero. What marks a row as
- * important is type and a warm-gold rule, not a glyph.
+ * The values are still LIVE (useHeroTelemetry): readings walk, states
+ * settle, and `key={reading.text}` on the roll span remounts a figure when
+ * it changes so the new value arrives from below. Rows that did not change
+ * do not animate.
  *
- * ── THE PALETTE IS DELIBERATELY NARROW ────────────────────────────────────
- * Deep navy, muted slate blue, off-white, cool grey, warm gold. No electric
- * blue, no neon, no saturated cyan: the picture behind these panels already
- * carries the only blue light in the composition, and a second one competing
- * with it is what made earlier passes look like a gaming overlay. Every colour
- * here is a token in heropanels.module.css; none is written inline.
- *
- * ── THE NUMBER ROLL ───────────────────────────────────────────────────────
- * `key={reading.text}` is load-bearing. React tears down the old figure and
- * mounts a new one whenever the printed value changes, which restarts the
- * `roll` animation — so a change reads as the new value arriving from below
- * rather than the old one being overwritten in place. Rows whose value has
- * not changed this tick do not animate at all, which is what keeps six rows
- * moving independently from looking like a flicker.
- *
- * ── THE SPARKLINE ─────────────────────────────────────────────────────────
- * A polyline over the metric's own remembered samples, normalised 0–1 by the
- * hook. It is drawn in a fixed 0–1 viewBox and stretched by CSS, so it costs
- * no layout maths and no resize listener. `vector-effect` keeps the stroke a
- * true hairline through that stretch. It is decorative: the number beside it
- * is the accessible value, so the SVG is hidden from assistive technology.
+ * What the annotation shows is presentation, so it lives here rather than in
+ * src/data/home-hero.ts (which another session owns): which of the data
+ * file's metrics appear, in what order, under which short label, and a
+ * shorter unit or value where the full one would not fit a 220px line.
+ * The palette is navy / cool grey / warm gold; no electric blue.
  */
 
-function Spark({ points }: { points: readonly number[] }) {
-  if (points.length < 2) return <span className={styles.sparkHold} />;
-  /* Oldest sample at the left; y is inverted because SVG grows downward. */
-  const d = points
-    .map((v, i) => `${i / (SPARK_POINTS - 1)},${1 - v}`)
-    .join(" ");
-  return (
-    <svg
-      className={styles.spark}
-      viewBox="0 0 1 1"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <polyline points={d} vectorEffect="non-scaling-stroke" />
-    </svg>
-  );
-}
+type Row = {
+  /** The metric's label in home-hero.ts. */
+  readonly metric: string;
+  /** What the annotation calls it. */
+  readonly label: string;
+  /** A shorter unit than the data file's ("people/min" → "/min"). */
+  readonly unit?: string;
+  /** A shorter word for a fixed value ("None detected" → "None"). */
+  readonly value?: string;
+};
+
+const CATEGORY: Record<string, string> = {
+  securevision: "Privacy-aware spatial intelligence",
+  mobilitycare: "Clinical movement intelligence",
+};
+
+const ROWS: Record<string, readonly Row[]> = {
+  securevision: [
+    { metric: "Pedestrian flow", label: "Pedestrian flow", unit: "/min" },
+    { metric: "Crowd flow", label: "Crowd flow" },
+    { metric: "Anomaly status", label: "Anomaly", value: "None" },
+    { metric: "Privacy mode", label: "Privacy" },
+    { metric: "Identity matching", label: "Identity" },
+  ],
+  mobilitycare: [
+    { metric: "Mobility score", label: "Mobility", unit: "/100" },
+    { metric: "Gait speed", label: "Gait speed" },
+    { metric: "Fall risk", label: "Fall risk" },
+    { metric: "Step symmetry", label: "Symmetry" },
+    { metric: "Balance stability", label: "Balance" },
+    { metric: "Recovery progress", label: "Recovery" },
+  ],
+};
 
 /**
- * SecureVision's preview: the founder's own frame, at the top of the panel.
- *
- * This used to be an abstract plan view — six marks drifting along two lanes.
- * The founder supplied a real one (2026-09-24) and asked for it exactly as
- * saved, so the drawing is gone and the photograph is here instead: an aerial
- * of a crossing with four pedestrians tracked.
- *
- * THE FRAME IS THEIRS; THE OVERLAY IS NOT. The reference draws its detection
- * boxes in a saturated electric blue, which is the one colour this hero does
- * not use. The photograph is untouched and nothing has been redrawn, but the
- * overlay has been pulled onto the panel's own slate and periwinkle, so it
- * belongs to the same palette as the rows beneath it. See
- * scripts/hero-preview/.
- *
- * Decorative: everything it shows is stated in the rows below, so repeating
- * it to a screen reader would be noise.
+ * SecureVision's preview: the founder's own aerial frame of four tracked
+ * pedestrians (public/images/hero/securevision-preview.png, 225x150, its
+ * overlay already pulled onto the panel palette by scripts/hero-preview/).
+ * Cropped to 16:9 by CSS, about 110px tall at the annotation's width.
+ * Decorative: the rows say everything it shows.
  */
 function FlowPreview() {
   return (
@@ -93,30 +85,6 @@ function FlowPreview() {
   );
 }
 
-/**
- * A category line under the title. Small, quiet, and the thing that tells
- * you in three words what kind of card this is before you read a number.
- * It lives here rather than in the data file because it is presentation —
- * and because another session owns that file tonight.
- */
-const CATEGORY: Record<string, string> = {
-  securevision: "Privacy-aware spatial intelligence",
-  mobilitycare: "Clinical movement intelligence",
-};
-
-/**
- * The one or two readings each card leads with. Everything else falls into
- * the grid below at a smaller rank.
- *
- * Only two cards reach this component. Pose analysis stopped being a card
- * in 57ed325 — it lights a rail beside the walking figure instead — so the
- * "layer" tier it used to carry is gone from here with it.
- */
-const LEAD: Record<string, readonly string[]> = {
-  securevision: ["Pedestrian flow"],
-  mobilitycare: ["Mobility score", "Gait speed"],
-};
-
 export function HeroPanelBody({
   option,
   readings,
@@ -124,90 +92,47 @@ export function HeroPanelBody({
   option: HeroOption;
   readings: readonly Reading[];
 }) {
-  const lead = LEAD[option.id] ?? [];
-  const rows = option.metrics
-    .map((metric, i) => ({ metric, reading: readings[i] }))
+  const rows = (ROWS[option.id] ?? [])
+    .map((row) => {
+      const i = option.metrics.findIndex((m) => m.label === row.metric);
+      return { row, reading: i >= 0 ? readings[i] : undefined };
+    })
     .filter((r) => r.reading);
-  const leading = rows.filter((r) => lead.includes(r.metric.label));
-  const rest = rows.filter((r) => !lead.includes(r.metric.label));
 
   return (
-    <>
+    <div className={styles.body}>
       <p className={styles.category}>{CATEGORY[option.id]}</p>
-
       {option.id === "securevision" ? <FlowPreview /> : null}
-
-      {/* THE LEAD. One or two readings at display size, so the card answers
-          "what is this" before it answers "what are the numbers". */}
-      {leading.length > 0 ? (
-        <dl className={styles.lead} data-count={leading.length}>
-          {leading.map(({ metric, reading }) => (
-            <div key={metric.label} className={styles.leadItem}>
-              <dt className={styles.leadLabel}>{metric.label}</dt>
-              <dd className={styles.leadValue}>
-                <span key={reading!.text} className={styles.roll}>
-                  {reading!.figure}
-                  {reading!.unit ? (
-                    <span
-                      className={styles.leadUnit}
-                      data-tight={reading!.unit === "%" ? "true" : undefined}
-                    >
-                      {reading!.unit}
-                    </span>
-                  ) : null}
-                </span>
-                {reading!.spark.length > 0 ? (
-                  <Spark points={reading!.spark} />
-                ) : null}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      ) : null}
-
-      {/* THE SUPPORTING GRID. Two columns, label above value, hairlines
-          between rows rather than boxes around them. */}
-      <dl className={styles.metrics}>
-        {rest.map(({ metric, reading }) => (
-          <div
-            key={metric.label}
-            className={styles.metric}
-            data-gold={reading!.gold ? "true" : undefined}
-            data-fixed={reading!.fixed ? "true" : undefined}
-          >
-            <dt className={styles.label}>{metric.label}</dt>
-            <dd className={styles.value}>
-              <span className={styles.figure}>
+      <dl className={styles.rows}>
+        {rows.map(({ row, reading }) => {
+          const unit = row.unit ?? reading!.unit;
+          return (
+            <div
+              key={row.metric}
+              className={styles.row}
+              data-gold={reading!.gold ? "true" : undefined}
+            >
+              <dt className={styles.label}>{row.label}</dt>
+              <dd className={styles.value}>
                 {/* Remounts on change — see the header note on the roll. */}
                 <span key={reading!.text} className={styles.roll}>
-                  {reading!.figure}
-                  {reading!.unit ? (
+                  {row.value ?? reading!.figure}
+                  {unit ? (
                     <span
                       className={styles.unit}
-                      data-tight={reading!.unit === "%" ? "true" : undefined}
+                      data-tight={
+                        unit === "%" || unit.startsWith("/") ? "true" : undefined
+                      }
                     >
-                      {reading!.unit}
+                      {unit}
                     </span>
                   ) : null}
                 </span>
-              </span>
-              {reading!.spark.length > 0 ? (
-                <Spark points={reading!.spark} />
-              ) : null}
-            </dd>
-            {reading!.fraction !== null ? (
-              <div className={styles.track} aria-hidden="true">
-                <span
-                  className={styles.trackFill}
-                  style={{
-                    transform: `scaleX(${reading!.fraction.toFixed(4)})`,
-                  }}
-                />
-              </div>
-            ) : null}
-          </div>
-        ))}
+              </dd>
+            </div>
+          );
+        })}
       </dl>
-    </>
+    </div>
   );
 }

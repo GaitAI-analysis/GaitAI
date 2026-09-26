@@ -26,23 +26,47 @@
   background: #eef2f7;
 }
 
-/* THE FRAME (2026-09-24). The founder tuned this by eye: 86% of the
-   picture's height was "a bit lengthy", 77% was "a little short", and 82%
-   is the fit — 11% off the top (sky and tower tops) and 7% off the bottom
-   (floor and reflections). The hard limits are 18.65% at the top (where
-   the pills start) and 88% at the bottom (the model figure's feet).
-   The picture itself is untouched — still
-   `cover` in its own 1672:941 box, just raised inside the frame. Hotspots
-   and panels are placed in fractions of that box, so they move with it. */
+/* History: on 2026-09-24 the founder tuned the frame by eye to 82% of the
+   picture (11% off the top, 7% off the bottom; 86% was "a bit lengthy",
+   77% "a little short"). Hotspots and panels are placed in fractions of the
+   picture's box, so they move with it whatever the frame does. */
+/* THE FRAME, REVISED (founder, 2026-09-26): the top was cropped too hard,
+   and in a laptop window the hero ran past the fold, which cut off the
+   walker's feet. So the frame now has two jobs.
+     1. Where there is room, show 84% of the picture: 6% off the top, 10%
+        off the bottom (it was 11% / 7%). Everything sits lower, and the
+        walker (whose feet are now at 82%, level with the clinic figures)
+        stands with clear floor under his shoes.
+     2. Never be taller than the window under the header. When the window
+        is shorter, the frame shrinks toward 70% of the picture, taking 65%
+        of the loss off the top and 35% off the bottom. That keeps the pills
+        (18.6%) and the walker's shoes (82%) inside it down to a
+        1280 x 600 viewport.
+   `--hero-h` is the frame's height and `--crop-top` how much of the
+   picture sits above it, both in vw/svh so the rail and anything else can
+   read the visible window. At the full frame the crop is exactly 6%, and
+   it follows the shrink after that:
+     crop = 0.06·P + 0.65·(0.84·P − H), where P = 100vw × 941/1672.
+   The picture itself is untouched: still `cover` in its own 1672:941 box. */
 @media (min-width: 1024px) {
   .hero {
-    aspect-ratio: 1672 / 771.6;
+    --hero-h: min(47.275vw, max(39.396vw, 100svh - var(--site-header-height, 5.625rem)));
+    --crop-top: calc(34.106vw - 0.65 * var(--hero-h));
+
+    height: var(--hero-h);
   }
 
-  /* 11% of the picture's height, expressed as a share of its width
-     (margins resolve against width): 0.11 × 941 / 1672 = 6.191%. */
   .stage {
-    margin-top: -6.191%;
+    position: absolute;
+    top: calc(-1 * var(--crop-top));
+    left: 0;
+  }
+
+  /* The foot of the frame, now that the stage is out of the flow. */
+  .anchor {
+    position: absolute;
+    bottom: 0;
+    left: 0;
   }
 }
 
@@ -72,9 +96,10 @@
   position: absolute;
   z-index: 2;
   left: 3.11vw;
-  /* Sits in the haze, a touch above the frame's middle (the frame is
-     46.1vw tall, the block about 15.6vw). */
-  top: 11.5vw;
+  /* Sits in the haze, its middle 3.75vw above the frame's (the block is
+     about 15.6vw tall). Keyed to the frame, not the picture, so it stays
+     centred when a short window shrinks the frame. */
+  top: calc(50% - 11.55vw);
   width: 30vw;
 }
 
@@ -381,12 +406,19 @@
   overflow: visible;
 }
 
+.connectors {
+  /* A pearl hairline either side of the champagne line, so the arc
+     separates from the pale day plate instead of dissolving into it. */
+  filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.85))
+    drop-shadow(0 0 3px rgb(176 142 84 / 0.28));
+}
+
 .connector {
   fill: none;
-  stroke: #c8b07a;
-  stroke-width: 1.2px;
+  stroke: #a88a4e;
+  stroke-width: 1.5px;
   stroke-linecap: round;
-  opacity: 0.45;
+  opacity: 0.85;
   transition:
     opacity 260ms cubic-bezier(0.45, 0, 0.55, 1),
     stroke-width 260ms cubic-bezier(0.45, 0, 0.55, 1);
@@ -394,8 +426,8 @@
 
 /* Reached for, or open. The same line, a little more certain. */
 .connector[data-live="true"] {
-  opacity: 0.75;
-  stroke-width: 1.4px;
+  opacity: 1;
+  stroke-width: 1.8px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -409,12 +441,20 @@
    Only the ink changes — champagne reads on the day plate, and on the night
    one it needs to be a shade cooler and a shade brighter to sit on a dark
    sky without glowing. */
+:global(.dark) .connectors {
+  /* Softly luminous at night: a faint warm bloom, never a neon tube. */
+  filter: drop-shadow(0 0 2px rgb(236 214 168 / 0.45))
+    drop-shadow(0 0 1px rgb(4 8 20 / 0.6));
+}
+
 :global(.dark) .connector {
-  stroke: rgb(226 205 160 / 0.5);
+  stroke: rgb(236 216 174);
+  opacity: 0.78;
 }
 
 :global(.dark) .connector[data-live="true"] {
-  stroke: rgb(238 220 180 / 0.78);
+  stroke: rgb(246 230 196);
+  opacity: 1;
 }
 
 /* The dot is an overlay on the painted one: the same warm ring, drawn
@@ -458,10 +498,26 @@
     circle,
     rgb(255 250 240 / 0.95) 0 34%,
     rgb(233 205 150 / 0.9) 35% 62%,
-    rgb(214 180 118 / 0.55) 63% 100%
+    rgb(196 158 92 / 0.9) 63% 100%
   );
-  box-shadow: 0 0 0 1px rgb(201 170 110 / 0.35);
-  opacity: 0.85;
+  /* A bronze rim so the mark holds on the pale plate, and a soft champagne
+     glow so it reads as lit rather than printed. */
+  box-shadow:
+    0 0 0 1.5px rgb(150 114 52 / 0.8),
+    0 0 8px 1px rgb(214 180 118 / 0.55);
+  opacity: 1;
+}
+
+:global(.dark) .dot::before {
+  background: radial-gradient(
+    circle,
+    rgb(255 252 244) 0 36%,
+    rgb(240 216 166) 37% 64%,
+    rgb(224 192 132 / 0.92) 65% 100%
+  );
+  box-shadow:
+    0 0 0 1.5px rgb(244 224 184 / 0.75),
+    0 0 10px 2px rgb(236 206 150 / 0.5);
 }
 
 /* The halo: a faint champagne ring, held steady on hover and while the
@@ -485,7 +541,9 @@
 .dot:hover::before {
   opacity: 1;
   transform: scale(1.14);
-  box-shadow: 0 0 0 1px rgb(201 170 110 / 0.65);
+  box-shadow:
+    0 0 0 1.5px rgb(150 114 52 / 0.95),
+    0 0 12px 2px rgb(214 180 118 / 0.65);
 }
 
 .dot:hover::after {
@@ -502,7 +560,16 @@
 .dot[data-active="true"]::before {
   opacity: 1;
   transform: scale(1.1);
-  box-shadow: 0 0 0 1px rgb(214 184 124 / 0.7);
+  box-shadow:
+    0 0 0 1.5px rgb(150 114 52 / 0.9),
+    0 0 12px 2px rgb(214 180 118 / 0.6);
+}
+
+:global(.dark) .dot:hover::before,
+:global(.dark) .dot[data-active="true"]::before {
+  box-shadow:
+    0 0 0 1.5px rgb(248 232 196 / 0.9),
+    0 0 14px 3px rgb(236 206 150 / 0.6);
 }
 
 .dot[data-active="true"]::after {
@@ -568,9 +635,11 @@
   }
 }
 
+/* The floor is 0.78, not 0.45: at the bottom of the breath the dot must
+   still be plainly there, on either plate. */
 @keyframes heroDotPulse {
   0% {
-    opacity: 0.45;
+    opacity: 0.78;
     transform: scale(1);
   }
 
@@ -580,29 +649,28 @@
   }
 
   100% {
-    opacity: 0.55;
+    opacity: 0.82;
     transform: scale(1.01);
   }
 }
 
-/* ── Detail panels ── */
+/* ── Detail panels ──
+   A technical annotation, not a card (founder, 2026-09-26): ~220px of
+   translucent pearl with a hairline edge, a very soft shadow and a 12px
+   radius, in the same register as the read-out chips beside the people.
+   It should feel like information floating beside the scene. */
 .panel {
   box-sizing: border-box;
   color: #0f1c3a;
-  background: rgb(250 250 248 / 0.86);
-  -webkit-backdrop-filter: blur(18px) saturate(1.06);
-  backdrop-filter: blur(18px) saturate(1.06);
-  border: 1px solid rgb(255 255 255 / 0.75);
-  border-radius: 16px;
-  box-shadow:
-    0 22px 48px rgb(15 28 58 / 0.14),
-    0 2px 8px rgb(15 28 58 / 0.06);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  background: rgb(252 251 248 / 0.8);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+  backdrop-filter: blur(8px) saturate(1.1);
+  border: 1px solid rgb(15 28 58 / 0.1);
+  box-shadow: 0 6px 18px rgb(15 28 58 / 0.08);
   opacity: 0;
   visibility: hidden;
-  transform-style: preserve-3d;
-  /* Read by the keyframes so the fold can morph the corner radius all the
-     way to a pill without hard-coding the resting one twice. */
-  --panel-radius: 16px;
+  --panel-radius: 12px;
   border-radius: var(--panel-radius);
 }
 
@@ -630,247 +698,42 @@
   pointer-events: none;
 }
 
-/* Everything the panel says, as one box, so it can draw itself in before
-   the shell starts folding. */
+/* Everything the panel says, as one box. */
 .panelContent {
   display: block;
 }
 
-/* -- FOLD -> COMPRESS -> DOCK --
-   Closing a panel is the interaction, not the end of one. A panel does not
-   fade; it packs itself away into the control that opened it, and it does
-   that in three movements.
+/* -- OPEN AND CLOSE: A POPOVER'S MOVEMENT --
+   The card arrives with a short fade and a few pixels of upward travel,
+   and leaves the same way in reverse (founder, 2026-09-26: 160-220ms,
+   elegant, not flashy). It used to fold and dock into its pill over 780ms;
+   at this size that read as a performance rather than a tooltip.
 
-   1. RETRACT (0-150ms). The readings draw in and settle a few pixels toward
-      the pill while the card is still its full size. Nothing has moved yet:
-      the panel is getting ready to close.
-   2. FOLD (150-480ms). The shell hinges from its top edge, the edge nearest
-      its own pill, and gets progressively THINNER rather than smaller.
-      scaleY runs far ahead of scaleX, a few degrees of rotateX give the
-      hinge somewhere to be, and a clip-path eats the far edge so the card
-      reads as folded rather than squashed. The rotation stays under seven
-      degrees; more than that and it stops being a folding panel and starts
-      being a card flipping in space.
-   3. DOCK (480-780ms). What is left travels to its pill and takes its
-      shape, the corner radius morphing to a full round on the way. The last
-      eighty milliseconds fade it out as it arrives, so it merges into the
-      control rather than vanishing above it.
+   It grows from the point under its own pill (`--fold-x`, measured by
+   HeroOptions from the live rectangles), so the hint of scale points back
+   at the control that opened it.
 
-   WHERE IT GOES IS MEASURED, NOT WRITTEN. `--dock-x`, `--dock-y`,
-   `--dock-sx`, `--dock-sy` and `--fold-x` are set by HeroOptions from the
-   live rectangles of the panel and its own pill, every time an animation
-   starts. That is what makes it survive 1920, a laptop, a tablet, a phone,
-   and the panel becoming a bottom sheet below 1024px: the geometry is
-   whatever the DOM says it is. `--fold-x` is the hinge AND the docking
-   point, which is what ties the two halves of the movement together.
-
-   Opening is the same geometry backwards -- dock, expand, unfold, content --
-   so the two directions read as one system rather than two effects.
-
-   Only transform, clip-path and opacity animate. Nothing here touches
-   width, height, top or left.
-
-   The page-load introduction is the PILLS' now, not the panels' -- see
-   "The anchor dots" below. */
-
+   HeroOptions settles a closing panel on `animationend`, so the close must
+   stay a named animation, not a transition. Only transform and opacity
+   move. */
 .panel {
-  transform-origin: var(--fold-x, 50%) 0%;
+  transform-origin: var(--fold-x, 1.5rem) 0%;
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .panel[data-open="true"] {
-    animation: heroPanelUndock 560ms both;
-  }
-
-  .panel[data-open="true"] .panelContent {
-    animation: heroContentResolve 220ms cubic-bezier(0.22, 1, 0.36, 1) 250ms
-      both;
+    animation: heroPopIn 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .panel[data-closing="true"] {
-    animation: heroPanelDock 780ms both;
-  }
-
-  .panel[data-closing="true"] .panelContent,
-  .panel[data-closing="true"] .close {
-    animation: heroContentRetract 150ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  }
-
-  /* Too far from its pill for the journey to read as a gesture -- the hero
-     has been scrolled away. Fall back to the quiet version. */
-  .panel[data-dock="off"][data-closing="true"] {
-    animation: heroPanelFade 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
-  }
-
-  .panel[data-dock="off"][data-open="true"] {
-    animation: heroPanelFade 260ms cubic-bezier(0.22, 1, 0.36, 1) reverse both;
+    animation: heroPopOut 170ms cubic-bezier(0.4, 0, 0.2, 1) both;
   }
 }
 
-/* The three movements as one animation, so the browser owns the timing and
-   there is no chain of JavaScript timers to drift. Each keyframe carries the
-   easing for the segment that follows it: an even, confident curve through
-   the fold, and a decisive one into the dock. */
-@keyframes heroPanelDock {
-  0%,
-  19.2% {
-    transform: perspective(1200px) translate3d(0, 0, 0) scale(1, 1)
-      rotateX(0deg);
-    clip-path: inset(0 0 0 0 round var(--panel-radius));
-    border-radius: var(--panel-radius);
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  40% {
-    transform: perspective(1200px)
-      translate3d(
-        calc(var(--dock-x, 0px) * 0.05),
-        calc(var(--dock-y, 0px) * 0.05),
-        0
-      )
-      scale(calc(1 - (1 - var(--dock-sx, 0.6)) * 0.06), 0.84) rotateX(-4.5deg);
-    clip-path: inset(0 0 16% 0 round 19px);
-    border-radius: 19px;
-    opacity: 1;
-  }
-
-  61.5% {
-    transform: perspective(1200px)
-      translate3d(
-        calc(var(--dock-x, 0px) * 0.13),
-        calc(var(--dock-y, 0px) * 0.13),
-        0
-      )
-      scale(calc(1 - (1 - var(--dock-sx, 0.6)) * 0.17), 0.54) rotateX(-6.5deg);
-    clip-path: inset(0 0 38% 0 round 22px);
-    border-radius: 22px;
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-  }
-
-  90% {
-    transform: perspective(1200px)
-      translate3d(
-        calc(var(--dock-x, 0px) * 0.93),
-        calc(var(--dock-y, 0px) * 0.93),
-        0
-      )
-      scale(
-        calc(var(--dock-sx, 0.6) + (1 - var(--dock-sx, 0.6)) * 0.06),
-        calc(var(--dock-sy, 0.2) + (0.54 - var(--dock-sy, 0.2)) * 0.06)
-      )
-      rotateX(-1.5deg);
-    clip-path: inset(0 0 4% 0 round 999px);
-    border-radius: 999px;
-    opacity: 1;
-  }
-
-  100% {
-    transform: perspective(1200px)
-      translate3d(var(--dock-x, 0px), var(--dock-y, 0px), 0)
-      scale(calc(var(--dock-sx, 0.6) * 0.97), calc(var(--dock-sy, 0.2) * 0.94))
-      rotateX(0deg);
-    clip-path: inset(0 0 0 0 round 999px);
-    border-radius: 999px;
-    opacity: 0;
-  }
-}
-
-/* Opening: out of the pill, unfold, then the content resolves in. */
-@keyframes heroPanelUndock {
-  0% {
-    transform: perspective(1200px)
-      translate3d(var(--dock-x, 0px), var(--dock-y, 0px), 0)
-      scale(calc(var(--dock-sx, 0.6) * 0.97), calc(var(--dock-sy, 0.2) * 0.94))
-      rotateX(0deg);
-    clip-path: inset(0 0 0 0 round 999px);
-    border-radius: 999px;
-    opacity: 0;
-    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-  }
-
-  14% {
-    transform: perspective(1200px)
-      translate3d(
-        calc(var(--dock-x, 0px) * 0.9),
-        calc(var(--dock-y, 0px) * 0.9),
-        0
-      )
-      scale(
-        calc(var(--dock-sx, 0.6) + (1 - var(--dock-sx, 0.6)) * 0.08),
-        calc(var(--dock-sy, 0.2) + (0.54 - var(--dock-sy, 0.2)) * 0.08)
-      )
-      rotateX(-2deg);
-    clip-path: inset(0 0 6% 0 round 999px);
-    border-radius: 999px;
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  46% {
-    transform: perspective(1200px)
-      translate3d(
-        calc(var(--dock-x, 0px) * 0.13),
-        calc(var(--dock-y, 0px) * 0.13),
-        0
-      )
-      scale(calc(1 - (1 - var(--dock-sx, 0.6)) * 0.17), 0.54) rotateX(-6deg);
-    clip-path: inset(0 0 38% 0 round 22px);
-    border-radius: 22px;
-    opacity: 1;
-  }
-
-  74% {
-    transform: perspective(1200px)
-      translate3d(
-        calc(var(--dock-x, 0px) * 0.04),
-        calc(var(--dock-y, 0px) * 0.04),
-        0
-      )
-      scale(calc(1 - (1 - var(--dock-sx, 0.6)) * 0.05), 0.88) rotateX(-3deg);
-    clip-path: inset(0 0 12% 0 round 18px);
-    border-radius: 18px;
-    opacity: 1;
-  }
-
-  100% {
-    transform: perspective(1200px) translate3d(0, 0, 0) scale(1, 1)
-      rotateX(0deg);
-    clip-path: inset(0 0 0 0 round var(--panel-radius));
-    border-radius: var(--panel-radius);
-    opacity: 1;
-  }
-}
-
-@keyframes heroPanelFade {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.98);
-  }
-}
-
-@keyframes heroContentRetract {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: translateY(-5px) scale(0.985);
-  }
-}
-
-@keyframes heroContentResolve {
+@keyframes heroPopIn {
   0% {
     opacity: 0;
-    transform: translateY(4px) scale(0.99);
+    transform: translateY(6px) scale(0.985);
   }
 
   100% {
@@ -879,23 +742,36 @@
   }
 }
 
-/* The masthead. Bigger than it was by a third: the card is headed by a
-   name, and at 0.875rem it was the same rank as the readings under it. */
+@keyframes heroPopOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.985);
+  }
+}
+
+/* The pill's "taking it back" squeeze was timed to the end of the old
+   780ms dock. The cards now leave in 170ms, so theirs lands as they go;
+   the Pose rail keeps its longer retract and the original timing. */
+.hotspot:has(+ .panel)[data-absorb="true"] {
+  animation-delay: 110ms;
+}
+
+.hotspot:has(+ .panel)[data-absorb="true"]::after {
+  animation-delay: 120ms;
+}
+
+/* The annotation's name: 15px semibold, no ornament. */
 .panelTitle {
   margin: 0;
-  font-size: 1.1875rem;
-  font-weight: 660;
-  letter-spacing: -0.021em;
-  line-height: 1.15;
-}
-
-.panelTitle::after {
-  content: "";
-  display: block;
-  width: 1.25rem;
-  height: 1.5px;
-  margin: 0.35rem 0 0.5rem;
-  background: #c9a667;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
 .rows {
@@ -951,33 +827,29 @@
   display: none;
 }
 
-/* From 1024px the panel opens directly under its own pill, left edges
-   aligned, a small clean gap below it. It is a compact overlay, not a
-   dashboard window: sized in vw so it keeps its place in the picture, with a
-   rem floor so it stays readable on a laptop and a rem ceiling so it never
-   grows to dominate a 1920 hero. SecureVision leads, MobilityCare is a step
-   smaller, and Pose analysis -- the shared analysis layer, not a third
-   product -- is the narrowest. All three pills hang from the same line of
-   the artwork (21.33% of the picture), so they share one `top`. */
+/* From 1024px the annotation opens directly under its own pill, left
+   edges aligned, 6px below it: hotspot -> pill -> a small panel of facts.
+   Both are 220px at every desktop width (founder, 2026-09-26: 210-230px,
+   never wider), so they occupy a small fraction of their scene. All three
+   pills hang from the same line of the artwork (21.33% of the picture), so
+   they share one `top`. The pills are 20.72% of the picture apart: 265px
+   at 1280, where the intro first opens both annotations at once, so they
+   clear each other by 45px there. Below 1280 only one is ever open. */
 @media (min-width: 1024px) {
   .panel {
     position: absolute;
     z-index: 4;
-    top: calc(21.33% + clamp(2rem, 2.29vw, 2.875rem) / 2 + 0.625rem);
-    /* Editorial margins. The card was tight enough that six labels and six
-       values touched its edges; the room is most of what makes it read as
-       finished rather than as a widget. */
-    padding: 1.05rem 1.15rem 1.15rem;
+    top: calc(21.33% + clamp(2rem, 2.29vw, 2.875rem) / 2 + 0.375rem);
+    width: 13.75rem;
+    padding: 0.8rem 0.85rem 0.75rem;
   }
 
   .panel[data-option="securevision"] {
     left: 39.06%;
-    width: clamp(16rem, 18vw, 21.5rem);
   }
 
   .panel[data-option="mobilitycare"] {
     left: 59.78%;
-    width: clamp(15rem, 17.2vw, 20.5rem);
   }
 
   /* Under its pill, but never past the picture's right edge: on a laptop
@@ -1227,24 +1099,13 @@
    picture that is already dark. */
 :global(.dark) .panel {
   color: #e8eefb;
-  background: rgb(11 17 33 / 0.9);
-  border-color: rgb(226 205 160 / 0.22);
-  box-shadow:
-    0 26px 60px rgb(1 4 12 / 0.62),
-    0 2px 10px rgb(1 4 12 / 0.4),
-    inset 0 1px 0 rgb(255 255 255 / 0.04);
+  background: rgb(12 19 37 / 0.74);
+  border-color: rgb(226 205 160 / 0.18);
+  box-shadow: 0 8px 22px rgb(1 4 12 / 0.4);
 }
 
 :global(.dark) .panelTitle {
   color: #f4f7fd;
-}
-
-:global(.dark) .panelTitle::after {
-  background: linear-gradient(
-    90deg,
-    rgb(226 205 160 / 0.75),
-    rgb(226 205 160 / 0)
-  );
 }
 
 :global(.dark) .footnote {
@@ -1285,11 +1146,13 @@
 }
 
 @media (min-width: 1024px) {
-  /* The night picture is framed like the day one: a little off the top
-     (sky), a little off the bottom (floor). 6.5% of its height off the top,
-     expressed against its width: 0.065 × 894 / 1759 = 3.304%. */
-  :global(.dark) .stage {
-    margin-top: -3.304%;
+  /* The night picture takes the same frame height, and it is wider, so the
+     frame holds 93% of it: 3% off the top (it was 6.5%), 4% off the bottom.
+     It shrinks in a short window by the same rule as the day picture, so the
+     walker's shoes land on the same line in both themes:
+       crop = 0.03·P + 0.65·(0.84·P_day − H), where P = 100vw × 894/1759. */
+  :global(.dark) .hero {
+    --crop-top: calc(32.254vw - 0.65 * var(--hero-h));
   }
 
   /* The night picture's walkers start at 27% of its width (the day
@@ -1298,7 +1161,7 @@
      the block is shorter, so it sits lower: its middle stays a touch above
      the frame's, where the taller block's used to be. */
   :global(.dark) .caption {
-    top: 11.2vw;
+    top: calc(50% - 11.87vw);
   }
 
   :global(.dark) .shade {

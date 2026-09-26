@@ -1,0 +1,49 @@
+/* =========================================================================
+   THE WALKING DIGITAL HUMAN (HeroWalker)
+   -------------------------------------------------------------------------
+   One canvas per theme covering the whole Pose-analysis panel, placed in the
+   plate's own fractions (inline style) and clipped along the panel's
+   divider. Under the connectors, dots, pills and the rail; over the picture,
+   which no longer has a figure of its own. It fades in once, as soon as its
+   frames have arrived, and then stays.
+   ========================================================================= */
+
+.walker {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.walker[data-show="true"] {
+  opacity: 1;
+}
+
+/* The start frame as a still, from the first paint until the canvas (which
+   fades in over it on the same frame) has finished arriving. */
+.poster {
+  position: absolute;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.poster[data-gone="true"] {
+  visibility: hidden;
+  transition: visibility 0s linear 650ms;
+}
+
+/* Each theme's canvas registers with its own picture. */
+.dark {
+  display: none;
+}
+
+:global(.dark) .light {
+  display: none;
+}
+
+:global(.dark) .dark {
+  display: block;
+}

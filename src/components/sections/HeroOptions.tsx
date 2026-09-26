@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { HERO_OPTIONS, HERO_SCENE, type HeroOptionId } from "@/data/home-hero";
 import { HeroPanelBody } from "./HeroPanelBody";
+import { HeroWalker } from "./HeroWalker";
 import { PoseRail } from "./PoseRail";
 import railStyles from "./poserail.module.css";
 import { useHeroTelemetry } from "./useHeroTelemetry";
@@ -46,12 +47,15 @@ import styles from "./homehero.module.css";
  * -----------------------------------------------------------------------------
  * Once per page load: dots only for a second, then all three options emerge
  * from their dots together, hold, and dock back, leaving the dots pulsing.
- * Where hover can lead, that demonstration plays THREE times (the founder,
- * 2026-09-25), each one starting 2.5s after the previous one has completely
- * docked, so they never overlap; then it stops for good. Every repeat is the
- * same gesture at the same speed, and the dots breathe in the pauses. Touch
- * and narrow screens keep their pills out, so there is nothing to repeat and
- * they get the single one.
+ * Where the full cards fit (INTRO_CARDS_QUERY) each demonstration holds
+ * longer: SecureVision and MobilityCare open their cards, and Pose analysis
+ * does not open a card at all -- its rail expands beside the digital human,
+ * who walks all the time anyway (HeroWalker; founder, 2026-09-25). The
+ * demonstration plays exactly ONCE (founder, 2026-09-26): the hero appears,
+ * SecureVision and MobilityCare open, stay fully open only briefly
+ * (INTRO_CARDS_HOLD), collapse back, and that is the end of it; the dots
+ * then breathe. Touch and narrow screens keep their pills out, so they get
+ * the same single pass.
  *
  * It is ONE sequence with one pending timer (`intro`), kept apart from the
  * close timers so ending it never strands a folding card. The visitor always
@@ -77,10 +81,22 @@ const PILLS_BACK_AT = 1800;
 /** 250ms after PILLS_BACK_AT: the dock has finished, the dots may breathe. */
 const PILLS_DOCKED_AT = 2050;
 
-/** How many times the introduction demonstrates itself, where hover leads. */
-const INTRO_REVEALS = 3;
+/** How many times the introduction demonstrates itself: once (founder, 2026-09-26). */
+const INTRO_REVEALS = 1;
 /** Rest between demonstrations, counted from the previous one fully docking. */
 const INTRO_REPEAT_DELAY = 2500;
+/** ...shorter where the cards open: their long hold has already been read. */
+const INTRO_CARDS_REPEAT_DELAY = 1500;
+
+/**
+ * Where the introduction opens the cards, SecureVision and MobilityCare stay
+ * fully open only briefly before collapsing (founder, 2026-09-26: "remain
+ * fully expanded only very briefly"). Measured from the moment they start to
+ * open, so it includes their 200ms arrival. The Pose analysis rail expands
+ * alongside for the same beat. The pills-only introduction keeps its short
+ * hold.
+ */
+const INTRO_CARDS_HOLD = 1500;
 
 /**
  * How long an open card waits after the pointer leaves both it and its dot.
@@ -372,7 +388,11 @@ export function HeroOptions() {
       /* Without hover the pills stay out, so there is nothing to dock and
          nothing to repeat: `rest` then shows all three, the same frame. */
       const reveals = docks ? INTRO_REVEALS : 1;
-      const hold = docks ? PILLS_BACK_AT - PILLS_OUT_AT : 450;
+      const hold = !docks
+        ? 450
+        : cards
+          ? INTRO_CARDS_HOLD
+          : PILLS_BACK_AT - PILLS_OUT_AT;
       /* Until the fold has FINISHED: cards take the full close, pills their
          250ms dock. The repeat delay counts from here, so two
          demonstrations never overlap. */
@@ -409,7 +429,10 @@ export function HeroOptions() {
                  is what each demonstration is pointing at. */
               setBreathing(true);
               if (n < reveals && !introLast.current) {
-                step(() => reveal(n + 1), INTRO_REPEAT_DELAY);
+                step(
+                  () => reveal(n + 1),
+                  cards ? INTRO_CARDS_REPEAT_DELAY : INTRO_REPEAT_DELAY,
+                );
               } else {
                 introSpent = true;
                 live.current.introLive = false;
@@ -589,6 +612,12 @@ export function HeroOptions() {
 
   return (
     <>
+      {/* The digital human in the third panel walks all the time; the dots,
+          cards and the Pose rail open and close around him. Opening Pose
+          (or the introduction) only brings his analysis layer forward. */}
+      <HeroWalker
+        analysis={open === "pose" || (introShowing && introCards)}
+      />
       {/* THE CONNECTORS.
           One arc per option, from its dot up to where its pill begins. These
           were painted into the photograph until now; they were traced off the

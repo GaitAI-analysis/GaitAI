@@ -2,6 +2,7 @@ import { HERO_SCENE } from "@/data/home-hero";
 import { ThemePicture } from "@/components/ui/ThemePicture";
 import { HeroLauncherGuard } from "./HeroLauncherGuard";
 import { HeroOptions } from "./HeroOptions";
+import { HeroSignals } from "./HeroSignals";
 import styles from "./homehero.module.css";
 import haze from "./herohaze.module.css";
 
@@ -24,11 +25,13 @@ import haze from "./herohaze.module.css";
  * ── GEOMETRY ──────────────────────────────────────────────────────────────
  * The picture keeps its own 1672:941 box at every width — never stretched,
  * never cropped at the sides, so the three pills and the people are always
- * whole. From 1024px the section frames 82% of its height: 11% off the top
- * (sky), 7% off the bottom (floor), for a tight composition; the picture
- * is raised inside the frame, not edited. The caption is placed in viewport-width
- * units off the same box, so it sits where the artwork left room for it at
- * every desktop width. Below 1024px the caption moves above the picture,
+ * whole. From 1024px the section frames 84% of its height (6% off the top,
+ * 10% off the bottom), but never more than the window under the header: a
+ * shorter window shrinks the frame toward 70%, so the pills and the walker's
+ * shoes stay inside it (homehero.module.css, "THE FRAME, REVISED"). The
+ * picture is moved inside the frame, never edited. The caption is centred on
+ * the frame and sized in viewport-width units, so it sits where the artwork
+ * left room for it at every desktop width. Below 1024px the caption moves above the picture,
  * where it can be read, and the picture follows at full width.
  */
 export function Hero() {
@@ -77,11 +80,16 @@ export function Hero() {
           height={HERO_SCENE.height}
           priority
         />
-        {/* The digital human is the artwork's own still figure. The puppet
-            walk (HeroWalk, 680c4ad) was rejected by the founder on
-            2026-09-24 and removed; any motion for it is chosen from preview
-            options first, never shipped as an experiment. */}
+        {/* The third panel's digital human is not in the picture any more:
+            he is the motion-capture walker HeroOptions mounts over it
+            (HeroWalker), and he walks all the time. */}
         <HeroOptions />
+        {/* The story layer: SecureVision and MobilityCare as applications of
+            the gait engine in the third panel, joined by one thread along the
+            floor (HeroSignals). After HeroOptions so it paints over the
+            walker's canvas (same z-index 1), under the connectors (2) and the
+            dots, pills and rail (3). */}
+        <HeroSignals />
       </div>
 
       {/* `/#overview` lands here: the foot of the hero, so the page scrolls

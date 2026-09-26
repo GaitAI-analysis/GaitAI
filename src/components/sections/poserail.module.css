@@ -328,7 +328,7 @@
   }
 
   :global(.dark) .jointValue {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
   }
 
   .rail[data-fit="dense"] .joints {
@@ -890,7 +890,12 @@
    the same navy glass as the cards (a 10px blur of its own), a little more
    width and air, the three primary readings at 17px over 12.5px labels,
    and the gait cycle set back as secondary: smaller, in the secondary tone,
-   nothing under 11px. */
+   nothing under 11px.
+   COMPACTED (founder, 2026-09-26, later): the open night rail had grown
+   past its window (184x504px at 1440, gait cycle below the hero's foot).
+   Same information, same 11px floor, ~15-20% tighter: the light rail's
+   width, 15px readings over 11px labels, closer rows and sections, and
+   smaller instruments, so the whole read-out fits the frame as light does. */
 @media (min-width: 1024px) {
   :global(.dark) .rail,
   :global(.dark) .rail[data-open="true"] {
@@ -900,8 +905,8 @@
     --rail-glass: rgb(8 17 35 / 0.86);
     --rail-edge: rgb(255 255 255 / 0.14);
 
-    width: clamp(11.5rem, 11vw, 13.25rem);
-    padding: 0.95rem 1rem 0.9rem;
+    width: clamp(10rem, 10.6vw, 12.75rem);
+    padding: 0.75rem 0.8rem 0.7rem;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
   }
@@ -911,8 +916,8 @@
   }
 
   :global(.dark) .title {
-    margin-bottom: 0.75rem;
-    font-size: 0.75rem;
+    margin-bottom: 0.55rem;
+    font-size: 0.6875rem;
   }
 
   /* Rows are spaced by their own margin, not the grid gap: the quiet rail's
@@ -922,7 +927,7 @@
   }
 
   :global(.dark) .row + .row {
-    margin-top: 0.6rem;
+    margin-top: 0.42rem;
   }
 
   :global(.dark) .rail:not([data-open="true"]) .row:nth-child(n + 4) {
@@ -935,8 +940,8 @@
   }
 
   :global(.dark) .row {
-    gap: 0.2rem;
-    padding-top: 0.6rem;
+    gap: 0.1rem;
+    padding-top: 0.42rem;
     border-top-color: rgb(255 255 255 / 0.14);
   }
 
@@ -945,17 +950,18 @@
   }
 
   :global(.dark) .rail[data-open="true"] .row:nth-child(n + 4) {
-    padding-top: 0.6rem;
+    padding-top: 0.42rem;
     border-top-color: rgb(255 255 255 / 0.14);
   }
 
   :global(.dark) .label {
-    font-size: 0.78125rem;
+    font-size: 0.6875rem;
     letter-spacing: 0.01em;
   }
 
   :global(.dark) .value {
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
+    line-height: 1.2;
   }
 
   :global(.dark) .privacy {
@@ -964,13 +970,13 @@
   }
 
   :global(.dark) .gait {
-    margin-top: 0.85rem;
-    padding-top: 0.7rem;
+    margin-top: 0.6rem;
+    padding-top: 0.5rem;
     border-top-color: rgb(255 255 255 / 0.14);
   }
 
   :global(.dark) .gaitTitle {
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.35rem;
     font-size: 0.6875rem;
     color: var(--rail-label);
   }
@@ -980,7 +986,7 @@
   }
 
   :global(.dark) .timeline {
-    gap: 0.4rem;
+    gap: 0.28rem;
   }
 
   :global(.dark) .laneSide {
@@ -988,18 +994,18 @@
   }
 
   :global(.dark) .lanePhase {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 500;
     color: var(--rail-label);
   }
 
   :global(.dark) .track {
-    height: 3px;
+    height: 2.5px;
   }
 
   :global(.dark) .signal {
-    height: 1.2rem;
-    margin-top: 0.5rem;
+    height: 1rem;
+    margin-top: 0.35rem;
     opacity: 0.8;
   }
 
@@ -1010,11 +1016,94 @@
   }
 
   :global(.dark) .signals dd {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
   }
 
   :global(.dark) .rail[data-fit="dense"] .value {
-    font-size: 0.9375rem;
+    font-size: 0.8125rem;
+  }
+
+  /* The frame-fitting tiers (PoseRail \`data-fit\`) must still tighten at
+     night: the rules above outrank the shared dense rules, which is how the
+     night rail ended up height-capped and scrolling at 1440 x 900. */
+  :global(.dark) .rail[data-fit="dense"] {
+    padding: 0.55rem 0.75rem 0.5rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .title {
+    margin-bottom: 0.3rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .row + .row {
+    margin-top: 0.16rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .row,
+  :global(.dark) .rail[data-open="true"][data-fit="dense"] .row:nth-child(n + 4) {
+    gap: 0;
+    padding-top: 0.16rem;
+    line-height: 1.2;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .row:first-child {
+    padding-top: 0;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .gait {
+    margin-top: 0.35rem;
+    padding-top: 0.3rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .jointsTitle {
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .jointList {
+    gap: 0.14rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .joint {
+    row-gap: 0.16rem;
+    line-height: 1.2;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .jointValue {
+    font-size: 0.75rem;
+  }
+
+  :global(.dark) .rail[data-open="true"][data-fit="dense"] .privacy {
+    margin-top: 0.35rem;
+    padding-top: 0.3rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .gaitTitle {
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .timeline {
+    gap: 0.2rem;
+  }
+
+  /* Short windows only (the dense tier): the light rail's own sizes, so the
+     whole read-out fits the frame as it does by day. The 11px night floor
+     holds everywhere the rail has room. */
+  :global(.dark) .rail[data-fit="dense"] :is(.label, .jointLabel, .jointsTitle, .gaitTitle, .laneSide, .lanePhase, .privacy) {
+    font-size: 0.65rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .title {
+    font-size: 0.65rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .value,
+  :global(.dark) .rail[data-fit="dense"] .jointValue {
+    font-size: 0.75rem;
+  }
+
+  /* The instruments beside each reading, a size down with the type. */
+  :global(.dark) .rail[data-open="true"] :is(.wave, .symmetry, .level, .gauge) {
+    scale: 0.85;
+    transform-origin: 100% 50%;
   }
 }
 

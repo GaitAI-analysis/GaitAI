@@ -1,0 +1,225 @@
+/* ===========================================================================
+   PRIVACY LENS
+   ---------------------------------------------------------------------------
+   One figure, three states, and an indicator that only ever falls. Emerald is
+   the PrivacyGuard accent everywhere else on /securevision, so the lens uses
+   it rather than introducing a fourth colour to the page.
+
+   Light-theme values sit beside each dark one, never only inside a media
+   query — a colour defined once inside a query is a colour that goes missing
+   in one theme.
+   =========================================================================== */
+
+.lens {
+  --p-accent: 52 211 153; /* emerald-400 */
+  --p-ink: 226 232 240;
+  --p-line: 255 255 255;
+  --p-line-a: 0.1;
+  --p-mass-a: 0.45;
+}
+
+:global(.light) .lens {
+  --p-accent: 4 120 87; /* emerald-700 */
+  --p-ink: 15 23 42;
+  --p-line: 15 23 42;
+  --p-line-a: 0.14;
+  --p-mass-a: 0.32;
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ground {
+  stroke: rgb(var(--p-line) / var(--p-line-a));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 01 SENSING: the body ────────────────────────────────────────────────── */
+
+/* Group opacity, not per-shape — see the note in xray.module.css. The torso,
+   the four limbs and the head all overlap, and fading them individually made
+   every overlap darker, which is how a silhouette stops looking like a
+   person. Here it matters twice over: stage 01 has to read as somebody
+   before stage 02 can take them away. */
+.mass {
+  fill: rgb(var(--p-ink));
+  stroke: rgb(var(--p-ink));
+  opacity: var(--p-mass-a);
+}
+
+.massTorso {
+  fill: rgb(var(--p-ink));
+  stroke: rgb(var(--p-ink));
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.massLimb,
+.massLimbLeg {
+  fill: none;
+  stroke: inherit;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.massLimb {
+  stroke-width: 7;
+}
+
+.massLimbLeg {
+  stroke-width: 9;
+}
+
+.massHead {
+  fill: rgb(var(--p-ink));
+  stroke: none;
+}
+
+/* ── 01 SENSING: the photograph ──────────────────────────────────────────── */
+
+.plate {
+  /* Seated in the stage rather than pasted on it: a touch of contrast, and
+     the saturation held down so it reads as a camera in a dim place in both
+     themes without recolouring the photograph. */
+  filter: contrast(1.04) saturate(0.9);
+}
+
+:global(.light) .plate {
+  filter: contrast(1.02) saturate(0.95) brightness(1.06);
+}
+
+.plateEdge {
+  fill: none;
+  stroke: rgb(var(--p-line) / calc(var(--p-line-a) * 1.4));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.rec {
+  fill: #ef4444;
+}
+
+.camText,
+.camStamp {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  fill: rgb(226 238 255 / 0.85);
+  letter-spacing: 0.08em;
+}
+
+.camText {
+  font-size: 5.6px;
+  font-weight: 600;
+}
+
+.camStamp {
+  font-size: 5px;
+  fill: rgb(226 238 255 / 0.65);
+}
+
+/* Step two keeps the frame under the skeleton, but quieter, so the geometry
+   reads as the thing that continues and the picture as the thing leaving. */
+.plateFaded {
+  opacity: 0.55;
+}
+
+.blurRing {
+  fill: none;
+  stroke: rgb(var(--p-accent) / 0.55);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 02 PRIVACY TRANSFORMED: the skeleton ────────────────────────────────── */
+
+.bone {
+  fill: none;
+  stroke: rgb(var(--p-accent) / 0.85);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.boneFar {
+  stroke: rgb(var(--p-accent) / 0.3);
+}
+
+.joint {
+  fill: rgb(var(--p-accent) / 0.95);
+  stroke: none;
+}
+
+/* The head as an empty ring, never a filled disc: at this step the head is a
+   coordinate, and a solid head reads as a face still being held. */
+.head {
+  fill: none;
+  stroke: rgb(var(--p-accent) / 0.6);
+  stroke-width: 1.4;
+  stroke-dasharray: 2.5 2.5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── 03 MOVEMENT INTELLIGENCE: the signal ────────────────────────────────── */
+
+.signalDot {
+  fill: rgb(var(--p-accent) / 0.4);
+  stroke: none;
+}
+
+.trail {
+  fill: none;
+  stroke: rgb(var(--p-accent) / 0.9);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.trailNode {
+  fill: rgb(var(--p-accent));
+  stroke: none;
+}
+
+/* ── The retained-information indicator ──────────────────────────────────
+   A relative shape with no scale, because the only honest statement is that
+   each step carries strictly less than the one before. */
+
+.retainedTrack {
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(var(--p-line) / var(--p-line-a));
+  overflow: hidden;
+}
+
+.retainedFill {
+  height: 100%;
+  border-radius: 999px;
+  background: rgb(var(--p-accent) / 0.75);
+  transition: width var(--motion-editorial, 380ms) var(--ease-out, ease-out);
+}
+
+/* ── The one transition ───────────────────────────────────────────────────
+   All three renderings stay mounted and cross-fade, so the figure does not
+   jump between steps. Watching information leave the SAME body is the
+   argument; a reflow between steps would break it. */
+
+.layer {
+  transition: opacity var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.layerOff {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer,
+  .retainedFill {
+    transition: none;
+  }
+}

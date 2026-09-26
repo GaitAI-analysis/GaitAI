@@ -1,0 +1,2840 @@
+/* =========================================================================
+   RESEARCH OBSERVATORY — the /research flagship
+   ---------------------------------------------------------------------------
+   One stylesheet for the whole page, scoped as a CSS module so nothing here
+   can leak into another route and nothing in globals.css has to grow for it.
+
+   Rules the page holds to:
+     · hairlines and coordinates instead of borders around everything
+     · one accent per meaning — cyan = research signal, teal = MobilityCare,
+       violet = SecureVision, champagne = patent / milestone only
+     · motion is a 400–900ms transition or a slow, low-contrast loop; never a
+       glow that never stops
+     · every colour is defined for both themes; light overrides sit next to
+       the rule they replace, keyed on :global(.light)
+   ========================================================================= */
+
+.page {
+  --obs-cyan: #4fd1ff;
+  --obs-cyan-soft: rgb(79 209 255 / 0.55);
+  --obs-royal: #5587ff;
+  --obs-violet: #9c64f1;
+  --obs-teal: #2dd4bf;
+  --obs-gold: #e4c48a;
+
+  --obs-line: rgb(148 163 184 / 0.16);
+  --obs-line-mid: rgb(148 163 184 / 0.26);
+  --obs-line-strong: rgb(148 163 184 / 0.4);
+  --obs-grid: rgb(148 163 184 / 0.055);
+
+  --obs-ink: rgb(var(--c-soft-white));
+  --obs-body: rgb(var(--c-soft-gray));
+  --obs-mute: rgb(var(--c-soft-mute));
+
+  --obs-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:global(.light) .page {
+  --obs-cyan: #0e7490;
+  --obs-cyan-soft: rgb(16 143 192 / 0.6);
+  --obs-royal: #1b4ed9;
+  --obs-violet: #5f25bf;
+  --obs-teal: #0d9488;
+  --obs-gold: #8a6320;
+
+  --obs-line: rgb(15 23 42 / 0.12);
+  --obs-line-mid: rgb(15 23 42 / 0.2);
+  --obs-line-strong: rgb(15 23 42 / 0.32);
+  --obs-grid: rgb(15 23 42 / 0.06);
+}
+
+/* Shared type mechanics ---------------------------------------------------- */
+
+.mono {
+  font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--obs-cyan);
+}
+
+.eyebrowRule {
+  display: block;
+  width: 2.25rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--obs-cyan), transparent);
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--obs-line);
+}
+
+.sectionIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  color: var(--obs-mute);
+  opacity: 0.9;
+}
+
+/* =========================================================================
+   1 · HERO — the observatory
+   ========================================================================= */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.heroGrid {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+}
+@media (min-width: 1024px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    gap: 3.5rem;
+    /* Was 74vh, sized for a full instrument visual. The foundation cluster
+       that replaced it is a fixed two-by-two, so the old height left a band of
+       empty column under it on tall displays. */
+    min-height: 60vh;
+  }
+}
+@media (min-width: 1280px) {
+  .heroGrid {
+    min-height: 62vh;
+  }
+}
+
+.heroTitle {
+  margin-top: 1.75rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: clamp(2.4rem, 6.2vw, 4.35rem);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  color: var(--obs-ink);
+}
+
+.heroTitleLine {
+  display: block;
+}
+
+.heroSpectrum {
+  background-image: linear-gradient(102deg, #4fd1ff 0%, #2563ff 46%, #7c3aed 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+:global(.light) .heroSpectrum {
+  background-image: linear-gradient(102deg, #108fc0 0%, #1b4ed9 46%, #5f25bf 100%);
+}
+
+.heroLede {
+  margin-top: 1.6rem;
+  max-width: 34rem;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--obs-body);
+}
+@media (min-width: 640px) {
+  .heroLede {
+    font-size: 1.0625rem;
+  }
+}
+
+.heroActions {
+  margin-top: 2.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+
+
+
+
+
+
+
+:global(.light) .head {
+  fill: #ffffff;
+}
+
+:global(.light) .trajFlow {
+  stroke: #0a6890;
+}
+
+
+
+
+/* Small screens: the technical labels stop being legible before they stop
+   being decorative, so they are dropped rather than shrunk. */
+@media (max-width: 639px) {
+  .obsLabel,
+  .obsLabelLead,
+  .obsTickLabel {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   2 · TELEMETRY STRIP
+   ========================================================================= */
+
+.telemetry {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--obs-line);
+}
+@media (min-width: 768px) {
+  .telemetry {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.telItem {
+  position: relative;
+  padding: 1.75rem 0 1.5rem;
+}
+@media (min-width: 768px) {
+  .telItem {
+    padding: 2rem 1.75rem 1.75rem 0;
+  }
+}
+/* Hairline between cells, drawn on the cell so the count can change without
+   an off-by-one divider. */
+.telItem + .telItem::before {
+  content: "";
+  position: absolute;
+  left: -1.25rem;
+  top: 1.9rem;
+  bottom: 1.6rem;
+  width: 1px;
+  background: var(--obs-line);
+}
+@media (max-width: 767px) {
+  .telItem:nth-child(odd)::before {
+    display: none;
+  }
+  .telItem:nth-child(n + 3) {
+    border-top: 1px solid var(--obs-line);
+  }
+}
+
+.telValue {
+  display: block;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(2.75rem, 7vw, 4rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--obs-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.telLabel {
+  margin-top: 1rem;
+  display: block;
+  max-width: 9rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  line-height: 1.6;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+
+.telSpark {
+  margin-top: 1.1rem;
+  display: block;
+  width: 100%;
+  max-width: 7rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--obs-cyan), transparent);
+  opacity: 0.7;
+}
+
+/* =========================================================================
+   3 · LINEAGE
+   ========================================================================= */
+
+.lineage {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.lnTrunk {
+  fill: none;
+  stroke: var(--obs-line-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.lnBranchCare {
+  fill: none;
+  stroke: var(--obs-teal);
+  stroke-width: 1.3;
+  opacity: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+.lnBranchSecure {
+  fill: none;
+  stroke: var(--obs-violet);
+  stroke-width: 1.3;
+  opacity: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+.lnFlow {
+  fill: none;
+  stroke: #bfe9ff;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 16 120;
+  stroke-dashoffset: 136;
+  opacity: 0;
+  animation: lnFlow 9s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.5s);
+}
+:global(.light) .lnFlow {
+  stroke: #0a6890;
+}
+.lnNode {
+  fill: rgb(var(--c-obsidian-400) / 0.9);
+  stroke: var(--obs-cyan);
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .lnNode {
+  fill: #ffffff;
+}
+.lnNodeGold {
+  fill: rgb(var(--c-obsidian-400) / 0.9);
+  stroke: var(--obs-gold);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .lnNodeGold {
+  fill: #ffffff;
+}
+.lnNodeDot {
+  fill: var(--obs-cyan);
+}
+.lnNodeDotGold {
+  fill: var(--obs-gold);
+}
+.lnHalo {
+  fill: var(--obs-cyan);
+  opacity: 0.06;
+  animation: lnHalo 9s ease-in-out infinite;
+}
+.lnLabel {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 11.5px;
+  letter-spacing: -0.005em;
+  fill: var(--obs-ink);
+}
+.lnMeta {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  fill: var(--obs-mute);
+}
+.lnMetaGold {
+  fill: var(--obs-gold);
+}
+.lnMetaCare {
+  fill: var(--obs-teal);
+}
+.lnMetaSecure {
+  fill: var(--obs-violet);
+}
+
+.provenanceNote {
+  margin-top: 2.25rem;
+  max-width: 46rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--obs-line);
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--obs-mute);
+}
+
+/* The lineage as a rail, for widths where a diagram would be unreadable. */
+.lnRail {
+  position: relative;
+  margin-top: 2rem;
+  padding-left: 1.5rem;
+  list-style: none;
+}
+.lnRail::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0.45rem;
+  bottom: 0.9rem;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    var(--obs-cyan),
+    var(--obs-teal) 55%,
+    var(--obs-violet)
+  );
+  opacity: 0.55;
+}
+.lnRailItem {
+  position: relative;
+  padding: 0 0 1.5rem;
+}
+.lnRailItem:last-child {
+  padding-bottom: 0;
+}
+.lnRailNode {
+  position: absolute;
+  left: -1.5rem;
+  top: 0.4rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--obs-cyan);
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.1);
+}
+.lnRailItemGold .lnRailNode {
+  background: var(--obs-gold);
+  box-shadow: 0 0 0 3px rgb(228 196 138 / 0.12);
+}
+.lnRailLabel {
+  display: block;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--obs-ink);
+}
+.lnRailMeta {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+.lnRailItemGold .lnRailMeta {
+  color: var(--obs-gold);
+}
+.lnRailSplit .lnRailLabel + .lnRailLabel {
+  margin-top: 0.35rem;
+}
+.lnRailCare {
+  color: var(--obs-teal);
+  font-weight: 500;
+}
+.lnRailSecure {
+  color: var(--obs-violet);
+  font-weight: 500;
+}
+
+/* =========================================================================
+   4 · EVIDENCE OBSERVATORY (the interactive map)
+   ========================================================================= */
+
+.emap {
+  display: grid;
+  /* Shrinkable single column below 1024: an auto track sized itself to the
+     panel's widest line (1,241px on a 390px phone) and clipped it. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+}
+@media (min-width: 1024px) {
+  .emap {
+    grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+}
+@media (min-width: 1280px) {
+  .emap {
+    grid-template-columns: minmax(0, 16rem) minmax(0, 1fr) minmax(0, 19rem);
+    gap: 2.75rem;
+  }
+}
+
+/* Pillar index ------------------------------------------------------------ */
+
+.emapIndex {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+}
+.emapIndex::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .emapIndex {
+    flex-direction: column;
+    gap: 0;
+    overflow: visible;
+    border-top: 1px solid var(--obs-line);
+  }
+}
+
+.emapTab {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--obs-line);
+  border-radius: 999px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.4s var(--obs-ease), border-color 0.4s var(--obs-ease),
+    background-color 0.4s var(--obs-ease);
+}
+@media (min-width: 1024px) {
+  .emapTab {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid var(--obs-line);
+    border-radius: 0;
+    padding: 1.05rem 0.25rem 1.05rem 0;
+    align-items: flex-start;
+  }
+}
+
+.emapTabIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--obs-mute);
+  padding-top: 0.15rem;
+}
+
+.emapTabTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--obs-body);
+  white-space: nowrap;
+}
+@media (min-width: 1024px) {
+  .emapTabTitle {
+    white-space: normal;
+    font-size: 0.875rem;
+  }
+}
+
+.emapTabMeta {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .emapTabMeta {
+    display: block;
+    margin-top: 0.35rem;
+    font-family: var(--font-jetbrains), ui-monospace, monospace;
+    font-size: 8.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--obs-mute);
+    opacity: 0.8;
+  }
+}
+
+.emapTabActive {
+  border-color: var(--obs-cyan-soft);
+  background-color: rgb(79 209 255 / 0.06);
+}
+.emapTabActive .emapTabIndex,
+.emapTabActive .emapTabTitle {
+  color: var(--obs-cyan);
+}
+@media (min-width: 1024px) {
+  /* On desktop the index becomes a rule-separated list, and the selected row
+     used to say so with nothing but a 1px cyan bottom border and an ink
+     title — which is precisely what :hover already did. A hovered pillar and
+     the open one looked the same. The open one now carries a persistent
+     accent bar down its left edge and an accent index, neither of which
+     hover ever takes. */
+  .emapTabActive {
+    background-color: rgb(79 209 255 / 0.04);
+    border-bottom-color: var(--obs-cyan-soft);
+    box-shadow: inset 2px 0 0 var(--obs-cyan);
+    padding-left: 0.7rem;
+  }
+  .emapTabActive .emapTabTitle {
+    color: var(--obs-ink);
+  }
+  .emapTabActive .emapTabIndex {
+    color: var(--obs-cyan);
+  }
+}
+/* HOVER is a surface lift on an unselected row, and nothing at all on the
+   selected one — pointing at what is already open should not restate it. */
+.emapTab:hover .emapTabTitle {
+  color: var(--obs-ink);
+}
+.emapTab:hover:not(.emapTabActive) {
+  background-color: var(--interactive-hover-bg);
+  border-color: var(--interactive-hover-border);
+}
+@media (min-width: 1024px) {
+  .emapTab:hover:not(.emapTabActive) {
+    border-color: transparent;
+    border-bottom-color: var(--obs-line);
+  }
+}
+.emapTab:focus-visible {
+  outline: 2px solid var(--obs-cyan-soft);
+  outline-offset: 2px;
+}
+
+/* Graph ------------------------------------------------------------------- */
+
+.emapStage {
+  position: relative;
+  min-width: 0;
+}
+
+.emapGraph {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.gEdge {
+  fill: none;
+  stroke: var(--obs-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.5;
+  transition: stroke 0.5s var(--obs-ease), opacity 0.5s var(--obs-ease);
+}
+.gEdgeLive {
+  stroke: var(--obs-cyan-soft);
+  opacity: 1;
+}
+.gEdgeFlow {
+  fill: none;
+  stroke: #bfe9ff;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 12 100;
+  stroke-dashoffset: 112;
+  opacity: 0;
+  animation: gFlow 5.5s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.16s);
+}
+:global(.light) .gEdgeFlow {
+  stroke: #0a6890;
+}
+
+.gNode {
+  fill: rgb(var(--c-obsidian-400) / 0.92);
+  stroke: var(--obs-line-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  transition: stroke 0.5s var(--obs-ease);
+}
+:global(.light) .gNode {
+  fill: #ffffff;
+}
+.gNodeLive {
+  stroke: var(--obs-cyan);
+}
+.gNodeDot {
+  fill: var(--obs-mute);
+  transition: fill 0.5s var(--obs-ease);
+}
+.gNodeDotLive {
+  fill: var(--obs-cyan);
+}
+.gHalo {
+  fill: var(--obs-cyan);
+  opacity: 0;
+  transition: opacity 0.6s var(--obs-ease);
+}
+.gHaloLive {
+  opacity: 0.09;
+}
+.gLabel {
+  font-size: 10.5px;
+  fill: var(--obs-body);
+  transition: fill 0.5s var(--obs-ease);
+}
+.gLabelLive {
+  fill: var(--obs-ink);
+}
+.gCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  fill: var(--obs-mute);
+}
+.gColumnLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  fill: var(--obs-mute);
+  opacity: 0.8;
+}
+.gRule {
+  stroke: var(--obs-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Detail panel ------------------------------------------------------------ */
+
+.emapPanel {
+  min-width: 0;
+  border-top: 1px solid var(--obs-line);
+  padding-top: 1.5rem;
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  /* Two columns at this width, so the panel takes its own full-width row
+     rather than being squeezed into the index column. */
+  .emapPanel {
+    grid-column: 1 / -1;
+  }
+}
+@media (min-width: 1280px) {
+  .emapPanel {
+    border-top: 0;
+    border-left: 1px solid var(--obs-line);
+    padding: 0.25rem 0 0 2rem;
+  }
+}
+
+.panelVisual {
+  width: 100%;
+  max-width: 9.5rem;
+  margin-bottom: 0.7rem;
+  color: var(--obs-cyan);
+  opacity: 0.9;
+}
+
+.panelTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--obs-ink);
+}
+.panelSummary {
+  margin-top: 0.6rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--obs-mute);
+}
+
+/* The pillar's shape in one line — records, capabilities, products — so the
+   counts are readable without expanding any group. */
+.panelMeta {
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--obs-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  line-height: 1.65;
+  color: var(--obs-mute);
+}
+
+/* Groups sit closer together than they used to (1.75rem): the panel is a
+   summary now, and the extra air was a large part of why it ran so tall. */
+.panelGroup {
+  margin-top: 0.95rem;
+}
+.panelGroupLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+/* One record: index, title, venue · year, and an out-arrow. No abstract, no
+   authors, no second metadata row — /publications/[slug] carries those. */
+.recordList {
+  margin-top: 0.55rem;
+}
+.recordRow {
+  display: grid;
+  grid-template-columns: 1.35rem minmax(0, 1fr) 0.85rem;
+  align-items: start;
+  gap: 0.5rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--obs-line);
+  transition: padding-left 0.35s var(--obs-ease);
+}
+/* A wash and a focus ring, so the row matches every other clickable row on
+   the site and a keyboard reader can see where they are. The indent stays:
+   it is this panel's own signature. */
+.recordRow:hover,
+.recordRow:focus-visible {
+  padding-left: 0.3rem;
+  background-color: rgb(148 163 184 / 0.05);
+}
+.recordRow:focus-visible {
+  outline: 2px solid var(--obs-accent, #4fd1ff);
+  outline-offset: -2px;
+}
+.recordIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  line-height: 1.75;
+  letter-spacing: 0.1em;
+  color: var(--obs-mute);
+  font-variant-numeric: tabular-nums;
+}
+.recordTitle {
+  /* Two lines, like the brief's compact record. The full title is on the
+     link's `title` and on /publications/[slug], which is where the abstract,
+     authors and full metadata live. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--obs-body);
+  transition: color 0.35s var(--obs-ease);
+}
+.recordRow:hover .recordTitle,
+.recordRow:focus-visible .recordTitle {
+  color: var(--obs-ink);
+}
+.recordFoot {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+/* Visible at rest, not revealed on hover: on a phone the hover state never
+   arrives, and an arrow nobody can see is not a cue. */
+.recordArrow {
+  font-size: 10px;
+  line-height: 1.6;
+  color: var(--obs-mute);
+  opacity: 0.5;
+  transition: opacity 0.35s var(--obs-ease), color 0.35s var(--obs-ease);
+}
+.recordRow:hover .recordArrow,
+.recordRow:focus-visible .recordArrow {
+  opacity: 1;
+  color: var(--obs-cyan);
+}
+/* Also used on the disclosure buttons, which is why it resets button chrome. */
+.panelMore {
+  display: inline-block;
+  margin-top: 0.6rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--obs-cyan);
+  transition: color 0.35s var(--obs-ease);
+}
+.panelMore:hover {
+  color: var(--obs-ink);
+}
+
+.panelChips {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.panelChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 999px;
+  font-size: 11.5px;
+  color: var(--obs-body);
+  transition: border-color 0.35s var(--obs-ease), color 0.35s var(--obs-ease);
+}
+.panelChip:hover {
+  border-color: var(--obs-cyan-soft);
+  color: var(--obs-ink);
+}
+.panelChipCare {
+  border-color: rgb(45 212 191 / 0.28);
+}
+.panelChipSecure {
+  border-color: rgb(156 100 241 / 0.28);
+}
+
+/* Architectural-relevance chips read one step back from the direct tier: the
+   relationship is real and traceable, but it is not evidence for the product,
+   and the chip should not look like it is. */
+.panelChipMuted {
+  border-color: rgb(148 163 184 / 0.2);
+  color: var(--obs-mute);
+}
+
+/* Where the cited work ends and GaitAI's own implementation begins. Two
+   named lists side by side, because the whole point is that they are two
+   different things — one sentence let them read as one claim. */
+.panelBoundary {
+  margin-top: 0.9rem;
+  border-top: 1px solid rgb(148 163 184 / 0.16);
+  padding-top: 0.9rem;
+}
+
+.boundaryPair {
+  display: grid;
+  gap: 0.9rem;
+}
+
+@media (min-width: 560px) {
+  .boundaryPair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.boundaryLabel {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+
+.boundaryList {
+  margin-top: 0.45rem;
+  display: grid;
+  gap: 0.2rem;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: rgb(var(--c-soft-gray));
+}
+
+.boundaryList li {
+  padding-left: 0.7rem;
+  position: relative;
+}
+
+.boundaryList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  height: 3px;
+  width: 3px;
+  border-radius: 999px;
+  background: rgb(148 163 184 / 0.7);
+}
+
+.boundaryNote {
+  margin-top: 0.85rem;
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--obs-mute);
+}
+
+/* Capability chips ---------------------------------------------------------
+   Names only. Rendering all three descriptions inline was the single biggest
+   contributor to the panel's height, so each chip is a button that reveals
+   its own one-line description (and carries the same sentence as a title, so
+   a pointer user gets it on hover without clicking). */
+.capChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--obs-body);
+  cursor: pointer;
+  transition:
+    border-color 0.35s var(--obs-ease),
+    color 0.35s var(--obs-ease),
+    background-color 0.35s var(--obs-ease);
+}
+.capChip:hover {
+  border-color: var(--obs-cyan-soft);
+  color: var(--obs-ink);
+}
+.capChip:focus-visible {
+  outline: 2px solid var(--obs-cyan-soft);
+  outline-offset: 2px;
+}
+.capChipOpen {
+  border-color: var(--obs-cyan-soft);
+  background: rgb(79 209 255 / 0.07);
+  color: var(--obs-ink);
+}
+:global(.light) .capChipOpen {
+  background: rgb(16 143 192 / 0.08);
+}
+
+.capDetails {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.55rem;
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--obs-line);
+}
+.capDetailTerm {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--obs-body);
+}
+.capDetailDesc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--obs-mute);
+}
+
+/* The panel's one CTA: opens records, capability descriptions and products
+   together, so the complete evidence view the panel used to show by default
+   is still one action away. */
+.panelCta {
+  margin-top: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 0.625rem;
+  background: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--obs-cyan);
+  cursor: pointer;
+  transition:
+    border-color 0.35s var(--obs-ease),
+    background-color 0.35s var(--obs-ease),
+    color 0.35s var(--obs-ease);
+}
+.panelCta:hover {
+  border-color: var(--obs-cyan-soft);
+  background: rgb(79 209 255 / 0.06);
+  color: var(--obs-ink);
+}
+:global(.light) .panelCta:hover {
+  background: rgb(16 143 192 / 0.07);
+}
+.panelCta:focus-visible {
+  outline: 2px solid var(--obs-cyan-soft);
+  outline-offset: 2px;
+}
+
+/* The evidence flow as a stacked chain, below lg. */
+.chain {
+  position: relative;
+  margin-top: 0.5rem;
+  padding-left: 1.5rem;
+  list-style: none;
+}
+.chain::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0.5rem;
+  bottom: 1rem;
+  width: 1px;
+  background: linear-gradient(180deg, var(--obs-cyan), transparent);
+  opacity: 0.6;
+}
+.chainStep {
+  position: relative;
+  padding: 0 0 1.35rem;
+}
+.chainStep:last-child {
+  padding-bottom: 0;
+}
+.chainStep::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 0.45rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--obs-cyan);
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.1);
+}
+.chainLabel {
+  display: block;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+.chainBody {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--obs-body);
+}
+
+/* =========================================================================
+   5 · PILLAR VISUALS
+   ========================================================================= */
+
+.pv {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  color: var(--obs-cyan);
+}
+.pvLine {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.pvLineFaint {
+  opacity: 0.45;
+}
+.pvDash {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  stroke-dasharray: 2.5 3;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.6;
+}
+.pvDot {
+  fill: currentColor;
+}
+.pvDotSoft {
+  fill: currentColor;
+  opacity: 0.45;
+}
+.pvSurface {
+  fill: currentColor;
+  opacity: 0.07;
+}
+.pvGold {
+  color: var(--obs-gold);
+}
+
+.pvTab {
+  flex: none;
+  width: 3rem;
+  color: var(--obs-mute);
+  opacity: 0.75;
+  transition: color 0.4s var(--obs-ease), opacity 0.4s var(--obs-ease);
+}
+.emapTabActive .pvTab {
+  color: var(--obs-cyan);
+  opacity: 1;
+}
+
+/* =========================================================================
+   6 · PUBLICATION LEDGER
+   ========================================================================= */
+
+.ledger {
+  border-top: 1px solid var(--obs-line);
+}
+
+.ledgerRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--obs-line);
+  transition: background-color 0.4s var(--obs-ease);
+}
+@media (min-width: 900px) {
+  .ledgerRow {
+    grid-template-columns: 2.75rem minmax(0, 1.6fr) minmax(0, 0.85fr) 5.5rem;
+    align-items: baseline;
+    gap: 1.5rem;
+  }
+}
+
+/* The reveal line: a hairline that grows from the left on hover, instead of
+   a card lifting off the page. */
+.ledgerRow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, var(--obs-cyan), transparent);
+  transition: width 0.55s var(--obs-ease);
+}
+/* The whole row opens the record. Only the title was a link, which left a
+   1.4rem-padded row where four fifths of the click area did nothing; this
+   stretches that same anchor — keeping the title as its accessible name —
+   over the row, which is the nearest positioned ancestor. */
+.ledgerHit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.ledgerRow:focus-within {
+  background-color: rgb(148 163 184 / 0.05);
+}
+.ledgerHit:focus-visible {
+  outline: none;
+}
+.ledgerRow:focus-within::after,
+.ledgerRow:hover::after,
+.ledgerRow:focus-within::after {
+  width: 100%;
+}
+
+.ledgerIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--obs-mute);
+  padding-top: 0.2rem;
+}
+
+.ledgerTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: var(--obs-ink);
+  transition: color 0.35s var(--obs-ease);
+}
+@media (min-width: 900px) {
+  .ledgerTitle {
+    font-size: 1rem;
+  }
+}
+.ledgerRow:focus-within .ledgerTitle,
+.ledgerRow:hover .ledgerTitle {
+  color: var(--obs-cyan);
+}
+
+.ledgerMeta {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--obs-mute);
+}
+.ledgerPublisher {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.ledgerYear {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--obs-body);
+  font-variant-numeric: tabular-nums;
+}
+.ledgerArrow {
+  transition: transform 0.45s var(--obs-ease);
+  color: var(--obs-mute);
+}
+.ledgerRow:focus-within .ledgerArrow,
+.ledgerRow:hover .ledgerArrow {
+  transform: translate(2px, -2px);
+  color: var(--obs-cyan);
+}
+
+/* The granted patent is the one record with a different status, so it is the
+   one row with a different accent — a champagne rule and index, nothing more. */
+.ledgerPatent .ledgerIndex,
+.ledgerPatent .ledgerYear {
+  color: var(--obs-gold);
+}
+.ledgerPatent::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.4rem;
+  bottom: 1.4rem;
+  width: 1px;
+  background: linear-gradient(180deg, var(--obs-gold), transparent);
+  opacity: 0.7;
+}
+.ledgerPatent {
+  padding-left: 1rem;
+}
+.ledgerPatent:hover .ledgerTitle {
+  color: var(--obs-gold);
+}
+.ledgerPatent:hover::after {
+  background: linear-gradient(90deg, var(--obs-gold), transparent);
+}
+
+.ledgerFoot {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* =========================================================================
+   7 · JOURNEY
+   ========================================================================= */
+
+.journeyStage {
+  position: relative;
+  margin-top: 3rem;
+}
+
+.journeyTrack {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.jPath {
+  fill: none;
+  stroke: var(--obs-line-mid);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.jProgress {
+  fill: none;
+  stroke: var(--obs-cyan);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.9;
+}
+.jNode {
+  fill: rgb(var(--c-obsidian-400) / 0.95);
+  stroke: var(--obs-cyan);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .jNode {
+  fill: #ffffff;
+}
+.jNodeGold {
+  stroke: var(--obs-gold);
+}
+.jNodeDot {
+  fill: var(--obs-cyan);
+}
+.jNodeDotGold {
+  fill: var(--obs-gold);
+}
+.jGlyph {
+  color: var(--obs-cyan);
+  opacity: 0.85;
+}
+.jGlyphGold {
+  color: var(--obs-gold);
+}
+
+.journeyList {
+  display: grid;
+  gap: 2.5rem;
+  margin-top: 2rem;
+}
+@media (min-width: 768px) {
+  .journeyList {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.75rem;
+    margin-top: 1.25rem;
+  }
+}
+.jItem {
+  position: relative;
+  padding-left: 1.25rem;
+}
+@media (min-width: 768px) {
+  .jItem {
+    padding-left: 0;
+    padding-top: 0.5rem;
+  }
+}
+.jItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.4rem;
+  width: 1px;
+  height: calc(100% - 0.4rem);
+  background: linear-gradient(180deg, var(--obs-cyan), transparent);
+  opacity: 0.5;
+}
+@media (min-width: 768px) {
+  .jItem::before {
+    display: none;
+  }
+}
+.jYear {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  color: var(--obs-cyan);
+}
+.jTitle {
+  margin-top: 0.65rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--obs-ink);
+}
+.jDetail {
+  margin-top: 0.6rem;
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--obs-mute);
+}
+
+/* =========================================================================
+   8 · RESEARCH → PRODUCT PIPELINE
+   ========================================================================= */
+
+.flow {
+  position: relative;
+  margin-top: 3rem;
+}
+
+.flowRail {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.fLine {
+  fill: none;
+  stroke: var(--obs-line-mid);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.fPulse {
+  fill: none;
+  stroke: #bfe9ff;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 18 200;
+  stroke-dashoffset: 218;
+  opacity: 0;
+  animation: fPulse 10s linear infinite;
+}
+:global(.light) .fPulse {
+  stroke: #0a6890;
+}
+/* One stage on the rail: the node, the glyph inside it and the micro-label
+   under it share a tone, so the emphasis on the two ends — and the hover —
+   applies to the whole stage rather than to one of its parts. */
+.fStageGroup .fStageNode,
+.fStageGroup .fGlyph,
+.fStageGroup .fNodeLabel {
+  transition:
+    stroke 0.4s var(--obs-ease),
+    color 0.4s var(--obs-ease),
+    fill 0.4s var(--obs-ease);
+}
+.fStageNode {
+  fill: rgb(var(--c-obsidian-400) / 0.95);
+  stroke: var(--obs-line-strong);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .fStageNode {
+  fill: #ffffff;
+}
+.fGlyph {
+  color: var(--obs-mute);
+}
+
+/* The two emphasised ends: the record the page is about, and the output
+   somebody actually reviews. */
+.fStageGroupStrong .fStageNode {
+  stroke: var(--obs-cyan);
+}
+.fStageGroupStrong .fGlyph {
+  color: var(--obs-cyan);
+}
+.fStageGroupStrong .fNodeLabel {
+  fill: var(--obs-cyan);
+  opacity: 0.85;
+}
+
+/* Pointing at a stage brings its own drawing up. Nothing moves and nothing
+   here is a control — the rail is decorative and the stage copy below it is
+   the real content — so the response is a tone change and nothing else. */
+.fStageGroup:hover .fStageNode {
+  stroke: var(--obs-cyan);
+}
+.fStageGroup:hover .fGlyph {
+  color: var(--obs-cyan);
+}
+.fStageGroup:hover .fNodeLabel {
+  fill: var(--obs-cyan);
+  opacity: 1;
+}
+
+/* The micro-label on the diagram: one word per stage, at legend weight. The
+   full stage names live in the list below, so this stays deliberately quiet. */
+.fNodeLabel {
+  font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-anchor: middle;
+  fill: var(--obs-mute);
+  opacity: 0.72;
+}
+
+.flowStages {
+  display: grid;
+  gap: 1.75rem;
+  margin-top: 1.5rem;
+}
+@media (min-width: 900px) {
+  .flowStages {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+.fStage {
+  position: relative;
+  padding-left: 1.1rem;
+}
+@media (min-width: 900px) {
+  .fStage {
+    padding-left: 0;
+  }
+}
+.fStage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: 0.2rem;
+  width: 1px;
+  background: var(--obs-line);
+}
+@media (min-width: 900px) {
+  .fStage::before {
+    display: none;
+  }
+}
+.fStageIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--obs-mute);
+}
+.fStageLabel {
+  margin-top: 0.5rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--obs-ink);
+}
+.fStageLabelStrong {
+  color: var(--obs-cyan);
+}
+.fStageDetail {
+  margin-top: 0.5rem;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--obs-mute);
+}
+
+/* =========================================================================
+   9 · MANIFESTO
+   ========================================================================= */
+
+.manifesto {
+  margin-top: 3rem;
+  display: grid;
+  gap: 3.5rem;
+}
+@media (min-width: 1024px) {
+  .manifesto {
+    gap: 0;
+  }
+}
+
+.mItem {
+  position: relative;
+  padding-top: 2rem;
+  border-top: 1px solid var(--obs-line);
+}
+@media (min-width: 1024px) {
+  .mItem {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    padding: 2.75rem 0;
+    gap: 1.5rem;
+  }
+  /* Alternating composition: the column each commitment occupies steps
+     across the grid, so the four never read as a card row. */
+  .mItem:nth-child(1) .mBody {
+    grid-column: 1 / span 5;
+  }
+  .mItem:nth-child(2) .mBody {
+    grid-column: 4 / span 5;
+  }
+  .mItem:nth-child(3) .mBody {
+    grid-column: 6 / span 5;
+  }
+  .mItem:nth-child(4) .mBody {
+    grid-column: 8 / span 5;
+  }
+}
+
+.mIndex {
+  position: absolute;
+  top: 0.75rem;
+  right: 0;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: 600;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: var(--obs-ink);
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
+}
+@media (min-width: 1024px) {
+  .mIndex {
+    top: 1.5rem;
+  }
+  .mItem:nth-child(even) .mIndex {
+    right: auto;
+    left: 0;
+  }
+}
+
+.mBody {
+  position: relative;
+  max-width: 34rem;
+}
+.mNumber {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--obs-cyan);
+}
+.mTitle {
+  margin-top: 0.9rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--obs-ink);
+}
+.mRule {
+  margin: 1.1rem 0 1.1rem;
+  height: 1px;
+  width: 4.5rem;
+  background: linear-gradient(90deg, var(--obs-cyan), transparent);
+}
+.mDesc {
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: var(--obs-mute);
+}
+
+/* =========================================================================
+   10 · PRINCIPLES RAIL
+   ========================================================================= */
+
+.rail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+.railItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--obs-body);
+}
+.railDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--obs-teal);
+  opacity: 0.5;
+  animation: railPulse 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 1.2s);
+}
+
+/* =========================================================================
+   11 · CLOSING
+   ========================================================================= */
+
+.closing {
+  position: relative;
+  overflow: hidden;
+  padding: 5rem 0 5.5rem;
+  text-align: center;
+}
+@media (min-width: 1024px) {
+  .closing {
+    padding: 7rem 0 7.5rem;
+  }
+}
+.closingField {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.closingFieldSvg {
+  width: 100%;
+  height: 100%;
+}
+.cTraj {
+  fill: none;
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.18;
+}
+.cNode {
+  fill: var(--obs-cyan);
+  opacity: 0.25;
+}
+.closingTitle {
+  position: relative;
+  margin: 0 auto;
+  max-width: 46rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.9rem, 4.4vw, 3.15rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  color: var(--obs-ink);
+}
+.closingLede {
+  position: relative;
+  margin: 1.75rem auto 0;
+  max-width: 40rem;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--obs-body);
+}
+@media (min-width: 640px) {
+  .closingLede {
+    font-size: 1rem;
+  }
+}
+.closingActions {
+  position: relative;
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.closingNote {
+  position: relative;
+  margin: 2.5rem auto 0;
+  max-width: 34rem;
+  font-size: 11.5px;
+  line-height: 1.8;
+  color: var(--obs-mute);
+}
+
+/* =========================================================================
+   KEYFRAMES — all slow, all low-contrast
+   ========================================================================= */
+
+@keyframes lnFlow {
+  0% {
+    stroke-dashoffset: 136;
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.85;
+  }
+  34% {
+    opacity: 0.85;
+  }
+  44% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes lnHalo {
+  0%,
+  100% {
+    opacity: 0.05;
+  }
+  50% {
+    opacity: 0.11;
+  }
+}
+
+@keyframes gFlow {
+  0% {
+    stroke-dashoffset: 112;
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  52% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fPulse {
+  0% {
+    stroke-dashoffset: 218;
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.75;
+  }
+  60% {
+    opacity: 0.75;
+  }
+  70% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes railPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frame,
+  .trajFlow,
+  .embedCell,
+  .obsNode,
+  .lnFlow,
+  .lnHalo,
+  .gEdgeFlow,
+  .fPulse,
+  .railDot {
+    animation: none;
+  }
+  .trajFlow,
+  .gEdgeFlow,
+  .fPulse {
+    display: none;
+  }
+  .frame {
+    opacity: calc(0.3 + var(--i, 0) * 0.1);
+  }
+  .obsNode {
+    opacity: 0.6;
+  }
+  .lnHalo {
+    opacity: 0.12;
+  }
+  .ledgerRow::after,
+  .ledgerArrow,
+  .panelRecord,
+  .fStageGroup .fStageNode,
+  .fStageGroup .fGlyph,
+  .fStageGroup .fNodeLabel {
+    transition: none;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================================================================
+   PIPELINE — capture, engine, capabilities
+   -------------------------------------------------------------------------
+   Three hairline panels over one trace layer. The traces live in a single
+   stretched SVG behind the grid so their endpoints stay on the panel edges at
+   every width, and so there is exactly one paint layer for all of them.
+   ========================================================================= */
+
+.pipe {
+  position: relative;
+}
+
+/* Per-row wiring. Each lead crosses the grid gap to the engine panel's edge
+   rail, so a connector is always on its own row's centre line no matter how
+   the row's text wraps or how unequal the three panels' heights are. Only in
+   the three-column layout: stacked, there is nothing beside a row to wire to. */
+.pLeadOut,
+.pLeadIn,
+.pNodeOut,
+.pNodeIn,
+.pRailIn,
+.pRailOut {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .pLeadOut,
+  .pLeadIn {
+    display: block;
+    position: absolute;
+    top: 50%;
+    height: 1px;
+    width: 1.75rem;
+  }
+  .pLeadOut {
+    right: -1.75rem;
+    background: linear-gradient(90deg, var(--obs-cyan), transparent);
+    opacity: 0.55;
+  }
+  .pLeadIn {
+    left: -1.75rem;
+    background: linear-gradient(270deg, var(--obs-violet), transparent);
+    opacity: 0.55;
+  }
+
+  .pNodeOut,
+  .pNodeIn {
+    display: block;
+    position: absolute;
+    top: 50%;
+    height: 4px;
+    width: 4px;
+    margin-top: -2px;
+    border-radius: 999px;
+    animation: pipeNode 9s ease-in-out infinite;
+  }
+  .pNodeOut {
+    right: -0.32rem;
+    background: var(--obs-cyan);
+  }
+  .pNodeIn {
+    left: -0.32rem;
+    background: var(--obs-violet);
+    animation-delay: 3.4s;
+  }
+
+  /* The rails the leads land on, on the engine panel's own edges. */
+  .pRailIn,
+  .pRailOut {
+    display: block;
+    position: absolute;
+    top: 18%;
+    bottom: 18%;
+    width: 1px;
+  }
+  .pRailIn {
+    left: 0;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      var(--obs-cyan-soft) 20%,
+      var(--obs-cyan-soft) 80%,
+      transparent
+    );
+    opacity: 0.5;
+  }
+  .pRailOut {
+    right: 0;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgb(156 100 241 / 0.5) 20%,
+      rgb(156 100 241 / 0.5) 80%,
+      transparent
+    );
+    opacity: 0.5;
+  }
+}
+
+/* A slow travel along the bus, one side then the other. */
+@keyframes pipeNode {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  12% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 0.4;
+  }
+}
+
+.pipeGrid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .pipeGrid {
+    /* The engine is the widest column: it is the part of the diagram the page
+       is about, and the two flanking panels are the interfaces to it. */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr) minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+}
+
+.pPanel {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  border: 1px solid var(--obs-line);
+  border-radius: 1.1rem;
+  background: rgb(148 163 184 / 0.022);
+  padding: 1.1rem 1.15rem 1.25rem;
+}
+
+.pPanelLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--obs-mute);
+}
+
+.pEngine {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--obs-line-mid);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgb(37 99 255 / 0.09), transparent 70%),
+    rgb(148 163 184 / 0.03);
+}
+
+.pEngineLabel {
+  color: var(--obs-cyan);
+}
+
+/* The grid gives all three panels the tallest one's height, and capabilities
+   is the tallest. The four-row columns centre their rows in that height:
+   stacked at the top they left a band of empty panel, and spread with
+   space-between the gaps grew wide enough to read as missing rows. Centred,
+   the slack is even and deliberate — and the leads stay exact either way,
+   because each one is positioned against its own row. */
+.pRows,
+.pLayers {
+  margin: 1rem 0 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.pRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid var(--obs-line);
+  border-radius: 0.8rem;
+  background: rgb(148 163 184 / 0.03);
+  padding: 0.6rem 0.7rem;
+}
+
+.pRowIcon,
+.pRowIconViolet {
+  display: inline-flex;
+  height: 1.9rem;
+  width: 1.9rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 0.55rem;
+}
+
+.pRowIcon {
+  color: var(--obs-cyan);
+}
+
+.pRowIconViolet {
+  color: var(--obs-violet);
+}
+
+.pRowName {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--obs-ink);
+}
+
+.pRowDetail {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--obs-mute);
+}
+
+.pRowCount {
+  flex: none;
+  min-width: 1.5rem;
+  border: 1px solid var(--obs-line-mid);
+  border-radius: 0.4rem;
+  padding: 0.15rem 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  text-align: center;
+  color: var(--obs-body);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The engine layers are chevrons, so the column reads as a direction of
+   travel and not as four more list rows. clip-path rather than a rotated box:
+   the notch has to stay put as a row of text wraps. */
+.pLayer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.62rem 0.8rem 0.62rem 1.35rem;
+  background: linear-gradient(
+    100deg,
+    rgb(79 209 255 / 0.1),
+    rgb(124 58 237 / 0.12)
+  );
+  border-top: 1px solid rgb(148 163 184 / 0.14);
+  border-bottom: 1px solid rgb(148 163 184 / 0.14);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 14px) 0,
+    100% 50%,
+    calc(100% - 14px) 100%,
+    0 100%,
+    14px 50%
+  );
+}
+
+.pLayerIndex {
+  flex: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  color: var(--obs-mute);
+  opacity: 0.85;
+}
+
+.pLayerIcon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--obs-cyan);
+}
+
+.pLayerTitle {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--obs-ink);
+}
+
+.pLayerDetail {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--obs-mute);
+}
+
+.pipeNote {
+  margin-top: 1.5rem;
+  max-width: 46rem;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--obs-mute);
+}
+
+.pipeNoteLink {
+  color: var(--obs-cyan);
+  text-decoration: underline;
+  text-decoration-color: var(--obs-cyan-soft);
+  text-underline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The travelling traces exist only as motion; with motion off they have
+     nothing to say, so the static hairline carries the connection alone. */
+  .pNodeOut,
+  .pNodeIn {
+    animation: none;
+  }
+  .fCard:hover {
+    transform: none;
+  }
+}
+
+/* =========================================================================
+   HERO — MOTION-CAPTURE LAB
+   -------------------------------------------------------------------------
+   A full-bleed capture layer behind the headline, not a picture in a box.
+   One stride at six frames, the joint trajectories through them, and the
+   temporal signal they reduce to.
+
+   All motion is a single entrance plus one slow sample travelling the signal.
+   Nothing loops on the figures: a walking sequence that never stops walking
+   is a GIF, and this has to read as a captured measurement.
+   ========================================================================= */
+
+.lab {
+  /* ── HERO COMPONENT TOKENS ──
+     The hero is a technical drawing, and a drawing's legibility lives in
+     opacity as much as in hue. On black, a cyan hairline at 30% is a clear
+     measurement; on paper the same hairline is a smudge, so the light branch
+     needs its own STRENGTHS, not just its own colours — which is why these
+     are tokens rather than two sets of rules.
+
+     Dark values below are the approved literals, transcribed. */
+  --research-pose: var(--obs-cyan);
+  --research-pose-muted: 0.45;
+  --research-joint-op: 0.9;
+  --research-frame-gain: 1;
+  --research-grid: rgb(148 163 184 / 0.3);
+  --research-grid-soft: rgb(148 163 184 / 0.09);
+  --research-trajectory: 0.3;
+  --research-trajectory-lead: 0.46;
+  --research-trajectory-node: 0.65;
+  --research-signal: 0.55;
+  --research-leader: 0.28;
+  --research-label: var(--obs-mute);
+  --research-label-op: 0.48;
+  --research-frameid-op: 0.5;
+  --research-contact: 0.14;
+  --research-stem: 0.22;
+  --research-cell-fill: rgb(148 163 184 / 0.07);
+  --research-cell-line: rgb(148 163 184 / 0.14);
+  --research-cell-base: rgb(148 163 184 / 0.16);
+  --research-cell-lit-fill: rgb(79 209 255 / 0.22);
+  --research-cell-lit-line: rgb(79 209 255 / 0.34);
+  --research-cell-dot-lit: rgb(79 209 255 / 0.55);
+
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* The headline sits on the left third, so the capture fades out under it.
+     A CSS mask rather than an SVG <mask>: if this one fails to apply the hero
+     is merely un-faded, where a failed SVG mask hid the whole thing. */
+  /* Raising the sequence brought the first frame level with the lede, so the
+     fade holds longer before it clears: transparent through the headline,
+     a third of the way up by the lede's right edge, full only past it. */
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 6%,
+    rgb(0 0 0 / 0.22) 28%,
+    #000 50%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 6%,
+    rgb(0 0 0 / 0.22) 28%,
+    #000 50%
+  );
+}
+
+.labStopCyan {
+  stop-color: #4fd1ff;
+}
+.labStopBlue {
+  stop-color: #3b82f6;
+}
+.labStopViolet {
+  stop-color: #9c64f1;
+}
+:global(.light) .labStopCyan {
+  stop-color: #0e8ab8;
+}
+:global(.light) .labStopBlue {
+  stop-color: #2358c8;
+}
+:global(.light) .labStopViolet {
+  stop-color: #6d34c9;
+}
+
+/* ── LIGHT BRANCH ──
+   A pale research canvas with a cool-gray grid, a deeper cyan skeleton and
+   annotations dark enough to read as annotations. The gain multiplies the
+   per-frame ramp the component sets, so the sequence keeps its hierarchy
+   (focal frame strongest, outer frames subdued) while every frame clears the
+   paper. `min()` caps it, so the focal frame stays exactly 1. */
+:global(.light) .lab {
+  /* A deeper cyan than the page's --obs-cyan: the skeleton is the subject of
+     the drawing and has to hold its own against paper, where the section
+     accents only have to hold against body copy. */
+  --research-pose: #0c7ea8;
+  --research-pose-muted: 0.6;
+  --research-joint-op: 1;
+  --research-frame-gain: 1.45;
+  --research-grid: rgb(51 65 85 / 0.26);
+  --research-grid-soft: rgb(51 65 85 / 0.14);
+  --research-trajectory: 0.5;
+  --research-trajectory-lead: 0.68;
+  --research-trajectory-node: 0.8;
+  --research-signal: 0.75;
+  --research-leader: 0.42;
+  --research-label: rgb(15 23 42 / 0.78);
+  --research-label-op: 0.75;
+  --research-frameid-op: 0.72;
+  --research-contact: 0.2;
+  --research-stem: 0.34;
+  --research-cell-fill: rgb(51 65 85 / 0.06);
+  --research-cell-line: rgb(51 65 85 / 0.2);
+  --research-cell-base: rgb(51 65 85 / 0.26);
+  --research-cell-lit-fill: rgb(14 126 168 / 0.2);
+  --research-cell-lit-line: rgb(14 126 168 / 0.5);
+  --research-cell-dot-lit: rgb(14 126 168 / 0.75);
+}
+
+/* ── Surveyed ground ── */
+.labGrid line {
+  stroke: var(--research-grid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.labGridSoft {
+  stroke: var(--research-grid-soft) !important;
+  stroke-dasharray: 2 10;
+}
+
+/* ── Captured frames ──
+   IMPORTANT: every element below is declared in its FINISHED state, and the
+   entrance is added only inside `prefers-reduced-motion: no-preference`.
+   Written the other way round — base `opacity: 0` plus an entrance that fills
+   forwards — the hero is blank in any environment where the animation does not
+   run, which is a blank hero for the sake of a one-second flourish. This way
+   the worst case is the finished picture. */
+/* Per-frame visibility comes from the component as `--l-op`, because the
+   ramp is no longer linear: the focal frame reads at full strength, its
+   neighbours nearly so, and the outer frames stay subdued. A single
+   `calc()` ramp made every figure equally unremarkable and left the middle
+   of the sequence too faint to recognise at normal zoom. */
+.labFrame {
+  opacity: min(1, calc(var(--l-op, 0.6) * var(--research-frame-gain)));
+}
+
+/* The focal frame is the measurement. Slightly heavier bones and brighter
+   joints — not a different colour, and not a glow. */
+.labFrameFocus .labBone {
+  stroke-width: 2.1;
+}
+.labFrameFocus .labBoneFar {
+  opacity: 0.55;
+  stroke-width: 1.5;
+}
+.labFrameFocus .labJoint {
+  opacity: 1;
+}
+.labFrameFocus .labHead {
+  stroke-width: 1.9;
+}
+.labFrameFocus .labContact {
+  opacity: 0.22;
+}
+
+.labBone {
+  fill: none;
+  stroke: var(--research-pose);
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.labBoneFar {
+  opacity: var(--research-pose-muted);
+  stroke-width: 1.2;
+}
+
+.labJoint {
+  fill: var(--research-pose);
+  opacity: var(--research-joint-op);
+}
+
+.labHead {
+  fill: rgb(var(--c-obsidian-300) / 0.85);
+  stroke: var(--research-pose);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .labHead {
+  fill: #ffffff;
+}
+
+.labContact {
+  fill: var(--research-pose);
+  opacity: var(--research-contact);
+}
+
+.labFrameId {
+  fill: var(--research-label);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  opacity: var(--research-frameid-op);
+}
+
+/* ── Joint trajectories ── */
+/* Three curves instead of five, so each can carry a little more weight and
+   still sit under the figures in the hierarchy. */
+.labTrajPath {
+  fill: none;
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: var(--research-trajectory);
+  vector-effect: non-scaling-stroke;
+}
+/* The ankle path is the one a gait study reads first — the swing arc — so it
+   carries a little more weight than the trunk and pelvis curves above it. */
+.labTrajPath:nth-of-type(3) {
+  stroke-width: 1.3;
+  opacity: var(--research-trajectory-lead);
+}
+
+.labTrajNodes circle {
+  fill: none;
+  stroke: var(--obs-cyan);
+  stroke-width: 1.2;
+  opacity: var(--research-trajectory-node);
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── The temporal signal ── */
+.labSignalPath {
+  fill: none;
+  stroke: url(#lab-signal);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  opacity: var(--research-signal);
+  vector-effect: non-scaling-stroke;
+}
+
+.labEventStem {
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 1.5 5;
+  opacity: var(--research-stem);
+  vector-effect: non-scaling-stroke;
+}
+
+.labEventNode {
+  fill: var(--obs-cyan);
+  opacity: 0.65;
+}
+
+/* ── Instrument annotations ── */
+.labNote {
+  opacity: 1;
+}
+
+.labLeader {
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+  opacity: var(--research-leader);
+  vector-effect: non-scaling-stroke;
+}
+
+.labNoteText {
+  fill: var(--research-label);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  opacity: var(--research-label-op);
+}
+
+/* ── The focal measurement: knee flexion on the swing frame ──
+   The one place in the hero allowed to read as an instrument rather than as
+   atmosphere. Still no glow and no new colour: it earns attention through
+   contrast against a subdued field, which is the only kind of emphasis this
+   palette has. */
+.labFocusAxis {
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+.labFocusArc {
+  fill: none;
+  stroke: var(--obs-cyan);
+  stroke-width: 1.9;
+  opacity: 0.9;
+  vector-effect: non-scaling-stroke;
+}
+.labFocusTick {
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+.labFocusJoint {
+  fill: #dff3ff;
+  opacity: 0.95;
+}
+:global(.light) .labFocusJoint {
+  fill: #0e7490;
+}
+.labFocusRing {
+  fill: none;
+  stroke: var(--obs-cyan);
+  stroke-width: 1;
+  opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+.labFocusValue {
+  fill: var(--obs-ink);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  opacity: 0.8;
+}
+
+/* ── The upper-right instrument cluster ──
+   Everything here is deliberately at the noise floor: it fills the quadrant
+   with measurement, and stops before it becomes a panel you try to read. */
+.labInstr line {
+  stroke: rgb(148 163 184 / 0.22);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.labInstrDash {
+  stroke: rgb(79 209 255 / 0.22) !important;
+  stroke-dasharray: 2 5;
+}
+.labInstrCell {
+  fill: var(--research-cell-fill);
+  stroke: var(--research-cell-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.labInstrCellLit {
+  fill: var(--research-cell-lit-fill);
+  stroke: var(--research-cell-lit-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.labInstrDot {
+  fill: rgb(148 163 184 / 0.3);
+}
+.labInstrLit {
+  fill: var(--research-cell-dot-lit);
+}
+.labInstrBase {
+  stroke: var(--research-cell-base) !important;
+}
+.labInstrWave {
+  fill: none;
+  stroke: rgb(156 100 241 / 0.34);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .labInstr line {
+  stroke: rgb(15 23 42 / 0.18);
+}
+:global(.light) .labInstrDot {
+  fill: rgb(15 23 42 / 0.22);
+}
+:global(.light) .labInstrWave {
+  stroke: rgb(109 52 201 / 0.32);
+}
+
+/* One sample travelling the signal. This element exists ONLY as motion, so
+   unlike everything above it is correct for it to be invisible at rest. */
+.labSignalFlow {
+  fill: none;
+  stroke: url(#lab-signal);
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1 100;
+  stroke-dashoffset: 101;
+  opacity: 0;
+}
+
+/* ── The entrance ─────────────────────────────────────────────────────────
+   Only `transform` is animated, and never opacity or stroke-dashoffset.
+   That is a deliberate constraint, learned the hard way here: an entrance that
+   animates visibility fails CLOSED — if it does not run, or has not run yet,
+   the hero is blank — and this one held at its 0% frame, so the whole capture
+   was invisible while the CSS was "correct". Animating position instead fails
+   OPEN: the worst case is a figure sitting ten pixels low.
+
+   Motion that genuinely has nothing to say at rest — the sample travelling
+   the signal — is the one thing allowed to start from invisible. */
+@media (prefers-reduced-motion: no-preference) {
+  .labFrame {
+    animation: labFrameIn 0.9s var(--obs-ease) both;
+    animation-delay: calc(0.1s + var(--l-i, 0) * 0.12s);
+  }
+
+  /* The travelling sample: the one continuous motion in the hero. */
+  .labSignalFlow {
+    animation: labTravel 9s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+}
+
+@keyframes labFrameIn {
+  from {
+    transform: translateY(12px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* The end offset is the dash length, not zero: stroke-dashoffset is modular in
+   the pattern period, so animating to zero snaps the dash back to the start of
+   the path while it is still fully opaque. */
+@keyframes labTravel {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 101;
+  }
+  6% {
+    opacity: 0.95;
+  }
+  62% {
+    opacity: 0.95;
+  }
+  68% {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+}
+
+/* ── The hero shell the lab sits behind ── */
+.heroLab {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.heroLabStage {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* A capture caption under the headline, naming what the lab is showing. */
+.labCaption {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.85rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--obs-mute);
+}
+
+.labCaptionStep {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.labCaptionArrow {
+  color: var(--obs-cyan);
+  opacity: 0.7;
+}
+
+@media (max-width: 1023px) {
+  /* On a narrow screen the frames would be cropped to two figures and a lot of
+     empty floor, so the lab drops to a band above the headline where the whole
+     sequence still fits, rather than being scaled into illegibility. */
+  .heroLabStage {
+    position: relative;
+    inset: auto;
+    z-index: 0;
+    margin-bottom: 1.5rem;
+    height: 210px;
+  }
+  .lab {
+    position: relative;
+  }
+}
+
+
+/* The headline column. The lab occupies the right two-thirds of the frame, so
+   the type is held to the left third and never overlaps a figure. */
+.heroLabGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1024px) {
+  .heroLabGrid {
+    grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
+    min-height: 62vh;
+    align-items: center;
+  }
+}
+
+/* ── One diagram, every width ────────────────────────────────────────────────
+   These three diagrams used to ship twice: an SVG for wide screens and a
+   stacked list repeating the same labels for narrow ones, both always in the
+   markup with one hidden. Every label was therefore served — and indexed —
+   twice. Now each diagram is emitted once, and where it is wider than the
+   viewport it scrolls inside this frame rather than being scaled down until
+   its type is unreadable. The page itself never scrolls sideways. */
+.diagramScroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  /* Room for the scrollbar so it never sits on top of the drawing. */
+  padding-bottom: 0.25rem;
+}
+
+.diagramScroll > .lineage {
+  min-width: 46rem;
+}
+
+.diagramScroll > .emapGraph {
+  min-width: 34rem;
+}
+
+.diagramScroll > .journeyTrack {
+  min-width: 44rem;
+}
+
+/* Wide enough for the diagram to fit: no frame, no scrollbar, no min-width. */
+@media (min-width: 64rem) {
+  .diagramScroll {
+    overflow-x: visible;
+    padding-bottom: 0;
+  }
+  .diagramScroll > .lineage,
+  .diagramScroll > .emapGraph,
+  .diagramScroll > .journeyTrack {
+    min-width: 0;
+  }
+}
+
+:global(.light) .emapTabMeta {
+  opacity: 1;
+  color: rgb(51 65 85);
+}

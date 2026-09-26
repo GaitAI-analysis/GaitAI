@@ -1,0 +1,1022 @@
+/* ==========================================================================
+   THE ARCHIVE
+   --------------------------------------------------------------------------
+   The editorial surface above the signal narrative: masthead, controls, cover
+   story, grid and the reading path.
+
+   WHY THIS DECLARES THE FULL TOKEN SET
+   The /insights root class comes from signal.module.css, which defines a
+   subset of the journal palette — no --jr-royal, --jr-teal, --jr-gold or
+   --jr-line-mid. StoryCard's topic accents read --jr-royal and --jr-teal, so
+   rendering it inside that root left two of the four topics with an undefined
+   accent. Declaring the complete set on .archive makes this surface work
+   under either root, and under none.
+
+   Values are copied from journal.module.css so the two surfaces are the same
+   publication rather than two palettes that happen to look similar.
+   ========================================================================== */
+
+.archive {
+  position: relative;
+  z-index: 1;
+
+  --jr-cyan: #4fd1ff;
+  --jr-royal: #5587ff;
+  --jr-violet: #9c64f1;
+  --jr-teal: #2dd4bf;
+  --jr-gold: #e4c48a;
+
+  --jr-line: rgb(148 163 184 / 0.16);
+  --jr-line-mid: rgb(148 163 184 / 0.28);
+  --jr-grid: rgb(148 163 184 / 0.07);
+
+  --jr-ink: rgb(var(--c-soft-white));
+  --jr-body: rgb(var(--c-soft-gray));
+  --jr-mute: rgb(var(--c-soft-mute));
+
+  --jr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* The fixed header is already cleared by `.site-main`, and the location
+     trail sits between it and this section. What remains is one editorial
+     beat below the trail — not the full page-intro token, which put the
+     masthead a full line lower than the eye expects. */
+  padding-top: 0.75rem;
+  /* The foot of the page (Browse the signal) carries its own top padding, so
+     the feed ends with one editorial beat rather than a field of empty page. */
+  padding-bottom: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+:global(.light) .archive {
+  --jr-cyan: #0e7490;
+  --jr-royal: #1b4ed9;
+  --jr-violet: #5f25bf;
+  --jr-teal: #0d9488;
+  --jr-gold: #8a6320;
+
+  --jr-line: rgb(15 23 42 / 0.12);
+  --jr-line-mid: rgb(15 23 42 / 0.2);
+  --jr-grid: rgb(15 23 42 / 0.05);
+}
+
+/* ── Masthead ── */
+.masthead {
+  max-width: 46rem;
+}
+
+.mastheadKicker {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--jr-cyan);
+}
+
+.mastheadTitle {
+  margin-top: 0.8rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(2.125rem, 4.4vw, 3.125rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  color: var(--jr-ink);
+  text-wrap: balance;
+}
+
+.mastheadAccent {
+  background: linear-gradient(135deg, #4fd1ff 0%, #5587ff 48%, #9c64f1 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:global(.light) .mastheadAccent {
+  background: linear-gradient(135deg, #108fc0 0%, #1b4ed9 48%, #5f25bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.mastheadDeck {
+  margin-top: 0.9rem;
+  max-width: 36rem;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--jr-body);
+}
+
+.mastheadMeta {
+  margin-top: 0.8rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+
+/* The coverage line and the dated line sit together as one block. */
+.mastheadMeta + .mastheadMeta {
+  margin-top: 0.4rem;
+}
+
+/* ── Utilities: search · Topics ▾ · Newest ▾ ──
+   One row, after the cover story. No rule above it: it sits on the page
+   ground with air around it, the way a magazine's contents line does. */
+.utilities {
+  display: flex;
+  scroll-margin-top: var(--header-clearance);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+.utilitiesAfterCover {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+}
+/* On a phone the search takes the first line and the two menus share the
+   second, rather than one control wrapping alone. */
+@media (max-width: 560px) {
+  .utilities .searchWrap {
+    flex-basis: 100%;
+  }
+  .utilities .sort,
+  .utilities .menuWrap {
+    flex: 1 1 auto;
+  }
+  .utilities .menuButton {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+.menuWrap {
+  position: relative;
+}
+.menuButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  border: 1px solid var(--jr-line-mid);
+  border-radius: 0.55rem;
+  background: rgb(var(--c-soft-white) / 0.04);
+  padding: 0.42rem 0.85rem;
+  font-size: 12.5px;
+  color: var(--jr-ink);
+  cursor: pointer;
+  transition: border-color 0.25s var(--jr-ease), background-color 0.25s var(--jr-ease);
+}
+.menuButton:hover {
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+.menuButton:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: 2px;
+}
+.menuButtonOn {
+  border-color: var(--jr-cyan);
+  color: var(--jr-ink);
+}
+.menuChevron {
+  font-size: 10px;
+  color: var(--jr-mute);
+}
+.menuPanel {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(26rem, calc(100vw - 2.5rem));
+  display: grid;
+  gap: 1rem;
+  border: 1px solid var(--jr-line-mid);
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  background: rgb(var(--c-obsidian-500) / 0.98);
+  box-shadow: 0 18px 60px rgb(0 0 0 / 0.28);
+  backdrop-filter: blur(18px);
+  animation: archiveMenuIn 0.22s var(--jr-ease) both;
+}
+:global(.light) .menuPanel {
+  background: rgb(255 255 255 / 0.98);
+  box-shadow: 0 18px 50px -20px rgb(15 23 42 / 0.3);
+}
+@keyframes archiveMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menuPanel {
+    animation: none;
+  }
+}
+.menuGroup {
+  display: grid;
+  gap: 0.5rem;
+}
+.menuGroupLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.menuCount {
+  margin-left: 0.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  color: var(--jr-mute);
+}
+.menuClear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-self: start;
+  font-size: 11.5px;
+  color: var(--jr-cyan);
+}
+.activeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.9rem;
+}
+.activeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+  border: 1px solid var(--jr-cyan);
+  border-radius: 999px;
+  background: rgb(79 209 255 / 0.1);
+  padding: 0.25rem 0.75rem;
+  font-size: 11.5px;
+  color: var(--jr-ink);
+}
+.resultQuiet {
+  font-size: 12px;
+  color: var(--jr-mute);
+}
+
+/* ── Controls (kept for the topic and archive routes) ── */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: clamp(2rem, 4vw, 3rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--jr-line);
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  height: 0.9rem;
+  width: 0.9rem;
+  transform: translateY(-50%);
+  color: var(--jr-mute);
+  pointer-events: none;
+}
+
+.search {
+  width: 100%;
+  border: 1px solid var(--jr-line);
+  border-radius: 0.65rem;
+  background: rgb(var(--c-soft-white) / 0.03);
+  padding: 0.55rem 0.8rem 0.55rem 2.15rem;
+  font-size: 13.5px;
+  color: var(--jr-ink);
+}
+
+.search::placeholder {
+  color: var(--jr-mute);
+}
+
+.search:focus {
+  outline: none;
+  border-color: var(--jr-cyan);
+  box-shadow: 0 0 0 3px var(--interactive-focus-ring-soft);
+}
+
+/* ── Filters ── */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin-top: 1.1rem;
+}
+
+.filterRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.7rem;
+}
+
+/* Fixed width so the two chip rows start on the same vertical line. */
+.filterLabel {
+  flex: 0 0 2.9rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+
+.topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.moreTopics {
+  position: relative;
+}
+
+.moreTopics > summary {
+  list-style: none;
+}
+
+.moreTopics > summary::-webkit-details-marker {
+  display: none;
+}
+
+.moreMenu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: min(19rem, calc(100vw - 2rem));
+  overflow: hidden;
+  border: 1px solid var(--jr-line-mid);
+  border-radius: 0.8rem;
+  background: rgb(var(--c-obsidian-500) / 0.98);
+  box-shadow: 0 18px 60px rgb(0 0 0 / 0.28);
+  backdrop-filter: blur(18px);
+}
+
+:global(.light) .moreMenu {
+  background: rgb(255 255 255 / 0.98);
+}
+
+.moreOption {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--jr-line);
+  text-align: left;
+  font-size: 12px;
+  color: var(--jr-body);
+}
+
+.moreOption:last-child {
+  border-bottom: 0;
+}
+
+.moreOption:hover,
+.moreOption[aria-pressed="true"] {
+  background: var(--interactive-hover-bg);
+  color: var(--jr-ink);
+}
+
+.topicChip {
+  border: 1px solid var(--jr-line);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.32rem 0.72rem;
+  font-size: 11.5px;
+  color: var(--jr-mute);
+  cursor: pointer;
+  transition:
+    border-color 0.28s var(--jr-ease),
+    color 0.28s var(--jr-ease),
+    background-color 0.28s var(--jr-ease);
+}
+
+.topicChip:hover {
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+  color: var(--jr-ink);
+}
+
+.topicChip:active {
+  transform: translateY(0.5px);
+}
+
+/* SELECTED stays ahead of HOVER, and adds weight so the state is not carried
+   by the cyan alone. */
+.topicChipOn,
+.topicChipOn:hover {
+  border-color: var(--jr-cyan);
+  background: rgb(79 209 255 / 0.12);
+  color: var(--jr-ink);
+  font-weight: 600;
+}
+
+:global(.light) .topicChipOn,
+:global(.light) .topicChipOn:hover {
+  background: rgb(16 143 192 / 0.11);
+}
+
+/* TOUCH — the filter rows are the archive's main control surface on a phone,
+   and a 24px pill is not a target. */
+@media (pointer: coarse) {
+  .topicChip {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.9rem;
+  }
+}
+
+.sortWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sortLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+
+/* The sort was reading as metadata beside the search field: same hairline,
+   no hover, no press. It keeps the native <select> — which brings its own
+   chevron, its own menu and its own keyboard behaviour, all of which a
+   hand-rolled menu would have had to reinvent — and gains the resting and
+   hover definition that says "this is a control". */
+.sort {
+  border: 1px solid var(--jr-line-mid);
+  border-radius: 0.55rem;
+  background: rgb(var(--c-soft-white) / 0.04);
+  padding: 0.42rem 0.6rem;
+  font-size: 12px;
+  color: var(--jr-ink);
+  cursor: pointer;
+  transition: border-color 0.25s var(--jr-ease), background-color 0.25s var(--jr-ease);
+}
+
+.sort:hover {
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+
+.search:hover {
+  border-color: var(--interactive-hover-border);
+}
+
+@media (pointer: coarse) {
+  .sort,
+  .search {
+    min-height: 40px;
+  }
+}
+
+.search:focus-visible,
+.topicChip:focus-visible,
+.sort:focus-visible,
+.clear:focus-visible,
+.seriesLink:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: 2px;
+}
+
+.resultRow {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 1rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+
+.clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 0.3rem;
+  color: var(--jr-cyan);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── Cover story ── */
+.featured {
+  /* One beat after the masthead, so the whole cover — walker, stage control,
+     Explore story — fits a 768px-high laptop viewport. */
+  margin-top: clamp(1rem, 1.8vw, 1.4rem);
+}
+
+.featuredLabel {
+  margin-bottom: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-gold);
+}
+
+.featuredLabel::before {
+  content: "";
+  height: 1px;
+  width: 1.75rem;
+  background: var(--jr-gold);
+}
+
+/* ── Grid ── */
+.gridHeading {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+
+.latestSection {
+  scroll-margin-top: var(--header-clearance);
+  margin-top: 1.5rem;
+}
+
+/* ── The transition to older stories ──
+   Pagination as a moment in the journal: a track from the newest page to the
+   oldest, one node per page, the current one lit, and words that say where
+   this collection is and where the rest is. Close to the stories it belongs
+   to; the next section opens with its own separation. The routes behind it
+   stay crawlable (`/insights/`, `/insights/page/2/`). */
+.pagination {
+  position: relative;
+  margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+  padding: 1.1rem 0 0.25rem;
+  border-top: 1px solid var(--jr-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 9.5px;
+  color: var(--jr-mute);
+}
+
+/* Which way is which, and where we are. */
+.pageRail {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: baseline;
+}
+.pageEnd:last-child {
+  text-align: right;
+}
+.pageState {
+  color: var(--jr-mute);
+  letter-spacing: 0.22em;
+}
+.pageState b {
+  font-weight: 600;
+  color: var(--jr-ink);
+}
+.pageStateInline {
+  display: none;
+}
+
+/* The track. The nodes are anchored to it by percentage; the line and the
+   travelling signal are its own layers. */
+.pageTrack {
+  position: relative;
+  height: 2.75rem;
+  margin: 0.55rem 0.35rem 0;
+}
+.pageTrackLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.55rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--jr-cyan) 0, var(--jr-line-mid) 18%, var(--jr-line-mid) 82%, var(--jr-line) 100%);
+}
+/* A short signal that travels the track from the current node towards the
+   destination when a reader hovers or focuses a link — once, then rests. */
+.pageTrackSignal {
+  position: absolute;
+  top: calc(0.55rem - 1px);
+  left: var(--pg-from, 0%);
+  width: 26px;
+  height: 3px;
+  margin-left: -13px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--jr-cyan), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+.pagination:has(.pageWordOlder:hover, .pageWordOlder:focus-visible) .pageTrackSignal {
+  animation: pgTravel 0.7s var(--jr-ease) 1 both;
+  --pg-dest: var(--pg-to-older);
+}
+.pagination:has(.pageWordLink:not(.pageWordOlder):hover, .pageWordLink:not(.pageWordOlder):focus-visible) .pageTrackSignal {
+  animation: pgTravel 0.7s var(--jr-ease) 1 both;
+  --pg-dest: var(--pg-to-newer);
+}
+@keyframes pgTravel {
+  0% {
+    left: var(--pg-from);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    left: var(--pg-dest);
+    opacity: 0;
+  }
+}
+
+.pageNodes {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pageNodeSlot,
+.pageNodeGap {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+}
+.pageNodeGap {
+  top: 0.15rem;
+  letter-spacing: 0.1em;
+  color: var(--jr-line-mid);
+}
+/* A node is a small dot on the line with its number beneath; the target is
+   the whole 44px column around it. */
+.pageNode {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding-top: calc(0.55rem - 3px);
+  color: var(--jr-mute);
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.pageDot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: 1px solid var(--jr-line-mid);
+  background: rgb(var(--c-obsidian-500, 7 11 20));
+  transition: border-color var(--motion-ui) var(--jr-ease), background var(--motion-ui) var(--jr-ease), transform var(--motion-ui) var(--jr-ease);
+}
+:global(.light) .pageDot {
+  background: #f8fafc;
+}
+.pageNo {
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+}
+.pageNode:hover .pageDot,
+.pageNode:focus-visible .pageDot {
+  border-color: var(--jr-cyan);
+}
+.pageNode:hover,
+.pageNode:focus-visible {
+  color: var(--jr-ink);
+}
+.pageNode:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.pageNodeOn {
+  color: var(--jr-ink);
+}
+.pageNodeOn .pageDot {
+  border-color: var(--jr-cyan);
+  background: var(--jr-cyan);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.14);
+}
+.pageNodeOn .pageNo {
+  color: var(--jr-cyan);
+}
+
+/* The words. */
+.pageWords {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-top: 0.1rem;
+}
+.pageWord {
+  grid-column: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  color: var(--jr-mute);
+}
+.pageStateInline {
+  grid-column: 2;
+}
+.pageWordOlder {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+}
+.pageWordLink {
+  color: var(--jr-body);
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.pageWordLink:hover,
+.pageWordLink:focus-visible {
+  color: var(--jr-cyan);
+}
+.pageWordLink:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+/* A phone: one row, `← NEWER · 1 / 2 · OLDER →`, generous targets, and the
+   track kept only as a line — a 7px dot is not a tap target. */
+@media (max-width: 560px) {
+  .pageRail,
+  .pageNodes {
+    display: none;
+  }
+  .pageTrack {
+    display: none;
+  }
+  .pageStateInline {
+    display: inline;
+  }
+  .pageWord {
+    min-height: 2.75rem;
+    padding: 0 0.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pageTrackSignal {
+    animation: none !important;
+  }
+}
+
+/* The grid itself is `.indexGrid` in journal.module.css, not here. It has to
+   restyle the inside of the card that closes a short final row — a lone
+   fourth story stranded in column one was the gap this fixes — and a CSS
+   module can only address class names it declares, so the grid lives in the
+   stylesheet that owns `.card`. */
+
+/* ── Empty ── */
+.empty {
+  margin-top: 3rem;
+  border: 1px dashed var(--jr-line-mid);
+  border-radius: 1.25rem;
+  padding: clamp(2rem, 5vw, 3.5rem);
+  text-align: center;
+}
+
+.emptyTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--jr-ink);
+}
+
+.emptyBody {
+  margin: 0.7rem auto 0;
+  max-width: 30rem;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--jr-body);
+}
+
+/* ── Reading path ── */
+.series {
+  margin-top: clamp(3rem, 6vw, 4.5rem);
+  padding-top: clamp(2rem, 4vw, 2.75rem);
+  border-top: 1px solid var(--jr-line);
+}
+
+.seriesHead {
+  max-width: 40rem;
+}
+
+.seriesKicker {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-violet);
+}
+
+.seriesTitle {
+  margin-top: 0.85rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.8vw, 1.85rem);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: var(--jr-ink);
+  text-wrap: balance;
+}
+
+.seriesDeck {
+  margin-top: 0.8rem;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--jr-body);
+}
+
+.seriesList {
+  margin-top: 1.75rem;
+  display: grid;
+  gap: 1px;
+  background: var(--jr-line);
+  border: 1px solid var(--jr-line);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.seriesLink {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  background: rgb(var(--c-obsidian-400) / 0.5);
+  padding: 1rem 1.15rem;
+  transition: background-color 0.28s var(--jr-ease);
+}
+
+:global(.light) .seriesLink {
+  background: #ffffff;
+}
+
+.seriesLink:hover {
+  background: rgb(var(--c-soft-white) / 0.045);
+}
+
+:global(.light) .seriesLink:hover {
+  background: rgb(15 23 42 / 0.03);
+}
+
+.seriesStep {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--jr-violet);
+}
+
+.seriesName {
+  display: block;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--jr-ink);
+}
+
+.seriesMeta {
+  margin-top: 0.28rem;
+  display: block;
+  font-size: 11.5px;
+  color: var(--jr-mute);
+}
+
+.seriesArrow {
+  color: var(--jr-mute);
+  transition:
+    transform 0.28s var(--jr-ease),
+    color 0.28s var(--jr-ease);
+}
+
+.seriesLink:hover .seriesArrow {
+  transform: translateX(3px);
+  color: var(--jr-cyan);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seriesArrow,
+  .seriesLink:hover .seriesArrow,
+  .topicChip,
+  .topicChip:active,
+  .sort {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* On an older page the heading says which page this is. */
+.gridHeadingState {
+  color: var(--jr-body);
+  letter-spacing: 0.18em;
+}
+
+/* =========================================================================
+   LIGHT EDITION — masthead and utilities as printed instrument chrome
+   ========================================================================= */
+:global(.light) .archive {
+  --jr-ink: var(--light-graphite, #0b1220);
+  --jr-body: var(--light-slate, #1f2d44);
+  --jr-mute: var(--light-meta, #3a4d68);
+  --jr-gold: var(--light-gold, #a1701a);
+  --jr-line: rgb(15 23 42 / 0.16);
+  --jr-line-mid: rgb(15 23 42 / 0.26);
+}
+:global(.light) .mastheadAccent {
+  background: linear-gradient(135deg, #0e7490 0%, #1b4ed9 52%, #5f25bf 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+/* "Cover story" keeps its gold in light — a shade richer than the dark
+   champagne, still bronze on white. */
+:global(.light) .featuredLabel {
+  color: var(--jr-gold);
+}
+/* Search and the topics button: ceramic fields with an inner highlight, a
+   blue-grey optical border and a sapphire focus ring. */
+/* Clean white fields with a graphite hairline — not grey on grey. */
+:global(.light) .search,
+:global(.light) .menuButton {
+  background: #ffffff;
+  border-color: rgb(15 23 42 / 0.28);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 1px 2px rgb(15 23 42 / 0.06);
+  color: var(--light-graphite, #0b1220);
+}
+:global(.light) .search::placeholder {
+  color: #4a5a72;
+}
+:global(.light) .searchIcon,
+:global(.light) .menuChevron {
+  color: #33445f;
+}
+:global(.light) .search:hover,
+:global(.light) .menuButton:hover {
+  border-color: rgb(15 23 42 / 0.42);
+  background: #ffffff;
+}
+:global(.light) .topicChip {
+  background: #ffffff;
+  border-color: rgb(15 23 42 / 0.22);
+  color: var(--jr-body);
+}
+:global(.light) .topicChip:hover {
+  border-color: rgb(15 23 42 / 0.4);
+  background: #ffffff;
+  color: var(--jr-ink);
+}
+:global(.light) .search:focus {
+  border-color: var(--light-cyan, #0e7490);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 0 0 3px rgb(14 116 144 / 0.18);
+}
+:global(.light) .menuPanel {
+  border-color: var(--light-optical-border, rgba(30, 58, 95, 0.16));
+  box-shadow: var(--light-shadow-lift);
+}
+
+/* The sort control ("Newest"), light: the same clean white field and graphite
+   hairline as the search and the topics button beside it. */
+:global(.light) .sort {
+  background: #ffffff;
+  border-color: rgb(15 23 42 / 0.28);
+  color: var(--light-graphite, #0b1220);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 1), 0 1px 2px rgb(15 23 42 / 0.06);
+}
+:global(.light) .sort:hover {
+  border-color: rgb(15 23 42 / 0.42);
+}
+:global(.light) .sortLabel {
+  color: #33445f;
+}

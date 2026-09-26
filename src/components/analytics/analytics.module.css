@@ -1,0 +1,1164 @@
+/* ==========================================================================
+   THE ANALYTICAL DESIGN LANGUAGE
+   --------------------------------------------------------------------------
+   One stylesheet for every interactive analytical surface — the environment
+   explorer, the stack configurator, the coverage matrix, the evidence
+   explorer, Movement Studio and the home teaser — so five experiences built
+   over four weeks cannot each invent their own chip, panel and matrix.
+
+   It borrows the site's existing identity rather than adding to it: midnight
+   navy surfaces, hairline slate rules, cyan for the reading, royal blue for
+   structure, restrained violet for the second family, and champagne amber
+   used for exactly one thing — a candidate event that needs a human. No
+   glows, no neon, no decorative icons: typography, thin lines, state dots and
+   real analytical graphics.
+
+   Every colour resolves through the site's own tokens, so the light theme
+   follows automatically; the handful of places that need a different value in
+   light mode override the token, never the rule.
+   ========================================================================== */
+
+.lab {
+  --an-cyan: #4fd1ff;
+  --an-royal: #5587ff;
+  --an-violet: #a78bfa;
+  --an-teal: #2dd4bf;
+  --an-amber: #e4c48a;
+  --an-line: rgb(148 163 184 / 0.14);
+  --an-line-mid: rgb(148 163 184 / 0.28);
+  --an-grid: rgb(148 163 184 / 0.07);
+  --an-ink: rgb(var(--c-soft-white));
+  --an-body: rgb(var(--c-soft-gray));
+  --an-mute: rgb(var(--c-soft-mute));
+  --an-surface: rgb(var(--c-obsidian-400) / 0.55);
+  --an-surface-2: rgb(var(--c-obsidian-300) / 0.6);
+  --an-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+/* LIGHT BRANCH.
+   A hairline that reads on navy at 14% alpha does not read on paper at the
+   same value: dark hides a weak line in its own ground, paper shows every
+   one of them and then shows none of them. So the lines step up, the muted
+   ink steps down toward slate-600, and the panel ground stays white with a
+   cool second surface behind the heads — this instrument has ~40 tiles and
+   ~60 chips on /products/ and every one of them was outlined in a 10%
+   hairline that vanished. */
+:global(.light) .lab {
+  --an-cyan: #0e7490;
+  --an-royal: #2563ff;
+  --an-violet: #6d28d9;
+  --an-teal: #0f766e;
+  --an-amber: #a16207;
+  --an-line: rgb(15 23 42 / 0.16);
+  --an-line-mid: rgb(15 23 42 / 0.3);
+  --an-grid: rgb(15 23 42 / 0.06);
+  --an-surface: #ffffff;
+  --an-surface-2: rgb(241 245 249 / 0.9);
+  /* slate-600 rather than slate-500: the labels are 9–10px mono at 0.2em
+     tracking, and small wide-tracked type needs the extra contrast that a
+     paragraph does not. */
+  --an-mute: rgb(71 85 105);
+}
+
+/* A disabled chip at 35% opacity over already-muted ink is a smudge on
+   paper. It has to stay clearly disabled and stay READABLE, because "no
+   objective applies to this environment yet" is itself the answer — so the
+   light branch dims less and leans on the flatter surface instead. */
+:global(.light) .chipDisabled {
+  opacity: 1;
+  color: rgb(100 116 139);
+  border-color: rgb(15 23 42 / 0.1);
+  background: rgb(15 23 42 / 0.02);
+}
+
+/* Family accents. Applied to a subtree, read by everything inside it. */
+.famCare {
+  --an-accent: var(--an-cyan);
+  --an-accent-soft: rgb(79 209 255 / 0.32);
+}
+.famSecure {
+  --an-accent: var(--an-royal);
+  --an-accent-soft: rgb(85 135 255 / 0.32);
+}
+:global(.light) .famCare {
+  --an-accent-soft: rgb(14 116 144 / 0.3);
+}
+:global(.light) .famSecure {
+  --an-accent-soft: rgb(37 99 255 / 0.3);
+}
+
+/* ==========================================================================
+   1 · TYPE ROLES
+   ========================================================================== */
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--an-cyan);
+}
+.eyebrowRule {
+  display: block;
+  height: 1px;
+  width: 1.75rem;
+  background: linear-gradient(90deg, var(--an-cyan), transparent);
+}
+
+.label {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+.labelAccent {
+  color: var(--an-accent, var(--an-cyan));
+}
+
+.value {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--an-ink);
+}
+
+.note {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--an-mute);
+}
+
+/* ==========================================================================
+   2 · SURFACES
+   ========================================================================== */
+
+.panel {
+  position: relative;
+  border: 1px solid var(--an-line);
+  border-radius: 1.1rem;
+  background: var(--an-surface);
+  overflow: hidden;
+}
+.panelGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(var(--an-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--an-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 90% 80% at 20% 0%, #000 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 90% 80% at 20% 0%, #000 20%, transparent 75%);
+}
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 1rem;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--an-line);
+}
+.panelBody {
+  padding: 1.1rem;
+}
+.panelRule {
+  height: 1px;
+  background: var(--an-line);
+}
+
+/* A hairline stat readout — the header row above an explorer. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--an-line);
+  border: 1px solid var(--an-line);
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.stat {
+  background: var(--an-surface);
+  padding: 0.95rem 1rem 1rem;
+}
+.statValue {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--an-ink);
+}
+.statLabel {
+  margin-top: 0.45rem;
+  display: block;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+
+/* ==========================================================================
+   3 · CONTROLS — chips, chip scrollers, segmented tabs
+   ========================================================================== */
+
+.controlRow {
+  display: grid;
+  gap: 0.9rem;
+}
+.controlGroup {
+  min-width: 0;
+}
+.controlLabel {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+
+/* Horizontal scroller: the only shape a 17-item filter takes on a phone. */
+.chips {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 0.2rem;
+  scroll-snap-type: x proximity;
+}
+.chips::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .chips {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+.chip {
+  flex: none;
+  scroll-snap-align: start;
+  border: 1px solid var(--an-line);
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.42rem 0.8rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--an-body);
+  cursor: pointer;
+  transition: border-color 0.3s var(--an-ease), color 0.3s var(--an-ease),
+    background-color 0.3s var(--an-ease);
+}
+/* HOVER takes a surface as well as a border: a border-only change is the 1px
+   difference the interaction system rules out. */
+.chip:hover:not(:disabled) {
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+  color: var(--an-ink);
+}
+.chip:active:not(:disabled) {
+  transform: translateY(0.5px);
+}
+/* SELECTED is the accent at full strength plus a weight change, so it does
+   not depend on colour alone and stays ahead of hover. */
+.chipOn,
+.chipOn:hover {
+  border-color: var(--an-accent, rgb(79 209 255));
+  background: rgb(79 209 255 / 0.12);
+  color: var(--an-ink);
+  font-weight: 500;
+}
+:global(.light) .chipOn,
+:global(.light) .chipOn:hover {
+  background: rgb(37 99 255 / 0.09);
+}
+
+/* TOUCH — a 29px pill in a horizontal scroller is a miss waiting to happen. */
+@media (pointer: coarse) {
+  .chip {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.95rem;
+  }
+}
+.chipCount {
+  margin-left: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: var(--an-mute);
+}
+.chipDisabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.chip:focus-visible,
+.tab:focus-visible,
+.cell:focus-visible,
+.rowHead:focus-visible {
+  outline: 2px solid var(--an-cyan);
+  outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Segmented tabs — mode switches (family, capture source, MobilityCare /
+   SecureVision).
+
+   These four words used to read as a caption: no track worth seeing, mono
+   type at 9.5px in the muted colour, and a "selected" state that was a flat
+   grey wash — the same neutral the hover used. On the home page that made the
+   site's single most important interaction look like a row of labels sitting
+   above a diagram.
+
+   The rebuild keeps every one of those typographic decisions and changes only
+   the things that carry the affordance: the track is now visibly a track, the
+   resting label is readable rather than muted, hover takes a real surface,
+   and SELECTED is the accent — border, tint and ink — so it is never the same
+   thing as HOVER. It is still a hairline switch, not a row of buttons.
+   -------------------------------------------------------------------------- */
+
+/* The wrapper exists only when there is a hint above the control. inline-grid
+   so it hugs the tablist and keeps working inside the flex rows the five call
+   sites put it in. */
+.segmented {
+  display: inline-grid;
+  gap: 0.55rem;
+  justify-items: start;
+}
+.segmentedHint {
+  padding-left: 0.15rem;
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--an-line-mid);
+  border-radius: 999px;
+  background: var(--an-surface-2);
+  /* An inset top edge is what makes a pill read as a recessed track rather
+     than as a rounded rectangle drawn around some words. */
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.22);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+:global(.light) .tabs {
+  box-shadow: inset 0 1px 2px rgb(15 23 42 / 0.07);
+}
+
+.tab {
+  flex: none;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.48rem 0.95rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  /* Readable at rest. A control whose label is the muted colour is a label. */
+  color: var(--an-body);
+  cursor: pointer;
+  transition: color 0.25s var(--an-ease), background-color 0.25s var(--an-ease),
+    border-color 0.25s var(--an-ease);
+}
+
+/* HOVER is mostly a SURFACE change with a quiet border. It has to be clearly
+   the lesser of the two states — a hover border as strong as the selected one
+   is how a segmented control stops telling you what is chosen. */
+.tab:hover {
+  color: var(--an-ink);
+  background: var(--interactive-hover-bg);
+  border-color: rgb(148 163 184 / 0.22);
+}
+:global(.light) .tab:hover {
+  border-color: rgb(15 23 42 / 0.16);
+}
+
+/* SELECTED — the family accent at full strength, a tint behind it and a
+   weight change, and it outranks hover in both directions so the live
+   segment is never in doubt while the pointer is somewhere else. */
+.tabOn,
+.tabOn:hover {
+  background: var(--interactive-selected-bg);
+  border-color: var(--an-accent, rgb(79 209 255));
+  color: var(--an-ink);
+  font-weight: 500;
+  box-shadow: 0 0 0 1px var(--an-accent-soft, rgb(79 209 255 / 0.32));
+}
+
+/* PRESSED — a tap has to land somewhere. */
+.tab:active {
+  transform: translateY(0.5px);
+}
+
+/* TOUCH — the pill keeps its typographic size; the target grows. */
+@media (pointer: coarse) {
+  .tab {
+    min-height: 40px;
+    padding-inline: 1.05rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .tab:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Numbered step header for the configurator. */
+.step {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+}
+.stepIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  color: var(--an-accent, var(--an-cyan));
+}
+.stepTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--an-ink);
+}
+
+/* ==========================================================================
+   4 · RESULT LISTS — the "signal → capability → output" columns
+   ========================================================================== */
+
+.columns {
+  display: grid;
+  /* One column that may shrink: an auto track takes its widest note's
+     min-content and ran past a phone's edge (648px in a 348px panel). */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1px;
+  background: var(--an-line);
+}
+@media (min-width: 768px) {
+  .columns2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .columns3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .columns4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.column {
+  background: var(--an-surface);
+  padding: 1.05rem 1.1rem 1.2rem;
+}
+.columnHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--an-line);
+}
+
+.list {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.item {
+  display: flex;
+  gap: 0.55rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--an-body);
+}
+.dot {
+  margin-top: 0.52em;
+  height: 4px;
+  width: 4px;
+  flex: none;
+  border-radius: 999px;
+  background: var(--an-accent, var(--an-cyan));
+}
+.dotMute {
+  background: var(--an-line-mid);
+}
+.dotAmber {
+  background: var(--an-amber);
+}
+
+/* ==========================================================================
+   5 · MODULE CARDS — a recommended module, stated with its reason
+   ========================================================================== */
+
+.module {
+  display: block;
+  border: 1px solid var(--an-line);
+  border-radius: 0.9rem;
+  background: var(--an-surface);
+  padding: 1rem 1.05rem 1.05rem;
+  text-decoration: none;
+  transition: border-color 0.35s var(--an-ease), transform 0.35s var(--an-ease);
+}
+/* The site's card lift is 2px and its focus state is its hover state — see
+   interactions.css. A module tile is a card that opens a module page, so it
+   moves by the same amount as one and answers the keyboard the same way. */
+.module:hover,
+.module:focus-visible {
+  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
+  transform: translateY(-2px);
+}
+.module:focus-visible {
+  outline: 2px solid var(--an-accent, var(--an-cyan));
+  outline-offset: 3px;
+}
+.module:active {
+  transform: translateY(0);
+}
+.modulePrimary {
+  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
+  background: linear-gradient(
+    180deg,
+    rgb(79 209 255 / 0.05),
+    transparent 60%
+  );
+}
+:global(.light) .modulePrimary {
+  background: linear-gradient(180deg, rgb(37 99 255 / 0.05), transparent 60%);
+}
+.moduleName {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--an-ink);
+}
+.moduleLabel {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--an-body);
+}
+.reasons {
+  margin-top: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.reason {
+  border: 1px solid var(--an-line);
+  border-radius: 999px;
+  padding: 0.22rem 0.55rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+.reasonOn {
+  border-color: var(--an-accent-soft, rgb(79 209 255 / 0.32));
+  color: var(--an-accent, var(--an-cyan));
+}
+.moduleGo {
+  margin-top: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--an-accent, var(--an-cyan));
+}
+.moduleGoArrow {
+  transition: transform 0.35s var(--an-ease);
+}
+/* The same cue also appears on its own — the coverage matrix and the stage
+   matrix link straight to a module from inside a cell — so it answers the
+   pointer itself and not only through a card around it. */
+.moduleGo:hover .moduleGoArrow,
+.moduleGo:focus-visible .moduleGoArrow {
+  transform: translateX(3px);
+}
+.moduleGo:focus-visible {
+  outline: 2px solid var(--an-accent, var(--an-cyan));
+  outline-offset: 3px;
+  border-radius: 0.2rem;
+}
+.module:hover .moduleGoArrow,
+.module:focus-visible .moduleGoArrow {
+  transform: translateX(3px);
+}
+
+/* ==========================================================================
+   6 · MATRIX — capability × environment, and product × stage
+   ========================================================================== */
+
+.matrixScroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.matrix {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 640px;
+  width: 100%;
+  font-size: 0.75rem;
+}
+.matrix th,
+.matrix td {
+  padding: 0;
+  border-bottom: 1px solid var(--an-line);
+}
+.matrix thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--an-surface-2);
+  vertical-align: bottom;
+}
+.colHead {
+  padding: 0.6rem 0.35rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+  text-align: center;
+  line-height: 1.3;
+}
+.colHeadOn {
+  color: var(--an-ink);
+}
+.rowHeadCell {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--an-surface-2);
+  border-right: 1px solid var(--an-line);
+}
+/* A row header is TYPE, not a control. It carried `cursor: pointer` while
+   every call site renders it as a plain <span> or <dt> with no handler — a
+   pointer cursor over static text is the affordance system lying, and two
+   call sites had already papered over it with `!cursor-default`. The hover
+   tint stays: brightening the row label you are reading across is a reading
+   aid, and with the arrow cursor back it no longer promises a click. */
+.rowHead {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0.62rem 0.85rem;
+  text-align: left;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--an-body);
+}
+.rowHead:hover,
+.rowHeadOn {
+  color: var(--an-ink);
+}
+
+.cell {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0.55rem 0.3rem;
+  cursor: pointer;
+  transition: background-color 0.2s var(--an-ease);
+}
+/* Each cell IS a button, and until now it had no hover at all: a 9px mark in
+   a 17-column grid gave a reader no reason to believe the grid answered to
+   them. HOVER lifts the cell, SELECTED stays a step past it. */
+.cell:hover {
+  background: var(--interactive-hover-bg);
+}
+.cell:hover .cellInner {
+  outline: 1px solid var(--interactive-hover-border);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.cellInner {
+  display: block;
+  margin: 0 auto;
+  height: 9px;
+  width: 9px;
+  border-radius: 2px;
+}
+/* Three discrete states — never a gradient, because there is no scale. */
+.cellPrimary .cellInner {
+  background: var(--an-cyan);
+}
+.cellSupporting .cellInner {
+  background: transparent;
+  border: 1px solid var(--an-line-mid);
+}
+.cellNone .cellInner {
+  background: var(--an-grid);
+  border-radius: 999px;
+  height: 3px;
+  width: 3px;
+}
+.cellSecure.cellPrimary .cellInner {
+  background: var(--an-royal);
+}
+.cellOn {
+  background: rgb(148 163 184 / 0.09);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding-top: 0.9rem;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.6875rem;
+  color: var(--an-mute);
+}
+.legendSwatch {
+  height: 8px;
+  width: 8px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* ==========================================================================
+   7 · PIPELINE — the stage rail every analytical flow shares
+   ========================================================================== */
+
+.pipeline {
+  display: grid;
+  gap: 0.55rem;
+}
+@media (min-width: 900px) {
+  .pipeline {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    align-items: stretch;
+  }
+}
+.stage {
+  position: relative;
+  border: 1px solid var(--an-line);
+  border-radius: 0.75rem;
+  background: var(--an-surface);
+  padding: 0.7rem 0.85rem 0.8rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.35s var(--an-ease), background-color 0.35s var(--an-ease);
+}
+.stage:hover {
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+.stage:active {
+  transform: translateY(0.5px);
+}
+.stageOn,
+.stageOn:hover {
+  border-color: var(--an-accent, rgb(79 209 255));
+  background: rgb(79 209 255 / 0.08);
+  /* The selected stage also carries a filled index marker — see .stageIndex
+     under .stageOn — so the rail does not rely on tint alone. */
+}
+.stageOn .stageIndex {
+  color: var(--an-accent, var(--an-cyan));
+  font-weight: 600;
+}
+:global(.light) .stageOn {
+  background: rgb(37 99 255 / 0.05);
+}
+.stagePast {
+  border-color: var(--an-line-mid);
+}
+.stageIndex {
+  display: block;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  color: var(--an-mute);
+}
+.stageName {
+  display: block;
+  margin-top: 0.3rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--an-ink);
+}
+.stageNote {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--an-mute);
+}
+/* The connector between stages: an arrow on wide screens, a tick below. */
+.stage + .stage::before {
+  content: "";
+  position: absolute;
+  left: 1.1rem;
+  top: -0.55rem;
+  height: 0.55rem;
+  width: 1px;
+  background: var(--an-line-mid);
+}
+@media (min-width: 900px) {
+  .stage + .stage::before {
+    left: -0.55rem;
+    top: 50%;
+    height: 1px;
+    width: 0.55rem;
+  }
+}
+
+/* ==========================================================================
+   8 · ANALYTICAL GRAPHICS — metric, sparkline, distribution, trajectory
+   ========================================================================== */
+
+.metric {
+  border: 1px solid var(--an-line);
+  border-radius: 0.75rem;
+  background: var(--an-surface);
+  padding: 0.75rem 0.85rem 0.8rem;
+}
+.metricLabel {
+  display: block;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--an-mute);
+}
+.metricValue {
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--an-ink);
+}
+.metricUnit {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: var(--an-mute);
+}
+.metricNote {
+  margin-top: 0.45rem;
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--an-mute);
+}
+.metricChart {
+  margin-top: 0.6rem;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.gLine {
+  fill: none;
+  stroke: var(--an-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.gGrid {
+  fill: none;
+  stroke: var(--an-grid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.gDash {
+  fill: none;
+  stroke: var(--an-line-mid);
+  stroke-width: 1;
+  stroke-dasharray: 2.5 4;
+  vector-effect: non-scaling-stroke;
+}
+.gTrace {
+  fill: none;
+  stroke: var(--an-accent, var(--an-cyan));
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.gTraceMute {
+  fill: none;
+  stroke: var(--an-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.gTraceAmber {
+  stroke: var(--an-amber);
+}
+.gFill {
+  fill: var(--an-accent, var(--an-cyan));
+  opacity: 0.1;
+  stroke: none;
+}
+.gDot {
+  fill: var(--an-accent, var(--an-cyan));
+}
+.gDotAmber {
+  fill: var(--an-amber);
+}
+.gNode {
+  fill: rgb(var(--c-obsidian-400));
+  stroke: var(--an-accent, var(--an-cyan));
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .gNode {
+  fill: #ffffff;
+}
+.gBone {
+  fill: none;
+  stroke: var(--an-accent, var(--an-cyan));
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.gBoneMute {
+  stroke: var(--an-line-mid);
+  stroke-width: 1.1;
+}
+.gJoint {
+  fill: var(--an-accent, var(--an-cyan));
+}
+.gText {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  fill: var(--an-mute);
+}
+.gTextInk {
+  fill: var(--an-ink);
+}
+.gZone {
+  fill: var(--an-grid);
+  stroke: var(--an-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.gDensity {
+  stroke: none;
+}
+
+/* Distribution bars — a shape, never a measurement. */
+.dist {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 44px;
+}
+.distBar {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 1px 1px 0 0;
+  background: var(--an-line-mid);
+}
+.distBarOn {
+  background: var(--an-accent, var(--an-cyan));
+}
+
+/* Risk indicator: three bands, one lit. Amber only at the top band. */
+.risk {
+  display: flex;
+  gap: 3px;
+}
+.riskBand {
+  height: 4px;
+  flex: 1 1 0;
+  border-radius: 999px;
+  background: var(--an-grid);
+}
+.riskBandOn {
+  background: var(--an-teal);
+}
+.riskBandOnMid {
+  background: var(--an-cyan);
+}
+.riskBandOnHigh {
+  background: var(--an-amber);
+}
+
+/* ==========================================================================
+   9 · EXPLAINABILITY — why an indicator was surfaced
+   ========================================================================== */
+
+.explain {
+  border: 1px solid var(--an-line);
+  border-radius: 1rem;
+  background: var(--an-surface);
+  overflow: hidden;
+}
+.explainHead {
+  padding: 0.9rem 1.05rem;
+  border-bottom: 1px solid var(--an-line);
+}
+.explainTitle {
+  margin-top: 0.4rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--an-ink);
+}
+.factors {
+  display: grid;
+  gap: 1px;
+  background: var(--an-line);
+}
+.factor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--an-surface);
+  padding: 0.62rem 1.05rem;
+  font-size: 0.8125rem;
+  color: var(--an-body);
+}
+.factorTrend {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--an-amber);
+}
+.factorTrendDown {
+  color: var(--an-cyan);
+}
+.boundary {
+  display: grid;
+  gap: 1px;
+  background: var(--an-line);
+  border-top: 1px solid var(--an-line);
+}
+@media (min-width: 640px) {
+  .boundary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.boundaryCell {
+  background: var(--an-surface);
+  padding: 0.85rem 1.05rem 0.95rem;
+}
+.boundaryUsed {
+  color: var(--an-ink);
+}
+.boundaryNot {
+  color: var(--an-mute);
+}
+
+/* ==========================================================================
+   10 · MOTION — restrained, and off entirely when asked
+   ========================================================================== */
+
+@keyframes anSweep {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.sweep {
+  stroke-dasharray: 100;
+  animation: anSweep 1.6s var(--an-ease) forwards;
+}
+
+@keyframes anFade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.enter {
+  animation: anFade 0.4s var(--an-ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep,
+  .enter {
+    animation: none;
+  }
+  .module,
+  .moduleGoArrow,
+  .chip,
+  .stage,
+  .cell {
+    transition: none;
+  }
+  .module:hover {
+    transform: none;
+  }
+  .module:hover .moduleGoArrow {
+    transform: none;
+  }
+  /* The press settles are motion too — a 0.5px nudge is small enough to be
+     harmless and small enough not to be worth an exception. */
+  .chip:active,
+  .stage:active,
+  .tab:active {
+    transform: none;
+  }
+}
+
+:global(.light) .stageIndex {
+  /* 8.5px on a tinted card: solid slate-700 clears 4.5:1 where the mute token sat at 4.47. */
+  color: rgb(51 65 85);
+}

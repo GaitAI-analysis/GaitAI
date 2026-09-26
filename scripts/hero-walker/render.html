@@ -1,0 +1,780 @@
+<!doctype html>
+<html><head><style>html,body{margin:0;background:transparent}canvas{display:block}</style>
+<script type="importmap">{"imports":{"three":"/three/build/three.module.js","three/addons/":"/three/examples/jsm/"}}</script></head>
+<body><script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { BVHLoader } from "three/addons/loaders/BVHLoader.js";
+
+/* ------------------------------------------------------------------ setup */
+const P = Object.fromEntries(new URLSearchParams(location.search));
+const W = +(P.w || 560), H = +(P.h || 1160);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(W, H);
+renderer.setClearColor(0x000000, 0);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = +(P.exposure || 1.0);
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+/* Frame: y from -FLOOR_BELOW (reflection) to TOP metres. */
+const TOP = +(P.top || 1.98), BELOW = +(P.below || 0.52);
+const DIST = 11;
+const camH = +(P.camh || 1.0);
+const camera = new THREE.PerspectiveCamera(20, W / H, 0.1, 100);
+function frameCamera() {
+  // Off-axis: keep the eye at camH but shift the view so [−BELOW, TOP] fills the frame.
+  const spanY = TOP + BELOW;
+  const fov = 2 * Math.atan(spanY / 2 / DIST) * 180 / Math.PI;
+  camera.fov = fov; camera.aspect = W / H;
+  const cx = +(P.cx || 0);
+  camera.position.set(cx, camH, DIST);
+  camera.lookAt(cx, camH, 0);
+  camera.updateProjectionMatrix();
+  const full = 2 * DIST * Math.tan(fov * Math.PI / 360);
+  const cy = (TOP - BELOW) / 2; // centre of wanted band
+  const offY = (cy - camH) / full * H;
+  camera.setViewOffset(W, H, 0, -offY, W, H);
+}
+frameCamera();
+
+/* Lights: the painted figures are lit from the right (the ribbons) and above. */
+const key = new THREE.DirectionalLight(0xfff3e0, +(P.key || 1.6)); key.position.set(4, 5, 6); scene.add(key);
+const rim = new THREE.DirectionalLight(+(P.rimc || 0xffd9a0), +(P.rim || 2.2)); rim.position.set(6, 2.5, -5); scene.add(rim);
+const fill = new THREE.DirectionalLight(0xc8d4ec, +(P.fill || 0.6)); fill.position.set(-5, 2, 5); scene.add(fill);
+scene.add(new THREE.HemisphereLight(0xdfe6f2, 0x404656, +(P.hemi || 0.5)));
+
+/* ------------------------------------------------------------------ model */
+const loader = new GLTFLoader();
+const bodyGltf = await loader.loadAsync("/models/" + (P.body || "Xbot.glb"));
+/* A BVH capture (CMU, Motionbuilder-friendly conversion: frame 0 is an added
+   T-pose facing +z) becomes a looping clip of ONE gait cycle: right heel
+   strike to the next, the actor's heading removed, the hips' steady travel
+   removed (its sway kept), and the small end-to-start mismatch distributed
+   across the cycle so the loop closes exactly. */
+async function loadBVH(url) {
+  const res = new BVHLoader().parse(await (await fetch(url)).text());
+  const root = new THREE.Group(); root.add(res.skeleton.bones[0]);
+  const src = res.clip, tr = Object.fromEntries(src.tracks.map((t) => [t.name, t]));
+  const sb = {}; root.traverse((o) => { if (o.isBone) sb[o.name] = o; });
+  const ev = (t, time) => t.createInterpolant().evaluate(time).slice();
+  const setAt = (time) => { for (const t of src.tracks) { const [n, prop] = t.name.split("."); const v = ev(t, time); if (prop === "quaternion") sb[n].quaternion.fromArray(v); else sb[n].position.fromArray(v); } root.updateMatrixWorld(true); };
+  const dt = src.tracks[0].times[1] - src.tracks[0].times[0];
+  const wp = (n) => sb[n].getWorldPosition(new THREE.Vector3());
+  // Heel strikes of the right foot: the foot at its most forward of the hips, along the walk.
+  const t0 = 2 * dt, tEnd = src.duration - dt;
+  setAt(t0); const a = wp("Hips"); setAt(tEnd); const b = wp("Hips");
+  const dir = b.clone().sub(a).setY(0).normalize();
+  const fw = []; for (let t = t0; t < tEnd; t += dt) { setAt(t); fw.push([t, wp("RightFoot").sub(wp("Hips")).dot(dir)]); }
+  const strikes = []; const W = Math.round(0.25 / dt);
+  for (let i = W; i < fw.length - W; i++) { let m = true; for (let j = i - W; j <= i + W; j++) if (fw[j][1] > fw[i][1]) m = false; if (m) strikes.push(fw[i][0]); }
+  console.log("bvh strikes", strikes.map((s) => s.toFixed(3)).join(","));
+  const ci = P.cyc != null ? +P.cyc : Math.floor((strikes.length - 2) / 2);
+  const s0 = strikes[ci], s1 = strikes[ci + 1];
+  // Heading of THIS cycle.
+  setAt(s0); const h0 = wp("Hips"); setAt(s1); const h1 = wp("Hips");
+  const d = h1.clone().sub(h0); const theta = Math.atan2(d.x, d.z);
+  const qH = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -theta);
+  const T = s1 - s0, N = Math.round(T / dt), times = Float32Array.from({ length: N + 1 }, (_, i) => (i / N) * T);
+  const tracks = [];
+  for (const t of src.tracks) {
+    const [n, prop] = t.name.split(".");
+    const vals = [...times].map((x) => ev(t, s0 + x));
+    if (prop === "position") {
+      if (n !== "Hips") continue;
+      const p = vals.map((v) => new THREE.Vector3(...v).sub(h0).applyQuaternion(qH));
+      const e = p[N].clone().sub(p[0]);
+      const out = []; let mx = 0, mz = 0;
+      p.forEach((v, i) => { v.sub(e.clone().multiplyScalar(i / N)); mx += v.x; mz += v.z; });
+      mx /= p.length; mz /= p.length;
+      p.forEach((v) => out.push(v.x - mx, v.y + h0.y, v.z - mz));
+      tracks.push(new THREE.VectorKeyframeTrack(t.name, times, out));
+    } else {
+      const q = vals.map((v) => new THREE.Quaternion().fromArray(v));
+      if (n === "Hips") q.forEach((x) => x.premultiply(qH));
+      for (let i = 1; i < q.length; i++) if (q[i].dot(q[i - 1]) < 0) q[i].set(-q[i].x, -q[i].y, -q[i].z, -q[i].w);
+      const c = q[N].clone().invert().multiply(q[0]); // end -> start
+      const out = []; const I = new THREE.Quaternion();
+      q.forEach((x, i) => { const k = I.clone().slerp(c, i / N); const y = x.clone().multiply(k); out.push(y.x, y.y, y.z, y.w); });
+      tracks.push(new THREE.QuaternionKeyframeTrack(t.name, times, out));
+    }
+  }
+  // Rest = the T-pose frame, standing at the origin.
+  setAt(0); sb.Hips.position.x = 0; sb.Hips.position.z = 0; root.updateMatrixWorld(true);
+  console.log("bvh cycle", ci, s0.toFixed(3), s1.toFixed(3), "T", T.toFixed(3), "heading", (theta * 57.3).toFixed(1));
+  return { scene: root, animations: [new THREE.AnimationClip("walk", T, tracks)] };
+}
+const animGltf = P.anim && /\.bvh$/.test(P.anim) ? await loadBVH("/models/" + P.anim)
+  : P.anim && P.anim !== P.body ? await loader.loadAsync("/models/" + P.anim) : bodyGltf;
+const clip = animGltf.animations.find((a) => a.name === (P.clip || "walk"));
+// Strip hips translation in x/z: we place the body ourselves.
+clip.tracks = clip.tracks.filter((t) => !/\.(position)$/.test(t.name) || /(Hips|pelvis)\.position/.test(t.name));
+
+const model = bodyGltf.scene;
+const holder = new THREE.Group(); holder.add(model); scene.add(holder);
+holder.rotation.y = Math.PI / 2 + (+(P.yaw || 0)) * Math.PI / 180; // face +x (yaw>0 turns away from camera)
+
+const bones = {};
+model.traverse((o) => { if (o.isBone) bones[o.name.replace(/^mixamorig:?/, "")] = o; });
+function alias(bones) {
+  if (bones.Hips || !bones.pelvis) return bones;
+  const A = { Hips: "pelvis", Spine: "spine_01", Spine1: "spine_02", Spine2: "spine_03", Neck: "neck_01", Head: "head" };
+  for (const [side, s] of [["Left", "l"], ["Right", "r"]]) Object.assign(A, { [side + "Shoulder"]: "clavicle_" + s, [side + "Arm"]: "upperarm_" + s, [side + "ForeArm"]: "lowerarm_" + s, [side + "Hand"]: "hand_" + s, [side + "UpLeg"]: "thigh_" + s, [side + "Leg"]: "calf_" + s, [side + "Foot"]: "foot_" + s, [side + "ToeBase"]: "ball_" + s, [side + "Toe_End"]: "ball_leaf_" + s });
+  for (const [side, s2] of [["Left", "l"], ["Right", "r"]]) for (const [F, f] of [["Index","index"],["Middle","middle"],["Ring","ring"],["Pinky","pinky"],["Thumb","thumb"]]) for (const n of [1,2,3]) A[`${side}Hand${F}${n}`] = `${f}_0${n}_${s2}`;
+  for (const k in A) Object.defineProperty(bones, k, { value: bones[A[k]], enumerable: false });
+  return bones;
+}
+alias(bones);
+/* Retarget in WORLD space against each rig's rest pose, so rigs in different
+   units and bases (Michelle is cm with a rotated armature) take the same clip. */
+let srcRoot = null, srcBones = null;
+const restT = {}, restS = {};
+const srcHolder = new THREE.Group();
+if (animGltf !== bodyGltf && P.direct !== "1") {
+  srcRoot = animGltf.scene; srcHolder.add(srcRoot); srcHolder.rotation.y = holder.rotation.y; srcHolder.visible = false; scene.add(srcHolder);
+  srcBones = {}; srcRoot.traverse((o) => { if (o.isBone) srcBones[o.name.replace(/^mixamorig:?/, "")] = o; }); alias(srcBones);
+  holder.updateMatrixWorld(true); srcHolder.updateMatrixWorld(true);
+  const CANON = ["Hips","Spine","Spine1","Spine2","Neck","Head"]; for (const side of ["Left","Right"]) for (const k of ["Shoulder","Arm","ForeArm","Hand","UpLeg","Leg","Foot","ToeBase"]) CANON.push(side + k);
+  for (const side of ["Left","Right"]) for (const F of ["Index","Middle","Ring","Pinky","Thumb"]) for (const n of [1,2,3]) CANON.push(`${side}Hand${F}${n}`);
+  window.__canon = new Map();
+  const skipK = P.nohand === "1" ? /Hand/ : null;
+  for (const k of CANON) if (bones[k] && srcBones[k] && !(skipK && skipK.test(k))) { window.__canon.set(bones[k], k); restT[k] = bones[k].getWorldQuaternion(new THREE.Quaternion()); restS[k] = srcBones[k].getWorldQuaternion(new THREE.Quaternion()); }
+  /* align=1: the two rigs' rest poses differ (an A-pose body under a T-pose
+     capture). Rotate each target rest by the swing that takes its bone
+     direction onto the source's, so the capture's deltas land on the same
+     limb directions rather than on the target's own rest angles. */
+  if (P.align === "1") {
+    const NEXT = { Hips: "Spine", Spine: "Spine1", Spine1: "Spine2", Spine2: "Neck", Neck: "Head" };
+    for (const side of ["Left", "Right"]) Object.assign(NEXT, { [side + "Shoulder"]: side + "Arm", [side + "Arm"]: side + "ForeArm", [side + "ForeArm"]: side + "Hand", [side + "Hand"]: side + "HandMiddle1", [side + "UpLeg"]: side + "Leg", [side + "Leg"]: side + "Foot", [side + "Foot"]: side + "ToeBase" });
+    const wp = (o) => o.getWorldPosition(new THREE.Vector3());
+    for (const [k, c] of Object.entries(NEXT)) {
+      if (!restT[k] || !bones[c] || !srcBones[c] || k === "Hips") continue;
+      if (P.alignset && !P.alignset.split(",").some((x) => k.endsWith(x))) continue;
+      const dT = wp(bones[c]).sub(wp(bones[k])).normalize(), dS = wp(srcBones[c]).sub(wp(srcBones[k])).normalize();
+      restT[k] = new THREE.Quaternion().setFromUnitVectors(dT, dS).multiply(restT[k]);
+    }
+  }
+  /* anklefix=<deg>: the capture's T-pose foot is not its flat standing foot;
+     pitch the target foot's rest about the body's lateral axis so a flat
+     source foot lands flat (heel and toe down together at mid stance). */
+  if (P.anklefix || P.anklefixL || P.anklefixR) {
+    const lat = new THREE.Vector3(1, 0, 0).applyQuaternion(holder.quaternion);
+    for (const side of ["Left", "Right"]) {
+      const k = side + "Foot", k2 = side + "ToeBase";
+      const deg = P["anklefix" + side[0]] != null ? +P["anklefix" + side[0]] : +P.anklefix;
+      const R = new THREE.Quaternion().setFromAxisAngle(lat, deg * Math.PI / 180);
+      if (restT[k]) restT[k] = R.clone().multiply(restT[k]);
+      if (restT[k2]) restT[k2] = R.clone().multiply(restT[k2]);
+    }
+  }
+  const ht = bones.Hips.getWorldPosition(new THREE.Vector3()).y, hs = srcBones.Hips.getWorldPosition(new THREE.Vector3()).y;
+  window.__hipK = ht / hs; window.__hipT0 = bones.Hips.getWorldPosition(new THREE.Vector3()); window.__hipS0 = srcBones.Hips.getWorldPosition(new THREE.Vector3());
+  console.log("retarget world, hip ratio", window.__hipK.toFixed(3));
+}
+/* Slim the limbs across their length (bones run along local Y), after the rest
+   pose has been captured. */
+{
+  const sl = +(P.slimleg || 1), sa = +(P.slimarm || 1), hd = +(P.head || 1), sp = +(P.slimbody || 1);
+  for (const s of ["l", "r"]) {
+    if (bones["thigh_" + s]) bones["thigh_" + s].scale.set(sl, 1, sl);
+    if (bones["foot_" + s]) bones["foot_" + s].scale.set(1 / sl, 1, 1 / sl);
+    if (bones["upperarm_" + s]) bones["upperarm_" + s].scale.set(sa, 1, sa);
+  }
+  if (bones.head) bones.head.scale.setScalar(hd);
+  if (bones.pelvis && sp !== 1) { bones.pelvis.scale.set(sp, 1, sp); for (const c of ["thigh_l", "thigh_r", "spine_01"]) if (bones[c]) bones[c].scale.multiply(new THREE.Vector3(1 / sp, 1, 1 / sp)); }
+}
+const _q = new THREE.Quaternion(), _pq = new THREE.Quaternion(), _v = new THREE.Vector3();
+function order(root) { const o = []; root.traverse((b) => { if (b.isBone) o.push(b); }); return o; }
+const tgtOrder = order(model);
+function pose(t) {
+  mixer.setTime(t);
+  if (!srcRoot || holder.scale.y < 0) return;
+  srcHolder.position.copy(holder.position); srcHolder.scale.copy(holder.scale); srcHolder.updateMatrixWorld(true);
+  holder.updateMatrixWorld(true);
+  for (const b of tgtOrder) {
+    const k = window.__canon.get(b); if (!k) continue;
+    // world target = srcWorld * inv(srcRest) * tgtRest
+    srcBones[k].getWorldQuaternion(_q); _q.multiply(_pq.copy(restS[k]).invert()).multiply(restT[k]);
+    b.parent.getWorldQuaternion(_pq); b.quaternion.copy(_pq.invert().multiply(_q));
+    if (b === bones.Hips) {
+      srcBones.Hips.getWorldPosition(_v); _v.sub(srcHolder.position).applyAxisAngle(new THREE.Vector3(0,1,0), 0);
+      // offset from source rest, scaled, added to target rest (in holder-local-ish world)
+      const d = _v.clone().sub(window.__hipS0).multiplyScalar(window.__hipK);
+      const w = window.__hipT0.clone().add(d).add(holder.position);
+      b.parent.worldToLocal(w); b.position.copy(w);
+    }
+    b.updateMatrixWorld(true);
+  }
+  posture();
+}
+/* POSTURE (2026-09-26, founder: "no awkward slouching", "shoulders must look natural"). The
+   capture's actor walks with a rounded upper back, the head carried forward and the shoulders
+   rolled in. On a lean, broad-shouldered body that reads as a slouch. These are small, constant
+   corrections on top of the capture, in the body's own axes. They leave the legs, the pelvis and
+   the arm swing untouched:
+     upright=<deg>  thoracic extension, spread over spine_02 and spine_03
+     neckfix=<deg>  cervical extension (the neck), and headfix=<deg> for the head's own pitch
+     clav=<deg>     shoulder retraction (clavicles back about the vertical), clavdn=<deg> depression */
+const _R = new THREE.Quaternion(), _W = new THREE.Quaternion(), _PQ = new THREE.Quaternion();
+/* A bone the capture does not drive (CMU has no spine_03) keeps whatever it was given last, so
+   a correction applied every frame would ACCUMULATE. Every corrected bone the capture does not
+   own is put back to its bind pose first. */
+const _bind = new Map();
+function fromBind(b) {
+  if (!b || (window.__canon && window.__canon.has(b))) return;
+  if (!_bind.has(b)) _bind.set(b, b.quaternion.clone());
+  b.quaternion.copy(_bind.get(b)); b.updateMatrixWorld(true);
+}
+function worldRot(b, axis, deg) {
+  if (!b || !deg) return;
+  b.getWorldQuaternion(_W); _R.setFromAxisAngle(axis, deg * Math.PI / 180);
+  b.parent.getWorldQuaternion(_PQ); b.quaternion.copy(_PQ.invert().multiply(_R.multiply(_W)));
+  b.updateMatrixWorld(true);
+}
+function posture() {
+  const up = +(P.upright || 0), nk = +(P.neckfix || 0), hd = +(P.headfix || 0), cv = +(P.clav || 0), cd = +(P.clavdn || 0);
+  if (!up && !nk && !hd && !cv && !cd) return;
+  for (const b of [bones.Spine1, bones.Spine2, bones.Neck, bones.Head, bones.LeftShoulder, bones.RightShoulder]) fromBind(b);
+  holder.updateMatrixWorld(true);
+  const hq = holder.getWorldQuaternion(new THREE.Quaternion());
+  const lat = new THREE.Vector3(1, 0, 0).applyQuaternion(hq).normalize();   // body's left
+  const vert = new THREE.Vector3(0, 1, 0).applyQuaternion(hq).normalize();
+  const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(hq).normalize();
+  worldRot(bones.Spine1, lat, -up * 0.5); worldRot(bones.Spine2, lat, -up * 0.5);
+  worldRot(bones.Neck, lat, -nk); worldRot(bones.Head, lat, -hd);
+  worldRot(bones.LeftShoulder, vert, -cv); worldRot(bones.RightShoulder, vert, cv);
+  worldRot(bones.LeftShoulder, fwd, -cd); worldRot(bones.RightShoulder, fwd, cd);
+}
+window.yaw = (n = 24) => { const q = new THREE.Quaternion(), e = new THREE.Euler(); const o = []; for (let i = 0; i < n; i++) { pose(i / n * clip.duration); holder.updateMatrixWorld(true); bones.Hips.getWorldQuaternion(q); e.setFromQuaternion(q, "YXZ"); o.push(+(e.y * 57.3).toFixed(1)); } return o; };
+
+/* Materials. Graphite skin, sneaker-grey feet by skin weight. */
+const skinCol = new THREE.Color(P.skin || "#3b4352");
+const shoeCol = new THREE.Color(P.shoe || "#8e939b");
+const soleCol = new THREE.Color(P.sole || "#e9e7e2");
+const footBones = new Set(["LeftFoot", "LeftToeBase", "LeftToe_End", "RightFoot", "RightToeBase", "RightToe_End", "foot_l", "ball_l", "ball_leaf_l", "foot_r", "ball_r", "ball_leaf_r"]);
+const mat = new THREE.MeshPhysicalMaterial({
+  color: 0xffffff, vertexColors: true,
+  roughness: +(P.rough || 0.38), metalness: +(P.metal || 0.15),
+  clearcoat: +(P.coat || 0.8), clearcoatRoughness: 0.25,
+  sheen: 0.4, sheenColor: new THREE.Color("#9fb0cc"), sheenRoughness: 0.5,
+  envMapIntensity: +(P.env || 0.9),
+});
+const rimGlow = new THREE.Color(P.glow || "#ffe2b0"), glowK = +(P.glowk || 0);
+const scanK = +(P.scan || 0), scanF = +(P.scanf || 40), scanC = new THREE.Color(P.scanc || "#e9cf98"), scanW = +(P.scanw || 1.0);
+mat.onBeforeCompile = (sh) => {
+  sh.uniforms.rimGlow = { value: rimGlow }; sh.uniforms.glowK = { value: glowK };
+  sh.uniforms.scanK = { value: scanK }; sh.uniforms.scanF = { value: scanF }; sh.uniforms.scanC = { value: scanC }; sh.uniforms.scanW = { value: scanW };
+  /* Body-scan contours: level lines of the REST-pose height, so they are
+     painted on the skin and ride with it, like a structured-light scan. */
+  sh.vertexShader = `varying vec3 vRest;
+` + sh.vertexShader.replace("#include <begin_vertex>", `#include <begin_vertex>
+ vRest = position;`);
+  sh.fragmentShader = `uniform vec3 rimGlow; uniform float glowK; uniform float scanK; uniform float scanF; uniform vec3 scanC; uniform float scanW; varying vec3 vRest;
+` + sh.fragmentShader.replace("#include <dithering_fragment>", `#include <dithering_fragment>
+  float fr = pow(1.0 - clamp(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0)), 0.0, 1.0), 2.6);
+  gl_FragColor.rgb += rimGlow * fr * glowK;
+  if (scanK > 0.0) {
+    float u = vRest.y * scanF / (window_unit);
+    float d = abs(fract(u) - 0.5);
+    float line = 1.0 - smoothstep(0.0, fwidth(u) * scanW, 0.5 - d);
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, scanC, line * scanK * (0.55 + 0.45 * fr));
+  }`.replace("window_unit", (window.__unit || 1).toFixed(4)));
+};
+/* GARMENT materials (build_mh.py clothes=...): the MakeHuman CC0 garments come in
+   as their own skinned meshes, one per material slot. They are re-dressed here in
+   the hero's palette rather than their stock textures: fitted top (deep navy, with
+   the garment's own seam lines as a fine champagne piping), tapered trousers
+   (graphite), trainers (graphite knit upper on a warm pale sole). Only the garment's
+   NORMAL map is used, for the fabric's folds and seams; the stock colour art is not. */
+const tl = new THREE.TextureLoader();
+async function tex(url, srgb = false) {
+  const t = await tl.loadAsync(url); t.flipY = false; t.anisotropy = 8;
+  t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
+}
+const glowChunk = (sh) => {
+  sh.uniforms.rimGlow = { value: new THREE.Color(P.glow || "#ffe2b0") }; sh.uniforms.glowK = { value: +(P.glowk || 0) };
+  sh.fragmentShader = "uniform vec3 rimGlow; uniform float glowK;\n" + sh.fragmentShader.replace("#include <dithering_fragment>", `#include <dithering_fragment>
+  float frG = pow(1.0 - clamp(dot(normalize(vNormal), vec3(0.0, 0.0, 1.0)), 0.0, 1.0), 2.6);
+  gl_FragColor.rgb += rimGlow * frG * glowK;`);
+};
+const GARMENT = {};
+{
+  const cloth = P.cloth || "male_casualsuit02";
+  const nrm = P.dress !== "0" ? await tex(`/models/clothes/${cloth}_normal.png`) : null;
+  /* A SUIT (cloth=male_elegantsuit01) has no trim: its map is the mask dress_textures.py
+     makes from the stock art (R = the cloth's own weave and lapel lines, G = shirt, B = tie). */
+  const suit = cloth.startsWith("male_elegantsuit");
+  const trim = P.dress !== "0" ? await tex(`/models/clothes/${cloth}_${suit ? "mask" : "trim"}.png`) : null;
+  const fabric = (col, rough, sheenCol, nScale, extra = {}) => new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color(col), roughness: rough, metalness: 0,
+    sheen: +(P.sheen || 0.7), sheenColor: new THREE.Color(sheenCol), sheenRoughness: 0.55,
+    normalMap: nrm, normalScale: new THREE.Vector2(nScale, nScale),
+    envMapIntensity: +(P.env || 0.9), side: THREE.DoubleSide, ...extra,
+  });
+  const tailored = (col, rough, sheenCol, nScale) => {
+    const m = fabric(col, rough, sheenCol, nScale, { map: trim });
+    m.onBeforeCompile = (sh) => {
+      glowChunk(sh);
+      sh.uniforms.shirtC = { value: new THREE.Color(P.shirtc || "#e9e7e1") };
+      sh.uniforms.tieC = { value: new THREE.Color(P.tiec || "#1d2436") };
+      sh.uniforms.tieS = { value: new THREE.Color(P.ties || "#b99f6a") };
+      sh.uniforms.weave = { value: +(P.weave || 1) };
+      /* The suit's inside faces are its LINING: the body under a suit is not drawn, so a
+         glimpse into a vent, a cuff or the armpit gap lands on dark cloth, not the backdrop. */
+      // Written after the colour-space step, so it is given in sRGB.
+      sh.uniforms.liningC = { value: new THREE.Color(P.liningc || "#0c0e13").convertLinearToSRGB() };
+      sh.fragmentShader = sh.fragmentShader.replace("#include <dithering_fragment>", `#include <dithering_fragment>
+  if (!gl_FrontFacing) gl_FragColor.rgb = liningC;`);
+      sh.fragmentShader = "uniform vec3 shirtC; uniform vec3 tieC; uniform vec3 tieS; uniform float weave; uniform vec3 liningC;\n" + sh.fragmentShader.replace("#include <map_fragment>", `#ifdef USE_MAP
+  vec4 mk = texture2D(map, vMapUv);
+  float d = mix(1.0, mk.r * 2.0, weave);
+  float silk = smoothstep(0.2, 0.3, mk.b), stripe = smoothstep(0.7, 0.9, mk.b);
+  vec3 c = diffuseColor.rgb * d;
+  c = mix(c, shirtC * d, mk.g);
+  c = mix(c, mix(tieC, tieS, stripe) * d, silk);
+  diffuseColor.rgb = c;
+#endif`);
+    };
+    return m;
+  };
+  if (suit) {
+    GARMENT.top = tailored(P.topc || "#1b2233", +(P.toprough || 0.72), P.topsheen || "#8d9ab4", +(P.topn || 0.5));
+    GARMENT.pants = tailored(P.pantc || P.topc || "#1b2233", +(P.pantrough || 0.72), P.pantsheen || P.topsheen || "#8d9ab4", +(P.pantn || 0.5));
+  } else {
+  GARMENT.top = fabric(P.topc || "#1b2436", +(P.toprough || 0.7), P.topsheen || "#8d9ab4", +(P.topn || 0.6), { map: trim });
+  GARMENT.top.onBeforeCompile = (sh) => {
+    glowChunk(sh);
+    sh.uniforms.accentC = { value: new THREE.Color(P.accent || "#b99f6a") }; sh.uniforms.accentK = { value: +(P.accentk || 0.85) };
+    sh.uniforms.trimC = { value: new THREE.Color(P.trimc || "#11161f") };
+    sh.fragmentShader = "uniform vec3 accentC; uniform float accentK; uniform vec3 trimC;\n" + sh.fragmentShader.replace("#include <map_fragment>", `#ifdef USE_MAP
+  vec4 trimT = texture2D(map, vMapUv);
+  diffuseColor.rgb = mix(diffuseColor.rgb, accentC, trimT.r * accentK);
+  diffuseColor.rgb = mix(diffuseColor.rgb, trimC, trimT.g);
+#endif`);
+  };
+  GARMENT.pants = fabric(P.pantc || "#2a2e37", +(P.pantrough || 0.78), P.pantsheen || "#7f8798", +(P.pantn || 0.55));
+  GARMENT.pants.onBeforeCompile = glowChunk;
+  }
+  /* shoenrm=<asset>: the shoe's own normal map (shoes04's broguing and welt); shoecoat for polished leather. */
+  const shoeN = P.shoenrm ? await tex(`/models/clothes/${P.shoenrm}_normal.png`) : null;
+  GARMENT.shoe = new THREE.MeshPhysicalMaterial({ side: THREE.DoubleSide, color: new THREE.Color(P.shoec || "#1c1f26"), roughness: +(P.shoerough || 0.5), metalness: 0,
+    sheen: 0.4, sheenColor: new THREE.Color("#7c8494"), clearcoat: +(P.shoecoat || 0.25), clearcoatRoughness: +(P.shoecoatr || 0.4), envMapIntensity: +(P.env || 0.9),
+    ...(shoeN ? { normalMap: shoeN, normalScale: new THREE.Vector2(0.7, 0.7) } : {}) });
+  GARMENT.shoe.onBeforeCompile = glowChunk;
+  GARMENT.sole = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(P.solec || "#d6cfbf"), roughness: 0.55, metalness: 0, envMapIntensity: +(P.env || 0.9) });
+  /* The inner layer (build_mh.py under=1): the body under the suit, in the suit's own cloth,
+     a shade darker, so a gap in the jacket shows cloth, not the backdrop. */
+  GARMENT.under = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(P.underc || P.topc || "#1b2233"), roughness: 0.85, metalness: 0,
+    sheen: +(P.sheen || 0.7) * 0.6, sheenColor: new THREE.Color(P.topsheen || "#8d9ab4"), sheenRoughness: 0.6, envMapIntensity: +(P.env || 0.9) });
+  GARMENT.under.onBeforeCompile = glowChunk;
+  const hairMap = P.hair ? await tex(`/models/clothes/${P.hair}_hair.png`, true) : null;
+  GARMENT.hair = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(P.hairc || "#2a2c31"), map: hairMap, roughness: 0.55, metalness: 0,
+    sheen: 0.5, sheenColor: new THREE.Color("#8a8f99"), alphaTest: 0.45, side: THREE.DoubleSide, envMapIntensity: +(P.env || 0.9) });
+  GARMENT.hair.onBeforeCompile = glowChunk;
+}
+model.traverse((o) => {
+  if (!o.isSkinnedMesh) return;
+  const slot = o.material && o.material.name;
+  if (slot && slot !== "skin" && GARMENT[slot]) { o.material = GARMENT[slot]; o.frustumCulled = false; o.castShadow = false; return; }
+  const g = o.geometry, n = g.attributes.position.count;
+  const si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
+  const boneNames = o.skeleton.bones.map((b) => b.name.replace(/^mixamorig:?/, ""));
+  const cols = new Float32Array(n * 3);
+  const p = new THREE.Vector3();
+  // Rest-pose height for the sole band.
+  for (let i = 0; i < n; i++) {
+    let wFoot = 0;
+    for (let k = 0; k < 4; k++) if (footBones.has(boneNames[si.getComponent(i, k)])) wFoot += sw.getComponent(i, k);
+    p.fromBufferAttribute(g.attributes.position, i);
+    let c = skinCol.clone();
+    let w1 = 0; for (let k = 0; k < 4; k++) w1 = Math.max(w1, sw.getComponent(i, k));
+    const seg = +(P.seg || 0);
+    if (seg) c.multiplyScalar(1 - seg * (1 - THREE.MathUtils.smoothstep(w1, 0.5, 0.66)));
+    if (P.shoes !== "0") {
+      const t = THREE.MathUtils.smoothstep(wFoot, 0.35, 0.75);
+      c.lerp(shoeCol, t);
+      if (t > 0.5 && p.y < +(P.soleh || 0.028) * (window.__unit || 1)) c.lerp(soleCol, 0.85);
+    }
+    cols.set([c.r, c.g, c.b], i * 3);
+  }
+  g.setAttribute("color", new THREE.BufferAttribute(cols, 3));
+  o.material = mat;
+  o.frustumCulled = false;
+  o.castShadow = false;
+});
+
+/* Nodes: warm-gold points on the joints, pushed toward the camera by a limb
+   radius so they sit on the near surface and are hidden when the limb is. */
+const NODE = [["Head", 0.05], ["Neck", 0.05], ["RightShoulder", 0.07], ["LeftShoulder", 0.07], ["RightArm", 0.06], ["LeftArm", 0.06], ["RightForeArm", 0.045], ["LeftForeArm", 0.045], ["RightHand", 0.035], ["LeftHand", 0.035], ["Spine1", 0.13], ["Hips", 0.12], ["RightUpLeg", 0.09], ["LeftUpLeg", 0.09], ["RightLeg", 0.06], ["LeftLeg", 0.06], ["RightFoot", 0.05], ["LeftFoot", 0.05], ["RightToeBase", 0.035], ["LeftToeBase", 0.035]];
+const gold = new THREE.Color(P.gold || "#f3cf86");
+function glowTex() {
+  const c = document.createElement("canvas"); c.width = c.height = 64;
+  const x = c.getContext("2d"); const g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,244,214,1)"); g.addColorStop(0.18, "rgba(255,226,160,0.95)"); g.addColorStop(0.45, "rgba(240,190,110,0.28)"); g.addColorStop(1, "rgba(240,190,110,0)");
+  x.fillStyle = g; x.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const gtex = glowTex();
+const nodes = NODE.filter(([b]) => bones[b]).map(([b, r]) => {
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: gtex, transparent: true, depthWrite: false, depthTest: true, toneMapped: false }));
+  s.scale.setScalar(+(P.node || 0.075)); s.userData = { bone: b, r }; s.renderOrder = 2; scene.add(s); return s;
+});
+/* Thin gold threads along the near-side limbs (the painted figures carry a fine network). */
+/* Secondary nodes between joints: the painted figures carry a denser constellation. */
+const EXTRA = [];
+if (P.extra !== "0") for (const [a, b, rs] of [["RightUpLeg","RightLeg",0.075],["RightLeg","RightFoot",0.05],["LeftUpLeg","LeftLeg",0.075],["LeftLeg","LeftFoot",0.05],["RightArm","RightForeArm",0.05],["RightForeArm","RightHand",0.04],["LeftArm","LeftForeArm",0.05],["LeftForeArm","LeftHand",0.04],["Hips","Spine1",0.13],["Spine1","Neck",0.12]]) for (const f of [0.33, 0.66]) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: gtex, transparent: true, depthWrite: false, toneMapped: false, opacity: 0.8 }));
+  sp.scale.setScalar(+(P.node || 0.075) * 0.62); sp.userData = { a, b, f, r: rs }; sp.renderOrder = 2; scene.add(sp); EXTRA.push(sp);
+}
+const LINES = [["RightArm", "RightForeArm"], ["RightForeArm", "RightHand"], ["LeftArm", "LeftForeArm"], ["LeftForeArm", "LeftHand"], ["RightUpLeg", "RightLeg"], ["RightLeg", "RightFoot"], ["LeftUpLeg", "LeftLeg"], ["LeftLeg", "LeftFoot"], ["Neck", "Spine1"], ["Spine1", "Hips"], ["RightShoulder", "RightArm"], ["LeftShoulder", "LeftArm"]];
+const lineGeo = new THREE.BufferGeometry(); lineGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(LINES.length * 6), 3));
+const lineMat = new THREE.LineBasicMaterial({ color: gold, transparent: true, opacity: +(P.lineop || 0.55), depthTest: true, depthWrite: false, toneMapped: false });
+const lines = new THREE.LineSegments(lineGeo, lineMat); lines.renderOrder = 1; lines.frustumCulled = false; if (P.lines !== "0") scene.add(lines);
+
+const mixer = new THREE.AnimationMixer(srcRoot || model);
+const action = mixer.clipAction(clip); action.play();
+
+const v = new THREE.Vector3(), camDir = new THREE.Vector3();
+function jointNear(b, r, out) {
+  bones[b].getWorldPosition(out);
+  camDir.copy(camera.position).sub(out).normalize();
+  return out.addScaledVector(camDir, r);
+}
+/* SURFACE CONSTELLATION: nodes on sampled skin vertices, threads to near neighbours.
+   Computed from the SKINNED position every frame, so it is stuck to the body. */
+let skinMesh = null; model.traverse((o) => { if (o.isSkinnedMesh && !skinMesh) skinMesh = o; });
+/* The sole that meets the floor: the shoe when he is dressed, else the bare foot. */
+let footMesh = null; model.traverse((o) => { if (o.isSkinnedMesh && o.material === GARMENT.shoe && !footMesh) footMesh = o; });
+footMesh = footMesh || skinMesh;
+const CN = [], CE = [];
+if (P.const !== "0") {
+  const g = skinMesh.geometry, pos = g.attributes.position, n = pos.count, si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
+  const names = skinMesh.skeleton.bones.map((b) => b.name);
+  const skip = /hand|index|middle|ring|pinky|thumb|head|neck|foot|ball/;
+  const cand = [];
+  holder.updateMatrixWorld(true);
+  const tmp = new THREE.Vector3();
+  for (let i = 0; i < n; i += 3) {
+    let best = 0, bw = 0; for (let k = 0; k < 4; k++) if (sw.getComponent(i, k) > bw) { bw = sw.getComponent(i, k); best = si.getComponent(i, k); }
+    if (skip.test(names[best])) continue;
+    skinMesh.getVertexPosition(i, tmp); skinMesh.localToWorld(tmp); cand.push([i, tmp.clone()]);
+  }
+  // farthest-point sampling in rest pose
+  const N = +(P.cn || 150); const dmin = new Float32Array(cand.length).fill(1e9); let cur = 0;
+  for (let k = 0; k < N; k++) {
+    CN.push(cand[cur]); let far = 0, fd = -1;
+    for (let j = 0; j < cand.length; j++) { const d = cand[j][1].distanceToSquared(cand[cur][1]); if (d < dmin[j]) dmin[j] = d; if (dmin[j] > fd) { fd = dmin[j]; far = j; } }
+    cur = far;
+  }
+  const lim = +(P.clim || 0.16);
+  for (let a = 0; a < CN.length; a++) {
+    const ds = CN.map((c, b) => [c[1].distanceTo(CN[a][1]), b]).filter(([d, b]) => b !== a && d < lim).sort((x, y) => x[0] - y[0]).slice(0, 2);
+    for (const [, b] of ds) if (!CE.some(([x, y]) => (x === b && y === a))) CE.push([a, b]);
+  }
+}
+const cnGeo = new THREE.BufferGeometry(); cnGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(Math.max(1, CE.length) * 6), 3));
+const cnLines = new THREE.LineSegments(cnGeo, new THREE.LineBasicMaterial({ color: gold, transparent: true, opacity: +(P.cop || 0.42), depthWrite: false, toneMapped: false }));
+cnLines.frustumCulled = false; cnLines.renderOrder = 1; scene.add(cnLines);
+const cnDots = CN.map((c, k) => { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: gtex, transparent: true, depthWrite: false, toneMapped: false, opacity: k % 5 === 0 ? 1 : 0.75 })); sp.scale.setScalar((+(P.node || 0.075)) * (k % 5 === 0 ? 0.5 : 0.3)); sp.renderOrder = 2; scene.add(sp); return sp; });
+const cnPos = CN.map(() => new THREE.Vector3());
+function constellation() {
+  if (!CN.length) return;
+  const d = new THREE.Vector3();
+  CN.forEach(([i], k) => { skinMesh.getVertexPosition(i, cnPos[k]); skinMesh.localToWorld(cnPos[k]); d.copy(camera.position).sub(cnPos[k]).normalize(); cnPos[k].addScaledVector(d, 0.012); cnDots[k].position.copy(cnPos[k]); });
+  const a = cnGeo.attributes.position; CE.forEach(([x, y], k) => { a.setXYZ(k * 2, cnPos[x].x, cnPos[x].y, cnPos[x].z); a.setXYZ(k * 2 + 1, cnPos[y].x, cnPos[y].y, cnPos[y].z); }); a.needsUpdate = true;
+}
+const CURL = [];
+for (const side of ["l", "r"]) for (const f of ["index", "middle", "ring", "pinky"]) for (const n of [1, 2, 3]) if (bones[`${f}_0${n}_${side}`]) CURL.push([bones[`${f}_0${n}_${side}`], n]);
+const curlAxis = new THREE.Vector3(...(P.curlaxis || "0,0,1").split(",").map(Number)).normalize();
+const curlMirror = P.curlmirror === "1";
+/* palm=1 (rigs whose bones all rest at identity, like the MakeHuman build):
+   each finger curls about its own flexion axis, dir x palm normal, measured
+   in the rest pose; the hand first turns about the forearm by `handtwist`
+   degrees (mirrored) so the palm faces the thigh. */
+const PALM = [];
+if (P.palm === "1") {
+  model.updateMatrixWorld(true);
+  const mp = (b) => model.worldToLocal(b.getWorldPosition(new THREE.Vector3()));
+  for (const s of ["l", "r"]) {
+    const hand = bones["hand_" + s], ix = bones["index_01_" + s], pk = bones["pinky_01_" + s];
+    if (!hand || !ix || !pk) continue;
+    const h = mp(hand), n = mp(ix).sub(h).cross(mp(pk).sub(h)).normalize();
+    if (s === "r") n.negate();
+    n.multiplyScalar(+(P.curlsign || 1));
+    const arm = h.clone().sub(mp(bones["lowerarm_" + s])).normalize();
+    const tw = new THREE.Quaternion().setFromAxisAngle(arm, (s === "r" ? -1 : 1) * (+(P.handtwist || 0)) * Math.PI / 180);
+    const fingers = [];
+    for (const f of ["index", "middle", "ring", "pinky"]) for (const i of [1, 2, 3]) {
+      const b = bones[`${f}_0${i}_${s}`], c = bones[`${f}_0${i + 1}_${s}`] || bones[`${f}_leaf_${s}`];
+      if (!b || !c) continue;
+      const dir = mp(c).sub(mp(b)).normalize();
+      fingers.push([b, new THREE.Vector3().crossVectors(dir, n).normalize(), i]);
+    }
+    PALM.push({ hand, tw, fingers });
+  }
+}
+function curl() {
+  if (PALM.length) {
+    const k = +(P.curl || 0);
+    for (const { hand, tw, fingers } of PALM) {
+      hand.quaternion.copy(tw);
+      for (const [b, ax, i] of fingers) b.quaternion.copy(new THREE.Quaternion().setFromAxisAngle(ax, k * (i === 1 ? 0.7 : 1)));
+    }
+    return;
+  }
+  const k = +(P.curl || 0); if (!k) return;
+  for (const [b, n] of CURL) {
+    const sgn = curlMirror && /_r$/.test(b.name) ? -1 : 1;
+    b.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(curlAxis, sgn * k * (n === 1 ? 0.8 : 1)));
+  }
+}
+/* Toe break: at push-off the capture's toe would press through the floor;
+   bend it up at the ball (about the body's lateral axis) until the toe tip is
+   back at its rest height, as a real forefoot does. */
+function toeBreak() {
+  if (!window.__toeFix) return;
+  holder.updateMatrixWorld(true);
+  const inv = holder.matrixWorld.clone().invert(), yo = window.__yoff || 0;
+  const lat = new THREE.Vector3(1, 0, 0).applyQuaternion(holder.getWorldQuaternion(new THREE.Quaternion())).normalize();
+  const tip = new THREE.Vector3(), jb = new THREE.Vector3();
+  for (const [S, s] of [["Left", "l"], ["Right", "r"]]) {
+    const ball = bones[S + "ToeBase"]; if (!ball) continue;
+    for (let it = 0; it < 3; it++) {
+      skinMesh.getVertexPosition(FOOTV[s].toe, tip); skinMesh.localToWorld(tip);
+      const local = tip.clone().applyMatrix4(inv);
+      const depth = FOOTV[s].toeRest - (local.y + yo);
+      if (depth <= 0.0005) break;
+      ball.getWorldPosition(jb);
+      const d = Math.max(0.03, tip.distanceTo(jb));
+      const ang = Math.asin(Math.min(1, depth / d)) * (holder.scale.y < 0 ? -1 : 1);
+      const R = new THREE.Quaternion().setFromAxisAngle(lat, -ang);
+      const pq = ball.parent.getWorldQuaternion(new THREE.Quaternion()), wq = ball.getWorldQuaternion(new THREE.Quaternion());
+      ball.quaternion.copy(pq.invert().multiply(R.multiply(wq)));
+      ball.updateMatrixWorld(true);
+    }
+  }
+}
+function place(t, rootX) {
+  holder.position.x = rootX;
+  pose(t);
+  if (holder.scale.y > 0) curl();
+  toeBreak();
+  holder.updateMatrixWorld(true);
+  const pos = lineGeo.attributes.position; const a = new THREE.Vector3(), bb = new THREE.Vector3();
+  LINES.forEach(([p, q], i) => {
+    const rp = NODE.find((n) => n[0] === p)?.[1] ?? 0.05, rq = NODE.find((n) => n[0] === q)?.[1] ?? 0.05;
+    if (!bones[p] || !bones[q]) return;
+    jointNear(p, rp, a); jointNear(q, rq, bb);
+    pos.setXYZ(i * 2, a.x, a.y, a.z); pos.setXYZ(i * 2 + 1, bb.x, bb.y, bb.z);
+  });
+  pos.needsUpdate = true;
+  for (const s of nodes) jointNear(s.userData.bone, s.userData.r, s.position);
+  holder.updateMatrixWorld(true); constellation();
+  for (const s of EXTRA) { jointNear(s.userData.a, s.userData.r, a); jointNear(s.userData.b, s.userData.r, bb); s.position.lerpVectors(a, bb, s.userData.f); }
+}
+
+/* ---------------------------------------------------------- foot locking */
+const SOLE = ["Foot", "ToeBase", "Toe_End"];
+function footPoints() {
+  const out = {};
+  for (const side of ["Left", "Right"]) out[side] = SOLE.map((k) => bones[side + k].getWorldPosition(new THREE.Vector3()));
+  return out;
+}
+/** Sample the in-place cycle, find the ground contact and the root travel that pins it. */
+window.solve = (n = 240) => {
+  const T = clip.duration; const rows = [];
+  holder.position.set(0, 0, 0);
+  let minY = 1e9;
+  for (let i = 0; i < n; i++) {
+    pose((i / n) * T); holder.updateMatrixWorld(true);
+    const f = footPoints();
+    rows.push(f);
+    for (const s of ["Left", "Right"]) for (const p of f[s]) minY = Math.min(minY, p.y);
+  }
+  // Contact point per side: heel (Foot bone, which sits ~ankle height) is
+  // projected to the floor; toe = ToeBase. Pivot = the lower of heel-proxy and toe.
+  const heel0 = Math.min(...rows.map((r) => Math.min(r.Left[0].y, r.Right[0].y)));
+  const toe0 = Math.min(...rows.map((r) => Math.min(r.Left[1].y, r.Right[1].y)));
+  const info = rows.map((r) => {
+    const o = {};
+    for (const s of ["Left", "Right"]) {
+      const hh = r[s][0].y - heel0, th = r[s][1].y - toe0;
+      o[s] = { hh, th, low: Math.min(hh, th), x: hh <= th ? r[s][0].x : r[s][1].x, heelX: r[s][0].x, toeX: r[s][1].x };
+    }
+    o.stance = o.Left.low <= o.Right.low ? "Left" : "Right";
+    return o;
+  });
+  // Root velocity from the stance pivot. When the heel is down, the heel is fixed; once
+  // the heel lifts the toe is fixed.
+  const root = [0];
+  for (let i = 1; i <= n; i++) {
+    const a = info[i - 1], b = info[i % n];
+    const s = a.stance;
+    const useHeel = a[s].hh < 0.012 && b[s].hh < 0.012;
+    const dx = useHeel ? b[s].heelX - a[s].heelX : b[s].toeX - a[s].toeX;
+    root.push(root[i - 1] - dx);
+  }
+  const stride = root[n];
+  // Slip: planted pivot world x drift inside each stance.
+  let slip = 0;
+  for (let i = 1; i < n; i++) {
+    const a = info[i - 1], b = info[i]; const s = a.stance; if (b.stance !== s) continue;
+    const useHeel = a[s].hh < 0.012 && b[s].hh < 0.012;
+    const wa = (useHeel ? a[s].heelX : a[s].toeX) + root[i - 1], wb = (useHeel ? b[s].heelX : b[s].toeX) + root[i];
+    slip = Math.max(slip, Math.abs(wb - wa));
+  }
+  window.__root = root; window.__n = n; window.__T = T;
+  /* Ground contact: the lowest the sole (skinned heel and toe-tip vertices)
+     reaches in the cycle is the floor, so a planted foot stands ON it, never
+     above or through it (yoff=<m> overrides). */
+  /* ...measured on the PLANTED foot: per frame, the lower foot's sole
+     against its own rest height; the median over the cycle is the floor.
+     (The global minimum would be the toe tip pressing in at push-off, and
+     would leave every flat stance floating.) */
+  let sole = 1e9; const vp = new THREE.Vector3(); const low = [];
+  window.__toeFix = false;
+  for (let i = 0; i < n; i += 2) {
+    pose((i / n) * T); if (typeof curl === "function") curl(); holder.updateMatrixWorld(true);
+    let m = 1e9;
+    for (const s of ["l", "r"]) {
+      const hv = FOOTV[s];
+      skinMesh.getVertexPosition(hv.heel, vp); skinMesh.localToWorld(vp); const h = vp.y - hv.heelRest;
+      skinMesh.getVertexPosition(hv.toe, vp); skinMesh.localToWorld(vp); const t2 = vp.y - hv.toeRest;
+      sole = Math.min(sole, vp.y); m = Math.min(m, h, t2);
+    }
+    low.push(m);
+  }
+  low.sort((a, b) => a - b);
+  window.__yoff = P.yoff != null ? +P.yoff : P.floor === "min" ? -sole : -low[Math.floor(low.length / 2)];
+  window.__toeFix = P.toefix === "1";
+  window.__footRest = FOOTV;
+  return { T, n, stride, slip, minY, heel0, toe0, yoff: window.__yoff, stances: info.map((o) => o.stance[0]).join("") };
+};
+function rootAt(t) {
+  const T = window.__T, n = window.__n, root = window.__root;
+  const cyc = Math.floor(t / T), u = (t - cyc * T) / T * n; const i = Math.floor(u), f = u - i;
+  return cyc * root[n] + root[i] + (root[i + 1] - root[i]) * f;
+}
+
+/* ------------------------------------------------------------- rendering */
+const refl = { on: P.refl !== "0", op: +(P.reflop || 0.22) };
+const out2d = document.createElement("canvas"); out2d.width = W; out2d.height = H; const ctx = out2d.getContext("2d");
+function projectY(y) { v.set(0, y, 0).project(camera); return (1 - (v.y + 1) / 2) * H; }
+window.frame = (t, travel = false, lift = 0) => {
+  const rx = travel ? rootAt(t) : 0;
+  const yOff = window.__yoff != null ? window.__yoff : +(P.yoff || 0);
+  holder.position.y = yOff;
+  place(t, rx);
+  ctx.clearRect(0, 0, W, H);
+  if (refl.on) {
+    holder.scale.y = -1; holder.position.y = -yOff; holder.updateMatrixWorld(true); place(t, rx);
+    renderer.render(scene, camera);
+    const fy = projectY(0);
+    ctx.save();
+    ctx.globalAlpha = refl.op;
+    ctx.drawImage(renderer.domElement, 0, 0);
+    ctx.globalCompositeOperation = "destination-in";
+    const g = ctx.createLinearGradient(0, fy, 0, fy + H * 0.2); g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, fy, W, H - fy);
+    ctx.clearRect(0, 0, W, fy);
+    ctx.restore();
+    holder.scale.y = 1; holder.position.y = yOff; holder.updateMatrixWorld(true); place(t, rx);
+  }
+  renderer.render(scene, camera);
+  ctx.drawImage(renderer.domElement, 0, 0);
+  // Joint screen positions for the overlay data.
+  const J = {};
+  for (const s of nodes) { v.copy(s.position).project(camera); J[s.userData.bone] = [+(((v.x + 1) / 2) * W).toFixed(1), +((1 - (v.y + 1) / 2) * H).toFixed(1)]; }
+  // Heel and toe-tip of each sole, on screen, for the page's contact layer.
+  for (const [S, s] of [["Left", "l"], ["Right", "r"]]) for (const [tag, vi] of [["Heel", FOOTV[s].heel], ["ToeTip", FOOTV[s].toe]]) {
+    skinMesh.getVertexPosition(vi, v); skinMesh.localToWorld(v); v.y -= window.__soleT || 0; v.project(camera);
+    J[S + tag] = [+(((v.x + 1) / 2) * W).toFixed(1), +((1 - (v.y + 1) / 2) * H).toFixed(1)];
+  }
+  const K = kinNow();
+  return { png: out2d.toDataURL("image/png"), J, K, floorY: projectY(0), rootX: rx, root: rootAt(t) };
+};
+/* ------------------------------------------------------- kinematics probe
+   Per sample, in the body frame (holder-local: +z forward, +y up, +x the
+   body's left): sagittal hip / knee / ankle angles from the bone positions,
+   heel and toe-tip heights from the skinned mesh, pelvis and thorax yaw,
+   pelvic obliquity, head height, shoulder (arm) swing and elbow flexion. */
+const FOOTV = {};
+{
+  const g = skinMesh.geometry, pos = g.attributes.position, si = g.attributes.skinIndex, sw = g.attributes.skinWeight;
+  const names = skinMesh.skeleton.bones.map((b) => b.name);
+  // The bare sole's rest height: 0 undressed, the shoe's sole thickness when dressed.
+  let footMin = 1e9;
+  for (let i = 0; i < pos.count; i++) { let best = 0, bw = 0; for (let k = 0; k < 4; k++) if (sw.getComponent(i, k) > bw) { bw = sw.getComponent(i, k); best = si.getComponent(i, k); } if (/^(foot|ball)_/.test(names[best])) footMin = Math.min(footMin, pos.getY(i)); }
+  window.__soleT = footMesh === skinMesh ? 0 : footMin;
+  for (const s of ["l", "r"]) {
+    let heel = -1, toe = -1, hb = 1e9, tb = -1e9;
+    for (let i = 0; i < pos.count; i++) {
+      let best = 0, bw = 0; for (let k = 0; k < 4; k++) if (sw.getComponent(i, k) > bw) { bw = sw.getComponent(i, k); best = si.getComponent(i, k); }
+      const n = names[best]; if (n !== "foot_" + s && n !== "ball_" + s) continue;
+      const y = pos.getY(i), z = pos.getZ(i);
+      if (y < footMin + 0.03 && z < hb) { hb = z; heel = i; }
+      if (y < footMin + 0.03 && z > tb) { tb = z; toe = i; }
+    }
+    FOOTV[s] = { heel, toe, heelRest: pos.getY(heel), toeRest: pos.getY(toe) };
+  }
+}
+/* Clinical sagittal angles, degrees: hip flexion (thigh against the pelvis),
+   knee flexion, ankle dorsiflexion (against the rig's standing neutral). */
+const ANK0 = {};
+{
+  model.updateMatrixWorld(true);
+  const wp = (o) => o.getWorldPosition(new THREE.Vector3());
+  for (const [S, s] of [["Left", "l"], ["Right", "r"]]) {
+    const kn = wp(bones[S + "Leg"]), an = wp(bones[S + "Foot"]), ba = wp(bones[S + "ToeBase"]);
+    ANK0[s] = kn.sub(an).angleTo(ba.sub(an)) * 180 / Math.PI;
+  }
+}
+function kinNow() {
+  holder.updateMatrixWorld(true);
+  const inv = holder.matrixWorld.clone().invert();
+  const yo = window.__yoff || 0;
+  const L = (o) => o.getWorldPosition(new THREE.Vector3()).applyMatrix4(inv);
+  const V = (i) => { const p = new THREE.Vector3(); skinMesh.getVertexPosition(i, p); return skinMesh.localToWorld(p).applyMatrix4(inv); };
+  const ang2 = (a, b) => Math.atan2(a, b) * 180 / Math.PI;
+  const sag = (from, to) => { const d = to.clone().sub(from); return ang2(d.z, -d.y); }; // + = segment tip forward of vertical
+  const tr = L(bones.Neck).sub(L(bones.Hips)); const pel = ang2(tr.z, tr.y); // trunk lean forward (+)
+  const r = {};
+  for (const [S, s] of [["Left", "l"], ["Right", "r"]]) {
+    const hip = L(bones[S + "UpLeg"]), knee = L(bones[S + "Leg"]), ank = L(bones[S + "Foot"]), ball = L(bones[S + "ToeBase"]);
+    const thigh = sag(hip, knee), shank = sag(knee, ank);
+    const sh = L(bones[S + "Arm"]), el = L(bones[S + "ForeArm"]), wr = L(bones[S + "Hand"]);
+    const ua = el.clone().sub(sh), fa = wr.clone().sub(el);
+    const interior = knee.clone().sub(ank).angleTo(ball.clone().sub(ank)) * 180 / Math.PI;
+    r[s] = {
+      hip: +(thigh + pel).toFixed(1), thigh: +thigh.toFixed(1), shank: +shank.toFixed(1), knee: +(thigh - shank).toFixed(1),
+      ankle: +(ANK0[s] - interior).toFixed(1),
+      heelY: +((V(FOOTV[s].heel).y + yo - (window.__soleT || 0)) * 100).toFixed(2), toeY: +((V(FOOTV[s].toe).y + yo - (window.__soleT || 0)) * 100).toFixed(2),
+      ankZ: +(ank.z * 100).toFixed(1),
+      arm: +sag(sh, el).toFixed(1), elbow: +(ua.angleTo(fa) * 180 / Math.PI).toFixed(1),
+    };
+  }
+  const hl = L(bones.LeftUpLeg), hr = L(bones.RightUpLeg), sl = L(bones.LeftArm), sr = L(bones.RightArm);
+  r.pelvisYaw = +ang2(hl.z - hr.z, hl.x - hr.x).toFixed(1);
+  r.thoraxYaw = +ang2(sl.z - sr.z, sl.x - sr.x).toFixed(1);
+  r.obliq = +ang2(hl.y - hr.y, hl.x - hr.x).toFixed(1);
+  r.pelvisY = +((L(bones.Hips).y + yo) * 100).toFixed(2); r.pelvisX = +(L(bones.Hips).x * 100).toFixed(1);
+  r.headY = +((L(bones.Head).y + yo) * 100).toFixed(1);
+  return r;
+}
+window.kin = (n = 72) => {
+  const T = clip.duration, rows = [];
+  holder.position.set(0, 0, 0);
+  for (let k = 0; k < n; k++) {
+    pose((k / n) * T); if (typeof curl === "function") curl(); toeBreak();
+    rows.push({ t: k / n, ...kinNow() });
+  }
+  return rows;
+};
+window.pxPerMetre = () => { v.set(0, 0, 0).project(camera); const a = v.x; v.set(1, 0, 0).project(camera); return ((v.x - a) / 2) * W; };
+window.ready = true;
+</script></body></html>

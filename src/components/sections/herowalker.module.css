@@ -1,0 +1,77 @@
+/* =========================================================================
+   THE WALKING DIGITAL HUMAN (HeroWalker)
+   -------------------------------------------------------------------------
+   One canvas per theme covering the whole Pose-analysis panel, placed in the
+   plate's own fractions (inline style) and clipped along the panel's
+   divider. Under the connectors, dots, pills and the rail; over the picture,
+   which no longer has a figure of its own. It fades in once, as soon as its
+   frames have arrived, and then stays.
+   ========================================================================= */
+
+.walker {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.walker[data-show="true"] {
+  opacity: 1;
+}
+
+/* The start frame as a still, from the first paint until the canvas (which
+   fades in over it on the same frame) has finished arriving. */
+.poster {
+  position: absolute;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.poster[data-gone="true"] {
+  visibility: hidden;
+  transition: visibility 0s linear 650ms;
+}
+
+/* Each theme's canvas registers with its own picture. */
+.dark {
+  display: none;
+}
+
+:global(.dark) .light {
+  display: none;
+}
+
+:global(.dark) .dark {
+  display: block;
+}
+
+/* The way in to the detailed read-out (HeroWalker's invisible button over
+   the figure). Above the canvas, under the dots, pills and rail. A quiet
+   gold focus ring for the keyboard; nothing visible otherwise. */
+.hit {
+  position: absolute;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hit:focus-visible {
+  outline: 1.5px solid rgb(201 166 103 / 0.8);
+  outline-offset: 4px;
+}
+
+/* Framed (the phone hero's engine tile): the tile is the box, so the canvas
+   and its loading still simply fill it. */
+.framed,
+.framedPoster {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}

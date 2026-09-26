@@ -1,0 +1,876 @@
+/*
+ * SUBSCRIBE — one block, three sizes.
+ *
+ * The only ornament is the site's own device: a hairline signal running into
+ * the field and terminating at a small node beside the button. It brightens
+ * on focus and settles brighter once the address is stored. No envelope, no
+ * illustration, no card with a gradient border.
+ *
+ * Both themes are written here rather than left to inherit: the dark branch
+ * is a light on black, and the light branch is ink on paper with the same
+ * geometry (see the semantic tokens in globals.css).
+ */
+
+.block {
+  --sub-accent: #4fd1ff;
+  --sub-accent-soft: rgb(79 209 255 / 0.4);
+  --sub-line: rgb(148 163 184 / 0.22);
+  --sub-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  width: 100%;
+}
+
+:global(.light) .block {
+  --sub-accent: #0e7490;
+  --sub-accent-soft: rgb(14 116 144 / 0.45);
+  --sub-line: rgb(15 23 42 / 0.16);
+}
+
+/* ── Copy ── */
+.title {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: rgb(var(--c-soft-white));
+  text-wrap: balance;
+}
+
+.blurb {
+  margin-top: 0.55rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: rgb(var(--c-soft-gray));
+  max-width: 34rem;
+}
+
+/* ── The field row ──
+   `position: relative` so the signal can be drawn behind it, and wrap on a
+   phone so the button becomes a full-width row of its own. */
+.form {
+  position: relative;
+  margin-top: 1.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.6rem;
+  max-width: 34rem;
+}
+
+/* THE SIGNAL. A hairline entering from the left edge of the row, sitting
+   behind the field, fading as it arrives. It is one element and one
+   gradient — the "line travels toward the node" reading comes from the
+   direction of the fade, not from an animation that never stops. */
+.signal {
+  position: absolute;
+  left: -1.75rem;
+  top: 50%;
+  height: 1px;
+  width: 1.75rem;
+  background: linear-gradient(90deg, transparent, var(--sub-line));
+  transition: background 0.25s var(--sub-ease);
+}
+
+.form:focus-within .signal {
+  background: linear-gradient(90deg, transparent, var(--sub-accent-soft));
+}
+
+@media (max-width: 640px) {
+  /* No room for a lead-in on a phone; the node beside the button still
+     carries the idea. */
+  .signal {
+    display: none;
+  }
+}
+
+.input {
+  /* Basis 11rem, not 15rem. The field and the button are meant to sit on one
+     line, and in the article row the signup column floors at 360px — at which
+     a 240px basis plus a ~148px button no longer fits, so the button dropped
+     to a second row at exactly the width where the two-column layout begins.
+     It still grows to fill whatever the column gives it; it just no longer
+     demands more than the narrowest column has. */
+  flex: 1 1 11rem;
+  min-width: 0;
+  /* Field and button are one control visually, so the height is declared here
+     and matched on .button rather than left to whichever of the two happens to
+     have the taller line box. */
+  min-height: 2.75rem;
+  border: 1px solid var(--sub-line);
+  border-radius: 0.6rem;
+  background: var(--input-bg);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.875rem;
+  color: rgb(var(--c-soft-white));
+  transition:
+    border-color 0.25s var(--sub-ease),
+    box-shadow 0.25s var(--sub-ease);
+}
+
+.input::placeholder {
+  color: rgb(var(--c-soft-mute) / 0.85);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--sub-accent);
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.12);
+}
+
+:global(.light) .input:focus {
+  box-shadow: 0 0 0 3px rgb(14 116 144 / 0.12);
+}
+
+.input:disabled {
+  opacity: 0.6;
+}
+
+/*
+ * The secondary action, and it has to keep reading as one.
+ *
+ * "Post comment" beside it is the site's gradient primary. This carried a
+ * tinted fill AND a fairly solid cyan border, which at a glance gave it close
+ * to the same weight — two equally loud asks at the end of an article when
+ * only one of them is what the reader came to do. The fill is gone and the
+ * border does the work; hover brings the tint back, so the affordance lives in
+ * the response rather than in the resting state.
+ */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  border: 1px solid var(--sub-line);
+  border-radius: 0.6rem;
+  background: transparent;
+  padding: 0.7rem 1.05rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-white));
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.25s var(--sub-ease),
+    border-color 0.25s var(--sub-ease);
+}
+
+:global(.light) .button {
+  background: transparent;
+}
+
+.button:hover:not(:disabled) {
+  background: rgb(79 209 255 / 0.1);
+  border-color: var(--sub-accent-soft);
+}
+
+:global(.light) .button:hover:not(:disabled) {
+  background: rgb(14 116 144 / 0.13);
+}
+
+.button:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--interactive-focus-ring, #4fd1ff);
+  outline-offset: 2px;
+}
+
+/* THE NODE. Where the signal terminates. An open ring at rest, filled while
+   the field has focus, and filled brighter once the address is stored. */
+.node {
+  height: 6px;
+  width: 6px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: 1px solid var(--sub-accent-soft);
+  transition:
+    background-color 0.25s var(--sub-ease),
+    border-color 0.25s var(--sub-ease),
+    box-shadow 0.25s var(--sub-ease);
+}
+
+.form:focus-within .node {
+  background: var(--sub-accent);
+  border-color: var(--sub-accent);
+}
+
+.buttonDone .node {
+  background: var(--sub-accent);
+  border-color: var(--sub-accent);
+  /* The one hairline halo this block is allowed, and only once the write
+     has actually landed. */
+  box-shadow: 0 0 0 3px rgb(79 209 255 / 0.18);
+}
+
+.arrow {
+  transition: transform 0.25s var(--sub-ease);
+}
+
+.button:hover:not(:disabled) .arrow {
+  transform: translateX(2px);
+}
+
+/* ── Verdict ──
+   The line is always in the DOM so a result arriving does not move the
+   page; it is simply empty until there is something to say. */
+/*
+ * The status line. It is an `aria-live` region, so it has to stay in the DOM
+ * at all times — a live region inserted at the same moment as its text is not
+ * reliably announced.
+ *
+ * `min-height` reserves one line so the block does not jump when a message
+ * arrives. That reservation was being paid CONSTANTLY: empty, this element
+ * still contributed 11.2px of margin plus 18.4px of reserved line, which with
+ * the legal text's own 8px put 38px between the field row and the small
+ * print. The subscribe unit read as two separate things.
+ *
+ * `:empty` is the fix rather than unmounting the element — React renders no
+ * text node for an empty string, so an empty status line collapses to nothing
+ * while the live region itself stays put. The reservation still applies the
+ * moment there is something to say.
+ */
+.note {
+  min-height: 1.15rem;
+  margin-top: 0.45rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: rgb(var(--c-soft-mute));
+}
+
+.note:empty {
+  min-height: 0;
+  margin-top: 0;
+}
+
+/* The second sentence of a success: what happens next, in the quiet colour,
+   on its own line inside the same live region. */
+.noteDetail {
+  display: block;
+  margin-top: 0.1rem;
+  color: rgb(var(--c-soft-mute));
+}
+
+.ok {
+  color: var(--sub-accent);
+}
+
+.warn {
+  color: rgb(var(--c-soft-white));
+}
+
+.bad {
+  color: #fca5a5;
+}
+
+:global(.light) .bad {
+  color: #b91c1c;
+}
+
+/* 14px from the field row when there is no status message, which is what
+   makes the field, the button and the small print read as one unit. With a
+   message present it is 14px below that instead. */
+.legal {
+  margin-top: 0.6rem;
+  max-width: 34rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-mute));
+}
+
+@media (max-width: 640px) {
+  .legal {
+    margin-top: 0.75rem;
+  }
+}
+
+.legalLink {
+  color: rgb(var(--c-soft-gray));
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--sub-line);
+}
+
+.legalLink:hover {
+  color: rgb(var(--c-soft-white));
+}
+
+/* ═══════════════ VARIANTS ═══════════════ */
+
+/* ═══════════ THE BLOG BLOCK ═══════════
+ *
+ * The block that closes /insights, in its own section. The section carries
+ * the rule and the padding, so the block itself carries none: it used to add
+ * a border, a clamp() of margin and a clamp() of padding on top of the section
+ * wrapper's, which stacked into roughly 240px of empty page between discovery
+ * and the title on a desktop.
+ *
+ * THE COMPOSITION, from lg up, is one row: the copy on the left, the field on
+ * the right, and between them the lane — a hairline signal that enters from
+ * beside the copy, runs cyan → blue → violet and meets the field. A short
+ * bridge continues it from the field to the button, where the node is the
+ * terminus. It is the site's signal device at the width of the block, drawn
+ * in a grid cell of its own so it never runs behind a line of type. The
+ * support line, the verdict and the small print stack under the field.
+ *
+ * Below lg everything stacks in reading order and the lane is not drawn; the
+ * node beside the button still carries the idea.
+ */
+.blog {
+  --sub-lane-cyan: rgb(79 209 255 / 0.5);
+  --sub-lane-blue: rgb(85 135 255 / 0.5);
+  --sub-lane-violet: rgb(156 100 241 / 0.55);
+
+  position: relative;
+  display: grid;
+  row-gap: 0;
+}
+
+:global(.light) .blog {
+  --sub-lane-cyan: rgb(16 143 192 / 0.45);
+  --sub-lane-blue: rgb(27 78 217 / 0.45);
+  --sub-lane-violet: rgb(95 37 191 / 0.5);
+}
+
+.blog .title {
+  font-size: clamp(1.5rem, 3vw, 2.05rem);
+}
+
+.blog .form {
+  max-width: none;
+}
+
+/* The lane is only drawn in the desktop composition. */
+.lane {
+  display: none;
+}
+
+/* The long signal replaces the block's short lead-in hairline. */
+.blog .signal {
+  display: none;
+}
+
+/* The support line: one quiet sentence under the field. */
+.support {
+  margin-top: 0.55rem;
+  max-width: 34rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* THE BRIDGE. From the field to the button, closing the gap the flex row
+   leaves, so the signal reads as one line from the lane to the node. */
+.blog .button {
+  position: relative;
+}
+
+.blog .button::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 0.6rem;
+  height: 1px;
+  background: var(--sub-lane-violet);
+  transition: background-color 0.25s var(--sub-ease);
+}
+
+/* The node at rest carries the colour the signal arrives with. Focus and a
+   stored address use the existing accent states above. */
+.blog .node {
+  border-color: var(--sub-lane-violet);
+}
+
+@media (min-width: 1024px) {
+  /* Two columns and ONE row: the copy, and the field group (form, support
+     line, verdict, small print) beside it. The group is one block so its lines
+     keep their own tight margins; an earlier version placed each line in its
+     own grid row under a copy that spanned them all, and whenever the copy was
+     taller than the group the grid distributed the difference between the
+     rows, opening 40px of nothing between the support line and the small
+     print at tablet widths. */
+  .blog {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 32rem);
+    column-gap: var(--sub-lane-width);
+    align-items: center;
+    --sub-lane-width: clamp(3rem, 9vw, 9rem);
+  }
+
+  .blog .copy {
+    grid-column: 1;
+    padding-right: 2.5rem;
+  }
+
+  .blog .field {
+    display: block;
+    position: relative;
+    grid-column: 2;
+  }
+
+  /* THE LANE: drawn in the column gap, level with the middle of the field,
+     from beside the copy to the field's left edge. It runs cyan into blue
+     into violet and hands on to the bridge and the node beside the button. */
+  .blog .lane {
+    display: block;
+    position: absolute;
+    right: 100%;
+    top: 1.45rem;
+    width: var(--sub-lane-width);
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--sub-lane-cyan) 35%,
+      var(--sub-lane-blue) 70%,
+      var(--sub-lane-violet) 100%
+    );
+    transition: opacity 0.25s var(--sub-ease);
+    opacity: 0.85;
+  }
+
+  /* The signal brightens while the field is in use — the same response the
+     short hairline gives on the other blocks. */
+  .blog:focus-within .lane {
+    opacity: 1;
+  }
+
+  .blog .form {
+    margin-top: 0;
+  }
+}
+
+/* The field group is only a box in the desktop composition; everywhere else
+   it is transparent to layout so the stacked order and margins are exactly
+   what they were. */
+.field {
+  display: contents;
+}
+
+/* The end of an article. Quieter than the blog block: the reader has just
+   finished something and the next thing on the page is the next story. */
+/*
+ * The article variant now sits BESIDE the discussion thread rather than under
+ * it, so it no longer carries its own rule and top margin: it had a
+ * `border-top`, 2rem of padding and 2.5rem of margin, which in a two-column
+ * row pushed it 40px below the thread's heading and drew a second divider
+ * across half the page. The row's own divider is the one divider, and both
+ * columns now start on the same line — the thread carries matching chrome of
+ * its own, neutralised in the article template because that component is
+ * shared with publications and live posts.
+ *
+ * It stays a light block — type, one field, the small print — and not a card.
+ * Matching the thread's panel would have doubled the visual weight of a
+ * signup that asks for one email address.
+ */
+.article {
+  padding-top: 0;
+  margin-top: 0;
+}
+
+/*
+ * The two headings in the article row have to land on one line.
+ *
+ * "Discussion" is an h2 at text-2xl (24px on a 32px line box) sitting in a row
+ * whose height is set by the 36px icon beside it, so its line box is centred in
+ * 36px and its text centre lands 18px below the top of the column. Giving this
+ * title the same 36px line box puts its text centre at 18px too, so the two
+ * agree by construction rather than by a nudge — and they keep agreeing if the
+ * icon size or the type scale ever moves, because both are the same band.
+ *
+ * No icon here on purpose. One icon in the row marks the thread as the live
+ * surface; a second would make the signup read as an equal offer.
+ */
+.article .title {
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+  line-height: 2.25rem;
+}
+
+.article .blurb {
+  font-size: 0.875rem;
+}
+
+/* The contact page's left column, under the deployment card. It was the
+   footer's line, and it keeps the footer's compact scale — 11px mono eyebrow,
+   one field, the icon button — because the point of moving it was to put it
+   where a reader is already deciding about GaitAI, not to make it bigger.
+   A hairline of its own now, since there is no footer rule above it, and it
+   is a lighter section under the card rather than a second card. */
+.contact {
+  border-top: 1px solid var(--sub-line);
+  padding-top: 1.5rem;
+}
+
+.contact .title {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-white));
+}
+
+/* There is no blurb in this variant, so the field follows the label
+   directly. 0.9rem was measured against a two-line copy block above it and
+   left a visible hole once the second line went; 0.7rem sits the field under
+   an 11px tracked eyebrow the way the eyebrow sits under the rule above it,
+   and keeps label and field reading as one unit.
+
+   Gone with the topic line: the whole `min-width: 1280px` block, which existed
+   only to join the label and the topics onto one line, and the `::before`
+   middot that separated them. */
+.contact .form {
+  margin-top: 0.7rem;
+  max-width: 24rem;
+}
+
+.contact .input {
+  flex: 1 1 11rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.contact .button {
+  padding: 0.55rem 0.8rem;
+  font-size: 10px;
+}
+
+/* The compact "[ → ]": the node and the arrow, with the word available to a
+   screen reader only. */
+.contact .buttonLabel {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.contact .note,
+.contact .legal {
+  max-width: 24rem;
+}
+
+.contact .legal {
+  font-size: 0.6875rem;
+}
+
+/* ═══════════ THE SIGNAL SWEEP ═══════════
+ *
+ * A single soft light band crossing the whole contact block — behind the
+ * label, the field, the button and the small print — once every second, and
+ * nothing in between. It exists because this signup sits in the left column of
+ * the CTA card beside a demo form, where a static block of 11px mono simply is not
+ * seen; the sweep gives the eye a reason to come back to it without a glowing
+ * card, a permanent border, or anything that reads as an advertisement.
+ *
+ * IT IS THE SITE'S OWN DEVICE, NOT A BUTTON SHINE. The block already draws a
+ * hairline signal into the field terminating at a node; this is the same idea
+ * at the scale of the whole block — a movement signal passing through it,
+ * entering bottom-left and leaving top-right, cyan into blue into violet.
+ *
+ * ONE MOVING LIGHT ON THE PAGE. Scoped to `.contact` throughout, so the blog
+ * and article variants of this same component are untouched.
+ *
+ * TRANSFORM AND OPACITY ONLY, on one element the compositor can own. No
+ * library, no canvas, no JS timer and no synchronized flashes on the form.
+ */
+.contact {
+  position: relative;
+
+  /* Its own stacking context, so the band's `z-index: -1` resolves HERE:
+     behind this block's content and above the CTA card's gradient. Without
+     it the -1 escapes to whichever ancestor is a stacking context at the
+     time, and the card's is framer-motion's, which disappears the moment the
+     entrance animation finishes — the band would vanish under the card. */
+  isolation: isolate;
+
+  /* 1s — ONE SIGNAL PER SECOND, and the second has a shape.
+
+     The band crosses in the first 70% of it (700ms) and the remaining 300ms is
+     spent at exactly the resting values, so the rhythm is SIGNAL → fade → dark
+     → SIGNAL rather than a light that never leaves. Both halves matter: a
+     crossing that filled the whole cycle would be continuous motion beside a
+     demo form, and a crossing much shorter than 700ms would be a flick.
+
+     Every number is a percentage of this line, so the whole rhythm moves from
+     here. */
+  --sub-cycle: 1s;
+
+  --sub-sweep: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgb(45 190 255 / 0.04) 40%,
+    rgb(84 110 255 / 0.1) 50%,
+    rgb(126 72 255 / 0.06) 58%,
+    transparent 72%
+  );
+  /* What is left when the animation is not allowed to run. */
+  --sub-sweep-rest: linear-gradient(
+    110deg,
+    transparent 28%,
+    rgb(84 110 255 / 0.05) 50%,
+    transparent 72%
+  );
+}
+
+:global(.light) .contact {
+  /* Ink on paper: the same three hues, taken down to where they read as a
+     tint crossing a white card rather than a stain on it. */
+  --sub-sweep: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgb(14 116 144 / 0.06) 40%,
+    rgb(59 79 214 / 0.1) 50%,
+    rgb(99 52 214 / 0.07) 58%,
+    transparent 72%
+  );
+  --sub-sweep-rest: linear-gradient(
+    110deg,
+    transparent 28%,
+    rgb(59 79 214 / 0.05) 50%,
+    transparent 72%
+  );
+}
+
+.contact .sweep {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* The band is clipped to the block. This is why the clip lives on a span
+     and not on `.contact` itself: the hairline `.signal` starts 1.75rem LEFT
+     of the block, and `overflow: hidden` up there would cut it off. */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The band. Far taller than the block so the diagonal drift never walks an
+   edge into view. */
+.contact .sweep::before {
+  content: "";
+  position: absolute;
+  top: -45%;
+  left: 0;
+  height: 190%;
+  width: 100%;
+
+  /* THE RESTING STATE IS THE REDUCED-MOTION STATE. Nothing below this point
+     runs unless the reader's system says motion is welcome, so a very faint
+     static accent is what this declaration block is for — not a fallback
+     bolted onto the end of the file. */
+  background: var(--sub-sweep-rest);
+  transition: filter var(--motion-ui, 220ms) ease;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contact .sweep::before {
+    background: var(--sub-sweep);
+    opacity: 0;
+    animation: sweep-band var(--sub-cycle) linear infinite;
+  }
+
+  /* The moment someone uses the form, the ambient light stands down. */
+  .contact:focus-within .sweep::before {
+    animation: none;
+  }
+}
+
+/* HOVER STRENGTHENS THE PASS ALREADY RUNNING. IT NEVER STARTS A SECOND ONE.
+   A filter is the whole mechanism: it multiplies whatever the keyframes are
+   painting at that instant, transitions on its own, and leaves the one
+   animation on the element untouched — so there is no restart, no phase jump,
+   and nothing left to fire on the way out.
+   `hover: hover` keeps it off touch, where :hover latches after a tap. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .contact:hover .sweep::before {
+    filter: brightness(1.16);
+  }
+
+  /* Focus still outranks hover, so the stand-down above is restated at a
+     weight that beats `:hover`. */
+  .contact:focus-within:hover .sweep::before {
+    animation: none;
+  }
+}
+
+/* Enters bottom-left, crosses, leaves top-right, and is GONE — not faded to
+   something still faintly there — for the last 300ms of the second.
+
+   The travel is ONE linear interpolation between 0% and 70%; the stops in
+   between carry opacity only, so they shape the entrance and the exit without
+   chopping the movement into segments. Two numbers here were measured rather
+   than chosen, by seeking this animation's own clock and capturing the frame:
+
+     - ±106%, not ±120%. The band is as wide as the block, so it only lights
+       anything while its offset is between -100% and +100%; the wider throw
+       spent a third of the crossing off-screen and cut the visible pass to
+       260ms of the 700ms window.
+     - LINEAR, not the eased curve this used to carry. Easing front-loaded the
+       travel, so the band crossed early and then sat off the right edge with
+       the opacity still ramping down over nothing.
+
+   With both fixed the light is on the block from ~90ms to ~630ms, peaking at
+   350ms as it passes the middle, and the 70% and 100% keyframes are identical
+   — which is the 300ms of true stillness before the next one enters. */
+@keyframes sweep-band {
+  0% {
+    opacity: 0;
+    transform: translate3d(-106%, 24%, 0);
+  }
+  8% {
+    opacity: 0.62;
+  }
+  16% {
+    opacity: 1;
+  }
+  56% {
+    opacity: 1;
+  }
+  64% {
+    opacity: 0.66;
+  }
+  70% {
+    opacity: 0;
+    transform: translate3d(106%, -24%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(106%, -24%, 0);
+  }
+}
+
+/* ── Touch ── the field row and the button both reach the site's target. */
+@media (pointer: coarse) {
+  .input,
+  .button {
+    min-height: var(--interactive-touch-target, 44px);
+  }
+}
+
+/* ── Mobile ── the button becomes its own full-width row. */
+@media (max-width: 640px) {
+  .form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* The bridge joins a field and a button that sit on one line; once the
+     button is a row of its own there is nothing to its left to join. */
+  .blog .button::before {
+    display: none;
+  }
+
+  /* The field's `flex: 1 1 11rem` is a WIDTH basis in a row. Once the form
+     turns into a column, flex-basis becomes a HEIGHT — so the email input was
+     176px tall on every phone. Unnoticed while this lived in the footer;
+     obvious the moment it moved up beside the demo form. */
+  .form .input {
+    /* Two classes, to out-specify `.contact .input`'s `flex: 1 1 11rem` —
+       which is a width basis in a row and became a 176px HEIGHT the moment
+       the form turned into a column. */
+    flex: 0 0 auto;
+  }
+
+  .button {
+    justify-content: center;
+  }
+
+  /* THE PHONE BUTTON SAYS WHAT IT DOES. The compact "[ ∘ → ]" of the contact
+     variant is a 24rem-wide desktop row's economy; stacked under the field
+     on a phone it was a wide, mostly empty box with a dot and an arrow in
+     it, which read as broken. Here it is a full-width 48px button with the
+     word on it. */
+  .contact .button {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 1rem;
+    font-size: 11.5px;
+    letter-spacing: 0.14em;
+  }
+
+  .contact .buttonLabel {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: nowrap;
+  }
+
+  .contact .node {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal,
+  .lane,
+  .blog .lane,
+  .input,
+  .button,
+  .blog .button::before,
+  .node,
+  .arrow {
+    transition: none;
+  }
+}
+
+/* ═══════════ THE SIGNAL'S STATES, on the blog block ═══════════
+ *
+ * Focus, a well-formed address, and a stored one — three readings of the same
+ * hairline, so the lane answers what the reader does instead of decorating
+ * the block. `data-valid` and `data-done` are set by the component; focus is
+ * :focus-within. The completion is the one transition: a cyan line drawn
+ * over the lane from the copy to the field, once, when the write has landed.
+ * Nothing loops. Under reduced motion the completed line simply appears.
+ */
+.blog[data-valid="true"] .lane {
+  opacity: 1;
+}
+.blog[data-valid="true"] .node,
+.blog[data-done="true"] .node {
+  border-color: var(--sub-accent);
+}
+.blog[data-valid="true"] .button::before {
+  background: var(--sub-accent-soft);
+}
+.blog[data-done="true"] .button::before {
+  background: var(--sub-accent);
+}
+.blog .lane::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--sub-accent));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--motion-signal, 0.7s) var(--sub-ease);
+}
+.blog[data-done="true"] .lane {
+  opacity: 1;
+}
+.blog[data-done="true"] .lane::after {
+  transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog .lane::after {
+    transition: none;
+  }
+}
+
+/* Between the phone and the desktop composition the row is a single line
+   across the page. Kept short of the right edge so the Subscribe button never
+   sits under the fixed Ask GaitAI launcher in the corner. */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .blog .form {
+    max-width: min(34rem, 100% - 8rem);
+  }
+}

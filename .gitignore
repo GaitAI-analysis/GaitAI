@@ -1,0 +1,95 @@
+node_modules
+.next
+.next-*
+# A build directory that got renamed out of the way of `.next` once, escaped
+# the rule above, and was committed with 323 MB of webpack cache in it.
+.next-acl-blocked
+# The Ask GaitAI Cloudflare Worker (worker/): its build output, the compact
+# corpus its build step derives from public/ask/knowledge.json so there is
+# exactly one canonical record set, and its local-secrets file.
+worker/dist
+worker/.wrangler
+worker/src/generated
+worker/.dev.vars
+worker/.dev.vars.*
+.dev.vars
+.dev.vars.*
+# The example carries names only, never values, and must ship with the repo.
+!worker/.dev.vars.example
+!.dev.vars.example
+out
+build
+dist
+# Secrets / environment — ignore every .env variant EXCEPT the committed template
+.env
+.env.*
+!.env.example
+# Credential / key files (never commit these)
+*.pem
+*.key
+*.p12
+*.pfx
+*serviceAccount*.json
+*service-account*.json
+*-credentials.json
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+public/uploads/*
+!public/uploads/.gitkeep
+build_check.log
+devlog*.txt
+fbtest.mjs
+graphify-out/
+# Screenshot output and the `--user-data-dir` profiles the headless-Edge
+# verification workflow leaves behind: 31 MB of browser state in 1078 files
+# the first time it went unignored.
+tmp/
+
+# Generated at dev/build time from .env.local — never commit
+public/firebase-config.js
+
+# Ask GaitAI runtime config: written per build by scripts/write-ask-config.mjs
+# (the endpoint differs per machine; the build id per build)
+public/ask/config.json
+
+# Browser-audit screenshots and partial runs (278 MB per full run); results.json/issues.json stay tracked
+docs/audit/browser/*.png
+docs/audit/browser/results.partial.json
+
+# Python bytecode from scripts/theme-media
+__pycache__/
+
+# ── EVERY BUILD AND CACHE VARIANT ─────────────────────────────────────────
+# `.next`, `.next-*`, `out`, `build` and `dist` above already match at ANY
+# depth — a bare pattern with no slash does — so a nested worktree cannot
+# sneak one past them. These are the rest of the family, and one rule keyed
+# on the CONTENT rather than on the parent's name: the 322 MB this history
+# still carries arrived as a webpack cache inside a directory that had been
+# renamed out from under the `.next` rule, so anything under a
+# `cache/webpack/` path is now refused whatever it happens to sit in.
+**/cache/webpack/
+.cache/
+.turbo/
+.swc/
+coverage/
+playwright-report/
+test-results/
+
+# Hero panel ORIGINALS. The encoder's inputs, not its outputs: full-resolution
+# photographs, one per panel per theme, which can be tens of megabytes each.
+# What ships is public/images/hero/panels/ (committed) plus the committed
+# manifest src/data/hero-panels.generated.json, so a build never needs to run
+# the encoder. See docs/hero-panels.md.
+assets/hero/src/
+
+# Brand and design SOURCE material (logo packs, brand sheets, reference
+# screenshots, hero masters): kept on disk for future brand work, never
+# served and never imported, so it does not belong in the repository.
+assets/brand-source/
+assets/design-references/
+# Logs, OS thumbnails and stray temp folders.
+*.log
+Thumbs.db
+temp/

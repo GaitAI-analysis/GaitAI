@@ -1,0 +1,3 @@
+# Historical source manifests are byte-for-byte provenance snapshots. Preserve
+# their line endings so SHA-256 verification agrees on Windows and Linux CI.
+docs/audits/product-images/history/manifest-*.json -text whitespace=cr-at-eol

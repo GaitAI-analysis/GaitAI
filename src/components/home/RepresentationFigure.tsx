@@ -1,0 +1,941 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  SequenceFrame,
+  SEQUENCE_CAPTION,
+  sequenceFrames,
+} from "@/components/visuals/SequenceFrame";
+import { assetPath } from "@/lib/paths";
+import { smoothPath } from "@/components/research/PoseFrame";
+import type { Pt } from "@/components/visuals/gait-phases";
+import styles from "./representations.module.css";
+
+/** The first three cards share one recorded frame and its model output.
+ * Trajectory and IMU cards are labelled conceptual diagrams. */
+
+/* The box. Matches the card figure area the section already reserves. */
+/**
+ * THE CAPTURE PLATE — A REAL FRAME, NOT A DRAWING OF ONE.
+ * ---------------------------------------------------------------------------
+ * This card has to read as raw camera footage before any privacy transform,
+ * and a vector figure cannot: however much grain, vignette and motion blur go
+ * over it, a drawn person stays a drawn person. So the capture view is a
+ * photograph.
+ *
+ * WHERE IT COMES FROM. The site already owned one: the insights cover
+ * `01-walking-video-to-movement-intelligence.jpg` contains, inside the phone
+ * in its top-left corner, a photoreal frame of a man walking past a concrete
+ * wall. `scripts/build-capture-plate.py` crops that region clear of the phone
+ * bezel and its UI, grades it away from the cover's blue key toward the
+ * near-neutral, low-contrast look of a camera at gain, and writes the portrait
+ * plate below. Nothing was fetched from the internet and no new licence is
+ * involved — it is the project's own asset, reframed.
+ *
+ * TO REPLACE IT, drop a different still at the same path (or point this at a
+ * new one) and rerun nothing: the recording furniture — vignette, grain,
+ * scanlines, brackets, REC, CAM 03, timestamp — is drawn over whatever is
+ * here. A photograph of an identifiable person presented as surveillance
+ * footage needs a model release, so that stays a decision for the site owner.
+ *
+ * Set to null to fall back to the drawn room, which is still below.
+ */
+const CCTV_PLATE: string | null = "/assets/images/capture/cctv-walk-frame.jpg";
+
+const W = 150;
+const H = 156;
+const GROUND = 126;
+/** Where the floor's perspective lines converge, just above the horizon. */
+const VP: [number, number] = [88, 71];
+
+/**
+ * THE LANDMARK SET, in box coordinates.
+ *
+ * Named for what a pose estimator returns, because the pose view draws
+ * exactly these and the other views are built from the same points — so the
+ * mask cannot drift away from the skeleton it is supposed to be a mask of.
+ * `R` is the near side (towards the viewer), `L` the far side.
+ */
+const P = {
+  /* The head cluster. A pose estimator returns face landmarks, not a head
+     outline — so the head here is an ear, an eye and a nose, which is what
+     the overlay looks like and why it reads as a pose result rather than as
+     a drawing of a person. Only the far-side ear/eye are occluded at this
+     angle, so only the near ones are drawn. */
+  ear: [73.5, 21],
+  eye: [78, 19.2],
+  nose: [80.5, 20.5],
+  headC: [74, 22.5],
+  neck: [74, 34],
+  shoulderR: [76.5, 40],
+  shoulderL: [70, 40.5],
+  elbowR: [69, 57],
+  wristR: [65, 72],
+  elbowL: [80, 57],
+  wristL: [87, 69],
+  hipR: [75, 74],
+  hipL: [70, 75],
+  hipC: [72.5, 74.5],
+  kneeR: [87, 97],
+  ankleR: [97, 118],
+  heelR: [94, 125],
+  toeR: [106, 123],
+  kneeL: [63, 98],
+  ankleL: [54, 118],
+  heelL: [49, 114],
+  toeL: [60, 124],
+} satisfies Record<string, Pt>;
+
+const HEAD_RX = 6.8;
+const HEAD_RY = 8.2;
+
+const line = (a: Pt, b: Pt) => `M${a[0]} ${a[1]}L${b[0]} ${b[1]}`;
+const poly = (...pts: Pt[]) => pts.map((p) => p.join(",")).join(" ");
+
+/**
+ * The body as a single filled region.
+ *
+ * Built as limb capsules (round-capped strokes) plus a torso and a head, all
+ * painted in ONE colour with no internal stroke — so the union reads as a
+ * foreground mask rather than as an assembly of parts. That is the whole
+ * difference between a segmentation and a cartoon made of shapes.
+ *
+ * `mask` renders it flat (the silhouette view); the camera view passes tonal
+ * classes per region instead, which is the only thing that differs between
+ * "person as recorded" and "person as mask".
+ */
+function Body({
+  tone = false,
+  className,
+}: {
+  tone?: boolean;
+  className?: string;
+}) {
+  const skin = tone ? styles.toneSkin : undefined;
+  const wear = tone ? styles.toneWear : undefined;
+  const legs = tone ? styles.toneLegs : undefined;
+  const shoe = tone ? styles.toneShoe : undefined;
+
+  return (
+    <g className={className}>
+      {/* Far limbs first, so the near side overlaps them the way a body
+          occludes itself. */}
+      <path
+        className={legs}
+        d={poly(P.hipL, P.kneeL) && line(P.hipL, P.kneeL)}
+        strokeWidth={13}
+      />
+      <path className={legs} d={line(P.kneeL, P.ankleL)} strokeWidth={9} />
+      <path
+        className={shoe}
+        d={`M${P.heelL[0]} ${P.heelL[1]}L${P.ankleL[0]} ${P.ankleL[1]}L${P.toeL[0]} ${P.toeL[1]}`}
+        strokeWidth={5.5}
+      />
+      <path
+        className={wear}
+        d={line(P.shoulderL, P.elbowL)}
+        strokeWidth={7.5}
+      />
+      <path className={skin} d={line(P.elbowL, P.wristL)} strokeWidth={6} />
+      <circle
+        className={skin}
+        cx={P.wristL[0]}
+        cy={P.wristL[1]}
+        r={3}
+        strokeWidth={0}
+      />
+
+      {/* Torso. One closed path from the shoulder line to the hips. */}
+      <path
+        className={wear}
+        strokeWidth={0}
+        d="M65 43 C64.4 37.2 83.6 36.8 83 43 L81.2 61 L80 77.5 L65.6 77.5 L64.6 61 Z"
+      />
+      {/* Neck and head. */}
+      <path className={skin} d={line([74, 31], P.neck)} strokeWidth={8} />
+      <ellipse
+        className={skin}
+        cx={P.headC[0]}
+        cy={P.headC[1]}
+        rx={HEAD_RX}
+        ry={HEAD_RY}
+        strokeWidth={0}
+      />
+
+      {/* Near limbs. */}
+      <path className={legs} d={line(P.hipR, P.kneeR)} strokeWidth={14} />
+      <path className={legs} d={line(P.kneeR, P.ankleR)} strokeWidth={9.5} />
+      <path
+        className={shoe}
+        d={`M${P.heelR[0]} ${P.heelR[1]}L${P.ankleR[0]} ${P.ankleR[1]}L${P.toeR[0]} ${P.toeR[1]}`}
+        strokeWidth={5.5}
+      />
+      <path className={wear} d={line(P.shoulderR, P.elbowR)} strokeWidth={8} />
+      <path className={skin} d={line(P.elbowR, P.wristR)} strokeWidth={6.5} />
+      <circle
+        className={skin}
+        cx={P.wristR[0]}
+        cy={P.wristR[1]}
+        r={3.2}
+        strokeWidth={0}
+      />
+    </g>
+  );
+}
+
+/** The bones a pose estimator reports, near side and far side kept apart. */
+const BONES_FAR: [Pt, Pt][] = [
+  [P.shoulderL, P.elbowL],
+  [P.elbowL, P.wristL],
+  [P.shoulderL, P.hipL],
+  [P.hipL, P.kneeL],
+  [P.kneeL, P.ankleL],
+  [P.ankleL, P.heelL],
+  [P.heelL, P.toeL],
+];
+
+const BONES_NEAR: [Pt, Pt][] = [
+  [P.ear, P.eye],
+  [P.eye, P.nose],
+  [P.ear, P.neck],
+  [P.shoulderL, P.shoulderR],
+  [P.shoulderR, P.elbowR],
+  [P.elbowR, P.wristR],
+  [P.shoulderR, P.hipR],
+  [P.hipL, P.hipR],
+  [P.hipR, P.kneeR],
+  [P.kneeR, P.ankleR],
+  [P.ankleR, P.heelR],
+  [P.heelR, P.toeR],
+];
+
+const JOINTS_FAR: Pt[] = [
+  P.shoulderL,
+  P.elbowL,
+  P.wristL,
+  P.hipL,
+  P.kneeL,
+  P.ankleL,
+  P.heelL,
+  P.toeL,
+];
+const JOINTS_NEAR: Pt[] = [
+  P.ear,
+  P.eye,
+  P.nose,
+  P.shoulderR,
+  P.elbowR,
+  P.wristR,
+  P.hipR,
+  P.kneeR,
+  P.ankleR,
+  P.heelR,
+  P.toeR,
+];
+
+/**
+ * The centroid path: where the hip went, over the last few strides.
+ *
+ * A walking pelvis rises and falls twice per stride, so the path is not a
+ * straight line — that small vertical ripple is the thing that makes a
+ * trajectory read as a WALK rather than as a slide. Deterministic, so the
+ * server and the browser draw the same curve.
+ */
+const TRAIL: Pt[] = Array.from({ length: 25 }, (_, i) => {
+  const t = i / 24;
+  return [
+    10 + t * (W - 22),
+    /* Walking toward the camera as well as across it, so the path has
+       depth rather than being a horizontal line with a wobble. */
+    P.hipC[1] + 26 - t * 30 - Math.sin(t * Math.PI * 5) * 3.1,
+  ] as Pt;
+});
+
+/**
+ * Samples along the trail, used for the time ticks. Spacing is the
+ * observation interval, so where the dots bunch the walker was slower —
+ * which is the one quantity a trajectory carries that a path alone does not.
+ */
+const TRAIL_TICKS = [0, 4, 8, 12, 16, 20, 24];
+
+/* ── The wearable signal ─────────────────────────────────────────────────
+   Three accelerometer channels over about three and a bit gait cycles.
+
+   The shapes are the ones a trunk-mounted IMU actually produces, written as
+   functions rather than sampled from anybody's data: vertical acceleration
+   peaks twice per stride, anteroposterior once, mediolateral once per STRIDE
+   (so half the rate of the other two), and each initial contact puts a sharp
+   transient on the vertical trace. No randomness — a random trace would
+   differ between the server and the client render. */
+
+const PAD_X = 12;
+const CYCLES = 3.25;
+const SAMPLES = 170;
+
+const at = (t: number) => PAD_X + t * (W - PAD_X * 2);
+
+/** A narrow transient at every initial contact. */
+const strike = (t: number) => {
+  let v = 0;
+  for (let k = 0; k <= Math.ceil(CYCLES); k += 1) {
+    /* Narrow: a heel strike is a transient, and at 100 Hz it is a spike
+       with a fall, not a hump. Widening this is what made the vertical
+       channel read as a sine wave. */
+    const d = (t - k / CYCLES) * CYCLES * 44;
+    v += Math.exp(-d * d);
+  }
+  return v;
+};
+
+const channel = (fn: (t: number) => number, mid: number, amp: number) => {
+  const pts: Pt[] = [];
+  for (let i = 0; i <= SAMPLES; i += 1) {
+    const t = i / SAMPLES;
+    pts.push([at(t), mid - fn(t) * amp]);
+  }
+  return smoothPath(pts);
+};
+
+const phase = (t: number) => t * CYCLES * Math.PI * 2;
+
+/** Vertical: two peaks a stride, plus the heel-strike transient. */
+const ACC_Y = channel(
+  (t) =>
+    -Math.cos(phase(t) * 2) * 0.42 +
+    strike(t) * 1.35 -
+    /* The loading-response dip that follows every strike. */
+    strike(t - 0.055 / CYCLES) * 0.38 -
+    0.08,
+  66,
+  15,
+);
+/** Anteroposterior: one cycle per stride, braking then propulsion. */
+const ACC_X = channel(
+  (t) => Math.sin(phase(t)) * 0.8 + Math.sin(phase(t) * 3) * 0.12,
+  95,
+  9,
+);
+/** Mediolateral: half the rate — one sway per stride pair. */
+const ACC_Z = channel((t) => Math.sin(phase(t) / 2 + 0.6) * 0.7, 113, 6);
+
+/** Where each initial contact lands on the time axis. */
+const CONTACTS = Array.from({ length: Math.floor(CYCLES) + 1 }, (_, k) =>
+  at(k / CYCLES),
+).filter((x) => x <= W - PAD_X);
+
+export type RepresentationDraw =
+  "frame" | "silhouette" | "pose" | "trajectory" | "sensor";
+
+/**
+ * One representation, at card scale.
+ *
+ * `role="img"` with the caller's label: each of these is a picture of
+ * something, not decorative SVG, and the label is what a screen reader gets
+ * instead of the geometry.
+ */
+export function RepresentationFigure({
+  draw,
+  label,
+  className,
+}: {
+  draw: RepresentationDraw;
+  label: string;
+  className?: string;
+}) {
+  if (draw === "silhouette") {
+    return (
+      <div
+        role="img"
+        aria-label={`${label}. ${SEQUENCE_CAPTION}`}
+        className={className}
+      >
+        <PrivacyFigure />
+      </div>
+    );
+  }
+  if (draw === "frame" || draw === "pose") {
+    const view = draw === "frame" ? "source" : "pose";
+    return (
+      <div
+        role="img"
+        aria-label={`${label}. ${SEQUENCE_CAPTION}`}
+        className={className}
+      >
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className={styles.svg}
+          data-draw={draw}
+          aria-hidden="true"
+        >
+          <SequenceFrame
+            index={0}
+            x={0}
+            y={0}
+            width={W}
+            height={H}
+            view={view}
+          />
+        </svg>
+      </div>
+    );
+  }
+  return (
+    <div role="img" aria-label={label} className={className}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="xMidYMid meet"
+        className={styles.svg}
+        data-draw={draw}
+        aria-hidden="true"
+      >
+        <defs>
+          {/* The trail fades into the past rather than ending in mid-air. */}
+          <linearGradient id="gai-trail" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0" />
+            <stop offset="55%" stopColor="currentColor" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="1" />
+          </linearGradient>
+          {/* The lens falls off at the corners, which is most of what makes a
+              rectangle read as a camera frame. */}
+          <radialGradient id="gai-vignette" cx="50%" cy="46%" r="72%">
+            <stop offset="55%" stopColor="#000" stopOpacity="0" />
+            <stop offset="100%" stopColor="#000" stopOpacity="0.66" />
+          </radialGradient>
+          <linearGradient id="gai-spill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="0.3" />
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+          </linearGradient>
+          <clipPath id="gai-frame">
+            <rect x="0" y="0" width={W} height={H} rx="4" />
+          </clipPath>
+
+          {/* ── What makes a rectangle read as footage rather than artwork ──
+              Grain, focus and smear: three things every real frame has and no
+              illustration does. They are cheap at this size and they are the
+              whole difference between the two readings. */}
+
+          {/* A SEGMENTATION BOUNDARY, NOT A SHAPE.
+              The mask was a union of capsules, which is geometrically perfect
+              in a way no segmenter's output ever is: a real foreground mask
+              wobbles along the edge, swells a little at the shoulders and
+              bites into the thin parts. A low-frequency displacement gives it
+              that boundary without changing the pose, the proportions or the
+              silhouette's reading — it is the same body, cut out by a model
+              rather than drawn with a compass. Seeded, so the server and the
+              browser produce the same edge. */}
+          <filter id="gai-seg" x="-10%" y="-8%" width="120%" height="116%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.042 0.075"
+              numOctaves="3"
+              seed="19"
+              result="segNoise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="segNoise"
+              scale="3.1"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+
+          {/* Sensor noise. Real at any gain; the dominant texture at low light. */}
+          <filter id="gai-grain" x="0" y="0" width="100%" height="100%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.82"
+              numOctaves="3"
+              seed="11"
+              stitchTiles="stitch"
+              result="noise"
+            />
+            <feColorMatrix
+              in="noise"
+              type="saturate"
+              values="0"
+              result="mono"
+            />
+            <feComponentTransfer in="mono">
+              <feFuncA type="linear" slope="0.5" intercept="-0.16" />
+            </feComponentTransfer>
+          </filter>
+
+          {/* Depth of field. The far plane is not where the lens is focused. */}
+          <filter id="gai-dof" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur stdDeviation="0.85" />
+          </filter>
+
+          {/* Motion blur. A walking person at 1/30s smears horizontally — and
+              the limbs, which travel fastest, smear most. */}
+          <filter id="gai-motion" x="-14%" y="-8%" width="128%" height="116%">
+            <feGaussianBlur stdDeviation="0.85 0.22" />
+          </filter>
+          <filter
+            id="gai-motion-limb"
+            x="-24%"
+            y="-10%"
+            width="148%"
+            height="120%"
+          >
+            <feGaussianBlur stdDeviation="1.9 0.3" />
+          </filter>
+
+          {/* The room's own light: a ceiling source falling off down the wall,
+              and a floor that is brightest where it is nearest. */}
+          <linearGradient id="gai-wall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2b3140" />
+            <stop offset="100%" stopColor="#151a25" />
+          </linearGradient>
+          <linearGradient id="gai-floor" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#191f2b" />
+            <stop offset="100%" stopColor="#0a0e16" />
+          </linearGradient>
+          {/* Tone on the body, so it is lit from one side rather than filled. */}
+          <linearGradient id="gai-lit" x1="0" y1="0" x2="1" y2="0.2">
+            <stop offset="0%" stopColor="#000" stopOpacity="0.42" />
+            <stop offset="58%" stopColor="#000" stopOpacity="0" />
+            <stop offset="100%" stopColor="#fff" stopOpacity="0.1" />
+          </linearGradient>
+        </defs>
+
+        {/* ═══ CAMERA VIDEO ═══════════════════════════════════════════════
+            A room, a person in it, and the furniture of a recording — drawn
+            the way a camera resolves a dim room rather than the way an
+            illustration describes one. The scene is a lit wall and a receding
+            floor with a real vanishing point, the person is tonally modelled
+            and motion-blurred (the limbs more than the trunk, because they
+            travel faster), and the whole plate carries the vignette, sensor
+            grain, compression blocking and scanlines that no drawing has.
+            Set CCTV_PLATE to swap the drawing for a licensed still. */}
+        {draw === "trajectory" && (
+          <g>
+            {/* The floor the path is drawn on, in perspective — a trajectory
+                is a route through a place, and without the place it is a
+                line. */}
+            <g className={styles.trajFloor}>
+              {[-10, 40, 90, 140, 180].map((x) => (
+                <path key={x} d={`M${x} ${H - 6}L${VP[0]} ${VP[1] + 30}`} />
+              ))}
+              {[0.16, 0.34, 0.56, 0.82].map((f) => {
+                const y = VP[1] + 14 + (H - 6 - VP[1] - 14) * f * f;
+                return <path key={f} d={`M4 ${y}H${W - 4}`} />;
+              })}
+            </g>
+            <path d={`M6 ${GROUND}H${W - 6}`} className={styles.trajGround} />
+
+            {/* THE PATH IS THE SUBJECT. The walker is one small marker at the
+                head of it, not a body with a line attached: what this
+                representation keeps is where somebody went and how fast, and
+                the drawing has to say that before it says anything else. */}
+            <path d={smoothPath(TRAIL)} className={styles.trailGlow} />
+            <path
+              d={smoothPath(TRAIL)}
+              className={styles.trailLine}
+              stroke="url(#gai-trail)"
+            />
+
+            {/* Observation ticks. Evenly spaced in TIME, so their spacing on
+                the path is the speed. */}
+            {TRAIL_TICKS.map((i, k) => {
+              const [x, y] = TRAIL[i];
+              const last = k === TRAIL_TICKS.length - 1;
+              return (
+                <g
+                  key={i}
+                  style={{
+                    opacity: 0.3 + (k / (TRAIL_TICKS.length - 1)) * 0.7,
+                  }}
+                >
+                  <path
+                    d={`M${x} ${y - 3.4}V${y + 3.4}`}
+                    className={styles.trailTick}
+                  />
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={last ? 2.2 : 1.5}
+                    className={styles.trailDot}
+                  />
+                </g>
+              );
+            })}
+
+            {/* Where the walker is now: a position marker on the path, with the
+                ground point under it. Two rings and a dot — the same vocabulary
+                the rest of the site uses for "a thing at a place". */}
+            {(() => {
+              const [x, y] = TRAIL[TRAIL.length - 1];
+              return (
+                <g>
+                  <path
+                    d={`M${x} ${y}V${GROUND - 2}`}
+                    className={styles.trajDrop}
+                  />
+                  <ellipse
+                    cx={x}
+                    cy={GROUND - 1}
+                    rx="7"
+                    ry="2.2"
+                    className={styles.trajFoot}
+                  />
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="7.5"
+                    className={styles.centroidHalo}
+                  />
+                  <circle cx={x} cy={y} r="3.4" className={styles.centroid} />
+                  <text
+                    x={x - 7}
+                    y={y - 8}
+                    textAnchor="end"
+                    className={styles.trajTag}
+                  >
+                    CENTROID
+                  </text>
+                </g>
+              );
+            })()}
+
+            <text x="8" y={H - 8} className={styles.trajTag}>
+              t − 3.0 s
+            </text>
+            <text
+              x={W - 8}
+              y={H - 8}
+              textAnchor="end"
+              className={styles.trajTag}
+            >
+              now
+            </text>
+          </g>
+        )}
+
+        {/* ═══ SENSOR SIGNAL ══════════════════════════════════════════════
+            No body. Three channels, a time axis and the contacts. */}
+        {draw === "sensor" && (
+          <g>
+            <g className={styles.grid}>
+              {[40, 66, 95, 113, 132].map((y) => (
+                <path key={y} d={`M${PAD_X} ${y}H${W - PAD_X}`} />
+              ))}
+            </g>
+            {/* Initial contact, marked on the axis and down the plot. */}
+            <g className={styles.contact}>
+              {CONTACTS.map((x) => (
+                <path key={x} d={`M${x} 34V134`} />
+              ))}
+            </g>
+
+            <path d={ACC_Y} className={styles.accY} />
+            <path d={ACC_X} className={styles.accX} />
+            <path d={ACC_Z} className={styles.accZ} />
+
+            {CONTACTS.map((x) => (
+              <circle
+                key={x}
+                cx={x}
+                cy={66 - 0.8 * 15}
+                r="2"
+                className={styles.strikeDot}
+              />
+            ))}
+
+            <text x={PAD_X} y="30" className={styles.sensorTag}>
+              ACCEL · 100 Hz
+            </text>
+            <text
+              x={W - PAD_X}
+              y="30"
+              textAnchor="end"
+              className={styles.sensorLegendY}
+            >
+              Y
+            </text>
+            <text
+              x={W - PAD_X - 12}
+              y="30"
+              textAnchor="end"
+              className={styles.sensorLegendX}
+            >
+              X
+            </text>
+            <text
+              x={W - PAD_X - 22}
+              y="30"
+              textAnchor="end"
+              className={styles.sensorLegendZ}
+            >
+              Z
+            </text>
+            <text x={PAD_X} y={H - 8} className={styles.sensorTag}>
+              ▲ INITIAL CONTACT
+            </text>
+
+            {/* The device, as a caption rather than as the subject. */}
+            <g
+              className={styles.watch}
+              transform={`translate(${W - 30} ${H - 30})`}
+            >
+              <rect x="-7" y="-11" width="14" height="4" rx="1.6" />
+              <rect x="-7" y="7" width="14" height="4" rx="1.6" />
+              <rect
+                x="-9.5"
+                y="-8"
+                width="19"
+                height="16"
+                rx="4"
+                className={styles.watchFace}
+              />
+              <path
+                d="M-4.5 0h3l1.5 -3 1.5 5 1.5 -2h2"
+                className={styles.watchTrace}
+              />
+            </g>
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE PRIVACY LAYER — the same walker, identity reduced, movement kept
+   ---------------------------------------------------------------------------
+   The card used to paint the frame's segmentation mask as the raw PNG it is:
+   a white silhouette. Right on the dark card; on the light card it was white
+   on white, and the stage read as an image that had failed to load.
+
+   This is an illustration drawn here, in the SVG, with the segmentation used
+   only as a SHAPE. The mask PNG is the model's own foreground cut-out of the
+   very frame the Capture card shows and the Pose card draws landmarks over,
+   so the three stages are visibly one person losing information — which is
+   the section's argument. Everything painted is inline: a soft neutral fill
+   with a little dimension, a crisp cyan contour (the mask dilated by a
+   filter, with the fill painted over its interior), a pixel grid over the
+   head and shoulders fading out by the chest, a few pixel fragments
+   dissolving off the face, and a dashed ground line with a direction chevron
+   under the feet — identity reduced above, movement retained below.
+
+   IF THE MASK EVER FAILS TO LOAD the shape falls back to the vector body
+   below (`Body`, built from the same landmark set), so the card can never be
+   blank: the image's `onError` swaps the shape source and nothing else.
+
+   Colours live in representations.module.css, both themes side by side.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* The frame's box inside the 150×156 card, exactly as SequenceFrame places
+   it, so the shape lands where Capture's frame and Pose's landmarks land. */
+const PF_FRAME = sequenceFrames[0];
+const PF_SCALE = Math.min(W / PF_FRAME.width, H / PF_FRAME.height);
+const PF_W = PF_FRAME.width * PF_SCALE;
+const PF_H = PF_FRAME.height * PF_SCALE;
+const PF_X = (W - PF_W) / 2;
+const PF_Y = (H - PF_H) / 2;
+const pfAt = (i: number): Pt => [
+  PF_X + PF_FRAME.landmarks[i].x * PF_W,
+  PF_Y + PF_FRAME.landmarks[i].y * PF_H,
+];
+
+/* Landmarks the illustration is anchored to: the nose (the head), the far
+   shoulder (where the pixel grid gives out) and the two ankles (the ground). */
+const PF_NOSE = pfAt(0);
+const PF_SHOULDER = pfAt(12);
+const PF_ANKLE_BACK = pfAt(27);
+const PF_ANKLE_FRONT = pfAt(28);
+
+/* Pixel fragments leaving the head — identity dissolving off the face. In
+   front of the walker (he faces right), smaller and fainter the further they
+   have travelled. Deterministic, so the server and the browser agree. */
+const PF_FRAGMENTS: { dx: number; dy: number; s: number; o: number }[] = [
+  { dx: 9, dy: -9, s: 3.2, o: 0.85 },
+  { dx: 15, dy: -14, s: 2.6, o: 0.7 },
+  { dx: 20, dy: -6, s: 2.4, o: 0.6 },
+  { dx: 25, dy: -17, s: 2, o: 0.5 },
+  { dx: 13, dy: 4, s: 2.2, o: 0.55 },
+  { dx: 30, dy: -10, s: 1.6, o: 0.38 },
+  { dx: 22, dy: 3, s: 1.6, o: 0.34 },
+  { dx: 35, dy: -2, s: 1.3, o: 0.25 },
+  { dx: -11, dy: 6, s: 2, o: 0.45 },
+  { dx: -16, dy: 12, s: 1.5, o: 0.3 },
+];
+
+function PrivacyFigure() {
+  const [fallback, setFallback] = useState(false);
+
+  /* The <image> is server-rendered, so a load failure fires before React has
+     attached any handler to it. Probe the file once on mount instead: a
+     cached hit resolves instantly, a miss swaps the shape to the vector body. */
+  useEffect(() => {
+    const probe = new window.Image();
+    probe.onerror = () => setFallback(true);
+    probe.src = assetPath(PF_FRAME.mask);
+  }, []);
+
+  /* The shape source, painted white for the mask and filtered for the
+     contour: the segmentation PNG, or the vector body if it fails. */
+  const shape = fallback ? (
+    <g fill="#fff" stroke="#fff" color="#fff">
+      <Body />
+    </g>
+  ) : (
+    <image
+      href={assetPath(PF_FRAME.mask)}
+      x={PF_X}
+      y={PF_Y}
+      width={PF_W}
+      height={PF_H}
+    />
+  );
+
+  const fadeTop = PF_Y + PF_H * 0.1;
+  const fadeEnd = PF_SHOULDER[1] + 14;
+  const groundY = Math.max(PF_ANKLE_BACK[1], PF_ANKLE_FRONT[1]) + 6;
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      className={`${styles.svg} ${styles.pf}`}
+      data-draw="silhouette"
+      aria-hidden="true"
+    >
+      <defs>
+        {/* The body as a mask: where the segmentation is white, paint shows. */}
+        <mask
+          id="pf-shape"
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width={W}
+          height={H}
+        >
+          {shape}
+        </mask>
+
+        {/* The contour. Dilate the shape and flood it cyan; the fill painted
+            afterwards covers the interior, leaving a ring the width of the
+            dilation. A filter rather than a stroke, because a bitmap has no
+            stroke. */}
+        <filter id="pf-contour" x="-12%" y="-8%" width="124%" height="116%">
+          <feMorphology
+            in="SourceAlpha"
+            operator="dilate"
+            radius="1.7"
+            result="fat"
+          />
+          <feFlood className={styles.pfInk} result="ink" />
+          <feComposite in="ink" in2="fat" operator="in" />
+        </filter>
+
+        {/* Soft neutral fill with a little dimension: lighter at the top and
+            the leading edge, deeper toward the back and the feet. */}
+        <linearGradient id="pf-fill" x1="0.15" y1="0" x2="0.85" y2="1">
+          <stop offset="0" className={styles.pfFillTop} />
+          <stop offset="1" className={styles.pfFillBottom} />
+        </linearGradient>
+        <radialGradient id="pf-shade" cx="0.42" cy="0.38" r="0.7">
+          <stop offset="0.45" stopColor="#000" stopOpacity="0" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.16" />
+        </radialGradient>
+
+        {/* The pixel grid over the head and shoulders. */}
+        <pattern id="pf-pix" width="5" height="5" patternUnits="userSpaceOnUse">
+          <rect
+            x="0"
+            y="0"
+            width="2.5"
+            height="2.5"
+            className={styles.pfPixA}
+          />
+          <rect
+            x="2.5"
+            y="2.5"
+            width="2.5"
+            height="2.5"
+            className={styles.pfPixB}
+          />
+        </pattern>
+        {/* …which gives out by the chest: opaque over the head, gone below
+            the shoulder line. */}
+        <linearGradient
+          id="pf-fade"
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="1"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset={fadeTop / H} stopColor="#fff" />
+          <stop offset={(fadeEnd - 10) / H} stopColor="#fff" />
+          <stop offset={fadeEnd / H} stopColor="#000" />
+        </linearGradient>
+        <mask
+          id="pf-head"
+          maskUnits="userSpaceOnUse"
+          x="0"
+          y="0"
+          width={W}
+          height={H}
+        >
+          <g mask="url(#pf-shape)">
+            <rect x="0" y="0" width={W} height={H} fill="url(#pf-fade)" />
+          </g>
+        </mask>
+      </defs>
+
+      {/* The ground the walker is on — a dashed line, so it reads as a
+          measurement rather than a floor; a tick where each foot meets it,
+          which is where a stride is read; and a chevron for the direction of
+          travel. Movement retained, said with marks rather than a caption. */}
+      <g className={styles.pfGround}>
+        <path d={`M${PF_X + 4} ${groundY}H${PF_X + PF_W + 8}`} />
+        {[PF_ANKLE_BACK, PF_ANKLE_FRONT].map(([x], i) => (
+          <path
+            key={i}
+            d={`M${x} ${groundY - 3}V${groundY + 3}`}
+            className={styles.pfTick}
+          />
+        ))}
+        <path
+          d={`M${PF_X + PF_W + 3} ${groundY - 3.5}L${PF_X + PF_W + 8} ${groundY}L${PF_X + PF_W + 3} ${groundY + 3.5}`}
+          className={styles.pfChevron}
+        />
+      </g>
+
+      {/* 1 · The contour: the dilated, flooded shape. */}
+      <g filter="url(#pf-contour)">{shape}</g>
+
+      {/* 2 · The fill, over the contour's interior. */}
+      <g mask="url(#pf-shape)">
+        <rect x="0" y="0" width={W} height={H} fill="url(#pf-fill)" />
+        <rect x="0" y="0" width={W} height={H} fill="url(#pf-shade)" />
+      </g>
+
+      {/* 3 · Pixelation over the head and shoulders. */}
+      <g mask="url(#pf-head)">
+        <rect x="0" y="0" width={W} height={H} fill="url(#pf-pix)" />
+      </g>
+
+      {/* 4 · Fragments dissolving off the face. */}
+      <g className={styles.pfFragments}>
+        {PF_FRAGMENTS.map((f, i) => (
+          <rect
+            key={i}
+            x={PF_NOSE[0] + f.dx - f.s / 2}
+            y={PF_NOSE[1] + f.dy - f.s / 2}
+            width={f.s}
+            height={f.s}
+            rx="0.4"
+            style={{ opacity: f.o }}
+          />
+        ))}
+      </g>
+
+      {/* 5 · One label, in the section's own mono voice. */}
+      <text x={W - 4} y="9" textAnchor="end" className={styles.pfTag}>
+        IDENTITY REDUCED
+      </text>
+    </svg>
+  );
+}

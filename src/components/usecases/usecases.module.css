@@ -1,0 +1,1891 @@
+/*
+ * /use-cases — environment discovery.
+ *
+ * The page was a stack of full-width rows, each printing problem + approach +
+ * products + outputs as prose for all seventeen environments. Everything was
+ * there and nothing was scannable. This is the card system that replaces it:
+ * a three-up grid of collapsed cards, each opening in place.
+ *
+ * ACCENT is carried by one variable. Each card sets `--uc` from its record's
+ * own accent, and every rule below is written against it, so a card's colour
+ * is a single declaration rather than six conditional class strings.
+ *
+ * Colours use the semantic tokens (`--c-soft-white` and friends), which the
+ * light theme remaps, rather than raw white — the raw utilities need explicit
+ * `.light` overrides and a module cannot rely on those existing.
+ */
+
+/* ── Accent per card ── */
+.aTeal {
+  --uc: 45 212 191;
+}
+.aBlue {
+  --uc: 96 165 250;
+}
+.aCyan {
+  --uc: 79 209 255;
+}
+.aViolet {
+  --uc: 167 139 250;
+}
+.aGold {
+  --uc: 251 191 36;
+}
+.aEmerald {
+  --uc: 52 211 153;
+}
+
+/* Light: the six accents are lights FOR A DARK GROUND — pastels on paper. Each
+   drops to the value that holds ~4.5:1 on white, so the family label, the
+   product chips and the card's accent edge all read as ink. */
+:global(.light) .aTeal {
+  --uc: 15 118 110;
+}
+:global(.light) .aBlue {
+  --uc: 27 78 217;
+}
+:global(.light) .aCyan {
+  --uc: 14 116 144;
+}
+:global(.light) .aViolet {
+  --uc: 109 40 217;
+}
+:global(.light) .aGold {
+  --uc: 154 100 20;
+}
+:global(.light) .aEmerald {
+  --uc: 4 120 87;
+}
+
+/* ── Group sections ── */
+.group {
+  padding-block: clamp(3.5rem, 7vw, 6rem);
+}
+
+
+.groupHead {
+  max-width: 46rem;
+}
+
+.groupLabel {
+  display: inline-block;
+  color: rgb(var(--tone));
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.groupTitle {
+  margin-top: 1.1rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.65rem, 3.4vw, 2.35rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: rgb(var(--c-soft-white));
+  text-wrap: balance;
+}
+
+.groupBlurb {
+  margin-top: 0.9rem;
+  max-width: 42rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: rgb(var(--c-soft-gray));
+}
+
+.groupCount {
+  margin-top: 1rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+.grid {
+  margin-top: 2.75rem;
+  display: grid;
+  gap: 1.125rem;
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1180px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* An open card takes the full row: the expanded narrative in a third of the
+   grid width is a column of six-word lines. */
+.grid > div:has(> .cardOpen) {
+  grid-column: 1 / -1;
+}
+
+/* ── The card ── */
+.card {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(var(--c-soft-white) / 0.09);
+  background: linear-gradient(
+    180deg,
+    rgb(var(--c-soft-white) / 0.035) 0%,
+    transparent 100%
+  );
+  padding: 1.35rem;
+  transition:
+    border-color 0.3s ease,
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.3s ease;
+}
+
+/* The border answers the pointer in the environment's own accent; the lift
+   comes from the shared `card-surface` treatment, which the card carries only
+   while it is collapsed. An OPEN card is several paragraphs of reading with no
+   stretched link over it, so it holds still. */
+.card:hover {
+  border-color: rgb(var(--uc) / 0.36);
+}
+
+.card:focus-within {
+  border-color: rgb(var(--uc) / 0.45);
+}
+
+.cardOpen {
+  transform: none;
+  border-color: rgb(var(--uc) / 0.4);
+  background: linear-gradient(
+    180deg,
+    rgb(var(--uc) / 0.06) 0%,
+    transparent 62%
+  );
+}
+
+.cardOpen:hover {
+  transform: none;
+}
+
+/* Light: the card's ground is a 3.5% wash of the text colour — navy on paper,
+   so a grey card. Collapsed cards inherit the light surface system through
+   `.card-surface`; an OPEN card drops that class (no stretched link while
+   reading), so it is given the same polished white here, with the accent
+   carried by the top edge rather than by a tint. */
+:global(.light) .card {
+  border-color: var(--light-border);
+  border-top-color: var(--light-edge);
+  background: linear-gradient(180deg, #ffffff 0%, #fafcfe 100%);
+  box-shadow: var(--light-highlight), var(--light-shadow);
+}
+
+:global(.light) .cardOpen {
+  border-color: rgb(var(--uc) / 0.45);
+  border-top-color: rgb(var(--uc) / 0.7);
+  background: linear-gradient(180deg, rgb(var(--uc) / 0.04) 0%, #ffffff 9rem);
+  box-shadow: var(--light-highlight), var(--light-shadow-featured);
+}
+
+/* ── The environment photograph ──
+   One reviewed photograph of the place. Collapsed, it is a full-bleed 4:3 band
+   across the top of the card: it cancels the card's 1.35rem padding with a
+   negative margin and rounds only its top corners to the card's radius less
+   the 1px border — otherwise a hairline of card background shows outside the
+   image corners.
+
+   4:3 is the product-card ratio, so the two catalogues read as one system, and
+   it is the ratio that shows a standing person whole. Five of the seventeen
+   sources are 4:3 full-body scenes and are not cropped at all; the twelve 16:9
+   scenes give up width, which is the forgiving axis, with a per-theme
+   `object-position` (below) keeping every foreground figure in the crop.
+
+   The ratio is declared on the frame, so the card's height is known before
+   any photograph decodes and the grid never reflows as the images arrive. */
+.media {
+  position: relative;
+  margin: -1.35rem -1.35rem 1.15rem;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: calc(1.25rem - 1px) calc(1.25rem - 1px) 0 0;
+  /* Holds the band's colour for the moment before a lazy image decodes. */
+  background: rgb(var(--uc) / 0.08);
+}
+
+.mediaPicture {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.mediaPicture > img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: var(--uc-media-position, 50% 50%);
+}
+
+/* The two frames are different photographs with their subjects in different
+   places, so the crop moves with the theme — on the same `.light` class the
+   picture itself switches on, so the two can never be out of step. */
+:global(.light) .mediaPicture > img {
+  object-position: var(--uc-media-position-light, var(--uc-media-position, 50% 50%));
+}
+
+/* The same 1.025 the product cards use, and only where motion is welcome. */
+@media (prefers-reduced-motion: no-preference) {
+  .mediaPicture > img {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card:hover .mediaPicture > img {
+    transform: scale(1.025);
+  }
+}
+
+/* The photograph meets the card instead of stopping at a hard edge: a wash to
+   the card's own background at the foot of the band, plus a trace of the
+   environment's accent. Never a dimming layer over the whole image — the two
+   themes are separate photographs, and darkening the light one would undo
+   that. */
+.mediaVeil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, transparent 58%, rgb(var(--uc) / 0.1) 100%),
+    linear-gradient(180deg, transparent 72%, rgb(var(--c-ink) / 0.55) 100%);
+}
+
+:global(.light) .mediaVeil {
+  background:
+    linear-gradient(180deg, transparent 58%, rgb(var(--uc) / 0.12) 100%),
+    linear-gradient(180deg, transparent 74%, rgb(255 255 255 / 0.5) 100%);
+}
+
+/* ── The top block: photograph, head, problem, chips ──
+   `display: contents` while the card is collapsed, so wrapping these in one
+   element changes nothing about the collapsed card — they stay direct flex
+   children of `.card`, and the band's negative margins bleed exactly as before.
+
+   An OPEN card spans the whole row. A full-row 4:3 photograph would be over
+   900px tall on a desktop, above several paragraphs of reading, so from 900px
+   — the width at which the detail panel itself goes to two columns — the top
+   block becomes a grid: the photograph is a rounded 4:3 tile in a two-fifths
+   column and the head, problem and chips stack beside it. That is the product
+   detail page's own image-beside-text shape, at card scale. Below 900px an
+   open card stacks like a closed one. */
+.top {
+  display: contents;
+}
+
+@media (min-width: 900px) {
+  .cardOpen .top {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    column-gap: 2rem;
+    align-items: start;
+    margin-bottom: 0.25rem;
+  }
+
+  .cardOpen .top > .media {
+    grid-row: 1 / span 4;
+    margin: 0;
+    border-radius: 1rem;
+    border: 1px solid rgb(var(--uc) / 0.18);
+  }
+
+  .cardOpen .top > .media :global(img) {
+    border-radius: inherit;
+  }
+}
+
+/* The head no longer hosts a glyph tile, so it is a block rather than a
+   flex row with a gap reserved for one. The hairline underneath carries the
+   environment's accent — a border, not a marker — which is what the tinted
+   glyph tile used to do. */
+.cardHead {
+  min-width: 0;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid rgb(var(--uc) / 0.2);
+}
+
+.glyph {
+  height: 1.85rem;
+  width: 1.85rem;
+}
+
+.family {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--uc) / 0.95);
+}
+
+.title {
+  margin-top: 0.3rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: rgb(var(--c-soft-white));
+  text-wrap: balance;
+}
+
+.problem {
+  margin-top: 0.8rem;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-gray));
+}
+
+.meta {
+  margin-top: 1.05rem;
+}
+
+.metaLabel {
+  display: block;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+.chipRow {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.productChip {
+  border-radius: 999px;
+  border: 1px solid rgb(var(--uc) / 0.3);
+  background: rgb(var(--uc) / 0.09);
+  padding: 0.16rem 0.55rem;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgb(var(--uc));
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.productChip:hover {
+  border-color: rgb(var(--uc) / 0.6);
+  background: rgb(var(--uc) / 0.16);
+  color: rgb(var(--c-soft-white));
+}
+
+.outputChip {
+  border-radius: 0.375rem;
+  border: 1px solid rgb(var(--c-soft-white) / 0.1);
+  background: rgb(var(--c-soft-white) / 0.035);
+  padding: 0.16rem 0.5rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* ── Expanded panel ── */
+.panel {
+  margin-top: 1.4rem;
+  border-top: 1px solid rgb(var(--c-soft-white) / 0.08);
+  padding-top: 1.4rem;
+}
+
+.panelList {
+  display: grid;
+  gap: 1.35rem;
+}
+
+@media (min-width: 900px) {
+  .panelList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 2.75rem;
+  }
+}
+
+.panelItem {
+  display: flex;
+  gap: 0.85rem;
+}
+
+.panelNum {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgb(var(--uc) / 0.8);
+  padding-top: 0.15rem;
+}
+
+.panelTitle {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-white));
+}
+
+.panelBody {
+  margin-top: 0.5rem;
+  max-width: 38rem;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgb(var(--c-soft-gray));
+}
+
+.signalList {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.signalItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: rgb(var(--c-soft-white));
+}
+
+.signalDot {
+  margin-top: 0.42rem;
+  height: 0.3rem;
+  width: 0.3rem;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: rgb(var(--uc) / 0.85);
+}
+
+.facetRow {
+  margin-top: 1.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  border-top: 1px solid rgb(var(--c-soft-white) / 0.06);
+  padding-top: 1.1rem;
+}
+
+.facetTag {
+  border-radius: 999px;
+  border: 1px solid rgb(var(--c-soft-white) / 0.1);
+  padding: 0.14rem 0.55rem;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* ── Card actions ── */
+.actions {
+  margin-top: auto;
+  padding-top: 1.3rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.toggle,
+.explore {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.375rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.toggle {
+  color: rgb(var(--c-soft-mute));
+}
+
+.toggle:hover {
+  color: rgb(var(--c-soft-white));
+}
+
+.toggleMark {
+  display: grid;
+  height: 1.05rem;
+  width: 1.05rem;
+  place-items: center;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--c-soft-white) / 0.16);
+  font-size: 12px;
+  line-height: 1;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* The +/− ring is what says "this expands", so it reacts too. */
+.toggle:hover .toggleMark {
+  border-color: rgb(var(--c-soft-white) / 0.4);
+  background: var(--interactive-hover-bg);
+}
+
+/* TOUCH — both actions are 11px uppercase rows; the targets reach 44px
+   without changing a single typographic value. */
+@media (pointer: coarse) {
+  .toggle,
+  .explore {
+    min-height: var(--interactive-touch-target);
+  }
+  .actions {
+    gap: 0.5rem 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggleMark {
+    transition: none;
+  }
+}
+
+.explore {
+  color: rgb(var(--uc));
+}
+.exploreArrow {
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.explore:hover .exploreArrow,
+.explore:focus-visible .exploreArrow {
+  transform: translateX(3px);
+}
+.explore:hover,
+.toggle:hover {
+  color: rgb(var(--c-soft-white));
+}
+.explore:focus-visible,
+.toggle:focus-visible {
+  outline: 2px solid rgb(var(--uc));
+  outline-offset: 3px;
+}
+
+.explore svg {
+  transition: transform 0.25s ease;
+}
+
+.card:hover .explore svg {
+  transform: translateX(3px);
+}
+
+.toggle:focus-visible,
+.explore:focus-visible,
+.productChip:focus-visible {
+  outline: 2px solid rgb(var(--uc) / 0.7);
+  outline-offset: 3px;
+}
+
+/* ── Discovery bar ───────────────────────────────────────────────────────────
+ *
+ * A FILTER TOOLBAR, NOT A SECTION THAT TRAVELS. Plain `position: sticky` at
+ * the bottom edge of the fixed header — no transform, no offset animation,
+ * nothing that could trail the scroll by a frame. It parks; it does not move.
+ *
+ * WHAT ACTUALLY MADE IT FEEL DRAGGED WAS HEIGHT. Measured, this bar was 131px
+ * at 1440, 161px at 768 where the facet chips took a second line, and 389px on
+ * a 390px phone — half the viewport, because the family tabs wrapped to two
+ * rows and the touch-sized chips to five. A slab that deep parked under the
+ * navbar reads as the whole filter section coming along for the ride.
+ *
+ * Two changes fix it, and both are about the box rather than the motion:
+ *
+ *   · NEITHER CONTROL ROW WRAPS. Each is a single line that scrolls sideways
+ *     when it runs out of room, so the bar is the same three lines at every
+ *     width — ~109px on a desktop, ~150px on a phone, instead of growing a row
+ *     every time the viewport narrows.
+ *   · IT TIGHTENS WHEN IT PARKS. 131px at rest, 109px stuck: the padding and
+ *     the row gaps each give up 0.35rem, and no type size changes.
+ *
+ * THE SHELL, THE FRAME AND THE PANEL. A sticky element still holds its place
+ * in flow, so a bar that simply shrank as it stuck would shorten the document
+ * and yank every card below it upward — a 22px jump at the exact moment the
+ * reader is scrolling past, and the same jump back on the way up. So the
+ * sticky element is a SHELL that paints nothing, and inside it a FRAME — the
+ * grid's own `container-wide`, so the toolbar is exactly as wide as the cards
+ * — whose footprint is always the resting height: at rest it is exactly the
+ * panel; parked, the panel tightens and the frame keeps the 22px underneath
+ * it as padding. The document never changes length.
+ *
+ * THAT PADDING IS PAINTED. Content scrolling under a sticky bar has to come
+ * out from under it somewhere, and before this it came out flush against the
+ * panel's bottom border: a card's last line and its CTA sat hard against the
+ * filter chips, and read as the toolbar lying on top of the grid. The frame
+ * now paints its bottom band in opaque page ground, so what emerges from under
+ * the toolbar always does so ~22px below its border, across a strip of clean
+ * ground — a strip the width of the toolbar, never the page. Nothing that is
+ * not the toolbar is drawn inside the frame.
+ *
+ * The heights are derived from two custom properties, never restated, so the
+ * panel and the band cannot drift out of step.
+ */
+.explorer {
+  --uc-bar-pad-rest: 0.85rem;
+  --uc-bar-gap-rest: 0.75rem;
+  --uc-bar-pad: var(--uc-bar-pad-rest);
+  --uc-bar-gap: var(--uc-bar-gap-rest);
+  /* What the panel gives up when parked: two paddings and the two gaps
+     between its three rows. 0 at rest, 1.4rem parked. */
+  --uc-bar-band: calc(
+    2 * (var(--uc-bar-pad-rest) - var(--uc-bar-pad)) +
+      2 * (var(--uc-bar-gap-rest) - var(--uc-bar-gap))
+  );
+}
+
+.explorer[data-stuck="true"] {
+  --uc-bar-pad: 0.5rem;
+  --uc-bar-gap: 0.4rem;
+}
+
+/* Zero-height marker, immediately above the toolbar. It has no appearance and
+   no space; the explorer watches it to know when the toolbar has parked. */
+.stickySentinel {
+  height: 0;
+}
+
+/*
+ * The sticky element. It positions and paints nothing: the page-wide box is
+ * only there so `sticky` has something to park. Everything visible sits in
+ * the frame inside it, which is the grid's own container.
+ *
+ * Header, toolbar, cards: 50, 20, none.
+ */
+.toolbarShell {
+  position: sticky;
+  top: var(--site-header-height, 5.625rem);
+  z-index: 20;
+}
+
+/*
+ * The frame: as wide as the card grid, because it is the content box of the
+ * same `container-wide`. Its box is the resting footprint at all times: the
+ * panel plus, when parked, the band the panel gave up. At rest the band is
+ * 0 and the frame paints nothing; parked, it takes the page ground (below),
+ * and that ground is exactly the toolbar's width, never the page's.
+ */
+.toolbarFrame {
+  padding-bottom: var(--uc-bar-band);
+}
+
+/*
+ * The panel is a bordered box now that it no longer runs edge to edge: a rule
+ * top and bottom only, stopping short of the browser edges, read as two
+ * stray lines. The radius is restrained — the cards below sit on 1rem — and it
+ * is the same at rest and parked, so the box never changes shape, only
+ * height. The inline padding stands in for the gutter the container used to
+ * give the controls; it is constant in both states.
+ */
+.toolbarPanel {
+  border: 1px solid rgb(var(--c-soft-white) / 0.07);
+  border-radius: 1.125rem;
+  padding-block: var(--uc-bar-pad);
+  padding-inline: 1rem;
+}
+
+/*
+ * PARKED. The panel takes a ground: cards passing underneath must not ghost
+ * through the controls. 0.97 of the page ground is opaque enough that a card
+ * edge cannot be read through it; the blur that remains is for the last few
+ * percent of colour at the edges, and it is kept small. No box-shadow — the
+ * border gains a little weight instead, so the toolbar has a defined edge
+ * against the band of ground beneath it.
+ *
+ * The FRAME takes the page ground while parked: that paints the band beneath
+ * the panel, and it also closes the four corners the radius leaves open, so a
+ * card edge cannot show there either. It is the same colour as the page and
+ * the same width as the toolbar, so it is invisible against the ground and is
+ * never a page-wide strip.
+ *
+ * `--c-obsidian` is the page ground token, so this follows the theme: near-black
+ * in the dark theme, near-white in the light one.
+ */
+.explorer[data-stuck="true"] .toolbarFrame {
+  background-color: var(--bg);
+}
+
+.explorer[data-stuck="true"] .toolbarPanel {
+  background-color: rgb(var(--c-obsidian) / 0.97);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgb(var(--c-soft-white) / 0.12);
+}
+
+.filterBar {
+  display: grid;
+  gap: var(--uc-bar-gap);
+}
+
+.filterTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  /* The same automatic-minimum trap as the scrollers below, one level up: this
+     is a grid item, so it is floored at its min-content width, and a
+     non-wrapping row of family tabs inside it makes that min-content the sum
+     of all three. Left alone it measured 391px inside a 350px column and hung
+     the last tab off the side of the phone. */
+  min-width: 0;
+}
+
+/*
+ * ONE LINE, SCROLLED SIDEWAYS — the family tabs and the facet chips both.
+ *
+ * The scrollbar is hidden because a 15px Windows scrollbar under a 24px row of
+ * chips is taller than the affordance is worth, and the row is swipeable on
+ * touch and shift-scrollable on a desktop. What replaces it is the mask: the
+ * last few pixels of the visible area fade out, which reads as "there is more"
+ * when the row overflows and is invisible when it does not, because the right
+ * edge of a row that fits is empty ground.
+ */
+.familyTabs,
+.chipsRow {
+  display: flex;
+  flex-wrap: nowrap;
+  /* Without this the row never scrolls: a flex item and a grid item both take
+     `min-width: auto`, which refuses to shrink below the content, so a row of
+     eleven chips simply grew past the container's right padding and the last
+     ones were clipped off the side of the phone. `overflow-x` cannot engage on
+     a box that was never made narrower than its contents. */
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-inline-end: 0.5rem;
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
+}
+
+.familyTabs::-webkit-scrollbar,
+.chipsRow::-webkit-scrollbar {
+  display: none;
+}
+
+/* A flex item in a nowrap scroller shrinks to fit by default; these must keep
+   their own width and let the row overflow instead. */
+.familyTabs > *,
+.chipsRow > * {
+  flex: 0 0 auto;
+}
+
+.searchWrap {
+  position: relative;
+  flex: 1 1 15rem;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  height: 0.85rem;
+  width: 0.85rem;
+  transform: translateY(-50%);
+  color: rgb(var(--c-soft-mute));
+  pointer-events: none;
+}
+
+.search {
+  width: 100%;
+  border-radius: 0.6rem;
+  border: 1px solid rgb(var(--c-soft-white) / 0.1);
+  background: rgb(var(--c-soft-white) / 0.03);
+  padding: 0.5rem 0.75rem 0.5rem 2.05rem;
+  font-size: 13px;
+  color: rgb(var(--c-soft-white));
+}
+
+.search::placeholder {
+  color: rgb(var(--c-soft-mute));
+}
+
+.search:hover {
+  border-color: var(--interactive-hover-border);
+}
+
+.search:focus {
+  outline: none;
+  border-color: rgb(79 209 255 / 0.45);
+  background: rgb(var(--c-soft-white) / 0.05);
+  box-shadow: 0 0 0 3px var(--interactive-focus-ring-soft);
+}
+
+.familyTabs {
+  gap: 0.3rem;
+}
+
+.familyTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.6rem;
+  border: 1px solid rgb(var(--c-soft-white) / 0.1);
+  background: rgb(var(--c-soft-white) / 0.02);
+  padding: 0.42rem 0.7rem;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: rgb(var(--c-soft-gray));
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.familyTab:hover {
+  border-color: rgb(var(--c-soft-white) / 0.2);
+  color: rgb(var(--c-soft-white));
+}
+
+.familyTabOn {
+  border-color: rgb(79 209 255 / 0.45);
+  background: rgb(79 209 255 / 0.1);
+  color: rgb(var(--c-soft-white));
+}
+
+.familyCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  color: rgb(var(--c-soft-mute));
+}
+
+.familyTabOn .familyCount {
+  color: rgb(79 209 255);
+}
+
+.chipsRow {
+  gap: 0.3rem;
+}
+
+.facetChip {
+  border-radius: 999px;
+  border: 1px solid rgb(var(--c-soft-white) / 0.09);
+  background: transparent;
+  padding: 0.2rem 0.62rem;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgb(var(--c-soft-mute));
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.facetChip:hover {
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+  color: rgb(var(--c-soft-white));
+}
+
+.facetChip:active {
+  transform: translateY(0.5px);
+}
+
+/* SELECTED outranks hover in both directions and carries a weight change as
+   well as the violet, so it never depends on colour alone. */
+.facetChipOn,
+.facetChipOn:hover {
+  border-color: rgb(167 139 250 / 0.7);
+  background: rgb(167 139 250 / 0.14);
+  color: rgb(var(--c-soft-white));
+  font-weight: 600;
+}
+
+.familyTab:active {
+  transform: translateY(0.5px);
+}
+
+.familyTabOn,
+.familyTabOn:hover {
+  border-color: rgb(79 209 255 / 0.6);
+  background: rgb(79 209 255 / 0.12);
+}
+
+/* TOUCH — a 22px facet pill and a 28px family tab are not thumb targets. The
+   type does not change; the boxes reach a comfortable height and the rows
+   gain space between them. */
+@media (pointer: coarse) {
+  .facetChip,
+  .familyTab {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding-inline: 0.95rem;
+  }
+
+  .chipsRow,
+  .familyTabs {
+    gap: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .facetChip:active,
+  .familyTab:active {
+    transform: none;
+  }
+}
+
+.search:focus-visible,
+.familyTab:focus-visible,
+.facetChip:focus-visible,
+.clear:focus-visible {
+  outline: 2px solid rgb(79 209 255 / 0.65);
+  outline-offset: 2px;
+}
+
+.resultRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+.clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 0.3rem;
+  color: rgb(79 209 255);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Empty state ── */
+.empty {
+  margin-block: 4rem;
+  border-radius: 1.5rem;
+  border: 1px dashed rgb(var(--c-soft-white) / 0.14);
+  padding: clamp(2rem, 5vw, 3.5rem);
+  text-align: center;
+}
+
+.emptyTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgb(var(--c-soft-white));
+}
+
+.emptyBody {
+  margin: 0.75rem auto 0;
+  max-width: 34rem;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: rgb(var(--c-soft-gray));
+}
+
+.emptyActions {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+/* ── Audience grid ── */
+.audienceHead {
+  max-width: 42rem;
+}
+
+.audienceTitle {
+  margin-top: 1.1rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: rgb(var(--c-soft-white));
+  text-wrap: balance;
+}
+
+.audienceGrid {
+  margin-top: 2.5rem;
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 760px) {
+  .audienceGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.audienceCard {
+  border-radius: 1rem;
+  border: 1px solid rgb(var(--c-soft-white) / 0.08);
+  background: linear-gradient(
+    180deg,
+    rgb(var(--c-soft-white) / 0.03) 0%,
+    transparent 100%
+  );
+  padding: 0.95rem 1rem 1rem;
+}
+
+/* A static card: an audience is DESCRIBED here, not opened. It used to lift
+   and take a cyan border, which is the exact treatment every clickable card
+   on the site uses — the lift is gone, and the border that stays is neutral
+   rather than the accent. So the hover reads as "this is the one you are
+   reading" and never as "this opens", and no pointer cursor promises a click
+   that does not exist. */
+.audienceCard:hover {
+  border-color: var(--interactive-hover-border);
+}
+
+/* Light: the sheen above is a 3% wash of the TEXT colour, which on paper is a
+   3% wash of navy — a grey card. A described audience sits on polished white
+   like everything else that is not clickable, with a lit top edge and the
+   soft cool shadow of the light surface system. */
+:global(.light) .audienceCard {
+  border-color: var(--light-border);
+  border-top-color: var(--light-edge);
+  background: linear-gradient(180deg, #ffffff 0%, #fafcfe 100%);
+  box-shadow: var(--light-highlight), var(--light-shadow);
+}
+
+:global(.light) .audienceCard:hover {
+  border-color: var(--light-border-strong);
+}
+
+/* No icon tile: the title is the card's first element, so it carries no
+   top margin compensating for one. */
+.audienceCardTitle {
+  margin-top: 0;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: rgb(var(--c-soft-white));
+}
+
+.audienceLine {
+  margin-top: 0.4rem;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-mute));
+}
+
+
+@media (min-width: 820px) {
+  .compare {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* ── Problem → products → outputs ribbon ── */
+.ribbon {
+  margin-top: 2.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--c-soft-white) / 0.08);
+  background: rgb(var(--c-soft-white) / 0.02);
+  padding: 0.6rem 1.15rem;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+.ribbonStep {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ribbonDot {
+  height: 0.35rem;
+  width: 0.35rem;
+  border-radius: 999px;
+  background: rgb(79 209 255 / 0.8);
+}
+
+.ribbonArrow {
+  color: rgb(var(--c-soft-white) / 0.28);
+}
+
+/* ── Glyph primitives ── */
+.gLine,
+.gPath,
+.gPathDash,
+.gRule,
+.gTick {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.gLine {
+  stroke-width: 1.7;
+  opacity: 0.9;
+}
+
+.gPath {
+  stroke-width: 1.5;
+  opacity: 0.65;
+}
+
+.gPathDash {
+  stroke-width: 1.4;
+  stroke-dasharray: 3 3;
+  opacity: 0.55;
+}
+
+.gRule {
+  stroke-width: 1.2;
+  stroke-dasharray: 2 3.5;
+  opacity: 0.4;
+}
+
+.gTick {
+  stroke-width: 1.6;
+  opacity: 0.7;
+}
+
+.gFill {
+  fill: currentColor;
+  opacity: 0.9;
+}
+
+/* The one warm mark in the set: an event worth an operator's attention. */
+.gAlert {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+  opacity: 0.95;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover,
+  .audienceCard,
+  .audienceCard:hover,
+  .compareCard,
+  .compareCard:hover {
+    transform: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .explore svg,
+  .compareGo svg,
+  .card:hover .explore svg,
+  .compareCard:hover .compareGo svg {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Family tone, consumed by the explorer's group headers via --tone. */
+.toneCare {
+  --tone: 45 212 191;
+}
+
+.toneSecure {
+  --tone: 96 165 250;
+}
+
+/* =========================================================================
+   ENVIRONMENT SYSTEM MAP — the /use-cases opening
+   -------------------------------------------------------------------------
+   MobilityCare rail | movement intelligence core | SecureVision rail.
+
+   The wiring is per row rather than one stretched SVG: a rail down each
+   column's inner edge, a node per row and a short lead into the card. Row
+   height depends on how the output line wraps and the two columns hold eleven
+   rows and six, so no build-time coordinate fan can stay aligned — this does,
+   at every width.
+   ========================================================================= */
+
+.map {
+  --map-line: rgb(148 163 184 / 0.16);
+  --map-line-mid: rgb(148 163 184 / 0.28);
+  position: relative;
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 1100px) {
+  .map {
+    grid-template-columns: minmax(0, 1fr) 17rem minmax(0, 1fr);
+    /* Both family headers start on the same line — centring each column
+       instead dropped SecureVision's title two hundred pixels below
+       MobilityCare's, which read as a mistake rather than as a shorter list.
+       The core is what centres, against the taller of the two rails. */
+    align-items: start;
+    gap: 1.25rem;
+  }
+}
+
+/* ── A family rail ── */
+
+.mapRail {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+}
+
+.mapCare {
+  --map-accent: #4fd1ff;
+  --map-accent-soft: rgb(79 209 255 / 0.5);
+  --map-accent-wash: rgb(79 209 255 / 0.08);
+}
+
+.mapSecure {
+  --map-accent: #a78bfa;
+  --map-accent-soft: rgb(167 139 250 / 0.5);
+  --map-accent-wash: rgb(167 139 250 / 0.08);
+}
+
+:global(.light) .mapCare {
+  --map-accent: #0e8ab8;
+  --map-accent-soft: rgb(14 138 184 / 0.55);
+}
+
+:global(.light) .mapSecure {
+  --map-accent: #6d34c9;
+  --map-accent-soft: rgb(109 52 201 / 0.55);
+}
+
+.mapRailHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-bottom: 1.1rem;
+}
+
+@media (min-width: 1100px) {
+  .mapRailRight .mapRailHead {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+
+.mapRailCount {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--map-accent);
+}
+
+.mapRailName {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.6vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  color: var(--map-accent);
+}
+
+.mapRailTagline {
+  max-width: 22rem;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* ── Rows ── */
+
+.mapRows {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* The family rail itself: one hairline down the column's inner edge, which
+   every row's node sits on. */
+.mapRows::before {
+  content: "";
+  position: absolute;
+  top: 0.9rem;
+  bottom: 0.9rem;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--map-accent-soft) 12%,
+    var(--map-accent-soft) 88%,
+    transparent
+  );
+  opacity: 0.6;
+}
+
+.mapCare .mapRows::before {
+  right: -0.75rem;
+}
+
+.mapSecure .mapRows::before {
+  left: -0.75rem;
+}
+
+@media (max-width: 1099px) {
+  /* Stacked: both rails run down the left, so the two families read the same
+     way when the core is above them rather than between them. */
+  .mapCare .mapRows::before,
+  .mapSecure .mapRows::before {
+    right: auto;
+    left: -0.75rem;
+  }
+}
+
+.mapRowItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+@media (min-width: 1100px) {
+  .mapRailRight .mapRowItem {
+    flex-direction: row-reverse;
+  }
+}
+
+.mapIndex {
+  flex: none;
+  width: 1.35rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-align: center;
+  color: rgb(var(--c-soft-mute));
+  opacity: 0.75;
+}
+
+.mapRow {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid var(--map-line);
+  border-radius: 0.85rem;
+  background: linear-gradient(
+    100deg,
+    var(--map-accent-wash),
+    rgb(148 163 184 / 0.02) 55%
+  );
+  padding: 0.6rem 0.75rem;
+  transition:
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mapRow:hover {
+  border-color: var(--map-accent-soft);
+  background-color: rgb(var(--c-soft-white) / 0.035);
+}
+
+.mapRow:focus-visible {
+  outline: 2px solid var(--map-accent);
+  outline-offset: 2px;
+}
+
+/* This row's spur: a short lead out of the card to its node on the rail. */
+.mapLead {
+  position: absolute;
+  top: 50%;
+  width: 0.75rem;
+  height: 1px;
+  background: var(--map-accent-soft);
+  opacity: 0.7;
+}
+
+.mapNode {
+  position: absolute;
+  top: 50%;
+  height: 5px;
+  width: 5px;
+  margin-top: -2.5px;
+  border-radius: 999px;
+  background: var(--map-accent);
+  box-shadow: 0 0 0 3px var(--map-accent-wash);
+  opacity: 0.9;
+}
+
+.mapCare .mapLead {
+  right: -0.75rem;
+}
+.mapCare .mapNode {
+  right: -0.9rem;
+}
+.mapSecure .mapLead {
+  left: -0.75rem;
+}
+.mapSecure .mapNode {
+  left: -0.9rem;
+}
+
+@media (max-width: 1099px) {
+  .mapCare .mapLead,
+  .mapSecure .mapLead {
+    right: auto;
+    left: -0.75rem;
+  }
+  .mapCare .mapNode,
+  .mapSecure .mapNode {
+    right: auto;
+    left: -0.9rem;
+  }
+}
+
+.mapRowIcon {
+  display: inline-flex;
+  height: 2.1rem;
+  width: 2.1rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--map-line-mid);
+  border-radius: 999px;
+  color: var(--map-accent);
+}
+
+.mapRowBody {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+
+.mapRowName {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: rgb(var(--c-soft-white));
+}
+
+.mapRowOut {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 0.15rem;
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* ── The per-row movement-signal mark ── */
+
+.mapGlyphCare,
+.mapGlyphSecure {
+  flex: none;
+  width: 62px;
+  height: 22px;
+  overflow: visible;
+}
+
+.mapGlyphCare {
+  color: #4fd1ff;
+}
+.mapGlyphSecure {
+  color: #a78bfa;
+}
+:global(.light) .mapGlyphCare {
+  color: #0e8ab8;
+}
+:global(.light) .mapGlyphSecure {
+  color: #6d34c9;
+}
+
+@media (max-width: 480px) {
+  /* The glyph is texture, not information — it is the first thing to go when
+     the row has to hold the name and the output line in a phone's width. */
+  .mapGlyphCare,
+  .mapGlyphSecure {
+    display: none;
+  }
+}
+
+.mapTick {
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.mapTickStrong {
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  opacity: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── The core ── */
+
+.mapCore {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  margin-inline: auto;
+  width: min(17rem, 100%);
+  aspect-ratio: 1;
+}
+
+@media (min-width: 1100px) {
+  .mapCore {
+    align-self: center;
+  }
+}
+
+.mapCoreArt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.mapRingOuter,
+.mapRingInner {
+  fill: none;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  animation: mapRing 9s ease-in-out infinite;
+}
+
+.mapRingOuter {
+  stroke: #4fd1ff;
+  stroke-dasharray: 4 12;
+  stroke-opacity: 0.3;
+}
+
+.mapRingInner {
+  stroke: #8b5cf6;
+  stroke-dasharray: 2 9;
+  stroke-opacity: 0.2;
+  animation-delay: 1.2s;
+}
+
+:global(.light) .mapRingOuter {
+  stroke: #0e8ab8;
+}
+:global(.light) .mapRingInner {
+  stroke: #6d34c9;
+}
+
+@keyframes mapRing {
+  0%,
+  100% {
+    stroke-opacity: 0.24;
+  }
+  35% {
+    stroke-opacity: 0.62;
+  }
+}
+
+.mapCoreTicks line {
+  stroke: rgb(148 163 184 / 0.3);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+:global(.light) .mapCoreTicks line {
+  stroke: rgb(71 85 105 / 0.38);
+}
+
+.mapCoreDisc {
+  fill: rgb(var(--c-obsidian-200) / 0.92);
+}
+:global(.light) .mapCoreDisc {
+  fill: #ffffff;
+}
+
+.mapCoreEdge {
+  fill: none;
+  stroke: rgb(59 130 246 / 0.7);
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+}
+
+.mapCorePulse {
+  fill: none;
+  stroke: rgb(79 209 255 / 0.45);
+  stroke-width: 1.3;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: mapPulse 9s ease-out infinite;
+  animation-delay: 2.6s;
+}
+
+@keyframes mapPulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  24% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.42);
+  }
+}
+
+.mapCoreText {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+  padding-inline: 1rem;
+}
+
+.mapCoreTitle {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.12rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: rgb(var(--c-soft-white));
+}
+
+.mapCoreSub {
+  max-width: 8.5rem;
+  font-size: 10px;
+  line-height: 1.5;
+  color: rgb(var(--c-soft-mute));
+}
+
+/* Trunks from the core out to each rail. Only meaningful in the three-column
+   layout, where a rail is actually beside the core. */
+.mapTrunkCare,
+.mapTrunkSecure {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .mapTrunkCare,
+  .mapTrunkSecure {
+    display: block;
+    position: absolute;
+    top: 50%;
+    height: 1px;
+    width: 1.9rem;
+  }
+  .mapTrunkCare {
+    right: 100%;
+    background: linear-gradient(270deg, rgb(79 209 255 / 0.5), transparent);
+  }
+  .mapTrunkSecure {
+    left: 100%;
+    background: linear-gradient(90deg, rgb(167 139 250 / 0.5), transparent);
+  }
+}
+
+/* ── Derived counts under the map ── */
+
+.mapStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--map-line);
+  border-radius: 1.1rem;
+  background: var(--map-line);
+}
+
+@media (min-width: 1100px) {
+  .mapStats {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1099px) {
+  .mapStats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.mapStat {
+  background: rgb(var(--c-obsidian-300) / 0.45);
+  padding: 1.1rem 1rem;
+  text-align: center;
+}
+:global(.light) .mapStat {
+  background: rgb(255 255 255 / 0.6);
+}
+
+.mapStatValue {
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: rgb(var(--c-soft-white));
+  font-variant-numeric: tabular-nums;
+}
+
+.mapStatLabel {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  line-height: 1.5;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+.mapStatLink {
+  display: grid;
+  place-items: center;
+  background: rgb(var(--c-obsidian-300) / 0.45);
+  padding: 1.1rem 1rem;
+  grid-column: 1 / -1;
+}
+:global(.light) .mapStatLink {
+  background: rgb(255 255 255 / 0.6);
+}
+
+@media (min-width: 1100px) {
+  .mapStatLink {
+    grid-column: auto;
+  }
+}
+
+.mapStatCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #4fd1ff;
+  transition: color 0.3s ease;
+}
+
+.mapStatCta:hover {
+  color: #a5e9ff;
+}
+
+:global(.light) .mapStatCta {
+  color: #0e8ab8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mapRingOuter,
+  .mapRingInner {
+    animation: none;
+    stroke-opacity: 0.34;
+  }
+  .mapCorePulse {
+    display: none;
+  }
+  .mapRow:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   HERO — text column beside the deployment constellation
+   --------------------------------------------------------------------------
+   The hero used to be one 3xl column on an otherwise empty band. The art now
+   takes the right half from 1024px up; below that it drops under the copy,
+   where it still works as a wide banner, and below 768px the drawing crops
+   itself rather than shrinking its labels (see constellation.module.css).
+   ========================================================================== */
+
+.heroGrid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+@media (min-width: 1024px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+    gap: 3rem;
+  }
+}
+.heroArt {
+  min-width: 0;
+}
+@media (max-width: 1023px) {
+  .heroArt {
+    margin-top: -0.5rem;
+  }
+}
+
+:global(.light) .groupLabel { color: var(--mobility-accent); }
+:global(.light) :global(#secure) .groupLabel { color: #1d4ed8; }
+:global(.light) .familyCount { color: #0e7490; }
+
+/* ── The rendered environment picture, light only ─────────────────────────
+   EnvironmentGlyph draws its glyph in dark and shows the light icon family
+   (data/environment-icons.ts) in light; one of the two is displayed. */
+.glyphStill {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+
+.glyphStill img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+:global(.light) .glyphStill {
+  display: block;
+}
+
+:global(.light) .glyph {
+  display: none;
+}

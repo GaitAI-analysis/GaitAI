@@ -1,0 +1,92 @@
+{
+  "$comment": "Every asset that gets a light companion, with its colour-transform overrides. `black_toe` is the OKLab lightness of that render's ground (measure with the 10th percentile of a frame); everything at or below it becomes the off-white. `personMask` films need masks from segment_person.mjs. See README.md. The two homepage console films are NOT here any more: their light editions are the founder's own supplied films (platform/*-light-no-overlap.mp4, registry entries mobilityCareHome / secureVisionHome, timing: \"own\"); the console re-light pipeline (relight_console.py, pipeline: \"console\") stays available but renders nothing by default. The MobilityCare hero (mobilitycare/mobilitycare-hero-v2.mp4) left this list on 2026-09-22 for the same reason: its light edition is the founder's own film, mobilitycare/mobilitycare-hero-light.mp4 (registry mobilityCareHero, timing: \"own\"), so it must not be re-rendered.",
+  "videos": [
+    {
+      "dark": "public/assets/videos/workflow/stage-01-capture.mp4",
+      "poster": "public/assets/videos/workflow/stage-01-capture-poster.jpg",
+      "lut": {
+        "black_toe": 0.1
+      }
+    },
+    {
+      "dark": "public/assets/videos/workflow/stage-02-analyze.mp4",
+      "poster": "public/assets/videos/workflow/stage-02-analyze-poster.jpg",
+      "pipeline": "console",
+      "crf": 18,
+      "workers": 1,
+      "minIou": 0.45
+    },
+    {
+      "dark": "public/assets/videos/workflow/stage-03-report.mp4",
+      "poster": "public/assets/videos/workflow/stage-03-report-poster.jpg",
+      "pipeline": "console",
+      "crf": 18,
+      "workers": 1,
+      "minIou": 0.45
+    },
+    {
+      "dark": "public/assets/videos/workflow/stage-04-output.mp4",
+      "poster": "public/assets/videos/workflow/stage-04-output-poster.jpg",
+      "pipeline": "console",
+      "crf": 18,
+      "workers": 1,
+      "minIou": 0.45
+    }
+  ],
+  "images": [
+    {
+      "dark": "public/assets/images/publications/deep-learning-gait-pattern-recognition.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    },
+    {
+      "dark": "public/assets/images/publications/edge-gait-patent-402202.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    },
+    {
+      "dark": "public/assets/images/publications/gait-covariates-review.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    },
+    {
+      "dark": "public/assets/images/publications/gait-intra-class-variations.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    },
+    {
+      "dark": "public/assets/images/publications/gait-preprocessing-feature-selection.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    },
+    {
+      "dark": "public/assets/images/publications/ml-vs-deep-learning-gait-comparison.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    },
+    {
+      "dark": "public/assets/images/publications/model-based-gait-recognition.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    },
+    {
+      "dark": "public/assets/images/publications/pose-covariate-invariant-gait.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    },
+    {
+      "dark": "public/assets/images/publications/privacy-preserving-gait-data.webp",
+      "lut": {
+        "black_toe": 0.16
+      }
+    }
+  ]
+}

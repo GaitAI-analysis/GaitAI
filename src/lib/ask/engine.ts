@@ -1,0 +1,234 @@
+"use client";
+
+/**
+ * THE ENGINE — retrieval in the tab, generation behind the Worker.
+ * =============================================================================
+ * The pipeline is unchanged in shape and in order:
+ *
+ *   question + page  →  BM25 retrieval over the corpus      (the source of truth)
+ *                    →  top 7 records, capped per record
+ *                    →  a grounded answer                   (hosted model, or extract)
+ *                    →  link sanitising against the route allowlist
+ *                    →  sources, follow-ups, CTA
+ *
+ * WHERE EACH STEP RUNS
+ *   retrieval   here, first, always. It decides whether the question is even
+ *               answerable from GaitAI's records. A low-confidence question or
+ *               a person the corpus has no record for is refused HERE, in the
+ *               site's own wording, without a network request.
+ *   generation  in the Ask GaitAI Worker (worker/), a Cloudflare Worker. The
+ *               browser sends the IDS of the records retrieval chose — never
+ *               their text. The Worker resolves those ids against its own copy
+ *               of the canonical corpus, discards any it does not know, builds
+ *               the grounding prompt from the canonical records, and calls a
+ *               hosted model through Cloudflare Workers AI. The
+ *               model only ever sees those records; it never decides which
+ *               pages are authoritative, and it never sees the whole site.
+ *   fallback    here. If no endpoint is configured, or the Worker is
+ *               unreachable, rate-limited, over budget, timed out or errors,
+ *               the extractive answer — the records' own summaries, quoted —
+ *               answers from the retrieval that already ran. Ask GaitAI is
+ *               useful either way; the model changes how an answer READS,
+ *               never whether there is one.
+ *
+ * WHAT LEFT WITH THE LOCAL MODEL
+ *   · `model.ts` — Transformers.js, ONNX Runtime Web, WebGPU detection, the
+ *     WASM fallback, the 1.2 GB download and its progress reporting
+ *   · `modelReady()` / `modelExpected` — there is no model state in the tab
+ *   · the `ModelStrip` — nothing to offer, nothing to download
+ *
+ * WHAT SURVIVED, AND WHY IT STILL MATTERS
+ *   · `sanitizeLinks` — applied on the Worker and again here on every answer
+ *     it returns, so a hallucinated or off-site route can never render.
+ *   · the extractive answer — it was the default; it is now the floor.
+ *   · low-confidence refusal from retrieval — the model is only told.
+ */
+
+import { retrieveGaitAIContext, type RetrievalResult } from "./retrieval";
+import {
+  demoHref,
+  sanitizeLinks,
+  selectSources,
+  shouldOfferDemo,
+  suggestFollowUps,
+} from "./answer";
+import { composeExtractiveAnswer } from "./extractive";
+import { loadCorpus } from "./corpus";
+import { askHosted, hostedAvailable, HostedError, type HostedTurn } from "./hosted";
+
+export interface AskSource {
+  title: string;
+  url: string;
+  kind: string;
+}
+
+export interface AskResult {
+  text: string;
+  sources: AskSource[];
+  /** Retrieved records that did not make the Sources row. Same allowlist. */
+  relatedLinks: AskSource[];
+  suggestions: string[];
+  cta?: { label: string; href: string };
+  /** Which layer wrote the prose: the hosted model, or the records themselves. */
+  mode: "model" | "retrieval";
+  lowConfidence: boolean;
+  /**
+   * WHY the answer came from records rather than the model, when it did.
+   * Distinguishes a retrieval decision from a generation failure so a
+   * screenshot of the extractive answer can be diagnosed, not guessed at:
+   *   low_confidence     retrieval refused; no request was made
+   *   no_endpoint        no hosted endpoint configured at build time
+   *   worker:<kind>      the Worker answered with an error class (rate_limited,
+   *                      budget, rejected, upstream, timeout, network)
+   *   empty_answer       the Worker answered 200 with nothing usable
+   */
+  fallbackReason?: string;
+}
+
+/** Fetch the corpus ahead of the first question. Safe to call repeatedly. */
+export async function warmCorpus(basePath = ""): Promise<void> {
+  await loadCorpus(basePath);
+}
+
+/** An internal, allowlisted route and nothing else. */
+const internal = (source: AskSource) =>
+  source.url.startsWith("/") && !source.url.startsWith("//");
+
+function finish(
+  result: RetrievalResult,
+  text: string,
+  question: string,
+  turnIndex: number,
+  mode: AskResult["mode"],
+  fallbackReason?: string,
+): AskResult {
+  const clean = sanitizeLinks(text);
+  const sources = result.lowConfidence ? [] : selectSources(clean, result.docs);
+  const suggestions = suggestFollowUps(result.docs, question);
+  const cta = shouldOfferDemo(result.docs, turnIndex)
+    ? { label: "Request a demo", href: demoHref() }
+    : undefined;
+
+  return {
+    text: clean,
+    sources,
+    relatedLinks: [],
+    suggestions,
+    cta,
+    mode,
+    lowConfidence: result.lowConfidence,
+    fallbackReason,
+  };
+}
+
+/**
+ * Answer a question.
+ *
+ * Retrieval runs first and always. If it finds nothing, the refusal is local
+ * and immediate. Otherwise — and only if an endpoint is configured — the
+ * hosted model writes the prose from the retrieved records; if the Worker
+ * cannot be reached for any reason, the extract answers instead. Both paths
+ * return the same shape, so the panel does not branch.
+ */
+export async function ask(options: {
+  question: string;
+  pathname: string;
+  pageTitle?: string;
+  turnIndex?: number;
+  /** Prior turns, oldest first. The user turns are a retrieval signal; the
+   *  whole window is conversation context for the model. */
+  history?: HostedTurn[];
+  signal?: AbortSignal;
+}): Promise<AskResult> {
+  const {
+    question,
+    pathname,
+    pageTitle = "",
+    turnIndex = 0,
+    history = [],
+    signal,
+  } = options;
+
+  await loadCorpus();
+  /* The whole recent conversation goes to retrieval — for REFERENCE
+     resolution only: what "it", "she" and "what about" mean. No turn's text
+     is evidence; the records retrieved for this question are. */
+  const result = retrieveGaitAIContext(question, pathname, history);
+  const startedAt = Date.now();
+
+  /* LOCAL DEVELOPMENT ONLY. `next dev` inlines NODE_ENV, so this whole block
+     is dead code in the production bundle: a visitor's console never sees a
+     question or a record id. In dev it shows the retrieval half of the RAG
+     path — the Worker's ASK_DEBUG block shows the other half. */
+  const debug = process.env.NODE_ENV !== "production";
+  const trace = (mode: AskResult["mode"], note: string) => {
+    if (!debug) return;
+    console.debug(
+      [
+        "[Ask GaitAI]",
+        `question: ${question}`,
+        `understood as: ${result.understanding.normalized}`,
+        `resolved text: ${result.understanding.text}`,
+        `intent: ${result.intent} (${result.understanding.confidence})${result.understanding.domain ? ` · domain: ${result.understanding.domain.subject} (${result.understanding.askType})` : ""} · entity: ${result.understanding.entity.title} (${result.understanding.entity.via})${result.understanding.carried.length ? ` · from conversation: ${result.understanding.carried.join(", ")}` : ""}${result.lowConfidence ? " · LOW CONFIDENCE" : ""}`,
+        "retrieved:",
+        ...result.docs.map(
+          (item) => `  ${item.score.toFixed(2).padStart(6)} ${item.doc.id}${item.doc.sectionTitle ? ` › ${item.doc.sectionTitle}` : ""}`,
+        ),
+        `mode: ${mode}${note ? ` (${note})` : ""}`,
+        `latency: ${Date.now() - startedAt}ms`,
+      ].join("\n"),
+    );
+  };
+
+  /* Nothing scored: refuse from retrieval, and do not spend a model call
+     asking a model to decline gracefully. The refusal is the site's own
+     wording, every time. */
+  if (result.lowConfidence || result.docs.length === 0) {
+    trace("retrieval", "low confidence — refused locally, no request made");
+    return finish(result, composeExtractiveAnswer(result), question, turnIndex, "retrieval", "low_confidence");
+  }
+
+  /* No endpoint configured: no request, no timeout, no error, no console
+     noise. The extract is the answer. */
+  let fallbackReason = "no_endpoint";
+  /* Runtime configuration first: a bundle loaded before a deploy still learns
+     the current endpoint (see runtime-config.ts). */
+  if (await hostedAvailable()) {
+    try {
+      const hosted = await askHosted({
+        question,
+        pathname,
+        pageTitle,
+        history,
+        selectedRecordIds: result.docs.map((item) => item.doc.id),
+        signal,
+      });
+      if (hosted.text.trim().length > 0) {
+        trace("model", "hosted Worker answered");
+        /* The Worker already sanitised and chose sources from the canonical
+           records. Sanitise again here anyway: the allowlist in this tab is
+           the one that matters for what renders. */
+        return {
+          ...hosted,
+          text: sanitizeLinks(hosted.text),
+          sources: hosted.sources.filter(internal),
+          relatedLinks: hosted.relatedLinks.filter(internal),
+        };
+      }
+      fallbackReason = "empty_answer";
+    } catch (error) {
+      if ((error as Error)?.name === "AbortError") throw error;
+      /* Unreachable, rejected, rate-limited, over budget, timed out, provider
+         error, malformed reply — all of them are a reason to answer from
+         records, not a reason to show an error. The retrieval that already
+         ran is the answer. The CLASS is kept so a fallback can be diagnosed. */
+      const kind = error instanceof HostedError ? error.kind : "network";
+      fallbackReason = `worker:${kind}`;
+      trace("retrieval", `hosted failed: ${fallbackReason}`);
+    }
+  } else {
+    trace("retrieval", "no hosted endpoint configured");
+  }
+
+  return finish(result, composeExtractiveAnswer(result), question, turnIndex, "retrieval", fallbackReason);
+}

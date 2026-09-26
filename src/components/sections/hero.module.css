@@ -1,0 +1,1150 @@
+/* ==========================================================================
+   THE HOMEPAGE HERO — the approved composition, assembled from its parts
+   --------------------------------------------------------------------------
+   The design is unchanged. What changed is that it is no longer one flattened
+   1774x887 photograph of a layout: the type is type, the pills are anchors,
+   the diagonals are CSS and the pose points are SVG, so nothing in here is
+   resampled and nothing is soft at 2x.
+
+   ── ONE ARTWORK PIXEL IS ONE CSS LENGTH ──────────────────────────────────
+   The approved canvas is 1774x887 and the hero holds that ratio at every
+   width, so `--px` is one pixel of it:
+
+       --px: calc(100cqw / 1774)
+
+   Every position, size and type scale below is therefore written as the
+   number that was MEASURED off the artwork — `top: calc(760 * var(--px))` is
+   the pill at y=760 of 887 — and the whole composition scales as one picture
+   without a single hand-derived percentage. `.canvas` is the container the
+   `cqw` resolves against, so this holds even where the canvas is wider than
+   the frame.
+
+   How those numbers were established: the divider angles by fitting a line
+   through the lit ridge on rows spread down the picture; the type by
+   thresholding each glyph run and measuring cap heights, baselines and
+   line advances; the pills and the pose joints the same way. The comments
+   name the measurement wherever the value is not self-evident.
+
+   ── HOW THE PICTURE FILLS THE HERO ───────────────────────────────────────
+   Unchanged from the version that shipped, because that framing is approved
+   and verified. The hero is 1774:887 wherever the screen allows, bounded
+   three ways:
+
+     · 1.3x the canvas's own height, so a small landscape tablet is not all hero;
+     · the room under the navbar — 100svh minus the header minus a reserve for
+       the floating Ask GaitAI launcher — so the whole lower row is on screen
+       before the fold and the launcher rests below the picture, not on it;
+     · a floor of 40vw, the most the picture can lose before the cut reaches
+       the headline or the pills.
+
+   Whenever the frame is shorter than the canvas the canvas keeps its ratio
+   and the frame crops the slack cover-fashion, biased towards the top
+   (72/28): the ceiling glass gives way first, the floor under the pills last.
+   Whenever the frame is TALLER (up to 1.3x) the canvas extends instead:
+   same width, same x geometry, the headline-to-pills block centred with
+   more photograph above and below it — never a stretched picture and never
+   a dark band under it.
+
+   ── THE LAYERS, AND WHY ──────────────────────────────────────────────────
+   A clip path clips text. So the photography is clipped and the words are
+   not, and they are siblings inside each panel:
+
+     .art       the photograph, its scrim and its pose overlay — clipped to
+                the panel's wedge, so no picture crosses a diagonal   (z 1)
+     .dividers  the two lit diagonals, their own layer above every panel (z 2)
+     .story     the eyebrow, the message, the call to action (and, on the
+                GaitAI panel, the headline) — clipped by nothing      (z 3)
+
+   The story sits INSIDE its panel rather than in a layer of its own, which
+   is what lets the stacked phone layout carry each story down with the
+   photograph it belongs to instead of stranding all three below all three
+   pictures. On the panoramic layout it is absolutely positioned in the
+   panel's box, so its column is the artwork's x minus the panel's own left
+   edge.
+
+   ── ONE COMPOSITION, TWO TREATMENTS ──────────────────────────────────────
+   There is no second layout for light mode. The geometry here is the dark
+   artwork's, which is the approved composition; light changes the
+   photographs, the ink, the accent and the divider's character, and nothing
+   else. The two flattened banners that used to disagree about where the
+   panels sat are gone.
+   ========================================================================== */
+
+.hero {
+  background: var(--bg);
+
+  /* The room under the navbar, less a reserve for the Ask GaitAI launcher: a
+     ~40px pill sitting 16-28px off the bottom edge. This much of the viewport
+     stays under the hero, so at rest the launcher floats over the hand-off
+     gap, never over SecureVision. `svh` is the small viewport, so a phone's
+     retracting toolbar never makes the hero taller than the screen it first
+     painted on.
+
+     Was 5rem (80px), then 2.5rem; now 0.75rem, so the hero runs to within
+     12px of the fold and the first screen IS the hero. The launcher rests
+     over the hero's bottom edge — floor under the pills, which keep ≥60px of
+     clearance above that edge — never over the walkers or the words. */
+  --hero-launcher-reserve: 0.75rem;
+  --hero-room: calc(100vh - var(--site-header-height) - var(--hero-launcher-reserve));
+  --hero-room: calc(100svh - var(--site-header-height) - var(--hero-launcher-reserve));
+
+  /* ── THE HERO'S OWN PALETTE ──────────────────────────────────────────────
+     Sampled from the approved artwork rather than borrowed from the page
+     tokens, because the hero's accent is a shade hotter than the site's
+     `--cyan` (#4fd1ff) and the difference is visible against a photograph.
+     Dark: the pill fill reads rgb(17 214 255) at its core and the type the
+     same. Light: the artwork's blue is rgb(0 101 225) and its ink a deep
+     navy, both deeper than the page's `--royal` and `--text-primary`. */
+  --hero-accent: #11d6ff;
+  --hero-accent-strong: #3fe0ff;
+  /* THE HEADLINE'S OWN ACCENT, and the one place it differs from the pills.
+     The accent above is the artwork's pill cyan; set as a solid across five
+     large words it read electric — a highlighter rather than a headline. The
+     accent words are cut from this gradient instead: a medium azure turning
+     through a blue-indigo, the same journey the page's `.text-gradient`
+     makes under "Act on intelligence." but stopped before the violet, which
+     is what keeps it premium rather than decorative. Deliberately NOT wired
+     to `--hero-accent`: the pills, their hovers and the panel eyebrows keep
+     the artwork's own colour, unchanged. */
+  --hero-title-accent: linear-gradient(
+    135deg,
+    #63b3ff 0%,
+    #5b8cff 52%,
+    #5568ff 100%
+  );
+  --hero-ink: #ffffff;
+  --hero-ink-soft: rgb(240 248 255 / 0.94);
+  --hero-ink-quiet: rgb(233 244 255 / 0.88);
+  --hero-on-accent: #04121f;
+  --hero-scrim: 6 13 24;
+  --hero-divider-core: #f2f8fb;
+
+  /* The pose overlay's weights. Thin, subtle, and tuned against the
+     photograph rather than against a blank ground — see HeroPose.
+
+     Units are the photograph's pixels; at a 1440px viewport a panel renders
+     at ~0.81 CSS px per photograph px, so joint 2.4 is a ~3.9px disc and
+     stroke 1.5 a ~1.2px line. The first cut was joint 4 / opacity 0.92 in
+     the pill's own cyan, which read as large saturated beads rather than a
+     tracker. The colour is the pose's own: softer than the pill accent, a
+     royal-cyan in the dark and a deep royal blue on paper, and it is not
+     shared with the pills so the two can be tuned apart. `--hero-pose-far`
+     scales a `depth: "far"` figure (see HeroPose) below the main subject. */
+  --hero-pose-ink: #5ec6f3;
+  --hero-pose-stroke: 1.5;
+  --hero-pose-joint: 2.4;
+  --hero-pose-line-opacity: 0.5;
+  --hero-pose-joint-opacity: 0.78;
+  --hero-pose-far: 0.72;
+  /* Dark: a restrained glow, one soft halo the width of the disc. */
+  --hero-pose-glow: drop-shadow(0 0 1.6px rgb(94 198 243 / 0.45));
+}
+
+:global(.light) .hero {
+  /* THREE IDENTITIES, NOT ONE ACCENT (founder, 2026-09-23, third pass).
+     This block sets GaitAI's — the page's own blue — and the two product
+     panels override it further down, so an eyebrow, a pill and a ring each
+     take the colour of the product they belong to without a single element
+     naming a colour itself. `-strong` is the filled pill's hover, a step
+     deeper on the same hue; `-tint` is the wash an OUTLINE pill takes on
+     hover, which is the same hue at a tenth. */
+  --hero-accent: var(--hero-blue, #2f6fed);
+  --hero-accent-strong: var(--hero-cobalt, #3157d5);
+  --hero-accent-tint: rgb(47 111 237 / 0.1);
+  /* THE HEADLINE'S RAMP: electric → blue → cobalt, at the founder's values
+     and their angle (90deg, so both accent lines sweep the same way left to
+     right). No indigo at the end any more, which is what had it reading
+     violet. Measured against this hero's scrim, rgb(245 249 252), the three
+     stops are 2.61 / 4.16 / 5.51:1; the first is under the 3:1 large text
+     owes and is deliberately theirs, and it lands on the opening letters of
+     "movement" with the line deepening through every word after it. */
+  --hero-title-accent: linear-gradient(
+    90deg,
+    var(--hero-electric, #3fa9f5) 0%,
+    var(--hero-blue, #2f6fed) 48%,
+    var(--hero-cobalt, #3157d5) 100%
+  );
+  /* Ink and supporting copy at the founder's values: the deep navy for
+     everything that carries meaning, the muted grey under it. Neither has
+     any violet in it. */
+  --hero-ink: var(--hero-navy, #0b1739);
+  --hero-ink-soft: var(--hero-navy, #0b1739);
+  --hero-ink-quiet: var(--hero-muted, #475467);
+  --hero-on-accent: #ffffff;
+  --hero-scrim: 255 255 255;
+  --hero-divider-core: #ffffff;
+  /* Light: darker blue, quieter, tiny markers, no glow — a measurement on a
+     bright photograph must not read as neon. */
+  --hero-pose-ink: #0b4fc0;
+  --hero-pose-joint: 2.1;
+  --hero-pose-line-opacity: 0.55;
+  --hero-pose-joint-opacity: 0.7;
+  --hero-pose-glow: none;
+}
+
+/* ── THE TWO PRODUCT PANELS' OWN COLOURS (light) ──────────────────────────
+   Each panel re-declares the accent for everything inside it: its eyebrow,
+   its pill and that pill's ring and arrow. MobilityCare is teal and
+   SecureVision cobalt, so the three blocks along the foot read as three
+   related identities rather than one repeated blue. Dark keeps its single
+   artwork cyan, which is the composition it was drawn for. */
+:global(.light) .panel[data-panel="mobilitycare"] {
+  --hero-accent: var(--hero-teal, #1597a8);
+  --hero-accent-strong: #11808e;
+  --hero-accent-tint: rgb(21 151 168 / 0.1);
+}
+:global(.light) .panel[data-panel="securevision"] {
+  --hero-accent: var(--hero-cobalt, #3157d5);
+  --hero-accent-strong: #2846b4;
+  --hero-accent-tint: rgb(49 87 213 / 0.1);
+}
+
+/* THE HAND-OFF TO THE NEXT SECTION. The section under the hero opens with the
+   "Building the future of human movement intelligence." pill and carries the
+   page's standard top padding (80/96/112px). Under a picture that already
+   reads as a complete statement that read as the page stopping, so the hero
+   closes the gap itself — a sibling rule here, scoped to the one section that
+   follows it, rather than a change to that section's own layout. The id
+   outranks the utility classes. */
+.hero + :global(#platform-verticals) {
+  padding-top: clamp(3rem, 5vw, 4.5rem);
+}
+
+/* `/#overview` lands here: the foot of the hero, so the page scrolls to the
+   line where the next section begins. */
+.anchor {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  scroll-margin-top: var(--header-clearance);
+}
+
+/* THE FRAME is the hero's visible box: the whole first screen. Its height
+   is the room under the navbar (less a 12px reserve), floored at 40vw and
+   capped at 1.3x the canvas's own 2:1 height — so on a tall viewport the
+   frame may run up to 22% taller than the picture's native box, and the
+   canvas then EXTENDS downward (see below) rather than the hero ending early
+   with a dark band under it. There is no pixel ceiling any more: a 1920x1080
+   screen gets a 978px hero (its 960px canvas extended by 2%), 1440x900 gets
+   798px (720 extended by 11%), the 16:9 laptops fill their room and still
+   crop the canvas a little, and 1024x768 stops at the 22% cap (625px) so a
+   small landscape tablet is not all hero. `container-type: size` is what
+   lets the canvas and the banner measure the frame (cqh) to place
+   themselves. */
+.frame {
+  position: relative;
+  width: 100%;
+  /* 50px past the room under the navbar: the hero runs a little under the
+     fold on purpose, so the picture has air above the headline and below the
+     pills (the added height is split evenly — see .headline and .story).
+     Capped at 1.3x the canvas's own 2:1 height. */
+  height: min(calc(var(--hero-room) + 50px), calc(100vw * 887 / 1774 * 1.3));
+  min-height: 40vw;
+  overflow: hidden;
+  container-type: size;
+}
+
+/* THE CANVAS is the approved picture's own box, 1774:887 wide, and the
+   coordinate system for everything inside it. It is never shorter than the
+   frame: `min-height: 100%` lets it grow past 2:1 when the frame is taller,
+   and because `--px` is measured off the WIDTH every x, every type size and
+   every top-anchored y stays exactly where the artwork put it — the extra
+   height is more photograph under the pills (the wedges are percentages,
+   the photographs cover, the pose overlays slice, the stories pin to the
+   bottom, and the dividers compute their own angle from the height).
+
+   When the canvas is the taller of the two, `top` places 72% of the slack
+   above the frame and 28% below (the ceiling glass gives way first, the
+   floor under the pills last); when the frame is the taller, `top` is 0.
+
+   It is also the CONTAINER that `--px` measures (cqw) and that the dividers
+   measure their height from (cqh), which is why the whole composition tracks
+   the canvas and not the frame — the two differ on phones, where the canvas
+   is the one that matters. */
+.canvas {
+  position: absolute;
+  left: 0;
+  top: min(0px, calc(0.72 * (100cqh - 50cqw)));
+  width: 100%;
+  aspect-ratio: 1774 / 887;
+  min-height: 100%;
+  container-type: size;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  /* ONE ARTWORK PIXEL. Everything below is a multiple of this. */
+  --px: calc(100cqw / 1774);
+}
+
+/* ── The panels ────────────────────────────────────────────────────────────
+   A panel's element box is its PHOTOGRAPH's box — the smallest upright box
+   containing its wedge — and is not clipped, so the words inside it are not
+   either. Only `.art` is clipped. See lib/hero-panels.ts for the boxes. */
+.panel {
+  position: absolute;
+  top: 0;
+  height: 100%;
+}
+.panel[data-panel="gaitai"] {
+  left: 0;
+  width: calc(810 * var(--px));
+}
+.panel[data-panel="mobilitycare"] {
+  left: calc(553 * var(--px));
+  width: calc(805 * var(--px));
+}
+.panel[data-panel="securevision"] {
+  left: calc(1106 * var(--px));
+  width: calc(668 * var(--px));
+}
+
+/* THE WEDGES. Each polygon is the two diagonals expressed in the panel's own
+   box: divider 1 runs x 809.4 -> 553.0 top to bottom, divider 2 runs
+   1357.4 -> 1106.0, and each number below is one of those four x values
+   minus the box's own left edge, over the box's width.
+
+   Every LEFT boundary is carried about a pixel past the true line, so
+   neighbouring panels OVERLAP instead of meeting. Two clip paths that share
+   an edge exactly can leave a hairline of page background between them at
+   some widths; an overlap cannot, and the divider is drawn over the join
+   either way. */
+.art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  /* The story above it must stay clickable through this layer's box. */
+  pointer-events: none;
+}
+.panel[data-panel="gaitai"] .art {
+  /* 809.4/810 = 99.926%   553.0/810 = 68.272% */
+  clip-path: polygon(0 0, 99.926% 0, 68.272% 100%, 0 100%);
+}
+.panel[data-panel="mobilitycare"] .art {
+  /* (809.4-553)/805 = 31.851%  (1357.4-553)/805 = 99.925%  (1106-553)/805 = 68.696% */
+  clip-path: polygon(31.727% 0, 99.925% 0, 68.696% 100%, -0.124% 100%);
+}
+.panel[data-panel="securevision"] .art {
+  /* (1357.4-1106)/668 = 37.635% */
+  clip-path: polygon(37.485% 0, 100% 0, 100% 100%, -0.15% 100%);
+}
+
+/* THE PHOTOGRAPH. `cover` with a centred position, which the pose overlay's
+   `preserveAspectRatio="xMidYMid slice"` mirrors exactly — the two are a
+   matched pair and must not be changed independently. On the panoramic
+   layout the box and the picture are the same ratio, so nothing is actually
+   cropped; once stacked, both layers crop identically. */
+.photo {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* THE SCRIM. The flattened banner had its type's contrast baked into the
+   photograph; real type over a real photograph needs that contrast to be
+   drawn. Two gradients per panel: one lifting from the floor, under the
+   eyebrow, the message and the pill, and one from the top, under the
+   headline. Both are the theme's own ground colour at low alpha, so they
+   deepen the picture rather than tinting it, and both stop well short of the
+   middle so the scene is never veiled. */
+.art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Above the photograph, BELOW the pose overlay: the scrim exists to make
+     the type legible, not to veil the measurement drawn on the people. */
+  z-index: 1;
+  background:
+    linear-gradient(
+      to top,
+      rgb(var(--hero-scrim) / var(--scrim-foot, 0.82)) 0%,
+      rgb(var(--hero-scrim) / calc(var(--scrim-foot, 0.82) * 0.62)) 13%,
+      rgb(var(--hero-scrim) / 0) 34%
+    ),
+    linear-gradient(
+      to bottom,
+      rgb(var(--hero-scrim) / var(--scrim-head, 0.3)) 0%,
+      rgb(var(--hero-scrim) / 0) 26%
+    );
+}
+/* The GaitAI panel also carries the headline, which sits over the brightest
+   part of the concourse, so its head scrim reaches further down and leans
+   into the corner the type occupies. */
+.panel[data-panel="gaitai"] .art::after {
+  background:
+    linear-gradient(
+      to top,
+      rgb(var(--hero-scrim) / var(--scrim-foot, 0.82)) 0%,
+      rgb(var(--hero-scrim) / calc(var(--scrim-foot, 0.82) * 0.62)) 13%,
+      rgb(var(--hero-scrim) / 0) 34%
+    ),
+    linear-gradient(
+      160deg,
+      rgb(var(--hero-scrim) / calc(var(--scrim-head, 0.3) * 2.6)) 0%,
+      rgb(var(--hero-scrim) / calc(var(--scrim-head, 0.3) * 1.5)) 30%,
+      rgb(var(--hero-scrim) / 0) 62%
+    );
+}
+:global(.light) .art::after {
+  --scrim-foot: 0.74;
+  --scrim-head: 0.34;
+}
+
+/* ── The pose overlay ─────────────────────────────────────────────────────
+   Drawn in the PHOTOGRAPH's coordinate space (see HeroPose), so it crops
+   with the picture. `slice` is `object-fit: cover`; `xMidYMid` is
+   `object-position: center`. */
+.pose {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+.poseFigure {
+  /* 1 for the main subject; a far figure's joints, bone and opacity scale
+     by --hero-pose-far. The multiplier is a custom property so the two
+     depths share one rule set. */
+  --pose-scale: 1;
+  filter: var(--hero-pose-glow);
+}
+.poseFigure[data-depth="far"] {
+  --pose-scale: var(--hero-pose-far);
+}
+.poseBone {
+  fill: none;
+  stroke: var(--hero-pose-ink);
+  /* `* 1px` turns the unitless weight into a length in the SVG's own units. */
+  stroke-width: calc(var(--hero-pose-stroke) * 1px * (0.5 + 0.5 * var(--pose-scale)));
+  stroke-linecap: round;
+  opacity: calc(var(--hero-pose-line-opacity) * var(--pose-scale));
+}
+.poseJoint {
+  r: calc(var(--hero-pose-joint) * 1px * var(--pose-scale));
+  fill: var(--hero-pose-ink);
+  opacity: calc(var(--hero-pose-joint-opacity) * var(--pose-scale));
+}
+
+/* ── The two lit diagonals ────────────────────────────────────────────────
+   One line per boundary, each a bar rotated about its own centre. The
+   numbers come straight from the fit:
+
+     divider 1   x 809.4 -> 553.0   midpoint 681.2   length 923.3   16.13deg
+     divider 2   x 1357.4 -> 1106.0 midpoint 1231.7  length 921.9   15.84deg
+
+   Length is the hypotenuse of the run and the canvas height, so a rotated
+   bar still reaches both edges; the overhang is clipped by this layer. The
+   angles differ by a third of a degree, exactly as the artwork's do — they
+   are two measured lines, not one line used twice. */
+.dividers {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.divider {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: calc(var(--divider-weight, 2.2) * var(--px));
+  /* The bar spans the canvas corner to corner: its length is the hypotenuse
+     of the horizontal run (artwork pixels) and the canvas's actual height
+     (100cqh — the canvas is a size container), and its angle the arctangent
+     of the same two. On a 2:1 canvas these come out at the measured 923.3
+     units and 16.13deg; on a taller canvas the wedges (percent-based) grow
+     steeper and the bar follows them exactly instead of drifting off the
+     seam. */
+  --divider-run-px: calc(var(--divider-run) * var(--px));
+  height: hypot(var(--divider-run-px), 100cqh);
+  transform: translate(calc(var(--divider-mid) * var(--px) - 50%), -50%)
+    rotate(atan2(var(--divider-run-px), 100cqh));
+  background: var(--hero-divider-core);
+  /* In the dark artwork the line is a ~2px near-white core whose bloom is
+     ASYMMETRIC: it spills LEFT, into the space the diagonal is opening away
+     from, and is cut short on the right. Three shadows — the near glow that
+     gives the edge its light, a left-weighted bloom, and a wide low one that
+     keeps the whole thing from reading as a drawn rule. */
+  box-shadow:
+    0 0 calc(9 * var(--px)) rgb(125 224 255 / 0.55),
+    calc(-3 * var(--px)) 0 calc(16 * var(--px)) rgb(110 206 255 / 0.3),
+    0 0 calc(34 * var(--px)) rgb(56 152 226 / 0.2);
+}
+.divider[data-divider="1"] {
+  /* x 809.4 -> 553.0: run 256.4; on the 2:1 canvas that is 923.3 long at 16.13deg */
+  --divider-mid: 681.2;
+  --divider-run: 256.4;
+}
+.divider[data-divider="2"] {
+  /* x 1357.4 -> 1106.0: run 251.4; 921.9 long at 15.84deg on the 2:1 canvas */
+  --divider-mid: 1231.7;
+  --divider-run: 251.4;
+}
+/* In light mode the boundary is not a lit edge but a soft white seam: wider,
+   softer, no cyan in it. Same geometry, different character. */
+:global(.light) .divider {
+  --divider-weight: 9;
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0.4) 0%,
+    #fff 36%,
+    #fff 64%,
+    rgb(255 255 255 / 0.55) 100%
+  );
+  box-shadow:
+    0 0 calc(16 * var(--px)) rgb(255 255 255 / 0.85),
+    0 0 calc(46 * var(--px)) rgb(226 238 252 / 0.6);
+}
+
+/* ── The words ────────────────────────────────────────────────────────────
+   Each panel's story is anchored at the eyebrow's line box and given the
+   exact height that puts its pill's top at y=760, so all three pills land on
+   one line however many lines of message sit above them — which is what the
+   artwork does, and what a flow layout would not.
+
+     eyebrow line box top    661   (cap top 665, baseline 677)
+     message line box top    687   (cap tops 693 and 725, 32px apart)
+     pill                    760 -> 813   (53px tall)
+
+   story top 661, height 152 (= 813 - 661), pill pinned to the bottom.
+
+   Anchored to the canvas's BOTTOM (887 - 813 = 74 under the pill) rather
+   than its top: on a 2:1 canvas the two are the same line, and on a taller
+   canvas the story rides down with the floor so the pills keep the
+   artwork's own clearance from the bottom edge instead of floating mid-air
+   over extra photograph. */
+.story {
+  position: absolute;
+  z-index: 3;
+  /* Half of any height the canvas has beyond 2:1 goes under the pills (the
+     other half goes above the headline), so the composition stays centred. */
+  bottom: calc(74 * var(--px) + 0.5 * max(0px, 100cqh - 50cqw));
+  height: calc(152 * var(--px));
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+/* The column is anchored on the artwork's PILL left edge, measured in the
+   PANEL's own box — the story is inside its panel now, so these are the
+   canvas x minus the panel's own left edge (0, 553, 1106). The pill has no
+   side bearing and lands exactly; the type's own bearing then puts its ink
+   within a pixel of the artwork's, which is where the artwork puts it too
+   (pill 63, eyebrow ink 64, message ink 65).
+
+     gaitai        63 - 0    =   63
+     mobilitycare  667 - 553 =  114
+     securevision  1225 - 1106 = 119 */
+.panel[data-panel="gaitai"] .story {
+  left: calc(63 * var(--px));
+}
+.panel[data-panel="mobilitycare"] .story {
+  left: calc(114 * var(--px));
+}
+.panel[data-panel="securevision"] .story {
+  left: calc(119 * var(--px));
+}
+
+/* THE EYEBROW. Cap height 12 of 887, so 16.5px at the canvas's scale, and
+   tracked wide: "MOBILITYCARE" measures 160px of ink, about 26px more than
+   Inter sets it at, over eleven gaps. Set in the data as "MobilityCare" and
+   uppercased here, so a screen reader says the product's name. */
+.eyebrow {
+  margin: 0;
+  font-size: calc(16.5 * var(--px));
+  line-height: calc(20 / 16.5);
+  font-weight: 700;
+  letter-spacing: 0.21em;
+  text-transform: uppercase;
+  color: var(--hero-accent);
+}
+
+/* THE MESSAGE. Cap height 20 -> 27.5px; baselines 32px apart. */
+.message {
+  margin: calc(6 * var(--px)) 0 0;
+  font-size: calc(27.5 * var(--px));
+  line-height: calc(32 / 27.5);
+  font-weight: 500;
+  letter-spacing: calc(-0.7 * var(--px));
+  color: var(--hero-ink-soft);
+}
+.messageLine {
+  display: block;
+}
+
+/* THE HEADLINE, inside the GaitAI panel because that is where it sits in the
+   composition. Positioned at its own line box, not at its cap: for Inter at
+   49.5px on a 44px line the first baseline falls 40px into the box and the
+   cap 4px, so a block at y=156 puts the cap at 160 and the second baseline
+   at 240 — both measured. The sublines follow in flow, their margins
+   computed the same way. */
+.headline {
+  position: absolute;
+  z-index: 3;
+  left: calc(63 * var(--px));
+  /* The artwork's y on a 2:1 canvas. When the canvas is taller than 2:1
+     (see .canvas), half of the extra height goes above the headline and the
+     other half under the pills (see .story), so the composition keeps its
+     own spacing and gains air on both sides. On a 2:1 or cropped canvas the
+     second term is 0 and nothing moves. */
+  top: calc(155.6 * var(--px) + 0.5 * max(0px, 100cqh - 50cqw));
+  width: calc(560 * var(--px));
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+.title {
+  margin: 0;
+  font-size: calc(48.4 * var(--px));
+  line-height: calc(44 / 48.4);
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  color: var(--hero-ink);
+  text-wrap: balance;
+  /* ONE GRADIENT ACROSS THE WHOLE HEADLINE, not one per accent word. The
+     background is painted on the h1's box and clipped to its text, so the
+     two accent runs — "movement" on the first line, "intelligence platform."
+     on the second — are two windows onto a single sweep and read as one
+     continuous colour. A gradient per span would restart at each line, which
+     is what makes two-tone headlines look assembled. "One" stays ink because
+     it keeps its own opaque fill and simply covers its share of the
+     background; only the accent spans open. */
+  background-image: var(--hero-title-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* AND THE DESCENDERS NEED A STRIP OF THAT BACKGROUND TO STAND ON.
+     `background-clip: text` paints only inside the element's own box, and
+     the accent spans fill with `transparent`, so any part of a glyph that
+     falls outside the box receives no paint at all and simply is not there.
+     This line-height is 44/48.4 — 0.909, tighter than the face's ink — so
+     the "g" of "intelligence" and the "p" of "platform." hung 5.2px below
+     the box at 1366, 5.8px at 1536 and 7.0px at 1920, and lost their tails
+     completely: the "g" read as a broken letter at every desktop width.
+     The padding gives the gradient that strip back. The matching negative
+     margin means the box the LAYOUT sees is unchanged, so the lede, the sub
+     and everything below them stay exactly where the composition puts them
+     — nothing moves, the letters are simply whole. */
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
+}
+/* The break after "movement" is the approved composition. Two block lines
+   here; inline once stacked, where the space between them is what lets the
+   headline wrap to the phone's measure. */
+.titleLine {
+  display: block;
+}
+.titleLead {
+  color: var(--hero-ink);
+}
+/* The accent words open onto the headline's gradient. `color` is left set so
+   that a browser without `-webkit-text-fill-color` — the property every
+   engine has implemented for a decade, but the one this depends on — still
+   paints solid accent type rather than nothing at all. */
+.titleAccent {
+  color: var(--hero-accent);
+  -webkit-text-fill-color: transparent;
+}
+/* Cap height 25 -> 34.4px, cap top 260. */
+.lede {
+  margin: calc(8.4 * var(--px)) 0 0;
+  font-size: calc(33 * var(--px));
+  line-height: calc(40 / 33);
+  font-weight: 550;
+  letter-spacing: -0.033em;
+  color: var(--hero-ink);
+}
+/* Cap height 16 -> 22px, cap top 305. */
+.sub {
+  margin: calc(5.8 * var(--px)) 0 0;
+  font-size: calc(21.4 * var(--px));
+  line-height: calc(30 / 21.4);
+  font-weight: 400;
+  letter-spacing: -0.016em;
+  color: var(--hero-ink-quiet);
+}
+
+/* ── The three calls to action ────────────────────────────────────────────
+   Real anchors now, so the pill IS the control: its fill, its outline, its
+   label and its arrow are all DOM. The measured pills are 53px tall with
+   their tops at y=760; GaitAI is a solid fill with dark ink, MobilityCare
+   and SecureVision are outlines with accent ink.
+
+   The old stylesheet spent two hundred lines lighting a sheet of glass laid
+   over painted pixels, because a painted pill cannot be styled and its label
+   could not be allowed to move. None of that is needed: the label and the
+   arrow are ours, so the hover state is an ordinary hover state and the
+   arrow can travel without a second arrow appearing underneath it. */
+.cta {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(12 * var(--px));
+  height: calc(53 * var(--px));
+  padding: 0 calc(31 * var(--px));
+  border-radius: 999px;
+  font-size: calc(19.2 * var(--px));
+  font-weight: 600;
+  letter-spacing: calc(-0.2 * var(--px));
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  outline: none;
+  /* The hero's three pills are the page's most deliberate control, and the
+     founder asked for a 300-500ms interaction rather than the site's
+     general 220ms `--motion-ui`. This is that, and it still collapses to
+     1ms under `prefers-reduced-motion`, because the token it multiplies is
+     the one the reduced-motion block rewrites. */
+  --hero-cta-motion: calc(var(--motion-ui) * 1.5);
+  transition:
+    transform var(--hero-cta-motion) var(--ease-out),
+    background-color var(--hero-cta-motion) var(--ease-out),
+    border-color var(--hero-cta-motion) var(--ease-out),
+    box-shadow var(--hero-cta-motion) var(--ease-out),
+    color var(--hero-cta-motion) var(--ease-out);
+}
+.ctaLabel {
+  display: block;
+}
+.ctaArrow {
+  width: calc(21 * var(--px));
+  height: calc(21 * var(--px));
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform var(--motion-ui) var(--ease-out);
+}
+
+/* GaitAI: the solid pill. */
+.cta[data-cta="gaitai"] {
+  background: var(--hero-accent);
+  color: var(--hero-on-accent);
+  border: none;
+}
+/* MobilityCare and SecureVision: the outline pills. 1.5px of accent, which is
+   what the artwork draws, over the photograph itself. */
+.cta[data-cta="mobilitycare"],
+.cta[data-cta="securevision"] {
+  color: var(--hero-accent);
+  background: rgb(var(--hero-scrim) / 0.16);
+  box-shadow: inset 0 0 0 calc(1.8 * var(--px)) var(--hero-accent);
+  /* A whisper of the ground behind the outline, so the pill reads as an
+     object on a busy floor rather than a hairline drawn on one. */
+  -webkit-backdrop-filter: blur(2px) saturate(1.05);
+  backdrop-filter: blur(2px) saturate(1.05);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    transform: translateY(-1px);
+  }
+  .cta:hover .ctaArrow {
+    transform: translateX(calc(3 * var(--px)));
+  }
+  .cta[data-cta="gaitai"]:hover {
+    background: var(--hero-accent-strong);
+    box-shadow:
+      0 0 calc(20 * var(--px)) rgb(17 214 255 / 0.36),
+      0 calc(5 * var(--px)) calc(16 * var(--px)) rgb(2 10 24 / 0.34);
+  }
+  .cta[data-cta="mobilitycare"]:hover,
+  .cta[data-cta="securevision"]:hover {
+    color: var(--hero-on-accent);
+    background: var(--hero-accent);
+    box-shadow:
+      inset 0 0 0 calc(1.8 * var(--px)) var(--hero-accent),
+      0 0 calc(18 * var(--px)) rgb(17 214 255 / 0.3),
+      0 calc(5 * var(--px)) calc(14 * var(--px)) rgb(2 10 24 / 0.3);
+  }
+  :global(.light) .cta[data-cta="gaitai"]:hover {
+    box-shadow:
+      0 0 calc(18 * var(--px)) rgb(47 111 237 / 0.26),
+      0 calc(5 * var(--px)) calc(14 * var(--px)) rgb(15 23 42 / 0.18);
+  }
+  /* LIGHT OUTLINE HOVER IS A TINT, NOT A FILL. In dark the outline pills
+     invert to a solid accent on hover, which is right over night footage.
+     On paper the founder asked for "a very light electric-blue fill or
+     subtle blue tint", so the light pills keep their cobalt type and take a
+     wash of the same blue instead of flipping to white-on-solid. */
+  :global(.light) .cta[data-cta="mobilitycare"]:hover,
+  :global(.light) .cta[data-cta="securevision"]:hover {
+    color: var(--hero-accent);
+    background: var(--hero-accent-tint);
+    box-shadow:
+      inset 0 0 0 calc(1.8 * var(--px)) var(--hero-accent),
+      0 0 calc(16 * var(--px)) rgb(47 111 237 / 0.2),
+      0 calc(5 * var(--px)) calc(12 * var(--px)) rgb(15 23 42 / 0.16);
+  }
+}
+.cta:active {
+  transform: translateY(0);
+  transition-duration: var(--motion-fast);
+}
+
+/* The focus ring goes around the whole control, where a focus indicator
+   belongs, and carries a white inner stop so it reads against both the solid
+   pill and the photograph. */
+.cta:focus-visible {
+  box-shadow:
+    0 0 0 calc(2 * var(--px)) rgb(255 255 255 / 0.95),
+    0 0 0 calc(4.5 * var(--px)) var(--hero-accent),
+    0 0 calc(22 * var(--px)) rgb(79 209 255 / 0.45);
+}
+.cta[data-cta="mobilitycare"]:focus-visible,
+.cta[data-cta="securevision"]:focus-visible {
+  box-shadow:
+    inset 0 0 0 calc(1.8 * var(--px)) var(--hero-accent),
+    0 0 0 calc(2 * var(--px)) rgb(255 255 255 / 0.95),
+    0 0 0 calc(4.5 * var(--px)) var(--hero-accent),
+    0 0 calc(22 * var(--px)) rgb(79 209 255 / 0.45);
+}
+:global(.light) .cta:focus-visible {
+  box-shadow:
+    0 0 0 calc(2 * var(--px)) #fff,
+    0 0 0 calc(4.5 * var(--px)) var(--hero-accent),
+    0 0 calc(18 * var(--px)) rgb(47 111 237 / 0.3);
+}
+
+/* Reduced motion: the state still CHANGES — colour and the ring are
+   information about what is interactive — but nothing travels or lifts. */
+@media (prefers-reduced-motion: reduce) {
+  .cta,
+  .cta:hover,
+  .cta:active {
+    transform: none;
+  }
+  .cta:hover .ctaArrow {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   TABLETS AND PHONES — the same three stories, stacked
+   --------------------------------------------------------------------------
+   The panoramic layout at 768px would set the headline at 21px and the
+   eyebrows at 7px, so below 1024px the hero becomes what it is on a phone:
+   three full-width panels, each with its own photograph, its own words and
+   its own button, stacked into one column. The photographs are the same
+   files; the type is the same type, set for the phone's measure; the pose
+   overlays crop with their pictures.
+
+   The diagonals survive as a shallow slant between the panels, because that
+   is what keeps it one composition instead of three cards. The slant is
+   expressed in `vw` so its ANGLE is constant — 4vw of drop over 100vw is
+   2.29 degrees at every width — which is what lets the lit line along it be
+   a single fixed rotation.
+   ========================================================================== */
+@media (max-width: 1023px) {
+  .hero {
+    --hero-slant: 4vw;
+    --hero-slant-angle: -2.2919deg;
+  }
+  .frame {
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    overflow: visible;
+    container-type: normal;
+  }
+  .canvas {
+    position: static;
+    top: auto;
+    width: auto;
+    aspect-ratio: auto;
+    min-height: 0;
+    /* Still the container, so anything left on `--px` keeps working. */
+    container-type: inline-size;
+  }
+  .stage {
+    position: static;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* The panoramic layout gives each panel its photograph's box as a
+     percentage of the canvas, through `.panel[data-panel=...]` — which
+     outranks a bare `.panel`, so the stacked layout has to unset those at
+     the SAME specificity or every panel keeps a 46%-wide desktop box on a
+     phone. */
+  .panel[data-panel="gaitai"],
+  .panel[data-panel="mobilitycare"],
+  .panel[data-panel="securevision"] {
+    left: auto;
+    width: 100%;
+  }
+  .panel {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    height: auto;
+    /* The words sit on the FLOOR of each panel, as they do in the approved
+       composition, with the photograph open above them — rather than across
+       the middle of the picture, over the very person the panel is about.
+       A column that pushes its content down does that whatever the copy's
+       length, and keeps all three panels reading the same way. */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    /* Capped, because `vw` alone is a phone measurement: 86vw is a sensible
+       320px panel at 375 and an absurd 880px one at 1023, and three of those
+       make a hero a visitor has to scroll twice to leave. */
+    min-height: min(80vw, 460px);
+    padding: 7vw max(1rem, 5.5vw) 9vw;
+    box-sizing: border-box;
+  }
+  /* The GaitAI panel carries the headline at the top and its story at the
+     foot, with the concourse open between them. */
+  .panel[data-panel="gaitai"] {
+    min-height: min(112vw, 640px);
+    padding-top: 8vw;
+  }
+  /* Panels two and three ride up under the panel above them, so the slant
+     reads as a cut through one picture and never opens a gap. */
+  .panel[data-panel="mobilitycare"],
+  .panel[data-panel="securevision"] {
+    margin-top: calc(-1 * var(--hero-slant));
+    padding-top: calc(9vw + var(--hero-slant));
+  }
+
+  /* The wedge clips belong to the panoramic layout and are written as
+     `.panel[data-panel=...] .art`, so they must be unset at that same
+     specificity — a bare `.art` here loses to all three of them and every
+     stacked panel would keep a diagonal cut across its photograph. */
+  .panel[data-panel="gaitai"] .art,
+  .panel[data-panel="mobilitycare"] .art,
+  .panel[data-panel="securevision"] .art {
+    /* Full-bleed behind the panel's padding. */
+    clip-path: none;
+  }
+  .panel[data-panel="mobilitycare"] .art,
+  .panel[data-panel="securevision"] .art {
+    clip-path: polygon(0 var(--hero-slant), 100% 0, 100% 100%, 0 100%);
+  }
+  /* The lit line along the cut, rotated about the left end of the slant. */
+  .panel[data-panel="mobilitycare"] .art::before,
+  .panel[data-panel="securevision"] .art::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: -1%;
+    top: var(--hero-slant);
+    height: 2px;
+    transform-origin: left center;
+    transform: rotate(var(--hero-slant-angle));
+    background: var(--hero-divider-core);
+    box-shadow: 0 0 10px rgb(125 224 255 / 0.5);
+  }
+  :global(.light) .panel[data-panel="mobilitycare"] .art::before,
+  :global(.light) .panel[data-panel="securevision"] .art::before {
+    height: 3px;
+    box-shadow: 0 0 14px rgb(255 255 255 / 0.9);
+  }
+  /* The stacked scrim answers where the words actually are: a deep lift off
+     the floor, under the story, and a lighter one from the top, under the
+     headline on the GaitAI panel. The middle of every picture stays open. */
+  .art::after {
+    background:
+      linear-gradient(
+        to top,
+        rgb(var(--hero-scrim) / 0.92) 0%,
+        rgb(var(--hero-scrim) / 0.78) 22%,
+        rgb(var(--hero-scrim) / 0.34) 46%,
+        rgb(var(--hero-scrim) / 0.12) 70%
+      );
+  }
+  .panel[data-panel="gaitai"] .art::after {
+    background:
+      linear-gradient(
+        to top,
+        rgb(var(--hero-scrim) / 0.92) 0%,
+        rgb(var(--hero-scrim) / 0.74) 18%,
+        rgb(var(--hero-scrim) / 0.3) 38%,
+        rgb(var(--hero-scrim) / 0.16) 56%
+      ),
+      linear-gradient(
+        to bottom,
+        rgb(var(--hero-scrim) / 0.86) 0%,
+        rgb(var(--hero-scrim) / 0.6) 18%,
+        rgb(var(--hero-scrim) / 0) 38%
+      );
+  }
+
+  /* The two diagonals belong to the panoramic layout; the stacked one draws
+     its own along the slant. */
+  .dividers {
+    display: none;
+  }
+
+  /* Everything that was pinned to an artwork pixel becomes flow. The
+     per-panel story columns are `.panel[data-panel=...] .story`, so they
+     need the same specificity here as well. */
+  .headline,
+  .story,
+  .panel[data-panel="gaitai"] .story,
+  .panel[data-panel="mobilitycare"] .story,
+  .panel[data-panel="securevision"] .story {
+    /* RELATIVE, not static. `z-index` is ignored on a statically positioned
+       element, and the photograph above these is absolutely positioned — so
+       static text is painted UNDERNEATH its own panel's picture and the whole
+       stacked hero comes out wordless. Relative with no offsets lays out
+       exactly like static and keeps the z-index. */
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    /* AND `bottom`, which this block used to forget. The panoramic `.story`
+       is pinned by `bottom: calc(74 * var(--px) + 0.5 * max(0px, 100cqh -
+       50cqw))`. Left set on a RELATIVE box that offset does not pin
+       anything — it shifts the story upward — and in this layout the canvas
+       is an `inline-size` container, so `100cqh` has no container to
+       resolve against and falls back to the small viewport height. At 390
+       that came to 340px of lift: every story climbed out of its own panel,
+       the GaitAI one into the navbar, and all three sat on top of the
+       headline and each other. Both themes, every width below 1024. */
+    bottom: auto;
+    right: auto;
+  }
+  .headline {
+    max-width: 34rem;
+    /* Pinned to the top of the panel; `auto` takes all the slack, so the
+       story stays on the floor however tall the panel grows. */
+    margin-bottom: auto;
+  }
+  .title {
+    font-size: clamp(1.9rem, 6.4vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+  }
+  /* Inline, so the headline wraps to the phone's measure instead of keeping
+     the panoramic layout's break. */
+  .titleLine {
+    display: inline;
+  }
+  .lede {
+    margin-top: 0.7rem;
+    font-size: clamp(1.15rem, 3.9vw, 1.6rem);
+    line-height: 1.2;
+  }
+  .sub {
+    margin-top: 0.5rem;
+    font-size: clamp(0.9rem, 2.9vw, 1.05rem);
+    line-height: 1.45;
+  }
+  .eyebrow {
+    font-size: clamp(0.7rem, 2.4vw, 0.82rem);
+    line-height: 1.2;
+  }
+  .message {
+    margin-top: 0.45rem;
+    font-size: clamp(1.25rem, 4.6vw, 1.75rem);
+    line-height: 1.16;
+  }
+  .cta {
+    position: static;
+    margin-top: 1.35rem;
+    height: auto;
+    gap: 0.6rem;
+    padding: 0.8rem 1.35rem;
+    font-size: clamp(0.92rem, 3.1vw, 1.02rem);
+  }
+  .ctaArrow {
+    width: 1.15em;
+    height: 1.15em;
+  }
+  .cta[data-cta="mobilitycare"],
+  .cta[data-cta="securevision"] {
+    box-shadow: inset 0 0 0 1.5px var(--hero-accent);
+  }
+  @media (hover: hover) {
+    .cta[data-cta="mobilitycare"]:hover,
+    .cta[data-cta="securevision"]:hover {
+      box-shadow: inset 0 0 0 1.5px var(--hero-accent);
+    }
+  }
+  .cta:focus-visible {
+    box-shadow:
+      0 0 0 2px rgb(255 255 255 / 0.95),
+      0 0 0 4.5px var(--hero-accent);
+  }
+  .cta:hover .ctaArrow {
+    transform: translateX(3px);
+  }
+  /* The pose overlay is drawn in the photograph's own units, so it already
+     scales with the picture and needs no correction to stay proportional — a
+     stacked panel just shows it smaller. The nudge here is only so a thin
+     stroke survives a 1x phone, and is deliberately small: pushed further,
+     the joints read as beads on a shrunken figure rather than as a
+     measurement. */
+  .hero {
+    /* ~0.49 CSS px per photograph px on a 390px phone: stroke 1.9 is a
+       ~0.95px line, joint 2.8 a ~2.8px disc. */
+    --hero-pose-stroke: 1.9;
+    --hero-pose-joint: 2.8;
+  }
+}
+
+/* ── The light theme's artwork ────────────────────────────────────────────
+   One supplied picture stands in for the three panel photographs, their pose
+   overlays and the drawn dividers — but ONLY in light and ONLY on the
+   panoramic layout; see HeroLightBanner. It carries no type, so it sits
+   BEHIND everything the stage draws (z-index 0) and the hero's own words are
+   real DOM over it, exactly as in dark.
+
+   It covers the frame rather than being letterboxed into it: the approved
+   file is 16:9 and the frame is nearer 2:1, so `cover` crops in one axis,
+   and the anchor is the FOOT of the picture — the top is ceiling glass and
+   the bottom is where the traveller's, the patient's and the officer's feet
+   are. Off by default, and off below 1024 where the panels stack and the
+   native photographs take over. */
+.banner {
+  display: none;
+}
+@media (min-width: 1024px) {
+  :global(.light) .banner {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* A light ground under the picture, so the moment before it decodes is
+     the composition's own near-white rather than the frame's dark default. */
+  :global(.light) .frame {
+    background: linear-gradient(180deg, #e8edf3, #f7f9fc);
+  }
+
+  /* The picture already holds all three photographs, the pose dots it paints
+     and the diagonals, so the drawn ones step aside. `.art` itself stays:
+     its clipped scrims are what keep the type legible over the picture. */
+  :global(.light) .photo,
+  :global(.light) .pose,
+  :global(.light) .dividers {
+    display: none;
+  }
+}
+.bannerPhoto {
+  display: block;
+  position: absolute;
+  inset: 0;
+}
+.bannerPhoto img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The foot of the picture, not its centre: centring would crop the
+     officer's shoes, which sit within 5% of the bottom edge. */
+  object-position: 50% 100%;
+}

@@ -1,0 +1,457 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { Search, X } from "lucide-react";
+import {
+  INSIGHTS_AUTHOR,
+  POST_TYPE_PLURAL,
+  TOPIC_FILTERS,
+  activePostTypes,
+  formatInsightDate,
+  insightArticles,
+  insightHref,
+  type InsightTopic,
+  type PostType,
+} from "@/data/insights";
+import { StoryCard } from "./StoryCard";
+import { useCommentCounts } from "./useCommentCounts";
+import { useArticleStats } from "./useArticleStats";
+import { JournalBackdrop } from "./JournalBackdrop";
+import styles from "./archive.module.css";
+/* The grid's own stylesheet is the card's, not the archive's: making the last
+   row intentional means re-proportioning the cards in it, and a CSS module can
+   only address its own class names. See the ARCHIVE GRID note there. */
+import journal from "./journal.module.css";
+
+/**
+ * THE ARCHIVE — the part of the journal that says "these are articles".
+ *
+ * The page below this is a single continuous signal narrative, and it is the
+ * strongest idea on the route. It is also, on its own, unreadable as an
+ * archive: it carries one question and one title per essay, no excerpt, no
+ * date, no author, no read time and no way to filter. A reader who arrives
+ * wanting to know what there is to read has to infer it from a scroll-driven
+ * illustration.
+ *
+ * So this sits ABOVE the narrative rather than replacing it. Masthead, one
+ * featured story at cover size, then every article as a dated card with an
+ * author and a read time, behind a topic filter, a search field and a sort.
+ * The narrative keeps its job — showing what the essays are ABOUT — and this
+ * one does the job it was never meant to: showing what they ARE.
+ *
+ * The editorial values are fields on the article record. The engagement
+ * values are real: views and likes come from articleStats/{slug} in Firestore
+ * in one read for the whole archive, comment counts from the live comments
+ * collection, and a card shows a counter only when a real number is behind it
+ * — never a zero, never a placeholder. "Most viewed" is offered only once
+ * those counters have loaded, because that ordering over an empty stats map is
+ * just "newest" under another name.
+ *
+ * NOTHING HERE SIMULATES A BUSY PUBLICATION. Two flags say a journal is alive,
+ * and both are refusable. "New" is decided in the reader's own browser against
+ * the record's date, so a build that has sat for two months cannot keep
+ * announcing two-month-old writing (see CardFlags). "Most viewed" needs loaded
+ * counters, a leader above zero and no tie at the top — three conditions,
+ * because a tie is the normal state of a young archive and is exactly when a
+ * popularity badge is most tempting and least true. On a cold cache the
+ * listing shows neither, which is the correct answer.
+ *
+ * THE LAST ROW IS CHOSEN, NOT LEFT OVER. Four stories in a three-column grid
+ * used to strand the fourth alone in column one with two empty columns beside
+ * it. The grid now re-proportions a short final row — one leftover runs the
+ * full width as a horizontal story, two split the row in half — in CSS, since
+ * the remainder depends on how many columns the viewport is showing. See the
+ * ARCHIVE GRID note in journal.module.css.
+ */
+
+type Sort = "newest" | "series" | "views";
+
+/** Only topics that actually match an article are offered. */
+const ACTIVE_TOPICS = TOPIC_FILTERS.filter(
+  (topic) =>
+    topic.key === "all" ||
+    insightArticles.some((article) =>
+      article.topics.includes(topic.key as InsightTopic),
+    ),
+);
+
+/* The journal's remit is wider than its archive: product, engineering and
+   company writing all belong here, and none of it is published yet. So the
+   type row is derived from what exists rather than declared — an empty
+   "Product updates" chip would be a promise the archive cannot keep. */
+const ACTIVE_TYPES = activePostTypes();
+
+/** Small counts read better spelled out in a display heading. */
+const COUNT_WORD = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+const spell = (n: number) => COUNT_WORD[n] ?? String(n);
+
+export function JournalIndex() {
+  const [type, setType] = useState<PostType | "all">("all");
+  const [topic, setTopic] = useState<InsightTopic | "all">("all");
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<Sort>("newest");
+
+  /* Real view and like counters, one read for the whole archive. Empty until
+     it resolves and empty if Firestore is unreachable, so a card shows a
+     count only once there is a real number behind it. */
+  const { stats, loaded: statsLoaded } = useArticleStats();
+
+  /** Title, deck, excerpt, category and topics — what a reader would search. */
+  const haystacks = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const article of insightArticles) {
+      map.set(
+        article.slug,
+        [
+          article.title,
+          article.subtitle ?? "",
+          article.deck,
+          article.excerpt,
+          article.category,
+          article.question,
+          ...article.tags,
+          ...article.topics,
+        ]
+          .join(" ")
+          .toLowerCase(),
+      );
+    }
+    return map;
+  }, []);
+
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const list = insightArticles.filter((article) => {
+      if (type !== "all" && article.postType !== type) return false;
+      if (topic !== "all" && !article.topics.includes(topic)) return false;
+      if (q && !(haystacks.get(article.slug) ?? "").includes(q)) return false;
+      return true;
+    });
+    return [...list].sort((a, b) => {
+      if (sort === "series") return a.seriesStep - b.seriesStep;
+      if (sort === "views") {
+        /* Most viewed, with the newest first among ties — which is also what
+           the whole archive is before any counter has been recorded. */
+        const delta = (stats[b.slug]?.views ?? 0) - (stats[a.slug]?.views ?? 0);
+        return delta !== 0 ? delta : b.date.localeCompare(a.date);
+      }
+      return b.date.localeCompare(a.date);
+    });
+  }, [type, topic, query, sort, haystacks, stats]);
+
+  const dirty = type !== "all" || topic !== "all" || query !== "";
+  const reset = () => {
+    setType("all");
+    setTopic("all");
+    setQuery("");
+  };
+
+  /* Real approved-comment counts for every article on screen, in one query.
+     Empty until it resolves, and empty if Firestore is unreachable — the
+     cards then simply show no comment metadata rather than a fabricated one. */
+  const commentCounts = useCommentCounts(insightArticles.map((a) => a.slug));
+
+
+  /* MOST VIEWED — the one story that genuinely leads, or nothing at all.
+
+     Three conditions, and all three have to hold. The counters must have
+     actually loaded (`statsLoaded` only goes true on a resolved read with at
+     least one document behind it, so an unreachable Firestore claims nothing).
+     The leader must have real views, not zero. And it must be a clear leader:
+     if two articles are tied at the top, no card carries the flag, because
+     "most viewed" of a tie is a claim the data does not support. Ties are the
+     normal state of a young journal, which is exactly when a popularity badge
+     is most tempting and least true. */
+  const mostViewedSlug = useMemo(() => {
+    if (!statsLoaded) return undefined;
+    const ranked = insightArticles
+      .map((article) => ({
+        slug: article.slug,
+        views: stats[article.slug]?.views ?? 0,
+      }))
+      .sort((a, b) => b.views - a.views);
+    const [first, second] = ranked;
+    if (!first || first.views <= 0) return undefined;
+    if (second && second.views === first.views) return undefined;
+    return first.slug;
+  }, [stats, statsLoaded]);
+
+  /* The cover story is the newest piece, and it is only the cover when the
+     reader has not started filtering — a "featured" card inside a filtered
+     result set is just the first result wearing a bigger frame. */
+  const featured = !dirty && sort === "newest" ? matches[0] : undefined;
+  const rest = featured ? matches.slice(1) : matches;
+
+  const newest = [...insightArticles].sort((a, b) =>
+    b.date.localeCompare(a.date),
+  )[0];
+
+  return (
+    <section id="archive" className={styles.archive}>
+      {/* The publication's own atmosphere: a drawn page — column rules, a
+          baseline grid, two blocks of set type — crossed by movement
+          trajectories. The masthead used to sit on flat dark ground, which
+          read as a listing rather than as a journal. Nothing in it exceeds
+          0.16 alpha and it is masked out of the left third, so the headline's
+          contrast is unchanged. */}
+      <JournalBackdrop />
+
+      <div className="container-wide">
+        {/* ── Masthead ── */}
+        <header className={styles.masthead}>
+          {/* The full positioning lives here, where there is room for it —
+              the navbar tab is just "Blog". */}
+          <p className={styles.mastheadKicker}>GaitAI · Blog &amp; Updates</p>
+          <h1 className={styles.mastheadTitle}>
+            Ideas, research, product stories and the latest from{" "}
+            <span className={styles.mastheadAccent}>GaitAI.</span>
+          </h1>
+          <p className={styles.mastheadDeck}>
+            Technical explainers, research translation, engineering notes,
+            product updates and what we&apos;re building.
+          </p>
+          {/* Both lines are counted and dated from the records themselves: the
+              coverage line names only the kinds of writing that exist, and the
+              date is the newest article's own. */}
+          <p className={styles.mastheadMeta}>
+            {insightArticles.length} stories ·{" "}
+            {ACTIVE_TYPES.map((key) => POST_TYPE_PLURAL[key]).join(" · ")}
+          </p>
+          <p className={styles.mastheadMeta}>
+            Latest · {formatInsightDate(newest.date)} · {INSIGHTS_AUTHOR}
+          </p>
+        </header>
+
+        {/* ── Controls ── */}
+        <div className={styles.controls}>
+          <div className={styles.searchWrap}>
+            <Search aria-hidden="true" className={styles.searchIcon} />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search the journal…"
+              aria-label="Search the journal"
+              className={styles.search}
+            />
+          </div>
+
+          <div className={styles.sortWrap}>
+            <label htmlFor="journal-sort" className={styles.sortLabel}>
+              Sort
+            </label>
+            <select
+              id="journal-sort"
+              value={sort}
+              onChange={(event) => setSort(event.target.value as Sort)}
+              className={styles.sort}
+            >
+              <option value="newest">Newest first</option>
+              <option value="series">Reading order</option>
+              {/* Offered only once real counters have loaded: a "most viewed"
+                  order over an empty stats map is just "newest" wearing
+                  another name, and the brief rules out popularity UI that no
+                  data stands behind. */}
+              {statsLoaded && <option value="views">Most viewed</option>}
+            </select>
+          </div>
+        </div>
+
+        {/* ── Filters: what kind of piece, then what it is about ── */}
+        <div className={styles.filters}>
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel} id="journal-type-label">
+              Type
+            </span>
+            <div
+              className={styles.topics}
+              role="group"
+              aria-labelledby="journal-type-label"
+            >
+              <button
+                type="button"
+                aria-pressed={type === "all"}
+                onClick={() => setType("all")}
+                className={`${styles.topicChip} ${type === "all" ? styles.topicChipOn : ""}`}
+              >
+                All
+              </button>
+              {ACTIVE_TYPES.map((key) => {
+                const on = type === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setType(key)}
+                    className={`${styles.topicChip} ${on ? styles.topicChipOn : ""}`}
+                  >
+                    {POST_TYPE_PLURAL[key]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className={styles.filterRow}>
+            <span className={styles.filterLabel} id="journal-topic-label">
+              Topic
+            </span>
+            <div
+              className={styles.topics}
+              role="group"
+              aria-labelledby="journal-topic-label"
+            >
+              {ACTIVE_TOPICS.map((option) => {
+                const on = topic === option.key;
+                return (
+                  <button
+                    key={option.key}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => setTopic(option.key as InsightTopic | "all")}
+                    className={`${styles.topicChip} ${on ? styles.topicChipOn : ""}`}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.resultRow} aria-live="polite">
+          <span>
+            {matches.length === insightArticles.length
+              ? `${insightArticles.length} stories`
+              : `${matches.length} of ${insightArticles.length} stories`}
+          </span>
+          {dirty && (
+            <button type="button" onClick={reset} className={styles.clear}>
+              <X aria-hidden="true" className="h-3 w-3" />
+              Clear
+            </button>
+          )}
+        </div>
+
+        {/* ── Cover story ── */}
+        {featured && (
+          <div className={styles.featured}>
+            {/* The section's real heading, not a decorative label: the cover
+                story's own title is an h3, so without an h2 here the page
+                jumped straight from h1 to h3. Same class, same appearance. */}
+            <h2 className={styles.featuredLabel}>Cover story</h2>
+            <StoryCard
+              article={featured}
+              variant="full"
+              priority
+              commentCount={commentCounts[featured.slug]}
+              views={stats[featured.slug]?.views}
+              likes={stats[featured.slug]?.likes}
+              mostViewed={mostViewedSlug === featured.slug}
+            />
+          </div>
+        )}
+
+        {/* ── The rest ── */}
+        {rest.length > 0 && (
+          <>
+            {/* "Latest from GaitAI" rather than "Latest stories": the row
+                below the cover story is the publication speaking, and the
+                phrase that says so costs nothing in the same 10.5px mono the
+                heading was already set in. The filtered headings still name
+                what the reader asked for. */}
+            <h2 className={styles.gridHeading}>
+              {featured
+                ? "Latest from GaitAI"
+                : type !== "all"
+                  ? POST_TYPE_PLURAL[type]
+                  : "Results"}
+            </h2>
+            {/* The key is the FILTER signature, not the query: changing type,
+                topic or sort replays the settle; typing narrows the same grid
+                in place without a flash. */}
+            <div
+              key={`${type}|${topic}|${sort}`}
+              className={`${journal.indexGrid} ${journal.gridEnter}`}
+            >
+              {rest.map((article) => (
+                <StoryCard
+                  key={article.slug}
+                  article={article}
+                  variant="tall"
+                  commentCount={commentCounts[article.slug]}
+                  views={stats[article.slug]?.views}
+                  likes={stats[article.slug]?.likes}
+                  mostViewed={mostViewedSlug === article.slug}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {matches.length === 0 && (
+          <div className={styles.empty}>
+            <p className={styles.emptyTitle}>
+              No stories match this signal yet.
+            </p>
+            <p className={styles.emptyBody}>
+              Try a different type or topic, or clear the filters to see all{" "}
+              {insightArticles.length}.
+            </p>
+            <button type="button" onClick={reset} className="btn-ghost mt-6">
+              Clear filters
+            </button>
+          </div>
+        )}
+
+        {/* ── The series, which is a real one: five essays in order ── */}
+        {!dirty && (
+          <div className={styles.series}>
+            <div className={styles.seriesHead}>
+              <p className={styles.seriesKicker}>Reading path</p>
+              <h2 className={styles.seriesTitle}>
+                GaitAI Foundations — {spell(insightArticles.length)} stories, in order
+              </h2>
+              <p className={styles.seriesDeck}>
+                Each one builds on the last, from a walking video to an audited
+                multimodal claim.
+              </p>
+            </div>
+            <ol className={styles.seriesList}>
+              {[...insightArticles]
+                .sort((a, b) => a.seriesStep - b.seriesStep)
+                .map((article) => (
+                  <li key={article.slug} className={styles.seriesItem}>
+                    <Link
+                      href={insightHref(article.slug)}
+                      className={styles.seriesLink}
+                    >
+                      <span className={styles.seriesStep}>
+                        {String(article.seriesStep).padStart(2, "0")}
+                      </span>
+                      <span className="min-w-0">
+                        <span className={styles.seriesName}>
+                          {article.seriesTitle}
+                        </span>
+                        {/* Was "{category} · {n} min read". Both are gone
+                            from every reader-facing surface; the date is the
+                            metadata a journal row actually needs. */}
+                        <span className={styles.seriesMeta}>
+                          {formatInsightDate(article.date)}
+                        </span>
+                      </span>
+                      <span aria-hidden="true" className={styles.seriesArrow}>
+                        →
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+            </ol>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

@@ -1,0 +1,406 @@
+rules_version = '2';
+
+// =============================================================================
+// GaitAI Insights — Moderated Comment System security rules
+// -----------------------------------------------------------------------------
+// Paste this whole file into:  Firebase Console → Firestore Database → Rules.
+// These rules are the REAL enforcement layer. The UI (public widget + admin
+// page) is only a convenience — every permission below is checked here.
+//
+// Permission matrix:
+//   postComments        → anyone may READ (approved comments only live here);
+//                         only the admin may write.
+//   pendingComments     → anyone may CREATE a pending comment (validated);
+//                         only the admin may read / update / delete.
+//   pendingCommentQueue → flat moderation mirror; same as pendingComments.
+//   reportedComments    → anyone may CREATE a report (validated);
+//                         only the admin may read / update / delete.
+//   articleStats        → anyone may READ, and may raise ONE counter by ONE
+//                         step per write (views +1, or likes +/-1, never both);
+//                         only the admin may delete.
+//   assistantStats      → Ask GaitAI usage, keyed by PAGE TYPE. Four integers,
+//                         one +1 per write, no text and no identifier the
+//                         schema could hold. ADMIN-ONLY read.
+//   (Ask GaitAI's hosted inference runs in a Cloudflare Worker, not Firebase;
+//    nothing about it is stored here.)
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---- Admin allowlist (mirrors src/lib/comments/config.ts) --------------
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && request.auth.token.email in [
+             'anubhaparashar1025@gmail.com',
+             'gait.ai.founder@gmail.com'
+           ];
+    }
+
+    // ---- (Optional) subscriber gate placeholder ---------------------------
+    // The site has no subscription backend yet, so subscriber-only gating is
+    // enforced in the UI. When a real model exists (custom claims or a
+    // `subscribers/{uid}` doc), implement this and add it to the read rule on
+    // postComments for subscriber-only threads.
+    //   function isSubscriber() {
+    //     return request.auth != null && request.auth.token.subscriber == true;
+    //   }
+
+    // ---- Validation for an incoming public comment ------------------------
+    // Comments publish immediately (no approval queue). A visitor may only
+    // create a VISIBLE comment — `hidden` must start false, and only an admin
+    // can flip it afterwards.
+    function commentFieldsValid(d) {
+      return d.keys().hasOnly([
+               'commentId','postId','contentId','contentType','userName',
+               'email','message','createdAt','hidden','parentCommentId','userId'
+             ])
+        && d.hidden == false
+        && d.commentId is string
+        && d.postId is string && d.postId.size() > 0 && d.postId.size() <= 200
+        && d.contentId is string
+        && d.contentType in ['research','announcement','documentation','approval','blog','demo']
+        && d.userName is string && d.userName.size() >= 2 && d.userName.size() <= 80
+        // Public reads return the whole document. Contact and authentication
+        // identifiers must never be written into a new public comment.
+        && d.email == null
+        && d.message is string && d.message.size() >= 2 && d.message.size() <= 2000
+        && d.createdAt is timestamp
+        && (d.parentCommentId == null || d.parentCommentId is string)
+        && d.userId == null;
+    }
+
+    function reportFieldsValid(d) {
+      return d.keys().hasOnly(['reportId','postId','commentId','reason','reportedBy','createdAt','resolved'])
+        && d.reportId is string
+        && d.postId is string && d.postId.size() <= 200
+        && d.commentId is string
+        && d.reason is string && d.reason.size() <= 500
+        && (d.reportedBy == null || d.reportedBy is string)
+        && d.createdAt is timestamp
+        && d.resolved == false;
+    }
+
+    // ---- COMMENTS (single flat collection) --------------------------------
+    // Comments go live the moment they're posted. Visitors read only the ones
+    // that aren't hidden — enforced here, so a hidden comment can't be pulled
+    // out of the database by hand. Admins read everything, and are the only
+    // ones who can hide (update) or delete.
+    match /comments/{commentId} {
+      allow read: if resource.data.hidden == false || isAdmin();
+      allow create: if commentFieldsValid(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- ARTICLE ENGAGEMENT COUNTERS ---------------------------------------
+    // articleStats/{slug} → { views, likes, updatedAt }
+    //
+    // A static site has no server, so the reader's browser writes these. That
+    // is only safe if the rules make an abusive write impossible to express,
+    // which is what the two functions below do: ONE write may move views by
+    // +1, or likes by +1/-1, and never both in the same write. No other field
+    // may appear, the counters must stay non-negative integers, and nothing
+    // can be set to an arbitrary value — a client cannot write views = 999999,
+    // it can only ask for "one more" and be told yes.
+    //
+    // Anyone may read: the counts are shown publicly on the journal.
+    // Only the admin may delete, so a slug's history cannot be wiped.
+    function statsShapeValid() {
+      return request.resource.data.keys().hasOnly(['views', 'likes', 'updatedAt'])
+        && request.resource.data.views is int
+        && request.resource.data.likes is int
+        && request.resource.data.views >= 0
+        && request.resource.data.likes >= 0;
+    }
+
+    // Exactly one counter may take one step. Deltas are computed against the
+    // stored document, so the client's arithmetic is never trusted.
+    function statsStepValid() {
+      return (request.resource.data.views - resource.data.views) >= 0
+        && (request.resource.data.views - resource.data.views) <= 1
+        && (request.resource.data.likes - resource.data.likes) >= -1
+        && (request.resource.data.likes - resource.data.likes) <= 1
+        && (
+             (request.resource.data.views - resource.data.views) == 0
+             || (request.resource.data.likes - resource.data.likes) == 0
+           );
+    }
+
+    match /articleStats/{slug} {
+      allow read: if true;
+
+      // First write for a slug: one counter starts at 1, the other at 0.
+      allow create: if statsShapeValid()
+        && request.resource.data.views <= 1
+        && request.resource.data.likes <= 1
+        && (request.resource.data.views + request.resource.data.likes) <= 1;
+
+      allow update: if statsShapeValid() && statsStepValid();
+      allow delete: if isAdmin();
+    }
+
+    // ---- Ask GaitAI usage counters ----------------------------------------
+    // assistantStats/{pageType} → { opens, questions, prompts, links, updatedAt }
+    //
+    // Four integers describing WHERE the assistant is used and HOW — never
+    // WHAT was asked. There is no message field, no thread field and no
+    // identifier, and the shape check below is what makes that structural
+    // rather than a promise: a write carrying anything else is refused.
+    //
+    // The document id is the page type, from a closed list that mirrors
+    // PageType in components/assistant/page-context.ts. Constraining it here
+    // means a client cannot invent documents — no per-visitor bucket, no URL
+    // as a key, nothing that could carry an identifier in its name.
+    //
+    // Reads are ADMIN ONLY. Unlike the journal's view count, which is printed
+    // on the article, these numbers are internal; the brief asks that
+    // assistant usage not be exposed publicly.
+    function assistantPageType(id) {
+      return id in [
+        'home', 'product', 'family', 'products',
+        'use-case', 'use-cases', 'publication', 'publications',
+        'insight', 'insights', 'research', 'gaitscape',
+        'movement-lab', 'trust', 'legal', 'other'
+      ];
+    }
+
+    function assistantShapeValid() {
+      return request.resource.data.keys().hasOnly(
+               ['opens', 'questions', 'prompts', 'links', 'updatedAt'])
+        && request.resource.data.opens is int
+        && request.resource.data.questions is int
+        && request.resource.data.prompts is int
+        && request.resource.data.links is int
+        && request.resource.data.opens >= 0
+        && request.resource.data.questions >= 0
+        && request.resource.data.prompts >= 0
+        && request.resource.data.links >= 0;
+    }
+
+    // Exactly one counter may take exactly one step forward, computed against
+    // the stored document so the client's arithmetic is never trusted. None
+    // may ever go down: these are usage counts, not a score to be corrected.
+    function assistantStepValid() {
+      return (request.resource.data.opens - resource.data.opens)
+             + (request.resource.data.questions - resource.data.questions)
+             + (request.resource.data.prompts - resource.data.prompts)
+             + (request.resource.data.links - resource.data.links) == 1
+        && (request.resource.data.opens - resource.data.opens) >= 0
+        && (request.resource.data.questions - resource.data.questions) >= 0
+        && (request.resource.data.prompts - resource.data.prompts) >= 0
+        && (request.resource.data.links - resource.data.links) >= 0;
+    }
+
+    match /assistantStats/{pageType} {
+      allow read: if isAdmin();
+
+      // First write for a page type: one counter starts at 1, the rest at 0.
+      allow create: if assistantPageType(pageType)
+        && assistantShapeValid()
+        && (request.resource.data.opens
+            + request.resource.data.questions
+            + request.resource.data.prompts
+            + request.resource.data.links) == 1;
+
+      allow update: if assistantPageType(pageType)
+        && assistantShapeValid()
+        && assistantStepValid();
+
+      allow delete: if isAdmin();
+    }
+
+    // ---- Insights editorial analytics --------------------------------------
+    // insightEventCounts/{day}__{article}__{eventKey}
+    //   → { count, day, article, event, updatedAt }
+    //
+    // One document per DAY × ARTICLE × EVENT KEY, holding a running count.
+    // Never a row per reader, never a session: the most this collection can
+    // say is "on this day, this many readers did this on this story". The
+    // document id is the aggregate key, constrained to a date, a slug and a
+    // short lower-case event key, so a client cannot invent a per-visitor
+    // bucket or smuggle text into a name. Field values must equal the parts
+    // of the id, so nothing can be written under one key and labelled as
+    // another. Writes are bounded steps: a create starts at 1–25 (the client
+    // batches ~1.5 s of events), an update raises count by 1–25 and changes
+    // nothing else. Reads are ADMIN ONLY — the Insights Analytics view in the
+    // control panel — and there is no delete except by the admin.
+    //
+    // Mirrors src/lib/insight-analytics-sink.ts. The event vocabulary is the
+    // typed schema in src/lib/insight-events.ts.
+    function insightCountIdValid(id) {
+      return id.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}__[a-z0-9_-]{1,80}__[a-z0-9_:.-]{1,120}$');
+    }
+
+    function insightCountShapeValid(id) {
+      let parts = id.split('__');
+      return request.resource.data.keys().hasOnly(['count', 'day', 'article', 'event', 'updatedAt'])
+        && request.resource.data.count is int
+        && request.resource.data.day is string
+        && request.resource.data.article is string
+        && request.resource.data.event is string
+        && request.resource.data.day == parts[0]
+        && request.resource.data.article == parts[1]
+        && request.resource.data.event == parts[2]
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /insightEventCounts/{countId} {
+      allow read: if isAdmin();
+
+      allow create: if insightCountIdValid(countId)
+        && insightCountShapeValid(countId)
+        && request.resource.data.count >= 1
+        && request.resource.data.count <= 25;
+
+      allow update: if insightCountIdValid(countId)
+        && insightCountShapeValid(countId)
+        && (request.resource.data.count - resource.data.count) >= 1
+        && (request.resource.data.count - resource.data.count) <= 25
+        && request.resource.data.day == resource.data.day
+        && request.resource.data.article == resource.data.article
+        && request.resource.data.event == resource.data.event;
+
+      allow delete: if isAdmin();
+    }
+
+    // ---- Reported comments -------------------------------------------------
+    match /reportedComments/{reportId} {
+      allow read: if isAdmin();
+      allow create: if reportFieldsValid(request.resource.data);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---- Validation for a POST / BLOG document -----------------------------
+    // Mirrors the Post type in src/lib/posts.ts. Optional fields are allowed to
+    // be absent OR null; required fields must be present and well-typed.
+    function postFieldsValid(d) {
+      return d.keys().hasOnly([
+               'id','slug','title','category','summary','body','tags',
+               'publishedAt','author','featured','subscriberOnly',
+               'type','topics','relatedProducts','relatedResearch','series','seriesOrder',
+               'publicationStatus',
+               'coverImageUrl','coverImagePath','coverImageAlt','coverImageName',
+               'coverImageSize','coverImageWidth','coverImageHeight','attachments',
+               'externalUrl','attachmentUrl','attachmentName',
+               'createdAt','updatedAt'
+             ])
+        && d.id is string && d.id.size() > 0 && d.id.size() <= 200
+        && d.slug is string && d.slug.size() > 0 && d.slug.size() <= 200
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 300
+        && d.category in ['research','announcement','documentation','approval','blog','demo']
+        && d.summary is string && d.summary.size() <= 1000
+        && d.body is string
+        && d.tags is list
+        && d.publishedAt is string
+        && d.author is string && d.author.size() <= 200
+        && d.publicationStatus in ['draft','verified']
+        && (!('featured' in d.keys()) || d.featured is bool)
+        && (!('type' in d.keys()) || d.type is string)
+        && (!('topics' in d.keys()) || (d.topics is list && d.topics.size() <= 20))
+        && (!('relatedProducts' in d.keys()) || (d.relatedProducts is list && d.relatedProducts.size() <= 20))
+        && (!('relatedResearch' in d.keys()) || (d.relatedResearch is list && d.relatedResearch.size() <= 20))
+        && (!('series' in d.keys()) || d.series == null || d.series is string)
+        && (!('seriesOrder' in d.keys()) || d.seriesOrder == null || d.seriesOrder is number)
+        && (!('subscriberOnly' in d.keys()) || d.subscriberOnly == null || d.subscriberOnly is bool)
+        && (!('externalUrl' in d.keys()) || d.externalUrl == null || d.externalUrl is string)
+        && (!('attachmentUrl' in d.keys()) || d.attachmentUrl == null || d.attachmentUrl is string)
+        && (!('attachmentName' in d.keys()) || d.attachmentName == null || d.attachmentName is string)
+        && (!('coverImageUrl' in d.keys()) || d.coverImageUrl == null || d.coverImageUrl is string)
+        && (!('coverImagePath' in d.keys()) || d.coverImagePath == null || d.coverImagePath is string)
+        && (!('coverImageAlt' in d.keys()) || d.coverImageAlt == null || (d.coverImageAlt is string && d.coverImageAlt.size() <= 300))
+        && (!('coverImageName' in d.keys()) || d.coverImageName == null || d.coverImageName is string)
+        && (!('coverImageSize' in d.keys()) || d.coverImageSize == null || (d.coverImageSize is int && d.coverImageSize > 0 && d.coverImageSize <= 10 * 1024 * 1024))
+        && (!('coverImageWidth' in d.keys()) || d.coverImageWidth == null || (d.coverImageWidth is int && d.coverImageWidth > 0))
+        && (!('coverImageHeight' in d.keys()) || d.coverImageHeight == null || (d.coverImageHeight is int && d.coverImageHeight > 0))
+        && (!('attachments' in d.keys()) || (d.attachments is list && d.attachments.size() <= 30));
+    }
+
+    // ---- POSTS / BLOGS (public site content) ------------------------------
+    // Anyone may READ published posts (the public /publications + /insights
+    // pages fetch these live). Only the admin allowlist may create/edit/delete
+    // from the control panel.
+    match /posts/{postId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && postFieldsValid(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // ---- BLOG SUBSCRIBERS -------------------------------------------------
+    // subscribers/{sha256(lowercased email)} → { email, emailHash, status,
+    //                                            source, createdAt, updatedAt }
+    //
+    // The site is a static export with no server, so the browser writes here
+    // directly and this block is the entire enforcement layer.
+    //
+    // WHY get IS OPEN AND list IS NOT. A mailing list must do two things a
+    // random document id cannot: refuse the same address twice, and let
+    // someone leave. Addressing each row by the hash of the address gives
+    // both without ever exposing the list — `get` answers "is THIS address
+    // subscribed" only to someone who already knows the address, while `list`
+    // stays closed so the collection can never be enumerated or exported by a
+    // visitor. That is the trade a serverless list makes, and it is made here
+    // deliberately: the alternative, inferring a duplicate from a denied
+    // write, cannot tell a duplicate from an unpublished rule — which is
+    // exactly how articleStats sat broken in production.
+    //
+    // WHAT A VISITOR MAY DO. Create their own row, flip it to unsubscribed,
+    // or flip it back. Nothing else: the field list is closed, the id must
+    // match the emailHash in the payload, and no write may touch `email`,
+    // `source` or `createdAt` after the row exists — so a passer-by cannot
+    // rewrite somebody else's address into their row.
+    function subscriberShapeValid(d) {
+      return d.keys().hasOnly([
+               'email','emailHash','status','source','createdAt','updatedAt'
+             ])
+        && d.keys().hasAll(['email','emailHash','status','createdAt','updatedAt'])
+        && d.email is string && d.email.size() >= 6 && d.email.size() <= 254
+        && d.email == d.email.lower()
+        // No backslash class here on purpose: a rules string literal
+        // escapes before the regex engine sees it, and an escaping
+        // mistake in THIS line would fail the publish for the whole
+        // file. Whitespace is already excluded by the client and by
+        // `email == email.lower()` plus the size bounds above.
+        && d.email.matches('^[^@]+@[^@]+[.][^@]+$')
+        && d.emailHash is string && d.emailHash.size() == 64
+        && d.status in ['active','unsubscribed']
+        && (!('source' in d.keys())
+            || d.source in ['blog','article','footer','unsubscribe-page'])
+        && d.createdAt is timestamp
+        && d.updatedAt is timestamp;
+    }
+
+    // Only the status may move, and only between the two known values. Every
+    // other field must be byte-identical to what is stored.
+    function subscriberStatusChangeOnly() {
+      return request.resource.data.diff(resource.data)
+               .affectedKeys().hasOnly(['status','updatedAt'])
+        && request.resource.data.status in ['active','unsubscribed']
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    match /subscribers/{emailHash} {
+      allow get: if true;
+      allow list: if isAdmin();
+
+      allow create: if subscriberShapeValid(request.resource.data)
+        && request.resource.data.emailHash == emailHash
+        && request.resource.data.status == 'active';
+
+      allow update: if isAdmin() || subscriberStatusChangeOnly();
+      allow delete: if isAdmin();
+    }
+
+    // ---- ASK GAITAI ------------------------------------------------------
+    // Firebase is NOT used for Ask GaitAI's hosted inference. Retrieval runs in
+    // the browser; the model call, its rate limiting and its budget live in a
+    // Cloudflare Worker (worker/) with its own storage. Nothing Ask-related is
+    // written to Firestore except `assistantStats` above, which is unrelated to
+    // inference and stays: four integers of usage, keyed by page type, with no
+    // text and no identifier.
+
+    // ---- Everything else: deny --------------------------------------------
+    // (No catch-all allow. Existing collections used by the rest of the site
+    // are unaffected — add their own rules elsewhere if/when needed.)
+  }
+}

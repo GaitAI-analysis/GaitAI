@@ -1,0 +1,255 @@
+import type { Config } from "tailwindcss";
+
+// Accent-driven dynamic classes used across ProductCard / ProductGrid / UseCases
+// — Tailwind's JIT scanner sees these literal strings here so the variants
+// always make it into the production bundle even when looked up via objects.
+const ACCENT_SAFELIST = [
+  "teal",
+  "cyan",
+  "violet",
+  "amber",
+  "emerald",
+  "rose",
+].flatMap((c) => [
+  `text-${c}-200`,
+  `text-${c}-300`,
+  `ring-${c}-300/20`,
+  `ring-${c}-300/30`,
+  `border-${c}-300/30`,
+  `border-${c}-300/40`,
+  `bg-${c}-300/8`,
+  `bg-${c}-300/10`,
+  `bg-${c}-400/10`,
+  `bg-${c}-400/15`,
+  `bg-${c}-400/20`,
+  `from-${c}-400/15`,
+  `from-${c}-400/20`,
+  `to-${c}-300/10`,
+  `hover:border-${c}-300/40`,
+  `hover:bg-${c}-300/10`,
+  `hover:text-${c}-200`,
+  `hover:text-${c}-300`,
+]);
+
+const config: Config = {
+  darkMode: "class",
+  content: [
+    "./src/app/**/*.{ts,tsx}",
+    "./src/components/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
+  safelist: ACCENT_SAFELIST,
+  theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "1.25rem",
+        sm: "2rem",
+        lg: "3rem",
+        xl: "4rem",
+      },
+      screens: {
+        "2xl": "1320px",
+      },
+    },
+    extend: {
+      screens: {
+        /* WHERE THE DESKTOP NAVBAR FITS.
+           The header row is logo + Home + four dropdowns + Search + Atlas +
+           theme + Request demo, and measured with its real font and no
+           wrapping it needs 934px; `container-wide` takes 96px of padding
+           either side of it, so the least viewport that holds the whole row on
+           one line is 1030. `lg` (1024) is six pixels short and wraps
+           "Research & IP" and "Request demo" onto second lines, and `xl`
+           (1280) — what the navbar used before — sent every laptop between
+           1024 and 1279 to the hamburger even though the row fits there
+           comfortably. 1040 is the measurement plus a small margin. */
+        navbar: "1040px",
+      },
+      colors: {
+        obsidian: {
+          DEFAULT: "rgb(var(--c-obsidian) / <alpha-value>)",
+          50: "rgb(var(--c-obsidian-50) / <alpha-value>)",
+          100: "rgb(var(--c-obsidian-100) / <alpha-value>)",
+          200: "rgb(var(--c-obsidian-200) / <alpha-value>)",
+          300: "rgb(var(--c-obsidian-300) / <alpha-value>)",
+          400: "rgb(var(--c-obsidian-400) / <alpha-value>)",
+          500: "rgb(var(--c-obsidian-500) / <alpha-value>)",
+        },
+        gunmetal: {
+          DEFAULT: "rgb(var(--c-gunmetal) / <alpha-value>)",
+          light: "rgb(var(--c-gunmetal-light) / <alpha-value>)",
+          dark: "rgb(var(--c-gunmetal-dark) / <alpha-value>)",
+        },
+        royal: {
+          DEFAULT: "#2563FF",
+          50: "#E8EFFF",
+          100: "#C5D5FF",
+          200: "#8FAFFF",
+          300: "#5587FF",
+          400: "#2563FF",
+          500: "#1B4ED9",
+          600: "#1438A8",
+          700: "#0E2879",
+        },
+        violet: {
+          DEFAULT: "#7C3AED",
+          50: "#F1E8FE",
+          100: "#DEC8FB",
+          200: "#BD96F6",
+          300: "#9C64F1",
+          400: "#7C3AED",
+          500: "#5F25BF",
+          600: "#481B92",
+          700: "#311265",
+        },
+        cyan: {
+          DEFAULT: "#4FD1FF",
+          50: "#E8F8FF",
+          100: "#C5ECFF",
+          200: "#92DEFF",
+          300: "#4FD1FF",
+          400: "#1EB8EF",
+          500: "#108FC0",
+          600: "#0A6890",
+        },
+        soft: {
+          white: "rgb(var(--c-soft-white) / <alpha-value>)",
+          gray: "rgb(var(--c-soft-gray) / <alpha-value>)",
+          mute: "rgb(var(--c-soft-mute) / <alpha-value>)",
+        },
+        ink: {
+          DEFAULT: "rgb(var(--c-ink) / <alpha-value>)",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        display: ["var(--font-space-grotesk)", "Space Grotesk", "system-ui", "sans-serif"],
+        mono: ["var(--font-jetbrains)", "JetBrains Mono", "monospace"],
+      },
+      fontSize: {
+        "display-2xl": ["clamp(3rem, 7vw, 6.25rem)", { lineHeight: "1.02", letterSpacing: "-0.04em", fontWeight: "600" }],
+        "display-xl": ["clamp(2.5rem, 5.5vw, 4.5rem)", { lineHeight: "1.05", letterSpacing: "-0.035em", fontWeight: "600" }],
+        "display-lg": ["clamp(2rem, 4vw, 3.25rem)", { lineHeight: "1.08", letterSpacing: "-0.03em", fontWeight: "600" }],
+        "display-md": ["clamp(1.5rem, 2.5vw, 2.25rem)", { lineHeight: "1.15", letterSpacing: "-0.02em", fontWeight: "600" }],
+      },
+      backgroundImage: {
+        "grid-pattern":
+          "linear-gradient(to right, rgba(148, 163, 184, 0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(148, 163, 184, 0.06) 1px, transparent 1px)",
+        "radial-glow":
+          "radial-gradient(circle at center, rgba(37, 99, 255, 0.25), transparent 60%)",
+        "radial-violet":
+          "radial-gradient(circle at center, rgba(124, 58, 237, 0.25), transparent 60%)",
+        "radial-cyan":
+          "radial-gradient(circle at center, rgba(79, 209, 255, 0.2), transparent 60%)",
+        "gradient-brand":
+          "linear-gradient(135deg, #2563FF 0%, #7C3AED 60%, #4FD1FF 100%)",
+        "gradient-secure":
+          "linear-gradient(135deg, #0E2879 0%, #2563FF 50%, #4FD1FF 100%)",
+        "gradient-care":
+          "linear-gradient(135deg, #311265 0%, #7C3AED 50%, #4FD1FF 100%)",
+        "gradient-mesh":
+          "radial-gradient(at 20% 20%, rgba(37,99,255,0.25) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(124,58,237,0.22) 0px, transparent 50%), radial-gradient(at 60% 80%, rgba(79,209,255,0.18) 0px, transparent 50%)",
+      },
+      backgroundSize: {
+        "grid-lg": "60px 60px",
+        "grid-md": "40px 40px",
+      },
+      boxShadow: {
+        glow: "0 0 40px rgba(37,99,255,0.35), 0 0 80px rgba(37,99,255,0.18)",
+        "glow-violet": "0 0 40px rgba(124,58,237,0.35), 0 0 80px rgba(124,58,237,0.18)",
+        "glow-cyan": "0 0 40px rgba(79,209,255,0.35), 0 0 80px rgba(79,209,255,0.18)",
+        inset: "inset 0 1px 0 0 rgba(255,255,255,0.05)",
+        card: "0 1px 0 0 rgba(255,255,255,0.04) inset, 0 30px 60px -20px rgba(0,0,0,0.5)",
+      },
+      animation: {
+        "fade-in": "fadeIn 0.6s ease-out both",
+        "fade-up": "fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both",
+        float: "float 6s ease-in-out infinite",
+        "float-slow": "float 9s ease-in-out infinite",
+        shimmer: "shimmer 3s linear infinite",
+        "spin-slow": "spin 20s linear infinite",
+        "pulse-glow": "pulseGlow 3s ease-in-out infinite",
+        marquee: "marquee 30s linear infinite",
+        "scan-line": "scanLine 4s ease-in-out infinite",
+      },
+      keyframes: {
+        fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },
+        fadeUp: {
+          from: { opacity: "0", transform: "translateY(24px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        float: {
+          "0%,100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
+        shimmer: {
+          from: { backgroundPosition: "0% 50%" },
+          to: { backgroundPosition: "200% 50%" },
+        },
+        pulseGlow: {
+          "0%,100%": { opacity: "0.6", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.05)" },
+        },
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-25%)" },
+        },
+        scanLine: {
+          "0%": { transform: "translateY(-100%)", opacity: "0" },
+          "50%": { opacity: "1" },
+          "100%": { transform: "translateY(100%)", opacity: "0" },
+        },
+      },
+      /**
+       * The motion system, reachable from Tailwind.
+       *
+       * These are the four bands defined and documented in `globals.css`
+       * ("THE MOTION SYSTEM"), surfaced as utilities so a component written
+       * in Tailwind can say `duration-ui` instead of picking a number.
+       * Every value is `var(--motion-*)`, not a literal, for one reason
+       * that matters: the `prefers-reduced-motion` block collapses those
+       * variables, so `duration-editorial` honours the preference on its
+       * own and no component has to remember to.
+       */
+      transitionDuration: {
+        fast: "var(--motion-fast)",
+        ui: "var(--motion-ui)",
+        editorial: "var(--motion-editorial)",
+        signal: "var(--motion-signal)",
+      },
+      transitionTimingFunction: {
+        smooth: "cubic-bezier(0.16, 1, 0.3, 1)",
+        /* `smooth` above is this same curve, kept because ~40 components
+           already name it. New work should use these two. */
+        out: "var(--ease-out)",
+        inout: "var(--ease-inout)",
+      },
+    },
+  },
+  plugins: [
+    /**
+     * `touch:` — a media variant for coarse pointers.
+     *
+     * Touch targets are part of the interaction system, and the parts of it
+     * that live in CSS modules can say `@media (pointer: coarse)` directly.
+     * The parts written in Tailwind could not, which is why several controls
+     * on the site were sized for a cursor and never for a thumb. Now:
+     *
+     *   className="h-8 touch:h-11"
+     *
+     * Deliberately `pointer: coarse` and not a width breakpoint: a small
+     * window on a desktop still has a mouse, and a large tablet still has a
+     * finger — the input device is the thing that decides target size.
+     */
+    ({
+      addVariant,
+    }: {
+      addVariant: (name: string, definition: string) => void;
+    }) => {
+      addVariant("touch", "@media (pointer: coarse)");
+    },
+  ],
+};
+
+export default config;

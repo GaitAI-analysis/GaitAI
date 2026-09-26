@@ -1,0 +1,1262 @@
+/* =========================================================================
+   THE MOBILE LAYER — phones (360–767) and tablets (768–1023)
+   -------------------------------------------------------------------------
+   Loaded last (after light-theme.css) and unlayered, so it settles ties with
+   the Tailwind utilities and the theme files it refines. Every rule here is
+   behind a max-width query: nothing in this file reaches a laptop.
+
+   The palette is the site's own — deep navy, off-white, cool grey and one
+   restrained warm gold. One motion curve, one radius family, 44px targets.
+   ========================================================================= */
+
+:root {
+  --m-gold: #c9a55d;
+  --m-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --m-gutter: 1.25rem;
+}
+
+:root.light {
+  --m-gold: #a9803f;
+}
+
+/* =========================================================================
+   THE MOBILE HEADER (phones and tablets, below 1024px)
+   One compact bar: logo, Request demo, menu. At the top of the page it is
+   bare; once the page scrolls it becomes a full-width frosted bar with a
+   hairline under it — never the floating desktop pill, whose rounded ends
+   let the page show above and beside it on a narrow screen.
+   ========================================================================= */
+@media (max-width: 1023.98px) {
+  /* 56px: a 42px menu button with 7px above and below. It was 64px, which
+     with the location trail under it took a fifth of a 360x640 screen
+     before any content. Every anchor offset reads this one variable
+     (`--header-clearance`, ScrollClearance), so headings land under the
+     bar and never behind it. */
+  :root {
+    --site-header-height: 3.5rem;
+  }
+
+  .site-header {
+    display: flex;
+    align-items: center;
+    padding-block: 0.4375rem;
+    transition:
+      background-color 300ms ease,
+      box-shadow 300ms ease,
+      backdrop-filter 300ms ease;
+  }
+
+  /* The wordmark at 98 x 34 (the desktop's 112 x 39 in a smaller bar). The
+     Logo sizes its box inline, hence the override. */
+  .site-header__logo {
+    padding-left: 0.125rem;
+  }
+
+  .site-header__logo > div {
+    width: 6.125rem !important;
+    height: 2.125rem !important;
+  }
+
+  .site-header__menu {
+    width: 2.625rem;
+    height: 2.625rem;
+  }
+
+  .site-header > .container-wide {
+    padding-inline: var(--m-gutter);
+  }
+
+  :root .site-header .site-header__bar,
+  :root.light .site-header .site-header__bar.glass {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    /* `!important` because the light theme's `.glass` shadow is declared
+       that way (light-theme.css, "NAVIGATION AS AN OBJECT"); without it
+       the desktop pill's shadow drew a floating slab across a phone. */
+    box-shadow: none !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .site-header.is-scrolled {
+    background: rgb(7 11 20 / 0.82);
+    box-shadow: 0 1px 0 rgb(148 163 184 / 0.14);
+    backdrop-filter: blur(16px) saturate(1.15);
+    -webkit-backdrop-filter: blur(16px) saturate(1.15);
+  }
+
+  :root.light .site-header.is-scrolled {
+    background: rgb(247 249 252 / 0.86);
+    box-shadow: 0 1px 0 rgb(15 28 58 / 0.08);
+  }
+
+  /* Request demo: present, compact, never the loudest thing in the bar. */
+  .site-header .site-header__demo {
+    min-height: 2.25rem;
+    padding: 0 0.8rem;
+    font-size: 12.5px;
+  }
+
+  /* The journal's fading band under the floating pill is the pill's; the
+     bar carries its own ground once scrolled. */
+  body:has(.insights-hub, .insights-page) .site-header.is-scrolled::before {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   THE MENU SHEET (Navbar, below 1040px)
+   ========================================================================= */
+.mnav__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(3 7 18 / 0.42);
+}
+
+.mnav__panel {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background: var(--page-bg);
+  color: var(--text-primary);
+}
+
+@media (min-width: 640px) {
+  .mnav__panel {
+    max-width: 26rem;
+    border-left: 1px solid var(--border-subtle);
+    box-shadow: -30px 0 60px -30px rgb(0 0 0 / 0.45);
+  }
+}
+
+.mnav__top {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--site-header-height);
+  padding: 0 var(--m-gutter);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.mnav__close {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-primary);
+  background: var(--surface-secondary);
+  transition: transform 200ms var(--m-ease);
+}
+
+.mnav__close:active {
+  transform: scale(0.95);
+}
+
+.mnav__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem var(--m-gutter) 1.5rem;
+}
+
+.mnav__search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.875rem;
+  background: var(--surface-secondary);
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  text-align: left;
+}
+
+.mnav__list {
+  margin-top: 0.5rem;
+}
+
+.mnav__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  font-weight: 550;
+  letter-spacing: -0.012em;
+  text-align: left;
+}
+
+.mnav__list > a.mnav__row,
+.mnav__group {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Where you are: a small gold mark after the family's name. */
+.mnav__row[data-active]::after {
+  content: "";
+  width: 0.375rem;
+  height: 0.375rem;
+  margin-right: auto;
+  margin-left: -0.5rem;
+  border-radius: 999px;
+  background: var(--m-gold);
+}
+
+.mnav__chevron {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--text-muted);
+  transition: transform 360ms var(--m-ease);
+}
+
+.mnav__group[data-open] .mnav__chevron {
+  transform: rotate(180deg);
+}
+
+.mnav__sub {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 360ms var(--m-ease);
+}
+
+.mnav__group[data-open] .mnav__sub {
+  grid-template-rows: 1fr;
+}
+
+.mnav__subInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mnav__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.25rem;
+  margin: 0 -0.75rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.75rem;
+  transition: background-color 200ms ease;
+}
+
+.mnav__item:last-child {
+  margin-bottom: 0.75rem;
+}
+
+.mnav__item:active {
+  background: var(--surface-secondary);
+}
+
+.mnav__itemLabel {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.mnav__itemSub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+}
+
+.mnav__item[data-active] {
+  background: var(--surface-secondary);
+  box-shadow: inset 2px 0 0 var(--m-gold);
+}
+
+.mnav__itemArrow {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--text-muted);
+}
+
+.mnav__atlas {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.875rem;
+  background: none;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.mnav__atlas svg {
+  margin-top: 0.2rem;
+}
+
+.mnav__ask + .mnav__atlas {
+  margin-top: 0.625rem;
+}
+
+.mnav__askMark {
+  flex: none;
+  width: 1rem;
+  margin-top: 0.1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  color: #4fd1ff;
+}
+
+:root.light .mnav__askMark {
+  color: #0e7490;
+}
+
+.mnav__foot {
+  display: grid;
+  flex: none;
+  gap: 0.75rem;
+  padding: 0.875rem var(--m-gutter) calc(0.875rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border-subtle);
+  background: var(--page-bg);
+}
+
+.mnav__theme {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-secondary);
+}
+
+.mnav__theme button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  transition:
+    background-color 250ms ease,
+    color 250ms ease;
+}
+
+.mnav__theme button[data-on] {
+  background: var(--surface-elevated);
+  color: var(--text-primary);
+  box-shadow:
+    0 0 0 1px var(--border-subtle),
+    0 4px 12px -6px rgb(0 0 0 / 0.35);
+}
+
+.mnav__demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 3.25rem;
+  border-radius: 999px;
+  background: #f3f6fb;
+  color: #0b1426;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: transform 200ms var(--m-ease);
+}
+
+:root.light .mnav__demo {
+  background: #0f1c3a;
+  color: #fff;
+}
+
+.mnav__demo:active {
+  transform: scale(0.985);
+}
+
+.mnav button:focus-visible,
+.mnav a:focus-visible {
+  outline: 2px solid var(--m-gold);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mnav__sub,
+  .mnav__chevron {
+    transition: none;
+  }
+}
+
+/* =========================================================================
+   PRODUCT HEROES (SecureVision, MobilityCare) — below 1024px
+   The stills are posters: a painted wordmark and title in their left third
+   and a strip of product circles along their foot. Laid behind the copy on
+   a phone, both showed through — the circles sat under the buttons. So on
+   a phone the hero is two calm blocks: the copy on the page's own ground,
+   then the scene itself, framed, cut from the still between its painted
+   title and its strip. The film (dark, second slide) plays in the same
+   frame. Nothing about the artwork changes; only the window onto it.
+   ========================================================================= */
+@media (max-width: 1023px) {
+  .securevision-hero,
+  .mobilitycare-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    padding: 0 0 clamp(2.5rem, 9vw, 3.5rem);
+    background: transparent;
+  }
+
+  .securevision-hero-inner,
+  .mobilitycare-hero__content {
+    order: 1;
+    display: block;
+    min-height: 0;
+    padding-top: clamp(1.5rem, 6vw, 2.5rem);
+    padding-bottom: 1.75rem;
+  }
+
+  .securevision-hero-inner > div,
+  .mobilitycare-hero__content > div {
+    max-width: 36rem;
+  }
+
+  /* The picture, framed: a 16:10 window, inside the gutters. */
+  .securevision-hero > .hero-slider,
+  .mobilitycare-hero > .hero-slider {
+    order: 2;
+    position: relative;
+    inset: auto;
+    width: auto;
+    max-width: 36rem;
+    aspect-ratio: 1.6;
+    margin: 0 var(--m-gutter);
+    align-self: stretch;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: #0b1426;
+    box-shadow:
+      0 0 0 1px var(--border-subtle),
+      0 24px 48px -32px rgb(0 0 0 / 0.55);
+    isolation: isolate;
+  }
+
+  :root.light .securevision-hero > .hero-slider,
+  :root.light .mobilitycare-hero > .hero-slider {
+    background: #e8eef6;
+    box-shadow:
+      0 0 0 1px rgb(15 28 58 / 0.08),
+      0 24px 48px -30px rgb(15 28 58 / 0.4);
+  }
+
+  /* No readability shade and no vignette: nothing sits on the picture. */
+  .securevision-hero .securevision-video-shade,
+  .mobilitycare-hero .mobilitycare-hero__overlay,
+  .securevision-hero .hero-slider__slide::before,
+  .securevision-hero .hero-slider__slide::after,
+  .mobilitycare-hero .hero-slider__slide::before,
+  .mobilitycare-hero .hero-slider__slide::after {
+    display: none;
+  }
+
+  /* The window onto the still, in fractions of the picture: SecureVision
+     from its anomaly tag across the concourse (x 0.36–0.87, y 0.10–0.67),
+     MobilityCare from its gait-analysis card across the walker and the
+     progress card (x 0.36–0.84, y 0.03–0.56). */
+  .securevision-hero .hero-slider__still,
+  .mobilitycare-hero .hero-slider__still {
+    inset: 0;
+  }
+
+  .securevision-hero .hero-slider__still img,
+  .mobilitycare-hero .hero-slider__still img {
+    position: absolute;
+    max-width: none;
+    height: auto;
+    object-fit: fill;
+    width: calc(100% / var(--m-cw));
+    left: calc(-100% * var(--m-cx) / var(--m-cw));
+    top: calc(-100% * var(--m-cy) * 1.6 / (var(--m-cw) * 1.7768));
+  }
+
+  .securevision-hero .hero-slider__still {
+    --m-cx: 0.36;
+    --m-cw: 0.51;
+    --m-cy: 0.1;
+  }
+
+  .mobilitycare-hero .hero-slider__still {
+    --m-cx: 0.36;
+    --m-cw: 0.48;
+    --m-cy: 0.03;
+  }
+
+  .securevision-hero .hero-slider__slide--film video,
+  .mobilitycare-hero .hero-slider__slide--film video {
+    object-fit: cover;
+    object-position: 62% 45%;
+  }
+
+  /* Tablets: the frame starts on the copy's own left edge (the
+     container's 2rem gutter from 640px). */
+  @media (min-width: 640px) {
+    .securevision-hero > .hero-slider,
+    .mobilitycare-hero > .hero-slider {
+      margin-inline: 2rem;
+    }
+  }
+
+  /* The two dots under the frame, not over it. */
+  .securevision-hero > .hero-slider__dots,
+  .mobilitycare-hero > .hero-slider__dots {
+    order: 3;
+    position: relative;
+    left: auto;
+    bottom: auto;
+    align-self: center;
+    margin-top: 0.875rem;
+    transform: none;
+  }
+
+  /* The copy: an eyebrow as a line of type rather than a two-line pill, a
+     headline that sets in four lines at most, calm body, two stacked
+     buttons of equal width. */
+  .securevision-hero .securevision-eyebrow,
+  .mobilitycare-hero__content > div > div:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    letter-spacing: 0.16em;
+  }
+
+  .securevision-hero .securevision-eyebrow::before,
+  .mobilitycare-hero__content > div > div:first-child::before {
+    content: "";
+    flex: none;
+    width: 1.25rem;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  .securevision-hero h1,
+  .mobilitycare-hero__content h1 {
+    margin-top: 0.9rem;
+    font-size: clamp(2rem, 8.4vw, 2.75rem);
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .securevision-hero-inner h1 + p,
+  .mobilitycare-hero__content h1 + p {
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .securevision-hero-inner p + div,
+  .mobilitycare-hero__content p + div {
+    margin-top: 1.5rem;
+    gap: 0.625rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .securevision-hero-inner p + div > a,
+  .mobilitycare-hero__content p + div > a {
+    flex: 1 1 100%;
+    justify-content: center;
+    min-height: 3rem;
+  }
+}
+
+/* =========================================================================
+   TYPE AND RHYTHM ON A PHONE (< 640px)
+   The display scale was set for laptops and floors at sizes that turn a
+   section headline into five lines on a phone ("12 product modules on one
+   Movement Intelligence Platform." at 40px). These floors keep every
+   headline strong but within three or four lines, and a section's outer
+   air proportionate to a 390px screen.
+   ========================================================================= */
+@media (max-width: 639px) {
+  .text-display-2xl {
+    font-size: clamp(2.25rem, 9.2vw, 3rem);
+    line-height: 1.05;
+  }
+
+  .text-display-xl {
+    font-size: clamp(1.85rem, 7.6vw, 2.35rem);
+    line-height: 1.08;
+    letter-spacing: -0.032em;
+  }
+
+  .text-display-lg {
+    font-size: clamp(1.6rem, 6.6vw, 2rem);
+    line-height: 1.12;
+  }
+
+  .text-display-md {
+    font-size: clamp(1.35rem, 5.6vw, 1.6rem);
+    line-height: 1.2;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    overflow-wrap: break-word;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* THE RHYTHM. A major section is 64px of its own air top and bottom, a
+     home section 52px (two meet across every boundary, so the travel
+     between two sections' content is ~104px), and the blocks inside a
+     section sit 16-24px apart. Nothing inherits the desktop's 144px. */
+  .section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  .home-section.section,
+  .home-band.section {
+    padding-top: 3.25rem;
+    padding-bottom: 3.25rem;
+  }
+
+  .container-wide {
+    padding-inline: var(--m-gutter);
+  }
+
+  /* Eyebrows: a label, not a second heading. 0.16-0.22em of tracking on
+     an all-caps line made "FEATURED · MOVEMENT INTELLIGENCE PRODUCTS" two
+     full lines above its own heading. */
+  .eyebrow {
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+  }
+
+  main [class*="tracking-[0.1"],
+  main [class*="tracking-[0.2"],
+  footer [class*="tracking-[0.1"],
+  footer [class*="tracking-[0.2"] {
+    letter-spacing: 0.09em;
+  }
+
+  /* Section lead paragraphs read as body copy, not display copy. */
+  .section-lead,
+  #contact .contact-intro p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+/* Touch: no sticky hover, a quiet press instead of the browser's flash. */
+@media (hover: none) {
+  a,
+  button,
+  [role="button"],
+  summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* =========================================================================
+   THE PRODUCT CARDS (FeaturedProducts, < 640px)
+   Four premium product cards, one under another: the picture across the
+   top (4:3, the catalogue's own crop), the family label, the promise, two
+   lines of description, three output chips and the cue. A row layout with
+   a thumbnail was tried and read as a text list; the picture is what makes
+   these products, not paragraphs. The grid returns at 640px.
+   ========================================================================= */
+@media (max-width: 639px) {
+  .featured-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.875rem;
+  }
+
+  .featured-grid > article {
+    border-radius: 1.25rem;
+    border-color: var(--border-subtle);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 18px 40px -30px rgb(0 0 0 / 0.7);
+  }
+
+  :root.light .featured-grid > article {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.9),
+      0 18px 40px -30px rgb(15 28 58 / 0.35);
+  }
+
+  .featured-grid [data-product-card-image] {
+    border-radius: calc(1.25rem - 1px) calc(1.25rem - 1px) 0 0;
+  }
+
+  .featured-grid > article > div.relative {
+    padding: 1rem 1.125rem 1.125rem;
+  }
+
+  .featured-grid > article .pa-ink {
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+  }
+
+  .featured-grid > article h3 {
+    margin-top: 0.5rem;
+    font-size: 1.125rem;
+    line-height: 1.3;
+  }
+
+  /* The hover glow has no hover to wait for. */
+  .featured-grid > article > .pointer-events-none {
+    display: none;
+  }
+
+  #products .container-wide > .flex {
+    gap: 1.25rem;
+  }
+
+  #products [role="tabpanel"] {
+    margin-top: 1.5rem;
+  }
+
+  .featured-foot {
+    gap: 0.875rem;
+  }
+
+  .featured-count {
+    letter-spacing: 0.1em;
+  }
+
+  .featured-actions {
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .featured-actions > a {
+    width: 100%;
+    justify-content: center;
+    min-height: 3rem;
+  }
+}
+
+/* =========================================================================
+   THE DEMO BLOCK (#contact) — one surface, not a card inside a card
+   ========================================================================= */
+@media (max-width: 639px) {
+  .contact-card {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    overflow: visible;
+  }
+
+  .contact-card > .ring-grid,
+  .contact-card > .noise {
+    display: none;
+  }
+
+  /* THE ORDER: intro, the demo form, the pilot card, then the signup. The
+     left column dissolves so its pieces are items of the grid (CTA.tsx). */
+  .contact-grid {
+    gap: 1.5rem;
+  }
+
+  .contact-column {
+    display: contents;
+  }
+
+  .contact-intro {
+    order: 0;
+  }
+
+  .contact-form {
+    order: 1;
+    padding: 1.25rem;
+  }
+
+  .contact-deploy {
+    order: 2;
+    margin-top: 0;
+  }
+
+  .contact-subscribe {
+    order: 3;
+    margin-top: 0;
+  }
+
+  #contact {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* =========================================================================
+   A LEGIBILITY FLOOR FOR SMALL LABELS (< 640px)
+   Eyebrows, chips and meta lines set at 9–10px on a laptop read as grain on
+   a phone held at arm's length. On phones they rise to 10.5–11px. Two
+   exclusions: decorative illustrations (aria-hidden), whose labels are laid
+   out against their own drawing, and the Blog, whose figures and labels
+   follow their own type system (insights/figures.module.css).
+   ========================================================================= */
+@media (max-width: 639px) {
+  :is(.text-\[9px\], .text-\[9\.5px\]):not([aria-hidden="true"] *, .insights-hub *, .insights-page *) {
+    font-size: 10.5px;
+  }
+
+  .text-\[10px\]:not([aria-hidden="true"] *, .insights-hub *, .insights-page *) {
+    font-size: 11px;
+  }
+}
+
+/* =========================================================================
+   GAITAI CORE AND THE FLAGSHIP PANELS (Verticals, < 640px)
+   The hierarchy stays — Core above, the two families under it on their two
+   lines — with the lines shorter and the panels recomposed: wordmark,
+   headline, one sentence, the console, the capabilities as a single column
+   (so IndustrialSafety and PrivacyGuard are never broken mid-word), the way
+   in. The full description returns from 640px.
+   ========================================================================= */
+@media (max-width: 639px) {
+  #platform-verticals {
+    padding-top: 1.5rem;
+    padding-bottom: 2.75rem;
+  }
+
+  .platform-eyebrow {
+    margin-bottom: 1.5rem;
+  }
+
+  .platform-eyebrow > span {
+    padding: 0.45rem 1rem;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+  }
+
+  .platform-split {
+    height: 9.5rem;
+  }
+
+  .platform-split-lines {
+    top: 4.6rem;
+    height: 4.5rem;
+  }
+
+  .platform-core-node {
+    min-height: 5.5rem;
+    gap: 1rem;
+    padding: 0.875rem 1.25rem;
+  }
+
+  #platform-verticals .container-wide > .grid {
+    gap: 1.25rem;
+  }
+
+  .flagship-panel {
+    padding: 1.125rem;
+  }
+
+  .flagship-panel > header {
+    min-height: 0;
+  }
+
+  .flagship-panel > header > div {
+    height: 3.25rem;
+    max-width: 12rem;
+  }
+
+  .flagship-panel h3.font-display {
+    font-size: 1.75rem;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+
+  .flagship-panel .mt-8 {
+    margin-top: 1.25rem;
+  }
+
+  .flagship-panel .product-visual-shell {
+    height: 12.25rem;
+    margin-top: 1.25rem;
+    margin-inline: -1.125rem;
+  }
+
+  .flagship-capabilities {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .flagship-capability {
+    min-height: 3rem;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .flagship-capability:nth-child(odd) {
+    padding-right: 0.25rem;
+  }
+
+  .flagship-capability:nth-child(even) {
+    padding-left: 0.25rem;
+    border-left: 0;
+  }
+
+  .flagship-capability-name {
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+
+  .flagship-panel > a {
+    min-height: 3.25rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+}
+
+/* =========================================================================
+   THE ENVIRONMENT BRANCHES (EnvironmentStrip, < 640px)
+   Kept as the two branches from one hub — MobilityCare's line on the left,
+   SecureVision's on the right, the two sides of the platform. Each row is
+   an icon, the environment, two lines at most of outcome, and the arrow;
+   the detail is on the environment's own page.
+   ========================================================================= */
+@media (max-width: 639px) {
+  .env-hub-stage {
+    margin-top: 1.5rem;
+  }
+
+  .env-panel {
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.7rem 0.6rem;
+  }
+
+  /* The glyph tile gives way to the environment's photograph: a 68px
+     square, rounded, hairline, soft shadow, cropped on the same focal
+     point the use-case page uses. */
+  .env-scene {
+    display: none;
+  }
+
+  .env-thumb {
+    position: relative;
+    flex: none;
+    display: block;
+    width: 4.25rem;
+    height: 4.25rem;
+    overflow: hidden;
+    border-radius: 0.875rem;
+    background: rgb(var(--env-accent) / 0.08);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--env-accent) / 0.22),
+      0 10px 22px -14px rgb(0 0 0 / 0.7);
+    isolation: isolate;
+  }
+
+  :root.light .env-thumb {
+    box-shadow:
+      inset 0 0 0 1px rgb(15 28 58 / 0.1),
+      0 10px 22px -16px rgb(15 28 58 / 0.4);
+  }
+
+  .env-thumb__picture,
+  .env-thumb__picture img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .env-thumb__picture img {
+    object-fit: cover;
+    object-position: var(--env-thumb-position, 50% 50%);
+  }
+
+  :root.light .env-thumb__picture img {
+    object-position: var(--env-thumb-position-light, var(--env-thumb-position, 50% 50%));
+  }
+
+  .env-item::before {
+    top: 2.2rem;
+  }
+
+  .env-item::after {
+    top: calc(2.2rem + 3px);
+  }
+
+  .env-name {
+    font-size: 0.9375rem;
+  }
+
+  .env-outcome {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    margin-top: 0.15rem;
+    line-height: 1.5;
+  }
+
+  .env-arrow {
+    margin-top: 0;
+  }
+
+  .env-column-title,
+  .env-more-button {
+    letter-spacing: 0.1em;
+  }
+
+  #use-cases .container-wide > .mt-12 {
+    margin-top: 2rem;
+  }
+}
+
+/* =========================================================================
+   MISSION AND VISION (< 640px)
+   Mission, its control, one walking capture, the Motion DNA connector
+   turned vertical, Vision, its control. The two grids that hold the cards
+   and the controls dissolve into the row (MissionVision.tsx), so each
+   control follows its own card. The second walking capture is the
+   tablet's; a phone has one.
+   ========================================================================= */
+@media (max-width: 639px) {
+  .mv-row {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .mv-cards,
+  .mv-controls {
+    display: contents;
+  }
+
+  .mv-mission {
+    order: 1;
+  }
+
+  .mv-control--mission {
+    order: 2;
+  }
+
+  .mv-walker--cyan {
+    order: 3;
+  }
+
+  .mv-dna {
+    order: 4;
+  }
+
+  .mv-vision {
+    order: 5;
+  }
+
+  .mv-control--vision {
+    order: 6;
+  }
+
+  .mv-walker--violet {
+    display: none;
+  }
+
+  .mv-control {
+    justify-content: flex-start;
+    margin-top: -0.25rem;
+  }
+
+  .mv-walker--cyan > div {
+    max-width: 240px;
+  }
+
+  #mission-vision {
+    padding-top: 2.75rem;
+    padding-bottom: 2.75rem;
+  }
+}
+
+/* =========================================================================
+   THE FOOTER (< 640px)
+   The four link groups fold (FooterGroup): a 48px row each, open on tap,
+   closed by default. Above them the wordmark, one line of what GaitAI is,
+   the four profiles; under them the legal line. ~1,250px becomes ~640px.
+   ========================================================================= */
+@media (max-width: 639px) {
+  footer.mt-12 {
+    margin-top: 0;
+  }
+
+  footer > .container-wide {
+    padding-top: 2.75rem;
+    padding-bottom: 1.75rem;
+  }
+
+  footer .container-wide > .grid {
+    gap: 1.75rem;
+  }
+
+  footer .container-wide > .grid > .grid {
+    display: block;
+  }
+
+  .footer-logo {
+    width: 7rem !important;
+    height: 2.45rem !important;
+  }
+
+  .footer-group {
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .footer-group:last-child {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .footer-group__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3rem;
+    list-style: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .footer-group__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .footer-group__summary h2 {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+  }
+
+  .footer-group__chevron {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    color: var(--text-muted);
+    transition: transform 300ms var(--m-ease);
+  }
+
+  .footer-group[open] .footer-group__chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Before the client has decided (FooterGroup mounts and reads the width)
+     the list is not shown, so a phone's first paint is the folded row. */
+  .footer-group:not([data-ready]) .footer-group__list {
+    display: none;
+  }
+
+  .footer-group__list {
+    margin: 0 0 0.5rem;
+  }
+
+  .footer-group__list > li + li {
+    margin-top: 0;
+  }
+
+  .footer-group__list a {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0;
+    font-size: 0.9375rem;
+  }
+
+  footer .divider {
+    margin-top: 1.75rem;
+  }
+
+  footer .divider + div {
+    margin-top: 1.25rem;
+    gap: 0.75rem;
+  }
+}
+
+/* From 640px the footer groups are the columns they always were: open,
+   with no marker and no toggle. */
+@media (min-width: 640px) {
+  .footer-group__summary {
+    display: block;
+    list-style: none;
+    pointer-events: none;
+  }
+
+  .footer-group__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .footer-group__chevron {
+    display: none;
+  }
+}
+
+/* The console's corner label ("Clinical mobility console") and its Demo tag
+   share one line on a laptop; on a phone-wide panel they collided. The tag
+   is the disclosure that matters, so the label steps aside below 640px. */
+@media (max-width: 639px) {
+  .flagship-panel .product-visual-shell > .absolute.left-5 {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   TABLET RHYTHM (640-1023px)
+   The desktop's outer air, scaled for a 768px screen: two home sections
+   meet across ~128px rather than ~208px.
+   ========================================================================= */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .home-section.section,
+  .home-band.section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  #platform-verticals {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* From 640px the environment rows keep their glyph tile; the phone
+   thumbnail does not exist there. */
+@media (min-width: 640px) {
+  .env-thumb {
+    display: none;
+  }
+}

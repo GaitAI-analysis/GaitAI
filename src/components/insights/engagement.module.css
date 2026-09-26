@@ -1,0 +1,166 @@
+/*
+ * The journal's engagement line — views, likes, comments.
+ *
+ * Set at the weight of the metadata it joins: 10.5px mono, uppercase-free,
+ * muted, with hairline marks. It is editorial metadata, not a social bar, so
+ * there are no pills, no counts in boxes and no colour except the one the like
+ * takes when it is the reader's own.
+ */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  /* The stats carry their own padding now (see .stat), so the gap gives back
+     what the padding adds and the whole row pulls left by that padding —
+     the first item's text stays flush with the type above it. */
+  gap: 0.35rem 0.5rem;
+  margin-inline: -0.5rem;
+  /* The line is reserved before the numbers arrive, so a count landing after
+     the read resolves does not push the article down. On a phone the row
+     wraps onto a second line rather than overflowing, and the reservation
+     grows with it. */
+  min-height: 1.75rem;
+}
+
+/* The line is set at metadata weight on purpose, which left the like reading
+   as a *reported number* rather than as something the reader could do. It
+   keeps the type and gains the two things that make it a control: a hairline
+   frame that appears the moment it is pointed at or focused, and a finger-
+   sized target. The resting state stays quiet — a boxed social bar under a
+   journal headline would be the wrong kind of loud. */
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+  transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.mark {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.link:hover,
+.like:hover {
+  color: rgb(var(--c-soft-white));
+  border-color: var(--interactive-hover-border);
+  background: var(--interactive-hover-bg);
+}
+
+.like:active {
+  transform: scale(0.97);
+}
+
+/* The like is a toggle, so its ON state is persistent and not just a colour
+   shift: the mark fills and the frame stays. */
+.liked,
+.liked:hover {
+  border-color: rgb(240 162 192 / 0.4);
+}
+:global(.light) .liked,
+:global(.light) .liked:hover {
+  border-color: rgb(180 50 106 / 0.35);
+}
+
+/* TOUCH — the box stays at metadata size; the target reaches 44px. */
+@media (pointer: coarse) {
+  .stat {
+    position: relative;
+  }
+  .stat::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    min-width: var(--interactive-touch-target);
+    min-height: var(--interactive-touch-target);
+    width: 100%;
+    height: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat,
+  .like:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+.like:focus-visible,
+.link:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* The one colour on the line, and only once the reader has acted. */
+.liked {
+  color: #f0a2c0;
+}
+:global(.light) .liked {
+  color: #b4326a;
+}
+.liked .mark {
+  opacity: 1;
+}
+
+/* ── Inline in the article's own metadata row ──────────────────────────────
+   No type of its own: it inherits the kicker's font, size, tracking and
+   colour, so the view count reads as one more item in that row rather than as
+   a widget dropped into it. Only the mark needs sizing. */
+.inlineStat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.inlineMark {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+/* ── The loading placeholder ──────────────────────────────────────────────
+   A quiet bar the width of a formatted count, so the row holds its shape
+   while the read is in flight and no reader is ever shown "0 views" or a
+   spinner in place of a number. Deliberately not animated: a shimmer in a
+   journal's byline is a UI trick, and it would have to be turned off again
+   for reduced motion. */
+.skeleton {
+  display: inline-block;
+  width: 4.25rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: rgb(var(--c-soft-mute) / 0.18);
+}
+
+:global(.light) .skeleton {
+  background: rgb(15 23 42 / 0.1);
+}
+
+/* ── Light theme ──
+   Dark keeps the muted blue-gray of the metadata around it; light needs its
+   own ink, because slate-500 on paper is a wash rather than a colour. */
+:global(.light) .stat {
+  color: rgb(71 85 105);
+}
+:global(.light) .link:hover,
+:global(.light) .like:hover {
+  color: rgb(15 23 42);
+}

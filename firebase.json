@@ -1,0 +1,6 @@
+{
+  "//": "Firestore rules only. Firebase backs comments, journal counters, authentication and the admin panel — and nothing about Ask GaitAI: the assistant's retrieval runs in the browser and its hosted inference runs in a Cloudflare Worker (worker/), so there is no Cloud Function here to deploy. Hosting is deliberately not configured either — the site is a static export published to GitHub Pages, and a hosting target would invite `firebase deploy` to publish it from a developer machine.",
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

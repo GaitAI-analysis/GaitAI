@@ -1,0 +1,1223 @@
+/* =========================================================================
+   THE POSE-ANALYSIS RAIL
+   -------------------------------------------------------------------------
+   Not a card: a slim, translucent read-out standing in the ribbon field to
+   the right of the digital human, in the third panel. HeroOptions renders the
+   wrapper (`.rail`) with the same `data-open` / `data-closing` the product
+   cards use, so the introduction, the dot, hover, press, Escape and a press
+   outside all drive it exactly as they drive a card. Only its look and its
+   motion are its own, and both are here.
+
+   Palette: off-white glass, deep navy type, cool grey labels, warm champagne
+   accents, muted slate instruments. No electric blue, no neon, no cyan.
+   ========================================================================= */
+
+.rail {
+  --stride: 1176ms; /* one left + right step at 102 steps/min */
+  --rail-ink: #16203c;
+  --rail-label: #4e576b;
+  --rail-gold: #b39052;
+  --rail-slate: #7f8ba3;
+  --rail-glass: rgb(250 250 246 / 0.5);
+  --rail-edge: rgb(201 176 122 / 0.38);
+
+  position: absolute;
+  z-index: 3;
+  right: 1.4%;
+  top: 29%;
+  width: clamp(9.75rem, 10.6vw, 12.75rem);
+  box-sizing: border-box;
+  padding: 0.7rem 0.8rem 0.65rem;
+  color: var(--rail-ink);
+  background: var(--rail-glass);
+  -webkit-backdrop-filter: blur(10px) saturate(1.04);
+  backdrop-filter: blur(10px) saturate(1.04);
+  border: 1px solid var(--rail-edge);
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgb(15 28 58 / 0.08);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  pointer-events: none;
+  transition:
+    opacity 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 460ms cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear 460ms;
+}
+
+.rail[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+/* Retracting: a named animation rather than a transition, because
+   HeroOptions settles a closing panel on its `animationend`. Timed to the
+   product cards' 780ms fold-and-dock, so the three leave as one gesture: it
+   holds while the cards' readings retract (0-150ms) and fades while they
+   fold and dock (150-710ms), gone just before they land. From 1024px the
+   rail does not leave at all -- see "THE QUIET RAIL" below. */
+.rail[data-closing="true"] {
+  visibility: visible;
+  animation: poseRailRetract 560ms cubic-bezier(0.4, 0, 0.2, 1) 150ms both;
+}
+
+@keyframes poseRailRetract {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+/* THE QUIET RAIL (founder, 2026-09-25). The digital human walks all the
+   time now, so the analysis beside him is always on too: at rest the rail
+   stands quieter, showing its title and the first three readings with their
+   instruments running; the dot, the introduction or a hover expands it to
+   everything, and closing contracts it back rather than taking it away. */
+@media (min-width: 1024px) {
+  .rail {
+    --rail-glass: rgb(250 250 246 / 0.42);
+
+    opacity: 0.94;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .rail[data-open="true"] {
+    --rail-glass: rgb(250 250 246 / 0.5);
+
+    opacity: 1;
+  }
+
+  .rail[data-closing="true"] {
+    animation-name: poseRailQuieten;
+    animation-delay: 150ms;
+  }
+
+  .row:nth-child(n + 4),
+  .privacy {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+      max-height 420ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 260ms ease,
+      padding 420ms cubic-bezier(0.4, 0, 0.2, 1),
+      margin 420ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .row:nth-child(n + 4) {
+    padding-top: 0;
+    border-top-color: transparent;
+  }
+
+  .privacy {
+    margin-top: 0;
+    padding-top: 0;
+    border-top-color: transparent;
+  }
+
+  .rail[data-open="true"] .row:nth-child(n + 4) {
+    max-height: 3rem;
+    padding-top: 0.42rem;
+    border-top-color: rgb(201 176 122 / 0.22);
+    opacity: 1;
+    transition-delay: 0s, 120ms, 0s, 0s;
+  }
+
+  .rail[data-open="true"] .privacy {
+    max-height: 3rem;
+    margin-top: 0.6rem;
+    padding-top: 0.45rem;
+    border-top-color: rgb(201 176 122 / 0.45);
+    opacity: 1;
+    transition-delay: 0s, 160ms, 0s, 0s;
+  }
+
+  :global(.dark) .rail {
+    --rail-glass: rgb(9 14 30 / 0.44);
+  }
+
+  :global(.dark) .rail[data-open="true"] {
+    --rail-glass: rgb(9 14 30 / 0.52);
+  }
+}
+
+@keyframes poseRailQuieten {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.94;
+  }
+}
+
+.inner {
+  display: block;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rail-ink);
+}
+
+/* "Live": a small champagne mark that breathes on the stride. */
+.liveDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rail-gold);
+  opacity: 0.55;
+}
+
+.rows {
+  display: grid;
+  gap: 0.42rem;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  gap: 0.08rem;
+  padding-top: 0.42rem;
+  border-top: 1px solid rgb(201 176 122 / 0.22);
+}
+
+.row:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--rail-label);
+}
+
+.value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
+  color: var(--rail-ink);
+  white-space: nowrap;
+}
+
+.privacy {
+  margin: 0.6rem 0 0;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgb(201 176 122 / 0.45);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9a7c43;
+}
+
+/* ── Joint metrics ──
+   The near leg's hip, knee and ankle, live. A label and a reading on one
+   line, and under them a hairline meter on the joint's clinical range: a
+   cool-grey track, a small zero tick, and a warm-gold fill from zero to the
+   reading. The fill moves with the stride; nothing else on it does. */
+.joints {
+  margin-top: 0.7rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid rgb(201 176 122 / 0.28);
+}
+
+.jointsTitle {
+  margin: 0 0 0.45rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rail-label);
+}
+
+.jointList {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.joint {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  row-gap: 0.28rem;
+}
+
+.jointLabel {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--rail-label);
+}
+
+.jointValue {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--rail-ink);
+  text-align: right;
+}
+
+.meter {
+  position: relative;
+  grid-column: 1 / -1;
+  height: 3px;
+  border-radius: 3px;
+  background: rgb(127 139 163 / 0.22);
+}
+
+.meterZero {
+  position: absolute;
+  top: -2px;
+  width: 1px;
+  height: 7px;
+  background: rgb(127 139 163 / 0.6);
+}
+
+.meterFill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgb(179 144 82 / 0.55), var(--rail-gold));
+}
+
+:global(.dark) .joints {
+  border-top-color: rgb(255 255 255 / 0.14);
+}
+
+:global(.dark) .meter {
+  background: rgb(255 255 255 / 0.14);
+}
+
+:global(.dark) .meterZero {
+  background: rgb(255 255 255 / 0.45);
+}
+
+@media (min-width: 1024px) {
+  :global(.dark) .jointsTitle,
+  :global(.dark) .jointLabel {
+    font-size: 0.6875rem;
+  }
+
+  :global(.dark) .jointValue {
+    font-size: 0.8125rem;
+  }
+
+  .rail[data-fit="dense"] .joints {
+    margin-top: 0.35rem;
+    padding-top: 0.3rem;
+  }
+
+  .rail[data-fit="dense"] .jointList {
+    gap: 0.22rem;
+  }
+}
+
+/* ── The instruments ── all hairline, slate with champagne where it lives */
+
+.wave {
+  flex: none;
+  display: block;
+  width: 2.6rem;
+  height: 0.75rem;
+}
+
+.steps,
+.symmetry {
+  flex: none;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 0.75rem;
+}
+
+.steps span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rail-slate);
+  opacity: 0.35;
+  transition:
+    opacity 320ms ease-out,
+    background-color 320ms ease-out;
+}
+
+/* A heel lands: its tick fills to champagne, then settles. */
+.steps span[data-hit="true"] {
+  opacity: 1;
+  background: var(--rail-gold);
+  transition-duration: 60ms;
+}
+
+.symmetry span {
+  width: 3px;
+  height: 100%;
+  border-radius: 1px;
+  background: var(--rail-slate);
+  opacity: 0.5;
+  transform: scaleY(0.55);
+  transform-origin: bottom;
+  transition:
+    transform 140ms ease-out,
+    opacity 140ms ease-out;
+}
+
+/* Up while that foot is on the floor. */
+.symmetry span[data-on="true"] {
+  opacity: 0.85;
+  transform: none;
+}
+
+.level {
+  flex: none;
+  position: relative;
+  width: 2.2rem;
+  height: 0.75rem;
+}
+
+.level span {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1.2px;
+  background: linear-gradient(90deg, rgb(127 139 163 / 0), var(--rail-slate) 20% 80%, rgb(127 139 163 / 0));
+}
+
+.level span::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  margin-left: -2.5px;
+  border-radius: 50%;
+  background: var(--rail-gold);
+}
+
+.gauge {
+  flex: none;
+  width: 1.7rem;
+  height: 0.95rem;
+  overflow: visible;
+}
+
+.gaugeArc {
+  fill: none;
+  stroke: rgb(127 139 163 / 0.55);
+  stroke-width: 1.2;
+}
+
+.gaugeNeedle {
+  stroke: var(--rail-gold);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  transform-origin: 12px 12px;
+  transform: rotate(-20deg);
+}
+
+/* ── THE GAIT CYCLE ─────────────────────────────────────────────────────────
+   Per foot, a lane: its current phase by name over a track of the stride
+   (frame 0 = right heel strike) with its stance filled, and one cursor at
+   "now" across both. Then the waveform with L / R under each heel strike.
+   Open, it adds the live signals and the eight phases with a marker per
+   foot. Every value is written by PoseRail from the walker's frame. */
+.gait {
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgb(201 176 122 / 0.3);
+}
+
+.gaitTitle {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 0.3rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rail-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.gaitTitle span {
+  color: var(--rail-ink);
+}
+
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.lane {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "side phase"
+    "track track";
+  column-gap: 0.35rem;
+  row-gap: 0.14rem;
+  align-items: baseline;
+}
+
+.laneSide {
+  grid-area: side;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--rail-gold);
+}
+
+.lanePhase {
+  grid-area: phase;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--rail-ink);
+  white-space: nowrap;
+}
+
+.track {
+  grid-area: track;
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(127 139 163 / 0.34);
+  overflow: hidden;
+}
+
+.stance {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--rail-gold);
+  opacity: 0.95;
+}
+
+.cursor {
+  position: absolute;
+  top: 0.62rem;
+  bottom: -2px;
+  width: 1px;
+  margin-left: -0.5px;
+  background: var(--rail-ink);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.legend {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rail-label);
+}
+
+.legend > span::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 3px;
+  margin-right: 0.25rem;
+  border-radius: 1.5px;
+  vertical-align: middle;
+}
+
+.legendStance::before {
+  background: var(--rail-gold);
+}
+
+.legendSwing::before {
+  background: rgb(127 139 163 / 0.5);
+}
+
+.signal {
+  display: block;
+  width: 100%;
+  height: 1.55rem;
+  margin-top: 0.35rem;
+}
+
+.signals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.3rem 0.5rem;
+  margin: 0.45rem 0 0;
+}
+
+.signals dt {
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  color: var(--rail-label);
+}
+
+.signals dd {
+  margin: 0;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--rail-ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.phases {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(4, auto);
+  gap: 0.08rem 0.45rem;
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0 0;
+  border-top: 1px solid rgb(201 176 122 / 0.22);
+  list-style: none;
+}
+
+.phases li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.18rem;
+  font-size: 0.5rem;
+  white-space: nowrap;
+  line-height: 1.35;
+  color: var(--rail-label);
+}
+
+.phases i {
+  width: 0.5rem;
+  height: 0.5rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(127 139 163 / 0.7);
+  border-radius: 50%;
+  font-size: 0.4rem;
+  font-style: normal;
+  font-weight: 700;
+  color: transparent;
+}
+
+.phases li[data-l="true"],
+.phases li[data-r="true"] {
+  color: var(--rail-ink);
+}
+
+.phases li[data-l="true"] i[data-side="l"],
+.phases li[data-r="true"] i[data-side="r"] {
+  border-color: var(--rail-gold);
+  background: var(--rail-gold);
+  color: #fff;
+}
+
+:global(.dark) .phases li[data-l="true"] i[data-side="l"],
+:global(.dark) .phases li[data-r="true"] i[data-side="r"] {
+  color: #0b1020;
+}
+
+/* At rest the block is the lanes and the waveform; open adds the rest. */
+@media (min-width: 1024px) {
+  .legend,
+  .signals,
+  .phases {
+    max-height: 0;
+    margin-top: 0;
+    padding-top: 0;
+    overflow: hidden;
+    opacity: 0;
+    border-top-color: transparent;
+    transition:
+      max-height 420ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 260ms ease,
+      margin 420ms cubic-bezier(0.4, 0, 0.2, 1),
+      padding 420ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .rail[data-open="true"] .legend {
+    max-height: 1rem;
+    margin-top: 0.1rem;
+    opacity: 1;
+  }
+
+  .rail[data-open="true"] .signals {
+    max-height: 4rem;
+    margin-top: 0.45rem;
+    opacity: 1;
+    transition-delay: 0s, 120ms, 0s, 0s;
+  }
+
+  .rail[data-open="true"] .phases {
+    max-height: 5rem;
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    border-top-color: rgb(201 176 122 / 0.22);
+    opacity: 1;
+    transition-delay: 0s, 160ms, 0s, 0s;
+  }
+}
+
+/* FITTING THE FRAME (PoseRail measures and sets `data-fit`, `top`, and in
+   the tightest frames `max-height`). The measuring copy must land in its
+   final state at once, so nothing on it transitions. */
+.rail[data-probe] {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.rail[data-probe],
+.rail[data-probe] * {
+  transition: none !important;
+  animation: none !important;
+}
+
+@media (min-width: 1024px) {
+  .rail[data-fit="compact"] .phases,
+  .rail[data-fit="compact"] .legend,
+  .rail[data-fit="min"] .phases,
+  .rail[data-fit="min"] .legend,
+  .rail[data-fit="min"] .signals,
+  .rail[data-fit="dense"] .phases,
+  .rail[data-fit="dense"] .legend,
+  .rail[data-fit="dense"] .signals,
+  .rail[data-fit="dense"] .signal {
+    display: none;
+  }
+
+  .rail[data-fit="dense"] {
+    padding-top: 0.5rem;
+    padding-bottom: 0.45rem;
+  }
+
+  .rail[data-fit="dense"] .title {
+    margin-bottom: 0.3rem;
+  }
+
+  .rail[data-fit="dense"] .rows {
+    gap: 0.14rem;
+  }
+
+  .rail[data-fit="dense"] .row {
+    gap: 0;
+    line-height: 1.2;
+  }
+
+  .rail[data-fit="dense"] .row,
+  .rail[data-open="true"][data-fit="dense"] .row:nth-child(n + 4) {
+    padding-top: 0.16rem;
+  }
+
+  .rail[data-fit="dense"] .row:first-child {
+    padding-top: 0;
+  }
+
+  .rail[data-fit="dense"] .value {
+    font-size: 0.74rem;
+  }
+
+  .rail[data-open="true"][data-fit="dense"] .privacy {
+    margin-top: 0.35rem;
+    padding-top: 0.3rem;
+  }
+
+  .rail[data-fit="dense"] .gait {
+    margin-top: 0.35rem;
+    padding-top: 0.3rem;
+  }
+
+  /* Only when even the shortest rail cannot fit: it scrolls, quietly. */
+  .rail[style*="max-height"] {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(201 176 122 / 0.5) transparent;
+  }
+}
+
+/* The phone strip stays slim: the gait block lives on the picture there. */
+@media (max-width: 1023px) {
+  .gait {
+    display: none;
+  }
+}
+
+/* ── Motion: always (the figure beside it always walks), never under
+   reduced motion ── */
+@media (prefers-reduced-motion: no-preference) {
+  /* The rows arrive one after another, 45ms apart. */
+  .rail[data-open="true"] .row:nth-child(n + 4) {
+    animation: poseRowIn 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(80ms + var(--i) * 45ms);
+  }
+
+  .rail .liveDot {
+    animation: poseLive var(--stride) ease-in-out infinite;
+  }
+}
+
+@keyframes poseRowIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes poseLive {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+
+
+
+
+
+/* ── Night ── the same rail in dark glass */
+:global(.dark) .rail {
+  --rail-ink: #eef1f7;
+  --rail-label: #b7c0d3;
+  --rail-gold: #dcbf86;
+  --rail-slate: #93a0ba;
+  --rail-glass: rgb(9 14 30 / 0.52);
+  --rail-edge: rgb(210 180 122 / 0.32);
+
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.35);
+}
+
+:global(.dark) .privacy {
+  color: #d2b47a;
+}
+
+/* Below 1024px the picture is too small to stand anything beside the
+   figure, so the rail becomes a slim strip at the foot of the screen, the
+   same place the product cards open. Still glass, still no card chrome. */
+@media (max-width: 1023px) {
+  .rail {
+    position: fixed;
+    z-index: 72;
+    left: 50%;
+    right: auto;
+    top: auto;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    width: min(92vw, 24rem);
+    transform: translate(-50%, 10px);
+    background: rgb(250 250 246 / 0.88);
+  }
+
+  .rail[data-open="true"] {
+    transform: translateX(-50%);
+  }
+
+  .rows {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1rem;
+  }
+
+  .row:nth-child(2) {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  :global(.dark) .rail {
+    background: rgb(9 14 30 / 0.9);
+  }
+
+  @keyframes poseRailRetract {
+    from {
+      opacity: 1;
+      transform: translateX(-50%);
+    }
+
+    to {
+      opacity: 0;
+      transform: translate(-50%, 10px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No slide: opacity only. `transform` is left alone so the phone strip
+     stays centred; without a transition it simply does not travel. */
+  .rail,
+  .rail[data-open="true"] {
+    transition:
+      opacity 120ms linear,
+      visibility 0s linear 120ms;
+  }
+
+  .rail[data-closing="true"] {
+    animation-duration: 120ms;
+  }
+}
+
+/* ── NIGHT LEGIBILITY (founder, 2026-09-26) ──
+   On the dark picture the rail was dense and dark. At night, from 1024px:
+   the same navy glass as the cards (a 10px blur of its own), a little more
+   width and air, the three primary readings at 17px over 12.5px labels,
+   and the gait cycle set back as secondary: smaller, in the secondary tone,
+   nothing under 11px.
+   COMPACTED (founder, 2026-09-26, later): the open night rail had grown
+   past its window (184x504px at 1440, gait cycle below the hero's foot).
+   Same information, same 11px floor, ~15-20% tighter: the light rail's
+   width, 15px readings over 11px labels, closer rows and sections, and
+   smaller instruments, so the whole read-out fits the frame as light does. */
+@media (min-width: 1024px) {
+  :global(.dark) .rail,
+  :global(.dark) .rail[data-open="true"] {
+    --rail-ink: #f7f8fb;
+    --rail-label: rgb(235 240 248 / 0.72);
+    --rail-gold: #c9a55d;
+    --rail-glass: rgb(8 17 35 / 0.86);
+    --rail-edge: rgb(255 255 255 / 0.14);
+
+    width: clamp(10rem, 10.6vw, 12.75rem);
+    padding: 0.75rem 0.8rem 0.7rem;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  :global(.dark) .rail {
+    opacity: 1;
+  }
+
+  :global(.dark) .title {
+    margin-bottom: 0.55rem;
+    font-size: 0.6875rem;
+  }
+
+  /* Rows are spaced by their own margin, not the grid gap: the quiet rail's
+     collapsed rows (4-6) must take no room at all. */
+  :global(.dark) .rows {
+    gap: 0;
+  }
+
+  :global(.dark) .row + .row {
+    margin-top: 0.42rem;
+  }
+
+  :global(.dark) .rail:not([data-open="true"]) .row:nth-child(n + 4) {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  :global(.dark) .cursor {
+    opacity: 0.5;
+  }
+
+  :global(.dark) .row {
+    gap: 0.1rem;
+    padding-top: 0.42rem;
+    border-top-color: rgb(255 255 255 / 0.14);
+  }
+
+  :global(.dark) .row:first-child {
+    padding-top: 0;
+  }
+
+  :global(.dark) .rail[data-open="true"] .row:nth-child(n + 4) {
+    padding-top: 0.42rem;
+    border-top-color: rgb(255 255 255 / 0.14);
+  }
+
+  :global(.dark) .label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.01em;
+  }
+
+  :global(.dark) .value {
+    font-size: 0.9375rem;
+    line-height: 1.2;
+  }
+
+  :global(.dark) .privacy {
+    font-size: 0.6875rem;
+    border-top-color: rgb(255 255 255 / 0.14);
+  }
+
+  :global(.dark) .gait {
+    margin-top: 0.6rem;
+    padding-top: 0.5rem;
+    border-top-color: rgb(255 255 255 / 0.14);
+  }
+
+  :global(.dark) .gaitTitle {
+    margin-bottom: 0.35rem;
+    font-size: 0.6875rem;
+    color: var(--rail-label);
+  }
+
+  :global(.dark) .gaitTitle span {
+    color: var(--rail-label);
+  }
+
+  :global(.dark) .timeline {
+    gap: 0.28rem;
+  }
+
+  :global(.dark) .laneSide {
+    font-size: 0.6875rem;
+  }
+
+  :global(.dark) .lanePhase {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--rail-label);
+  }
+
+  :global(.dark) .track {
+    height: 2.5px;
+  }
+
+  :global(.dark) .signal {
+    height: 1rem;
+    margin-top: 0.35rem;
+    opacity: 0.8;
+  }
+
+  :global(.dark) .legend,
+  :global(.dark) .signals dt,
+  :global(.dark) .phases li {
+    font-size: 0.6875rem;
+  }
+
+  :global(.dark) .signals dd {
+    font-size: 0.6875rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .value {
+    font-size: 0.8125rem;
+  }
+
+  /* The frame-fitting tiers (PoseRail \`data-fit\`) must still tighten at
+     night: the rules above outrank the shared dense rules, which is how the
+     night rail ended up height-capped and scrolling at 1440 x 900. */
+  :global(.dark) .rail[data-fit="dense"] {
+    padding: 0.55rem 0.75rem 0.5rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .title {
+    margin-bottom: 0.3rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .row + .row {
+    margin-top: 0.16rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .row,
+  :global(.dark) .rail[data-open="true"][data-fit="dense"] .row:nth-child(n + 4) {
+    gap: 0;
+    padding-top: 0.16rem;
+    line-height: 1.2;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .row:first-child {
+    padding-top: 0;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .gait {
+    margin-top: 0.35rem;
+    padding-top: 0.3rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .jointsTitle {
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .jointList {
+    gap: 0.14rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .joint {
+    row-gap: 0.16rem;
+    line-height: 1.2;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .jointValue {
+    font-size: 0.75rem;
+  }
+
+  :global(.dark) .rail[data-open="true"][data-fit="dense"] .privacy {
+    margin-top: 0.35rem;
+    padding-top: 0.3rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .gaitTitle {
+    margin-bottom: 0.25rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .timeline {
+    gap: 0.2rem;
+  }
+
+  /* Short windows only (the dense tier): the light rail's own sizes, so the
+     whole read-out fits the frame as it does by day. The 11px night floor
+     holds everywhere the rail has room. */
+  :global(.dark) .rail[data-fit="dense"] :is(.label, .jointLabel, .jointsTitle, .gaitTitle, .laneSide, .lanePhase, .privacy) {
+    font-size: 0.65rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .title {
+    font-size: 0.65rem;
+  }
+
+  :global(.dark) .rail[data-fit="dense"] .value,
+  :global(.dark) .rail[data-fit="dense"] .jointValue {
+    font-size: 0.75rem;
+  }
+
+  /* The instruments beside each reading, a size down with the type. */
+  :global(.dark) .rail[data-open="true"] :is(.wave, .symmetry, .level, .gauge) {
+    scale: 0.85;
+    transform-origin: 100% 50%;
+  }
+}
+
+/* ── THE QUIET TAG (founder, 2026-09-26) ──
+   At rest the rail is a small always-visible telemetry tag, the same size
+   and voice as the SecureVision and MobilityCare tags beside the other
+   scenes (herosignals.module.css): 160px, 9px padding, an 11.5px title led
+   by the live dot, then Gait speed, Cadence, Symmetry and Balance at
+   9.5/10px. No instruments, no joint metrics, no gait cycle, no privacy
+   line. The same in both themes.
+   Opening it (dot, pill, introduction) is untouched: every rule here is
+   scoped to the rail while it is NOT open, so the full read-out comes back
+   exactly as it was. The night variants restate a few rules only to outrank
+   the night-legibility block above. */
+.short {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .rail:not([data-open="true"]) {
+    --rail-glass: rgb(250 249 245 / 0.74);
+    --rail-edge: rgb(168 137 79 / 0.34);
+
+    width: 10rem;
+    padding: 0.5rem 0.6rem 0.45rem;
+    border-radius: 8px;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgb(15 28 58 / 0.06);
+    opacity: 1;
+  }
+
+  :global(.dark) .rail:not([data-open="true"]) {
+    --rail-glass: rgb(8 17 35 / 0.86);
+    --rail-edge: rgb(255 255 255 / 0.14);
+
+    width: 10rem;
+    padding: 0.5rem 0.6rem 0.45rem;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgb(1 4 12 / 0.3);
+  }
+
+  .rail:not([data-open="true"]) .title,
+  :global(.dark) .rail:not([data-open="true"]) .title {
+    gap: 0.35rem;
+    margin: 0 0 0.3rem;
+    font-size: 0.71875rem;
+    letter-spacing: -0.005em;
+    line-height: 1.2;
+    text-transform: none;
+  }
+
+  .rail:not([data-open="true"]) .liveDot {
+    order: -1;
+    flex: none;
+    width: 0.3rem;
+    height: 0.3rem;
+  }
+
+  .rail:not([data-open="true"]) .rows {
+    gap: 0;
+  }
+
+  .rail:not([data-open="true"]) .row,
+  :global(.dark) .rail:not([data-open="true"]) .row,
+  :global(.dark) .rail:not([data-open="true"]) .row + .row,
+  :global(.dark) .rail:not([data-open="true"]) .row:nth-child(4) {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0.12rem 0;
+    border-top: 0;
+    line-height: 1.25;
+  }
+
+  .rail:not([data-open="true"]) .row:nth-child(4) {
+    max-height: none;
+    overflow: visible;
+    opacity: 1;
+  }
+
+  .rail:not([data-open="true"]) .label,
+  :global(.dark) .rail:not([data-open="true"]) .label {
+    font-size: 0.59375rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .rail:not([data-open="true"]) .value,
+  :global(.dark) .rail:not([data-open="true"]) .value {
+    font-size: 0.625rem;
+    font-weight: 600;
+  }
+
+  .rail:not([data-open="true"]) .full {
+    display: none;
+  }
+
+  .rail:not([data-open="true"]) .short {
+    display: inline;
+  }
+
+  /* Rows 1-4 only; row 4 is normally folded away at rest. Last, and with
+     a night twin, so the flex rule above can never bring a row back. */
+  .rail:not([data-open="true"]) .row:nth-child(n + 5),
+  :global(.dark) .rail:not([data-open="true"]) .row:nth-child(n + 5),
+  .rail:not([data-open="true"]) .joints,
+  .rail:not([data-open="true"]) .privacy,
+  .rail:not([data-open="true"]) .gait,
+  .rail:not([data-open="true"]) .value > :not(:first-child) {
+    display: none;
+  }
+}

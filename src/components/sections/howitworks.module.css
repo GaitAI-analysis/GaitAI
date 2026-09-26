@@ -1,0 +1,1064 @@
+/* ==========================================================================
+   THE WORKFLOW PIPELINE — selectable, and synchronised with the scroll
+   --------------------------------------------------------------------------
+   The four stages were a scroll-driven zigzag: the rail filled as you passed
+   it and nothing else ever responded. It communicated progression and nothing
+   more — you could not ask it about a stage, only scroll past one.
+
+   It is now a pipeline you can address. The rail above is the control, the
+   stages below are the content, and one active index drives both. The
+   interaction vocabulary is the site's shared one:
+
+     HOVER / FOCUS  preview  — look at a stage without leaving where you are
+     CLICK / TAP    lock     — hold it, and stop the scroll from moving it
+     SCROLL         progress — the narrative default, whenever nothing is held
+     ACTIVE         brighter content, filled node
+     AVAILABLE      quieter content, hollow node
+
+   Unrelated stages are dimmed, never hidden: the shape of the whole pipeline
+   has to stay visible or "stage 3 of 4" stops meaning anything.
+   ========================================================================== */
+
+.rail {
+  --wf-cyan: #4fd1ff;
+  --wf-violet: #a78bfa;
+  --wf-line: rgb(148 163 184 / 0.2);
+  --wf-mute: rgb(var(--c-soft-mute));
+  --wf-ink: rgb(var(--c-soft-white));
+  --wf-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+}
+
+:global(.light) .rail {
+  --wf-cyan: #0e7490;
+  --wf-violet: #6d28d9;
+  --wf-line: rgb(15 23 42 / 0.14);
+}
+
+@media (min-width: 768px) {
+  .rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+}
+
+/* ── One stage button ── */
+
+.stage {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  border: 0;
+  background: none;
+  padding: 0.75rem 0.9rem 0.75rem 0;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 0.35s var(--wf-ease),
+    opacity 0.35s var(--wf-ease);
+}
+
+@media (min-width: 768px) {
+  .stage {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.9rem 1rem 0.9rem 0;
+  }
+}
+
+/* The connector: each stage carries the segment of line to its right, so the
+   rail is drawn by the stages themselves and cannot fall out of step with
+   them. It fills only up to the active stage — the line IS the progress. */
+.stage::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--wf-line);
+}
+
+.stage::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 1px;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--wf-cyan), var(--wf-violet));
+  transition: transform 0.5s var(--wf-ease);
+}
+
+/* Every stage up to and including the active one is filled. */
+.stage[data-passed="true"]::after {
+  transform: scaleX(1);
+}
+
+.stageIndex {
+  flex-shrink: 0;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--wf-mute);
+  transition: color 0.35s var(--wf-ease);
+}
+
+.stageName {
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--wf-mute);
+  transition: color 0.35s var(--wf-ease);
+}
+
+/* The node. Hollow when the stage is merely available, filled when it is the
+   one being read — the site's shared available/active grammar. */
+.node {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 9px;
+  width: 9px;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--wf-line);
+  border-radius: 999px;
+  background: rgb(var(--c-obsidian-400));
+  transition:
+    background-color 0.35s var(--wf-ease),
+    border-color 0.35s var(--wf-ease);
+}
+
+/* HOLLOW = available, FILLED = active. The site's shared grammar, and the
+   reason the node is a border rather than an inset shadow: at 9px an inset
+   ring leaves a hole small enough to read as a square. */
+.stage[data-passed="true"] .node {
+  border-color: var(--wf-cyan);
+}
+
+.stage[data-active="true"] .node {
+  border-color: var(--wf-cyan);
+  background: var(--wf-cyan);
+}
+
+/* A locked stage is the one place violet appears — "you are holding this". */
+.stage[data-locked="true"] .node {
+  border-color: var(--wf-violet);
+  background: var(--wf-violet);
+}
+
+@media (hover: hover) {
+  .stage:hover .node {
+    border-color: var(--wf-cyan);
+  }
+}
+
+.stage[data-active="true"] .stageIndex {
+  color: var(--wf-cyan);
+}
+
+.stage[data-active="true"] .stageName {
+  color: var(--wf-ink);
+}
+
+.stage[data-locked="true"] .stageIndex {
+  color: var(--wf-violet);
+}
+
+@media (hover: hover) {
+  .stage:hover .stageName {
+    color: var(--wf-ink);
+  }
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--wf-cyan);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (pointer: coarse) {
+  .stage {
+    min-height: 48px;
+  }
+}
+
+/* ── The stage rows below ──
+   Dimmed, never removed. The whole pipeline stays legible while one part of
+   it is being read. */
+
+.row {
+  transition: opacity 0.45s var(--wf-ease);
+}
+
+/* Dimming used to take the whole row to 38%, films included — which is why
+   three of the four visuals were always washed out. Now only the copy
+   quietens, and only a little; the pictures are the story and stay at full
+   strength. The node carries the active state instead. */
+.row[data-dim="true"] .copy {
+  opacity: 0.74;
+}
+
+/* The centre node on the rail between rows. Static — the pulsing halo that
+   used to sit here ran forever, on the home page, communicating nothing. */
+.rowNode {
+  height: 0.75rem;
+  width: 0.75rem;
+  border-radius: 999px;
+  background: var(--wf-line, rgb(148 163 184 / 0.35));
+  box-shadow: inset 0 0 0 1.5px rgb(148 163 184 / 0.5);
+  transition:
+    background-color 0.4s var(--wf-ease),
+    box-shadow 0.4s var(--wf-ease);
+}
+
+.row[data-active="true"] .rowNode {
+  background: #4fd1ff;
+  box-shadow: 0 0 14px rgb(79 209 255 / 0.55);
+}
+
+/* ── Reduced motion ──
+   Every state above still changes; none of it travels. */
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .stage::after,
+  .stageIndex,
+  .stageName,
+  .node,
+  .row,
+  .rowNode {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   THE PER-STAGE DISCLOSURE
+   --------------------------------------------------------------------------
+   Everything above this line is the zigzag exactly as it was. Everything
+   below is additive: one quiet button under each stage's copy, and the panel
+   it opens beneath that stage's row. Closed, none of it takes any space, so
+   the section is the old one to the pixel.
+
+   The button deliberately does not look like a button. It is body text in the
+   section's own mono voice with a chevron after it — the same weight as the
+   "Stage 01" label above the heading, so it reads as part of the stage rather
+   than as a control that landed on it.
+   ========================================================================== */
+
+.more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid transparent;
+  color: rgb(var(--c-soft-mute));
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    color 0.3s var(--wf-ease, ease),
+    border-color 0.3s var(--wf-ease, ease);
+}
+
+@media (hover: hover) {
+  .more:hover {
+    color: rgb(var(--c-soft-white));
+    border-bottom-color: rgb(79 209 255 / 0.45);
+  }
+}
+
+.more[data-open="true"] {
+  color: rgb(var(--c-soft-white));
+  border-bottom-color: rgb(79 209 255 / 0.3);
+}
+
+.more:focus-visible {
+  outline: 2px solid #4fd1ff;
+  outline-offset: 4px;
+  border-radius: 4px;
+  color: rgb(var(--c-soft-white));
+}
+
+/* The chevron: two borders on a rotated square, which needs no icon import
+   and no font. Pointing down when closed, up when open. */
+.moreMark {
+  display: block;
+  height: 0.4rem;
+  width: 0.4rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-0.12rem) rotate(45deg);
+  transition: transform 0.3s var(--wf-ease, ease);
+}
+
+.more[data-open="true"] .moreMark {
+  transform: translateY(0.06rem) rotate(-135deg);
+}
+
+/* ── The panel ──
+   Full width under the row, so a list of fourteen signals is readable rather
+   than squeezed into whichever half of the rail its stage happens to sit on. */
+.detail {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgb(148 163 184 / 0.14);
+  padding-top: 1.5rem;
+}
+
+/* Opening fades and lifts, once, over a fifth of a second. There is no height
+   animation: the panel is `hidden` when closed, and animating from a measured
+   height is a lot of machinery for a transition nobody asked to watch. */
+.detail:not([data-still="true"]) {
+  animation: wfDetailIn 0.24s var(--wf-ease, ease) both;
+}
+
+@keyframes wfDetailIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.detailLabel {
+  margin: 0 0 1rem;
+  color: rgb(var(--c-soft-mute));
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.detailList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.9rem 2.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .detailList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .detailList {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  border-left: 1px solid rgb(148 163 184 / 0.18);
+  padding-left: 0.85rem;
+}
+
+.detailTitle {
+  color: rgb(var(--c-soft-white));
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.detailNote {
+  color: rgb(var(--c-soft-gray));
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .more,
+  .moreMark {
+    transition: none;
+  }
+
+  .detail {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   ONE CONTROL FOR THE WHOLE WORKFLOW
+   --------------------------------------------------------------------------
+   The rail above is the summary; this row opens the zigzag under it. It is
+   deliberately a quiet line rather than a button-shaped block — the rail it
+   sits beneath is already the section's strongest horizontal, and a second
+   one would compete with it. A hairline above, the label on the left, the
+   arrow on the right, and the accent only on hover, focus and open.
+
+   THE EXPANSION IS A GRID ROW, not a max-height guess: `grid-template-rows`
+   from `0fr` to `1fr` collapses to whatever the workflow's real height turns
+   out to be, so nothing is measured and nothing is clipped. `visibility`
+   carries the accessibility half — hidden at rest keeps the closed panel out
+   of the accessibility tree and out of the tab order — and it is delayed on
+   the way down so the collapse is still visible while it runs.
+   ========================================================================== */
+
+/* The control's row. The pill itself is the shared home-page disclosure
+   control (components/ui/disclosure.module.css) — this only says where it
+   sits. Centred, because the heading, the lead and the four-stage rail above
+   it are centred, and a control hung off the left edge under centred copy
+   reads as a footnote to the section rather than the way into it.
+
+   What used to be here was that footnote: a full-width rule with a mono
+   caption at one end and a text arrow at the other. It was the quietest
+   thing in the section and it was the only thing in the section you had to
+   press. */
+.revealRow {
+  margin-top: 2.25rem;
+}
+
+/* The second control, under the research line. Same gap the research line
+   takes from the button above it, so the three rows — control, credit,
+   control — sit on one rhythm whatever is open or closed underneath them. */
+.chainRow {
+  margin-top: 1.625rem;
+}
+
+/* Open, the workflow panel ends on a stage row and the research line would
+   sit 26px under a film. This is the air that makes the credit read as the
+   next thing rather than as a caption on the zigzag — and it is on the PANEL,
+   so it collapses to nothing with it. */
+.panel[data-open="true"] > .panelInner {
+  padding-bottom: 3.5rem;
+}
+
+/* ── The research credit ───────────────────────────────────────────────
+   One line of type under the disclosure control, standing in for the research
+   section this page no longer carries. Deliberately not a component: no card,
+   no border, no background, nothing that could read as a section of its own.
+   It sits 1.5rem under the control — close enough to belong to it, far enough
+   not to crowd it — and wraps to two lines on a phone on its own. */
+
+/* The provenance line under the workflow button.
+   It was 11px, which made the one sentence on the page that says the work is
+   published read as a legal footnote. It is body-sized now and still clearly
+   secondary to the button above it: the weight stays at 500, the colour stays
+   muted, and only "Explore Research" takes the accent. Sized per breakpoint
+   rather than by clamp, because the range is narrow enough that three steps
+   are easier to reason about than a viewport curve. */
+.record {
+  /* ~26px below the button: far enough to read as its own line, close enough
+     to still belong to it. */
+  margin: 1.625rem auto 0;
+  max-width: 54rem;
+  text-align: center;
+  font-size: 0.9375rem; /* 15px — phones */
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.005em;
+  color: var(--text-mute);
+}
+
+@media (min-width: 640px) {
+  .record {
+    font-size: 1rem; /* 16px — tablets */
+  }
+}
+
+@media (min-width: 1024px) {
+  .record {
+    font-size: 1.0625rem; /* 17px — desktop */
+  }
+}
+
+.recordDot {
+  margin: 0 0.2em;
+  opacity: 0.55;
+}
+
+/* The one piece of colour in the line. Dark and light are stated side by side
+   — cyan-300 is unreadable on the light ground, and a colour defined only
+   inside a media query is a colour that goes missing in one theme. */
+.recordLink {
+  /* Inline, not inline-flex: a flex box on a text line sets its own top edge
+     and stops sharing the line box, which shows up as an uneven line when the
+     sentence wraps. The arrow rides the baseline instead. */
+  display: inline;
+  padding-block: 0.2rem;
+  color: rgb(79 209 255);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+:global(.light) .recordLink {
+  color: rgb(14 116 144);
+}
+
+.recordArrow {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.28em;
+  vertical-align: -0.06em;
+  transition: transform 220ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .recordLink:hover {
+    color: rgb(125 224 255);
+  }
+
+  :global(.light) .recordLink:hover {
+    color: rgb(8 87 110);
+  }
+
+  .recordLink:hover .recordArrow {
+    transform: translate(2px, -2px);
+  }
+}
+
+.recordLink:focus-visible {
+  outline: 2px solid rgb(79 209 255);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recordLink,
+  .recordArrow {
+    transition: none;
+  }
+}
+
+/* ── The panel ── */
+
+.panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    grid-template-rows 300ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 300ms ease,
+    visibility 0s linear 300ms;
+}
+
+.panel[data-open="true"] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  opacity: 1;
+  transition:
+    grid-template-rows 300ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 300ms ease,
+    visibility 0s linear 0s;
+}
+
+/* A zero-minimum track and a clipped child are what let the row collapse;
+   the inner element is also the block formatting context that stops the
+   zigzag's own top margin escaping and holding the gap open when closed. */
+.panelInner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The control carries its own reduced-motion rules; only the panel's
+     expansion is this file's to switch off. */
+  .panel,
+  .panel[data-open="true"] {
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   THE JOURNEY — four stages down one line
+   --------------------------------------------------------------------------
+   Layout, timeline, cards and entrance choreography for the zigzag. The
+   rows alternate copy and visual around a continuous centre line on desktop
+   and stack beside a left-edge line on a phone. Spacing is roughly 40%
+   tighter than the space-y-28 it replaces, so the stages read as one
+   sequence rather than four screens.
+   ========================================================================== */
+
+.journey {
+  --wf-cyan: #4fd1ff;
+  --wf-royal: #2563ff;
+  --wf-violet: #a78bfa;
+  --wf-line: rgb(148 163 184 / 0.2);
+  --wf-ground: rgb(var(--c-obsidian-400));
+  --wf-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --wf-rail-x: 0.5rem;
+  /* Where a row's node sits: the rail is in the journey's left padding on a
+     phone, 1.75rem outside the row's own box; on desktop it is the centre. */
+  --wf-node-x: calc(0.5rem - 2.25rem);
+  position: relative;
+  margin-top: 2.5rem;
+  padding-left: 2.25rem;
+}
+
+:global(.light) .journey {
+  --wf-cyan: #0891b2;
+  --wf-royal: #1b4ed9;
+  --wf-violet: #6d28d9;
+  --wf-line: rgb(15 23 42 / 0.14);
+  --wf-ground: #f3f6fa;
+}
+
+@media (min-width: 1024px) {
+  .journey {
+    --wf-rail-x: 50%;
+    --wf-node-x: 50%;
+    margin-top: 3rem;
+    padding-left: 0;
+  }
+}
+
+/* The line. A faint track the whole height, and the gradient fill the scroll
+   draws down it — cyan at the first stage, royal through the middle, violet
+   by the last. */
+.track,
+.trackFill {
+  position: absolute;
+  top: 0;
+  left: var(--wf-rail-x);
+  width: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  border-radius: 999px;
+}
+
+.track {
+  height: 100%;
+  background: var(--wf-line);
+}
+
+.trackFill {
+  background: linear-gradient(
+    180deg,
+    var(--wf-cyan) 0%,
+    var(--wf-royal) 52%,
+    var(--wf-violet) 100%
+  );
+  box-shadow: 0 0 18px rgb(37 99 255 / 0.35);
+}
+
+:global(.light) .trackFill {
+  box-shadow: 0 0 14px rgb(27 78 217 / 0.22);
+}
+
+.rows {
+  display: grid;
+  row-gap: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .rows {
+    row-gap: 4.25rem;
+  }
+}
+
+/* ── One row ── */
+.row {
+  position: relative;
+  display: grid;
+  gap: 1.1rem;
+}
+
+@media (min-width: 1024px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 5.5rem;
+    align-items: center;
+  }
+
+  .rowLeft .copy {
+    grid-column: 1;
+    justify-self: end;
+    text-align: right;
+  }
+
+  .rowLeft .visualWrap {
+    grid-column: 2;
+  }
+
+  .rowRight .copy {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .rowRight .visualWrap {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+/* ── The copy ── */
+.copy {
+  max-width: 34ch;
+  transition: opacity 0.45s var(--wf-ease);
+}
+
+.stageLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+}
+
+:global(.light) .stageLabel {
+  color: #1438a8;
+}
+
+.stageTitle {
+  margin-top: 0.7rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.85rem, 1.3rem + 1.6vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1.06;
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+  color: rgb(var(--c-soft-white));
+}
+
+.stageBody {
+  margin-top: 0.85rem;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgb(var(--c-soft-gray));
+}
+
+@media (min-width: 640px) {
+  .stageBody {
+    font-size: 1rem;
+  }
+}
+
+/* ── The node ── */
+.nodeWrap {
+  position: absolute;
+  left: var(--wf-node-x);
+  top: 0.55rem;
+  display: grid;
+  justify-items: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .nodeWrap {
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.journeyNode {
+  display: block;
+  height: 14px;
+  width: 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--wf-line);
+  background: var(--wf-ground);
+  box-shadow: 0 0 0 4px var(--wf-ground);
+  transition:
+    border-color 0.4s var(--wf-ease),
+    background-color 0.4s var(--wf-ease),
+    box-shadow 0.4s var(--wf-ease);
+}
+
+.row[data-active="true"] .journeyNode {
+  border-color: var(--wf-cyan);
+  background: var(--wf-cyan);
+  box-shadow:
+    0 0 0 4px var(--wf-ground),
+    0 0 0 6px rgb(79 209 255 / 0.28),
+    0 0 22px rgb(79 209 255 / 0.45);
+}
+
+:global(.light) .row[data-active="true"] .journeyNode {
+  box-shadow:
+    0 0 0 4px var(--wf-ground),
+    0 0 0 6px rgb(8 145 178 / 0.26),
+    0 0 18px rgb(8 145 178 / 0.3);
+}
+
+.nodeVerb {
+  display: none;
+  margin-top: 0.45rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: var(--wf-ground);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgb(var(--c-soft-mute));
+  transition: color 0.4s var(--wf-ease);
+}
+
+@media (min-width: 1024px) {
+  .nodeVerb {
+    display: block;
+  }
+}
+
+.row[data-active="true"] .nodeVerb {
+  color: var(--wf-cyan);
+}
+
+/* ── The visual ── */
+.visualWrap {
+  min-width: 0;
+}
+
+/* The card. Dark keeps the section's deep slab; light is the optical-glass
+   card the light system uses at its most restrained — 22px radius, a cool
+   hairline, translucent white, a soft blue-grey shadow and a 12px blur, so
+   the pearl ground reads faintly through the margins. */
+.visual {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: var(--wf-aspect, 1.1);
+  border-radius: 22px;
+  border: 1px solid rgb(148 163 184 / 0.16);
+  background: linear-gradient(180deg, rgb(8 14 26 / 0.98), rgb(4 8 15 / 1));
+  box-shadow: 0 24px 60px -30px rgb(0 0 0 / 0.7);
+  transition:
+    border-color 0.45s var(--wf-ease),
+    box-shadow 0.45s var(--wf-ease);
+}
+
+/* Light: a product diagram on a clean white card — opaque white, a cool
+   grey hairline, one soft shadow. The translucent, blurred fill it had made
+   the film behind it read as overexposed glass; the film is graded for paper
+   now (console_layers.json) and sits on solid white. */
+:global(.light) .visual {
+  /* Stages 02–04 show a still in light (HowItWorks `STAGE_LIGHT_STILLS`),
+     and the card takes the still's own shape so nothing is cropped. Stage 01
+     sets no light aspect and keeps the photograph's. */
+  aspect-ratio: var(--wf-aspect-light, var(--wf-aspect, 1.1));
+  border-color: rgba(20, 65, 110, 0.14);
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(12, 38, 65, 0.05),
+    0 18px 50px rgba(12, 38, 65, 0.09);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition:
+    transform 0.55s var(--wf-ease),
+    border-color 0.45s var(--wf-ease),
+    box-shadow 0.55s var(--wf-ease);
+}
+
+.row[data-active="true"] .visual {
+  border-color: rgb(79 209 255 / 0.35);
+}
+
+:global(.light) .row[data-active="true"] .visual {
+  border-color: rgba(27, 78, 217, 0.32);
+  box-shadow:
+    0 18px 50px rgba(20, 45, 80, 0.09),
+    0 0 0 1px rgba(8, 145, 178, 0.1);
+}
+
+/* The film or photograph fills the card. `cover`, not the letterbox the old
+   dark slab used — the films are near-square and the cards now are too, so
+   nothing is lost and nothing floats. Resting media is the file as encoded;
+   the hover adds a whisper of scale and lifts the markers a touch. */
+.media,
+.media > img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: inherit;
+  transition:
+    transform 0.6s var(--wf-ease),
+    filter 0.6s var(--wf-ease);
+}
+
+.mediaStill > img {
+  object-position: var(--wf-still-position, 50% 42%);
+}
+
+:global(.light) .mediaStill > img {
+  object-position: var(--wf-still-position-light, var(--wf-still-position, 50% 42%));
+}
+
+@media (hover: hover) {
+  .visual:hover .media,
+  .visual:hover .media > img {
+    transform: scale(1.015);
+    filter: saturate(1.1) contrast(1.03);
+  }
+}
+
+/* ── The light card's sheen ─────────────────────────────────────────────
+   Light only; dark keeps its slab. Two glass reflections on one card:
+
+     ::after   ONE sweep as the card arrives. `.visualWrap[data-shine]` is set
+               the moment the wrap enters the viewport (HowItWorks
+               `markShone`), once, so the sweep rides the fade-up and never
+               replays on a re-render or a theme change.
+     ::before  the hover sheen. Rests off the left edge; on hover it crosses
+               the card once over 1.1s, and on leave it fades where it is and
+               resets off screen — no reverse sweep, which is the one thing
+               that would make glass look like a wiper.
+
+   Both are the same band: a soft blue-white highlight, brightest at its
+   centre, skewed the way daylight crosses a tilted pane. It is white over a
+   white ground and so reads only on the graphics — which is what a glare
+   does. The card clips it (`overflow: hidden`, rounded), and it sits above
+   the media (z-index 1) and below nothing that matters. */
+:global(.light) .visual::before,
+:global(.light) .visual::after {
+  content: "";
+  position: absolute;
+  top: -12%;
+  bottom: -12%;
+  left: 0;
+  width: 46%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 0) 0%,
+    rgb(214 234 255 / 0.26) 32%,
+    rgb(255 255 255 / 0.6) 50%,
+    rgb(214 234 255 / 0.26) 68%,
+    rgb(255 255 255 / 0) 100%
+  );
+  transform: translateX(-170%) skewX(-14deg);
+  opacity: 0;
+}
+
+/* Rest: opacity fades where it is, then the band resets off screen. */
+:global(.light) .visual::before {
+  transition:
+    opacity 0.35s ease,
+    transform 0s linear 0.35s;
+}
+
+@keyframes wfSheenSweep {
+  0% {
+    transform: translateX(-170%) skewX(-14deg);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  84% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(330%) skewX(-14deg);
+    opacity: 0;
+  }
+}
+
+/* Entrance: the band crosses once, starting a beat into the fade-up. */
+:global(.light) .visualWrap[data-shine="true"] .visual::after {
+  animation: wfSheenSweep 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.35s 1 both;
+}
+
+@media (hover: hover) {
+  /* Lift 4px, a deeper cool shadow, a sapphire hairline and a faint cyan
+     glow — the light system's raised state, on the card the still sits in.
+     `.row` is in the selector so this outweighs the active-row border above:
+     a hovered card is always the active one, and the hover has to win. */
+  :global(.light) .row .visual:hover {
+    transform: translateY(-4px);
+    border-color: rgba(27, 78, 217, 0.36);
+    box-shadow:
+      0 2px 4px rgba(12, 38, 65, 0.05),
+      0 30px 64px -22px rgba(30, 58, 138, 0.3),
+      0 0 0 1px rgba(8, 145, 178, 0.12),
+      0 0 30px rgba(8, 145, 178, 0.16);
+  }
+
+  :global(.light) .visual:hover::before {
+    transform: translateX(330%) skewX(-14deg);
+    opacity: 1;
+    transition:
+      transform 1.1s cubic-bezier(0.22, 0.61, 0.36, 1),
+      opacity 0.3s ease;
+  }
+}
+
+/* The stage tag, bottom-left: a small mono chip on glass. */
+.tag {
+  position: absolute;
+  left: 0.85rem;
+  bottom: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(6 10 20 / 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(203 213 225 / 0.9);
+  pointer-events: none;
+}
+
+:global(.light) .tag {
+  border-color: rgba(40, 80, 130, 0.14);
+  background: rgba(255, 255, 255, 0.8);
+  color: #1438a8;
+}
+
+/* A light still card has no chip: stages 02 and 04 print their own
+   "STAGE_0N" pill in that corner, and 03 has the risk ring there. */
+.visual[data-still="true"] .tag {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copy,
+  .journeyNode,
+  .nodeVerb,
+  .visual,
+  .media,
+  .media > img {
+    transition: none;
+  }
+
+  .visual:hover .media,
+  .visual:hover .media > img {
+    transform: none;
+    filter: none;
+  }
+
+  /* No sweep and no lift; the border and shadow still answer the hover. */
+  :global(.light) .visual::before,
+  :global(.light) .visual::after,
+  :global(.light) .row .visual:hover::before,
+  :global(.light) .visualWrap[data-shine="true"] .visual::after {
+    animation: none;
+    transition: none;
+    opacity: 0;
+  }
+
+  :global(.light) .row .visual:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,345 @@
+/* ===========================================================================
+   MOVEMENT X-RAY
+   ---------------------------------------------------------------------------
+   Two readings of one walk: the body a person sees, and the channels a model
+   reads. The geometry comes from the shared gait keyframes; this file is only
+   colour, weight and the one transition between the two views.
+
+   ONE ACCENT VARIABLE, SET BY FAMILY. `--x-accent` is the only thing that
+   changes between the MobilityCare and SecureVision instances, so the two
+   read as the same instrument in two places rather than as two instruments.
+   Light theme overrides sit next to each declaration rather than in a block
+   at the bottom, because a colour whose only definition lives inside a media
+   query is how a token goes missing.
+   =========================================================================== */
+
+.xray {
+  --x-accent: 34 211 238; /* cyan-400 */
+  --x-ink: 226 232 240;
+  --x-line: 255 255 255;
+  --x-line-a: 0.1;
+  --x-mass-a: 0.42;
+  --x-dim-a: 0.34;
+}
+
+.famSecure {
+  --x-accent: 139 156 255; /* the SecureVision royal/violet accent */
+}
+
+:global(.light) .xray {
+  --x-accent: 14 116 144; /* cyan-700, the light-theme accent */
+  --x-ink: 15 23 42;
+  --x-line: 15 23 42;
+  --x-line-a: 0.14;
+  --x-mass-a: 0.3;
+  --x-dim-a: 0.4;
+}
+
+:global(.light) .famSecure {
+  --x-accent: 67 56 202; /* indigo-700 */
+}
+
+/* ── The frame ───────────────────────────────────────────────────────────── */
+
+/* WIDE DIAGRAM, NARROW PHONE.
+   Five figures across a 712-unit viewBox is 78px per figure at 390px wide,
+   and the in-SVG channel labels come out around 4px — a skeleton nobody can
+   see, annotated by text nobody can read. Shrinking to fit is the wrong
+   answer for a diagram whose whole content is fine detail, so it scrolls
+   inside its own container instead, which is the rule the rest of the site
+   follows for wide content. The page body never scrolls sideways. */
+.scroller {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}
+
+.frame {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+@media (max-width: 640px) {
+  .frame {
+    /* Enough that a figure stays about 120px wide and the labels stay
+       legible; below this the container scrolls. */
+    min-width: 600px;
+  }
+}
+
+.ground {
+  stroke: rgb(var(--x-line) / var(--x-line-a));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── HUMAN VIEW: the body mass ───────────────────────────────────────────── */
+
+/* THE TRANSPARENCY IS ON THE GROUP, NOT ON EACH SHAPE.
+   A silhouette is a torso polygon, four thick limb strokes and a head disc
+   that all overlap. Giving each of them the same alpha made every overlap
+   darker than its neighbours, so the figure read as a grey blob with a
+   rectangle stuck on it rather than as a person — and the human view has to
+   look human or the comparison it anchors means nothing. Painting the group
+   opaque and fading it ONCE flattens the overlaps first, so the shape is
+   uniform and the torso disappears into the body it belongs to. */
+.mass {
+  fill: rgb(var(--x-ink));
+  stroke: rgb(var(--x-ink));
+  opacity: var(--x-mass-a);
+}
+
+.massTorso {
+  fill: rgb(var(--x-ink));
+  stroke: rgb(var(--x-ink));
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.massLimb,
+.massLimbLeg {
+  fill: none;
+  stroke: inherit;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.massLimb {
+  stroke-width: 7;
+}
+
+.massLimbLeg {
+  stroke-width: 9;
+}
+
+.massHead {
+  fill: rgb(var(--x-ink));
+  stroke: none;
+}
+
+/* ── HUMAN VIEW: the recording ───────────────────────────────────────────── */
+
+.plate {
+  filter: contrast(1.04) saturate(0.9);
+}
+
+:global(.light) .plate {
+  filter: contrast(1.02) saturate(0.95) brightness(1.06);
+}
+
+.plateEdge {
+  fill: none;
+  stroke: rgb(var(--x-line) / calc(var(--x-line-a) * 1.6));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.eventTick {
+  stroke: rgb(var(--x-accent) / 0.8);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.eventLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: rgb(var(--x-ink) / 0.6);
+}
+
+/* The raw-video step, as a frame rather than a clip. */
+.rawFrame {
+  display: block;
+  width: 100%;
+  max-height: 330px;
+  object-fit: cover;
+  object-position: 50% 40%;
+  background: #080d17;
+  border-radius: 0.75rem;
+}
+
+/* ── AI VIEW: skeleton, landmarks, traces ────────────────────────────────── */
+
+.bone {
+  fill: none;
+  stroke: rgb(var(--x-accent) / 0.85);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.boneFar {
+  stroke: rgb(var(--x-accent) / 0.32);
+}
+
+.joint {
+  fill: rgb(var(--x-accent) / 0.95);
+  stroke: none;
+}
+
+.head {
+  fill: none;
+  stroke: rgb(var(--x-accent) / 0.7);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Footfall markers — where the data says the foot is on the ground. */
+.contact {
+  fill: rgb(var(--x-accent) / 0.18);
+  stroke: rgb(var(--x-accent) / 0.45);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Joint trajectory across the stride. */
+.trail {
+  fill: none;
+  stroke: rgb(var(--x-accent) / 0.6);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.trailNode {
+  fill: rgb(var(--x-accent) / 0.75);
+  stroke: none;
+}
+
+/* Temporal channel strips under the ground line. */
+.trace {
+  fill: none;
+  stroke: rgb(var(--x-accent) / 0.75);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.traceBase {
+  stroke: rgb(var(--x-line) / var(--x-line-a));
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+/* The mono stack every other SVG label on the site uses (see
+   analytics.module.css .gText). This was `var(--font-sans, ui-sans-serif)`,
+   and there is no --font-sans on this site — the fonts are --font-inter,
+   --font-jetbrains and --font-space — so it fell through to a system fallback
+   and rendered with visibly different letterforms from every neighbouring
+   diagram. */
+.traceLabel {
+  fill: rgb(var(--x-ink) / var(--x-dim-a));
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── The one transition ──────────────────────────────────────────────────
+   The two layers are both mounted and cross-faded, so the figures do not
+   reflow and the reader's eye stays on the same body while its representation
+   changes. That IS the argument the control is making, so it is worth the
+   250ms; it is not decoration, and it is the only animation in this file. */
+
+.layer {
+  transition: opacity var(--motion-ui, 220ms) var(--ease-out, ease-out);
+}
+
+.layerOff {
+  opacity: 0;
+}
+
+.exploreButton {
+  margin-top: 1rem;
+  color: rgb(var(--x-accent));
+  font-size: 0.8125rem;
+  min-height: 44px;
+}
+
+.pipeline {
+  margin-top: 0.5rem;
+  padding: 1rem 0;
+  border-block: 1px solid rgb(var(--x-line) / var(--x-line-a));
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.steps button {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 0.5rem;
+  text-align: left;
+  font-size: 0.75rem;
+  color: rgb(var(--x-ink) / 0.7);
+  border-bottom: 1px solid rgb(var(--x-line) / var(--x-line-a));
+  transition: color var(--motion-ui), border-color var(--motion-ui);
+}
+
+.steps button[aria-current="step"] {
+  border-color: rgb(var(--x-accent));
+  color: rgb(var(--x-accent));
+}
+
+.stepNumber {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.625rem;
+  opacity: 0.7;
+}
+
+.scrubLabel {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.2rem;
+  color: rgb(var(--x-ink) / 0.75);
+  font-size: 0.75rem;
+}
+
+.scrubLabel > span {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.stepName { color: rgb(var(--x-accent)); }
+.scrubLabel input { width: 100%; min-height: 28px; accent-color: rgb(var(--x-accent)); }
+.stageContext { margin-top: 0.75rem; font-size: 0.8125rem; line-height: 1.7; color: rgb(var(--x-ink) / 0.75); }
+.rawVideo { display: block; width: 100%; max-height: 330px; object-fit: contain; background: #080d17; border-radius: 0.75rem; }
+.poseOnly .bone, .poseOnly .head { opacity: 0; }
+.selectedTrail { stroke: rgb(var(--x-accent)); stroke-width: 2.8; stroke-dasharray: none; }
+.explanation { margin-top: 1.5rem; padding-left: 1rem; border-left: 2px solid rgb(var(--x-accent) / 0.5); }
+.explanation h3 { font-size: 0.875rem; font-weight: 600; color: rgb(var(--x-ink)); }
+.explanation p { margin-top: 0.75rem; font-size: 0.8125rem; line-height: 1.7; color: rgb(var(--x-ink) / 0.78); }
+.explanation .limitation { font-size: 0.75rem; color: rgb(var(--x-ink) / 0.62); }
+.channelChoices, .actions { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-top: 0.75rem; }
+.channelChoices button, .actions a { min-height: 44px; display: inline-flex; align-items: center; font-size: 0.8125rem; color: rgb(var(--x-ink) / 0.75); border-bottom: 1px solid transparent; }
+.channelChoices button[aria-pressed="true"], .actions a { color: rgb(var(--x-accent)); border-color: rgb(var(--x-accent) / 0.5); }
+.xray button:focus-visible, .xray a:focus-visible, .xray input:focus-visible { outline: 2px solid rgb(var(--x-accent)); outline-offset: 4px; border-radius: 3px; }
+
+@media (max-width: 640px) {
+  .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layer {
+    transition: none;
+  }
+}

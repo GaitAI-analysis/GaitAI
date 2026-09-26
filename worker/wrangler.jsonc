@@ -1,0 +1,119 @@
+// ASK GAITAI — the Cloudflare Worker behind the assistant's hosted answers.
+// =============================================================================
+// One endpoint: POST /api/ask (and its OPTIONS preflight). Everything else 404s.
+// Provider: Cloudflare Workers AI, through the native `AI` binding — no external
+// model API, no provider key, no AI Gateway. The binding itself supplies access
+// from the Worker's own environment.
+//
+// WHAT IS AND IS NOT IN THIS FILE
+//   · plain configuration: the Worker's name, the entry point, the AI binding,
+//     the Durable Object that meters callers, and NON-secret vars
+//   · never a secret. This Worker needs none: Workers AI is reached through the
+//     binding, which has no token to leak.
+//
+// LOCAL DEVELOPMENT, PLAINLY. Cloudflare documents that "Using Workers AI
+// always accesses your Cloudflare account in order to run AI models and will
+// incur usage charges even in local development" — `wrangler dev` prompts for a
+// login and every env.AI.run() call spends the account's daily Neuron
+// allocation. The test suite therefore mocks the binding and never calls it.
+//
+// PUBLIC URL — the workers.dev hostname, deployed 2026-09-09.
+//   The Worker is live at https://gaitai-ask.<account>.workers.dev/api/ask and
+//   the site's build variable NEXT_PUBLIC_ASK_GAITAI_ENDPOINT points there
+//   (.github/workflows/deploy.yml). The URL is public by nature; the endpoint
+//   accepts only the origins in ALLOWED_ORIGINS and is metered by AskGuard.
+//
+// CUSTOM DOMAIN — prepared, not active.
+//   The intended public URL is https://ask.gaitai.in/api/ask. A Worker custom
+//   domain needs the gaitai.in zone on Cloudflare; on 2026-09-09 the zone's
+//   nameservers were the registrar's (dns-parking.com), so it cannot be
+//   attached yet. gaitai.in itself stays on GitHub Pages. To activate, once
+//   the zone's nameservers point at Cloudflare (with the GitHub Pages A/CNAME
+//   records recreated there):
+//     1. uncomment the `routes` block below and deploy
+//     2. set the repository variable NEXT_PUBLIC_ASK_GAITAI_ENDPOINT to
+//        https://ask.gaitai.in/api/ask (it overrides the workflow default)
+//        and rebuild the site
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "gaitai-ask",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+
+  // The workers.dev hostname is the production URL until the custom domain
+  // can be attached (see above). `wrangler dev` does not need it.
+  "workers_dev": true,
+
+  // "routes": [{ "pattern": "ask.gaitai.in", "custom_domain": true }],
+
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+
+  // Workers AI, available in the Worker as env.AI. Runs on the Workers Free
+  // plan within its 10,000 Neurons/day allocation (resets 00:00 UTC); past
+  // that, inference fails and the browser falls back to its local answer.
+  "ai": {
+    "binding": "AI"
+  },
+
+  // NON-SECRET configuration. Every value here is readable by anyone with the
+  // repository, which is fine: none of it grants access to anything.
+  "vars": {
+    // Exact origins allowed to call the endpoint, comma-separated. No
+    // wildcards; the accepted Origin is echoed back verbatim. Development
+    // origins (http://localhost:3000, …) belong in .dev.vars, not here.
+    "ALLOWED_ORIGINS": "https://gaitai.in,https://www.gaitai.in",
+
+    // The Workers AI model id. Verified end to end on 2026-09-09: env.AI
+    // binding, chat messages, a system prompt and supplied GaitAI context
+    // produced a correctly grounded answer. Provider and model selection are
+    // centralised in src/provider.ts; this var is the one knob it reads.
+    "WORKERS_AI_MODEL": "@cf/meta/llama-3.2-3b-instruct",
+
+    // Reasoning effort for the reasoning-capable candidates (GLM, Gemma,
+    // Nemotron): "" | "low" | "medium" | "high", sent as `reasoning_effort`
+    // only when set. Llama 3.2 3B is not a reasoning model, so nothing is
+    // sent; set "low" when switching to a reasoning model — at their default
+    // effort the first real calls spent the whole completion budget thinking
+    // and returned an empty answer.
+    "MODEL_REASONING_EFFORT": "",
+
+    // Retrieval models (src/lib/ask/semantic.ts, worker/src/semantic.ts).
+    // EMBEDDING_MODEL must be the model the committed index
+    // (data/ask-embeddings.json) was built with; the Worker checks and falls
+    // back to lexical retrieval on a mismatch. Empty disables the stage.
+    "EMBEDDING_MODEL": "@cf/baai/bge-small-en-v1.5",
+    "RERANK_MODEL": "@cf/baai/bge-reranker-base",
+    // Hybrid score weights "lexical,semantic,metadata"; empty = the pipeline's
+    // defaults (0.45, 0.45, 0.10; precise intents 0.70, 0.20, 0.10).
+    "HYBRID_WEIGHTS": "",
+
+    // Output ceiling per answer — the single largest lever on latency and
+    // Neuron spend. Kept at 450 while reasoning_effort=low is evaluated.
+    "MODEL_MAX_OUTPUT_TOKENS": "450",
+    // How long to wait for the model before answering 504.
+    "MODEL_TIMEOUT_MS": "22000",
+
+    // Abuse controls enforced by the AskGuard Durable Object (see src/guard.ts).
+    "ASK_BURST_MAX": "8",        // questions per caller per 2 minutes
+    "ASK_HOURLY_MAX": "40",      // questions per caller per hour
+    // Our OWN ceiling on hosted calls per UTC day, site-wide, independent of
+    // Cloudflare's Neuron allocation. 100 is the INITIAL PRODUCTION LIMIT for
+    // the observation period after going live (2026-09-09; it was 25 while
+    // Workers AI was being evaluated). Adjust it later from real usage in the
+    // Cloudflare dashboard — deliberately, and never to unlimited: past the
+    // budget the Worker answers 503 and every browser falls back to its local
+    // extractive answer, so the assistant keeps working.
+    "ASK_DAILY_BUDGET": "100"
+  },
+
+  // One small Durable Object holds every counter: per-caller windows keyed by
+  // a salted, daily-rotating hash of the IP, and the site-wide daily budget.
+  // SQLite-backed, so it is available on the Workers Free plan.
+  "durable_objects": {
+    "bindings": [{ "name": "ASK_GUARD", "class_name": "AskGuard" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["AskGuard"] }]
+}

@@ -1,0 +1,1291 @@
+/* =========================================================================
+   THE INSIGHTS HUB — editorial composition, physical cards, live signal
+   ---------------------------------------------------------------------------
+   Sits on top of journal.module.css (which owns the card's ground, accent
+   line, media and body type) and archive.module.css (masthead, controls,
+   filters). This file adds three things and nothing else:
+
+     1. the composition — a cover story, then stories of varying footprint in
+        an intentional order, never a masonry
+     2. the physical response — a 2–4px lift, a border that lights where the
+        pointer is, a hairline that travels, a press, a spring return
+     3. the living signal beside the masthead
+
+   Touch never depends on hover: every card's interaction responds to tap and
+   drag, and the cue line is painted at full strength under (hover: none).
+   ========================================================================= */
+
+/* ── The live signal beside the kicker ── */
+.signal {
+  display: inline-block;
+  width: 64px;
+  height: 18px;
+  vertical-align: middle;
+  margin-left: 0.9rem;
+  overflow: visible;
+}
+.signalPath {
+  fill: none;
+  stroke: var(--jr-cyan);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 46 400;
+  stroke-dashoffset: 0;
+}
+.signal[data-active="true"] .signalPath {
+  animation: hubSignal 4.2s linear 3;
+}
+.signalBase {
+  fill: none;
+  stroke: var(--jr-line-mid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.signalDot {
+  fill: var(--jr-cyan);
+}
+.signal[data-active="true"] .signalDot {
+  animation: hubSignalDot 4.2s linear 3;
+}
+@keyframes hubSignal {
+  from {
+    stroke-dashoffset: 446;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes hubSignalDot {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .signal[data-active="true"] .signalPath,
+  .signal[data-active="true"] .signalDot {
+    animation: none;
+  }
+}
+
+/* ── The composition ──
+   Two columns from 700px. The cover story stands alone above it. Inside, a
+   story is `half` (one column) or `wide` (both), in an order decided by the
+   composition component — so the grid is intentional at every count. */
+.composition {
+  display: grid;
+  scroll-margin-top: var(--header-clearance);
+  gap: 1.1rem;
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 1.25rem;
+}
+@media (min-width: 700px) {
+  .composition {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .wide,
+  .wide > * {
+    grid-column: 1 / -1;
+  }
+  /* The asymmetric pair: a larger story beside a compact one, then the
+     reverse on the next pair, so the page reads as composed spreads. */
+  .spanMajor {
+    grid-column: span 3;
+  }
+  .spanMinor {
+    grid-column: span 2;
+  }
+}
+
+/* ── The Foundations explorer: index on the left, live preview on the right ── */
+.explorer {
+  display: grid;
+  scroll-margin-top: var(--header-clearance);
+  gap: 1.5rem;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .explorer {
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.5fr);
+    gap: clamp(2rem, 3.5vw, 3.5rem);
+  }
+}
+.explorerIndex {
+  position: relative;
+  padding: 0.5rem 0 0.5rem 0.25rem;
+}
+.explorerTabs {
+  margin-top: 1rem;
+  display: grid;
+}
+/* A row: marker · number · title. A button, so it is a tab a keyboard can
+   drive; the whole row is the target and it is never shorter than 44px. */
+.explorerRow {
+  position: relative;
+  scroll-margin-top: var(--header-clearance);
+  display: grid;
+  grid-template-columns: 1.1rem 2rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--jr-line);
+  text-align: left;
+  font-size: 0.9375rem;
+  line-height: 1.35;
+  color: var(--jr-body);
+  cursor: pointer;
+  transition: color var(--motion-ui) var(--jr-ease);
+}
+.explorerRow:hover,
+.explorerRow:focus-visible {
+  color: var(--jr-ink);
+  outline: none;
+}
+.explorerRow:focus-visible .explorerLabel {
+  text-decoration: underline;
+  text-decoration-color: var(--jr-cyan);
+  text-underline-offset: 4px;
+}
+.explorerIndexNo {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--jr-violet);
+}
+.explorerLabel {
+  transition: font-weight var(--motion-fast) var(--jr-ease);
+}
+/* The selected state: a cyan point that slides in, trailing a short
+   trajectory; the title takes weight. No fill, no pill. */
+.explorerMark {
+  position: relative;
+  display: block;
+  width: 1.1rem;
+  height: 6px;
+}
+.explorerMark::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--jr-cyan);
+  transform: translate(-6px, -50%) scale(0.4);
+  opacity: 0;
+  transition: transform var(--motion-editorial) var(--jr-ease), opacity var(--motion-ui) var(--jr-ease);
+}
+.explorerMark::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--jr-cyan), transparent);
+  transform: translateY(-50%);
+  transition: width var(--motion-editorial) var(--jr-ease);
+}
+.explorerRowOn {
+  color: var(--jr-ink);
+}
+.explorerRowOn .explorerLabel {
+  font-weight: 600;
+}
+.explorerRowOn .explorerMark::before {
+  transform: translate(0, -50%) scale(1);
+  opacity: 1;
+}
+.explorerRowOn .explorerMark::after {
+  width: 0.9rem;
+  left: 8px;
+}
+/* The connection to the preview: a short trajectory leaving the selected row
+   toward the card, with a signal point travelling along it once. Desktop
+   only — on a stacked layout the card sits directly below the index. */
+@media (min-width: 900px) {
+  .explorerRowOn::after {
+    content: "";
+    position: absolute;
+    right: -2.6rem;
+    top: 50%;
+    width: 2.6rem;
+    height: 1px;
+    background: linear-gradient(90deg, var(--jr-cyan), transparent);
+    opacity: 0.7;
+    animation: hubConnect var(--motion-editorial) var(--jr-ease) both;
+  }
+  .explorerRowOn::before {
+    content: "";
+    position: absolute;
+    right: -2.6rem;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--jr-cyan);
+    transform: translate(0, -50%);
+    animation: hubConnectDot 0.9s var(--jr-ease) both;
+  }
+}
+@keyframes hubConnect {
+  from {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+}
+@keyframes hubConnectDot {
+  0% {
+    transform: translate(0, -50%);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(2.4rem, -50%);
+    opacity: 0;
+  }
+}
+.explorerPreview {
+  min-width: 0;
+}
+/* The preview crossfades in; under reduced motion the class is not applied. */
+.previewEnter {
+  animation: hubPreviewIn 0.36s var(--jr-ease) both;
+}
+@keyframes hubPreviewIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* The selected preview must read as awake, not dimmed. No opacity sits on
+   the panel or the card — only individual graphic layers are quiet — so the
+   lift is local: the inactive readings of the drawing come up a little, and
+   the muted type in this one card (labels, meta) takes a touch more light.
+   The card itself is not brightened. */
+.previewCard {
+  --mini-dim: 0.72;
+  --jr-mute: color-mix(in srgb, rgb(var(--c-soft-mute)) 62%, rgb(var(--c-soft-gray)));
+}
+/* The preview card: media a little shorter, body closer to it, a call to
+   action a reader cannot miss. The hooks are the journal's hashed classes,
+   matched by their stable name fragment. */
+.previewCard :global([class*="cardMedia"]) {
+  aspect-ratio: 16 / 10;
+}
+.previewCard :global([class*="cardCta"]) {
+  color: var(--jr-cyan);
+}
+/* Below the wide desktop the five titles and excerpts wrap differently; a
+   two-line title box and a three-line excerpt box keep the preview the same
+   height from story to story, so the explorer does not jump. */
+@media (max-width: 1199px) {
+  .previewCard :global([class*="cardTitle"]) {
+    min-height: calc(2 * 1.28em);
+  }
+  .previewCard :global([class*="cardExcerpt"]) {
+    min-height: calc(3 * 1.7 * 0.8125rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .previewEnter,
+  .explorerRowOn::after,
+  .explorerRowOn::before {
+    animation: none;
+  }
+  .explorerMark::before,
+  .explorerMark::after {
+    transition: none;
+  }
+}
+
+/* ── The Foundations note: text on the page ground, beside the last story ── */
+.foundationsNote {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.25rem 0.5rem 1.25rem 1.25rem;
+}
+@media (max-width: 699px) {
+  .foundationsNote {
+    padding: 1.5rem 0.25rem 0.5rem;
+  }
+}
+.foundationsKicker {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-violet);
+}
+.foundationsTitle {
+  margin-top: 0.7rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--jr-ink);
+}
+.foundationsBody {
+  margin-top: 0.8rem;
+  max-width: 26rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--jr-body);
+}
+.foundationsList {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.15rem;
+}
+.foundationsItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  min-height: 34px;
+  padding: 0.3rem 0;
+  font-size: 0.875rem;
+  color: var(--jr-body);
+  border-bottom: 1px solid var(--jr-line);
+  transition: color 0.25s var(--jr-ease);
+}
+.foundationsItem:hover,
+.foundationsItem:focus-visible {
+  color: var(--jr-ink);
+  outline: none;
+}
+.foundationsIndex {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--jr-violet);
+}
+.foundationsCta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 1rem;
+  min-height: 44px;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jr-cyan);
+}
+/* The journey begins here: a movement line draws under the words on hover
+   or focus, and the arrow steps forward. */
+.foundationsCta::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 8px;
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, var(--jr-cyan), transparent);
+  transition: width var(--motion-editorial) var(--jr-ease);
+}
+.foundationsCta span {
+  transition: transform var(--motion-ui) var(--jr-ease);
+}
+.foundationsCta:hover,
+.foundationsCta:focus-visible {
+  color: var(--jr-ink);
+  outline: none;
+}
+.foundationsCta:hover::after,
+.foundationsCta:focus-visible::after {
+  width: 100%;
+}
+.foundationsCta:hover span,
+.foundationsCta:focus-visible span {
+  transform: translateX(4px);
+}
+
+/* ── The physical card ──
+   Layered on `.card` from journal.module.css. The pointer position arrives
+   as --mx / --my (0..1) and drives the border light and the faint tilt. The
+   card's corner registration marks recede here: on a page of six cards they
+   read as console chrome, and the border light already says "live". */
+.physical::after {
+  opacity: 0.14;
+}
+/* A quiet base border. The accent is not painted around the whole card any
+   more; it arrives where the pointer is (edgeLight) and along the top edge. */
+.physical {
+  border-color: var(--jr-line-mid);
+  scroll-margin-top: var(--header-clearance);
+}
+.physical[data-pointer="true"] {
+  border-color: color-mix(in srgb, var(--jr-accent, #4fd1ff) 30%, var(--jr-line-mid));
+}
+.physical:hover::after,
+.physical:focus-within::after {
+  opacity: 0.26;
+}
+.physical {
+  --mx: 0.5;
+  --my: 0.5;
+  --tilt: 0;
+  transform-style: preserve-stretch;
+  transition:
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.5s var(--jr-ease),
+    box-shadow 0.6s var(--jr-ease);
+}
+.physical[data-pointer="true"] {
+  transform: translateY(-3px)
+    perspective(1200px)
+    rotateX(calc((0.5 - var(--my)) * 1.4deg))
+    rotateY(calc((var(--mx) - 0.5) * 1.6deg));
+  transition:
+    transform 0.16s ease-out,
+    border-color 0.5s var(--jr-ease),
+    box-shadow 0.6s var(--jr-ease);
+}
+.physical:active,
+.physical[data-pressed="true"] {
+  transform: translateY(-1px) scale(0.995);
+  transition: transform 0.08s ease-out;
+}
+/* The border light: a radial highlight on the card edge, centred where the
+   pointer is. Masked to a 1px ring so it reads as the border catching light,
+   not as a glow. */
+.physical .edgeLight {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: inherit;
+  pointer-events: none;
+  padding: 1px;
+  background: radial-gradient(
+    240px circle at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+    color-mix(in srgb, var(--jr-accent, #4fd1ff) 85%, white),
+    color-mix(in srgb, var(--jr-accent, #4fd1ff) 35%, transparent) 40%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s var(--jr-ease);
+}
+.physical[data-pointer="true"] .edgeLight {
+  opacity: 0.9;
+}
+/* A moving hairline across the top edge, once, on entry. */
+.physical .hairline {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  left: -30%;
+  width: 30%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--jr-accent, #4fd1ff), transparent);
+  opacity: 0;
+}
+.physical[data-pointer="true"] .hairline {
+  animation: hubHairline 1.1s var(--jr-ease) 1 both;
+}
+@keyframes hubHairline {
+  0% {
+    left: -30%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+/* Content depth: the body lifts a hair less than the media so the card has
+   a front and a back. */
+.physical[data-pointer="true"] .depth {
+  transform: translateZ(6px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .physical,
+  .physical[data-pointer="true"],
+  .physical:active {
+    transform: none;
+  }
+  .physical .hairline {
+    animation: none;
+  }
+}
+@media (hover: none) {
+  /* On touch there is no pointer to follow: the edge light rests centred and
+     only the press remains. */
+  .physical[data-pointer="true"] {
+    transform: translateY(-2px);
+  }
+}
+
+/* ── The media zone that carries a mini interaction ──
+   It sits ABOVE the card's stretched link so a finger on the picture
+   interacts and a finger on the words navigates. */
+.media {
+  position: relative;
+  /* Above the card's stretched link (`.cardLink::after`, z-index 5), so a
+     finger or a pointer on the picture explores it and never navigates. */
+  z-index: 6;
+  touch-action: pan-y;
+  cursor: crosshair;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.mediaTap {
+  cursor: pointer;
+}
+/* Type inside the cover artwork. Readable or absent: 11 viewBox units on a
+   640-wide drawing lands at ~12px on a desktop cover, and the labels that
+   did not earn that size are gone. */
+.coverLabel {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  fill: var(--jr-mute);
+}
+.coverLabelInk {
+  fill: var(--jr-ink);
+}
+.coverLabelAccent {
+  fill: var(--jr-cyan);
+}
+.coverLabelWarn {
+  fill: var(--jr-gold);
+}
+/* On a phone the whole drawing is a third of its desktop width, so the type
+   scales up in viewBox units to stay legible. */
+@media (max-width: 640px) {
+  .coverLabel {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+}
+.mediaCover {
+  /* Pinned to the media slot's box. `height: 100%` against an aspect-ratio
+     parent resolves to auto and let the column grow past the slot, which
+     clipped the stage control on phones; absolute inset gives the column
+     the slot's real height. */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+.mediaCover .mediaSvg {
+  /* Fill whatever height the control leaves, never more: with `height: 0`
+     the drawing letterboxes inside the remaining space, so the stage
+     control is always visible below it — on a phone included. */
+  flex: 1 1 0%;
+  height: 0;
+  min-height: 0;
+}
+.coverControl {
+  flex: 0 0 auto;
+  padding: 0 1rem 0.35rem;
+  touch-action: pan-y;
+}
+.coverControl [role="slider"] {
+  height: 36px;
+}
+.mediaSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* The instruction, painted on the media: what this picture does. Faint at
+   rest, legible on hover, always visible on touch. */
+.cue {
+  position: absolute;
+  z-index: 4;
+  left: 0.85rem;
+  bottom: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  pointer-events: none;
+  border-radius: 999px;
+  padding: 0.28rem 0.6rem;
+  background: rgb(var(--c-obsidian-500) / 0.72);
+  border: 1px solid var(--jr-line);
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jr-ink);
+  opacity: 0.6;
+  transition: opacity 0.3s var(--jr-ease);
+}
+:global(.journal-card):hover .cue,
+:global(.journal-card):focus-within .cue {
+  opacity: 0.95;
+}
+.media[data-used="true"] .cue {
+  opacity: 0;
+}
+.cueMark {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--jr-accent, #4fd1ff);
+}
+@media (hover: none) {
+  .cue {
+    opacity: 0.9;
+  }
+}
+/* The state readout on the media: which stage the reader is at. */
+.readout {
+  position: absolute;
+  z-index: 4;
+  right: 0.85rem;
+  top: 0.7rem;
+  pointer-events: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jr-accent, #4fd1ff);
+  text-shadow: 0 1px 0 rgb(var(--c-obsidian-500) / 0.6);
+}
+:global(.light) .readout {
+  text-shadow: none;
+}
+
+/* ── The search match line under a card's headline ── */
+.match {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--jr-body);
+}
+.matchWhere {
+  flex: 0 0 auto;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-cyan);
+}
+.matchSection {
+  position: relative;
+  z-index: 3;
+  color: var(--jr-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--jr-line-mid);
+  text-underline-offset: 3px;
+}
+.matchSection:hover {
+  text-decoration-color: var(--jr-cyan);
+}
+.matchMark {
+  color: var(--jr-ink);
+  font-weight: 600;
+  background: rgb(79 209 255 / 0.14);
+  border-radius: 2px;
+  padding: 0 2px;
+}
+:global(.light) .matchMark {
+  background: rgb(16 143 192 / 0.12);
+}
+
+/* ── The cover story ── */
+.feature {
+  --jr-card-ambient: 10%;
+}
+/* `.card .featureMedia` so it outranks journal's `.cardFull .cardMedia`,
+   which otherwise pins the slot to 16/9. Stacked (phones, tablets): tall
+   enough for the walker AND the stage control beneath it to stay legible. */
+:global(.journal-card).feature .featureMedia {
+  aspect-ratio: 4 / 3;
+}
+@media (min-width: 1024px) {
+  .feature {
+    flex-direction: row;
+  }
+  :global(.journal-card).feature .featureMedia {
+    aspect-ratio: auto;
+    flex: 0 0 58%;
+    min-height: 392px;
+  }
+  .featureBody {
+    /* A wider gutter on the left: the artwork and the editorial column need
+       air between them to read as a spread. */
+    padding: 2rem 2.5rem 2rem 4rem;
+    justify-content: center;
+  }
+}
+.featureStep {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--jr-gold);
+}
+.featureTitle {
+  margin-top: 0.9rem;
+}
+@media (min-width: 1024px) {
+  /* `.card` here would be THIS module's hash, not journal's — the shared
+     hook between the two stylesheets is the global `journal-card` class. */
+  :global(.journal-card).feature .featureTitle {
+    font-size: clamp(2.15rem, 2.85vw, 2.75rem);
+    line-height: 1.06;
+    letter-spacing: -0.035em;
+  }
+}
+.featureRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+}
+.featureRead {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.featureQuestion {
+  margin-top: 1.1rem;
+  font-family: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: var(--jr-ink);
+  max-width: 26rem;
+}
+.featureTeaser {
+  margin-top: 0.75rem;
+  max-width: 28rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--jr-body);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.featureCta {
+  margin-top: 1.4rem !important;
+  padding-top: 0 !important;
+  /* A touch larger than a listing card's cue, and cyan from the start: on the
+     cover the call to action must be found without a hover. */
+  font-size: 11px !important;
+  letter-spacing: 0.2em !important;
+  color: var(--jr-cyan) !important;
+}
+/* Listing-card metadata: below the excerpt, small, and quiet, so the
+   headline is the first thing read and the date the last. */
+.cardMetaQuiet {
+  margin-top: 0.9rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.quietMeta {
+  margin-top: 1.25rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+  opacity: 0.85;
+}
+.featureHooks {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+.featureHook {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--jr-body);
+}
+.featureHookMark {
+  margin-top: 0.62em;
+  width: 10px;
+  height: 1px;
+  flex: 0 0 auto;
+  background: var(--jr-accent, #4fd1ff);
+}
+
+/* Story numbers as an editorial device: small, at the card's top-left. */
+.step {
+  position: absolute;
+  z-index: 4;
+  left: 0.85rem;
+  top: 0.7rem;
+  pointer-events: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--jr-mute);
+}
+.step b {
+  font-weight: 600;
+  color: var(--jr-gold);
+}
+
+/* ── Explicit stages under the cover interaction: six touchable dots ── */
+.stages {
+  position: absolute;
+  z-index: 5;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+}
+.stageBtn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 32px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.stageBtn::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--jr-line-mid);
+  transition: background-color 0.25s var(--jr-ease), transform 0.25s var(--jr-ease);
+}
+.stageBtn:hover::before,
+.stageBtn:focus-visible::before {
+  background: var(--jr-ink);
+}
+.stageBtn:focus-visible {
+  outline: 2px solid var(--jr-cyan);
+  outline-offset: -2px;
+}
+.stageBtnDone::before {
+  background: var(--jr-accent, #4fd1ff);
+  opacity: 0.55;
+}
+.stageBtnOn::before {
+  background: var(--jr-accent, #4fd1ff);
+  transform: scale(1.4);
+  opacity: 1;
+}
+.stageName {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: 2.4rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--jr-ink);
+  white-space: nowrap;
+}
+.cueRight {
+  left: auto;
+  right: 1rem;
+  bottom: 5.4rem;
+}
+
+/* ── Empty ── */
+.emptyLine {
+  display: block;
+  margin: 0 auto 1.25rem;
+  width: 120px;
+  height: 20px;
+}
+.emptyPath {
+  fill: none;
+  stroke: var(--jr-line-mid);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 5;
+  vector-effect: non-scaling-stroke;
+}
+
+/* ── Light around the drawing ──
+   A concept card's picture stood in a field of near-black. A faint local
+   light behind the drawing — cyan with a breath of violet — and one floor
+   rule under it give the figure a place to stand, the way the cover's walker
+   has its field. Positioned per concept so the light sits under the drawing,
+   not in the empty corner. Painted behind the SVG; no blobs, nothing moves. */
+.media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 46% 50% at var(--glow-x, 50%) var(--glow-y, 52%),
+      color-mix(in srgb, var(--jr-accent, #4fd1ff) 11%, transparent),
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse 30% 36% at calc(var(--glow-x, 50%) + 18%) calc(var(--glow-y, 52%) + 14%),
+      color-mix(in srgb, var(--jr-violet, #9c64f1) 6%, transparent),
+      transparent 100%
+    ),
+    linear-gradient(90deg, transparent 4%, var(--jr-line) 22%, var(--jr-line) 78%, transparent 96%)
+      0 var(--floor-y, 80%) / 100% 1px no-repeat;
+}
+.media > svg {
+  position: relative;
+  z-index: 1;
+}
+.mediaCover::before {
+  display: none;
+}
+.media[data-concept="pipeline"] {
+  --glow-x: 32%;
+  --glow-y: 50%;
+  --floor-y: 80%;
+}
+.media[data-concept="reduction"] {
+  --glow-x: 29%;
+  --glow-y: 52%;
+  --floor-y: 79%;
+}
+.media[data-concept="trajectory"] {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --floor-y: 81%;
+}
+.media[data-concept="divergence"] {
+  --glow-x: 44%;
+  --glow-y: 52%;
+  --floor-y: 86%;
+}
+.media[data-concept="fusion"] {
+  --glow-x: 56%;
+  --glow-y: 52%;
+  --floor-y: 90%;
+}
+.media[data-concept="pose-error"] {
+  --glow-x: 29%;
+  --glow-y: 52%;
+  --floor-y: 79%;
+}
+.media[data-concept="symmetry"] {
+  --glow-x: 50%;
+  --glow-y: 48%;
+  --floor-y: 92%;
+}
+.media[data-concept="viewpoint"] {
+  --glow-x: 30%;
+  --glow-y: 52%;
+  --floor-y: 90%;
+}
+.media[data-concept="identity-layers"] {
+  --glow-x: 29%;
+  --glow-y: 52%;
+  --floor-y: 79%;
+}
+.media[data-concept="system-chain"] {
+  --glow-x: 50%;
+  --glow-y: 40%;
+  --floor-y: 94%;
+}
+.media[data-concept="baseline"] {
+  --glow-x: 50%;
+  --glow-y: 52%;
+  --floor-y: 75%;
+}
+:global(.light) .media::before {
+  opacity: 0.55;
+}
+
+/* On a phone the five readings fill the drawing to its top edge, where the
+   stage readout sits; the chosen branch is already lit in cyan, so the
+   readout is not needed there. */
+@media (max-width: 640px) {
+  .media[data-concept="divergence"] .readout,
+  .media[data-concept="identity-layers"] .readout {
+    display: none;
+  }
+}
+/* On a phone the drawing is a 16:10 picture in a 16:9 box, so its last row
+   was cut at the edge and the cue pill sat on the labels beneath it — the
+   trend's assessment numbers, a chain's verdict, a ledger's last cue. The box
+   grows to 16:11 and the cue owns a band along the foot; the picture keeps
+   its full height above the band and barely changes size. */
+@media (max-width: 640px) {
+  :global([class*="cardMedia"]):has(> .media:not(.mediaCover)) {
+    aspect-ratio: 16 / 11;
+  }
+  .media:not(.mediaCover) {
+    position: absolute;
+    inset: 0;
+    padding-bottom: 2.2rem;
+  }
+}
+
+/* ── Visual type scale per card context ──
+   A card's drawing is a 320-unit viewBox stretched to the card, so its labels
+   stretch with it: in a wide spread a "key" label reached 21px against a 20px
+   title. `--fig-type` (read by figures.module.css) brings every role to one
+   on-screen size regardless of the slot — key ≈ 12px, label ≈ 11px, micro ≈
+   9.5px on a laptop — so the title always wins, then the picture, then the
+   words. Widths cap with the container, so 1920 renders as 1440. The preview
+   card is also a wide card, so its rule comes last in each range. */
+.media {
+  --fig-type: 1;
+}
+@media (min-width: 1280px) {
+  .spanMinor .media {
+    --fig-type: 0.88;
+  }
+  .wide .media {
+    --fig-type: 0.78;
+  }
+  .spanMajor .media,
+  .previewCard .media {
+    --fig-type: 0.57;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .spanMinor .media {
+    --fig-type: 1.1;
+  }
+  .spanMajor .media,
+  .previewCard .media {
+    --fig-type: 0.75;
+  }
+}
+/* A tablet: the half and wide cards render near 1:1 without the phone's
+   raised roles, so their words come up instead of down; the preview, full
+   width there, comes down. */
+@media (min-width: 641px) and (max-width: 1023px) {
+  .spanMinor .media,
+  .wide .media {
+    --fig-type: 1.35;
+  }
+  .previewCard .media {
+    --fig-type: 0.6;
+  }
+}
+/* A phone: the drawing is near 1:1 and the roles are already raised by
+   `.narrow`; a touch down keeps them under the 17px card title. The narrowest
+   phones keep the full raise — there the picture itself is small. */
+@media (min-width: 361px) and (max-width: 640px) {
+  .media {
+    --fig-type: 0.92;
+  }
+}
+@media (max-width: 360px) {
+  .media {
+    --fig-type: 1;
+  }
+}
+
+/* =========================================================================
+   LIGHT EDITION — the cover story as a scientific glass instrument
+   -------------------------------------------------------------------------
+   All under `:global(.light)`. The dark physical card — its pointer tilt,
+   accent edge light and hairline — is untouched.
+   ========================================================================= */
+
+/* The strongest optical treatment on the page: pearl-white ceramic, a cyan
+   optical border, sapphire depth and a glass reflection inside the plate. */
+:global(.light) .physical {
+  border-color: rgb(14 116 144 / 0.44);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6),
+    0 1px 0 0 rgb(14 116 144 / 0.22),
+    0 1px 3px rgba(15, 23, 42, 0.06),
+    0 14px 30px -14px rgba(30, 58, 95, 0.16),
+    0 24px 48px -24px rgba(27, 78, 217, 0.26);
+  transition:
+    transform var(--light-motion-depth, 380ms) var(--light-ease, ease),
+    border-color var(--light-motion-refraction, 420ms) var(--light-ease, ease),
+    box-shadow var(--light-motion-depth, 380ms) var(--light-ease, ease);
+}
+:global(.light) .physical[data-pointer="true"] {
+  border-color: rgb(14 116 144 / 0.55);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 1),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.75),
+    0 1px 0 0 rgb(14 116 144 / 0.3),
+    0 30px 56px -26px rgba(27, 78, 217, 0.38),
+    0 10px 18px -8px rgba(15, 23, 42, 0.14);
+  /* Depth lift only — the dark tilt is its own language. */
+  transform: translateY(-2px);
+  transition:
+    transform var(--light-motion-depth, 380ms) var(--light-ease, ease),
+    border-color var(--light-motion-refraction, 420ms) var(--light-ease, ease),
+    box-shadow var(--light-motion-depth, 380ms) var(--light-ease, ease);
+}
+:global(.light) .physical:active,
+:global(.light) .physical[data-pressed="true"] {
+  transform: translateY(-1px);
+}
+/* Registration marks on ceramic. */
+:global(.light) .physical::after {
+  opacity: 0.4;
+}
+:global(.light) .physical:hover::after,
+:global(.light) .physical:focus-within::after {
+  opacity: 0.62;
+}
+
+/* EDGE REFRACTION. The border catches light where the pointer is: a white
+   core cooling to cyan, on the same 1px ring mask the dark edge uses. */
+:global(.light) .physical .edgeLight {
+  background: radial-gradient(
+    260px circle at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+    #ffffff,
+    var(--light-edge-reflection, rgba(14, 116, 144, 0.55)) 38%,
+    rgb(27 78 217 / 0.2) 62%,
+    transparent 78%
+  );
+  transition: opacity var(--light-motion-refraction, 420ms) var(--light-ease, ease);
+}
+:global(.light) .physical[data-pointer="true"] .edgeLight {
+  opacity: 1;
+}
+/* The entry hairline is a glass highlight rather than a neon line. */
+:global(.light) .physical .hairline {
+  background: linear-gradient(90deg, transparent, #ffffff 40%, var(--light-cyan, #0e7490) 60%, transparent);
+  height: 1.5px;
+}
+
+/* POINTER-LINKED GLARE, cover only: a soft radial highlight on the media
+   plate that follows the pointer. Premium surfaces only, by design. */
+:global(.light) .physical .featureMedia::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(
+    38% 46% at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+    rgb(255 255 255 / 0.5),
+    rgb(255 255 255 / 0.14) 45%,
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity var(--light-motion-highlight, 300ms) var(--light-ease, ease);
+}
+:global(.light) .physical[data-pointer="true"] .featureMedia::before {
+  opacity: 1;
+}
+
+/* The plate itself: glass over pearl, a faint inner shadow at the top edge
+   so the drawing sits inside the instrument rather than printed on it. */
+:global(.light) .featureMedia {
+  background:
+    linear-gradient(180deg, rgb(30 58 95 / 0.06), transparent 18%),
+    linear-gradient(180deg, #f8fafc, #eef2f8);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.7), inset 0 1px 2px rgb(30 58 95 / 0.12);
+}
+
+/* Type on the cover: graphite question, slate teaser, vivid CTA. */
+:global(.light) .featureQuestion {
+  color: var(--light-graphite, #0b1220);
+}
+:global(.light) .featureTeaser,
+:global(.light) .featureHook {
+  color: var(--light-slate, #2b3a4f);
+}
+:global(.light) .featureStep {
+  color: var(--light-gold, #8a6320);
+}
+:global(.light) .featureCta {
+  color: var(--light-cyan, #0e7490) !important;
+  transition: color var(--light-motion-highlight, 300ms) var(--light-ease, ease), filter var(--light-motion-highlight, 300ms) var(--light-ease, ease);
+}
+:global(.light) .physical[data-pointer="true"] .featureCta,
+:global(.light) .physical:focus-within .featureCta {
+  color: var(--light-cyan-deep, #0b5f75) !important;
+}
+
+/* Instrument chrome on the plate: darker stage dots, a crisp readout. */
+:global(.light) .stageBtn::before {
+  background: rgb(30 58 95 / 0.32);
+}
+:global(.light) .stageBtn:hover::before,
+:global(.light) .stageBtn:focus-visible::before {
+  background: var(--light-graphite, #0b1220);
+}
+:global(.light) .stageBtnDone::before {
+  background: var(--light-cyan, #0e7490);
+  opacity: 0.85;
+}
+:global(.light) .readout {
+  color: var(--light-cyan-deep, #0b5f75);
+}
+:global(.light) .step {
+  color: var(--light-meta, #4a5f7a);
+}
+:global(.light) .cue {
+  background: rgb(255 255 255 / 0.86);
+  border-color: var(--light-optical-border, rgba(30, 58, 95, 0.16));
+  color: var(--light-graphite, #0b1220);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06);
+}
+:global(.light) .coverLabel {
+  fill: var(--light-meta, #4a5f7a);
+}
+:global(.light) .coverLabelInk {
+  fill: var(--light-graphite, #0b1220);
+}
+:global(.light) .coverLabelAccent {
+  fill: var(--light-cyan-deep, #0b5f75);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(.light) .physical,
+  :global(.light) .physical[data-pointer="true"],
+  :global(.light) .physical:active {
+    transform: none;
+  }
+  :global(.light) .physical .featureMedia::before {
+    display: none;
+  }
+}
+@media (hover: none) {
+  :global(.light) .physical .featureMedia::before {
+    display: none;
+  }
+}

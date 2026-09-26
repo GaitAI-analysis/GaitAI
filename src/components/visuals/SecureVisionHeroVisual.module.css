@@ -1,0 +1,1124 @@
+.visual {
+  --loop: 14s;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 780px;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  background: #020713;
+}
+
+.mediaLayer,
+.intelligenceLayer,
+.scene,
+.copyScrim,
+.vignette,
+.scanSweep {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.mediaLayer {
+  z-index: 0;
+  overflow: hidden;
+}
+
+.scene {
+  display: block;
+}
+
+.intelligenceLayer {
+  z-index: 2;
+  display: block;
+  overflow: visible;
+}
+
+.environment {
+  animation: environment-drift 9s ease-in-out infinite alternate;
+  transform-box: view-box;
+  transform-origin: 58% 45%;
+}
+
+.ceiling {
+  fill: #07111f;
+  stroke: rgb(95 160 210 / 12%);
+  stroke-width: 1.2;
+}
+
+.ceiling > path:first-child {
+  fill: #050d19;
+  stroke: none;
+}
+
+.ceilingLight {
+  fill: none;
+  stroke: rgb(113 209 255 / 16%);
+  stroke-width: 6;
+  filter: drop-shadow(0 0 8px rgb(56 189 248 / 32%));
+}
+
+.lightPanels rect {
+  fill: url("#sv-light-panel");
+  stroke: rgb(125 220 255 / 20%);
+  stroke-width: 1;
+  animation: panel-flicker 5s ease-in-out infinite alternate;
+}
+
+.lightPanels rect:nth-child(2),
+.lightPanels rect:nth-child(4) {
+  animation-delay: -2.6s;
+}
+
+.wayfinding rect {
+  fill: rgb(3 13 27 / 88%);
+  stroke: rgb(92 204 255 / 25%);
+}
+
+.wayfinding path {
+  fill: none;
+  stroke: rgb(143 220 255 / 48%);
+  stroke-width: 3;
+}
+
+.columns path {
+  fill: #07101d;
+  stroke: rgb(84 146 190 / 15%);
+  stroke-width: 1.2;
+}
+
+.columns .columnEdge {
+  fill: none;
+  stroke: rgb(71 184 255 / 18%);
+  stroke-width: 3;
+}
+
+.horizon {
+  fill: none;
+  stroke: rgb(77 197 255 / 22%);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 10px rgb(37 99 235 / 35%));
+}
+
+.floor {
+  fill: url("#sv-floor");
+}
+
+.floorGrid {
+  fill: none;
+  stroke: rgb(101 176 222 / 10%);
+  stroke-width: 1.2;
+}
+
+.walkingLanes {
+  fill: none;
+  stroke: rgb(87 210 255 / 12%);
+  stroke-width: 2;
+  stroke-dasharray: 10 18;
+  animation: flow-phase 4s linear infinite;
+}
+
+.distantCrowd {
+  fill: rgb(42 71 104 / 28%);
+  filter: url("#sv-soft-blur");
+}
+
+.lightBloom {
+  fill: rgb(38 118 255 / 10%);
+  filter: url("#sv-light-blur");
+  animation: bloom-breathe 6s ease-in-out infinite alternate;
+}
+
+.peopleLayer {
+  opacity: 0.96;
+}
+
+.walker {
+  --walker-x: 0;
+  --walker-y: 0;
+  --walker-scale: 1;
+  --walker-direction: 1;
+  --gait-phase: 0s;
+  --travel-delay: 0s;
+  --travel-speed: 16s;
+  transform-box: view-box;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.forward {
+  animation: travel-forward var(--travel-speed) linear var(--travel-delay) infinite;
+}
+
+.forwardFast {
+  animation: travel-forward-fast var(--travel-speed) linear var(--travel-delay) infinite;
+}
+
+.reverse {
+  animation: travel-reverse var(--travel-speed) linear var(--travel-delay) infinite;
+}
+
+.reverseFast {
+  animation: travel-reverse-fast var(--travel-speed) linear var(--travel-delay) infinite;
+}
+
+.selectedTravel {
+  animation: selected-travel var(--loop) linear infinite;
+}
+
+.person {
+  filter: drop-shadow(0 9px 11px rgb(0 0 0 / 50%));
+  opacity: 0.76;
+}
+
+.personHead,
+.personBody {
+  stroke-width: 1.5;
+}
+
+.personcyan {
+  fill: rgb(30 123 160 / 74%);
+  stroke: rgb(111 225 255 / 42%);
+}
+
+.personblue {
+  fill: rgb(35 83 182 / 84%);
+  stroke: rgb(79 193 255 / 55%);
+}
+
+.personviolet {
+  fill: rgb(83 60 148 / 68%);
+  stroke: rgb(170 139 255 / 34%);
+}
+
+.personslate {
+  fill: rgb(36 58 82 / 82%);
+  stroke: rgb(117 157 192 / 25%);
+}
+
+.person .armFront,
+.person .armBack,
+.person .legFront,
+.person .legBack {
+  fill: none;
+  stroke: inherit;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 10;
+}
+
+.person .armFront circle,
+.person .armBack circle {
+  fill: currentColor;
+  stroke: none;
+}
+
+.bodyBob {
+  animation: body-bob 0.41s ease-in-out var(--gait-phase) infinite alternate;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.armFront,
+.armBack,
+.legFront,
+.legBack {
+  transform-box: view-box;
+  will-change: transform;
+}
+
+.armFront {
+  animation: limb-forward 0.82s ease-in-out var(--gait-phase) infinite alternate;
+  transform-origin: 10px -51px;
+}
+
+.armBack {
+  animation: limb-back 0.82s ease-in-out var(--gait-phase) infinite alternate;
+  transform-origin: -10px -51px;
+}
+
+.legFront {
+  animation: limb-back 0.82s ease-in-out var(--gait-phase) infinite alternate;
+  transform-origin: 7px 0;
+}
+
+.legBack {
+  animation: limb-forward 0.82s ease-in-out var(--gait-phase) infinite alternate;
+  transform-origin: -7px 0;
+}
+
+.foregroundBlur {
+  fill: rgb(8 16 30 / 76%);
+  filter: url("#sv-soft-blur");
+  opacity: 0.72;
+}
+
+.flowLayer {
+  opacity: 0.78;
+}
+
+.flowPath,
+.flowPathAlt,
+.flowPathDim {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 2 12;
+  animation: flow-dash 3.2s linear infinite;
+}
+
+.flowPath {
+  stroke: rgb(71 209 255 / 50%);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 5px rgb(34 211 238 / 45%));
+}
+
+.flowPathAlt {
+  stroke: rgb(126 106 255 / 38%);
+  stroke-width: 1.8;
+  animation-duration: 4.1s;
+}
+
+.flowPathDim {
+  stroke: rgb(82 191 232 / 22%);
+  stroke-width: 1.4;
+  animation-duration: 4.7s;
+}
+
+.flowArrows {
+  fill: none;
+  stroke: rgb(120 229 255 / 56%);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: arrow-pulse 2.2s ease-in-out infinite;
+}
+
+.flowParticles circle {
+  fill: #8cecff;
+  filter: drop-shadow(0 0 7px #2dd4ff);
+  offset-path: path("M380 566C570 505 730 542 895 485S1195 427 1435 470");
+  animation: flow-particle 5s linear infinite;
+}
+
+.flowParticleTwo {
+  animation-delay: -1.8s !important;
+}
+
+.flowParticleThree {
+  animation-delay: -3.5s !important;
+}
+
+.zoneA,
+.zoneB {
+  fill: rgb(33 181 255 / 4%);
+  stroke: rgb(73 206 255 / 19%);
+  stroke-width: 1.5;
+  stroke-dasharray: 7 10;
+  animation: zone-breathe 4.5s ease-in-out infinite;
+}
+
+.zoneB {
+  fill: rgb(126 87 255 / 4%);
+  stroke: rgb(150 122 255 / 19%);
+  animation-delay: -2s;
+}
+
+.zoneA ellipse:nth-child(2),
+.zoneB ellipse:nth-child(2) {
+  animation: zone-ring 3.2s ease-out infinite;
+}
+
+.zoneA text,
+.zoneB text {
+  fill: rgb(142 224 255 / 62%);
+  stroke: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.zoneB text {
+  fill: rgb(184 164 255 / 62%);
+}
+
+.flowReadout {
+  animation: readout-float 4s ease-in-out infinite;
+}
+
+.flowReadout rect {
+  fill: rgb(4 16 31 / 72%);
+  stroke: rgb(93 211 255 / 24%);
+}
+
+.flowReadout text {
+  fill: rgb(136 223 255 / 72%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+
+.flowReadout text:nth-of-type(2) {
+  fill: #d8f7ff;
+  font-size: 14px;
+}
+
+.flowReadout path {
+  fill: none;
+  stroke: #61dcff;
+  stroke-width: 2;
+}
+
+.skeleton,
+.selectedSkeleton {
+  fill: rgb(103 225 255 / 18%);
+  stroke: rgb(107 226 255 / 82%);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgb(34 211 238 / 58%));
+}
+
+.skeleton .armFront,
+.skeleton .armBack,
+.skeleton .legFront,
+.skeleton .legBack,
+.selectedSkeleton .armFront,
+.selectedSkeleton .armBack,
+.selectedSkeleton .legFront,
+.selectedSkeleton .legBack {
+  fill: none;
+}
+
+.crowdSkeletons {
+  animation: crowd-skeleton-phase var(--loop) ease-in-out infinite;
+}
+
+.selectedSubject {
+  animation: selected-phase var(--loop) ease-in-out infinite;
+}
+
+.selectedSkeleton {
+  fill: rgb(132 239 255 / 30%);
+  stroke: #7cecff;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px rgb(34 211 238 / 88%));
+}
+
+.trackingFrame {
+  fill: rgb(23 191 255 / 3%);
+  stroke: rgb(102 226 255 / 40%);
+  stroke-width: 1.3;
+  stroke-dasharray: 5 8;
+}
+
+.trackingCorners {
+  fill: none;
+  stroke: #8cecff;
+  stroke-width: 3;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 7px rgb(34 211 238 / 88%));
+}
+
+.bodyScan {
+  stroke: #b9f5ff;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px #39d9ff);
+  animation: body-scan 1.8s ease-in-out infinite;
+}
+
+.gaitOrbit {
+  fill: none;
+  stroke: rgb(142 235 255 / 72%);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 7;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gait-orbit 2.4s linear infinite;
+}
+
+.trackerLabel rect {
+  fill: rgb(4 20 37 / 92%);
+  stroke: rgb(104 228 255 / 50%);
+}
+
+.trackerLabel text {
+  fill: #c9f8ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.selectedTrajectory {
+  animation: trajectory-phase var(--loop) ease-in-out infinite;
+}
+
+.trajectoryGlow,
+.trajectoryLine {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 0 1;
+  stroke-dashoffset: 0;
+  animation: trajectory-draw var(--loop) ease-in-out infinite;
+}
+
+.trajectoryGlow {
+  stroke: rgb(37 211 255 / 24%);
+  stroke-width: 12;
+  filter: blur(7px);
+}
+
+.trajectoryLine {
+  stroke: #6ae5ff;
+  stroke-width: 2.2;
+  stroke-dasharray: 0.012 0.025;
+  filter: drop-shadow(0 0 7px rgb(34 211 238 / 80%));
+}
+
+.trajectoryNode {
+  --node: 0;
+  fill: #a4f2ff;
+  opacity: 0;
+  filter: drop-shadow(0 0 5px #22d3ee);
+  animation: trajectory-node var(--loop) ease-in-out infinite;
+  animation-delay: calc(var(--node) * 90ms);
+}
+
+.analyticsHud {
+  position: absolute;
+  z-index: 6;
+  top: 25%;
+  right: clamp(18px, 3.5vw, 64px);
+  width: min(282px, 21vw);
+  height: 304px;
+  overflow: hidden;
+  border: 1px solid rgb(106 214 255 / 24%);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgb(6 20 38 / 86%), rgb(3 11 24 / 72%)),
+    radial-gradient(circle at 15% 0, rgb(37 99 235 / 20%), transparent 58%);
+  box-shadow:
+    0 22px 65px rgb(0 0 0 / 42%),
+    inset 0 1px rgb(255 255 255 / 5%),
+    0 0 34px rgb(22 126 255 / 8%);
+  opacity: 0;
+  backdrop-filter: blur(13px);
+  animation: hud-shell var(--loop) ease-in-out infinite;
+}
+
+.analyticsHud::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background-image:
+    linear-gradient(rgb(105 210 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(105 210 255 / 4%) 1px, transparent 1px);
+  background-size: 18px 18px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.hudChrome {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  padding: 0 12px;
+  border-bottom: 1px solid rgb(107 222 255 / 13%);
+  color: rgb(175 232 255 / 72%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.15px;
+}
+
+.hudChrome i,
+.sceneStatus i,
+.mobileStatus i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 999px;
+  background: #3ef5b4;
+  box-shadow: 0 0 8px #3ef5b4;
+  animation: status-pulse 1.6s ease-in-out infinite;
+}
+
+.hudStage {
+  position: absolute;
+  z-index: 1;
+  inset: 36px 0 0;
+  padding: 16px;
+  opacity: 0;
+}
+
+.metricsStage {
+  animation: metrics-stage var(--loop) ease-in-out infinite;
+}
+
+.hudStage header {
+  margin-bottom: 12px;
+  color: #bceeff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.35px;
+}
+
+.metrics {
+  display: grid;
+  gap: 10px;
+}
+
+.metric {
+  --metric-index: 0;
+  opacity: 0;
+  animation: metric-reveal var(--loop) ease-out infinite;
+  animation-delay: calc(var(--metric-index) * 100ms);
+}
+
+.metric > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: rgb(161 187 208 / 76%);
+  font-size: 9px;
+  letter-spacing: 0.25px;
+}
+
+.metric strong {
+  color: #e8faff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}
+
+.metric small {
+  color: rgb(133 206 231 / 62%);
+  font-size: 7px;
+  font-weight: 600;
+}
+
+.metric > i {
+  display: block;
+  height: 2px;
+  margin-top: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(105 189 225 / 12%);
+}
+
+.metric > i > span {
+  display: block;
+  width: var(--metric-level);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #176bff, #62e4ff);
+  box-shadow: 0 0 8px rgb(70 213 255 / 50%);
+  transform-origin: left;
+  animation: metric-fill var(--loop) ease-out infinite;
+}
+
+.matchStage {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+  animation: match-stage var(--loop) ease-in-out infinite;
+}
+
+.signatureWave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 58px;
+  margin-bottom: 10px;
+}
+
+.signatureWave i {
+  width: 2px;
+  height: var(--wave-height);
+  border-radius: 999px;
+  background: linear-gradient(#6af0ff, #4b6cff);
+  box-shadow: 0 0 7px rgb(61 215 255 / 58%);
+  animation: signature-wave 1.2s ease-in-out calc(var(--wave-index) * -90ms) infinite alternate;
+}
+
+.matchStage > span,
+.resultStage > span {
+  color: #a6eaff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.matchStage > strong {
+  margin-top: 5px;
+  color: #eefcff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 20px;
+  letter-spacing: 3px;
+}
+
+.matchStage > b {
+  margin-top: 3px;
+  color: #66e8ff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 38px;
+  line-height: 1;
+  text-shadow: 0 0 22px rgb(42 208 255 / 44%);
+}
+
+.matchStage > small {
+  margin-top: 12px;
+  color: rgb(153 193 211 / 52%);
+  font-size: 7px;
+  letter-spacing: 1.2px;
+}
+
+.resultStage {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  text-align: center;
+  animation: result-stage var(--loop) ease-in-out infinite;
+}
+
+.resultRing {
+  display: grid;
+  width: 66px;
+  height: 66px;
+  margin-bottom: 14px;
+  place-items: center;
+  border: 1px solid rgb(74 238 183 / 52%);
+  border-radius: 999px;
+  background: rgb(20 170 121 / 8%);
+  box-shadow: 0 0 28px rgb(22 214 157 / 14%);
+  animation: result-ring 2s ease-in-out infinite;
+}
+
+.resultRing span {
+  color: #66f3bd;
+  font-size: 29px;
+}
+
+.resultStage > strong {
+  margin-top: 5px;
+  color: #66f3bd;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+
+.privacyStatus {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  margin-top: 20px;
+  padding-top: 13px;
+  border-top: 1px solid rgb(88 222 190 / 18%);
+}
+
+.privacyStatus b {
+  color: #82f3ca;
+  font-size: 9px;
+  letter-spacing: 1.4px;
+}
+
+.privacyStatus small {
+  color: rgb(183 226 218 / 62%);
+  font-size: 7px;
+  letter-spacing: 1.2px;
+}
+
+.scanSweep {
+  z-index: 3;
+  width: 32%;
+  background: linear-gradient(90deg, transparent, rgb(91 211 255 / 4%), transparent);
+  mix-blend-mode: screen;
+  animation: scene-scan 6s linear infinite;
+  transform: skewX(-12deg);
+}
+
+.sceneStatus {
+  position: absolute;
+  z-index: 7;
+  right: clamp(18px, 3.5vw, 64px);
+  bottom: 34px;
+  display: flex;
+  gap: 22px;
+  color: rgb(135 196 220 / 54%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+}
+
+.copyScrim {
+  z-index: 4;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(2 7 18 / 99%) 0%,
+      rgb(2 7 18 / 96%) 24%,
+      rgb(2 7 18 / 84%) 38%,
+      rgb(2 7 18 / 44%) 56%,
+      rgb(2 7 18 / 9%) 100%
+    );
+}
+
+.vignette {
+  z-index: 5;
+  box-shadow:
+    inset 0 100px 100px -80px rgb(0 0 0 / 72%),
+    inset 0 -130px 120px -90px rgb(0 0 0 / 88%),
+    inset 0 0 130px rgb(0 0 0 / 24%);
+}
+
+.mobileStatus {
+  display: none;
+}
+
+@keyframes environment-drift {
+  from { transform: scale(1.01) translate3d(-5px, 0, 0); }
+  to { transform: scale(1.025) translate3d(7px, -3px, 0); }
+}
+
+@keyframes panel-flicker {
+  0%, 12% { opacity: 0.55; }
+  14% { opacity: 0.82; }
+  18%, 100% { opacity: 0.64; }
+}
+
+@keyframes bloom-breathe {
+  from { opacity: 0.48; transform: scaleX(0.92); }
+  to { opacity: 0.9; transform: scaleX(1.08); }
+}
+
+@keyframes limb-forward {
+  from { transform: rotate(-19deg); }
+  to { transform: rotate(21deg); }
+}
+
+@keyframes limb-back {
+  from { transform: rotate(21deg); }
+  to { transform: rotate(-19deg); }
+}
+
+@keyframes body-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-3.5px); }
+}
+
+@keyframes travel-forward {
+  from { transform: translate3d(-90px, 0, 0); }
+  to { transform: translate3d(185px, 0, 0); }
+}
+
+@keyframes travel-forward-fast {
+  from { transform: translate3d(-150px, 0, 0); }
+  to { transform: translate3d(255px, 0, 0); }
+}
+
+@keyframes travel-reverse {
+  from { transform: translate3d(150px, 0, 0); }
+  to { transform: translate3d(-185px, 0, 0); }
+}
+
+@keyframes travel-reverse-fast {
+  from { transform: translate3d(230px, 0, 0); }
+  to { transform: translate3d(-250px, 0, 0); }
+}
+
+@keyframes selected-travel {
+  0% { transform: translate3d(-72px, 0, 0); }
+  21% { transform: translate3d(-34px, 0, 0); }
+  36% { transform: translate3d(0, 0, 0); }
+  57% { transform: translate3d(45px, 0, 0); }
+  79% { transform: translate3d(92px, 0, 0); }
+  93% { transform: translate3d(124px, 0, 0); }
+  100% { transform: translate3d(144px, 0, 0); }
+}
+
+@keyframes flow-phase {
+  to { stroke-dashoffset: -56; }
+}
+
+@keyframes flow-dash {
+  to { stroke-dashoffset: -0.22; }
+}
+
+@keyframes arrow-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+
+@keyframes flow-particle {
+  from { offset-distance: 0%; opacity: 0; }
+  8%, 88% { opacity: 0.9; }
+  to { offset-distance: 100%; opacity: 0; }
+}
+
+@keyframes zone-breathe {
+  0%, 100% { opacity: 0.38; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes zone-ring {
+  0% { opacity: 0.2; transform: scale(0.92); transform-origin: center; }
+  55% { opacity: 0.8; }
+  100% { opacity: 0; transform: scale(1.14); transform-origin: center; }
+}
+
+@keyframes readout-float {
+  0%, 100% { opacity: 0.48; transform: translateY(0); }
+  50% { opacity: 0.84; transform: translateY(-4px); }
+}
+
+@keyframes crowd-skeleton-phase {
+  0%, 18% { opacity: 0.18; }
+  24%, 36% { opacity: 0.48; }
+  42%, 91% { opacity: 0.26; }
+  97%, 100% { opacity: 0.18; }
+}
+
+@keyframes selected-phase {
+  0%, 19% { opacity: 0; }
+  23%, 91% { opacity: 1; }
+  97%, 100% { opacity: 0; }
+}
+
+@keyframes trajectory-phase {
+  0%, 20% { opacity: 0; }
+  24%, 91% { opacity: 1; }
+  97%, 100% { opacity: 0; }
+}
+
+@keyframes trajectory-draw {
+  0%, 20% { stroke-dashoffset: 1; }
+  36%, 93% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -0.08; }
+}
+
+@keyframes trajectory-node {
+  0%, 23% { opacity: 0; transform: scale(0.4); transform-origin: center; }
+  28%, 88% { opacity: 0.9; transform: scale(1); transform-origin: center; }
+  96%, 100% { opacity: 0; }
+}
+
+@keyframes body-scan {
+  0%, 100% { transform: translateY(0); opacity: 0.35; }
+  50% { transform: translateY(132px); opacity: 1; }
+}
+
+@keyframes gait-orbit {
+  to { stroke-dashoffset: -22; }
+}
+
+@keyframes hud-shell {
+  0%, 34% { opacity: 0; transform: translate3d(18px, 8px, 0) scale(0.97); }
+  38%, 91% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  96%, 100% { opacity: 0; transform: translate3d(12px, -4px, 0) scale(0.98); }
+}
+
+@keyframes metrics-stage {
+  0%, 34% { opacity: 0; transform: translateX(10px); }
+  38%, 53% { opacity: 1; transform: translateX(0); }
+  57%, 100% { opacity: 0; transform: translateX(-8px); }
+}
+
+@keyframes metric-reveal {
+  0%, 36% { opacity: 0; transform: translateY(6px); }
+  42%, 54% { opacity: 1; transform: translateY(0); }
+  58%, 100% { opacity: 0; }
+}
+
+@keyframes metric-fill {
+  0%, 37% { transform: scaleX(0); }
+  47%, 56% { transform: scaleX(1); }
+  60%, 100% { transform: scaleX(0); }
+}
+
+@keyframes match-stage {
+  0%, 55% { opacity: 0; transform: scale(0.96); }
+  59%, 75% { opacity: 1; transform: scale(1); }
+  79%, 100% { opacity: 0; transform: scale(1.03); }
+}
+
+@keyframes signature-wave {
+  from { transform: scaleY(0.5); opacity: 0.5; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+@keyframes result-stage {
+  0%, 77% { opacity: 0; transform: translateY(7px); }
+  81%, 91% { opacity: 1; transform: translateY(0); }
+  96%, 100% { opacity: 0; transform: translateY(-5px); }
+}
+
+@keyframes result-ring {
+  0%, 100% { transform: scale(0.96); box-shadow: 0 0 18px rgb(22 214 157 / 10%); }
+  50% { transform: scale(1.04); box-shadow: 0 0 32px rgb(22 214 157 / 24%); }
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.82); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes scene-scan {
+  from { transform: translateX(-160%) skewX(-12deg); }
+  to { transform: translateX(430%) skewX(-12deg); }
+}
+
+@keyframes mobile-status {
+  0%, 54% { opacity: 0; transform: translateY(5px); }
+  59%, 91% { opacity: 1; transform: translateY(0); }
+  97%, 100% { opacity: 0; }
+}
+
+@media (max-width: 1100px) {
+  .analyticsHud {
+    right: 22px;
+    width: 246px;
+  }
+
+  .copyScrim {
+    background:
+      linear-gradient(
+        90deg,
+        rgb(2 7 18 / 99%) 0%,
+        rgb(2 7 18 / 95%) 32%,
+        rgb(2 7 18 / 70%) 54%,
+        rgb(2 7 18 / 15%) 100%
+      );
+  }
+}
+
+@media (max-width: 767px) {
+  .visual {
+    min-height: 780px;
+  }
+
+  .scene,
+  .intelligenceLayer {
+    width: 100%;
+    height: 100%;
+  }
+
+  .mobileHide {
+    display: none;
+  }
+
+  .analyticsHud,
+  .zoneA,
+  .zoneB,
+  .flowReadout,
+  .sceneStatus {
+    display: none;
+  }
+
+  .copyScrim {
+    background:
+      linear-gradient(180deg, rgb(2 7 18 / 72%) 0%, rgb(2 7 18 / 93%) 68%, rgb(2 7 18 / 98%) 100%),
+      linear-gradient(90deg, rgb(2 7 18 / 96%) 0%, rgb(2 7 18 / 79%) 62%, rgb(2 7 18 / 42%) 100%);
+  }
+
+  .peopleLayer,
+  .crowdSkeletons {
+    opacity: 0.48;
+  }
+
+  .selectedSubject {
+    opacity: 0.82;
+  }
+
+  .mobileStatus {
+    position: absolute;
+    z-index: 7;
+    right: 16px;
+    bottom: 22px;
+    display: grid;
+    gap: 5px;
+    padding: 10px 12px;
+    border: 1px solid rgb(98 222 255 / 24%);
+    border-radius: 8px;
+    background: rgb(3 15 29 / 76%);
+    color: #c8f6ff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 8px;
+    letter-spacing: 0.8px;
+    box-shadow: 0 12px 38px rgb(0 0 0 / 34%);
+    backdrop-filter: blur(8px);
+    animation: mobile-status var(--loop) ease-in-out infinite;
+  }
+
+  .mobileStatus span {
+    color: #79e8bd;
+    font-size: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .visual *,
+  .visual *::before,
+  .visual *::after {
+    animation: none !important;
+  }
+
+  .environment {
+    transform: none;
+  }
+
+  .crowdSkeletons {
+    opacity: 0.34;
+  }
+
+  .selectedSubject,
+  .selectedTrajectory {
+    opacity: 1;
+  }
+
+  .trajectoryGlow,
+  .trajectoryLine {
+    stroke-dashoffset: 0;
+  }
+
+  .trajectoryNode {
+    opacity: 0.82;
+  }
+
+  .analyticsHud {
+    opacity: 1;
+    transform: none;
+  }
+
+  .metricsStage,
+  .matchStage {
+    opacity: 0;
+  }
+
+  .resultStage {
+    opacity: 1;
+    transform: none;
+  }
+
+  .mobileStatus {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "generated": "2026-09-15T07:26:49.963Z",
+  "panels": {
+    "gaitai": {
+      "dark": {
+        "widths": [
+          480,
+          720,
+          810
+        ],
+        "source": {
+          "width": 810,
+          "height": 887
+        },
+        "cropped": {
+          "width": 810,
+          "height": 887
+        }
+      },
+      "light": {
+        "widths": [
+          480,
+          720,
+          810
+        ],
+        "source": {
+          "width": 810,
+          "height": 887
+        },
+        "cropped": {
+          "width": 810,
+          "height": 887
+        }
+      }
+    },
+    "mobilitycare": {
+      "dark": {
+        "widths": [
+          480,
+          720,
+          805
+        ],
+        "source": {
+          "width": 805,
+          "height": 887
+        },
+        "cropped": {
+          "width": 805,
+          "height": 887
+        }
+      },
+      "light": {
+        "widths": [
+          480,
+          720,
+          805
+        ],
+        "source": {
+          "width": 805,
+          "height": 887
+        },
+        "cropped": {
+          "width": 805,
+          "height": 887
+        }
+      }
+    },
+    "securevision": {
+      "dark": {
+        "widths": [
+          480,
+          668
+        ],
+        "source": {
+          "width": 668,
+          "height": 887
+        },
+        "cropped": {
+          "width": 668,
+          "height": 887
+        }
+      },
+      "light": {
+        "widths": [
+          480,
+          668
+        ],
+        "source": {
+          "width": 668,
+          "height": 887
+        },
+        "cropped": {
+          "width": 668,
+          "height": 887
+        }
+      }
+    }
+  }
+}

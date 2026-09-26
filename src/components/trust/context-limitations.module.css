@@ -1,0 +1,7 @@
+.wrap { border-top: 1px solid rgb(var(--c-soft-mute) / 0.22); color: rgb(var(--c-soft-gray)); }
+.trigger { width: fit-content; min-height: 44px; padding: 0.85rem 0; font-size: 0.8125rem; line-height: 1.5; color: rgb(var(--c-soft-white)); cursor: pointer; }
+.trigger:focus-visible { outline: 2px solid rgb(var(--c-soft-mute)); outline-offset: 4px; border-radius: 3px; }
+.body { padding-bottom: 1rem; max-width: 72ch; font-size: 0.8125rem; line-height: 1.75; }
+.body ul { list-style: disc; padding-left: 1.1rem; }
+.body li + li { margin-top: 0.5rem; }
+.body > * + * { margin-top: 0.75rem; }

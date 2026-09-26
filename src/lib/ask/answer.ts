@@ -1,0 +1,353 @@
+/**
+ * RESPONSE POST-PROCESSING
+ * =============================================================================
+ * What a model may put on screen, and what travels under it.
+ *
+ * WHERE THIS RUNS. Twice. The Ask GaitAI Cloudflare Worker (worker/) imports
+ * this module and applies it to the hosted model's completion before anything
+ * is returned — that is the authoritative check, on the side of the boundary a
+ * visitor cannot edit. The browser then applies `sanitizeLinks` again to
+ * whatever it receives, because the rule that matters most is the one applied
+ * closest to the DOM. Both are this one file, bundled twice, rather than a
+ * second implementation kept in step by hand.
+ *
+ * Request validation — what a browser may POST — lives in the Worker
+ * (`worker/src/validate.ts`), not here: it is a server-side concern and a
+ * comment describing it in the client bundle is the kind of comment that gets
+ * believed during a security review.
+ */
+
+import { allowedRoutes, knowledge, type KnowledgeDoc } from "./corpus";
+
+// ── Outbound ────────────────────────────────────────────────────────────────
+
+/**
+ * Make a hosted model's raw completion fit to render.
+ *
+ * In order:
+ *   1. Reasoning traces. A hybrid-thinking model may emit `<think>…</think>`
+ *      even when told not to; a reader must never see one, and an unterminated
+ *      trace (the budget ran out mid-thought) is dropped from the start.
+ *   2. A "Sources" section the model wrote itself. The interface renders one
+ *      from the retrieved records, so a model-authored list is at best a
+ *      duplicate and at worst a list of invented pages.
+ *   3. Bare URLs. The policy says never to write one; anything that looks like
+ *      `http://…` is removed outright, because an external destination is not
+ *      something the model may choose. (An allowlisted markdown link survives
+ *      step 4; a bare one never appears in a record and so is never allowed.)
+ *   4. Markdown links outside the corpus route allowlist, degraded to their
+ *      label by `sanitizeLinks`.
+ */
+export function cleanModelAnswer(raw: string): string {
+  let text = raw.replace(/\r\n/g, "\n");
+
+  /* 1 · reasoning traces, terminated or not. */
+  text = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  text = text.replace(/^[\s\S]*?<\/think>/i, "");
+  text = text.replace(/<think>[\s\S]*$/i, "");
+
+  /* 2 · a trailing Sources / References block, as a heading or a bold label. */
+  text = text.replace(
+    /\n+(?:#{1,6}\s*|\*\*)?\s*(?:sources?|references?|related links?)\s*:?\s*(?:\*\*)?\s*\n[\s\S]*$/i,
+    "",
+  );
+
+  /* 3 · bare URLs, including those in angle brackets or trailing punctuation. */
+  text = text.replace(/<?\bhttps?:\/\/[^\s<>()\]]+>?/gi, "");
+
+  /* 4 · off-allowlist markdown links become their own label. */
+  text = sanitizeLinks(text);
+
+  /* 5 · a sentence that sends the reader to a bare site path that does not
+     exist ("… on the /people/ page") is dropped whole. A markdown link degrades
+     to its label in step 4; a bare path has no label to fall back to, and a
+     sentence pointing at a page that is not there is worse than no sentence.
+     Real routes ("the /research/ page") are untouched. */
+  text = dropSentencesWithUnknownPaths(text);
+
+  return text.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+
+/**
+ * A bare site path in prose: "/people/", "/trust/#deployments". Not preceded by
+ * a word character, "]", "(", ":" or "." — so "fall/slip", "card/face", "24/7",
+ * a markdown link's own href (already validated) and a URL's path never match.
+ */
+const BARE_PATH = /(?<![\w\]():.\/])\/(?:[a-z0-9][\w-]*\/?)+(?:#[\w-]+)?/gi;
+
+export function dropSentencesWithUnknownPaths(markdown: string): string {
+  const lines = markdown.split("\n");
+  const kept: string[] = [];
+  for (const line of lines) {
+    const marker = line.match(/^(\s*(?:[-*+]|\d+[.)])\s+)/)?.[1] ?? "";
+    const body = line.slice(marker.length);
+    const sentences = body.split(/(?<=[.!?])\s+/);
+    const clean = sentences.filter((sentence) => {
+      for (const match of sentence.matchAll(BARE_PATH)) {
+        if (!isAllowedHref(match[0].replace(/[.,;:!?]+$/, ""))) return false;
+      }
+      return true;
+    });
+    if (clean.length === sentences.length) {
+      kept.push(line);
+    } else if (clean.join(" ").trim().length > 0) {
+      kept.push(marker + clean.join(" "));
+    }
+    /* A line left with nothing but its bullet is dropped. */
+  }
+  return kept.join("\n");
+}
+
+/**
+ * The records that were retrieved but did not make the Sources row — offered
+ * as "related" so a reader can see the neighbourhood the answer came from.
+ * Deterministic, from the retrieval result only; a model never adds to it.
+ */
+export function relatedLinks(
+  sources: { url: string }[],
+  retrieved: { doc: KnowledgeDoc }[],
+  max = 3,
+): { title: string; url: string; kind: string }[] {
+  const used = new Set(sources.map((source) => pagePath(source.url)));
+  const out: { title: string; url: string; kind: string }[] = [];
+  for (const { doc } of retrieved) {
+    if (out.length >= max) break;
+    const path = pagePath(doc.url);
+    if (used.has(path) || doc.id === "page:/" || !isAllowedHref(doc.url)) continue;
+    used.add(path);
+    out.push({ title: doc.title, url: doc.url, kind: SOURCE_KIND[doc.type] ?? "Page" });
+  }
+  return out;
+}
+
+/**
+ * The page a link lands on, ignoring the section anchor and query — so two
+ * chunks of one article, or a comparison and the products page, count as ONE
+ * source. The first (best-ranked) record keeps its deep link.
+ */
+const pagePath = (url: string) => url.split(/[?#]/)[0] || "/";
+
+/**
+ * Strip every link the model produced that is not a real GaitAI route.
+ *
+ * The model is told to link only to supplied routes; this is what makes that
+ * true. A markdown link whose target is not in the corpus's route allowlist is
+ * replaced by its own label, so an invented or off-site destination degrades to
+ * plain text rather than shipping a broken or hostile link to a reader.
+ *
+ * Runs on the buffered answer AFTER streaming, so the source list and the
+ * stored history are clean; the client applies the same allowlist as it renders.
+ */
+export function sanitizeLinks(markdown: string): string {
+  /* The target allows one level of nested parentheses, so `[x](a(b))` is
+     consumed whole rather than ending at the inner ")" and leaving the
+     remainder behind as stray punctuation once the href is rejected. */
+  return markdown.replace(
+    /\[([^\]\n]+)\]\(((?:[^\s()]|\([^\s()]*\))+)\)/g,
+    (whole, label: string, href: string) => {
+      if (isAllowedHref(href)) return whole;
+      return label;
+    },
+  );
+}
+
+export function isAllowedHref(href: string): boolean {
+  if (!href.startsWith("/")) return false;
+  if (href.startsWith("//")) return false;
+
+  const [pathPart] = href.split(/[?#]/);
+  /* "/#contact" is a real destination — the contact form on the home page. */
+  const normalized = pathPart === "" ? "/" : pathPart.endsWith("/") ? pathPart : `${pathPart}/`;
+  return allowedRoutes().has(normalized) || allowedRoutes().has(pathPart);
+}
+
+/**
+ * The Sources block under an answer.
+ *
+ * Chosen from the records that were actually retrieved, preferring the ones the
+ * answer visibly used. When nothing matches, the single best-scoring record
+ * stands in, so a grounded answer always carries at least one way to verify it.
+ * Never more than three: a wall of links reads as a citation dump, not as a
+ * next step.
+ */
+export function selectSources(
+  answer: string,
+  retrieved: { doc: KnowledgeDoc; score: number }[],
+): { title: string; url: string; kind: string }[] {
+  const lower = answer.toLowerCase();
+
+  /*
+   * A source is a record the answer actually pointed at. Two tests, in order
+   * of precision:
+   *
+   *   1. The answer LINKS to the record's route. Unambiguous.
+   *   2. The answer NAMES the record, on a word boundary.
+   *
+   * The word boundary matters: a plain substring test made "GaitAI" — the
+   * title of the home-page record — a source under almost every answer, since
+   * the brand name appears in most sentences the assistant writes. The
+   * home-page record is excluded from the naming test for the same reason:
+   * saying "GaitAI" is not citing a page.
+   */
+  const named = (title: string) => {
+    if (title.length < 4) return false;
+    const escaped = title.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`).test(lower);
+  };
+
+  /* Matched as a markdown TARGET, not as a substring. `answer.includes(doc.url)`
+     made the home record — whose url is "/" — a source under every answer that
+     contained a slash anywhere, which is all of them. */
+  const linked = retrieved.filter(({ doc }) => answer.includes(`](${doc.url})`));
+  const linkedIds = new Set(linked.map(({ doc }) => doc.id));
+  const mentioned = retrieved.filter(
+    ({ doc }) =>
+      !linkedIds.has(doc.id) && doc.id !== "page:/" && named(doc.title),
+  );
+
+  const used = [...linked, ...mentioned];
+
+  /* The record retrieval ranked FIRST grounded the answer whether or not the
+     prose repeats its title — "How GaitAI works end to end" is cited by its
+     stages, a family page by its modules. It leads the row; the home record
+     is still excepted, since saying "GaitAI" is not citing a page. */
+  const lead = retrieved[0];
+  if (lead && used.length && lead.doc.id !== "page:/") {
+    const at = used.findIndex((item) => item.doc.id === lead.doc.id);
+    if (at > 0) used.splice(at, 1);
+    if (at !== 0) used.unshift(lead);
+  }
+
+  /* DEDUPLICATED BY PAGE. A long article is several chunk records with one
+     title and one route; an answer that names it would otherwise cite it
+     three times. The best-ranked chunk stands for the page and keeps its
+     section anchor, so the reader lands on the passage that answered. */
+  const seen = new Set<string>();
+  const chosen: { doc: KnowledgeDoc }[] = [];
+  for (const item of used.length ? used : retrieved.slice(0, 1)) {
+    if (chosen.length >= 3) break;
+    if (!isAllowedHref(item.doc.url)) continue;
+    const path = pagePath(item.doc.url);
+    if (seen.has(path)) continue;
+    seen.add(path);
+    chosen.push(item);
+  }
+
+  return chosen.map(({ doc }) => ({
+    title: doc.title,
+    url: doc.url,
+    kind: SOURCE_KIND[doc.type] ?? "Page",
+  }));
+}
+
+/**
+ * The qualifier beside a source link.
+ *
+ * A record's `category` is its own descriptive label — for a module that is a
+ * full line like "Camera-based gait assessment report", which set in mono
+ * uppercase beside the title is longer than the title and reads as noise. What
+ * the row needs is the one word that says what KIND of thing the reader is
+ * about to open.
+ */
+const SOURCE_KIND: Record<KnowledgeDoc["type"], string> = {
+  product: "Module",
+  "use-case": "Environment",
+  publication: "Publication",
+  research: "Research",
+  insight: "Blog",
+  capability: "Capability",
+  signal: "Signal",
+  deployment: "Deployment",
+  policy: "Governance",
+  page: "Page",
+  person: "Person",
+  talk: "Talk",
+};
+
+/**
+ * "Ask next" — follow-ups built from the records in play, not from a second
+ * model call.
+ *
+ * Deriving them means they can only ever ask about something the site actually
+ * documents, they cost nothing, and they arrive with the answer instead of a
+ * second latency step behind it.
+ */
+export function suggestFollowUps(
+  retrieved: { doc: KnowledgeDoc }[],
+  asked: string,
+): string[] {
+  const askedLower = asked.toLowerCase();
+  const out: string[] = [];
+
+  const push = (question: string) => {
+    if (out.length >= 3) return;
+    if (askedLower.includes(question.toLowerCase().slice(0, 18))) return;
+    if (!out.includes(question)) out.push(question);
+  };
+
+  /*
+   * ONE suggestion per record, so three follow-ups cover three different
+   * things. Offering "How does WalkScan work?" and "What input data does
+   * WalkScan need?" together spends two of the three slots on one module and
+   * leaves the rest of the answer unexplored.
+   */
+  for (const { doc } of retrieved) {
+    if (out.length >= 3) break;
+    switch (doc.type) {
+      case "product":
+        push(`How does ${doc.title} work?`);
+        break;
+      case "use-case":
+        push(`How does GaitAI deploy in ${doc.title.toLowerCase()}?`);
+        break;
+      case "publication":
+        push(`Which GaitAI capability does this paper ground?`);
+        break;
+      case "research":
+        push(`Which modules does ${doc.title} inform?`);
+        break;
+      case "insight":
+        push(`What should I read after "${doc.title}"?`);
+        break;
+      case "policy":
+        push(`What does GaitAI explicitly not claim?`);
+        break;
+      case "person":
+        push(`Which publications did ${doc.title} author?`);
+        break;
+      default:
+        break;
+    }
+  }
+
+  /* A floor of real, always-answerable questions so the row is never empty. */
+  push("Which GaitAI solution fits my environment?");
+  push("How does GaitAI work end to end?");
+
+  return out.slice(0, 3);
+}
+
+/**
+ * Whether to offer the demo CTA under this answer.
+ *
+ * Only after a genuinely commercial exchange — a module or an environment was
+ * discussed — and never on the first turn, so the assistant answers a question
+ * before it asks for anything. The caller additionally suppresses it if it was
+ * already shown recently in this conversation.
+ */
+export function shouldOfferDemo(
+  retrieved: { doc: KnowledgeDoc }[],
+  turnIndex: number,
+): boolean {
+  if (turnIndex < 1) return false;
+  const commercial = retrieved.filter(
+    ({ doc }) => doc.type === "product" || doc.type === "use-case",
+  ).length;
+  return commercial >= 2;
+}
+
+/** The contact route, read from the corpus rather than written here. */
+/* A function, not a const: the corpus is not in memory when this module is
+   first evaluated in a browser. */
+export const demoHref = () =>
+  knowledge().docs.find((doc) => doc.id === "page:/#contact")?.url ?? "/#contact";

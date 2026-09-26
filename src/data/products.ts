@@ -1,0 +1,1304 @@
+import { imagesForProduct, type ProductImages } from "./product-images";
+import { imagesForUseCase, type UseCaseImages } from "./use-case-images";
+import type { ComponentType, SVGProps } from "react";
+import type { LucideIcon } from "lucide-react";
+import { DefenceIcon } from "@/components/icons/CapabilityIcons";
+import type { CaptureSource } from "./capture-sources";
+import {
+  Activity,
+  AlertTriangle,
+  Bandage,
+  Baby,
+  Brain,
+  Building2,
+  ClipboardCheck,
+  Construction,
+  Dumbbell,
+  Eye,
+  FileText,
+  Fingerprint,
+  Flag,
+  Footprints,
+  GraduationCap,
+  Heart,
+  HeartPulse,
+  Home,
+  Hospital,
+  KeyRound,
+  Lock,
+  Microscope,
+  Plane,
+  Radar,
+  RadioTower,
+  Route,
+  Search,
+  ShieldCheck,
+  ShieldPlus,
+  ShoppingBag,
+  Siren,
+  Stethoscope,
+  Trophy,
+  University,
+  UsersRound,
+  Waves,
+  Watch,
+  Workflow,
+  Wrench,
+} from "lucide-react";
+
+// ============================================================================
+// PRODUCT TYPES — full GaitAI product ecosystem
+// ============================================================================
+
+export type Vertical = "mobilitycare" | "securevision";
+
+/**
+ * Commercial / technical maturity of a product module.
+ *
+ * DELIBERATELY UNSET on every record. The repository contains no deployment
+ * record, pilot log, validation study or release note that would establish
+ * maturity for any of the registered product modules, and maturity must never be inferred
+ * from how much detail a product page happens to carry. The field exists so
+ * that when real evidence lands it has one canonical home — and so that no
+ * page has to imply maturity in prose.
+ *
+ * Set a value only when a documented source supports it.
+ */
+export type ProductStatus =
+  | "production"
+  | "pilot-ready"
+  | "research-validated"
+  | "prototype"
+  | "in-development";
+
+export interface GaitProduct {
+  images: ProductImages | null;
+  id: string;
+  name: string; // e.g. "GaitAI WalkScan"
+  short: string; // e.g. "WalkScan"
+  label: string; // professional one-line label
+  headline: string; // marketing-friendly hero line
+  description: string; // 1–2 sentence what-it-does
+  users: string[]; // primary user types
+  outputs: string[]; // metric / artifact names
+  icon: LucideIcon;
+  vertical: Vertical;
+  featured: boolean; // surface on the homepage strip
+  flagship: boolean; // earns a dedicated visual block
+  navigation?: boolean; // surface this module in shared navigation and footer
+  accent: "teal" | "blue" | "violet" | "cyan" | "gold" | "emerald";
+  /** Maturity — see ProductStatus. Unset until evidence exists. */
+  status?: ProductStatus;
+  /**
+   * Capture sources this module can ALSO work from, beyond the primary one
+   * derived from its documented input statement.
+   *
+   * Every entry here restates something the module's own detail record already
+   * says in prose — "optional wearable data", "compatible CCTV footage where
+   * appropriate" — and `validate:gaitai` fails the build if the two disagree
+   * in either direction. It is declared rather than inferred at runtime for
+   * two reasons: a regex over English is the wrong thing to ship to a browser,
+   * and reading the prose in the data layer dragged 1,500 lines of product
+   * copy into seven client bundles.
+   *
+   * KEPT SEPARATE FROM THE PRIMARY SOURCES ON PURPOSE. FallRisk's wearable
+   * support is an addition to video, not a substitute for it, so merging the
+   * two lists would offer FallRisk to somebody holding only a watch. Surfaces
+   * that ask "what do you have?" use the primary sources; surfaces that
+   * describe a module state both.
+   */
+  supportingSources?: CaptureSource[];
+}
+
+// ----------------------------------------------------------------------------
+// MOBILITYCARE — clinical, sports, wearable & rehab movement intelligence
+// ----------------------------------------------------------------------------
+
+export const mobilityProducts: GaitProduct[] = [
+  {
+    id: "walkscan",
+    images: imagesForProduct("walkscan"),
+    name: "GaitAI WalkScan",
+    short: "WalkScan",
+    label: "Camera-based gait assessment report",
+    headline: "Turn a walking video into a clinician-ready movement report.",
+    description:
+      "Analyzes a short walking video and turns it into gait and mobility metrics — ready as a downloadable PDF.",
+    users: [
+      "Physiotherapy clinics",
+      "Rehab centers",
+      "Orthopedic clinics",
+      "Neurology clinics",
+      "Sports clinics",
+    ],
+    outputs: [
+      "Walking speed",
+      "Cadence",
+      "Step / stride pattern",
+      "Asymmetry",
+      "Posture markers",
+      "Mobility score",
+      "Downloadable PDF report",
+    ],
+    icon: Footprints,
+    vertical: "mobilitycare",
+    featured: true,
+    flagship: true,
+    accent: "teal",
+    supportingSources: ["cctv"],
+  },
+  {
+    id: "fallrisk",
+    images: imagesForProduct("fallrisk"),
+    name: "GaitAI FallRisk",
+    short: "FallRisk",
+    label: "Fall-risk screening & mobility intelligence",
+    headline: "Surface mobility decline and fall-risk indicators early.",
+    description:
+      "Uses gait, balance, variability, posture and longitudinal movement trends to sort elderly and at-risk patients into low / medium / high screening categories for clinician review.",
+    users: [
+      "Elderly-care centers",
+      "Hospitals",
+      "Home-care agencies",
+      "Community health programs",
+      "Family caregivers",
+    ],
+    outputs: [
+      "Low / medium / high risk",
+      "Risk contributors",
+      "Monthly trend",
+      "Caregiver recommendations",
+      "Clinician summary",
+    ],
+    icon: AlertTriangle,
+    vertical: "mobilitycare",
+    featured: true,
+    flagship: true,
+    accent: "gold",
+    supportingSources: ["wearable"],
+  },
+  {
+    id: "rehabtrack",
+    images: imagesForProduct("rehabtrack"),
+    name: "GaitAI RehabTrack",
+    short: "RehabTrack",
+    label: "Rehabilitation progress monitoring",
+    headline: "Show objective movement change across recovery.",
+    description:
+      "Compares movement across therapy sessions to make rehabilitation progress visible and motivating for both clinician and patient.",
+    users: [
+      "Physiotherapists",
+      "Rehab hospitals",
+      "Orthopedic doctors",
+      "Sports injury centers",
+    ],
+    outputs: [
+      "Progress percentage",
+      "Pre / post comparison",
+      "Asymmetry reduction",
+      "Range-of-motion trends",
+      "Therapy dashboard",
+    ],
+    icon: Activity,
+    vertical: "mobilitycare",
+    featured: true,
+    flagship: false,
+    accent: "teal",
+    supportingSources: ["wearable"],
+  },
+  {
+    id: "sportsmotion",
+    images: imagesForProduct("sportsmotion"),
+    name: "GaitAI SportsMotion",
+    short: "SportsMotion",
+    label: "Sports gait, running & injury-risk analytics",
+    headline: "Athlete movement, asymmetry and fatigue — measured.",
+    description:
+      "Analyzes walking and running mechanics to surface asymmetry, imbalance and fatigue-related change, supporting return-to-play review with longitudinal movement evidence.",
+    users: [
+      "Sports academies",
+      "Runners",
+      "Cricket / football / tennis academies",
+      "Fitness centers",
+      "Sports medicine clinics",
+    ],
+    outputs: [
+      "Running symmetry",
+      "Limb imbalance",
+      "Knee / hip movement markers",
+      "Fatigue trend",
+      "Injury-risk indicators",
+      "Return-to-play review summary",
+      "Performance report",
+    ],
+    icon: Trophy,
+    vertical: "mobilitycare",
+    featured: true,
+    flagship: true,
+    accent: "cyan",
+    supportingSources: ["wearable"],
+  },
+  {
+    id: "watchcare",
+    images: imagesForProduct("watchcare"),
+    name: "GaitAI WatchCare",
+    short: "WatchCare",
+    label: "Smartwatch & wearable-based mobility monitoring",
+    headline: "Continuous movement intelligence from the wrist.",
+    description:
+      "Combines smartwatch, mobile and wearable sensor data to estimate daily mobility and activity patterns, gait variability and longitudinal fall-risk indicators for clinician, caregiver or remote-care review.",
+    users: [
+      "Elderly users",
+      "Caregivers",
+      "Remote-care teams",
+      "Physiotherapy patients",
+      "Insurance wellness",
+      "Corporate wellness",
+    ],
+    outputs: [
+      "Daily mobility score",
+      "Step / cadence trend",
+      "Activity decline alert",
+      "Fall-risk trend",
+      "Caregiver notification",
+      "Remote monitoring dashboard",
+    ],
+    icon: Watch,
+    vertical: "mobilitycare",
+    featured: true,
+    flagship: true,
+    accent: "gold",
+  },
+  {
+    id: "neuromotion",
+    images: imagesForProduct("neuromotion"),
+    name: "GaitAI NeuroMotion",
+    short: "NeuroMotion",
+    label: "Neurological gait monitoring",
+    headline: "Monitor Parkinsonian, stroke, ataxia & MS gait patterns.",
+    description:
+      "Supports ongoing monitoring of gait patterns linked to neurological movement difficulties, including freezing, shuffling and turning instability.",
+    users: ["Neurologists", "Neurorehab centers", "Hospitals", "Research labs"],
+    outputs: [
+      "Shuffling indicator",
+      "Freezing-like event marker",
+      "Asymmetry",
+      "Turning difficulty",
+      "Balance instability",
+      "Progression trend",
+    ],
+    icon: Brain,
+    vertical: "mobilitycare",
+    featured: false,
+    flagship: false,
+    accent: "violet",
+    supportingSources: ["wearable"],
+  },
+  {
+    id: "orthomotion",
+    images: imagesForProduct("orthomotion"),
+    name: "GaitAI OrthoMotion",
+    short: "OrthoMotion",
+    label: "Orthopedic & musculoskeletal gait analysis",
+    headline: "Joint, limb, posture & post-surgical mobility — measured.",
+    description:
+      "Evaluates gait changes related to joint, bone, muscle, foot, spine and post-surgical conditions.",
+    users: [
+      "Orthopedic surgeons",
+      "Physiotherapists",
+      "Sports medicine doctors",
+      "Rehab centers",
+    ],
+    outputs: [
+      "Limp score",
+      "Limb-loading proxy",
+      "Posture angle",
+      "Joint movement proxy",
+      "Recovery report",
+    ],
+    icon: Bandage,
+    vertical: "mobilitycare",
+    featured: false,
+    flagship: false,
+    accent: "teal",
+  },
+  {
+    id: "seniorcare",
+    images: imagesForProduct("seniorcare"),
+    name: "GaitAI SeniorCare",
+    short: "SeniorCare",
+    label: "Elderly mobility & frailty monitoring",
+    headline: "Monthly mobility, frailty trends, caregiver summaries.",
+    description:
+      "Runs periodic mobility assessments for senior citizens and surfaces longitudinal mobility changes and decline indicators for caregiver or clinician review.",
+    users: [
+      "Assisted-living homes",
+      "Senior-care chains",
+      "Families",
+      "Geriatric clinics",
+    ],
+    outputs: [
+      "Monthly mobility score",
+      "Decline alert",
+      "Balance score",
+      "Gait speed trend",
+      "Caregiver summary",
+    ],
+    icon: Heart,
+    vertical: "mobilitycare",
+    featured: false,
+    flagship: false,
+    accent: "gold",
+    supportingSources: ["wearable"],
+  },
+  {
+    id: "pediatricmotion",
+    images: imagesForProduct("pediatricmotion"),
+    name: "GaitAI PediatricMotion",
+    short: "PediatricMotion",
+    label: "Pediatric gait & developmental movement support",
+    headline: "Movement screening for developing children.",
+    description:
+      "Assists with child gait observation and longitudinal monitoring for developmental or orthopedic concerns including CP and toe-walking.",
+    users: [
+      "Pediatric physiotherapists",
+      "Pediatric orthopedic clinics",
+      "Schools",
+      "Rehab centers",
+    ],
+    outputs: [
+      "Toe-walking indicator",
+      "Asymmetry",
+      "Walking pattern summary",
+      "Longitudinal development trend",
+    ],
+    icon: Baby,
+    vertical: "mobilitycare",
+    featured: false,
+    flagship: false,
+    accent: "cyan",
+  },
+  {
+    id: "prostheticfit",
+    images: imagesForProduct("prostheticfit"),
+    name: "GaitAI ProstheticFit",
+    short: "ProstheticFit",
+    label: "Prosthetic & orthotic fitting intelligence",
+    headline: "How well does the device walk?",
+    description:
+      "Quantifies movement changes associated with prosthetic or orthotic use — symmetry, cadence, gait timing, posture and loading proxies, compared before and after a fitting change.",
+    users: [
+      "Prosthetic / orthotic clinics",
+      "Rehab hospitals",
+      "Assistive-device companies",
+    ],
+    outputs: [
+      "Movement comparison per configuration",
+      "Before / after walking report",
+      "Loading asymmetry proxy",
+      "Mobility improvement score",
+    ],
+    icon: Wrench,
+    vertical: "mobilitycare",
+    featured: false,
+    flagship: false,
+    accent: "teal",
+  },
+  {
+    id: "remotecare",
+    images: imagesForProduct("remotecare"),
+    name: "GaitAI RemoteCare",
+    short: "RemoteCare",
+    label: "Home-based remote gait monitoring",
+    headline: "Walk at home. Turn movement into a clinician-ready report.",
+    description:
+      "Patients upload guided walking videos from home; clinicians receive AI-generated progress reports and review them on a unified dashboard.",
+    users: [
+      "Telehealth providers",
+      "Physiotherapy clinics",
+      "Hospitals",
+      "Home-care teams",
+    ],
+    outputs: [
+      "Remote gait report",
+      "Clinician dashboard",
+      "Patient progress timeline",
+      "Automated reminders",
+    ],
+    icon: Home,
+    vertical: "mobilitycare",
+    featured: false,
+    flagship: false,
+    accent: "emerald",
+  },
+  {
+    id: "clinicaltrials",
+    images: imagesForProduct("clinicaltrials"),
+    name: "GaitAI ClinicalTrials",
+    short: "ClinicalTrials",
+    label: "Digital gait measures for research",
+    headline: "Standardized movement outputs for research workflows.",
+    description:
+      "Provides measurable gait and movement outputs for research studies, trials and device-evaluation workflows.",
+    users: ["Pharma", "CROs", "Universities", "Hospitals", "Medical-device companies"],
+    outputs: [
+      "Study dashboard",
+      "Gait measure export",
+      "Cohort trends",
+      "Protocol-based reports",
+    ],
+    icon: ClipboardCheck,
+    vertical: "mobilitycare",
+    featured: false,
+    flagship: false,
+    accent: "violet",
+    supportingSources: ["wearable"],
+  },
+];
+
+// ----------------------------------------------------------------------------
+// SECUREVISION — privacy-aware movement intelligence for safer spaces
+// ----------------------------------------------------------------------------
+
+export const secureProducts: GaitProduct[] = [
+  {
+    id: "suspiciousmotion",
+    images: imagesForProduct("suspiciousmotion"),
+    name: "GaitAI SuspiciousMotion",
+    short: "SuspiciousMotion",
+    label: "Suspicious movement & anomaly detection",
+    headline: "Anomalies surfaced — without identity matching as a prerequisite.",
+    description:
+      "Surfaces candidate movement events — loitering, running, restricted-zone entry, tailgating-like patterns and perimeter events — for operator review, without requiring identity recognition.",
+    users: [
+      "Campuses",
+      "Offices",
+      "Malls",
+      "Hospitals",
+      "Transport hubs",
+      "Factories",
+      "Security teams",
+    ],
+    outputs: [
+      "Loitering alert",
+      "Running alert",
+      "Restricted-zone alert",
+      "Tailgating indicator",
+      "Event timeline",
+    ],
+    icon: Siren,
+    vertical: "securevision",
+    featured: true,
+    flagship: true,
+    accent: "blue",
+  },
+  {
+    id: "crowdsense",
+    images: imagesForProduct("crowdsense"),
+    name: "GaitAI CrowdSense",
+    short: "CrowdSense",
+    label: "Crowd flow, density, queue & public-space analytics",
+    headline: "See crowd flow, bottlenecks and density-risk indicators.",
+    description:
+      "Analyzes crowd movement, density, queues, bottlenecks, flow direction and abnormal crowd-motion indicators for smart-city scale public spaces.",
+    users: [
+      "Smart cities",
+      "Stadiums",
+      "Malls",
+      "Religious events",
+      "Airports",
+      "Metro stations",
+      "Universities",
+    ],
+    outputs: [
+      "Crowd heatmap",
+      "Density score",
+      "Queue length",
+      "Bottleneck alert",
+      "Evacuation movement summary",
+    ],
+    icon: UsersRound,
+    vertical: "securevision",
+    featured: true,
+    flagship: true,
+    accent: "blue",
+  },
+  {
+    id: "industrialsafety",
+    images: imagesForProduct("industrialsafety"),
+    name: "GaitAI IndustrialSafety",
+    short: "IndustrialSafety",
+    label: "Worker movement & fall/slip safety analytics",
+    headline: "Worker movement safety — measured, monitored, flagged.",
+    description:
+      "Flags movement patterns associated with falls, slips, restricted-zone entry, fatigue-like movement and emergency movement events across industrial sites.",
+    users: [
+      "Factories",
+      "Warehouses",
+      "Construction",
+      "Mining",
+      "Power plants",
+      "Oil & gas",
+      "Telecom field ops",
+    ],
+    outputs: [
+      "Fall / slip alert",
+      "Restricted-zone alert",
+      "Worker safety dashboard",
+      "Emergency status",
+    ],
+    icon: Construction,
+    vertical: "securevision",
+    featured: true,
+    flagship: true,
+    accent: "blue",
+  },
+  {
+    id: "privacyguard",
+    images: imagesForProduct("privacyguard"),
+    name: "GaitAI PrivacyGuard",
+    short: "PrivacyGuard",
+    label: "Privacy-preserving movement analytics",
+    headline: "Movement intelligence — with task-relevant movement representations.",
+    description:
+      "The architectural privacy layer for GaitAI: designed to support skeleton-only analytics, face blur, role-based access, configurable retention and audit logs in privacy-sensitive environments.",
+    users: ["All security customers", "Enterprises", "Public-sector deployments"],
+    outputs: [
+      "Privacy mode",
+      "Audit logs",
+      "Retention controls",
+      "Privacy-aware aggregated heatmaps",
+    ],
+    icon: Lock,
+    vertical: "securevision",
+    featured: true,
+    flagship: true,
+    accent: "emerald",
+  },
+  {
+    id: "campusshield",
+    images: imagesForProduct("campusshield"),
+    name: "GaitAI CampusShield",
+    short: "CampusShield",
+    label: "Campus & workplace movement safety",
+    headline: "Quiet, intelligent safety for the spaces people work and learn.",
+    description:
+      "Surfaces movement-safety events across office parks, universities, hospitals and corporate campuses for operator review.",
+    users: [
+      "Universities",
+      "IT parks",
+      "Hospitals",
+      "Industrial campuses",
+      "Corporate offices",
+    ],
+    outputs: [
+      "Visitor movement timeline",
+      "Night movement alert",
+      "Fall detection",
+      "Restricted-area alert",
+    ],
+    icon: University,
+    vertical: "securevision",
+    featured: true,
+    flagship: false,
+    accent: "blue",
+  },
+  {
+    id: "eventshield",
+    images: imagesForProduct("eventshield"),
+    name: "GaitAI EventShield",
+    short: "EventShield",
+    label: "Large-event movement & crowd-risk intelligence",
+    headline: "Stadium, concert, conference — crowd-movement indicators.",
+    description:
+      "Provides crowd-movement indicators for high-density public events: stadiums, conferences, religious gatherings, concerts, rallies, exhibitions.",
+    users: [
+      "Event organizers",
+      "Stadiums",
+      "Police",
+      "Civic bodies",
+      "Conference centers",
+    ],
+    outputs: [
+      "Entry / exit flow",
+      "Density risk",
+      "Sudden-dispersal movement alert",
+      "Queue overload",
+      "Evacuation support",
+    ],
+    icon: Flag,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "blue",
+  },
+  {
+    id: "retailguard",
+    images: imagesForProduct("retailguard"),
+    name: "GaitAI RetailGuard",
+    short: "RetailGuard",
+    label: "Retail movement & loss-prevention support",
+    headline: "Movement intelligence for the modern retail floor.",
+    description:
+      "Surfaces unusual movement, loitering, queue congestion, staff-safety and emergency-flow indicators inside retail environments for operator review.",
+    users: ["Retail chains", "Malls", "Big-box stores"],
+    outputs: [
+      "Loitering alert",
+      "Queue analytics",
+      "Emergency flow",
+      "Staff safety",
+      "Crowd heatmaps",
+    ],
+    icon: ShoppingBag,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "violet",
+  },
+  {
+    id: "forensicsearch",
+    images: imagesForProduct("forensicsearch"),
+    name: "GaitAI ForensicSearch",
+    short: "ForensicSearch",
+    label: "Post-event video investigation",
+    headline: "Search recorded CCTV by movement, timeline and event path.",
+    description:
+      "Searches uploaded CCTV footage for a person, movement pattern, timeline, or event path after an incident.",
+    users: [
+      "Security agencies",
+      "Enterprise security teams",
+      "Campuses",
+      "Malls",
+      "Transport hubs",
+    ],
+    outputs: [
+      "Search results",
+      "Incident timeline",
+      "Camera-wise movement trail",
+      "Evidence review pack",
+    ],
+    icon: Search,
+    vertical: "securevision",
+    featured: true,
+    flagship: false,
+    accent: "violet",
+  },
+  {
+    id: "reid",
+    images: imagesForProduct("reid"),
+    name: "GaitAI ReID",
+    short: "ReID",
+    label: "Person re-identification across cameras",
+    headline: "Cross-camera movement correspondence, by gait.",
+    description:
+      "Produces confidence-based candidate matches across multiple camera feeds using movement and body-level signatures rather than face-only matching. Candidates are for trained review — never proof of identity.",
+    users: [
+      "Airports",
+      "Railway stations",
+      "Campuses",
+      "Large enterprises",
+      "Investigation teams",
+    ],
+    outputs: [
+      "Cross-camera trail",
+      "Confidence score",
+      "Timeline",
+      "Path reconstruction",
+    ],
+    icon: Route,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "blue",
+  },
+  {
+    id: "accessmotion",
+    images: imagesForProduct("accessmotion"),
+    name: "GaitAI AccessMotion",
+    short: "AccessMotion",
+    label: "Gait-enhanced access control",
+    headline: "A passive second factor — your walk.",
+    description:
+      "Contributes a passive gait-consistency signal alongside card, face or mobile authentication in high-security spaces. It supports an existing credential rather than replacing it.",
+    users: [
+      "Data centers",
+      "R&D labs",
+      "Defense campuses",
+      "High-security offices",
+    ],
+    outputs: [
+      "Access confidence",
+      "Identity consistency signal",
+      "Tailgating alert",
+      "Access audit log",
+    ],
+    icon: KeyRound,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "blue",
+  },
+  {
+    id: "watchlist",
+    images: imagesForProduct("watchlist"),
+    name: "GaitAI Watchlist",
+    short: "Watchlist",
+    label: "Policy-governed watchlist matching for authorized deployments",
+    headline: "Policy-governed matching, authorized environments only.",
+    description:
+      "Policy-governed candidate matching against an authorized list, with confidence scoring, access controls and audit history. Restricted to environments with lawful authority — not offered for general-public surveillance.",
+    users: [
+      "Authorized law enforcement",
+      "Defense agencies",
+      "Critical infrastructure (where lawful)",
+    ],
+    outputs: [
+      "Watchlist match candidates",
+      "Confidence score",
+      "Policy + consent logs",
+      "Audit trail",
+    ],
+    icon: Fingerprint,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "blue",
+  },
+  /*
+   * DEFENCEMOTION IS A PRODUCT MODULE. "Defence & Armed Forces" is an
+   * ENVIRONMENT, and the two are different things that share a subject:
+   *
+   *   product      DefenceMotion          — this record, /securevision/defencemotion/
+   *   environment  Defence & Armed Forces — `industryUseCases` id "defence",
+   *                                         /use-cases/defence-armed-forces/
+   *
+   * The environment combines DefenceMotion with other SecureVision modules
+   * (AccessMotion, PrivacyGuard, SuspiciousMotion); the product is the module
+   * that environment is built around. Neither is a restatement of the other,
+   * and the catalogue counts the product exactly once, here.
+   *
+   * ARMY, NAVY AND AIR FORCE ARE MODES, NOT PRODUCTS. They are three
+   * configurations of this one module — see `modes` on its detail record in
+   * product-details-secure.ts — and must never be registered as separate
+   * entries. Doing so would make the catalogue 26 and imply three products
+   * where there is one.
+   */
+  {
+    id: "defencemotion",
+    images: imagesForProduct("defencemotion"),
+    name: "GaitAI DefenceMotion",
+    short: "DefenceMotion",
+    label: "Movement intelligence for defence environments",
+    headline: "Movement intelligence for defence environments.",
+    description:
+      "Facility-safety and authorised-access movement intelligence configured for defence installations, in Army, Navy and Air Force modes. Human-supervised throughout: an indicator supplements existing procedure and never acts on its own.",
+    users: [
+      "Installation safety teams",
+      "Base access control",
+      "Programme and policy owners",
+    ],
+    outputs: [
+      "Facility movement events",
+      "Restricted-zone and perimeter events",
+      "Access consistency indicators",
+      "Privacy and audit record",
+    ],
+    icon: Radar,
+    vertical: "securevision",
+    featured: false,
+    flagship: false,
+    accent: "blue",
+  },
+];
+
+// ----------------------------------------------------------------------------
+// LOOKUPS
+// ----------------------------------------------------------------------------
+
+export const allProducts: GaitProduct[] = [
+  ...mobilityProducts,
+  ...secureProducts,
+];
+
+export const featuredProducts = allProducts.filter((p) => p.featured);
+export const flagshipProducts = allProducts.filter((p) => p.flagship);
+
+export const productById = (id: string) =>
+  allProducts.find((p) => p.id === id);
+
+// ----------------------------------------------------------------------------
+// THE PRODUCT PROPOSITION
+// ----------------------------------------------------------------------------
+// One place to phrase "how many products, and what kind". The count is always
+// derived from the arrays above, and the wording describes the architecture —
+// product modules on one Movement Intelligence Platform — without implying that all
+// of them are equally mature, shipped or deployed. See ProductStatus.
+// ----------------------------------------------------------------------------
+
+export const productCount = allProducts.length;
+
+/** Canonical catalogue proposition, with no release-status implication. */
+export const productProposition =
+  `${productCount} product modules on one movement-intelligence platform`;
+
+/** Compact catalogue label. */
+export const productPropositionShort =
+  `${productCount} product modules across ${new Set(allProducts.map((p) => p.vertical)).size} product families`;
+
+// ============================================================================
+// INDUSTRY USE CASES (cross-vertical map)
+// ============================================================================
+
+export interface UseCaseEntry {
+  id: string;
+  footer?: boolean;
+  industry: string;
+  /** A lucide icon, or one of the site's own pictograms (CapabilityIcons). */
+  icon: LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
+  vertical: Vertical;
+  problem: string;
+  productIds: string[];
+  /**
+   * What the product mix PRODUCES in this environment — reports, alerts,
+   * measures. Rendered under an "Outputs" label, never "Outcome": nothing in
+   * this repository documents a measured real-world outcome for any
+   * environment, so the copy must not imply one.
+   */
+  outcome: string;
+  accent: "teal" | "blue" | "gold" | "cyan" | "violet" | "emerald";
+  /**
+   * The reviewed dark/light environment pair, or `null` where none is cleared
+   * for production. Attached below from the id rather than written into each
+   * record: an environment cannot end up pointing at another environment's
+   * photograph by a copy-paste, and a record can never disagree with the
+   * generated registry about which pair it owns.
+   */
+  images: UseCaseImages | null;
+}
+
+const industryUseCaseRecords: Omit<UseCaseEntry, "images">[] = [
+  {
+    id: "physio",
+    industry: "Physiotherapy clinics",
+    icon: Activity,
+    vertical: "mobilitycare",
+    problem:
+      "Therapists need objective evidence that therapy is working — beyond subjective observation.",
+    productIds: ["walkscan", "rehabtrack", "sportsmotion"],
+    outcome:
+      "Objective gait reports, rehab progress and clearer longitudinal progress communication.",
+    accent: "teal",
+  },
+  {
+    id: "hospitals",
+    footer: true,
+    industry: "Hospitals",
+    icon: Hospital,
+    vertical: "mobilitycare",
+    problem:
+      "Ward fall-risk and post-surgery recovery often rely on manual assessment that doesn't scale.",
+    productIds: ["fallrisk", "neuromotion", "orthomotion"],
+    outcome:
+      "Mobility assessment, ward fall-risk, post-surgery recovery, discharge planning.",
+    accent: "teal",
+  },
+  {
+    id: "sports",
+    footer: true,
+    industry: "Sports academies",
+    icon: Trophy,
+    vertical: "mobilitycare",
+    problem:
+      "Injury-risk screening and return-to-play review are inconsistent without measurable movement data.",
+    productIds: ["sportsmotion", "watchcare", "rehabtrack"],
+    outcome:
+      "Performance movement analytics, injury-risk indicators and return-to-play review evidence.",
+    accent: "cyan",
+  },
+  {
+    id: "elderly",
+    footer: true,
+    industry: "Elderly-care centers",
+    icon: Heart,
+    vertical: "mobilitycare",
+    problem:
+      "Monthly screenings can miss gradual mobility changes associated with elevated fall risk.",
+    productIds: ["fallrisk", "seniorcare", "watchcare"],
+    outcome:
+      "Monthly screening, fall-risk trend, caregiver alerts, mobility decline reports.",
+    accent: "gold",
+  },
+  {
+    id: "neuro",
+    industry: "Neurology clinics",
+    icon: Brain,
+    vertical: "mobilitycare",
+    problem:
+      "Subtle changes in Parkinsonian, post-stroke and ataxic gait are hard to quantify in-clinic.",
+    productIds: ["neuromotion", "walkscan", "watchcare"],
+    outcome:
+      "Stroke rehab, Parkinsonian gait, neuropathy and ataxia movement monitoring.",
+    accent: "violet",
+  },
+  {
+    id: "homecare",
+    industry: "Home care & telehealth",
+    icon: Home,
+    vertical: "mobilitycare",
+    problem:
+      "Between visits, remote patients are hard to follow — and mobility decline can go unnoticed.",
+    productIds: ["remotecare", "watchcare", "fallrisk"],
+    outcome:
+      "Remote monitoring, daily mobility trend, family + caregiver dashboard.",
+    accent: "emerald",
+  },
+  {
+    id: "airports",
+    industry: "Airports, metro & rail",
+    icon: Plane,
+    vertical: "securevision",
+    problem:
+      "Crowded transport hubs need anomaly + flow intelligence — without requiring identity matching for flow analysis.",
+    productIds: ["crowdsense", "reid", "suspiciousmotion"],
+    outcome:
+      "Passenger-flow indicators, authorized post-event cross-camera investigation support and candidate movement-event alerts.",
+    accent: "blue",
+  },
+  {
+    id: "smartcities",
+    footer: true,
+    industry: "Smart cities",
+    icon: Building2,
+    vertical: "securevision",
+    problem:
+      "Public spaces need crowd intelligence designed for real-time operational workflows, with privacy respected by default.",
+    productIds: ["crowdsense", "forensicsearch", "privacyguard"],
+    outcome:
+      "Public-space movement, crowd-risk alerts, privacy-aware (aggregated) analytics.",
+    accent: "blue",
+  },
+  {
+    id: "campuses",
+    industry: "Corporate & university campuses",
+    icon: University,
+    vertical: "securevision",
+    problem:
+      "Campuses need quiet, privacy-aware safety monitoring across many sites.",
+    productIds: ["campusshield", "accessmotion", "suspiciousmotion"],
+    outcome:
+      "Workplace safety, after-hours alerts, tailgating, access consistency.",
+    accent: "blue",
+  },
+  {
+    id: "factories",
+    industry: "Factories & warehouses",
+    icon: Workflow,
+    vertical: "securevision",
+    problem:
+      "Worker falls and unsafe-zone entries can be difficult to spot in time.",
+    productIds: ["industrialsafety", "suspiciousmotion"],
+    outcome:
+      "Worker fall / slip indicators, restricted-zone entry, evacuation movement summaries and fatigue-like movement trend.",
+    accent: "blue",
+  },
+  {
+    id: "retail",
+    industry: "Malls & retail",
+    icon: ShoppingBag,
+    vertical: "securevision",
+    problem:
+      "Loss-prevention, queue management and staff safety on one floor — with appearance-reduced movement analysis.",
+    productIds: ["retailguard", "crowdsense", "suspiciousmotion"],
+    outcome:
+      "Loitering alerts, queue analytics, emergency flow, staff safety, crowd heatmaps.",
+    accent: "violet",
+  },
+  {
+    id: "events",
+    industry: "Large events & stadiums",
+    icon: Flag,
+    vertical: "securevision",
+    problem:
+      "High-density events need crowd-movement awareness during the event, not after the news cycle.",
+    productIds: ["eventshield", "crowdsense"],
+    outcome:
+      "Crowd-density indicators, bottleneck alerts, entry/exit flow, sudden-dispersal movement alerts and evacuation-flow summaries.",
+    accent: "blue",
+  },
+  {
+    id: "fitness",
+    industry: "Fitness centers & wellness",
+    icon: Dumbbell,
+    vertical: "mobilitycare",
+    problem:
+      "Fitness and wellness centers are looking for a screening layer that turns movement quality into a member benefit.",
+    productIds: ["sportsmotion", "walkscan"],
+    outcome:
+      "Movement baseline, posture and gait screening, premium wellness reports.",
+    accent: "cyan",
+  },
+  {
+    id: "schools",
+    industry: "Schools & academies",
+    icon: GraduationCap,
+    vertical: "mobilitycare",
+    problem:
+      "Children's developmental movement and sports injury-risk screening is rarely measured early.",
+    productIds: ["pediatricmotion", "sportsmotion"],
+    outcome:
+      "Child movement screening, sports injury-risk screening support and posture awareness for educators.",
+    accent: "teal",
+  },
+  {
+    id: "prosthetics",
+    industry: "Prosthetic & orthotic clinics",
+    icon: Wrench,
+    vertical: "mobilitycare",
+    problem:
+      "Movement response to a fitting change is often judged by observation, with symmetry and loading data missing from the loop.",
+    productIds: ["prostheticfit", "walkscan"],
+    outcome:
+      "Assistive-device movement comparison, walking symmetry, longitudinal mobility change.",
+    accent: "teal",
+  },
+  {
+    id: "insurance",
+    industry: "Insurance & wellness programs",
+    icon: ShieldPlus,
+    vertical: "mobilitycare",
+    problem:
+      "Preventive-health programs need ongoing mobility intelligence — not annual screenings.",
+    productIds: ["watchcare", "fallrisk", "seniorcare"],
+    outcome:
+      "Preventive health, wellness monitoring, remote mobility trend across cohorts.",
+    accent: "gold",
+  },
+  {
+    id: "trials",
+    industry: "Research & clinical trials",
+    icon: Microscope,
+    vertical: "mobilitycare",
+    problem:
+      "Pharma and CROs need objective, exportable movement endpoints across study cohorts.",
+    productIds: ["clinicaltrials", "walkscan", "watchcare"],
+    outcome:
+      "Movement-derived endpoints, study cohorts, exportable metrics and protocol-based reports.",
+    accent: "violet",
+  },
+  {
+    id: "defence",
+    footer: true,
+    industry: "Defence & Armed Forces",
+    icon: DefenceIcon,
+    vertical: "securevision",
+    problem:
+      "Defence and military organisations need facility-safety and access intelligence for personnel across very different installations — without identity-first monitoring of the people they have a duty of care to.",
+    /* The environment's mix, DefenceMotion first: it is the module this
+       environment is built around, and the other three are the SecureVision
+       capabilities it is configured alongside. This is the canonical
+       product-to-environment mapping — the use-case page's prose is written
+       from it, not beside it. */
+    productIds: [
+      "defencemotion",
+      "suspiciousmotion",
+      "accessmotion",
+      "privacyguard",
+    ],
+    outcome:
+      "Privacy-aware facility movement-event alerts, access consistency indicators and a privacy and audit record across defence installations.",
+    accent: "blue",
+  },
+];
+
+/* One place where an environment and its photography meet. `imagesForUseCase`
+   returns null for an environment with no cleared pair, and every surface is
+   written to render that case. */
+export const industryUseCases: UseCaseEntry[] = industryUseCaseRecords.map(
+  (entry) => ({ ...entry, images: imagesForUseCase(entry.id) }),
+);
+
+// ============================================================================
+// AI PIPELINE (modular intelligence architecture)
+// ============================================================================
+
+export const aiPipeline = [
+  {
+    id: "pose",
+    icon: Eye,
+    title: "Pose Estimation",
+    desc: "Detect body landmarks from walking & running videos. Skeleton signals captured at frame rate.",
+  },
+  {
+    id: "gait",
+    icon: Footprints,
+    title: "Gait Feature Extraction",
+    desc: "Cadence, stride rhythm, speed, step timing, asymmetry, posture, balance, variability.",
+  },
+  {
+    id: "fusion",
+    icon: Waves,
+    title: "Sensor Fusion",
+    desc: "Smartwatch and mobile IMU signals fused with video features for resilient, all-day intelligence.",
+  },
+  {
+    id: "fallrisk-model",
+    icon: AlertTriangle,
+    title: "Fall-Risk Model",
+    desc: "Combines variability, slow speed, instability and posture into fall-risk screening indicators.",
+  },
+  {
+    id: "rehab-model",
+    icon: Activity,
+    title: "Rehab Progress Model",
+    desc: "Quantifies before / after improvement and recovery trends across therapy sessions.",
+  },
+  {
+    id: "sports-model",
+    icon: Dumbbell,
+    title: "Sports Injury-Risk Model",
+    desc: "Surfaces landing imbalance, asymmetry and fatigue-like patterns for athlete review.",
+  },
+  {
+    id: "watchcare-model",
+    icon: Watch,
+    title: "WatchCare Sensor Model",
+    desc: "Daily mobility, activity decline and fall-risk trends from accelerometer + gyroscope.",
+  },
+  {
+    id: "anomaly",
+    icon: RadioTower,
+    title: "Anomaly Detection",
+    desc: "Surfaces unusual movement patterns — loitering, falls, tailgating — without identity matching as a prerequisite.",
+  },
+  {
+    id: "report",
+    icon: FileText,
+    title: "Clinical Report Generator",
+    desc: "Turns AI outputs into doctor- and operator-friendly PDF reports with trend charts.",
+  },
+  {
+    id: "privacy",
+    icon: Lock,
+    title: "Privacy & Consent Layer",
+    desc: "Skeleton-only analytics, face blur, role-based access, audit logs, configurable retention.",
+  },
+];
+
+// ============================================================================
+// WATCHCARE FEATURE GRID
+// ============================================================================
+
+export const watchcareFeatures = [
+  {
+    title: "Daily Mobility Score",
+    desc: "A trendline of walking rhythm, activity and mobility consistency — every day.",
+    icon: Activity,
+    audience: "Elderly care · Caregivers · Wellness",
+  },
+  {
+    title: "Activity Decline Alert",
+    desc: "Flags unusual reductions in activity or walking confidence over time.",
+    icon: AlertTriangle,
+    audience: "Caregivers · Clinicians",
+  },
+  {
+    title: "Fall-Risk Trend",
+    desc: "Tracks gradual gait changes associated with elevated fall risk.",
+    icon: HeartPulse,
+    audience: "Senior care · Hospitals",
+  },
+  {
+    title: "Rehab Adherence",
+    desc: "Estimates daily mobility and activity patterns during recovery for clinician and caregiver review.",
+    icon: ClipboardCheck,
+    audience: "Physio clinics · Rehab centers",
+  },
+  {
+    title: "Sports Recovery",
+    desc: "Tracks return-to-activity and symmetry trend after a sports injury.",
+    icon: Trophy,
+    audience: "Sports clinics · Athletes",
+  },
+  {
+    title: "Caregiver Dashboard",
+    desc: "A simple mobile + web dashboard for family and care teams.",
+    icon: UsersRound,
+    audience: "Families · Home-care agencies",
+  },
+];
+
+// ============================================================================
+// HOW IT WORKS (Capture → Understand → Insight → Act)
+// ----------------------------------------------------------------------------
+// Platform-level language: the same four stages must read correctly for
+// MobilityCare (clinical gait from video and wearables) and for SecureVision
+// (CCTV, crowds, human activity, safety events). Gait-specific wording lives
+// on the product pages where gait genuinely is the subject.
+// ============================================================================
+
+// `summary` is the one line a COLLAPSED stage shows; `desc` is what opens.
+// Every summary is a condensation of that stage's own `desc` — the same
+// policy the use-case output chips follow — so a closed row can never say
+// something the open one does not. Nothing here is a new claim.
+export const workflowStages = [
+  {
+    step: "01",
+    title: "Capture Movement",
+    summary: "A short walking video, CCTV feed or smartwatch signal.",
+    desc: "A short walking video, CCTV feed, or smartwatch signal — captured wherever the person is, contactless.",
+  },
+  {
+    step: "02",
+    title: "AI Understands Movement",
+    summary: "Pose estimation, gait features and sensor fusion.",
+    desc: "Pose estimation, gait and activity feature extraction and sensor-fusion models translate motion into measurable signals.",
+  },
+  {
+    step: "03",
+    title: "Insight, Report or Dashboard",
+    summary: "Movement reports, mobility scores, dashboards or alerts.",
+    desc: "Movement reports, mobility scores, operator dashboards or safety alerts are generated automatically.",
+  },
+  {
+    step: "04",
+    title: "Clinician / Operator Acts",
+    summary: "The right signal reaches the right person, with the evidence behind it.",
+    desc: "The right person — clinician, therapist, caregiver or security operator — receives the right signal, with the movement evidence behind it.",
+  },
+];
+
+// ============================================================================
+// RESEARCH CREDIBILITY
+// ============================================================================
+
+// Wording policy: each pillar states what the published record covers or what
+// the architecture provides. No pillar claims validation studies, named
+// collaborators or clinical approval — none are documented in this repository.
+//
+// Currently unrendered: this was the "What that record grounds" block on the
+// home page, removed because /research covers the same ground in more depth
+// (its method commitments, and the per-area evidence map that names the
+// peer-reviewed gait-recognition and pose work directly). Kept here so the
+// content is not lost if a page wants it again.
+export const researchPillars = [
+  {
+    title: "Peer-reviewed gait recognition",
+    desc: "Founder-authored journal work on deep-learning gait recognition and gait biometrics under covariates.",
+    icon: Footprints,
+  },
+  {
+    title: "Pose-based movement analysis",
+    desc: "Published work on covariate-invariant gait recognition built on pose features, plus a granted edge-analytics patent.",
+    icon: Eye,
+  },
+  {
+    title: "Designed for clinical workflows",
+    desc: "Outputs are framed as assessment, monitoring and decision support — never diagnosis — so they fit how clinicians already work.",
+    icon: Stethoscope,
+  },
+  {
+    title: "Responsible AI by architecture",
+    desc: "Privacy-first design: skeleton-only modes, face blur, role-based access, audit logs and configurable retention.",
+    icon: ShieldCheck,
+  },
+];

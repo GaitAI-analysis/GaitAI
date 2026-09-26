@@ -1,0 +1,191 @@
+/* ==========================================================================
+   THE DISCLOSURE CONTROL — one treatment, every "there is more here" button
+   --------------------------------------------------------------------------
+   The home page asks the reader to open things in four places: the mission
+   card, the vision card, the workflow zigzag and the research record. Each
+   had grown its own control — a rule with a text arrow, an underlined mono
+   label with a CSS chevron, a full-width card row with a plus that became a
+   minus. Three vocabularies for one verb, and none of them read as a control
+   on a first scan: they read as captions that happened to be clickable.
+
+   This is the one treatment, and the rule for it is a narrow band:
+
+     LOUD ENOUGH  to be seen without being looked for — a bordered pill on a
+                  faint ground, the accent stated twice (a dot before the
+                  label, a chevron after it), the label brighter and tighter
+                  than the muted captions around it.
+     QUIET ENOUGH to never compete with the section heading above it. It is
+                  11–12px uppercase mono against a display face several times
+                  the size; it can be scanned, but it cannot be mistaken for
+                  the title. It is deliberately NOT a filled button — a solid
+                  blue pill on this page would outrank the heading and read as
+                  the section's primary action, which it is not.
+
+   THE GLOW IS AN ANSWER, NOT AN ORNAMENT. At rest there is no shadow at all.
+   Hover and focus add one soft, tight pool of the accent and lift the ground
+   a few per cent — the page's existing hover language, not a new one.
+
+   ── THE ACCENT IS A VARIABLE, AND THAT IS THE POINT ──────────────────────
+   `--dc-accent` is cyan here because cyan is the platform's own colour. The
+   vision card overrides it to violet, because the mission/vision pair speaks
+   in two colours by design and flattening it to one would lose that. One
+   shape, one weight, one interaction — two accents where the section already
+   had two. Override the variable; never restate the rules.
+
+   ── 44px, STATED ONCE ────────────────────────────────────────────────────
+   `min-height: 44px` is on the control itself rather than reconstructed from
+   padding at each call site, so no instance can drift under the touch target
+   by being given tighter padding later.
+   ========================================================================== */
+
+.control {
+  /* Cyan — the default, and the only one most callers want. */
+  --dc-accent: 79 209 255;
+  /* The same hue at a weight that survives a white ground. */
+  --dc-accent-ink: #0a6890;
+  --dc-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  /* The touch target, and the reason there is no vertical padding. */
+  min-height: 44px;
+  padding: 0 1.15rem;
+  border: 1px solid rgb(var(--dc-accent) / 0.3);
+  border-radius: 999px;
+  /* Faint and translucent: the sections behind this are several different
+     grounds, and a solid fill would clash with each in turn. */
+  background: rgb(9 14 26 / 0.5);
+  color: rgb(var(--c-soft-gray));
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  /* Up from 11px, and the tracking down from 0.18em — the old controls were
+     spaced like a label rather than set like a word. */
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--motion-ui, 220ms) var(--dc-ease),
+    border-color var(--motion-ui, 220ms) var(--dc-ease),
+    background-color var(--motion-ui, 220ms) var(--dc-ease),
+    box-shadow var(--motion-ui, 220ms) var(--dc-ease);
+}
+
+/* The accent, stated before the label. Small enough to be punctuation rather
+   than a bullet — it marks the control as the page's own, and it is the one
+   piece of colour visible at a glance. */
+.dot {
+  flex: none;
+  height: 0.3rem;
+  width: 0.3rem;
+  border-radius: 999px;
+  background: rgb(var(--dc-accent) / 0.9);
+  box-shadow: 0 0 0 3px rgb(var(--dc-accent) / 0.12);
+  transition: box-shadow var(--motion-ui, 220ms) var(--dc-ease);
+}
+
+.label {
+  min-width: 0;
+}
+
+/* Two borders on a square turned 45°: a chevron with nothing to import and
+   no font to load. Down when closed, up when open. */
+.mark {
+  flex: none;
+  display: block;
+  height: 0.38rem;
+  width: 0.38rem;
+  border-right: 1.5px solid rgb(var(--dc-accent) / 0.9);
+  border-bottom: 1.5px solid rgb(var(--dc-accent) / 0.9);
+  transform: translateY(-0.1rem) rotate(45deg);
+  transition: transform var(--motion-editorial, 320ms) var(--dc-ease);
+}
+
+.control[data-open="true"] .mark {
+  transform: translateY(0.06rem) rotate(-135deg);
+}
+
+.control[data-open="true"] {
+  color: rgb(var(--c-soft-white));
+  border-color: rgb(var(--dc-accent) / 0.45);
+  background: rgb(var(--dc-accent) / 0.05);
+}
+
+@media (hover: hover) {
+  .control:hover {
+    color: rgb(var(--c-soft-white));
+    border-color: rgb(var(--dc-accent) / 0.55);
+    background: rgb(var(--dc-accent) / 0.07);
+    /* One tight pool of accent under the pill. Not a halo. */
+    box-shadow: 0 6px 20px -10px rgb(var(--dc-accent) / 0.55);
+  }
+
+  .control:hover .dot {
+    box-shadow: 0 0 0 4px rgb(var(--dc-accent) / 0.16);
+  }
+
+  /* The chevron travels ~2.5px in the direction it is already pointing —
+     down to open, up to close. */
+  .control:hover .mark {
+    transform: translateY(0.06rem) rotate(45deg);
+  }
+
+  .control[data-open="true"]:hover .mark {
+    transform: translateY(-0.1rem) rotate(-135deg);
+  }
+}
+
+.control:focus-visible {
+  outline: 2px solid rgb(var(--dc-accent));
+  outline-offset: 3px;
+  color: rgb(var(--c-soft-white));
+  border-color: rgb(var(--dc-accent) / 0.55);
+  box-shadow: 0 6px 20px -10px rgb(var(--dc-accent) / 0.55);
+}
+
+/* ── Light theme ──
+   The dark translucent ground is the one thing that cannot survive a pale
+   page, so it inverts; everything else only needs a hue heavy enough to read
+   against white. */
+:global(.light) .control {
+  background: rgb(255 255 255 / 0.72);
+  border-color: rgb(var(--dc-accent) / 0.5);
+  color: rgb(var(--c-soft-gray));
+}
+
+:global(.light) .control[data-open="true"] {
+  color: var(--dc-accent-ink);
+  background: rgb(var(--dc-accent) / 0.08);
+}
+
+@media (hover: hover) {
+  :global(.light) .control:hover {
+    color: var(--dc-accent-ink);
+    background: rgb(var(--dc-accent) / 0.1);
+  }
+}
+
+:global(.light) .control:focus-visible {
+  outline-color: var(--dc-accent-ink);
+  color: var(--dc-accent-ink);
+}
+
+/* ── Placement ──
+   A centred control under centred section copy. Callers that sit inside a
+   card keep their own alignment and simply do not use this. */
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .control,
+  .dot,
+  .mark {
+    transition: none;
+  }
+}

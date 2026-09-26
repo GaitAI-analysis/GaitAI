@@ -1,0 +1,782 @@
+"use client";
+/* eslint-disable @next/next/no-img-element -- the poster must sit in plate fractions over its own canvas */
+
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import { HERO_GAIT, HERO_WALK, WALK_JOINTS, type WalkTheme } from "@/data/hero-walk";
+import { publishGait } from "@/lib/gaitBus";
+import { assetPath } from "@/lib/paths";
+import { usePrefersReducedMotion } from "@/lib/usePrefersReducedMotion";
+import styles from "./herowalker.module.css";
+
+/**
+ * THE POSE-ANALYSIS DIGITAL HUMAN — ALWAYS WALKING.
+ * =============================================================================
+ * The third panel's figure is a male digital human who walks continuously
+ * for as long as the hero is on screen (founder, 2026-09-25). He is part of
+ * the hero, not an introduction: the dots, cards and the Pose rail open and
+ * close around him and never stop him. The painted figure is gone from both
+ * plates for good, so there is nothing for him to hand back to.
+ *
+ * ── THE WALK ──────────────────────────────────────────────────────────────
+ * Motion capture of a natural walk (CMU Graphics Lab, trial 07_03: heel
+ * strike, loading, foot-flat stance, heel rise, toe-off, knee flexion in
+ * swing, arm counter-swing, pelvis and shoulder counter-rotation, the
+ * vertical bob) retargeted onto a rigged anatomical male body and rendered offline to 48 frames of ONE gait
+ * cycle — right heel strike to right heel strike. The loop is that cycle
+ * played end to start, so there is no reset: frame 47 is followed by frame 0
+ * exactly as frame 0 is followed by frame 1. The site ships images, never a
+ * 3D engine; the frames and every number below are generated, see
+ * src/data/hero-walk.ts and scripts/hero-walker/.
+ *
+ * ── A TRACKING SHOT, NOT A TREADMILL ──────────────────────────────────────
+ * A real stride (~1.4m) is about the width of the panel, so a man walking
+ * through it forever needs the camera to travel with him. What moves, and at
+ * what speed, is what makes that read as a camera rather than a conveyor:
+ *
+ *   the man      drifts slowly ahead of the camera and falls back again
+ *                (`drift`), the way a tracking operator never quite holds a
+ *                subject still;
+ *   the ground   its grain (grid, glints) runs back at exactly the speed the
+ *                planted foot needs — read per frame from the capture
+ *                (`root`), so a foot on the floor never slides — and faster in
+ *                the rows nearer the camera (perspective about `horizon`);
+ *   the backdrop the ribbon field, and its soft reflection in the floor, drift
+ *                past far more slowly, because they are further away. It is
+ *                the real painting; when it has drifted as far as the painting
+ *                reaches (`ext`), the next pass dissolves in over it from the
+ *                start, so no invented scenery is ever shown.
+ *
+ * ── TIMING ────────────────────────────────────────────────────────────────
+ * One stride is 1176ms, the rail's `--stride` (102 steps/min). The clock
+ * only runs while the hero is visible and the tab is in front, and resumes
+ * where it stopped. Reduced motion shows him standing mid-stride, still.
+ * The canvas is decorative: `aria-hidden`, no pointer events.
+ *
+ * ── THE DETAILED READ-OUT IS ASKED FOR, NOT SHOWN ─────────────────────────
+ * At rest he walks with only the quiet analysis on him: skeleton, joint
+ * markers and the foot-contact trace (founder, 2026-09-26: "the resting
+ * walking model should remain clean"). The biomechanics TEXT, the joint
+ * angles block and the gait-event words (heel strike, toe off...), appears
+ * only when the visitor asks: pointer over him, or a click / tap / Enter on
+ * the invisible button laid over his figure, which pins it open until a
+ * second press, a press elsewhere or Escape. It eases in over ~200ms with a
+ * 4px rise and eases out the same way (`detail`, separate from `level`).
+ */
+
+const STRIDE_MS = 1176;
+/** The backdrop's drift, in plate px per second, and its pass dissolve. */
+const BACKDROP_SPEED = 14;
+const DISSOLVE_MS = 1600;
+/** One slow drift of the man against the camera. */
+const DRIFT_MS = 9000;
+
+type Theme = "light" | "dark";
+
+type Assets = {
+  theme: Theme;
+  atlas: HTMLImageElement;
+  backdrop: HTMLImageElement;
+  grain: HTMLImageElement;
+  hi: boolean;
+};
+
+function load(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.decoding = "async";
+    img.onload = () => img.decode().then(() => resolve(img), () => resolve(img));
+    img.onerror = reject;
+    img.src = assetPath(src);
+  });
+}
+
+/** Which frame set this screen gets. The same rule runs in PREFETCH, before
+    hydration, so the load below finds the atlas already on its way. */
+function wantsHi(t: WalkTheme) {
+  // The man's height on screen: the stage spans the viewport's width.
+  const cssH = (window.innerWidth * t.figH) / t.plate[0];
+  // The low set is ~360px tall: use it only where he shows smaller than that.
+  return cssH * (window.devicePixelRatio || 1) > 360;
+}
+
+/* Starts the fetch while the HTML is still being parsed, for the theme the
+   page is actually in, so he is walking in the first view rather than
+   arriving a few seconds into it. */
+const prefetch = (framed: boolean) => {
+  const pick = (t: WalkTheme) =>
+    JSON.stringify({ r: t.figH / t.plate[0], hi: assetPath(t.scales.hi.src), lo: assetPath(t.scales.lo.src), b: assetPath(t.backdrop.src), g: assetPath(t.grain.src) });
+  /* Each walker fetches only on the layout that shows it: the picture's from
+     1024px, the phone hero's framed one below that, and that one always
+     takes the low set (see the loading effect). */
+  const gate = framed ? "(max-width: 1023px)" : "(min-width: 1024px)";
+  const hi = framed ? "false" : "innerWidth*t.r*(window.devicePixelRatio||1)>360";
+  return (
+    "(function(){try{if(!matchMedia('" + gate + "').matches)return;var L=" + pick(HERO_WALK.light) + ",D=" + pick(HERO_WALK.dark) + ";" +
+    "var t=document.documentElement.classList.contains('light')?L:D;" +
+    "var h=" + hi + ";" +
+    "[h?t.hi:t.lo,t.b,t.g].forEach(function(u){var i=new Image();i.src=u;});}catch(e){}})();"
+  );
+};
+const PREFETCH = prefetch(false);
+const PREFETCH_FRAMED = prefetch(true);
+
+function currentTheme(): Theme {
+  return document.documentElement.classList.contains("light") ? "light" : "dark";
+}
+
+/** The walker's hit area, in plate fractions: his figure from crown to
+    soles, and as wide as he drifts. */
+function hitStyle(t: WalkTheme): CSSProperties {
+  const [W, H] = t.plate;
+  const half = t.figH * 0.2 + t.drift;
+  const top = t.feetY - t.figH * 1.04;
+  return {
+    left: `${((t.hipX - half) / W) * 100}%`,
+    top: `${(top / H) * 100}%`,
+    width: `${((half * 2) / W) * 100}%`,
+    height: `${((t.feetY + 10 - top) / H) * 100}%`,
+  };
+}
+
+/** The canvas box: the whole panel, with its left edge along the divider. */
+function boxStyle(t: WalkTheme): CSSProperties {
+  const [W, H] = t.plate;
+  const [x0, y0, x1, y1] = t.box;
+  const bw = x1 - x0;
+  // 3px right of the painted divider, so the white line stays on top.
+  const at = (y: number) => ((t.divider.b + t.divider.m * y + 3 - x0) / bw) * 100;
+  return {
+    left: `${(x0 / W) * 100}%`,
+    top: `${(y0 / H) * 100}%`,
+    width: `${(bw / W) * 100}%`,
+    height: `${((y1 - y0) / H) * 100}%`,
+    clipPath: `polygon(${at(y0).toFixed(2)}% 0, 100% 0, 100% 100%, ${at(y1).toFixed(2)}% 100%)`,
+  };
+}
+
+/** The poster (the start frame) inside the canvas box, in the box's own fractions:
+    exactly where paint() draws that frame at tau 0. */
+function posterStyle(t: WalkTheme): CSSProperties {
+  const [x0, y0, x1, y1] = t.box;
+  const k = t.figH / t.bodyH / t.framePpm;
+  const left = t.hipX - t.frameHipX * k + t.poster.x * k;
+  const top = t.feetY - t.frameFloorY * k + t.poster.y * k;
+  const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`;
+  return {
+    position: "absolute",
+    left: pct(left - x0, x1 - x0),
+    top: pct(top - y0, y1 - y0),
+    width: pct(t.poster.w * k, x1 - x0),
+    height: pct(t.poster.h * k, y1 - y0),
+  };
+}
+
+const smooth = (x: number) => {
+  const c = Math.min(Math.max(x, 0), 1);
+  return c * c * (3 - 2 * c);
+};
+
+/* ── THE ANALYSIS LAYER ────────────────────────────────────────────────────
+   Drawn on the page over the body, from what was MEASURED on it: the joints
+   (hero-walk.ts `joints`) and the gait tables (HERO_GAIT: phases, stance,
+   centre of pressure, hip / knee / ankle angles and events, all derived from
+   the rig's own transforms by scripts/hero-walker/gait.py). Nothing here is
+   generated or random.
+     joints     shoulder, elbow, wrist, pelvis, hip, knee, ankle; thin lines
+     angles     hip flexion, knee flexion and ankle angle of the near (right)
+                leg, on leaders beside the joints
+     contact    under a planted foot: the path from the heel to the centre of
+                pressure, which travels heel -> midfoot -> forefoot through
+                stance; a ring where the heel lands
+     events     "R Heel strike", "L Toe off"... beside the foot, then fading
+   `level` runs 0 (resting: quiet) to 1 (Pose open, or the introduction). */
+type JointName = (typeof WALK_JOINTS)[number];
+const J = Object.fromEntries(WALK_JOINTS.map((n, i) => [n, i])) as Record<JointName, number>;
+const BONES: readonly (readonly [JointName, JointName, boolean])[] = [
+  ["Head", "Neck", true], ["Neck", "Spine1", true], ["Spine1", "Hips", true],
+  ["Neck", "RightArm", true], ["RightArm", "RightForeArm", true], ["RightForeArm", "RightHand", true],
+  ["Neck", "LeftArm", false], ["LeftArm", "LeftForeArm", false], ["LeftForeArm", "LeftHand", false],
+  ["Hips", "RightUpLeg", true], ["RightUpLeg", "RightLeg", true], ["RightLeg", "RightFoot", true], ["RightFoot", "RightToeBase", true],
+  ["Hips", "LeftUpLeg", false], ["LeftUpLeg", "LeftLeg", false], ["LeftLeg", "LeftFoot", false], ["LeftFoot", "LeftToeBase", false],
+];
+/* The standard keypoints: head, shoulders, elbows, wrists, hips, knees,
+   ankles. Never a node at the pelvis centre (founder, 2026-09-26). */
+const NODES: readonly JointName[] = ["Head", "RightArm", "LeftArm", "RightForeArm", "LeftForeArm", "RightHand", "LeftHand", "RightUpLeg", "LeftUpLeg", "RightLeg", "LeftLeg", "RightFoot", "LeftFoot"];
+const ANGLES = [
+  ["Hip flexion", "RightUpLeg", 3],
+  ["Knee flexion", "RightLeg", 4],
+  ["Ankle", "RightFoot", 5],
+] as const;
+const EVENT_MS = 900;
+
+function analysis(
+  ctx: CanvasRenderingContext2D,
+  t: WalkTheme,
+  theme: Theme,
+  i: number,
+  f: number,
+  place: { fx: number; fy: number; k: number },
+  px: number,
+  L: number,
+  D: number,
+) {
+  const N = t.joints.length;
+  // Muted cobalt on the pale day plate, warm ivory-champagne on the night one
+  // (founder, 2026-09-26): both hold against their ribbon field.
+  const rgb = theme === "light" ? "44,70,122" : "242,224,184";
+  const ink = (a: number) => `rgba(${rgb},${Math.max(0, Math.min(1, a)).toFixed(3)})`;
+  // Type sits on a soft halo of the plate's own tone (pearl by day, deep navy
+  // by night) so it stays legible over the ribbons and the body alike.
+  const halo = theme === "light" ? "rgba(250,248,242,0.95)" : "rgba(5,9,22,0.9)";
+  // shadowBlur ignores the transform: it is in device pixels.
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  // Type sizes, CSS px. Night reads at 11px minimum (founder, 2026-09-26: "no tiny
+  // dashboard text" on the dark hero); day keeps the sizes it was approved at.
+  const T = theme === "dark" ? { label: 11.5, value: 15, event: 11, step: 38 } : { label: 9.5, value: 13, event: 10, step: 33 };
+  const text = (s: string, x: number, y: number) => {
+    ctx.save();
+    ctx.shadowColor = halo;
+    ctx.shadowBlur = 5 * dpr;
+    ctx.strokeStyle = halo;
+    ctx.lineWidth = 2.6 * px;
+    ctx.lineJoin = "round";
+    ctx.strokeText(s, x, y);
+    ctx.shadowBlur = 0;
+    ctx.fillText(s, x, y);
+    ctx.restore();
+  };
+  const at = (fr: readonly number[], n: JointName): [number, number] => [
+    place.fx + fr[J[n] * 2] * place.k,
+    place.fy + fr[J[n] * 2 + 1] * place.k,
+  ];
+  const cur = t.joints[i];
+  const frameMs = STRIDE_MS / N;
+
+  // The skeleton. At rest a faint structure only (thin, low, no glow); asked
+  // for (D) or with Pose open (L) it firms into the full pose. The near side
+  // is always stronger than the far one.
+  const E = Math.max(L, D);
+  ctx.lineCap = "round";
+  ctx.lineWidth = px * (0.9 + 0.4 * E);
+  for (const [p, q, near] of BONES) {
+    const [x0, y0] = at(cur, p);
+    const [x1, y1] = at(cur, q);
+    ctx.strokeStyle = ink(near ? 0.3 + 0.55 * E : 0.16 + 0.34 * E);
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x1, y1);
+    ctx.stroke();
+  }
+  for (const n of NODES) {
+    const [x, y] = at(cur, n);
+    const near = !n.startsWith("Left");
+    const dim = (near ? 1 : 0.55) * (0.45 + 0.55 * E);
+    const r = px * (near ? 1.3 + 0.7 * E : 1 + 0.4 * E);
+    // A soft halo only once the detail is asked for, never at rest.
+    if (E > 0.05) {
+      const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 2.6);
+      halo.addColorStop(0, ink(0.35 * E * dim));
+      halo.addColorStop(1, ink(0));
+      ctx.fillStyle = halo;
+      ctx.beginPath();
+      ctx.arc(x, y, r * 2.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = theme === "light" ? ink(dim) : `rgba(255,246,226,${(0.9 * dim).toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Foot contact: heel -> centre of pressure along the sole, on the floor.
+  for (const [side, k] of [["Left", 0], ["Right", 1]] as const) {
+    const c = HERO_GAIT.cop[i][k];
+    if (c === null) continue;
+    const [hx, hy] = at(cur, `${side}Heel`);
+    const [tx, ty] = at(cur, `${side}ToeTip`);
+    const y0 = Math.max(hy, ty) + 1.5 * px;
+    const px0 = hx + (tx - hx) * c;
+    const near = side === "Right";
+    ctx.strokeStyle = ink((near ? 0.75 : 0.5) * (0.45 + 0.55 * E));
+    ctx.lineWidth = px * 1.6;
+    ctx.beginPath();
+    ctx.moveTo(hx, y0);
+    ctx.lineTo(px0, y0);
+    ctx.stroke();
+    const g = ctx.createRadialGradient(px0, y0, 0, px0, y0, 6 * px);
+    g.addColorStop(0, ink(0.9 * (0.5 + 0.5 * E)));
+    g.addColorStop(1, ink(0));
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(px0, y0, 6 * px, 2.4 * px, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Events: a word beside the foot when it happens, then fading; the landing
+  // heel also rings once.
+  ctx.font = `600 ${(T.event * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
+  ctx.textAlign = "left";
+  // One word per foot: the newest event replaces the one before it, so two
+  // readings never print over each other in the same place.
+  const newest: Record<string, number> = {};
+  for (const [e, s] of HERO_GAIT.events) {
+    const ago = (((f - e) % N) + N) % N;
+    newest[s] = Math.min(newest[s] ?? Infinity, ago);
+  }
+  // The words and the angles are the detailed read-out: drawn only as far as
+  // it has been asked for (D), rising 4px into place as it arrives.
+  const rise = (1 - D) * 4 * px;
+  for (const [e, s, type] of HERO_GAIT.events) {
+    const ago = (((f - e) % N) + N) % N; // frames since this event last happened
+    const ms = ago * frameMs;
+    if (ms > EVENT_MS || ago !== newest[s]) continue;
+    const side = s === "l" ? "Left" : "Right";
+    const a = (1 - ms / EVENT_MS) ** 1.4;
+    const [ax, ay] = at(cur, `${side}Foot`);
+    const lift = (ms / EVENT_MS) * 6 * px;
+    const y = ay - (s === "l" ? 30 : 18) * px - lift + rise;
+    if (D > 0.01) {
+      ctx.fillStyle = ink((0.88 + 0.12 * L) * a * D);
+      text(`${s.toUpperCase()}  ${type.toUpperCase()}`, ax + 10 * px, y);
+    }
+    if (type === "Heel strike" && ms < 360) {
+      const g = ms / 360;
+      const [hx, hy] = at(t.joints[e], `${side}Heel`);
+      ctx.strokeStyle = ink((0.85 + 0.15 * L) * (1 - g));
+      ctx.lineWidth = 1.3 * px;
+      ctx.beginPath();
+      ctx.ellipse(hx, hy + 1.5 * px, (3 + 12 * g) * px, (1.2 + 3.5 * g) * px, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  // Angles of the near leg: a small fixed block behind his hips, a leader
+  // from each reading to its joint. Only while the read-out is asked for.
+  if (D <= 0.01) return;
+  const A = HERO_GAIT.angles[i];
+  const al = (0.86 + 0.14 * L) * D;
+  const by = t.feetY - t.figH * 0.52 + rise;
+  const step = T.step * px;
+  // The block's right edge, pushed right only as far as it takes for the
+  // widest label to clear the panel's divider (the canvas is clipped there).
+  ctx.font = `600 ${(T.label * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
+  const widest = Math.max(...ANGLES.map(([label]) => ctx.measureText(label.toUpperCase()).width));
+  const edge = (y: number) => t.divider.b + t.divider.m * y + 3;
+  const clear = Math.max(edge(by - 20 * px), edge(by + 2 * step + 5 * px)) + 10 * px;
+  const bx = Math.max(t.hipX + (place.fx - (t.hipX - t.frameHipX * place.k)) - t.figH * 0.15, clear + widest);
+  ctx.textAlign = "right";
+  ANGLES.forEach(([label, joint, idx], n) => {
+    const y = by + n * step;
+    const [x, jy] = at(cur, joint);
+    ctx.strokeStyle = ink(al * 0.62);
+    ctx.lineWidth = px;
+    ctx.beginPath();
+    ctx.moveTo(bx + 4 * px, y - 4 * px);
+    ctx.lineTo(bx + 10 * px, y - 4 * px);
+    ctx.lineTo(x - 4 * px, jy);
+    ctx.stroke();
+    // The leader's joint end: a small tick ring, so the reading is anchored.
+    ctx.beginPath();
+    ctx.arc(x - 4 * px, jy, 1.6 * px, 0, Math.PI * 2);
+    ctx.fillStyle = ink(al * 0.8);
+    ctx.fill();
+    ctx.font = `600 ${(T.label * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
+    ctx.fillStyle = ink(al * 0.85);
+    text(label.toUpperCase(), bx, y - (T.label + 1.5) * px);
+    ctx.font = `700 ${(T.value * px).toFixed(2)}px ui-sans-serif, system-ui, sans-serif`;
+    ctx.fillStyle = ink(al);
+    text(`${A[idx]}°`, bx, y + 3 * px);
+  });
+  ctx.textAlign = "left";
+}
+
+/* ── FRAMED: THE SAME SHOT IN A WINDOW OF ITS OWN ─────────────────────────
+   The phone hero (HeroMobile) shows the walker in a tall tile of its own
+   rather than over the whole picture. `frame` names, per theme, the plate
+   rectangle that tile looks at (left, right and top edge; the tile's aspect
+   decides how far down it reaches) and how far to the right of the painted
+   figure's place he walks (`shift`), so the tile holds only the ribbon field
+   and never the clinic beyond the divider. Everything else — the capture,
+   the ground speed, the backdrop passes, the analysis layer — is the same
+   code on the same tables. Without `frame` nothing here changes. */
+export type WalkFrame = {
+  x0: number;
+  x1: number;
+  y0: number;
+  shift: number;
+  /** Mirror the shot (he walks left). Safe only because the framed walker
+      never draws its text read-out: no hover, no pin, no words. */
+  mirror?: boolean;
+};
+type Frames = Record<Theme, WalkFrame>;
+const MIRROR: CSSProperties = { transform: "scaleX(-1)" };
+
+function framedTable(th: Theme, frame?: Frames): WalkTheme {
+  const t = HERO_WALK[th];
+  if (!frame) return t;
+  const f = frame[th];
+  return { ...t, hipX: t.hipX + f.shift, box: [f.x0, f.y0, f.x1, t.plate[1]] };
+}
+
+/** The framed poster: plate px as shares of the tile's WIDTH (margin-top
+    resolves against width too), so it needs no height to be placed. */
+function framedPosterStyle(t: WalkTheme): CSSProperties {
+  const [x0, y0, x1] = t.box;
+  const k = t.figH / t.bodyH / t.framePpm;
+  const left = t.hipX - t.frameHipX * k + t.poster.x * k;
+  const top = t.feetY - t.frameFloorY * k + t.poster.y * k;
+  const pct = (v: number) => `${((v / (x1 - x0)) * 100).toFixed(3)}%`;
+  return {
+    position: "absolute",
+    top: 0,
+    left: pct(left - x0),
+    marginTop: pct(top - y0),
+    width: pct(t.poster.w * k),
+    height: "auto",
+  };
+}
+
+/** Draw one frame of the shot at `tau` ms of walking. */
+function paint(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, a: Assets, tau: number, level = 0, detail = 0, table?: WalkTheme) {
+  const t = table ?? HERO_WALK[a.theme];
+  const scale = a.hi ? t.scales.hi : t.scales.lo;
+  const N = scale.frames.length;
+  const START = t.strikes.right;
+  const [bx0, by0, bx1] = t.box;
+  const P = t.figH / t.bodyH; // plate px per metre
+  const k = P / t.framePpm; // plate px per full-size frame px
+
+  const r = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = Math.max(1, Math.round(r.width * dpr));
+  const h = Math.max(1, Math.round(r.height * dpr));
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
+  const s = w / (bx1 - bx0); // canvas px per plate px
+
+  const f = START + (tau / STRIDE_MS) * N;
+  const i = Math.floor(f) % N;
+  const cycles = Math.floor(f / N);
+  // Metres walked, pinned to the stance foot by the capture itself.
+  const metres = cycles * t.stride + t.root[i] - t.root[START];
+  const drift = t.drift * Math.sin((2 * Math.PI * tau) / DRIFT_MS);
+  const ground = metres * P - drift; // plate px the ground has run back at the feet
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+  ctx.clearRect(0, 0, w, h);
+  ctx.setTransform(s, 0, 0, s, -bx0 * s, -by0 * s); // plate pixels from here on
+
+  // 1. The backdrop: passes that drift left and dissolve into the next.
+  const bd = t.backdrop;
+  const reach = bd.ext - 2;
+  const life = (reach / BACKDROP_SPEED) * 1000; // ms one pass can drift
+  const every = life - DISSOLVE_MS; // a new pass starts this often
+  const n = Math.floor(tau / every);
+  const u = tau - n * every;
+  const pass = (age: number, alpha: number) => {
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(a.backdrop, bd.x0 - (age / 1000) * BACKDROP_SPEED, 0, bd.w, bd.h);
+  };
+  if (n > 0 && u < DISSOLVE_MS) pass(u + every, 1);
+  pass(u, n > 0 ? smooth(u / DISSOLVE_MS) : 1);
+  ctx.globalAlpha = 1;
+
+  // 2. The ground's own grain, row by row at its depth's speed.
+  const g = t.grain;
+  ctx.globalCompositeOperation = "hard-light";
+  const band = 3;
+  for (let y = 0; y < g.h; y += band) {
+    const row = g.top + y;
+    const depth = (row - t.horizon) / (t.feetY - t.horizon);
+    let x = bx0 - (((ground * depth) % g.w) + g.w) % g.w;
+    for (; x < bx1; x += g.w) ctx.drawImage(a.grain, 0, y, g.w, band, x, row, g.w, band);
+  }
+  ctx.globalCompositeOperation = "source-over";
+
+  // 3. The man: hips where the painted figure's were, soles on its floor.
+  const [ax, ay, aw, ah, ox, oy] = scale.frames[i];
+  const fx = t.hipX + drift - t.frameHipX * k;
+  const fy = t.feetY - t.frameFloorY * k;
+  const q = k / scale.scale;
+  ctx.drawImage(a.atlas, ax, ay, aw, ah, fx + ox * q, fy + oy * q, aw * q, ah * q);
+
+  // 4. The analysis layer over him; `dpr / s` is one CSS pixel in plate px.
+  analysis(ctx, t, a.theme, i, f % N, { fx, fy, k }, dpr / s, level, detail);
+  publishGait({ i, f: f % N });
+}
+
+export function HeroWalker({
+  analysis: open = false,
+  frame: walkFrame,
+}: {
+  analysis?: boolean;
+  /** Framed mode (the phone hero): see `WalkFrame`. */
+  frame?: Frames;
+}) {
+  const reduced = usePrefersReducedMotion();
+  /* The detailed read-out: hovered (a real pointer over him) or pinned (a
+     click, tap or Enter), until a second press, a press elsewhere or Esc. */
+  const [hover, setHover] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const detailed = hover || pinned;
+  const want = useRef(open ? 1 : 0);
+  const wantDetail = useRef(0);
+  const repaint = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    want.current = open || detailed ? 1 : 0;
+    wantDetail.current = detailed ? 1 : 0;
+    repaint.current?.();
+  }, [open, detailed]);
+
+  useEffect(() => {
+    if (!pinned) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPinned(false);
+    };
+    const onDown = (e: PointerEvent) => {
+      if (!(e.target as Element | null)?.closest?.("[data-walker-hit]")) setPinned(false);
+    };
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, [pinned]);
+  const light = useRef<HTMLCanvasElement>(null);
+  const dark = useRef<HTMLCanvasElement>(null);
+  const [assets, setAssets] = useState<Assets | null>(null);
+  const [theme, setTheme] = useState<Theme | null>(null);
+
+  /* Follow the site theme. */
+  useEffect(() => {
+    setTheme(currentTheme());
+    const watch = new MutationObserver(() => setTheme(currentTheme()));
+    watch.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => watch.disconnect();
+  }, []);
+
+  /* This theme's frames, straight away — he is part of the first view. */
+  /* ...but only while he can be seen. The page carries two walkers — the
+     picture's (1024px and up) and the phone hero's framed one — and CSS
+     hides the one that does not fit the screen; a hidden canvas has no
+     width, so it waits (and re-checks on resize) instead of downloading a
+     frame set nobody will see. The framed walker always takes the low set:
+     it is the set the phone layout already shares, and it keeps the phone
+     hero light. */
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const check = () =>
+      setShown([light.current, dark.current].some((el) => !!el && el.getClientRects().length > 0));
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [theme]);
+
+  useEffect(() => {
+    if (!theme || !shown || assets?.theme === theme) return;
+    let gone = false;
+    const t = HERO_WALK[theme];
+    const hi = walkFrame ? false : wantsHi(t);
+    Promise.all([load((hi ? t.scales.hi : t.scales.lo).src), load(t.backdrop.src), load(t.grain.src)])
+      .then(([atlas, backdrop, grain]) => {
+        if (!gone) setAssets({ theme, atlas, backdrop, grain, hi });
+      })
+      .catch(() => undefined);
+    return () => {
+      gone = true;
+    };
+  }, [theme, assets, shown, walkFrame]);
+
+  const ready = !!assets && assets.theme === theme;
+
+  /* The walk: runs while the hero is on screen and the tab is in front, and
+     picks up where it stopped. */
+  useEffect(() => {
+    if (!ready || !assets) return;
+    const canvas = (assets.theme === "light" ? light : dark).current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const table = framedTable(assets.theme, walkFrame);
+
+    if (reduced) {
+      const still = () => paint(ctx, canvas, assets, 0, want.current, wantDetail.current, framedTable(assets.theme, walkFrame));
+      still();
+      repaint.current = still;
+      const onResize = still;
+      window.addEventListener("resize", onResize);
+      return () => {
+        repaint.current = null;
+        window.removeEventListener("resize", onResize);
+      };
+    }
+
+    let raf = 0;
+    let walked = 0; // ms of walking so far
+    let last = 0;
+    let seen = true;
+    let level = want.current;
+    let detail = wantDetail.current;
+    const frame = (now: number) => {
+      const dt = last ? Math.min(now - last, 100) : 0;
+      walked += dt;
+      last = now;
+      // The analysis layer eases between quiet and prominent in ~300ms.
+      level += (want.current - level) * Math.min(1, dt / 300);
+      // The detailed read-out arrives and leaves in ~200ms.
+      detail += (wantDetail.current - detail) * Math.min(1, dt / 80);
+      paint(ctx, canvas, assets, walked, level, detail, table);
+      raf = requestAnimationFrame(frame);
+    };
+    const run = () => {
+      const go = seen && document.visibilityState === "visible";
+      if (go && !raf) {
+        last = 0;
+        raf = requestAnimationFrame(frame);
+      } else if (!go && raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+    };
+    const io = new IntersectionObserver(([e]) => {
+      seen = e.isIntersecting;
+      run();
+    });
+    io.observe(canvas);
+    document.addEventListener("visibilitychange", run);
+    run();
+    return () => {
+      io.disconnect();
+      document.removeEventListener("visibilitychange", run);
+      cancelAnimationFrame(raf);
+    };
+  }, [ready, assets, reduced, walkFrame]);
+
+  if (walkFrame) {
+    /* Framed: the tile is the box. The backdrop and the start frame hold the
+       tile from the first paint until the walking canvas fades in over them;
+       the tile itself is the control, so there is no hit button here. Lazy,
+       so the theme that is hidden never downloads its still. */
+    return (
+      <>
+        <script dangerouslySetInnerHTML={{ __html: PREFETCH_FRAMED }} />
+        {(["light", "dark"] as const).map((th) => {
+          const t = framedTable(th, walkFrame);
+          const [x0, y0, x1] = t.box;
+          const pct = (v: number) => `${((v / (x1 - x0)) * 100).toFixed(3)}%`;
+          return (
+            <div
+              key={th}
+              aria-hidden="true"
+              className={`${styles.poster} ${styles.framedPoster} ${styles[th]}`}
+              style={walkFrame[th].mirror ? MIRROR : undefined}
+              data-gone={ready && theme === th ? "true" : undefined}
+            >
+              <img
+                src={assetPath(t.backdrop.src)}
+                alt=""
+                decoding="async"
+                loading="lazy"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: pct(t.backdrop.x0 - x0),
+                  marginTop: pct(-y0),
+                  width: pct(t.backdrop.w),
+                  height: "auto",
+                  maxWidth: "none",
+                }}
+              />
+              <img
+                src={assetPath(t.poster.src)}
+                alt=""
+                decoding="async"
+                loading="lazy"
+                style={{ ...framedPosterStyle(t), maxWidth: "none" }}
+              />
+            </div>
+          );
+        })}
+        <canvas
+          ref={light}
+          aria-hidden="true"
+          className={`${styles.walker} ${styles.framed} ${styles.light}`}
+          style={walkFrame.light.mirror ? MIRROR : undefined}
+          data-show={ready && theme === "light" ? "true" : undefined}
+        />
+        <canvas
+          ref={dark}
+          aria-hidden="true"
+          className={`${styles.walker} ${styles.framed} ${styles.dark}`}
+          style={walkFrame.dark.mirror ? MIRROR : undefined}
+          data-show={ready && theme === "dark" ? "true" : undefined}
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <script dangerouslySetInnerHTML={{ __html: PREFETCH }} />
+      {/* He is in the first paint: the start frame as a still, in the server
+          markup, until the walking canvas (which starts on that very frame)
+          has taken over. */}
+      {(["light", "dark"] as const).map((th) => (
+        <div
+          key={th}
+          aria-hidden="true"
+          className={`${styles.poster} ${styles[th]}`}
+          style={boxStyle(HERO_WALK[th])}
+          data-gone={ready && theme === th ? "true" : undefined}
+        >
+          <img
+            src={assetPath(HERO_WALK[th].poster.src)}
+            alt=""
+            decoding="async"
+            style={posterStyle(HERO_WALK[th])}
+          />
+        </div>
+      ))}
+      <canvas
+        ref={light}
+        aria-hidden="true"
+        className={`${styles.walker} ${styles.light}`}
+        style={boxStyle(HERO_WALK.light)}
+        data-show={ready && theme === "light" ? "true" : undefined}
+      />
+      <canvas
+        ref={dark}
+        aria-hidden="true"
+        className={`${styles.walker} ${styles.dark}`}
+        style={boxStyle(HERO_WALK.dark)}
+        data-show={ready && theme === "dark" ? "true" : undefined}
+      />
+      {/* The way in to the detailed read-out: an invisible button over his
+          figure (and the width he drifts through), one per theme. Hover is
+          only a shortcut; press, tap and keyboard all reach it. */}
+      {(["light", "dark"] as const).map((th) => (
+        <button
+          key={th}
+          type="button"
+          data-walker-hit=""
+          className={`${styles.hit} ${styles[th]}`}
+          style={hitStyle(HERO_WALK[th])}
+          aria-pressed={pinned}
+          aria-label="Show how this walk is analysed: joint angles and gait events"
+          onPointerEnter={(e) => {
+            if (e.pointerType === "mouse") setHover(true);
+          }}
+          onPointerLeave={(e) => {
+            if (e.pointerType === "mouse") setHover(false);
+          }}
+          onClick={() => setPinned((v) => !v)}
+        />
+      ))}
+    </>
+  );
+}

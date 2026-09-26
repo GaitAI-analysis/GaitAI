@@ -1,0 +1,1324 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { useId } from "react";
+import { GAIT_PHASES, GAIT_HEAD, type Pt } from "@/components/visuals/gait-phases";
+import {
+  PLATE,
+  WALKER_HEAD,
+  WALKER_MASK,
+  WALKER_PHASE,
+  plateFit,
+  walkerStride,
+} from "@/components/visuals/capture-plate";
+import { PoseFrame, smoothPath } from "@/components/research/PoseFrame";
+import { assetPath } from "@/lib/paths";
+import type { CoverConcept } from "@/data/insights";
+import { trackInsightEvent } from "@/lib/insight-events";
+import { useFigureActive } from "../experience/useFigureActive";
+import { useNarrow } from "../experience/useNarrow";
+import { StageControl, type Stage } from "../experience/StageControl";
+import { POSE_PHASE_FOR, estimatePose, poseFocusJoint } from "../experience/figures/pose-error-model";
+import { READING_LABEL, symmetryState, type SymmetryLevel } from "../experience/figures/symmetry-model";
+import { ANGLE_LABEL, CAMERA_ANGLES, availabilityAt } from "../experience/figures/camera-model";
+import { REPRESENTATIONS, REPRESENTATION_LABEL, identityLedger } from "../experience/figures/identity-model";
+import { CHAIN, COMPONENT_LABEL, OUTCOME_LABEL, outcomeFor, type ChainComponent } from "../experience/figures/system-model";
+import { MAX_OBSERVATIONS, OBSERVATIONS, POPULATION, personalBand, populationCurve } from "../experience/figures/baseline-model";
+import fig from "../experience/figures.module.css";
+import ui from "../experience/experience.module.css";
+import styles from "./hub.module.css";
+
+/**
+ * THE MINI INTERACTIONS — one per cover concept, each a tiny version of the
+ * article's main idea, and each responding to a finger or a pointer:
+ *
+ *   pipeline    drag across:  video → person → pose → skeleton → trajectory → signal
+ *   reduction   drag across:  RGB → redacted → silhouette → skeleton → trajectory
+ *   trajectory  drag across:  one reading … five readings become a trend
+ *   divergence  hover / tap a branch: the same signal, re-read
+ *   fusion      tap a stream: healthy → missing → corrupted → healthy
+ *
+ * Nothing here is a measurement and no axis carries a number. The bodies are
+ * the project's own gait keyframes. The first time a card scrolls into view
+ * the interaction plays one slow pass on its own, so a reader learns that the
+ * picture moves without having to guess; after that it waits.
+ *
+ * All five share one coordinate system (320 × 200) and one stroke vocabulary
+ * (figures.module.css) so the hub reads as one journal.
+ */
+
+const W = 320;
+const H = 200;
+const CLASSES = { bone: fig.bone, boneFar: fig.boneFar, joint: fig.joint, head: fig.head };
+/* The ghosted stride behind the walker: no head circles. */
+const GHOST = { ...CLASSES, head: fig.ghostHead };
+
+/* The 140 × 146 frame three of the minis share, and the site's capture plate
+   fitted into it (visuals/capture-plate.ts): the walker's pelvis and scale in
+   card units, so the photograph, its mask and its skeleton coincide. */
+const MINI_FRAME = { x: 22, y: 30, w: 140, h: 146 };
+const MINI_FIT = plateFit("portrait", MINI_FRAME);
+
+const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+/** 0 below `a`, 1 above `b`, smooth between. */
+const ramp = (p: number, a: number, b: number) => {
+  const t = clamp01((p - a) / (b - a));
+  return t * t * (3 - 2 * t);
+};
+const r1 = (n: number) => Math.round(n * 10) / 10;
+
+/* ── 01 · pipeline ─────────────────────────────────────────────────────────
+   VIDEO IS A PHOTOGRAPH. The first two stages were a grid of drawn pixels and
+   a drawn body; they are now the site's capture plate — at Video the frame, at
+   Person the detection box on it — and every later stage is that walker: its
+   joints, its skeleton, the stride scaled to it. See visuals/capture-plate.ts. */
+const PIPE_FRAME = { x: 22, y: 20, w: 158, h: 148 };
+const PIPE_FIT = plateFit("portrait", PIPE_FRAME);
+function Pipeline({ p }: { p: number }) {
+  const clip = useId();
+  const [cx, cy] = PIPE_FIT.hip;
+  const s = PIPE_FIT.poseScale;
+  const phase = WALKER_PHASE;
+  const photo = ramp(p, 0.42, 0.18);
+  const box = ramp(p, 0.14, 0.26) * ramp(p, 0.62, 0.48);
+  const joints = ramp(p, 0.3, 0.42);
+  const bones = ramp(p, 0.44, 0.56);
+  const ghosts = ramp(p, 0.58, 0.72);
+  const trails = ramp(p, 0.62, 0.78);
+  const signal = ramp(p, 0.78, 0.92);
+  const groundY = cy + 48 * s;
+
+  const stride = walkerStride(PIPE_FIT, GAIT_PHASES, 6);
+  const ankle = smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[2])));
+  const wrist = smoothPath(stride.map((m) => m.pick((ph) => ph.nearArm[2])));
+  const [bx0, by0] = PIPE_FIT.at([WALKER_MASK.bbox.x0, WALKER_MASK.bbox.y0]);
+  const [bx1, by1] = PIPE_FIT.at([WALKER_MASK.bbox.x1, WALKER_MASK.bbox.y1]);
+  const wave = (y0: number, amp: number, f: number, ph: number) =>
+    smoothPath(
+      Array.from({ length: 16 }, (_, i) => {
+        const t = i / 15;
+        return [212 + t * 96, y0 + Math.sin(t * Math.PI * 2 * f + ph) * amp] as Pt;
+      }),
+    );
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id={clip}>
+          <rect x={PIPE_FRAME.x} y={PIPE_FRAME.y} width={PIPE_FRAME.w} height={PIPE_FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${clip})`}>
+        {/* the frame */}
+        <g style={{ opacity: photo }}>
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={PIPE_FRAME.x}
+            y={PIPE_FRAME.y}
+            width={PIPE_FRAME.w}
+            height={PIPE_FRAME.h}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.photo}
+          />
+        </g>
+        <line className={fig.ground} x1={30} y1={groundY} x2={172} y2={groundY} />
+        {/* detection box, on the walker the frame has */}
+        <rect
+          className={`${fig.frame} ${fig.frameAccent}`}
+          style={{ opacity: box }}
+          x={bx0 - 3}
+          y={by0 - 3}
+          width={bx1 - bx0 + 6}
+          height={by1 - by0 + 6}
+          rx={2}
+        />
+        {/* ghosts + trails */}
+        <g style={{ opacity: ghosts }}>
+          {stride.slice(0, -1).map((m, i) => (
+            <g key={i} className={fig.ghost} transform={`translate(${m.x} ${m.y})`}>
+              <PoseFrame phase={m.phase} s={m.scale} classes={GHOST} showFar={false} />
+            </g>
+          ))}
+        </g>
+        <g style={{ opacity: trails }}>
+          <path className={fig.trace} d={ankle} />
+          <path className={`${fig.trace} ${fig.traceViolet}`} d={wrist} />
+        </g>
+        {/* skeleton */}
+        <g transform={`translate(${cx} ${cy})`} style={{ opacity: Math.max(joints, bones) }}>
+          <g style={{ opacity: bones }}>
+            <PoseFrame phase={phase} s={s} classes={CLASSES} />
+          </g>
+          <g style={{ opacity: joints * (1 - bones) }}>
+            {[...phase.nearArm, ...phase.nearLeg, GAIT_HEAD].map(([jx, jy], i) => (
+              <circle key={i} className={fig.joint} cx={r1(jx * s)} cy={r1(jy * s)} r={2.4} />
+            ))}
+          </g>
+        </g>
+      </g>
+      <rect className={fig.frame} x={PIPE_FRAME.x} y={PIPE_FRAME.y} width={PIPE_FRAME.w} height={PIPE_FRAME.h} rx={3} />
+      {/* signal */}
+      <g style={{ opacity: signal }}>
+        {[
+          { y: 46, amp: 8, f: 3, ph: 0, cls: fig.trace },
+          { y: 84, amp: 6, f: 1.5, ph: 1, cls: `${fig.trace} ${fig.traceViolet}` },
+          { y: 122, amp: 5, f: 4, ph: 0.4, cls: `${fig.trace} ${fig.traceTeal}` },
+          { y: 156, amp: 7, f: 1, ph: 2, cls: `${fig.trace} ${fig.traceRoyal}` },
+        ].map((band) => (
+          <path key={band.y} className={band.cls} d={wave(band.y, band.amp, band.f, band.ph)} />
+        ))}
+        {[46, 84, 122, 156].map((y) => (
+          <line key={y} className={fig.hair} x1={212} y1={y} x2={308} y2={y} />
+        ))}
+      </g>
+      {/* the arrow of the pipeline */}
+      <line className={fig.dash} x1={186} y1={96} x2={204} y2={96} style={{ opacity: ramp(p, 0.7, 0.85) }} />
+    </svg>
+  );
+}
+
+/* ── 01 · pipeline, at cover size ───────────────────────────────────────────
+   HUMAN → POSE → SKELETON → TRAJECTORY → SIGNAL → INTELLIGENCE. The frame
+   holds the centre while the body is the subject, then slides left to make
+   room for what is read from it: the signals, then the decision-support
+   plate. One thing on screen at a time — the cover teaches, it does not
+   itemise. */
+const COVER_STAGES = ["Human", "Pose", "Skeleton", "Trajectory", "Signal", "Intelligence"] as const;
+const COVER_CONTROL: Stage[] = COVER_STAGES.map((name) => ({ id: name.toLowerCase(), label: name, name }));
+const CW = 640;
+const CH = 400;
+/* The frame the cover's walker stands in — sized to the figure at the cover's
+   scale, portrait cut, so the photograph fills it. */
+const COVER_FRAME = { x: 76, y: 42, w: 228, h: 296 };
+function coverStageOf(p: number) {
+  return Math.min(5, Math.floor(clamp01(p) * 6));
+}
+function PipelineCover({ p, narrow = false }: { p: number; narrow?: boolean }) {
+  const stage = coverStageOf(p);
+  /* On a phone the type is set larger, so the insight lines start further
+     left to stay inside the drawing. */
+  const tx = narrow ? 330 : 386;
+  const lx = narrow ? 318 : 372;
+  /* HUMAN IS A PHOTOGRAPH. The subject "stands in a soft field of light, the
+     way a subject stands in a photograph" — so at Human it is one: the site's
+     capture plate in a frame around the walker, and everything read from it
+     afterwards is that walker (visuals/capture-plate.ts). */
+  const fit = plateFit("portrait", COVER_FRAME);
+  const s = fit.poseScale;
+  const [fx, fy] = fit.hip;
+  const groundY = fy + 48 * s;
+  const phase = WALKER_PHASE;
+  const late = stage >= 4;
+  const mass = stage === 0 ? 1 : stage === 1 ? 0.28 : 0;
+  const joints = stage === 1 ? 1 : 0;
+  /* The walker stays the hero at every stage; what is read from it arrives
+     beside it and never outweighs it. */
+  const bones = stage >= 2 ? (stage === 4 ? 0.6 : stage === 5 ? 0.8 : 1) : 0;
+  const trail = stage === 3 ? 1 : late ? 0.35 : 0;
+  const signal = stage === 4 ? 1 : stage === 5 ? 0.18 : 0;
+  const decision = stage === 5 ? 1 : 0;
+
+  const stride = walkerStride(fit, GAIT_PHASES, 7);
+  const trails = {
+    ankle: smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[2]))),
+    wrist: smoothPath(stride.map((m) => m.pick((ph) => ph.nearArm[2]))),
+    hip: smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[0]))),
+  };
+  const wave = (y0: number, amp: number, f: number, ph: number) =>
+    smoothPath(
+      Array.from({ length: 22 }, (_, i) => {
+        const t = i / 21;
+        return [372 + t * 232, y0 + Math.sin(t * Math.PI * 2 * f + ph) * amp] as Pt;
+      }),
+    );
+
+  return (
+    <svg viewBox={`0 0 ${CW} ${CH}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id="cover-frame-clip">
+          <rect x={COVER_FRAME.x} y={COVER_FRAME.y} width={COVER_FRAME.w} height={COVER_FRAME.h} rx={4} />
+        </clipPath>
+        <radialGradient id="cover-field" cx="0.5" cy="0.6" r="0.6">
+          <stop offset="0" stopColor="var(--jr-cyan, #4fd1ff)" stopOpacity="0.09" />
+          <stop offset="0.65" stopColor="var(--jr-cyan, #4fd1ff)" stopOpacity="0.025" />
+          <stop offset="1" stopColor="var(--jr-cyan, #4fd1ff)" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {/* No frame, no pixel grid: the body stands in a soft field of light, the
+          way a subject stands in a photograph, and the stages change what the
+          system holds of it. The field slides left when the panel arrives. */}
+      <g
+        className={fig.move}
+        style={{ transform: late ? "translateX(0px)" : "translateX(130px)", transition: "transform 0.7s cubic-bezier(0.16,1,0.3,1)" }}
+      >
+        <ellipse cx={fx} cy={fy + 24} rx={158} ry={178} fill="url(#cover-field)" />
+        {/* the frame: whole at Human, faint under the landmarks at Pose */}
+        <g className={fig.fade} style={{ opacity: mass }} clipPath="url(#cover-frame-clip)">
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={COVER_FRAME.x}
+            y={COVER_FRAME.y}
+            width={COVER_FRAME.w}
+            height={COVER_FRAME.h}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.photo}
+          />
+        </g>
+        <rect className={`${fig.frame} ${fig.fade}`} style={{ opacity: Math.max(mass, 0.35) }} x={COVER_FRAME.x} y={COVER_FRAME.y} width={COVER_FRAME.w} height={COVER_FRAME.h} rx={4} />
+        <line className={fig.ground} x1={fx - 128} y1={groundY} x2={fx + 128} y2={groundY} />
+        <g className={fig.fade} style={{ opacity: trail }}>
+          {stride.slice(0, -1).map((m, i) => (
+            <g key={i} className={fig.ghost} transform={`translate(${m.x} ${m.y})`}>
+              <PoseFrame phase={m.phase} s={m.scale} classes={GHOST} showFar={false} />
+            </g>
+          ))}
+          <path className={fig.trace} d={trails.ankle} />
+          <path className={`${fig.trace} ${fig.traceViolet}`} d={trails.wrist} />
+          <path className={`${fig.trace} ${fig.traceRoyal} ${fig.traceThin}`} d={trails.hip} />
+        </g>
+        <g transform={`translate(${fx} ${fy - phase.lift * s})`}>
+          <g className={fig.fade} style={{ opacity: bones }}>
+            <PoseFrame phase={phase} s={s} classes={CLASSES} showContacts={stage === 2 || stage === 3} />
+          </g>
+          <g className={fig.fade} style={{ opacity: joints }}>
+            {[...phase.nearArm, ...phase.nearLeg, ...phase.farLeg.slice(1), GAIT_HEAD].map(([jx, jy], i) => (
+              <circle key={i} className={fig.joint} cx={r1(jx * s)} cy={r1(jy * s)} r={3.6} />
+            ))}
+          </g>
+        </g>
+      </g>
+      {/* One caption, only once the walk has become something read. */}
+      <text
+        className={`${styles.coverLabel} ${styles.coverLabelAccent} ${fig.fade}`}
+        style={{ opacity: late ? 1 : 0 }}
+        x={372}
+        y={52}
+      >
+        From motion to meaning
+      </text>
+
+      {/* the signals, read from the trail */}
+      <g className={fig.fade} style={{ opacity: signal }}>
+        {[
+          { y: 112, amp: 11, f: 3, ph: 0, cls: fig.trace, name: "Cadence" },
+          { y: 196, amp: 9, f: 1.5, ph: 1, cls: `${fig.trace} ${fig.traceRoyal}`, name: "Stride rhythm" },
+          { y: 280, amp: 8, f: 2, ph: 0.4, cls: `${fig.trace} ${fig.traceViolet}`, name: "Symmetry" },
+        ].map((band) => (
+          <g key={band.y}>
+            <text className={styles.coverLabel} x={372} y={band.y - 24}>
+              {band.name}
+            </text>
+            <path className={band.cls} d={wave(band.y, band.amp, band.f, band.ph)} />
+          </g>
+        ))}
+      </g>
+
+      {/* the insight: a reading and its boundary, as two lines of type — no
+          box, no report chrome. The walk beside it stays the subject. */}
+      <g className={fig.fade} style={{ opacity: decision }}>
+        <line className={fig.trace} x1={lx} y1={168} x2={lx} y2={232} />
+        <text className={`${styles.coverLabel} ${styles.coverLabelInk}`} x={tx} y={184}>
+          Stride variability rising
+        </text>
+        <text className={styles.coverLabel} x={tx} y={206}>
+          against this person&apos;s baseline
+        </text>
+        <text className={`${styles.coverLabel} ${styles.coverLabelWarn}`} x={tx} y={230}>
+          Decision support, not a diagnosis
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+/* ── 03 · reduction ─────────────────────────────────────────────────────────
+   RGB IS A PHOTOGRAPH. The first three states were one drawn body — textured,
+   then with a block over its face, then flat. They are now the site's capture
+   plate, the same plate with the head it has blocked out, and that walker's
+   own segmentation mask; the skeleton is that walker's joints and the
+   trajectory the stride scaled to it. See visuals/capture-plate.ts. */
+function Reduction({ p, narrow = false }: { p: number; narrow?: boolean }) {
+  const clip = useId();
+  const [cx, cy] = MINI_FIT.hip;
+  const s = MINI_FIT.poseScale;
+  const phase = WALKER_PHASE;
+  const rgb = ramp(p, 0.24, 0.08);
+  const redact = ramp(p, 0.12, 0.2) * ramp(p, 0.48, 0.34);
+  const silhouette = ramp(p, 0.26, 0.4) * ramp(p, 0.68, 0.54);
+  const skeleton = ramp(p, 0.5, 0.64) * ramp(p, 0.92, 0.8);
+  const trail = ramp(p, 0.76, 0.9);
+  const groundY = cy + 48 * s;
+  const [hx, hy] = MINI_FIT.at([WALKER_HEAD.cx, WALKER_HEAD.cy]);
+  const hr = WALKER_HEAD.r * MINI_FIT.scale;
+  const stride = walkerStride(MINI_FIT, GAIT_PHASES, 6);
+  const ankle = smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[2])));
+  const movement = p < 0.9 ? 3 : 2;
+  const identity = p < 0.2 ? 3 : p < 0.5 ? 2 : 1;
+  /* The photograph is whole for RGB and the redaction, and stays faint under
+     the mask so the mask reads as cut from it. */
+  const photo = Math.max(rgb, redact, silhouette * 0.14);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id={clip}>
+          <rect x={MINI_FRAME.x} y={MINI_FRAME.y} width={MINI_FRAME.w} height={MINI_FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
+      {/* On a phone the drawing is a fifth as tall, and the head would sit
+          under the "Foundations 03" step label; the whole plate drops 12
+          units to clear it. */}
+      <g transform={narrow ? "translate(0 12)" : undefined}>
+        <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
+        <g clipPath={`url(#${clip})`}>
+          <g style={{ opacity: photo }}>
+            <image
+              href={assetPath(PLATE.portrait.src)}
+              x={MINI_FRAME.x}
+              y={MINI_FRAME.y}
+              width={MINI_FRAME.w}
+              height={MINI_FRAME.h}
+              preserveAspectRatio="xMidYMid slice"
+              className={fig.photo}
+            />
+          </g>
+          {/* redaction: the frame stays as it was, and a violet block covers
+              the head — the one thing that has changed, and it must be
+              unmissable */}
+          <rect className={fig.redact} style={{ opacity: redact }} x={hx - hr - 2} y={hy - hr - 3} width={hr * 2 + 4} height={hr * 2 + 6} rx={1.5} />
+          {/* silhouette: the walker's segmentation */}
+          <g style={{ opacity: silhouette }} transform={MINI_FIT.transform}>
+            <path className={fig.segMask} d={WALKER_MASK.path} />
+          </g>
+        </g>
+        <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
+      {/* skeleton */}
+      <g transform={`translate(${cx} ${cy})`} style={{ opacity: skeleton }}>
+        <PoseFrame phase={phase} s={s} classes={CLASSES} />
+      </g>
+      {/* trajectory */}
+      <g style={{ opacity: trail }}>
+        <path className={`${fig.trace} ${fig.traceViolet}`} d={ankle} />
+        {stride.map((m, i) => {
+          const [nx, ny] = m.pick((ph) => ph.nearLeg[2]);
+          return <circle key={i} className={fig.nodeViolet} cx={nx} cy={ny} r={1.8} />;
+        })}
+      </g>
+      {/* the two indicators */}
+      <g className={`${fig.label} ${fig.labelKey}`}>
+        <text x={186} y={58}>
+          Movement kept
+        </text>
+        <text x={186} y={122}>
+          Identity kept
+        </text>
+      </g>
+      {[0, 1, 2].map((i) => (
+        <rect
+          key={`m${i}`}
+          className={i < movement ? fig.nodeTeal : fig.nodeMute}
+          x={186 + i * 14}
+          y={70 - i * 4}
+          width={9}
+          height={8 + i * 4}
+          rx={1}
+          style={{ opacity: i < movement ? 1 : 0.4 }}
+        />
+      ))}
+      {[0, 1, 2].map((i) => (
+        <rect
+          key={`i${i}`}
+          className={i < identity ? fig.nodeViolet : fig.nodeMute}
+          x={186 + i * 14}
+          y={134 - i * 4}
+          width={9}
+          height={8 + i * 4}
+          rx={1}
+          style={{ opacity: i < identity ? 1 : 0.4 }}
+        />
+      ))}
+      </g>
+    </svg>
+  );
+}
+
+/* ── 04 · trajectory ───────────────────────────────────────────────────── */
+const TREND_Y = [88, 92, 104, 100, 122];
+function Trajectory({ p }: { p: number }) {
+  const shown = 1 + Math.floor(clamp01(p) * 4.999);
+  const xs = [56, 108, 160, 212, 264];
+  const path = smoothPath(xs.slice(0, shown).map((x, i) => [x, TREND_Y[i]] as Pt));
+  const big = shown === 1;
+  const baseline = shown >= 3;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <g className={fig.grid}>
+        {[48, 88, 128].map((y) => (
+          <line key={y} x1={40} y1={y} x2={280} y2={y} />
+        ))}
+      </g>
+      <line className={fig.ground} x1={40} y1={160} x2={280} y2={160} />
+      {/* the personal baseline, once there is enough to draw one */}
+      <line
+        className={fig.dash}
+        style={{ opacity: baseline ? 1 : 0 }}
+        x1={40}
+        y1={TREND_Y[0]}
+        x2={280}
+        y2={TREND_Y[0]}
+      />
+      <text className={`${fig.label} ${fig.labelKey} ${fig.labelTeal}`} x={44} y={TREND_Y[0] - 8} style={{ opacity: baseline ? 1 : 0 }}>
+        Own baseline
+      </text>
+      <path className={`${fig.trace} ${fig.traceTeal}`} d={path} style={{ opacity: shown > 1 ? 1 : 0 }} />
+      {/* Assessments taken are solid points, the latest one haloed; the ones
+          still to come are dashed rings on the same line — slots waiting,
+          not data missing. */}
+      {xs.map((x, i) => {
+        const on = i < shown;
+        const latest = i === shown - 1;
+        const r = i === 0 ? (big ? 16 : 5) : 5;
+        return (
+          <g key={x} style={{ opacity: on ? 1 : 0.55 }}>
+            <line className={fig.dash} x1={x} y1={TREND_Y[i] + 10} x2={x} y2={152} style={{ opacity: on ? 1 : 0 }} />
+            {on && latest && !big && <circle className={fig.halo} cx={x} cy={TREND_Y[i]} r={11} />}
+            {on ? (
+              <circle
+                className={fig.node}
+                cx={x}
+                cy={TREND_Y[i]}
+                r={r}
+                style={{ transition: "r 0.4s cubic-bezier(0.16,1,0.3,1)" }}
+              />
+            ) : (
+              <circle className={fig.nodeFuture} cx={x} cy={TREND_Y[i]} r={4.5} />
+            )}
+            {on && <circle className={fig.nodeFill} cx={x} cy={TREND_Y[i]} r={i === 0 && big ? 3 : 2.4} />}
+            <text
+              className={`${fig.label} ${fig.labelSmall} ${on ? fig.labelInk : ""}`}
+              x={x}
+              y={174}
+              textAnchor="middle"
+              style={{ opacity: on ? 1 : 0.8 }}
+            >
+              {String(i + 1).padStart(2, "0")}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* ── 02 · divergence ───────────────────────────────────────────────────── */
+const BRANCHES = ["Mobility", "Recovery", "Identity", "Risk", "Safety"] as const;
+function Divergence({ pick }: { pick: number }) {
+  const ox = 96;
+  const oy = 100;
+  const wave = (amp: number, f: number, x0: number, x1: number, y0: number, phase = 0) =>
+    smoothPath(
+      Array.from({ length: 18 }, (_, i) => {
+        const t = i / 17;
+        return [x0 + t * (x1 - x0), y0 + Math.sin(t * Math.PI * 2 * f + phase) * amp] as Pt;
+      }),
+    );
+  const targets = BRANCHES.map((_, i) => [246, 30 + i * 35] as Pt);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      {/* one movement */}
+      <path className={`${fig.trace} ${fig.traceBold}`} d={wave(14, 2, 22, ox, oy)} />
+      <circle className={fig.nodeFill} cx={ox} cy={oy} r={3.4} />
+      <text className={fig.label} x={22} y={oy + 36}>
+        One movement
+      </text>
+      {/* branches */}
+      {/* The five readings. At rest all five are legible; once one is chosen
+          the others fall back a step and stay quiet — only the active branch
+          is bold, lit and haloed. */}
+      {targets.map(([tx, ty], i) => {
+        const on = pick === i;
+        const d = `M${ox} ${oy} C${ox + 50} ${oy} ${tx - 70} ${ty} ${tx - 10} ${ty}`;
+        return (
+          <g key={BRANCHES[i]} style={{ opacity: pick < 0 || on ? 1 : "var(--mini-dim, 0.48)" }}>
+            <path className={`${fig.trace} ${on ? fig.traceBold : fig.traceSoft}`} d={d} />
+            {on && <circle className={fig.halo} cx={tx - 10} cy={ty} r={8} />}
+            <circle className={on ? fig.nodeFill : fig.nodeMute} cx={tx - 10} cy={ty} r={on ? 3.2 : 2} />
+            <text className={`${fig.label} ${fig.labelKey} ${on ? fig.labelAccent : ""}`} x={tx} y={ty + 3}>
+              {BRANCHES[i]}
+            </text>
+          </g>
+        );
+      })}
+      {/* what each reading emphasises, drawn over the same signal */}
+      {pick === 0 && (
+        <g>
+          {[0, 1, 2, 3].map((i) => (
+            <line key={i} className={`${fig.trace} ${fig.traceTeal}`} x1={31 + i * 18.5} y1={oy - 22} x2={31 + i * 18.5} y2={oy - 16} />
+          ))}
+          <text className={`${fig.label} ${fig.labelTeal} ${fig.labelSmall}`} x={22} y={oy - 28}>
+            cadence · stride · symmetry
+          </text>
+        </g>
+      )}
+      {pick === 1 && (
+        <g>
+          <path className={`${fig.trace} ${fig.traceSoft}`} d={wave(11, 2, 22, ox, oy, 0.5)} strokeDasharray="3 3" />
+          <text className={`${fig.label} ${fig.labelSmall}`} x={22} y={oy - 28}>
+            against an earlier walk
+          </text>
+        </g>
+      )}
+      {pick === 2 && (
+        <g>
+          {[0, 1].map((i) => (
+            <rect key={i} className={fig.band} x={24 + i * 37} y={oy - 18} width={34} height={36} rx={2} />
+          ))}
+          <text className={`${fig.label} ${fig.labelSmall}`} x={22} y={oy - 28}>
+            recurring pattern
+          </text>
+        </g>
+      )}
+      {pick === 3 && (
+        <g>
+          <path
+            className={`${fig.band} ${fig.bandWarn}`}
+            d={`${wave(20, 2, 22, ox, oy)} L${ox} ${oy} ${wave(8, 2, 22, ox, oy).replace("M", "L")}`}
+            style={{ fillRule: "evenodd" }}
+          />
+          <text className={`${fig.label} ${fig.labelWarn} ${fig.labelSmall}`} x={22} y={oy - 28}>
+            variability envelope
+          </text>
+        </g>
+      )}
+      {pick === 4 && (
+        <g>
+          <path className={`${fig.trace} ${fig.traceRoyal}`} d="M28 150 C50 140 70 158 96 146 S130 128 150 140" />
+          <rect className={fig.frame} x={24} y={126} width={132} height={40} rx={2} />
+          <text className={`${fig.label} ${fig.labelSmall}`} x={22} y={oy - 28}>
+            trajectory in a space
+          </text>
+        </g>
+      )}
+    </svg>
+  );
+}
+
+/* ── 05 · fusion ───────────────────────────────────────────────────────── */
+type StreamState = 0 | 1 | 2; // healthy · missing · corrupted
+const STREAMS = ["RGB", "Pose", "IMU", "Audio"] as const;
+function Fusion({ states, onToggle }: { states: StreamState[]; onToggle: (i: number) => void }) {
+  const ys = [44, 84, 124, 164];
+  const nx = 196;
+  const ny = 104;
+  const missing = states.filter((s) => s === 1).length;
+  const corrupt = states.filter((s) => s === 2).length;
+  const noiseId = "hub-fusion-noise";
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <filter id={noiseId} x="-10%" y="-40%" width="120%" height="180%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="3" result="n" />
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+      {STREAMS.map((name, i) => {
+        const state = states[i];
+        const d = `M40 ${ys[i]} H120 C150 ${ys[i]} 160 ${ny} ${nx - 14} ${ny}`;
+        return (
+          <g key={name}>
+            {/* a generous hit target for a finger */}
+            <rect
+              x={20}
+              y={ys[i] - 18}
+              width={124}
+              height={36}
+              fill="transparent"
+              style={{ cursor: "pointer", pointerEvents: "all" }}
+              onClick={() => onToggle(i)}
+            />
+            <text className={`${fig.label} ${state === 1 ? "" : fig.labelInk}`} x={22} y={ys[i] + 3} style={{ opacity: state === 1 ? 0.5 : 1 }}>
+              {name}
+            </text>
+            {state === 1 ? (
+              <path className={fig.dash} d={d} />
+            ) : (
+              <path
+                className={`${fig.trace} ${state === 2 ? fig.traceWarn : ""}`}
+                d={d}
+                style={state === 2 ? { filter: `url(#${noiseId})` } : undefined}
+              />
+            )}
+            <text className={`${fig.label} ${fig.labelSmall} ${state === 2 ? fig.labelWarn : ""}`} x={64} y={ys[i] - 6}>
+              {state === 0 ? "healthy" : state === 1 ? "missing" : "corrupted"}
+            </text>
+          </g>
+        );
+      })}
+      {/* fusion node */}
+      <circle className={fig.node} cx={nx} cy={ny} r={11} />
+      <text className={`${fig.label} ${fig.labelSmall}`} x={nx} y={ny + 26} textAnchor="middle">
+        fusion
+      </text>
+      {/* result */}
+      <line className={fig.trace} x1={nx + 12} y1={ny} x2={236} y2={ny} />
+      <rect className={`${fig.plate} ${corrupt > 0 ? "" : fig.plateLit}`} x={238} y={ny - 34} width={62} height={68} rx={4} />
+      {[0, 1, 2, 3].map((i) => {
+        const state = states[i];
+        const w = state === 1 ? 0 : 40 - i * 4;
+        return (
+          <g key={i}>
+            <rect className={fig.hair} x={248} y={ny - 24 + i * 14} width={42} height={6} fill="none" />
+            {state === 1 ? (
+              <text className={`${fig.label} ${fig.labelSmall}`} x={248} y={ny - 18 + i * 14}>
+                gap
+              </text>
+            ) : (
+              <rect
+                className={state === 2 ? fig.nodeWarn : fig.nodeFill}
+                x={248}
+                y={ny - 24 + i * 14}
+                width={w}
+                height={6}
+                style={state === 2 ? { filter: `url(#${noiseId})` } : undefined}
+              />
+            )}
+          </g>
+        );
+      })}
+      <text className={`${fig.label} ${fig.labelSmall}`} x={238} y={ny + 48}>
+        {missing > 0 && corrupt === 0
+          ? "known gap"
+          : corrupt > 0
+            ? "looks complete"
+            : "result"}
+      </text>
+    </svg>
+  );
+}
+
+/* ── AI Under Stress 01 · pose error ───────────────────────────────────────
+   AI view → original frame. Drag across: the plausible skeleton stays; the
+   body the camera saw fades in under it, with the bin that hid the far leg
+   and the filled-in knee ringed. The panel on the right turns from "looks
+   fine" to what the measurement inherits. */
+function PoseErrorMini({ p }: { p: number }) {
+  const clip = useId();
+  const issue = "occlusion" as const;
+  /* The frame the camera saw is the photograph, so the "actual" pose is that
+     walker's joints (visuals/capture-plate.ts). */
+  const actual = WALKER_PHASE;
+  const est = estimatePose(actual, issue);
+  const focus = poseFocusJoint(actual, est, issue)!;
+  const [cx, cy] = MINI_FIT.hip;
+  const s = MINI_FIT.poseScale;
+  const reveal = ramp(p, 0.38, 0.62);
+  const groundY = cy + 48 * s;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id={clip}>
+          <rect x={MINI_FRAME.x} y={MINI_FRAME.y} width={MINI_FRAME.w} height={MINI_FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
+      <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
+      {/* the frame the camera saw, arriving */}
+      <g style={{ opacity: reveal }} clipPath={`url(#${clip})`}>
+        <image
+          href={assetPath(PLATE.portrait.src)}
+          x={MINI_FRAME.x}
+          y={MINI_FRAME.y}
+          width={MINI_FRAME.w}
+          height={MINI_FRAME.h}
+          preserveAspectRatio="xMidYMid slice"
+          className={fig.photo}
+        />
+      </g>
+      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
+      {/* the estimate — always complete, always plausible */}
+      <g transform={`translate(${cx} ${cy})`}>
+        <PoseFrame phase={est} s={s} classes={CLASSES} />
+        <g style={{ opacity: reveal }}>
+          <line className={fig.dash} x1={focus.est[0] * s} y1={focus.est[1] * s} x2={focus.actual[0] * s} y2={focus.actual[1] * s} />
+          <circle className={fig.node} cx={focus.est[0] * s} cy={focus.est[1] * s} r={5.5} style={{ stroke: "#f0b45a" }} />
+          <circle className={fig.nodeTeal} cx={focus.actual[0] * s} cy={focus.actual[1] * s} r={2.2} />
+        </g>
+      </g>
+      {/* the bin, in front of the far leg */}
+      <g style={{ opacity: reveal }}>
+        <rect x={cx + 5 * s} y={cy + 9 * s} width={22 * s} height={groundY - (cy + 9 * s)} fill="rgb(var(--c-obsidian-400) / 0.7)" stroke="var(--jr-line-mid)" strokeWidth={1} rx={2} />
+      </g>
+      {/* what the measurement inherits */}
+      <g className={fig.label}>
+        <text x={186} y={52}>
+          Knee angle
+        </text>
+        <text x={186} y={98}>
+          Step timing
+        </text>
+        <text x={186} y={144}>
+          Confidence
+        </text>
+      </g>
+      <g className={`${fig.label} ${fig.labelSmall}`}>
+        <text x={186} y={66} className={reveal > 0.5 ? fig.labelWarn : fig.labelTeal}>
+          {reveal > 0.5 ? "unavailable" : "looks fine"}
+        </text>
+        <text x={186} y={112} className={reveal > 0.5 ? fig.labelWarn : fig.labelTeal}>
+          {reveal > 0.5 ? "degraded" : "looks fine"}
+        </text>
+        <text x={186} y={158} className={fig.labelInk}>
+          {reveal > 0.5 ? "still high" : "high"}
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+/* ── Inside the Signal 01 · symmetry ───────────────────────────────────────
+   Two gait cycles as bars of time. Drag across: the right side's stance
+   grows or shrinks against the left, the dashed guides show where a
+   symmetric side would be, and the reading beneath changes in words. */
+function SymmetryMini({ p }: { p: number }) {
+  const level = Math.max(-3, Math.min(3, Math.round((p - 0.5) * 6))) as SymmetryLevel;
+  const state = symmetryState("stance", level);
+  const x0 = 52;
+  const x1 = 300;
+  const cycles = 1.6;
+  const xAt = (t: number) => x0 + (t / cycles) * (x1 - x0);
+  const segments = (start: number, stance: number) => {
+    const out: Array<[number, number]> = [];
+    for (let k = -1; k <= 2; k++) {
+      const a = Math.max(0, start + k);
+      const b = Math.min(cycles, start + k + stance);
+      if (b > a) out.push([a, b]);
+    }
+    return out;
+  };
+  const bar = (y: number, label: string, side: "left" | "right", start: number, stance: number) => (
+    <g>
+      <text className={`${fig.label} ${fig.labelKey}`} x={x0 - 6} y={y + 13} textAnchor="end">
+        {label}
+      </text>
+      <rect className={fig.frame} x={x0} y={y} width={x1 - x0} height={18} rx={2} />
+      {segments(start, stance).map(([a, b]) => (
+        <rect
+          key={`${side}-${a}`}
+          x={xAt(a)}
+          y={y + 3}
+          width={xAt(b) - xAt(a)}
+          height={12}
+          rx={1.5}
+          fill={side === "left" ? "var(--jr-cyan)" : "var(--jr-royal)"}
+          opacity={0.75}
+        />
+      ))}
+      {[-1, 0, 1, 2].map((k) => start + k).filter((t) => t >= 0 && t <= cycles).map((t) => (
+        <line key={`${side}-${t}`} className={fig.trace} x1={xAt(t)} y1={y - 5} x2={xAt(t)} y2={y + 23} style={{ stroke: side === "left" ? "var(--jr-cyan)" : "var(--jr-royal)" }} />
+      ))}
+    </g>
+  );
+  const asymmetric = state.reading !== "symmetrical";
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <line className={fig.ground} x1={x0} y1={44} x2={x1} y2={44} />
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={36}>
+        one gait cycle · time →
+      </text>
+      {bar(66, "Left", "left", state.left.start, state.left.stance)}
+      {bar(112, "Right", "right", state.right.start, state.right.stance)}
+      <g style={{ opacity: asymmetric ? 1 : 0 }}>
+        {segments(state.left.start + 0.5, state.left.stance).map(([a, b]) => (
+          <g key={`ghost-${a}`}>
+            <line className={fig.dash} x1={xAt(a)} y1={110} x2={xAt(a)} y2={132} />
+            <line className={fig.dash} x1={xAt(b)} y1={110} x2={xAt(b)} y2={132} />
+          </g>
+        ))}
+      </g>
+      <text className={`${fig.label} ${fig.labelState} ${asymmetric ? fig.labelWarn : fig.labelTeal}`} x={x0} y={166}>
+        {READING_LABEL[state.reading]}
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={182}>
+        {level === 0 ? "stance · swing · timing" : level > 0 ? "right stands longer" : "left stands longer"}
+      </text>
+    </svg>
+  );
+}
+
+/* ── Engineering GaitAI 01 · viewpoint ─────────────────────────────────────
+   A camera on a ring around a walker seen from above. Drag across: the
+   camera moves round the ring and three signals change in words — knee
+   flexion, stride width, body path. */
+function ViewpointMini({ p }: { p: number }) {
+  const angle = CAMERA_ANGLES[Math.min(7, Math.floor(clamp01(p) * 8))];
+  const a = (angle * Math.PI) / 180;
+  const cx = 96;
+  const cy = 104;
+  const r = 60;
+  const camX = cx + r * Math.sin(a);
+  const camY = cy + r * Math.cos(a);
+  const availability = availabilityAt(angle);
+  const word = (state: string) => (
+    <tspan className={state === "easier" ? fig.labelTeal : state === "harder" ? fig.labelWarn : ""} style={state === "unavailable" ? { opacity: 0.7 } : undefined}>
+      {state}
+    </tspan>
+  );
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <circle className={fig.dash} cx={cx} cy={cy} r={r} />
+      {CAMERA_ANGLES.map((value) => {
+        const t = (value * Math.PI) / 180;
+        return <circle key={value} className={fig.nodeMute} cx={cx + r * Math.sin(t)} cy={cy + r * Math.cos(t)} r={value === angle ? 0 : 1.8} />;
+      })}
+      <text className={`${fig.label} ${fig.labelSmall}`} x={cx + r + 8} y={cy + 3}>
+        front
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={cx - r - 8} y={cy + 3} textAnchor="end">
+        rear
+      </text>
+      <ellipse className={fig.mass} cx={cx} cy={cy} rx={14} ry={6} />
+      <circle cx={cx} cy={cy} r={4} style={{ fill: "var(--jr-ink)" }} />
+      <line className={fig.trace} x1={cx + 18} y1={cy} x2={cx + 34} y2={cy} />
+      <line className={fig.dash} x1={camX} y1={camY} x2={cx} y2={cy} style={{ stroke: "var(--jr-cyan)" }} />
+      <g className={fig.move} transform={`translate(${camX} ${camY})`}>
+        <circle className={fig.halo} r={11} />
+        <rect x={-7} y={-5} width={14} height={10} rx={2} fill="rgb(var(--c-obsidian-400))" stroke="var(--jr-cyan)" strokeWidth={1.2} />
+        <circle className={fig.nodeFill} r={2.2} />
+      </g>
+      <text className={`${fig.label} ${fig.labelState} ${fig.labelAccent}`} x={cx} y={cy + r + 26} textAnchor="middle">
+        {ANGLE_LABEL[angle]}
+      </text>
+      <g className={fig.label}>
+        <text x={186} y={52}>
+          Knee flexion
+        </text>
+        <text x={186} y={98}>
+          Stride width
+        </text>
+        <text x={186} y={144}>
+          Body path
+        </text>
+      </g>
+      <g className={`${fig.label} ${fig.labelSmall}`}>
+        <text x={186} y={66}>
+          {word(availability["knee-flexion"])}
+        </text>
+        <text x={186} y={112}>
+          {word(availability["stride-width"])}
+        </text>
+        <text x={186} y={158}>
+          {word(availability["body-path"])}
+        </text>
+      </g>
+    </svg>
+  );
+}
+
+/* ── Privacy by Architecture 01 · identity layers ──────────────────────────
+   Drag across: the figure is stripped from RGB to trajectories while the
+   ledger beside it says what could still identify the person — and it never
+   reaches zero. */
+function IdentityLayersMini({ p }: { p: number }) {
+  const clip = useId();
+  const stage = Math.min(4, Math.floor(clamp01(p) * 5));
+  const representation = REPRESENTATIONS[stage];
+  const ledger = identityLedger(representation, { persisted: false, linked: false });
+  /* RGB is the photograph; face removed blocks the head it has; the silhouette
+     is that walker's segmentation; the skeleton its joints. */
+  const [cx, cy] = MINI_FIT.hip;
+  const s = MINI_FIT.poseScale;
+  const phase = WALKER_PHASE;
+  const groundY = cy + 48 * s;
+  const [hx, hy] = MINI_FIT.at([WALKER_HEAD.cx, WALKER_HEAD.cy]);
+  const hr = WALKER_HEAD.r * MINI_FIT.scale;
+  const stride = walkerStride(MINI_FIT, GAIT_PHASES, 6);
+  const trail = smoothPath(stride.map((m) => m.pick((ph) => ph.nearLeg[2])));
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <defs>
+        <clipPath id={clip}>
+          <rect x={MINI_FRAME.x} y={MINI_FRAME.y} width={MINI_FRAME.w} height={MINI_FRAME.h} rx={3} />
+        </clipPath>
+      </defs>
+      <rect className={fig.frame} x={22} y={30} width={140} height={146} rx={3} />
+      <g clipPath={`url(#${clip})`}>
+        <g className={fig.fade} style={{ opacity: stage <= 1 ? 1 : stage === 2 ? 0.14 : 0 }}>
+          <image
+            href={assetPath(PLATE.portrait.src)}
+            x={MINI_FRAME.x}
+            y={MINI_FRAME.y}
+            width={MINI_FRAME.w}
+            height={MINI_FRAME.h}
+            preserveAspectRatio="xMidYMid slice"
+            className={fig.photo}
+          />
+        </g>
+        <rect className={`${fig.fade} ${fig.redact}`} style={{ opacity: stage === 1 ? 1 : 0 }} x={hx - hr - 2} y={hy - hr - 3} width={hr * 2 + 4} height={hr * 2 + 6} rx={1.5} />
+        <g className={fig.fade} style={{ opacity: stage === 2 ? 1 : 0 }} transform={MINI_FIT.transform}>
+          <path className={fig.segMask} d={WALKER_MASK.path} />
+        </g>
+      </g>
+      <line className={fig.ground} x1={30} y1={groundY} x2={154} y2={groundY} />
+      <g className={fig.fade} style={{ opacity: stage === 3 ? 1 : stage === 4 ? 0.3 : 0 }} transform={`translate(${cx} ${cy})`}>
+        <PoseFrame phase={phase} s={s} classes={CLASSES} />
+      </g>
+      <g className={fig.fade} style={{ opacity: stage === 4 ? 1 : 0 }}>
+        <path className={`${fig.trace} ${fig.traceViolet}`} d={trail} />
+      </g>
+      <g className={fig.label}>
+        <text x={186} y={46}>
+          Face
+        </text>
+        <text x={186} y={78}>
+          Clothing
+        </text>
+        <text x={186} y={110}>
+          Build
+        </text>
+        <text x={186} y={142}>
+          Gait
+        </text>
+        <text x={186} y={174}>
+          Time &amp; place
+        </text>
+      </g>
+      <g className={`${fig.label} ${fig.labelSmall}`}>
+        {(["face", "appearance", "shape", "gait", "context"] as const).map((cue, i) => {
+          const state = ledger[cue];
+          return (
+            <text key={cue} x={306} y={46 + i * 32} textAnchor="end" className={`${fig.underOnNarrow} ${state === "present" ? fig.labelWarn : state === "weakened" ? fig.labelAccent : fig.labelTeal}`}>
+              {state}
+            </text>
+          );
+        })}
+      </g>
+    </svg>
+  );
+}
+
+/* ── Engineering GaitAI 02 · system chain ──────────────────────────────────
+   Six links from camera to operator. Drag across: one link after another
+   breaks while the model's link stays marked right, and the outcome beneath
+   changes in words. */
+function SystemChainMini({ p }: { p: number }) {
+  const index = Math.min(6, Math.floor(clamp01(p) * 7)); /* 0 = all sound */
+  const failed = new Set<ChainComponent>(index > 0 ? [CHAIN[index - 1]] : []);
+  const { outcome, at } = outcomeFor(failed);
+  const x0 = 40;
+  const gap = (280 - x0) / (CHAIN.length - 1);
+  const y = 72;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      {CHAIN.map((component, i) => {
+        const x = x0 + i * gap;
+        const isFailed = failed.has(component);
+        const downstream = at !== null && CHAIN.indexOf(component) > CHAIN.indexOf(at);
+        return (
+          <g key={component} className={fig.fade} style={{ opacity: downstream ? 0.45 : 1 }}>
+            {i < CHAIN.length - 1 && (
+              <line className={isFailed ? fig.dash : fig.trace} x1={x + 13} y1={y} x2={x + gap - 13} y2={y} style={isFailed ? { stroke: "#f0b45a" } : undefined} />
+            )}
+            <circle className={fig.node} cx={x} cy={y} r={11} style={isFailed ? { stroke: "#f0b45a" } : undefined} />
+            {isFailed ? (
+              <g className={fig.trace} style={{ stroke: "#f0b45a" }}>
+                <line x1={x - 4} y1={y - 4} x2={x + 4} y2={y + 4} />
+                <line x1={x + 4} y1={y - 4} x2={x - 4} y2={y + 4} />
+              </g>
+            ) : (
+              <polyline className={fig.trace} points={`${x - 4},${y} ${x - 1},${y + 3.5} ${x + 5},${y - 3.5}`} style={{ stroke: "var(--jr-teal)" }} />
+            )}
+            <text
+              className={`${fig.label} ${fig.labelSmall} ${isFailed ? fig.labelWarn : ""} ${i > 0 && i < CHAIN.length - 1 && !isFailed ? fig.quietOnNarrow : ""}`}
+              x={x}
+              y={y + 26}
+              textAnchor="middle"
+            >
+              {COMPONENT_LABEL[component].toLowerCase()}
+            </text>
+          </g>
+        );
+      })}
+      <text className={`${fig.label} ${fig.labelSmall} ${fig.labelTeal}`} x={x0 + gap} y={y - 22} textAnchor="middle">
+        model right
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={134}>
+        what reaches the person
+      </text>
+      <text className={`${fig.label} ${fig.labelState} ${outcome === "in-time" ? fig.labelTeal : fig.labelWarn}`} x={x0} y={154}>
+        {OUTCOME_LABEL[outcome].length > 34 ? `${OUTCOME_LABEL[outcome].slice(0, 32)}…` : OUTCOME_LABEL[outcome]}
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={172}>
+        {at ? `decided at the ${COMPONENT_LABEL[at].toLowerCase()}` : "every link sound"}
+      </text>
+    </svg>
+  );
+}
+
+/* ── Inside the Signal 02 · baseline ───────────────────────────────────────
+   Drag across: observations of one person arrive one by one under a
+   population curve; their own band forms, then the latest readings drift
+   out of it while staying inside the population's range. */
+function BaselineMini({ p }: { p: number }) {
+  const shown = 1 + Math.min(MAX_OBSERVATIONS - 1, Math.floor(clamp01(p) * MAX_OBSERVATIONS));
+  const latest = OBSERVATIONS[shown - 1];
+  const band = personalBand(shown);
+  const x0 = 30;
+  const w = 260;
+  const axisY = 150;
+  const topY = 60;
+  const xIn = (t: number) => x0 + t * w;
+  const curve = smoothPath(populationCurve(30).map(([x, y]) => [xIn(x), axisY - y * (axisY - topY - 16)] as Pt));
+  const outside = band ? latest < band.low || latest > band.high : false;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className={styles.mediaSvg} aria-hidden="true">
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={38}>
+        population · reference range
+      </text>
+      <rect className={fig.band} x={xIn(POPULATION.range[0])} y={topY} width={xIn(POPULATION.range[1]) - xIn(POPULATION.range[0])} height={axisY - topY} rx={3} />
+      <path className={`${fig.trace} ${fig.traceViolet}`} d={curve} />
+      {band && (
+        <g className={fig.fade}>
+          <rect x={xIn(band.low)} y={topY} width={xIn(band.high) - xIn(band.low)} height={axisY - topY} rx={3} fill="var(--jr-teal)" opacity={0.16} />
+          <text className={`${fig.label} ${fig.labelSmall} ${fig.labelTeal}`} x={xIn((band.low + band.high) / 2)} y={topY - 6} textAnchor="middle">
+            own baseline
+          </text>
+        </g>
+      )}
+      <line className={fig.ground} x1={x0} y1={axisY} x2={x0 + w} y2={axisY} />
+      {OBSERVATIONS.map((value, i) => {
+        const on = i < shown;
+        const isLatest = i === shown - 1;
+        const y = axisY - 10 - i * 8;
+        return on ? (
+          <g key={i} className={fig.fade}>
+            {isLatest && <circle className={fig.halo} cx={xIn(value)} cy={y} r={9} />}
+            <circle className={fig.node} cx={xIn(value)} cy={y} r={isLatest ? 4 : 2.8} style={{ stroke: isLatest && outside ? "#f0b45a" : undefined }} />
+            <circle className={fig.nodeFill} cx={xIn(value)} cy={y} r={1.8} />
+          </g>
+        ) : null;
+      })}
+      <text className={`${fig.label} ${fig.labelState} ${band ? (outside ? fig.labelWarn : fig.labelTeal) : ""}`} x={x0} y={176}>
+        {!band ? "Not enough observations yet" : outside ? "Inside the population · outside own band" : "Within own baseline"}
+      </text>
+      <text className={`${fig.label} ${fig.labelSmall}`} x={x0} y={192}>
+        {shown} {shown === 1 ? "observation" : "observations"} · illustrative
+      </text>
+    </svg>
+  );
+}
+
+/* ── The interactive wrapper ────────────────────────────────────────────── */
+
+const READOUT: Record<CoverConcept, string[]> = {
+  pipeline: ["Video", "Person", "Pose", "Skeleton", "Trajectory", "Signal"],
+  reduction: ["RGB", "Face redacted", "Silhouette", "Skeleton", "Trajectory"],
+  trajectory: ["One reading", "Two", "Three", "Four", "A trend"],
+  divergence: ["Mobility", "Recovery", "Identity", "Risk", "Safety"],
+  fusion: [],
+  "pose-error": ["AI view", "Original frame"],
+  symmetry: ["Left longer", "Symmetrical", "Right longer"],
+  viewpoint: CAMERA_ANGLES.map((value) => ANGLE_LABEL[value]),
+  "identity-layers": REPRESENTATIONS.map((value) => REPRESENTATION_LABEL[value]),
+  "system-chain": ["All sound", ...CHAIN.map((value) => `${COMPONENT_LABEL[value]} fails`)],
+  baseline: Array.from({ length: MAX_OBSERVATIONS }, (_, i) => `${i + 1} ${i === 0 ? "observation" : "observations"}`),
+};
+
+const CUE: Record<CoverConcept, string> = {
+  pipeline: "Drag to decode the walk",
+  reduction: "Drag to remove identity",
+  trajectory: "Drag to add assessments",
+  divergence: "Touch a reading",
+  fusion: "Tap a stream",
+  "pose-error": "Drag to reveal the frame",
+  symmetry: "Drag to shift one side",
+  viewpoint: "Drag to move the camera",
+  "identity-layers": "Drag to strip the frame",
+  "system-chain": "Drag to break a link",
+  baseline: "Drag to add observations",
+};
+
+export function CardInteraction({
+  concept,
+  slug,
+  large = false,
+}: {
+  concept: CoverConcept;
+  slug: string;
+  large?: boolean;
+}) {
+  const [p, setP] = useState(0);
+  const [pick, setPick] = useState(-1);
+  const [states, setStates] = useState<StreamState[]>([0, 0, 0, 0]);
+  const [used, setUsed] = useState(false);
+  const { ref, active, inView, reduced } = useFigureActive<HTMLDivElement>();
+  const narrow = useNarrow(640);
+  const demoed = useRef(false);
+  const raf = useRef(0);
+
+  const markUsed = useCallback(() => {
+    if (!used) {
+      setUsed(true);
+      if (large) trackInsightEvent("cover_interaction_start", { article_slug: slug }, { once: slug });
+      else trackInsightEvent("hub_card_interaction", { article_slug: slug, concept }, { once: slug });
+    }
+  }, [concept, large, slug, used]);
+
+  /* The cover's stages are analytics: where a drag settled (debounced) and
+     whether the reader reached Intelligence. Only after the reader has
+     touched it — the opening demonstration pass is not a reader's choice. */
+  const coverStageForEvents = concept === "pipeline" && large ? coverStageOf(p) : -1;
+  useEffect(() => {
+    if (!used || coverStageForEvents < 0) return;
+    trackInsightEvent("cover_stage_changed", { article_slug: slug, stage: coverStageForEvents }, { debounce: "cover" });
+    if (coverStageForEvents === 5) {
+      trackInsightEvent("cover_interaction_complete", { article_slug: slug }, { once: slug });
+    }
+  }, [coverStageForEvents, slug, used]);
+
+  /* One slow demonstration pass when the card first appears. */
+  useEffect(() => {
+    if (demoed.current || !inView || reduced) return;
+    if (!active) return;
+    demoed.current = true;
+    const start = performance.now();
+    const duration = 2600;
+    const tick = (now: number) => {
+      const t = clamp01((now - start) / duration);
+      const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      if (concept === "divergence") setPick(Math.min(4, Math.floor(eased * 5)));
+      else if (concept === "fusion") setStates([0, eased < 0.35 ? 0 : eased < 0.7 ? 1 : 2, 0, 0]);
+      else setP(eased);
+      if (t < 1) raf.current = requestAnimationFrame(tick);
+      else if (concept === "fusion") setStates([0, 0, 0, 0]);
+      else if (concept === "divergence") setPick(-1);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [active, concept, inView, reduced]);
+
+  /* Reduced motion: rest on the most informative state. */
+  useEffect(() => {
+    if (!reduced) return;
+    if (concept === "trajectory") setP(1);
+    else if (concept === "pose-error") setP(1);
+    else if (concept === "symmetry") setP(0.85);
+    else if (concept === "viewpoint") setP(0.2);
+    else if (concept === "identity-layers") setP(0.7);
+    else if (concept === "system-chain") setP(0.4);
+    else if (concept === "baseline") setP(1);
+    else if (concept === "pipeline") setP(0.5);
+    else if (concept === "reduction") setP(0.6);
+  }, [concept, reduced]);
+
+  const fractionOf = (event: PointerEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    return clamp01((event.clientX - rect.left) / rect.width);
+  };
+  const dragging = useRef(false);
+
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (concept === "fusion") return;
+    cancelAnimationFrame(raf.current);
+    demoed.current = true;
+    dragging.current = true;
+    markUsed();
+    const f = fractionOf(event);
+    if (concept === "divergence") setPick(Math.min(4, Math.floor(f * 5)));
+    else setP(f);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      /* fine */
+    }
+  };
+  const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (concept === "fusion") return;
+    /* A mouse scrubs on hover; a finger scrubs while pressed. */
+    if (event.pointerType !== "mouse" && !dragging.current) return;
+    if (event.pointerType === "mouse" && !dragging.current) {
+      cancelAnimationFrame(raf.current);
+      demoed.current = true;
+    }
+    const f = fractionOf(event);
+    if (concept === "divergence") setPick(Math.min(4, Math.floor(f * 5)));
+    else setP(f);
+  };
+  const onPointerUp = () => {
+    dragging.current = false;
+  };
+  const onLeave = () => {
+    if (concept === "divergence" && !dragging.current) setPick(-1);
+  };
+
+  const toggle = (i: number) => {
+    cancelAnimationFrame(raf.current);
+    demoed.current = true;
+    markUsed();
+    setStates((prev) => prev.map((s, j) => (j === i ? (((s + 1) % 3) as StreamState) : s)));
+  };
+
+  const coverStage = concept === "pipeline" && large ? coverStageOf(p) : -1;
+  const readout =
+    coverStage >= 0
+      ? ""
+      : concept === "divergence"
+      ? pick >= 0
+        ? READOUT.divergence[pick]
+        : "One movement"
+      : concept === "fusion"
+        ? ""
+        : READOUT[concept][Math.min(READOUT[concept].length - 1, Math.floor(p * READOUT[concept].length))];
+
+  return (
+    <div
+      ref={ref}
+      className={`${styles.media} ${concept === "fusion" ? styles.mediaTap : ""} ${large ? styles.mediaCover : ""} ${
+        narrow && !large ? fig.narrow : ""
+      } h-full w-full`}
+      data-used={used ? "true" : undefined}
+      data-concept={concept}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
+      onPointerLeave={onLeave}
+    >
+      {concept === "pipeline" && (large ? <PipelineCover p={p} narrow={narrow} /> : <Pipeline p={p} />)}
+      {concept === "reduction" && <Reduction p={p} narrow={narrow} />}
+      {concept === "trajectory" && <Trajectory p={p} />}
+      {concept === "divergence" && <Divergence pick={pick} />}
+      {concept === "fusion" && <Fusion states={states} onToggle={toggle} />}
+      {concept === "pose-error" && <PoseErrorMini p={p} />}
+      {concept === "symmetry" && <SymmetryMini p={p} />}
+      {concept === "viewpoint" && <ViewpointMini p={p} />}
+      {concept === "identity-layers" && <IdentityLayersMini p={p} />}
+      {concept === "system-chain" && <SystemChainMini p={p} />}
+      {concept === "baseline" && <BaselineMini p={p} />}
+      <span className={`${styles.cue} ${coverStage >= 0 ? styles.cueRight : ""}`}>
+        <span className={styles.cueMark} />
+        {coverStage >= 0 ? "Drag through the signal →" : CUE[concept]}
+      </span>
+      {readout && <span className={styles.readout}>{readout}</span>}
+      {coverStage >= 0 && (
+        <div
+          className={`${ui.root} ${styles.coverControl}`}
+          onPointerDown={(event) => event.stopPropagation()}
+          onPointerMove={(event) => event.stopPropagation()}
+          onPointerUp={(event) => event.stopPropagation()}
+        >
+          <StageControl
+            stages={COVER_CONTROL}
+            value={coverStage}
+            onChange={(next) => {
+              cancelAnimationFrame(raf.current);
+              demoed.current = true;
+              markUsed();
+              setP((next + 0.5) / 6);
+            }}
+            ariaLabel="Pipeline stage"
+            dense
+          />
+        </div>
+      )}
+    </div>
+  );
+}

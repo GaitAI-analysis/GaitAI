@@ -159,7 +159,31 @@ export function ProductCard({
               {product.description}
             </p>
           )}
+          {/* A PHONE GETS THE FULL CARD. `headlineOnly` was measured for a
+              laptop row of four doors; on a phone the four stack, and a
+              door with no picture and no description read as a text box
+              (founder, real device, 2026-09-27). Below 640px the card is
+              picture, label, promise, two lines of description, three
+              output chips and the cue — the same card /products shows. */}
+          {headlineOnly && (
+            <p className="product-card-mobile mt-2 line-clamp-2 text-[13.5px] leading-relaxed text-soft-mute sm:hidden">
+              {product.description}
+            </p>
+          )}
         </div>
+
+        {headlineOnly && (
+          <div className="product-card-mobile mt-4 flex flex-wrap gap-1.5 sm:hidden">
+            {product.outputs.slice(0, 3).map((o) => (
+              <span
+                key={o}
+                className="pa-pill rounded-full border px-2.5 py-1 text-[10.5px] font-medium"
+              >
+                {o}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Outputs preview */}
         {!compact && !headlineOnly && (
@@ -187,6 +211,12 @@ export function ProductCard({
             note on `headlineOnly` above. */}
         {!headlineOnly && (
           <div aria-hidden className="card-cue mt-5">
+            View product
+            <ArrowRight className="card-cue-arrow h-3 w-3" />
+          </div>
+        )}
+        {headlineOnly && (
+          <div aria-hidden className="product-card-mobile card-cue mt-4 sm:hidden">
             View product
             <ArrowRight className="card-cue-arrow h-3 w-3" />
           </div>

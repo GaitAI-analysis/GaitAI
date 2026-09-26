@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { HERO_SCENE, type HeroOptionId } from "@/data/home-hero";
 import { HERO_GAIT } from "@/data/hero-walk";
 import { HERO_MOBILE, HERO_MOBILE_DETAILS, type Crop } from "@/data/home-hero-mobile";
@@ -23,14 +23,23 @@ import styles from "./heromobile.module.css";
  * a hero, not a dashboard.
  *
  * ── TAP, NOT HOVER ────────────────────────────────────────────────────────
- * Each tile is one button. A tap opens ONE compact card under the
- * composition (three readings and a link); tapping the same tile again, the
+ * Each tile is one button, and its label bar says so: the name, what it is,
+ * and a chevron that turns over when the tile is open — the same accordion
+ * grammar as every disclosure on the site. There is no "+": the founder
+ * tested one on a real phone and it read as a control that did nothing,
+ * because the whole tile was already the control (2026-09-27).
+ *
+ * A tap opens ONE detail card directly under the composition (kicker, one
+ * line, three readings and the way in); tapping the same tile again, the
  * card's close button, Escape, or anywhere outside the hero closes it, and
- * tapping another tile switches. It is a disclosure, not a modal: each tile
- * carries `aria-expanded` / `aria-controls`, focus stays put, and nothing
- * covers the page. Opening Pose analysis also brings the walker's own
- * analysis layer forward — his full-body skeleton firms up while the card
- * reads his joints live off the same measured cycle (lib/gaitBus).
+ * tapping another tile switches the card's contents in place. When the card
+ * would open below the fold, the page scrolls just far enough to show it —
+ * an open that cannot be seen is the interaction that "makes no difference".
+ * It is a disclosure, not a modal: each tile carries `aria-expanded` /
+ * `aria-controls`, focus stays put, and nothing covers the page. Opening Pose
+ * analysis also brings the walker's own analysis layer forward — his
+ * full-body skeleton firms up while the card reads his joints live off the
+ * same measured cycle (lib/gaitBus).
  *
  * The desktop hero stays in the DOM and is hidden by CSS below 1024px (and
  * this one above it), so there is one h1, no layout branch to disagree
@@ -64,21 +73,48 @@ const WALK_FRAME = HERO_MOBILE.walk;
 /* Reading and tab order: the two products, then the engine under both. */
 const ORDER: readonly HeroOptionId[] = ["securevision", "mobilitycare", "pose"];
 
+/* What each tile is, in two words, under its name. */
+const TILE_SUB: Record<HeroOptionId, string> = {
+  securevision: "Public spaces",
+  mobilitycare: "Clinical care",
+  pose: "Shared engine",
+};
+
 export function HeroMobile() {
   const [open, setOpen] = useState<HeroOptionId | null>(null);
   /* What the card shows while it closes, so it folds away with its words. */
   const [shown, setShown] = useState<HeroOptionId>("pose");
-  const [touched, setTouched] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const tiles = useRef<Partial<Record<HeroOptionId, HTMLButtonElement | null>>>({});
   const uid = useId();
   const cardId = `${uid}-card`;
 
+  const card = useRef<HTMLDivElement | null>(null);
   const toggle = useCallback((id: HeroOptionId) => {
-    setTouched(true);
     setOpen((current) => (current === id ? null : id));
     setShown(id);
   }, []);
+
+  /* The card folds open under the tiles; on a short screen that is below
+     the fold. Once it has its height (after the fold, ~420ms), scroll the
+     least distance that shows it whole. Never on close, never on switch
+     (the card is already in view then). */
+  const wasOpen = useRef<HeroOptionId | null>(null);
+  useEffect(() => {
+    const opened = open && !wasOpen.current;
+    wasOpen.current = open;
+    if (!opened) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const timer = window.setTimeout(() => {
+      const el = card.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const room = window.innerHeight - 16;
+      if (r.bottom <= room) return;
+      window.scrollBy({ top: Math.min(r.bottom - room, r.top - 96), behavior: reduced ? "auto" : "smooth" });
+    }, reduced ? 0 : 440);
+    return () => window.clearTimeout(timer);
+  }, [open]);
 
   /* Outside press and Escape close it. */
   useEffect(() => {
@@ -172,26 +208,26 @@ export function HeroMobile() {
                 aria-label={`${d.label}${d.sub ? ` — ${d.sub.toLowerCase()}` : ""}: ${selected ? "hide" : "show"} details`}
                 onClick={() => toggle(id)}
               >
-                <span className={styles.label}>
-                  <span className={styles.labelDot} aria-hidden="true" />
-                  <span className={styles.labelText}>
-                    {d.label}
-                    {d.sub ? <span className={styles.labelSub}>{d.sub}</span> : null}
+                {id === "pose" ? (
+                  <span className={styles.chip} aria-hidden="true">
+                    <span className={styles.chipDot} />
+                    Cadence 102 spm
                   </span>
-                </span>
-                <span className={styles.plus} aria-hidden="true">
-                  <Plus strokeWidth={1.75} />
+                ) : null}
+                <span className={styles.bar}>
+                  <span className={styles.barText}>
+                    <span className={styles.barName}>{d.label}</span>
+                    <span className={styles.barSub}>{TILE_SUB[id]}</span>
+                  </span>
+                  <span className={styles.barMark} aria-hidden="true">
+                    <ChevronDown strokeWidth={2} />
+                  </span>
                 </span>
               </button>
             </div>
           );
         })}
       </div>
-
-      <p className={styles.hint} data-gone={touched ? "true" : undefined}>
-        <span className={styles.hintDot} aria-hidden="true" />
-        {HERO_MOBILE.hint}
-      </p>
 
       {/* The card. Always in the DOM so the tiles' aria-controls resolve; its
           height folds open from zero (grid 0fr → 1fr), and `inert` keeps a
@@ -203,6 +239,7 @@ export function HeroMobile() {
         className={styles.card}
         data-open={open ? "true" : undefined}
         ref={(el) => {
+          card.current = el;
           if (el) el.inert = !open;
         }}
       >
@@ -219,7 +256,7 @@ export function HeroMobile() {
                 }}
                 aria-label={`Close ${detail.title} details`}
               >
-                <Plus strokeWidth={1.75} />
+                <ChevronDown strokeWidth={2} />
               </button>
             </div>
             <p className={styles.cardTitle}>{detail.title}</p>

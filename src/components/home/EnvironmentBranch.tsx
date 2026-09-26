@@ -4,6 +4,9 @@ import { useId, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { EnvironmentScene } from "@/components/visuals/EnvironmentScenes";
+import { ThemePicture } from "@/components/ui/ThemePicture";
+import type { UseCaseImageAsset } from "@/data/use-case-images";
+import { assetPath } from "@/lib/paths";
 import { industryUseCases, type Vertical } from "@/data/products";
 import { useCaseDetails } from "@/data/usecase-details";
 
@@ -33,6 +36,9 @@ import { useCaseDetails } from "@/data/usecase-details";
 
 /** How many rows a column opens with. */
 const VISIBLE = 5;
+
+const variantSrcSet = (asset: UseCaseImageAsset) =>
+  asset.variants.map(({ src, width }) => `${assetPath(src)} ${width}w`).join(", ");
 
 const hrefFor = (caseId: string, vertical: Vertical) => {
   const detail = useCaseDetails.find((d) => d.caseId === caseId);
@@ -77,6 +83,36 @@ export function EnvironmentBranch({
   const row = (entry: Entry, i: number) => (
     <li key={entry.id} className="env-item" style={{ "--env-i": i } as CSSProperties}>
       <Link href={hrefFor(entry.id, entry.vertical)} className="env-panel">
+        {/* Phones: the environment's own photograph as the row's thumbnail
+            (hidden from 640px, where the glyph tile below carries the row).
+            The variants are the use-case pipeline's; `sizes` is the thumb's
+            box, so a phone fetches the 480w rung and nothing larger. */}
+        {entry.images ? (
+          <span aria-hidden="true" className="env-thumb">
+            <ThemePicture
+              sources={[
+                {
+                  type: "image/webp",
+                  darkSrcSet: variantSrcSet(entry.images.assets.dark),
+                  lightSrcSet: variantSrcSet(entry.images.assets.light),
+                },
+              ]}
+              darkSrc={entry.images.dark}
+              lightSrc={entry.images.light}
+              sizes="4.25rem"
+              alt=""
+              width={entry.images.assets.dark.width}
+              height={entry.images.assets.dark.height}
+              className="env-thumb__picture"
+              style={
+                {
+                  "--env-thumb-position": entry.images.objectPosition.dark,
+                  "--env-thumb-position-light": entry.images.objectPosition.light,
+                } as CSSProperties
+              }
+            />
+          </span>
+        ) : null}
         <span aria-hidden="true" className="env-scene">
           <EnvironmentScene id={entry.id} />
         </span>

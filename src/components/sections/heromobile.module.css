@@ -153,14 +153,14 @@
 .veil {
   position: absolute;
   inset: auto 0 0;
-  height: 42%;
+  height: 56%;
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(to top, rgb(15 28 58 / 0.28), rgb(15 28 58 / 0));
+  background: linear-gradient(to top, rgb(11 20 38 / 0.78) 0%, rgb(11 20 38 / 0.32) 45%, rgb(11 20 38 / 0) 100%);
 }
 
 :global(.dark) .veil {
-  background: linear-gradient(to top, rgb(3 7 18 / 0.6), rgb(3 7 18 / 0));
+  background: linear-gradient(to top, rgb(3 7 18 / 0.82) 0%, rgb(3 7 18 / 0.34) 45%, rgb(3 7 18 / 0) 100%);
 }
 
 /* ── The control: the whole tile ── */
@@ -193,119 +193,124 @@
 }
 
 .tile[data-selected] .hit {
-  box-shadow: inset 0 0 0 1.5px var(--hm-gold);
+  box-shadow:
+    inset 0 0 0 1.5px var(--hm-gold),
+    inset 0 0 0 3px rgb(255 255 255 / 0.35);
 }
 
-.label {
+/* The grid reads as one composition: a lit top edge on every tile. */
+.tile::after {
+  content: "";
   position: absolute;
-  left: 0.625rem;
-  bottom: 0.625rem;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22);
+}
+
+/* ── The label bar: name, what it is, and the chevron that says it opens ── */
+.bar {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.7rem 0.7rem 0.7rem 0.8rem;
+  color: #fff;
+  text-align: left;
+}
+
+.barText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.barName {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 12px rgb(3 7 18 / 0.6);
+}
+
+.barSub {
+  margin-top: 0.2rem;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.72);
+  text-shadow: 0 1px 10px rgb(3 7 18 / 0.6);
+}
+
+/* The affordance. Down at rest (this opens), up when open (this closes). */
+.barMark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  color: #fff;
+  background: rgb(255 255 255 / 0.14);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.22);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    transform 420ms var(--hm-ease),
+    background-color 300ms ease,
+    color 300ms ease;
+}
+
+.barMark svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.tile[data-selected] .barMark {
+  transform: rotate(180deg);
+  background: var(--hm-gold);
+  color: #fff;
+  box-shadow: none;
+}
+
+:global(.dark) .tile[data-selected] .barMark {
+  color: #0b1426;
+}
+
+/* The engine's one live figure, a small glass chip in the free corner:
+   the shared engine is measuring, not decorating. */
+.chip {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.7rem;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  max-width: calc(100% - 1.25rem);
-  min-height: 2rem;
-  padding: 0.4rem 0.75rem 0.4rem 0.6rem;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem 0.3rem 0.5rem;
   border-radius: 999px;
   background: var(--hm-glass);
   color: var(--hm-glass-ink);
   box-shadow: 0 6px 18px -10px rgb(15 28 58 / 0.4);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.005em;
-}
-
-:global(.dark) .label {
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.08),
-    0 6px 18px -10px rgb(0 0 0 / 0.6);
-}
-
-.labelDot {
-  flex: none;
-  width: 0.4375rem;
-  height: 0.4375rem;
-  border-radius: 999px;
-  background: var(--hm-gold);
-  box-shadow: 0 0 0 3px rgb(176 138 74 / 0.18);
-}
-
-.labelText {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.labelSub {
-  margin-top: 0.15rem;
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
   font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: var(--hm-mute);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
-:global(.dark) .labelSub {
-  color: #aab4c8;
+:global(.dark) .chip {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
-/* The tap affordance: a small glass "+" that turns into a close mark. */
-.plus {
-  position: absolute;
-  top: 0.625rem;
-  right: 0.625rem;
-  display: grid;
-  place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 999px;
-  background: var(--hm-glass);
-  color: var(--hm-glass-ink);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition:
-    transform 420ms var(--hm-ease),
-    background-color 300ms ease;
-}
-
-.plus svg {
-  width: 0.9rem;
-  height: 0.9rem;
-}
-
-.tile[data-selected] .plus {
-  transform: rotate(45deg);
-  background: var(--hm-gold);
-  color: #fff;
-}
-
-:global(.dark) .tile[data-selected] .plus {
-  color: #0b1426;
-}
-
-/* ── The hint ── */
-.hint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 0.875rem 0 0;
-  font-size: 0.8125rem;
-  color: var(--hm-mute);
-  transition: opacity 300ms ease;
-}
-
-.hint[data-gone] {
-  opacity: 0;
-}
-
-.root[data-open] .hint {
-  display: none;
-}
-
-.hintDot {
+.chipDot {
   width: 0.375rem;
   height: 0.375rem;
   border-radius: 999px;
@@ -313,7 +318,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hintDot {
+  .chipDot {
     animation: hmBreathe 2.4s var(--hm-ease) infinite;
   }
 }
@@ -349,18 +354,32 @@
 }
 
 .cardBody {
+  position: relative;
   margin-top: 0.75rem;
-  padding: 1.125rem 1.125rem 1rem;
+  padding: 1.125rem 1.125rem 1.125rem;
   border-radius: 1.25rem;
   background: var(--hm-surface);
   box-shadow:
     0 0 0 1px var(--hm-line),
     var(--hm-shadow);
   opacity: 0;
-  transform: translateY(-6px);
+  transform: translateY(8px) scale(0.985);
   transition:
-    opacity 280ms ease,
-    transform 420ms var(--hm-ease);
+    opacity 320ms ease,
+    transform 480ms var(--hm-ease);
+}
+
+/* The card belongs to the tile that opened it: a gold rule along its top,
+   the same gold as the selected tile's ring. */
+.cardBody::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 1.125rem;
+  right: 1.125rem;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, var(--hm-gold), var(--hm-gold-soft) 70%, transparent);
 }
 
 .card[data-open] .cardBody {
@@ -403,7 +422,7 @@
 .close svg {
   width: 1.1rem;
   height: 1.1rem;
-  transform: rotate(45deg);
+  transform: rotate(180deg);
 }
 
 .close:focus-visible {
@@ -497,12 +516,25 @@
 .cardLink {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   min-height: 2.75rem;
-  margin-top: 0.35rem;
-  font-size: 0.9375rem;
+  margin-top: 0.9rem;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--hm-line);
+  background: rgb(15 28 58 / 0.04);
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--hm-ink);
+  transition: transform 200ms var(--hm-ease);
+}
+
+:global(.dark) .cardLink {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.cardLink:active {
+  transform: scale(0.98);
 }
 
 .cardLink svg {
@@ -607,7 +639,7 @@
 @media (prefers-reduced-motion: reduce) {
   .tile,
   .scene img,
-  .plus,
+  .barMark,
   .card,
   .cardBody {
     transition: none !important;

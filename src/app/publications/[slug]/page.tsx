@@ -10,6 +10,7 @@ import {
 import { getPublishedPostBySlug, readPublishedPosts } from "@/lib/posts-store";
 import { allPublications } from "@/data/publications";
 import { PublicationDetail } from "@/components/publications/PublicationDetail";
+import { publicAuthors } from "@/components/publications/topics";
 import { CategoryBadge, categoryGradient } from "@/components/posts/CategoryBadge";
 import { ArticleDiscovery } from "@/components/insights/ArticleDiscovery";
 import { PostCoverImage, PostResources } from "@/components/posts/PostMedia";
@@ -47,7 +48,11 @@ export async function generateMetadata({
   if (publication) {
     return {
       title: `${publication.title} — GaitAI Research`,
-      description: `${publication.venue} · ${publication.publisher} · ${publication.year}. Authors: ${publication.authors.join(", ")}.`,
+      description: `${publication.venue} · ${publication.publisher} · ${publication.year}.${
+        publicAuthors(publication).length
+          ? ` With ${publicAuthors(publication).join(", ")}.`
+          : ""
+      }`,
       // Without this the record inherited the root canonical and every one of
       // the nine publication pages declared itself a duplicate of the home page.
       alternates: { canonical: `/publications/${publication.id}` },

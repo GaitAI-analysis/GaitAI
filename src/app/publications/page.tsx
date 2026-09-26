@@ -11,7 +11,7 @@ import {
   Stamp,
 } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { FOUNDER_NAME, papers, patent } from "@/data/publications";
+import { papers, patent } from "@/data/publications";
 import { PublicationLibrary } from "@/components/publications/PublicationLibrary";
 import { ArchivePlate } from "@/components/publications/ArchivePlate";
 import { DiagramField } from "@/components/visuals/DiagramField";
@@ -22,7 +22,7 @@ import { ctas } from "@/data/content";
 export const metadata: Metadata = {
   title: "Publications — The founder research record behind GaitAI",
   description:
-    "The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.",
+    "The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by the founder, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.",
   alternates: { canonical: "/publications" },
 };
 
@@ -68,7 +68,7 @@ export default function PublicationsPage() {
                 Surfaced academic papers and a granted patent spanning gait
                 recognition, computer vision, biometrics, pose estimation,
                 machine learning and privacy-preserving movement analysis —
-                authored by founder {FOUNDER_NAME} with academic co-authors,
+                authored by the founder with academic co-authors,
                 and published with Springer, Elsevier and Wiley · IET.
               </p>
 

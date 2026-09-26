@@ -1,9 +1,9 @@
 import { publicationLinkLabel } from "@/data/publications";
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
-import { FOUNDER_NAME, type Publication } from "@/data/publications";
+import type { Publication } from "@/data/publications";
 import { publisherAccent } from "@/data/publications";
-import { publicAuthors, topicsFor } from "./topics";
+import { authorsWithheld, publicAuthors, topicsFor } from "./topics";
 import { PublicationCoverArt } from "./PublicationCoverArt";
 
 /**
@@ -60,18 +60,11 @@ export function PublicationListItem({
 
         {publicAuthors(publication).length > 0 && (
         <div className="mt-2 text-[12.5px] leading-relaxed text-soft-mute">
+          {authorsWithheld(publication) && "With "}
           {publicAuthors(publication).map((author, i) => (
             <span key={author}>
               {i > 0 && ", "}
-              <span
-                className={
-                  author.includes(FOUNDER_NAME)
-                    ? "font-semibold text-soft-gray"
-                    : undefined
-                }
-              >
-                {author}
-              </span>
+              <span>{author}</span>
             </span>
           ))}
         </div>

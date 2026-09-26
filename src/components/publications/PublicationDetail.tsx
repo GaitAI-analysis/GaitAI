@@ -7,10 +7,11 @@ import {
   Download,
   ExternalLink,
 } from "lucide-react";
-import { FOUNDER_NAME, type Publication } from "@/data/publications";
+import type { Publication } from "@/data/publications";
 import { publisherAccent } from "@/data/publications";
 import { assetPath } from "@/lib/paths";
 import {
+  authorsWithheld,
   displayDate,
   formatCitation,
   publicAuthors,
@@ -77,18 +78,11 @@ export function PublicationDetail({
 
           {publicAuthors(publication).length > 0 && (
           <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-soft-gray">
+            {authorsWithheld(publication) && "With "}
             {publicAuthors(publication).map((author, i) => (
               <span key={author}>
                 {i > 0 && ", "}
-                <span
-                  className={
-                    author.includes(FOUNDER_NAME)
-                      ? "font-semibold text-soft-white"
-                      : undefined
-                  }
-                >
-                  {author}
-                </span>
+                <span>{author}</span>
               </span>
             ))}
           </p>
@@ -170,7 +164,7 @@ export function PublicationDetail({
                 />
                 {publicAuthors(publication).length > 0 && (
                   <RecordField
-                    label="Authors"
+                    label={authorsWithheld(publication) ? "Co-authors" : "Authors"}
                     value={publicAuthors(publication).join(", ")}
                   />
                 )}

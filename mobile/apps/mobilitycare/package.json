@@ -1,0 +1,51 @@
+{
+  "name": "@gaitai/app-mobilitycare",
+  "main": "expo-router/entry",
+  "version": "1.0.0",
+  "dependencies": {
+    "expo": "~57.0.25",
+    "expo-constants": "~57.0.19",
+    "expo-font": "~57.0.4",
+    "expo-linking": "~57.0.11",
+    "expo-router": "~57.0.23",
+    "expo-splash-screen": "~57.0.9",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-worklets": "0.10.1",
+    "@gaitai/design-system": "*",
+    "@gaitai/core": "*",
+    "@gaitai/analysis": "*",
+    "@gaitai/billing": "*",
+    "@gaitai/ui": "*",
+    "react-native-webview": "^14.0.1",
+    "react-native-svg": "^15.15.0",
+    "react-native-gesture-handler": "~2.30.0",
+    "expo-camera": "~57.0.0",
+    "expo-image-picker": "~57.0.0",
+    "expo-file-system": "~57.0.0",
+    "expo-haptics": "~57.0.0",
+    "expo-sharing": "~57.0.0",
+    "expo-asset": "~57.0.0",
+    "expo-video": "~57.0.0",
+    "expo-video-thumbnails": "~57.0.0",
+    "@react-native-async-storage/async-storage": "^2.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "android:prebuild": "expo prebuild --platform android --no-install",
+    "android:apk": "cd android && gradlew.bat assembleRelease"
+  },
+  "private": true
+}

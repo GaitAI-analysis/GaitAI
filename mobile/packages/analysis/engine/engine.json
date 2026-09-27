@@ -1,0 +1,16 @@
+{
+  "built": "2026-09-27T00:30:32.501Z",
+  "runtime": "mediapipe-tasks-vision@1.0.1",
+  "pose": {
+    "file": "pose_landmarker_lite.task",
+    "sha256_16": "59929e1d1ee95287",
+    "bytes": 5777746
+  },
+  "detector": {
+    "file": "efficientdet_lite0_int8.tflite",
+    "sha256_16": "0720bf247bd76e65",
+    "bytes": 4602795,
+    "licence": "Apache-2.0 (MediaPipe models)"
+  },
+  "htmlBytes": 30000323
+}

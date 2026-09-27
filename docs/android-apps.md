@@ -1,5 +1,14 @@
 # GaitAI Android apps: MobilityCare and SecureVision
 
+> **Status (2026-09-27):** the Trusted Web Activity wrappers described in this
+> document were the first packaging prototype and are kept on branch
+> `feature/android-apps` as a fallback. The founder tested them and asked for
+> genuine product apps instead. Those are the React Native apps in `mobile/`
+> on branch `feature/native-apps-v2`; start with `mobile/README.md` and
+> `docs/mobile-product-capability-matrix.md`. The package ids, icons, Play
+> listing folders and asset-links notes below still apply to the native apps.
+
+
 Two Android apps, one website. Each app is a thin Android shell (a *Trusted
 Web Activity*, TWA) that opens one product area of https://gaitai.in in
 full-screen Chrome with no browser bar, under its own name, icon and package

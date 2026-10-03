@@ -85,6 +85,18 @@ Android SDK at `%LOCALAPPDATA%\Android\Sdk`. First build downloads Gradle 9.3.1
 (pre-seed it in `%USERPROFILE%\.gradle\wrapper\dists` if the wrapper's download
 times out; see `../docs/android-apps.md` for the trick).
 
+On Windows use the wrapper script; it works around the 260-character path
+limit that breaks React Native's C++ build under a deep repository path and
+keeps Gradle inside this machine's memory (2 workers, no daemon, 1.5 GB heap):
+
+```powershell
+powershell -File mobile\scripts\win-build.ps1 mobilitycare    # or securevision
+# → android-builds\GaitAI-MobilityCare-native-debug.apk
+```
+
+It skips `lintVitalAnalyzeRelease` for these local test APKs only; Play builds
+keep the full release lint. The manual equivalent:
+
 ```powershell
 $env:JAVA_HOME = "C:\Users\Anubha\.bubblewrap\jdk17"
 $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"

@@ -11,5 +11,9 @@
     "securevision": "npm --workspace apps/securevision run",
     "typecheck": "npm --workspace apps/mobilitycare run typecheck && npm --workspace apps/securevision run typecheck",
     "engine:build": "node packages/analysis/scripts/build-engine.mjs"
+  },
+  "overrides": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
   }
 }

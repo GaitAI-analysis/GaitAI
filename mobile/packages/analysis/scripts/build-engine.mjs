@@ -32,6 +32,17 @@ const poseB64 = b64(poseModel), detB64 = b64(detModel);
 
 const runtime = fs.readFileSync(path.join(here, "engine-runtime.js"), "utf8");
 
+// The bundle is an ES module whose public classes are exported under minified
+// names (`export{ Kc as PoseLandmarker, ... }`). Inlined into one module script
+// those public names do not exist as bindings, so they are bound here, in the
+// runtime's own scope, from the bundle's export clause.
+const exportClause = [...visionJs.matchAll(/export\s*\{([^}]*)\}/g)].pop();
+if (!exportClause) throw new Error("vision_bundle.mjs: export clause not found");
+const exported = Object.fromEntries(exportClause[1].split(",").map((e) => e.trim().split(/\s+as\s+/)).map(([local, name]) => [name ?? local, local]));
+const RUNTIME_IMPORTS = ["FilesetResolver", "PoseLandmarker", "ObjectDetector"];
+for (const n of RUNTIME_IMPORTS) if (!exported[n]) throw new Error(`vision_bundle.mjs does not export ${n}`);
+const bindings = RUNTIME_IMPORTS.map((n) => `const ${n} = ${exported[n]};`).join("\n");
+
 const html = `<!doctype html><meta charset="utf-8"><title>GaitAI analysis engine</title>
 <style>html,body{margin:0;background:#000}video,canvas{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0}</style>
 <video id="v" playsinline muted preload="auto"></video><canvas id="c"></canvas>
@@ -47,7 +58,13 @@ window.__GAITAI_ENGINE__ = {
 </script>
 <script type="module">
 ${visionJs.replace(/<\/script/g, "<\\/script")}
+// The runtime is scoped in its own function: it shares this module scope with the
+// minified vision bundle above, whose top-level names (e.g. its base64 helper named E)
+// would otherwise collide with ours and turn the whole module into a SyntaxError.
+(() => {
+${bindings}
 ${runtime}
+})();
 </script>`;
 
 fs.writeFileSync(path.join(out, "engine.html"), html);

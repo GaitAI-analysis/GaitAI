@@ -1,5 +1,5 @@
 {
-  "built": "2026-09-27T00:30:32.501Z",
+  "built": "2026-10-03T14:48:21.405Z",
   "runtime": "mediapipe-tasks-vision@1.0.1",
   "pose": {
     "file": "pose_landmarker_lite.task",
@@ -12,5 +12,5 @@
     "bytes": 4602795,
     "licence": "Apache-2.0 (MediaPipe models)"
   },
-  "htmlBytes": 30000323
+  "htmlBytes": 30000674
 }

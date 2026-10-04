@@ -5,15 +5,17 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import * as Haptics from "expo-haptics";
 import { analytics, type AnalysisSession } from "@gaitai/core";
-import { buildWalkScanSession, demoPoseInstants, localizeVideo, type EngineProgress } from "@gaitai/analysis";
+import { buildWalkScanSession, demoPoseInstants, diag, localizeVideo, toEngineError, EngineError, type EngineProgress } from "@gaitai/analysis";
 import { space, radius } from "@gaitai/design-system";
 import { useApp } from "../app-state";
+import { EngineFooterNote, EnginePreparing, useEngineGate } from "../engine-status";
 import { Button, Card, Chip, Row, Screen, Text } from "../primitives";
 import { useTheme } from "../theme";
 import { ProcessingScreen, POSE_STAGES } from "./Processing";
 import { DemoBanner } from "../dev";
 
 type Step = "guide" | "record" | "processing";
+type InputType = AnalysisSession["inputType"];
 const GUIDE = [
   ["Prop the phone", "Waist height, landscape or portrait, on a stable surface."],
   ["Whole body in frame", "Head to feet visible for the whole walk, about 3–5 m away."],
@@ -21,47 +23,71 @@ const GUIDE = [
   ["Good light", "Even light, plain background if you can. Avoid strong backlight."],
 ];
 
+async function discard(uri: string | null) {
+  if (!uri || !uri.startsWith("file://")) return;
+  try { const FS = await import("expo-file-system/legacy"); await FS.deleteAsync(uri, { idempotent: true }); } catch { /* best effort */ }
+}
+
 export function WalkScanScreen() {
   const t = useTheme(); const app = useApp(); const router = useRouter();
+  const gate = useEngineGate();
   const [step, setStep] = useState<Step>("guide");
-  const [progress, setProgress] = useState<EngineProgress>({ stage: "preparing", fraction: 0 });
-  const [error, setError] = useState<string | null>(null);
+  const [progress, setProgress] = useState<EngineProgress>({ stage: "engine", fraction: 0 });
+  const [error, setError] = useState<EngineError | null>(null);
   const [perm, requestPerm] = useCameraPermissions();
   const cam = useRef<CameraView>(null);
   const [recording, setRecording] = useState(false); const [count, setCount] = useState<number | null>(null); const [elapsed, setElapsed] = useState(0);
-  const lastUri = useRef<string | null>(null);
+  /** The localised copy of the clip being analysed, kept across retries. */
+  const pendingClip = useRef<{ uri: string; inputType: InputType } | null>(null);
+  const keepVideos = !!app.profile?.privacy.keepVideos;
 
-  const analyse = useCallback(async (uri: string | null, inputType: AnalysisSession["inputType"]) => {
-    setStep("processing"); setError(null); setProgress({ stage: "preparing", fraction: 0.02 });
+  const analyse = useCallback(async (uri: string | null, inputType: InputType) => {
+    setStep("processing"); setError(null);
+    setProgress(app.engineReady ? { stage: "preparing", fraction: 0.02 } : { stage: "engine", fraction: 0.01, detail: app.engineStatus.detail });
     await analytics.track("analysis_started", { product: "mobilitycare", analysis: "walkscan", input: inputType, demo: app.demoMode });
     try {
       const previous = app.sessions.find((s) => s.analysisProduct === "walkscan");
       let session: AnalysisSession;
       if (uri == null) {
-        if (!(__DEV__ && app.demoMode)) throw new Error("No video was provided.");
+        if (!(__DEV__ && app.demoMode)) throw new EngineError("VIDEO_DECODE_FAILED", "No video was provided.");
         const instants = demoPoseInstants(); setProgress({ stage: "detecting", fraction: 0.6 }); await new Promise((r) => setTimeout(r, 600));
         setProgress({ stage: "computing", fraction: 0.92 });
-        session = buildWalkScanSession(instants, { runtime: "demo", model: "synthetic-gait", width: 0, height: 0, duration: 12, frames: instants.length, fps: 10 }, { userId: app.profile?.id ?? "local", inputType, media: null, demo: true }, previous);
+        session = buildWalkScanSession(instants, { runtime: "demo", model: "synthetic-gait", width: 0, height: 0, duration: 12, frames: instants.length, fps: 10, withSubject: instants.length }, { userId: app.profile?.id ?? "local", inputType, media: null, demo: true }, previous);
       } else {
-        const local = await localizeVideo(uri); lastUri.current = local;
-        const engine = app.engine.current; if (!engine) throw new Error("The analysis engine is not available.");
+        const local = await localizeVideo(uri);
+        pendingClip.current = { uri: local, inputType };
+        diag.log("video selected", { input: inputType });
+        const engine = app.engine.current;
+        if (!engine) throw new EngineError("ENGINE_INITIALIZATION_FAILED", "The analysis engine is not available.");
         const { instants, meta } = await engine.runPose(local, { sampleFps: 10, maxSeconds: 20 }, setProgress);
         setProgress({ stage: "computing", fraction: 0.92 });
-        session = buildWalkScanSession(instants, meta, { userId: app.profile?.id ?? "local", inputType, media: { uri: local, mimeType: "video/mp4", durationSeconds: meta.duration, width: meta.width, height: meta.height, retained: !!app.profile?.privacy.keepVideos }, demo: false }, previous);
-        if (!app.profile?.privacy.keepVideos) { try { const FS = await import("expo-file-system/legacy"); await FS.deleteAsync(local, { idempotent: true }); } catch { /* best effort */ } }
+        // Real inference ran. Only a result with a found body and enough timed steps is a result.
+        if (meta.withSubject === 0) throw new EngineError("NO_PERSON_DETECTED", "No person was detected in the sampled frames.");
+        session = buildWalkScanSession(instants, meta, { userId: app.profile?.id ?? "local", inputType, media: { uri: local, mimeType: "video/mp4", durationSeconds: meta.duration, width: meta.width, height: meta.height, retained: keepVideos }, demo: false }, previous);
+        const cadence = session.freeMetrics.find((m) => m.id === "cadence");
+        if (cadence?.value == null) throw new EngineError("INSUFFICIENT_VALID_FRAMES", `Body found in ${meta.withSubject} of ${meta.frames} frames, but too few clear steps to time.`);
+        diag.log("metrics calculated", { framesWithSubject: meta.withSubject, frames: meta.frames, flags: session.quality.flags.join(",") });
+        if (!keepVideos) await discard(local);
+        pendingClip.current = null;
       }
       setProgress({ stage: "reporting", fraction: 0.98 });
       await app.saveSession(session);
       await analytics.track("analysis_completed", { product: "mobilitycare", analysis: "walkscan", demo: session.demo });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
       router.replace(`/result/${session.id}` as never);
-    } catch (e) { await analytics.track("analysis_failed", { product: "mobilitycare", analysis: "walkscan" }); setError(e instanceof Error ? e.message : String(e)); }
-  }, [app, router]);
+    } catch (e) {
+      const err = toEngineError(e);
+      if (err.code === "CANCELLED") { setStep("guide"); return; }
+      await analytics.track("analysis_failed", { product: "mobilitycare", analysis: "walkscan", code: err.code });
+      diag.error("analysis failed (walkscan)", { code: err.code, message: err.message });
+      setError(err);
+    }
+  }, [app, keepVideos, router]);
 
   const pick = async () => {
     const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["videos"], quality: 1, videoMaxDuration: 60 });
     if (r.canceled || !r.assets[0]) return;
-    if ((r.assets[0].duration ?? 0) > 60000) { setError("Please choose a clip under 60 seconds; the first 20 seconds are analysed."); setStep("processing"); return; }
+    if ((r.assets[0].duration ?? 0) > 60000) { setError(new EngineError("VIDEO_TOO_LONG", "Clip over 60 seconds.")); setStep("processing"); return; }
     analyse(r.assets[0].uri, "uploaded-video");
   };
 
@@ -69,15 +95,31 @@ export function WalkScanScreen() {
     setCount(3); for (let i = 3; i > 0; i--) { setCount(i); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {}); await new Promise((r) => setTimeout(r, 900)); } setCount(null);
     setRecording(true); setElapsed(0);
     const timer = setInterval(() => setElapsed((v) => v + 1), 1000);
-    try { const v = await cam.current?.recordAsync({ maxDuration: 20 }); clearInterval(timer); setRecording(false); if (v?.uri) analyse(v.uri, "recorded-video"); else setError("Recording did not produce a video."); }
-    catch (e) { clearInterval(timer); setRecording(false); setError(e instanceof Error ? e.message : "Recording failed."); setStep("processing"); }
+    try { const v = await cam.current?.recordAsync({ maxDuration: 20 }); clearInterval(timer); setRecording(false); if (v?.uri) analyse(v.uri, "recorded-video"); else { setError(new EngineError("VIDEO_DECODE_FAILED", "Recording did not produce a video.")); setStep("processing"); } }
+    catch (e) { clearInterval(timer); setRecording(false); setError(new EngineError("VIDEO_DECODE_FAILED", e instanceof Error ? e.message : "Recording failed.")); setStep("processing"); }
   };
   useEffect(() => () => { if (recording) cam.current?.stopRecording(); }, [recording]);
 
-  if (step === "processing") return <ProcessingScreen title="Analysing your walk" stages={POSE_STAGES} progress={progress} error={error} onCancel={() => { setError(null); setStep("guide"); }} onRetry={lastUri.current ? () => analyse(lastUri.current, "uploaded-video") : undefined} />;
+  const leaveProcessing = (to: Step) => { app.engine.current?.cancel(); setError(null); if (!keepVideos) discard(pendingClip.current?.uri ?? null); pendingClip.current = null; setStep(to); };
+
+  if (step === "processing") {
+    const clip = pendingClip.current;
+    return (
+      <ProcessingScreen
+        title="Analysing your walk" chip="WALKSCAN" stages={POSE_STAGES} progress={progress} error={error}
+        onCancel={() => leaveProcessing("guide")}
+        actions={{
+          onRetryInit: clip ? async () => { setError(null); setProgress({ stage: "engine", fraction: 0.01, detail: "Restarting engine" }); try { await app.retryEngine(); } catch { /* analyse() reports the new engine error */ } analyse(clip.uri, clip.inputType); } : undefined,
+          onRetrySame: clip ? () => analyse(clip.uri, clip.inputType) : undefined,
+          onAnotherVideo: () => { if (!keepVideos) discard(clip?.uri ?? null); pendingClip.current = null; setError(null); pick(); },
+          onRecordAgain: () => leaveProcessing("record"),
+        }}
+      />
+    );
+  }
 
   if (step === "record") {
-    if (!perm?.granted) return <Screen footer={<View style={{ gap: space.sm }}><Button label={perm?.canAskAgain === false ? "Open settings" : "Allow camera"} onPress={() => perm?.canAskAgain === false ? import("react-native").then(({ Linking }) => Linking.openSettings()) : requestPerm()} /><Button kind="secondary" label="Upload a video instead" onPress={pick} /><Button kind="ghost" label="Back" onPress={() => setStep("guide")} /></View>}><View style={{ paddingTop: space.xl, gap: space.md }}><Text variant="title">Camera access</Text><Text>WalkScan records a short walking video and analyses it on this phone. The recording is made without sound{app.profile?.privacy.keepVideos ? "." : " and deleted after analysis."}</Text>{perm?.canAskAgain === false ? <Card tone="flat"><Text variant="mute">Camera access was declined. You can allow it in Settings, or upload an existing video.</Text></Card> : null}</View></Screen>;
+    if (!perm?.granted) return <Screen footer={<View style={{ gap: space.sm }}><Button label={perm?.canAskAgain === false ? "Open settings" : "Allow camera"} onPress={() => perm?.canAskAgain === false ? import("react-native").then(({ Linking }) => Linking.openSettings()) : requestPerm()} /><Button kind="secondary" label="Upload a video instead" onPress={pick} /><Button kind="ghost" label="Back" onPress={() => setStep("guide")} /></View>}><View style={{ paddingTop: space.xl, gap: space.md }}><Text variant="title">Camera access</Text><Text>WalkScan records a short walking video and analyses it on this phone. The recording is made without sound{keepVideos ? "." : " and deleted after analysis."}</Text>{perm?.canAskAgain === false ? <Card tone="flat"><Text variant="mute">Camera access was declined. You can allow it in Settings, or upload an existing video.</Text></Card> : null}</View></Screen>;
     return (
       <Screen scroll={false} padded={false} footer={<View style={{ gap: space.sm }}>{recording ? <Button kind="danger" label={`Stop · ${elapsed}s`} onPress={() => cam.current?.stopRecording()} /> : <Button label={count != null ? `Starting in ${count}…` : "Start recording"} onPress={startRecording} disabled={count != null} />}{!recording ? <Button kind="ghost" label="Back" onPress={() => setStep("guide")} /> : null}</View>}>
         <View style={{ flex: 1, backgroundColor: "#000" }}>
@@ -92,13 +134,22 @@ export function WalkScanScreen() {
     );
   }
 
+  // Record / Upload are enabled only once the engine is READY; the card above the
+  // guide shows the real start-up state and offers Retry when it failed.
+  const locked = !gate.ready;
   return (
-    <Screen footer={<View style={{ gap: space.sm }}><Button label="Record a walking video" onPress={() => setStep("record")} /><Button kind="secondary" label="Upload a walking video" onPress={pick} />{__DEV__ && app.demoMode ? <Button kind="ghost" label="Run with demo data (DEV)" onPress={() => analyse(null, "uploaded-video")} /> : null}</View>}>
+    <Screen footer={<View style={{ gap: space.sm }}>
+      <EngineFooterNote />
+      <Button label="Record a walking video" onPress={() => setStep("record")} disabled={locked} accessibilityHint={locked ? "Available when the movement engine is ready" : undefined} />
+      <Button kind="secondary" label="Upload a walking video" onPress={pick} disabled={locked} accessibilityHint={locked ? "Available when the movement engine is ready" : undefined} />
+      {__DEV__ && app.demoMode ? <Button kind="ghost" label="Run with demo data (DEV)" onPress={() => analyse(null, "uploaded-video")} /> : null}
+    </View>}>
       <View style={{ paddingTop: space.lg, gap: space.lg }}>
         <DemoBanner />
         <Chip tone="accent" label="WALKSCAN" />
         <Text variant="title">Read your walk from a short video.</Text>
         <Text variant="lead">Ten to twenty seconds is enough. The analysis runs on this phone and you get cadence and step-time balance straight away.</Text>
+        <EnginePreparing product="mobilitycare" />
         <View style={{ gap: space.sm }}>{GUIDE.map(([h, b], i) => <Card key={h} style={{ paddingVertical: space.md }}><Row gap={space.md}><View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: t.accentSoft, alignItems: "center", justifyContent: "center" }}><Text variant="bodyStrong" color={t.accent}>{i + 1}</Text></View><View style={{ flex: 1 }}><Text variant="bodyStrong">{h}</Text><Text variant="mute">{b}</Text></View></Row></Card>)}</View>
         <Card tone="flat"><Text variant="mute">Free: cadence and step-time balance. Pro adds variability, regularity, trunk sway, the contact timeline and trends. All values are 2D estimates from one camera and are not a diagnosis.</Text></Card>
       </View>

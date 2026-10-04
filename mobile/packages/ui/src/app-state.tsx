@@ -1,11 +1,12 @@
 /**
  * App-wide state: profile, sessions, entitlement (billing), demo mode, and
- * the analysis engine handle. One provider per app; screens use the hooks.
+ * the analysis engine with its lifecycle status. One provider per app; screens
+ * use the hooks.
  */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { analytics, devStore, gate, profileStore, sessionStore, type AnalysisSession, type Entitlement, type ProductId, type ResultView, type UserProfile } from "@gaitai/core";
 import { DevEntitlementProvider, PlayBillingProvider, SUBSCRIPTIONS, type BillingProvider, type BillingState } from "@gaitai/billing";
-import { AnalysisEngine, type EngineHandle } from "@gaitai/analysis";
+import { AnalysisEngine, type EngineHandle, type EngineStatus } from "@gaitai/analysis";
 
 interface AppState {
   product: ProductId;
@@ -26,8 +27,13 @@ interface AppState {
   demoMode: boolean;
   setDemoMode(v: boolean): Promise<void>;
   devSetPro(v: boolean): Promise<void>;
+  /** The on-device engine. Screens call runPose/runDetect; both wait for READY themselves. */
   engine: React.RefObject<EngineHandle | null>;
+  /** Live engine lifecycle state, for gating actions and showing start-up progress. */
+  engineStatus: EngineStatus;
   engineReady: boolean;
+  /** Re-initialises the engine from scratch; resolves when READY, rejects with the EngineError otherwise. */
+  retryEngine(): Promise<void>;
   loading: boolean;
 }
 
@@ -35,15 +41,16 @@ const Ctx = createContext<AppState | null>(null);
 export const useApp = () => { const v = useContext(Ctx); if (!v) throw new Error("useApp outside AppProvider"); return v; };
 
 const FREE: Entitlement = { tier: "free", source: "none" };
+const INITIAL_ENGINE: EngineStatus = { state: "UNINITIALIZED", detail: "Not started", error: null, attempt: 0, since: Date.now(), warmed: [] };
 
-export function AppProvider({ product, engineSource, children }: { product: ProductId; engineSource: number; children: React.ReactNode }) {
+export function AppProvider({ product, children }: { product: ProductId; children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [sessions, setSessions] = useState<AnalysisSession[]>([]);
   const [demoMode, setDemo] = useState(false);
   const [billing, setBilling] = useState<BillingState>({ status: "loading", products: [], entitlement: FREE });
   const [loading, setLoading] = useState(true);
   const engine = useRef<EngineHandle | null>(null);
-  const [engineReady, setEngineReady] = useState(false);
+  const [engineStatus, setEngineStatus] = useState<EngineStatus>(INITIAL_ENGINE);
 
   const billingProvider = useMemo<BillingProvider>(() => {
     // The DEV entitlement exists only in development builds; release builds always talk to Play.
@@ -65,11 +72,15 @@ export function AppProvider({ product, engineSource, children }: { product: Prod
     })().catch(() => setLoading(false));
   }, [billingProvider]);
 
-  // Poll the engine's ready flag (it is set by the WebView's ready message).
-  useEffect(() => { const id = setInterval(() => { if (engine.current?.ready && !engineReady) setEngineReady(true); }, 300); return () => clearInterval(id); }, [engineReady]);
+  const retryEngine = useCallback(async () => {
+    const h = engine.current;
+    if (!h) throw new Error("The analysis engine is not mounted.");
+    await h.retry();
+  }, []);
 
   const value = useMemo<AppState>(() => ({
-    product, profile, sessions, billing, billingProvider, demoMode, engine, engineReady, loading,
+    product, profile, sessions, billing, billingProvider, demoMode, engine, engineStatus, loading, retryEngine,
+    engineReady: engineStatus.state === "READY" || engineStatus.state === "ANALYZING",
     entitlement: billing.entitlement,
     isPro: billing.entitlement.tier === "pro",
     async updateProfile(patch) { setProfile(await profileStore.update(patch)); },
@@ -81,12 +92,12 @@ export function AppProvider({ product, engineSource, children }: { product: Prod
     async restore() { const b = await billingProvider.restore(); setBilling(b); return b; },
     async setDemoMode(v) { if (!__DEV__) return; await devStore.demoMode.set(v); setDemo(v); setSessions(await sessionStore.list(v)); },
     async devSetPro(v) { if (!__DEV__ || billingProvider.name !== "dev") return; const dev = billingProvider as DevEntitlementProvider; setBilling(v ? await dev.purchase() : await dev.revoke()); },
-  }), [product, profile, sessions, billing, billingProvider, demoMode, engineReady, loading, reloadSessions]);
+  }), [product, profile, sessions, billing, billingProvider, demoMode, engineStatus, loading, reloadSessions, retryEngine]);
 
   return (
     <Ctx.Provider value={value}>
       {children}
-      <AnalysisEngine ref={engine} source={engineSource} />
+      <AnalysisEngine ref={engine} product={product} onStatus={setEngineStatus} />
     </Ctx.Provider>
   );
 }

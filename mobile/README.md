@@ -16,6 +16,45 @@ app computes metrics from the landmarks or boxes it returns, and nothing is
 uploaded. See `../docs/mobile-product-capability-matrix.md` for what is and
 is not real.
 
+## Analysis engine lifecycle
+
+`packages/analysis/src/engine.tsx` owns an explicit state machine:
+
+```
+UNINITIALIZED → INITIALIZING → LOADING_ASSETS → READY ⇄ ANALYZING
+                     ↘               ↘             ↘
+                                   ERROR  (retry() → INITIALIZING)
+```
+
+- **INITIALIZING**: expo-asset extracts four bundled files (engine page,
+  `vision_wasm_internal.wasm`, `pose_landmarker_lite.task`,
+  `efficientdet_lite0_int8.tflite`) to the app cache; the hidden WebView loads
+  the page and the page answers `booted`.
+- **LOADING_ASSETS**: the app sends `init`; the page fetches and compiles the
+  runtime over file://, warms the product's model (pose for MobilityCare,
+  person detector for SecureVision) and answers `ready`.
+- **READY / ANALYZING**: `runPose` / `runDetect` first `await whenReady()`;
+  analysis never starts before READY and a second request gets `ENGINE_BUSY`.
+- **ERROR**: every failure is an `EngineError` with a code
+  (`ENGINE_INITIALIZATION_FAILED`, `MODEL_ASSET_MISSING`, `VIDEO_DECODE_FAILED`,
+  `VIDEO_TOO_LONG`, `NO_PERSON_DETECTED`, `INSUFFICIENT_VALID_FRAMES`,
+  `ANALYSIS_TIMEOUT`, `ANALYSIS_FAILED`, `ENGINE_BUSY`, `CANCELLED`). The copy
+  for each code lives in `packages/analysis/src/errors.ts`; the failure screen
+  offers only the actions that can help (retry initialisation, same clip,
+  another clip). All waits are bounded (`ENGINE_TIMEOUTS`); a renderer crash,
+  a page load failure or a stalled analysis ends in a typed error, never a hang.
+
+Screens gate Record / Upload on `useEngineGate().ready` and show
+`EnginePreparing` ("Preparing GaitAI Movement Engine") with the real step
+states until then. Diagnostics go to logcat as `[gaitai-engine +t]` lines
+(`adb logcat -s ReactNativeJS`); they never contain paths, frames or values.
+
+Why the engine is four files and not one: the earlier single 30 MB page with
+base64-inlined models cost about 235 MB of WebView renderer memory and 4.4 s of
+base64 decoding on every analysis (measured on the emulator). Separate files
+fetched over file:// bring the page to under 0.5 MB and start-up to about two
+seconds after the page loads.
+
 ```
 mobile/
 ├── apps/
@@ -73,7 +112,7 @@ to a separate store, shows a yellow watermark on every screen and a
 ```powershell
 cd mobile
 npm install
-npm run engine:build            # builds packages/analysis/engine/engine.html (~29 MB, gitignored)
+npm run engine:build            # builds packages/analysis/engine/ (page + wasm + models, ~22 MB, gitignored)
 cd apps\mobilitycare
 npx expo start                  # Metro; open in a development build, not Expo Go (native modules)
 ```

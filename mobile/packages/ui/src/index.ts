@@ -3,6 +3,7 @@ export * from "./primitives";
 export * from "./charts";
 export * from "./metrics";
 export * from "./app-state";
+export * from "./engine-status";
 export * from "./dev";
 export * from "./screens/Onboarding";
 export * from "./screens/Home";

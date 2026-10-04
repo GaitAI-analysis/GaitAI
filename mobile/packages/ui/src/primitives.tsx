@@ -13,15 +13,31 @@ export function Text({ variant = "body", color, style, ...rest }: TextProps & { 
   return <RNText allowFontScaling maxFontSizeMultiplier={1.6} {...rest} style={[base, variant === "label" && { textTransform: "uppercase" }, color ? { color } : null, style]} />;
 }
 
+/**
+ * A screen with an optional sticky footer (the CTA area). The footer is measured,
+ * and the content gets exactly that much bottom padding plus a margin, so the
+ * last card is never hidden behind the buttons and there is no oversized gap.
+ * The footer itself respects the bottom safe-area inset (gesture bar).
+ */
 export function Screen({ children, scroll = true, padded = true, refreshing, onRefresh, style, footer }: { children: React.ReactNode; scroll?: boolean; padded?: boolean; refreshing?: boolean; onRefresh?: () => void; style?: ViewStyle; footer?: React.ReactNode }) {
   const t = useTheme(); const insets = useSafeAreaInsets();
-  const inner = [padded && { paddingHorizontal: space.lg }, { paddingBottom: space.xxl + (footer ? 72 : 0) }, style];
+  // Estimate until the first layout so the content does not jump: one row of buttons plus padding.
+  const [footerH, setFooterH] = React.useState(footer ? hit + 4 + space.lg + Math.max(insets.bottom, space.md) + space.sm : 0);
+  const bottomPad = footer ? footerH + space.lg : Math.max(insets.bottom, space.md) + space.lg;
+  const inner = [padded && { paddingHorizontal: space.lg }, { paddingBottom: bottomPad }, style];
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
       {scroll ? (
         <ScrollView contentContainerStyle={inner} keyboardShouldPersistTaps="handled" refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={t.accent} /> : undefined} contentInsetAdjustmentBehavior="automatic">{children}</ScrollView>
       ) : <View style={[{ flex: 1 }, inner]}>{children}</View>}
-      {footer ? <View style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: space.lg, paddingBottom: Math.max(insets.bottom, space.md) + space.sm, backgroundColor: t.bg, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: t.line }}>{footer}</View> : null}
+      {footer ? (
+        <View
+          onLayout={(e) => { const h = Math.round(e.nativeEvent.layout.height); if (h && h !== footerH) setFooterH(h); }}
+          style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: space.lg, paddingBottom: Math.max(insets.bottom, space.md) + space.sm, backgroundColor: t.bg, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: t.line }}
+        >
+          {footer}
+        </View>
+      ) : null}
     </View>
   );
 }

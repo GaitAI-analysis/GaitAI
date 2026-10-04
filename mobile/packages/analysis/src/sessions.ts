@@ -70,7 +70,7 @@ export function buildWalkScanSession(instants: PoseInstant[], meta: EngineMeta, 
 }
 
 export function buildRehabSession(baseline: AnalysisSession, latest: AnalysisSession, ctx: Pick<AnalysisSession, "userId" | "demo">): AnalysisSession {
-  const meta: EngineMeta = { runtime: latest.modelVersion.split("/")[0], model: "comparison", width: 0, height: 0, duration: 0, frames: 0, fps: 0 };
+  const meta: EngineMeta = { runtime: latest.modelVersion.split("/")[0], model: "comparison", width: 0, height: 0, duration: 0, frames: 0, fps: 0, withSubject: 0 };
   const s = baseSession({ ...ctx, product: "mobilitycare", analysisProduct: "rehabtrack", inputType: "sessions", media: null }, meta);
   s.sourceSessionIds = [baseline.id, latest.id];
   const all = (x: AnalysisSession) => [...x.freeMetrics, ...x.premiumMetrics];

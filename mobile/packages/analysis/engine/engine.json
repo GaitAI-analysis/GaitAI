@@ -1,6 +1,15 @@
 {
-  "built": "2026-10-03T14:48:21.405Z",
+  "built": "2026-10-04T18:52:08.172Z",
   "runtime": "mediapipe-tasks-vision@1.0.1",
+  "page": {
+    "file": "engine.html",
+    "bytes": 493011
+  },
+  "wasm": {
+    "file": "vision_wasm_internal.wasm",
+    "sha256_16": "8da277a733926eac",
+    "bytes": 11756954
+  },
   "pose": {
     "file": "pose_landmarker_lite.task",
     "sha256_16": "59929e1d1ee95287",
@@ -11,6 +20,5 @@
     "sha256_16": "0720bf247bd76e65",
     "bytes": 4602795,
     "licence": "Apache-2.0 (MediaPipe models)"
-  },
-  "htmlBytes": 30000674
+  }
 }

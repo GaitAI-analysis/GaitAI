@@ -115,6 +115,7 @@ play-service-account*.json
 android-builds/*.apk
 android-builds/*.aab
 android-builds/*.idsig
+android-builds/previous/
 !android-builds/.gitkeep
 
 # ── REACT NATIVE / EXPO MONOREPO (mobile/) ────────────────────────────────
@@ -130,3 +131,6 @@ mobile/apps/*/.expo/
 mobile/apps/*/expo-env.d.ts
 mobile/packages/analysis/engine/engine.html
 mobile/**/*.tsbuildinfo
+mobile/packages/analysis/engine/*.wasm
+mobile/packages/analysis/engine/*.task
+mobile/packages/analysis/engine/*.tflite

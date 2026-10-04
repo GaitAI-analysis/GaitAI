@@ -25,8 +25,6 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AppProvider, ThemeProvider, useApp, useTheme } from "@gaitai/ui";
 
-/** The on-device analysis engine page (MediaPipe WebAssembly + models), bundled as an asset. */
-const ENGINE = require("@gaitai/analysis/engine/engine.html");
 export const MARK = require("../assets/images/icon.png");
 
 function Root() {
@@ -59,7 +57,7 @@ export default function Layout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider product="${app}">
-          <AppProvider product="${app}" engineSource={ENGINE}>
+          <AppProvider product="${app}">
             <Root />
           </AppProvider>
         </ThemeProvider>

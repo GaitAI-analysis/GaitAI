@@ -69,6 +69,61 @@ function contactsFor(ts: number[], ys: (number | null)[], xs: (number | null)[],
   return out;
 }
 
+/** Indices of local extrema of a (lightly smoothed) series, at least `minGap` seconds apart. */
+function extrema(ts: number[], xs: (number | null)[], kind: "max" | "min", minGap: number): number[] {
+  const s = smooth(xs, 1);
+  const better = (a: number, b: number) => (kind === "max" ? a >= b : a <= b);
+  const out: number[] = [];
+  for (let i = 2; i < s.length - 2; i++) {
+    const v = s[i]; if (v == null) continue;
+    const nb = [s[i - 1], s[i + 1], s[i - 2], s[i + 2]];
+    if (nb.some((n) => n == null)) continue;
+    if (!nb.every((n) => better(v, n as number))) continue;
+    if (out.length && ts[i] - ts[out[out.length - 1]] < minGap) continue;
+    out.push(i);
+  }
+  return out;
+}
+
+/**
+ * Heel strikes from kinematics (after Zeni et al. 2008): a foot strikes the
+ * ground at the instant its ankle is furthest ahead of the hips along the
+ * walking direction. The offset is relative to the body, so it holds when the
+ * camera pans or tracks the walker, where ankle-height or velocity cues fail.
+ *
+ * Walking direction comes from the gait cycle itself: after a heel strike the
+ * foot is planted for the long stance phase (about 60% of the stride) while the
+ * offset shrinks; after toe-off it swings forward quickly (about 40%). The
+ * extremum type followed by the longer segment is therefore the heel strike.
+ * Returns null when the offset barely moves (front view) or the clip is too
+ * short to decide, so the caller can fall back to the height-based detector.
+ */
+function heelStrikes(ts: number[], dL: (number | null)[], dR: (number | null)[], hipX: number[], torso: number, minGap: number): { left: number[]; right: number[] } | null {
+  const vals = [...dL, ...dR].filter((v): v is number => v != null);
+  if (vals.length < 8) return null;
+  const span = Math.max(...vals) - Math.min(...vals);
+  if (!(torso > 0) || span < 0.35 * torso) return null; // feet hardly pass the hips: not a side view
+  const sides = [dL, dR].map((d) => ({ max: extrema(ts, d, "max", minGap), min: extrema(ts, d, "min", minGap) }));
+  // Segment durations pooled over both feet: max→next min vs min→next max.
+  let maxToMin: number[] = [], minToMax: number[] = [];
+  for (const s of sides) {
+    for (const m of s.max) { const n = s.min.find((k) => k > m); if (n != null) maxToMin.push(ts[n] - ts[m]); }
+    for (const m of s.min) { const n = s.max.find((k) => k > m); if (n != null) minToMax.push(ts[n] - ts[m]); }
+  }
+  let strikesAreMax: boolean;
+  if (maxToMin.length >= 2 && minToMax.length >= 2) strikesAreMax = stats(maxToMin).mean > stats(minToMax).mean;
+  else {
+    // Too few cycles for the asymmetry rule: use the hips' net drift across the frame (fixed camera).
+    const drift = hipX.length > 1 ? hipX[hipX.length - 1] - hipX[0] : 0;
+    if (Math.abs(drift) < 0.05) return null;
+    strikesAreMax = drift > 0;
+  }
+  const pickSide = (s: { max: number[]; min: number[] }) => (strikesAreMax ? s.max : s.min).map((i) => ts[i]);
+  const left = pickSide(sides[0]), right = pickSide(sides[1]);
+  if (left.length + right.length < 4) return null;
+  return { left, right };
+}
+
 function stats(xs: number[]) {
   const n = xs.length; if (!n) return { mean: NaN, sd: NaN };
   const mean = xs.reduce((s, v) => s + v, 0) / n;
@@ -104,8 +159,13 @@ export function computeGait(instants: PoseInstant[]): GaitMetricsResult {
   const pick = (i: number) => L.map((lm) => (vis(lm[i]) >= 0.5 ? lm[i] : null));
   const lA = pick(LM.lAnkle), rA = pick(LM.rAnkle);
   const minGap = 0.3; // no two contacts of one foot within 300 ms
-  const lC = contactsFor(ts, lA.map((l) => l?.y ?? null), lA.map((l) => l?.x ?? null), minGap * 2);
-  const rC = contactsFor(ts, rA.map((l) => l?.y ?? null), rA.map((l) => l?.x ?? null), minGap * 2);
+  const hipX = L.map((lm) => mid(lm[LM.lHip], lm[LM.rHip]).x);
+  const torso = stats(L.map((lm) => Math.abs(mid(lm[LM.lShoulder], lm[LM.rShoulder]).y - mid(lm[LM.lHip], lm[LM.rHip]).y))).mean;
+  // Primary: heel strikes from the ankle's horizontal offset to the hips (camera-motion invariant).
+  const kinematic = heelStrikes(ts, lA.map((l, i) => (l ? l.x - hipX[i] : null)), rA.map((l, i) => (l ? l.x - hipX[i] : null)), hipX, torso, minGap * 2);
+  // Fallback: ankle height peaks with the forward-velocity reversal (needs a fixed camera; weaker from the front).
+  const lC = kinematic ? kinematic.left : contactsFor(ts, lA.map((l) => l?.y ?? null), lA.map((l) => l?.x ?? null), minGap * 2);
+  const rC = kinematic ? kinematic.right : contactsFor(ts, rA.map((l) => l?.y ?? null), rA.map((l) => l?.x ?? null), minGap * 2);
   const contacts = [...lC.map((t) => ({ t, side: "L" as const })), ...rC.map((t) => ({ t, side: "R" as const }))].sort((a, b) => a.t - b.t);
 
   // Step times: consecutive contacts of alternating feet.

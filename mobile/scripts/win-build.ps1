@@ -47,7 +47,9 @@ $props = "$Android\gradle.properties"
 $p = (Get-Content $props) | Where-Object { $_ -notmatch "^(org\.gradle\.(jvmargs|parallel|workers\.max|daemon)|kotlin\.(compiler\.execution\.strategy|daemon\.jvmargs)|reactNativeArchitectures)=" }
 $p += @(
   "reactNativeArchitectures=arm64-v8a,x86_64",
-  "org.gradle.jvmargs=-Xmx1536m -XX:MaxMetaspaceSize=384m -Dfile.encoding=UTF-8",
+  # 768m Metaspace: with the compiler in-process, 384m ended in "OutOfMemoryError: Metaspace"
+  # when a prebuild invalidated every library module's Kotlin compile (2026-10-05).
+  "org.gradle.jvmargs=-Xmx1536m -XX:MaxMetaspaceSize=768m -Dfile.encoding=UTF-8",
   "org.gradle.parallel=false", "org.gradle.workers.max=2", "org.gradle.daemon=false",
   # One JVM, not two: compile Kotlin inside the Gradle process with a small heap.
   "kotlin.compiler.execution.strategy=in-process", "kotlin.daemon.jvmargs=-Xmx512m")

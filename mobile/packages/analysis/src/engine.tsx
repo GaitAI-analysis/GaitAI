@@ -116,6 +116,8 @@ export const AnalysisEngine = forwardRef<EngineHandle, { product: "mobilitycare"
   const pageRef = useRef<Page | null>(null);
   const autoRetries = useRef(0);
   const runId = useRef(0);
+  /** True from a start() call until its command is posted: a second start() while the first still waits for READY is refused, never queued behind it. */
+  const starting = useRef(false);
   const onStatusRef = useRef(onStatus); onStatusRef.current = onStatus;
   const live = useRef(true);
 
@@ -287,27 +289,33 @@ export const AnalysisEngine = forwardRef<EngineHandle, { product: "mobilitycare"
   }, [rejectPending, setStatus]);
 
   const start = useCallback(async (kind: EngineKind, uri: string, opts: RunOptions, onProgress: Pending["onProgress"]) => {
-    if (pending.current) throw new EngineError("ENGINE_BUSY", "Another analysis is running.");
-    if (status.current.state !== "READY") {
-      onProgress({ stage: "engine", fraction: 0.01, detail: status.current.detail });
-      diag.log("analysis requested before READY; waiting", { state: status.current.state });
-      // Keep the caller's stage text truthful while the engine comes up.
-      const prevOnStatus = onStatusRef.current;
-      onStatusRef.current = (s) => { prevOnStatus?.(s); if (s.state !== "READY") onProgress({ stage: "engine", fraction: 0.01, detail: s.detail }); };
-      try { await whenReady(); } finally { onStatusRef.current = prevOnStatus; }
+    if (pending.current || starting.current) throw new EngineError("ENGINE_BUSY", "Another analysis is running.");
+    starting.current = true;
+    try {
+      if (status.current.state !== "READY") {
+        onProgress({ stage: "engine", fraction: 0.01, detail: status.current.detail });
+        diag.log("analysis requested before READY; waiting", { state: status.current.state });
+        // Keep the caller's stage text truthful while the engine comes up.
+        const prevOnStatus = onStatusRef.current;
+        onStatusRef.current = (s) => { prevOnStatus?.(s); if (s.state !== "READY") onProgress({ stage: "engine", fraction: 0.01, detail: s.detail }); };
+        try { await whenReady(); } finally { onStatusRef.current = prevOnStatus; }
+      }
+      if (!web.current) throw new EngineError("ENGINE_INITIALIZATION_FAILED", "The analysis engine is not available.");
+      const id = ++runId.current;
+      return new Promise<unknown>((resolve, reject) => {
+        const p: Pending = { id, kind, onProgress, frames: [], meta: {}, resolve, reject, idle: null, max: null, started: Date.now() };
+        pending.current = p;
+        p.max = setTimeout(() => { if (pending.current === p) { rejectPending(new EngineError("ANALYSIS_TIMEOUT", "The analysis took too long and was stopped.", `over ${ENGINE_TIMEOUTS.analysisMaxMs} ms`)); web.current?.postMessage(JSON.stringify({ cmd: "cancel" })); setStatus({ state: "READY", detail: "Ready to analyze" }); } }, ENGINE_TIMEOUTS.analysisMaxMs);
+        touchWatchdog(p);
+        setStatus({ state: "ANALYZING", detail: kind === "pose" ? "Analysing your walk" : "Counting people" });
+        onProgress({ stage: "preparing", fraction: 0.02 });
+        diag.log("analysis command posted", { kind, sampleFps: opts.sampleFps ?? 10, maxSeconds: opts.maxSeconds ?? 20 });
+        web.current!.postMessage(JSON.stringify({ cmd: kind, id, uri, sampleFps: opts.sampleFps ?? 10, maxSeconds: opts.maxSeconds ?? 20 }));
+      });
+    } finally {
+      // The executor above ran synchronously, so pending.current now guards the run.
+      starting.current = false;
     }
-    if (!web.current) throw new EngineError("ENGINE_INITIALIZATION_FAILED", "The analysis engine is not available.");
-    const id = ++runId.current;
-    return new Promise<unknown>((resolve, reject) => {
-      const p: Pending = { id, kind, onProgress, frames: [], meta: {}, resolve, reject, idle: null, max: null, started: Date.now() };
-      pending.current = p;
-      p.max = setTimeout(() => { if (pending.current === p) { rejectPending(new EngineError("ANALYSIS_TIMEOUT", "The analysis took too long and was stopped.", `over ${ENGINE_TIMEOUTS.analysisMaxMs} ms`)); web.current?.postMessage(JSON.stringify({ cmd: "cancel" })); setStatus({ state: "READY", detail: "Ready to analyze" }); } }, ENGINE_TIMEOUTS.analysisMaxMs);
-      touchWatchdog(p);
-      setStatus({ state: "ANALYZING", detail: kind === "pose" ? "Analysing your walk" : "Counting people" });
-      onProgress({ stage: "preparing", fraction: 0.02 });
-      diag.log("analysis command posted", { kind, sampleFps: opts.sampleFps ?? 10, maxSeconds: opts.maxSeconds ?? 20 });
-      web.current!.postMessage(JSON.stringify({ cmd: kind, id, uri, sampleFps: opts.sampleFps ?? 10, maxSeconds: opts.maxSeconds ?? 20 }));
-    });
   }, [rejectPending, setStatus, whenReady]);
 
   useImperativeHandle(ref, () => ({

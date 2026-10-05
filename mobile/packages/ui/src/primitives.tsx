@@ -28,7 +28,7 @@ export function Screen({ children, scroll = true, padded = true, refreshing, onR
   return (
     <View style={{ flex: 1, backgroundColor: t.bg }}>
       {scroll ? (
-        <ScrollView contentContainerStyle={inner} keyboardShouldPersistTaps="handled" refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={t.accent} /> : undefined} contentInsetAdjustmentBehavior="automatic">{children}</ScrollView>
+        <ScrollView contentContainerStyle={inner} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" automaticallyAdjustKeyboardInsets refreshControl={onRefresh ? <RefreshControl refreshing={!!refreshing} onRefresh={onRefresh} tintColor={t.accent} /> : undefined} contentInsetAdjustmentBehavior="automatic">{children}</ScrollView>
       ) : <View style={[{ flex: 1 }, inner]}>{children}</View>}
       {footer ? (
         <View

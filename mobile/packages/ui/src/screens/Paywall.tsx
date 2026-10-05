@@ -21,6 +21,8 @@ export function PaywallScreen({ onClose, unlockedCount, lockedLabels }: { onClos
   const t = useTheme(); const app = useApp(); const insets = useSafeAreaInsets();
   const skus = SUBSCRIPTIONS[app.product];
   const b = app.billing;
+  const store = app.billingProvider.storeLabel ?? "the store";
+  const isDev = app.billingProvider.name === "dev";
   useEffect(() => { analytics.track("paywall_opened", { product: app.product }); }, [app.product]);
 
   const product = (plan: Plan) => b.products.find((p) => p.plan === plan);
@@ -36,8 +38,8 @@ export function PaywallScreen({ onClose, unlockedCount, lockedLabels }: { onClos
   const footer = (
     <View style={{ gap: space.sm }}>
       {app.isPro ? <Button label="You have Pro" kind="secondary" onPress={onClose} />
-        : pending ? <Button label="Purchase pending with Google Play" disabled onPress={() => {}} />
-        : loadingPlans ? <Button label="Loading plans from Google Play" disabled loading onPress={() => {}} />
+        : pending ? <Button label={`Purchase pending with ${store}`} disabled onPress={() => {}} />
+        : loadingPlans ? <Button label={`Loading plans from ${store}`} disabled loading onPress={() => {}} />
         : noPlans ? <Button label="Subscriptions not available" disabled onPress={() => {}} />
         : <>
           {yearly ? <Button kind="premium" label={`Continue with yearly · ${priceLine(yearly)}`} onPress={() => buy("yearly")} loading={busy} /> : null}
@@ -57,16 +59,16 @@ export function PaywallScreen({ onClose, unlockedCount, lockedLabels }: { onClos
         <Card style={{ gap: 8 }}>{BENEFITS.map((bn) => <Row key={bn} gap={10}><Text color={t.premium}>✓</Text><Text>{bn}</Text></Row>)}</Card>
 
         {yearly || monthly ? (
-          <Card style={{ gap: space.md }} accessibilityLabel="Plans and prices from Google Play">
+          <Card style={{ gap: space.md }} accessibilityLabel={`Plans and prices from ${store}`}>
             <PlanRow name="Yearly" product={yearly} badge={savings ? `BEST VALUE · SAVE ${savings}%` : "BEST VALUE"} />
             <Divider />
             <PlanRow name="Monthly" product={monthly} />
-            <Text variant="small" color={t.mute}>Prices, currency and billing period are set by Google Play for your country and shown exactly as Play reports them.</Text>
+            <Text variant="small" color={t.mute}>Prices, currency and billing period are set by {store} for your country and shown exactly as the store reports them.</Text>
           </Card>
         ) : (
           <Card tone="flat" style={{ gap: space.xs }}>
-            <Text variant="bodyStrong">{loadingPlans ? "Loading plans from Google Play…" : "Plans are not available right now"}</Text>
-            <Text variant="mute">{loadingPlans ? "Prices and billing periods come from Google Play; nothing is set in the app." : b.message ?? "Google Play did not return any subscription plans for this app."}</Text>
+            <Text variant="bodyStrong">{loadingPlans ? `Loading plans from ${store}…` : "Plans are not available right now"}</Text>
+            <Text variant="mute">{loadingPlans ? `Prices and billing periods come from ${store}; nothing is set in the app.` : b.message ?? `${store} did not return any subscription plans for this app.`}</Text>
           </Card>
         )}
 
@@ -76,17 +78,17 @@ export function PaywallScreen({ onClose, unlockedCount, lockedLabels }: { onClos
         {b.status === "restored" || (b.status === "purchased" && b.message) ? <Text color={t.success}>{b.message}</Text> : null}
         {app.entitlementStatus === "EXPIRED" ? <Text variant="mute">{describeEntitlement(app.entitlement).body}</Text> : null}
         {app.entitlementStatus === "UNKNOWN" ? <Text variant="mute">{describeEntitlement(app.entitlement).body}</Text> : null}
-        {app.billingProvider.name === "dev" && b.message ? <Text variant="mute">{b.message}</Text> : null}
+        {isDev && b.message ? <Text variant="mute">{b.message}</Text> : null}
 
         <Row style={{ justifyContent: "space-between" }}>
-          <Button kind="ghost" label="Restore purchases" onPress={() => app.restore()} disabled={busy || (b.status === "unavailable" && app.billingProvider.name === "play")} />
-          <Button kind="ghost" label="Manage subscription" onPress={() => app.manageSubscription()} disabled={app.billingProvider.name === "dev"} />
+          <Button kind="ghost" label="Restore purchases" onPress={() => app.restore()} disabled={busy || (b.status === "unavailable" && !isDev)} />
+          <Button kind="ghost" label="Manage subscription" onPress={() => app.manageSubscription()} disabled={isDev} />
         </Row>
         <Row style={{ justifyContent: "center" }} gap={space.lg}>
           <Button kind="ghost" label="Terms" onPress={() => Linking.openURL("https://gaitai.in/legal/terms/")} />
           <Button kind="ghost" label="Privacy" onPress={() => Linking.openURL("https://gaitai.in/legal/privacy/")} />
         </Row>
-        <Text variant="mute" style={{ textAlign: "center" }}>Safety-relevant messages are never behind Pro. Subscriptions renew automatically and can be cancelled any time from Google Play.</Text>
+        <Text variant="mute" style={{ textAlign: "center" }}>Safety-relevant messages are never behind Pro. Subscriptions renew automatically and can be cancelled any time from {store}.</Text>
       </View>
     </Screen>
   );

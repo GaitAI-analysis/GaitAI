@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Alert, Linking, Switch, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
-import { describeEntitlement } from "@gaitai/billing";
+import { describeEntitlement, storeLabelFor } from "@gaitai/billing";
 import { productMeta, radius, space, type as typeScale } from "@gaitai/design-system";
 import { useApp } from "../app-state";
 import { Button, Card, Chip, Divider, Row, Screen, SectionTitle, Text } from "../primitives";
@@ -36,7 +36,7 @@ export function ProfileScreen() {
       <Card onPress={() => router.push("/paywall" as never)} style={{ gap: 6 }}>
         <Row style={{ justifyContent: "space-between" }}><Text variant="bodyStrong">{sub.title}</Text><Chip tone={subTone} label={subChip} /></Row>
         <Text variant="mute">{subBody}</Text>
-        {ent.source === "play-billing" && ent.checkedAt ? <Text variant="small" color={t.mute}>Last confirmed by Google Play {new Date(ent.checkedAt).toLocaleString()}</Text> : null}
+        {(ent.source === "play-billing" || ent.source === "app-store") && ent.checkedAt ? <Text variant="small" color={t.mute}>Last confirmed by {storeLabelFor(ent.source)} {new Date(ent.checkedAt).toLocaleString()}</Text> : null}
       </Card>
       <SectionTitle>Privacy</SectionTitle>
       <Card style={{ gap: space.sm }}>

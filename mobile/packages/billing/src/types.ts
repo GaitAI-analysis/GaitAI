@@ -46,7 +46,10 @@ export interface BillingState {
 }
 
 export interface BillingProvider {
-  readonly name: "play" | "dev";
+  /** play = Google Play Billing, apple = App Store / StoreKit, dev = development entitlement. */
+  readonly name: "play" | "apple" | "dev";
+  /** Human name of the store for copy ("Google Play", "the App Store"); undefined for dev. */
+  readonly storeLabel?: string;
   init(): Promise<BillingState>;
   purchase(productId: string): Promise<BillingState>;
   restore(): Promise<BillingState>;
@@ -88,19 +91,23 @@ export function yearlySavingsPercent(monthly?: StoreProduct, yearly?: StoreProdu
   return pct > 0 ? pct : null;
 }
 
+/** The store a verdict came from, for copy. */
+export const storeLabelFor = (source: Entitlement["source"]): string => (source === "app-store" ? "the App Store" : "Google Play");
+
 /** Copy for the Profile card and the paywall, by entitlement status. */
 export function describeEntitlement(e: Entitlement): { title: string; body: string } {
+  const store = storeLabelFor(e.source);
   switch (e.status) {
     case "PRO":
       return e.source === "dev"
         ? { title: "GaitAI Pro · development entitlement", body: "Development entitlement. Not a purchase; never present in release builds." }
-        : { title: "GaitAI Pro", body: e.reason ?? "Active through Google Play." };
+        : { title: "GaitAI Pro", body: e.reason ?? `Active through ${store}.` };
     case "PENDING":
-      return { title: "Pro purchase pending", body: e.reason ?? "Google Play is still confirming the payment. Pro unlocks automatically once it clears." };
+      return { title: "Pro purchase pending", body: e.reason ?? `${store} is still confirming the payment. Pro unlocks automatically once it clears.` };
     case "EXPIRED":
-      return { title: "Pro has ended", body: e.reason ?? "This subscription is no longer active. Resubscribe from the paywall or Google Play to continue." };
+      return { title: "Pro has ended", body: e.reason ?? `This subscription is no longer active. Resubscribe from the paywall or ${store} to continue.` };
     case "UNKNOWN":
-      return { title: "Subscription not verified", body: e.reason ?? "Google Play could not be reached to confirm a subscription. Pro stays locked until it can be checked." };
+      return { title: "Subscription not verified", body: e.reason ?? `${store} could not be reached to confirm a subscription. Pro stays locked until it can be checked.` };
     default:
       return { title: "Free", body: "Cadence and step-time balance are included. Pro adds the full analysis." };
   }

@@ -136,7 +136,7 @@ export interface UserProfile {
 }
 
 export type EntitlementTier = "free" | "pro";
-export type EntitlementSource = "none" | "play-billing" | "dev";
+export type EntitlementSource = "none" | "play-billing" | "app-store" | "dev";
 /**
  * The entitlement layer's verdict. Only PRO unlocks premium values (see gate.ts);
  * the other states say why not, so screens can explain instead of just hiding.

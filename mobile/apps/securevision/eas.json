@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "local",
+    "promptToConfigurePushNotifications": false
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": { "simulator": false }
+    },
+    "preview": {
+      "distribution": "internal",
+      "ios": { "simulator": false }
+    },
+    "testflight": {
+      "distribution": "store",
+      "autoIncrement": false,
+      "ios": { "image": "latest", "resourceClass": "m-medium" }
+    }
+  },
+  "submit": {
+    "testflight": {
+      "ios": { "ascAppId": "SET_IN_APP_STORE_CONNECT_STEP" }
+    }
+  }
+}

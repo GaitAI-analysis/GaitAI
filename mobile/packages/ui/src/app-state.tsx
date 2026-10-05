@@ -6,7 +6,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { AppState as RNAppState, Linking } from "react-native";
 import { analytics, devStore, entitlementStore, gate, isEntitled, profileStore, sessionStore, type AnalysisSession, type Entitlement, type EntitlementStatus, type ProductId, type ResultView, type UserProfile } from "@gaitai/core";
-import { DevEntitlementProvider, FREE_ENTITLEMENT, PlayBillingProvider, SUBSCRIPTIONS, type BillingProvider, type BillingState } from "@gaitai/billing";
+import { DevEntitlementProvider, FREE_ENTITLEMENT, StoreBillingProvider, SUBSCRIPTIONS, type BillingProvider, type BillingState } from "@gaitai/billing";
 import { productMeta } from "@gaitai/design-system";
 import { AnalysisEngine, diag, type EngineHandle, type EngineStatus } from "@gaitai/analysis";
 
@@ -61,9 +61,10 @@ export function AppProvider({ product, children }: { product: ProductId; childre
   const [engineStatus, setEngineStatus] = useState<EngineStatus>(INITIAL_ENGINE);
 
   const billingProvider = useMemo<BillingProvider>(() => {
-    // The DEV entitlement exists only in development builds; release builds always talk to Play.
+    // The DEV entitlement exists only in development builds; release builds always talk to the
+    // platform's store (Google Play Billing on Android, StoreKit on iOS).
     if (__DEV__) return new DevEntitlementProvider(devStore.pro);
-    return new PlayBillingProvider({
+    return new StoreBillingProvider({
       packageName: productMeta[product].packageId,
       productIds: SUBSCRIPTIONS[product],
       persist: entitlementStore,

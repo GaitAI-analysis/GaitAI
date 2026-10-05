@@ -93,10 +93,37 @@ type Pending = {
 type Waiter = { resolve: () => void; reject: (e: EngineError) => void; timer: ReturnType<typeof setTimeout> };
 type Page = { uri: string; assets: Record<Exclude<EngineAssetKey, "page">, string> };
 
-/** Copies a content:// or ph:// picker URI into app cache as a plain file the WebView can read. */
+/** The one directory the hidden WebView may read: engine files, picked and recorded clips all live under it. */
+export const ENGINE_READ_ROOT = FileSystem.cacheDirectory ?? "";
+const ENGINE_DIR = `${ENGINE_READ_ROOT}gaitai-engine/`;
+
+/**
+ * Makes a clip readable by the engine page. content:// and ph:// picker URIs
+ * are copied into the app cache; a file:// URI outside the cache (an iOS
+ * picker temp dir, a shared folder) is copied too, because WKWebView only
+ * reads files under the directory it was granted (ENGINE_READ_ROOT).
+ */
 export async function localizeVideo(uri: string): Promise<string> {
-  if (uri.startsWith("file://")) return uri;
-  const dest = `${FileSystem.cacheDirectory}gaitai-input-${Date.now()}.mp4`;
+  if (uri.startsWith("file://") && ENGINE_READ_ROOT && uri.startsWith(ENGINE_READ_ROOT)) return uri;
+  const dest = `${ENGINE_READ_ROOT}gaitai-input-${Date.now()}.mp4`;
+  await FileSystem.copyAsync({ from: uri, to: dest });
+  return dest;
+}
+
+/**
+ * Where an extracted asset should be read from. Android extracts bundled
+ * assets into the cache already; iOS resolves them inside the .app bundle,
+ * which the WebView cannot read next to the clip, so they are copied once
+ * (by size) into the cache's engine directory.
+ */
+async function stageEngineFile(key: string, uri: string, size: number): Promise<string> {
+  if (ENGINE_READ_ROOT && uri.startsWith(ENGINE_READ_ROOT)) return uri;
+  await FileSystem.makeDirectoryAsync(ENGINE_DIR, { intermediates: true }).catch(() => {});
+  const ext = uri.split("?")[0].split(".").pop() ?? "bin";
+  const dest = `${ENGINE_DIR}${key}.${ext}`;
+  const have = await FileSystem.getInfoAsync(dest);
+  if (have.exists && (have as { size?: number }).size === size) return dest;
+  await FileSystem.deleteAsync(dest, { idempotent: true });
   await FileSystem.copyAsync({ from: uri, to: dest });
   return dest;
 }
@@ -167,9 +194,10 @@ export const AnalysisEngine = forwardRef<EngineHandle, { product: "mobilitycare"
           const uri = asset.localUri ?? asset.uri;
           if (!uri || !uri.startsWith("file://")) throw new Error(`no local file for ${key}`);
           const info = await FileSystem.getInfoAsync(uri);
-          if (!info.exists || !(info as { size?: number }).size) throw new Error(`${key} extracted empty`);
-          local[key] = uri;
-          diag.log("asset ready", { key, bytes: (info as { size?: number }).size ?? null, elapsedMs: Date.now() - t0 });
+          const size = (info as { size?: number }).size ?? 0;
+          if (!info.exists || !size) throw new Error(`${key} extracted empty`);
+          local[key] = await stageEngineFile(key, uri, size);
+          diag.log("asset ready", { key, bytes: size, staged: local[key] !== uri, elapsedMs: Date.now() - t0 });
         } catch (e) {
           diag.error("asset failed", { key, message: e instanceof Error ? e.message : String(e) });
           throw new EngineError(key === "page" || key === "wasm" ? "ENGINE_INITIALIZATION_FAILED" : "MODEL_ASSET_MISSING", key === "page" || key === "wasm" ? "The engine files could not be prepared on this phone." : "A model file could not be prepared on this phone.", e instanceof Error ? e.message : String(e));
@@ -332,6 +360,10 @@ export const AnalysisEngine = forwardRef<EngineHandle, { product: "mobilitycare"
     fail("ENGINE_INITIALIZATION_FAILED", wasAnalysing ? "The analysis engine ran out of memory or was stopped by the system." : "The analysis engine stopped unexpectedly.", `renderer gone, didCrash=${e.nativeEvent.didCrash}`);
     if (!wasAnalysing && autoRetries.current < 1 && live.current) { autoRetries.current++; diag.log("auto re-initialising after renderer loss"); setAttempt((a) => a + 1); }
   }, [fail]);
+  // iOS: WKWebView's content process was killed (memory pressure, background). Same recovery as Android.
+  const onContentProcessDidTerminate = useCallback(() => {
+    onRenderProcessGone({ nativeEvent: { didCrash: true } });
+  }, [onRenderProcessGone]);
   const onError = useCallback((e: { nativeEvent: { description?: string; code?: number } }) => {
     fail("ENGINE_INITIALIZATION_FAILED", "The analysis engine page could not be loaded.", `${e.nativeEvent.code ?? ""} ${e.nativeEvent.description ?? ""}`.trim());
   }, [fail]);
@@ -347,6 +379,9 @@ export const AnalysisEngine = forwardRef<EngineHandle, { product: "mobilitycare"
         allowFileAccess
         allowFileAccessFromFileURLs
         allowUniversalAccessFromFileURLs
+        // iOS: loadFileURL(_:allowingReadAccessTo:) — the page, the runtime, the models and the
+        // clip are all under the cache directory, so one grant covers every file:// read.
+        allowingReadAccessToURL={ENGINE_READ_ROOT}
         allowsInlineMediaPlayback
         mediaPlaybackRequiresUserAction={false}
         javaScriptEnabled
@@ -357,6 +392,7 @@ export const AnalysisEngine = forwardRef<EngineHandle, { product: "mobilitycare"
         onMessage={onMessage}
         onError={onError}
         onRenderProcessGone={onRenderProcessGone}
+        onContentProcessDidTerminate={onContentProcessDidTerminate}
         onLoadEnd={() => diag.log("engine page loaded", { attempt })}
         style={{ width: 1, height: 1, backgroundColor: "transparent" }}
       />

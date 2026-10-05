@@ -1,9 +1,11 @@
 /**
- * Billing: Google Play Billing behind one interface, with a clearly marked
- * development entitlement that can never be mistaken for a purchase.
+ * Billing: the store's in-app purchase system behind one interface, with a
+ * clearly marked development entitlement that can never be mistaken for a
+ * purchase.
  *
  * - types.ts  shared types, product IDs, price/period helpers, entitlement copy
- * - play.ts   PlayBillingProvider (expo-iap / Play Billing Library)
+ * - store.ts  StoreBillingProvider — Google Play Billing (Android) and Apple
+ *             StoreKit (iOS) through expo-iap; the platform picks itself
  * - dev.ts    DevEntitlementProvider (development builds only)
  *
  * States the app has to render (all of them reachable through `BillingState`):
@@ -13,7 +15,7 @@
  */
 export * from "./types";
 export { DevEntitlementProvider } from "./dev";
-export { PlayBillingProvider, OFFLINE_GRACE_MS, toStoreProduct, type PlayBillingConfig } from "./play";
+export { StoreBillingProvider, OFFLINE_GRACE_MS, STORE_KIND, STORE_LABEL, toStoreProduct, toStoreProductAndroid, toStoreProductIOS, type StoreBillingConfig, type StoreKind } from "./store";
 
 import { isEntitled } from "@gaitai/core";
 import type { Entitlement } from "@gaitai/core";

@@ -1,7 +1,7 @@
 # Google Play Billing — Internal Testing runbook
 
 Status 2026-10-05: the apps talk to Play Billing for real (`@gaitai/billing` →
-`PlayBillingProvider` on expo-iap 5.8 / Play Billing Library via OpenIAP). Nothing is
+`StoreBillingProvider (Android path)` on expo-iap 5.8 / Play Billing Library via OpenIAP). Nothing is
 published publicly; the target is **Internal testing → install from Google Play → real test
 purchase → Pro unlocks → restore works**. Production release is a separate decision.
 
@@ -9,7 +9,7 @@ purchase → Pro unlocks → restore works**. Production release is a separate d
 
 | Step | Where | Behaviour |
 |---|---|---|
-| Connect | `play.ts` `connect()` | `initConnection()`; one automatic reconnect on service-disconnected / not-prepared / connection-closed / timeout. Billing-unavailable devices get a clear message and the paywall says "Subscriptions not available". |
+| Connect | `store.ts` `connect()` | `initConnection()`; one automatic reconnect on service-disconnected / not-prepared / connection-closed / timeout. Billing-unavailable devices get a clear message and the paywall says "Subscriptions not available". |
 | Products | `loadProducts()` | `fetchProducts({ type: "subs" })` for the two product IDs. Price, currency, billing period and any trial/intro offer are read from Play's pricing phases. Nothing is hardcoded; a product without a recurring phase is dropped, never priced by the app. |
 | Entitlement | `syncEntitlement()` | `getAvailablePurchases()` → PRO (purchased, acknowledged if needed), PENDING (slow payment), EXPIRED (previously known, no longer active, or payment-suspended), FREE, UNKNOWN (store unreachable, nothing recent cached). A store-confirmed PRO keeps unlocking for 72 h offline. Persisted via `entitlementStore`; refreshed on every app foreground. |
 | Purchase | `purchase()` | Play's sheet via `requestPurchase` with the offer token. Outcome from the purchase listeners: purchased → acknowledge → PRO; pending → PENDING; user-cancelled → "cancelled"; already-owned → restore; anything else → "failed" with Play's message. A sheet left open 10 minutes resolves as failed. |

@@ -1,19 +1,25 @@
 # Builds one GaitAI native app on Windows, working around the 260-character
 # path limit that breaks React Native's C++ build under a deep repository path.
 #
-#   powershell -File mobile\scripts\win-build.ps1 mobilitycare [assembleRelease|assembleDebug]
+#   powershell -File mobile\scripts\win-build.ps1 mobilitycare [assembleRelease|assembleDebug|bundleRelease]
 #
 # What it does:
 #   1. Creates a short junction C:\gm -> <repo>\mobile (no admin needed).
 #   2. Runs `expo prebuild` if android/ is missing, then points AGP's C++ staging
-#      directory at C:\gx\<app> so object-file paths stay well under 260 chars.
+#      directory at C:\gx\<app> so object-file paths stay well under 260 chars,
+#      and adds the Play upload signing config (used by bundleRelease only).
 #   3. Applies conservative Gradle memory settings and builds with 2 workers.
-#   4. Copies the APK to android-builds\GaitAI-<Name>-native-debug.apk
-#      (release variant, JS bundled, signed with the debug key = installable
-#      test build; not a Play release).
+#   4. Copies the output:
+#        assembleRelease -> android-builds\GaitAI-<Name>-native-debug.apk
+#                           (release variant, JS bundled, DEBUG-signed = sideloadable test build)
+#        bundleRelease   -> android-builds\GaitAI-<Name>-internal.aab
+#                           (signed with the upload key in ~/.gaitai-keys for Play Internal Testing)
+#
+# Signing material never enters the repository: ~/.gaitai-keys/upload-keystore.properties
+# (storeFile, storePassword, keyAlias, keyPassword) points at the .jks beside it.
 param(
   [Parameter(Mandatory = $true)][ValidateSet("mobilitycare", "securevision")][string]$App,
-  [string]$Task = "assembleRelease"
+  [ValidateSet("assembleRelease", "assembleDebug", "bundleRelease")][string]$Task = "assembleRelease"
 )
 $ErrorActionPreference = "Stop"
 $Repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -32,12 +38,49 @@ $AppDir = "C:\gm\apps\$App"
 $Android = "$AppDir\android"
 
 # 2. Native project.
-if (-not (Test-Path "$Android\gradlew.bat")) { Push-Location $AppDir; npx expo prebuild --platform android --no-install; Pop-Location }
-"sdk.dir=" + ($env:ANDROID_HOME -replace "\\", "\\") | Out-File "$Android\local.properties" -Encoding ascii
+if (-not (Test-Path "$Android\gradlew.bat")) {
+  # Native tools print warnings on stderr; under "Stop" PowerShell 5.1 would abort on the first one.
+  $ErrorActionPreference = "Continue"
+  Push-Location $AppDir; npx expo prebuild --platform android --no-install; $pre = $LASTEXITCODE; Pop-Location
+  $ErrorActionPreference = "Stop"
+  if ($pre -ne 0) { throw "expo prebuild failed with exit code $pre" }
+}
+"sdk.dir=" + $env:ANDROID_HOME.Replace([char]92, [char]47) | Out-File "$Android\local.properties" -Encoding ascii
 New-Item -ItemType Directory -Force "C:\gx\$App" | Out-Null
 $gradle = Get-Content "$Android\app\build.gradle" -Raw
+$changed = $false
 if ($gradle -notmatch "buildStagingDirectory") {
   $gradle += "`n// Windows: keep C++ intermediate paths short (MAX_PATH). Added by mobile/scripts/win-build.ps1.`nandroid { externalNativeBuild { cmake { buildStagingDirectory `"C:/gx/$App`" } } }`n"
+  $changed = $true
+}
+if ($gradle -notmatch "gaitaiUpload") {
+  # Play upload signing, only when GAITAI_PLAY_SIGNING=1 (set below for bundleRelease), so
+  # assembleRelease keeps producing the debug-signed sideload APK the team already installs.
+  $gradle += @"
+
+// Play upload signing. Added by mobile/scripts/win-build.ps1. Reads
+// ~/.gaitai-keys/upload-keystore.properties (never in the repository) when
+// GAITAI_PLAY_SIGNING=1; otherwise the release build type stays debug-signed.
+def gaitaiUploadFile = new File(System.getProperty("user.home"), ".gaitai-keys/upload-keystore.properties")
+if (System.getenv("GAITAI_PLAY_SIGNING") == "1" && gaitaiUploadFile.exists()) {
+    def gaitaiUploadProps = new Properties()
+    gaitaiUploadFile.withInputStream { gaitaiUploadProps.load(it) }
+    android {
+        signingConfigs {
+            gaitaiUpload {
+                storeFile file(gaitaiUploadProps["storeFile"])
+                storePassword gaitaiUploadProps["storePassword"]
+                keyAlias gaitaiUploadProps["keyAlias"]
+                keyPassword gaitaiUploadProps["keyPassword"]
+            }
+        }
+        buildTypes { release { signingConfig signingConfigs.gaitaiUpload } }
+    }
+}
+"@
+  $changed = $true
+}
+if ($changed) {
   # Written without a BOM: Gradle rejects a build file that starts with one.
   [IO.File]::WriteAllText("$Android\app\build.gradle", $gradle, (New-Object System.Text.UTF8Encoding($false)))
 }
@@ -60,19 +103,33 @@ Set-Content $props $p -Encoding ascii
 # shared package or to packages/analysis/engine/engine.html leaves it UP-TO-DATE
 # and the previous bundle and assets are packaged again. Clear its outputs so the
 # bundle and assets are always rebuilt from the current sources (about a minute).
-Remove-Item -Recurse -Force "$Android\app\build\generated\assets\react", "$Android\app\build\generated\res\react" -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force "$Android\app\build\generated\assets\react" -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force "$Android\app\build\generated\res\react" -ErrorAction SilentlyContinue
+$env:GAITAI_PLAY_SIGNING = if ($Task -eq "bundleRelease") { "1" } else { "0" }
+if ($Task -eq "bundleRelease" -and -not (Test-Path "$env:USERPROFILE\.gaitai-keys\upload-keystore.properties")) {
+  throw "bundleRelease needs ~/.gaitai-keys/upload-keystore.properties (see the header of this script)."
+}
 Push-Location $Android
 # lintVital runs a second analysis pass over every module at release time and
 # was the step that pushed this 15 GB machine into memory pressure; it is
 # skipped for local test builds (Play builds run it in CI with more memory).
+$ErrorActionPreference = "Continue"
 & .\gradlew.bat $Task --no-daemon --max-workers=2 -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease
 $code = $LASTEXITCODE
+$ErrorActionPreference = "Stop"
 Pop-Location
 if ($code -ne 0) { throw "Gradle failed with exit code $code" }
 
-$variant = if ($Task -match "Debug") { "debug" } else { "release" }
-$apk = Get-ChildItem "$Android\app\build\outputs\apk\$variant" -Filter *.apk | Select-Object -First 1
-$suffix = if ($variant -eq "debug") { "native-devclient" } else { "native-debug" }
-$dest = Join-Path $Repo "android-builds\$Label-$suffix.apk"
-Copy-Item $apk.FullName $dest -Force
-Write-Host "APK: $dest ($([math]::Round($apk.Length / 1MB, 1)) MB)"
+if ($Task -eq "bundleRelease") {
+  $aab = Get-ChildItem "$Android\app\build\outputs\bundle\release" -Filter *.aab | Select-Object -First 1
+  $dest = Join-Path $Repo "android-builds\$Label-internal.aab"
+  Copy-Item $aab.FullName $dest -Force
+  Write-Host "AAB: $dest ($([math]::Round($aab.Length / 1MB, 1)) MB), signed with the upload key"
+} else {
+  $variant = if ($Task -match "Debug") { "debug" } else { "release" }
+  $apk = Get-ChildItem "$Android\app\build\outputs\apk\$variant" -Filter *.apk | Select-Object -First 1
+  $suffix = if ($variant -eq "debug") { "native-devclient" } else { "native-debug" }
+  $dest = Join-Path $Repo "android-builds\$Label-$suffix.apk"
+  Copy-Item $apk.FullName $dest -Force
+  Write-Host "APK: $dest ($([math]::Round($apk.Length / 1MB, 1)) MB)"
+}

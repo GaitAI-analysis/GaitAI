@@ -7,7 +7,7 @@
  * and are kept in a separate key, so a production build never sees them.
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import type { AnalysisSession, UserProfile } from "./schema";
+import type { AnalysisSession, Entitlement, UserProfile } from "./schema";
 import { makeId } from "./schema";
 
 const K = {
@@ -17,6 +17,7 @@ const K = {
   devPro: "gaitai.dev.pro.v1",
   demoMode: "gaitai.dev.demoMode.v1",
   events: "gaitai.analytics.v1",
+  entitlement: "gaitai.entitlement.v1",
 } as const;
 
 async function readJson<T>(key: string, fallback: T): Promise<T> {
@@ -65,7 +66,7 @@ export const profileStore = {
     const cur = await this.get(); const next = { ...cur, ...patch }; await writeJson(K.profile, next); return next;
   },
   async deleteAccount(): Promise<void> {
-    await AsyncStorage.multiRemove([K.profile, K.sessions, K.demoSessions, K.devPro, K.demoMode, K.events]);
+    await AsyncStorage.multiRemove([K.profile, K.sessions, K.demoSessions, K.devPro, K.demoMode, K.events, K.entitlement]);
   },
 };
 
@@ -74,10 +75,23 @@ export const devStore = {
   demoMode: { get: () => readJson<boolean>(K.demoMode, false), set: (v: boolean) => writeJson(K.demoMode, v) },
 };
 
+/**
+ * The last verdict the store gave. The billing layer reads it to tell EXPIRED
+ * from FREE (a subscription that vanished vs. one that never existed) and to
+ * bridge short offline spells. Never a grant by itself: gate() only trusts a
+ * verdict the billing layer has derived.
+ */
+export const entitlementStore = {
+  get: () => readJson<Entitlement | null>(K.entitlement, null),
+  set: (e: Entitlement) => writeJson(K.entitlement, e),
+  clear: () => AsyncStorage.removeItem(K.entitlement),
+};
+
 /** Product analytics: event names only, plus coarse context. Never metric values or media. */
 export type AnalyticsEvent =
   | "onboarding_completed" | "product_opened" | "analysis_started" | "analysis_completed" | "analysis_failed"
   | "result_viewed" | "premium_locked_metric_tapped" | "paywall_opened" | "purchase_started" | "purchase_completed"
+  | "purchase_pending" | "purchase_cancelled" | "purchase_failed" | "restore_completed"
   | "report_exported" | "session_deleted";
 
 export const analytics = {

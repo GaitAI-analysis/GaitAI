@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Alert, Linking, Switch, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { describeEntitlement } from "@gaitai/billing";
 import { productMeta, radius, space, type as typeScale } from "@gaitai/design-system";
 import { useApp } from "../app-state";
 import { Button, Card, Chip, Divider, Row, Screen, SectionTitle, Text } from "../primitives";
@@ -16,6 +17,12 @@ export function ProfileScreen() {
   const deleteAccount = () => Alert.alert("Delete your data on this phone?", "Every analysis, kept video and setting is removed. This cannot be undone.", [{ text: "Cancel", style: "cancel" }, { text: "Delete everything", style: "destructive", onPress: async () => { const { profileStore } = await import("@gaitai/core"); await profileStore.deleteAccount(); await app.reloadSessions(); Alert.alert("Deleted", "Your data has been removed from this phone."); } }]);
   const row = (label: string, value: boolean, onChange: (v: boolean) => void, sub?: string) => <Row style={{ justifyContent: "space-between", minHeight: 48 }}><View style={{ flex: 1 }}><Text>{label}</Text>{sub ? <Text variant="mute">{sub}</Text> : null}</View><Switch value={value} onValueChange={onChange} trackColor={{ true: t.accent }} accessibilityLabel={label} /></Row>;
 
+  // Subscription card: the entitlement layer's verdict, not just "pro or not".
+  const st = app.entitlementStatus; const ent = app.entitlement; const sub = describeEntitlement(ent);
+  const subChip = st === "PRO" ? (ent.source === "dev" ? "PRO · DEV ENTITLEMENT" : "PRO") : st;
+  const subTone = st === "PRO" ? "premium" : st === "PENDING" ? "warning" : st === "EXPIRED" ? "danger" : "neutral";
+  const subBody = st === "FREE" ? "See what Pro includes, restore a purchase, or manage your subscription." : sub.body;
+
   return (
     <Screen style={{ paddingTop: insets.top + space.md }}>
       <DemoBanner />
@@ -27,8 +34,9 @@ export function ProfileScreen() {
       </Card>
       <SectionTitle>Subscription</SectionTitle>
       <Card onPress={() => router.push("/paywall" as never)} style={{ gap: 6 }}>
-        <Row style={{ justifyContent: "space-between" }}><Text variant="bodyStrong">{app.isPro ? "GaitAI Pro" : "Free"}</Text><Chip tone={app.isPro ? "premium" : "neutral"} label={app.isPro ? (app.entitlement.source === "dev" ? "PRO · DEV ENTITLEMENT" : "PRO") : "FREE"} /></Row>
-        <Text variant="mute">{app.isPro ? (app.entitlement.source === "dev" ? "Development entitlement. Not a purchase." : `Renews via Google Play${app.entitlement.expiresAt ? ` · until ${new Date(app.entitlement.expiresAt).toLocaleDateString()}` : ""}`) : "See what Pro includes, restore a purchase, or manage your subscription."}</Text>
+        <Row style={{ justifyContent: "space-between" }}><Text variant="bodyStrong">{sub.title}</Text><Chip tone={subTone} label={subChip} /></Row>
+        <Text variant="mute">{subBody}</Text>
+        {ent.source === "play-billing" && ent.checkedAt ? <Text variant="small" color={t.mute}>Last confirmed by Google Play {new Date(ent.checkedAt).toLocaleString()}</Text> : null}
       </Card>
       <SectionTitle>Privacy</SectionTitle>
       <Card style={{ gap: space.sm }}>

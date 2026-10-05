@@ -137,8 +137,20 @@ export interface UserProfile {
 
 export type EntitlementTier = "free" | "pro";
 export type EntitlementSource = "none" | "play-billing" | "dev";
+/**
+ * The entitlement layer's verdict. Only PRO unlocks premium values (see gate.ts);
+ * the other states say why not, so screens can explain instead of just hiding.
+ *   FREE     no subscription for this account
+ *   PRO      an active subscription (or the development entitlement in dev builds)
+ *   EXPIRED  there was a subscription and the store no longer reports it active
+ *   PENDING  a purchase the store has not confirmed yet (e.g. a slow payment method)
+ *   UNKNOWN  the store could not be reached and nothing recent is cached
+ */
+export type EntitlementStatus = "FREE" | "PRO" | "EXPIRED" | "PENDING" | "UNKNOWN";
 
 export interface Entitlement {
+  status: EntitlementStatus;
+  /** Derived from status: "pro" if and only if status is PRO. Kept for older callers. */
   tier: EntitlementTier;
   source: EntitlementSource;
   productId?: string;
@@ -147,6 +159,10 @@ export interface Entitlement {
   inGracePeriod?: boolean;
   /** Purchase acknowledged but not yet granted by Play. */
   pending?: boolean;
+  /** ISO time the store last confirmed this verdict. */
+  checkedAt?: string;
+  /** One sentence for the Profile and paywall copy, written by the billing layer. */
+  reason?: string;
 }
 
 /** What free users see of a session: no premium values, only their names. */

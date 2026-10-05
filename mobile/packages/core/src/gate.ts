@@ -13,7 +13,8 @@ import type { AnalysisSession, Entitlement, Metric, ResultView } from "./schema"
 import { toLockedPreview } from "./schema";
 
 export function isEntitled(e: Entitlement): boolean {
-  if (e.tier !== "pro") return false;
+  // Both fields must agree: a PRO verdict whose tier was not derived is not trusted.
+  if (e.status !== "PRO" || e.tier !== "pro") return false;
   if (e.expiresAt && new Date(e.expiresAt).getTime() < Date.now() && !e.inGracePeriod) return false;
   return true;
 }

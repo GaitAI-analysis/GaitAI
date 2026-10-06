@@ -1,0 +1,93 @@
+{
+  "identifier" : "8C4E1B2A-6F4D-4A1B-9C3E-5D2F7A8B1C02",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "",
+    "_developerTeamID" : "",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 0,
+    "_locale" : "en_IN",
+    "_storefront" : "IND",
+    "_storeKitErrors" : [
+      { "current" : null, "enabled" : false, "name" : "Load Products" },
+      { "current" : null, "enabled" : false, "name" : "Purchase" },
+      { "current" : null, "enabled" : false, "name" : "Verification" },
+      { "current" : null, "enabled" : false, "name" : "App Store Sync" },
+      { "current" : null, "enabled" : false, "name" : "Subscription Status" },
+      { "current" : null, "enabled" : false, "name" : "App Transaction" },
+      { "current" : null, "enabled" : false, "name" : "Manage Subscriptions Sheet" },
+      { "current" : null, "enabled" : false, "name" : "Refund Request Sheet" },
+      { "current" : null, "enabled" : false, "name" : "Offer Code Redeem Sheet" }
+    ]
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21001002",
+      "localizations" : [
+
+      ],
+      "name" : "GaitAI Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "1.00",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6400000003",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "LOCAL STOREKIT TEST PRODUCT. Price is a test fixture, not a real price.",
+              "displayName" : "GaitAI Pro Monthly (test)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "securevision_pro_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pro Monthly (test fixture)",
+          "subscriptionGroupID" : "21001002",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "10.00",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "6400000004",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "LOCAL STOREKIT TEST PRODUCT. Price is a test fixture, not a real price.",
+              "displayName" : "GaitAI Pro Yearly (test)",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "securevision_pro_yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pro Yearly (test fixture)",
+          "subscriptionGroupID" : "21001002",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

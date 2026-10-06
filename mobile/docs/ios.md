@@ -108,7 +108,11 @@ exercised. "Ask to Buy" on a child sandbox account produces PENDING.
 
 ## 6. Building — this workstation cannot run Xcode
 
-Two supported paths:
+For installing on your own iPhone with a **free Apple ID** (no TestFlight, no paid Program),
+follow `ios-free-development.md`; it uses the `.dev` bundle identifiers via `app.config.js`
+so the production identifiers stay unregistered until the paid team exists.
+
+Two supported paths for store builds:
 
 **A. EAS Build (cloud, recommended).** Each app has `eas.json` with profiles `development`,
 `preview` (internal distribution) and `testflight` (store distribution). Steps, run from

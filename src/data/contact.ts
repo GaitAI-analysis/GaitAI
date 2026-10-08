@@ -1,62 +1,55 @@
 /**
  * Canonical public contact routes.
  *
- * WHY THIS FILE EXISTS. Four legal pages and the footer each hard-coded their
- * own address. This is the one place a public contact address is written, so
- * changing it is one edit rather than a search.
+ * WHY THIS FILE EXISTS. Four legal pages, the trust page, the contact section
+ * and the footer all show an address. This is the one place a public address
+ * is written, so changing it is one edit rather than a search.
  *
  * ─────────────────────────────────────────────────────────────────────────
- * THERE IS ONE PUBLIC ADDRESS, AND IT IS THE ONE THAT WORKS.
+ * THREE PUBLIC MAILBOXES ON THE COMPANY DOMAIN.
  * ─────────────────────────────────────────────────────────────────────────
  *
- * This file used to publish five role addresses on `gaitai.in` —
- * `privacy@`, `legal@`, `security@`, `responsible-ai@` and `hello@` — derived
- * from the site domain, with a standing TODO to confirm the mailboxes existed.
- * They did not. `gaitai.in` has no MX record, so every one of those addresses
- * silently discards mail; `npm run site:doctor` reports it and failed on it.
+ * `gaitai.in` has mail hosting (MX mx1/mx2.hostinger.com, SPF
+ * `include:_spf.mail.hostinger.com`, confirmed by DNS lookup on 2026-10-08),
+ * and the company provisioned three role mailboxes for the public:
  *
- * A dead privacy address is worse than no address: a reader exercising a
- * data-subject right gets silence and has no way to know it. So the role
- * addresses are gone — not commented out, not kept behind a flag, not
- * constructed from DOMAIN. They are not written anywhere in this repository,
- * because a string that exists is a string that eventually renders.
+ *   contact@gaitai.in   general enquiries, and every policy/legal purpose below
+ *   demo@gaitai.in      demo, pilot and commercial conversations
+ *   support@gaitai.in   technical and customer support
  *
- * Every purpose below now resolves to PUBLIC_CONTACT_EMAIL, which is a
- * verified, monitored mailbox — the same account the comment-moderation rules
- * in `firestore.rules` and `src/lib/comments/config.ts` already trust as the
- * site's owner.
+ * Earlier this file published a personal Gmail inbox because the domain had no
+ * MX record and every `@gaitai.in` address silently discarded mail. That is no
+ * longer true; `npm run site:doctor` checks the MX record on every run and
+ * will fail again if it disappears.
+ *
+ * NEVER PUBLISH A PERSON'S MAILBOX. Individual `@gaitai.in` accounts are
+ * internal aliases. They do not appear in this file, the footer, metadata or
+ * structured data. A role mailbox survives staff changes; a name does not.
  *
  * ─────────────────────────────────────────────────────────────────────────
- * WHY THE PURPOSE KEYS SURVIVE, POINTING AT ONE ADDRESS.
+ * WHY THE PURPOSE KEYS SURVIVE, MOSTLY POINTING AT ONE ADDRESS.
  * ─────────────────────────────────────────────────────────────────────────
  *
- * Collapsing the call sites to a single constant would have been fewer lines
- * and worse. Each surface still declares WHICH channel it means, so when
- * `gaitai.in` gets mail hosting, a real `privacy@` mailbox is a one-line
- * change here that moves only the privacy page — rather than a hunt through
- * four legal pages to work out which of them meant "legal" and which meant
- * "security". The keys are the migration plan.
- *
- * MIGRATING LATER — the order matters:
- *   1. Configure MX / mail hosting for gaitai.in and provision the mailbox.
- *   2. Send a test message to it and confirm a human receives it.
- *   3. Only then point that one key at it here.
- * Do not add an address to this file that has not had step 2 done. That is
- * the mistake this file is a correction of.
+ * Each surface declares WHICH channel it means. If a dedicated `privacy@` or
+ * `security@` mailbox is ever provisioned, it is a one-line change here that
+ * moves only that page. Before pointing a key at a new mailbox, send it a test
+ * message and confirm a person receives it.
  */
 
-/**
- * The verified working public mailbox. One address, one definition.
- *
- * Not on the site domain, deliberately: `gaitai.in` cannot receive mail, and
- * an address that looks more official while going nowhere is the worse of the
- * two options.
- */
-export const PUBLIC_CONTACT_EMAIL = "gait.ai.founder@gmail.com";
+/** General enquiries. The address Organization structured data publishes. */
+export const PUBLIC_CONTACT_EMAIL = "contact@gaitai.in";
+/** Demo, pilot and commercial conversations. */
+export const DEMO_EMAIL = "demo@gaitai.in";
+/** Technical and customer support. */
+export const SUPPORT_EMAIL = "support@gaitai.in";
 
 export const contact = {
   /** General enquiries. */
   general: PUBLIC_CONTACT_EMAIL,
+  /** Demo requests, pilots and commercial terms. */
+  demo: DEMO_EMAIL,
+  /** Technical and customer support. */
+  support: SUPPORT_EMAIL,
   /** Privacy questions and data-subject requests. */
   privacy: PUBLIC_CONTACT_EMAIL,
   /** Terms, IP and the agreement that would govern a pilot. */
@@ -68,6 +61,27 @@ export const contact = {
   /** The route the footer's mail icon opens, beside the social profiles. */
   social: PUBLIC_CONTACT_EMAIL,
 } as const;
+
+/**
+ * Subject lines prefilled when a visitor opens their mail app from the
+ * footer or the contact section, so the inbox can be sorted at a glance.
+ */
+export const mailSubjects = {
+  general: "GaitAI Enquiry",
+  demo: "GaitAI Demo Request",
+  support: "GaitAI Support Request",
+} as const;
+
+/**
+ * The three direct routes in the order the footer and the contact section
+ * present them: the general address first, the commercial ask second, help
+ * last.
+ */
+export const directEmails = [
+  { key: "general", label: "Contact", address: PUBLIC_CONTACT_EMAIL, subject: mailSubjects.general },
+  { key: "demo", label: "Book a Demo", address: DEMO_EMAIL, subject: mailSubjects.demo },
+  { key: "support", label: "Support", address: SUPPORT_EMAIL, subject: mailSubjects.support },
+] as const;
 
 /**
  * The public profiles, in the order they are presented everywhere.
@@ -107,4 +121,6 @@ export const socialProfileUrls = Object.values(socialProfiles);
 /** The on-site form, which is always available as a second route. */
 export const CONTACT_FORM_HREF = "/#contact";
 
-export const mailto = (address: string) => `mailto:${address}`;
+/** `mailto:` link, with an optional prefilled subject (percent-encoded). */
+export const mailto = (address: string, subject?: string) =>
+  subject ? `mailto:${address}?subject=${encodeURIComponent(subject)}` : `mailto:${address}`;

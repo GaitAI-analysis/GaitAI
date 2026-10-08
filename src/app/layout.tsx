@@ -24,7 +24,7 @@ import { LightPointerSpot } from "@/components/layout/LightPointerSpot";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { AskGaitAI } from "@/components/assistant/AskGaitAI";
 import { assetPath } from "@/lib/paths";
-import { socialProfileUrls } from "@/data/contact";
+import { DEMO_EMAIL, PUBLIC_CONTACT_EMAIL, SUPPORT_EMAIL, socialProfileUrls } from "@/data/contact";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -168,6 +168,14 @@ export default function RootLayout({
               logo: "https://gaitai.in/brand/logo-main.png",
               description:
                 "Research-led AI platform for movement intelligence.",
+              /* Role mailboxes only (data/contact.ts); never a person's
+                 address. */
+              email: PUBLIC_CONTACT_EMAIL,
+              contactPoint: [
+                { "@type": "ContactPoint", contactType: "customer service", email: PUBLIC_CONTACT_EMAIL },
+                { "@type": "ContactPoint", contactType: "sales", email: DEMO_EMAIL },
+                { "@type": "ContactPoint", contactType: "technical support", email: SUPPORT_EMAIL },
+              ],
               sameAs: socialProfileUrls,
             }),
           }}

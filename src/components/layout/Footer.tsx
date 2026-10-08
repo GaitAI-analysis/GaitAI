@@ -5,7 +5,7 @@ import { Github, Linkedin, Mail } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { FooterGroup } from "./FooterGroup";
 import { ctas } from "@/data/content";
-import { contact, mailto, socialProfiles } from "@/data/contact";
+import { contact, directEmails, mailSubjects, mailto, socialProfiles } from "@/data/contact";
 
 /**
  * The single footer link source.
@@ -94,7 +94,7 @@ const socials: Array<{
     href: socialProfiles.linkedin,
     label: "GaitAI on LinkedIn",
   },
-  { icon: Mail, href: mailto(contact.social), label: "Email GaitAI" },
+  { icon: Mail, href: mailto(contact.social, mailSubjects.general), label: "Email GaitAI" },
   { icon: XMark, href: socialProfiles.x, label: "GaitAI on X" },
   /* Was `github.com/gaitai` — a stranger's account. See the note on
      `socialProfiles` for what it is now and why. */
@@ -151,6 +151,32 @@ export function Footer() {
                 </Link>
               ))}
             </div>
+
+            {/* THE DIRECT ROUTES. Three role mailboxes, labelled by purpose so
+                a visitor picks the right inbox without reading the address.
+                Text, not icons: the mail glyph above already says "email",
+                and three more would make the column a toolbar. Stacked on a
+                phone and beside the wordmark from `lg`; three across on a
+                tablet, where the column is the full width. `break-all` keeps
+                an address inside a narrow phone column instead of pushing the
+                page sideways. */}
+            <dl className="footer-emails mt-8 grid gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-1">
+              {directEmails.map(({ key, label, address, subject }) => (
+                <div key={key} className="min-w-0">
+                  <dt className="text-[11px] font-medium uppercase tracking-[0.16em] text-soft-mute">
+                    {label}
+                  </dt>
+                  <dd className="mt-1">
+                    <a
+                      href={mailto(address, subject)}
+                      className="inline-block break-all text-sm text-soft-gray underline decoration-transparent decoration-1 underline-offset-4 transition-colors hover:text-soft-white hover:decoration-cyan-300/60 focus-visible:text-soft-white focus-visible:decoration-cyan-300/60 touch:py-1.5"
+                    >
+                      {address}
+                    </a>
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:gap-10 lg:grid-cols-4">

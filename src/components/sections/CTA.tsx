@@ -7,6 +7,7 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import { PILOT_SCOPE } from "@/data/trust";
 import { ctas } from "@/data/content";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
+import { contact, directEmails, mailSubjects, mailto } from "@/data/contact";
 
 const interestGroups = [
   {
@@ -108,6 +109,26 @@ export function CTA() {
                 Tell us about the environment and the outcome that matters
                 there, and we&apos;ll map the right product mix.
               </p>
+              {/* The two non-demo routes, for the visitor who is not here to
+                  book anything. A list rather than a <p>: mobile.css enlarges
+                  every paragraph in this intro to lead size, and these are
+                  small print. The demo address sits under the form instead,
+                  next to the action it replaces. */}
+              <ul className="contact-direct mt-5 flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-soft-mute">
+                {directEmails
+                  .filter((e) => e.key !== "demo")
+                  .map(({ key, label, address, subject }) => (
+                    <li key={key} className="min-w-0">
+                      {key === "general" ? "General enquiries" : label}:{" "}
+                      <a
+                        href={mailto(address, subject)}
+                        className="break-all text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/70"
+                      >
+                        {address}
+                      </a>
+                    </li>
+                  ))}
+              </ul>
               </div>
 
               {/* THE ORDER: signup first, pilot card second.
@@ -280,6 +301,19 @@ export function CTA() {
                   Something went wrong. Please try again.
                 </p>
               )}
+
+              {/* The same request without the form, for a visitor who would
+                  rather write. A secondary line, not a second button: the form
+                  stays the primary route and its submission is unchanged. */}
+              <p className="mt-4 text-center text-[13px] text-soft-mute">
+                Prefer email?{" "}
+                <a
+                  href={mailto(contact.demo, mailSubjects.demo)}
+                  className="break-all text-cyan-300 underline decoration-cyan-300/40 underline-offset-2 transition-colors hover:text-cyan-200 hover:decoration-cyan-200/70"
+                >
+                  {contact.demo}
+                </a>
+              </p>
 
               {/* Linked, not just named — and it says what we do with the
                   details rather than gesturing at a policy. */}

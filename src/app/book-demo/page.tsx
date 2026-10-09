@@ -1,25 +1,26 @@
 import type { Metadata } from "next";
-import { BookDemo } from "@/components/booking/BookDemo";
+import { BookingExperience } from "@/components/booking/BookingExperience";
 import styles from "@/components/booking/booking.module.css";
 
 /**
- * /book-demo — book a 15- or 30-minute meeting with GaitAI Research Labs.
+ * /book-demo — the standalone booking route, for the footer's "Schedule a
+ * Meeting", shared links and #15min / #30min deep links. The same booking
+ * component also lives inside the home page's contact section.
  *
  * Static like every other route (output: "export", trailingSlash), so it is
  * `book-demo/index.html` on GitHub Pages and survives a direct visit or a
- * refresh. The calendar itself is Cal.com's official inline embed, loaded by
- * BookDemo only after a visitor picks a meeting; there is no booking backend
- * here, and every Cal.com URL comes from `data/contact.ts`.
+ * refresh. The calendar is Cal.com's official inline embed; there is no
+ * booking backend here, and every Cal.com URL comes from `data/contact.ts`.
  */
 export const metadata: Metadata = {
   title: "Book a Demo · GaitAI",
   description:
-    "Book a 15-minute introduction or a 30-minute product demo and technical discussion with GaitAI Research Labs.",
+    "Book a 15-minute Quick Introduction or a 30-minute Product Demo & Technical Discussion with GaitAI Research Labs.",
   alternates: { canonical: "/book-demo/" },
   openGraph: {
     title: "Book a Demo · GaitAI",
     description:
-      "Book a 15-minute introduction or a 30-minute product demo and technical discussion with GaitAI Research Labs.",
+      "Book a 15-minute Quick Introduction or a 30-minute Product Demo & Technical Discussion with GaitAI Research Labs.",
     url: "/book-demo/",
   },
 };
@@ -44,7 +45,7 @@ export default function BookDemoPage() {
           </p>
         </header>
 
-        <BookDemo />
+        <BookingExperience variant="page" />
       </div>
     </section>
   );

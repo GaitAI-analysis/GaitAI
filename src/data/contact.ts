@@ -140,22 +140,28 @@ export const CAL_ORIGIN = "https://app.cal.com";
 export const CAL_EMBED_SCRIPT = `${CAL_ORIGIN}/embed/embed.js`;
 export const CAL_USERNAME = "gait-ai-kbqznq";
 
+/* Titles must match the event names in Cal.com (Event Types → title), which
+   appear on Cal.com's confirmation, the calendar invitation and the emails. */
 export const meetingTypes = [
   {
     id: "15min",
     calLink: `${CAL_USERNAME}/15min`,
     minutes: 15,
     title: "Quick Introduction",
-    description: "For initial discussions, general inquiries, and research introductions.",
+    description: "For initial conversations, project inquiries, and research introductions.",
   },
   {
     id: "30min",
     calLink: `${CAL_USERNAME}/30min`,
     minutes: 30,
     title: "Product Demo & Technical Discussion",
-    description: "For exploring MobilityCare, SecureVision, Pose Analysis, integrations, and potential collaborations.",
+    description: "Explore MobilityCare, SecureVision, Pose Analysis, technical capabilities, and potential collaborations.",
   },
 ] as const;
+
+/** Cal.com's own pages for an existing booking: cancel, reschedule, view. */
+export const calBookingUrl = (uid: string) => `https://cal.com/booking/${encodeURIComponent(uid)}`;
+export const calRescheduleUrl = (uid: string) => `https://cal.com/reschedule/${encodeURIComponent(uid)}`;
 
 export type MeetingType = (typeof meetingTypes)[number];
 /** The public Cal.com page for a meeting type: the fallback when the embed cannot load. */

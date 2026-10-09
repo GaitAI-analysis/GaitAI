@@ -8,6 +8,8 @@ import { PILOT_SCOPE } from "@/data/trust";
 import { ctas } from "@/data/content";
 import { SubscribeForm } from "@/components/subscribe/SubscribeForm";
 import { contact, directEmails, mailSubjects, mailto } from "@/data/contact";
+import { BookingExperience } from "@/components/booking/BookingExperience";
+import booking from "@/components/booking/booking.module.css";
 
 const interestGroups = [
   {
@@ -37,6 +39,9 @@ const interestGroups = [
 ];
 
 export function CTA() {
+  const [mode, setMode] = useState<"inquiry" | "schedule">("inquiry");
+  const [scheduleOpened, setScheduleOpened] = useState(false);
+  const [calendarSlot, setCalendarSlot] = useState<HTMLDivElement | null>(null);
   const [selectedInterest, setSelectedInterest] = useState("");
   const [submissionStatus, setSubmissionStatus] = useState<
     "idle" | "sending" | "success" | "error"
@@ -174,11 +179,48 @@ export function CTA() {
               </div>
             </div>
 
+            {/* TWO WAYS TO REACH US. The panel that used to be the form now
+                holds a two-way switch: the inquiry form (unchanged — same
+                Formspree endpoint, fields, validation and submit handler) or
+                meeting scheduling, which mounts the shared booking component
+                the first time it is opened. The form stays mounted while
+                hidden, so a half-written inquiry survives a look at the
+                calendar. `.contact-form` stays on the panel: mobile.css orders
+                and pads it, and the Ask GaitAI launcher steps aside for it. */}
+            <div
+              className={`contact-form relative w-full min-w-0 rounded-2xl border border-white/8 bg-obsidian-200/70 p-6 backdrop-blur-xl sm:p-8 ${booking.tokens}`}
+            >
+              <div className={booking.modeSwitch} role="group" aria-label="How would you like to reach GaitAI?">
+                <button
+                  type="button"
+                  className={booking.modeButton}
+                  aria-pressed={mode === "inquiry"}
+                  aria-controls="contact-inquiry"
+                  onClick={() => setMode("inquiry")}
+                >
+                  Send an Inquiry
+                </button>
+                <button
+                  type="button"
+                  className={booking.modeButton}
+                  aria-pressed={mode === "schedule"}
+                  aria-controls="contact-schedule"
+                  onClick={() => { setMode("schedule"); setScheduleOpened(true); }}
+                >
+                  Schedule a Meeting
+                </button>
+              </div>
+
+              <div id="contact-schedule" className={booking.modePane} hidden={mode !== "schedule"}>
+                {scheduleOpened ? <BookingExperience variant="section" calendarHost={calendarSlot} /> : null}
+              </div>
+
+            <div id="contact-inquiry" className={booking.modePane} hidden={mode !== "inquiry"}>
             <form
               action="https://formspree.io/f/xzebbzed"
               method="POST"
               onSubmit={handleSubmit}
-              className="contact-form relative w-full min-w-0 rounded-2xl border border-white/8 bg-obsidian-200/70 p-6 backdrop-blur-xl sm:p-8"
+              className="relative w-full min-w-0"
             >
               <div className="grid gap-2">
                 <label
@@ -329,6 +371,19 @@ export function CTA() {
                 Please don&apos;t include health or clinical information.
               </p>
             </form>
+            </div>
+            </div>
+
+            {/* The meeting calendar opens here, across both columns, when a
+                meeting type is chosen in the panel above (BookingExperience
+                portals it in). `order` keeps it straight after the panel in
+                the phone order set by mobile.css (intro 0, panel 1, …). */}
+            <div
+              ref={setCalendarSlot}
+              className="contact-calendar min-w-0 lg:col-span-2"
+              style={{ order: 1 }}
+              hidden={mode !== "schedule"}
+            />
           </div>
         </motion.div>
       </div>

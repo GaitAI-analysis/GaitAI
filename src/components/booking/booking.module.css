@@ -1,43 +1,46 @@
-/* /book-demo — the meeting picker and the Cal.com calendar.
+/* GaitAI meeting booking — /book-demo and the home contact section.
 
    Palette: midnight navy, graphite, off-white and the logo's restrained gold.
-   No electric blue anywhere on this page — not the site's blue gradient
-   headline, not a cyan link. Dark is the default; `:root.light` restates
-   every token, matching light-theme.css. */
+   No electric blue — not the site's blue gradient headline, not a cyan link.
+   Dark is the default; `:root.light` restates every token. */
 
-.page {
+.page,
+.experience,
+.tokens {
   --bd-ink: #f4f1ea;
   --bd-body: #c3cad6;
   --bd-mute: #8d97a8;
   --bd-gold: #c9a44c;
-  --bd-gold-soft: rgb(201 164 76 / 0.14);
+  --bd-gold-soft: rgb(201 164 76 / 0.12);
   --bd-surface: rgb(255 255 255 / 0.03);
-  --bd-surface-strong: rgb(255 255 255 / 0.05);
+  --bd-surface-strong: rgb(255 255 255 / 0.055);
   --bd-line: rgb(255 255 255 / 0.09);
-  --bd-line-strong: rgb(255 255 255 / 0.16);
+  --bd-line-strong: rgb(255 255 255 / 0.17);
   --bd-btn-bg: #f4f1ea;
   --bd-btn-ink: #0b1739;
   --bd-btn-hover: #ffffff;
-  --bd-shadow: 0 24px 60px -32px rgb(0 0 0 / 0.7);
+  --bd-shadow: 0 24px 60px -36px rgb(0 0 0 / 0.75);
 }
 
-:global(:root.light) .page {
+:global(:root.light) .page,
+:global(:root.light) .experience,
+:global(:root.light) .tokens {
   --bd-ink: #0b1220;
   --bd-body: #1c2940;
   --bd-mute: #4a5f7a;
   --bd-gold: #8a6320;
-  --bd-gold-soft: rgb(138 99 32 / 0.09);
+  --bd-gold-soft: rgb(138 99 32 / 0.08);
   --bd-surface: #ffffff;
   --bd-surface-strong: #ffffff;
   --bd-line: rgb(15 23 42 / 0.1);
-  --bd-line-strong: rgb(15 23 42 / 0.2);
+  --bd-line-strong: rgb(15 23 42 / 0.22);
   --bd-btn-bg: #0b1739;
   --bd-btn-ink: #f8f6f1;
   --bd-btn-hover: #14234f;
-  --bd-shadow: 0 24px 50px -34px rgb(11 23 57 / 0.35);
+  --bd-shadow: 0 22px 46px -34px rgb(11 23 57 / 0.32);
 }
 
-/* ── Intro ───────────────────────────────────────────────────────────── */
+/* ── /book-demo intro ─────────────────────────────────────────────────── */
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -71,34 +74,70 @@
   color: var(--bd-body);
 }
 
+/* ── Contact-section heading ──────────────────────────────────────────── */
+.sectionHead {
+  margin-bottom: 1.25rem;
+}
+
+.sectionTitle {
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-size: clamp(1.3rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--bd-ink);
+  text-wrap: balance;
+}
+
+.sectionLead {
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--bd-body);
+}
+
 /* ── Meeting options ─────────────────────────────────────────────────── */
+.experience[data-variant="page"] {
+  margin: 3rem auto 0;
+  max-width: 64rem;
+}
+
 .options {
   display: grid;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 @media (min-width: 768px) {
-  .options {
+  .options[data-variant="page"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .options[data-variant="section"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .option {
   display: flex;
   flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: left;
   border: 1px solid var(--bd-line);
-  border-radius: 1.25rem;
+  border-radius: 1rem;
   background: var(--bd-surface);
-  padding: 1.5rem;
+  padding: 1.15rem 1.2rem 1.05rem;
   box-shadow: var(--bd-shadow);
-  transition: border-color 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+  cursor: pointer;
+  transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-@media (min-width: 640px) {
-  .option {
-    padding: 1.75rem 1.75rem 1.6rem;
-  }
+.experience[data-variant="page"] .option {
+  padding: 1.5rem 1.6rem 1.35rem;
+  border-radius: 1.25rem;
 }
 
 @media (hover: hover) {
@@ -108,18 +147,40 @@
   }
 }
 
+.option:focus-visible {
+  outline: 2px solid var(--bd-gold);
+  outline-offset: 3px;
+}
+
 .option[data-active] {
-  border-color: color-mix(in srgb, var(--bd-gold) 60%, transparent);
+  border-color: color-mix(in srgb, var(--bd-gold) 62%, transparent);
   background: var(--bd-surface-strong);
   box-shadow: var(--bd-shadow), inset 0 0 0 1px var(--bd-gold-soft);
 }
 
+.optionTop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+}
+
+.optionTitle {
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.012em;
+  color: var(--bd-ink);
+}
+
+.experience[data-variant="page"] .optionTitle {
+  font-size: 1.2rem;
+}
+
 .duration {
-  align-self: flex-start;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--bd-gold) 45%, transparent);
-  background: var(--bd-gold-soft);
-  padding: 0.2rem 0.65rem;
+  white-space: nowrap;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -127,145 +188,110 @@
   color: var(--bd-gold);
 }
 
-.optionTitle {
-  margin-top: 1rem;
-  font-family: var(--font-space-grotesk), system-ui, sans-serif;
-  font-size: 1.2rem;
-  font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
-  color: var(--bd-ink);
-  text-wrap: balance;
-}
-
-.optionDash {
-  color: var(--bd-mute);
-  font-weight: 400;
-}
-
 .optionBody {
-  margin-top: 0.6rem;
   flex: 1;
-  font-size: 0.9375rem;
-  line-height: 1.6;
+  font-size: 0.875rem;
+  line-height: 1.55;
   color: var(--bd-body);
 }
 
-.optionActions {
-  margin-top: 1.4rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem 1.25rem;
+.experience[data-variant="page"] .optionBody {
+  font-size: 0.9375rem;
 }
 
-/* The one solid object on the page: off-white on navy-dark, navy on light. */
-.primary {
-  display: inline-flex;
-  min-height: 2.75rem;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  border-radius: 999px;
-  background: var(--bd-btn-bg);
-  padding: 0 1.3rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--bd-btn-ink);
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.primary:hover {
-  background: var(--bd-btn-hover);
-}
-
-.primary:active {
-  transform: scale(0.98);
-}
-
-.primary:focus-visible,
-.external:focus-visible,
-.inlineLink:focus-visible {
-  outline: 2px solid var(--bd-gold);
-  outline-offset: 3px;
-}
-
-.primary[aria-pressed="true"] {
-  background: transparent;
-  color: var(--bd-ink);
-  box-shadow: inset 0 0 0 1px var(--bd-line-strong);
-}
-
-.external {
-  display: inline-flex;
-  min-height: 2.75rem;
-  align-items: center;
-  gap: 0.3rem;
+.optionCue {
+  margin-top: 0.35rem;
   font-size: 0.8125rem;
+  font-weight: 600;
   color: var(--bd-mute);
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-underline-offset: 4px;
-  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+  transition: color 0.2s ease;
 }
 
-.external:hover {
+.option:hover .optionCue,
+.option[data-active] .optionCue {
   color: var(--bd-ink);
-  text-decoration-color: color-mix(in srgb, var(--bd-gold) 70%, transparent);
 }
 
-/* ── Calendar panel ──────────────────────────────────────────────────── */
-.panel {
-  margin-top: 1.5rem;
-  scroll-margin-top: 6rem;
-  border: 1px solid var(--bd-line);
-  border-radius: 1.25rem;
-  background: var(--bd-surface);
-  box-shadow: var(--bd-shadow);
+/* ── The calendar reveal: height + fade, no layout jump ──────────────── */
+.reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+}
+
+.reveal[data-open] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.revealInner {
+  min-height: 0;
   overflow: hidden;
 }
 
-.panel[hidden] {
-  display: none;
+.reveal:not([data-open]) .revealInner {
+  visibility: hidden;
+}
+
+.panel {
+  margin-top: 1rem;
+  border: 1px solid var(--bd-line);
+  border-radius: 1.1rem;
+  background: var(--bd-surface);
+  box-shadow: var(--bd-shadow);
+  overflow: hidden;
+  scroll-margin-top: var(--header-clearance, 6rem);
 }
 
 .panelHead {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 0.5rem 1.5rem;
+  gap: 0.25rem 1.25rem;
   border-bottom: 1px solid var(--bd-line);
-  padding: 1.1rem 1.5rem;
-}
-
-.panelKicker {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--bd-gold);
+  padding: 0.85rem 1.2rem;
 }
 
 .panelTitle {
-  margin-top: 0.2rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   color: var(--bd-ink);
 }
 
+.panelDim {
+  font-weight: 400;
+  color: var(--bd-mute);
+}
+
 .panelNote {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: var(--bd-mute);
 }
 
 .embedWrap {
   position: relative;
+  animation: fadeIn 0.3s ease both;
+}
+
+.embedWrap[hidden] {
+  display: none;
 }
 
 .embed {
   width: 100%;
-  min-height: 34rem;
-  overflow: auto;
+  min-height: 30rem;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.experience[data-variant="section"] .embed {
+  min-height: 26rem;
+}
+
+.embed[data-state="ready"] {
+  min-height: 0;
 }
 
 .embed[data-state="failed"] {
@@ -275,23 +301,159 @@
 .status {
   position: absolute;
   inset: 0 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 2.25rem 1.25rem;
   text-align: center;
   font-size: 0.875rem;
   color: var(--bd-mute);
+  pointer-events: none;
 }
 
 .fallback {
   display: grid;
   justify-items: center;
-  gap: 1rem;
-  padding: 2rem 1.5rem;
+  gap: 0.75rem;
+  padding: 1.75rem 1.25rem;
   text-align: center;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   color: var(--bd-body);
 }
 
-/* ── Small print ─────────────────────────────────────────────────────── */
+.fallbackLink {
+  font-size: 0.8125rem;
+  color: var(--bd-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--bd-gold) 60%, transparent);
+  text-underline-offset: 3px;
+}
+
+/* ── Confirmation ─────────────────────────────────────────────────────── */
+.confirm {
+  margin-top: 1rem;
+  border: 1px solid color-mix(in srgb, var(--bd-gold) 45%, transparent);
+  border-radius: 1.1rem;
+  background: var(--bd-surface-strong);
+  box-shadow: var(--bd-shadow);
+  padding: 1.5rem 1.4rem;
+  animation: fadeIn 0.35s ease both;
+}
+
+.confirmKicker {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bd-gold);
+}
+
+.confirmTitle {
+  margin-top: 0.35rem;
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--bd-ink);
+}
+
+.confirmFacts {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.5rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .confirmFacts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.confirmFacts dt {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bd-mute);
+}
+
+.confirmFacts dd {
+  margin-top: 0.15rem;
+  font-size: 0.9375rem;
+  color: var(--bd-ink);
+}
+
+.confirmNote {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--bd-body);
+}
+
+.confirmActions {
+  margin-top: 1.1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.confirmManage {
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  color: var(--bd-mute);
+}
+
+/* ── Buttons and links ────────────────────────────────────────────────── */
+.primary,
+.secondary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0 1.2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.primary {
+  background: var(--bd-btn-bg);
+  color: var(--bd-btn-ink);
+}
+
+.primary:hover {
+  background: var(--bd-btn-hover);
+}
+
+.secondary {
+  background: transparent;
+  color: var(--bd-ink);
+  box-shadow: inset 0 0 0 1px var(--bd-line-strong);
+}
+
+.secondary:hover {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bd-gold) 60%, transparent);
+}
+
+.primary:active,
+.secondary:active {
+  transform: scale(0.98);
+}
+
+.textButton {
+  color: var(--bd-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--bd-gold) 55%, transparent);
+  text-underline-offset: 3px;
+}
+
+.primary:focus-visible,
+.secondary:focus-visible,
+.textButton:focus-visible,
+.inlineLink:focus-visible,
+.fallbackLink:focus-visible {
+  outline: 2px solid var(--bd-gold);
+  outline-offset: 3px;
+}
+
 .footnote {
   margin-top: 1.5rem;
   text-align: center;
@@ -308,14 +470,73 @@
   transition: text-decoration-color 0.2s ease;
 }
 
-.inlineLink:hover {
+.inlineLink:hover,
+.textButton:hover {
   text-decoration-color: var(--bd-gold);
+}
+
+/* ── Contact section: Send an Inquiry / Schedule a Meeting ───────────── */
+.modeSwitch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: var(--bd-surface);
+  box-shadow: inset 0 0 0 1px var(--bd-line);
+}
+
+.modeButton {
+  min-height: 2.75rem;
+  border-radius: 999px;
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bd-mute);
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.modeButton:hover {
+  color: var(--bd-ink);
+}
+
+.modeButton[aria-pressed="true"] {
+  background: var(--bd-btn-bg);
+  color: var(--bd-btn-ink);
+  box-shadow: 0 6px 18px -10px rgb(0 0 0 / 0.45);
+}
+
+.modeButton:focus-visible {
+  outline: 2px solid var(--bd-gold);
+  outline-offset: 2px;
+}
+
+.modePane {
+  animation: fadeIn 0.3s ease both;
+}
+
+.modePane[hidden] {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .option,
-  .primary {
+  .reveal,
+  .primary,
+  .secondary,
+  .modeButton {
     transition: none;
+  }
+  .embedWrap,
+  .confirm,
+  .modePane {
+    animation: none;
   }
   .option:hover {
     transform: none;

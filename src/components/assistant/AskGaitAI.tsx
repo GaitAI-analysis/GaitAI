@@ -83,7 +83,9 @@ function useLauncherParked(open: boolean, pathname: string | null) {
        stays out of the way regardless of scroll direction. */
     const guarded = [
       document.querySelector("footer"),
-      document.querySelector("#contact form"),
+      /* The demo panel (inquiry form or meeting calendar). `#contact form`
+         used to match the newsletter signup, which comes first in the DOM. */
+      document.querySelector("#contact .contact-form"),
     ].filter((node): node is Element => Boolean(node));
     const seen = new Set<Element>();
     const observer = new IntersectionObserver(

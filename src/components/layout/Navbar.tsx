@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import {
@@ -28,7 +28,7 @@ import { ASK_EVENT } from "@/components/assistant/config";
 import { navLinks, type NavItem } from "@/data/content";
 import { cn } from "@/lib/utils";
 import { assetPath } from "@/lib/paths";
-import { BOOK_DEMO_HREF } from "@/data/contact";
+import { CONTACT_FORM_HREF } from "@/data/contact";
 
 /** Whether `pathname` sits under `href` (the menu sheet's opening family). */
 function isUnderPath(pathname: string | null, href: string) {
@@ -85,7 +85,54 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const desktopNav = useRef<HTMLElement>(null);
+
+  /* Request a Demo → the home contact section, reliably. A client-side
+     navigation to "/#contact" from another route rendered the home page at
+     the top (the section is far down and not yet laid out when the router
+     looks for the anchor). So: on "/" scroll to it; elsewhere navigate, wait
+     for the section, then scroll — re-checking briefly while late content
+     above it settles, and stopping the moment the visitor scrolls. Modified
+     clicks (new tab/window) keep the link's default. scroll-margin-top on
+     [id] keeps the heading below the bar. */
+  const goToContact = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const scrollTo = (behavior: ScrollBehavior) => {
+      const el = document.getElementById("contact");
+      if (!el) return false;
+      el.scrollIntoView({ behavior, block: "start" });
+      return true;
+    };
+    if (pathname === "/") {
+      window.history.replaceState(window.history.state, "", CONTACT_FORM_HREF);
+      scrollTo(smooth ? "smooth" : "auto");
+      return;
+    }
+    router.push(CONTACT_FORM_HREF);
+    let moved = false;
+    const stop = () => { moved = true; };
+    window.addEventListener("wheel", stop, { once: true, passive: true });
+    window.addEventListener("touchstart", stop, { once: true, passive: true });
+    const started = Date.now();
+    let landedAt = 0;
+    const done = () => {
+      window.removeEventListener("wheel", stop);
+      window.removeEventListener("touchstart", stop);
+    };
+    const tick = () => {
+      if (moved) return done();
+      const now = Date.now();
+      if (window.location.pathname === "/" && scrollTo("auto") && !landedAt) landedAt = now;
+      // Keep correcting for 1.5s after landing (images and lazy sections above it); give up after 6s.
+      const more = landedAt ? now - landedAt < 1500 : now - started < 6000;
+      if (more) window.setTimeout(tick, landedAt ? 250 : 80);
+      else done();
+    };
+    window.setTimeout(tick, 80);
+  };
   const menuButton = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   /* The menu sheet's open family: the one the current route is in. */
@@ -507,16 +554,17 @@ export function Navbar() {
                 <AtlasTrigger />
                 <ThemeToggle />
               </span>
-              {/* Book a Demo opens /book-demo, where a visitor picks a 15- or
-                  30-minute meeting and books it in an inline Cal.com calendar
-                  without leaving gaitai.in. Same pill, same place as the
-                  "Request demo" it replaces; the contact form on the home page
-                  is still one link away from every other demo CTA. */}
+              {/* Request a Demo → the home page's contact section, from every
+                  route. That section offers the inquiry form and, beside it,
+                  meeting scheduling; /book-demo is the standalone route for the
+                  footer and shared links, never this button (founder,
+                  2026-10-10). ScrollClearance lands the anchor below the bar. */}
               <Link
-                href={BOOK_DEMO_HREF}
+                href={CONTACT_FORM_HREF}
+                onClick={goToContact}
                 className="site-header__demo inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/5 px-3.5 py-2 text-[13px] font-medium text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-white/20 sm:px-4 sm:text-sm"
               >
-                Book a Demo
+                Request a Demo
                 <ArrowUpRight className="hidden h-3.5 w-3.5 sm:block" />
               </Link>
               {/* The one control that has to be reachable one-handed: 36px on
@@ -739,11 +787,11 @@ export function Navbar() {
               <div className="mnav__foot">
                 <ThemeChoice />
                 <a
-                  href={assetPath(BOOK_DEMO_HREF)}
+                  href={assetPath(CONTACT_FORM_HREF)}
                   onClick={() => setOpen(false)}
                   className="mnav__demo"
                 >
-                  Book a Demo
+                  Request a Demo
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
               </div>

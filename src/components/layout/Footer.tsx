@@ -112,11 +112,18 @@ export function Footer() {
   return (
     <footer className="relative mt-12 border-t border-white/5 bg-obsidian-200">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-royal-400/40 to-transparent" />
-      <div className="container-wide py-14 sm:py-20">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_2.4fr]">
+      {/* COMPACT BY DESIGN (2026-10-09). At 1920×1080 the footer was 722px —
+          two-thirds of the screen — mostly padding (80 + 80), a 64px gap above
+          the divider and a stacked email list that made the left column the
+          tallest thing in it. Now: 56px above the content, the legal bar ~49px
+          below it with 20/24px around its text, emails three across beside the
+          wordmark. Phones keep their own spacing in mobile.css (THE FOOTER),
+          which is loaded last and overrides these paddings and margins. */}
+      <div className="container-wide pb-6 pt-12 sm:pt-14">
+        <div className="grid items-start gap-10 lg:grid-cols-[1.4fr_2.4fr] lg:gap-12">
           <div>
             <Logo variant="wordmark" size="lg" className="footer-logo" />
-            <p className="mt-5 hidden max-w-sm text-sm leading-relaxed text-soft-mute sm:block">
+            <p className="mt-4 hidden max-w-md text-sm leading-relaxed text-soft-mute sm:block">
               GaitAI is intelligence in motion — a Human Movement Intelligence
               Platform that turns walking videos, wearable signals and crowd
               movement into healthcare, sports, elderly-care and safety
@@ -130,7 +137,7 @@ export function Footer() {
               Movement intelligence for healthcare, sports and public safety —
               built on gait research since {siteFacts.founderAcademicRecord.researchSince}.
             </p>
-            <div className="mt-6 flex items-center gap-2">
+            <div className="mt-5 flex items-center gap-2">
               {socials.map(({ icon: Icon, href, label }) => (
                 <Link
                   key={label}
@@ -145,7 +152,7 @@ export function Footer() {
                      document. */
                   target={href.startsWith("http") ? "_blank" : undefined}
                   rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  className="grid h-9 w-9 place-items-center rounded-full glass transition-all hover:border-cyan-300/40 hover:text-cyan-300 hover:shadow-glow-cyan active:scale-95 touch:h-11 touch:w-11"
+                  className="grid h-8 w-8 place-items-center rounded-full glass transition-all hover:border-cyan-300/40 hover:text-cyan-300 hover:shadow-glow-cyan active:scale-95 touch:h-11 touch:w-11"
                 >
                   <Icon aria-hidden="true" className="h-4 w-4" />
                 </Link>
@@ -157,16 +164,16 @@ export function Footer() {
                 Text, not icons: the mail glyph above already says "email",
                 and three more would make the column a toolbar. Stacked on a
                 phone and beside the wordmark from `lg`; three across on a
-                tablet, where the column is the full width. `break-all` keeps
-                an address inside a narrow phone column instead of pushing the
-                page sideways. */}
-            <dl className="footer-emails mt-8 grid gap-x-6 gap-y-4 sm:grid-cols-3 lg:grid-cols-1">
+                tablet and desktop alike (stacked, they made this column the
+                footer's tallest by ~120px). `break-all` keeps an address inside
+                a narrow phone column instead of pushing the page sideways. */}
+            <dl className="footer-emails mt-6 grid gap-x-6 gap-y-4 sm:grid-cols-3 sm:gap-y-0">
               {directEmails.map(({ key, label, address, subject }) => (
                 <div key={key} className="min-w-0">
                   <dt className="text-[11px] font-medium uppercase tracking-[0.16em] text-soft-mute">
                     {label}
                   </dt>
-                  <dd className="mt-1">
+                  <dd className="mt-0.5">
                     <a
                       href={mailto(address, subject)}
                       className="inline-block break-all text-sm text-soft-gray underline decoration-transparent decoration-1 underline-offset-4 transition-colors hover:text-soft-white hover:decoration-cyan-300/60 focus-visible:text-soft-white focus-visible:decoration-cyan-300/60 touch:py-1.5"
@@ -182,7 +189,7 @@ export function Footer() {
           <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:gap-10 lg:grid-cols-4">
             {footerLinks.map((col) => (
               <FooterGroup key={col.heading} heading={col.heading}>
-                <ul className="footer-group__list mt-5 space-y-3">
+                <ul className="footer-group__list mt-4 space-y-2.5">
                   {col.items.map((item) => (
                     <li key={item.label}>
                       <Link
@@ -205,9 +212,9 @@ export function Footer() {
             deployment card in the contact section, where a visitor who is not
             ready to ask for a demo is already thinking about GaitAI. One
             instance, not two: see CTA.tsx. */}
-        <div className="divider mt-16" />
+        <div className="divider mt-7" />
 
-        <div className="mt-8 flex flex-col items-start justify-between gap-4 text-xs text-soft-mute sm:flex-row sm:items-center">
+        <div className="mt-5 flex flex-col items-start justify-between gap-4 text-xs text-soft-mute sm:flex-row sm:items-center">
           <p>
             {/* The © glyph doubles as a discreet entrance to the admin panel.
                 ::before pads the hit-area outward without moving the glyph. */}
@@ -220,7 +227,13 @@ export function Footer() {
             </Link>{" "}
             {new Date().getFullYear()} GaitAI · Intelligence in motion. All rights reserved.
           </p>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          {/* Room for the Ask GaitAI pill. It is fixed bottom-right and parks
+              itself only below 1024px (AskGaitAI.tsx); on desktop it relies
+              on the margin outside the content column. Between 1024px and
+              ~1560px that margin is narrower than the pill, and with this
+              bar now 24px from the bottom the pill sat on "Responsible AI".
+              From 1560px the margin is wide enough again. */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 lg:pr-32 min-[1560px]:pr-0">
             {legal.map((l) => (
               <Link
                 key={l.label}

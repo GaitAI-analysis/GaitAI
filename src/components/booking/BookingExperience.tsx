@@ -249,6 +249,11 @@ export function BookingExperience({ variant = "page", calendarHost = null }: { v
   }, [theme]);
 
   const choose = (m: MeetingType) => {
+    // After a booking, picking a meeting again starts a new booking in a fresh calendar.
+    if (booked) {
+      setBooked(null);
+      setSpaces((s) => ({ ...s, [m.id]: "" }));
+    }
     setSelected(m.id);
     if (variant === "page" && window.location.hash !== `#${m.id}`) history.replaceState(null, "", `#${m.id}`);
     window.requestAnimationFrame(() => {
@@ -280,10 +285,11 @@ export function BookingExperience({ variant = "page", calendarHost = null }: { v
         </header>
       ) : null}
 
-      {!booked ? (
+      {/* The options stay on screen after a booking, so the panel never empties out. */}
+      {(
         <div className={styles.options} role="radiogroup" aria-label="Meeting type" data-variant={variant}>
           {meetingTypes.map((m) => {
-            const active = selected === m.id;
+            const active = !booked && selected === m.id;
             return (
               <button
                 key={m.id}
@@ -307,7 +313,7 @@ export function BookingExperience({ variant = "page", calendarHost = null }: { v
             );
           })}
         </div>
-      ) : null}
+      )}
 
       {(() => {
         const reveal = (

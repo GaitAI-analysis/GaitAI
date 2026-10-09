@@ -28,6 +28,7 @@ import { ASK_EVENT } from "@/components/assistant/config";
 import { navLinks, type NavItem } from "@/data/content";
 import { cn } from "@/lib/utils";
 import { assetPath } from "@/lib/paths";
+import { BOOK_DEMO_HREF } from "@/data/contact";
 
 /** Whether `pathname` sits under `href` (the menu sheet's opening family). */
 function isUnderPath(pathname: string | null, href: string) {
@@ -506,11 +507,16 @@ export function Navbar() {
                 <AtlasTrigger />
                 <ThemeToggle />
               </span>
+              {/* Book a Demo opens /book-demo, where a visitor picks a 15- or
+                  30-minute meeting and books it in an inline Cal.com calendar
+                  without leaving gaitai.in. Same pill, same place as the
+                  "Request demo" it replaces; the contact form on the home page
+                  is still one link away from every other demo CTA. */}
               <Link
-                href="/#contact"
+                href={BOOK_DEMO_HREF}
                 className="site-header__demo inline-flex min-h-9 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/5 px-3.5 py-2 text-[13px] font-medium text-soft-white ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-white/20 sm:px-4 sm:text-sm"
               >
-                Request demo
+                Book a Demo
                 <ArrowUpRight className="hidden h-3.5 w-3.5 sm:block" />
               </Link>
               {/* The one control that has to be reachable one-handed: 36px on
@@ -733,11 +739,11 @@ export function Navbar() {
               <div className="mnav__foot">
                 <ThemeChoice />
                 <a
-                  href={assetPath("/#contact")}
+                  href={assetPath(BOOK_DEMO_HREF)}
                   onClick={() => setOpen(false)}
                   className="mnav__demo"
                 >
-                  Request demo
+                  Book a Demo
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
               </div>

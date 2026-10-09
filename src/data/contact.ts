@@ -108,6 +108,11 @@ export const directEmails = [
 export const socialProfiles = {
   linkedin: "https://www.linkedin.com/company/gaitai-analysis/",
   x: "https://x.com/GaitAI4all",
+  /* GaitAI Research Labs. Verified 2026-10-10: `@GaitAI-Labs` and the older
+     handle `@GaitAI-b3f` both resolve to channel UCLCFIrMoMzaAWxPZKmhWmgQ
+     ("Gait AI"), whose canonical handle is `@GaitAI-Labs` — so that is the
+     URL published. */
+  youtube: "https://www.youtube.com/@GaitAI-Labs",
   github: "https://github.com/GaitAI-analysis",
 } as const;
 
@@ -120,6 +125,41 @@ export const socialProfileUrls = Object.values(socialProfiles);
 
 /** The on-site form, which is always available as a second route. */
 export const CONTACT_FORM_HREF = "/#contact";
+
+/**
+ * Meeting booking through Cal.com. One definition for the header button, the
+ * footer link and the /book-demo page.
+ *
+ * Verified 2026-10-10 against cal.com: the profile `gait-ai-kbqznq` publishes
+ * "15 min meeting" and "30 min meeting", both with open weekday slots from
+ * 09:00 IST. The profile also has a hidden "Secret meeting" event; it is
+ * deliberately not listed here and must not be linked publicly.
+ */
+export const BOOK_DEMO_HREF = "/book-demo";
+export const CAL_ORIGIN = "https://app.cal.com";
+export const CAL_EMBED_SCRIPT = `${CAL_ORIGIN}/embed/embed.js`;
+export const CAL_USERNAME = "gait-ai-kbqznq";
+
+export const meetingTypes = [
+  {
+    id: "15min",
+    calLink: `${CAL_USERNAME}/15min`,
+    minutes: 15,
+    title: "Quick Introduction",
+    description: "For initial discussions, general inquiries, and research introductions.",
+  },
+  {
+    id: "30min",
+    calLink: `${CAL_USERNAME}/30min`,
+    minutes: 30,
+    title: "Product Demo & Technical Discussion",
+    description: "For exploring MobilityCare, SecureVision, Pose Analysis, integrations, and potential collaborations.",
+  },
+] as const;
+
+export type MeetingType = (typeof meetingTypes)[number];
+/** The public Cal.com page for a meeting type: the fallback when the embed cannot load. */
+export const calPublicUrl = (m: MeetingType) => `https://cal.com/${m.calLink}`;
 
 /** `mailto:` link, with an optional prefilled subject (percent-encoded). */
 export const mailto = (address: string, subject?: string) =>

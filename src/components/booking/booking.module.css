@@ -1,0 +1,323 @@
+/* /book-demo — the meeting picker and the Cal.com calendar.
+
+   Palette: midnight navy, graphite, off-white and the logo's restrained gold.
+   No electric blue anywhere on this page — not the site's blue gradient
+   headline, not a cyan link. Dark is the default; `:root.light` restates
+   every token, matching light-theme.css. */
+
+.page {
+  --bd-ink: #f4f1ea;
+  --bd-body: #c3cad6;
+  --bd-mute: #8d97a8;
+  --bd-gold: #c9a44c;
+  --bd-gold-soft: rgb(201 164 76 / 0.14);
+  --bd-surface: rgb(255 255 255 / 0.03);
+  --bd-surface-strong: rgb(255 255 255 / 0.05);
+  --bd-line: rgb(255 255 255 / 0.09);
+  --bd-line-strong: rgb(255 255 255 / 0.16);
+  --bd-btn-bg: #f4f1ea;
+  --bd-btn-ink: #0b1739;
+  --bd-btn-hover: #ffffff;
+  --bd-shadow: 0 24px 60px -32px rgb(0 0 0 / 0.7);
+}
+
+:global(:root.light) .page {
+  --bd-ink: #0b1220;
+  --bd-body: #1c2940;
+  --bd-mute: #4a5f7a;
+  --bd-gold: #8a6320;
+  --bd-gold-soft: rgb(138 99 32 / 0.09);
+  --bd-surface: #ffffff;
+  --bd-surface-strong: #ffffff;
+  --bd-line: rgb(15 23 42 / 0.1);
+  --bd-line-strong: rgb(15 23 42 / 0.2);
+  --bd-btn-bg: #0b1739;
+  --bd-btn-ink: #f8f6f1;
+  --bd-btn-hover: #14234f;
+  --bd-shadow: 0 24px 50px -34px rgb(11 23 57 / 0.35);
+}
+
+/* ── Intro ───────────────────────────────────────────────────────────── */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bd-mute);
+}
+
+.eyebrowRule {
+  height: 1px;
+  width: 1.75rem;
+  background: var(--bd-gold);
+}
+
+.title {
+  font-size: clamp(2.1rem, 4.4vw, 3.6rem);
+  font-weight: 600;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: var(--bd-ink);
+}
+
+.titleAccent {
+  color: var(--bd-gold);
+}
+
+.lead {
+  color: var(--bd-body);
+}
+
+/* ── Meeting options ─────────────────────────────────────────────────── */
+.options {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--bd-line);
+  border-radius: 1.25rem;
+  background: var(--bd-surface);
+  padding: 1.5rem;
+  box-shadow: var(--bd-shadow);
+  transition: border-color 0.25s ease, transform 0.25s ease, background-color 0.25s ease;
+}
+
+@media (min-width: 640px) {
+  .option {
+    padding: 1.75rem 1.75rem 1.6rem;
+  }
+}
+
+@media (hover: hover) {
+  .option:hover {
+    border-color: var(--bd-line-strong);
+    transform: translateY(-1px);
+  }
+}
+
+.option[data-active] {
+  border-color: color-mix(in srgb, var(--bd-gold) 60%, transparent);
+  background: var(--bd-surface-strong);
+  box-shadow: var(--bd-shadow), inset 0 0 0 1px var(--bd-gold-soft);
+}
+
+.duration {
+  align-self: flex-start;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--bd-gold) 45%, transparent);
+  background: var(--bd-gold-soft);
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bd-gold);
+}
+
+.optionTitle {
+  margin-top: 1rem;
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--bd-ink);
+  text-wrap: balance;
+}
+
+.optionDash {
+  color: var(--bd-mute);
+  font-weight: 400;
+}
+
+.optionBody {
+  margin-top: 0.6rem;
+  flex: 1;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--bd-body);
+}
+
+.optionActions {
+  margin-top: 1.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+/* The one solid object on the page: off-white on navy-dark, navy on light. */
+.primary {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  background: var(--bd-btn-bg);
+  padding: 0 1.3rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bd-btn-ink);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.primary:hover {
+  background: var(--bd-btn-hover);
+}
+
+.primary:active {
+  transform: scale(0.98);
+}
+
+.primary:focus-visible,
+.external:focus-visible,
+.inlineLink:focus-visible {
+  outline: 2px solid var(--bd-gold);
+  outline-offset: 3px;
+}
+
+.primary[aria-pressed="true"] {
+  background: transparent;
+  color: var(--bd-ink);
+  box-shadow: inset 0 0 0 1px var(--bd-line-strong);
+}
+
+.external {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  color: var(--bd-mute);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+.external:hover {
+  color: var(--bd-ink);
+  text-decoration-color: color-mix(in srgb, var(--bd-gold) 70%, transparent);
+}
+
+/* ── Calendar panel ──────────────────────────────────────────────────── */
+.panel {
+  margin-top: 1.5rem;
+  scroll-margin-top: 6rem;
+  border: 1px solid var(--bd-line);
+  border-radius: 1.25rem;
+  background: var(--bd-surface);
+  box-shadow: var(--bd-shadow);
+  overflow: hidden;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  border-bottom: 1px solid var(--bd-line);
+  padding: 1.1rem 1.5rem;
+}
+
+.panelKicker {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bd-gold);
+}
+
+.panelTitle {
+  margin-top: 0.2rem;
+  font-weight: 600;
+  color: var(--bd-ink);
+}
+
+.panelNote {
+  font-size: 0.8125rem;
+  color: var(--bd-mute);
+}
+
+.embedWrap {
+  position: relative;
+}
+
+.embed {
+  width: 100%;
+  min-height: 34rem;
+  overflow: auto;
+}
+
+.embed[data-state="failed"] {
+  min-height: 0;
+}
+
+.status {
+  position: absolute;
+  inset: 0 0 auto;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--bd-mute);
+}
+
+.fallback {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: var(--bd-body);
+}
+
+/* ── Small print ─────────────────────────────────────────────────────── */
+.footnote {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--bd-mute);
+}
+
+.inlineLink {
+  color: var(--bd-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--bd-gold) 55%, transparent);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+.inlineLink:hover {
+  text-decoration-color: var(--bd-gold);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option,
+  .primary {
+    transition: none;
+  }
+  .option:hover {
+    transform: none;
+  }
+}

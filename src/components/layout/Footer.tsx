@@ -1,11 +1,11 @@
 import siteFacts from "@/data/generated/site-facts.json";
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
-import { Github, Linkedin, Mail } from "lucide-react";
+import { Github, Linkedin, Mail, Youtube } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { FooterGroup } from "./FooterGroup";
 import { ctas } from "@/data/content";
-import { contact, directEmails, mailSubjects, mailto, socialProfiles } from "@/data/contact";
+import { BOOK_DEMO_HREF, contact, directEmails, mailSubjects, mailto, socialProfiles } from "@/data/contact";
 
 /**
  * The single footer link source.
@@ -58,6 +58,7 @@ const footerLinks = [
       { label: "Trust Center", href: "/trust" },
       { label: "Security & privacy controls", href: "/legal/security" },
       { label: "Investors & collaboration", href: "/investors" },
+      { label: "Schedule a Meeting", href: BOOK_DEMO_HREF },
       { label: "Contact", href: "/#contact" },
     ],
   },
@@ -96,6 +97,8 @@ const socials: Array<{
   },
   { icon: Mail, href: mailto(contact.social, mailSubjects.general), label: "Email GaitAI" },
   { icon: XMark, href: socialProfiles.x, label: "GaitAI on X" },
+  /* The talks and lab videos: after the feed, before the code. */
+  { icon: Youtube, href: socialProfiles.youtube, label: "GaitAI Research Labs on YouTube" },
   /* Was `github.com/gaitai` — a stranger's account. See the note on
      `socialProfiles` for what it is now and why. */
   { icon: Github, href: socialProfiles.github, label: "GaitAI on GitHub" },

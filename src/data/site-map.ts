@@ -297,6 +297,13 @@ export const siteMap: AtlasNode = {
           family: "neutral",
         },
         {
+          id: "book-demo",
+          label: "Book a demo",
+          route: "/book-demo/",
+          description: "A 15- or 30-minute meeting, booked in the page",
+          family: "neutral",
+        },
+        {
           id: "investors",
           label: "Investors",
           route: "/investors/",

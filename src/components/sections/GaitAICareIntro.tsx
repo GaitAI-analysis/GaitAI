@@ -1,6 +1,7 @@
 import {
   ArrowUpRight,
   BedDouble,
+  Clock,
   FileText,
   HeartPulse,
   Lock,
@@ -19,9 +20,17 @@ import {
  * implemented in the app (care.gaitai.in): encrypted originals, email-verified
  * accounts, text read on GaitAI's own servers (no outside AI), export and
  * deletion. The record list on the right is illustrative, not a patient.
+ * Until CARE_IS_LIVE is true there is no link to the app, only "Launching soon".
  */
 
 const CARE_URL = "https://care.gaitai.in";
+
+/**
+ * Flip to true only after care.gaitai.in is deployed, verified and the owner has
+ * approved the release. While false the section renders no link to the app at all:
+ * the site must never send visitors to a service that is not running.
+ */
+const CARE_IS_LIVE = false;
 
 const features = [
   {
@@ -132,24 +141,33 @@ export function GaitAICareIntro() {
             </ul>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href={CARE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                /* GaitAI Care brand: navy on paper, gold at night; never the site's electric-blue primary. */
-                className="inline-flex items-center gap-2 rounded-full bg-[#0b1739] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#16264f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 dark:bg-[#c9a44c] dark:text-[#0b1739] dark:hover:bg-[#d8b765]"
-              >
-                Open GaitAI Care
-                <ArrowUpRight className="h-4 w-4" aria-hidden />
-              </a>
-              <a
-                href={`${CARE_URL}/privacy.html`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-ghost"
-              >
-                Privacy notice
-              </a>
+              {CARE_IS_LIVE ? (
+                <>
+                  <a
+                    href={CARE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    /* GaitAI Care brand: navy on paper, gold at night; never the site's electric-blue primary. */
+                    className="inline-flex items-center gap-2 rounded-full bg-[#0b1739] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#16264f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 dark:bg-[#c9a44c] dark:text-[#0b1739] dark:hover:bg-[#d8b765]"
+                  >
+                    Open GaitAI Care
+                    <ArrowUpRight className="h-4 w-4" aria-hidden />
+                  </a>
+                  <a
+                    href={`${CARE_URL}/privacy.html`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-ghost"
+                  >
+                    Privacy notice
+                  </a>
+                </>
+              ) : (
+                <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-amber-300/[0.08] px-5 py-2.5 text-sm font-semibold text-amber-300">
+                  <Clock className="h-4 w-4" aria-hidden />
+                  Launching soon
+                </span>
+              )}
             </div>
 
             <p className="mt-4 max-w-xl text-[11.5px] leading-relaxed text-soft-mute">

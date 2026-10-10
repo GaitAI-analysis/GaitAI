@@ -13,6 +13,7 @@ import { MobilityCareHero } from "@/components/sections/MobilityCareHero";
 import { MovementIntelligenceSection } from "@/components/sections/MovementIntelligenceSection";
 import { MobilityTimeMachine } from "@/components/analytics/MobilityTimeMachine";
 import { MovementXRay } from "@/components/visuals/MovementXRay";
+import { GaitAICareIntro } from "@/components/sections/GaitAICareIntro";
 import {
   industryUseCases,
   mobilityProducts,
@@ -357,6 +358,9 @@ export default function MobilityCarePage() {
           </div>
         </div>
       </section>
+
+      {/* GAITAI CARE: where people keep their own record (personal health-record app) */}
+      <GaitAICareIntro />
 
       {/* CLINICAL USE CASES */}
       <section className="section">

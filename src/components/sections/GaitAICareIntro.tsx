@@ -30,7 +30,7 @@ const CARE_URL = "https://care.gaitai.in";
  * approved the release. While false the section renders no link to the app at all:
  * the site must never send visitors to a service that is not running.
  */
-const CARE_IS_LIVE = false;
+const CARE_IS_LIVE = true;
 
 const features = [
   {
@@ -150,7 +150,7 @@ export function GaitAICareIntro() {
                     /* GaitAI Care brand: navy on paper, gold at night; never the site's electric-blue primary. */
                     className="inline-flex items-center gap-2 rounded-full bg-[#0b1739] px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#16264f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 dark:bg-[#c9a44c] dark:text-[#0b1739] dark:hover:bg-[#d8b765]"
                   >
-                    Open GaitAI Care
+                    Access GaitAI Care
                     <ArrowUpRight className="h-4 w-4" aria-hidden />
                   </a>
                   <a

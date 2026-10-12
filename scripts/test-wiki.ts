@@ -45,8 +45,9 @@ for (const product of wikiProducts) {
     assert(!/(?:[A-Z]:\\Users\\|\/Users\/|\/home\/|\.onrender\.com|\.supabase\.co|\.web\.app|github\.com\/GaitAI-analysis\/gaitai-care|BEGIN [A-Z ]*PRIVATE KEY|(?:ghp_|github_pat_|sk_live_)[\w-]+|(?:[A-F0-9]{2}:){15,}|BABYCARE_[A-Z_]+|GAITAI_CARE_KEYSTORE|smtp\.hostinger\.com)/i.test(markdown), `Potential private operational material: ${href}`);
     for (const match of markdown.matchAll(/\]\(([^)]+)\)/g)) {
       const target = match[1];
-      assert(target.startsWith("/insights/wiki/"), `Unreviewed external or relative link: ${target}`);
-      assert(routes.has(target.split("#")[0]), `Unresolved link: ${target}`);
+      const approvedApp = target === "https://care.gaitai.in/";
+      assert(approvedApp || target.startsWith("/insights/wiki/") || target === "/gaitai-care/" || target === "/gaitai-care/download/", `Unreviewed external or relative link: ${target}`);
+      if (!approvedApp) assert(routes.has(target.split("#")[0]), `Unresolved link: ${target}`);
       links++;
     }
     for (const match of markdown.matchAll(/```diagram\n([^\n]+)\n```/g)) { assert(diagramNames.includes(match[1]), `Unknown diagram ${match[1]} in ${href}`); diagramsUsed.add(match[1]); }

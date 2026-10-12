@@ -17,9 +17,10 @@ import { BOOK_DEMO_HREF, contact, directEmails, mailSubjects, mailto, socialProf
  */
 const footerLinks = [
   {
-    heading: "Platform",
+    heading: "Products",
     items: [
       { label: "Product overview", href: "/products" },
+      { label: "GaitAI Care", href: "/gaitai-care/" },
       { label: "MobilityCare", href: "/mobilitycare" },
       { label: "SecureVision", href: "/securevision" },
       ...siteFacts.products.filter((p) => p.navigation),

@@ -57,7 +57,12 @@ export const navLinks: readonly NavItem[] = [
       {
         label: "Product Overview",
         href: "/products",
-        description: `All ${counts.productModules} product modules`,
+        description: "Movement intelligence & personal health records",
+      },
+      {
+        label: "GaitAI Care",
+        href: "/gaitai-care",
+        description: "Personal & family health records · Web + Android",
       },
       {
         label: "MobilityCare",

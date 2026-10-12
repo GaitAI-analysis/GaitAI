@@ -135,9 +135,17 @@ export const siteMap: AtlasNode = {
       id: "products",
       label: "Products",
       route: "/products/",
-      description: `All ${allProducts.length} product modules`,
+      description: `Personal health records and ${allProducts.length} movement-intelligence modules`,
       family: "neutral",
       children: [
+        {
+          id: "gaitai-care",
+          label: "GaitAI Care",
+          route: "/gaitai-care/",
+          description: "Personal & family health-record management",
+          family: "neutral",
+          children: [{ id: "gaitai-care-download", label: "Android Early Access", route: "/gaitai-care/download/", description: "Release status, integrity and installation", family: "neutral" }],
+        },
         {
           id: "mobilitycare",
           label: "MobilityCare",

@@ -418,6 +418,10 @@ export default function MobilityCarePage() {
         </div>
       </section>
 
+      <aside className="container-wide pb-6 text-sm leading-relaxed text-soft-gray">
+        Looking to organise personal or family health records? <Link href="/gaitai-care/" className="underline underline-offset-4">Explore GaitAI Care</Link>, a separate product for records and care history. MobilityCare focuses on movement intelligence and gait analysis.
+      </aside>
+
       {/* CTA */}
       <section className="section">
         <div className="container-wide">

@@ -5,6 +5,7 @@ import { MissionVision } from "@/components/sections/about/MissionVision";
 import { MovementMeanings } from "@/components/home/MovementMeanings";
 import { Verticals } from "@/components/sections/Verticals";
 import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
+import { CareFeature } from "@/components/care/Care";
 import { PrivacyPipeline } from "@/components/home/PrivacyPipeline";
 import { HowItWorks } from "@/components/sections/HowItWorks";
 import { VisitorIntent } from "@/components/home/VisitorIntent";
@@ -177,6 +178,7 @@ export default function HomePage() {
       <Hero />
       <Verticals />
       <FeaturedProducts />
+      <CareFeature />
       <PrivacyPipeline />
       <HowItWorks />
       <VisitorIntent />

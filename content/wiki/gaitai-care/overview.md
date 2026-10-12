@@ -1,5 +1,7 @@
 ## What GaitAI Care does
 
+Application access: [Open Web App](https://care.gaitai.in/) · [Get Android App](/gaitai-care/download/) · [Product overview](/gaitai-care/). The Android page records current download availability and release checks.
+
 GaitAI Care organizes personal and family health records over time. A profile brings together uploaded medical documents, reviewed extractions, medications, vaccinations, hospital visits, illness history and daily-care observations. Records can be inspected as histories, timelines and summaries, with exports for a person to review or share.
 
 The product is a health-record organizer. It is not established as an autonomous diagnostic system, prescribing engine or certified clinical decision-support device. Source-reviewed functionality describes software behavior; it does not establish clinical accuracy or regulatory approval.

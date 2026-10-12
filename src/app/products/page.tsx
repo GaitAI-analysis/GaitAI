@@ -8,6 +8,7 @@ import { ProductEcosystem } from "@/components/products/ProductEcosystem";
 import { HeroMotionField } from "@/components/products/HeroMotionField";
 import { ProductAnalytics } from "@/components/analytics/ProductAnalytics";
 import { CoverageMatrix } from "@/components/analytics/CoverageMatrix";
+import { CareFeature } from "@/components/care/Care";
 import { ctas } from "@/data/content";
 import {
   type GaitProduct,
@@ -17,8 +18,8 @@ import {
 } from "@/data/products";
 
 export const metadata: Metadata = {
-  title: `All Products — ${productCount} modular movement-intelligence products`,
-  description: `Every GaitAI product across MobilityCare and SecureVision — ${productCount} modular movement-intelligence products on one Movement Intelligence Platform. Filter by Healthcare, Sports, Elderly Care, Wearables, Security, Crowd, Industrial and more, then see how deployment works.`,
+  title: "GaitAI Products — Movement intelligence & personal health records",
+  description: `Explore GaitAI Care for personal and family health records, alongside ${productCount} movement-intelligence modules across MobilityCare and SecureVision.`,
   alternates: { canonical: "/products" },
 };
 
@@ -78,6 +79,7 @@ export default function ProductsPage() {
                 analysis. Choose your environment, objective and available
                 signals to see the best-fit modules.
               </p>
+              <p className="mt-4 text-sm leading-relaxed text-soft-gray">Looking for personal or family health records? <Link href="/gaitai-care/" className="underline underline-offset-4">Explore GaitAI Care</Link>, our standalone health-record organiser.</p>
             </div>
 
             <HeroMotionField />
@@ -102,6 +104,8 @@ export default function ProductsPage() {
           <ProductAnalytics />
         </div>
       </section>
+
+      <CareFeature />
 
       {/* GRID */}
       <section className="section bg-obsidian-300/30">

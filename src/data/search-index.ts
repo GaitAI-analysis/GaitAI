@@ -24,6 +24,7 @@
 // ============================================================================
 
 import { allProducts, industryUseCases } from "@/data/products";
+import { gaitaiCare } from "@/data/gaitai-care";
 import {
   TALKS_SPEAKER,
   TALK_KIND_LABEL,
@@ -128,6 +129,15 @@ const norm = (parts: (string | undefined)[]) =>
 // that never moved. The visible title is the current name only, and the
 // current name is the Movement Intelligence Lab again.
 const destinationEntries: SearchEntry[] = [
+  {
+    id: "product:gaitai-care",
+    group: "product",
+    title: gaitaiCare.name,
+    detail: gaitaiCare.description,
+    meta: "Web + Android",
+    href: gaitaiCare.href,
+    haystack: norm([gaitaiCare.name, gaitaiCare.description, "medical documents medication supplements vaccinations reports pdf health history download android"]),
+  },
   {
     id: "destination:movement-lab",
     group: "destination",

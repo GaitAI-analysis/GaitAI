@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { availableWikiProducts, wikiAreasFor, wikiPageHref, wikiProductHref } from "@/data/wiki";
 import { WikiAreaCard, WikiGuideCard } from "@/components/wiki/WikiCards";
 import { CareArchitecture } from "@/components/wiki/CareArchitecture";
+import { gaitaiCare } from "@/data/gaitai-care";
 import styles from "@/components/wiki/wiki.module.css";
 
 export const dynamicParams = false;
@@ -29,6 +30,7 @@ export default function ProductHome({ params }: { params: { product: string } })
       </div>
       <div className={styles.productEdition}><span className={styles.editionNumber}>{product.pages.length}</span><span>technical guides</span><div>{wikiAreas.length} documentation areas<br />Source reviewed<br /><time dateTime="2026-10-12">12 October 2026</time></div></div>
     </header>
+    {product.slug === "gaitai-care" && <nav className={styles.headerActions} aria-label="GaitAI Care application links"><a className={styles.textLink} href={gaitaiCare.web}>Open Web App</a><Link className={styles.textLink} href={gaitaiCare.download}>Get Android App</Link><Link className={styles.textLink} href={gaitaiCare.href}>Product overview</Link></nav>}
     <section className={styles.areaSection} aria-labelledby="areas-title"><div className={styles.sectionHead}><div><p className={styles.eyebrow}>FIND YOUR STARTING POINT</p><h2 id="areas-title">Explore by platform</h2></div><span>Distinct clients. Connected systems.</span></div><div className={styles.areaGrid}>{wikiAreas.map((area, index) => <WikiAreaCard key={area.slug} product={product} area={area} index={index} />)}</div></section>
     {product.slug === "gaitai-care" && <CareArchitecture />}
     {groups.map((group) => <section key={group} className={styles.guideGroup}><div className={styles.sectionHead}><div><p className={styles.eyebrow}>CONTEXT &amp; REFERENCE</p><h2>{group}</h2></div><span>The decisions behind the system</span></div><div className={styles.guideGrid}>{product.pages.filter((page) => page.area === "overview" && page.section === group).map((page) => <WikiGuideCard key={page.slug} product={product.slug} page={page} />)}</div></section>)}

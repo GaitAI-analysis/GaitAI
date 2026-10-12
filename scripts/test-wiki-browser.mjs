@@ -41,9 +41,9 @@ async function openBlogMenu(mobile) {
   // ThemeToggle mounts only after hydration. SSR links are visible sooner,
   // but hovering them before event handlers attach does not open a menu.
   await page.locator('header button[aria-label^="Theme:"]').waitFor({ state: "attached" });
-  // The main site's image-heavy landing page can finish its font/theme work
-  // after the toggle mounts. Wait for that initial load before pointer tests.
-  await page.waitForLoadState("networkidle");
+  // Live Insights can keep background requests open. Wait for the page and
+  // its visible UI, rather than requiring the entire network to become idle.
+  await page.waitForLoadState("load");
   await page.evaluate(() => document.fonts.ready);
   if (new URL(page.url()).pathname === "/") {
     // Use the site's existing ready state rather than racing the homepage's

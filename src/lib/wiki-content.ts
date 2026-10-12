@@ -31,7 +31,7 @@ export function wikiSearchEntries(): WikiSearchEntry[] {
         const newline = section.indexOf("\n");
         const title = section.slice(0, newline);
         const heading = headings.find((h) => h.title === title && h.depth === 2);
-        return { ...base, title: `${page.title} · ${title}`, href: `${wikiPageHref(product.slug, page.slug)}#${heading?.id ?? ""}`, text: section.slice(newline + 1).replace(/```[\s\S]*?```/g, " ").replace(/[|*#>\[\]`]/g, " ").replace(/\s+/g, " ").trim() };
+        return { ...base, title: `${page.title} · ${title}`, href: `${wikiPageHref(product.slug, page.slug)}#${heading?.id ?? ""}`, text: section.slice(newline + 1).replace(/```[\s\S]*?```/g, " ").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").replace(/[|*#>\[\]`]/g, " ").replace(/\s+/g, " ").trim() };
       }),
     ];
   }));

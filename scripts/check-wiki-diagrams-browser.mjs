@@ -49,7 +49,7 @@ try {
         const result = await page.evaluate((slug) => {
           const out = { figures: [], overflow: document.documentElement.scrollWidth > innerWidth + 1 };
           for (const [i, figure] of [...document.querySelectorAll("main figure")].entries()) {
-            const svg = figure.querySelector("svg");
+            const svg = figure.querySelector('svg[role="img"]');
             const name = svg?.getAttribute("data-diagram") || `${slug}-figure-${i + 1}`;
             const entry = { name, texts: 0, outside: [], overlaps: [], escaped: [], hasTitle: Boolean(svg?.querySelector("title")), hasDesc: Boolean(svg?.querySelector("desc")), caption: Boolean(figure.querySelector("figcaption")?.textContent?.trim()), width: svg?.getBoundingClientRect().width ?? 0, scrollable: false };
             if (!svg) { out.figures.push(entry); continue; }
@@ -116,11 +116,11 @@ try {
     await figure.getByRole("button", { name: "Enlarge" }).click();
     const dialog = page.locator("dialog[open]");
     await dialog.waitFor();
-    check(await dialog.locator("svg").count() === 1, "Enlarge shows one copy of the drawing");
-    check(await dialog.locator("svg [id]").evaluateAll((els) => els.every((e) => e.id.endsWith("-zoom"))), "Enlarged copy uses suffixed ids");
+    check(await dialog.locator('svg[role="img"]').count() === 1, "Enlarge shows one copy of the drawing");
+    check(await dialog.locator('svg[role="img"] [id]').evaluateAll((els) => els.every((e) => e.id.endsWith("-zoom"))), "Enlarged copy uses suffixed ids");
     check(!(await page.evaluate(() => { const ids = [...document.querySelectorAll("[id]")].map((e) => e.id); return ids.some((id, i) => ids.indexOf(id) !== i); })), "No duplicate ids while enlarged");
     await dialog.getByRole("button", { name: "Zoom in" }).click();
-    check((await dialog.locator("svg").evaluate((svg) => svg.getBoundingClientRect().width)) > 1200, "Zoom in widens the drawing");
+    check((await dialog.locator('svg[role="img"]').evaluate((svg) => svg.getBoundingClientRect().width)) > 1200, "Zoom in widens the drawing");
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
     for (const [label, type] of [["SVG", "svg"], ["PNG", "png"]]) {

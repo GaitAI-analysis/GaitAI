@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { availableWikiProducts, wikiProducts, wikiAreasFor, wikiPageHref } from "../src/data/wiki";
 import { readWikiPage, wikiSearchEntries } from "../src/lib/wiki-content";
+import { searchWiki, wikiSearchExcerpt } from "../src/lib/wiki-search";
 import { navLinks } from "../src/data/content";
 import { siteRoutes } from "../src/data/site-map";
 import { diagramNames } from "../src/components/wiki/diagrams/registry";
@@ -12,6 +13,15 @@ import "./check-wiki-diagrams";
 const routes = new Set(siteRoutes());
 const diagramsUsed = new Set<string>();
 const search = wikiSearchEntries();
+for (const [query, area] of [["android keystore", "android"], ["web sessions", "web"], ["backend PostgreSQL", "backend"]]) {
+  const matches = searchWiki(search, query);
+  assert(matches.length > 0, `Search must find ${query}`);
+  assert(matches[0].href.includes(`/${area}/`), `Search ranks the requested platform: ${query}`);
+}
+assert.equal(searchWiki(search, "Android Architecture and Stack")[0].title, "Android Architecture and Stack", "Exact page title ranks first");
+assert.equal(searchWiki(search, "zzzz-no-such-topic").length, 0);
+assert.equal(searchWiki(search, " ").length, 0);
+assert(wikiSearchExcerpt("Introductory context. ".repeat(30) + "Keystore protects session data.", "keystore").includes("Keystore"), "Excerpt includes a match beyond the opening paragraph");
 const blog = navLinks.find((n) => n.label === "Blog");
 const care = availableWikiProducts.find((product) => product.slug === "gaitai-care");
 assert(care, "Preserve the published Care documentation");

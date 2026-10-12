@@ -41,6 +41,18 @@ async function openBlogMenu(mobile) {
   // ThemeToggle mounts only after hydration. SSR links are visible sooner,
   // but hovering them before event handlers attach does not open a menu.
   await page.locator('header button[aria-label^="Theme:"]').waitFor({ state: "attached" });
+  // The main site's image-heavy landing page can finish its font/theme work
+  // after the toggle mounts. Wait for that initial load before pointer tests.
+  await page.waitForLoadState("networkidle");
+  await page.evaluate(() => document.fonts.ready);
+  if (new URL(page.url()).pathname === "/") {
+    // Use the site's existing ready state rather than racing the homepage's
+    // initial greeting/theme effects or adding a fixed sleep.
+    await page.waitForFunction(() => {
+      const slot = document.querySelector('nav[aria-label="You are here"] [data-phase]');
+      return !slot || slot.getAttribute("data-phase") === "atlas";
+    });
+  }
   // Give the mount/theme effects their render frame before hover; those
   // effects intentionally dismiss any menu that was open during a change.
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));

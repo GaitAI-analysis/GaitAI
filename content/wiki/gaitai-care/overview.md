@@ -4,6 +4,10 @@ GaitAI Care organizes personal and family health records over time. A profile br
 
 The product is a health-record organizer. It is not established as an autonomous diagnostic system, prescribing engine or certified clinical decision-support device. Source-reviewed functionality describes software behavior; it does not establish clinical accuracy or regulatory approval.
 
+```diagram
+care-system
+```
+
 ## Three documentation areas
 
 | Area | Read it for | Common infrastructure |

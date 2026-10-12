@@ -3,7 +3,7 @@
 The Care web and Android clients use one Python API and common account and health-record model. The backend coordinates persistence, private files, extraction, exports and account email. A client-specific UI capability does not create a separate source of patient truth.
 
 ```diagram
-system
+care-system
 ```
 
 ## Infrastructure roles

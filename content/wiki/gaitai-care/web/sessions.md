@@ -3,7 +3,7 @@
 The browser presents registration, privacy consent, email verification, sign-in, password recovery, sign-out and account-deletion interfaces. These screens invoke the backend's identity workflows; Firebase Hosting does not independently grant access to medical records.
 
 ```diagram
-email
+auth-sequence
 ```
 
 ## Browser session behavior

@@ -9,6 +9,10 @@
 
 The inspected current workflow completed successfully. Job definitions and results describe that revision's checks; they do not prove continuous production health.
 
+```diagram
+cicd-architecture
+```
+
 ## Deployment surfaces
 
 The supplied architecture narrative describes a Render-hosted Python API, Firebase-hosted frontend, Supabase database and storage, and an Edge Function email relay. These surfaces have separate release mechanisms. A single green CI badge should not be interpreted as evidence that all were deployed atomically.

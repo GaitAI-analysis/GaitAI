@@ -3,7 +3,7 @@
 Android intent filters declare the Care account-link hosts, and the web application contains an association asset for Android App Links. The mobile layer handles both an incoming link while the app is running and the initial launch URL.
 
 ```diagram
-email
+email-sequence
 ```
 
 The native handler passes recognized verification or password-reset actions into the shared account interface. The common backend validates the action; opening a link alone does not establish authorization.

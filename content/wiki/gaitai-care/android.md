@@ -5,7 +5,7 @@ GaitAI Care for Android packages the shared web application inside a Capacitor 8
 The original ZIP's “Android framework unconfirmed” description is superseded by the current source and local release artifacts. This does not establish Play Store publication.
 
 ```diagram
-android
+android-architecture
 ```
 
 ## What is native

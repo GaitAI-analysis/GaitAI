@@ -3,7 +3,7 @@
 The reviewed backend is a Python FastAPI application served through Uvicorn. It is best understood as a modular monolith: separate source modules implement domains, but their existence does not imply separately deployed microservices. The reported hosted API deployment uses Render.
 
 ```diagram
-system
+backend-components
 ```
 
 ## Verified technology stack

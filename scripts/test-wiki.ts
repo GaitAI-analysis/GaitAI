@@ -5,8 +5,12 @@ import { availableWikiProducts, wikiProducts, wikiAreasFor, wikiPageHref } from 
 import { readWikiPage, wikiSearchEntries } from "../src/lib/wiki-content";
 import { navLinks } from "../src/data/content";
 import { siteRoutes } from "../src/data/site-map";
+import { diagramNames } from "../src/components/wiki/diagrams/registry";
+// Replays every figure's geometry: connectors meet their boxes, labels fit, ids are unique.
+import "./check-wiki-diagrams";
 
 const routes = new Set(siteRoutes());
+const diagramsUsed = new Set<string>();
 const search = wikiSearchEntries();
 const blog = navLinks.find((n) => n.label === "Blog");
 const care = availableWikiProducts.find((product) => product.slug === "gaitai-care");
@@ -45,7 +49,7 @@ for (const product of wikiProducts) {
       assert(routes.has(target.split("#")[0]), `Unresolved link: ${target}`);
       links++;
     }
-    for (const match of markdown.matchAll(/```diagram\n([^\n]+)\n```/g)) assert(["system", "web", "android", "ingestion", "email", "data"].includes(match[1]), `Unknown diagram ${match[1]}`);
+    for (const match of markdown.matchAll(/```diagram\n([^\n]+)\n```/g)) { assert(diagramNames.includes(match[1]), `Unknown diagram ${match[1]} in ${href}`); diagramsUsed.add(match[1]); }
     headings += toc.length; guides++;
   }
 }
@@ -53,4 +57,5 @@ for (const product of wikiProducts) {
 function files(dir: string): string[] { return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? files(path.join(dir, e.name)) : [path.join(dir, e.name)]); }
 assert.equal(files("content/wiki").length, guides);
 assert(files("content/wiki").every((f) => f.endsWith(".md")));
-console.log(`Wiki validation passed: ${guides} guides, ${headings} headings, ${links} internal content links, ${search.length} search entries; navigation, sitemap and publication-safety checks passed.`);
+for (const name of diagramNames) assert(diagramsUsed.has(name), `Registered diagram ${name} is not placed in any guide`);
+console.log(`Wiki validation passed: ${guides} guides, ${headings} headings, ${links} internal content links, ${search.length} search entries, ${diagramsUsed.size} diagrams in use; navigation, sitemap and publication-safety checks passed.`);

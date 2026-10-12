@@ -3,7 +3,7 @@
 The backend's mail abstraction supports several providers. The supplied deployment narrative identifies the hosted account-email path as a Supabase Edge Function relay delivering through Hostinger SMTP over encrypted transport. The source contains both the backend relay integration and the Edge Function implementation.
 
 ```diagram
-email
+email-sequence
 ```
 
 ## Responsibilities

@@ -1,0 +1,63 @@
+import type { ArchitectureSpec } from "../types";
+
+/** Verified against .github/workflows/ci.yml, render.yaml, Dockerfile, firebase.json, supabase/functions/mail-relay/README.md, docs/DEPLOYMENT.md, docs/ANDROID.md, mobile/android/app/build.gradle. */
+export const cicdArchitecture: ArchitectureSpec = {
+  kind: "architecture",
+  id: "cicd-architecture",
+  title: "Continuous integration and deployment architecture",
+  description: "GitHub Actions verifies every push with four jobs but deploys nothing. Render rebuilds the API container from each commit to main and runs migrations at start-up; the static web app, the mail-relay Edge Function and the signed Android artefacts are released from the maintainer's machine with credentials that never enter the repository.",
+  relationships: [
+    "A push to main or a pull request starts ci.yml on ubuntu-latest with four parallel jobs: backend (Python 3.12 with Tesseract, pytest on SQLite and against a PostgreSQL 17 service container, advisory pip-audit), web (JavaScript syntax checks, relay unit tests, Playwright browser specifications), image (docker build, boot with production settings, poll /api/health) and android (Node 22, Temurin JDK 21, web sync, gradlew assembleDebug with the debug APK kept for seven days).",
+    "Render's web service uses the Docker runtime on the free plan with auto-deploy on every commit to main and /api/health as its health check; at start-up the API runs Alembic migrations, enables row-level security and checks the private storage bucket.",
+    "Firebase Hosting receives only the web/ folder through a manual firebase deploy --only hosting from a reviewed checkout.",
+    "The mail-relay Edge Function is deployed with the Supabase CLI once per change.",
+    "Release APKs and AABs are built locally with gradlew assembleRelease and bundleRelease using a keystore that lives outside the repository; CI only compiles the debug variant and never holds the release key.",
+    "Schema changes ship as Alembic migrations inside the API image; there is no separate database deployment.",
+  ],
+  width: 1040,
+  height: 700,
+  groups: [
+    { id: "source", x: 20, y: 16, w: 240, h: 190, title: "Source", subtitle: "GitHub · private repository", tone: "neutral" },
+    { id: "operator", x: 20, y: 236, w: 240, h: 450, title: "Maintainer", subtitle: "Local machine · no secrets in git", tone: "device" },
+    { id: "ci", x: 290, y: 16, w: 460, h: 340, title: "GitHub Actions · ci.yml", subtitle: "push to main · pull request · manual dispatch · ubuntu-latest", tone: "ci" },
+    { id: "targets", x: 780, y: 16, w: 240, h: 670, title: "Release targets", subtitle: "Separate release mechanisms", tone: "external" },
+  ],
+  nodes: [
+    { id: "repo", x: 40, y: 80, w: 200, h: 90, title: "gaitai-care repository", subtitle: "api · web · migrations\nmobile · supabase · .github", kind: "artifact" },
+    { id: "maintainer", x: 90, y: 280, w: 100, h: 70, title: "Maintainer", kind: "actor" },
+    { id: "m1", x: 40, y: 370, w: 200, h: 76, title: "firebase deploy", subtitle: "--only hosting · web/ only\nafter review and tests", kind: "job" },
+    { id: "m2", x: 40, y: 470, w: 200, h: 76, title: "supabase functions deploy", subtitle: "mail-relay · once per change\nsecrets set in the dashboard", kind: "job" },
+    { id: "m3", x: 40, y: 570, w: 200, h: 90, title: "gradlew release build", subtitle: "assembleRelease · bundleRelease\nkeystore outside the repo\nversioned APK and AAB", kind: "job" },
+    { id: "j1", x: 310, y: 80, w: 200, h: 110, title: "backend", subtitle: "Python 3.12 · Tesseract\npytest on SQLite\npytest against PostgreSQL 17\npip-audit (advisory)" },
+    { id: "j2", x: 530, y: 80, w: 200, h: 110, title: "web", subtitle: "node --check web/*.js\nrelay unit tests (node --test)\nPlaywright browser specs\nartifact on failure only" },
+    { id: "j3", x: 310, y: 216, w: 200, h: 110, title: "image", subtitle: "docker build\nrun with production settings\npoll /api/health, 45 tries" },
+    { id: "j4", x: 530, y: 216, w: 200, h: 110, title: "android", subtitle: "Node 22 · Temurin JDK 21\nsync web → Capacitor project\ngradlew assembleDebug\nartifact: debug APK (7 days)" },
+    { id: "t1", x: 800, y: 60, w: 200, h: 100, title: "Render web service", subtitle: "Docker runtime · free plan\nauto-deploy on commit to main\nhealth check /api/health", tone: "accent" },
+    { id: "t5", x: 800, y: 180, w: 200, h: 56, title: "Supabase PostgreSQL", subtitle: "Alembic upgrade · RLS at API start", kind: "store" },
+    { id: "t2", x: 800, y: 370, w: 200, h: 76, title: "Firebase Hosting", subtitle: "static web/ assets\nheaders from firebase.json", kind: "external" },
+    { id: "t3", x: 800, y: 470, w: 200, h: 76, title: "Supabase Edge Function", subtitle: "mail-relay\n--no-verify-jwt, HMAC instead", kind: "function" },
+    { id: "t4", x: 800, y: 570, w: 200, h: 90, title: "Android artefacts", subtitle: "signed APK for sideloading\nAAB for Play (not submitted)\nassetlinks.json fingerprint", kind: "artifact" },
+  ],
+  edges: [
+    { id: "trigger", from: "repo", to: "j1", fromSide: "right", fromAt: (135 - 125) / 90, toSide: "left" },
+    { id: "trigger2", from: "repo", to: "j3", fromSide: "right", fromAt: 0.3, toSide: "left", via: 275 },
+    { id: "autodeploy", from: "repo", to: "t1", fromSide: "top", toSide: "top", via: 10, label: "auto-deploy on commit", labelAt: 0.9 },
+    { id: "boot", from: "t1", to: "t5", fromSide: "bottom", toSide: "top" },
+    { id: "checkout", from: "repo", to: "maintainer", fromSide: "bottom", toSide: "top", label: "local checkout" },
+    { id: "m-steps", from: "maintainer", to: "m1", fromSide: "bottom", toSide: "top" },
+    { id: "hosting", from: "m1", to: "t2", fromSide: "right", toSide: "left", label: "manual release", sublabel: "Firebase CLI · owner account" },
+    { id: "edge", from: "m2", to: "t3", fromSide: "right", toSide: "left", label: "manual release", sublabel: "Supabase CLI" },
+    { id: "release", from: "m3", to: "t4", fromSide: "right", toSide: "left", label: "signed artefacts", sublabel: "copied to a git-ignored folder" },
+  ],
+  notes: [
+    { id: "nodeploy", x: 310, y: 342, w: 420, text: ["CI has no deploy job: it verifies; each surface releases separately."] },
+    { id: "debug", x: 310, y: 372, w: 420, text: ["The android job compiles the debug variant of the same Gradle", "project; the release keystore never enters CI."] },
+    { id: "schema", x: 310, y: 450, w: 420, text: ["Schema changes travel as Alembic migrations inside the API", "image; there is no separate database deployment."] },
+  ],
+  legend: [
+    { style: "solid", label: "Trigger or release step" },
+    { style: "box-external", label: "Hosted service" },
+    { style: "box-function", label: "Serverless function" },
+    { style: "box-store", label: "Database" },
+  ],
+};

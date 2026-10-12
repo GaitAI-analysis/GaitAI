@@ -3,7 +3,7 @@
 Firebase Hosting delivers the application shell and assets. The browser loads ordinary JavaScript modules that manage UI state, render feature screens and invoke the Care API over HTTPS. The reviewed web client does not use a React or Next.js application build.
 
 ```diagram
-web
+web-architecture
 ```
 
 The diagram shows logical responsibility, not private network addresses. The API and persistence tiers are explained in [shared system architecture](/insights/wiki/gaitai-care/backend/architecture/).

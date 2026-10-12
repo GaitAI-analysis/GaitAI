@@ -7,7 +7,7 @@ The source uses PyMuPDF to read PDF content and a Tesseract integration for OCR 
 Candidate extraction can identify medication, vaccination and laboratory-observation information. Ambiguous dates or missing units must not be silently interpreted as established facts. The review flow preserves a distinction between extracted text, proposed fields and accepted records.
 
 ```diagram
-ingestion
+document-pipeline
 ```
 
 ## Optional external vision adapter

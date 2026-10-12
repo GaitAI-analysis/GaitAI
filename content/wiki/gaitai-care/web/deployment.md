@@ -13,6 +13,10 @@ The browser application consists of static source assets. Unlike the corporate w
 
 This is a release model, not an infrastructure access runbook. Project configuration and deployment credentials remain private.
 
+```diagram
+cicd-architecture
+```
+
 ## What CI verifies
 
 The reviewed GitHub Actions workflow includes a web job with syntax checks, email-relay unit checks and browser specifications. Backend, container and Android jobs are distinct. A successful Android build does not deploy the browser UI, and a successful web job does not by itself prove a Firebase release occurred.

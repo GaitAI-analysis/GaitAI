@@ -3,10 +3,10 @@
 SQLAlchemy models and Alembic migrations define the backend's relational structure. PostgreSQL is the reported production database through Supabase. SQLite support also exists for local and automated testing, so local behavior should not be assumed to prove all production database semantics.
 
 ```diagram
-data
+data-model-er
 ```
 
-The diagram is conceptual. Labels are domain concepts rather than literal database identifiers or a complete physical schema.
+The diagram shows twenty-five of the fifty tables with their real names, keys and cardinalities, taken from the migrations and SQLAlchemy models. Hash and ciphertext columns are marked; the note under the figure lists the tables that are not drawn.
 
 ## Data domains
 

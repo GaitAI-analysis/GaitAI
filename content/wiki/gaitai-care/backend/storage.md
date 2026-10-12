@@ -3,7 +3,7 @@
 The relational database stores document metadata and relationships. A storage adapter handles protected file bytes. The source supports private Supabase object storage and a local mode for appropriate test or development contexts. The supplied hosted architecture reports Supabase storage for medical documents.
 
 ```diagram
-ingestion
+document-pipeline
 ```
 
 ## Ingestion

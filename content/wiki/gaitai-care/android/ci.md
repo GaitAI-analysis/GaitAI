@@ -11,6 +11,10 @@ Checkout source
   → retain debug artifact
 ```
 
+```diagram
+cicd-architecture
+```
+
 ## Latest reviewed result
 
 The GitHub API confirmed a successful completed workflow for the source revision reviewed on 12 October 2026. The short commit reported by the owner was checked against that workflow. Private repository links and internal revision identifiers are not published as navigation in this public Wiki.

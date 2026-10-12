@@ -2,6 +2,10 @@
 
 The source implements account registration, consent, email verification, session validation, password recovery and account deletion. Identity belongs to the Python service; Firebase's role in this architecture is frontend hosting.
 
+```diagram
+auth-sequence
+```
+
 ## Layered access decision
 
 Protected access depends on a valid account session, the required account state and authorization for the requested profile or resource. Some workflows have additional role or guardian requirements. Ownership checks therefore apply beyond initial sign-in: reads, edits, exports, file retrieval, sharing and deletion each need appropriate scope.

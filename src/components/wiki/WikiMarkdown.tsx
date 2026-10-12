@@ -13,6 +13,8 @@ function plainText(children: ReactNode): string {
 
 export function WikiMarkdown({ markdown }: { markdown: string }) {
   const slugger = new GithubSlugger();
+  // Figures are numbered in document order, like the tables and listings of a paper.
+  let figures = 0;
   const heading = (level: "h2" | "h3", children: ReactNode) => {
     const title = plainText(children);
     const id = slugger.slug(title);
@@ -25,7 +27,7 @@ export function WikiMarkdown({ markdown }: { markdown: string }) {
     pre: ({ children }) => <>{children}</>,
     code: ({ children, className }) => {
       const language = /language-(\S+)/.exec(className ?? "")?.[1];
-      if (language === "diagram") return <StaticDiagram name={plainText(children).trim()} />;
+      if (language === "diagram") return <StaticDiagram name={plainText(children).trim()} index={++figures} />;
       if (language) return <CodeBlock language={language}>{children}</CodeBlock>;
       return <code>{children}</code>;
     },

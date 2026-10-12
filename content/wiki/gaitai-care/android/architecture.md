@@ -11,6 +11,10 @@ The native Android activity hosts a Capacitor WebView. Packaged HTML, JavaScript
 | Native integrations | App, Browser, Network, Filesystem, Share, SplashScreen, LocalNotifications | Platform services |
 | Backend | Shared Care API | Account authority and medical data |
 
+```diagram
+android-architecture
+```
+
 ## Packaged rather than remote UI
 
 The sync process copies shared assets into the mobile build. An installed app therefore contains a specific UI snapshot. It does not simply become the latest web release whenever Firebase assets change. A mobile update must be assembled and released separately.

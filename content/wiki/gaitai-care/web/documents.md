@@ -3,7 +3,7 @@
 The browser lets an authorized user select a medical file and associate it with a profile. It sends the file to the backend for validation, protected storage and extraction. The client displays the resulting state and proposed information; it does not become the authoritative parser or document store.
 
 ```diagram
-ingestion
+document-pipeline
 ```
 
 ## Reviewable information

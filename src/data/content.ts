@@ -115,45 +115,28 @@ export const navLinks: readonly NavItem[] = [
      titles, the social cards and the RSS title. Opening Blog lands on
      "GaitAI Insights · Ideas in motion." Neither word replaces the other.
 
-     THE THREE ROWS ARE THE PUBLICATION'S THREE QUESTIONS, in the order a
-     reader asks them: what should I read today, where do I begin, and what
-     have you published. Each is a different job — that is why they are three
-     destinations and not one page with tabs — and putting them in the navbar
-     is what removes the need for a second horizontal strip inside the blog
-     itself.
-
-     TWO ROWS THAT DO NOT APPEAR, both for the same reason: the menu is for
-     destinations a reader chooses between, not an index of every route.
-
-       Topics · /insights/topics/ still exists and is still in the sitemap and
-                the command palette, but browsing by subject is what the feed's
-                own topic filters are for, one screen below this menu. A fourth
-                row for it made the menu longer without making the choice
-                easier.
-       Series · the one series that exists canonicalises to
-                /insights/start-here/, so a row for it would point at the row
-                above it. */
+     The dropdown offers Insights, Archive and Wiki. Foundations, topics and
+     series retain their routes and remain discoverable inside Insights. */
   {
     label: "Blog",
     href: "/insights",
     children: [
       {
-        label: "Latest Stories",
+        label: "Insights",
         href: "/insights",
         description: "Recent articles, research notes and GaitAI updates",
         exact: true,
         owns: ["/insights/page"],
       },
       {
-        label: "GaitAI Foundations",
-        href: "/insights/start-here",
-        description: "The five ideas behind movement-intelligence thinking",
-        owns: ["/insights/series"],
-      },
-      {
         label: "Archive",
         href: "/insights/archive",
         description: "Everything GaitAI has published",
+      },
+      {
+        label: "Wiki",
+        href: "/insights/wiki",
+        description: "Product architecture and technical documentation",
       },
     ],
   },

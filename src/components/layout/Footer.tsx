@@ -47,6 +47,7 @@ const footerLinks = [
       { label: "Publications", href: "/publications" },
       { label: "Talks & presentations", href: "/research/talks" },
       { label: "Blog", href: "/insights" },
+      { label: "Wiki", href: "/insights/wiki" },
       { label: "Responsible AI", href: "/legal/responsible-ai" },
     ],
   },

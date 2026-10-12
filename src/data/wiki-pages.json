@@ -1,0 +1,331 @@
+[
+  {
+    "slug": "overview",
+    "title": "Product Overview",
+    "area": "overview",
+    "section": "Foundation",
+    "description": "A personal and family health-record application, with distinct web and Android clients."
+  },
+  {
+    "slug": "comparison",
+    "title": "Web vs Android",
+    "area": "overview",
+    "section": "Foundation",
+    "description": "Shared capabilities and the native behaviors that distinguish the Android experience."
+  },
+  {
+    "slug": "architecture-decisions",
+    "title": "Architecture Decisions",
+    "area": "overview",
+    "section": "Foundation",
+    "description": "The rationale, benefits and trade-offs behind the current system."
+  },
+  {
+    "slug": "faq",
+    "title": "FAQ and Troubleshooting",
+    "area": "overview",
+    "section": "Foundation",
+    "description": "Common questions about product boundaries, shared records, extraction and release status."
+  },
+  {
+    "slug": "web",
+    "title": "Web Application Documentation",
+    "area": "web",
+    "section": "Start here",
+    "description": "The browser application: features, architecture, sessions and static delivery."
+  },
+  {
+    "slug": "web/architecture",
+    "title": "Web Architecture and Stack",
+    "area": "web",
+    "section": "Architecture",
+    "description": "Static client delivery, feature modules and the API boundary."
+  },
+  {
+    "slug": "web/structure",
+    "title": "Frontend Code Structure",
+    "area": "web",
+    "section": "Architecture",
+    "description": "How the shared web shell and feature modules are organized."
+  },
+  {
+    "slug": "web/hosting",
+    "title": "Firebase Hosting and Domain",
+    "area": "web",
+    "section": "Architecture",
+    "description": "Static hosting, branded URLs and the separation of frontend and service releases."
+  },
+  {
+    "slug": "web/navigation",
+    "title": "Page Layout and Navigation",
+    "area": "web",
+    "section": "Experience",
+    "description": "The browser shell, profile selection, feature screens and interaction states."
+  },
+  {
+    "slug": "web/sessions",
+    "title": "Browser Authentication and Sessions",
+    "area": "web",
+    "section": "Experience",
+    "description": "Account entry, browser session state and shared authorization."
+  },
+  {
+    "slug": "web/records",
+    "title": "Dashboard and Health Records",
+    "area": "web",
+    "section": "Workflows",
+    "description": "Profiles, chronology, medications, daily care and record provenance."
+  },
+  {
+    "slug": "web/documents",
+    "title": "OCR and Document Workflows",
+    "area": "web",
+    "section": "Workflows",
+    "description": "Browser upload, candidate review, correction and export behavior."
+  },
+  {
+    "slug": "web/security-accessibility",
+    "title": "Web Security and Accessibility",
+    "area": "web",
+    "section": "Quality & delivery",
+    "description": "Browser-specific boundaries and the accessibility work required for usable health records."
+  },
+  {
+    "slug": "web/deployment",
+    "title": "Web Build and Deployment",
+    "area": "web",
+    "section": "Quality & delivery",
+    "description": "Frontend preparation, hosting delivery and CI boundaries."
+  },
+  {
+    "slug": "web/testing",
+    "title": "Browser Testing and Troubleshooting",
+    "area": "web",
+    "section": "Quality & delivery",
+    "description": "Test coverage, historical browser evidence and safe troubleshooting."
+  },
+  {
+    "slug": "web/roadmap",
+    "title": "Web Limitations and Roadmap",
+    "area": "web",
+    "section": "Quality & delivery",
+    "description": "Known boundaries, remaining verification and future proposals."
+  },
+  {
+    "slug": "android",
+    "title": "Android Application Documentation",
+    "area": "android",
+    "section": "Start here",
+    "description": "GaitAI Care 1.0.0: the Capacitor client, native integrations and release evidence."
+  },
+  {
+    "slug": "android/architecture",
+    "title": "Android Architecture and Stack",
+    "area": "android",
+    "section": "Architecture",
+    "description": "Capacitor, WebView, plugins and the boundary with the shared backend."
+  },
+  {
+    "slug": "android/structure",
+    "title": "Native Project Structure",
+    "area": "android",
+    "section": "Architecture",
+    "description": "The Android project, plugin responsibilities and resource organization."
+  },
+  {
+    "slug": "android/shared-code",
+    "title": "Shared Web Code and Mobile Layer",
+    "area": "android",
+    "section": "Architecture",
+    "description": "How the APK assembles the common interface and Android-specific overlays."
+  },
+  {
+    "slug": "android/sessions",
+    "title": "Keystore and Encrypted Sessions",
+    "area": "android",
+    "section": "Native experience",
+    "description": "Device-bound session persistence and its lifecycle."
+  },
+  {
+    "slug": "android/navigation",
+    "title": "Native Navigation and Back Behavior",
+    "area": "android",
+    "section": "Native experience",
+    "description": "Bottom navigation, all-sections sheets and predictable Android back actions."
+  },
+  {
+    "slug": "android/permissions",
+    "title": "Camera, Gallery and Permissions",
+    "area": "android",
+    "section": "Native experience",
+    "description": "User-initiated capture, document selection and platform permission boundaries."
+  },
+  {
+    "slug": "android/app-links",
+    "title": "App Links and Account Emails",
+    "area": "android",
+    "section": "Native experience",
+    "description": "Verified web links, native account flows and browser fallback."
+  },
+  {
+    "slug": "android/files",
+    "title": "PDF Downloads and File Handling",
+    "area": "android",
+    "section": "Native experience",
+    "description": "Export blobs, temporary files and the Android viewer handoff."
+  },
+  {
+    "slug": "android/notifications",
+    "title": "Notifications and Reminders",
+    "area": "android",
+    "section": "Native experience",
+    "description": "Opt-in scheduled phone reminders and their operational limits."
+  },
+  {
+    "slug": "android/offline",
+    "title": "Offline and Slow-Connection Handling",
+    "area": "android",
+    "section": "Native experience",
+    "description": "Network awareness and Render wake-up messaging without offline-record claims."
+  },
+  {
+    "slug": "android/branding",
+    "title": "Launcher, Splash Screen and Themes",
+    "area": "android",
+    "section": "Native experience",
+    "description": "Packaged brand resources and phone-specific presentation."
+  },
+  {
+    "slug": "android/build",
+    "title": "Gradle, SDK and Build Process",
+    "area": "android",
+    "section": "Build & release",
+    "description": "The verified tooling configuration and how APK/AAB artifacts are assembled."
+  },
+  {
+    "slug": "android/release",
+    "title": "Signing and Release Evidence",
+    "area": "android",
+    "section": "Build & release",
+    "description": "What was independently checked for the reported 1.0.0 release, and what remains unverified."
+  },
+  {
+    "slug": "android/ci",
+    "title": "GitHub Actions Android Build",
+    "area": "android",
+    "section": "Build & release",
+    "description": "What the current Android CI job builds and what a green workflow means."
+  },
+  {
+    "slug": "android/testing",
+    "title": "Emulator and Device Testing",
+    "area": "android",
+    "section": "Build & release",
+    "description": "Historical emulator coverage, the reported 65 checks and remaining device qualification."
+  },
+  {
+    "slug": "android/roadmap",
+    "title": "Play Readiness, Versioning and Roadmap",
+    "area": "android",
+    "section": "Build & release",
+    "description": "Release readiness and platform limitations beyond the completed Capacitor implementation."
+  },
+  {
+    "slug": "backend",
+    "title": "Shared Backend and Infrastructure",
+    "area": "backend",
+    "section": "Start here",
+    "description": "One backend for web and Android: identity, records, documents, processing and email."
+  },
+  {
+    "slug": "backend/architecture",
+    "title": "System Architecture and Python Stack",
+    "area": "backend",
+    "section": "Architecture",
+    "description": "A modular monolith with managed persistence, private files and a separate email path."
+  },
+  {
+    "slug": "backend/api",
+    "title": "REST API and Domain Boundaries",
+    "area": "backend",
+    "section": "Architecture",
+    "description": "Validated requests, domain responsibilities and a public-safe contract description."
+  },
+  {
+    "slug": "backend/authentication",
+    "title": "Authentication and Authorization",
+    "area": "backend",
+    "section": "Architecture",
+    "description": "Identity, verification and resource scope shared by both clients."
+  },
+  {
+    "slug": "backend/data-model",
+    "title": "Database and Data Model",
+    "area": "backend",
+    "section": "Data & processing",
+    "description": "Conceptual entities, relational persistence and schema evolution."
+  },
+  {
+    "slug": "backend/storage",
+    "title": "Private Medical-Document Storage",
+    "area": "backend",
+    "section": "Data & processing",
+    "description": "Metadata, protected object bytes and the upload-to-review lifecycle."
+  },
+  {
+    "slug": "backend/extraction",
+    "title": "OCR, Extraction and Analytics",
+    "area": "backend",
+    "section": "Data & processing",
+    "description": "Local parsing, optional consented transcription and the human-review boundary."
+  },
+  {
+    "slug": "backend/exports",
+    "title": "Exports and Scoped Sharing",
+    "area": "backend",
+    "section": "Data & processing",
+    "description": "How selected records become summaries and where application control ends."
+  },
+  {
+    "slug": "backend/email",
+    "title": "Transactional Email Architecture",
+    "area": "backend",
+    "section": "Trust & operations",
+    "description": "Account email through the API, a Supabase relay and Hostinger mail."
+  },
+  {
+    "slug": "backend/security",
+    "title": "Security, RLS and Account Isolation",
+    "area": "backend",
+    "section": "Trust & operations",
+    "description": "Public architectural controls and the limits of source-level assurance."
+  },
+  {
+    "slug": "backend/deployment",
+    "title": "CI/CD and Infrastructure Delivery",
+    "area": "backend",
+    "section": "Trust & operations",
+    "description": "Backend validation, container deployment and independently released service surfaces."
+  },
+  {
+    "slug": "backend/validation",
+    "title": "Production Testing and Evidence",
+    "area": "backend",
+    "section": "Trust & operations",
+    "description": "Historical production results, current source review and explicit assurance limits."
+  },
+  {
+    "slug": "backend/recovery",
+    "title": "Retention, Backup and Recovery",
+    "area": "backend",
+    "section": "Trust & operations",
+    "description": "Lifecycle boundaries and the evidence required for recoverable health records."
+  },
+  {
+    "slug": "backend/roadmap",
+    "title": "Backend Roadmap and Troubleshooting",
+    "area": "backend",
+    "section": "Trust & operations",
+    "description": "Implemented foundations, unverified operations and shared troubleshooting boundaries."
+  }
+]

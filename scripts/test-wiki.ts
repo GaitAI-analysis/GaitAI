@@ -9,7 +9,16 @@ import { siteRoutes } from "../src/data/site-map";
 const routes = new Set(siteRoutes());
 const search = wikiSearchEntries();
 const blog = navLinks.find((n) => n.label === "Blog");
-assert.deepEqual(blog?.children?.map((n) => n.label), ["Insights", "Archive", "Wiki"]);
+const care = availableWikiProducts.find((product) => product.slug === "gaitai-care");
+assert(care, "Preserve the published Care documentation");
+assert.deepEqual(Object.fromEntries(["overview", "web", "android", "backend"].map((area) => [area, care.pages.filter((page) => page.area === area).length])), { overview: 4, web: 12, android: 17, backend: 14 });
+// Preserve the pre-Wiki reading paths, including active-route ownership.
+assert.deepEqual(blog?.children, [
+  { label: "Latest Stories", href: "/insights", description: "Recent articles, research notes and GaitAI updates", exact: true, owns: ["/insights/page"] },
+  { label: "GaitAI Foundations", href: "/insights/start-here", description: "The five ideas behind movement-intelligence thinking", owns: ["/insights/series"] },
+  { label: "Archive", href: "/insights/archive", description: "Everything GaitAI has published" },
+  { label: "Wiki", href: "/insights/wiki", description: "Product architecture and technical documentation" },
+]);
 let guides = 0, links = 0, headings = 0;
 for (const product of wikiProducts) {
   if (product.status === "coming-soon") { assert.equal(product.pages.length, 0); continue; }

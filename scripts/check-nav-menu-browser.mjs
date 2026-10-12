@@ -20,6 +20,7 @@ import { serve } from "./audit-server.mjs";
  * below the header's dropdown when both overlap.
  *
  *   QA_CHROMIUM=<chromium or msedge executable> GAITAI_AUDIT_OUT=out \
+ *     NAV_CHECK_PATH=/insights/wiki/gaitai-care/ \
  *     npx tsx scripts/check-nav-menu-browser.mjs
  *
  * Run it twice — the Playwright headless shell and real Edge — because the
@@ -107,6 +108,7 @@ async function panelCount(page) {
 }
 
 async function expectClosed(page, label, baseline, trigger) {
+  await settleLocationTrail(page);
   /* Let any exit animation finish (120ms) and the compositor settle. */
   await page.waitForTimeout(450);
   assert.equal(
@@ -127,11 +129,13 @@ async function expectClosed(page, label, baseline, trigger) {
      pixels at Δ<30 (image decode, subpixel AA) with nothing on screen — seen
      once on gaitai.in, 14 px — so the bar is one tenth of one percent, and
      any noise under it is printed rather than hidden. */
-  if (d.pct >= 0.1)
+  if (d.pct >= 0.1) {
+    fs.writeFileSync(`${directory}/BASE-${label.replace(/[^a-z0-9]+/gi, "-")}.png`, baseline);
     fs.writeFileSync(
       `${directory}/FAIL-${label.replace(/[^a-z0-9]+/gi, "-")}.png`,
       shot,
     );
+  }
   assert.ok(
     d.pct < 0.1,
     `${label}: ${d.pct.toFixed(3)}% of the panel region differs from never-opened (${d.changed} px, max Δ${d.max})`,
@@ -154,11 +158,22 @@ async function openByHover(page, trigger) {
 
 async function freshPage(context, theme) {
   const page = await context.newPage();
-  await page.goto(`${base}/`, { waitUntil: "networkidle" });
+  // A static route can isolate dropdown pixels from the home hero's animation.
+  await page.goto(`${base}${process.env.NAV_CHECK_PATH || "/"}`, { waitUntil: "networkidle" });
   await setTheme(page, theme);
+  await settleLocationTrail(page);
   await page.mouse.move(720, 640);
   await page.waitForTimeout(600);
   return page;
+}
+
+async function settleLocationTrail(page) {
+  // The shared breadcrumb deliberately changes from a greeting to an Atlas
+  // button after four seconds. Compare the same settled state on both pages.
+  await page.waitForFunction(() => {
+    const slot = document.querySelector('nav[aria-label="You are here"] [data-phase]');
+    return !slot || slot.getAttribute("data-phase") === "atlas";
+  });
 }
 
 try {
@@ -364,7 +379,7 @@ try {
       .getByRole("link", { name: /^MobilityCare/ })
       .click();
     await page.waitForURL(/\/mobilitycare\/?$/);
-    await page.waitForTimeout(400);
+    await page.locator("[data-nav-menu]").waitFor({ state: "hidden" });
     assert.equal(
       await panelCount(page),
       0,

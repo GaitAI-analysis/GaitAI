@@ -8,7 +8,7 @@ const georama = Georama({ subsets: ["latin"], variable: "--font-wiki", display: 
 
 export default function WikiLayout({ children }: { children: React.ReactNode }) {
   return <div className={`${styles.portal} ${georama.variable}`}>
-    <div className={styles.topbar}><Link href="/insights/wiki/" className={styles.wordmark}>GaitAI <span>/ Wiki</span></Link><WikiSearch entries={wikiSearchEntries()} /><span className={styles.topbarNote}>TECHNICAL DOCUMENTATION</span></div>
+    <div className={styles.topbar}><div className={styles.topbarInner}><Link href="/insights/wiki/" className={styles.wordmark}>GaitAI <span>Wiki</span></Link><span className={styles.topbarNote}>Architecture. Systems. Decisions.</span><WikiSearch entries={wikiSearchEntries()} /></div></div>
     {children}
   </div>;
 }

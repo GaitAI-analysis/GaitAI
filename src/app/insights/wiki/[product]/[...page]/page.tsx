@@ -1,9 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { availableWikiProducts, wikiAreasFor, wikiPageHref, wikiProductHref } from "@/data/wiki";
 import { readWikiPage } from "@/lib/wiki-content";
 import { WikiMarkdown } from "@/components/wiki/WikiMarkdown";
+import { WikiGuideCard } from "@/components/wiki/WikiCards";
+import { WikiToc } from "@/components/wiki/WikiToc";
 import styles from "@/components/wiki/wiki.module.css";
 
 type Params = { product: string; page: string[] };
@@ -36,13 +39,13 @@ export default function DocumentationPage({ params }: { params: Params }) {
       <header className={styles.articleHeader}><p className={styles.eyebrow}>{page.section}</p><h1>{page.title}</h1><p className={styles.articleDeck}>{page.description}</p><div className={styles.articleMeta}><span>Reviewed 12 October 2026</span><span>{minutes} min read</span><span>{String(index + 1).padStart(2, "0")} / {siblings.length} guides</span></div></header>
       <details className={styles.mobileToc}><summary>On this page</summary><ul>{headings.map((heading) => <li key={heading.id}><a href={`#${heading.id}`}>{heading.title}</a></li>)}</ul></details>
       <WikiMarkdown markdown={markdown} />
-      {area && page.slug === area.slug && <section className={styles.guideGroup} aria-label={`${area.name} guides`}><h2>Explore this documentation</h2><div className={styles.guideGrid}>{siblings.filter((p) => p.slug !== page.slug).map((entry) => <Link className={styles.guideLink} key={entry.slug} href={wikiPageHref(product.slug, entry.slug)}><h3>{entry.title} <span aria-hidden="true">?</span></h3><p>{entry.description}</p></Link>)}</div></section>}
+      {area && page.slug === area.slug && <section className={styles.guideGroup} aria-label={`${area.name} guides`}><div className={styles.sectionHead}><div><p className={styles.eyebrow}>CONTINUE EXPLORING</p><h2>Explore this documentation</h2></div></div><div className={styles.guideGrid}>{siblings.filter((p) => p.slug !== page.slug).map((entry) => <WikiGuideCard key={entry.slug} product={product.slug} page={entry} />)}</div></section>}
       <div className={styles.reviewNote}>Reviewed against the latest available Care source on 12 October 2026 and the supplied architecture bundle. Source review does not establish live service health or clinical validation.</div>
       <nav className={styles.pagination} aria-label="Documentation pages">
-        {previous ? <Link href={wikiPageHref(product.slug, previous.slug)} rel="prev"><span>← Previous</span><strong>{previous.title}</strong></Link> : <Link href={wikiProductHref(product.slug)}><span>← Documentation home</span><strong>{product.name}</strong></Link>}
-        {next ? <Link href={wikiPageHref(product.slug, next.slug)} rel="next"><span>Next →</span><strong>{next.title}</strong></Link> : <Link href={wikiProductHref(product.slug)}><span>Return to index →</span><strong>All {product.pages.length} guides</strong></Link>}
+        {previous ? <Link href={wikiPageHref(product.slug, previous.slug)} rel="prev"><span><ArrowLeft size={15} aria-hidden="true" /> Previous</span><strong>{previous.title}</strong></Link> : <Link href={wikiProductHref(product.slug)}><span><ArrowLeft size={15} aria-hidden="true" /> Documentation home</span><strong>{product.name}</strong></Link>}
+        {next ? <Link href={wikiPageHref(product.slug, next.slug)} rel="next"><span>Next <ArrowRight size={15} aria-hidden="true" /></span><strong>{next.title}</strong></Link> : <Link href={wikiProductHref(product.slug)}><span>Return to index <ArrowRight size={15} aria-hidden="true" /></span><strong>All {product.pages.length} guides</strong></Link>}
       </nav>
     </article>
-    <aside className={styles.toc}><nav aria-label="On this page"><p>ON THIS PAGE</p><ul>{headings.map((heading) => <li key={heading.id} className={heading.depth === 3 ? styles.tocNested : undefined}><a href={`#${heading.id}`}>{heading.title}</a></li>)}</ul></nav><Link href={wikiProductHref(product.slug)} className={styles.tocBack}>All Care guides ↗</Link></aside>
+    <WikiToc headings={headings} productHref={wikiProductHref(product.slug)} productName={product.name} />
   </div>;
 }

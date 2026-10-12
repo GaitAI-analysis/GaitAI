@@ -115,18 +115,24 @@ export const navLinks: readonly NavItem[] = [
      titles, the social cards and the RSS title. Opening Blog lands on
      "GaitAI Insights · Ideas in motion." Neither word replaces the other.
 
-     The dropdown offers Insights, Archive and Wiki. Foundations, topics and
-     series retain their routes and remain discoverable inside Insights. */
+     Keep the original reading paths in order, with the technical Wiki
+     appended after Archive. */
   {
     label: "Blog",
     href: "/insights",
     children: [
       {
-        label: "Insights",
+        label: "Latest Stories",
         href: "/insights",
         description: "Recent articles, research notes and GaitAI updates",
         exact: true,
         owns: ["/insights/page"],
+      },
+      {
+        label: "GaitAI Foundations",
+        href: "/insights/start-here",
+        description: "The five ideas behind movement-intelligence thinking",
+        owns: ["/insights/series"],
       },
       {
         label: "Archive",

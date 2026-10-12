@@ -84,7 +84,8 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const pathname = usePathname();
+  // Static export adds trailing slashes; match the registry's canonical paths.
+  const pathname = usePathname().replace(/\/$/, "") || "/";
   const router = useRouter();
   const desktopNav = useRef<HTMLElement>(null);
 

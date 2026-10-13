@@ -1,8 +1,8 @@
 /**
  * GaitAI mobile design system: tokens only, no components.
  *
- * Deep navy, muted royal blue, restrained cyan, a violet accent where it
- * means something, off-white paper, graphite and cool grey, one warm gold.
+ * Deep navy, muted royal blue, restrained cyan, off-white paper, graphite and
+ * cool grey, one warm gold — which is also the subscription ("premium") accent.
  * No electric blue, no neon. Each product carries its own accent: teal for
  * MobilityCare, royal for SecureVision, both from the website's registry.
  */
@@ -108,7 +108,7 @@ export function makeTheme(product: ProductId, scheme: "light" | "dark", font: Fo
       body: "#B3BDD0",
       mute: "#8C97AD",
       accent: a.dark, accentSoft: a.softD, accentInk: a.inkD,
-      premium: palette.violet, premiumSoft: "rgba(156,100,241,0.16)",
+      premium: palette.gold, premiumSoft: "rgba(201,165,93,0.16)",
       gold: palette.gold,
       danger: "#F0656A", warning: palette.warning, success: "#4CC38A",
       series: [a.dark, palette.royal, palette.violet, palette.gold],
@@ -126,7 +126,7 @@ export function makeTheme(product: ProductId, scheme: "light" | "dark", font: Fo
     body: palette.grey700,
     mute: palette.grey500,
     accent: a.light, accentSoft: a.softL, accentInk: a.inkL,
-    premium: "#6D3FD1", premiumSoft: "rgba(109,63,209,0.10)",
+    premium: palette.goldDeep, premiumSoft: "rgba(169,128,63,0.12)",
     gold: palette.goldDeep,
     danger: palette.danger, warning: "#B7831E", success: palette.success,
     series: [a.light, palette.royalDeep, "#6D3FD1", palette.goldDeep],

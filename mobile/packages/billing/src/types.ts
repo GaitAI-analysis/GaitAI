@@ -100,8 +100,8 @@ export function describeEntitlement(e: Entitlement): { title: string; body: stri
   switch (e.status) {
     case "PRO":
       return e.source === "dev"
-        ? { title: "GaitAI Pro · development entitlement", body: "Development entitlement. Not a purchase; never present in release builds." }
-        : { title: "GaitAI Pro", body: e.reason ?? `Active through ${store}.` };
+        ? { title: "Development entitlement", body: "Development entitlement. Not a purchase; never present in release builds." }
+        : { title: "Active subscription", body: e.reason ?? `Active through ${store}.` };
     case "PENDING":
       return { title: "Pro purchase pending", body: e.reason ?? `${store} is still confirming the payment. Pro unlocks automatically once it clears.` };
     case "EXPIRED":

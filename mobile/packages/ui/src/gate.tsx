@@ -48,7 +48,7 @@ export function LockedScreen({ reason }: { reason: "signin" | "subscribe" }) {
       </Text>
       {reason === "subscribe" ? (
         <Card style={{ marginTop: space.lg, gap: 6 }}>
-          <Row style={{ justifyContent: "space-between" }}><Text variant="bodyStrong">{desc.title}</Text><Chip tone={ent.status === "PENDING" ? "warning" : ent.status === "EXPIRED" ? "danger" : "neutral"} label={ent.status === "UNKNOWN" ? "UNVERIFIED" : ent.status} /></Row>
+          <Row style={{ justifyContent: "space-between" }}><Text variant="bodyStrong">{desc.title}</Text><Chip tone={ent.status === "PENDING" ? "warning" : ent.status === "EXPIRED" ? "danger" : "neutral"} label={ent.status === "UNKNOWN" ? "UNVERIFIED" : ent.status === "FREE" ? "LOCKED" : ent.status} /></Row>
           <Text variant="mute">{ent.reason ?? desc.body}</Text>
           {user ? <Text variant="small" color={t.mute}>Signed in as {user.email}</Text> : null}
         </Card>

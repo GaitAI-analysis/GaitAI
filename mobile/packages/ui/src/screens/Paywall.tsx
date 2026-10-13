@@ -37,9 +37,12 @@ export function PaywallScreen({ onClose }: { onClose: () => void; unlockedCount?
   const selected = plan === "yearly" ? yearly : monthly;
   const user = app.auth.user;
   const signedIn = !!user || !app.accountRequired;
-  const verified = !app.accountRequired || !!user?.emailVerified;
   const paymentsActive = catalog ? catalog.paymentsActive : true;
   const sandbox = catalog?.mode === "sandbox";
+  // Email verification is enforced by the Worker (always, in production). The
+  // local check only shapes the button; the sandbox Worker relaxes it for QA
+  // accounts that have no inbox, so the screen follows the Worker's mode.
+  const verified = !app.accountRequired || sandbox || !!user?.emailVerified;
   const loadingPlans = b.status === "loading";
   const noPlans = !loadingPlans && b.products.length === 0;
   const pending = app.entitlementStatus === "PENDING" || b.status === "pending";

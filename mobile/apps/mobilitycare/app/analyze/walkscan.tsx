@@ -1,6 +1,6 @@
 import React from "react";
-import { WalkScanScreen } from "@gaitai/ui";
+import { WalkScanScreen, RequireSubscription } from "@gaitai/ui";
 
 export default function Screen() {
-  return <WalkScanScreen />;
+  return <RequireSubscription><WalkScanScreen /></RequireSubscription>;
 }

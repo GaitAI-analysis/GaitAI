@@ -17,7 +17,7 @@ export function AnalyzeScreen() {
     <Screen style={{ paddingTop: insets.top + space.md }}>
       <DemoBanner />
       <Text variant="title">Analyze</Text>
-      <Text style={{ marginTop: 6 }}>Every analysis here runs on this phone. Only products with a working analysis can be started.</Text>
+      <Text style={{ marginTop: 6 }}>Every analysis here runs on this phone, once your subscription has been confirmed with GaitAI. Only products with a working analysis can be started.</Text>
       <SectionTitle>Available</SectionTitle>
       <View style={{ gap: space.md }}>
         {available.map((c) => (

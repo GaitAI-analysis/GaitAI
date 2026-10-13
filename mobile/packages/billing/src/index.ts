@@ -16,6 +16,7 @@
 export * from "./types";
 export { DevEntitlementProvider } from "./dev";
 export { StoreBillingProvider, OFFLINE_GRACE_MS, STORE_KIND, STORE_LABEL, toStoreProduct, toStoreProductAndroid, toStoreProductIOS, type StoreBillingConfig, type StoreKind } from "./store";
+export { ServerBillingProvider, toServerEntitlement, toStoreProducts, type ServerBillingConfig } from "./server";
 
 import { isEntitled } from "@gaitai/core";
 import type { Entitlement } from "@gaitai/core";

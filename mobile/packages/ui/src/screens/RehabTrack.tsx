@@ -23,9 +23,12 @@ export function RehabTrackScreen() {
   );
   const compare = async () => {
     const a = scans.find((s) => s.id === base), b = scans.find((s) => s.id === latest); if (!a || !b) return;
-    setBusy(true); await analytics.track("analysis_started", { product: "mobilitycare", analysis: "rehabtrack" });
+    setBusy(true);
+    // Server-side gate, like every analysis.
+    if (!(await app.authorizeAnalysis("rehabtrack"))) { setBusy(false); router.push("/paywall" as never); return; }
+    await analytics.track("analysis_started", { product: "mobilitycare", analysis: "rehabtrack" });
     const [older, newer] = new Date(a.createdAt) <= new Date(b.createdAt) ? [a, b] : [b, a];
-    const s: AnalysisSession = buildRehabSession(older, newer, { userId: app.profile?.id ?? "local", demo: older.demo || newer.demo });
+    const s: AnalysisSession = buildRehabSession(older, newer, { userId: app.auth.user?.uid ?? app.profile?.id ?? "local", demo: older.demo || newer.demo });
     await app.saveSession(s); await analytics.track("analysis_completed", { product: "mobilitycare", analysis: "rehabtrack" }); setBusy(false);
     router.replace(`/result/${s.id}` as never);
   };

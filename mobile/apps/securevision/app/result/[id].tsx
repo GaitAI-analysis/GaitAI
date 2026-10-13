@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { sessionStore, type AnalysisSession } from "@gaitai/core";
-import { ErrorState, ResultScreen, Screen, Skeleton, useApp } from "@gaitai/ui";
+import { ErrorState, RequireSubscription, ResultScreen, Screen, Skeleton, useApp } from "@gaitai/ui";
 
-export default function Result() {
+function Body() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const app = useApp();
   const [s, setS] = useState<AnalysisSession | null | undefined>(undefined);
@@ -14,4 +14,8 @@ export default function Result() {
   if (s === undefined) return <Screen><Skeleton height={28} width="60%" style={{ marginTop: 24 }} /><Skeleton height={120} radius={20} style={{ marginTop: 16 }} /><Skeleton height={120} radius={20} style={{ marginTop: 12 }} /></Screen>;
   if (s === null) return <Screen><ErrorState title="Result not found" body="This analysis is no longer on this phone." /></Screen>;
   return <ResultScreen session={s} />;
+}
+
+export default function Result() {
+  return <RequireSubscription><Body /></RequireSubscription>;
 }

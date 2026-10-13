@@ -65,7 +65,21 @@ export interface Theme {
   /** Chart series in order of importance. */
   series: [string, string, string, string];
   shadow: string;
+  /** Brand typeface families by weight once Georama has loaded; null falls back to the system font. */
+  font: FontFamilies | null;
 }
+
+/** Georama, the GaitAI brand typeface, as the family names expo-google-fonts registers. */
+export type FontFamilies = Record<"400" | "500" | "600" | "700", string>;
+export const GEORAMA: FontFamilies = { "400": "Georama_400Regular", "500": "Georama_500Medium", "600": "Georama_600SemiBold", "700": "Georama_700Bold" };
+export const fontFor = (families: FontFamilies | null, weight: string | number | undefined): string | undefined => {
+  if (!families) return undefined;
+  const w = String(weight ?? "400");
+  return families[(w === "bold" ? "700" : w in families ? (w as keyof FontFamilies) : Number(w) >= 600 ? "600" : Number(w) >= 500 ? "500" : "400")];
+};
+
+/** Subscription-layer colours shared by both products: deep navy, graphite, warm off-white, restrained gold. */
+export const brand = { navy: "#0B1D3A", graphite: "#2B2F36", offWhite: "#F7F4EE", gold: "#B8933F", goldSoft: "rgba(184,147,63,0.14)" } as const;
 
 const ACCENT: Record<ProductId, { light: string; dark: string; softL: string; softD: string; inkL: string; inkD: string }> = {
   mobilitycare: {
@@ -80,11 +94,11 @@ const ACCENT: Record<ProductId, { light: string; dark: string; softL: string; so
   },
 };
 
-export function makeTheme(product: ProductId, scheme: "light" | "dark"): Theme {
+export function makeTheme(product: ProductId, scheme: "light" | "dark", font: FontFamilies | null = null): Theme {
   const a = ACCENT[product];
   if (scheme === "dark") {
     return {
-      scheme, product,
+      scheme, product, font,
       bg: palette.navy900,
       surface: "#0E1628",
       surface2: "#131D33",
@@ -102,7 +116,7 @@ export function makeTheme(product: ProductId, scheme: "light" | "dark"): Theme {
     };
   }
   return {
-    scheme, product,
+    scheme, product, font,
     bg: palette.paper,
     surface: palette.white,
     surface2: palette.paper2,

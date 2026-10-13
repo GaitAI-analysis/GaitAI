@@ -1,9 +1,9 @@
 {
-  "built": "2026-10-04T18:52:08.172Z",
+  "built": "2026-10-13T18:30:39.205Z",
   "runtime": "mediapipe-tasks-vision@1.0.1",
   "page": {
     "file": "engine.html",
-    "bytes": 493011
+    "bytes": 493221
   },
   "wasm": {
     "file": "vision_wasm_internal.wasm",

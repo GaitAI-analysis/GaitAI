@@ -1,6 +1,6 @@
 import React from "react";
-import { RehabTrackScreen } from "@gaitai/ui";
+import { RehabTrackScreen, RequireSubscription } from "@gaitai/ui";
 
 export default function Screen() {
-  return <RehabTrackScreen />;
+  return <RequireSubscription><RehabTrackScreen /></RequireSubscription>;
 }

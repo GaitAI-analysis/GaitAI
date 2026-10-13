@@ -43,10 +43,13 @@ export function CrowdScreen({ kind }: { kind: Kind }) {
 
   const analyse = useCallback(async (video: string | null) => {
     setStep("processing"); setError(null);
+    setProgress({ stage: "preparing", fraction: 0.01, detail: "Confirming your subscription" });
+    // Server-side gate: no analysis starts without a grant from GaitAI for this account and product.
+    if (!(await app.authorizeAnalysis(kind))) { setStep("intro"); router.push("/paywall" as never); return; }
     setProgress(app.engineReady ? { stage: "preparing", fraction: 0.02 } : { stage: "engine", fraction: 0.01, detail: app.engineStatus.detail });
     await analytics.track("analysis_started", { product: "securevision", analysis: kind, demo: app.demoMode });
     try {
-      let session: AnalysisSession; const ctx = { userId: app.profile?.id ?? "local", inputType: "uploaded-video" as const };
+      let session: AnalysisSession; const ctx = { userId: app.auth.user?.uid ?? app.profile?.id ?? "local", inputType: "uploaded-video" as const };
       const zone = { name: zoneName, points };
       if (video == null) {
         if (!(__DEV__ && app.demoMode)) throw new EngineError("VIDEO_DECODE_FAILED", "No video was provided.");

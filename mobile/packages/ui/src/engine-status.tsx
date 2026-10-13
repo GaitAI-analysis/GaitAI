@@ -94,7 +94,7 @@ export function EnginePreparing({ product, retrying }: { product: ProductId; ret
         ))}
       </View>
       <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: t.line }} />
-      <Text variant="mute">{status.detail}. Record and upload unlock when the engine is ready; nothing is uploaded at any point.</Text>
+      <Text variant="mute">{status.detail}. Record and upload unlock when the engine is ready; the video itself is never uploaded.</Text>
     </Card>
   );
 }

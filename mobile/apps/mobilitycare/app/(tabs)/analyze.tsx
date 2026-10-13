@@ -1,6 +1,6 @@
 import React from "react";
-import { AnalyzeScreen } from "@gaitai/ui";
+import { AnalyzeScreen, RequireSubscription } from "@gaitai/ui";
 
-export default function Analyze() {
-  return <AnalyzeScreen />;
+export default function Screen() {
+  return <RequireSubscription><AnalyzeScreen /></RequireSubscription>;
 }

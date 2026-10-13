@@ -1,8 +1,8 @@
 import React from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text as RNText, View, type PressableProps, type TextProps, type ViewProps, type ViewStyle, RefreshControl } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text as RNText, TextInput, View, type PressableProps, type TextInputProps, type TextProps, type ViewProps, type ViewStyle, RefreshControl } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
-import { hit, radius, space, type as typeScale } from "@gaitai/design-system";
+import { fontFor, hit, radius, space, type as typeScale } from "@gaitai/design-system";
 import { useTheme } from "./theme";
 
 type Variant = keyof typeof typeScale | "mute" | "bodyStrong";
@@ -10,7 +10,29 @@ type Variant = keyof typeof typeScale | "mute" | "bodyStrong";
 export function Text({ variant = "body", color, style, ...rest }: TextProps & { variant?: Variant; color?: string }) {
   const t = useTheme();
   const base = variant === "mute" ? { ...typeScale.small, color: t.mute } : variant === "bodyStrong" ? { ...typeScale.body, fontWeight: "600" as const, color: t.ink } : { ...typeScale[variant], color: ["hero", "title", "heading", "metric", "bodyStrong"].includes(variant) ? t.ink : variant === "label" ? t.mute : t.body };
-  return <RNText allowFontScaling maxFontSizeMultiplier={1.6} {...rest} style={[base, variant === "label" && { textTransform: "uppercase" }, color ? { color } : null, style]} />;
+  // Georama ships one family per weight, so the weight becomes the family name and fontWeight is dropped (Android ignores it for custom families).
+  const family = fontFor(t.font, base.fontWeight);
+  return <RNText allowFontScaling maxFontSizeMultiplier={1.6} {...rest} style={[base, family ? { fontFamily: family, fontWeight: undefined } : null, variant === "label" && { textTransform: "uppercase" }, color ? { color } : null, style]} />;
+}
+
+/** A labelled input in the app's visual language, with optional hint and inline error. */
+export function TextField({ label, hint, error, style, ...rest }: TextInputProps & { label: string; hint?: string; error?: string }) {
+  const t = useTheme();
+  const [focused, setFocused] = React.useState(false);
+  return (
+    <View style={{ gap: 6 }}>
+      <Text variant="label">{label}</Text>
+      <TextInput
+        {...rest}
+        onFocus={(e) => { setFocused(true); rest.onFocus?.(e); }}
+        onBlur={(e) => { setFocused(false); rest.onBlur?.(e); }}
+        placeholderTextColor={t.mute}
+        accessibilityLabel={rest.accessibilityLabel ?? label}
+        style={[{ ...typeScale.body, fontFamily: fontFor(t.font, "400"), color: t.ink, backgroundColor: t.surface2, borderRadius: radius.md, paddingHorizontal: space.md, minHeight: hit + 2, borderWidth: 1, borderColor: error ? t.danger : focused ? t.gold : t.line }, style]}
+      />
+      {error ? <Text variant="small" color={t.danger}>{error}</Text> : hint ? <Text variant="small" color={t.mute}>{hint}</Text> : null}
+    </View>
+  );
 }
 
 /**
@@ -62,7 +84,7 @@ export function Button({ label, kind = "primary", onPress, disabled, loading, ic
       {...rest}
     >
       {loading ? <ActivityIndicator color={fg} /> : icon}
-      <RNText style={{ ...typeScale.body, fontWeight: "600", color: fg }} maxFontSizeMultiplier={1.4}>{label}</RNText>
+      <RNText style={{ ...typeScale.body, fontWeight: "600", color: fg, ...(t.font ? { fontFamily: t.font["600"], fontWeight: undefined } : null) }} maxFontSizeMultiplier={1.4}>{label}</RNText>
     </Pressable>
   );
 }
@@ -71,7 +93,7 @@ export function Chip({ label, tone = "neutral", small }: { label: string; tone?:
   const t = useTheme();
   const map = { neutral: [t.surface2, t.body], accent: [t.accentSoft, t.accent], premium: [t.premiumSoft, t.premium], warning: ["rgba(217,164,65,0.16)", t.warning], success: ["rgba(47,163,107,0.16)", t.success], danger: ["rgba(229,72,77,0.14)", t.danger] } as const;
   const [bg, fg] = map[tone];
-  return <View style={{ backgroundColor: bg, borderRadius: radius.pill, paddingHorizontal: small ? 8 : 10, paddingVertical: small ? 3 : 5, alignSelf: "flex-start" }}><RNText style={{ fontSize: small ? 11 : 12, fontWeight: "600", color: fg, letterSpacing: 0.3 }}>{label}</RNText></View>;
+  return <View style={{ backgroundColor: bg, borderRadius: radius.pill, paddingHorizontal: small ? 8 : 10, paddingVertical: small ? 3 : 5, alignSelf: "flex-start" }}><RNText style={{ fontSize: small ? 11 : 12, fontWeight: "600", color: fg, letterSpacing: 0.3, ...(t.font ? { fontFamily: t.font["600"], fontWeight: undefined } : null) }}>{label}</RNText></View>;
 }
 
 export function Row({ children, style, gap = space.md, ...rest }: ViewProps & { gap?: number }) {

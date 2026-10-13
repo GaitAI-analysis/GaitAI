@@ -29,7 +29,7 @@ export function HomeScreen({ mark }: { mark: ImageSourcePropType }) {
       <DemoBanner />
       <Row style={{ justifyContent: "space-between" }}>
         <Row gap={10}><Image source={mark} style={{ width: 32, height: 32, borderRadius: 9 }} accessibilityIgnoresInvertColors /><Text variant="label">{productMeta[app.product].short}</Text></Row>
-        <Chip tone={app.isPro ? "premium" : "neutral"} label={app.isPro ? (app.entitlement.source === "dev" ? "PRO · DEV" : "PRO") : "FREE"} />
+        <Chip tone={app.isPro ? "premium" : "neutral"} label={app.isPro ? (app.entitlement.inGracePeriod ? "SUBSCRIBED · RETRYING" : "SUBSCRIBED") : "LOCKED"} />
       </Row>
       <Text variant="hero" style={{ marginTop: space.xl }}>{greeting()}{name ? `, ${name}` : ""}.</Text>
       {app.loading ? <View style={{ gap: space.md, marginTop: space.lg }}><Skeleton height={120} radius={20} /><Skeleton height={80} radius={20} /></View> : (

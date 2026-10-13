@@ -43,6 +43,9 @@ export function WalkScanScreen() {
 
   const analyse = useCallback(async (uri: string | null, inputType: InputType) => {
     setStep("processing"); setError(null);
+    setProgress({ stage: "preparing", fraction: 0.01, detail: "Confirming your subscription" });
+    // Server-side gate: no analysis starts without a grant from GaitAI for this account and product.
+    if (!(await app.authorizeAnalysis("walkscan"))) { setStep("guide"); router.push("/paywall" as never); return; }
     setProgress(app.engineReady ? { stage: "preparing", fraction: 0.02 } : { stage: "engine", fraction: 0.01, detail: app.engineStatus.detail });
     await analytics.track("analysis_started", { product: "mobilitycare", analysis: "walkscan", input: inputType, demo: app.demoMode });
     try {
@@ -52,7 +55,7 @@ export function WalkScanScreen() {
         if (!(__DEV__ && app.demoMode)) throw new EngineError("VIDEO_DECODE_FAILED", "No video was provided.");
         const instants = demoPoseInstants(); setProgress({ stage: "detecting", fraction: 0.6 }); await new Promise((r) => setTimeout(r, 600));
         setProgress({ stage: "computing", fraction: 0.92 });
-        session = buildWalkScanSession(instants, { runtime: "demo", model: "synthetic-gait", width: 0, height: 0, duration: 12, frames: instants.length, fps: 10, withSubject: instants.length }, { userId: app.profile?.id ?? "local", inputType, media: null, demo: true }, previous);
+        session = buildWalkScanSession(instants, { runtime: "demo", model: "synthetic-gait", width: 0, height: 0, duration: 12, frames: instants.length, fps: 10, withSubject: instants.length }, { userId: app.auth.user?.uid ?? app.profile?.id ?? "local", inputType, media: null, demo: true }, previous);
       } else {
         const local = await localizeVideo(uri);
         pendingClip.current = { uri: local, inputType };
@@ -63,7 +66,7 @@ export function WalkScanScreen() {
         setProgress({ stage: "computing", fraction: 0.92 });
         // Real inference ran. Only a result with a found body and enough timed steps is a result.
         if (meta.withSubject === 0) throw new EngineError("NO_PERSON_DETECTED", "No person was detected in the sampled frames.");
-        session = buildWalkScanSession(instants, meta, { userId: app.profile?.id ?? "local", inputType, media: { uri: local, mimeType: "video/mp4", durationSeconds: meta.duration, width: meta.width, height: meta.height, retained: keepVideos }, demo: false }, previous);
+        session = buildWalkScanSession(instants, meta, { userId: app.auth.user?.uid ?? app.profile?.id ?? "local", inputType, media: { uri: local, mimeType: "video/mp4", durationSeconds: meta.duration, width: meta.width, height: meta.height, retained: keepVideos }, demo: false }, previous);
         const cadence = session.freeMetrics.find((m) => m.id === "cadence");
         if (cadence?.value == null) throw new EngineError("INSUFFICIENT_VALID_FRAMES", `Body found in ${meta.withSubject} of ${meta.frames} frames, but too few clear steps to time.`);
         diag.log("metrics calculated", { framesWithSubject: meta.withSubject, frames: meta.frames, flags: session.quality.flags.join(",") });

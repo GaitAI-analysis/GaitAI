@@ -1,6 +1,6 @@
 import React from "react";
-import { ProgressScreen } from "@gaitai/ui";
+import { ProgressScreen, RequireSubscription } from "@gaitai/ui";
 
-export default function Progress() {
-  return <ProgressScreen title="Activity" />;
+export default function Screen() {
+  return <RequireSubscription><ProgressScreen title="Activity" /></RequireSubscription>;
 }

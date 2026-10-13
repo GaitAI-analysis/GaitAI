@@ -17,9 +17,19 @@
 #
 # Signing material never enters the repository: ~/.gaitai-keys/upload-keystore.properties
 # (storeFile, storePassword, keyAlias, keyPassword) points at the .jks beside it.
+#
+#   -Sign     sign assembleRelease with the GaitAI release key (~/.gaitai-keys)
+#             instead of the debug key, and name the output
+#             GaitAI-<Name>-release.apk. This is the public, direct-distribution
+#             build; never publish a debug-signed APK.
+#   -OutDir   where to copy the artefact (default <repo>\android-builds).
+#   GAITAI_API_BASE_URL (env) selects the billing Worker baked into the build:
+#             production (default) or the *-sandbox Worker for QA builds.
 param(
   [Parameter(Mandatory = $true)][ValidateSet("mobilitycare", "securevision")][string]$App,
-  [ValidateSet("assembleRelease", "assembleDebug", "bundleRelease")][string]$Task = "assembleRelease"
+  [ValidateSet("assembleRelease", "assembleDebug", "bundleRelease")][string]$Task = "assembleRelease",
+  [switch]$Sign,
+  [string]$OutDir = ""
 )
 $ErrorActionPreference = "Stop"
 $Repo = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
@@ -32,9 +42,14 @@ $env:ANDROID_SDK_ROOT = $env:ANDROID_HOME
 $env:CI = "1"
 $env:NODE_OPTIONS = "--max-old-space-size=1536"
 
-# 1. Short path.
-if (-not (Test-Path "C:\gm")) { cmd /c mklink /J C:\gm "$Mobile" | Out-Null }
-$AppDir = "C:\gm\apps\$App"
+# 1. Short path. GAITAI_SHORT_ROOT overrides C:\gm (useful when C:\gm already
+# points at another checkout — a junction to a deleted target still "exists").
+$Short = if ($env:GAITAI_SHORT_ROOT) { $env:GAITAI_SHORT_ROOT } else { "C:\gm" }
+if (-not (Test-Path "$Short\apps")) {
+  if (Test-Path $Short) { throw "$Short exists but does not lead to a mobile checkout; set GAITAI_SHORT_ROOT to another short path (e.g. C:\gm2)." }
+  cmd /c mklink /J $Short "$Mobile" | Out-Null
+}
+$AppDir = "$Short\apps\$App"
 $Android = "$AppDir\android"
 
 # 2. Native project.
@@ -105,10 +120,14 @@ Set-Content $props $p -Encoding ascii
 # bundle and assets are always rebuilt from the current sources (about a minute).
 Remove-Item -Recurse -Force "$Android\app\build\generated\assets\react" -ErrorAction SilentlyContinue
 Remove-Item -Recurse -Force "$Android\app\build\generated\res\react" -ErrorAction SilentlyContinue
-$env:GAITAI_PLAY_SIGNING = if ($Task -eq "bundleRelease") { "1" } else { "0" }
-if ($Task -eq "bundleRelease" -and -not (Test-Path "$env:USERPROFILE\.gaitai-keys\upload-keystore.properties")) {
-  throw "bundleRelease needs ~/.gaitai-keys/upload-keystore.properties (see the header of this script)."
+$signed = ($Task -eq "bundleRelease") -or ($Sign -and $Task -eq "assembleRelease")
+$env:GAITAI_PLAY_SIGNING = if ($signed) { "1" } else { "0" }
+if ($signed -and -not (Test-Path "$env:USERPROFILE\.gaitai-keys\upload-keystore.properties")) {
+  throw "Signed builds need ~/.gaitai-keys/upload-keystore.properties (see the header of this script)."
 }
+if (-not $OutDir) { $OutDir = Join-Path $Repo "android-builds" }
+New-Item -ItemType Directory -Force $OutDir | Out-Null
+Write-Host ("Billing Worker baked into this build: " + $(if ($env:GAITAI_API_BASE_URL) { $env:GAITAI_API_BASE_URL } else { "production (default)" }))
 Push-Location $Android
 # lintVital runs a second analysis pass over every module at release time and
 # was the step that pushed this 15 GB machine into memory pressure; it is
@@ -122,14 +141,14 @@ if ($code -ne 0) { throw "Gradle failed with exit code $code" }
 
 if ($Task -eq "bundleRelease") {
   $aab = Get-ChildItem "$Android\app\build\outputs\bundle\release" -Filter *.aab | Select-Object -First 1
-  $dest = Join-Path $Repo "android-builds\$Label-internal.aab"
+  $dest = Join-Path $OutDir "$Label-internal.aab"
   Copy-Item $aab.FullName $dest -Force
   Write-Host "AAB: $dest ($([math]::Round($aab.Length / 1MB, 1)) MB), signed with the upload key"
 } else {
   $variant = if ($Task -match "Debug") { "debug" } else { "release" }
   $apk = Get-ChildItem "$Android\app\build\outputs\apk\$variant" -Filter *.apk | Select-Object -First 1
-  $suffix = if ($variant -eq "debug") { "native-devclient" } else { "native-debug" }
-  $dest = Join-Path $Repo "android-builds\$Label-$suffix.apk"
+  $suffix = if ($variant -eq "debug") { "native-devclient" } elseif ($signed) { "release" } else { "native-debug" }
+  $dest = Join-Path $OutDir "$Label-$suffix.apk"
   Copy-Item $apk.FullName $dest -Force
-  Write-Host "APK: $dest ($([math]::Round($apk.Length / 1MB, 1)) MB)"
+  Write-Host "APK: $dest ($([math]::Round($apk.Length / 1MB, 1)) MB)$(if ($signed) { ', signed with the GaitAI release key' } else { ', DEBUG-signed test build' })"
 }

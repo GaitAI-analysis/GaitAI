@@ -46,8 +46,8 @@ export interface BillingState {
 }
 
 export interface BillingProvider {
-  /** play = Google Play Billing, apple = App Store / StoreKit, dev = development entitlement. */
-  readonly name: "play" | "apple" | "dev";
+  /** play = Google Play Billing, apple = App Store / StoreKit, server = GaitAI subscription service (Razorpay), dev = development entitlement. */
+  readonly name: "play" | "apple" | "server" | "dev";
   /** Human name of the store for copy ("Google Play", "the App Store"); undefined for dev. */
   readonly storeLabel?: string;
   init(): Promise<BillingState>;
@@ -92,7 +92,7 @@ export function yearlySavingsPercent(monthly?: StoreProduct, yearly?: StoreProdu
 }
 
 /** The store a verdict came from, for copy. */
-export const storeLabelFor = (source: Entitlement["source"]): string => (source === "app-store" ? "the App Store" : "Google Play");
+export const storeLabelFor = (source: Entitlement["source"]): string => (source === "app-store" ? "the App Store" : source === "server" ? "GaitAI" : "Google Play");
 
 /** Copy for the Profile card and the paywall, by entitlement status. */
 export function describeEntitlement(e: Entitlement): { title: string; body: string } {
@@ -109,6 +109,6 @@ export function describeEntitlement(e: Entitlement): { title: string; body: stri
     case "UNKNOWN":
       return { title: "Subscription not verified", body: e.reason ?? `${store} could not be reached to confirm a subscription. Pro stays locked until it can be checked.` };
     default:
-      return { title: "Free", body: "Cadence and step-time balance are included. Pro adds the full analysis." };
+      return { title: "No subscription", body: "Analysis, history and reports need an active subscription for this product." };
   }
 }

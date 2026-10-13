@@ -332,34 +332,21 @@ function FlagshipPanel({
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </span>
             </Link>
-            {app.release.publicApk ? (
-              <Link
-                href={app.downloadHref}
-                className={`group/cta flex min-h-12 items-center justify-between gap-3 rounded-full border border-current/35 px-5 text-[14px] font-bold transition-colors hover:border-current/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
-              >
-                <span>Download Android App</span>
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/cta:translate-y-0.5 group-hover/cta:border-current/60">
-                  <Download className="h-4 w-4" aria-hidden="true" />
-                </span>
-              </Link>
-            ) : (
-              <button
-                type="button"
-                disabled
-                aria-describedby={`${appId}-android-note`}
-                className="flex min-h-12 cursor-not-allowed items-center justify-between gap-3 rounded-full border border-dashed border-current/30 px-5 text-left text-[14px] font-semibold text-soft-mute"
-              >
-                <span>Android App Coming Soon</span>
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/30">
-                  <Smartphone className="h-4 w-4" aria-hidden="true" />
-                </span>
-              </button>
-            )}
+            <Link
+              href={app.downloadHref}
+              className={`group/cta flex min-h-12 items-center justify-between gap-3 rounded-full border border-current/35 px-5 text-[14px] font-bold transition-colors hover:border-current/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
+              aria-describedby={`${appId}-android-note`}
+            >
+              <span>{app.release.publicApk ? "Download Android App" : "Android App & Plans"}</span>
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/cta:translate-y-0.5 group-hover/cta:border-current/60">
+                {app.release.publicApk ? <Download className="h-4 w-4" aria-hidden="true" /> : <Smartphone className="h-4 w-4" aria-hidden="true" />}
+              </span>
+            </Link>
           </div>
           <p id={`${appId}-android-note`} className="mt-3 text-[11.5px] leading-5 text-soft-mute">
             {app.release.publicApk
-              ? `Free download. Protected features need a Pro subscription: ${describePricing(app)}.`
-              : `The Android app is in internal testing. The download will be free; protected features will need a Pro subscription: ${describePricing(app)}.`}
+              ? `Free download. Analysis, history and reports need a subscription: ${describePricing(app)}.`
+              : `Free download opens when payments go live. Analysis, history and reports need a subscription: ${describePricing(app)}.`}
           </p>
         </div>
       </article>

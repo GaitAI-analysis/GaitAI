@@ -73,7 +73,7 @@ export interface ProductApp {
   readonly screens: readonly AppScreen[];
   /** Optional web demonstration on this site — a demonstration, never "the app". */
   readonly webDemo?: { readonly label: string; readonly href: string; readonly note: string };
-  /** Where the Android download page will live once a verified release exists. */
+  /** The Android download page (fails closed until a verified release is published). */
   readonly downloadHref: string;
   /**
    * The Pro subscription as the founder set it (2026-10-14). Shown as
@@ -139,7 +139,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     headline: ["A walk, read on", "the phone that filmed it."],
     lead:
       "GaitAI MobilityCare is a native Android app. Record or upload a 10–20 second walking video and it returns cadence and step-time balance in minutes, with every frame analysed on the device. These are the app's real screens, running on Android.",
-    downloadHref: "/mobilitycare/download/",
+    downloadHref: "/mobilitycare/android/",
     pricing: { currency: "INR", monthly: 999, annualDiscount: 0.2 },
     tabs: ["Home", "Analyze", "Progress", "Reports", "Profile"],
     analyses: [
@@ -248,7 +248,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     headline: ["Count a space.", "Keep its people anonymous."],
     lead:
       "GaitAI SecureVision is a native Android app for spaces you are authorised to analyse. Upload a short video and an on-device person detector counts who it can see, frame by frame, or draw a zone and track entries, occupancy and dwell. It detects people as boxes and identifies no one. These are the app's real screens.",
-    downloadHref: "/securevision/download/",
+    downloadHref: "/securevision/android/",
     pricing: { currency: "INR", monthly: 1499, annualDiscount: 0.2 },
     tabs: ["Home", "Analyze", "Activity", "Reports", "Profile"],
     analyses: [
@@ -346,11 +346,15 @@ export const productApps: Record<ProductAppId, ProductApp> = {
 
 export const productAppList = Object.values(productApps);
 
-const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-/** "₹999/month or ₹9,590/year (20% annual saving)". */
+/**
+ * "₹999.00/month or ₹9,590.40/year (20% annual saving)" — to the paisa, so
+ * the home card, the product page and the billing Worker's catalogue print
+ * the same number (data/subscriptions.ts and billing/src/catalog.ts).
+ */
 export function describePricing(app: ProductApp): string {
   const { monthly, annualDiscount } = app.pricing;
-  const yearly = Math.round(monthly * 12 * (1 - annualDiscount));
+  const yearly = Math.round(monthly * 100 * 12 * (1 - annualDiscount)) / 100;
   return `${inr.format(monthly)}/month or ${inr.format(yearly)}/year (${Math.round(annualDiscount * 100)}% annual saving)`;
 }

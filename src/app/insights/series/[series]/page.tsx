@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PublicationCard } from "@/components/insights/PublicationCard";
@@ -50,7 +51,7 @@ export async function generateMetadata({ params }: { params: { series: string } 
     title: `${name} — GaitAI Insights`,
     description,
     alternates: { canonical: `/insights/series/${params.series}` },
-    openGraph: {
+    openGraph: { images: [SOCIAL_IMAGES.default],
       type: "website",
       url: `/insights/series/${params.series}`,
       siteName: "GaitAI",

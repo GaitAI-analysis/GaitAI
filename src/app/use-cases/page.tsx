@@ -9,12 +9,21 @@ import { DiagramField } from "@/components/visuals/DiagramField";
 import { industryUseCases } from "@/data/products";
 import { ctas } from "@/data/content";
 import styles from "@/components/usecases/usecases.module.css";
+import { SOCIAL_IMAGES, socialCard } from "@/lib/seo";
+
+const USE_CASES_TITLE = "Use Cases — Gait Analysis & Video Analytics by Environment";
+const USE_CASES_DESCRIPTION = `Where GaitAI is deployed: AI gait analysis for physiotherapy clinics, hospitals, neurology and elderly care; privacy-aware video analytics for transport hubs, campuses, factories, retail and events — ${industryUseCases.length} environments, each with its problem, product mix and outputs.`;
 
 export const metadata: Metadata = {
-  title: "Use Cases — Which movement problem are you solving?",
-  description:
-    "GaitAI use cases by environment: the problem each one has, the approach GaitAI takes, the products involved and what they produce — across clinics, hospitals, sports, elderly care, transport hubs, smart cities, industry, retail and events.",
+  title: USE_CASES_TITLE,
+  description: USE_CASES_DESCRIPTION,
   alternates: { canonical: "/use-cases" },
+  ...socialCard({
+    title: `GaitAI ${USE_CASES_TITLE}`,
+    description: USE_CASES_DESCRIPTION,
+    path: "/use-cases",
+    image: SOCIAL_IMAGES.useCases,
+  }),
 };
 
 /**

@@ -3,12 +3,56 @@ import Link from "next/link";
 import { CareActions, CareBrand, CareScreenshot, georama } from "@/components/care/Care";
 import styles from "@/components/care/care.module.css";
 import { gaitaiCare as care } from "@/data/gaitai-care";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { SITE_URL, SOCIAL_IMAGES, organizationRef, socialCard } from "@/lib/seo";
+
+/* Named for what people search for — "personal health record app",
+   "family medical records" — with the product name first, because the
+   product is new and the category is not. */
+const CARE_TITLE = "GaitAI Care — Personal Health Record App for You and Your Family";
+const CARE_DESCRIPTION =
+  "Organise family medical records in one private place: medical reports, prescriptions, medication and vaccination history, illness timelines and daily care notes. Web app and Android Early Access.";
 
 export const metadata: Metadata = {
-  title: "GaitAI Care — Personal & family health records",
-  description: care.description,
+  title: CARE_TITLE,
+  description: CARE_DESCRIPTION,
   alternates: { canonical: care.href },
-  openGraph: { title: care.name, description: care.tagline, url: care.href, images: [{ url: "/images/gaitai-care/records-light.png", width: 1360, height: 820, alt: "GaitAI Care document library, empty records view" }] },
+  ...socialCard({ title: CARE_TITLE, description: CARE_DESCRIPTION, path: care.href, image: SOCIAL_IMAGES.care }),
+};
+
+/* A SoftwareApplication, because that is what GaitAI Care is: a web app with
+   an Android client. Every field is stated on this page or in
+   data/gaitai-care.ts — platforms, version, category, feature list, the
+   privacy notice. No price, rating, review, download count or clinical
+   claim, because none is documented; the page itself says no clinical
+   validation is claimed. */
+const CARE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "@id": `${SITE_URL}${care.href}#app`,
+  name: care.name,
+  description: CARE_DESCRIPTION,
+  url: `${SITE_URL}${care.href}`,
+  applicationCategory: "HealthApplication",
+  applicationSubCategory: "Personal health record organiser",
+  operatingSystem: "Web, Android 7.0 or later",
+  softwareVersion: care.release.version,
+  releaseNotes: `${SITE_URL}${care.download}`,
+  installUrl: care.web,
+  screenshot: `${SITE_URL}${SOCIAL_IMAGES.care.url}`,
+  featureList: [
+    "Separate profiles for family members and people in your care",
+    "Medical reports, prescriptions and vaccination cards kept as originals with extracted text to review",
+    "Medication and supplement records",
+    "Vaccination history and documented appointments",
+    "Illness and treatment timelines",
+    "Daily health and care observations",
+    "Caregiver access with viewer or editor permissions",
+    "Export of records, original files and PDF summaries",
+  ],
+  author: organizationRef,
+  publisher: organizationRef,
+  privacyPolicy: care.privacy,
 };
 
 const features = [
@@ -22,6 +66,7 @@ const features = [
 
 export default function GaitAICarePage() {
   return <div className={`${styles.theme} ${styles.page} ${georama.variable}`}>
+    <JsonLd data={CARE_JSON_LD} />
     <div className={styles.container}><nav className={styles.crumb} aria-label="Breadcrumb"><Link href="/products/">Products</Link><span aria-hidden="true">/</span><span aria-current="page">GaitAI Care</span></nav></div>
     <section className={styles.hero}>
       <div className={`${styles.container} ${styles.heroGrid}`}>
@@ -37,6 +82,22 @@ export default function GaitAICarePage() {
       <div className={`${styles.container} ${styles.introGrid}`}>
         <div><p className={styles.eyebrow}>LESS SEARCHING. MORE CONTEXT.</p><h2>Life moves on.<br />Your records should<br />come with you.</h2></div>
         <div><p>A prescription on your phone. A report in a drawer. A date you are trying to remember before an appointment. Looking after your health often starts with finding the pieces.</p><p>GaitAI Care brings those pieces into a personal record space. Individuals, parents and authorised family caregivers can organise information over time, return to the original source and prepare a clearer history to discuss with a clinician.</p></div>
+      </div>
+    </section>
+    {/* IN PLAIN TERMS. The page above speaks in the product's own voice;
+        this says the same thing in the words people search for — personal
+        health record app, family medical records, medication and vaccination
+        history — so the page answers the question it is found by. Same
+        two-column intro layout; nothing claimed beyond the feature list and
+        scope note already on this page. */}
+    <section className={styles.section} aria-labelledby="care-what-it-is">
+      <div className={`${styles.container} ${styles.introGrid}`}>
+        <div><p className={styles.eyebrow}>WHAT GAITAI CARE IS</p><h2 id="care-what-it-is">A personal health<br />record app for<br />the whole family.</h2></div>
+        <div>
+          <p>GaitAI Care is a personal health record app and medical history organiser for individuals and families. It keeps medical reports, prescriptions and vaccination cards as originals, with the extracted text beside them for you to check, and arranges them into a timeline of illnesses, treatments and appointments for each person you care for.</p>
+          <p>Use it as a medication tracker for prescribed courses, supplements and what was actually taken; as a vaccination record for doses, documented dates and confirmed upcoming appointments; and as a daily care log for the smaller details that are easy to lose between visits. The same account works in the web app and the Android app, and you can export your records and original files at any time.</p>
+          <p>It is not a diagnostic tool and does not perform gait analysis — that is <Link href="/mobilitycare/">MobilityCare</Link>, a separate GaitAI product for clinics. See <Link href="/products/">all GaitAI products</Link>.</p>
+        </div>
       </div>
     </section>
     <section className={`${styles.section} ${styles.tinted}`} aria-labelledby="care-features">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import { SignalThread } from "@/components/insights/SignalThread";
 import { OpeningWalker } from "@/components/insights/OpeningWalker";
 import { StoryMoment } from "@/components/insights/StoryMoment";
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   title: "GaitAI Foundations — What Does AI See When You Walk?",
   description: "A five-part curated introduction to movement intelligence, identity, responsible AI, mobility and evidence at GaitAI.",
   alternates: { canonical: "/insights/start-here" },
-  openGraph: { type: "website", url: "/insights/start-here", title: "GaitAI Foundations", description: "A curated five-part reading path for people who are new to GaitAI." },
+  openGraph: { images: [SOCIAL_IMAGES.default], type: "website", url: "/insights/start-here", title: "GaitAI Foundations", description: "A curated five-part reading path for people who are new to GaitAI." },
 };
 
 const THEME: Record<string, string> = {

@@ -71,9 +71,14 @@ jobs:
       # default (set it to https://ask.gaitai.in/api/ask once the custom domain
       # is attached); an empty value turns the hosted layer off and the site
       # answers from its records alone.
+      # Google Search Console ownership (docs/seo.md). A repository VARIABLE,
+      # not a secret: the token is public in the page source by design and
+      # proves only that whoever deploys also holds the Search Console
+      # account. Unset, the build emits no verification tag.
       - name: Build static export
         run: npm run build
         env:
+          NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
           NEXT_PUBLIC_ASK_GAITAI_ENDPOINT: ${{ vars.NEXT_PUBLIC_ASK_GAITAI_ENDPOINT || 'https://gaitai-ask.gait-ai-founder.workers.dev/api/ask' }}
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
@@ -91,6 +96,18 @@ jobs:
 
       - name: Ensure the public export contains no private Wiki content
         run: npm run check:wiki:private
+
+      # The search contract (scripts/check-seo.mjs): one title, one
+      # description, a self-referencing canonical, a social card and one <h1>
+      # on every indexable page; parseable structured data that invents no
+      # rating, review, price or certification; the private Wiki and the
+      # admin console out of the sitemap. And every internal link resolving
+      # to a file this export will actually serve — a broken link is a 404
+      # for a visitor and a dropped page for a crawler.
+      - name: Verify search contract and internal links
+        run: |
+          npm run check:seo
+          npm run check:links
 
       # Preserve the custom domain on every deploy.
       - name: Add CNAME

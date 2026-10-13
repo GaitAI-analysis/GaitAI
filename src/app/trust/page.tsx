@@ -1,4 +1,5 @@
 import siteFacts from "@/data/generated/site-facts.json";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Reveal } from "@/components/ui/Reveal";
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   description:
     "How GaitAI states evidence, privacy, security and responsible deployment — the published record, the architectural controls, and what is explicitly not claimed.",
   alternates: { canonical: "/trust" },
-  openGraph: {
+  openGraph: { images: [SOCIAL_IMAGES.default],
     title: "GaitAI Trust Center",
     description:
       "Trust through evidence, privacy and responsible deployment: the published research record, privacy-aware architecture, security controls and what GaitAI does not claim.",

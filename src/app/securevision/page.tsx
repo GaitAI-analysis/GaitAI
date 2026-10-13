@@ -15,12 +15,108 @@ import { HeroSlider } from "@/components/ui/HeroSlider";
 import { SecureVisionDaylightIntelligence } from "@/components/visuals/SecureVisionDaylightIntelligence";
 import { ctas } from "@/data/content";
 import { productOverview } from "@/data/product-details";
+import { InPlainTerms, type PlainTerm } from "@/components/sections/InPlainTerms";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { SITE_URL, SOCIAL_IMAGES, organizationRef, socialCard } from "@/lib/seo";
+
+/* The title and description name the capability in the buyer's words —
+   "AI CCTV video analytics", "security monitoring", "crowd analytics",
+   "anomaly detection" — because that is what a security or operations
+   manager types before they have heard of SecureVision. The page's own
+   vocabulary (privacy-aware movement intelligence) stays in the hero. */
+const SECURE_TITLE = "SecureVision — AI CCTV Video Analytics for Security Monitoring";
+const SECURE_DESCRIPTION = `Privacy-aware AI video analytics for existing CCTV: anomaly detection, crowd analytics, worker-safety and campus monitoring, plus authorised forensic gait analysis — ${secureProducts.length} SecureVision modules from GaitAI.`;
 
 export const metadata: Metadata = {
   alternates: { canonical: "/securevision" },
-  title: "SecureVision — Privacy-aware movement intelligence",
-  description:
-    "GaitAI SecureVision — Privacy-aware movement intelligence for safer campuses, transport hubs, factories, events and public spaces.",
+  title: SECURE_TITLE,
+  description: SECURE_DESCRIPTION,
+  ...socialCard({
+    title: `GaitAI ${SECURE_TITLE}`,
+    description: SECURE_DESCRIPTION,
+    path: "/securevision",
+    image: SOCIAL_IMAGES.securevision,
+  }),
+};
+
+/* IN PLAIN TERMS — see components/sections/InPlainTerms.tsx. Each paragraph
+   paraphrases the module descriptions in data/products.ts and the governance
+   note below; module and environment links come from the registry, and the
+   environments named are ones whose documented product mix includes at least
+   one of the modules listed. */
+const SECURE_PLAIN_TERMS: PlainTerm[] = [
+  {
+    term: "AI CCTV video analytics",
+    body:
+      "SecureVision reads movement from the cameras a site already has — pose, trajectory and timing rather than faces — and turns it into events an operator can review: loitering, running, restricted-zone entry, slips and falls, and emergency movement across concourses, sites and campuses.",
+    modules: ["suspiciousmotion", "industrialsafety", "campusshield"],
+    environments: ["airports", "factories", "campuses"],
+  },
+  {
+    term: "Crowd analytics",
+    body:
+      "Crowd density, queues, bottlenecks, flow direction and abnormal crowd-motion indicators, measured across stations, stadiums, concourses and city spaces — aggregate flow intelligence for stewards and control rooms, without identifying anyone in the crowd.",
+    modules: ["crowdsense", "eventshield"],
+    environments: ["airports", "events", "smartcities"],
+  },
+  {
+    term: "Anomaly detection and security monitoring",
+    body:
+      "Instead of watching every screen, operators receive candidate movement anomalies — unusual paths, dwell, tailgating-like patterns, perimeter and queue events — ranked for human review. PrivacyGuard sets the default posture: skeleton-level analytics, role-based access, configurable retention and audit logs. An indicator supplements existing procedure; it never acts on its own.",
+    modules: ["suspiciousmotion", "retailguard", "privacyguard"],
+    environments: ["retail", "campuses"],
+  },
+  {
+    term: "Authorised forensic gait analysis",
+    body:
+      "After an incident, ForensicSearch searches uploaded footage for a person, movement pattern or event path, and ReID produces confidence-based candidate matches across cameras from movement and body-level signatures. These identity capabilities are a separate, smaller tier for lawful, authorised deployments with access controls and audit history — candidates for trained review, never proof of identity, and never general-public surveillance.",
+    modules: ["forensicsearch", "reid", "watchlist"],
+    environments: ["smartcities", "airports"],
+  },
+];
+
+/* Structured data for the suite: a Service provided by the Organization the
+   root layout declares, and the list of module pages the suite section
+   renders. Built from the same registry as the page — no ratings, prices,
+   customers or certifications, because none are documented. */
+const SECURE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Service",
+      "@id": `${SITE_URL}/securevision/#service`,
+      name: "GaitAI SecureVision",
+      alternateName: "SecureVision",
+      serviceType: "AI video analytics for security monitoring",
+      description: SECURE_DESCRIPTION,
+      url: `${SITE_URL}/securevision/`,
+      provider: organizationRef,
+      brand: { "@type": "Brand", name: "GaitAI" },
+      category: "Privacy-aware movement intelligence · Security operations",
+      audience: {
+        "@type": "BusinessAudience",
+        audienceType: "Security, safety and operations teams at transport hubs, campuses, industrial sites, retail, events and smart cities",
+      },
+      hasPart: secureProducts.map((p) => ({
+        "@type": "Product",
+        name: p.name,
+        alternateName: p.short,
+        description: p.description,
+        url: `${SITE_URL}/securevision/${p.id}/`,
+      })),
+    },
+    {
+      "@type": "ItemList",
+      name: "SecureVision product modules",
+      numberOfItems: secureProducts.length,
+      itemListElement: secureProducts.map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: p.name,
+        url: `${SITE_URL}/securevision/${p.id}/`,
+      })),
+    },
+  ],
 };
 
 const secureUseCases = industryUseCases.filter(
@@ -56,6 +152,7 @@ export default function SecureVisionPage() {
 
   return (
     <>
+      <JsonLd data={SECURE_JSON_LD} />
       {/* HERO — video is a direct child of the section (full browser width),
           never inside any max-width container. Content sits on top. */}
       {/* The desktop min-height is a utility rather than a rule in
@@ -184,6 +281,25 @@ export default function SecureVisionPage() {
         emphasis="every movement."
         description="From gait identity and movement patterns to unusual behaviour and safety events — SecureVision turns human-motion signals into privacy-aware, actionable insight."
         rowOne={secureSignals}
+      />
+
+      {/* IN PLAIN TERMS — between the taxonomy (what the model reads) and the
+          governance note (how it may be used): the everyday names for what
+          SecureVision does, each tied to the modules and environments that
+          deliver it. The governance note that follows still introduces the
+          two-tier distinction the product suite below is split by. */}
+      <InPlainTerms
+        id="in-plain-terms"
+        family="securevision"
+        eyebrow="SecureVision · In plain terms"
+        title={
+          <>
+            Video analytics that read{" "}
+            <span className="text-gradient-secure">movement, not identity.</span>
+          </>
+        }
+        description="What SecureVision does, in the words security and operations teams use for it — and which modules and environments each capability lives in."
+        terms={SECURE_PLAIN_TERMS}
       />
 
       {/* GOVERNANCE NOTE */}

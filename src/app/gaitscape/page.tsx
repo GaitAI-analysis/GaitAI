@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import Link from "next/link";
 import { AtlasLink } from "@/components/atlas/AtlasTrigger";
 import { SectionHeading } from "@/components/ui/SectionHeading";
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
   title: "GaitScape — Human Movement Intelligence Landscape",
   description:
     "Explore how GaitAI connects human movement signals, AI capabilities, research and products across mobility, healthcare, safety and secure environments.",
-  openGraph: {
+  openGraph: { url: "/gaitscape", images: [SOCIAL_IMAGES.default],
     title: "GaitScape — Human Movement Intelligence Landscape | GaitAI",
     description:
       "Explore how GaitAI connects human movement signals, AI capabilities, research and products across mobility, healthcare, safety and secure environments.",

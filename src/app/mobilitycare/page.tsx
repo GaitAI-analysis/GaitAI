@@ -23,12 +23,106 @@ import {
 import { intelligenceVocabularyFor } from "@/data/taxonomy";
 import { ctas } from "@/data/content";
 import { productOverview } from "@/data/product-details";
+import { InPlainTerms, type PlainTerm } from "@/components/sections/InPlainTerms";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { SITE_URL, SOCIAL_IMAGES, organizationRef, socialCard } from "@/lib/seo";
+
+/* Named for the searches a physiotherapist, geriatrician or care-home lead
+   actually makes — "AI gait analysis", "clinical mobility assessment",
+   "fall-risk screening" — rather than the platform's own phrase. */
+const MOBILITY_TITLE = "MobilityCare — AI Gait Analysis & Clinical Mobility Assessment";
+const MOBILITY_DESCRIPTION = `Video-based AI gait analysis for physiotherapy and rehabilitation, elderly mobility monitoring and fall-risk screening, with clinician-ready reports — ${mobilityProducts.length} MobilityCare modules from GaitAI, no markers or gait lab required.`;
 
 export const metadata: Metadata = {
   alternates: { canonical: "/mobilitycare" },
-  title: "MobilityCare — Clinical movement intelligence",
-  description:
-    "GaitAI MobilityCare — AI-powered clinical gait, sports movement, rehabilitation, elderly mobility and WatchCare wearable intelligence.",
+  title: MOBILITY_TITLE,
+  description: MOBILITY_DESCRIPTION,
+  ...socialCard({
+    title: `GaitAI ${MOBILITY_TITLE}`,
+    description: MOBILITY_DESCRIPTION,
+    path: "/mobilitycare",
+    image: SOCIAL_IMAGES.mobilitycare,
+  }),
+};
+
+/* IN PLAIN TERMS — see components/sections/InPlainTerms.tsx. Paraphrases
+   of the module descriptions and documented outputs in data/products.ts;
+   every environment named carries at least one of the listed modules in its
+   documented product mix. Screening language is kept exactly as the
+   FallRisk block below states it: support for care teams, not a diagnosis
+   or a prediction of an individual event. */
+const MOBILITY_PLAIN_TERMS: PlainTerm[] = [
+  {
+    term: "AI gait analysis from video",
+    body:
+      "A short walking video, recorded on an ordinary camera or phone, becomes gait and mobility metrics — walking speed, cadence, step and stride pattern, asymmetry and posture markers — in a downloadable, clinician-ready PDF. No markers, no force plates, no gait lab; patients can also record guided walks at home for remote review.",
+    modules: ["walkscan", "remotecare"],
+    environments: ["physio", "neuro", "homecare"],
+  },
+  {
+    term: "Physiotherapy gait assessment and rehabilitation progress",
+    body:
+      "Routine walking checks become structured assessments with a baseline to compare against. RehabTrack compares movement across therapy sessions so recovery is visible to clinician and patient alike; OrthoMotion evaluates gait change around joint, spine, foot and post-surgical conditions; SportsMotion covers return-to-play review for athletic caseloads.",
+    modules: ["rehabtrack", "orthomotion", "sportsmotion"],
+    environments: ["physio", "hospitals", "sports"],
+  },
+  {
+    term: "Elderly mobility monitoring and fall-risk screening",
+    body:
+      "FallRisk combines gait, balance, variability, posture and longitudinal movement trends into low, medium and high screening categories for clinician review, with the contributing signals shown alongside. SeniorCare runs periodic mobility assessments and surfaces decline indicators; WatchCare adds day-to-day activity and gait-variability patterns from smartwatch and wearable data. Screening support for care teams — not a diagnosis, and not a prediction of an individual fall.",
+    modules: ["fallrisk", "seniorcare", "watchcare"],
+    environments: ["elderly", "homecare", "insurance"],
+  },
+  {
+    term: "Neurological, paediatric and prosthetic gait monitoring",
+    body:
+      "Ongoing monitoring of gait patterns linked to neurological movement difficulties — freezing, shuffling, turning instability — alongside child gait observation for developmental and orthopaedic concerns, and before-and-after comparison of symmetry, cadence and loading proxies when a prosthetic or orthotic fitting changes.",
+    modules: ["neuromotion", "pediatricmotion", "prostheticfit"],
+    environments: ["neuro", "schools", "prosthetics"],
+  },
+];
+
+/* Structured data for the suite — a Service from the Organization declared
+   in the root layout, plus the module list the product grid renders. Built
+   from the registry; nothing beyond what the page itself states. */
+const MOBILITY_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Service",
+      "@id": `${SITE_URL}/mobilitycare/#service`,
+      name: "GaitAI MobilityCare",
+      alternateName: "MobilityCare",
+      serviceType: "AI gait analysis and clinical mobility assessment software",
+      description: MOBILITY_DESCRIPTION,
+      url: `${SITE_URL}/mobilitycare/`,
+      provider: organizationRef,
+      brand: { "@type": "Brand", name: "GaitAI" },
+      category: "Clinical movement intelligence · Physiotherapy, rehabilitation and elderly care",
+      audience: {
+        "@type": "BusinessAudience",
+        audienceType: "Physiotherapy and rehabilitation clinics, hospitals, neurology clinics, elderly-care centres, sports academies and home-care providers",
+      },
+      hasPart: mobilityProducts.map((p) => ({
+        "@type": "Product",
+        name: p.name,
+        alternateName: p.short,
+        description: p.description,
+        url: `${SITE_URL}/mobilitycare/${p.id}/`,
+      })),
+    },
+    {
+      "@type": "ItemList",
+      name: "MobilityCare product modules",
+      numberOfItems: mobilityProducts.length,
+      itemListElement: mobilityProducts.map((p, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: p.name,
+        url: `${SITE_URL}/mobilitycare/${p.id}/`,
+      })),
+    },
+  ],
 };
 
 const mobilityUseCases = industryUseCases.filter(
@@ -57,6 +151,7 @@ export default function MobilityCarePage() {
 
   return (
     <>
+      <JsonLd data={MOBILITY_JSON_LD} />
       {/* HERO — full-viewport canvas, same visual language as the homepage */}
       <MobilityCareHero />
 
@@ -68,6 +163,24 @@ export default function MobilityCarePage() {
         emphasis="every step."
         description="From gait, balance and mobility change to rehabilitation progress and fall-risk insight — MobilityCare turns human-movement signals into clinically useful, actionable intelligence."
         rowOne={mobilitySignals}
+      />
+
+      {/* IN PLAIN TERMS — between the taxonomy (what the model reads) and the
+          product grid (what you can deploy): the everyday names for what
+          MobilityCare does, each tied to the modules and environments that
+          deliver it. */}
+      <InPlainTerms
+        id="in-plain-terms"
+        family="mobilitycare"
+        eyebrow="MobilityCare · In plain terms"
+        title={
+          <>
+            Gait analysis a clinic can run{" "}
+            <span className="text-gradient">with the camera it has.</span>
+          </>
+        }
+        description="What MobilityCare does, in the words clinicians and care teams use for it — and which modules and environments each capability lives in."
+        terms={MOBILITY_PLAIN_TERMS}
       />
 
       {/* PRODUCT GRID */}

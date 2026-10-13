@@ -12,12 +12,26 @@ import { VisitorIntent } from "@/components/home/VisitorIntent";
 import { EnvironmentStrip } from "@/components/sections/EnvironmentStrip";
 import { Vision } from "@/components/sections/Vision";
 import { CTA } from "@/components/sections/CTA";
+import { socialCard } from "@/lib/seo";
 
-/* Title, description and social cards are inherited from the root layout;
-   only the canonical is stated here, because the root must not declare one
-   (it would become every other route's canonical too). */
+/* The home page states its own title, description and social card. The
+   root layout's values are the fallback for routes that declare none; the
+   canonical is stated here and never at the root, because the root must not
+   declare one (it would become every other route's canonical too).
+
+   The title is ABSOLUTE, not templated: "GaitAI — … | GaitAI" would name the
+   brand twice in one results line. It names the three things people search
+   for before they know the product names — gait analysis, video analytics,
+   health records — and the brand once. */
+const HOME_TITLE = "GaitAI — AI Gait Analysis, Video Analytics & Health Records";
+const HOME_DESCRIPTION =
+  "MobilityCare AI gait analysis and fall-risk screening for clinics and elderly care, SecureVision privacy-aware CCTV video analytics for security teams, and GaitAI Care personal health records.";
+
 export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
+  description: HOME_DESCRIPTION,
   alternates: { canonical: "/" },
+  ...socialCard({ title: HOME_TITLE, description: HOME_DESCRIPTION, path: "/" }),
 };
 
 /**

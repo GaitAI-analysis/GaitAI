@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SignatureScene } from "@/components/labs/GaitLabScenes";
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/labs/biometrics" },
-  openGraph: {
+  openGraph: { images: [SOCIAL_IMAGES.default],
     type: "website",
     url: "/labs/biometrics",
     siteName: "GaitAI",

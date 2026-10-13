@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import Link from "next/link";
 import { MovementLab } from "@/components/analytics/MovementLab";
 import { MovementAnalyzer } from "@/components/analytics/MovementAnalyzer";
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
   /* Without these the route inherited the site-wide card, so a shared link
      announced "GaitAI — Intelligence in Motion" and never the name of the
      thing being shared. The canonical URL is unchanged by the rename. */
-  openGraph: {
+  openGraph: { images: [SOCIAL_IMAGES.default],
     type: "website",
     url: "/movement-lab",
     siteName: "GaitAI",

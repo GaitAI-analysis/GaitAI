@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import { PublicationBrowser } from "@/components/insights/PublicationBrowser";
 import { InsightsDiscovery } from "@/components/insights/InsightsDiscovery";
 import { readPublicationStories } from "@/lib/publication-store";
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
     canonical: "/insights",
     types: { "application/rss+xml": "/insights/rss.xml" },
   },
-  openGraph: {
+  openGraph: { images: [SOCIAL_IMAGES.default],
     type: "website",
     url: "/insights",
     siteName: "GaitAI",

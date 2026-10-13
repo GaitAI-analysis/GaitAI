@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import Link from "next/link";
 import { readPublicationStories } from "@/lib/publication-store";
 import { buildArchiveGroups, formatPublicationDate, publicationTopics, publicationTypeLabel, topicLabel } from "@/lib/publication";
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   title: "Insights Archive — Everything GaitAI Has Published",
   description: "The complete GaitAI publication archive, organised by year and month.",
   alternates: { canonical: "/insights/archive" },
-  openGraph: { type: "website", url: "/insights/archive", title: "GaitAI Blog Archive", description: "Every story, research note and update from GaitAI." },
+  openGraph: { images: [SOCIAL_IMAGES.default], type: "website", url: "/insights/archive", title: "GaitAI Blog Archive", description: "Every story, research note and update from GaitAI." },
 };
 
 export default async function InsightsArchivePage() {

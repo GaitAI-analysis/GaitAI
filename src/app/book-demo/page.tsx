@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import { BookingExperience } from "@/components/booking/BookingExperience";
 import styles from "@/components/booking/booking.module.css";
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   description:
     "Book a 15-minute Quick Introduction or a 30-minute Product Demo & Technical Discussion with GaitAI Research Labs.",
   alternates: { canonical: "/book-demo/" },
-  openGraph: {
+  openGraph: { images: [SOCIAL_IMAGES.default],
     title: "Book a Demo · GaitAI",
     description:
       "Book a 15-minute Quick Introduction or a 30-minute Product Demo & Technical Discussion with GaitAI Research Labs.",

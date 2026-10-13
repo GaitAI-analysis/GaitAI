@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     "Selected invited talks, conference presentations, posters and technical " +
     "sessions spanning AI, gait analysis, biometrics and related research.",
   alternates: { canonical: "/research/talks" },
-  openGraph: {
+  openGraph: { images: [SOCIAL_IMAGES.default],
     type: "website",
     url: "/research/talks",
     title: "Talks & Presentations — research in conversation",

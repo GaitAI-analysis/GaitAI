@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { useCaseDetails, getUseCaseDetail } from "@/data/usecase-details";
 import { industryUseCases } from "@/data/products";
 import { UseCaseDetailView } from "@/components/usecases/UseCaseDetailView";
+import { SOCIAL_IMAGES, searchTitle, socialCard } from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -18,15 +19,24 @@ export function generateMetadata({
   const detail = getUseCaseDetail(params.slug);
   const base = industryUseCases.find((c) => c.id === detail?.caseId);
   if (!detail || !base) return { title: "Use case not found" };
+  /* "Physiotherapy clinics — Objective movement evidence for every therapy
+     plan" reads as a page about physiotherapy clinics; the family name tells
+     a searcher which kind of GaitAI deployment it is. The value proposition
+     ends a sentence on the page, so its full stop is dropped from the
+     <title>. */
+  const family = detail.family === "mobilitycare" ? "MobilityCare" : "SecureVision";
+  const title = `${base.industry} — ${searchTitle(detail.valueProp)} · ${family}`;
+  const path = `/use-cases/${detail.slug}/`;
   return {
-    title: `${base.industry} — ${detail.valueProp}`,
+    title,
     description: detail.overview,
-    alternates: { canonical: `/use-cases/${detail.slug}/` },
-    openGraph: {
-      title: `${base.industry} — GaitAI deployment`,
+    alternates: { canonical: path },
+    ...socialCard({
+      title: `${base.industry} — GaitAI ${family} deployment`,
       description: detail.overview,
-      type: "website",
-    },
+      path,
+      image: detail.family === "mobilitycare" ? SOCIAL_IMAGES.mobilitycare : SOCIAL_IMAGES.securevision,
+    }),
   };
 }
 

@@ -20,6 +20,7 @@
  * about.
  */
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import Link from "next/link";
 import { readPublicationStories } from "@/lib/publication-store";
 import {
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
   description:
     "Browse the GaitAI blog by subject: movement intelligence, responsible AI, mobility, research and engineering.",
   alternates: { canonical: "/insights/topics" },
-  openGraph: {
+  openGraph: { images: [SOCIAL_IMAGES.default],
     type: "website",
     url: "/insights/topics",
     title: "GaitAI Blog Topics",

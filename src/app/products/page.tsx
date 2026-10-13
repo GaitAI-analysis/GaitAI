@@ -16,11 +16,21 @@ import {
   productCount,
   secureProducts,
 } from "@/data/products";
+import { SOCIAL_IMAGES, socialCard } from "@/lib/seo";
+
+const PRODUCTS_TITLE = "Products — AI Gait Analysis, Video Analytics & Health Records";
+const PRODUCTS_DESCRIPTION = `Compare GaitAI's ${productCount} movement-intelligence modules — MobilityCare for clinical gait analysis and fall-risk screening, SecureVision for privacy-aware CCTV video analytics — and GaitAI Care for personal health records.`;
 
 export const metadata: Metadata = {
-  title: "GaitAI Products — Movement intelligence & personal health records",
-  description: `Explore GaitAI Care for personal and family health records, alongside ${productCount} movement-intelligence modules across MobilityCare and SecureVision.`,
+  title: PRODUCTS_TITLE,
+  description: PRODUCTS_DESCRIPTION,
   alternates: { canonical: "/products" },
+  ...socialCard({
+    title: `GaitAI ${PRODUCTS_TITLE}`,
+    description: PRODUCTS_DESCRIPTION,
+    path: "/products",
+    image: SOCIAL_IMAGES.products,
+  }),
 };
 
 /**

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SOCIAL_IMAGES } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { PublicationBrowser } from "@/components/insights/PublicationBrowser";
 import { readPublicationStories } from "@/lib/publication-store";
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: { params: { topic: string } }
     title: `${title} — GaitAI Blog`,
     description,
     alternates: { canonical: `/insights/topic/${params.topic}` },
-    openGraph: { type: "website", url: `/insights/topic/${params.topic}`, title: `${title} — GaitAI Blog`, description },
+    openGraph: { images: [SOCIAL_IMAGES.default], type: "website", url: `/insights/topic/${params.topic}`, title: `${title} — GaitAI Blog`, description },
   };
 }
 

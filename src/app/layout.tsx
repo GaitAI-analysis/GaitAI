@@ -25,6 +25,8 @@ import { PageTransition } from "@/components/layout/PageTransition";
 import { AskGaitAI } from "@/components/assistant/AskGaitAI";
 import { assetPath } from "@/lib/paths";
 import { DEMO_EMAIL, PUBLIC_CONTACT_EMAIL, SUPPORT_EMAIL, socialProfileUrls } from "@/data/contact";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { ORGANIZATION_ID, SITE_URL, SOCIAL_IMAGES, WEBSITE_ID } from "@/lib/seo";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -100,19 +102,42 @@ export const metadata: Metadata = {
    * page. Each route now states its own; the home page states "/" in
    * app/page.tsx.
    */
+  /*
+   * SEARCH CONSOLE OWNERSHIP. Google's HTML-tag verification is a
+   * <meta name="google-site-verification"> carrying a token that only the
+   * Search Console account holder can mint. The token is public by design
+   * (it proves nothing except that whoever controls the deploy also holds
+   * the account), so it travels as a repository VARIABLE — not a secret —
+   * named GOOGLE_SITE_VERIFICATION and reaches the build through
+   * deploy.yml. Unset, Next emits no tag at all. See docs/seo.md.
+   */
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+  },
+  /*
+   * The DEFAULT social card, for routes that state none of their own. Every
+   * primary route now builds its own with `socialCard()` (lib/seo.ts), so
+   * this is the fallback for legal pages and the like — a 1200×630 brand
+   * card rather than the 1254×1254 logo PNG, which cropped badly in every
+   * link preview and weighed 580 KB.
+   *
+   * NO `url` HERE, for the same reason there is no canonical: it inherits.
+   * With `url: "/"` every route that did not override it — the legal pages,
+   * the publications, /research/, /investors/ — told every social network
+   * it was the home page.
+   */
   openGraph: {
     type: "website",
-    url: "/",
     title: "GaitAI — Intelligence in Motion",
     description:
       "AI that understands human movement — for security, healthcare, elderly care and smart environments.",
     siteName: "GaitAI",
     images: [
       {
-        url: assetPath("/brand/logo-main.png"),
-        width: 1254,
-        height: 1254,
-        alt: "GaitAI — Intelligence in Motion",
+        url: assetPath(SOCIAL_IMAGES.default.url),
+        width: SOCIAL_IMAGES.default.width,
+        height: SOCIAL_IMAGES.default.height,
+        alt: SOCIAL_IMAGES.default.alt,
       },
     ],
   },
@@ -121,7 +146,7 @@ export const metadata: Metadata = {
     title: "GaitAI — Intelligence in Motion",
     description:
       "AI that understands human movement — for security, healthcare, elderly care and smart environments.",
-    images: [assetPath("/brand/logo-main.png")],
+    images: [assetPath(SOCIAL_IMAGES.default.url)],
   },
 };
 
@@ -157,27 +182,48 @@ export default function RootLayout({
          * cannot drift apart — which is exactly how the footer came to link
          * a GitHub account that was not the company's.
          */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "GaitAI",
-              url: "https://gaitai.in",
-              logo: "https://gaitai.in/brand/logo-main.png",
-              description:
-                "Research-led AI platform for movement intelligence.",
-              /* Role mailboxes only (data/contact.ts); never a person's
-                 address. */
-              email: PUBLIC_CONTACT_EMAIL,
-              contactPoint: [
-                { "@type": "ContactPoint", contactType: "customer service", email: PUBLIC_CONTACT_EMAIL },
-                { "@type": "ContactPoint", contactType: "sales", email: DEMO_EMAIL },
-                { "@type": "ContactPoint", contactType: "technical support", email: SUPPORT_EMAIL },
-              ],
-              sameAs: socialProfileUrls,
-            }),
+        <JsonLd
+          data={{
+            "@context": "https://schema.org",
+            "@graph": [
+              {
+                "@type": "Organization",
+                /* A stable id, so the Service, SoftwareApplication and
+                   BlogPosting nodes on other routes can name this publisher
+                   by reference instead of restating it. */
+                "@id": ORGANIZATION_ID,
+                name: "GaitAI",
+                url: `${SITE_URL}/`,
+                logo: {
+                  "@type": "ImageObject",
+                  url: `${SITE_URL}/brand/logo-main.png`,
+                  width: 1254,
+                  height: 1254,
+                },
+                description:
+                  "Research-led AI platform for movement intelligence — AI gait analysis for clinics and elderly care, privacy-aware video analytics for security operations, and a personal health-record app.",
+                /* Role mailboxes only (data/contact.ts); never a person's
+                   address. */
+                email: PUBLIC_CONTACT_EMAIL,
+                contactPoint: [
+                  { "@type": "ContactPoint", contactType: "customer service", email: PUBLIC_CONTACT_EMAIL },
+                  { "@type": "ContactPoint", contactType: "sales", email: DEMO_EMAIL },
+                  { "@type": "ContactPoint", contactType: "technical support", email: SUPPORT_EMAIL },
+                ],
+                sameAs: socialProfileUrls,
+              },
+              {
+                /* The site itself, so Google can show "GaitAI" as the site
+                   name rather than a guess from the domain. No SearchAction:
+                   the site's search is a command palette, not a URL. */
+                "@type": "WebSite",
+                "@id": WEBSITE_ID,
+                name: "GaitAI",
+                url: `${SITE_URL}/`,
+                publisher: { "@id": ORGANIZATION_ID },
+                inLanguage: "en",
+              },
+            ],
           }}
         />
         <Providers>

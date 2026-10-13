@@ -62,7 +62,7 @@ and matches. Sub-counts ("8 products" in a SecureVision capability group,
   `--header-clearance: calc(var(--site-header-height) + var(--site-anchor-gap))`.
 - **Research record.** Patent: "Granted 27 July 2022 · current legal status
   requires registry verification" (kept). `ivc-2023`: Crossref has no work with
-  that title (the only Parashar/Rida comparative study is the listed Pattern
+  that title (the only related comparative study is the listed Pattern
   Recognition Letters paper), so "Manuscript · publisher unverified" is kept.
 
 ## Test totals (final build)

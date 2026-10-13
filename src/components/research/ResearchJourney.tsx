@@ -35,7 +35,7 @@ const milestones: Milestone[] = [
     year: "2014",
     label: "Movement research",
     detail:
-      "Founder-led research begins on human gait analysis for Parkinson's disease and the early prediction of movement-related disorders.",
+      "Academic research begins on human gait analysis for Parkinson's disease and the early prediction of movement-related disorders.",
   },
   {
     year: "2016",
@@ -93,7 +93,7 @@ export function ResearchJourney() {
   const drawn = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   return (
-    <div ref={ref} className={`${styles.journeyStage} ${styles.diagramScroll}`} tabIndex={0} role="region" aria-label="Founder research journey; scroll to explore">
+    <div ref={ref} className={`${styles.journeyStage} ${styles.diagramScroll}`} tabIndex={0} role="region" aria-label="Research timeline; scroll to explore">
       <svg
         aria-hidden="true"
         viewBox={`0 0 ${W} ${H}`}

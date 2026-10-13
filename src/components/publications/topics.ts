@@ -1,5 +1,4 @@
 import {
-  FOUNDER_NAME,
   allPublications,
   type Publication,
 } from "@/data/publications";
@@ -76,36 +75,13 @@ export function dateSortKey(pub: Publication): number {
   return pub.year * 100 + month;
 }
 
-/**
- * Author names shown on the public site. The patent's inventor names are
- * intentionally not rendered anywhere on the website (the official
- * certificate image remains unmodified), and the founder's own name is kept
- * off the rendered page at the founder's request — the records themselves
- * are left intact; only what visitors see is filtered. What remains is the
- * list of academic co-authors.
- */
-export function publicAuthors(pub: Publication): string[] {
-  if (pub.kind === "patent") return [];
-  return pub.authors.filter((author) => !author.includes(FOUNDER_NAME));
-}
-
-/**
- * True when a record's rendered author line omits an author (the founder),
- * so the line reads as "With <co-authors>" rather than presenting the
- * co-authors as the sole authors.
- */
-export function authorsWithheld(pub: Publication): boolean {
-  return pub.kind !== "patent" && publicAuthors(pub).length < pub.authors.length;
-}
-
 /** Plain-text citation assembled from the record's own fields. */
 export function formatCitation(pub: Publication): string {
   if (pub.kind === "patent") {
     return `"${pub.title}." Patent ${pub.patentNumber}, ${pub.publisher}, granted ${pub.grantDate}.`;
   }
   const doi = pub.doi ? ` https://doi.org/${pub.doi}` : "";
-  // Title-led form: the founder's name is withheld from the public site, so
-  // the citation carries no author list rather than a truncated one.
+  // A title-led reference; official citations are available from the publisher.
   return `"${pub.title}." ${pub.venue}, ${pub.publisher}, ${pub.year}.${doi}`;
 }
 

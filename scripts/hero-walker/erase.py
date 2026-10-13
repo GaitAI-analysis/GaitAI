@@ -9,7 +9,7 @@ from rembg import remove, new_session
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Reads the ORIGINAL painted plates (pre-erase; git show 2c... or the scratch copy), never the shipped clean ones.
-REPO = os.environ.get("HERO_ORIG", r"C:/Users/Anubha/AppData/Local/Temp/claude/C--Users-Anubha-Documents-website-GaitAI-main/917f7ff1-96ab-4e2c-b8c1-6cc771348861/scratchpad/orig")
+REPO = os.environ.get("HERO_ORIG", os.path.join(os.path.dirname(__file__), "orig"))
 theme = sys.argv[1]
 cfg = {
     "light": dict(src="home-hero-gaitai.webp", box=(1140, 320, 1500, 900), refl=115, dil=12, halo=0),

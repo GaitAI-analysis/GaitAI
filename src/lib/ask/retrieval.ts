@@ -313,7 +313,7 @@ function readApplication(subject: string, concepts: DomainConcept[], ix: Index):
 /**
  * An alias hit on the record that IS the entity. Larger than any lexical
  * score a single word can earn, because a name is decisive: a visitor who
- * types "anubha" is asking about that person, whatever else the word is near.
+ * types "Researcher" is asking about that person, whatever else the word is near.
  */
 const ENTITY_BOOST: Record<EntityMatch["strength"], number> = { 3: 14, 2: 12, 1: 8 };
 /** A second entity the question also names, when another is the subject. */
@@ -964,7 +964,7 @@ export function retrieveGaitAIContext(
   if (personEntity) {
     /* Records ABOUT the person: research, papers, pages, talks. Not other
        people — a co-author record points at the founder, and the founder's
-       at each co-author, but "who is Anubha" is not answered by listing
+       at each co-author, but "who is Researcher" is not answered by listing
        everyone she has written with. */
     const related = scored.filter(
       (item) =>
@@ -1043,6 +1043,9 @@ export function retrieveGaitAIContext(
     ...docs,
     ...scored.filter((item) => !candidateIds.has(item.doc.id)).slice(0, Math.max(0, 20 - docs.length)),
   ];
+  if (intent === "PERSON") {
+    return { docs: [], pageDoc: null, lowConfidence: true, page, intent, understanding, lexicalTop: [], candidates: [], entity: null, entityMiss: "personal identity", application };
+  }
   return { docs, pageDoc, lowConfidence, page, intent, understanding, lexicalTop, candidates, entity, entityMiss, application };
 }
 

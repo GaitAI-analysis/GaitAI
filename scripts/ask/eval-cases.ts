@@ -73,13 +73,6 @@ const LABS = ["page:/labs", "page:/labs/biometrics", "page:/labs/dataset", "page
 const INPUTS = ["deployment-faq:0", "deployment-faq:1", "deployment-faq:2", "deployment-faq:3", "deployment-faq:5", "deployment:process", "page:/trust"];
 
 export const EVAL_CASES: EvalCase[] = [
-  // ── People ────────────────────────────────────────────────────────────────
-  { q: "Who is Anubha?", family: "people", relevant: ["person:anubha-parashar"], wrongTypes: ["policy", "deployment", "page", "product", "use-case", "talk"] },
-  { q: "who founded gaitai", family: "people", relevant: ["person:anubha-parashar"], wrongTypes: ["policy", "deployment", "page", "product", "use-case", "talk"] },
-  { q: "founder?", family: "people", relevant: ["person:anubha-parashar"], wrongTypes: ["policy", "deployment", "product", "use-case", "talk"] },
-  { q: "who is anubah", family: "people · misspelt", relevant: ["person:anubha-parashar"], wrongTypes: ["policy", "deployment", "page", "product", "use-case", "talk"] },
-  { q: "Who is Apoorva?", family: "people", relevant: ["person:apoorva-parashar"], wrongTypes: ["policy", "deployment", "page", "product", "use-case", "talk"] },
-  { q: "who is behind this company", family: "people", relevant: ["person:anubha-parashar", "page:/"], wrongTypes: ["talk", "publication"] },
 
   // ── Products ──────────────────────────────────────────────────────────────
   { q: "What is WalkScan?", family: "products", relevant: ["product:walkscan"], wrongTypes: NOISE },
@@ -187,7 +180,6 @@ export const EVAL_CASES: EvalCase[] = [
   { q: "does the model run on the device or in the cloud", family: "described · edge", relevant: ["deployment-faq:3", "capability:cap-edge", "research:res-edge", "page:/trust"], wrongTypes: NOISE },
   { q: "checking the fit of an artificial leg", family: "described · prosthetics", relevant: ["product:prostheticfit", "use-case:prosthetics"], wrongTypes: NOISE },
   { q: "let people through a door based on how they walk", family: "described · access", relevant: ["product:accessmotion", "capability:cap-biometrics", "capability:sig-gait-identity"], wrongTypes: NOISE },
-  { q: "who wrote the science this is built on", family: "described · people", relevant: ["person:anubha-parashar", "page:/research", "page:/publications"], wrongTypes: ["talk", "product", "use-case"] },
   { q: "kids with walking difficulties", family: "described · pediatric", relevant: ["product:pediatricmotion", "use-case:schools"], wrongTypes: NOISE },
   { q: "measuring how shaky someone's hands and steps are", family: "described · neuro", relevant: ["product:neuromotion", "capability:sig-tremor-neuro", "use-case:neuro"], wrongTypes: NOISE },
   { q: "keeping workers safe around heavy machinery", family: "described · industrial", relevant: ["product:industrialsafety", "use-case:factories"], wrongTypes: NOISE },
@@ -228,16 +220,6 @@ export const EVAL_CASES: EvalCase[] = [
     history: [
       { role: "user", content: "What can GaitAI do for hospitals?" },
       { role: "assistant", content: "GaitAI documents Hospitals as a deployment environment." },
-    ],
-  },
-  {
-    q: "what papers did she write?",
-    family: "follow-up · she",
-    relevant: ["person:anubha-parashar", ...PUBS.slice(1)],
-    wrongTypes: ["policy", "deployment", "product", "use-case", "talk"],
-    history: [
-      { role: "user", content: "Who is Anubha?" },
-      { role: "assistant", content: "Anubha Parashar is the founder of GaitAI." },
     ],
   },
   {

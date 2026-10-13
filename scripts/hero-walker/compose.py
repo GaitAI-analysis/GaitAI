@@ -1,10 +1,11 @@
+from pathlib import Path
 # python compose.py <theme> <framesDir> <frame,frame,...> <out.png>
 # Places walker frames on the clean plate at the painted figure's scale/position, next to the original.
 import sys, json
 from PIL import Image
 
 theme, d, idx, out = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
-REPO = r"C:/Users/Anubha/Documents/website/GaitAI-main/GaitAI/public/images/hero/"
+REPO = str(Path(__file__).resolve().parents[2] / "public/images/hero") + "/"
 cfg = {
     "light": dict(orig="home-hero-gaitai.webp", height=474, floor=827, hipx=1318, crop=(1080, 250, 1672, 941)),
     "dark": dict(orig="home-hero-dark.webp", height=554, floor=834, hipx=1440, crop=(1200, 180, 1759, 894)),

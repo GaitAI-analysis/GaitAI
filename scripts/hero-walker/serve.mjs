@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const three = "C:/Users/Anubha/Documents/website/GaitAI-main/GaitAI/node_modules/three";
+const three = path.resolve(here, "../../node_modules/three");
 const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".glb": "model/gltf-binary", ".png": "image/png", ".webp": "image/webp", ".json": "application/json", ".bvh": "text/plain" };
 
 export function serve(port = 0) {

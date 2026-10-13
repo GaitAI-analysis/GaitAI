@@ -676,7 +676,7 @@ if (failures) {
           "  login itself succeeded. That looks nothing like a permissions\n" +
           "  problem in the output and is easy to read as another rules bug.\n" +
           "  It has already happened once here: firebase-tools held\n" +
-          "  anubhaparashar1025@gmail.com, whose projects:list does not include\n" +
+          "  the configured personal moderator account, whose projects:list does not include\n" +
           "  gaitai-intelligence, so the deploy 403ed while the local rules file\n" +
           "  was perfectly correct. Sign in as the account that owns the project\n" +
           "  (login, or login:add then login:use), or give the signed-in account\n" +

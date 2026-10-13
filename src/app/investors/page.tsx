@@ -44,7 +44,7 @@ export default function InvestorsPage() {
               <span className="text-gradient">movement platform.</span>
             </h1>
             <p className="mt-6 text-base leading-relaxed text-soft-gray sm:text-lg">
-              GaitAI began as founder-led research into what walking reveals
+              GaitAI draws on academic research into what walking reveals
               about health, identity and safety. That work — {papers.length}{" "}
               surfaced academic papers and a granted Indian patent — now underpins
               two verticals and {productCount} product modules.

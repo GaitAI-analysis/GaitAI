@@ -41,7 +41,7 @@ DefenceMotion dark is a held text/UI poster candidate, not a clean hero. Its war
 ## Verification results
 
 - Full image inventory rerun: **92 files**, **2 exact duplicate extra copies**, **22 collages/mockups**, **4 unrelated posters**, **66 standalone candidates** (63 photographs plus 3 flagged canonical posters). Nine similarity pairs remain visually reviewed as distinct images; all recomputed hashes, dimensions, pixel hashes, pHashes and dHashes match the audit.
-- `npm run check:product-audit -- --source-dir "C:\Users\Anubha\Downloads\New folder (7)"`: passed for all 92 sources and both preserved historical manifests.
+- `npm run check:product-audit -- --source-dir "<local-source-directory>"`: passed for all 92 sources and both preserved historical manifests.
 - `npm run check:product-images`: passed for all 30 primary assets and 120 derivatives. Verifies canonical order, uniqueness, product/role ownership, case-sensitive URLs, file hashes, native dimensions, responsive ladders and complete-set integration.
 - All 120 WebP files decode with their recorded dimensions. Native masters remain unchanged in resolution; no images were upscaled.
 - `npm run lint`: passed without warnings or errors.

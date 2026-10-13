@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { productCount } from "@/data/products";
-import { papers, patent, FOUNDER_ACADEMIC_RECORD } from "@/data/publications";
+import { papers, patent, ACADEMIC_REFERENCES } from "@/data/publications";
 
 interface Milestone {
   year: string;
@@ -16,7 +16,7 @@ const journey: Milestone[] = [
   {
     year: "2014",
     title: "The research begins",
-    desc: "Founder-led research begins around human gait analysis for Parkinson's disease and the early prediction of movement-related disorders. The foundational belief: walking is a silent signal — neurological patterns, mobility decline, imbalance and early risk can be read in motion before they become visible in daily life.",
+    desc: "Academic research begins into human gait analysis for Parkinson's disease and the early prediction of movement-related disorders. The foundational belief: walking is a silent signal — neurological patterns, mobility decline, imbalance and early risk can be read in motion before they become visible in daily life.",
     accent: "violet",
   },
   {
@@ -109,7 +109,7 @@ export function JourneyTimeline({
 
       <div className="container-wide">
         <SectionHeading
-          eyebrow={`Our journey · founder research since ${FOUNDER_ACADEMIC_RECORD.researchSince}`}
+          eyebrow={`Research context since ${ACADEMIC_REFERENCES.researchSince}`}
           title={
             <>
               From research to{" "}

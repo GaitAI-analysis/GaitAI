@@ -277,7 +277,7 @@ export const siteMap: AtlasNode = {
           id: "talks",
           label: "Talks & presentations",
           route: "/research/talks/",
-          description: `The founder speaking record · ${talkRecords.length}`,
+          description: `Academic talks and presentations · ${talkRecords.length}`,
           family: "research",
         },
         {

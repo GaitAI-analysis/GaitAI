@@ -10,7 +10,6 @@ import {
   allTopics,
   allYears,
   dateSortKey,
-  publicAuthors,
   topicsFor,
 } from "./topics";
 import { PublicationCard } from "./PublicationCard";
@@ -77,7 +76,6 @@ export function PublicationLibrary() {
           p.title,
           p.venue,
           p.publisher,
-          ...publicAuthors(p),
           ...(p.keywords ?? []),
           ...topicsFor(p),
         ]

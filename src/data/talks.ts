@@ -1,58 +1,10 @@
-/**
- * TALKS & PRESENTATIONS — the founder's verified speaking record.
- *
- * PROVENANCE, WHICH IS THE WHOLE POINT OF THIS FILE. These are Anubha
- * Parashar's talks, presentations and posters, delivered in an academic and
- * personal research capacity. They are NOT GaitAI company appearances, and
- * nothing here may be presented as one — the company has delivered no talks
- * of its own. Every consuming surface says whose record it is.
- *
- * EVERY FIELD IS THE SOURCE'S OWN TEXT. Two pages on the founder's research
- * site are the only inputs:
- *
- *   https://anubhaparashar.github.io/publication.html#conferences
- *   https://anubhaparashar.github.io/event.html#talks
- *
- * Titles, dates, events, venues and descriptions are copied verbatim; a field
- * the source does not carry is simply absent rather than filled in. This file
- * was generated from those pages rather than transcribed, because 22 records
- * is 180-odd chances to mistype a venue and the page's entire value is that it
- * matches the record.
- *
- * WHAT IS DELIBERATELY NOT HERE:
- *
- *   - No recordings. Neither source carries a video URL for any of these, so
- *     there is no "Watch recording" control anywhere and no recording section.
- *   - No technical demos. Nothing in either source is evidenced as a demo, so
- *     ordinary talks are not relabelled as demos to fill a category.
- *   - No speaker photographs presented as talk imagery. Some records carry a
- *     photo; they are offered as dated evidence, not as hero art.
- *   - No slides and no certificates. See EvidenceKind.
- *   - The 2006 school talk. It predates the research record by a decade and
- *     is not part of what this page is for.
- *   - 8 of the 16 conference papers. See PROMOTED_REASON below.
- *
- * RESEARCH RELATIONS ARE EXPLICIT, NEVER INFERRED FROM WORDING. A record maps
- * onto a GaitAI research area only where the work itself is that research: the
- * gait, pose and privacy items map, and the IoT, teaching, access-control and
- * autonomous-vehicle items map to nothing. An LLM workshop is not GaitAI
- * research because both involve AI.
+/** Academic talks and presentations, retained as research references.
+ * These records do not represent GaitAI company appearances.
  */
 
 import { researchAreas } from "@/data/evidence";
 
-export const TALKS_SPEAKER = "Anubha Parashar";
-
-/**
- * Why 8 of 16 conference papers appear here and 8 do not.
- *
- * All 16 carry both Slides and a Certificate, so evidence of having been
- * presented cannot narrow the set — it selects everything. The second test is
- * subject: the paper has to be about movement, gait, or the privacy of the
- * people being observed, which is what makes it part of the research record
- * behind this platform. The other eight are real presented papers and remain
- * on the founder's publication record; they are simply not GaitAI's lineage.
- */
+/** Academic research reference metadata. */
 export const PROMOTED_REASON =
   "Conference papers appear here only where the work is gait, pose or " +
   "observation-privacy research and the source links presentation evidence.";
@@ -78,17 +30,7 @@ export const TALK_KIND_PLURAL: Record<TalkKind, string> = {
   "conference-presentation": "Selected paper presentations",
 };
 
-/**
- * The evidence kinds this site is willing to publish.
- *
- * Slides and certificates are deliberately NOT in this union, and that is
- * enforced by the type rather than by remembering not to render them. Both
- * carry personal-name detail on their face, and the decks were never prepared
- * for republication here. Their URLs live in `talks-provenance.ts`, which no
- * component imports, so they reach neither the markup nor the JS bundle —
- * they are still on the founder's own research site, which is where they
- * belong.
- */
+/** Academic research reference metadata. */
 export type EvidenceKind = "poster" | "paper" | "doi" | "photo";
 
 /** The label each evidence kind is offered under. */
@@ -119,7 +61,7 @@ export interface TalkRecord {
   evidence: TalkEvidence[];
   /** A GaitAI research-area id, only where the work IS that research. */
   researchAreaId?: string;
-  sourceUrl: string;
+  sourceUrl?: string;
 }
 
 export const talkRecords: TalkRecord[] = [
@@ -132,7 +74,6 @@ export const talkRecords: TalkRecord[] = [
     venue: "Jaipur, India",
     description: "Invited speaker session on the fundamentals of large language models and retrieval-augmented generation.",
     evidence: [],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
   },
   {
     id: "talk-02-speaker-for-an-expert-talk-on-ai-and-online-teaching-learn",
@@ -143,7 +84,6 @@ export const talkRecords: TalkRecord[] = [
     venue: "Faculty Development Programme",
     description: "Expert talk on Artificial Intelligence and online teaching-learning practices, documented through the event certificate and related FDP record.",
     evidence: [],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
   },
   {
     id: "conference-01-deep-learning-based-framework-for-accurate-clothing-attrib",
@@ -151,9 +91,8 @@ export const talkRecords: TalkRecord[] = [
     title: "Deep Learning-based Framework for Accurate Clothing Attribute Recognition and Style Navigation for Gait Recognition",
     year: 2023,
     event: "International Conference on Bio-engineering for Smart Technologies, 2023",
-    evidence: [{ kind: "paper", href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/1/conference_041818.pdf" }],
+    evidence: [],
     researchAreaId: "res-gait-biometrics",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
   {
     id: "talk-03-speaker-for-an-expert-talk",
@@ -163,8 +102,7 @@ export const talkRecords: TalkRecord[] = [
     year: 2023,
     venue: "Academic expert talk",
     description: "Invited expert talk sharing knowledge and insights on contemporary topics in technology and research with students and faculty.",
-    evidence: [{ kind: "photo", href: "https://anubhaparashar.github.io/files/8.%20Blog/1.%20academic/4.%20expert%20talk/3.%20expert%20talk%20on%20AI/1.jpeg" }],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
+    evidence: [],
   },
   {
     id: "talk-04-speaker-iot-and-ai-workshop-muj-acm-sigai-student-chapter",
@@ -175,7 +113,6 @@ export const talkRecords: TalkRecord[] = [
     venue: "Manipal University Jaipur, Jaipur, India",
     description: "Aimed to promote Embedded Systems, AI and IoT.",
     evidence: [],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
   },
   {
     id: "conference-02-protecting-the-privacy-of-face-by-de-identification-pipeli",
@@ -185,9 +122,8 @@ export const talkRecords: TalkRecord[] = [
     year: 2022,
     event: "16th International Conference on Signal Image Technology and Internet Based Systems (SITIS)",
     venue: "Dijon, France",
-    evidence: [{ kind: "paper", href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/2/BIOSIG_2022_paper_45.pdf" }, { kind: "doi", href: "https://ieeexplore.ieee.org/document/10090162" }],
+    evidence: [{ kind: "doi", href: "https://ieeexplore.ieee.org/document/10090162" }],
     researchAreaId: "res-privacy",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
   {
     id: "conference-03-optimized-pose-based-gait-analysis-for-surveillance",
@@ -197,9 +133,8 @@ export const talkRecords: TalkRecord[] = [
     year: 2021,
     event: "2nd International Conference on Innovations in Computational Intelligence and Computer Vision",
     venue: "Manipal University Jaipur",
-    evidence: [{ kind: "paper", href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/3/ICICV-2021_paper_363.pdf" }, { kind: "doi", href: "https://doi.org/10.1007/978-981-19-0475-2_54" }],
+    evidence: [{ kind: "doi", href: "https://doi.org/10.1007/978-981-19-0475-2_54" }],
     researchAreaId: "res-pose-gait",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
   {
     id: "talk-05-speaker-for-an-iot-session",
@@ -209,8 +144,7 @@ export const talkRecords: TalkRecord[] = [
     year: 2021,
     venue: "IoT speaker session",
     description: "Invited IoT speaker session sharing applied Internet of Things concepts and practical perspectives with students and participants.",
-    evidence: [{ kind: "photo", href: "https://anubhaparashar.github.io/files/8.%20Blog/1.%20academic/4.%20expert%20talk/5.%20iot%20speaker/IMG_20210214_105415.jpg" }],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
+    evidence: [],
   },
   {
     id: "presentation-03-early-detection-of-rheumatoid-arthritis-in-knee-using-deep",
@@ -221,7 +155,6 @@ export const talkRecords: TalkRecord[] = [
     event: "International Conference on Data Science, Machine Learning and Artificial Intelligence (DSMLAI)",
     venue: "Namibia University of Science and Technology (NUST), Windhoek, Namibia",
     evidence: [],
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#presentations",
   },
   {
     id: "conference-07-surveillance-system-to-provide-secured-gait-signatures-in",
@@ -231,9 +164,8 @@ export const talkRecords: TalkRecord[] = [
     year: 2020,
     event: "International Conference on Modelling, Simulation & Intelligent Computing",
     venue: "BITS Dubai",
-    evidence: [{ kind: "paper", href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/7/Surveillance%20System%20to%20Provide%20Secured%20Gait%20Signatures%20for%20Multi%20View%20Angles%20Using%20Deep%20Learning.pdf" }, { kind: "doi", href: "https://link.springer.com/chapter/10.1007/978-981-15-5243-4_21" }],
+    evidence: [{ kind: "doi", href: "https://link.springer.com/chapter/10.1007/978-981-15-5243-4_21" }],
     researchAreaId: "res-gait-biometrics",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
   {
     id: "talk-06-speaker-for-an-expert-talk-on-technology-and-innovation",
@@ -243,8 +175,7 @@ export const talkRecords: TalkRecord[] = [
     year: 2020,
     venue: "Academic expert talk",
     description: "Invited expert talk on technology and innovation for academic participants.",
-    evidence: [{ kind: "photo", href: "https://anubhaparashar.github.io/files/8.%20Blog/1.%20academic/4.%20expert%20talk/6/1.png" }],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
+    evidence: [],
   },
   {
     id: "talk-07-speaker-introduction-to-artificial-intelligence-and-iot",
@@ -254,8 +185,7 @@ export const talkRecords: TalkRecord[] = [
     year: 2020,
     venue: "Manipal University Jaipur, Jaipur, India",
     description: "Project-based online expert session introducing Artificial Intelligence and the Internet of Things.",
-    evidence: [{ kind: "photo", href: "https://anubhaparashar.github.io/files/8.%20Blog/1.%20academic/4.%20expert%20talk/2/FB_IMG_1594393539551.jpg" }],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
+    evidence: [],
   },
   {
     id: "talk-08-speaker-for-an-expert-talk-on-iot",
@@ -265,8 +195,7 @@ export const talkRecords: TalkRecord[] = [
     year: 2020,
     venue: "Internet of Things expert talk series",
     description: "Delivered sessions on IoT architecture, security, and emerging applications for students and young professionals.",
-    evidence: [{ kind: "photo", href: "https://anubhaparashar.github.io/files/8.%20Blog/1.%20academic/4.%20expert%20talk/4.%20expert%20talk%20on%20IoT/IMG-20190326-WA0004.jpg" }],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
+    evidence: [],
   },
   {
     id: "poster-gait-biometrics-ica3c-2020",
@@ -275,9 +204,8 @@ export const talkRecords: TalkRecord[] = [
     year: 2020,
     event: "1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020)",
     venue: "IIMT University, Meerut",
-    evidence: [{ kind: "poster", href: "https://anubhaparashar.github.io/files/4.%20Publication/7.%20poster/Anubha_Poster_Gait_Biometrics.pdf" }],
+    evidence: [],
     researchAreaId: "res-gait-biometrics",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#posters",
   },
   {
     id: "presentation-02-deep-learning-based-surveillance-system-using-gait-signatu",
@@ -289,7 +217,6 @@ export const talkRecords: TalkRecord[] = [
     venue: "IIMT University, Meerut",
     evidence: [],
     researchAreaId: "res-gait-biometrics",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#presentations",
   },
   {
     id: "talk-09-speaker-expert-talk-on-machine-intelligence",
@@ -300,7 +227,6 @@ export const talkRecords: TalkRecord[] = [
     venue: "Bhimrao Aambedkar University, Agra, India",
     description: "Delivered an expert talk on recent trends in machine intelligence and its challenges during the one-week FDP on Advancement in Computer Science under TEQIP-III. The certificate records the talk date as May 29, 2019.",
     evidence: [],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
   },
   {
     id: "conference-11-tracing-gesture-and-extracting-gait-features-to-recognize",
@@ -310,9 +236,8 @@ export const talkRecords: TalkRecord[] = [
     year: 2018,
     event: "International Conference on Innovative Technologies (InTech 2018)",
     venue: "Zagreb, Croatia",
-    evidence: [{ kind: "paper", href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/11/IN-TECH_2018_paper_40%20%282%29.pdf" }, { kind: "doi", href: "http://in-tech.info/download/%20IN_TECH_2018_Proceedings" }],
+    evidence: [{ kind: "doi", href: "https://in-tech.info/download/%20IN_TECH_2018_Proceedings" }],
     researchAreaId: "res-pose-gait",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
   {
     id: "conference-13-identification-of-gait-data-using-machine-learning-techniq",
@@ -322,9 +247,8 @@ export const talkRecords: TalkRecord[] = [
     year: 2018,
     event: "10th International Conference on Security of Information and Networks",
     venue: "Jaipur, India",
-    evidence: [{ kind: "paper", href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/13/Identification%20of%20GAIT%20data%20using%20machine%20learning%20technique%20to%20categorise%20human%20locomotion%20%282%29.pdf" }, { kind: "doi", href: "https://doi.org/10.1145/3136825.3136903" }],
+    evidence: [{ kind: "doi", href: "https://doi.org/10.1145/3136825.3136903" }],
     researchAreaId: "res-gait-biometrics",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
   {
     id: "talk-10-speaker-expert-talk-on-iot-its-applications",
@@ -334,8 +258,7 @@ export const talkRecords: TalkRecord[] = [
     year: 2018,
     venue: "Bhimrao Aambedkar University, Agra, India",
     description: "Expert talk delivered during the Faculty Development Programme on Exploration of IoT & Its Applications.",
-    evidence: [{ kind: "photo", href: "https://anubhaparashar.github.io/files/8.%20Blog/1.%20academic/4.%20expert%20talk/1/20180208_143012.jpg" }],
-    sourceUrl: "https://anubhaparashar.github.io/event.html#talks",
+    evidence: [],
   },
   {
     id: "conference-14-clustering-gait-data-using-different-machine-learning-tech",
@@ -345,9 +268,8 @@ export const talkRecords: TalkRecord[] = [
     year: 2016,
     event: "International Conference on Smart Trends for Information Technology and Computer Communications",
     venue: "Jaipur, India",
-    evidence: [{ kind: "paper", href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/14/110.pdf" }, { kind: "doi", href: "https://doi.org/10.1007/978-981-10-3433-6_51" }],
+    evidence: [{ kind: "doi", href: "https://doi.org/10.1007/978-981-10-3433-6_51" }],
     researchAreaId: "res-gait-biometrics",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
   {
     id: "conference-15-classifying-gait-data-using-different-machine-learning-tec",
@@ -357,9 +279,8 @@ export const talkRecords: TalkRecord[] = [
     year: 2016,
     event: "International Conference on ICT for Sustainable Development",
     venue: "Panaji, Goa, India",
-    evidence: [{ kind: "paper", href: "https://anubhaparashar.github.io/files/4.%20Publication/3.%20conference/15/243.pdf.pdf" }, { kind: "doi", href: "https://doi.org/10.1007/978-981-10-3920-1_31" }],
+    evidence: [{ kind: "doi", href: "https://doi.org/10.1007/978-981-10-3920-1_31" }],
     researchAreaId: "res-gait-biometrics",
-    sourceUrl: "https://anubhaparashar.github.io/publication.html#conferences",
   },
 ];
 

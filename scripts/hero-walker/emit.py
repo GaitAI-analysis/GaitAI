@@ -52,5 +52,5 @@ for t in ["light", "dark"]:
     L += ["    },", f"    poster: {{ src: \"/images/hero/walk/{ps['src']}\", x: {ps['x']}, y: {ps['y']}, w: {ps['w']}, h: {ps['h']} }},",
           f"    joints: {json.dumps(m['joints'])},", "  },"]
 L.append("};")
-open(r"C:/Users/Anubha/Documents/website/GaitAI-main/GaitAI/src/data/hero-walk.ts", "w", encoding="utf-8").write("\n".join(L) + "\n")
+open(os.path.join(HERE, "../../src/data/hero-walk.ts"), "w", encoding="utf-8").write("\n".join(L) + "\n")
 print("ok")

@@ -56,7 +56,7 @@ B3. SECURITY RULES — this is the real enforcement layer, do not skip.
       pending queue, approve, reject, delete, or manage reports.
 
 B4. The admin allowlist currently contains two emails, hardcoded in the rules:
-        anubhaparashar1025@gmail.com
+        the configured personal moderator account
         gait.ai.founder@gmail.com
     If moderators change, edit the `isAdmin()` function in firestore.rules AND
     tell me, so I mirror it in src/lib/comments/config.ts (UI-side check).

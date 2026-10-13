@@ -69,9 +69,9 @@ export interface KnowledgeDoc {
    *
    * A person, the company, a module. `entityId` is the canonical handle other
    * records point at through `relatedEntityIds`, so a publication can say
-   * "authored by anubha-parashar" without carrying a second copy of the
+   * "authored by Example Researcher" without carrying a second copy of the
    * biography, and the person record can be found from any of its `aliases`
-   * ("anubha", "the founder") rather than only from its exact title.
+   * ("Researcher", "the founder") rather than only from its exact title.
    * See entities.ts for how they are matched, and build-knowledge.mjs for
    * where they come from — every alias is derived from a site data module,
    * none is typed into the assistant.

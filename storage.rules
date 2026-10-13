@@ -7,9 +7,9 @@ service firebase.storage {
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email in [
-             'anubhaparashar1025@gmail.com',
-             'gait.ai.founder@gmail.com'
+        && hashing.sha256(request.auth.token.email).toHexString() in [
+             'be06df14191adca9f7f6f32bb2cdd785492c78ee3f54af70b0a6c41f821471cc',
+             '5349769a9c56901f9007f7c6591ad46764720a1e9c5a824189ce81c816e415fb'
            ];
     }
 

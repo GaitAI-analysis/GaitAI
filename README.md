@@ -40,7 +40,7 @@
 15. [Theming — dark & light](#theming--dark--light)
 16. [Navigation, transitions & animation](#navigation-transitions--animation)
 17. [Code-rendered visuals](#code-rendered-visuals)
-18. [Founder](#founder)
+18. [Research references](#research-references)
 19. [Security notes](#security-notes)
 20. [Related docs](#related-docs)
 21. [Roadmap](#roadmap)
@@ -50,7 +50,7 @@
 
 ## Overview
 
-GaitAI is a production-grade, research-led marketing and publication platform for the **GaitAI** brand — a Human Movement Intelligence Platform built on **10+ years of founder-led research** in gait recognition, computer vision, biometrics and movement AI.
+GaitAI is a production-grade, research-led marketing and publication platform for the **GaitAI** brand — a Human Movement Intelligence Platform built on **10+ years of academic research** in gait recognition, computer vision, biometrics and movement AI.
 
 The platform organises everything around two verticals and 24 modular products:
 
@@ -143,7 +143,7 @@ GaitAI_Fr_Version1_Claude/
 ├── data/
 │   └── posts.json                   # build-time post storage (seed content)
 ├── public/
-│   ├── brand/                       # themed logos + founder portrait
+│   ├── brand/                       # themed logos + research imagery
 │   ├── favicons/                    # 16 → 512 + apple-touch-icon
 │   ├── uploads/                     # post attachments
 │   └── manifest.webmanifest
@@ -227,7 +227,7 @@ GaitAI_Fr_Version1_Claude/
 ```
 /                        Home — hero, verticals, featured products, WatchCare flagship,
                               how it works, use cases, technology, research, vision, CTA.
-/about                   Mission, founder story, journey, portfolio, audiences, values.
+/about                   Mission, research context, journey, portfolio, audiences, values.
 /mobilitycare            12-product grid + flagship blocks + clinical use cases.
 /securevision            11-product grid + PrivacyGuard deep block + governance ribbon.
 /products                All 24 products with cross-vertical category filters.
@@ -467,11 +467,9 @@ Every product moment is rendered as code (SVG + Canvas + Framer Motion) — cris
 
 ---
 
-## Founder
+## Research references
 
-**Dr. Anubha Parashar** — AI Research Scientist · Founder & CEO, GaitAI.
-
-Ph.D. in Computer Science & Engineering (AI) from Manipal University Jaipur; doctoral research on gait recognition under occlusion, clothing variation and viewpoint changes. 10+ years across research, academia and industry. **Research output:** 50+ peer-reviewed publications · 6 patents · ~600 citations · 10+ keynotes. Full profile at `/about#founder` and [anubhaparashar.github.io](https://anubhaparashar.github.io/).
+The research library presents academic papers and a patent reference with titles, venues, publishers, years, topics, summaries and official source links. Copyright and patent rights remain with the respective rights holders; inclusion does not imply GaitAI authorship or ownership.
 
 ---
 

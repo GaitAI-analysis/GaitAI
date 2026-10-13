@@ -141,7 +141,7 @@ export default function GaitDatasetPage() {
             <span className="text-gradient">gait datasets.</span>
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-soft-gray">
-            The founder&apos;s published work addresses how a gait dataset is
+            Published research addresses how a gait dataset is
             protected inside a deep-learning pipeline and how recognition can be
             built on pose features rather than appearance. Both bear directly on
             how this dataset is prepared and how it may be used.

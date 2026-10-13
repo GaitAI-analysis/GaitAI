@@ -1,4 +1,4 @@
-import { FOUNDER_ACADEMIC_RECORD } from "../src/data/publications";
+import { ACADEMIC_REFERENCES } from "../src/data/publications";
 import fs from "node:fs";
 import path from "node:path";
 import { siteCounts, terminology } from "../src/data/registry";
@@ -8,7 +8,7 @@ import { useCaseHrefById } from "../src/data/usecase-details";
 const facts = {
   counts: siteCounts,
   terminology,
-  founderAcademicRecord: FOUNDER_ACADEMIC_RECORD,
+  academicReferences: ACADEMIC_REFERENCES,
   products: allProducts.map(({ id, short, vertical, navigation }) => ({ id, label: short, href: `/${vertical}/${id}/`, vertical, navigation: Boolean(navigation) })),
   environments: industryUseCases.map(({ id, industry, vertical, footer }) => ({ id, label: industry, href: useCaseHrefById(id), vertical, footer: Boolean(footer) })),
 };

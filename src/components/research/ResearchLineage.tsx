@@ -23,7 +23,6 @@ import styles from "./observatory.module.css";
 export type LineageProps = {
   papers: number;
   patentNumber: string;
-  founder: string;
   yearFrom: number;
   yearTo: number;
   careCount: number;
@@ -36,7 +35,6 @@ const CX = 450;
 export function ResearchLineage({
   papers,
   patentNumber,
-  founder,
   yearFrom,
   yearTo,
   careCount,
@@ -68,12 +66,12 @@ export function ResearchLineage({
           pathLength={100}
         />
 
-        {/* Founder-led research */}
+        {/* Academic research */}
         <circle className={styles.lnHalo} cx={CX} cy={54} r={26} />
         <circle className={styles.lnNode} cx={CX} cy={54} r={9} />
         <circle className={styles.lnNodeDot} cx={CX} cy={54} r={3} />
         <text className={styles.lnLabel} x={CX} y={26} textAnchor="middle">
-          Founder-led research
+          Academic research
         </text>
         <text className={styles.lnMeta} x={CX} y={41} textAnchor="middle">
           {yearFrom} → {yearTo}
@@ -167,9 +165,9 @@ export function ResearchLineage({
 
       {/* The distinction, in the same words the page has always used. */}
       <p className={styles.provenanceNote}>
-        {papers} surfaced academic papers and Patent {patentNumber}, authored by{" "}
-        {founder} with academic co-authors, constitute the research foundation.
-        GaitAI product modules are subsequent platform implementations.{" "}
+        {papers} academic paper references and Patent {patentNumber} provide research context.
+        Copyright and patent rights remain with their respective rights holders;
+        inclusion does not imply GaitAI authorship or ownership.{" "}
         <Link
           href="/publications"
           className="text-cyan-300 underline decoration-cyan-300/30 underline-offset-2 transition-colors hover:text-cyan-200"

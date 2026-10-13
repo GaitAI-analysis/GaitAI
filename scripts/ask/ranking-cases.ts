@@ -4,7 +4,7 @@
  * Where `cases.ts` asks "did the right records REACH the answering layer",
  * these ask "did the right record come FIRST, and was the question read as
  * the right kind of question". They exist because of one screenshot: "who is
- * anubha" answered with a privacy policy, a Trust Center page and a deployment
+ * Example Researcher" answered with a privacy policy, a Trust Center page and a deployment
  * note, because nothing in the ranking knew that a name is decisive.
  *
  * Each case may assert any of:
@@ -43,90 +43,25 @@ export interface RankingCase {
   destination?: string | null;
 }
 
-const PERSON = "person:anubha-parashar";
+const PERSON = "person:Example Researcher";
 const NOT_A_PERSON_ANSWER: DocType[] = ["policy", "deployment", "page", "product", "use-case"];
 
 export const RANKING_CASES: RankingCase[] = [
-  // ── The bug ────────────────────────────────────────────────────────────────
-  {
-    q: "who is anubha",
-    top: PERSON,
-    intent: "PERSON",
-    notTopTypes: NOT_A_PERSON_ANSWER,
-    includesType: "publication",
-    answerHas: ["Anubha Parashar", "Related:"],
-    /* No policy, Trust or deployment record may answer a person question. A
-       co-authored paper whose TITLE contains "privacy" is a legitimate
-       related record, so the check names the policy records themselves. */
-    answerLacks: ["Privacy policy", "Privacy and security architecture", "Trust Center", "deployment"],
-  },
-  {
-    q: "who is anubha parashar",
-    top: PERSON,
-    intent: "PERSON",
-    notTopTypes: NOT_A_PERSON_ANSWER,
-    answerHas: ["Anubha Parashar"],
-  },
-  {
-    q: "tell me about anubha",
-    top: PERSON,
-    intent: "PERSON",
-    notTopTypes: NOT_A_PERSON_ANSWER,
-  },
-  {
-    q: "Who is Dr. Anubha Parashar?",
-    top: PERSON,
-    intent: "PERSON",
-    /* An alias is for MATCHING. The answer must not pick the honorific up as a
-       fact: no degree is documented on the site. */
-    answerLacks: ["Dr.", "PhD", "Ph.D"],
-  },
-  { q: "What do you know about Anubha's research?", top: PERSON, intent: "PERSON" },
-  { q: "who is anubah", top: PERSON, intent: "PERSON" },
-  { q: "who founded gaitai", top: PERSON, intent: "PERSON", notTopTypes: NOT_A_PERSON_ANSWER },
-  { q: "who is the founder", top: PERSON, intent: "PERSON" },
-  { q: "who is the founder of GaitAI?", top: PERSON, intent: "PERSON" },
-  { q: "who works on gaitai research", top: PERSON, intent: "PERSON", notTopTypes: ["policy", "deployment"] },
-  {
-    q: "Which publications did Anubha Parashar author?",
-    top: PERSON,
-    intent: "PERSON",
-    includesType: "publication",
-  },
-  // Asked from a page whose own record would otherwise take the lead.
-  { q: "who is anubha", path: "/legal/privacy/", top: PERSON, intent: "PERSON" },
-  { q: "who is anubha", path: "/trust/", top: PERSON, intent: "PERSON" },
-
-  // ── A second person, sharing a surname ─────────────────────────────────────
-  // The Publications page names Apoorva Parashar as a co-author. "Parashar"
-  // alone is ambiguous and resolves nobody; either first name resolves the
-  // right record, and neither answer offers the other person.
-  {
-    q: "Who is Apoorva Parashar?",
-    top: "person:apoorva-parashar",
-    intent: "PERSON",
-    notTopTypes: NOT_A_PERSON_ANSWER,
-    includesType: "publication",
-    answerHas: ["Apoorva Parashar", "co-author"],
-    answerLacks: ["founder of GaitAI."],
-  },
-  { q: "Who is Apoorva?", top: "person:apoorva-parashar", intent: "PERSON", answerHas: ["Apoorva Parashar"] },
-  { q: "who is anubha", top: PERSON, intent: "PERSON", answerLacks: ["**Apoorva Parashar**"] },
-  { q: "Which papers did Apoorva co-author?", top: "person:apoorva-parashar", intent: "PERSON", includesType: "publication" },
+  ...["Who founded GaitAI?", "Who owns GaitAI?", "Who authored these papers?", "Founder?"].map(q => ({ q, intent: "PERSON" as const, miss: true, answerHas: ["outside its public scope"], answerLacks: ["## Person"] })),
 
   // ── The empty state ────────────────────────────────────────────────────────
   {
     q: "who is john smith",
     intent: "PERSON",
     miss: true,
-    answerHas: ["couldn't find a GaitAI record for", "john smith", "Research", "Publications"],
+    answerHas: ["outside its public scope", "Publications"],
     answerLacks: ["Privacy"],
   },
   {
     q: "tell me about Priya Sharma.",
     intent: "PERSON",
     miss: true,
-    answerHas: ["Priya Sharma"],
+    answerHas: ["outside its public scope"],
   },
   // A "who" that is about an audience, not a person, must not be a miss.
   { q: "who is it for", miss: false, notTopTypes: ["person"] },
@@ -207,14 +142,14 @@ export const RANKING_CASES: RankingCase[] = [
       "Relevant capabilities:",
       "Important boundary",
     ],
-    answerLacks: ["Anubha", "Talks and presentations", "GaitAI Insights", "Patent 402202", "deployed", "customer:"],
+    answerLacks: ["Example Researcher", "Talks and presentations", "GaitAI Insights", "Patent 402202", "deployed", "customer:"],
   },
   {
     q: "What can GaitAI do for defence?",
     intent: "DOMAIN_APPLICATION",
     notTopTypes: ["person", "talk", "insight", "publication", "research"],
     answerHas: ["Defence & Armed Forces", "Important boundary"],
-    answerLacks: ["Anubha", "Talks and presentations"],
+    answerLacks: ["Example Researcher", "Talks and presentations"],
   },
   {
     q: "What can GaitAI do for a hospital?",
@@ -244,7 +179,7 @@ export const RANKING_CASES: RankingCase[] = [
     q: "What can GaitAI do for astronauts?",
     intent: "DOMAIN_APPLICATION",
     answerHas: ["no documented answer"],
-    answerLacks: ["Relevant capabilities", "Anubha", "Talks"],
+    answerLacks: ["Relevant capabilities", "Example Researcher", "Talks"],
   },
   /* A module named in the "for" form keeps its own intent. */
   { q: "What can WalkScan do for a clinic?", intent: "PRODUCT", top: "product:walkscan" },

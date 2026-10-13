@@ -1,6 +1,6 @@
 # Product image assignments
 
-Source of truth: `product-image-manifest.json`. Existing ten dedicated sets are preserved. New selections come from `C:\Users\Anubha\Downloads\New folder (7)\New folder`. Product copy, names, order, routes and catalogue structure are unchanged.
+Source of truth: `product-image-manifest.json`. Existing ten dedicated sets are preserved. New selections come from `<local-source-directory>\New folder`. Product copy, names, order, routes and catalogue structure are unchanged.
 
 **24 cards, 24 dark heroes, 24 light heroes = 72 assignments from 63 distinct source photographs.** Twenty-one products have dedicated sets; ForensicSearch, AccessMotion and Watchlist use explicit closest-fit shared sources. All 24 card source photographs are distinct.
 
@@ -44,7 +44,7 @@ These scene choices illustrate context; they do not add capabilities or claims t
 
 ## Exact source filenames
 
-Paths are relative to `C:\Users\Anubha\Downloads\New folder (7)`. N-prefixed IDs are in the new nested folder.
+Paths are relative to `<local-source-directory>`. N-prefixed IDs are in the new nested folder.
 
 | ID | Source filename | Native pixels | Used by product/role |
 |---|---|---|---|

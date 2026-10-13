@@ -19,7 +19,7 @@
     "journal:doctor": "tsx scripts/journal-doctor.mjs",
     "site:doctor": "node scripts/site-doctor.mjs",
     "test:evidence": "tsx scripts/test-evidence.ts",
-    "verify": "npm run typecheck && npm run lint && npm run validate:gaitai && npm run check:media -- --strict && npm run test:evidence && npm run ask:test && npm run ask:rank && npm run ask:paraphrase",
+    "verify": "npm run typecheck && npm run lint && npm run validate:gaitai && npm run check:media -- --strict && npm run test:evidence && npm run ask:test && npm run ask:rank && npm run ask:paraphrase && npm run test:public-brand",
     "check:links": "node scripts/check-links.mjs",
     "build:knowledge": "tsx scripts/build-knowledge.mjs",
     "ask:test": "tsx scripts/ask-test.ts",
@@ -48,7 +48,8 @@
     "check:product-audit": "node scripts/check-product-image-audit.mjs",
     "test:wiki": "tsx scripts/test-wiki-private.ts",
     "test:wiki:browser": "node scripts/test-wiki-gate-browser.mjs",
-    "check:wiki:private": "node scripts/check-private-wiki-export.mjs"
+    "check:wiki:private": "node scripts/check-private-wiki-export.mjs",
+    "test:public-brand": "tsx scripts/test-public-brand.ts"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^1.0.1",

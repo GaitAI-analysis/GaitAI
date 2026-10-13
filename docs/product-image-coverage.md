@@ -40,4 +40,4 @@ The source tree now contains **138 files**: the previous 92 plus the new 46. Eve
 
 Previous manifests and reports remain in `docs/audits/product-images/history/`. Historical manifest bytes are protected by `.gitattributes` and their SHA-256 values are verified. The old DefenceMotion poster warning remains in historical provenance; clean N044 replaces it in production.
 
-Run `npm run check:product-audit -- --source-dir "C:\Users\Anubha\Downloads\New folder (7)"` for the combined tree, and `npm run check:product-images -- --require-complete` for the actual 24-product registry. The default build continues to integrate reviewed mappings without an all-72 gate.
+Run `npm run check:product-audit -- --source-dir "<local-source-directory>"` for the combined tree, and `npm run check:product-images -- --require-complete` for the actual 24-product registry. The default build continues to integrate reviewed mappings without an all-72 gate.

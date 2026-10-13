@@ -1,3 +1,4 @@
+import { PUBLIC_IDENTITY_RESPONSE } from "./public-scope";
 /**
  * RETRIEVAL-ONLY MODE — an answer with no language model at all.
  * =============================================================================
@@ -30,12 +31,11 @@ const PERSON_RELATED = 4;
 
 /**
  * The wording for a person the corpus has no record for. Named from the
- * question — "Anubha", "Dr. Smith" — so the visitor can see what was looked
+ * question — "Researcher", "Dr. Smith" — so the visitor can see what was looked
  * up, and pointed at the two routes where people appear on this site.
  */
-export function composeEntityMiss(subject: string): string {
-  const shown = subject.replace(/["“”]/g, "").trim();
-  return `I couldn't find a GaitAI record for “${shown}”. Try a full name, or search [Research](/research/) and [Publications](/publications/).`;
+export function composeEntityMiss(_subject: string): string {
+  return PUBLIC_IDENTITY_RESPONSE;
 }
 
 /**
@@ -301,6 +301,7 @@ function composeUnsupported(result: RetrievalResult): string {
  * marketing site that has to be quotable.
  */
 export function composeExtractiveAnswer(result: RetrievalResult): string {
+  if (result.intent === "PERSON") return PUBLIC_IDENTITY_RESPONSE;
   /* Asked about a person the site has no record for: say which one, and
      where people do appear — not the nearest policy page. */
   if (result.entityMiss) return composeEntityMiss(result.entityMiss);

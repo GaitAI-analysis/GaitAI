@@ -2167,7 +2167,7 @@
     {
       "file": "src/app/publications/page.tsx",
       "line": 25,
-      "text": "The research record GaitAI is built on: peer-reviewed papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI."
+      "text": "The research record GaitAI is built on: peer-reviewed papers and a granted Indian patent by founder [personal-reference-withheld], across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI."
     },
     {
       "file": "src/app/publications/page.tsx",
@@ -3942,7 +3942,7 @@
     {
       "file": "src/data/publications.ts",
       "line": 294,
-      "text": "Protection of gait data set for preserving its privacy in deep learning pipeline Anubha Parashar IET Biometrics"
+      "text": "Protection of gait data set for preserving its privacy in deep learning pipeline [personal-reference-withheld] IET Biometrics"
     },
     {
       "file": "src/data/publications.ts",
@@ -4364,7 +4364,7 @@
     {
       "file": "src/app/publications/page.tsx",
       "line": 25,
-      "text": "The research record GaitAI is built on: peer-reviewed papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI."
+      "text": "The research record GaitAI is built on: peer-reviewed papers and a granted Indian patent by founder [personal-reference-withheld], across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI."
     },
     {
       "file": "src/app/publications/page.tsx",
@@ -5799,7 +5799,7 @@
     {
       "file": "src/components/labs/photo/lab-photo-layout.ts",
       "line": 28,
-      "text": "Anubha Parashar seen from behind, sitting at a round table in the GaitAI biometrics lab and working at a laptop that shows a pose skeleton, with camera tripods standing around the bright room."
+      "text": "[personal-reference-withheld] seen from behind, sitting at a round table in the GaitAI biometrics lab and working at a laptop that shows a pose skeleton, with camera tripods standing around the bright room."
     },
     {
       "file": "src/components/labs/scene/LabScene.tsx",
@@ -8339,7 +8339,7 @@
     {
       "file": "src/data/publications.ts",
       "line": 271,
-      "text": "A robust covariate-invariant gait recognition based on pose features Anubha Parashar IET Biometrics"
+      "text": "A robust covariate-invariant gait recognition based on pose features [personal-reference-withheld] IET Biometrics"
     },
     {
       "file": "src/data/publications.ts",

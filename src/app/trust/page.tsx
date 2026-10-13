@@ -104,7 +104,7 @@ export default function TrustPage() {
           <TrustMatrix />
           <details className="mb-8 rounded-xl border border-white/10 p-5 text-sm text-soft-gray">
             <summary className="cursor-pointer font-semibold text-soft-white">Registry definitions and evidence scope</summary>
-            <p className="mt-4">{siteFacts.founderAcademicRecord.scope}</p>
+            <p className="mt-4">{siteFacts.academicReferences.scope}</p>
             <p className="mt-3">{siteFacts.counts.productValidationStudies} product-specific validation studies are published in the current evidence registry.</p>
             <dl className="mt-4 space-y-3">{Object.entries(siteFacts.terminology).map(([term,definition]) => <div key={term}><dt className="font-semibold text-soft-white">{term.replace(/([A-Z])/g, " $1").toLowerCase()}</dt><dd>{definition}</dd></div>)}</dl>
           </details>

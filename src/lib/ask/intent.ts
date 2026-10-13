@@ -1,7 +1,7 @@
 /**
  * THE INTENT TAXONOMY — what KIND of thing a question asks for, declared once.
  * =============================================================================
- * Ask GaitAI kept being fixed one sentence at a time: "who is anubha", "what
+ * Ask GaitAI kept being fixed one sentence at a time: "who is Researcher", "what
  * can GaitAI do for military", "does it do surveillance". Each fix was right
  * and none of them generalised, because the knowledge of what a question is
  * about lived in scattered regular expressions and a hand-tuned boost table.
@@ -104,14 +104,14 @@ export const INTENTS: Record<Intent, IntentSpec> = {
       /\b(founder|founders|co-?founder|founded|creator|created|author|authors|authored|researcher|researchers|scientist|team|people|person|leadership|leads|behind|inventor|invented|wrote)\b.*\b(who|whom|whose)\b|\b(who|whom|whose)\b.*\b(founder|founders|co-?founder|founded|creator|created|author|authors|authored|researcher|researchers|scientist|team|people|person|leadership|leads|behind|inventor|invented|wrote)\b/i,
     ],
     topics: /^(?:founder|founders|team|people|author|authors|who|ceo|leadership|staff)$/i,
-    expand: ["founder", "author", "co-author"],
+    expand: [],
     prefer: { person: 10, publication: 0.5, research: 0.5, talk: 0.5 },
     demote: { policy: -6, deployment: -6, page: -3, product: -2, "use-case": -3, capability: -3, signal: -3, insight: -2 },
     family: null,
     hubs: [],
     policy:
-      "Answer from the person record first — the name and what that record documents — then the publications and pages that point at them. Never infer a role, degree or affiliation.",
-    examples: ["Who is Anubha?", "who founded gaitai", "tell me about Apoorva", "founder?", "who's behind gaitai"],
+      "Personal identities are outside the public guide. Use the fixed public-scope response without repeating a name or inferring authorship or ownership.",
+    examples: ["Who founded GaitAI?", "Who owns GaitAI?", "Who authored the papers?", "Founder?"],
   },
 
   PRODUCT: {
@@ -520,7 +520,7 @@ export function applicationSubject(query: string): string | null {
 /**
  * The subject of a "who is X" question, for the empty state.
  *
- * "who is anubha?" → "anubha"; "tell me about Dr. Smith." → "Dr. Smith".
+ * "who is Researcher?" → "Researcher"; "tell me about Dr. Smith." → "Dr. Smith".
  * Null when the question is not in that shape, so the caller falls back to
  * the generic wording.
  */
@@ -581,7 +581,7 @@ export function topicIntent(text: string): Intent | null {
  *
  * ORDER IS THE MODEL. The first rule that fires wins, and the order encodes
  * the priorities a visitor would expect: a named person beats everything
- * (asking "who is Anubha" on any page is about Anubha); a domain names the
+ * (asking "who is Researcher" on any page is about Researcher); a domain names the
  * kind of answer wanted whatever else the sentence contains; a privacy
  * question that mentions a module is still a privacy question; a named module
  * beats the generic hints. The last rules are broad on purpose — they only
@@ -633,7 +633,7 @@ export function classifyIntent(query: string, hints: IntentHints = {}): Intent {
 
   if (who && !AUDIENCE_SUBJECT.test(subject)) {
     /* "Who is FallRisk" is a product question phrased loosely; "who is the
-       founder" and "who is anubha" are about people. A module name in the
+       founder" and "who is Researcher" are about people. A module name in the
        subject settles it; so does an environment or capability name. */
     if (hints.namesProduct) return "PRODUCT";
     if (hints.namesEnvironment) return "DOMAIN_APPLICATION";

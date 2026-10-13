@@ -1,6 +1,6 @@
 # Fresh product-image audit - 92 current files
 
-This report was rebuilt from all files currently in `C:\Users\Anubha\Downloads\New folder (7)`. File order/date was used only to label review aids, never to infer product assignments. All 92 images were visually reviewed; ambiguous/new clinical scenes were inspected at native resolution. No source images were generated, extracted from collages, substituted, modified or deleted.
+This report was rebuilt from all files currently in `<local-source-directory>`. File order/date was used only to label review aids, never to infer product assignments. All 92 images were visually reviewed; ambiguous/new clinical scenes were inspected at native resolution. No source images were generated, extracted from collages, substituted, modified or deleted.
 
 The authoritative source selection is `product-image-manifest.json` (schema 2). The previous manifest is retained byte-for-byte under `docs/audits/product-images/history/`, with its SHA-256 recorded in the current manifest.
 
@@ -120,7 +120,7 @@ for all 72 roles. DefenceMotion's poster warning remains authoritative.
 
 - The inventory script rechecks every image's native dimensions, SHA-256,
   decoded pixels, pHash/dHash and similarity candidates.
-- `npm run check:product-audit -- --source-dir "C:\Users\Anubha\Downloads\New folder (7)"`
+- `npm run check:product-audit -- --source-dir "<local-source-directory>"`
   verifies all current source files and historical snapshots.
 - `npm run check:product-images` validates production paths, dimensions, hashes,
   uniqueness, responsive derivatives and complete-set integration.

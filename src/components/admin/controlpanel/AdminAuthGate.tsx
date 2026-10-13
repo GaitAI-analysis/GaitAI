@@ -4,7 +4,7 @@
  * Google sign-in gate for the admin control panel.
  *
  * Renders its children ONLY for a signed-in, verified Google account on the
- * moderator allowlist (src/lib/comments/config.ts → ADMIN_EMAILS, mirrored in
+ * moderator allowlist (src/lib/comments/config.ts → isAdminEmail, mirrored in
  * firestore.rules). Everyone else sees a sign-in / not-authorized screen.
  * The verified session is passed to children so writes can be attributed and
  * so the panel can put the account control in its own header.
@@ -44,12 +44,20 @@ export function AdminAuthGate({
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    return onAuthStateChanged(auth, (u) => {
+    let revision = 0;
+    const unsubscribe = onAuthStateChanged(auth, async (u) => {
+      const current = ++revision;
       setUser(u);
-      if (!u) setPhase("signed-out");
-      else if (u.emailVerified && isAdminEmail(u.email)) setPhase("authorized");
-      else setPhase("denied");
+      setPhase(u ? "loading" : "signed-out");
+      if (!u) return;
+      try {
+        const allowed = u.emailVerified && await isAdminEmail(u.email);
+        if (current === revision) setPhase(allowed ? "authorized" : "denied");
+      } catch {
+        if (current === revision) setPhase("denied");
+      }
     });
+    return () => { revision++; unsubscribe(); };
   }, []);
 
   async function handleSignIn() {

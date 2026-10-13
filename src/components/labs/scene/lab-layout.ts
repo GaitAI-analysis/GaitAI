@@ -84,7 +84,7 @@ export const LAB_ASSETS = "/labs";
 export const LAB_URLS = {
   hdri: `${LAB_ASSETS}/hdri/lebombo_1k.hdr`,
   draco: `${LAB_ASSETS}/draco/`,
-  avatar: `${LAB_ASSETS}/avatar/anubha.glb`,
+  avatar: `${LAB_ASSETS}/avatar/researcher.glb`,
   fan: `${LAB_ASSETS}/models/ceiling-fan.glb`,
   tubeLight: `${LAB_ASSETS}/models/fluorescent-light.glb`,
   plant: `${LAB_ASSETS}/models/potted-plant.glb`,

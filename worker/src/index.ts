@@ -50,6 +50,8 @@ import { buildAnswer, failure, json, type RetrievalDebug } from "./response";
 import { embeddingIndex, retrieveInWorker, type WorkerRetrieval } from "./semantic";
 import { LIMITS, validateRequest, type AskRequest } from "./validate";
 import { WorkersAiError } from "./workers-ai";
+import { retrieveGaitAIContext } from "../../src/lib/ask/retrieval";
+import { PUBLIC_IDENTITY_RESPONSE } from "../../src/lib/ask/public-scope";
 
 export { AskGuard } from "./guard";
 
@@ -62,10 +64,10 @@ const PATH = "/api/ask";
  * running `wrangler dev` can see the whole RAG path for one question:
  *
  *   [Ask GaitAI]
- *   question: Who is Anubha?
- *   selected: person:anubha-parashar, research:res-gait-biometrics, …
+ *   question: Who is Researcher?
+ *   selected: person:Example Researcher, research:res-gait-biometrics, …
  *   resolved:
- *     person:anubha-parashar — Anubha Parashar
+ *     person:Example Researcher — Example Researcher
  *     …
  *   provider: workers-ai
  *   model: @cf/meta/llama-3.2-3b-instruct
@@ -187,6 +189,14 @@ async function handle(request: Request, env: AskEnv): Promise<Response> {
   // The browser's selection is validated first: a request whose ids resolve
   // to nothing is refused before any model call, exactly as before.
   let grounding = resolveRecords(ask.selectedRecordIds, ask.pathname);
+  const scope = retrieveGaitAIContext(ask.question, ask.pathname, ask.history);
+  if (scope.intent === "PERSON" || scope.entityMiss) {
+    return json(200, {
+      answer: PUBLIC_IDENTITY_RESPONSE, mode: "retrieval", confidence: "low",
+      sources: [], relatedLinks: [], suggestions: [],
+      grounding: { records: 0, recordIds: [], latencyMs: 0 },
+    }, cors);
+  }
   if (grounding.docs.length === 0) return failure(422, "no_records", cors);
 
   // ── Configuration: fail clearly, before spending anything ───────────────

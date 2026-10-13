@@ -143,7 +143,7 @@ export default function SecureVisionPage() {
               analytics, crowd flow, anomaly detection and post-event
               investigation — grounded in{" "}
               <span className="text-soft-white">
-                a decade of founder research in gait and human movement
+                academic research in gait and human movement
               </span>
               , with PrivacyGuard defining the default design posture and
               auditability by design.

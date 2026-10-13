@@ -132,7 +132,7 @@ export function Footer() {
               GaitAI is intelligence in motion — a Human Movement Intelligence
               Platform that turns walking videos, wearable signals and crowd
               movement into healthcare, sports, elderly-care and safety
-              insight. Built on founder research since {siteFacts.founderAcademicRecord.researchSince} in
+              insight. Informed by academic research in
               gait and human movement.
             </p>
             {/* The same statement at footer length for a phone: what the
@@ -140,7 +140,7 @@ export function Footer() {
                 the home page's proposition told a second time. */}
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-soft-mute sm:hidden">
               Movement intelligence for healthcare, sports and public safety —
-              built on gait research since {siteFacts.founderAcademicRecord.researchSince}.
+              built on gait research since {siteFacts.academicReferences.researchSince}.
             </p>
             <div className="mt-5 flex items-center gap-2">
               {socials.map(({ icon: Icon, href, label }) => (

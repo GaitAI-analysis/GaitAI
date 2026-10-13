@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import type { Publication } from "@/data/publications";
 import { publisherAccent } from "@/data/publications";
-import { authorsWithheld, publicAuthors, topicsFor } from "./topics";
+import { topicsFor } from "./topics";
 import { PublicationCoverArt } from "./PublicationCoverArt";
 
 /**
@@ -58,17 +58,9 @@ export function PublicationListItem({
           {publication.title}
         </h3>
 
-        {publicAuthors(publication).length > 0 && (
         <div className="mt-2 text-[12.5px] leading-relaxed text-soft-mute">
-          {authorsWithheld(publication) && "With "}
-          {publicAuthors(publication).map((author, i) => (
-            <span key={author}>
-              {i > 0 && ", "}
-              <span>{author}</span>
-            </span>
-          ))}
+          {publication.publisher}
         </div>
-        )}
 
         <div className="mt-1.5 text-[12.5px]">
           <span className={`font-medium ${accent.text}`}>

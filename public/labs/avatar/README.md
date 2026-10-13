@@ -1,6 +1,6 @@
 # The capture subject — a 3D human representation
 
-`anubha.glb` is the figure standing at the centre of the interactive lab's
+`researcher.glb` is the figure standing at the centre of the interactive lab's
 DIGITAL TWIN mode (`src/components/labs/scene/LabScene.tsx`, `Avatar`). It is
 a **stand-in**, not a scan and not a 4D capture: a rigged character with the
 Mixamo skeleton, used exactly as authored — mesh, skin weights and inverse
@@ -61,7 +61,7 @@ Ways to produce one:
 Validate before committing:
 
 ```
-npx @gltf-transform/cli optimize in.glb anubha.glb --simplify false --compress draco --texture-compress webp --texture-size 1024
+npx @gltf-transform/cli optimize in.glb researcher.glb --simplify false --compress draco --texture-compress webp --texture-size 1024
 ```
 
 and load the result in an independent viewer (gltf.report, the Babylon

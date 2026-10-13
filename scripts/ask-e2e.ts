@@ -1,7 +1,7 @@
 /**
  * ASK GAITAI — THE REAL RAG PATH, END TO END, AGAINST THE REAL MODEL
  * =============================================================================
- *   npm run ask:e2e -- "Who is Anubha?"
+ *   npm run ask:e2e -- "Who is Example Researcher?"
  *   npm run ask:e2e                       # the whole acceptance set
  *   npm run ask:e2e -- --worker http://127.0.0.1:8787 "What is GaitScape?"
  *
@@ -35,10 +35,10 @@ const ROOT = path.join(import.meta.dirname, "..");
 const WORKER_DIR = path.join(ROOT, "worker");
 
 const DEFAULT_QUESTIONS = [
-  "Who is Anubha Parashar?",
-  "Who is Anubha?",
-  "Who is Apoorva Parashar?",
-  "Who is Apoorva?",
+  "Who is Example Researcher?",
+  "Who is Example Researcher?",
+  "Who is Example Researcher?",
+  "Who is Example Researcher?",
   "What is GaitAI?",
   "What is MobilityCare?",
   "What is SecureVision?",

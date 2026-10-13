@@ -3,16 +3,16 @@
  * =============================================================================
  * Before the lexical ranking runs, the question is checked against the
  * ALIASES of every record that carries an `entityId`: the founder's person
- * record ("anubha", "anubha parashar", "the founder"), the company ("gaitai",
+ * record ("Researcher", "example researcher", "the founder"), the company ("gaitai",
  * "gait ai") and each module (its short and full names). A hit is decisive
  * for ranking — see retrieval.ts — and for a person it is what makes "who is
- * anubha" answer with the person rather than with the nine papers that list
+ * Researcher" answer with the person rather than with the nine papers that list
  * her as an author.
  *
  * NORMALISATION, DELIBERATELY SMALL. Lowercase, punctuation folded to spaces,
  * honorifics dropped ("dr", "prof", "mr", "ms"), possessives stripped
- * ("anubha's" → "anubha"), and one edit of tolerance on a name token of six or
- * more letters so "anubah" still finds "anubha". Nothing here is a stemmer or
+ * ("Researcher's" → "Researcher"), and one edit of tolerance on a name token of six or
+ * more letters so "Researcher" still finds "Researcher". Nothing here is a stemmer or
  * a synonym table: the founder-word variants ("founded", "co-founder") are
  * folded because the alias list says "founder", and that is the whole list.
  *
@@ -31,7 +31,7 @@ export interface EntityMatch {
   /**
    * How sure the match is.
    *   3 — the record's full title or a multi-word alias is in the question
-   *   2 — a single-word alias unique to this entity ("anubha")
+   *   2 — a single-word alias unique to this entity ("Researcher")
    *   1 — a fuzzy (one-edit) match on a long name token
    */
   strength: 1 | 2 | 3;

@@ -105,7 +105,8 @@ for (const testCase of CASES) {
     !answer.includes("no documented answer") &&
     !answer.includes("couldn't find a GaitAI record") &&
     !answer.includes("couldn't find a documented GaitAI") &&
-    !answer.includes("does not establish")
+    !answer.includes("does not establish") &&
+    !answer.includes("outside its public scope")
   ) {
     groundingFailures += 1;
     console.log("      REFUSAL: low confidence did not produce a refusal");

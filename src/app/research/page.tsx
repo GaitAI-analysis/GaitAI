@@ -19,7 +19,6 @@ import { ResearchCollaborationCTA } from "@/components/research/ResearchCollabor
 import { researchAreas, type AreaProduct, type ResearchArea } from "@/data/evidence";
 import { mobilityProducts, productCount, secureProducts } from "@/data/products";
 import {
-  FOUNDER_NAME,
   allPublications,
   papers,
   patent,
@@ -437,7 +436,7 @@ export default function ResearchPage() {
             </div>
           </div>
           <h3 className="mt-8 max-w-2xl font-display text-[1.75rem] leading-[1.15] tracking-[-0.025em] text-balance text-soft-white sm:text-[2.125rem]">
-            A decade of founder-led work,{" "}
+            A decade of research development,{" "}
             <span className={styles.heroSpectrum}>in four steps.</span>
           </h3>
 

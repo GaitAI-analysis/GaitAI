@@ -168,7 +168,7 @@ export const navLinks: readonly NavItem[] = [
       {
         label: "Talks & Presentations",
         href: "/research/talks",
-        description: "The founder speaking record",
+        description: "Academic talks and presentations",
       },
     ],
   },

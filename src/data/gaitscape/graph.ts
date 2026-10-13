@@ -115,7 +115,7 @@ const researchNodes: GaitscapeNode[] = [
     type: "research",
     title: "Gait recognition & biometrics",
     shortDescription:
-      "Founder-led journal work on deep-learning gait recognition with covariates (Springer, Elsevier).",
+      "Published journal research on deep-learning gait recognition with covariates (Springer, Elsevier).",
     href: "/publications",
     publicationIds: [
       "ai-review-2023",

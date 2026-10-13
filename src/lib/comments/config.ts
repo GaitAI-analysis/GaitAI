@@ -8,15 +8,18 @@
 
 import type { ContentType } from "./types";
 
-/** The ONLY accounts permitted to moderate. Mirrored in firestore.rules. */
-export const ADMIN_EMAILS: readonly string[] = [
-  "anubhaparashar1025@gmail.com",
-  "gait.ai.founder@gmail.com",
+/** Digests avoid publishing personal account addresses in client assets.
+ * This is a UI check only; unchanged Firestore rules enforce authorization. */
+const ADMIN_EMAIL_HASHES: readonly string[] = [
+  "be06df14191adca9f7f6f32bb2cdd785492c78ee3f54af70b0a6c41f821471cc",
+  "5349769a9c56901f9007f7c6591ad46764720a1e9c5a824189ce81c816e415fb"
 ];
 
-export function isAdminEmail(email: string | null | undefined): boolean {
+export async function isAdminEmail(email: string | null | undefined): Promise<boolean> {
   if (!email) return false;
-  return ADMIN_EMAILS.includes(email.toLowerCase());
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email.toLowerCase()));
+  const hex = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return ADMIN_EMAIL_HASHES.includes(hex);
 }
 
 /** Message bounds — enforced client-side AND in firestore.rules. */

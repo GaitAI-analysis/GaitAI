@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceDirectoryHint": "C:\\Users\\Anubha\\Downloads\\New folder (7)",
+  "sourceDirectoryHint": "Local source asset directory (personal path withheld)",
   "reviewStatus": "reviewed-with-semantic-matches",
   "expectedProducts": 24,
   "expectedPrimaryAssets": 72,
@@ -7233,21 +7233,21 @@
   "history": [
     {
       "snapshot": "docs/audits/product-images/history/manifest-de4b97dd1170.json",
-      "sha256": "de4b97dd11709e3361ea7e63b9a70867da121df799ad804bd40822dfeb7b16f1",
+      "sha256": "6685f5c3da30dfea2c0ee925d11d74f4f90cc8965d9c5208d676f0db92a67d9e",
       "sourceFileCount": 78,
       "mappedAssets": 21,
-      "description": "Complete prior manifest preserved byte-for-byte, including selected filenames, inventory, native dimensions and generated output hashes."
+      "description": "Complete prior manifest retained with only the personal source-directory path withheld, including selected filenames, inventory, native dimensions and generated output hashes."
     },
     {
       "snapshot": "docs/audits/product-images/history/manifest-d3c1f6ad9060.json",
-      "sha256": "d3c1f6ad9060353b830cfe228ef7d73c3a7b01131f1e84c4e72d4994c64874d4",
+      "sha256": "489aad0f2eccc0b1955e52616742df6ab9b620bffe0903ac33cee1ede8dfbfa6",
       "sourceFileCount": 92,
       "mappedAssets": 31,
       "description": "Fresh 92-file audit before incremental integration; includes 30 clean selections and one held poster candidate."
     },
     {
       "snapshot": "docs/audits/product-images/history/manifest-cb0bd0ddcbd1.json",
-      "sha256": "cb0bd0ddcbd15fcc96bf908414792b92ba929b028ec0bfb71cebbe93ea56d8dd",
+      "sha256": "28c76d0ee000c05c39bdcdbee3ffdacc8a69583ed72173524634f194c8e5659a",
       "sourceFileCount": 92,
       "mappedAssets": 30,
       "description": "Published ten-set manifest before reviewing the nested folder; includes historical poster warning and all source/output provenance."

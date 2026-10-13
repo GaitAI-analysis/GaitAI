@@ -1,12 +1,11 @@
 {
-  "generatedAt": "2026-09-24",
+  "generatedAt": "2026-10-13",
   "counts": {
     "page": 66,
     "product": 120,
     "use-case": 36,
     "publication": 9,
     "research": 4,
-    "person": 9,
     "talk": 21,
     "insight": 95,
     "signal": 15,
@@ -313,7 +312,7 @@
       "category": "Platform inventory",
       "slug": "canonical-inventory",
       "summary": "24 product modules on one movement-intelligence platform across 18 environments.",
-      "content": "12 MobilityCare modules and 12 SecureVision modules.\n8 surfaced academic papers and 1 granted patent form 9 research records across 4 research areas. Product-specific validation studies published: 0.\n21 talks and presentations: 10 invited talks, 2 presentations, 8 conference paper presentations, 1 poster.\nThe founder academic record spans work with academic co-authors. This website surfaces a curated selection; the wider publication record is maintained on the founder portfolio and Scholar profile. It is separate from GaitAI product-specific validation and company-assigned IP.\nproduct: A named GaitAI offering; a product page describes intended scope, not release or validation status.\nmodule: A modular offering on the shared movement-intelligence platform.\nproductModule: The canonical catalogue unit. Product and module refer to the same registry entry and are not added together.\nresearchRecord: A surfaced academic paper or patent informing the research foundation; not a product validation study.\npublication: A surfaced academic paper. The wider founder academic record is separate from this curated selection.\npatent: A granted intellectual-property record; not evidence of implementation or validated product performance.\nenvironment: A setting in the canonical environment registry.\nuseCase: An intended workflow within an environment; not a deployment or a separately counted environment.\ncapability: A named analysis function in the GaitScape graph; not a separately shipped product.\nDesigned to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information.",
+      "content": "12 MobilityCare modules and 12 SecureVision modules.\n8 surfaced academic papers and 1 granted patent form 9 research records across 4 research areas. Product-specific validation studies published: 0.\n21 talks and presentations: 10 invited talks, 2 presentations, 8 conference paper presentations, 1 poster.\nThis collection presents academic research references relevant to movement intelligence. Copyright and patent rights remain with their respective authors, publishers and rights holders. Inclusion does not imply GaitAI authorship, ownership or product-specific validation.\nproduct: A named GaitAI offering; a product page describes intended scope, not release or validation status.\nmodule: A modular offering on the shared movement-intelligence platform.\nproductModule: The canonical catalogue unit. Product and module refer to the same registry entry and are not added together.\nresearchRecord: A surfaced academic paper or patent informing the research foundation; not a product validation study.\npublication: An academic research reference in a curated collection; inclusion does not imply GaitAI authorship or ownership.\npatent: A granted intellectual-property record; not evidence of implementation or validated product performance.\nenvironment: A setting in the canonical environment registry.\nuseCase: An intended workflow within an environment; not a deployment or a separately counted environment.\ncapability: A named analysis function in the GaitScape graph; not a separately shipped product.\nDesigned to support consent-based capture, encrypted transfer, configurable retention and role-based access, with activity logging and skeleton-only processing modes. Deployment requirements depend on the applicable environment, organization and jurisdiction. Privacy-aware architecture does not automatically mean anonymity: pose, gait and trajectories may still carry identifying information.",
       "keywords": [
         "count",
         "how many",
@@ -321,7 +320,7 @@
         "environments",
         "terminology",
         "research records",
-        "founder academic record",
+        "academic research references",
         "validation"
       ]
     },
@@ -7663,15 +7662,13 @@
       "family": "research",
       "category": "Granted patent",
       "summary": "Patent — Government of India · Government of India · IP India · 2022",
-      "content": "Title: A Covariate-Based Gait Recognition System and Method for Edge Analytics Using Optimized Deep Learning Pipeline\nType: Granted patent\nVenue: Patent — Government of India\nPublisher: Government of India · IP India\nYear: 2022\nDate: Granted 27 July 2022\nAuthors: Anubha Parashar · Apoorva Parashar\nPatent number: 402202\nApplication number: 202111034240\nFiling date: 29 July 2021\nGrant date: 27 July 2022\nJurisdiction: India\nValidity: 20 years\nResearch areas it grounds: Edge gait analytics (Patent 402202)\nModules reached through those areas: AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: A Covariate-Based Gait Recognition System and Method for Edge Analytics Using Optimized Deep Learning Pipeline\nType: Granted patent\nVenue: Patent — Government of India\nPublisher: Government of India · IP India\nYear: 2022\nDate: Granted 27 July 2022\nPatent number: 402202\nApplication number: 202111034240\nFiling date: 29 July 2021\nGrant date: 27 July 2022\nJurisdiction: India\nValidity: 20 years\nResearch summary: Patent reference describing covariate-based gait recognition for edge analytics using an optimized deep learning pipeline. Consult the official registry for the full specification, rights holders and current legal status.\nResearch areas it grounds: Edge gait analytics (Patent 402202)\nModules reached through those areas: AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "a covariate-based gait recognition system and method for edge analytics using optimized deep learning pipeline",
         "patent — government of india",
         "government of india · ip india",
         "2022",
         "patent",
-        "anubha parashar",
-        "apoorva parashar",
         "402202",
         "patent 402202"
       ],
@@ -7680,10 +7677,6 @@
       ],
       "relatedResearch": [
         "res-edge"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "apoorva-parashar"
       ],
       "topics": [
         "Edge gait analytics (Patent 402202)"
@@ -7698,7 +7691,7 @@
       "family": "research",
       "category": "Surfaced academic paper",
       "summary": "Artificial Intelligence Review · Springer · 2023",
-      "content": "Title: Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review\nType: Journal paper\nVenue: Artificial Intelligence Review\nPublisher: Springer\nYear: 2023\nDate: Published 18 January 2023\nAuthors: Anubha Parashar · Apoorva Parashar · Weiping Ding · Rajveer S. Shekhawat · Imad Rida\nDOI: 10.1007/s10462-022-10365-4\nKeywords: Gait recognition · Biometrics · Covariates · Deep learning · Computer vision\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review\nType: Journal paper\nVenue: Artificial Intelligence Review\nPublisher: Springer\nYear: 2023\nDate: Published 18 January 2023\nDOI: 10.1007/s10462-022-10365-4\nResearch summary: A review of deep learning pipelines for gait biometrics, focusing on covariates that affect recognition and the methods used to address them.\nKeywords: Gait recognition · Biometrics · Covariates · Deep learning · Computer vision\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review",
         "artificial intelligence review",
@@ -7711,12 +7704,7 @@
         "biometrics",
         "covariates",
         "deep learning",
-        "computer vision",
-        "anubha parashar",
-        "apoorva parashar",
-        "weiping ding",
-        "rajveer s. shekhawat",
-        "imad rida"
+        "computer vision"
       ],
       "relatedProducts": [
         "forensicsearch",
@@ -7726,13 +7714,6 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "apoorva-parashar",
-        "weiping-ding",
-        "rajveer-singh-shekhawat",
-        "imad-rida"
       ],
       "topics": [
         "Gait recognition",
@@ -7752,7 +7733,7 @@
       "family": "research",
       "category": "Surfaced academic paper",
       "summary": "Neurocomputing · Elsevier · 2022",
-      "content": "Title: Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods\nType: Journal paper\nVenue: Neurocomputing\nPublisher: Elsevier\nYear: 2022\nDate: Vol. 505, pp. 315–338 · Available online 16 July 2022\nAuthors: Anubha Parashar · Rajveer Singh Shekhawat · Weiping Ding · Imad Rida\nDOI: 10.1016/j.neucom.2022.07.002\nKeywords: Gait recognition · Biometrics · Covariates · Deep learning · Computer vision · Video surveillance\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods\nType: Journal paper\nVenue: Neurocomputing\nPublisher: Elsevier\nYear: 2022\nDate: Vol. 505, pp. 315–338 · Available online 16 July 2022\nDOI: 10.1016/j.neucom.2022.07.002\nResearch summary: A survey of intra-class variation in gait analysis, covering covariates and deep learning methods for gait recognition.\nKeywords: Gait recognition · Biometrics · Covariates · Deep learning · Computer vision · Video surveillance\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "intra-class variations with deep learning-based gait analysis: a comprehensive survey of covariates and methods",
         "neurocomputing",
@@ -7766,11 +7747,7 @@
         "covariates",
         "deep learning",
         "computer vision",
-        "video surveillance",
-        "anubha parashar",
-        "rajveer singh shekhawat",
-        "weiping ding",
-        "imad rida"
+        "video surveillance"
       ],
       "relatedProducts": [
         "forensicsearch",
@@ -7780,12 +7757,6 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "rajveer-singh-shekhawat",
-        "weiping-ding",
-        "imad-rida"
       ],
       "topics": [
         "Gait recognition",
@@ -7806,7 +7777,7 @@
       "family": "research",
       "category": "Surfaced academic paper",
       "summary": "Engineering Applications of Artificial Intelligence · Elsevier · 2024",
-      "content": "Title: Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques\nType: Journal paper\nVenue: Engineering Applications of Artificial Intelligence\nPublisher: Elsevier\nYear: 2024\nAuthors: Anubha Parashar · Apoorva Parashar · Mohammad Shabaz · Deepak Gupta · Aditya Kumar Sahu · Muhammad Attique Khan\nDOI: 10.1016/j.engappai.2023.107712\nKeywords: Artificial Intelligence · Gait Recognition · Biometrics · Deep Learning · Sensor-based Surveillance\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques\nType: Journal paper\nVenue: Engineering Applications of Artificial Intelligence\nPublisher: Elsevier\nYear: 2024\nDOI: 10.1016/j.engappai.2023.107712\nResearch summary: An overview of model-based gait recognition techniques and their role in artificial intelligence approaches to biometrics.\nKeywords: Artificial Intelligence · Gait Recognition · Biometrics · Deep Learning · Sensor-based Surveillance\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "advancements in artificial intelligence for biometrics: a deep dive into model-based gait recognition techniques",
         "engineering applications of artificial intelligence",
@@ -7819,13 +7790,7 @@
         "gait recognition",
         "biometrics",
         "deep learning",
-        "sensor-based surveillance",
-        "anubha parashar",
-        "apoorva parashar",
-        "mohammad shabaz",
-        "deepak gupta",
-        "aditya kumar sahu",
-        "muhammad attique khan"
+        "sensor-based surveillance"
       ],
       "relatedProducts": [
         "forensicsearch",
@@ -7835,14 +7800,6 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "apoorva-parashar",
-        "mohammad-shabaz",
-        "deepak-gupta",
-        "aditya-kumar-sahu",
-        "muhammad-attique-khan"
       ],
       "topics": [
         "Artificial Intelligence",
@@ -7863,7 +7820,7 @@
       "family": "research",
       "category": "Surfaced academic paper",
       "summary": "Digital Signal Processing · Elsevier · 2024",
-      "content": "Title: Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition\nType: Journal paper\nVenue: Digital Signal Processing\nPublisher: Elsevier\nYear: 2024\nAuthors: Anubha Parashar · Apoorva Parashar · Imad Rida\nDOI: 10.1016/j.dsp.2024.104393\nKeywords: Gait Recognition · Biometrics · Deep Learning · Surveillance · Pattern Recognition\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition\nType: Journal paper\nVenue: Digital Signal Processing\nPublisher: Elsevier\nYear: 2024\nDOI: 10.1016/j.dsp.2024.104393\nResearch summary: Research on integrating deep learning with gait biometrics for pattern recognition, spanning gait representations and recognition methods.\nKeywords: Gait Recognition · Biometrics · Deep Learning · Surveillance · Pattern Recognition\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "journey into gait biometrics: integrating deep learning for enhanced pattern recognition",
         "digital signal processing",
@@ -7876,10 +7833,7 @@
         "biometrics",
         "deep learning",
         "surveillance",
-        "pattern recognition",
-        "anubha parashar",
-        "apoorva parashar",
-        "imad rida"
+        "pattern recognition"
       ],
       "relatedProducts": [
         "forensicsearch",
@@ -7889,11 +7843,6 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "apoorva-parashar",
-        "imad-rida"
       ],
       "topics": [
         "Gait Recognition",
@@ -7914,7 +7863,7 @@
       "family": "research",
       "category": "Surfaced academic paper",
       "summary": "Pattern Recognition Letters · Elsevier · 2023",
-      "content": "Title: Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches\nType: Journal paper\nVenue: Pattern Recognition Letters\nPublisher: Elsevier\nYear: 2023\nAuthors: Anubha Parashar · Apoorva Parashar · Weiping Ding · Mohammad Shabaz · Imad Rida\nDOI: 10.1016/j.patrec.2023.05.021\nKeywords: Gait recognition · Data preprocessing · Feature selection · Machine learning · Deep learning\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches\nType: Journal paper\nVenue: Pattern Recognition Letters\nPublisher: Elsevier\nYear: 2023\nDOI: 10.1016/j.patrec.2023.05.021\nResearch summary: A comparative study of data preprocessing and feature selection in gait recognition using machine learning and deep learning approaches.\nKeywords: Gait recognition · Data preprocessing · Feature selection · Machine learning · Deep learning\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "data preprocessing and feature selection techniques in gait recognition: a comparative study of machine learning and deep learning approaches",
         "pattern recognition letters",
@@ -7927,12 +7876,7 @@
         "data preprocessing",
         "feature selection",
         "machine learning",
-        "deep learning",
-        "anubha parashar",
-        "apoorva parashar",
-        "weiping ding",
-        "mohammad shabaz",
-        "imad rida"
+        "deep learning"
       ],
       "relatedProducts": [
         "forensicsearch",
@@ -7942,13 +7886,6 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "apoorva-parashar",
-        "weiping-ding",
-        "mohammad-shabaz",
-        "imad-rida"
       ],
       "topics": [
         "Gait recognition",
@@ -7969,7 +7906,7 @@
       "family": "research",
       "category": "Manuscript · publisher unverified",
       "summary": "Image and Vision Computing · Elsevier · 2023",
-      "content": "Title: Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification\nType: Journal paper\nVenue: Image and Vision Computing\nPublisher: Elsevier\nYear: 2023\nVerification: A manuscript first page is available in this archive. Its publisher record, DOI and publication status have not been independently verified. The external link searches the exact title on Google Scholar.\nAuthors: Anubha Parashar · Apoorva Parashar · Imad Rida\nKeywords: Gait recognition · Machine learning · Deep learning · Feature extraction · Classification\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification\nType: Journal paper\nVenue: Image and Vision Computing\nPublisher: Elsevier\nYear: 2023\nVerification: This manuscript reference is retained from the research archive. Its publisher record, DOI and publication status have not been independently verified. The external link searches the publisher catalogue by title.\nResearch summary: A manuscript reference comparing machine learning and deep learning approaches to gait feature extraction, reduction, transformation and classification. Publication status remains unverified.\nKeywords: Gait recognition · Machine learning · Deep learning · Feature extraction · Classification\nResearch areas it grounds: Gait recognition & biometrics\nModules reached through those areas: ForensicSearch · ReID · Watchlist · AccessMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "comparative study of machine learning and deep learning techniques for gait recognition: advances in feature extraction, reduction, transformation, and classification",
         "image and vision computing",
@@ -7980,10 +7917,7 @@
         "machine learning",
         "deep learning",
         "feature extraction",
-        "classification",
-        "anubha parashar",
-        "apoorva parashar",
-        "imad rida"
+        "classification"
       ],
       "relatedProducts": [
         "forensicsearch",
@@ -7993,11 +7927,6 @@
       ],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "apoorva-parashar",
-        "imad-rida"
       ],
       "topics": [
         "Gait recognition",
@@ -8018,7 +7947,7 @@
       "family": "research",
       "category": "Surfaced academic paper",
       "summary": "IET Biometrics · Wiley · IET · 2022",
-      "content": "Title: A robust covariate-invariant gait recognition based on pose features\nType: Journal paper\nVenue: IET Biometrics\nPublisher: Wiley · IET\nYear: 2022\nDate: Published 20 October 2022 · Vol. 11, pp. 601–613\nAuthors: Anubha Parashar · Apoorva Parashar · Rajveer Singh Shekhawat\nDOI: 10.1049/bme2.12103\nKeywords: Biometrics · Covariates · Deep learning · Gait recognition · Pose estimation\nResearch areas it grounds: Pose-based gait analysis\nModules reached through those areas: WalkScan · SportsMotion · OrthoMotion · PediatricMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: A robust covariate-invariant gait recognition based on pose features\nType: Journal paper\nVenue: IET Biometrics\nPublisher: Wiley · IET\nYear: 2022\nDate: Published 20 October 2022 · Vol. 11, pp. 601–613\nDOI: 10.1049/bme2.12103\nResearch summary: Research on pose features for gait recognition under covariate variation, connecting human pose estimation with movement biometrics.\nKeywords: Biometrics · Covariates · Deep learning · Gait recognition · Pose estimation\nResearch areas it grounds: Pose-based gait analysis\nModules reached through those areas: WalkScan · SportsMotion · OrthoMotion · PediatricMotion\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "a robust covariate-invariant gait recognition based on pose features",
         "iet biometrics",
@@ -8031,10 +7960,7 @@
         "covariates",
         "deep learning",
         "gait recognition",
-        "pose estimation",
-        "anubha parashar",
-        "apoorva parashar",
-        "rajveer singh shekhawat"
+        "pose estimation"
       ],
       "relatedProducts": [
         "walkscan",
@@ -8044,11 +7970,6 @@
       ],
       "relatedResearch": [
         "res-pose-gait"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "apoorva-parashar",
-        "rajveer-singh-shekhawat"
       ],
       "topics": [
         "Biometrics",
@@ -8068,7 +7989,7 @@
       "family": "research",
       "category": "Surfaced academic paper",
       "summary": "IET Biometrics · Wiley · IET · 2022",
-      "content": "Title: Protection of gait data set for preserving its privacy in deep learning pipeline\nType: Journal paper\nVenue: IET Biometrics\nPublisher: Wiley · IET\nYear: 2022\nDate: Accepted 31 July 2022\nAuthors: Anubha Parashar · Rajveer Singh Shekhawat\nDOI: 10.1049/bme2.12093\nKeywords: De-identification · Gait anonymization · Gait biometric · Privacy · Reversible deep learning pipeline\nResearch areas it grounds: Privacy-preserving gait data\nModules reached through those areas: SuspiciousMotion · PrivacyGuard · CampusShield · AccessMotion · Watchlist\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
+      "content": "Title: Protection of gait data set for preserving its privacy in deep learning pipeline\nType: Journal paper\nVenue: IET Biometrics\nPublisher: Wiley · IET\nYear: 2022\nDate: Accepted 31 July 2022\nDOI: 10.1049/bme2.12093\nResearch summary: Research on protecting gait datasets within deep learning pipelines through privacy preservation, de-identification and gait anonymization.\nKeywords: De-identification · Gait anonymization · Gait biometric · Privacy · Reversible deep learning pipeline\nResearch areas it grounds: Privacy-preserving gait data\nModules reached through those areas: SuspiciousMotion · PrivacyGuard · CampusShield · AccessMotion · Watchlist\nNote: a publication grounds a capability. It is not, by itself, a product-specific clinical or operational validation of any GaitAI module.",
       "keywords": [
         "protection of gait data set for preserving its privacy in deep learning pipeline",
         "iet biometrics",
@@ -8081,9 +8002,7 @@
         "gait anonymization",
         "gait biometric",
         "privacy",
-        "reversible deep learning pipeline",
-        "anubha parashar",
-        "rajveer singh shekhawat"
+        "reversible deep learning pipeline"
       ],
       "relatedProducts": [
         "suspiciousmotion",
@@ -8094,10 +8013,6 @@
       ],
       "relatedResearch": [
         "res-privacy"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "rajveer-singh-shekhawat"
       ],
       "topics": [
         "De-identification",
@@ -8116,8 +8031,8 @@
       "url": "/research/evidence/?area=res-gait-biometrics",
       "family": "research",
       "category": "Research area",
-      "summary": "Founder-led journal work on deep-learning gait recognition with covariates (Springer, Elsevier).",
-      "content": "Research area: Gait recognition & biometrics\nSummary: Founder-led journal work on deep-learning gait recognition with covariates (Springer, Elsevier).\nPublications in this area: Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024) · Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition (Digital Signal Processing, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023) · Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification (Image and Vision Computing, 2023)\nCapabilities it grounds: Movement biometrics — Identity-bearing movement signatures beyond face or fingerprint. · Gait analysis — Cadence, stride rhythm, speed, asymmetry, posture, balance, variability. · Person re-identification — Exploring movement-based associations across camera views; associations need validation and human review.\nModules directly informed: ForensicSearch (Post-event video investigation) · ReID (Person re-identification across cameras) · Watchlist (Policy-governed watchlist matching for authorized deployments) · AccessMotion (Gait-enhanced access control)\nModules related only architecturally (the research does not address them specifically and must not be read as validating them): WalkScan · FallRisk · RehabTrack · SportsMotion · NeuroMotion · OrthoMotion · SeniorCare · PediatricMotion · ProstheticFit · RemoteCare · ClinicalTrials",
+      "summary": "Published journal research on deep-learning gait recognition with covariates (Springer, Elsevier).",
+      "content": "Research area: Gait recognition & biometrics\nSummary: Published journal research on deep-learning gait recognition with covariates (Springer, Elsevier).\nPublications in this area: Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024) · Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition (Digital Signal Processing, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023) · Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification (Image and Vision Computing, 2023)\nCapabilities it grounds: Movement biometrics — Identity-bearing movement signatures beyond face or fingerprint. · Gait analysis — Cadence, stride rhythm, speed, asymmetry, posture, balance, variability. · Person re-identification — Exploring movement-based associations across camera views; associations need validation and human review.\nModules directly informed: ForensicSearch (Post-event video investigation) · ReID (Person re-identification across cameras) · Watchlist (Policy-governed watchlist matching for authorized deployments) · AccessMotion (Gait-enhanced access control)\nModules related only architecturally (the research does not address them specifically and must not be read as validating them): WalkScan · FallRisk · RehabTrack · SportsMotion · NeuroMotion · OrthoMotion · SeniorCare · PediatricMotion · ProstheticFit · RemoteCare · ClinicalTrials",
       "keywords": [
         "gait recognition & biometrics",
         "movement biometrics",
@@ -8147,9 +8062,6 @@
         "dsp-2024",
         "prl-2023",
         "ivc-2023"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "gait research",
@@ -8187,9 +8099,6 @@
       "relatedResearch": [
         "iet-pose-2022"
       ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "topics": [
         "gait research",
         "Pose estimation",
@@ -8226,9 +8135,6 @@
       "relatedResearch": [
         "iet-privacy-2022"
       ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "topics": [
         "gait research",
         "Privacy-aware analytics"
@@ -8256,453 +8162,9 @@
       "relatedResearch": [
         "patent-covariate-gait-edge"
       ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "topics": [
         "gait research",
         "Edge inference"
-      ]
-    },
-    {
-      "id": "person:anubha-parashar",
-      "type": "person",
-      "title": "Anubha Parashar",
-      "slug": "anubha-parashar",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Founder",
-      "summary": "Anubha Parashar is the founder of GaitAI. The research record the platform is built on — 8 surfaced academic papers and a granted Indian patent (Patent 402202) — was authored by Anubha Parashar with academic co-authors, across gait recognition, computer vision, biometrics, pose estimation, machine learning and privacy-preserving movement analysis.",
-      "content": "Name: Anubha Parashar\nRole in the GaitAI record: Founder of GaitAI. The site describes GaitAI as founder-led research that became a platform, built on 10+ years of founder research experience in gait and human movement.\nResearch record: 8 surfaced academic papers and a granted Indian patent (Patent 402202), authored with academic co-authors and published with Springer, Elsevier, Wiley · IET.\nHow the Publications page describes it: The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.\nProvenance: These are academic and individually held records rather than company-produced output. GaitAI does not currently hold company-assigned publications or patents of its own; the product modules are subsequent platform implementations.\nResearch areas this work grounds: Gait recognition & biometrics · Pose-based gait analysis · Privacy-preserving gait data · Edge gait analytics (Patent 402202)\nSpeaking record: 21 documented appearances listed at /research/talks/ — 10 invited talks, 2 conference presentations, 8 paper presentations and 1 poster — delivered in an academic and personal research capacity. They are not GaitAI company appearances.\nNot documented in the GaitAI record: Academic degrees, job history, institutional affiliations, awards, dates of employment, and any role other than founder and author. None of these may be stated or implied.\nPublications authored: A Covariate-Based Gait Recognition System and Method for Edge Analytics Using Optimized Deep Learning Pipeline (Patent — Government of India, 2022) · Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024) · Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition (Digital Signal Processing, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023) · Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification (Image and Vision Computing, 2023) · A robust covariate-invariant gait recognition based on pose features (IET Biometrics, 2022) · Protection of gait data set for preserving its privacy in deep learning pipeline (IET Biometrics, 2022)",
-      "keywords": [
-        "anubha parashar",
-        "anubha",
-        "parashar",
-        "founder",
-        "gaitai founder",
-        "who founded gaitai",
-        "author",
-        "research record",
-        "publications",
-        "patent",
-        "talks",
-        "speaker",
-        "speaking record"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "res-pose-gait",
-        "res-privacy",
-        "res-edge",
-        "patent-covariate-gait-edge",
-        "ai-review-2023",
-        "neurocomputing-2022",
-        "eaai-2024",
-        "dsp-2024",
-        "prl-2023",
-        "ivc-2023",
-        "iet-pose-2022",
-        "iet-privacy-2022"
-      ],
-      "entityId": "anubha-parashar",
-      "aliases": [
-        "anubha parashar",
-        "anubha",
-        "parashar",
-        "dr anubha parashar",
-        "dr. anubha parashar",
-        "founder",
-        "the founder",
-        "gaitai founder",
-        "founder of gaitai",
-        "gaitai's founder"
-      ],
-      "relatedEntityIds": [
-        "gaitai"
-      ],
-      "tags": [
-        "founder",
-        "author",
-        "speaker"
-      ],
-      "topics": [
-        "gait research",
-        "movement intelligence",
-        "Gait recognition & biometrics",
-        "Pose-based gait analysis",
-        "Privacy-preserving gait data",
-        "Edge gait analytics (Patent 402202)"
-      ]
-    },
-    {
-      "id": "person:apoorva-parashar",
-      "type": "person",
-      "title": "Apoorva Parashar",
-      "slug": "apoorva-parashar",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Co-author",
-      "summary": "Apoorva Parashar is a co-author, with GaitAI founder Anubha Parashar, of 6 surfaced academic papers and 1 granted patent in the research record listed on the GaitAI Publications page — across gait recognition & biometrics, pose-based gait analysis, edge gait analytics (patent 402202).",
-      "content": "Name: Apoorva Parashar\nRole in the GaitAI record: Co-author. Apoorva Parashar appears as an author on 7 of the 9 records on the GaitAI Publications page, each co-authored with Anubha Parashar, the founder of GaitAI.\nResearch record: 6 surfaced academic papers and 1 granted patent, published with Government of India · IP India, Springer, Elsevier, Wiley · IET.\nPublications co-authored: A Covariate-Based Gait Recognition System and Method for Edge Analytics Using Optimized Deep Learning Pipeline (Patent — Government of India, 2022) · Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024) · Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition (Digital Signal Processing, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023) · Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification (Image and Vision Computing, 2023) · A robust covariate-invariant gait recognition based on pose features (IET Biometrics, 2022)\nResearch areas this work grounds: Gait recognition & biometrics · Pose-based gait analysis · Edge gait analytics (Patent 402202)\nProvenance: These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.\nNot documented in the GaitAI record: Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to Anubha Parashar beyond co-authorship. None of these may be stated or implied.",
-      "keywords": [
-        "apoorva parashar",
-        "apoorva",
-        "parashar",
-        "co-author",
-        "coauthor",
-        "author"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "res-pose-gait",
-        "res-edge",
-        "patent-covariate-gait-edge",
-        "ai-review-2023",
-        "eaai-2024",
-        "dsp-2024",
-        "prl-2023",
-        "ivc-2023",
-        "iet-pose-2022"
-      ],
-      "entityId": "apoorva-parashar",
-      "aliases": [
-        "apoorva parashar",
-        "apoorva",
-        "parashar",
-        "dr apoorva parashar",
-        "dr. apoorva parashar"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
-      "tags": [
-        "co-author",
-        "author"
-      ],
-      "topics": [
-        "gait research",
-        "Gait recognition & biometrics",
-        "Pose-based gait analysis",
-        "Edge gait analytics (Patent 402202)"
-      ]
-    },
-    {
-      "id": "person:weiping-ding",
-      "type": "person",
-      "title": "Weiping Ding",
-      "slug": "weiping-ding",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Co-author",
-      "summary": "Weiping Ding is a co-author, with GaitAI founder Anubha Parashar, of 3 surfaced academic papers in the research record listed on the GaitAI Publications page — across gait recognition & biometrics.",
-      "content": "Name: Weiping Ding\nRole in the GaitAI record: Co-author. Weiping Ding appears as an author on 3 of the 9 records on the GaitAI Publications page, each co-authored with Anubha Parashar, the founder of GaitAI.\nResearch record: 3 surfaced academic papers, published with Springer, Elsevier.\nPublications co-authored: Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023)\nResearch areas this work grounds: Gait recognition & biometrics\nProvenance: These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.\nNot documented in the GaitAI record: Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to Anubha Parashar beyond co-authorship. None of these may be stated or implied.",
-      "keywords": [
-        "weiping ding",
-        "weiping",
-        "ding",
-        "co-author",
-        "coauthor",
-        "author"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "ai-review-2023",
-        "neurocomputing-2022",
-        "prl-2023"
-      ],
-      "entityId": "weiping-ding",
-      "aliases": [
-        "weiping ding",
-        "weiping",
-        "ding",
-        "dr weiping ding",
-        "dr. weiping ding"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
-      "tags": [
-        "co-author",
-        "author"
-      ],
-      "topics": [
-        "gait research",
-        "Gait recognition & biometrics"
-      ]
-    },
-    {
-      "id": "person:rajveer-singh-shekhawat",
-      "type": "person",
-      "title": "Rajveer Singh Shekhawat",
-      "slug": "rajveer-singh-shekhawat",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Co-author",
-      "summary": "Rajveer Singh Shekhawat is a co-author, with GaitAI founder Anubha Parashar, of 4 surfaced academic papers in the research record listed on the GaitAI Publications page — across gait recognition & biometrics, pose-based gait analysis, privacy-preserving gait data.",
-      "content": "Name: Rajveer Singh Shekhawat\nRole in the GaitAI record: Co-author. Rajveer Singh Shekhawat appears as an author on 4 of the 9 records on the GaitAI Publications page, each co-authored with Anubha Parashar, the founder of GaitAI.\nResearch record: 4 surfaced academic papers, published with Springer, Elsevier, Wiley · IET.\nAlso listed on the Publications page as: Rajveer S. Shekhawat\nPublications co-authored: Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · A robust covariate-invariant gait recognition based on pose features (IET Biometrics, 2022) · Protection of gait data set for preserving its privacy in deep learning pipeline (IET Biometrics, 2022)\nResearch areas this work grounds: Gait recognition & biometrics · Pose-based gait analysis · Privacy-preserving gait data\nProvenance: These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.\nNot documented in the GaitAI record: Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to Anubha Parashar beyond co-authorship. None of these may be stated or implied.",
-      "keywords": [
-        "rajveer s. shekhawat",
-        "rajveer singh shekhawat",
-        "rajveer",
-        "shekhawat",
-        "co-author",
-        "coauthor",
-        "author"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "res-pose-gait",
-        "res-privacy",
-        "ai-review-2023",
-        "neurocomputing-2022",
-        "iet-pose-2022",
-        "iet-privacy-2022"
-      ],
-      "entityId": "rajveer-singh-shekhawat",
-      "aliases": [
-        "rajveer s. shekhawat",
-        "rajveer singh shekhawat",
-        "rajveer",
-        "shekhawat",
-        "dr rajveer singh shekhawat",
-        "dr. rajveer singh shekhawat"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
-      "tags": [
-        "co-author",
-        "author"
-      ],
-      "topics": [
-        "gait research",
-        "Gait recognition & biometrics",
-        "Pose-based gait analysis",
-        "Privacy-preserving gait data"
-      ]
-    },
-    {
-      "id": "person:imad-rida",
-      "type": "person",
-      "title": "Imad Rida",
-      "slug": "imad-rida",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Co-author",
-      "summary": "Imad Rida is a co-author, with GaitAI founder Anubha Parashar, of 5 surfaced academic papers in the research record listed on the GaitAI Publications page — across gait recognition & biometrics.",
-      "content": "Name: Imad Rida\nRole in the GaitAI record: Co-author. Imad Rida appears as an author on 5 of the 9 records on the GaitAI Publications page, each co-authored with Anubha Parashar, the founder of GaitAI.\nResearch record: 5 surfaced academic papers, published with Springer, Elsevier.\nPublications co-authored: Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition (Digital Signal Processing, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023) · Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification (Image and Vision Computing, 2023)\nResearch areas this work grounds: Gait recognition & biometrics\nProvenance: These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.\nNot documented in the GaitAI record: Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to Anubha Parashar beyond co-authorship. None of these may be stated or implied.",
-      "keywords": [
-        "imad rida",
-        "imad",
-        "rida",
-        "co-author",
-        "coauthor",
-        "author"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "ai-review-2023",
-        "neurocomputing-2022",
-        "dsp-2024",
-        "prl-2023",
-        "ivc-2023"
-      ],
-      "entityId": "imad-rida",
-      "aliases": [
-        "imad rida",
-        "imad",
-        "rida",
-        "dr imad rida",
-        "dr. imad rida"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
-      "tags": [
-        "co-author",
-        "author"
-      ],
-      "topics": [
-        "gait research",
-        "Gait recognition & biometrics"
-      ]
-    },
-    {
-      "id": "person:mohammad-shabaz",
-      "type": "person",
-      "title": "Mohammad Shabaz",
-      "slug": "mohammad-shabaz",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Co-author",
-      "summary": "Mohammad Shabaz is a co-author, with GaitAI founder Anubha Parashar, of 2 surfaced academic papers in the research record listed on the GaitAI Publications page — across gait recognition & biometrics.",
-      "content": "Name: Mohammad Shabaz\nRole in the GaitAI record: Co-author. Mohammad Shabaz appears as an author on 2 of the 9 records on the GaitAI Publications page, each co-authored with Anubha Parashar, the founder of GaitAI.\nResearch record: 2 surfaced academic papers, published with Elsevier.\nPublications co-authored: Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023)\nResearch areas this work grounds: Gait recognition & biometrics\nProvenance: These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.\nNot documented in the GaitAI record: Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to Anubha Parashar beyond co-authorship. None of these may be stated or implied.",
-      "keywords": [
-        "mohammad shabaz",
-        "mohammad",
-        "shabaz",
-        "co-author",
-        "coauthor",
-        "author"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "eaai-2024",
-        "prl-2023"
-      ],
-      "entityId": "mohammad-shabaz",
-      "aliases": [
-        "mohammad shabaz",
-        "mohammad",
-        "shabaz",
-        "dr mohammad shabaz",
-        "dr. mohammad shabaz"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
-      "tags": [
-        "co-author",
-        "author"
-      ],
-      "topics": [
-        "gait research",
-        "Gait recognition & biometrics"
-      ]
-    },
-    {
-      "id": "person:deepak-gupta",
-      "type": "person",
-      "title": "Deepak Gupta",
-      "slug": "deepak-gupta",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Co-author",
-      "summary": "Deepak Gupta is a co-author, with GaitAI founder Anubha Parashar, of 1 surfaced academic paper in the research record listed on the GaitAI Publications page — across gait recognition & biometrics.",
-      "content": "Name: Deepak Gupta\nRole in the GaitAI record: Co-author. Deepak Gupta appears as an author on 1 of the 9 records on the GaitAI Publications page, each co-authored with Anubha Parashar, the founder of GaitAI.\nResearch record: 1 surfaced academic paper, published with Elsevier.\nPublications co-authored: Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024)\nResearch areas this work grounds: Gait recognition & biometrics\nProvenance: These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.\nNot documented in the GaitAI record: Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to Anubha Parashar beyond co-authorship. None of these may be stated or implied.",
-      "keywords": [
-        "deepak gupta",
-        "deepak",
-        "gupta",
-        "co-author",
-        "coauthor",
-        "author"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "eaai-2024"
-      ],
-      "entityId": "deepak-gupta",
-      "aliases": [
-        "deepak gupta",
-        "deepak",
-        "gupta",
-        "dr deepak gupta",
-        "dr. deepak gupta"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
-      "tags": [
-        "co-author",
-        "author"
-      ],
-      "topics": [
-        "gait research",
-        "Gait recognition & biometrics"
-      ]
-    },
-    {
-      "id": "person:aditya-kumar-sahu",
-      "type": "person",
-      "title": "Aditya Kumar Sahu",
-      "slug": "aditya-kumar-sahu",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Co-author",
-      "summary": "Aditya Kumar Sahu is a co-author, with GaitAI founder Anubha Parashar, of 1 surfaced academic paper in the research record listed on the GaitAI Publications page — across gait recognition & biometrics.",
-      "content": "Name: Aditya Kumar Sahu\nRole in the GaitAI record: Co-author. Aditya Kumar Sahu appears as an author on 1 of the 9 records on the GaitAI Publications page, each co-authored with Anubha Parashar, the founder of GaitAI.\nResearch record: 1 surfaced academic paper, published with Elsevier.\nPublications co-authored: Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024)\nResearch areas this work grounds: Gait recognition & biometrics\nProvenance: These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.\nNot documented in the GaitAI record: Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to Anubha Parashar beyond co-authorship. None of these may be stated or implied.",
-      "keywords": [
-        "aditya kumar sahu",
-        "aditya",
-        "sahu",
-        "co-author",
-        "coauthor",
-        "author"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "eaai-2024"
-      ],
-      "entityId": "aditya-kumar-sahu",
-      "aliases": [
-        "aditya kumar sahu",
-        "aditya",
-        "sahu",
-        "dr aditya kumar sahu",
-        "dr. aditya kumar sahu"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
-      "tags": [
-        "co-author",
-        "author"
-      ],
-      "topics": [
-        "gait research",
-        "Gait recognition & biometrics"
-      ]
-    },
-    {
-      "id": "person:muhammad-attique-khan",
-      "type": "person",
-      "title": "Muhammad Attique Khan",
-      "slug": "muhammad-attique-khan",
-      "url": "/publications/",
-      "family": "research",
-      "category": "Co-author",
-      "summary": "Muhammad Attique Khan is a co-author, with GaitAI founder Anubha Parashar, of 1 surfaced academic paper in the research record listed on the GaitAI Publications page — across gait recognition & biometrics.",
-      "content": "Name: Muhammad Attique Khan\nRole in the GaitAI record: Co-author. Muhammad Attique Khan appears as an author on 1 of the 9 records on the GaitAI Publications page, each co-authored with Anubha Parashar, the founder of GaitAI.\nResearch record: 1 surfaced academic paper, published with Elsevier.\nPublications co-authored: Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024)\nResearch areas this work grounds: Gait recognition & biometrics\nProvenance: These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.\nNot documented in the GaitAI record: Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to Anubha Parashar beyond co-authorship. None of these may be stated or implied.",
-      "keywords": [
-        "muhammad attique khan",
-        "muhammad",
-        "khan",
-        "co-author",
-        "coauthor",
-        "author"
-      ],
-      "relatedProducts": [],
-      "relatedResearch": [
-        "res-gait-biometrics",
-        "eaai-2024"
-      ],
-      "entityId": "muhammad-attique-khan",
-      "aliases": [
-        "muhammad attique khan",
-        "muhammad",
-        "khan",
-        "dr muhammad attique khan",
-        "dr. muhammad attique khan"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
-      "tags": [
-        "co-author",
-        "author"
-      ],
-      "topics": [
-        "gait research",
-        "Gait recognition & biometrics"
       ]
     },
     {
@@ -8713,8 +8175,8 @@
       "url": "/research/talks/#talk-01-speaker-global-ai-jaipur-fundamentals-of-llms-rag",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Jaipur, India (May 3, 2025).",
-      "content": "Title: Speaker — Global AI Jaipur: Fundamentals of LLMs & RAG\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: May 3, 2025\nVenue: Jaipur, India\nDescription: Invited speaker session on the fundamentals of large language models and retrieval-augmented generation.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Jaipur, India (May 3, 2025).",
+      "content": "Title: Speaker — Global AI Jaipur: Fundamentals of LLMs & RAG\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: May 3, 2025\nVenue: Jaipur, India\nDescription: Invited speaker session on the fundamentals of large language models and retrieval-augmented generation.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker — global ai jaipur: fundamentals of llms & rag",
         "invited talk",
@@ -8725,9 +8187,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2025-01-01"
     },
     {
@@ -8738,8 +8197,8 @@
       "url": "/research/talks/#talk-02-speaker-for-an-expert-talk-on-ai-and-online-teaching-learn",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Faculty Development Programme (Sep 23–27, 2024).",
-      "content": "Title: Speaker for an Expert Talk on AI and Online Teaching-Learning Practices\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Sep 23–27, 2024\nVenue: Faculty Development Programme\nDescription: Expert talk on Artificial Intelligence and online teaching-learning practices, documented through the event certificate and related FDP record.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Faculty Development Programme (Sep 23–27, 2024).",
+      "content": "Title: Speaker for an Expert Talk on AI and Online Teaching-Learning Practices\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Sep 23–27, 2024\nVenue: Faculty Development Programme\nDescription: Expert talk on Artificial Intelligence and online teaching-learning practices, documented through the event certificate and related FDP record.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker for an expert talk on ai and online teaching-learning practices",
         "invited talk",
@@ -8750,9 +8209,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2024-01-01"
     },
     {
@@ -8763,8 +8219,8 @@
       "url": "/research/talks/#conference-01-deep-learning-based-framework-for-accurate-clothing-attrib",
       "family": "research",
       "category": "Conference presentation",
-      "summary": "Conference presentation by Anubha Parashar at International Conference on Bio-engineering for Smart Technologies, 2023 (2023).",
-      "content": "Title: Deep Learning-based Framework for Accurate Clothing Attribute Recognition and Style Navigation for Gait Recognition\nKind: Conference presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: 2023\nEvent: International Conference on Bio-engineering for Smart Technologies, 2023\nGaitAI research area this work belongs to: Gait recognition & biometrics",
+      "summary": "Conference presentation by undefined at International Conference on Bio-engineering for Smart Technologies, 2023 (2023).",
+      "content": "Title: Deep Learning-based Framework for Accurate Clothing Attribute Recognition and Style Navigation for Gait Recognition\nKind: Conference presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: 2023\nEvent: International Conference on Bio-engineering for Smart Technologies, 2023\nGaitAI research area this work belongs to: Gait recognition & biometrics",
       "keywords": [
         "deep learning-based framework for accurate clothing attribute recognition and style navigation for gait recognition",
         "conference presentation",
@@ -8776,9 +8232,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Gait recognition & biometrics"
@@ -8793,8 +8246,8 @@
       "url": "/research/talks/#talk-03-speaker-for-an-expert-talk",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Academic expert talk (Sep 25–27, 2023).",
-      "content": "Title: Speaker for an Expert Talk\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Sep 25–27, 2023\nVenue: Academic expert talk\nDescription: Invited expert talk sharing knowledge and insights on contemporary topics in technology and research with students and faculty.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Academic expert talk (Sep 25–27, 2023).",
+      "content": "Title: Speaker for an Expert Talk\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Sep 25–27, 2023\nVenue: Academic expert talk\nDescription: Invited expert talk sharing knowledge and insights on contemporary topics in technology and research with students and faculty.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker for an expert talk",
         "invited talk",
@@ -8805,9 +8258,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2023-01-01"
     },
     {
@@ -8818,8 +8268,8 @@
       "url": "/research/talks/#talk-04-speaker-iot-and-ai-workshop-muj-acm-sigai-student-chapter",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Manipal University Jaipur, Jaipur, India (Mar 2, 2023).",
-      "content": "Title: Speaker — IoT and AI Workshop, MUJ ACM SIGAI Student Chapter\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Mar 2, 2023\nVenue: Manipal University Jaipur, Jaipur, India\nDescription: Aimed to promote Embedded Systems, AI and IoT.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Manipal University Jaipur, Jaipur, India (Mar 2, 2023).",
+      "content": "Title: Speaker — IoT and AI Workshop, MUJ ACM SIGAI Student Chapter\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Mar 2, 2023\nVenue: Manipal University Jaipur, Jaipur, India\nDescription: Aimed to promote Embedded Systems, AI and IoT.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker — iot and ai workshop, muj acm sigai student chapter",
         "invited talk",
@@ -8830,9 +8280,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2023-01-01"
     },
     {
@@ -8843,8 +8290,8 @@
       "url": "/research/talks/#conference-02-protecting-the-privacy-of-face-by-de-identification-pipeli",
       "family": "research",
       "category": "Conference presentation",
-      "summary": "Conference presentation by Anubha Parashar at 16th International Conference on Signal Image Technology and Internet Based Systems (SITIS), Dijon, France (Oct 19–21, 2022).",
-      "content": "Title: Protecting the Privacy of Face by De-Identification Pipeline Based on Deep Learning\nKind: Conference presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Oct 19–21, 2022\nEvent: 16th International Conference on Signal Image Technology and Internet Based Systems (SITIS)\nVenue: Dijon, France\nGaitAI research area this work belongs to: Privacy-preserving gait data",
+      "summary": "Conference presentation by undefined at 16th International Conference on Signal Image Technology and Internet Based Systems (SITIS), Dijon, France (Oct 19–21, 2022).",
+      "content": "Title: Protecting the Privacy of Face by De-Identification Pipeline Based on Deep Learning\nKind: Conference presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Oct 19–21, 2022\nEvent: 16th International Conference on Signal Image Technology and Internet Based Systems (SITIS)\nVenue: Dijon, France\nGaitAI research area this work belongs to: Privacy-preserving gait data",
       "keywords": [
         "protecting the privacy of face by de-identification pipeline based on deep learning",
         "conference presentation",
@@ -8857,9 +8304,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-privacy"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Privacy-preserving gait data"
@@ -8874,8 +8318,8 @@
       "url": "/research/talks/#conference-03-optimized-pose-based-gait-analysis-for-surveillance",
       "family": "research",
       "category": "Conference presentation",
-      "summary": "Conference presentation by Anubha Parashar at 2nd International Conference on Innovations in Computational Intelligence and Computer Vision, Manipal University Jaipur (Aug 5–6, 2021).",
-      "content": "Title: Optimized Pose-Based Gait Analysis for Surveillance\nKind: Conference presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Aug 5–6, 2021\nEvent: 2nd International Conference on Innovations in Computational Intelligence and Computer Vision\nVenue: Manipal University Jaipur\nGaitAI research area this work belongs to: Pose-based gait analysis",
+      "summary": "Conference presentation by undefined at 2nd International Conference on Innovations in Computational Intelligence and Computer Vision, Manipal University Jaipur (Aug 5–6, 2021).",
+      "content": "Title: Optimized Pose-Based Gait Analysis for Surveillance\nKind: Conference presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Aug 5–6, 2021\nEvent: 2nd International Conference on Innovations in Computational Intelligence and Computer Vision\nVenue: Manipal University Jaipur\nGaitAI research area this work belongs to: Pose-based gait analysis",
       "keywords": [
         "optimized pose-based gait analysis for surveillance",
         "conference presentation",
@@ -8888,9 +8332,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-pose-gait"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Pose-based gait analysis"
@@ -8905,8 +8346,8 @@
       "url": "/research/talks/#talk-05-speaker-for-an-iot-session",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, IoT speaker session (2021).",
-      "content": "Title: Speaker for an IoT Session\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: 2021\nVenue: IoT speaker session\nDescription: Invited IoT speaker session sharing applied Internet of Things concepts and practical perspectives with students and participants.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, IoT speaker session (2021).",
+      "content": "Title: Speaker for an IoT Session\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: 2021\nVenue: IoT speaker session\nDescription: Invited IoT speaker session sharing applied Internet of Things concepts and practical perspectives with students and participants.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker for an iot session",
         "invited talk",
@@ -8917,9 +8358,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2021-01-01"
     },
     {
@@ -8930,8 +8368,8 @@
       "url": "/research/talks/#presentation-03-early-detection-of-rheumatoid-arthritis-in-knee-using-deep",
       "family": "research",
       "category": "Presentation",
-      "summary": "Presentation by Anubha Parashar at International Conference on Data Science, Machine Learning and Artificial Intelligence (DSMLAI), Namibia University of Science and Technology (NUST), Windhoek, Namibia (August 9–12, 2021).",
-      "content": "Title: Early Detection of Rheumatoid Arthritis in Knee using Deep Learning\nKind: Presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: August 9–12, 2021\nEvent: International Conference on Data Science, Machine Learning and Artificial Intelligence (DSMLAI)\nVenue: Namibia University of Science and Technology (NUST), Windhoek, Namibia\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Presentation by undefined at International Conference on Data Science, Machine Learning and Artificial Intelligence (DSMLAI), Namibia University of Science and Technology (NUST), Windhoek, Namibia (August 9–12, 2021).",
+      "content": "Title: Early Detection of Rheumatoid Arthritis in Knee using Deep Learning\nKind: Presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: August 9–12, 2021\nEvent: International Conference on Data Science, Machine Learning and Artificial Intelligence (DSMLAI)\nVenue: Namibia University of Science and Technology (NUST), Windhoek, Namibia\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "early detection of rheumatoid arthritis in knee using deep learning",
         "presentation",
@@ -8942,9 +8380,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2021-01-01"
     },
     {
@@ -8955,8 +8390,8 @@
       "url": "/research/talks/#conference-07-surveillance-system-to-provide-secured-gait-signatures-in",
       "family": "research",
       "category": "Conference presentation",
-      "summary": "Conference presentation by Anubha Parashar at International Conference on Modelling, Simulation & Intelligent Computing, BITS Dubai (Jan 29–31, 2020).",
-      "content": "Title: Surveillance System To Provide Secured Gait Signatures In Multi View Variations Using Deep Learning\nKind: Conference presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Jan 29–31, 2020\nEvent: International Conference on Modelling, Simulation & Intelligent Computing\nVenue: BITS Dubai\nGaitAI research area this work belongs to: Gait recognition & biometrics",
+      "summary": "Conference presentation by undefined at International Conference on Modelling, Simulation & Intelligent Computing, BITS Dubai (Jan 29–31, 2020).",
+      "content": "Title: Surveillance System To Provide Secured Gait Signatures In Multi View Variations Using Deep Learning\nKind: Conference presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Jan 29–31, 2020\nEvent: International Conference on Modelling, Simulation & Intelligent Computing\nVenue: BITS Dubai\nGaitAI research area this work belongs to: Gait recognition & biometrics",
       "keywords": [
         "surveillance system to provide secured gait signatures in multi view variations using deep learning",
         "conference presentation",
@@ -8969,9 +8404,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Gait recognition & biometrics"
@@ -8986,8 +8418,8 @@
       "url": "/research/talks/#talk-06-speaker-for-an-expert-talk-on-technology-and-innovation",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Academic expert talk (May 18, 2020).",
-      "content": "Title: Speaker for an Expert Talk on Technology and Innovation\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: May 18, 2020\nVenue: Academic expert talk\nDescription: Invited expert talk on technology and innovation for academic participants.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Academic expert talk (May 18, 2020).",
+      "content": "Title: Speaker for an Expert Talk on Technology and Innovation\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: May 18, 2020\nVenue: Academic expert talk\nDescription: Invited expert talk on technology and innovation for academic participants.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker for an expert talk on technology and innovation",
         "invited talk",
@@ -8998,9 +8430,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2020-01-01"
     },
     {
@@ -9011,8 +8440,8 @@
       "url": "/research/talks/#talk-07-speaker-introduction-to-artificial-intelligence-and-iot",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Manipal University Jaipur, Jaipur, India (Apr 20, 2020).",
-      "content": "Title: Speaker — Introduction to Artificial Intelligence and IoT\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Apr 20, 2020\nVenue: Manipal University Jaipur, Jaipur, India\nDescription: Project-based online expert session introducing Artificial Intelligence and the Internet of Things.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Manipal University Jaipur, Jaipur, India (Apr 20, 2020).",
+      "content": "Title: Speaker — Introduction to Artificial Intelligence and IoT\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Apr 20, 2020\nVenue: Manipal University Jaipur, Jaipur, India\nDescription: Project-based online expert session introducing Artificial Intelligence and the Internet of Things.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker — introduction to artificial intelligence and iot",
         "invited talk",
@@ -9023,9 +8452,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2020-01-01"
     },
     {
@@ -9036,8 +8462,8 @@
       "url": "/research/talks/#talk-08-speaker-for-an-expert-talk-on-iot",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Internet of Things expert talk series (2019–2020).",
-      "content": "Title: Speaker for an Expert Talk on IoT\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: 2019–2020\nVenue: Internet of Things expert talk series\nDescription: Delivered sessions on IoT architecture, security, and emerging applications for students and young professionals.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Internet of Things expert talk series (2019–2020).",
+      "content": "Title: Speaker for an Expert Talk on IoT\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: 2019–2020\nVenue: Internet of Things expert talk series\nDescription: Delivered sessions on IoT architecture, security, and emerging applications for students and young professionals.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker for an expert talk on iot",
         "invited talk",
@@ -9048,9 +8474,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2020-01-01"
     },
     {
@@ -9061,8 +8484,8 @@
       "url": "/research/talks/#poster-gait-biometrics-ica3c-2020",
       "family": "research",
       "category": "Research poster",
-      "summary": "Research poster by Anubha Parashar at 1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020), IIMT University, Meerut (2020).",
-      "content": "Title: Gait Biometrics – Deep Learning Based Surveillance System using Gait Signatures\nKind: Research poster\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: 2020\nEvent: 1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020)\nVenue: IIMT University, Meerut\nGaitAI research area this work belongs to: Gait recognition & biometrics",
+      "summary": "Research poster by undefined at 1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020), IIMT University, Meerut (2020).",
+      "content": "Title: Gait Biometrics – Deep Learning Based Surveillance System using Gait Signatures\nKind: Research poster\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: 2020\nEvent: 1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020)\nVenue: IIMT University, Meerut\nGaitAI research area this work belongs to: Gait recognition & biometrics",
       "keywords": [
         "gait biometrics – deep learning based surveillance system using gait signatures",
         "research poster",
@@ -9075,9 +8498,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Gait recognition & biometrics"
@@ -9092,8 +8512,8 @@
       "url": "/research/talks/#presentation-02-deep-learning-based-surveillance-system-using-gait-signatu",
       "family": "research",
       "category": "Presentation",
-      "summary": "Presentation by Anubha Parashar at 1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020), IIMT University, Meerut (June 16–17, 2020).",
-      "content": "Title: Deep Learning based Surveillance System using Gait Signatures\nKind: Presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: June 16–17, 2020\nEvent: 1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020)\nVenue: IIMT University, Meerut\nGaitAI research area this work belongs to: Gait recognition & biometrics",
+      "summary": "Presentation by undefined at 1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020), IIMT University, Meerut (June 16–17, 2020).",
+      "content": "Title: Deep Learning based Surveillance System using Gait Signatures\nKind: Presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: June 16–17, 2020\nEvent: 1st Online International Conference on Advances in Computing, Communication and Control (ICA3C-2020)\nVenue: IIMT University, Meerut\nGaitAI research area this work belongs to: Gait recognition & biometrics",
       "keywords": [
         "deep learning based surveillance system using gait signatures",
         "presentation",
@@ -9105,9 +8525,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Gait recognition & biometrics"
@@ -9122,8 +8539,8 @@
       "url": "/research/talks/#talk-09-speaker-expert-talk-on-machine-intelligence",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Bhimrao Aambedkar University, Agra, India (May 27, 2019).",
-      "content": "Title: Speaker — Expert Talk on Machine Intelligence\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: May 27, 2019\nVenue: Bhimrao Aambedkar University, Agra, India\nDescription: Delivered an expert talk on recent trends in machine intelligence and its challenges during the one-week FDP on Advancement in Computer Science under TEQIP-III. The certificate records the talk date as May 29, 2019.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Bhimrao Aambedkar University, Agra, India (May 27, 2019).",
+      "content": "Title: Speaker — Expert Talk on Machine Intelligence\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: May 27, 2019\nVenue: Bhimrao Aambedkar University, Agra, India\nDescription: Delivered an expert talk on recent trends in machine intelligence and its challenges during the one-week FDP on Advancement in Computer Science under TEQIP-III. The certificate records the talk date as May 29, 2019.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker — expert talk on machine intelligence",
         "invited talk",
@@ -9134,9 +8551,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2019-01-01"
     },
     {
@@ -9147,8 +8561,8 @@
       "url": "/research/talks/#conference-11-tracing-gesture-and-extracting-gait-features-to-recognize",
       "family": "research",
       "category": "Conference presentation",
-      "summary": "Conference presentation by Anubha Parashar at International Conference on Innovative Technologies (InTech 2018), Zagreb, Croatia (Sep 5–7, 2018).",
-      "content": "Title: Tracing Gesture and Extracting Gait Features to Recognize Parkinson's Disease Using Multi-layered Back Propagation Algorithm\nKind: Conference presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Sep 5–7, 2018\nEvent: International Conference on Innovative Technologies (InTech 2018)\nVenue: Zagreb, Croatia\nGaitAI research area this work belongs to: Pose-based gait analysis",
+      "summary": "Conference presentation by undefined at International Conference on Innovative Technologies (InTech 2018), Zagreb, Croatia (Sep 5–7, 2018).",
+      "content": "Title: Tracing Gesture and Extracting Gait Features to Recognize Parkinson's Disease Using Multi-layered Back Propagation Algorithm\nKind: Conference presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Sep 5–7, 2018\nEvent: International Conference on Innovative Technologies (InTech 2018)\nVenue: Zagreb, Croatia\nGaitAI research area this work belongs to: Pose-based gait analysis",
       "keywords": [
         "tracing gesture and extracting gait features to recognize parkinson's disease using multi-layered back propagation algorithm",
         "conference presentation",
@@ -9161,9 +8575,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-pose-gait"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Pose-based gait analysis"
@@ -9178,8 +8589,8 @@
       "url": "/research/talks/#conference-13-identification-of-gait-data-using-machine-learning-techniq",
       "family": "research",
       "category": "Conference presentation",
-      "summary": "Conference presentation by Anubha Parashar at 10th International Conference on Security of Information and Networks, Jaipur, India (Oct 13–15, 2018).",
-      "content": "Title: Identification of gait data using machine learning technique to categories human locomotion\nKind: Conference presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Oct 13–15, 2018\nEvent: 10th International Conference on Security of Information and Networks\nVenue: Jaipur, India\nGaitAI research area this work belongs to: Gait recognition & biometrics",
+      "summary": "Conference presentation by undefined at 10th International Conference on Security of Information and Networks, Jaipur, India (Oct 13–15, 2018).",
+      "content": "Title: Identification of gait data using machine learning technique to categories human locomotion\nKind: Conference presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Oct 13–15, 2018\nEvent: 10th International Conference on Security of Information and Networks\nVenue: Jaipur, India\nGaitAI research area this work belongs to: Gait recognition & biometrics",
       "keywords": [
         "identification of gait data using machine learning technique to categories human locomotion",
         "conference presentation",
@@ -9192,9 +8603,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Gait recognition & biometrics"
@@ -9209,8 +8617,8 @@
       "url": "/research/talks/#talk-10-speaker-expert-talk-on-iot-its-applications",
       "family": "research",
       "category": "Invited talk",
-      "summary": "Invited talk by Anubha Parashar, Bhimrao Aambedkar University, Agra, India (Feb 8, 2018).",
-      "content": "Title: Speaker — Expert Talk on IoT & Its Applications\nKind: Invited talk\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Feb 8, 2018\nVenue: Bhimrao Aambedkar University, Agra, India\nDescription: Expert talk delivered during the Faculty Development Programme on Exploration of IoT & Its Applications.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
+      "summary": "Invited talk by undefined, Bhimrao Aambedkar University, Agra, India (Feb 8, 2018).",
+      "content": "Title: Speaker — Expert Talk on IoT & Its Applications\nKind: Invited talk\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Feb 8, 2018\nVenue: Bhimrao Aambedkar University, Agra, India\nDescription: Expert talk delivered during the Faculty Development Programme on Exploration of IoT & Its Applications.\nGaitAI research area: none — this appearance is part of the speaker's wider record, not GaitAI's research lineage.",
       "keywords": [
         "speaker — expert talk on iot & its applications",
         "invited talk",
@@ -9221,9 +8629,6 @@
       ],
       "relatedProducts": [],
       "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ],
       "date": "2018-01-01"
     },
     {
@@ -9234,8 +8639,8 @@
       "url": "/research/talks/#conference-14-clustering-gait-data-using-different-machine-learning-tech",
       "family": "research",
       "category": "Conference presentation",
-      "summary": "Conference presentation by Anubha Parashar at International Conference on Smart Trends for Information Technology and Computer Communications, Jaipur, India (Aug 6–7, 2016).",
-      "content": "Title: Clustering Gait Data using different machine learning techniques and finding the best technique\nKind: Conference presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Aug 6–7, 2016\nEvent: International Conference on Smart Trends for Information Technology and Computer Communications\nVenue: Jaipur, India\nGaitAI research area this work belongs to: Gait recognition & biometrics",
+      "summary": "Conference presentation by undefined at International Conference on Smart Trends for Information Technology and Computer Communications, Jaipur, India (Aug 6–7, 2016).",
+      "content": "Title: Clustering Gait Data using different machine learning techniques and finding the best technique\nKind: Conference presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Aug 6–7, 2016\nEvent: International Conference on Smart Trends for Information Technology and Computer Communications\nVenue: Jaipur, India\nGaitAI research area this work belongs to: Gait recognition & biometrics",
       "keywords": [
         "clustering gait data using different machine learning techniques and finding the best technique",
         "conference presentation",
@@ -9248,9 +8653,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Gait recognition & biometrics"
@@ -9265,8 +8667,8 @@
       "url": "/research/talks/#conference-15-classifying-gait-data-using-different-machine-learning-tec",
       "family": "research",
       "category": "Conference presentation",
-      "summary": "Conference presentation by Anubha Parashar at International Conference on ICT for Sustainable Development, Panaji, Goa, India (Jul 1–2, 2016).",
-      "content": "Title: Classifying Gait Data using different machine learning techniques and finding the optimum technique of classification\nKind: Conference presentation\nSpeaker: Anubha Parashar, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Jul 1–2, 2016\nEvent: International Conference on ICT for Sustainable Development\nVenue: Panaji, Goa, India\nGaitAI research area this work belongs to: Gait recognition & biometrics",
+      "summary": "Conference presentation by undefined at International Conference on ICT for Sustainable Development, Panaji, Goa, India (Jul 1–2, 2016).",
+      "content": "Title: Classifying Gait Data using different machine learning techniques and finding the optimum technique of classification\nKind: Conference presentation\nSpeaker: undefined, in an academic and personal research capacity. Not a GaitAI company appearance.\nDate: Jul 1–2, 2016\nEvent: International Conference on ICT for Sustainable Development\nVenue: Panaji, Goa, India\nGaitAI research area this work belongs to: Gait recognition & biometrics",
       "keywords": [
         "classifying gait data using different machine learning techniques and finding the optimum technique of classification",
         "conference presentation",
@@ -9279,9 +8681,6 @@
       "relatedProducts": [],
       "relatedResearch": [
         "res-gait-biometrics"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ],
       "topics": [
         "Gait recognition & biometrics"
@@ -13975,9 +13374,6 @@
         "gaitai.in",
         "the platform",
         "the company"
-      ],
-      "relatedEntityIds": [
-        "anubha-parashar"
       ]
     },
     {
@@ -14127,7 +13523,7 @@
       "family": "platform",
       "category": "Research & IP",
       "summary": "The research areas and the published record behind them.",
-      "content": "Research areas: Gait recognition & biometrics — Founder-led journal work on deep-learning gait recognition with covariates (Springer, Elsevier). · Pose-based gait analysis — Covariate-invariant gait recognition built on pose features (IET Biometrics). · Privacy-preserving gait data — Protecting gait datasets inside deep-learning pipelines (IET Biometrics). · Edge gait analytics (Patent 402202) — Granted Indian patent: covariate-based gait recognition for edge analytics.\nResearch pillars: Peer-reviewed gait recognition · Pose-based movement analysis · Designed for clinical workflows · Responsible AI by architecture",
+      "content": "Research areas: Gait recognition & biometrics — Published journal research on deep-learning gait recognition with covariates (Springer, Elsevier). · Pose-based gait analysis — Covariate-invariant gait recognition built on pose features (IET Biometrics). · Privacy-preserving gait data — Protecting gait datasets inside deep-learning pipelines (IET Biometrics). · Edge gait analytics (Patent 402202) — Granted Indian patent: covariate-based gait recognition for edge analytics.\nResearch pillars: Peer-reviewed gait recognition · Pose-based movement analysis · Designed for clinical workflows · Responsible AI by architecture",
       "keywords": [
         "research",
         "evidence",
@@ -14136,10 +13532,7 @@
         "foundation"
       ],
       "relatedProducts": [],
-      "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ]
+      "relatedResearch": []
     },
     {
       "id": "page:/publications",
@@ -14150,7 +13543,7 @@
       "family": "platform",
       "category": "Research & IP",
       "summary": "8 surfaced academic papers and one granted patent.",
-      "content": "Records: A Covariate-Based Gait Recognition System and Method for Edge Analytics Using Optimized Deep Learning Pipeline (Patent — Government of India, 2022) · Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024) · Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition (Digital Signal Processing, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023) · Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification (Image and Vision Computing, 2023) · A robust covariate-invariant gait recognition based on pose features (IET Biometrics, 2022) · Protection of gait data set for preserving its privacy in deep learning pipeline (IET Biometrics, 2022)\nAuthors named on this page: Anubha Parashar · Apoorva Parashar · Weiping Ding · Rajveer S. Shekhawat · Imad Rida · Rajveer Singh Shekhawat · Mohammad Shabaz · Deepak Gupta · Aditya Kumar Sahu · Muhammad Attique Khan",
+      "content": "Records: A Covariate-Based Gait Recognition System and Method for Edge Analytics Using Optimized Deep Learning Pipeline (Patent — Government of India, 2022) · Deep learning pipelines for recognition of gait biometrics with covariates: a comprehensive review (Artificial Intelligence Review, 2023) · Intra-class variations with deep learning-based gait analysis: A comprehensive survey of covariates and methods (Neurocomputing, 2022) · Advancements in Artificial Intelligence for Biometrics: A Deep Dive into Model-based Gait Recognition Techniques (Engineering Applications of Artificial Intelligence, 2024) · Journey into Gait Biometrics: Integrating Deep Learning for Enhanced Pattern Recognition (Digital Signal Processing, 2024) · Data Preprocessing and Feature Selection Techniques in Gait Recognition: A Comparative Study of Machine Learning and Deep Learning Approaches (Pattern Recognition Letters, 2023) · Comparative Study of Machine Learning and Deep Learning Techniques for Gait Recognition: Advances in Feature Extraction, Reduction, Transformation, and Classification (Image and Vision Computing, 2023) · A robust covariate-invariant gait recognition based on pose features (IET Biometrics, 2022) · Protection of gait data set for preserving its privacy in deep learning pipeline (IET Biometrics, 2022)",
       "keywords": [
         "publications",
         "papers",
@@ -14160,18 +13553,7 @@
         "where are your papers"
       ],
       "relatedProducts": [],
-      "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar",
-        "apoorva-parashar",
-        "weiping-ding",
-        "rajveer-singh-shekhawat",
-        "imad-rida",
-        "mohammad-shabaz",
-        "deepak-gupta",
-        "aditya-kumar-sahu",
-        "muhammad-attique-khan"
-      ]
+      "relatedResearch": []
     },
     {
       "id": "page:/research/evidence",
@@ -14192,10 +13574,7 @@
         "capabilities"
       ],
       "relatedProducts": [],
-      "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ]
+      "relatedResearch": []
     },
     {
       "id": "page:/insights",
@@ -14602,10 +13981,7 @@
         "keynote"
       ],
       "relatedProducts": [],
-      "relatedResearch": [],
-      "relatedEntityIds": [
-        "anubha-parashar"
-      ]
+      "relatedResearch": []
     },
     {
       "id": "page:/insights/start-here",

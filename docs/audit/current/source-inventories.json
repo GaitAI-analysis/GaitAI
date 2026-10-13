@@ -2162,7 +2162,7 @@
     {
       "file": "src/app/publications/page.tsx",
       "line": 25,
-      "text": "The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI."
+      "text": "The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by founder [personal-reference-withheld], across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI."
     },
     {
       "file": "src/app/publications/page.tsx",
@@ -4319,7 +4319,7 @@
     {
       "file": "src/app/publications/page.tsx",
       "line": 25,
-      "text": "The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by founder Anubha Parashar, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI."
+      "text": "The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by founder [personal-reference-withheld], across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI."
     },
     {
       "file": "src/app/publications/page.tsx",
@@ -5759,7 +5759,7 @@
     {
       "file": "src/components/labs/photo/lab-photo-layout.ts",
       "line": 28,
-      "text": "Anubha Parashar seen from behind, sitting at a round table in the GaitAI biometrics lab and working at a laptop that shows a pose skeleton, with camera tripods standing around the bright room."
+      "text": "[personal-reference-withheld] seen from behind, sitting at a round table in the GaitAI biometrics lab and working at a laptop that shows a pose skeleton, with camera tripods standing around the bright room."
     },
     {
       "file": "src/components/labs/scene/LabScene.tsx",

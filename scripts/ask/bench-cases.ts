@@ -21,23 +21,9 @@ export interface BenchCase extends Case {
 }
 
 const NO_DIAGNOSIS = /\b(?:can|does|will)\s+diagnose\b(?!\s*(?:\.|,)?\s*(?:but|however|no|not|nor))|\bdiagnoses\s+parkinson/i;
-const NO_CREDENTIALS = /\b(?:Dr\.|PhD|Ph\.D|professor|doctorate|university of|IIT|graduated|degree in)\b/i;
 const NO_FIGURES = /\b\d{1,3}(?:\.\d+)?\s?%/;
 
 export const BRIEF_CASES: BenchCase[] = [
-  {
-    q: "Who is Anubha Parashar?",
-    expect: ["person:anubha-parashar"],
-    shouldMention: ["Anubha Parashar"],
-    mustNot: [NO_CREDENTIALS],
-    check: "Only what the person record states. No degree, employer or title.",
-  },
-  {
-    q: "Who founded GaitAI?",
-    expect: ["person:anubha-parashar"],
-    shouldMention: ["Anubha Parashar"],
-    mustNot: [NO_CREDENTIALS],
-  },
   { q: "What is WalkScan?", expect: ["product:walkscan"], shouldMention: ["WalkScan"], mustNot: [NO_FIGURES] },
   { q: "What is FallRisk?", expect: ["product:fallrisk"], shouldMention: ["FallRisk"], mustNot: [NO_FIGURES] },
   {

@@ -184,11 +184,11 @@ describe("hybrid retrieval in the Worker", () => {
   });
 
   it("never lets similarity smuggle a hard-demoted type into a domain question", async () => {
-    /* The query "embeds" exactly to the founder's record; a domain question demotes persons by -8. */
-    embedWith = "person:anubha-parashar";
+    /* The query "embeds" exactly to a scholarly record; a domain question demotes persons by -8. */
+    embedWith = "publication:iet-pose-2022";
     const { response, body } = await ask("does it do military", ["product:suspiciousmotion", "product:accessmotion", "page:/securevision"], { ASK_DEBUG: "1" });
     expect(response.status).toBe(200);
-    expect(body!.grounding.recordIds).not.toContain("person:anubha-parashar");
+    expect(body!.grounding.recordIds).not.toContain("publication:iet-pose-2022");
     expect(body!.grounding.recordIds).toContain("product:suspiciousmotion");
   });
 
@@ -201,12 +201,12 @@ describe("hybrid retrieval in the Worker", () => {
   });
 
   it("does not rerank a precise question — a name, a paper, a place — and grounds on the lexical answer", async () => {
-    embedWith = "person:deepak-gupta";
-    const { response, body } = await ask("Who is Anubha?", ["person:anubha-parashar"], { ASK_DEBUG: "1" });
+    embedWith = "product:crowdsense";
+    const { response, body } = await ask("Tell me about the paper A robust covariate-invariant gait recognition based on pose features", ["publication:iet-pose-2022"], { ASK_DEBUG: "1" });
     expect(response.status).toBe(200);
     expect(seen.map((s) => s.model)).toEqual([EMBED, GEN]);
-    expect(body!.grounding.recordIds[0]).toBe("person:anubha-parashar");
-    expect(body!.grounding.recordIds).not.toContain("person:deepak-gupta");
+    expect(body!.grounding.recordIds[0]).toBe("publication:iet-pose-2022");
+    expect(body!.grounding.recordIds).not.toContain("product:crowdsense");
     expect(body!.debug?.degraded.join(" ")).toMatch(/precise intent/);
   });
 

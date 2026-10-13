@@ -501,7 +501,7 @@ corpus with the next build.**
 | `talk` | 21 | every documented appearance in `talks.ts` |
 | `capability` / `signal` | 13 / 14 | GaitScape nodes |
 | `publication` | 9 | 8 papers + the patent |
-| `person` | 8 | the founder + 7 co-authors named on the Publications page |
+| `person` | 0 | personal profiles are outside the public corpus |
 | `research` | 4 | research areas |
 | `deployment` / `policy` | 9 / 2 | Trust Center FAQ, deployment process, privacy controls, responsible use |
 
@@ -523,16 +523,9 @@ title, lets at most **two records of one family** reach the model (the parent
 travels with its best section), and gives the lead record a 2 600-character
 budget (others 1 500) so the record that answers arrives whole.
 
-### People
+### Public brand scope
 
-Every person the public site names has one canonical `person` record and is
-resolvable by first name, full name or "Dr." form: the founder (assembled from
-`publications.ts`, `talks.ts` and the Publications page) and each co-author
-(`Apoorva Parashar`, `Imad Rida`, `Rajveer Singh Shekhawat` — two spellings on
-the page, one record — and the others). A co-author record documents
-**co-authorship and nothing else**, and says so. A surname shared by two people
-("Parashar") resolves nobody on its own; "who is Apoorva" and "who is Anubha"
-each resolve to their own record and never offer the other.
+The public corpus includes products, research references, talks and technical content. It contains no person profiles or individual author lists. Identity questions receive a fixed response in both the browser and Worker; no model call is made for those questions. Official publisher and patent registry links retain the full academic record and legal attribution.
 
 ### Freshness: the corpus URL is versioned
 
@@ -552,9 +545,7 @@ classification (`intent.ts`), exact-title and title-coverage boosts, relation
 expansion from the canonical environment→module mapping, page awareness (a bonus
 and a reserved slot for the current page's record), a confidence floor and a
 named empty state for an unknown person. Seven records reach the answering
-layer. Unchanged by the hosted migrations — the suites below are the proof, and
-"who is anubha" ranks the canonical person record first with no policy, Trust
-or deployment record ahead of it.
+layer. Identity requests return the public-scope response without personal identification.
 
 ### Query understanding — before intent, before retrieval
 
@@ -778,7 +769,7 @@ hard (tilt ≤ −4: a person or a talk for a domain question) is gated out of t
 semantic list and out of the lexical list beyond its top 3. On a PERSON question
 the pinned person's record stays first and other person records are dropped.
 Precise intents skip the reranker entirely: a cross-encoder that has never seen
-the site would happily rank a co-author above the founder for "who is Anubha".
+the site could rank an unrelated entity above the exact subject.
 
 **Reranker.** `@cf/baai/bge-reranker-base` scores the shortlist (≤ 20 compact
 documents — title, section, topics, ≤ 500 characters of content) against the standalone
@@ -886,9 +877,7 @@ npm run worker:check          # wrangler deploy --dry-run
 npm run ask:e2e               # THE REAL PATH: corpus → retrieval → Worker → Workers AI (spends allocation)
 ```
 
-**`worker/test/rag.test.ts`** runs the RAG acceptance set — *Who is Anubha
-Parashar? · Who is Anubha? · Who is Apoorva Parashar? · Who is Apoorva? · What
-is GaitAI? · What is MobilityCare? · What is SecureVision? · What is GaitScape?
+**`worker/test/rag.test.ts`** runs the RAG acceptance set — *What is GaitAI? · What is MobilityCare? · What is SecureVision? · What is GaitScape?
 · What does GaitAI research? · What publications does GaitAI have? · What
 happens in the Biometrics Lab? · What is movement intelligence? · How does
 GaitAI use walking video? · What does GaitAI say about privacy? · What are the

@@ -26,7 +26,6 @@
 import { allProducts, industryUseCases } from "@/data/products";
 import { gaitaiCare } from "@/data/gaitai-care";
 import {
-  TALKS_SPEAKER,
   TALK_KIND_LABEL,
   talkRecords,
 } from "@/data/talks";
@@ -439,7 +438,6 @@ const publicationEntries: SearchEntry[] = allPublications.map((p) => ({
     p.venue,
     p.publisher,
     p.kind,
-    p.authors?.join(" "),
     String(p.year),
   ]),
 }));
@@ -487,8 +485,7 @@ const talkEntries: SearchEntry[] = talkRecords.map((talk) => ({
     talk.description,
     talk.date,
     String(talk.year),
-    TALKS_SPEAKER,
-    "talk presentation poster speaking record founder",
+      "talk presentation poster research record",
   ]),
 }));
 

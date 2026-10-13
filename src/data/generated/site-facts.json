@@ -26,17 +26,15 @@
     "module": "A modular offering on the shared movement-intelligence platform.",
     "productModule": "The canonical catalogue unit. Product and module refer to the same registry entry and are not added together.",
     "researchRecord": "A surfaced academic paper or patent informing the research foundation; not a product validation study.",
-    "publication": "A surfaced academic paper. The wider founder academic record is separate from this curated selection.",
+    "publication": "An academic research reference in a curated collection; inclusion does not imply GaitAI authorship or ownership.",
     "patent": "A granted intellectual-property record; not evidence of implementation or validated product performance.",
     "environment": "A setting in the canonical environment registry.",
     "useCase": "An intended workflow within an environment; not a deployment or a separately counted environment.",
     "capability": "A named analysis function in the GaitScape graph; not a separately shipped product."
   },
-  "founderAcademicRecord": {
-    "name": "Anubha Parashar",
-    "source": "https://anubhaparashar.github.io/",
+  "academicReferences": {
     "researchSince": 2014,
-    "scope": "The founder academic record spans work with academic co-authors. This website surfaces a curated selection; the wider publication record is maintained on the founder portfolio and Scholar profile. It is separate from GaitAI product-specific validation and company-assigned IP."
+    "scope": "This collection presents academic research references relevant to movement intelligence. Copyright and patent rights remain with their respective authors, publishers and rights holders. Inclusion does not imply GaitAI authorship, ownership or product-specific validation."
   },
   "products": [
     {

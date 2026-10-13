@@ -55,8 +55,8 @@ export function ResearchGateway() {
           eyebrow="Research basis · Responsible AI"
           title={
             <>
-              Built on a{" "}
-              <span className="text-gradient">published research record.</span>
+              Informed by{" "}
+              <span className="text-gradient">published research.</span>
             </>
           }
           align="left"
@@ -91,7 +91,7 @@ export function ResearchGateway() {
             href="/publications/"
             className="inline-flex min-h-11 items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-soft-white transition-colors hover:text-cyan-200"
           >
-            All {papers.length} papers &amp; the granted patent
+            {papers.length} papers &amp; a patent reference
             <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
           </Link>
         </div>

@@ -321,36 +321,6 @@ export const PARAPHRASE_FAMILIES: ParaphraseFamily[] = [
     ],
   },
 
-  // ── People ─────────────────────────────────────────────────────────────────
-  {
-    name: "person · the founder",
-    intents: ["PERSON"],
-    topTypes: ["person"],
-    neverTop: ["policy", "deployment", "page", "product", "use-case", "talk"],
-    mustInclude: ["person:anubha-parashar"],
-    lowConfidence: false,
-    questions: [
-      "Who is Anubha?",
-      "who is anubha parashar",
-      "founder?",
-      "Who founded GaitAI?",
-      "who's behind gaitai",
-      "tell me about the founder",
-      "Who is Dr. Anubha Parashar?",
-      "who runs gaitai",
-      "who is anubah",
-      "Who created this?",
-    ],
-  },
-  {
-    name: "person · a co-author",
-    intents: ["PERSON"],
-    topTypes: ["person"],
-    mustInclude: ["person:apoorva-parashar"],
-    lowConfidence: false,
-    questions: ["Who is Apoorva?", "who is apoorva parashar", "tell me about Apoorva Parashar", "Apoorva?"],
-  },
-
   // ── Publications ───────────────────────────────────────────────────────────
   {
     name: "publication · papers, patents",
@@ -588,19 +558,6 @@ export const PARAPHRASE_FAMILIES: ParaphraseFamily[] = [
       { role: "assistant", content: "GaitAI documents Hospitals as a deployment environment with FallRisk, NeuroMotion and OrthoMotion." },
     ],
     questions: ["What about military?", "and defence?", "how about the army", "military?"],
-  },
-  {
-    name: "follow-up · 'she' is Anubha",
-    intents: ["PERSON"],
-    entity: "anubha-parashar",
-    topTypes: ["person"],
-    mustInclude: ["person:anubha-parashar"],
-    lowConfidence: false,
-    history: [
-      { role: "user", content: "Who is Anubha?" },
-      { role: "assistant", content: "Anubha Parashar is the founder of GaitAI." },
-    ],
-    questions: ["What papers did she write?", "which publications did she author", "what has she published", "tell me more about her research"],
   },
   {
     name: "follow-up · 'it' with no prior entity is GaitAI",

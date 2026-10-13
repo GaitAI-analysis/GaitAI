@@ -1,32 +1,28 @@
 import { publicationLinkLabel } from "@/data/publications";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowLeft,
   ArrowUpRight,
-  Download,
   ExternalLink,
 } from "lucide-react";
 import type { Publication } from "@/data/publications";
 import { publisherAccent } from "@/data/publications";
-import { assetPath } from "@/lib/paths";
 import {
-  authorsWithheld,
   displayDate,
   formatCitation,
-  publicAuthors,
   relatedPublications,
   topicsFor,
 } from "./topics";
+import { PublicationReferencePreview } from "./PublicationReferencePreview";
 import { PublicationCard } from "./PublicationCard";
 import { PublicationTraceability } from "./PublicationTraceability";
 
 /**
  * Publication detail template. Renders ONLY what the record documents:
- * bibliographic metadata, the real first-page/certificate figure, the
+ * bibliographic metadata, a neutral research-reference preview, the
  * external links that exist, a citation assembled from the record's own
  * fields, patent registry details where applicable, and related work by
- * shared topics. No abstracts, methods or results are invented.
+ * shared topics. Summaries describe research scope without claiming results.
  */
 export function PublicationDetail({
   publication,
@@ -76,17 +72,9 @@ export function PublicationDetail({
             {publication.title}
           </h1>
 
-          {publicAuthors(publication).length > 0 && (
           <p className="mt-5 max-w-3xl text-[15px] leading-relaxed text-soft-gray">
-            {authorsWithheld(publication) && "With "}
-            {publicAuthors(publication).map((author, i) => (
-              <span key={author}>
-                {i > 0 && ", "}
-                <span>{author}</span>
-              </span>
-            ))}
+            {topics.join(" · ")}
           </p>
-          )}
 
           <div className="mt-3 text-sm text-soft-mute">
             {publication.venue} · {publication.publisher}
@@ -114,16 +102,7 @@ export function PublicationDetail({
                 DOI · {publication.doi}
               </a>
             )}
-            {isPatent && (
-              <a
-                href={assetPath(publication.cover)}
-                download="GaitAI-Patent-Certificate.jpg"
-                className="inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-2 text-xs font-semibold text-amber-200 transition-all hover:border-amber-300/60 hover:bg-amber-300/15"
-              >
-                <Download className="h-3.5 w-3.5" />
-                Download certificate
-              </a>
-            )}
+
           </div>
         </div>
       </header>
@@ -131,24 +110,10 @@ export function PublicationDetail({
       <div className="container-wide">
         {publication.verificationNote && <p className="mb-8 rounded-xl border border-white/10 p-4 text-sm text-soft-gray" role="note">{publication.verificationNote}</p>}
         <div className="grid gap-10 lg:grid-cols-[1fr_1.35fr] lg:gap-14">
-          {/* Figure — full page shown, never cropped, on a neutral canvas */}
           <figure className="lg:sticky lg:top-28 lg:self-start">
-            <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-obsidian-100/70 p-4 sm:p-5">
-              <div className="relative mx-auto aspect-[3/4] w-full max-w-[420px] overflow-hidden rounded-lg">
-                <Image
-                  src={assetPath(publication.cover)}
-                  alt={`${publication.title} — first page`}
-                  fill
-                  sizes="(min-width: 1024px) 420px, 90vw"
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
+            <PublicationReferencePreview publication={publication} />
             <figcaption className="mt-3 text-center text-[11px] text-soft-mute">
-              {isPatent
-                ? "Patent certificate · Government of India"
-                : `First page · ${publication.venue}`}
+              Research reference · {publication.publisher}
             </figcaption>
           </figure>
 
@@ -162,12 +127,7 @@ export function PublicationDetail({
                   label={isPatent ? "Granted" : "Published"}
                   value={publication.date ?? String(publication.year)}
                 />
-                {publicAuthors(publication).length > 0 && (
-                  <RecordField
-                    label={authorsWithheld(publication) ? "Co-authors" : "Authors"}
-                    value={publicAuthors(publication).join(", ")}
-                  />
-                )}
+                <RecordField label="Research area" value={topics.join(" · ")} />
                 {isPatent && publication.patentNumber && (
                   <RecordField
                     label="Patent number"
@@ -194,6 +154,12 @@ export function PublicationDetail({
               </dl>
             </DetailSection>
 
+            {publication.abstract && (
+              <DetailSection label="Research summary">
+                <p className="text-sm leading-relaxed text-soft-gray">{publication.abstract}</p>
+              </DetailSection>
+            )}
+
             {/* Topics */}
             {topics.length > 0 && (
               <DetailSection label="Research topics">
@@ -212,7 +178,7 @@ export function PublicationDetail({
 
             {/* Keywords, exactly as recorded */}
             {publication.keywords && publication.keywords.length > 0 && (
-              <DetailSection label="Author keywords">
+              <DetailSection label="Research keywords">
                 <div className="text-sm leading-relaxed text-soft-mute">
                   {publication.keywords.join(" · ")}
                 </div>
@@ -220,7 +186,7 @@ export function PublicationDetail({
             )}
 
             {/* Citation */}
-            <DetailSection label="Cite this work">
+            <DetailSection label="Research reference">
               <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 font-mono text-[12.5px] leading-relaxed text-soft-gray">
                 {formatCitation(publication)}
               </div>
@@ -229,7 +195,8 @@ export function PublicationDetail({
             <div className="mt-8 text-[12.5px] leading-relaxed text-soft-mute">
               The full text, abstract and figures are available from the{" "}
               {isPatent ? "official patent registry" : "publisher"} via the
-              links above.
+              links above. Copyright and patent rights remain with their respective
+              rights holders; inclusion does not imply GaitAI authorship or ownership.
             </div>
           </div>
         </div>

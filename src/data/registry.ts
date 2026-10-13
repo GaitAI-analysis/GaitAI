@@ -11,7 +11,7 @@ export const terminology = {
   module: "A modular offering on the shared movement-intelligence platform.",
   productModule: "The canonical catalogue unit. Product and module refer to the same registry entry and are not added together.",
   researchRecord: "A surfaced academic paper or patent informing the research foundation; not a product validation study.",
-  publication: "A surfaced academic paper. The wider founder academic record is separate from this curated selection.",
+  publication: "An academic research reference in a curated collection; inclusion does not imply GaitAI authorship or ownership.",
   patent: "A granted intellectual-property record; not evidence of implementation or validated product performance.",
   environment: "A setting in the canonical environment registry.",
   useCase: "An intended workflow within an environment; not a deployment or a separately counted environment.",
@@ -21,7 +21,7 @@ export const terminology = {
 export const researchRecords = allPublications.map((record) => ({
   id: record.id,
   kind: record.kind === "patent" ? "patent" : "publication",
-  scope: "founder-academic-record" as const,
+  scope: "academic-research-reference" as const,
   href: `/publications/${record.id}/`,
 }));
 

@@ -77,7 +77,7 @@ NEXT_PUBLIC_TURNSTILE_SITE_KEY=
 2. Paste the entire contents of **`firestore.rules`** and click **Publish**.
 
 The rules enforce: public can only *create pending* and *read approved*; only
-the verified admin accounts `anubhaparashar1025@gmail.com` and
+the verified admin accounts `the configured personal moderator account` and
 `gait.ai.founder@gmail.com` can read pending, approve, reject, delete, and
 manage reports; message length / required fields / `status:pending` are
 validated server-side.

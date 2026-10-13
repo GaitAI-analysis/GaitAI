@@ -246,8 +246,11 @@ async function main() {
     if (!Number.isInteger(p.year) || p.year < 1990 || p.year > currentYear + 1) {
       err("publication metadata", `${where} has implausible year "${p.year}"`);
     }
-    if (!Array.isArray(p.authors) || p.authors.length === 0) {
-      err("publication metadata", `${where} has no authors`);
+    if ("authors" in p || "founderIndex" in p) {
+      err("publication metadata", `${where} exposes an individual author field`);
+    }
+    if (!p.abstract?.trim()) {
+      err("publication metadata", `${where} has no research summary`);
     }
     if (!p.externalUrl?.startsWith("http")) {
       err("publication metadata", `${where} has no absolute externalUrl`);

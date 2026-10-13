@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
   Calendar,
   CheckCircle2,
-  Download,
+  ExternalLink,
   FileCheck2,
   ShieldCheck,
   Stamp,
@@ -16,13 +15,13 @@ import { PublicationLibrary } from "@/components/publications/PublicationLibrary
 import { ArchivePlate } from "@/components/publications/ArchivePlate";
 import { DiagramField } from "@/components/visuals/DiagramField";
 import { allYears } from "@/components/publications/topics";
-import { assetPath } from "@/lib/paths";
+import { PublicationReferencePreview } from "@/components/publications/PublicationReferencePreview";
 import { ctas } from "@/data/content";
 
 export const metadata: Metadata = {
-  title: "Publications — The founder research record behind GaitAI",
+  title: "Research Publications — Academic Research References",
   description:
-    "The research record GaitAI is built on: surfaced academic papers and a granted Indian patent by the founder, across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement AI.",
+    "Academic research references across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement analysis, with official publisher and patent registry links.",
   alternates: { canonical: "/publications" },
 };
 
@@ -56,11 +55,11 @@ export default function PublicationsPage() {
             <div className="min-w-0">
               <span className="eyebrow">
                 <span className="h-1 w-6 rounded-full bg-gradient-brand" />
-                Founder research record
+                Research Publications
               </span>
 
               <h1 className="mt-6 font-display text-display-lg text-balance text-soft-white">
-                A research archive behind{" "}
+                A research archive for{" "}
                 <span className="text-gradient">the movement engine.</span>
               </h1>
 
@@ -68,15 +67,13 @@ export default function PublicationsPage() {
                 Surfaced academic papers and a granted patent spanning gait
                 recognition, computer vision, biometrics, pose estimation,
                 machine learning and privacy-preserving movement analysis —
-                authored by the founder with academic co-authors,
-                and published with Springer, Elsevier and Wiley · IET.
+                with journal references from Springer, Elsevier and Wiley · IET.
               </p>
 
               <p className="mt-3.5 max-w-xl text-[12.5px] leading-relaxed text-soft-mute">
-                These are academic and individually held records rather than
-                company-produced output. GaitAI does not currently hold
-                company-assigned publications or patents of its own; how each
-                record maps onto the platform&apos;s capabilities is set out on
+                Copyright and patent rights remain with their respective rights
+                holders. Inclusion does not imply GaitAI authorship, ownership
+                or product-specific validation. Research relevance is set out on
                 the{" "}
                 <Link
                   href="/research/#evidence-map"
@@ -136,7 +133,7 @@ export default function PublicationsPage() {
             Featured · Granted patent
           </span>
           <h2 className="mt-5 max-w-3xl font-display text-display-md text-balance text-soft-white">
-            A granted Indian patent behind the{" "}
+            A granted Indian patent on the{" "}
             <span
               style={{
                 background: "linear-gradient(135deg, #FBBF24 0%, #D5A021 100%)",
@@ -148,9 +145,9 @@ export default function PublicationsPage() {
             </span>
           </h2>
           <p className="mt-4 max-w-2xl text-[13px] leading-relaxed text-soft-mute">
-            Granted to the named inventors by the Government of India. It
-            covers the covariate-based gait recognition method for edge
-            analytics that GaitAI&apos;s edge inference capability is built on.
+            An academic patent reference covering covariate-based gait recognition
+            for edge analytics. Rights remain with the registered rights holders;
+            consult the official registry for the specification and legal status.
           </p>
 
           <Reveal>
@@ -168,13 +165,7 @@ export default function PublicationsPage() {
                 {/* Certificate */}
                 <div className="relative flex items-center justify-center bg-gradient-to-b from-amber-400/[0.05] to-transparent p-6 sm:p-8 lg:p-10">
                   <div className="relative aspect-[1/1.3] w-full max-w-[360px] overflow-hidden rounded-2xl ring-1 ring-amber-300/30 shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)]">
-                    <Image
-                      src={assetPath(patent.cover)}
-                      alt={`Patent certificate ${patent.patentNumber}, Government of India`}
-                      fill
-                      sizes="(min-width: 1024px) 360px, 80vw"
-                      className="object-cover object-top"
-                    />
+                    <PublicationReferencePreview publication={patent} />
                     <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-obsidian/80 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300 ring-1 ring-amber-300/40 backdrop-blur-md">
                       <Stamp className="h-3 w-3" />
                       Govt. of India
@@ -237,12 +228,12 @@ export default function PublicationsPage() {
                       <ArrowRight className="h-3.5 w-3.5" />
                     </Link>
                     <a
-                      href={assetPath(patent.cover)}
-                      download={`Patent-${patent.patentNumber}-Certificate.jpg`}
+                      href={patent.externalUrl}
+                      target="_blank" rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs font-semibold text-soft-white transition-all hover:border-white/20 hover:bg-white/[0.06]"
                     >
-                      <Download className="h-3.5 w-3.5" />
-                      Download certificate
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      Search patent registry
                     </a>
                   </div>
                 </div>

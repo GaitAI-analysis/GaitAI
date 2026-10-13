@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceDirectoryHint": "C:\\Users\\Anubha\\Downloads\\New folder (7)\\New folder (2)",
+  "sourceDirectoryHint": "Local source asset directory (personal path withheld)",
   "reviewStatus": "complete",
   "reviewMethod": "Every source opened and described individually. Nothing was assigned from filename, timestamp or folder order; the alternating dark/light ordering was treated as a hypothesis and confirmed scene by scene.",
   "expectedUseCases": 18,
@@ -2731,7 +2731,7 @@
           "U014",
           "U022"
         ],
-        "resolution": "Commission a non-weapons defence pair \u2014 a base pedestrian environment such as a gate or perimeter walkway with no visible firearm."
+        "resolution": "Commission a non-weapons defence pair — a base pedestrian environment such as a gate or perimeter walkway with no visible firearm."
       }
     }
   ]

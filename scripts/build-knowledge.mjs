@@ -41,11 +41,8 @@
  * the per-record budget is split on paragraph boundaries into `…#id`,
  * `…#id-2`, ….
  *
- * PEOPLE
- * One record per person the public site names: the founder (from
- * publications.ts + talks.ts) and every co-author on the Publications page.
- * A co-author record states co-authorship and nothing else — no role, no
- * affiliation, no degree — because that is all the site documents.
+ * PUBLIC SCOPE
+ * Person profiles and author identities are not part of the public corpus.
  *
  * NEWSROOM POSTS
  * `data/posts.json` is the Firestore mirror `sync-posts.mjs` refreshes in the
@@ -314,45 +311,15 @@ async function main() {
       `${registry.siteCounts.mobilitycare} MobilityCare modules and ${registry.siteCounts.securevision} SecureVision modules.`,
       `${registry.siteCounts.publications} surfaced academic papers and ${registry.siteCounts.patents} granted patent form ${registry.siteCounts.researchRecords} research records across ${registry.siteCounts.researchAreas} research areas. Product-specific validation studies published: ${registry.siteCounts.productValidationStudies}.`,
       `${registry.siteCounts.talksAndPresentations} talks and presentations: ${registry.siteCounts.talkKinds.invitedTalks} invited talks, ${registry.siteCounts.talkKinds.presentations} presentations, ${registry.siteCounts.talkKinds.paperPresentations} conference paper presentations, ${registry.siteCounts.talkKinds.posters} poster.`,
-      publications.FOUNDER_ACADEMIC_RECORD.scope,
+      publications.ACADEMIC_REFERENCES.scope,
       ...Object.entries(registry.terminology).map(([term,definition])=>`${term}: ${definition}`),
       responsible.RESPONSIBLE_USE_CONTROLS,
     ].join("\n"),
-    keywords: ["count", "how many", "product modules", "environments", "terminology", "research records", "founder academic record", "validation"],
+    keywords: ["count", "how many", "product modules", "environments", "terminology", "research records", "academic research references", "validation"],
   }];
 
-  // ── ENTITIES ─────────────────────────────────────────────────────────────
-  // The named things a visitor asks about BY NAME: the founder, the company,
-  // each module. A record that is one of them carries `entityId` and
-  // `aliases`; a record ABOUT one of them carries `relatedEntityIds`. The
-  // person record is assembled below from publications.ts and talks.ts —
-  // nothing biographical is written here, and the aliases are the name's own
-  // parts plus the one role word the site uses for her ("founder").
-  const FOUNDER = publications.FOUNDER_NAME;
-  const FOUNDER_ID = slugify(FOUNDER);
+  // Public entities are the brand, products and research topics.
   const COMPANY_ID = "gaitai";
-  const authoredByFounder = (record) => record.authors.includes(FOUNDER);
-  const founderRelated = (records) =>
-    records.some(authoredByFounder) ? [FOUNDER_ID] : [];
-  /* Every person named on the Publications page gets a person record below,
-     so a publication points at ALL its authors — the founder and each
-     co-author — through `relatedEntityIds`. A name spelled two ways on the
-     page ("Rajveer S. Shekhawat" / "Rajveer Singh Shekhawat") is one person:
-     the entity id is built from the longest spelling that shares the first
-     and last word, exactly as the co-author records below are. */
-  const allAuthorNames = [...new Set(publications.allPublications.flatMap((p) => p.authors))];
-  const personId = (name) => {
-    const words = name.split(/\s+/);
-    const key = `${words[0]} ${words[words.length - 1]}`.toLowerCase();
-    const same = allAuthorNames.filter((other) => {
-      const w = other.split(/\s+/);
-      return `${w[0]} ${w[w.length - 1]}`.toLowerCase() === key;
-    });
-    const canonical = [...same].sort((a, b) => b.length - a.length)[0] ?? name;
-    return slugify(canonical);
-  };
-  const authorEntities = (records) =>
-    [...new Set(records.flatMap((record) => record.authors.map(personId)))];
 
   const detailBySlug = new Map(
     [...details.productDetails, ...secureDetails.secureProductDetails].map((d) => [
@@ -710,7 +677,6 @@ async function main() {
         para("Year", String(record.year)),
         record.date && para("Date", record.date),
         record.verificationNote && para("Verification", record.verificationNote),
-        para("Authors", record.authors),
         record.doi && para("DOI", record.doi),
         record.patentNumber && para("Patent number", record.patentNumber),
         record.applicationNumber && para("Application number", record.applicationNumber),
@@ -718,7 +684,7 @@ async function main() {
         record.grantDate && para("Grant date", record.grantDate),
         record.jurisdiction && para("Jurisdiction", record.jurisdiction),
         record.validityYears && para("Validity", `${record.validityYears} years`),
-        record.abstract && para("Abstract", record.abstract),
+        record.abstract && para("Research summary", record.abstract),
         record.keywords && para("Keywords", record.keywords),
         para(
           "Research areas it grounds",
@@ -738,7 +704,6 @@ async function main() {
         record.kind,
         ...(record.kind === "journal" && record.publicationStatus !== "publisher-unverified" ? ["peer-reviewed research", "journal paper"] : []),
         ...(record.keywords ?? []),
-        ...record.authors,
         ...(record.patentNumber ? [record.patentNumber, `patent ${record.patentNumber}`] : []),
       ],
       relatedProducts: areas.flatMap((a) => a.directProducts.map((p) => p.id)),
@@ -746,7 +711,6 @@ async function main() {
       /* person → publications, without a second copy of the biography. Every
          author, so "which papers did Apoorva co-author" assembles the same
          way the founder's do. */
-      relatedEntityIds: authorEntities([record]),
       topics: [...(record.keywords ?? []), ...areas.map((a) => a.title)],
       date: record.date ?? `${record.year}-01-01`,
     });
@@ -797,206 +761,8 @@ async function main() {
       ],
       relatedProducts: area.directProducts.map((p) => p.id),
       relatedResearch: area.publications.map((p) => p.id),
-      relatedEntityIds: founderRelated(area.publications),
       topics: ["gait research", ...area.capabilities.map((c) => c.title)],
     });
-  }
-
-  // ── PEOPLE ───────────────────────────────────────────────────────────────
-  // One canonical record per person the site names. Today that is the
-  // founder, and every sentence below is lifted from a page a visitor can
-  // read: the Publications page (authorship, publishers, the founder-vs-
-  // company distinction), the Research page, the home page's "10+ years of
-  // founder research" line, and talks.ts (the speaking record and whose it
-  // is). Anything the site does not say — degrees, employers, dates, awards —
-  // is stated as NOT documented, so the assistant has that in its context too.
-  {
-    const authored = publications.allPublications.filter(authoredByFounder);
-    const authoredPapers = authored.filter((p) => p.kind !== "patent");
-    const authoredPatents = authored.filter((p) => p.kind === "patent");
-    const publishers = [...new Set(authoredPapers.map((p) => p.publisher))];
-    const areasGrounded = evidence.researchAreas.filter((a) =>
-      a.publications.some(authoredByFounder),
-    );
-    const publicationsPage = prosePage("app/publications/page.tsx");
-    const speaker = talks.TALKS_SPEAKER === FOUNDER;
-    const [firstName, ...restName] = FOUNDER.split(/\s+/);
-    const lastName = restName[restName.length - 1] ?? "";
-    const patentLine = authoredPatents
-      .map(
-        (p) =>
-          `a granted Indian patent${p.patentNumber ? ` (Patent ${p.patentNumber})` : ""}`,
-      )
-      .join(" and ");
-
-    docs.push({
-      id: `person:${FOUNDER_ID}`,
-      type: "person",
-      title: FOUNDER,
-      slug: FOUNDER_ID,
-      url: route("/publications"),
-      family: "research",
-      category: "Founder",
-      summary: clean(
-        `${FOUNDER} is the founder of GaitAI. The research record the platform is built on — ${authoredPapers.length} surfaced academic papers${patentLine ? ` and ${patentLine}` : ""} — was authored by ${FOUNDER} with academic co-authors, across gait recognition, computer vision, biometrics, pose estimation, machine learning and privacy-preserving movement analysis.`,
-      ),
-      content: block(
-        para("Name", FOUNDER),
-        para(
-          "Role in the GaitAI record",
-          `Founder of GaitAI. The site describes GaitAI as founder-led research that became a platform, built on 10+ years of founder research experience in gait and human movement.`,
-        ),
-        para(
-          "Research record",
-          `${authoredPapers.length} surfaced academic papers${patentLine ? ` and ${patentLine}` : ""}, authored with academic co-authors and published with ${publishers.join(", ")}.`,
-        ),
-        publicationsPage.description &&
-          para("How the Publications page describes it", publicationsPage.description),
-        para(
-          "Provenance",
-          "These are academic and individually held records rather than company-produced output. GaitAI does not currently hold company-assigned publications or patents of its own; the product modules are subsequent platform implementations.",
-        ),
-        para(
-          "Research areas this work grounds",
-          areasGrounded.map((a) => a.title),
-        ),
-        speaker &&
-          para(
-            "Speaking record",
-            `${talks.talkRecords.length} documented appearances listed at ${route("/research/talks")} — ${talks.talkCounts.invitedTalks} invited talks, ${talks.talkCounts.presentations} conference presentations, ${talks.talkCounts.paperPresentations} paper presentations and ${talks.talkCounts.posters} poster${talks.talkCounts.posters === 1 ? "" : "s"} — delivered in an academic and personal research capacity. They are not GaitAI company appearances.`,
-          ),
-        para(
-          "Not documented in the GaitAI record",
-          "Academic degrees, job history, institutional affiliations, awards, dates of employment, and any role other than founder and author. None of these may be stated or implied.",
-        ),
-        /* Last, because it is the longest line and each paper is also its own
-           record: if a budget cuts this record, it cuts the list, not the
-           facts above it. */
-        para(
-          "Publications authored",
-          authored.map((p) => `${p.title} (${p.venue}, ${p.year})`),
-        ),
-      ),
-      keywords: [
-        FOUNDER,
-        firstName,
-        lastName,
-        "founder",
-        "gaitai founder",
-        "who founded gaitai",
-        "author",
-        "research record",
-        "publications",
-        "patent",
-        ...(speaker ? ["talks", "speaker", "speaking record"] : []),
-      ],
-      relatedProducts: [],
-      relatedResearch: [
-        ...areasGrounded.map((a) => a.id),
-        ...authored.map((p) => p.id),
-      ],
-      entityId: FOUNDER_ID,
-      aliases: [
-        FOUNDER,
-        firstName,
-        lastName,
-        `dr ${FOUNDER}`,
-        `dr. ${FOUNDER}`,
-        "founder",
-        "the founder",
-        "gaitai founder",
-        "founder of gaitai",
-        "gaitai's founder",
-      ],
-      relatedEntityIds: [COMPANY_ID],
-      tags: ["founder", "author", ...(speaker ? ["speaker"] : [])],
-      topics: ["gait research", "movement intelligence", ...areasGrounded.map((a) => a.title)],
-    });
-  }
-
-  // ── CO-AUTHORS ───────────────────────────────────────────────────────────
-  // Every other name on the Publications page. The site documents exactly one
-  // fact about each: which records they co-authored, with whom. The record
-  // says that, lists the papers, and states that nothing else — role,
-  // affiliation, degree, employer — is documented, so the assistant can
-  // answer "who is Apoorva" from the record instead of inferring from an
-  // author list.
-  {
-    /* One person, one record — even when the Publications page spells a name
-       two ways ("Rajveer S. Shekhawat" / "Rajveer Singh Shekhawat"). Names
-       sharing first and last word are one person; the longest spelling is
-       the title and every spelling is an alias, so either finds the record.
-       `authorEntities` above resolves each spelling the same way. */
-    const spellings = new Map();
-    for (const name of new Set(publications.allPublications.flatMap((p) => p.authors))) {
-      if (name === FOUNDER) continue;
-      const words = name.split(/\s+/);
-      const key = `${words[0]} ${words[words.length - 1]}`.toLowerCase();
-      spellings.set(key, [...(spellings.get(key) ?? []), name]);
-    }
-
-    for (const names of spellings.values()) {
-      const name = [...names].sort((a, b) => b.length - a.length)[0];
-      const id = personId(name);
-      const authored = publications.allPublications.filter((p) =>
-        p.authors.some((author) => names.includes(author)),
-      );
-      const papers = authored.filter((p) => p.kind !== "patent");
-      const patents = authored.filter((p) => p.kind === "patent");
-      const areasGrounded = evidence.researchAreas.filter((a) =>
-        a.publications.some((p) => p.authors.includes(name)),
-      );
-      const publishers = [...new Set(authored.map((p) => p.publisher))];
-      const [firstName, ...restName] = name.split(/\s+/);
-      const lastName = restName[restName.length - 1] ?? "";
-      const count = `${papers.length} surfaced academic paper${papers.length === 1 ? "" : "s"}${
-        patents.length ? ` and ${patents.length} granted patent${patents.length === 1 ? "" : "s"}` : ""
-      }`;
-
-      docs.push({
-        id: `person:${id}`,
-        type: "person",
-        title: name,
-        slug: id,
-        url: route("/publications"),
-        family: "research",
-        category: "Co-author",
-        summary: clean(
-          `${name} is a co-author, with GaitAI founder ${FOUNDER}, of ${count} in the research record listed on the GaitAI Publications page — across ${areasGrounded.map((a) => a.title.toLowerCase()).join(", ") || "the published record"}.`,
-        ),
-        content: block(
-          para("Name", name),
-          para(
-            "Role in the GaitAI record",
-            `Co-author. ${name} appears as an author on ${authored.length} of the ${publications.allPublications.length} records on the GaitAI Publications page, each co-authored with ${FOUNDER}, the founder of GaitAI.`,
-          ),
-          para("Research record", `${count}, published with ${publishers.join(", ")}.`),
-          names.length > 1 &&
-            para("Also listed on the Publications page as", names.filter((n) => n !== name)),
-          para(
-            "Publications co-authored",
-            authored.map((p) => `${p.title} (${p.venue}, ${p.year})`),
-          ),
-          para("Research areas this work grounds", areasGrounded.map((a) => a.title)),
-          para(
-            "Provenance",
-            "These are academic and individually held records rather than company-produced output. Co-authorship of a paper is not a role at GaitAI.",
-          ),
-          para(
-            "Not documented in the GaitAI record",
-            `Any role at GaitAI, job title, employer, institutional affiliation, academic degree, dates, awards, or relationship to ${FOUNDER} beyond co-authorship. None of these may be stated or implied.`,
-          ),
-        ),
-        keywords: [...names, firstName, lastName, "co-author", "coauthor", "author"],
-        relatedProducts: [],
-        relatedResearch: [...areasGrounded.map((a) => a.id), ...authored.map((p) => p.id)],
-        entityId: id,
-        aliases: [...names, firstName, lastName, `dr ${name}`, `dr. ${name}`],
-        relatedEntityIds: [FOUNDER_ID],
-        tags: ["co-author", "author"],
-        topics: ["gait research", ...areasGrounded.map((a) => a.title)],
-      });
-    }
   }
 
   // ── TALKS ────────────────────────────────────────────────────────────────
@@ -1033,7 +799,6 @@ async function main() {
       keywords: [talk.title, talks.TALK_KIND_LABEL[talk.kind], talk.event, talk.venue, String(talk.year), "talk", "presentation"],
       relatedProducts: [],
       relatedResearch: area ? [area.id] : [],
-      relatedEntityIds: talks.TALKS_SPEAKER === FOUNDER ? [FOUNDER_ID] : [],
       topics: area ? [area.title] : [],
       date: `${talk.year}-01-01`,
     });
@@ -1655,7 +1420,6 @@ async function main() {
          founded gaitai" resolves both and ranks the person. */
       entityId: COMPANY_ID,
       aliases: ["gaitai", "gait ai", "gait.ai", "gaitai.in", "the platform", "the company"],
-      relatedEntityIds: [FOUNDER_ID],
     },
     {
       url: "/products",
@@ -1761,7 +1525,6 @@ async function main() {
         ),
       ),
       keywords: ["research", "evidence", "science", "papers", "foundation"],
-      relatedEntityIds: [FOUNDER_ID],
     },
     {
       url: "/publications",
@@ -1773,13 +1536,8 @@ async function main() {
           "Records",
           publications.allPublications.map((p) => `${p.title} (${p.venue}, ${p.year})`),
         ),
-        para(
-          "Authors named on this page",
-          [...new Set(publications.allPublications.flatMap((p) => p.authors))],
-        ),
       ),
       keywords: ["publications", "papers", "patent", "journal", "citations", "where are your papers"],
-      relatedEntityIds: authorEntities(publications.allPublications),
     },
     {
       url: "/research/evidence",
@@ -1796,7 +1554,6 @@ async function main() {
         ),
       ),
       keywords: ["evidence", "evidence record", "full record", "papers mapped", "research areas", "capabilities"],
-      relatedEntityIds: [FOUNDER_ID],
     },
     {
       url: "/insights",
@@ -2011,7 +1768,6 @@ async function main() {
         "speaking",
         "keynote",
       ],
-      relatedEntityIds: talks.TALKS_SPEAKER === FOUNDER ? [FOUNDER_ID] : [],
     },
     {
       url: "/insights/start-here",

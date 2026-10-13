@@ -154,6 +154,9 @@ export async function ask(options: {
      resolution only: what "it", "she" and "what about" mean. No turn's text
      is evidence; the records retrieved for this question are. */
   const result = retrieveGaitAIContext(question, pathname, history);
+  if (result.intent === "PERSON" || result.entityMiss) {
+    return finish({ ...result, lowConfidence: true, docs: [] }, composeExtractiveAnswer(result), question, turnIndex, "retrieval", "public_scope");
+  }
   const startedAt = Date.now();
 
   /* LOCAL DEVELOPMENT ONLY. `next dev` inlines NODE_ENV, so this whole block

@@ -153,15 +153,6 @@ export const CASES: Case[] = [
     q: "What is the difference between CrowdSense and SuspiciousMotion?",
     expect: ["product:crowdsense", "product:suspiciousmotion"],
   },
-
-  // ── The RAG acceptance set (2026-09-09) ───────────────────────────────────
-  // The questions the hosted path is proven on. worker/test/rag.test.ts runs
-  // the same questions through retrieval → the Worker → the (mocked) model;
-  // `npm run ask:e2e` runs them against the real one.
-  { q: "Who is Anubha Parashar?", expect: ["person:anubha-parashar"] },
-  { q: "Who is Anubha?", expect: ["person:anubha-parashar"] },
-  { q: "Who is Apoorva Parashar?", expect: ["person:apoorva-parashar"] },
-  { q: "Who is Apoorva?", expect: ["person:apoorva-parashar"] },
   { q: "What is MobilityCare?", expect: ["page:/mobilitycare"] },
   { q: "What is SecureVision?", expect: ["page:/securevision"] },
   { q: "What is GaitScape?", expect: ["page:/gaitscape"] },

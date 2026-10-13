@@ -1283,7 +1283,7 @@ export const workflowStages = [
 export const researchPillars = [
   {
     title: "Peer-reviewed gait recognition",
-    desc: "Founder-authored journal work on deep-learning gait recognition and gait biometrics under covariates.",
+    desc: "Published journal research on deep-learning gait recognition and gait biometrics under covariates.",
     icon: Footprints,
   },
   {

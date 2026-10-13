@@ -1,6 +1,7 @@
+from pathlib import Path
 import numpy as np
 from PIL import Image
-R=r"C:/Users/Anubha/Documents/website/GaitAI-main/GaitAI/public/images/hero/"
+R = str(Path(__file__).resolve().parents[2] / "public/images/hero") + "/"
 for name,guess in [("home-hero-gaitai.webp",lambda y:1377-0.331*y),("home-hero-dark.webp",lambda y:1428-0.341*y)]:
     a=np.array(Image.open(R+name).convert("L")).astype(float); H,W=a.shape
     pts=[]

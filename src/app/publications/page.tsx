@@ -17,12 +17,28 @@ import { DiagramField } from "@/components/visuals/DiagramField";
 import { allYears } from "@/components/publications/topics";
 import { PublicationReferencePreview } from "@/components/publications/PublicationReferencePreview";
 import { ctas } from "@/data/content";
+import { socialCard } from "@/lib/seo";
 
+/*
+ * BRAND, NOT PERSON. The archive is presented as GaitAI's research reference
+ * library: the title, description and social card name the brand and the
+ * research areas only. No individual is named or implied anywhere in the
+ * page's metadata, and every record keeps its authentic publisher or patent
+ * registry link so academic authorship is neither claimed nor falsified.
+ * The title and description are string literals on purpose: build-knowledge
+ * reads them from this source with a regex to seed the Ask GaitAI corpus.
+ */
 export const metadata: Metadata = {
-  title: "Research Publications — Academic Research References",
+  title: "Research Publications",
   description:
-    "Academic research references across gait recognition, computer vision, biometrics, pose estimation and privacy-preserving movement analysis, with official publisher and patent registry links.",
+    "GaitAI's research reference library: peer-reviewed publications and a granted patent in gait recognition, pose estimation, biometrics, computer vision and privacy-preserving movement analysis, each linked to its official publisher or patent registry record.",
   alternates: { canonical: "/publications" },
+  ...socialCard({
+    title: "Research Publications | GaitAI",
+    description:
+      "GaitAI's research reference library: peer-reviewed publications and a granted patent in gait recognition, pose estimation, biometrics, computer vision and privacy-preserving movement analysis, each linked to its official publisher or patent registry record.",
+    path: "/publications",
+  }),
 };
 
 // Every number below is derived from the records themselves. The set is

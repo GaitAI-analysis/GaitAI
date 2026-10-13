@@ -18,6 +18,7 @@ import { DiscussionMount } from "@/components/comments/DiscussionMount";
 import { ctas } from "@/data/content";
 import { postToPublicationStory, readPublicationStories } from "@/lib/publication-store";
 import { assetPath } from "@/lib/paths";
+import { socialCard } from "@/lib/seo";
 
 export const dynamicParams = false;
 
@@ -45,12 +46,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const publication = allPublications.find((p) => p.id === params.slug);
   if (publication) {
+    const title = `${publication.title} — GaitAI Research`;
+    const description = `${publication.venue} · ${publication.publisher} · ${publication.year}. ${publication.abstract ?? ""}`.trim();
     return {
-      title: `${publication.title} — GaitAI Research`,
-      description: `${publication.venue} · ${publication.publisher} · ${publication.year}. ${publication.abstract ?? ""}`,
+      title,
+      description,
       // Without this the record inherited the root canonical and every one of
       // the nine publication pages declared itself a duplicate of the home page.
       alternates: { canonical: `/publications/${publication.id}` },
+      // The record's own card, so a shared link previews the reference rather
+      // than the generic brand card. Brand and venue only — no person.
+      ...socialCard({ title: `${title} | GaitAI`, description, path: `/publications/${publication.id}` }),
     };
   }
   const post = await getPublishedPostBySlug(params.slug);

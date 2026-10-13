@@ -160,6 +160,49 @@ Once verified:
 - **Performance** → after two to four weeks, the queries and pages that
   actually get impressions. That report, not guesswork, drives section 5.
 
+### Reindexing after the 2026-10-13 Publications correction
+
+Google was still showing the Publications hub under an earlier title that
+described the archive as a founder's record. The live page, its title, meta
+description, social card and JSON-LD now name the brand and the research
+areas only. Google replaces a cached snippet only when it recrawls, so once
+the deploy is live:
+
+1. **URL Inspection → Request indexing** for each of these URLs (one per
+   request, roughly a dozen a day per property):
+   - `https://gaitai.in/publications/`
+   - `https://gaitai.in/publications/eaai-2024/`
+   - `https://gaitai.in/publications/dsp-2024/`
+   - `https://gaitai.in/publications/ai-review-2023/`
+   - `https://gaitai.in/publications/ivc-2023/`
+   - `https://gaitai.in/publications/prl-2023/`
+   - `https://gaitai.in/publications/neurocomputing-2022/`
+   - `https://gaitai.in/publications/iet-pose-2022/`
+   - `https://gaitai.in/publications/iet-privacy-2022/`
+   - `https://gaitai.in/publications/patent-covariate-gait-edge/`
+   - `https://gaitai.in/research/`, `https://gaitai.in/labs/`,
+     `https://gaitai.in/investors/`
+   Before requesting, click **Test live URL** and confirm the rendered title
+   reads `Research Publications | GaitAI`; the inspection shows exactly what
+   Googlebot will store.
+2. **Sitemaps** → resubmit `https://gaitai.in/sitemap.xml` (it already lists
+   every URL above).
+3. **Stale snippet without waiting for a recrawl**: the public *Refresh
+   Outdated Content* tool at
+   <https://search.google.com/search-console/remove-outdated-content> accepts
+   a URL whose live page no longer contains the text Google shows. Submit
+   `https://gaitai.in/publications/` and paste the words from the old snippet
+   that are no longer on the page. This tool does not need property
+   ownership and typically updates the snippet within a day or two.
+4. **Bing and the IndexNow engines**: `npm run seo:indexnow` after the deploy
+   submits the changed URLs immediately.
+5. In two to four weeks, check **Performance → Queries** for the personal-name
+   query; the page should no longer appear for it, while impressions for
+   `gait analysis`, `gait recognition research` and product terms continue.
+
+Nothing above removes the page from search: `/publications/` stays indexable
+for research and product queries, which is the point of the correction.
+
 **Bing** (free, 20–30 % of desktop search in several markets): sign in to
 <https://www.bing.com/webmasters>, choose *Import from Google Search Console*,
 done. Then `npm run seo:indexnow` after each content deploy tells Bing (and

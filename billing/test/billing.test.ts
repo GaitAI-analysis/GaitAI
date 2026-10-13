@@ -343,6 +343,27 @@ describe("lifecycle: renewals, grace, cancellation, expiry, refunds", () => {
   });
 });
 
+describe("key material", () => {
+  it("accepts the JWK shape Node's keygen writes (alg: Ed25519, kid, ext) and issues a verifiable token", async () => {
+    const { generateEd25519Jwk, importEd25519Private, publicJwkFromPrivate, signJwtEd25519, verifyJwtEd25519 } = await import("../src/crypto");
+    const k = await generateEd25519Jwk();
+    const nodeStyle = JSON.stringify({ ...k.privateJwk, alg: "Ed25519", ext: true, key_ops: ["sign"], kid: "abc" });
+    const key = await importEd25519Private(nodeStyle);
+    const tok = await signJwtEd25519(key, "abc", { sub: "u", exp: 4_000_000_000 });
+    const pub = await publicJwkFromPrivate(nodeStyle);
+    expect((pub as { kid?: string }).kid).toBe("abc");
+    expect((pub as { d?: string }).d).toBeUndefined();
+    expect(await verifyJwtEd25519({ ...pub, alg: "Ed25519" } as JsonWebKey, tok)).toMatchObject({ sub: "u" });
+    // And through the real route: a paid account gets a token signed with a Node-style key.
+    const h = await makeHarness({ ENTITLEMENT_PRIVATE_JWK: nodeStyle });
+    const { token } = await purchase(h, "u-nodekey", "mobilitycare", "monthly");
+    const me = await h.handle(req("/v1/me", { token }));
+    expect(me.status).toBe(200);
+    const b = await body<{ entitlements: Record<string, Ent> }>(me);
+    expect(b.entitlements.mobilitycare.token).toBeTruthy();
+  });
+});
+
 describe("production safety", () => {
   it("refuses the sandbox provider on a Worker not named *-sandbox", async () => {
     const h = await makeHarness({}, "gaitai-billing");

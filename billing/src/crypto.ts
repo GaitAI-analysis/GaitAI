@@ -71,16 +71,27 @@ export async function verifyCompact<T = Record<string, unknown>>(secret: string,
 
 /* ── Ed25519 JWTs (entitlement tokens the app can verify offline) ──────── */
 
+/**
+ * Node's WebCrypto exports Ed25519 JWKs with `alg: "Ed25519"`; workerd's
+ * importKey rejects that field (it expects "EdDSA" or none). Strip the
+ * fields that describe usage rather than the key before importing.
+ */
+const bareJwk = (jwk: JsonWebKey & { alg?: string; kid?: string }): JsonWebKey => {
+  const { alg: _alg, key_ops: _ops, ext: _ext, kid: _kid, ...rest } = jwk as JsonWebKey & { alg?: string; kid?: string };
+  void _alg; void _ops; void _ext; void _kid;
+  return rest;
+};
+
 export async function importEd25519Private(jwkJson: string): Promise<CryptoKey> {
   const jwk = JSON.parse(jwkJson) as JsonWebKey;
-  return crypto.subtle.importKey("jwk", jwk, { name: "Ed25519" }, true, ["sign"]);
+  return crypto.subtle.importKey("jwk", bareJwk(jwk), { name: "Ed25519" }, true, ["sign"]);
 }
 
 export async function publicJwkFromPrivate(jwkJson: string): Promise<JsonWebKey> {
   const jwk = JSON.parse(jwkJson) as JsonWebKey & { kid?: string };
-  const { d: _d, ...pub } = jwk;
+  const { d: _d, ...pub } = bareJwk(jwk);
   void _d;
-  return { ...pub, key_ops: ["verify"] };
+  return { ...pub, kid: jwk.kid, key_ops: ["verify"] } as JsonWebKey;
 }
 
 export async function signJwtEd25519(privateKey: CryptoKey, kid: string, claims: Record<string, unknown>): Promise<string> {
@@ -93,7 +104,7 @@ export async function signJwtEd25519(privateKey: CryptoKey, kid: string, claims:
 export async function verifyJwtEd25519(publicJwk: JsonWebKey, token: string, nowSec = Math.floor(Date.now() / 1000)): Promise<Record<string, unknown> | null> {
   const parts = token.split(".");
   if (parts.length !== 3) return null;
-  const key = await crypto.subtle.importKey("jwk", publicJwk, { name: "Ed25519" }, false, ["verify"]);
+  const key = await crypto.subtle.importKey("jwk", bareJwk(publicJwk), { name: "Ed25519" }, false, ["verify"]);
   const ok = await crypto.subtle.verify({ name: "Ed25519" }, key, b64urlDecode(parts[2]) as BufferSource, enc.encode(`${parts[0]}.${parts[1]}`));
   if (!ok) return null;
   const claims = JSON.parse(new TextDecoder().decode(b64urlDecode(parts[1]))) as Record<string, unknown>;

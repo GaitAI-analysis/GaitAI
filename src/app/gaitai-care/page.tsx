@@ -72,7 +72,7 @@ export default function GaitAICarePage() {
       <div className={`${styles.container} ${styles.heroGrid}`}>
         <div><CareBrand /><h1>Your health records.<br />Your history.<br /><span>Your insights.</span></h1>
           <p className={styles.lead}>One calm place for personal and family health records. Bring documents, medicines and everyday care into a history that stays with you.</p>
-          <CareActions /><p className={styles.small}>Web app available · Android Early Access<br />Health-record organisation. Medical decisions stay with your clinician.</p>
+          <CareActions /><p className={styles.small}>Web app available · Android Early Access · <Link href={care.launch}>Launched 13 October 2026</Link><br />Health-record organisation. Medical decisions stay with your clinician.</p>
         </div>
         <CareScreenshot priority />
       </div>

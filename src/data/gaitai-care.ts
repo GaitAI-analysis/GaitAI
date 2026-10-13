@@ -6,6 +6,9 @@ export const gaitaiCare = {
   href: "/gaitai-care/",
   web: "https://care.gaitai.in/",
   download: "/gaitai-care/download/",
+  /** The launch announcement of 13 October 2026, at a permanent address. */
+  launch: "/gaitai-care/launch/",
+  launchDate: "2026-10-13",
   privacy: "https://care.gaitai.in/privacy.html",
   documentation: "https://gaitai-wiki.gait-ai-founder.workers.dev/insights/wiki/gaitai-care/",
   release: {

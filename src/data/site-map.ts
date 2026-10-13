@@ -143,7 +143,10 @@ export const siteMap: AtlasNode = {
           route: "/gaitai-care/",
           description: "Personal & family health-record management",
           family: "neutral",
-          children: [{ id: "gaitai-care-download", label: "Android Early Access", route: "/gaitai-care/download/", description: "Release status, integrity and installation", family: "neutral" }],
+          children: [
+            { id: "gaitai-care-download", label: "Android Early Access", route: "/gaitai-care/download/", description: "Release status, integrity and installation", family: "neutral" },
+            { id: "gaitai-care-launch", label: "Launch announcement", route: "/gaitai-care/launch/", description: "Product launch, 13 October 2026", family: "neutral" },
+          ],
         },
         {
           id: "mobilitycare",

@@ -302,7 +302,7 @@ async function main() {
   ran.push("route targets");
   const staticRoutes = new Set([
     "/", "/products", "/mobilitycare", "/securevision", "/use-cases",
-    "/gaitai-care", "/gaitai-care/download",
+    "/gaitai-care", "/gaitai-care/download", "/gaitai-care/launch",
     "/gaitscape", "/research", "/research/evidence", "/research/talks",
     "/publications",
     "/insights", "/investors", "/movement-lab", "/labs", "/labs/dataset",

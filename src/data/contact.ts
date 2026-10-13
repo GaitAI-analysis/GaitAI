@@ -124,9 +124,28 @@ export const socialProfiles = {
 /**
  * The same profiles as a flat list, for the `sameAs` array in structured
  * data. The mailbox is not included: `sameAs` takes URLs that identify the
- * organisation, and a `mailto:` is a contact route, not an identity.
+ * organisation, and a `mailto:` is a contact route, not an identity. Nor is
+ * WhatsApp below, for the same reason.
  */
 export const socialProfileUrls = Object.values(socialProfiles);
+
+/**
+ * WhatsApp chat with the company. A CONTACT ROUTE, not a profile: it sits
+ * beside the mail glyph in the footer and in the Engage column, and stays out
+ * of `socialProfiles` and `sameAs`.
+ *
+ * The number is the business line the company designated for this channel.
+ * Verified 2026-10-13: `wa.me/918901352622` redirects to WhatsApp's send
+ * endpoint, which recognises it as a well-formed Indian mobile number and
+ * renders it as +91 89013 52622 with "Continue to WhatsApp Web" (a malformed
+ * number is shown unformatted). Whether a number is REGISTERED on WhatsApp
+ * can only be confirmed from a WhatsApp account; the company confirmed this
+ * one is theirs. No person's name is attached to it anywhere on the site —
+ * see NEVER PUBLISH A PERSON'S MAILBOX above.
+ */
+export const WHATSAPP_NUMBER = "918901352622";
+export const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}`;
+export const WHATSAPP_LABEL = "Chat on WhatsApp";
 
 /** The on-site form, which is always available as a second route. */
 export const CONTACT_FORM_HREF = "/#contact";

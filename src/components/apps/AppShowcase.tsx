@@ -94,17 +94,12 @@ export function AppShowcase({ app: appId }: { app: ProductAppId }) {
             </ul>
           </div>
 
+          {/* Status only. The access request lives once, in the header; a
+              download appears here only when release.publicApk is set. */}
           <div className={`${styles.fact} ${styles.release}`}>
             <h3>Release status</h3>
             <p>{app.release.detail}</p>
-            <div className={styles.actions}>
-              <a href={androidAccessMailto(app)} className={styles.primary}>
-                Request Android access
-              </a>
-            </div>
-            <p className={styles.small}>
-              Access is arranged individually for pilots and evaluations. Nothing here is distributed as a public release.
-            </p>
+            <p className={styles.small}>Nothing here is distributed as a public release.</p>
           </div>
         </div>
 

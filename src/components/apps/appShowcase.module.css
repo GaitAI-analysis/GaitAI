@@ -77,8 +77,6 @@
 .soon{margin-top:4px;padding-top:14px;border-top:1px dashed var(--app-line);font-size:13px;line-height:1.7;color:var(--app-muted)}
 .soon strong{color:var(--app-ink);font-weight:500}
 .release p{font-size:14px;line-height:1.75;color:var(--app-muted);margin:0}
-.release .actions{margin-top:4px}
-.release .primary,.release .secondary{width:100%}
 
 /* ── Ribbon ─────────────────────────────────────────────────────────────── */
 .ribbon{margin-top:40px;padding-top:24px;border-top:1px solid var(--app-line);display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 28px;font-size:13px;color:var(--app-muted)}

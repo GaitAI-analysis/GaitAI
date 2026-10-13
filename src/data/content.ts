@@ -60,11 +60,6 @@ export const navLinks: readonly NavItem[] = [
         description: "Movement intelligence & personal health records",
       },
       {
-        label: "GaitAI Care",
-        href: "/gaitai-care",
-        description: "Personal & family health records · Web + Android",
-      },
-      {
         label: "MobilityCare",
         href: "/mobilitycare",
         description: `Clinical movement intelligence · ${counts.mobilitycare}`,
@@ -73,6 +68,11 @@ export const navLinks: readonly NavItem[] = [
         label: "SecureVision",
         href: "/securevision",
         description: `Privacy-aware movement intelligence · ${counts.securevision}`,
+      },
+      {
+        label: "GaitAI Care",
+        href: "/gaitai-care",
+        description: "Personal & family health records · Web + Android",
       },
       ...siteFacts.products.filter((p) => p.navigation).map((p) => ({ label: p.label, href: p.href, description: "Governed movement decision support" })),
     ],

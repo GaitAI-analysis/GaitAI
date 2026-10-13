@@ -12,7 +12,7 @@ export function CareBrand() {
 
 export function CareActions({ learn = false }: { learn?: boolean }) {
   return <div className={styles.actions}>
-    <a className={styles.primary} href={care.web}>Try Web App <span aria-hidden="true">↗</span></a>
+    <a className={styles.primary} href={care.web} target="_blank" rel="noopener noreferrer">Try Web App <span aria-hidden="true">↗</span></a>
     <Link className={styles.secondary} href={care.download}>Download for Android <span aria-hidden="true">↓</span></Link>
     {learn && <Link className={styles.textLink} href={care.href}>Learn More <span aria-hidden="true">→</span></Link>}
   </div>;

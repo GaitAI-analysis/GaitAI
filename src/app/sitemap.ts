@@ -39,7 +39,7 @@ function priorityFor(route: string): number {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [posts, stories] = await Promise.all([readPublishedPosts(), readPublicationStories()]);
-  const staticRoutes = siteRoutes();
+  const staticRoutes = siteRoutes().filter((route) => !route.startsWith("/insights/wiki"));
   const staticRouteSet = new Set(staticRoutes.map((route) => route.replace(/\/$/, "") || "/"));
 
   /* Article dates are the one piece of freshness the tree does not carry. */

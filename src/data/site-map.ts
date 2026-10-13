@@ -30,7 +30,6 @@ import { insightArticles } from "@/data/insights";
 import { allPublications } from "@/data/publications";
 import { talkRecords } from "@/data/talks";
 import { gaitLabs } from "@/data/labs";
-import { availableWikiProducts, wikiPageHref, wikiProductHref } from "@/data/wiki";
 import { topicLabel } from "@/lib/publication";
 
 /** Which accent a branch inherits. Four families, not a rainbow. */
@@ -241,16 +240,7 @@ export const siteMap: AtlasNode = {
         },
         {
           id: "wiki", label: "Wiki", route: "/insights/wiki/",
-          description: "Source-reviewed product documentation", family: "editorial",
-          children: availableWikiProducts.map((product) => ({
-            id: `wiki:${product.slug}`, label: product.name, route: wikiProductHref(product.slug),
-            description: product.description, family: "editorial" as const,
-            children: product.pages.map((page) => ({
-              id: `wiki:${product.slug}:${page.slug}`, label: page.title,
-              route: wikiPageHref(product.slug, page.slug), description: page.description,
-              family: "editorial" as const,
-            })),
-          })),
+          description: "Private technical documentation", family: "editorial",
         },
         ...topicLeaves,
         ...articleLeaves,

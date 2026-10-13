@@ -146,7 +146,7 @@ export const navLinks: readonly NavItem[] = [
       },
       {
         label: "Wiki",
-        href: "/insights/wiki",
+        href: "https://gaitai-wiki.gait-ai-founder.workers.dev/insights/wiki",
         description: "Product architecture and technical documentation",
       },
     ],

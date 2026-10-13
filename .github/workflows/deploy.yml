@@ -89,6 +89,9 @@ jobs:
       - name: Disable Jekyll
         run: touch out/.nojekyll
 
+      - name: Ensure the public export contains no private Wiki content
+        run: npm run check:wiki:private
+
       # Preserve the custom domain on every deploy.
       - name: Add CNAME
         run: echo "gaitai.in" > out/CNAME

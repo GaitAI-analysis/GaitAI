@@ -7,7 +7,7 @@ export const gaitaiCare = {
   web: "https://care.gaitai.in/",
   download: "/gaitai-care/download/",
   privacy: "https://care.gaitai.in/privacy.html",
-  documentation: "/insights/wiki/gaitai-care/",
+  documentation: "https://gaitai-wiki.gait-ai-founder.workers.dev/insights/wiki/gaitai-care/",
   release: {
     version: "1.0.0",
     bytes: 4602976,

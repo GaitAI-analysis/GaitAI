@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Download, Smartphone } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeImage, ThemeVideo } from "@/components/ui/ThemeMedia";
 import type { ThemeMediaKey } from "@/lib/theme-media";
+import { describePricing, productApps, type ProductAppId } from "@/data/product-apps";
 import { capabilityIconById } from "@/components/icons/CapabilityIcons";
 import {
   mobilityProducts,
@@ -49,6 +50,8 @@ interface FlagshipPanelProps {
    *  description stays for tablets and desktops and on the product page. */
   shortDescription: string;
   href: string;
+  /** The family's Android app, for the second action on the card. */
+  appId: ProductAppId;
   /** Key into `lib/theme-media.ts` for the product wordmark. */
   brandKey: ThemeMediaKey;
   /** Key into `lib/theme-media.ts` for the console footage. */
@@ -159,7 +162,9 @@ function FlagshipPanel({
   products,
   totalProducts,
   reduceMotion,
+  appId,
 }: FlagshipPanelProps) {
+  const app = productApps[appId];
   const style = tones[tone];
   const titleId = `${id}-title`;
 
@@ -309,15 +314,54 @@ function FlagshipPanel({
           </ul>
         </div>
 
-        <Link
-          href={href}
-          className={`group/cta mt-auto flex min-h-16 items-center justify-between gap-5 border-t border-white/12 pt-6 text-[15px] font-bold transition-colors focus-visible:rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
-        >
-          <span>Explore {name}</span>
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/panel:border-current/60 group-hover/cta:translate-x-1 group-hover/cta:border-current/60">
-            <ArrowRight className="h-[18px] w-[18px]" aria-hidden="true" />
-          </span>
-        </Link>
+        {/* TWO ACTIONS, side by side from 640px and stacked on a phone: the
+            product page, and the Android app. The second action fails closed:
+            it is a real download link only when data/product-apps.ts names a
+            verified public release; until then it is a disabled "coming
+            soon" state, never a link to a page or a file that does not exist.
+            The note under them states what the founder set: the download is
+            free and the protected features need a Pro subscription. */}
+        <div className="flagship-actions mt-auto border-t border-white/12 pt-6">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Link
+              href={href}
+              className={`group/cta flex min-h-12 items-center justify-between gap-3 rounded-full border border-current/35 px-5 text-[14px] font-bold transition-colors hover:border-current/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
+            >
+              <span>Explore {name}</span>
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/cta:translate-x-1 group-hover/cta:border-current/60">
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </span>
+            </Link>
+            {app.release.publicApk ? (
+              <Link
+                href={app.downloadHref}
+                className={`group/cta flex min-h-12 items-center justify-between gap-3 rounded-full border border-current/35 px-5 text-[14px] font-bold transition-colors hover:border-current/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
+              >
+                <span>Download Android App</span>
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/cta:translate-y-0.5 group-hover/cta:border-current/60">
+                  <Download className="h-4 w-4" aria-hidden="true" />
+                </span>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                aria-describedby={`${appId}-android-note`}
+                className="flex min-h-12 cursor-not-allowed items-center justify-between gap-3 rounded-full border border-dashed border-current/30 px-5 text-left text-[14px] font-semibold text-soft-mute"
+              >
+                <span>Android App Coming Soon</span>
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/30">
+                  <Smartphone className="h-4 w-4" aria-hidden="true" />
+                </span>
+              </button>
+            )}
+          </div>
+          <p id={`${appId}-android-note`} className="mt-3 text-[11.5px] leading-5 text-soft-mute">
+            {app.release.publicApk
+              ? `Free download. Protected features need a Pro subscription: ${describePricing(app)}.`
+              : `The Android app is in internal testing. The download will be free; protected features will need a Pro subscription: ${describePricing(app)}.`}
+          </p>
+        </div>
       </article>
     </motion.div>
   );
@@ -347,6 +391,7 @@ export function Verticals() {
             index={0}
             tone="care"
             name="MobilityCare"
+            appId="mobilitycare"
             descriptor="Clinical movement intelligence"
             headline="Clinical mobility"
             headlineAccent="intelligence."
@@ -370,6 +415,7 @@ export function Verticals() {
             index={1}
             tone="secure"
             name="SecureVision"
+            appId="securevision"
             descriptor="Privacy-aware spatial intelligence"
             headline="Privacy-aware"
             headlineAccent="movement intelligence."

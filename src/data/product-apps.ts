@@ -73,6 +73,19 @@ export interface ProductApp {
   readonly screens: readonly AppScreen[];
   /** Optional web demonstration on this site — a demonstration, never "the app". */
   readonly webDemo?: { readonly label: string; readonly href: string; readonly note: string };
+  /** Where the Android download page will live once a verified release exists. */
+  readonly downloadHref: string;
+  /**
+   * The Pro subscription as the founder set it (2026-10-14). Shown as
+   * information only: the website takes no payment, and in-app purchases run
+   * through the store in sandbox until live billing is approved. Yearly is
+   * monthly x 12 less the annual discount, rounded to the rupee.
+   */
+  readonly pricing: {
+    readonly currency: "INR";
+    readonly monthly: number;
+    readonly annualDiscount: number;
+  };
   readonly release: {
     readonly status: string;
     readonly detail: string;
@@ -119,6 +132,8 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     headline: ["A walk, read on", "the phone that filmed it."],
     lead:
       "GaitAI MobilityCare is a native Android app. Record or upload a 10–20 second walking video and it returns cadence and step-time balance in minutes, with every frame analysed on the device. These are the app's real screens, running on Android.",
+    downloadHref: "/mobilitycare/download/",
+    pricing: { currency: "INR", monthly: 999, annualDiscount: 0.2 },
     tabs: ["Home", "Analyze", "Progress", "Reports", "Profile"],
     analyses: [
       {
@@ -225,6 +240,8 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     headline: ["Count a space.", "Keep its people anonymous."],
     lead:
       "GaitAI SecureVision is a native Android app for spaces you are authorised to analyse. Upload a short video and an on-device person detector counts who it can see, frame by frame, or draw a zone and track entries, occupancy and dwell. It detects people as boxes and identifies no one. These are the app's real screens.",
+    downloadHref: "/securevision/download/",
+    pricing: { currency: "INR", monthly: 1499, annualDiscount: 0.2 },
     tabs: ["Home", "Analyze", "Activity", "Reports", "Profile"],
     analyses: [
       {
@@ -319,3 +336,12 @@ export const productApps: Record<ProductAppId, ProductApp> = {
 };
 
 export const productAppList = Object.values(productApps);
+
+const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+
+/** "₹999/month or ₹9,590/year (20% annual saving)". */
+export function describePricing(app: ProductApp): string {
+  const { monthly, annualDiscount } = app.pricing;
+  const yearly = Math.round(monthly * 12 * (1 - annualDiscount));
+  return `${inr.format(monthly)}/month or ${inr.format(yearly)}/year (${Math.round(annualDiscount * 100)}% annual saving)`;
+}

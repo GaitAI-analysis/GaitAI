@@ -940,8 +940,7 @@
     overflow-wrap: normal;
   }
 
-  .flagship-panel > a {
-    min-height: 3.25rem;
+  .flagship-panel > .flagship-actions {
     margin-top: 1rem;
     padding-top: 1rem;
   }

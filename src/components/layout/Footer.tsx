@@ -1,7 +1,7 @@
 import siteFacts from "@/data/generated/site-facts.json";
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
-import { Github, Linkedin, Mail, Youtube } from "lucide-react";
+import { Github, Instagram, Linkedin, Mail, Youtube } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { FooterGroup } from "./FooterGroup";
 import { ctas } from "@/data/content";
@@ -101,6 +101,9 @@ const socials: Array<{
   { icon: XMark, href: socialProfiles.x, label: "GaitAI on X" },
   /* The talks and lab videos: after the feed, before the code. */
   { icon: Youtube, href: socialProfiles.youtube, label: "GaitAI Research Labs on YouTube" },
+  /* The second feed, beside the first. lucide's `Instagram` is the plain
+     rounded-square glyph, which sits at the same weight as its neighbours. */
+  { icon: Instagram, href: socialProfiles.instagram, label: "GaitAI on Instagram" },
   /* Was `github.com/gaitai` — a stranger's account. See the note on
      `socialProfiles` for what it is now and why. */
   { icon: Github, href: socialProfiles.github, label: "GaitAI on GitHub" },

@@ -113,6 +113,11 @@ export const socialProfiles = {
      ("Gait AI"), whose canonical handle is `@GaitAI-Labs` — so that is the
      URL published. */
   youtube: "https://www.youtube.com/@GaitAI-Labs",
+  /* The company's Instagram, `@gait.analysis`. Verified 2026-10-13: the
+     profile resolves (HTTP 200) and it is the account the company designated
+     as official. A brand account, not a person's — see NEVER PUBLISH A
+     PERSON'S MAILBOX above; the same rule applies to profiles. */
+  instagram: "https://www.instagram.com/gait.analysis/",
   github: "https://github.com/GaitAI-analysis",
 } as const;
 

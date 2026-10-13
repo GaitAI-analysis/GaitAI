@@ -90,6 +90,7 @@ export default function ProductsPage() {
                 signals to see the best-fit modules.
               </p>
               <p className="mt-4 text-sm leading-relaxed text-soft-gray">Looking for personal or family health records? <Link href="/gaitai-care/" className="underline underline-offset-4">Explore GaitAI Care</Link>, our standalone health-record organiser.</p>
+              <p className="mt-2 text-sm leading-relaxed text-soft-gray">MobilityCare and SecureVision also run as native Android apps, in internal testing today: see the <Link href="/mobilitycare/#app" className="underline underline-offset-4">MobilityCare app</Link> and the <Link href="/securevision/#app" className="underline underline-offset-4">SecureVision app</Link>.</p>
             </div>
 
             <HeroMotionField />

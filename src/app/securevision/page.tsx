@@ -17,6 +17,7 @@ import { ctas } from "@/data/content";
 import { productOverview } from "@/data/product-details";
 import { InPlainTerms, type PlainTerm } from "@/components/sections/InPlainTerms";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { AppShowcase } from "@/components/apps/AppShowcase";
 import { SITE_URL, SOCIAL_IMAGES, organizationRef, socialCard } from "@/lib/seo";
 
 /* The title and description name the capability in the buyer's words —
@@ -254,6 +255,10 @@ export default function SecureVisionPage() {
               <Link href="/#contact" className="btn-ghost">
                 Request enterprise consultation
               </Link>
+              <Link href="#app" className="btn-ghost">
+                Explore the Android app
+                <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
+              </Link>
             </div>
 
             {/* The illustrative-values pill that used to sit under the CTAs, on
@@ -414,6 +419,13 @@ export default function SecureVisionPage() {
           </div>
         </div>
       </section>
+
+      {/* THE SECUREVISION APP — CrowdSense and Zone & occupancy on a phone,
+          after the capability groups and before PrivacyGuard: the modules
+          above are the catalogue, this is the one that runs on a device
+          today, and PrivacyGuard below is the posture it inherits
+          (data/product-apps.ts). */}
+      <AppShowcase app="securevision" />
 
       {/* PRIVACYGUARD DEEP BLOCK */}
       {privacy && (

@@ -1,0 +1,129 @@
+import Link from "next/link";
+import { georama } from "@/components/care/Care";
+import { ctas } from "@/data/content";
+import { androidAccessMailto, productApps, type ProductAppId } from "@/data/product-apps";
+import { AppWalkthrough } from "./AppWalkthrough";
+import styles from "./appShowcase.module.css";
+
+/**
+ * "EXPLORE THE APP" — the Android app of a product family, shown on that
+ * family's page with its real screens.
+ *
+ * The section makes three promises and keeps all of them with data from
+ * data/product-apps.ts: the screens are the app's own; the capabilities
+ * listed are the ones that run on the device today, with what is coming
+ * marked as coming; and the release status is stated as it is. There is no
+ * download button because there is no public release — the visitor can
+ * request access, request a demo, and (for MobilityCare) try the site's
+ * browser demonstration, which is labelled as a demonstration.
+ *
+ * Georama, warm paper, navy, graphite and one gold accent, like the GaitAI
+ * Care surfaces: the apps are products, and this is the product voice.
+ */
+export function AppShowcase({ app: appId }: { app: ProductAppId }) {
+  const app = productApps[appId];
+  const titleId = `${appId}-app-title`;
+
+  return (
+    <section
+      id={app.anchor}
+      className={`${styles.section} ${styles.theme} ${georama.variable}`}
+      aria-labelledby={titleId}
+      data-app-showcase={appId}
+    >
+      <div className={styles.container}>
+        <div className={styles.head}>
+          <div>
+            <p className={styles.eyebrow}>{app.eyebrow}</p>
+            <h2 id={titleId}>
+              {app.headline[0]}
+              <br />
+              <span>{app.headline[1]}</span>
+            </h2>
+            <p className={styles.lead}>{app.lead}</p>
+          </div>
+          <div className={styles.aside}>
+            <span className={styles.status}>{app.release.status.toUpperCase()} · ANDROID</span>
+            <div className={styles.actions}>
+              <Link href={ctas.demo.href} className={styles.primary}>
+                {ctas.demo.label}
+              </Link>
+              <a href={androidAccessMailto(app)} className={styles.secondary}>
+                Request Android access <span aria-hidden="true">→</span>
+              </a>
+            </div>
+            {app.webDemo && (
+              <Link href={app.webDemo.href} className={styles.textLink}>
+                {app.webDemo.label} <span aria-hidden="true">→</span>
+              </Link>
+            )}
+            {app.webDemo && <p className={styles.small}>{app.webDemo.note}</p>}
+          </div>
+        </div>
+
+        <AppWalkthrough app={app.id} name={app.name} screens={app.screens} />
+
+        <div className={styles.facts}>
+          <div className={styles.fact}>
+            <h3>What it analyses today</h3>
+            <ul>
+              {app.analyses.map((a) => (
+                <li key={a.name}>
+                  <strong>{a.name}</strong>
+                  <em>{a.input}.</em>
+                  <br />
+                  <span className={styles.tier}>Free</span>
+                  {a.free}.
+                  <br />
+                  <span className={styles.tier}>Pro</span>
+                  {a.pro}.
+                </li>
+              ))}
+            </ul>
+            <p className={styles.soon}>
+              <strong>Coming soon, visible but not startable:</strong> {app.comingSoon.join(" · ")}.
+            </p>
+          </div>
+
+          <div className={styles.fact}>
+            <h3>Privacy, in the app</h3>
+            <ul>
+              {app.privacy.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
+          </div>
+
+          <div className={`${styles.fact} ${styles.release}`}>
+            <h3>Release status</h3>
+            <p>{app.release.detail}</p>
+            <div className={styles.actions}>
+              <a href={androidAccessMailto(app)} className={styles.primary}>
+                Request Android access
+              </a>
+            </div>
+            <p className={styles.small}>
+              Access is arranged individually for pilots and evaluations. Nothing here is distributed as a public release.
+            </p>
+          </div>
+        </div>
+
+        <div className={styles.ribbon}>
+          <span>
+            <strong>{app.name}</strong> · {app.package}
+          </span>
+          <span>
+            Version <strong>{app.version}</strong> (build {app.build})
+          </span>
+          <span>
+            Requires <strong>{app.android}</strong>
+          </span>
+          <span>
+            Native Android app · analysis on the device
+          </span>
+        </div>
+        <p className={styles.honesty}>{app.honesty}</p>
+      </div>
+    </section>
+  );
+}

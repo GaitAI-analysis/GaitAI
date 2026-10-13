@@ -14,6 +14,7 @@ import { MovementIntelligenceSection } from "@/components/sections/MovementIntel
 import { MobilityTimeMachine } from "@/components/analytics/MobilityTimeMachine";
 import { MovementXRay } from "@/components/visuals/MovementXRay";
 import { GaitAICareIntro } from "@/components/sections/GaitAICareIntro";
+import { AppShowcase } from "@/components/apps/AppShowcase";
 import {
   industryUseCases,
   mobilityProducts,
@@ -258,6 +259,13 @@ export default function MobilityCarePage() {
           </div>
         </section>
       )}
+
+      {/* THE MOBILITYCARE APP — WalkScan running on a phone. Sits directly
+          under the WalkScan flagship because that section describes the
+          analysis and this one shows it on the device that films the walk:
+          the app's real screens, what runs today, and its release status,
+          stated plainly (data/product-apps.ts). */}
+      <AppShowcase app="mobilitycare" />
 
       {/* MOVEMENT X-RAY
           Sits under WalkScan because that section shows the OUTPUT — a

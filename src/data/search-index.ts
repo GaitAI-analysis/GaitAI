@@ -25,6 +25,7 @@
 
 import { allProducts, industryUseCases } from "@/data/products";
 import { gaitaiCare } from "@/data/gaitai-care";
+import { productAppList } from "@/data/product-apps";
 import {
   TALK_KIND_LABEL,
   talkRecords,
@@ -128,6 +129,18 @@ const norm = (parts: (string | undefined)[]) =>
 // that never moved. The visible title is the current name only, and the
 // current name is the Movement Intelligence Lab again.
 const destinationEntries: SearchEntry[] = [
+  // The two Android apps, as places on their product pages: a reader who
+  // searches "MobilityCare app" or "SecureVision Android" lands on the
+  // walkthrough, not on the module catalogue above it.
+  ...productAppList.map<SearchEntry>((app) => ({
+    id: `product:${app.id}-app`,
+    group: "product",
+    title: `${app.name} · Android app`,
+    detail: app.lead.split(". ")[0] + ".",
+    meta: `Android · ${app.release.status}`,
+    href: `${app.productHref}#${app.anchor}`,
+    haystack: norm([app.name, "android app apk phone mobile native walkthrough screenshots", app.analyses.map((a) => a.name).join(" "), app.release.status]),
+  })),
   {
     id: "product:gaitai-care",
     group: "product",

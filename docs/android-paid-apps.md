@@ -22,6 +22,26 @@ MobilityCare ₹999/month or ₹9,590.40/year; SecureVision ₹1,499/month or
 unconfirmed — see `TAX_MODE` in `billing/wrangler.jsonc` and `tax` in
 `src/data/subscriptions.ts`.
 
+## Release candidates built 2026-10-14 (not published)
+
+Both signed with the GaitAI release key (CN=GaitAI Upload Key), version
+0.2.0 (build 3), production Worker baked in, staged as a **draft** GitHub
+release (`android-0.2.0-rc1`) so nothing is public until payments are live.
+
+| APK | Bytes | SHA-256 |
+| --- | --- | --- |
+| GaitAI-MobilityCare-release.apk | 96 573 864 | `5b6ceb799390e5b112b920b139788d451dee9bb661979e60721875dcf7fbbb1e` |
+| GaitAI-SecureVision-release.apk | 96 610 520 | `9f1a47c2da3aa591ab3ffbb6f257db1416c03b4c4f08486b8ad63c1f9540b0ac` |
+
+Tested on the Android 16 emulator with equivalent builds pointed at the
+sandbox Worker (26/26 scenario steps): sign-in required, locked screens and
+deep links, 402 before payment, hosted checkout, unlock after a verified
+(synthetic) payment, SecureVision stays locked for a MobilityCare
+subscriber, cancel at period end, halted → locked, renewal → restored,
+reinstall → restored from the ledger, sign-out. The production RC on the
+same emulator: locked, prices shown, checkout refused with
+`503 payments_not_activated`, sandbox routes 404.
+
 ## Publishing an APK (release gate)
 
 1. Build with the release key: `powershell -File mobile\scripts\win-build.ps1 <app> assembleRelease -Sign -OutDir <dir>` **without** `GAITAI_API_BASE_URL` (production Worker).

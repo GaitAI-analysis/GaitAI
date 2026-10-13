@@ -1,7 +1,7 @@
 {
   "generatedAt": "2026-10-13",
   "counts": {
-    "page": 66,
+    "page": 67,
     "product": 120,
     "use-case": 36,
     "publication": 9,
@@ -13036,7 +13036,7 @@
       "family": "platform",
       "category": "Policy page",
       "summary": "Terms covering use of the GaitAI website: informational content, demo requests, intellectual property, acceptable use, and the basis on which product information and demo visuals are published.",
-      "content": "Legal · Terms Terms of use These terms cover your use of this website. Commercial engagements — pilots, evaluations and deployments — are governed by a separate written agreement with the contracting entity for that engagement; nothing on this site creates one. Informational use This site exists to explain what GaitAI is and what its products are designed to do. Product pages describe intended capability. They are not a contractual specification, and capabilities may change as the platform develops. Dashboards, reports, consoles and console footage shown on this site use illustrative example values, labelled as such . They are design demonstrations, not measured results, not output from a real assessment, and not data from any real person or organisation. The Movement Lab analyser The Movement Lab lets you run a pose model over a clip of your own. It runs in your browser and uploads nothing — see the Privacy Policy for how the file is handled. What it produces is a movement abstraction and a set of measured, frame-relative descriptors. It is not a gait assessment: it does not calculate cadence, stride length, walking speed, symmetry, a mobility or balance score, or any clinical or risk measure, and nothing it shows may be used for a clinical, safety or employment decision about anyone. Only analyse footage you have the right to analyse. Do not upload video of other people without a lawful basis and their agreement where one is required, and do not upload health, clinical or confidential material. Results depend on what the model can see, so a clip may yield partial readings or none at all; the analyser states which case applies rather than filling the gap with an estimate. No medical or professional advice Nothing on this site is medical, clinical, diagnostic, legal or\nSections: Informational use · The Movement Lab analyser · No medical or professional advice · Demo and contact requests · Intellectual property · Acceptable use · Responsible-use conditions · Third-party links and services · Availability and accuracy",
+      "content": "Legal · Terms Terms of use These terms cover your use of this website. Commercial engagements — pilots, evaluations and deployments — are governed by a separate written agreement with the contracting entity for that engagement; nothing on this site creates one. Informational use This site exists to explain what GaitAI is and what its products are designed to do. Product pages describe intended capability. They are not a contractual specification, and capabilities may change as the platform develops. Dashboards, reports, consoles and console footage shown on this site use illustrative example values, labelled as such . They are design demonstrations, not measured results, not output from a real assessment, and not data from any real person or organisation. The Movement Lab analyser The Movement Lab lets you run a pose model over a clip of your own. It runs in your browser and uploads nothing — see the Privacy Policy for how the file is handled. What it produces is a movement abstraction and a set of measured, frame-relative descriptors. It is not a gait assessment: it does not calculate cadence, stride length, walking speed, symmetry, a mobility or balance score, or any clinical or risk measure, and nothing it shows may be used for a clinical, safety or employment decision about anyone. Only analyse footage you have the right to analyse. Do not upload video of other people without a lawful basis and their agreement where one is required, and do not upload health, clinical or confidential material. Results depend on what the model can see, so a clip may yield partial readings or none at all; the analyser states which case applies rather than filling the gap with an estimate. No medical or professional advice Nothing on this site is medical, clinical, diagnostic, legal or\nSections: Informational use · The Movement Lab analyser · No medical or professional advice · Demo and contact requests · Intellectual property · Acceptable use · Responsible-use conditions · Third-party links and services · Availability and accuracy · Android app subscriptions, billing and cancellation",
       "keywords": [
         "terms of use",
         "terms covering use of the gaitai website: informational content, demo requests, intellectual property, acceptable use, and the basis on which product information and demo visuals are published.",
@@ -13048,7 +13048,8 @@
         "acceptable use",
         "responsible-use conditions",
         "third-party links and services",
-        "availability and accuracy"
+        "availability and accuracy",
+        "android app subscriptions, billing and cancellation"
       ],
       "relatedProducts": [],
       "relatedResearch": [],
@@ -13260,10 +13261,34 @@
       "family": "platform",
       "category": "Policy page",
       "summary": "The site is provided as-is and as-available. We don’t guarantee uninterrupted access, and content may be updated or corrected at any time.",
-      "content": "Page: Terms of use\nSection: Availability and accuracy\nThe site is provided as-is and as-available.\nWe don’t guarantee uninterrupted access, and content may be updated or corrected at any time.\nWe keep it accurate and fix errors when we find them, but we don’t warrant that every description is complete or current.\nGaitAI claims no certification, regulatory clearance or measured performance figure anywhere on this site.\nQuestions about these terms, or about the agreement that would govern a pilot: .\nThe contact form is the other way through.",
+      "content": "Page: Terms of use\nSection: Availability and accuracy\nThe site is provided as-is and as-available.\nWe don’t guarantee uninterrupted access, and content may be updated or corrected at any time.\nWe keep it accurate and fix errors when we find them, but we don’t warrant that every description is complete or current.\nGaitAI claims no certification, regulatory clearance or measured performance figure anywhere on this site.",
       "keywords": [
         "terms of use",
         "availability and accuracy"
+      ],
+      "relatedProducts": [],
+      "relatedResearch": [],
+      "parentId": "page:/legal/terms",
+      "topics": [
+        "privacy",
+        "governance",
+        "trust"
+      ]
+    },
+    {
+      "id": "page:/legal/terms#android-app-subscriptions-billing-and-cancellation",
+      "type": "page",
+      "title": "Terms of use",
+      "sectionTitle": "Android app subscriptions, billing and cancellation",
+      "slug": "terms",
+      "url": "/legal/terms/",
+      "family": "platform",
+      "category": "Policy page",
+      "summary": "The GaitAI MobilityCare and GaitAI SecureVision Android apps are free to download and need an active, paid subscription on a GaitAI account to analyse video, keep history or produce reports.",
+      "content": "Page: Terms of use\nSection: Android app subscriptions, billing and cancellation\nThe GaitAI MobilityCare and GaitAI SecureVision Android apps are free to download and need an active, paid subscription on a GaitAI account to analyse video, keep history or produce reports.\nEach product is a separate subscription: a MobilityCare plan does not unlock SecureVision, and the reverse.\nPlans are monthly or annual, in Indian rupees, at the prices shown on the product pages before you pay.\nSubscriptions are recurring and renew automatically at the end of each billing period until cancelled.\nYou can cancel at any time from Manage subscription in the app or at gaitai.in/account ; no further charges are taken and access continues until the end of the period already paid for.\nPayments are processed by Razorpay; GaitAI never sees or stores card numbers.\nIf a renewal payment fails, access continues for a short grace period while the payment is retried, then the subscription stops.\nWhether the listed prices include GST is confirmed on the product pages and at checkout before you pay; a tax invoice is issued for every payment.\nRefund requests go to support@gaitai.in ; a refunded payment ends access for the period it covered.\nDeleting your account cancels any subscription immediately.\nQuestions about these terms, or about the agreement that would govern a pilot: .\nThe contact form is the other way through.",
+      "keywords": [
+        "terms of use",
+        "android app subscriptions, billing and cancellation"
       ],
       "relatedProducts": [],
       "relatedResearch": [],

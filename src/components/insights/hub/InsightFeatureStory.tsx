@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { getInsightBySlug, readingMinutes } from "@/data/insights";
-import { formatPublicationDate, topicLabel, type PublicationStory } from "@/lib/publication";
+import { formatPublicationDate, publicationTypeLabel, topicLabel, type PublicationStory } from "@/lib/publication";
+import { assetPath } from "@/lib/paths";
+import { isSafeMediaUrl } from "@/lib/media";
+import publication from "../publication.module.css";
 import { formatCount } from "@/lib/article-stats";
 import { markNextStoryVia, trackInsightEvent } from "@/lib/insight-events";
 import { seriesMark } from "@/data/insight-series";
@@ -44,6 +47,7 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
   const topic = story.topics[0];
   const artwork = story.coverArtwork;
   const mark = seriesMark(story.series, story.seriesOrder);
+  const isLaunch = story.type === "launch";
 
   return (
     <article
@@ -66,10 +70,30 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
             <span className="sr-only">{artwork.alt}</span>
           </>
         )}
+        {/* An announcement's cover is a real screenshot of the product it
+            announces — the same image its own page shows — so the cover
+            story carries the raster and the scrim the ordinary cards use. */}
+        {artwork.kind === "image" && isSafeMediaUrl(artwork.src) && (
+          <>
+            <img
+              src={assetPath(artwork.src)}
+              alt={artwork.alt}
+              width={artwork.width}
+              height={artwork.height}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              sizes="(min-width: 1024px) 60vw, 100vw"
+              className={publication.coverImage}
+            />
+            <span aria-hidden="true" className={journal.cardMediaScrim} />
+          </>
+        )}
       </div>
 
       <div className={`${journal.cardBody} ${styles.featureBody} ${styles.depth}`}>
         <p className={styles.featureRow}>
+          {isLaunch && <span className={styles.featureStep}>{publicationTypeLabel(story.type)}</span>}
           {mark && (
             <span className={styles.featureStep}>
               {mark.label} {mark.number}
@@ -95,7 +119,7 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
         <p className={styles.featureTeaser}>{story.description}</p>
 
         <span className={`${journal.cardCta} ${styles.featureCta}`}>
-          Explore story
+          {isLaunch ? "Read the announcement" : "Explore story"}
           <span aria-hidden="true" className={journal.cardCtaArrow}>
             →
           </span>

@@ -1,6 +1,7 @@
 // Server-only publication adapters. Firestore's build mirror and the five
 // structured editorial essays meet here; pages never maintain parallel lists.
 
+import { announcements } from "@/data/announcements";
 import { insightArticles, insightHref, type InsightArticle } from "@/data/insights";
 import type { Post } from "@/lib/posts";
 import { readPublishedPosts } from "@/lib/posts-store";
@@ -134,6 +135,7 @@ export function postToPublicationStory(post: Post): PublicationStory {
 export async function readPublicationStories(): Promise<PublicationStory[]> {
   const posts = await readPublishedPosts();
   const stories = [
+    ...announcements,
     ...insightArticles.map(insightToPublicationStory),
     ...posts.map(postToPublicationStory),
   ];

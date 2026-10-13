@@ -22,7 +22,12 @@ export interface PublicationStory {
   id: string;
   slug: string;
   href: string;
-  source: "editorial" | "newsroom";
+  /**
+   * Where the story comes from: a structured editorial essay, a Firestore
+   * newsroom post, or an official announcement whose page lives under the
+   * product it announces (data/announcements.ts).
+   */
+  source: "editorial" | "newsroom" | "announcement";
   title: string;
   description: string;
   date: string;
@@ -53,6 +58,7 @@ const TYPE_LABELS: Record<string, { singular: string; plural: string }> = {
   engineering: { singular: "Engineering note", plural: "Engineering notes" },
   update: { singular: "GaitAI update", plural: "GaitAI updates" },
   announcement: { singular: "Announcement", plural: "Announcements" },
+  launch: { singular: "Product launch", plural: "Product launches" },
 };
 
 export function normalizeTopicSlug(value: string): string {

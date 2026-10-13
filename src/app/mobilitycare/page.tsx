@@ -15,6 +15,7 @@ import { MobilityTimeMachine } from "@/components/analytics/MobilityTimeMachine"
 import { MovementXRay } from "@/components/visuals/MovementXRay";
 import { GaitAICareIntro } from "@/components/sections/GaitAICareIntro";
 import { AppShowcase } from "@/components/apps/AppShowcase";
+import { SubscriptionPlans } from "@/components/apps/SubscriptionPlans";
 import {
   industryUseCases,
   mobilityProducts,
@@ -266,6 +267,10 @@ export default function MobilityCarePage() {
           the app's real screens, what runs today, and its release status,
           stated plainly (data/product-apps.ts). */}
       <AppShowcase app="mobilitycare" />
+      {/* SUBSCRIPTION PLANS — the app above is a paid product: free to
+          download, subscription to analyse. Prices and disclosures from
+          data/subscriptions.ts; the account page does the rest. */}
+      <SubscriptionPlans product="mobilitycare" />
 
       {/* MOVEMENT X-RAY
           Sits under WalkScan because that section shows the OUTPUT — a

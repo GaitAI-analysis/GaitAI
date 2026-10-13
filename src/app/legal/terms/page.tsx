@@ -198,6 +198,38 @@ export default function TermsPage() {
         performance figure anywhere on this site.
       </p>
 
+      <h2 id="subscriptions" className="mt-12 font-display text-xl text-soft-white">
+        Android app subscriptions, billing and cancellation
+      </h2>
+      <p className="mt-4 text-soft-gray">
+        The GaitAI MobilityCare and GaitAI SecureVision Android apps are free
+        to download and need an active, paid subscription on a GaitAI account
+        to analyse video, keep history or produce reports. Each product is a
+        separate subscription: a MobilityCare plan does not unlock
+        SecureVision, and the reverse. Plans are monthly or annual, in Indian
+        rupees, at the prices shown on the product pages before you pay.
+      </p>
+      <p className="mt-4 text-soft-gray">
+        Subscriptions are recurring and renew automatically at the end of each
+        billing period until cancelled. You can cancel at any time from Manage
+        subscription in the app or at{" "}
+        <Link className="text-cyan-300 transition-colors hover:text-cyan-200" href="/account/">
+          gaitai.in/account
+        </Link>
+        ; no further charges are taken and access continues until the end of
+        the period already paid for. Payments are processed by Razorpay; GaitAI
+        never sees or stores card numbers. If a renewal payment fails, access
+        continues for a short grace period while the payment is retried, then
+        the subscription stops. Whether the listed prices include GST is
+        confirmed on the product pages and at checkout before you pay; a tax
+        invoice is issued for every payment. Refund requests go to{" "}
+        <a className="text-cyan-300 transition-colors hover:text-cyan-200" href="mailto:support@gaitai.in">
+          support@gaitai.in
+        </a>
+        ; a refunded payment ends access for the period it covered. Deleting
+        your account cancels any subscription immediately.
+      </p>
+
       <p className="mt-10 text-soft-gray">
         Questions about these terms, or about the agreement that would govern a
         pilot:{" "}

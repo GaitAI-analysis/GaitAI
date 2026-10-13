@@ -46,6 +46,5 @@
     "node_modules",
     "worker",
     "tmp",
-    "out"
-  ]
+    "out", "billing"]
 }

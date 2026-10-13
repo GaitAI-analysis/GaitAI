@@ -303,6 +303,7 @@ async function main() {
   const staticRoutes = new Set([
     "/", "/products", "/mobilitycare", "/securevision", "/use-cases",
     "/gaitai-care", "/gaitai-care/download", "/gaitai-care/launch",
+    "/mobilitycare/android", "/securevision/android", "/account",
     "/gaitscape", "/research", "/research/evidence", "/research/talks",
     "/publications",
     "/insights", "/investors", "/movement-lab", "/labs", "/labs/dataset",

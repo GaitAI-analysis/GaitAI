@@ -1,0 +1,25 @@
+{
+  "name": "gaitai-billing-worker",
+  "description": "GaitAI subscriptions and entitlements — the backend-authoritative half of the paid MobilityCare and SecureVision Android apps: Firebase-authenticated accounts, Razorpay subscription checkout and webhooks, a D1 ledger, signed entitlement grants, and a sealed sandbox mode for tests.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev -c wrangler.sandbox.jsonc --port 8790 --ip 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "wrangler deploy --dry-run --outdir dist",
+    "types": "wrangler types",
+    "migrate:local": "wrangler d1 migrations apply gaitai-billing --local",
+    "migrate:sandbox": "wrangler d1 migrations apply gaitai-billing-sandbox -c wrangler.sandbox.jsonc --remote",
+    "migrate:prod": "wrangler d1 migrations apply gaitai-billing --remote",
+    "deploy:sandbox": "vitest run && wrangler deploy -c wrangler.sandbox.jsonc",
+    "deploy": "vitest run && wrangler deploy",
+    "plans:sync": "node scripts/razorpay-sync-plans.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "~0.15.0",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.0",
+    "wrangler": "~4.86.0"
+  }
+}

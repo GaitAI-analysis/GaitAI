@@ -1,0 +1,23 @@
+/* SUBSCRIPTION PLANS — pricing cards and the facts under them.
+   Inherits the app-showcase tokens (.theme) so both sections read as one
+   product surface: paper, navy ink, graphite, one gold accent. */
+.section{border-top:0}
+.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin:0 0 40px}
+.plan{display:flex;flex-direction:column;gap:14px;padding:30px;background:var(--app-surface);border:1px solid var(--app-line);border-radius:14px}
+.highlight{border-color:var(--app-gold);box-shadow:0 24px 60px -40px #00000040}
+.planHead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.planHead h3{font-size:22px;font-weight:500;letter-spacing:-.02em;margin:0}
+.badge{display:inline-block;border:1px solid var(--app-gold);border-radius:30px;padding:5px 11px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--app-gold)}
+.price{font-size:clamp(34px,3.4vw,44px);font-weight:500;letter-spacing:-.04em;line-height:1.05;margin:4px 0 0}
+.price span{font-size:15px;font-weight:400;letter-spacing:0;color:var(--app-muted)}
+.perMonth{font-size:13px;line-height:1.7;color:var(--app-muted);margin:0}
+.features{list-style:none;padding:0;margin:6px 0 0;display:grid;gap:10px;font-size:14px;line-height:1.7;color:var(--app-muted)}
+.features li{padding-left:22px;position:relative}
+.features li::before{content:"";position:absolute;left:0;top:11px;width:10px;height:10px;border-radius:50%;background:var(--app-gold)}
+.features strong{color:var(--app-ink);font-weight:500}
+.renews{font-size:12px;line-height:1.6;color:var(--app-muted);margin:auto 0 0;padding-top:10px}
+.terms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px;padding:30px 0;border-block:1px solid var(--app-line);margin-bottom:28px}
+.terms h3{font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--app-gold);margin:0 0 10px}
+.terms p{font-size:13.5px;line-height:1.75;color:var(--app-muted);margin:0}
+@media(max-width:900px){.plans{grid-template-columns:1fr}.terms{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.terms{grid-template-columns:1fr;gap:20px}.plan{padding:22px}}

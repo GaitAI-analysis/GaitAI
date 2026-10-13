@@ -17,13 +17,13 @@ import { DEMO_EMAIL } from "./contact";
  *                               engine READY; the results shown are the app's
  *                               own history from earlier test clips
  *
- * RELEASE STATUS, STATED PLAINLY. The only builds that exist are a
- * debug-signed development APK and an upload-key-signed App Bundle meant for
- * Google Play internal testing. Neither is a public release: nothing is on
- * Google Play, there is no signed release APK, and in-app subscriptions are
- * not configured. So the website offers a walkthrough and a request for
- * access — never a download — until `release.publicApk` is set after a
- * verified, approved release. The page fails closed.
+ * RELEASE STATUS, STATED PLAINLY. Version 0.2.0 (build 3) is the paid,
+ * subscription-gated build: a GaitAI account is required, every analysis asks
+ * the billing Worker for a grant, and nothing functional runs without an
+ * active subscription. The release APKs are signed with the GaitAI release
+ * key and distributed from gaitai.in — NOT Google Play — once payments are
+ * activated. Until `release.publicApk` is set after the release checks pass,
+ * the download pages say "not yet available" and link nothing. Fail closed.
  *
  * WORDING GUARDRAILS, from the apps' own store-listing drafts: movement
  * insight, gait metric, step-time balance, count, occupancy, estimate. Never:
@@ -47,8 +47,8 @@ export interface AppScreen {
 export interface AppAnalysis {
   readonly name: string;
   readonly input: string;
-  readonly free: string;
-  readonly pro: string;
+  /** What the subscription includes for this analysis. There is no free tier: every analysis needs an active subscription. */
+  readonly included: string;
 }
 
 export interface ProductApp {
@@ -91,6 +91,12 @@ export interface ProductApp {
     readonly detail: string;
     /** Set only after a verified, approved public release exists. */
     readonly publicApk: string | null;
+    /** The release build's version and build number (expo.version / android.versionCode). */
+    readonly version: string;
+    readonly build: number;
+    /** Exact size and SHA-256 of the published file; null until it is published. */
+    readonly bytes: number | null;
+    readonly sha256: string | null;
   };
 }
 
@@ -115,7 +121,8 @@ export function androidAccessMailto(app: ProductApp) {
 const SHARED_PRIVACY = [
   "Every analysis runs on the phone. No video is uploaded for processing.",
   "The analysed video is deleted after analysis unless you switch on “Keep analysed videos”.",
-  "No account is needed. Anonymous usage events are off by default.",
+  "A GaitAI account is required. Your email, subscription status and payment records are held by GaitAI and its payment provider to run the subscription; videos and measurements stay on the phone.",
+  "Anonymous usage events are off by default.",
 ] as const;
 
 export const productApps: Record<ProductAppId, ProductApp> = {
@@ -125,8 +132,8 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     productHref: "/mobilitycare/",
     anchor: "app",
     package: "in.gaitai.mobilitycare",
-    version: "0.1.1",
-    build: 2,
+    version: "0.2.0",
+    build: 3,
     android: "Android 7.0 or later",
     eyebrow: "Explore the MobilityCare app",
     headline: ["A walk, read on", "the phone that filmed it."],
@@ -139,20 +146,17 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       {
         name: "WalkScan",
         input: "10–20 s walking video, recorded or uploaded, side view preferred",
-        free: "Cadence (steps per minute) and step-time balance",
-        pro: "Step-time variability, stride regularity, trunk sway, left and right step time, the contact timeline, a quality report and the trend against previous scans",
+        included: "Cadence, step-time balance, step-time variability, stride regularity, trunk sway, left and right step time, the contact timeline, a quality report and the trend against previous scans",
       },
       {
         name: "RehabTrack",
         input: "Two or more of your own WalkScan sessions",
-        free: "Cadence change and balance change between a baseline and a new scan",
-        pro: "Metric-by-metric comparison, trend graph and report",
+        included: "Metric-by-metric comparison between a baseline and a new scan, trend graph and report",
       },
       {
         name: "Progress and reports",
         input: "Every scan kept on the phone",
-        free: "History, 7–90 day trends once two scans exist, and reports shared as text",
-        pro: "Full metrics and charts in every report",
+        included: "History, 7–90 day trends once two scans exist, full metrics and charts in every report, shared as text today",
       },
     ],
     comingSoon: ["Balance (still-standing sway)", "SportsMotion"],
@@ -170,7 +174,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
         id: "analyze",
         title: "Analyze",
         caption: "Only analyses that genuinely run are startable. WalkScan and RehabTrack are available; Balance and SportsMotion are marked Soon.",
-        alt: "MobilityCare Analyze tab listing WalkScan and RehabTrack as available, each with free and Pro metric tags, and Balance and SportsMotion under Coming soon.",
+        alt: "MobilityCare Analyze tab listing WalkScan and RehabTrack as available, each with metric tags, and Balance and SportsMotion under Coming soon.",
       },
       {
         id: "walkscan",
@@ -186,8 +190,8 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       },
       {
         id: "insights",
-        title: "Pro insights",
-        caption: "Six more measurements were computed from the same clip and are stored; their values unlock with Pro. Nothing is blurred — locked values are simply not shown.",
+        title: "Advanced insights",
+        caption: "Six more measurements computed from the same clip — step-time variability, stride regularity, trunk sway and the step times — all included with the subscription.",
         alt: "WalkScan advanced insights: step-time variability, stride regularity, trunk sway and left step time, each marked Pro with a lock and a one-line description.",
       },
       {
@@ -211,7 +215,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       {
         id: "privacy",
         title: "Privacy controls",
-        caption: "Analysed videos are deleted after analysis unless you keep them. Anonymous usage events are off. Nothing requires an account.",
+        caption: "Analysed videos are deleted after analysis unless you keep them. Anonymous usage events are off. Your account and subscription are managed from this tab.",
         alt: "Profile tab with a name field stored on the phone, a Free subscription card, and privacy toggles for Keep analysed videos and Share anonymous usage events, both off.",
       },
     ],
@@ -221,10 +225,14 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       note: "A browser demonstration of pose tracking on this site — not the app.",
     },
     release: {
-      status: "Internal development build",
+      status: "Release candidate · subscription required",
       detail:
-        "Version 0.1.1 (build 2) exists as a debug-signed development APK and an upload-signed App Bundle for Google Play internal testing. It is not on Google Play, there is no public download, and in-app subscriptions are not yet configured.",
+        "Version 0.2.0 (build 3) is the paid build: sign in with a GaitAI account, subscribe, and every analysis is unlocked after GaitAI confirms the payment. It is signed with the GaitAI release key for direct distribution from gaitai.in. The public download opens when payments are activated; until then nothing is linked here.",
       publicApk: null,
+      version: "0.2.0",
+      build: 3,
+      bytes: null,
+      sha256: null,
     },
   },
   securevision: {
@@ -233,8 +241,8 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     productHref: "/securevision/",
     anchor: "app",
     package: "in.gaitai.securevision",
-    version: "0.1.1",
-    build: 2,
+    version: "0.2.0",
+    build: 3,
     android: "Android 7.0 or later",
     eyebrow: "Explore the SecureVision app",
     headline: ["Count a space.", "Keep its people anonymous."],
@@ -247,20 +255,17 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       {
         name: "CrowdSense",
         input: "Uploaded video of a space you are authorised to analyse",
-        free: "Current, average and peak people visible to the detector",
-        pro: "Density timeline, per-frame counts, detection review and export",
+        included: "Current, average and peak people visible to the detector, the density timeline, per-frame counts, detection review and export",
       },
       {
         name: "Zone & occupancy",
         input: "The same video plus a zone you draw on its first frame",
-        free: "Total entries and current occupancy of the zone",
-        pro: "Event list with timestamps, occupancy timeline, mean dwell, total exits and export",
+        included: "Total entries and current occupancy of the zone, the event list with timestamps, occupancy timeline, mean dwell, total exits and export",
       },
       {
         name: "Activity and reports",
         input: "Every analysis kept on the phone",
-        free: "History over 7–90 days and reports shared as text",
-        pro: "Full metrics and charts in every report",
+        included: "History over 7–90 days, full metrics and charts in every report, shared as text today",
       },
     ],
     comingSoon: ["Motion analysis (where and when movement happens)"],
@@ -280,7 +285,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       {
         id: "analyze",
         title: "Analyze",
-        caption: "CrowdSense and Zone & occupancy are available with their free and Pro outputs listed. Motion analysis is marked Soon.",
+        caption: "CrowdSense and Zone & occupancy are available with their outputs listed. Motion analysis is marked Soon.",
         alt: "SecureVision Analyze tab listing CrowdSense and Zone and occupancy as available with metric tags, and Motion analysis under Coming soon.",
       },
       {
@@ -303,8 +308,8 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       },
       {
         id: "insights",
-        title: "Pro insights",
-        caption: "The event list, occupancy timeline, mean dwell and total exits were computed from the same clip and unlock with Pro.",
+        title: "Advanced insights",
+        caption: "The event list, occupancy timeline, mean dwell and total exits, computed from the same clip and included with the subscription.",
         alt: "Zone and occupancy advanced insights: event list, occupancy timeline, mean dwell and total exits, each marked Pro with a lock and a description.",
       },
       {
@@ -322,15 +327,19 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       {
         id: "privacy",
         title: "Privacy controls",
-        caption: "Analysed videos are deleted after analysis unless you keep them. Anonymous usage events are off. Nothing requires an account.",
+        caption: "Analysed videos are deleted after analysis unless you keep them. Anonymous usage events are off. Your account and subscription are managed from this tab.",
         alt: "Profile tab with a name field stored on the phone, a Free subscription card, and privacy toggles for Keep analysed videos and Share anonymous usage events, both off.",
       },
     ],
     release: {
-      status: "Internal development build",
+      status: "Release candidate · subscription required",
       detail:
-        "Version 0.1.1 (build 2) exists as a debug-signed development APK and an upload-signed App Bundle for Google Play internal testing. It is not on Google Play, there is no public download, and in-app subscriptions are not yet configured.",
+        "Version 0.2.0 (build 3) is the paid build: sign in with a GaitAI account, subscribe, and every analysis is unlocked after GaitAI confirms the payment. It is signed with the GaitAI release key for direct distribution from gaitai.in. The public download opens when payments are activated; until then nothing is linked here.",
       publicApk: null,
+      version: "0.2.0",
+      build: 3,
+      bytes: null,
+      sha256: null,
     },
   },
 };

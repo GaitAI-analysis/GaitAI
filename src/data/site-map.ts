@@ -154,7 +154,7 @@ export const siteMap: AtlasNode = {
           route: "/mobilitycare/",
           description: "Clinical movement intelligence",
           family: "mobilitycare",
-          children: productLeaves("mobilitycare"),
+          children: [...productLeaves("mobilitycare"), { id: "mobilitycare-android", label: "Android app", route: "/mobilitycare/android/", description: "Download, subscription and installation", family: "mobilitycare" }],
         },
         {
           id: "securevision",
@@ -162,7 +162,7 @@ export const siteMap: AtlasNode = {
           route: "/securevision/",
           description: "Privacy-aware movement intelligence for public space",
           family: "securevision",
-          children: productLeaves("securevision"),
+          children: [...productLeaves("securevision"), { id: "securevision-android", label: "Android app", route: "/securevision/android/", description: "Download, subscription and installation", family: "securevision" }],
         },
       ],
     },

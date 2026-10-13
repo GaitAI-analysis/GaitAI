@@ -1,0 +1,45 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // SANDBOX configuration: a separate Worker, a separate database, synthetic
+  // payments only. Nothing here can charge anyone. The mobile apps and the
+  // website point at this Worker while payments are being built and tested;
+  // the sandbox endpoints (/v1/sandbox/*) exist only when
+  // BILLING_PROVIDER=sandbox AND the Worker name ends in "-sandbox".
+  "name": "gaitai-billing-sandbox",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": true,
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gaitai-billing-sandbox",
+      "database_id": "f42aa95d-2334-47d3-ba22-557e0fdd1bbf",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "vars": {
+    "BILLING_PROVIDER": "sandbox",
+    "FIREBASE_PROJECT_ID": "gaitai-intelligence",
+    "ALLOWED_ORIGINS": "https://gaitai.in,https://www.gaitai.in,http://localhost:3000,http://localhost:3123",
+    "TAX_MODE": "unconfirmed",
+    "GST_RATE_PERCENT": "18",
+    "PENDING_GRACE_DAYS": "3",
+    "RENEWAL_GRACE_HOURS": "48",
+    "ENTITLEMENT_TOKEN_HOURS": "24",
+    "ANALYSIS_GRANT_MINUTES": "15",
+    "PUBLIC_BASE_URL": "https://gaitai-billing-sandbox.gait-ai-founder.workers.dev",
+    // QA accounts have no inbox; the production Worker ignores this and always requires verification.
+    "REQUIRE_VERIFIED_EMAIL": "false",
+    // Synthetic gateway credentials. They sign synthetic checkouts and
+    // webhooks exactly the way Razorpay would, so the verification code under
+    // test is the production code. They are not Razorpay keys.
+    "RAZORPAY_KEY_ID": "rzp_test_sandbox_stub",
+    "RAZORPAY_KEY_SECRET": "sandbox-key-secret-not-a-real-key",
+    "RAZORPAY_WEBHOOK_SECRET": "sandbox-webhook-secret-not-a-real-key"
+  }
+  // Secrets still required (set once with `wrangler secret put -c wrangler.sandbox.jsonc`):
+  //   ENTITLEMENT_PRIVATE_JWK, CHECKOUT_TOKEN_SECRET
+}

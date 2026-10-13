@@ -1,0 +1,49 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // PRODUCTION configuration. Payment collection is NOT active until the
+  // Razorpay secrets are set (`wrangler secret put RAZORPAY_KEY_ID` …) and
+  // BILLING_PROVIDER stays "razorpay". Without the secrets the Worker serves
+  // the catalogue and accounts but answers every checkout with
+  // 503 payments_not_activated — it never pretends to take money.
+  "name": "gaitai-billing",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+  "workers_dev": true,
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "gaitai-billing",
+      // Filled in by `wrangler d1 create gaitai-billing` on first deploy.
+      "database_id": "462d9d5e-7b06-4c90-87af-415ee5d4b554",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  "vars": {
+    // "razorpay" | "sandbox". The sandbox provider is refused on this name:
+    // see src/env.ts — a production Worker can never simulate a payment.
+    "BILLING_PROVIDER": "razorpay",
+    "FIREBASE_PROJECT_ID": "gaitai-intelligence",
+    "ALLOWED_ORIGINS": "https://gaitai.in,https://www.gaitai.in",
+    // "inclusive" | "exclusive" | "unconfirmed" — how the ₹ prices relate to
+    // GST. Left "unconfirmed" until the founder confirms; the UI says so.
+    "TAX_MODE": "unconfirmed",
+    "GST_RATE_PERCENT": "18",
+    // Days of continued access while Razorpay retries a failed renewal.
+    "PENDING_GRACE_DAYS": "3",
+    // Hours of access past current_end while a renewal webhook is in flight.
+    "RENEWAL_GRACE_HOURS": "48",
+    // Lifetime of the signed entitlement token the app may cache offline.
+    "ENTITLEMENT_TOKEN_HOURS": "24",
+    // Lifetime of a per-analysis grant.
+    "ANALYSIS_GRANT_MINUTES": "15",
+    "PUBLIC_BASE_URL": "https://gaitai-billing.gait-ai-founder.workers.dev"
+  }
+  // Secrets (never in this file):
+  //   RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET,
+  //   RAZORPAY_WEBHOOK_SECRET_PREVIOUS (optional, during rotation),
+  //   ENTITLEMENT_PRIVATE_JWK (Ed25519 private key, JSON),
+  //   CHECKOUT_TOKEN_SECRET (HMAC key for the hosted checkout page tokens).
+}

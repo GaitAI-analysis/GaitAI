@@ -103,6 +103,9 @@ export class RazorpayGateway implements Gateway {
       total_count: CYCLE_RAZORPAY[input.cycle].total_count,
       quantity: 1,
       customer_notify: 1,
+      // An abandoned checkout leaves a "created" subscription; let Razorpay
+      // expire its authorisation link after a day instead of keeping it payable.
+      expire_by: Math.floor(Date.now() / 1000) + 86400,
       notes: { uid: input.uid, product: input.product, cycle: input.cycle },
     });
   }

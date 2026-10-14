@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { verifyJwtEd25519 } from "../src/crypto";
 import { readConfig } from "../src/env";
+import { resetJwksCacheForTests } from "../src/auth";
 import { body, makeHarness, purchase, req, webhook } from "./helpers";
 
 type Ent = { entitled: boolean; state: string; until: number | null; token: string | null; product: string; subscriptionId: string | null };
@@ -410,7 +411,7 @@ describe("production safety", () => {
 describe("Razorpay gateway (scripted API)", () => {
   it("creates the subscription with the documented body and verifies signatures against the stored id", async () => {
     const h = await makeHarness(
-      { BILLING_PROVIDER: "razorpay", RAZORPAY_KEY_ID: "rzp_test_abc", RAZORPAY_KEY_SECRET: "secret-xyz", RAZORPAY_WEBHOOK_SECRET: "wh-secret", RAZORPAY_API_BASE: "https://rzp.test" },
+      { BILLING_PROVIDER: "razorpay", RAZORPAY_KEY_ID: "rzp_test_abc", RAZORPAY_KEY_SECRET: "secret-xyz", RAZORPAY_WEBHOOK_SECRET: "wh-secret", RAZORPAY_API_BASE: "https://rzp.test", TAX_MODE: "inclusive" },
       "gaitai-billing",
     );
     // Production Worker: AUTH_TEST_JWKS is ignored, so the auth fetch must be scripted too.
@@ -454,5 +455,66 @@ describe("Razorpay gateway (scripted API)", () => {
     expect((await webhook(h2, ev, { secret: "old", eventId: "a" })).status).toBe(200);
     expect((await webhook(h2, ev, { secret: "new", eventId: "b" })).status).toBe(200);
     expect((await webhook(h2, ev, { secret: "older", eventId: "c" })).status).toBe(401);
+  });
+});
+
+describe("live-activation guards", () => {
+  const live = { BILLING_PROVIDER: "razorpay", RAZORPAY_KEY_ID: "rzp_test_abc", RAZORPAY_KEY_SECRET: "secret-xyz", RAZORPAY_WEBHOOK_SECRET: "wh-secret", RAZORPAY_API_BASE: "https://rzp.test" };
+  const scriptAuth = (h: Awaited<ReturnType<typeof makeHarness>>) => {
+    resetJwksCacheForTests();
+    const jwks = JSON.parse(h.env.AUTH_TEST_JWKS!) as { keys: JsonWebKey[] };
+    h.scriptFetch((url, init) => {
+      if (url.includes("googleapis.com/service_accounts")) return new Response(JSON.stringify(jwks), { headers: { "content-type": "application/json", "cache-control": "max-age=60" } });
+      if (url === "https://rzp.test/v1/subscriptions" && init?.method === "POST") return new Response(JSON.stringify({ id: "sub_live_g", plan_id: "plan_x", status: "created", current_start: null, current_end: null, charge_at: null, ended_at: null, paid_count: 0 }));
+      return null;
+    });
+  };
+  const seedPlan = (h: Awaited<ReturnType<typeof makeHarness>>, amount: number) =>
+    h.env.DB.prepare(`INSERT OR REPLACE INTO plans (product, cycle, provider, provider_plan_id, amount_paise, currency, created_at) VALUES ('securevision','annual','razorpay','plan_x',${amount},'INR',1)`).run();
+
+  it("keys alone do not open live checkout while GST treatment is unconfirmed", async () => {
+    const h = await makeHarness({ ...live, TAX_MODE: "unconfirmed" }, "gaitai-billing");
+    scriptAuth(h);
+    await seedPlan(h, 1439040);
+    const c = await body<{ paymentsActive: boolean }>(await h.handle(req("/v1/catalog")));
+    expect(c.paymentsActive).toBe(false);
+    const co = await h.handle(req("/v1/checkout", { method: "POST", token: await h.token("u-tax"), json: { product: "securevision", cycle: "annual" } }));
+    expect(co.status).toBe(503);
+    expect((await body(co)).error).toBe("payments_not_activated");
+  });
+
+  it("exclusive GST charges list price + 18% and refuses a plan synced at the list price", async () => {
+    const h = await makeHarness({ ...live, TAX_MODE: "exclusive" }, "gaitai-billing");
+    scriptAuth(h);
+    const c = await body<{ paymentsActive: boolean; products: Array<{ plans: Array<{ id: string; amountPaise: number; chargedPaise: number; charged: string }> }> }>(await h.handle(req("/v1/catalog")));
+    const plans = Object.fromEntries(c.products.flatMap((p) => p.plans.map((pl) => [pl.id, pl])));
+    expect(c.paymentsActive).toBe(true);
+    expect(plans.mobilitycare_monthly).toMatchObject({ amountPaise: 99900, chargedPaise: 117882, charged: "₹1,178.82" });
+    expect(plans.securevision_annual).toMatchObject({ amountPaise: 1439040, chargedPaise: 1698067 });
+    await seedPlan(h, 1439040); // synced as if inclusive
+    const t = await h.token("u-excl");
+    const bad = await h.handle(req("/v1/checkout", { method: "POST", token: t, json: { product: "securevision", cycle: "annual" } }));
+    expect(bad.status).toBe(503);
+    expect((await body(bad)).error).toBe("plan_amount_mismatch");
+    await h.env.DB.prepare("UPDATE plans SET amount_paise = 1698067 WHERE product = 'securevision' AND cycle = 'annual'").run();
+    const ok = await h.handle(req("/v1/checkout", { method: "POST", token: t, json: { product: "securevision", cycle: "annual" } }));
+    expect(ok.status).toBe(200);
+  });
+
+  it("inclusive GST charges exactly the list price", async () => {
+    const h = await makeHarness({ ...live, TAX_MODE: "inclusive" }, "gaitai-billing");
+    const c = await body<{ products: Array<{ plans: Array<{ id: string; amountPaise: number; chargedPaise: number }> }> }>(await h.handle(req("/v1/catalog")));
+    for (const p of c.products.flatMap((x) => x.plans)) expect(p.chargedPaise).toBe(p.amountPaise);
+  });
+
+  it("no second subscription while a cancelled one still runs: the paid period is not charged twice", async () => {
+    const h = await makeHarness();
+    const { subscriptionId, token } = await purchase(h, "u-twice", "mobilitycare", "monthly");
+    await h.handle(req(`/v1/subscriptions/${subscriptionId}/cancel`, { method: "POST", token, json: { at_cycle_end: true } }));
+    const again = await h.handle(req("/v1/checkout", { method: "POST", token, json: { product: "mobilitycare", cycle: "annual" } }));
+    expect(again.status).toBe(409);
+    expect((await body(again)).message).toMatch(/still active until the end/);
+    // The other product is unaffected.
+    expect((await h.handle(req("/v1/checkout", { method: "POST", token, json: { product: "securevision", cycle: "monthly" } }))).status).toBe(200);
   });
 });

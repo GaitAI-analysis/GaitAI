@@ -4,7 +4,8 @@
  * 1. The sandbox provider can only run in a Worker whose name says so. A
  *    production deployment with BILLING_PROVIDER accidentally set to "sandbox"
  *    refuses every request rather than letting anyone "pay" with a button.
- * 2. The Razorpay provider with no key configured is a valid, inert state:
+ * 2. The Razorpay provider with no key configured — or with TAX_MODE still
+ *    "unconfirmed" — is a valid, inert state:
  *    catalogue and accounts work, every checkout answers 503
  *    `payments_not_activated`. That is how production runs until the founder
  *    approves live collection and sets the secrets.
@@ -95,7 +96,9 @@ export function readConfig(env: Env, workerName?: string): Config {
     analysisGrantSeconds: num(env.ANALYSIS_GRANT_MINUTES, 15) * 60,
     publicBaseUrl: (env.PUBLIC_BASE_URL ?? "").replace(/\/$/, ""),
     razorpay,
-    paymentsActive: provider === "sandbox" ? true : razorpay !== null,
+    // Live collection needs the keys AND a decided GST treatment: with TAX_MODE
+    // "unconfirmed" the plan amounts are not final, so checkout stays closed.
+    paymentsActive: provider === "sandbox" ? true : razorpay !== null && taxMode !== "unconfirmed",
     // A production Worker always requires a verified email, whatever the var says.
     requireVerifiedEmail: provider === "razorpay" ? true : env.REQUIRE_VERIFIED_EMAIL !== "false",
   };

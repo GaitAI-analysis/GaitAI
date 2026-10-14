@@ -21,7 +21,7 @@
  * The device is never asked what it is entitled to.
  */
 import { requireCaller, type Caller } from "./auth";
-import { CYCLE_RAZORPAY, PRODUCT_META, PLAN_PAISE, catalog, isCycle, isProduct, planId, planView, taxDisclosure, type Cycle, type Product } from "./catalog";
+import { CYCLE_RAZORPAY, PRODUCT_META, catalog, chargedPaise, isCycle, isProduct, planId, planView, taxDisclosure, type Cycle, type Product } from "./catalog";
 import { renderCheckoutPage } from "./checkout-page";
 import { hmacSha256Hex, publicJwkFromPrivate, randomId, sha256Hex, signCompact, timingSafeEqual, verifyCompact } from "./crypto";
 import { Db, type SubscriptionRow } from "./db";
@@ -319,19 +319,31 @@ async function route(request: Request, env: Env, config: Config, deps: Deps): Pr
   }
 
   if (path === "/v1/checkout" && request.method === "POST") {
-    if (!gateway) throw new ApiError(503, "payments_not_activated", "Payments are not yet activated for GaitAI subscriptions.");
+    if (!gateway || !config.paymentsActive) throw new ApiError(503, "payments_not_activated", "Payments are not yet activated for GaitAI subscriptions.");
     if (!env.CHECKOUT_TOKEN_SECRET) throw new ApiError(503, "checkout_unavailable");
     if (config.requireVerifiedEmail && !caller.emailVerified) throw new ApiError(403, "email_unverified", "Verify your email address before subscribing.");
     const body = await readJson<{ product?: string; cycle?: string }>(request);
     if (!isProduct(body.product) || !isCycle(body.cycle)) throw new ApiError(400, "invalid_plan");
     const existing = evaluateProduct(body.product, await db.listSubscriptions(caller.uid, body.product), config, now);
-    if (existing.entitled && existing.state !== "cancelled") throw new ApiError(409, "already_subscribed", "This account already has an active subscription for this product.", { entitlement: existing });
+    // Entitled includes "cancelled, period still running": a second subscription
+    // now would charge again for days already paid for.
+    if (existing.entitled) {
+      const message = existing.state === "cancelled" || existing.cancelAtCycleEnd ? "Your cancelled subscription is still active until the end of the period you paid for. You can subscribe again after it ends." : "This account already has an active subscription for this product.";
+      throw new ApiError(409, "already_subscribed", message, { entitlement: existing });
+    }
     let plan = await db.getPlan(body.product, body.cycle, config.provider);
     if (!plan) {
       if (!config.sandbox) throw new ApiError(503, "plan_not_configured", "Run scripts/razorpay-sync-plans.mjs to create the Razorpay plans.");
-      const created = await gateway.createPlan(body.product, body.cycle, PLAN_PAISE[body.product][body.cycle]);
-      await db.upsertPlan({ product: body.product, cycle: body.cycle, provider: "sandbox", provider_plan_id: created.id, amount_paise: PLAN_PAISE[body.product][body.cycle], currency: "INR" }, now);
+      const created = await gateway.createPlan(body.product, body.cycle, chargedPaise(body.product, body.cycle, config));
+      await db.upsertPlan({ product: body.product, cycle: body.cycle, provider: "sandbox", provider_plan_id: created.id, amount_paise: chargedPaise(body.product, body.cycle, config), currency: "INR" }, now);
       plan = (await db.getPlan(body.product, body.cycle, "sandbox"))!;
+    }
+    // The Razorpay plan must charge exactly what the app shows for the current
+    // tax mode (list price, or list price + GST). A plan synced under another
+    // TAX_MODE is refused rather than charging the wrong amount.
+    if (!config.sandbox && plan.amount_paise !== chargedPaise(body.product, body.cycle, config)) {
+      await db.audit(caller.uid, "checkout.plan_amount_mismatch", { product: body.product, cycle: body.cycle, plan: plan.amount_paise, expected: chargedPaise(body.product, body.cycle, config) }, now);
+      throw new ApiError(503, "plan_amount_mismatch", "Subscription plans are being updated. Try again shortly.");
     }
     const gs = await gateway.createSubscription({ planId: plan.provider_plan_id, cycle: body.cycle, uid: caller.uid, product: body.product, email: caller.email });
     const row: SubscriptionRow = {
@@ -363,7 +375,7 @@ async function route(request: Request, env: Env, config: Config, deps: Deps): Pr
       mode: config.provider,
       subscriptionId: gs.id,
       keyId: gateway.keyId,
-      plan: planView(body.product, body.cycle),
+      plan: planView(body.product, body.cycle, config),
       checkoutUrl: `${config.publicBaseUrl}/v1/checkout/page?t=${encodeURIComponent(token)}`,
       checkoutToken: token,
       expiresAt: now + 1800,

@@ -45,6 +45,19 @@ export const PLAN_PAISE: Record<Product, Record<Cycle, number>> = {
   securevision: { monthly: MONTHLY_PAISE.securevision, annual: annualPaise("securevision") },
 };
 
+/**
+ * What the customer is actually charged for a plan. "inclusive": the list
+ * price (GST is inside it). "exclusive": list price plus GST, rounded to the
+ * paisa — the Razorpay plan must be created at THIS amount
+ * (scripts/razorpay-sync-plans.mjs), otherwise "GST is added at checkout"
+ * would be untrue. "unconfirmed": the list price, and live checkout stays
+ * closed (env.ts) until the founder decides.
+ */
+export function chargedPaise(product: Product, cycle: Cycle, config: Pick<Config, "taxMode" | "gstRatePercent">): number {
+  const list = PLAN_PAISE[product][cycle];
+  return config.taxMode === "exclusive" ? Math.round((list * (100 + config.gstRatePercent)) / 100) : list;
+}
+
 /** Razorpay plan period/interval for each cycle, and how many cycles a subscription runs (Razorpay charges for at most 10 years). */
 export const CYCLE_RAZORPAY: Record<Cycle, { period: "monthly" | "yearly"; interval: 1; total_count: number; label: string; renews: string }> = {
   monthly: { period: "monthly", interval: 1, total_count: 120, label: "Monthly", renews: "every month" },
@@ -82,6 +95,9 @@ export interface PlanView {
   savingsPaise: number;
   savings: string;
   highlight: boolean;
+  /** The amount actually charged per cycle, GST included (equals amountPaise unless prices exclude GST). */
+  chargedPaise?: number;
+  charged?: string;
 }
 
 export function planId(product: Product, cycle: Cycle) {
@@ -93,7 +109,7 @@ export function parsePlanId(id: string): { product: Product; cycle: Cycle } | nu
   return isProduct(product) && isCycle(cycle) ? { product, cycle } : null;
 }
 
-export function planView(product: Product, cycle: Cycle): PlanView {
+export function planView(product: Product, cycle: Cycle, config?: Pick<Config, "taxMode" | "gstRatePercent">): PlanView {
   const amountPaise = PLAN_PAISE[product][cycle];
   const monthly = MONTHLY_PAISE[product];
   const perMonthPaise = cycle === "monthly" ? amountPaise : Math.round(amountPaise / 12);
@@ -112,6 +128,7 @@ export function planView(product: Product, cycle: Cycle): PlanView {
     savingsPaise,
     savings: formatInr(savingsPaise),
     highlight: cycle === "annual",
+    ...(config ? { chargedPaise: chargedPaise(product, cycle, config), charged: formatInr(chargedPaise(product, cycle, config)) } : {}),
   };
 }
 
@@ -142,7 +159,7 @@ export function catalog(config: Config) {
     products: PRODUCTS.map((product) => ({
       product,
       ...PRODUCT_META[product],
-      plans: CYCLES.map((cycle) => planView(product, cycle)),
+      plans: CYCLES.map((cycle) => planView(product, cycle, config)),
     })),
   };
 }

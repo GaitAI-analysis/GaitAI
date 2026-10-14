@@ -4,7 +4,13 @@
  * production D1 `plans` table. Run ONCE per Razorpay account/mode by the
  * founder, with the Razorpay keys in the environment — never commit them:
  *
- *   RAZORPAY_KEY_ID=rzp_test_… RAZORPAY_KEY_SECRET=… node scripts/razorpay-sync-plans.mjs [--sandbox]
+ *   TAX_MODE=inclusive RAZORPAY_KEY_ID=rzp_test_… RAZORPAY_KEY_SECRET=… node scripts/razorpay-sync-plans.mjs [--dry-run]
+ *
+ * TAX_MODE must match the Worker's TAX_MODE var (wrangler.jsonc): "inclusive"
+ * creates plans at the list price; "exclusive" at list price + GST_RATE_PERCENT
+ * (default 18), which is what the Worker's checkout then insists on
+ * (src/catalog.ts chargedPaise). "unconfirmed" is refused: nothing is created
+ * until the GST treatment is decided.
  *
  * Idempotent: it lists existing plans and matches on notes.product/cycle
  * before creating. Prints the SQL it applies through `wrangler d1 execute`.
@@ -17,12 +23,20 @@ if (!KEY_ID || !KEY_SECRET) {
   console.error("RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET are required (test-mode keys first).");
   process.exit(2);
 }
+const TAX_MODE = process.env.TAX_MODE;
+if (TAX_MODE !== "inclusive" && TAX_MODE !== "exclusive") {
+  console.error(`TAX_MODE must be "inclusive" or "exclusive" (the same value as the Worker's TAX_MODE var). Plans are not created while GST is unconfirmed.`);
+  process.exit(2);
+}
+const GST = Number(process.env.GST_RATE_PERCENT ?? 18);
+const charged = (list) => (TAX_MODE === "exclusive" ? Math.round((list * (100 + GST)) / 100) : list);
 const MONTHLY = { mobilitycare: 99900, securevision: 149900 };
 const PLANS = [];
 for (const product of ["mobilitycare", "securevision"]) {
-  PLANS.push({ product, cycle: "monthly", period: "monthly", amount: MONTHLY[product], label: "Monthly", renews: "every month" });
-  PLANS.push({ product, cycle: "annual", period: "yearly", amount: Math.round(MONTHLY[product] * 12 * 0.8), label: "Annual", renews: "every 12 months" });
+  PLANS.push({ product, cycle: "monthly", period: "monthly", amount: charged(MONTHLY[product]), label: "Monthly", renews: "every month" });
+  PLANS.push({ product, cycle: "annual", period: "yearly", amount: charged(Math.round(MONTHLY[product] * 12 * 0.8)), label: "Annual", renews: "every 12 months" });
 }
+const TAX_NOTE = TAX_MODE === "inclusive" ? "incl. GST" : `incl. ${GST}% GST`;
 const NAMES = { mobilitycare: "GaitAI MobilityCare", securevision: "GaitAI SecureVision" };
 const auth = "Basic " + Buffer.from(`${KEY_ID}:${KEY_SECRET}`).toString("base64");
 const api = async (method, path, body) => {
@@ -35,13 +49,13 @@ const api = async (method, path, body) => {
 const existing = (await api("GET", "/v1/plans?count=100")).items ?? [];
 const sql = [];
 for (const p of PLANS) {
-  let plan = existing.find((e) => e.notes?.product === p.product && e.notes?.cycle === p.cycle && e.item?.amount === p.amount && e.period === p.period);
+  let plan = existing.find((e) => e.notes?.product === p.product && e.notes?.cycle === p.cycle && e.notes?.tax_mode === TAX_MODE && e.item?.amount === p.amount && e.period === p.period);
   if (!plan) {
     plan = await api("POST", "/v1/plans", {
       period: p.period,
       interval: 1,
-      item: { name: `${NAMES[p.product]} — ${p.label}`, amount: p.amount, currency: "INR", description: `${NAMES[p.product]} subscription, billed ${p.renews}` },
-      notes: { product: p.product, cycle: p.cycle },
+      item: { name: `${NAMES[p.product]} — ${p.label}`, amount: p.amount, currency: "INR", description: `${NAMES[p.product]} subscription, billed ${p.renews} (${TAX_NOTE})` },
+      notes: { product: p.product, cycle: p.cycle, tax_mode: TAX_MODE },
     });
     console.log(`created ${plan.id} for ${p.product}/${p.cycle} (${p.amount} paise)`);
   } else console.log(`re-using ${plan.id} for ${p.product}/${p.cycle}`);

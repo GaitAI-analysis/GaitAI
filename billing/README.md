@@ -87,16 +87,34 @@ tier). Nothing in this directory enables a paid service.
 
 ## Activating payments (founder checklist)
 
-1. Create a Razorpay account for GaitAI; complete KYC; enable **Subscriptions**.
-2. In **Test mode**: generate API keys; create a webhook pointing at
-   `https://gaitai-billing.gait-ai-founder.workers.dev/v1/webhooks/razorpay`
-   with events `subscription.*`, `payment.failed`, `refund.created`,
-   `refund.processed` and a webhook secret.
-3. `wrangler secret put RAZORPAY_KEY_ID / RAZORPAY_KEY_SECRET / RAZORPAY_WEBHOOK_SECRET` in `billing/`.
-4. `RAZORPAY_KEY_ID=… RAZORPAY_KEY_SECRET=… npm run plans:sync` — creates the four plans and writes their ids into D1.
-5. Confirm `TAX_MODE` (inclusive/exclusive) in `wrangler.jsonc`, redeploy (`npm run deploy`).
-6. Run the end-to-end checks with Razorpay's test cards/UPI; then repeat 2–5 with **Live** keys.
-7. Flip `payments.live` in `src/data/subscriptions.ts` and set `release.publicApk` for each app on the website.
+Live checkout opens only when BOTH the three Razorpay secrets are set AND
+`TAX_MODE` is "inclusive" or "exclusive" (`src/env.ts`); checkout also
+refuses any plan whose amount differs from what the app shows for that tax
+mode (`chargedPaise` in `src/catalog.ts`). Nothing here can charge by accident.
+
+1. Razorpay account for GaitAI: KYC approved, **Subscriptions** enabled, and
+   the recurring methods you want (UPI AutoPay, card mandates, e-NACH)
+   confirmed by Razorpay for the account. Website/app review: Razorpay asks
+   for About, Contact, Pricing, Terms, Privacy and Refund pages for a website,
+   or an App URL for an app — agree with Razorpay which applies before submitting.
+2. Decide GST and set `TAX_MODE` (and `GST_RATE_PERCENT`) in `wrangler.jsonc`;
+   redeploy (`npm run deploy`).
+3. **Test mode**: generate API keys; webhook →
+   `https://gaitai-billing.gait-ai-founder.workers.dev/v1/webhooks/razorpay`,
+   events `subscription.authenticated`, `.activated`, `.charged`, `.pending`,
+   `.halted`, `.cancelled`, `.completed`, `.updated`, `payment.failed`,
+   `refund.created`, `refund.processed`, with a webhook secret.
+4. `wrangler secret put RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`,
+   `RAZORPAY_WEBHOOK_SECRET` in `billing/` (typed at the prompt — never in a
+   file, a commit or a chat).
+5. `TAX_MODE=<same as step 2> RAZORPAY_KEY_ID=… RAZORPAY_KEY_SECRET=… npm run plans:sync`
+   creates the four plans at the charged amount and writes their ids into D1.
+6. Test-mode end to end in the app: subscribe (UPI + card), webhook arrives,
+   analysis unlocks for that product only, cancel at period end, refund.
+7. Repeat 3–6 with **Live** keys; one real low-value purchase and refund
+   before announcing anything. Then set `payments.live` in the website's
+   `src/data/subscriptions.ts` (it only removes the "Subscriptions coming
+   soon" line — the site shows no prices either way).
 
 **Fees (Razorpay published pricing, 2026-10-13):** 2 % platform fee per
 successful domestic transaction (2.15 % corporate cards; international up to
@@ -114,7 +132,7 @@ T+1 settlement. Confirm on the dashboard before going live.
   Pose/detection inference and the metric maths run inside the app; a
   patched APK could skip `authorizeAnalysis()` and run the engine. Strict
   enforcement would mean moving the metric computation (pure TypeScript in
-  `mobile/packages/analysis`: `computeGait`, `computeCrowd`, `computeZone`, the
+  `packages/analysis` (private app repos): `computeGait`, `computeCrowd`, `computeZone`, the
   session builders) into this Worker: the device would send landmarks/boxes
   (~26 k numbers per 20 s clip) and receive metrics only when entitled. Cost:
   within the Workers free tier at launch volumes (CPU-light JSON maths, no

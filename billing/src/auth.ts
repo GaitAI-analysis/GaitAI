@@ -26,11 +26,19 @@ const JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken
 
 type Jwk = JsonWebKey & { kid: string };
 let cache: { keys: Jwk[]; until: number } | null = null;
+/* A token signed with a key the cache has not seen yet (Google rotates its
+   keys) forces one refetch — at most once a minute, so forged key ids cannot
+   turn every request into an outbound fetch. */
+let lastForcedRefetch = 0;
+const FORCED_REFETCH_INTERVAL_MS = 60_000;
+/** Tests only: each harness signs with a fresh key under the same kid. */
+export const resetJwksCacheForTests = () => { cache = null; lastForcedRefetch = 0; };
 
-async function jwks(env: Env, config: Config, fetcher: typeof fetch): Promise<Jwk[]> {
+async function jwks(env: Env, config: Config, fetcher: typeof fetch, force = false): Promise<Jwk[]> {
   if (config.sandbox && env.AUTH_TEST_JWKS) return (JSON.parse(env.AUTH_TEST_JWKS) as { keys: Jwk[] }).keys;
   const t = Date.now();
-  if (cache && cache.until > t) return cache.keys;
+  if (cache && cache.until > t && !force) return cache.keys;
+  if (force) lastForcedRefetch = t;
   const res = await fetcher(JWKS_URL);
   if (!res.ok) throw new ApiError(503, "auth_keys_unavailable");
   const body = (await res.json()) as { keys: Jwk[] };
@@ -53,8 +61,12 @@ export async function verifyFirebaseToken(token: string, env: Env, config: Confi
     throw new ApiError(401, "invalid_token");
   }
   if (header.alg !== "RS256" || typeof header.kid !== "string") throw new ApiError(401, "invalid_token", "unsupported token header");
-  const keys = await jwks(env, config, fetcher);
-  const jwk = keys.find((k) => k.kid === header.kid);
+  let keys = await jwks(env, config, fetcher);
+  let jwk = keys.find((k) => k.kid === header.kid);
+  if (!jwk && Date.now() - lastForcedRefetch > FORCED_REFETCH_INTERVAL_MS && !(config.sandbox && env.AUTH_TEST_JWKS)) {
+    keys = await jwks(env, config, fetcher, true);
+    jwk = keys.find((k) => k.kid === header.kid);
+  }
   if (!jwk) throw new ApiError(401, "invalid_token", "unknown signing key");
   const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
   const ok = await crypto.subtle.verify(

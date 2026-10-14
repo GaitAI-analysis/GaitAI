@@ -168,7 +168,7 @@ export default function SecureVisionPage() {
           whole and the copy is laid out in the room above it
           (`--hero-copy-space` on the inner). Chrome resolves a size
           container's `cqh` from `height`, not `min-height`. */}
-      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 xl:h-[max(600px,calc(100svh_-_var(--site-header-height)_-_var(--site-trail-height)),var(--hero-need,0px))] xl:min-h-0 xl:pb-0 xl:pt-0">
+      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 xl:h-[min(var(--hero-pic-h),max(600px,calc(100svh_-_var(--site-header-height)_-_var(--site-trail-height)),var(--hero-need,0px)))] xl:min-h-0 xl:pb-0 xl:pt-0">
         {/* Extracted first frame as the poster, so the hero paints before the
             video decodes; `preload="metadata"` instead of "auto" so the file
             is not fetched in full up front. Reduced motion is a CSS concern —

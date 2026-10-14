@@ -2326,18 +2326,21 @@ body {
     line-height: 1.06;
   }
 
-  /* The copy's internal rhythm, laptops and up. Set here rather than in the
-     utility classes so it can follow the viewport's HEIGHT: a 900px screen
+  /* The copy's internal rhythm, laptops and up. In `cqh` — the HERO's
+     height (it is the size container), not the screen's: on a tall screen
+     the hero is capped at its picture's height, and screen-sized gaps then
+     pushed the CTA row onto the product rail (1280x1024). Set here rather
+     than in the utility classes so it can follow that height: a 900px screen
      gets the air, a 768px one keeps its margins tight, and the hero never
      grows to pay for it. Both heroes, each on its own element. */
   .securevision-hero-inner h1,
   .mobilitycare-hero__content h1 {
-    margin-top: clamp(22px, 3.2svh, 34px);
+    margin-top: clamp(22px, 3.2cqh, 34px);
   }
 
   .securevision-hero-inner h1 + p,
   .mobilitycare-hero__content h1 + p {
-    margin-top: clamp(22px, 3.4svh, 36px);
+    margin-top: clamp(22px, 3.4cqh, 36px);
   }
 
   /* The paragraph stays inside the shaded third of the picture. Both
@@ -2354,7 +2357,7 @@ body {
 
   .securevision-hero-inner p + div,
   .mobilitycare-hero__content p + div {
-    margin-top: clamp(26px, 4.2svh, 44px);
+    margin-top: clamp(26px, 4.2cqh, 44px);
   }
 
   .securevision-capability-grid {
@@ -3385,11 +3388,17 @@ body {
     );
     /* …or, when the copy does not fit in the room above the painted rail on
        a short screen, exactly what it needs (`--hero-need`, under "LAPTOPS
-       AND UP"), never taller than the picture itself. */
-    height: max(
-      620px,
-      calc(100svh - var(--site-header-height) - var(--site-trail-height)),
-      var(--hero-need, 0px)
+       AND UP") — and on a TALL screen never more than the picture's own
+       height: a hero taller than the width-fitted still makes `cover` scale
+       it up and cut the strip's first and last product circles (1440x1000,
+       1920x1200, 1280x1024). Below the picture the page simply continues. */
+    height: min(
+      var(--hero-pic-h),
+      max(
+        620px,
+        calc(100svh - var(--site-header-height) - var(--site-trail-height)),
+        var(--hero-need, 0px)
+      )
     );
     padding: 0;
     align-items: flex-start;
@@ -3596,7 +3605,7 @@ body {
      Before hydration the term is 0 and the one-screen height applies. */
   .securevision-hero,
   .mobilitycare-hero {
-    --hero-copy-pt: clamp(28px, 4.5svh, 64px);
+    --hero-copy-pt: clamp(28px, 4.5cqh, 64px);
   }
 
   .mobilitycare-hero {

@@ -18,7 +18,9 @@
 .brand img{border-radius:11px;border:1px solid var(--ui-line)}
 .brand b{font-weight:600;color:var(--ui-brand-gold)}
 .eyebrow{composes:eyebrow from global;margin-bottom:23px}
+/* Beside a screenshot the hero takes the product-hero size (MobilityCareHero); on its own, display-xl. */
 .hero h1,.downloadHero h1{font-family:var(--ui-font-display);font-size:clamp(2.5rem,5.5vw,4.5rem);font-weight:600;line-height:1.05;letter-spacing:-.035em;text-wrap:balance;margin:28px 0 22px}
+.hero h1{font-size:clamp(2.3rem,4.2vw,3.5rem);line-height:1.04;letter-spacing:-.04em}
 .section h2,.feature h2,.closing h2{font-family:var(--ui-font-display);font-size:clamp(2rem,4vw,3.25rem);font-weight:600;line-height:1.08;letter-spacing:-.03em;text-wrap:balance;margin:0 0 23px}
 .lead{font-size:17px;line-height:1.75;color:var(--ui-body);max-width:540px}
 .actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:28px}

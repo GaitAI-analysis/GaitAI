@@ -7,7 +7,7 @@ Reviewed 12–13 October 2026. Application source: GaitAI Care commit `d1247af`.
 - Standalone product landing route `/gaitai-care/` and Android information route `/gaitai-care/download/`.
 - Products dropdown on desktop and mobile, product catalogue, homepage section after FeaturedProducts, Products footer group, global search and sitemap/Atlas.
 - Contextual MobilityCare cross-link and Care Wiki application links.
-- Scoped Georama, navy, off-white, graphite and gold styling. Existing homepage hero code and movement module registry are unchanged.
+- Styled with the shared GaitAI design system (Inter, Space Grotesk, `--ui-*` tokens, global buttons and cards) since 2026-10-14; it originally shipped a scoped Georama palette, now removed. See docs/design-system.md. Existing homepage hero code and movement module registry are unchanged.
 
 ## Claim evidence
 

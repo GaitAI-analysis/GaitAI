@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Download, ShieldCheck } from "lucide-react";
-import { georama } from "@/components/care/Care";
 import styles from "@/components/care/care.module.css";
 import dl from "./androidDownload.module.css";
 import { VerifyDownload } from "./VerifyDownload";
@@ -24,7 +23,7 @@ export function AndroidDownload({ product }: { product: ProductAppId }) {
   const short = app.name.replace("GaitAI ", "");
   const mib = r.bytes ? `${(r.bytes / 1048576).toFixed(1)} MB` : "—";
   return (
-    <div className={`${styles.theme} ${styles.page} ${georama.variable}`}>
+    <div className={`${styles.theme} ${styles.page}`}>
       <div className={styles.container}>
         <nav className={styles.crumb} aria-label="Breadcrumb">
           <Link href={app.productHref}>{short}</Link>

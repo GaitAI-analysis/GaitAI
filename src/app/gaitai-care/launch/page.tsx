@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CareBrand, CareScreenshot, georama } from "@/components/care/Care";
+import { CareBrand, CareScreenshot } from "@/components/care/Care";
 import styles from "@/components/care/care.module.css";
 import { gaitaiCare as care } from "@/data/gaitai-care";
 import { announcements } from "@/data/announcements";
@@ -86,7 +86,7 @@ function LaunchActions() {
 }
 
 export default function CareLaunchPage() {
-  return <div className={`${styles.theme} ${styles.page} ${georama.variable}`}>
+  return <div className={`${styles.theme} ${styles.page}`}>
     <JsonLd data={LAUNCH_JSON_LD} />
     <JsonLd data={LAUNCH_BREADCRUMBS} />
     <div className={styles.container}>
@@ -97,7 +97,7 @@ export default function CareLaunchPage() {
           <div>
             <CareBrand />
             <p className={styles.dateline}><span>PRODUCT LAUNCH</span><span aria-hidden="true">·</span><time dateTime={care.launchDate}>13 OCTOBER 2026</time><span aria-hidden="true">·</span><span>GAITAI RESEARCH LABS</span></p>
-            <h1 id="launch-title">Introducing GaitAI Care.<br /><span>Your health records. Your history. Your insights.</span></h1>
+            <h1 id="launch-title">Introducing GaitAI Care.<br /><span className="text-gradient">Your health records. Your history. Your insights.</span></h1>
             <p className={styles.lead}>Today, GaitAI Research Labs announces the launch of GaitAI Care, a personal and family health-record management platform designed to make organizing medical information simpler, more accessible, and more meaningful.</p>
             <LaunchActions />
             <p className={styles.small}>Official announcement · Published in <Link href="/insights/">GaitAI Insights</Link> · Web app available · Android early access</p>

@@ -11,6 +11,10 @@ import "./interactions.css";
 /* The light visual system. Scoped to `:root.light`; loaded last so it settles
    ties with globals.css and interactions.css. */
 import "./light-theme.css";
+/* The shared UI tokens (`--ui-*`): aliases of the two branches above, for
+   module CSS. Every new page styles itself from these — see
+   docs/design-system.md. */
+import "./design-system.css";
 /* The phone and tablet layer: every rule behind a max-width query, loaded
    last so it settles ties with everything above. See mobile.css. */
 import "./mobile.css";

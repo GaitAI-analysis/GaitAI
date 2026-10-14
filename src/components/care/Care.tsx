@@ -1,10 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Georama } from "next/font/google";
 import { gaitaiCare as care } from "@/data/gaitai-care";
 import styles from "./care.module.css";
-
-export const georama = Georama({ subsets: ["latin"], variable: "--font-care", display: "swap" });
 
 export function CareBrand() {
   return <div className={styles.brand}><Image src="/images/gaitai-care/app-icon.png" alt="" width={44} height={44} /><span>GaitAI <b>Care</b></span></div>;
@@ -30,7 +27,7 @@ export function CareScreenshot({ priority = false }: { priority?: boolean }) {
 }
 
 export function CareFeature() {
-  return <section id="gaitai-care" className={`${styles.feature} ${styles.theme} ${georama.variable}`} aria-labelledby="care-feature-title">
+  return <section id="gaitai-care" className={`${styles.feature} ${styles.theme}`} aria-labelledby="care-feature-title">
     <div className={styles.container}>
       <div className={styles.featureGrid}>
         <div>

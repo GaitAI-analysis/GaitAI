@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { georama } from "@/components/care/Care";
 import styles from "@/components/care/care.module.css";
 import { productAppList } from "@/data/product-apps";
 import { SUBSCRIPTION_NOTE } from "@/data/subscriptions";
@@ -24,7 +23,7 @@ export const metadata: Metadata = {
  */
 export default function AccountPage() {
   return (
-    <div className={`${styles.theme} ${styles.page} ${georama.variable}`}>
+    <div className={`${styles.theme} ${styles.page}`}>
       <div className={styles.container}>
         <nav className={styles.crumb} aria-label="Breadcrumb">
           <Link href="/products/">Products</Link>

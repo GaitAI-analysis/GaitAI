@@ -1,13 +1,13 @@
 /* THE ANDROID DOWNLOAD CARD (MobilityCare, SecureVision) — the pieces the
-   shared Care download styles do not have. Colours come from the Care tokens
-   declared on the page's .theme wrapper (care.module.css), so light and dark
-   follow it. Every rule is scoped under .card so it outranks the shared
-   .releaseCard dl/dt/dd/p rules; that file is shared with GaitAI Care and is not edited here. */
+   shared document-page styles (care.module.css) do not have. Colours, fonts
+   and radii are the site's `--ui-*` tokens (app/design-system.css), so light
+   and dark follow the approved branches. Every rule is scoped under .card so
+   it outranks the shared .releaseCard dl/dt/dd/p rules. */
 
 .card .lede {
   font-size: 15px;
   line-height: 1.75;
-  color: var(--care-muted);
+  color: var(--ui-body);
 }
 
 .card .cta {
@@ -36,8 +36,8 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 28px 0 0;
-  border-top: 1px solid var(--care-line);
-  border-bottom: 1px solid var(--care-line);
+  border-top: 1px solid var(--ui-line);
+  border-bottom: 1px solid var(--ui-line);
 }
 
 .card .fact {
@@ -46,7 +46,7 @@
 
 .card .fact + .fact {
   padding-left: 16px;
-  border-left: 1px solid var(--care-line);
+  border-left: 1px solid var(--ui-line);
 }
 
 .card .fact dt {
@@ -55,7 +55,7 @@
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--care-muted);
+  color: var(--ui-muted);
 }
 
 .card .fact dd {
@@ -65,7 +65,7 @@
   text-align: left;
   font-size: 16px;
   font-weight: 600;
-  color: var(--care-ink);
+  color: var(--ui-ink);
   font-variant-numeric: tabular-nums;
 }
 
@@ -74,7 +74,7 @@
   margin-top: 2px;
   font-size: 12px;
   font-weight: 400;
-  color: var(--care-muted);
+  color: var(--ui-muted);
 }
 
 .card .signed {
@@ -83,22 +83,22 @@
   gap: 8px;
   margin-top: 18px;
   font-size: 13px;
-  color: var(--care-muted);
+  color: var(--ui-muted);
 }
 
 .card .signed svg {
   width: 16px;
   height: 16px;
-  color: var(--care-gold);
+  color: var(--ui-label);
   flex-shrink: 0;
 }
 
 /* Verify download — folded technical section. */
 .card .verify {
   margin-top: 22px;
-  border: 1px solid var(--care-line);
-  border-radius: 10px;
-  background: var(--care-bg);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-radius-inset);
+  background: var(--ui-surface-sunken);
 }
 
 .card .verifySummary {
@@ -113,7 +113,7 @@
   position: relative;
   font-size: 14px;
   font-weight: 600;
-  color: var(--care-ink);
+  color: var(--ui-ink);
 }
 
 .card .verifySummary::-webkit-details-marker {
@@ -140,7 +140,7 @@
 .card .verifyHint {
   font-size: 12px;
   font-weight: 400;
-  color: var(--care-muted);
+  color: var(--ui-muted);
 }
 
 .card .verifyBody {
@@ -151,7 +151,7 @@
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--care-muted);
+  color: var(--ui-muted);
 }
 
 .card .hashRow {
@@ -164,14 +164,15 @@
 .card .hash {
   flex: 1;
   min-width: 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--ui-font-mono);
   font-size: 12px;
   line-height: 1.7;
   overflow-wrap: anywhere;
   padding: 10px 12px;
-  background: var(--care-soft);
-  border-radius: 6px;
-  color: var(--care-ink);
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-radius-inset);
+  color: var(--ui-ink);
   user-select: all;
 }
 
@@ -179,21 +180,22 @@
   flex-shrink: 0;
   min-width: 76px;
   padding: 0 14px;
-  border: 1px solid var(--care-line);
-  border-radius: 6px;
-  background: var(--care-surface);
-  color: var(--care-ink);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-surface-solid);
+  color: var(--ui-ink);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
 
 .card .copy:hover {
-  background: var(--care-soft);
+  background: var(--ui-hover-bg);
+  border-color: var(--ui-hover-line);
 }
 
 .card .copy:focus-visible {
-  outline: 3px solid var(--care-gold);
+  outline: 2px solid var(--ui-focus);
   outline-offset: 2px;
 }
 
@@ -201,11 +203,11 @@
   margin-top: 12px;
   font-size: 13px;
   line-height: 1.7;
-  color: var(--care-muted);
+  color: var(--ui-muted);
 }
 
 .card .verifyText code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--ui-font-mono);
   font-size: 12px;
 }
 
@@ -220,18 +222,18 @@
 .card .techList dt,
 .card .techList dd {
   padding: 9px 0;
-  border-top: 1px solid var(--care-line);
+  border-top: 1px solid var(--ui-line);
 }
 
 .card .techList dt {
   padding-right: 16px;
-  color: var(--care-muted);
+  color: var(--ui-muted);
 }
 
 .card .techList dd {
   text-align: right;
   overflow-wrap: anywhere;
-  color: var(--care-ink);
+  color: var(--ui-ink);
 }
 
 .srOnly {
@@ -259,7 +261,7 @@
     border-left: 0;
   }
   .card .fact + .fact {
-    border-top: 1px solid var(--care-line);
+    border-top: 1px solid var(--ui-line);
   }
   .card .fact dd {
     margin-top: 0;

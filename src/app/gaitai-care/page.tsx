@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CareActions, CareBrand, CareScreenshot, georama } from "@/components/care/Care";
+import { CareActions, CareBrand, CareScreenshot } from "@/components/care/Care";
 import styles from "@/components/care/care.module.css";
 import { gaitaiCare as care } from "@/data/gaitai-care";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -65,12 +65,12 @@ const features = [
 ];
 
 export default function GaitAICarePage() {
-  return <div className={`${styles.theme} ${styles.page} ${georama.variable}`}>
+  return <div className={`${styles.theme} ${styles.page}`}>
     <JsonLd data={CARE_JSON_LD} />
     <div className={styles.container}><nav className={styles.crumb} aria-label="Breadcrumb"><Link href="/products/">Products</Link><span aria-hidden="true">/</span><span aria-current="page">GaitAI Care</span></nav></div>
     <section className={styles.hero}>
       <div className={`${styles.container} ${styles.heroGrid}`}>
-        <div><CareBrand /><h1>Your health records.<br />Your history.<br /><span>Your insights.</span></h1>
+        <div><CareBrand /><h1>Your health records.<br />Your history.<br /><span className="text-gradient">Your insights.</span></h1>
           <p className={styles.lead}>One calm place for personal and family health records. Bring documents, medicines and everyday care into a history that stays with you.</p>
           <CareActions /><p className={styles.small}>Web app available · Android Early Access · <Link href={care.launch}>Launched 13 October 2026</Link><br />Health-record organisation. Medical decisions stay with your clinician.</p>
         </div>

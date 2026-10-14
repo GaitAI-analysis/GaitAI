@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CareBrand, georama } from "@/components/care/Care";
+import { CareBrand } from "@/components/care/Care";
 import styles from "@/components/care/care.module.css";
 import { gaitaiCare as care } from "@/data/gaitai-care";
 
@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "GaitAI Care for Android — Early Ac
 
 export default function CareDownloadPage() {
   const released = Boolean(care.release.apk);
-  return <div className={`${styles.theme} ${styles.page} ${georama.variable}`}>
+  return <div className={`${styles.theme} ${styles.page}`}>
     <div className={styles.container}>
       <nav className={styles.crumb} aria-label="Breadcrumb"><Link href={care.href}>GaitAI Care</Link><span aria-hidden="true">/</span><span aria-current="page">Android</span></nav>
       <header className={styles.downloadHero}><CareBrand /><span className={styles.badge}>ANDROID EARLY ACCESS</span><h1>Your health history.<br />Closer to hand.</h1><p className={styles.lead}>The GaitAI Care Android app uses the same account and records as the web app. Version 1.0.0 is an early-access build; testing on physical devices is still pending.</p></header>

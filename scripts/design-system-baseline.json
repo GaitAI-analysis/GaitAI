@@ -1,0 +1,210 @@
+{
+  "note": "Legacy stylesheets that predate the design-system guard (2026-10-14), held at these counts. Counts may only go DOWN (node scripts/check-design-system.mjs --lower). Never add a file or raise a number: new pages use the --ui-* tokens in src/app/design-system.css. See docs/design-system.md.",
+  "files": {
+    "src/components/analytics/analytics.module.css": {
+      "colours": 48
+    },
+    "src/components/analytics/analyzer.module.css": {
+      "colours": 52,
+      "fonts": 34
+    },
+    "src/components/analytics/evidence-status.module.css": {
+      "colours": 7
+    },
+    "src/components/analytics/footage.module.css": {
+      "colours": 12
+    },
+    "src/components/analytics/fusion.module.css": {
+      "colours": 9,
+      "fonts": 7
+    },
+    "src/components/analytics/guided.module.css": {
+      "colours": 16
+    },
+    "src/components/analytics/labHero.module.css": {
+      "colours": 12
+    },
+    "src/components/analytics/signalchain.module.css": {
+      "colours": 22
+    },
+    "src/components/assistant/assistant.module.css": {
+      "colours": 30
+    },
+    "src/components/assistant/connections.module.css": {
+      "colours": 2
+    },
+    "src/components/atlas/atlas.module.css": {
+      "colours": 49
+    },
+    "src/components/booking/booking.module.css": {
+      "colours": 27
+    },
+    "src/components/gaitscape/story.module.css": {
+      "colours": 5,
+      "fonts": 1
+    },
+    "src/components/home/environments.module.css": {
+      "colours": 21
+    },
+    "src/components/home/privacypipeline.module.css": {
+      "colours": 7
+    },
+    "src/components/home/representations.module.css": {
+      "colours": 37
+    },
+    "src/components/home/thread.module.css": {
+      "colours": 23
+    },
+    "src/components/home/try.module.css": {
+      "colours": 39
+    },
+    "src/components/insights/archive-page.module.css": {
+      "colours": 14
+    },
+    "src/components/insights/archive.module.css": {
+      "colours": 67
+    },
+    "src/components/insights/backdrop.module.css": {
+      "colours": 4
+    },
+    "src/components/insights/covers.module.css": {
+      "colours": 71
+    },
+    "src/components/insights/engagement.module.css": {
+      "colours": 8
+    },
+    "src/components/insights/experience/experience.module.css": {
+      "colours": 64
+    },
+    "src/components/insights/experience/figures.module.css": {
+      "colours": 100
+    },
+    "src/components/insights/hub/discovery.module.css": {
+      "colours": 1
+    },
+    "src/components/insights/hub/hub.module.css": {
+      "colours": 59
+    },
+    "src/components/insights/journal.module.css": {
+      "colours": 123
+    },
+    "src/components/insights/publication.module.css": {
+      "colours": 9
+    },
+    "src/components/insights/scenes.module.css": {
+      "colours": 15,
+      "fonts": 8
+    },
+    "src/components/insights/signal.module.css": {
+      "colours": 39
+    },
+    "src/components/labs/gaitLabs.module.css": {
+      "colours": 17
+    },
+    "src/components/labs/labCover.module.css": {
+      "colours": 10
+    },
+    "src/components/labs/labExperience.module.css": {
+      "colours": 27
+    },
+    "src/components/labs/photo/labPhoto.module.css": {
+      "colours": 27
+    },
+    "src/components/products/heroField.module.css": {
+      "colours": 40
+    },
+    "src/components/publications/coverart.module.css": {
+      "colours": 9
+    },
+    "src/components/publications/plate.module.css": {
+      "colours": 37
+    },
+    "src/components/research/boundary.module.css": {
+      "colours": 12
+    },
+    "src/components/research/labs.module.css": {
+      "colours": 17
+    },
+    "src/components/research/observatory.module.css": {
+      "colours": 105
+    },
+    "src/components/research/talks.module.css": {
+      "colours": 22
+    },
+    "src/components/search/search.module.css": {
+      "colours": 22
+    },
+    "src/components/sections/about/cardstories.module.css": {
+      "colours": 2
+    },
+    "src/components/sections/hero.module.css": {
+      "colours": 58
+    },
+    "src/components/sections/herohaze.module.css": {
+      "colours": 14,
+      "darkFlips": 2
+    },
+    "src/components/sections/heromobile.module.css": {
+      "colours": 50,
+      "darkFlips": 9
+    },
+    "src/components/sections/heropanels.module.css": {
+      "colours": 13,
+      "darkFlips": 1
+    },
+    "src/components/sections/herosignals.module.css": {
+      "colours": 34,
+      "darkFlips": 4
+    },
+    "src/components/sections/herowalker.module.css": {
+      "colours": 1,
+      "darkFlips": 2
+    },
+    "src/components/sections/homehero.module.css": {
+      "colours": 110,
+      "darkFlips": 38
+    },
+    "src/components/sections/howitworks.module.css": {
+      "colours": 64
+    },
+    "src/components/sections/poserail.module.css": {
+      "colours": 60,
+      "darkFlips": 67
+    },
+    "src/components/subscribe/subscribe.module.css": {
+      "colours": 28
+    },
+    "src/components/trust/trust.module.css": {
+      "colours": 9
+    },
+    "src/components/ui/disclosure.module.css": {
+      "colours": 3
+    },
+    "src/components/usecases/constellation.module.css": {
+      "colours": 30
+    },
+    "src/components/usecases/usecases.module.css": {
+      "colours": 54
+    },
+    "src/components/visuals/SecureVisionDaylightIntelligence.module.css": {
+      "colours": 54,
+      "fonts": 1
+    },
+    "src/components/visuals/SecureVisionHeroVisual.module.css": {
+      "colours": 132,
+      "fonts": 12
+    },
+    "src/components/visuals/engine.module.css": {
+      "colours": 53
+    },
+    "src/components/visuals/field.module.css": {
+      "colours": 15
+    },
+    "src/components/visuals/privacyLens.module.css": {
+      "colours": 3
+    },
+    "src/components/visuals/xray.module.css": {
+      "colours": 2
+    }
+  }
+}

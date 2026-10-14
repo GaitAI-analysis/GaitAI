@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { georama } from "@/components/care/Care";
 import { ctas } from "@/data/content";
 import { productApps, type ProductAppId } from "@/data/product-apps";
 import { SUBSCRIPTION_NOTE } from "@/data/subscriptions";
@@ -20,8 +19,9 @@ import styles from "./appShowcase.module.css";
  * download button leads to the /<product>/download/ page; MobilityCare also
  * links the site's browser demonstration, labelled as a demonstration.
  *
- * Georama, warm paper, navy, graphite and one gold accent, like the GaitAI
- * Care surfaces: the apps are products, and this is the product voice.
+ * A section of the product page, styled as one: the site's type, tokens,
+ * buttons and cards (app/design-system.css), the page's own headline accent
+ * and the family's selection colour — no palette of its own.
  */
 export function AppShowcase({ app: appId }: { app: ProductAppId }) {
   const app = productApps[appId];
@@ -30,7 +30,7 @@ export function AppShowcase({ app: appId }: { app: ProductAppId }) {
   return (
     <section
       id={app.anchor}
-      className={`${styles.section} ${styles.theme} ${georama.variable}`}
+      className={`${styles.section} ${styles.theme} ${appId === "securevision" ? "ix-family-secure" : "ix-family-care"}`}
       aria-labelledby={titleId}
       data-app-showcase={appId}
     >
@@ -41,7 +41,7 @@ export function AppShowcase({ app: appId }: { app: ProductAppId }) {
             <h2 id={titleId}>
               {app.headline[0]}
               <br />
-              <span>{app.headline[1]}</span>
+              <span className={appId === "securevision" ? "text-gradient-secure" : "text-gradient"}>{app.headline[1]}</span>
             </h2>
             <p className={styles.lead}>{app.lead}</p>
           </div>

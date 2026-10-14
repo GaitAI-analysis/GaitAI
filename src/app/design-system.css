@@ -1,0 +1,116 @@
+/* =========================================================================
+   THE SHARED GAITAI UI LAYER — read this before styling a new page
+   -------------------------------------------------------------------------
+   The homepage, /mobilitycare, /securevision, the Blog and the nav are the
+   source of truth. Their look lives in globals.css (dark branch, `:root`)
+   and light-theme.css (light branch, `:root.light`). This file adds NO new
+   colours: every `--ui-*` token below is an alias of a token those two
+   files already own, so a component written against `--ui-*` follows both
+   themes, and any future change to the approved palette, with no work of
+   its own.
+
+   Why it exists (2026-10-14): the Care page, the Android download pages,
+   the account page and the app showcases each declared a private palette
+   (warm paper #f6f4ef, navy #17243a, gold #886322) and their own typeface
+   (Georama), light-first with a `.dark` flip. Every one of them looked like
+   a different website. `npm run check:design-system` now fails the build
+   when a module stylesheet does that again — see docs/design-system.md.
+
+   Rules for new CSS modules:
+     · colours, fonts, radii and shadows come from `--ui-*` (or the semantic
+       tokens they alias) — never a hex, rgb() or named colour;
+     · buttons are the global `.btn-primary` / `.btn-ghost` (in a module:
+       `composes: btn-primary from global;`), cards `.card`, labels
+       `.eyebrow`, chips `.pill`, page width `.container-wide`;
+     · no `font-family` except `var(--ui-font-*)` or `inherit`, and no
+       `next/font` import outside app/layout.tsx;
+     · light is the `:root.light` branch — never re-theme with `.dark`.
+   ========================================================================= */
+
+:root {
+  /* Type — the three faces app/layout.tsx loads. Body Inter, headings
+     Space Grotesk at the Tailwind display scale, technical text JetBrains. */
+  --ui-font-body: var(--font-inter), Inter, system-ui, sans-serif;
+  --ui-font-display: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
+  --ui-font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
+
+  /* Ink. Headings, body copy (text-soft-gray on the product pages), and
+     metadata. */
+  --ui-ink: var(--text-primary);
+  --ui-body: var(--text-secondary);
+  --ui-muted: var(--text-muted);
+  /* Eyebrows, step numbers and technical labels — the `.eyebrow` colour. */
+  --ui-label: var(--text-mute);
+  /* The one accent for "this is the active one": the interactive system's
+     selected colour (cyan on navy, cyan-ink on paper). */
+  --ui-accent: var(--cyan);
+  --ui-selected-bg: var(--interactive-selected-bg);
+  --ui-selected-line: var(--interactive-selected-border);
+  /* The logo's gold — for the product wordmark only, never for copy. */
+  --ui-brand-gold: var(--hero-gold);
+
+  /* Ground and surfaces. Pages sit on the body's own ground (transparent),
+     cards use the `.card` gradient, a quiet inset band the secondary
+     surface. */
+  --ui-bg: var(--page-bg);
+  --ui-surface: linear-gradient(180deg, var(--card-bg-a) 0%, var(--card-bg-b) 100%);
+  --ui-surface-solid: var(--surface-elevated);
+  --ui-surface-sunken: var(--surface-secondary);
+  --ui-line: var(--border-subtle);
+  --ui-line-strong: var(--border-strong);
+  --ui-shadow: var(--card-shadow);
+
+  /* States, from the interactive system (globals.css). */
+  --ui-hover-bg: var(--interactive-hover-bg);
+  --ui-hover-line: var(--interactive-hover-border);
+  --ui-focus: var(--interactive-focus-ring);
+
+  /* Shape. Cards are rounded-2xl, inset panels rounded-xl, controls pills. */
+  --ui-radius-card: 1rem;
+  --ui-radius-inset: 0.75rem;
+  --ui-radius-control: 9999px;
+
+  /* Rhythm — .container-wide and .section, as variables for module CSS. */
+  --ui-container: 1320px;
+  --ui-gutter: 1.25rem;
+  --ui-section-y: 6rem;
+
+  /* A full-screen preview's scrim: the page's own ground, nearly opaque,
+     so the preview follows the theme like everything else. */
+  --ui-scrim: rgb(var(--c-obsidian-500) / 0.94);
+  /* A phone's bezel is hardware: the dark ground's deepest value in both
+     themes (globals.css --c-obsidian-500, dark branch). */
+  --ui-device-bezel: rgb(5 8 15);
+  --ui-device-edge: rgb(255 255 255 / 0.1);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --ui-gutter: 2rem;
+    --ui-section-y: 7rem;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --ui-gutter: 3rem;
+    --ui-section-y: 9rem;
+  }
+}
+/* Phones: mobile.css's rhythm (a section is 64px of air, the gutter
+   --m-gutter). */
+@media (max-width: 639px) {
+  :root {
+    --ui-gutter: var(--m-gutter, 1.25rem);
+    --ui-section-y: 4rem;
+  }
+}
+
+/* The light branch: only the aliases whose light value is not the same
+   semantic token. These mirror light-theme.css §7 (eyebrow sapphire ink)
+   and the interactive light accent. */
+:root.light {
+  --ui-label: var(--light-sapphire-ink);
+  --ui-accent: var(--light-cyan-ink);
+  --ui-brand-gold: var(--light-champagne);
+  --ui-scrim: rgb(var(--c-obsidian) / 0.95);
+}

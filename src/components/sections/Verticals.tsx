@@ -6,7 +6,8 @@ import { ArrowRight, Download, Smartphone } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { ThemeImage, ThemeVideo } from "@/components/ui/ThemeMedia";
 import type { ThemeMediaKey } from "@/lib/theme-media";
-import { describePricing, productApps, type ProductAppId } from "@/data/product-apps";
+import { productApps, type ProductAppId } from "@/data/product-apps";
+import { SUBSCRIPTION_NOTE } from "@/data/subscriptions";
 import { capabilityIconById } from "@/components/icons/CapabilityIcons";
 import {
   mobilityProducts,
@@ -319,8 +320,8 @@ function FlagshipPanel({
             it is a real download link only when data/product-apps.ts names a
             verified public release; until then it is a disabled "coming
             soon" state, never a link to a page or a file that does not exist.
-            The note under them states what the founder set: the download is
-            free and the protected features need a Pro subscription. */}
+            The note under them is the one subscription line the site carries:
+            no price, no plan — those are inside the app. */}
         <div className="flagship-actions mt-auto border-t border-white/12 pt-6">
           <div className="grid gap-3 sm:grid-cols-2">
             <Link
@@ -337,16 +338,14 @@ function FlagshipPanel({
               className={`group/cta flex min-h-12 items-center justify-between gap-3 rounded-full border border-current/35 px-5 text-[14px] font-bold transition-colors hover:border-current/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian ${style.cta}`}
               aria-describedby={`${appId}-android-note`}
             >
-              <span>{app.release.publicApk ? "Download Android App" : "Android App & Plans"}</span>
+              <span>{app.release.publicApk ? "Download Android App" : "Android App"}</span>
               <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-current/40 transition-[transform,border-color] duration-300 group-hover/cta:translate-y-0.5 group-hover/cta:border-current/60">
                 {app.release.publicApk ? <Download className="h-4 w-4" aria-hidden="true" /> : <Smartphone className="h-4 w-4" aria-hidden="true" />}
               </span>
             </Link>
           </div>
           <p id={`${appId}-android-note`} className="mt-3 text-[11.5px] leading-5 text-soft-mute">
-            {app.release.publicApk
-              ? `Free download. Analysis, history and reports need a subscription: ${describePricing(app)}.`
-              : `Free download opens when payments go live. Analysis, history and reports need a subscription: ${describePricing(app)}.`}
+            {SUBSCRIPTION_NOTE}
           </p>
         </div>
       </article>

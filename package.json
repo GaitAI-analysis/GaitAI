@@ -22,6 +22,7 @@
     "verify": "npm run typecheck && npm run lint && npm run validate:gaitai && npm run check:media -- --strict && npm run test:evidence && npm run ask:test && npm run ask:rank && npm run ask:paraphrase && npm run test:public-brand",
     "check:links": "node scripts/check-links.mjs",
     "check:seo": "node scripts/check-seo.mjs",
+    "check:no-pricing": "node scripts/check-no-pricing.mjs",
     "seo:indexnow": "node scripts/seo/indexnow.mjs",
     "build:knowledge": "tsx scripts/build-knowledge.mjs",
     "ask:test": "tsx scripts/ask-test.ts",

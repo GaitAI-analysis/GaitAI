@@ -135,7 +135,7 @@ export function catalog(config: Config) {
     mode: config.provider,
     disclosures: {
       recurring: "Subscriptions renew automatically at the end of each billing period until cancelled.",
-      cancellation: "Cancel any time from Manage subscription in the app or at gaitai.in/account. Access continues until the end of the period already paid for; no further charges are taken.",
+      cancellation: "Cancel any time in the app: Profile, then Manage subscription. Access continues until the end of the period already paid for; no further charges are taken.",
       refunds: "Refund requests go to support@gaitai.in. A refunded payment ends access for the period it covered.",
       separate: "Each product is a separate subscription: a MobilityCare plan does not unlock SecureVision, and the reverse.",
     },

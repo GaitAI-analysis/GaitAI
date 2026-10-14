@@ -109,6 +109,11 @@ jobs:
           npm run check:seo
           npm run check:links
 
+      # Plans, prices and payment live inside the Android apps only
+      # (founder decision 2026-10-14): no page or Ask record may print one.
+      - name: Verify no app pricing on the public site
+        run: npm run check:no-pricing
+
       # Preserve the custom domain on every deploy.
       - name: Add CNAME
         run: echo "gaitai.in" > out/CNAME

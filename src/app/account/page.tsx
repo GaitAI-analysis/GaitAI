@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Link from "next/link";
-import { AccountPanel } from "@/components/account/AccountPanel";
 import { georama } from "@/components/care/Care";
 import styles from "@/components/care/care.module.css";
-import { BILLING_SANDBOX } from "@/data/subscriptions";
+import { productAppList } from "@/data/product-apps";
+import { SUBSCRIPTION_NOTE } from "@/data/subscriptions";
 import { SOCIAL_IMAGES, socialCard } from "@/lib/seo";
 
-const TITLE = "GaitAI Account — Sign in, Subscribe, Manage Subscription";
-const DESCRIPTION = "Sign in to your GaitAI account to subscribe to MobilityCare or SecureVision for Android, see your subscription status and billing history, and cancel at any time.";
+const TITLE = "GaitAI Account — Managed in the Android Apps";
+const DESCRIPTION = "Your GaitAI account and subscription for MobilityCare or SecureVision are managed inside the Android app: sign in, see your status and receipts, and cancel from Profile.";
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -18,10 +17,10 @@ export const metadata: Metadata = {
 };
 
 /**
- * /account — the web half of the subscription: the same Firebase account the
- * Android apps use, the same billing Worker. Everything interactive is in
- * the client panel; this page is static so the export, SEO contract and
- * link check all see a complete document.
+ * /account — where the apps' "Manage on the web" link lands. Founder
+ * decision 2026-10-14: account, plans, payment, receipts and cancellation
+ * all happen inside the Android apps, so this page only says where to find
+ * them. No sign-in, no checkout, no price (data/subscriptions.ts).
  */
 export default function AccountPage() {
   return (
@@ -33,17 +32,42 @@ export default function AccountPage() {
           <span aria-current="page">Account</span>
         </nav>
         <header className={styles.downloadHero}>
-          <span className={styles.badge}>GAITAI ACCOUNT{BILLING_SANDBOX ? " · SANDBOX" : ""}</span>
+          <span className={styles.badge}>GAITAI ACCOUNT</span>
           <h1>
-            Your subscriptions.
+            Your account lives
             <br />
-            One account, every phone.
+            in the app.
           </h1>
-          <p className={styles.lead}>Sign in with the account you use in the GaitAI Android apps to subscribe, check your status, see your billing history and cancel at any time.</p>
+          <p className={styles.lead}>{SUBSCRIPTION_NOTE}</p>
         </header>
-        <Suspense fallback={<p className={styles.small}>Loading your account…</p>}>
-          <AccountPanel />
-        </Suspense>
+        <div className={styles.downloadGrid}>
+          <section className={styles.releaseCard} aria-labelledby="account-where-title">
+            <h2 id="account-where-title">Manage your subscription</h2>
+            <ol>
+              <li>Open GaitAI MobilityCare or GaitAI SecureVision on your phone.</li>
+              <li>Go to Profile, then Subscription.</li>
+              <li>See your status, next renewal and receipts, or cancel. Cancelling stops future charges; access continues to the end of the period already paid for.</li>
+            </ol>
+            <p className={styles.small}>Signing in on another phone restores your subscription there. Each product is a separate subscription.</p>
+            <div className={styles.actions}>
+              {productAppList.map((app, i) => (
+                <Link key={app.id} href={app.downloadHref} className={i === 0 ? styles.primary : styles.secondary}>
+                  Download {app.name.replace("GaitAI ", "")}
+                </Link>
+              ))}
+            </div>
+          </section>
+          <section className={styles.instructions} aria-labelledby="account-help-title">
+            <h2 id="account-help-title">Help</h2>
+            <p>
+              Billing questions, refunds and account deletion: <a href="mailto:support@gaitai.in?subject=GaitAI%20subscription">support@gaitai.in</a>. Include the email address of your GaitAI account.
+            </p>
+            <div className={styles.legalLinks}>
+              <Link href="/legal/terms/#subscriptions">Subscription terms</Link>
+              <Link href="/legal/privacy/">Privacy policy</Link>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );

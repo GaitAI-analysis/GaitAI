@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { georama } from "@/components/care/Care";
 import { ctas } from "@/data/content";
-import { androidAccessMailto, productApps, type ProductAppId } from "@/data/product-apps";
-import { ACCOUNT_HREF, androidHref, payments } from "@/data/subscriptions";
+import { productApps, type ProductAppId } from "@/data/product-apps";
+import { SUBSCRIPTION_NOTE } from "@/data/subscriptions";
 import { AppWalkthrough } from "./AppWalkthrough";
 import styles from "./appShowcase.module.css";
 
@@ -14,12 +14,11 @@ import styles from "./appShowcase.module.css";
  * data/product-apps.ts: the screens are the app's own; the capabilities
  * listed are the ones that run on the device today, with what is coming
  * marked as coming; and the release status is stated as it is. The app is a
- * paid, subscription-gated product: the download is free, every analysis
- * needs an active subscription, and the plans sit in the SubscriptionPlans
- * section directly below. The download button appears only once
- * `release.publicApk` is set; until then the visitor can read the plans,
- * create an account, request a demo, and (for MobilityCare) try the site's
- * browser demonstration, which is labelled as a demonstration.
+ * paid, subscription-gated product: the download is free and every analysis
+ * needs an active subscription. Plans, prices and payment are inside the app
+ * only — this section never prints a price (data/subscriptions.ts). The
+ * download button leads to the /<product>/download/ page; MobilityCare also
+ * links the site's browser demonstration, labelled as a demonstration.
  *
  * Georama, warm paper, navy, graphite and one gold accent, like the GaitAI
  * Care surfaces: the apps are products, and this is the product voice.
@@ -49,16 +48,14 @@ export function AppShowcase({ app: appId }: { app: ProductAppId }) {
           <div className={styles.aside}>
             <span className={styles.status}>{app.release.status.toUpperCase()} · ANDROID</span>
             <div className={styles.actions}>
-              <Link href={androidHref(app.id)} className={styles.primary}>
-                {app.release.publicApk ? "Download for Android" : "Android download page"} <span aria-hidden="true">↓</span>
+              <Link href={app.downloadHref} className={styles.primary}>
+                Download Android App <span aria-hidden="true">↓</span>
               </Link>
-              <Link href={`${app.productHref}#pricing`} className={styles.secondary}>
-                See plans <span aria-hidden="true">→</span>
+              <Link href={ctas.demo.href} className={styles.secondary}>
+                {ctas.demo.label} <span aria-hidden="true">→</span>
               </Link>
             </div>
-            <Link href={ACCOUNT_HREF} className={styles.textLink}>
-              Sign in · Manage subscription <span aria-hidden="true">→</span>
-            </Link>
+            <p className={styles.small}>{SUBSCRIPTION_NOTE}</p>
             {app.webDemo && (
               <Link href={app.webDemo.href} className={styles.textLink}>
                 {app.webDemo.label} <span aria-hidden="true">→</span>
@@ -102,17 +99,15 @@ export function AppShowcase({ app: appId }: { app: ProductAppId }) {
             <h3>Release status</h3>
             <p>{app.release.detail}</p>
             <div className={styles.actions}>
-              <Link href={androidHref(app.id)} className={styles.primary}>
-                {app.release.publicApk ? "Download for Android" : "Download page"}
+              <Link href={app.downloadHref} className={styles.primary}>
+                Download Android App
               </Link>
               <Link href={ctas.demo.href} className={styles.secondary}>
                 {ctas.demo.label}
               </Link>
             </div>
             <p className={styles.small}>
-              {payments.live
-                ? "Free to download; features need an active subscription on your GaitAI account."
-                : <>Payments are not yet switched on. Pilots and evaluations can still be arranged: <a href={androidAccessMailto(app)}>request access</a>.</>}
+              Version {app.release.version} (build {app.release.build}) · {app.android} · free download.
             </p>
           </div>
         </div>

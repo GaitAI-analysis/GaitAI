@@ -206,22 +206,18 @@ export default function TermsPage() {
         to download and need an active, paid subscription on a GaitAI account
         to analyse video, keep history or produce reports. Each product is a
         separate subscription: a MobilityCare plan does not unlock
-        SecureVision, and the reverse. Plans are monthly or annual, in Indian
-        rupees, at the prices shown on the product pages before you pay.
+        SecureVision, and the reverse. Plans, prices and
+        applicable taxes are shown inside the app before you pay.
       </p>
       <p className="mt-4 text-soft-gray">
         Subscriptions are recurring and renew automatically at the end of each
         billing period until cancelled. You can cancel at any time from Manage
-        subscription in the app or at{" "}
-        <Link className="text-cyan-300 transition-colors hover:text-cyan-200" href="/account/">
-          gaitai.in/account
-        </Link>
-        ; no further charges are taken and access continues until the end of
+        subscription in the app (Profile, then Subscription); no further charges are taken and access continues until the end of
         the period already paid for. Payments are processed by Razorpay; GaitAI
         never sees or stores card numbers. If a renewal payment fails, access
         continues for a short grace period while the payment is retried, then
         the subscription stops. Whether the listed prices include GST is
-        confirmed on the product pages and at checkout before you pay; a tax
+        shown in the app at checkout before you pay; a tax
         invoice is issued for every payment. Refund requests go to{" "}
         <a className="text-cyan-300 transition-colors hover:text-cyan-200" href="mailto:support@gaitai.in">
           support@gaitai.in

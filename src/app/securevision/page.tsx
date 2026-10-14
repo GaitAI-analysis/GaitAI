@@ -18,7 +18,6 @@ import { productOverview } from "@/data/product-details";
 import { InPlainTerms, type PlainTerm } from "@/components/sections/InPlainTerms";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { AppShowcase } from "@/components/apps/AppShowcase";
-import { SubscriptionPlans } from "@/components/apps/SubscriptionPlans";
 import { SITE_URL, SOCIAL_IMAGES, organizationRef, socialCard } from "@/lib/seo";
 
 /* The title and description name the capability in the buyer's words —
@@ -427,10 +426,6 @@ export default function SecureVisionPage() {
           today, and PrivacyGuard below is the posture it inherits
           (data/product-apps.ts). */}
       <AppShowcase app="securevision" />
-      {/* SUBSCRIPTION PLANS — the app above is a paid product: free to
-          download, subscription to analyse. Prices and disclosures from
-          data/subscriptions.ts; the account page does the rest. */}
-      <SubscriptionPlans product="securevision" />
 
       {/* PRIVACYGUARD DEEP BLOCK */}
       {privacy && (

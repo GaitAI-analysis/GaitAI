@@ -17,13 +17,14 @@ import { DEMO_EMAIL } from "./contact";
  *                               engine READY; the results shown are the app's
  *                               own history from earlier test clips
  *
- * RELEASE STATUS, STATED PLAINLY. Version 0.2.0 (build 3) is the paid,
- * subscription-gated build: a GaitAI account is required, every analysis asks
- * the billing Worker for a grant, and nothing functional runs without an
- * active subscription. The release APKs are signed with the GaitAI release
- * key and distributed from gaitai.in — NOT Google Play — once payments are
- * activated. Until `release.publicApk` is set after the release checks pass,
- * the download pages say "not yet available" and link nothing. Fail closed.
+ * RELEASE STATUS, STATED PLAINLY. Version 0.2.0 (build 3) is the public,
+ * subscription-gated build: free to download from the GitHub release linked
+ * here, signed with the GaitAI release key, distributed outside Google Play.
+ * A GaitAI account is required, every analysis asks the billing Worker for a
+ * grant, and nothing functional runs without an active subscription. Plans,
+ * prices and payment are inside the app only (data/subscriptions.ts) — this
+ * file carries no price. `release.publicApk`, `bytes` and `sha256` are the
+ * published file's, verified by downloading it back (2026-10-14).
  *
  * WORDING GUARDRAILS, from the apps' own store-listing drafts: movement
  * insight, gait metric, step-time balance, count, occupancy, estimate. Never:
@@ -73,19 +74,8 @@ export interface ProductApp {
   readonly screens: readonly AppScreen[];
   /** Optional web demonstration on this site — a demonstration, never "the app". */
   readonly webDemo?: { readonly label: string; readonly href: string; readonly note: string };
-  /** The Android download page (fails closed until a verified release is published). */
+  /** The Android download page. */
   readonly downloadHref: string;
-  /**
-   * The Pro subscription as the founder set it (2026-10-14). Shown as
-   * information only: the website takes no payment, and in-app purchases run
-   * through the store in sandbox until live billing is approved. Yearly is
-   * monthly x 12 less the annual discount, rounded to the rupee.
-   */
-  readonly pricing: {
-    readonly currency: "INR";
-    readonly monthly: number;
-    readonly annualDiscount: number;
-  };
   readonly release: {
     readonly status: string;
     readonly detail: string;
@@ -139,8 +129,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     headline: ["A walk, read on", "the phone that filmed it."],
     lead:
       "GaitAI MobilityCare is a native Android app. Record or upload a 10–20 second walking video and it returns cadence and step-time balance in minutes, with every frame analysed on the device. These are the app's real screens, running on Android.",
-    downloadHref: "/mobilitycare/android/",
-    pricing: { currency: "INR", monthly: 999, annualDiscount: 0.2 },
+    downloadHref: "/mobilitycare/download/",
     tabs: ["Home", "Analyze", "Progress", "Reports", "Profile"],
     analyses: [
       {
@@ -225,14 +214,14 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       note: "A browser demonstration of pose tracking on this site — not the app.",
     },
     release: {
-      status: "Release candidate · subscription required",
+      status: "Public release · subscription required",
       detail:
-        "Version 0.2.0 (build 3) is the paid build: sign in with a GaitAI account, subscribe, and every analysis is unlocked after GaitAI confirms the payment. It is signed with the GaitAI release key for direct distribution from gaitai.in. The public download opens when payments are activated; until then nothing is linked here.",
-      publicApk: null,
+        "Version 0.2.0 (build 3) is a public release, free to download and signed with the GaitAI release key. Sign in with a GaitAI account inside the app; analysis, history and reports unlock with an active subscription, chosen and paid for in the app.",
+      publicApk: "https://github.com/GaitAI-analysis/GaitAI/releases/download/android-v0.2.0/GaitAI-MobilityCare-0.2.0-build3.apk",
       version: "0.2.0",
       build: 3,
-      bytes: null,
-      sha256: null,
+      bytes: 96573864,
+      sha256: "5b6ceb799390e5b112b920b139788d451dee9bb661979e60721875dcf7fbbb1e",
     },
   },
   securevision: {
@@ -248,8 +237,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     headline: ["Count a space.", "Keep its people anonymous."],
     lead:
       "GaitAI SecureVision is a native Android app for spaces you are authorised to analyse. Upload a short video and an on-device person detector counts who it can see, frame by frame, or draw a zone and track entries, occupancy and dwell. It detects people as boxes and identifies no one. These are the app's real screens.",
-    downloadHref: "/securevision/android/",
-    pricing: { currency: "INR", monthly: 1499, annualDiscount: 0.2 },
+    downloadHref: "/securevision/download/",
     tabs: ["Home", "Analyze", "Activity", "Reports", "Profile"],
     analyses: [
       {
@@ -332,29 +320,16 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       },
     ],
     release: {
-      status: "Release candidate · subscription required",
+      status: "Public release · subscription required",
       detail:
-        "Version 0.2.0 (build 3) is the paid build: sign in with a GaitAI account, subscribe, and every analysis is unlocked after GaitAI confirms the payment. It is signed with the GaitAI release key for direct distribution from gaitai.in. The public download opens when payments are activated; until then nothing is linked here.",
-      publicApk: null,
+        "Version 0.2.0 (build 3) is a public release, free to download and signed with the GaitAI release key. Sign in with a GaitAI account inside the app; analysis, history and reports unlock with an active subscription, chosen and paid for in the app.",
+      publicApk: "https://github.com/GaitAI-analysis/GaitAI/releases/download/android-v0.2.0/GaitAI-SecureVision-0.2.0-build3.apk",
       version: "0.2.0",
       build: 3,
-      bytes: null,
-      sha256: null,
+      bytes: 96610520,
+      sha256: "9f1a47c2da3aa591ab3ffbb6f257db1416c03b4c4f08486b8ad63c1f9540b0ac",
     },
   },
 };
 
 export const productAppList = Object.values(productApps);
-
-const inr = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-/**
- * "₹999.00/month or ₹9,590.40/year (20% annual saving)" — to the paisa, so
- * the home card, the product page and the billing Worker's catalogue print
- * the same number (data/subscriptions.ts and billing/src/catalog.ts).
- */
-export function describePricing(app: ProductApp): string {
-  const { monthly, annualDiscount } = app.pricing;
-  const yearly = Math.round(monthly * 100 * 12 * (1 - annualDiscount)) / 100;
-  return `${inr.format(monthly)}/month or ${inr.format(yearly)}/year (${Math.round(annualDiscount * 100)}% annual saving)`;
-}

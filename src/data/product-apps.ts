@@ -63,6 +63,8 @@ export interface ProductApp {
   readonly version: string;
   readonly build: number;
   readonly android: string;
+  /** The same requirement, short, for compact facts ("Android 7.0+"). */
+  readonly androidShort: string;
   readonly eyebrow: string;
   readonly headline: readonly [string, string];
   readonly lead: string;
@@ -87,6 +89,13 @@ export interface ProductApp {
     /** Exact size and SHA-256 of the published file; null until it is published. */
     readonly bytes: number | null;
     readonly sha256: string | null;
+    /**
+     * True only when the published file's signature was checked with
+     * `apksigner verify --print-certs` and its signer is the GaitAI release key
+     * (certificate SHA-256 888a4f8e…46890ec). Checked 2026-10-14 on the files
+     * downloaded back from the release. Shows "Signed GaitAI release".
+     */
+    readonly signatureVerified: boolean;
   };
 }
 
@@ -125,6 +134,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     version: "0.2.0",
     build: 3,
     android: "Android 7.0 or later",
+    androidShort: "Android 7.0+",
     eyebrow: "Explore the MobilityCare app",
     headline: ["A walk, read on", "the phone that filmed it."],
     lead:
@@ -222,6 +232,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       build: 3,
       bytes: 96573864,
       sha256: "5b6ceb799390e5b112b920b139788d451dee9bb661979e60721875dcf7fbbb1e",
+      signatureVerified: true,
     },
   },
   securevision: {
@@ -233,6 +244,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
     version: "0.2.0",
     build: 3,
     android: "Android 7.0 or later",
+    androidShort: "Android 7.0+",
     eyebrow: "Explore the SecureVision app",
     headline: ["Count a space.", "Keep its people anonymous."],
     lead:
@@ -328,6 +340,7 @@ export const productApps: Record<ProductAppId, ProductApp> = {
       build: 3,
       bytes: 96610520,
       sha256: "9f1a47c2da3aa591ab3ffbb6f257db1416c03b4c4f08486b8ad63c1f9540b0ac",
+      signatureVerified: true,
     },
   },
 };

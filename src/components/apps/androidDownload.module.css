@@ -1,0 +1,274 @@
+/* THE ANDROID DOWNLOAD CARD (MobilityCare, SecureVision) — the pieces the
+   shared Care download styles do not have. Colours come from the Care tokens
+   declared on the page's .theme wrapper (care.module.css), so light and dark
+   follow it. Every rule is scoped under .card so it outranks the shared
+   .releaseCard dl/dt/dd/p rules; that file is shared with GaitAI Care and is not edited here. */
+
+.card .lede {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--care-muted);
+}
+
+.card .cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 26px;
+}
+
+.card .download {
+  min-height: 56px;
+  padding: 14px 26px;
+  font-size: 15px;
+  gap: 12px;
+}
+
+.card .download svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Version · size · Android, as three quiet facts. */
+.card .facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 28px 0 0;
+  border-top: 1px solid var(--care-line);
+  border-bottom: 1px solid var(--care-line);
+}
+
+.card .fact {
+  padding: 16px 12px 16px 0;
+}
+
+.card .fact + .fact {
+  padding-left: 16px;
+  border-left: 1px solid var(--care-line);
+}
+
+.card .fact dt {
+  padding: 0;
+  border: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--care-muted);
+}
+
+.card .fact dd {
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--care-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.card .fact dd small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--care-muted);
+}
+
+.card .signed {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--care-muted);
+}
+
+.card .signed svg {
+  width: 16px;
+  height: 16px;
+  color: var(--care-gold);
+  flex-shrink: 0;
+}
+
+/* Verify download — folded technical section. */
+.card .verify {
+  margin-top: 22px;
+  border: 1px solid var(--care-line);
+  border-radius: 10px;
+  background: var(--care-bg);
+}
+
+.card .verifySummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 14px 44px 14px 18px;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--care-ink);
+}
+
+.card .verifySummary::-webkit-details-marker {
+  display: none;
+}
+
+.card .verifySummary::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform 0.2s;
+}
+
+.card .verify[open] .verifySummary::after {
+  transform: translateY(-30%) rotate(-135deg);
+}
+
+.card .verifyHint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--care-muted);
+}
+
+.card .verifyBody {
+  padding: 0 18px 18px;
+}
+
+.card .verifyLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--care-muted);
+}
+
+.card .hashRow {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  margin-top: 8px;
+}
+
+.card .hash {
+  flex: 1;
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  padding: 10px 12px;
+  background: var(--care-soft);
+  border-radius: 6px;
+  color: var(--care-ink);
+  user-select: all;
+}
+
+.card .copy {
+  flex-shrink: 0;
+  min-width: 76px;
+  padding: 0 14px;
+  border: 1px solid var(--care-line);
+  border-radius: 6px;
+  background: var(--care-surface);
+  color: var(--care-ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.card .copy:hover {
+  background: var(--care-soft);
+}
+
+.card .copy:focus-visible {
+  outline: 3px solid var(--care-gold);
+  outline-offset: 2px;
+}
+
+.card .verifyText {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--care-muted);
+}
+
+.card .verifyText code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.card .techList {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0;
+  margin: 14px 0 0;
+  font-size: 13px;
+}
+
+.card .techList dt,
+.card .techList dd {
+  padding: 9px 0;
+  border-top: 1px solid var(--care-line);
+}
+
+.card .techList dt {
+  padding-right: 16px;
+  color: var(--care-muted);
+}
+
+.card .techList dd {
+  text-align: right;
+  overflow-wrap: anywhere;
+  color: var(--care-ink);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 560px) {
+  .card .download {
+    width: 100%;
+  }
+  .card .facts {
+    grid-template-columns: 1fr;
+  }
+  .card .fact,
+  .card .fact + .fact {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    border-left: 0;
+  }
+  .card .fact + .fact {
+    border-top: 1px solid var(--care-line);
+  }
+  .card .fact dd {
+    margin-top: 0;
+    text-align: right;
+  }
+  .card .hashRow {
+    flex-direction: column;
+  }
+  .card .copy {
+    min-height: 40px;
+  }
+}

@@ -168,7 +168,7 @@ export default function SecureVisionPage() {
           whole and the copy is laid out in the room above it
           (`--hero-copy-space` on the inner). Chrome resolves a size
           container's `cqh` from `height`, not `min-height`. */}
-      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 lg:h-[max(600px,calc(100svh_-_var(--site-header-height)_-_var(--site-trail-height)))] lg:min-h-0 lg:pb-0 lg:pt-0">
+      <section className="securevision-hero site-page-intro min-h-[780px] pb-20 sm:min-h-[820px] sm:pb-24 xl:h-[max(600px,calc(100svh_-_var(--site-header-height)_-_var(--site-trail-height)),var(--hero-need,0px))] xl:min-h-0 xl:pb-0 xl:pt-0">
         {/* Extracted first frame as the poster, so the hero paints before the
             video decodes; `preload="metadata"` instead of "auto" so the file
             is not fetched in full up front. Reduced motion is a CSS concern —
@@ -224,19 +224,19 @@ export default function SecureVisionPage() {
           filmName="the concourse film"
         />
 
-        <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] lg:h-[var(--hero-copy-space)] lg:min-h-0">
-          <div className="w-full max-w-[680px] lg:max-w-[480px]">
+        <div className="securevision-hero-inner container-wide flex min-h-[650px] items-center sm:min-h-[680px] xl:h-[var(--hero-copy-space)] xl:min-h-0">
+          <div className="w-full max-w-[680px] xl:max-w-[480px]">
             <div className="securevision-eyebrow">
               GaitAI SecureVision · Privacy-first
             </div>
-            <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white lg:mt-5">
+            <h1 className="mt-6 font-display text-display-2xl text-balance text-soft-white xl:mt-5">
               Privacy-aware{" "}
               <span className="text-gradient-secure">
                 movement intelligence
               </span>{" "}
               for safer public spaces.
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg lg:mt-5 lg:text-base">
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg xl:mt-5 xl:text-base">
               {secureProducts.length} product modules built around safety
               analytics, crowd flow, anomaly detection and post-event
               investigation — grounded in{" "}
@@ -247,16 +247,16 @@ export default function SecureVisionPage() {
               auditability by design.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-6">
-              <Link href="#products" className="btn-primary">
+            <div className="mt-8 flex flex-wrap items-center gap-3 xl:mt-6 xl:w-max xl:flex-nowrap">
+              <Link href="#products" className="btn-primary xl:px-5">
                 See all {secureProducts.length} products
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
-              <Link href="/#contact" className="btn-ghost">
+              <Link href="/#contact" className="btn-ghost xl:px-5">
                 Request enterprise consultation
               </Link>
-              <Link href="#app" className="btn-ghost">
-                Explore the Android app
+              <Link href="#app" className="btn-ghost xl:px-5">
+                Explore Android app
                 <ArrowUpRight aria-hidden="true" className="h-3.5 w-3.5" />
               </Link>
             </div>

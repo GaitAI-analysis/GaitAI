@@ -2219,16 +2219,14 @@ body {
    by half of it — the eyebrow clears the nav, the hero itself is no taller,
    and the copy's bottom stays above the picture's product strip (the layer's
    height is that limit; see `--hero-copy-space`). */
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .securevision-hero-inner {
     box-sizing: border-box;
-    padding-top: clamp(28px, 4.5svh, 64px);
+    padding-top: var(--hero-copy-pt);
     /* The layer's height already ends just above the picture's painted
        product strip; this is the clearance between the CTA row and that
-       first ring row. The copy is flex-centred, so padding here lifts the
-       whole block by half of it — the hero does not grow, and the eyebrow
-       keeps its room under the navbar. */
-    padding-bottom: clamp(70px, 9.5svh, 130px);
+       strip's frame, in picture units (see `--hero-copy-pb`). */
+    padding-bottom: var(--hero-copy-pb);
   }
 }
 
@@ -2301,7 +2299,7 @@ body {
    deliberate: any unused area blends into the same near-black as the
    footage instead of zooming/cropping the composition. Mobile keeps the
    flowing cover layout above. */
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   /* This hero had the same fixed-`height` clipping as `.mobilitycare-hero`
      below — at 1920x760 its own last capability row was cut off entirely.
      The replacement `min-height` is set as a utility on the section itself
@@ -2342,6 +2340,18 @@ body {
     margin-top: clamp(22px, 3.4svh, 36px);
   }
 
+  /* The paragraph stays inside the shaded third of the picture. Both
+     artworks paint an analytics card just past it (MobilityCare's GAIT
+     ANALYSIS frame from x 0.355, SecureVision's anomaly tag and tracking
+     box from 0.36), and the column's fixed 470/480px ran the text into them
+     below ~1440px. In picture units — the hero is the size container — so
+     the measure follows the artwork at every width; the extra line or two
+     this costs at 1280 is absorbed by `--hero-need`. */
+  .securevision-hero-inner h1 + p,
+  .mobilitycare-hero__content h1 + p {
+    max-width: min(36rem, calc(35cqw - clamp(24px, 3vw, 56px)));
+  }
+
   .securevision-hero-inner p + div,
   .mobilitycare-hero__content p + div {
     margin-top: clamp(26px, 4.2svh, 44px);
@@ -2365,7 +2375,7 @@ body {
   --c-soft-mute: 100 116 139;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .light .securevision-hero {
     background: #eef4fb;
   }
@@ -2390,7 +2400,7 @@ body {
    than beside it, so the lift runs top to bottom and stays frosted under the
    whole text block, thinning out toward the CTAs. Still white glass, still
    nothing over the film itself once the copy ends. */
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   .light .securevision-video-shade {
     background: linear-gradient(
       180deg,
@@ -3321,7 +3331,7 @@ body {
 
 /* Below the side-by-side breakpoint the copy covers most of the frame, so
    deepen the shade evenly for readability. */
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   .mobilitycare-hero__overlay {
     background: linear-gradient(
       180deg,
@@ -3335,7 +3345,7 @@ body {
 /* Laptop/desktop: fill the viewport below the navbar, like SecureVision.
    Content is TOP-aligned (not vertically centered) so the badge/headline
    start near the top of the video, matching the SecureVision hero. */
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   /*
    * WHY `min-height` AND NOT `height`.
    *
@@ -3373,9 +3383,13 @@ body {
       620px,
       calc(100vh - var(--site-header-height) - var(--site-trail-height))
     );
+    /* …or, when the copy does not fit in the room above the painted rail on
+       a short screen, exactly what it needs (`--hero-need`, under "LAPTOPS
+       AND UP"), never taller than the picture itself. */
     height: max(
       620px,
-      calc(100svh - var(--site-header-height) - var(--site-trail-height))
+      calc(100svh - var(--site-header-height) - var(--site-trail-height)),
+      var(--hero-need, 0px)
     );
     padding: 0;
     align-items: flex-start;
@@ -3396,8 +3410,8 @@ body {
        above the eyebrow comes from a slightly larger clamp floor. The
        bottom padding is the clearance over the picture's painted strip —
        see the SecureVision copy layer for why it lifts rather than grows. */
-    padding-top: clamp(28px, 4.5svh, 64px);
-    padding-bottom: clamp(70px, 9.5svh, 130px);
+    padding-top: var(--hero-copy-pt);
+    padding-bottom: var(--hero-copy-pb);
   }
 }
 
@@ -3424,7 +3438,7 @@ body {
   );
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   .light .mobilitycare-hero__overlay {
     background: linear-gradient(
       180deg,
@@ -3544,7 +3558,7 @@ body {
    hero, so a stop at 0.33 of the picture is 33% of the screen.
    `--hero-pic-top` is negative, and that is what carries the crop into the
    copy layers' heights. The hero stays a size container for it. */
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .securevision-hero,
   .mobilitycare-hero {
     container-type: size;
@@ -3564,6 +3578,41 @@ body {
 
   .securevision-hero {
     --hero-copy-space: calc(var(--hero-pic-top) + var(--hero-pic-h) * 0.733 - 8px);
+  }
+
+  /* ROOM FOR THE COPY (2026-10-14). The copy layers end 8px above a
+     painted row of each picture (MobilityCare's rings at 0.638, SecureVision
+     0.733); the bottom padding is the gap from that row up to the TOP of
+     the strip's frame (0.575 / 0.645) plus 12px, in picture units — so the
+     CTA row never sits on the strip's heading at any width. It used to be
+     clamp(70px, 9.5svh, 130px), tied to the screen's height rather than to
+     the picture, which over-reserved on tall screens.
+
+     `--hero-need` is the hero height at which the copy (`--hero-copy-h`,
+     measured by HeroSlider) fits that room: padding + copy + the part of the
+     picture below the layer. The hero takes it only when it is larger than
+     the one-screen height, capped at the picture's own height so `cover`
+     never has to scale the still and cut the strip's first and last rings.
+     Before hydration the term is 0 and the one-screen height applies. */
+  .securevision-hero,
+  .mobilitycare-hero {
+    --hero-copy-pt: clamp(28px, 4.5svh, 64px);
+  }
+
+  .mobilitycare-hero {
+    --hero-copy-pb: calc(var(--hero-pic-h) * 0.063 + 4px);
+    --hero-need: min(
+      var(--hero-pic-h),
+      calc(var(--hero-copy-h, 0px) + var(--hero-copy-pt) + var(--hero-copy-pb) + 8px + var(--hero-pic-h) * 0.362)
+    );
+  }
+
+  .securevision-hero {
+    --hero-copy-pb: calc(var(--hero-pic-h) * 0.088 + 4px);
+    --hero-need: min(
+      var(--hero-pic-h),
+      calc(var(--hero-copy-h, 0px) + var(--hero-copy-pt) + var(--hero-copy-pb) + 8px + var(--hero-pic-h) * 0.267)
+    );
   }
 
   /* Edge to edge: the still's box IS the hero. */
@@ -3747,7 +3796,7 @@ body {
   outline-offset: 4px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .hero-slider__dots {
     bottom: 0.15rem;
   }
@@ -3755,11 +3804,14 @@ body {
   /* MobilityCare spends a little of the picture's bottom margin on the foot
      crop (see the object-position block), which brings the artwork's painted
      tagline within a few pixels of the hero's edge — so the pill moves up
-     into the band between the product descriptions and that tagline, ~55-60px
-     of empty floor at every laptop width. SecureVision crops nothing off the
-     foot and keeps the rim. */
+     into the band between the product descriptions and that tagline. The
+     band is centred at 0.90 of the picture (descriptions end ~0.875, the
+     tagline starts ~0.93); the picture's foot sits 22% of the crop below the
+     hero's edge (object-position 78%), and the pill is ~20px tall. It used
+     to be a fixed 1.5rem, which landed on the tagline at 1440x900. SecureVision
+     crops nothing off the foot and keeps the rim. */
   .mobilitycare-hero .hero-slider__dots {
-    bottom: 1.5rem;
+    bottom: calc(var(--hero-pic-h) * 0.1 + var(--hero-pic-top) * 0.22 - 10px);
   }
 }
 
@@ -3858,7 +3910,7 @@ body {
    in full. The hero's min-height keeps that strip's first row below the
    copy, so the mask's tail never lands on a ring. Until the measurement
    lands the fallback is the full-height shade. Both themes. */
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .mobilitycare-hero .hero-slider__slide--still .mobilitycare-hero__overlay {
     -webkit-mask-image: linear-gradient(
       180deg,
@@ -3875,7 +3927,7 @@ body {
   }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   .light .hero-slider__slide--still .mobilitycare-hero__overlay {
     /* The artwork paints its own title block down the left of the
        picture. From 1024 up the picture is contained and the copy's
@@ -3937,7 +3989,7 @@ body {
   );
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   :root:not(.light) .hero-slider__slide--still .mobilitycare-hero__overlay {
     /* The artwork paints its own title block down the left of the
        picture. From 1024 up the picture is contained and the copy's
@@ -4002,7 +4054,7 @@ body {
     );
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .light .mobilitycare-hero .hero-slider__slide--still::after {
     -webkit-mask-image: linear-gradient(
       90deg,
@@ -4087,7 +4139,7 @@ body {
    centred, so the hero cannot simply grow under it) the shade follows it
    down over the strip's left rings; until the measurement lands the
    fallback is the full-height shade. Both themes. */
-@media (min-width: 1024px) {
+@media (min-width: 1280px) {
   .securevision-hero-slider .hero-slider__slide--still .securevision-video-shade {
     -webkit-mask-image: linear-gradient(
       180deg,
@@ -4104,7 +4156,7 @@ body {
   }
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   .light .hero-slider__slide--still .securevision-video-shade {
     /* The artwork paints its own title block down the left of the
        picture. From 1024 up the picture is contained and the copy's
@@ -4160,7 +4212,7 @@ body {
   );
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   :root:not(.light) .hero-slider__slide--still .securevision-video-shade {
     /* The artwork paints its own title block down the left of the
        picture. From 1024 up the picture is contained and the copy's

@@ -116,6 +116,57 @@ function useLauncherParked(open: boolean, pathname: string | null) {
 }
 
 /**
+ * THE DESKTOP PILL STEPS ASIDE FOR A PRODUCT HERO'S PAINTED RAIL.
+ * =============================================================================
+ * The MobilityCare and SecureVision heroes paint their twelve products —
+ * circles, names and one-line descriptions — across the foot of the picture,
+ * edge to edge. On laptops and up that strip runs into the bottom-right
+ * corner, so the fixed pill sat on the last product's description on first
+ * view (ClinicalTrials, Watchlist). From 1280px, on a page with one of those
+ * heroes, the pill parks while the strip is on screen and comes back once the
+ * page has scrolled past it. No other page and no other width is affected.
+ */
+function useHeroRailParked(open: boolean, pathname: string | null) {
+  const [parked, setParked] = useState(false);
+
+  useEffect(() => {
+    setParked(false);
+    const desktop = window.matchMedia("(min-width: 1280px)");
+    const hero = document.querySelector<HTMLElement>(".mobilitycare-hero, .securevision-hero");
+    if (!hero) return;
+
+    let frame = 0;
+    const apply = () => {
+      frame = 0;
+      if (!desktop.matches) {
+        setParked(false);
+        return;
+      }
+      const r = hero.getBoundingClientRect();
+      /* The strip starts ~58% down the hero's picture; parked while any of
+         it is still above the viewport's bottom edge and on screen. */
+      const stripTop = r.top + r.height * 0.55;
+      setParked(stripTop < window.innerHeight && r.bottom > 80);
+    };
+    const onChange = () => {
+      if (!frame) frame = window.requestAnimationFrame(apply);
+    };
+    window.addEventListener("scroll", onChange, { passive: true });
+    window.addEventListener("resize", onChange);
+    desktop.addEventListener?.("change", onChange);
+    apply();
+    return () => {
+      window.removeEventListener("scroll", onChange);
+      window.removeEventListener("resize", onChange);
+      desktop.removeEventListener?.("change", onChange);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [pathname]);
+
+  return parked && !open;
+}
+
+/**
  * ASK GAITAI — the mount point.
  * =============================================================================
  * One instance, at the app root, over every route. It OVERLAYS the page: it
@@ -206,11 +257,12 @@ export function AskGaitAI() {
   }, []);
 
   const parked = useLauncherParked(open, pathname);
+  const heroParked = useHeroRailParked(open, pathname);
 
   if (!ASSISTANT_ENABLED) return null;
 
   return (
-    <div className={styles.root} data-open={open} data-parked={parked}>
+    <div className={styles.root} data-open={open} data-parked={parked} data-hero-parked={heroParked}>
       {open ? (
         <ChatPanel
           page={page}

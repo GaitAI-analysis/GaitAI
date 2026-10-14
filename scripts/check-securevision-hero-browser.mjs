@@ -311,13 +311,19 @@ async function expectHero(page, mode, label) {
     );
   assert.equal(
     s.objectFit,
-    page.viewportSize().width >= 1024 ? "contain" : "cover",
+    page.viewportSize().width >= 1280 ? "contain" : "cover",
   );
-  assert.ok(s.videoBox > 400, `${label}: video box ${s.videoBox}px`);
-  assert.ok(
-    s.heroHeight >= 700,
-    `${label}: hero height ${Math.round(s.heroHeight)}px — the tall treatment`,
-  );
+  /* Below 1280px the picture is the framed 16:10 window beside or under
+     the copy (mobile.css "PRODUCT HEROES"), not the full-bleed tall hero. */
+  if (page.viewportSize().width >= 1280) {
+    assert.ok(s.videoBox > 400, `${label}: video box ${s.videoBox}px`);
+    assert.ok(
+      s.heroHeight >= 700,
+      `${label}: hero height ${Math.round(s.heroHeight)}px — the tall treatment`,
+    );
+  } else {
+    assert.ok(s.videoBox > 150, `${label}: framed video box ${s.videoBox}px`);
+  }
   assert.equal(s.eyebrow, "GaitAI SecureVision · Privacy-first");
   assert.match(
     s.h1Text,
@@ -325,7 +331,7 @@ async function expectHero(page, mode, label) {
   );
   assert.deepEqual(
     s.ctas.map((c) => c.replace(/\d+/, "N")),
-    ["See all N products", "Request enterprise consultation"],
+    ["See all N products", "Request enterprise consultation", "Explore Android app"],
   );
   checks += 1;
   return s;

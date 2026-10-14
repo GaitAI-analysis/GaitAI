@@ -68,20 +68,20 @@ export function MobilityCareHero() {
 
       {/* Content layer */}
       <div className="mobilitycare-hero__content container-wide">
-        <div className="w-full max-w-[640px] lg:max-w-[470px]">
+        <div className="w-full max-w-[640px] xl:max-w-[470px]">
           <div className="inline-flex items-center rounded-full border border-teal-300/30 bg-teal-300/[0.08] px-4 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-teal-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:text-xs">
             GAITAI MOBILITYCARE · MOVEMENT INTELLIGENCE
           </div>
 
           <h1
             id="mobilitycare-hero-title"
-            className="mt-6 text-balance font-display text-[clamp(2.3rem,8vw,3.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-soft-white lg:text-[clamp(2rem,min(2.85vw,4.4svh),3.5rem)]"
+            className="mt-6 text-balance font-display text-[clamp(2.3rem,8vw,3.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-soft-white xl:text-[clamp(2rem,min(2.85vw,4.4svh),3.5rem)]"
           >
             Movement intelligence for assessment, recovery and{" "}
             <span className="text-gradient-mobility">longitudinal care.</span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg lg:mt-5 lg:text-base">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-soft-gray sm:text-lg xl:mt-5 xl:text-base">
             GaitAI exists for a future where AI doesn&apos;t only respond after
             something goes wrong, but quietly helps{" "}
             <span className="text-soft-white">
@@ -90,10 +90,10 @@ export function MobilityCareHero() {
             — before it does.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3 lg:mt-7">
+          <div className="mt-8 flex flex-wrap items-center gap-3 xl:mt-7 xl:w-max xl:flex-nowrap">
             <Link
               href="#products"
-              className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/35 bg-teal-300/[0.1] px-6 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/50 hover:bg-teal-300/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
+              className="hero-product-link hero-product-link--care group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-teal-300/35 bg-teal-300/[0.1] px-6 py-3 text-sm font-semibold xl:px-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:border-teal-300/50 hover:bg-teal-300/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300/70 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
               Explore products
               <ArrowRight
@@ -103,7 +103,7 @@ export function MobilityCareHero() {
             </Link>
             <Link
               href="/#contact"
-              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-soft-white/20 bg-obsidian/40 px-6 py-3 text-sm font-semibold text-soft-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-soft-white/35 hover:bg-obsidian/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-soft-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
+              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-soft-white/20 bg-obsidian/40 px-6 py-3 text-sm font-semibold xl:px-5 text-soft-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-soft-white/35 hover:bg-obsidian/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-soft-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
               {ctas.demo.label}
               <ArrowRight
@@ -113,9 +113,9 @@ export function MobilityCareHero() {
             </Link>
             <Link
               href="#app"
-              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-soft-white/20 bg-obsidian/40 px-6 py-3 text-sm font-semibold text-soft-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-soft-white/35 hover:bg-obsidian/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-soft-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
+              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-soft-white/20 bg-obsidian/40 px-6 py-3 text-sm font-semibold xl:px-5 text-soft-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-soft-white/35 hover:bg-obsidian/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-soft-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-obsidian"
             >
-              Explore the Android app
+              Explore Android app
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
                 aria-hidden="true"

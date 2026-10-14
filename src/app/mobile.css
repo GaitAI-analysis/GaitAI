@@ -407,7 +407,7 @@
 }
 
 /* =========================================================================
-   PRODUCT HEROES (SecureVision, MobilityCare) — below 1024px
+   PRODUCT HEROES (SecureVision, MobilityCare) — below 1280px
    The stills are posters: a painted wordmark and title in their left third
    and a strip of product circles along their foot. Laid behind the copy on
    a phone, both showed through — the circles sat under the buttons. So on
@@ -415,8 +415,15 @@
    then the scene itself, framed, cut from the still between its painted
    title and its strip. The film (dark, second slide) plays in the same
    frame. Nothing about the artwork changes; only the window onto it.
+
+   Up to 1279px, not 1023 (2026-10-14): between 1024 and 1279 the full-bleed
+   desktop hero has no room — the picture is only 0.56 x the width tall, so
+   the copy overflowed under the navbar trail, `cover` scaled the still and
+   cut the first and last product circles, and the 470px copy column ran
+   over the painted analytics cards. Those widths get these same two blocks,
+   side by side (see the 1024px block at the end of this section).
    ========================================================================= */
-@media (max-width: 1023px) {
+@media (max-width: 1279px) {
   .securevision-hero,
   .mobilitycare-hero {
     display: flex;
@@ -587,6 +594,48 @@
   .mobilitycare-hero__content p + div {
     margin-top: 1.5rem;
     gap: 0.625rem;
+  }
+
+  /* Small laptops and tablets in landscape (1024–1279): the same copy and
+     the same framed window onto the scene, side by side instead of stacked,
+     so neither block hugs one edge of a wide screen. The CTAs wrap inside
+     the copy column by design; one row starts at 1280. */
+  @media (min-width: 1024px) {
+    .securevision-hero,
+    .mobilitycare-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      column-gap: clamp(2rem, 4vw, 3.5rem);
+      align-items: center;
+      padding: clamp(2rem, 5svh, 3.5rem) clamp(24px, 3vw, 56px) clamp(2.5rem, 6svh, 4rem);
+    }
+
+    .securevision-hero-inner,
+    .mobilitycare-hero__content {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .securevision-hero > .hero-slider,
+    .mobilitycare-hero > .hero-slider {
+      grid-column: 2;
+      grid-row: 1;
+      max-width: none;
+      margin: 0;
+      align-self: end;
+    }
+
+    .securevision-hero > .hero-slider__dots,
+    .mobilitycare-hero > .hero-slider__dots {
+      grid-column: 2;
+      grid-row: 2;
+      align-self: start;
+      justify-self: center;
+    }
   }
 }
 

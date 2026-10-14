@@ -197,6 +197,12 @@ export function HeroSlider({
       if (h.height <= 0) return;
       const px = Math.max(0, Math.round(c.bottom - h.top));
       hero.style.setProperty("--hero-copy-bottom-px", `${px}px`);
+      /* The copy block's own height: on laptops and up the hero grows by
+         just enough to fit it above the picture's painted product rail
+         (`--hero-need` in globals.css) instead of letting it overflow under
+         the navbar. It depends on the width only, so growing the hero does
+         not change it — no feedback loop. */
+      hero.style.setProperty("--hero-copy-h", `${Math.ceil(c.height)}px`);
     };
     measure();
     const observer = new ResizeObserver(measure);

@@ -179,6 +179,14 @@
   overflow: hidden;
 }
 
+/* Parked over a product hero's painted product strip (useHeroRailParked,
+   1280px and up only): the same exit as the phone park. */
+.root[data-hero-parked="true"] .launcher {
+  opacity: 0;
+  transform: translateY(calc(100% + 1.5rem));
+  pointer-events: none;
+}
+
 /* Out of the way while the panel occupies the same corner. Kept in the DOM,
    and kept focusable, so focus can return to it on close. */
 .launcher[data-hidden="true"] {

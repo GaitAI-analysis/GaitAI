@@ -294,7 +294,7 @@ export default async function InsightArticlePage({
                   <p className={styles.articleSub}>{article.subtitle}</p>
                 )}
                 <p className={styles.articleDeck}>{article.deck}</p>
-                <p className={styles.hook}>{article.openingHook}</p>
+                {article.openingHook && <p className={styles.hook}>{article.openingHook}</p>}
               </ArticleMeta>
             </div>
           </div>
@@ -334,25 +334,23 @@ export default async function InsightArticlePage({
           )}
         </div>
 
-        {/* ─────────── READING MODES · THE 2-MINUTE VERSION ───────────
-            READ is the default and changes nothing. ESSENTIALS opens the same
-            2-minute <details> the article has always had. VISUAL STORY opens a
-            guided sequence of the figures. */}
-        <div className="container-wide">
-          <div className="w-full max-w-[46rem]">
-            {experience ? (
-              <ArticleReadingModes
-                articleSlug={article.slug}
-                articleTitle={article.title}
-                readMinutes={readingMinutes(article)}
-                twoMinute={article.twoMinute}
-                moments={moments}
-              />
-            ) : (
-              <TwoMinute points={article.twoMinute} />
-            )}
+        {article.twoMinute.length > 0 && (
+          <div className="container-wide">
+            <div className="w-full max-w-[46rem]">
+              {experience ? (
+                <ArticleReadingModes
+                  articleSlug={article.slug}
+                  articleTitle={article.title}
+                  readMinutes={readingMinutes(article)}
+                  twoMinute={article.twoMinute}
+                  moments={moments}
+                />
+              ) : (
+                <TwoMinute points={article.twoMinute} />
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* ─────────── SECTION NAV (mobile) ─────────── */}
         <div className="container-wide mt-10 lg:hidden">
@@ -426,21 +424,23 @@ export default async function InsightArticlePage({
                 ))}
               </div>
 
-              <p className="mt-8 text-xs leading-relaxed text-soft-mute">
-                Written by {INSIGHTS_AUTHOR}. GaitAI produces movement
-                measurements and decision-support outputs for research, clinical
-                and operational teams — not diagnoses. Published research is
-                listed in the{" "}
-                <TrackedLink
-                  href="/publications"
-                  event="research_opened"
-                  props={{ article_slug: article.slug, destination: "publications" }}
-                  className="text-cyan-300 underline decoration-cyan-300/35 underline-offset-4"
-                >
-                  publications library
-                </TrackedLink>
-                .
-              </p>
+              {!openingFilm && (
+                <p className="mt-8 text-xs leading-relaxed text-soft-mute">
+                  Written by {INSIGHTS_AUTHOR}. GaitAI produces movement
+                  measurements and decision-support outputs for research, clinical
+                  and operational teams — not diagnoses. Published research is
+                  listed in the{" "}
+                  <TrackedLink
+                    href="/publications"
+                    event="research_opened"
+                    props={{ article_slug: article.slug, destination: "publications" }}
+                    className="text-cyan-300 underline decoration-cyan-300/35 underline-offset-4"
+                  >
+                    publications library
+                  </TrackedLink>
+                  .
+                </p>
+              )}
 
               {/* ── The doors: evidence, GaitScape, the Lab, Ask GaitAI ── */}
               {experience && (

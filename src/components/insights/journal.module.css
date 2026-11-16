@@ -2329,3 +2329,26 @@ details[open] > .summaryBody {
 .filmText {
   flex-basis: 100%;
 }
+
+/* Film stills carry labels at the edge of the frame. Keep the whole frame visible. */
+.card .fullFrameMedia {
+  aspect-ratio: 16 / 9;
+  background: var(--ui-surface-sunken);
+}
+
+.card .fullFrameMedia > img {
+  position: absolute;
+  inset: 0;
+  object-fit: contain;
+  transition: none;
+}
+
+.card .fullFrameMedia::after {
+  display: none;
+}
+
+.card:hover .cardMedia.fullFrameMedia > img,
+.card:focus-within .cardMedia.fullFrameMedia > img {
+  transform: none;
+  filter: none;
+}

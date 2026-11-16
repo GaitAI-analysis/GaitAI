@@ -145,6 +145,7 @@ export function InsightCard({
   const topic = story.topics[0];
   const artwork = story.coverArtwork;
   const validImage = artwork.kind === "image" && isSafeMediaUrl(artwork.src);
+  const fullFrame = artwork.kind === "image" && artwork.fullFrame;
   const article = story.source === "editorial" ? getInsightBySlug(story.slug) : undefined;
 
   return (
@@ -161,7 +162,7 @@ export function InsightCard({
       <span aria-hidden="true" className={styles.hairline} />
       <ImpressionSentinel slug={story.slug} surface={preview ? "explorer" : "hub"} />
 
-      <div className={journal.cardMedia}>
+      <div className={`${journal.cardMedia}${fullFrame ? ` ${journal.fullFrameMedia}` : ""}`}>
         {artwork.kind === "concept" ? (
           <>
             <CardInteraction concept={artwork.concept} slug={story.slug} />
@@ -185,7 +186,7 @@ export function InsightCard({
             <span className={publication.signalDot} />
           </div>
         )}
-        {seriesMark && (
+        {seriesMark && !fullFrame && (
           <span aria-hidden="true" className={styles.step}>
             {seriesMark.label}
             {seriesMark.number && (
@@ -196,7 +197,7 @@ export function InsightCard({
             )}
           </span>
         )}
-        {artwork.kind !== "concept" && <span aria-hidden="true" className={journal.cardMediaScrim} />}
+        {!fullFrame && artwork.kind !== "concept" && <span aria-hidden="true" className={journal.cardMediaScrim} />}
       </div>
 
       <div className={`${journal.cardBody} ${styles.depth}`}>

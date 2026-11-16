@@ -37,6 +37,7 @@ export function PublicationCard({
   const topic = story.topics[0];
   const artwork = story.coverArtwork;
   const validImage = artwork.kind === "image" && isSafeMediaUrl(artwork.src);
+  const fullFrame = artwork.kind === "image" && artwork.fullFrame;
   /* The series identity, as one mono micro label — never a badge. */
   const mark = seriesMark(story.series, story.seriesOrder);
 
@@ -48,7 +49,7 @@ export function PublicationCard({
     >
       <span aria-hidden="true" className={journal.cardAccent} />
       <ImpressionSentinel slug={story.slug} surface="series" />
-      <div className={journal.cardMedia}>
+      <div className={`${journal.cardMedia}${fullFrame ? ` ${journal.fullFrameMedia}` : ""}`}>
         {artwork.kind === "concept" ? (
           <>
             <JournalCover concept={artwork.concept} />
@@ -72,7 +73,7 @@ export function PublicationCard({
             <span className={styles.signalDot} />
           </div>
         )}
-        <span aria-hidden="true" className={journal.cardMediaScrim} />
+        {!fullFrame && <span aria-hidden="true" className={journal.cardMediaScrim} />}
       </div>
 
       <div className={journal.cardBody}>

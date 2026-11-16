@@ -69,6 +69,7 @@ export function insightToPublicationStory(article: InsightArticle): PublicationS
           alt: article.cover.alt,
           width: article.cover.image.width,
           height: article.cover.image.height,
+          fullFrame: article.intro.some((block) => block.type === "video"),
         }
       : {
           kind: "concept",

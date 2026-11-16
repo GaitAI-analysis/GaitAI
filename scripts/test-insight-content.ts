@@ -74,11 +74,16 @@ async function main() {
     }
     assert.ok(existsSync(join(root, "public", article.hero.src)), `${where}: social card exists at ${article.hero.src}`);
 
-    /* The Foundations were written before this rule; the recurring series
-       are held to long-form length. */
-    const words = articleWordCount(article);
-    const minimum = seriesName === FOUNDATIONS_SERIES ? 600 : 900;
-    assert.ok(words >= minimum, `${where}: has at least ${minimum} words (has ${words})`);
+    const openingFilm = article.intro[1];
+    if (openingFilm?.type === "video") {
+      for (const asset of [openingFilm.src, openingFilm.poster, openingFilm.captions]) {
+        if (asset) assert.ok(existsSync(join(root, "public", asset)), `${where}: film asset exists at ${asset}`);
+      }
+    } else {
+      const words = articleWordCount(article);
+      const minimum = seriesName === FOUNDATIONS_SERIES ? 600 : 900;
+      assert.ok(words >= minimum, `${where}: has at least ${minimum} words (has ${words})`);
+    }
 
     const text = JSON.stringify(article);
     const metric = text.match(FAKE_METRIC);

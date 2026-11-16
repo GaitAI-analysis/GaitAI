@@ -15,6 +15,7 @@ export type PublicationArtwork =
       alt: string;
       width: number;
       height: number;
+      fullFrame?: boolean;
     }
   | { kind: "none" };
 

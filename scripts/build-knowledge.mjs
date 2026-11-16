@@ -270,6 +270,10 @@ function blockText(block) {
         .join(" ");
     case "gaitcycle":
       return block.caption ? unmark(block.caption) : "";
+    case "video":
+      return [`Film: ${block.title} (${block.duration})`, block.caption && unmark(block.caption)]
+        .filter(Boolean)
+        .join(". ");
     default:
       return typeof block.text === "string" ? unmark(block.text) : "";
   }

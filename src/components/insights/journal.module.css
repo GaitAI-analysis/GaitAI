@@ -2295,3 +2295,51 @@ details[open] > .summaryBody {
     transform: none;
   }
 }
+
+/* ── An embedded film ──
+   A film sits in the body column like a figure: the frame takes the card
+   radius and hairline every other plate uses, and the caption under it is
+   set like a figure caption — the film's name in ink, its runtime in mono,
+   one line in the muted body colour. The player is the browser's own, so
+   controls, captions and full-screen behave as a reader expects. */
+.film {
+  margin: 2.25rem 0 0;
+}
+.filmFrame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--ui-radius-card);
+  border: 1px solid var(--jr-line);
+  background: var(--ui-surface-sunken);
+}
+.filmVideo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.filmCaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
+  margin-top: 0.9rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--jr-mute);
+}
+.filmTitle {
+  font-weight: 600;
+  color: var(--jr-ink);
+}
+.filmMeta {
+  font-family: var(--ui-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.filmText {
+  flex-basis: 100%;
+}

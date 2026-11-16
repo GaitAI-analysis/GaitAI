@@ -310,6 +310,13 @@ export default async function InsightArticlePage({
                in place of the still cover. The drawn cover still carries the
                story on the hub and in every card. */
             <ArticleHero experience={experience} />
+          ) : article.cover.image ? (
+            /* A film story: the film itself, embedded in the body with its
+               poster, is the hero. Repeating the same still here would put
+               two copies of one frame a scroll apart, so the slot stays
+               empty and the headline hands straight over to the reading
+               modes and the opening paragraph. */
+            null
           ) : (
             <figure className={styles.articleMedia}>
               <JournalCover concept={article.cover.concept} />

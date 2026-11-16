@@ -1,0 +1,64 @@
+WEBVTT
+
+00:02.223 --> 00:03.760
+What can a walk reveal?
+
+00:04.223 --> 00:06.690
+GaitAI ForensicSearch.
+
+00:07.208 --> 00:08.409
+Two street recordings.
+
+00:08.616 --> 00:09.433
+One question:
+
+00:09.896 --> 00:11.390
+could this be the same person?
+
+00:13.111 --> 00:14.439
+Watch the white shoe.
+
+00:14.519 --> 00:15.250
+It lands.
+
+00:15.543 --> 00:17.426
+Then the same foot returns.
+
+00:17.676 --> 00:19.770
+That is one complete gait cycle.
+
+00:20.012 --> 00:23.140
+Pose estimation follows the joints through
+each frame.
+
+00:23.817 --> 00:26.900
+Silhouette extraction separates the walker
+from the scene.
+
+00:27.071 --> 00:29.807
+Recording A contains two complete cycles.
+
+00:29.844 --> 00:31.880
+Recording B contains five.
+
+00:32.020 --> 00:35.510
+The gait energy image averages the aligned
+silhouettes.
+
+00:36.165 --> 00:38.646
+Ninety-nine point two in recording A.
+
+00:38.864 --> 00:41.220
+Ninety-six point four in recording B.
+
+00:42.114 --> 00:44.230
+Step-time asymmetry is withheld.
+
+00:52.640 --> 00:55.030
+The conclusion must follow the evidence.
+
+00:55.423 --> 00:57.890
+GaitAI ForensicSearch.
+
+00:57.941 --> 00:59.480
+Request a Demonstration.

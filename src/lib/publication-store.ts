@@ -60,11 +60,21 @@ export function insightToPublicationStory(article: InsightArticle): PublicationS
     topics,
     author,
     featured: article.featured ?? false,
-    coverArtwork: {
-      kind: "concept",
-      concept: article.cover.concept,
-      alt: article.cover.alt,
-    },
+    /* A film story's cover is a still from its own film; every other story
+       keeps its drawn concept. */
+    coverArtwork: article.cover.image
+      ? {
+          kind: "image",
+          src: article.cover.image.src,
+          alt: article.cover.alt,
+          width: article.cover.image.width,
+          height: article.cover.image.height,
+        }
+      : {
+          kind: "concept",
+          concept: article.cover.concept,
+          alt: article.cover.alt,
+        },
     tags: article.tags,
     relatedProducts: cleanList(article.relatedProducts),
     relatedResearch: cleanList(article.relatedResearch),

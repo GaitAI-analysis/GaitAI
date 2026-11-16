@@ -13,6 +13,9 @@ import { cameraAngleChangesWhatAiSees } from "./camera-angle-changes-what-ai-see
 import { canASkeletonStillRevealIdentity } from "./can-a-skeleton-still-reveal-identity";
 import { aGoodModelCanStillBeABadSystem } from "./a-good-model-can-still-be-a-bad-system";
 import { whatIsAPersonalMovementBaseline } from "./what-is-a-personal-movement-baseline";
+import { whatCanAWalkReveal } from "./what-can-a-walk-reveal";
+import { howGaitaiComparesTwoWalkingVideos } from "./how-gaitai-compares-two-walking-videos";
+import { insideAGaitComparison } from "./inside-a-gait-comparison-what-the-footage-can-support";
 
 export const phaseTwoArticles: InsightArticle[] = [
   whenPoseEstimationLies,
@@ -21,4 +24,8 @@ export const phaseTwoArticles: InsightArticle[] = [
   canASkeletonStillRevealIdentity,
   aGoodModelCanStillBeABadSystem,
   whatIsAPersonalMovementBaseline,
+  /* ForensicSearch Demonstrations — three films, in viewing order. */
+  whatCanAWalkReveal,
+  howGaitaiComparesTwoWalkingVideos,
+  insideAGaitComparison,
 ];

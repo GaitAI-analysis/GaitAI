@@ -5,6 +5,7 @@ import type { InsightBlock } from "@/data/insights";
 import type { InsightTerm } from "@/data/insight-terms";
 import { GaitCycleDiagram, StateStrip, TrendTrack } from "./diagrams";
 import { InspectableTerm } from "./experience/InspectableTerm";
+import { assetPath } from "@/lib/paths";
 import styles from "./journal.module.css";
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -313,6 +314,46 @@ function Block({ block, ctx }: { block: InsightBlock; ctx?: TermContext }) {
 
     case "trend":
       return <TrendTrack points={block.points} caption={block.caption} />;
+
+    case "video":
+      /* A self-hosted film. Playback is user-initiated — no autoplay, no
+         muted loop — and `preload="metadata"` means the browser fetches the
+         moov atom and nothing else until play is pressed, so the poster is
+         the only weight a reader who never watches pays. The captions ride
+         along as a WebVTT track the native controls expose; the embedded
+         mov_text track in the delivery MP4 is not something browsers show,
+         so the sidecar is the one that counts. */
+      return (
+        <figure className={styles.film}>
+          <div className={styles.filmFrame}>
+            <video
+              className={styles.filmVideo}
+              controls
+              preload="metadata"
+              playsInline
+              poster={assetPath(block.poster)}
+              width={block.width}
+              height={block.height}
+              aria-label={block.title}
+            >
+              <source src={assetPath(block.src)} type="video/mp4" />
+              {block.captions && (
+                <track kind="captions" srcLang="en" label="English" src={assetPath(block.captions)} />
+              )}
+              Your browser does not support embedded video.{" "}
+              <a href={assetPath(block.src)}>Download the film</a>.
+            </video>
+          </div>
+          <figcaption className={styles.filmCaption}>
+            <span className={styles.filmTitle}>{block.title}</span>
+            <span className={styles.filmMeta}>
+              {block.duration}
+              {block.captions ? " · English captions" : ""}
+            </span>
+            {block.caption && <span className={styles.filmText}>{block.caption}</span>}
+          </figcaption>
+        </figure>
+      );
 
     case "note":
       return (

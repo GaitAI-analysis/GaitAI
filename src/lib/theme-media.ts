@@ -259,6 +259,44 @@ export const themeMedia = {
     height: 540,
   },
 
+  /* ── Blog films: the ForensicSearch demonstrations ───────────────────────
+     Three finished films embedded in the Insights articles through the
+     `video` prose block (InsightProse), played in the browser's own player.
+     They are editorial content, not theme art: the same graded cut is the
+     film in both themes, the way a newsroom post's video would be, so each
+     is an island. Sources: the 2026-11-14 R2 delivery, re-encoded for the
+     web (H.264 High, AAC, faststart). Posters are frames from each film. */
+  forensicSearchOpeningFilm: {
+    kind: "island",
+    type: "video",
+    dark: "/assets/videos/insights/forensicsearch/opening.mp4",
+    darkPoster: "/assets/images/insights/video/forensicsearch-opening-poster.jpg",
+    island:
+      "A finished editorial film (the 8.5 s ForensicSearch opening) shown in the browser's player; a film is the same cut in both themes and is not re-graded for light mode.",
+    width: 1920,
+    height: 1080,
+  },
+  forensicSearchFlagshipFilm: {
+    kind: "island",
+    type: "video",
+    dark: "/assets/videos/insights/forensicsearch/flagship.mp4",
+    darkPoster: "/assets/images/insights/video/forensicsearch-flagship-poster.jpg",
+    island:
+      "A finished editorial film (the 60 s ForensicSearch demonstration) shown in the browser's player; a film is the same cut in both themes and is not re-graded for light mode.",
+    width: 1920,
+    height: 1080,
+  },
+  forensicSearchTechnicalFilm: {
+    kind: "island",
+    type: "video",
+    dark: "/assets/videos/insights/forensicsearch/technical.mp4",
+    darkPoster: "/assets/images/insights/video/forensicsearch-technical-poster.jpg",
+    island:
+      "A finished editorial film (the 1:48 ForensicSearch technical walkthrough) shown in the browser's player; a film is the same cut in both themes and is not re-graded for light mode.",
+    width: 1920,
+    height: 1080,
+  },
+
   /* ── Homepage hero ──────────────────────────────────────────────────────
      NOT HERE ANY MORE. The hero used to be one flattened 1774×887 PNG per
      theme registered as `platformHero`, with the headline, the three pills,

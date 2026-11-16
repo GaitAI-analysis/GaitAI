@@ -128,6 +128,29 @@ export type InsightBlock =
       caption?: string;
       /** Point labels along the track, left to right. */
       points: string[];
+    }
+  /**
+   * An embedded film — a self-hosted MP4 with a poster frame and, where the
+   * cut has them, English captions as a WebVTT track. Playback is always
+   * user-initiated and only metadata is preloaded, so a page that carries a
+   * film costs a reader one poster image until they press play.
+   */
+  | {
+      type: "video";
+      /** Root-relative MP4 under /public (H.264, faststart). */
+      src: string;
+      /** Root-relative poster frame drawn from the film itself. */
+      poster: string;
+      /** Root-relative WebVTT captions, when the cut has them. */
+      captions?: string;
+      /** The film's name, read by assistive tech and printed under it. */
+      title: string;
+      /** Runtime as printed, e.g. "1:48". */
+      duration: string;
+      /** One line under the player: what the film shows. */
+      caption?: string;
+      width: number;
+      height: number;
     };
 
 export interface InsightSection {
@@ -270,7 +293,17 @@ export interface InsightArticle {
    * were four variations of one glowing walker, which made the archive read
    * as a template and told a reader nothing about which essay was which.
    */
-  cover: { concept: CoverConcept; alt: string };
+  cover: {
+    concept: CoverConcept;
+    alt: string;
+    /**
+     * A still drawn from the article's own film, for a story whose cover IS
+     * a film. Where present it replaces the drawn concept on the hub, the
+     * cards and the article hero; the concept stays as the fallback every
+     * other surface already understands.
+     */
+    image?: { src: string; width: number; height: number };
+  };
   tags: string[];
   /** Optional relationship keys used by deterministic related-story scoring. */
   relatedProducts?: string[];
@@ -302,7 +335,10 @@ export const insightArticles: InsightArticle[] = [
     category: "Technical Essay",
     topics: ["movement-intelligence", "research"],
     date: "2026-08-26",
-    featured: true,
+    /* The editorial flag moved to the ForensicSearch 60-second demonstration
+       on 2026-11-16 (`how-gaitai-compares-two-walking-videos`), which is now
+       the Blog's cover story. Restore `featured: true` here to bring the
+       Foundations cover back. */
     excerpt:
       "A walking video looks simple. Turning it into reliable movement intelligence is not. Inside the pipeline from capture and pose estimation to gait features, sensor fusion and actionable outputs.",
     question: "What does an AI system actually see when you walk?",
@@ -1777,6 +1813,8 @@ function blockWords(block: InsightBlock): number {
       );
     case "trend":
       return words(block.caption, block.points);
+    case "video":
+      return words(block.title, block.caption);
   }
 }
 

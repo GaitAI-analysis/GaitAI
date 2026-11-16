@@ -29,7 +29,8 @@ export type InsightSeriesId =
   | "ai-under-stress"
   | "privacy-by-architecture"
   | "movement-stories"
-  | "field-notes";
+  | "field-notes"
+  | "forensicsearch-demonstrations";
 
 export type SeriesAccent = "amber" | "cyan" | "violet" | "teal";
 
@@ -145,6 +146,17 @@ export const INSIGHT_SERIES: InsightSeries[] = [
     kind: "notes",
     accent: "violet",
     order: 8,
+  },
+  {
+    id: "forensicsearch-demonstrations",
+    name: "ForensicSearch Demonstrations",
+    slug: "forensicsearch-demonstrations",
+    label: "ForensicSearch",
+    description:
+      "Three short films, in viewing order, on how two walking recordings are compared for human review: what a walk shows, what the software measures, and what the footage can and cannot support.",
+    kind: "strand",
+    accent: "teal",
+    order: 9,
   },
 ];
 

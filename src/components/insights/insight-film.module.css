@@ -1,0 +1,64 @@
+.film {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-surface-sunken);
+}
+
+.film video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.action {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  pointer-events: none;
+}
+
+.play {
+  composes: btn-ghost from global;
+  background: var(--ui-surface-solid);
+  color: var(--ui-ink);
+  border-color: var(--ui-line-strong);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: 100%;
+  min-height: 44px;
+  padding: 0.65rem 1rem;
+  pointer-events: auto;
+}
+
+.play:hover,
+.play:focus-visible {
+  background: var(--ui-surface-solid);
+  color: var(--ui-ink);
+  border-color: var(--ui-focus);
+}
+
+.play svg,
+.duration {
+  flex-shrink: 0;
+}
+
+.duration {
+  font-family: var(--ui-font-mono);
+  font-size: 0.75em;
+}
+
+.error {
+  padding: 0.75rem 1rem;
+  color: var(--ui-body);
+}
+
+.error a {
+  text-decoration: underline;
+}

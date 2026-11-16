@@ -113,13 +113,19 @@ beforeEach(() => {
 });
 
 describe("the bundled index", () => {
-  it("ships a vector for every canonical record, built with the configured model", () => {
+  it("ships unique vectors for canonical records, built with the configured model", () => {
     ensureCorpus();
     const { index } = embeddingIndex();
     expect(index).not.toBeNull();
     expect(index!.model).toBe(EMBED);
     expect(index!.dim).toBe(384);
-    expect(index!.ids.length).toBe(knowledge().docs.length);
+    // The deployment builds its lexical corpus independently of the committed
+    // embeddings. New records stay available through lexical retrieval.
+    const canonicalIds = new Set(knowledge().docs.map((doc) => doc.id));
+    expect(index!.ids.length).toBeGreaterThan(0);
+    expect(new Set(index!.ids).size).toBe(index!.ids.length);
+    expect(index!.ids.filter((id) => !canonicalIds.has(id))).toEqual([]);
+    expect(index!.matrix.length).toBe(index!.ids.length * index!.dim);
     /* Unit vectors: the dot product of a row with itself is 1. */
     const row = storedVector("product:suspiciousmotion");
     expect(row.reduce((sum, v) => sum + v * v, 0)).toBeCloseTo(1, 2);

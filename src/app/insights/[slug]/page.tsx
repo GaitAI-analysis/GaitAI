@@ -150,6 +150,7 @@ export default async function InsightArticlePage({
      exactly as before. */
   const experience = getArticleExperience(article.slug);
   const moments = experience ? buildMoments(experience) : [];
+  const openingFilm = article.intro[1]?.type === "video";
   const sectionIds = article.sections.map((section) => section.id);
   /* THE SERIES. Every article belongs to one editorial series (see
      data/insight-series.ts); the Foundations are the ordered reading path and
@@ -305,7 +306,11 @@ export default async function InsightArticlePage({
             near-identical glowing walkers; the raster survives only as the
             share-card image, where an absolute URL is required. */}
         <div className="container-wide">
-          {experience ? (
+          {openingFilm ? (
+            <div className="max-w-[54rem]">
+              <InsightProse blocks={article.intro.slice(0, 2)} />
+            </div>
+          ) : experience ? (
             /* The article's own interactive hero — the argument, explorable,
                in place of the still cover. The drawn cover still carries the
                story on the hub and in every card. */
@@ -358,7 +363,7 @@ export default async function InsightArticlePage({
         <div className="container-wide">
           <div className="mt-10 grid gap-14 lg:mt-16 lg:grid-cols-[minmax(0,1fr)_210px] lg:gap-16">
             <div className="w-full max-w-[46rem]">
-              <InsightProse blocks={article.intro} />
+              <InsightProse blocks={openingFilm ? article.intro.slice(2) : article.intro} />
 
               {article.sections.map((section, index) => (
                 <section key={section.id} className={styles.section}>

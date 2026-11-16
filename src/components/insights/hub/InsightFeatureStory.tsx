@@ -12,6 +12,7 @@ import { seriesMark } from "@/data/insight-series";
 import journal from "../journal.module.css";
 import { CardInteraction } from "./CardInteraction";
 import { ImpressionSentinel } from "../experience/ImpressionSentinel";
+import { InsightFilmPlayer } from "../InsightFilmPlayer";
 import { usePhysicalCard } from "./InsightCard";
 import styles from "./hub.module.css";
 
@@ -44,6 +45,7 @@ const TOPIC_CLASS: Record<string, string> = {
 export function InsightFeatureStory({ story, views }: { story: PublicationStory; views?: number }) {
   const { ref, pointer, handlers } = usePhysicalCard();
   const article = getInsightBySlug(story.slug);
+  const film = article?.intro.find((block) => block.type === "video");
   const topic = story.topics[0];
   const artwork = story.coverArtwork;
   const mark = seriesMark(story.series, story.seriesOrder);
@@ -64,7 +66,12 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
       <ImpressionSentinel slug={story.slug} surface="cover" />
 
       <div className={`${journal.cardMedia} ${styles.featureMedia}`}>
-        {artwork.kind === "concept" && (
+        {film && (
+          <div className="absolute inset-0 z-[6] grid content-center">
+            <InsightFilmPlayer film={film} playLabel="Play the flagship demo" preload="none" />
+          </div>
+        )}
+        {!film && artwork.kind === "concept" && (
           <>
             <CardInteraction concept={artwork.concept} slug={story.slug} large />
             <span className="sr-only">{artwork.alt}</span>
@@ -73,7 +80,7 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
         {/* An announcement's cover is a real screenshot of the product it
             announces — the same image its own page shows — so the cover
             story carries the raster and the scrim the ordinary cards use. */}
-        {artwork.kind === "image" && isSafeMediaUrl(artwork.src) && (
+        {!film && artwork.kind === "image" && isSafeMediaUrl(artwork.src) && (
           <>
             <img
               src={assetPath(artwork.src)}
@@ -119,7 +126,7 @@ export function InsightFeatureStory({ story, views }: { story: PublicationStory;
         <p className={styles.featureTeaser}>{story.description}</p>
 
         <span className={`${journal.cardCta} ${styles.featureCta}`}>
-          {isLaunch ? "Read the announcement" : "Explore story"}
+          {film ? "Read the flagship story" : isLaunch ? "Read the announcement" : "Explore story"}
           <span aria-hidden="true" className={journal.cardCtaArrow}>
             →
           </span>

@@ -2305,20 +2305,6 @@ details[open] > .summaryBody {
 .film {
   margin: 2.25rem 0 0;
 }
-.filmFrame {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--ui-radius-card);
-  border: 1px solid var(--jr-line);
-  background: var(--ui-surface-sunken);
-}
-.filmVideo {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 .filmCaption {
   display: flex;
   flex-wrap: wrap;

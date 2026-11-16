@@ -77,7 +77,7 @@ export const whatCanAWalkReveal: InsightArticle = {
   intro: [
     {
       type: "lead",
-      text: "Most of what people expect a security camera to deliver is a face. The opening film of this series offers none. A man in a dark jacket walks away down a bright corridor, the camera stays behind him, and after eight and a half seconds a question appears beside him and the film ends.",
+      text: "What can a camera still show when a person walks away and their face is out of view? In the opening film, a man in a dark jacket walks down a bright corridor. Watch the direction of travel and the rhythm of his steps as he moves away from the camera.",
     },
     {
       type: "video",
@@ -85,7 +85,7 @@ export const whatCanAWalkReveal: InsightArticle = {
       poster: "/assets/images/insights/video/forensicsearch-opening-poster.jpg",
       captions: "/assets/videos/insights/forensicsearch/opening.en.vtt",
       title: "What can a walk reveal? — the opening film",
-      duration: "0:08",
+      duration: "0:08.5",
       caption:
         "The opening of the ForensicSearch series. A corridor, a man walking away, and no face at any point. Film 1 of 3.",
       width: 1920,
